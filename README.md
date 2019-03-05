@@ -510,3 +510,17 @@ To generate a "requirements" file (usually requirements.txt), that you commit wi
 $ pip3 freeze > requirements.txt
 ```
 
+## Publishing
+
+Generate distribution package. Make sure you have the latest versions of `setuptools` and `wheel` installed:
+
+```bash
+$ python3 -m pip install --user --upgrade setuptools wheel
+$ python3 setup.py sdist bdist_wheel
+```
+Upload package with `twine`:
+
+```bash
+$ python3 -m pip install --user --upgrade twine
+$ python3 -m twine dist/*
+```

@@ -1,0 +1,3 @@
+include README.md
+include knora/knora-schema.json
+include knora/knora-schema-lists.json

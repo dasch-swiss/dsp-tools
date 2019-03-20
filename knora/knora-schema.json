@@ -1,0 +1,315 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://knora.org/pyknora/ontology/knora-schema.json",
+  "title": "Knora JSON schema",
+  "description": "JSON Schema for Knora ontologies",
+
+  "definitions": {
+    "label": {
+      "type": "object",
+      "patternProperties": {
+        "^(en|de|fr|it)": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "description": {
+      "type": "object",
+      "patternProperties": {
+        "^(en|de|fr|it)": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "comment": {
+      "type": "object",
+      "patternProperties": {
+        "^(en|de|fr|it)": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "user": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "givenName": {
+          "type": "string"
+        },
+        "familyName": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "lang": {
+          "pattern": "^(en|de|fr|it)"
+        }
+      },
+      "required": ["username", "email", "givenName", "familyName", "password"]
+    },
+
+    "node": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "labels": {
+          "$ref": "#/definitions/label"
+        },
+        "comments": {
+          "$ref": "#/definitions/comment"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/node"
+          }
+        }
+      },
+      "required": ["name", "labels"],
+      "additionalProperties": false
+    },
+
+    "resource": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "super": {
+          "type": "string",
+          "oneOf": [
+            {
+              "enum": [
+                "Resource",
+                "StillImageRepresentation",
+                "TextRepresentation",
+                "AudioRepresentation",
+                "DDDRepresentation",
+                "DocumentRepresentation",
+                "MovingImageRepresentation",
+                "Annotation",
+                "LinkObj",
+                "Region"
+              ]
+            },
+            {
+              "pattern": "^([\\w-]*):(\\w+)$"
+            }
+          ]
+        },
+        "labels": {
+          "$ref": "#/definitions/label"
+        },
+        "comments": {
+          "$ref": "#/definitions/comment"
+        },
+        "properties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/property"
+          }
+        }
+      },
+      "required": ["name", "super", "labels", "properties"],
+      "additionalProperties": false
+    },
+
+    "property": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "super": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "oneOf": [
+              {
+                "enum": [
+                  "hasValue",
+                  "hasLinkTo",
+                  "hasColor",
+                  "hasComment",
+                  "hasGeometry",
+                  "isPartOf",
+                  "isRegionOf",
+                  "isAnnotationOf",
+                  "seqnum"
+                ]
+              },
+              {
+                "pattern": "^([\\w-]+):(\\w+)$"
+              }
+            ]
+          }
+        },
+        "object": {
+          "type": "string",
+          "oneOf": [
+            {
+              "enum": [
+                "TextValue",
+                "ColorValue",
+                "DateValue",
+                "DecimalValue",
+                "GeomValue",
+                "GeonameValue",
+                "IntValue",
+                "BooleanValue",
+                "UriValue",
+                "IntervalValue",
+                "ListValue"
+              ]
+            },
+            {
+              "pattern": "^([\\w-]+):(\\w+)$"
+            }
+          ]
+        },
+        "subject": {
+          "type": "string",
+          "pattern": "^([\\w-]+):(\\w+)$"
+        },
+
+        "labels": {
+          "$ref": "#/definitions/label"
+        },
+        "cardinality": {
+          "type": "string",
+          "enum": ["1", "0-1", "1-n", "0-n"]
+        },
+        "gui_element": {
+          "type": "string",
+          "oneOf": [
+            {
+              "enum": [
+                "Colorpicker",
+                "Date",
+                "Geometry",
+                "Geonames",
+                "Interval",
+                "List",
+                "Pulldown",
+                "Radio",
+                "Richtext",
+                "Searchbox",
+                "SimpleText",
+                "Slider",
+                "Spinbox",
+                "Textarea",
+                "Checkbox",
+                "Fileupload"
+              ]
+            },
+            {
+              "pattern": "^([\\w-]+):(\\w+)$"
+            }
+          ]
+        },
+        "gui_attributes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "comments": {
+          "$ref": "#/definitions/comment"
+        }
+      },
+      "required": ["name", "object", "labels", "gui_element"],
+      "additionalProperties": false
+    }
+  },
+
+  "type": "object",
+  "properties": {
+    "prefixes": {
+      "type": "object",
+      "patternProperties": {
+        "^[\\w-]+$": { "format" : "uri" }
+      },
+      "additionalProperties": false
+    },
+
+    "project": {
+      "type": "object",
+      "properties": {
+        "shortcode": {
+          "type": "string",
+          "pattern": "^[0-9A-F]{4}$"
+        },
+        "shortname": {
+          "type": "string"
+        },
+        "longname": {
+          "type": "string"
+        },
+        "descriptions": {
+          "$ref": "#/definitions/description"
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/user"
+          }
+        },
+
+        "lists": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/node"
+          }
+        },
+
+        "ontology": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "comments": {
+              "$ref": "#/definitions/comment"
+            },
+            "resources": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/resource"
+              }
+            }
+          },
+          "required": ["name", "label", "resources"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["shortcode", "shortname", "longname", "ontology"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["project"],
+  "additionalProperties": false
+}

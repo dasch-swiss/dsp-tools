@@ -515,12 +515,37 @@ $ pip3 freeze > requirements.txt
 Generate distribution package. Make sure you have the latest versions of `setuptools` and `wheel` installed:
 
 ```bash
-$ python3 -m pip install --user --upgrade setuptools wheel
+$ python3 -m pip install --user --upgrade pip setuptools wheel
 $ python3 setup.py sdist bdist_wheel
 ```
-Upload package with `twine`:
+
+You can install the package locally from the dist:
 
 ```bash
-$ python3 -m pip install --user --upgrade twine
+$ python3 -m pip ./dist/some_name.whl
+```
+
+Upload package with `twine`,
+
+first create `~/.pypirc`:
+
+```bash
+[distutils] 
+index-servers=pypi
+[pypi] 
+repository = https://upload.pypi.org/legacy/ 
+username =your_username_on_pypi
+```
+
+then upload:
+
+```bash
+$ python3 -m pip install --user --upgrade tqdm twine
 $ python3 -m twine dist/*
+```
+
+For local development:
+
+```bash
+$ python3 setup.py develop
 ```

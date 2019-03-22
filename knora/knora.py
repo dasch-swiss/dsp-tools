@@ -92,9 +92,9 @@ class knora:
     def __init__(self, server: str, email: str, password: str, prefixes: Dict[str,str] = None):
         """
         Constructor requiring the server address, the user and password of KNORA
-        :param server: Adress of the server, e.g http://data.dasch.swiss
-        :param user: Username for Knora e.g., root@example.com
-        :param password: The password, e.g. test
+        :param server: Address of the server, e.g http://data.dasch.swiss
+        :param email: Email of user, e.g., root@example.com
+        :param password: Password of the user, e.g. test
         """
         self.server = server
         self.prefixes = prefixes
@@ -105,21 +105,25 @@ class knora:
         }
         jsondata = json.dumps(credentials)
 
-        req = requests.post(self.server + '/v2/authentication',
-                            headers={'Content-Type': 'application/json; charset=UTF-8'},
-                            data=jsondata)
+        req = requests.post(
+            self.server + '/v2/authentication',
+            headers={'Content-Type': 'application/json; charset=UTF-8'},
+            data=jsondata
+        )
+
         self.on_api_error(req)
 
         result = req.json()
         self.token = result["token"]
 
     def __del__(self):
-        req = requests.delete(self.server + '/v2/authentication',
-                              headers={'Authorization': 'Bearer ' + self.token})
+        req = requests.delete(
+            self.server + '/v2/authentication',
+            headers={'Authorization': 'Bearer ' + self.token}
+        )
+
         result = req.json()
-
         pprint.pprint(result)
-
 
 
     def on_api_error(self, res):

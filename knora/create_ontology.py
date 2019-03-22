@@ -1,3 +1,4 @@
+import os
 from typing import List, Set, Dict, Tuple, Optional
 from pprint import pprint
 import argparse
@@ -17,12 +18,14 @@ def main():
 
     args = parser.parse_args()
 
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+
     # let's read the schema for the ontology definition
     if args.lists:
-        with open('knora-schema-lists.json') as s:
+        with open(os.path.join(current_dir, 'knora-schema-lists.json')) as s:
             schema = json.load(s)
     else:
-        with open('knora-schema.json') as s:
+        with open(os.path.join(current_dir, 'knora-schema.json')) as s:
             schema = json.load(s)
 
     # read the ontology definition

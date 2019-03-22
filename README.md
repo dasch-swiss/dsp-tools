@@ -541,7 +541,7 @@ then upload:
 
 ```bash
 $ python3 -m pip install --user --upgrade tqdm twine
-$ python3 -m twine dist/*
+$ python3 -m twine upload dist/*
 ```
 
 For local development:

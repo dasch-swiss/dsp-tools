@@ -6,6 +6,7 @@ import json
 from jsonschema import validate
 from knora import KnoraError, knora
 
+
 def main():
     # parse the arguments of the command line
     parser = argparse.ArgumentParser()

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='knora',
-    version='0.0.4',
+    version='0.0.5',
     description='A Python library and tools for the Knora-API',
     url='https://github.com/dhlab-basel/knora-py',
     author='Lukas Rosenthaler',
@@ -20,10 +20,16 @@ setuptools.setup(
     install_requires=[
         'rdflib',
         'lxml',
-        'validators'
+        'validators',
+        'requests',
+        'jsonschema',
+        'click'
     ],
     entry_points={
-          'console_scripts': ['knora-create-ontology=knora.create_ontology:main'],
+          'console_scripts': [
+              'knora-create-ontology=knora.create_ontology:main',
+              'knoractl=knora.knora_ctl:cli'
+          ],
     },
     include_package_data=True,
     zip_safe=False

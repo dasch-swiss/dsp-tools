@@ -1,3 +1,5 @@
+[![PyPI version](https://badge.fury.io/py/knora.svg)](https://badge.fury.io/py/knora)
+
 # knora-py
 knora-py is a toolbox to create data models (ontologies) and for mass upload of data into the Knora framework. 
 

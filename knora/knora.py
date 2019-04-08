@@ -822,6 +822,180 @@ class knora:
         self.on_api_error(req)
         return req.json()
 
+    def create_resource(self, schema: Dict, res_class: str, label: str, values: Dict):
+        """
+        This method creates a new resource (instance of a resource class) with the
+        default permissions.
+
+        :param schema: The schema of the ontology as returned by the method "create_schema()"
+        :param res_class: The resource class of the resource to be created
+        :param label: The "rdfs:label" to be given to the new resource
+        :param values: A dict with the property values. It has the form
+        { property_name: value, property_name: value,… } or { property_name: [value1, value2,…],… }
+        The format of the values depends on the value types. E.g. a calendar date has the form
+        "GREGORIAN:CE:1920-03-12:CE:1921:05:21" where all values except the start year are optional.
+        :return: A dict in the form { 'iri': resource_iri, 'ark': ark_id, 'vark': dated_ark_id }
+        """
+
+        ontoname = schema["ontoname"]
+        props = schema['resources'][res_class]  # this is an array of all properties (value types)
+
+        # we start building the dict that will be transformed into the JSON-LD
+        jsondata = {
+            '@type': ontoname + ":" + res_class,
+            'rdfs:label': label,
+            "knora-api:attachedToProject": {
+                "@id": schema['proj_iri']
+            }
+        }
+
+        def create_valdict(val):
+            """
+            Internal function to create the JSON-LD for one value
+            :param val: the value
+            :return: Dict propared for the JSON-LD for one value
+
+            """
+            valdict = {
+                '@type': 'knora-api:' + prop["otype"]
+            }
+            if prop["otype"] == "TextValue":
+                valdict['knora-api:valueAsString'] = str(val)
+            elif prop["otype"] == "ColorValue":
+                valdict['knora-api:colorValueAsColor'] = str(val)
+            elif prop["otype"] == "DateValue":
+                res = re.match('(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})?(-\d{1,2})?(-\d{1,2})?(:CE|:BCE)?(:\d{4})?(-\d{1,2})?(-\d{1,2})?',
+                               str(val))
+                if res is None:
+                    raise KnoraError("Invalid date format! " + str(val))
+                dp = res.groups()
+                calendar = 'GREGORIAN' if dp[0] is None else dp[0].strip('-: ')
+                e1 = 'CE' if dp[1] is None else dp[1].strip('-: ')
+                y1 = None if dp[2] is None else int(dp[2].strip('-: '))
+                m1 = None if dp[3] is None else int(dp[3].strip('-: '))
+                d1 = None if dp[4] is None else int(dp[4].strip('-: '))
+                e2 = 'CE' if dp[5] is None else dp[5].strip('-: ')
+                y2 = None if dp[6] is None else int(dp[6].strip('-: '))
+                m2 = None if dp[7] is None else int(dp[7].strip('-: '))
+                d2 = None if dp[8] is None else int(dp[8].strip('-: '))
+                if y1 is None:
+                    raise KnoraError("Invalid date format! " + str(val))
+                if y2 is not None:
+                    date1 = y1 * 10000
+                    if m1 is not None:
+                        date1 += m1 * 100
+                    if d1 is not None:
+                        date1 += d1
+                    date2 = y2 * 10000
+                    if m2 is not None:
+                        date2 += m2 * 100
+                    if d1 is not None:
+                        date2 += d2
+                    if date1 > date2:
+                        y1, y2 = y2, y1
+                        m1, m2 = m2, m1
+                        d1, d2 = d2, d1
+                valdict["knora-api:dateValueHasCalendar"] = calendar
+                valdict["knora-api:dateValueHasStartEra"] = e1
+                valdict["knora-api:dateValueHasStartYear"] = int(y1)
+                if m1 is not None:
+                    valdict["knora-api:dateValueHasStartMonth"] = int(m1)
+                if d1 is not None:
+                    valdict["knora-api:dateValueHasStartDay"] = int(d1)
+                valdict["knora-api:dateValueHasEndEra"] = e2
+                if y2 is not None:
+                    valdict["knora-api:dateValueHasEndYear"] = int(y2)
+                else:
+                    valdict["knora-api:dateValueHasEndYear"] = int(y1)
+                if m2 is not None:
+                    valdict["knora-api:dateValueHasEndMonth"] = int(m2)
+                if d2 is not None:
+                    valdict["knora-api:dateValueHasEndDay"] = int(d2)
+            elif prop["otype"] == "DecimalValue":
+                valdict['knora-api:decimalValueAsDecimal'] = {
+                    '@type': 'xsd:decimal',
+                    '@value': str(val)
+                }
+            elif prop["otype"] == "GeonameValue":
+                valdict['knora-api:geometryValueAsGeometry'] = str(val)
+            elif prop["otype"] == "GeonameValue":
+                valdict['knora-api:geonameValueAsGeonameCode'] = val(str)
+            elif prop["otype"] == "IntValue":
+                valdict['knora-api:intValueAsInt'] = {
+                    "@type": "knora-api:IntValue",
+                    "@value": int(val)
+                }
+            elif prop["otype"] == "BooleanValue":
+                valdict['knora-api:booleanValueAsBoolean']: str(val)
+            elif prop["otype"] == "UriValue":
+                valdict['knora-api:uriValueAsUri'] = {
+                    "@type": "xsd:anyURI",
+                    "@value": str(val)
+                }
+            elif prop["otype"] == "IntervalValue":
+                iv = val.split(':');
+                valdict["knora-api:intervalValueHasEnd"] = {
+                                                               "@type": "xsd:decimal",
+                                                               "@value": str(iv[0])
+                                                           },
+                valdict["knora-api:intervalValueHasStart"] = {
+                    "@type": "xsd:decimal",
+                    "@value": str(iv[1])
+                }
+            elif prop["otype"] == "ListValue":
+                valdict['knora-api:listValueAsListNode'] = {
+                    '@id': str(val)
+                }
+            else:
+                for link in schema['link_otypes']:
+                    if prop["otype"] == link:
+                        valdict['knora-api:linkValueHasTargetIri'] = {
+                            '@id': str(val)
+                        }
+            return valdict
+
+        for key, value in values.items():
+            prop = None
+            for tmpprop in props:
+                if tmpprop['propname'] == key:
+                    prop = tmpprop
+            if prop is None:
+                raise KnoraError("Property " + key + " not known!")
+
+            if type(value) is list:
+                valarr = []
+                for val in value:
+                    valarr.append(create_valdict(val))
+                jsondata[ontoname + ':' + key] = valarr
+            else:
+                jsondata[ontoname + ':' + key] = create_valdict(value)
+
+            jsondata['@context'] = {
+                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
+                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+                "xsd": "http://www.w3.org/2001/XMLSchema#",
+                ontoname: schema['onto_iri'] + '#'
+            }
+
+        jsonstr = json.dumps(jsondata, indent=3, separators=(',', ': '))
+
+        url = self.server + "/v2/resources"
+        req = requests.post(url,
+                            headers={'Content-Type': 'application/json; charset=UTF-8',
+                                     'Authorization': 'Bearer ' + self.token},
+                            data=jsonstr)
+        self.on_api_error(req)
+
+        res = req.json()
+
+        return {
+            'iri': res['@id'],
+            'ark': res['knora-api:arkUrl']['@value'],
+            'vark': res['knora-api:versionArkUrl']['@value']
+        }
+
+
     def list_creator(self, children: List):
         """
         internal Helper function
@@ -849,7 +1023,20 @@ class knora:
         turtle = self.get_ontology_graph(shortcode, shortname)
         g = Graph()
         g.parse(format='n3', data=turtle)
-        sparql="""
+
+        sparql = """
+        SELECT ?onto ?proj
+        WHERE {
+            ?onto a owl:Ontology .
+            ?onto knora-api:attachedToProject ?proj
+        }
+        """
+        qres = g.query(sparql)
+        for row in qres:
+            onto_iri = row.onto.toPython()
+            proj_iri = row.proj.toPython()
+
+        sparql = """
         SELECT ?res ?prop ?superprop ?otype ?guiele ?attr ?card ?cardval
         WHERE {
             ?res a owl:Class .
@@ -893,7 +1080,7 @@ class knora:
             if propname == npropname:
                 if attr is not None:
                     propcnt -= 1
-                    if resources[resclass][propcnt]["attr"] is not None: # TODO: why is this necessary???
+                    if resources[resclass][propcnt]["attr"] is not None:  # TODO: why is this necessary???
                         resources[resclass][propcnt]["attr"][attr[0]] = attr[1].strip('<>')
                 continue
             else:
@@ -928,8 +1115,10 @@ class knora:
                 "nodes": self.list_creator(clist["children"])
             }
         schema = {
+            "proj_iri": proj_iri,
             "shortcode": shortcode,
             "ontoname": shortname,
+            "onto_iri": onto_iri,
             "lists": listdata,
             "resources": resources,
             "link_otypes": link_otypes

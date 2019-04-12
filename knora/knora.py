@@ -838,7 +838,7 @@ class knora:
         """
 
         ontoname = schema["ontoname"]
-        props = schema['resources'][res_class]  # this is an array of all properties (value types)
+        props = schema['resources'][res_class]  # this is an array of all properties defined in the ontology
 
         # we start building the dict that will be transformed into the JSON-LD
         jsondata = {
@@ -849,21 +849,37 @@ class knora:
             }
         }
 
-        def create_valdict(val):
+        def create_valdict(val, comment = None):
             """
             Internal function to create the JSON-LD for one value
             :param val: the value
             :return: Dict propared for the JSON-LD for one value
 
             """
+
             valdict = {
                 '@type': 'knora-api:' + prop["otype"]
             }
+            if comment is not None:
+                valdict["knora-api:valueHasComment"] = comment
+
             if prop["otype"] == "TextValue":
+                #
+                # a normal text value without markup
+                #
                 valdict['knora-api:valueAsString'] = str(val)
             elif prop["otype"] == "ColorValue":
+                #
+                # a color value as used in HTML (e.g. "#aaccff"
+                #
+                res = re.match('^#(?:[0-9a-fA-F]{3}){1,2}$', str(val))
+                if res is None:
+                    raise KnoraError("Invalid ColorValue format! " + str(val))
                 valdict['knora-api:colorValueAsColor'] = str(val)
             elif prop["otype"] == "DateValue":
+                #
+                # A knora date value
+                #
                 res = re.match('(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})?(-\d{1,2})?(-\d{1,2})?(:CE|:BCE)?(:\d{4})?(-\d{1,2})?(-\d{1,2})?',
                                str(val))
                 if res is None:
@@ -912,27 +928,48 @@ class knora:
                 if d2 is not None:
                     valdict["knora-api:dateValueHasEndDay"] = int(d2)
             elif prop["otype"] == "DecimalValue":
+                #
+                # a decimal value
+                #
                 valdict['knora-api:decimalValueAsDecimal'] = {
                     '@type': 'xsd:decimal',
                     '@value': str(val)
                 }
-            elif prop["otype"] == "GeonameValue":
+            elif prop["otype"] == "GeomValue":
+                #
+                # A geometry ID
+                #
                 valdict['knora-api:geometryValueAsGeometry'] = str(val)
             elif prop["otype"] == "GeonameValue":
+                #
+                # A geoname ID
+                #
                 valdict['knora-api:geonameValueAsGeonameCode'] = val(str)
             elif prop["otype"] == "IntValue":
+                #
+                # an integer value
+                #
                 valdict['knora-api:intValueAsInt'] = {
                     "@type": "knora-api:IntValue",
                     "@value": int(val)
                 }
             elif prop["otype"] == "BooleanValue":
-                valdict['knora-api:booleanValueAsBoolean']: str(val)
+                #
+                # a boolean value
+                #
+                valdict['knora-api:booleanValueAsBoolean']: bool(val)
             elif prop["otype"] == "UriValue":
+                #
+                # an URI
+                #
                 valdict['knora-api:uriValueAsUri'] = {
                     "@type": "xsd:anyURI",
                     "@value": str(val)
                 }
             elif prop["otype"] == "IntervalValue":
+                #
+                # an interval in the form "1.356:2.456"
+                #
                 iv = val.split(':');
                 valdict["knora-api:intervalValueHasEnd"] = {
                                                                "@type": "xsd:decimal",

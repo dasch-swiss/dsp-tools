@@ -23,7 +23,8 @@ setuptools.setup(
         'validators',
         'requests',
         'jsonschema',
-        'click'
+        'click',
+        'rfc3987'
     ],
     entry_points={
           'console_scripts': [

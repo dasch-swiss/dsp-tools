@@ -8,6 +8,7 @@ import urllib
 import pprint
 import validators
 import re
+from rfc3987 import parse
 
 
 # TODO: recheck all the documentation of this file
@@ -89,12 +90,13 @@ class knora:
     This is the main class which holds all the methods for communication with the Knora backend.
     """
 
-    def __init__(self, server: str, email: str, password: str, prefixes: Dict[str,str] = None):
+    def __init__(self, server: str, email: str, password: str, prefixes: Dict[str, str] = None):
         """
         Constructor requiring the server address, the user and password of KNORA
         :param server: Address of the server, e.g http://data.dasch.swiss
         :param email: Email of user, e.g., root@example.com
         :param password: Password of the user, e.g. test
+        :param prefixes: Ontology prefixes used
         """
         self.server = server
         self.prefixes = prefixes
@@ -116,6 +118,9 @@ class knora:
         result = req.json()
         self.token = result["token"]
 
+    def get_token(self):
+        return self.token
+
     def __del__(self):
         req = requests.delete(
             self.server + '/v2/authentication',
@@ -123,7 +128,7 @@ class knora:
         )
 
         result = req.json()
-        pprint.pprint(result)
+        self.token = None
 
 
     def on_api_error(self, res):
@@ -822,7 +827,7 @@ class knora:
         self.on_api_error(req)
         return req.json()
 
-    def create_resource(self, schema: Dict, res_class: str, label: str, values: Dict):
+    def create_resource(self, schema: Dict, res_class: str, label: str, values: Dict, stillimage = None):
         """
         This method creates a new resource (instance of a resource class) with the
         default permissions.
@@ -834,6 +839,7 @@ class knora:
         { property_name: value, property_name: value,… } or { property_name: [value1, value2,…],… }
         The format of the values depends on the value types. E.g. a calendar date has the form
         "GREGORIAN:CE:1920-03-12:CE:1921:05:21" where all values except the start year are optional.
+        :param stillimage: Path to a still image...
         :return: A dict in the form { 'iri': resource_iri, 'ark': ark_id, 'vark': dated_ark_id }
         """
 
@@ -848,14 +854,27 @@ class knora:
                 "@id": schema['proj_iri']
             }
         }
+        if stillimage is not None:
+            jsondata["knora-api:hasStillImageFileValue"] = {
+                "@type": "knora-api:StillImageFileValue",
+                "knora-api:fileValueHasFilename": stillimage
+            }
 
-        def create_valdict(val, comment = None):
+        def create_valdict(val):
             """
             Internal function to create the JSON-LD for one value
             :param val: the value
             :return: Dict propared for the JSON-LD for one value
 
             """
+
+            if type(val) is dict:
+                comment = val.get('comment')
+                permissions = val.get('permissions')
+                val = val.get('value')
+            else:
+                comment = None
+                permissions = None
 
             valdict = {
                 '@type': 'knora-api:' + prop["otype"]
@@ -949,10 +968,7 @@ class knora:
                 #
                 # an integer value
                 #
-                valdict['knora-api:intValueAsInt'] = {
-                    "@type": "knora-api:IntValue",
-                    "@value": int(val)
-                }
+                valdict['knora-api:intValueAsInt'] = int(val)
             elif prop["otype"] == "BooleanValue":
                 #
                 # a boolean value
@@ -970,25 +986,48 @@ class knora:
                 #
                 # an interval in the form "1.356:2.456"
                 #
-                iv = val.split(':');
+                iv = val.split(':')
                 valdict["knora-api:intervalValueHasEnd"] = {
-                                                               "@type": "xsd:decimal",
-                                                               "@value": str(iv[0])
-                                                           },
+                    "@type": "xsd:decimal",
+                    "@value": str(iv[0])
+                }
                 valdict["knora-api:intervalValueHasStart"] = {
                     "@type": "xsd:decimal",
                     "@value": str(iv[1])
                 }
             elif prop["otype"] == "ListValue":
-                valdict['knora-api:listValueAsListNode'] = {
+                try:
+                    iriparts = parse(str(val), rule='IRI')
+                    if iriparts['scheme'] == 'http' or iriparts['scheme'] == 'https':
+                        valdict['knora-api:listValueAsListNode'] = {
+                            '@id': str(val)
+                        }
+                    else:
+                        if iriparts['authority'] is not None:
+                            raise KnoraError("Invalid list node: \"" + str(val) + "\" !")
+                        listname = iriparts['scheme']
+                        nodename = iriparts['path']
+                        for node in schema['lists'][listname]['nodes']:
+                            found = False
+                            if node['name'] == nodename:
+                                valdict['knora-api:listValueAsListNode'] = {
+                                    '@id': node['id']
+                                }
+                                found = True
+                                break
+                        if not found:
+                            raise KnoraError("Invalid list node: \"" + str(val) + "\" !")
+                except ValueError as err:
+                    raise KnoraError("Invalid list node: \"" + str(val) + "\" !")
+
+            elif prop["otype"] == "LinkValue":
+                valdict['@type'] = 'knora-api:LinkValue'
+                valdict['knora-api:linkValueHasTargetIri'] = {
                     '@id': str(val)
                 }
             else:
-                for link in schema['link_otypes']:
-                    if prop["otype"] == link:
-                        valdict['knora-api:linkValueHasTargetIri'] = {
-                            '@id': str(val)
-                        }
+                pass
+
             return valdict
 
         for key, value in values.items():
@@ -1016,7 +1055,7 @@ class knora:
             }
 
         jsonstr = json.dumps(jsondata, indent=3, separators=(',', ': '))
-
+        print(jsonstr)
         url = self.server + "/v2/resources"
         req = requests.post(url,
                             headers={'Content-Type': 'application/json; charset=UTF-8',
@@ -1061,6 +1100,7 @@ class knora:
         g = Graph()
         g.parse(format='n3', data=turtle)
 
+        # Get project and ontology IRI's
         sparql = """
         SELECT ?onto ?proj
         WHERE {
@@ -1070,8 +1110,8 @@ class knora:
         """
         qres = g.query(sparql)
         for row in qres:
-            onto_iri = row.onto.toPython()
-            proj_iri = row.proj.toPython()
+            proj_iri = row.proj.toPython()  # project IRI
+            onto_iri = row.onto.toPython()  # ontology IRI
 
         sparql = """
         SELECT ?res ?prop ?superprop ?otype ?guiele ?attr ?card ?cardval
@@ -1141,6 +1181,8 @@ class knora:
                 link_otypes.append(objtype)
             propindex[propname] = propcnt
             propcnt += 1
+
+        # Get info about lists attached to the project
         listdata = {}
         lists = self.get_lists(shortcode)
         lists = lists["lists"]
@@ -1161,6 +1203,35 @@ class knora:
             "link_otypes": link_otypes
         }
         return schema
+
+
+class Sipi:
+    def __init__(self, sipiserver: str, token: str):
+        self.sipiserver = sipiserver
+        self.token = token
+
+    def on_api_error(self, res):
+        """
+        Method to check for any API errors
+        :param res: The input to check, usually JSON format
+        :return: Possible KnoraError that is being raised
+        """
+
+        if (res.status_code != 200):
+            raise KnoraError("SIPI-ERROR: status code=" + str(res.status_code) + "\nMessage:" + res.text)
+
+        if 'error' in res:
+            raise KnoraError("SIPI-ERROR: API error: " + res.error)
+
+    def upload_image(self, filepath):
+        files = {
+            'file': (filepath, open(filepath, 'rb')),
+        }
+        req = requests.post(self.sipiserver + "/upload?token=" + self.token,
+                            files=files)
+        self.on_api_error(req)
+        res = req.json()
+        return res
 
 
 class BulkImport:

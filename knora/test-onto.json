@@ -114,6 +114,64 @@
               "gui_element": "SimpleText",
               "gui_attributes": ["size=16", "maxlength=16"],
               "cardinality": "0-1"
+            },
+            {
+              "name": "geonameprop",
+              "object": "GeonameValue",
+              "labels": {
+                "en": "Geolocation"
+              },
+              "gui_element": "Geonames",
+              "cardinality": "0-1"
+            },
+            {
+              "name": "richtextprop",
+              "object": "TextValue",
+              "labels": {
+                "en": "Richtext value"
+              },
+              "gui_element": "Richtext",
+              "cardinality": "0-1"
+            },
+            {
+              "name": "intervalprop",
+              "object": "IntervalValue",
+              "labels": {
+                "en": "Interval value"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=32", "maxlength=32"],
+              "cardinality": "0-1"
+            }
+          ]
+        },
+        {
+          "name": "object2",
+          "super": "StillImageRepresentation",
+          "labels": {
+            "en": "Object type 2 (with image and link)"
+          },
+          "properties": [
+            {
+              "name": "titleprop",
+              "object": "TextValue",
+              "labels": {
+                "en": "Title"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=32", "maxlength=32"],
+              "cardinality": "1"
+            },
+            {
+              "name": "linkprop",
+              "super": ["hasLinkTo"],
+              "object": "kpt:object1",
+              "labels": {
+                "de": "Link to"
+              },
+              "gui_element": "Searchbox",
+              "gui_attributes": ["numprops=1"],
+              "cardinality": "0-n"
             }
           ]
         }

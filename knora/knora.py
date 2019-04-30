@@ -963,7 +963,7 @@ class knora:
                 #
                 # A geoname ID
                 #
-                valdict['knora-api:geonameValueAsGeonameCode'] = val(str)
+                valdict['knora-api:geonameValueAsGeonameCode'] = str(val)
             elif prop["otype"] == "IntValue":
                 #
                 # an integer value
@@ -1026,7 +1026,13 @@ class knora:
                     '@id': str(val)
                 }
             else:
-                pass
+                if prop['otype'] in schema['link_otypes']:
+                    valdict['@type'] = 'knora-api:LinkValue'
+                    valdict['knora-api:linkValueHasTargetIri'] = {
+                        '@id': str(val)
+                    }
+                else:
+                    raise KnoraError("Invalid otype: " + prop['otype'])
 
             return valdict
 
@@ -1038,13 +1044,17 @@ class knora:
             if prop is None:
                 raise KnoraError("Property " + key + " not known!")
 
+            if prop['otype'] == "LinkValue" or prop['otype'] in schema['link_otypes']:
+                nkey = key + "Value"
+            else:
+                nkey = key
             if type(value) is list:
                 valarr = []
                 for val in value:
                     valarr.append(create_valdict(val))
-                jsondata[ontoname + ':' + key] = valarr
+                jsondata[ontoname + ':' + nkey] = valarr
             else:
-                jsondata[ontoname + ':' + key] = create_valdict(value)
+                jsondata[ontoname + ':' + nkey] = create_valdict(value)
 
             jsondata['@context'] = {
                 "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",

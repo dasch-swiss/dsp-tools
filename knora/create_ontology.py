@@ -230,3 +230,6 @@ def list_creator(con: knora, proj_iri: str, list_iri: str, parent_iri: str, node
         else:
             nodelist.append({node["name"]: {"id": node_id}})
     return nodelist
+
+if __name__ == '__main__':
+    main()

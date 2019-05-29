@@ -5,7 +5,7 @@ knora-py is a python package containing a command line tool for data model (onto
 
 The package consists of:
 - ```knora``` Python modules for accessing Knora using the API (ontology creation, data import/export etc.)
-- ```knora-create-ontology.py``` A program to create an ontology out of a simple JSON description
+- ```knora-create-ontology``` A command line program to create an ontology out of a simple JSON description
 
 ## Install
 

@@ -1,4 +1,5 @@
 from typing import List, Set, Dict, Tuple, Optional
+from pprint import pprint
 from urllib.parse import quote_plus
 from rdflib import Graph
 from lxml import etree
@@ -839,7 +840,7 @@ class knora:
         """
         This method extracts the ontology from the ontology information it gets from Knora. It
         gets the ontology information as n3-data using the Knora API and concerts into a convenient
-        python dict that can be used for further processing. It is required by the bulk import ptrocessing
+        python dict that can be used for further processing. It is required by the bulk import processing
         routines.
 
         :param shortcode: Shortcode of the project
@@ -847,6 +848,7 @@ class knora:
         :return: Dict with a simple description of the ontology
         """
         turtle = self.get_ontology_graph(shortcode, shortname)
+        # print(turtle)
         g = Graph()
         g.parse(format='n3', data=turtle)
         sparql="""
@@ -875,6 +877,9 @@ class knora:
         propcnt = 0
         propindex= {}  # we have to keep the order of the properties as given in the ontology....
         for row in qres:
+
+            # print(row.res.toPython())
+
             nresclass = row.res.toPython()
             nresclass = nresclass[nresclass.find('#') + 1:]
             if resclass != nresclass:

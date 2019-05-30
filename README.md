@@ -14,6 +14,11 @@ To install the latest version published on PyPI run:
 $ pip3 install knora
 ```
 
+To update to the latest version run:
+```
+$ pip3 install --upgrade knora
+```
+
 To install from source, i.e. this repositrory run:
 ```
 $ python3 setup.py install

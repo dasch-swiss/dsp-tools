@@ -1276,13 +1276,21 @@ class BulkImport:
             ele.text = value
         return ele
 
-
     def write_xml(self, filename: str):
         # print(etree.tostring(self.root, pretty_print=True, xml_declaration=True, encoding='utf-8'))
         f = open(filename, "wb")
         f.write(etree.tostring(self.root, pretty_print=True, xml_declaration=True, encoding='utf-8'))
         f.close()
 
+    def get_xml_string(self):
+        """
+        This method returns the Bulk-Import XML as an UTF-8 encoded string.
+        :return: UTF-8 encoded string.
+        """
+        string = etree.tostring(self.root, pretty_print=True, xml_declaration=True, encoding='utf-8').encode("utf-8")
+        return string
+
+    def upload_xml(self, ):
     def add_resource(self, resclass: str, id: str, label: str, properties: Dict):
         """
 

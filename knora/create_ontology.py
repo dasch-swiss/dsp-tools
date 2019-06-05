@@ -4,7 +4,7 @@ from pprint import pprint
 import argparse
 import json
 from jsonschema import validate
-from knora import KnoraError, knora
+from knora import KnoraError, Knora
 
 
 def main():
@@ -41,7 +41,7 @@ def main():
         exit(0)
 
     # create the knora connection object
-    con = knora(args.server, args.user, args.password, ontology.get("prefixes"))
+    con = Knora(args.server, args.user, args.password, ontology.get("prefixes"))
 
     # bulk_templ = con.create_schema(ontology["project"]["shortcode"], ontology["project"]["ontology"]["name"])
 
@@ -92,7 +92,6 @@ def main():
                 "id": rootnode_iri,
                 "nodes": listnodes
             }
-
 
     with open('lists.json', 'w', encoding="utf-8") as fp:
         json.dump(listrootnodes, fp, indent=3, sort_keys=True)
@@ -214,7 +213,7 @@ def main():
     con = None  # force logout by deleting the connection object.
 
 
-def list_creator(con: knora, proj_iri: str, list_iri: str, parent_iri: str, nodes: List[dict]):
+def list_creator(con: Knora, proj_iri: str, list_iri: str, parent_iri: str, nodes: List[dict]):
     nodelist = []
     for node in nodes:
         node_id = con.create_list_node(
@@ -230,6 +229,7 @@ def list_creator(con: knora, proj_iri: str, list_iri: str, parent_iri: str, node
         else:
             nodelist.append({node["name"]: {"id": node_id}})
     return nodelist
+
 
 if __name__ == '__main__':
     main()

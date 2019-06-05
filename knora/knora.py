@@ -1,5 +1,4 @@
 from typing import List, Set, Dict, Tuple, Optional
-from pprint import pprint
 from urllib.parse import quote_plus
 from rdflib import Graph
 from lxml import etree
@@ -77,8 +76,9 @@ from rfc3987 import parse
  - :Textarea        -> cols=integer, rows=integer, width=percent, wrap=string(soft|hard)
  - :Checkbox
  - :Fileupload
-
 """
+
+
 class KnoraError(Exception):
     """Handles errors happening in this file"""
 
@@ -86,7 +86,7 @@ class KnoraError(Exception):
         self.message = message
 
 
-class knora:
+class Knora:
     """
     This is the main class which holds all the methods for communication with the Knora backend.
     """
@@ -603,7 +603,6 @@ class knora:
         #
         labels = list(map(lambda p: {"@language": p[0], "@value": p[1]}, labels.items()))
 
-
         if not comments:
             comments = {"en": "none"}
 
@@ -765,7 +764,6 @@ class knora:
         #
         labels = list(map(lambda p: {"language": p[0], "value": p[1]}, labels.items()))
 
-
         listnode = {
             "projectIri": project_iri,
             "labels": labels,
@@ -789,7 +787,6 @@ class knora:
             url = self.server + "/admin/lists"
 
         jsondata = json.dumps(listnode, indent=3, separators=(',', ': '))
-
 
         req = requests.post(url,
                             headers={'Content-Type': 'application/json; charset=UTF-8',
@@ -1066,7 +1063,7 @@ class knora:
             }
 
         jsonstr = json.dumps(jsondata, indent=3, separators=(',', ': '))
-        print(jsonstr)
+        # print(jsonstr)
         url = self.server + "/v2/resources"
         req = requests.post(url,
                             headers={'Content-Type': 'application/json; charset=UTF-8',
@@ -1081,7 +1078,6 @@ class knora:
             'ark': res['knora-api:arkUrl']['@value'],
             'vark': res['knora-api:versionArkUrl']['@value']
         }
-
 
     def list_creator(self, children: List):
         """
@@ -1108,7 +1104,7 @@ class knora:
         :return: Dict with a simple description of the ontology
         """
         turtle = self.get_ontology_graph(shortcode, shortname)
-        print(turtle)
+        # print(turtle)
         g = Graph()
         g.parse(format='n3', data=turtle)
 
@@ -1178,7 +1174,7 @@ class knora:
                 # process superprop (there might be multiple superprops)
                 if superprop not in resources[resclass][propcnt]["superprop"]:
                     resources[resclass][propcnt]["superprop"].append(superprop)
-                pprint.pprint(resources[resclass])
+                # pprint.pprint(resources[resclass])
                 propcnt += 1
                 continue
             else:
@@ -1198,7 +1194,7 @@ class knora:
                 "card": card,
                 "cardval": row.cardval.toPython()
             })
-            pprint.pprint(resources[resclass])
+            # pprint.pprint(resources[resclass])
             if superprop == "hasLinkTo":
                 link_otypes.append(objtype)
             propindex[propname] = propcnt
@@ -1268,6 +1264,7 @@ class BulkImport:
             "knoraXmlImport": "http://api.knora.org/ontology/knoraXmlImport/v1#"
         }
         self.root = etree.Element('{http://api.knora.org/ontology/knoraXmlImport/v1#}resources', nsmap=self.xml_prefixes)
+        self.project_shortcode = schema["shortcode"]
 
     def new_xml_element(self, tag: str, options: Dict = None, value: str = None):
         tagp = tag.split(':')
@@ -1294,10 +1291,25 @@ class BulkImport:
         This method returns the Bulk-Import XML as an UTF-8 encoded string.
         :return: UTF-8 encoded string.
         """
-        string = etree.tostring(self.root, pretty_print=True, xml_declaration=True, encoding='utf-8').encode("utf-8")
+        string = etree.tostring(self.root, pretty_print=True, xml_declaration=True, encoding='utf-8')
         return string
 
-    def upload_xml(self, ):
+    def upload(self, user, password, hostname, port):
+        """
+        Upload the Bulk-Import XML to the server.
+        :param user: the email of the user
+        :param password: the password of the user
+        :param hostname: the hostname (e.g., localhost, api.example.org, etc.)
+        :param port: the port where the API is running (e.g., 3333)
+        :return: the JSON response
+        """
+        project_iri = "http://rdfh.ch/projects/" + self.project_shortcode
+        url_encoded_project_iri = urllib.parse.quote_plus(project_iri)
+        bulkimport_api_url = "http://" + hostname + ":" + port + "/v1/resources/xmlimport/" + url_encoded_project_iri
+        headers = {"Content-Type": "application/xml"}
+        r = requests.post(bulkimport_api_url, data=self.get_xml_string(), headers=headers, auth=(user, password))
+        return r.json()
+
     def add_resource(self, resclass: str, id: str, label: str, properties: Dict):
         """
 
@@ -1324,7 +1336,6 @@ class BulkImport:
                     if node_id is not None:
                         return node_id
             return None
-
 
         def process_properties(propinfo: Dict, valuestr: any):
             """
@@ -1371,9 +1382,9 @@ class BulkImport:
                         if self.schema["lists"][listname]["id"] == list_id:
                             nodes = self.schema["lists"][listname]["nodes"]
                     value = find_list_node_id(str(valuestr), nodes)
-                if value == 'http://rdfh.ch/lists/0808/X6bb-JerQyu5ULruCGEO0w':
-                    print("BANG!")
-                    exit(0)
+                # if value == 'http://rdfh.ch/lists/0808/X6bb-JerQyu5ULruCGEO0w':
+                #     print("BANG!")
+                #     exit(0)
             elif propinfo["otype"] == 'DateValue':
                 # processing and validating date format
                 res = re.match('(GREGORIAN:|JULIAN:)?(\d{4})?(-\d{1,2})?(-\d{1,2})?(:\d{4})?(-\d{1,2})?(-\d{1,2})?', str(valuestr))
@@ -1460,3 +1471,70 @@ class BulkImport:
         self.root.append(resnode)
 
 
+class IrisLookup:
+    def __init__(self, local_id_to_iri_json):
+        self.iris = local_id_to_iri_json
+
+    def get_resource_iri(self, local_id):
+        """
+        Given the result of the bulk-import as json, allow retrieving the resource
+        IRI based on the local ID.
+        {'createdResources': [{'clientResourceID': 'LM_1',
+                               'label': '1',
+                               'resourceIri': 'http://rdfh.ch/0807/rNxoIK-oR_i0-lO21Y9-CQ'},
+                              {'clientResourceID': 'LM_2']}
+
+        :param local_id: the local id. resulting JSON from a bulk import upload.
+        :return:
+        """
+
+        try:
+            resources = self.iris["createdResources"]
+            iri = ""
+            for resource in resources:
+                try:
+                    res_id = resource["clientResourceID"]
+                    if res_id == local_id:
+                        iri = resource["resourceIri"]
+                    else:
+                        pass
+                except KeyError:
+                    pass
+
+            if iri == "":
+                return None
+            else:
+                return iri
+        except KeyError:
+            print("IrisLookup.get_resource_iri - 'createdResources' not found")
+
+    def get_iris_json(self):
+        return self.iris
+
+
+class ListsLookup:
+    def __init__(self, lists_json):
+        self.lists = lists_json
+
+    def get_list_iri(self, listname):
+        return self.lists[listname]["id"]
+
+    def get_list_node_iri(self, listname, nodename):
+        if nodename is not None:
+            nodes = self.lists[listname]["nodes"]
+            res = ""
+            for node in nodes:
+                try:
+                    res = node[nodename]["id"]
+                except KeyError:
+                    pass
+
+            if res == "":
+                return None
+            else:
+                return res
+        else:
+            return None
+
+    def get_lists_json(self):
+        return self.lists

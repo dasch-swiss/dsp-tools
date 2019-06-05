@@ -19,7 +19,7 @@ To update to the latest version run:
 $ pip3 install --upgrade knora
 ```
 
-To install from source, i.e. this repositrory run:
+To install from source, i.e. this repository run:
 ```
 $ python3 setup.py install
 ```

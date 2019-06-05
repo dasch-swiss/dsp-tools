@@ -7,6 +7,8 @@ setuptools.setup(
     name='knora',
     version='1.1.0',
     description='A Python library and tools for the Knora-API',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     url='https://github.com/dhlab-basel/knora-py',
     author='Lukas Rosenthaler',
     author_email='lukas.rosenthaler@unibas.ch',

@@ -1108,7 +1108,7 @@ class knora:
         :return: Dict with a simple description of the ontology
         """
         turtle = self.get_ontology_graph(shortcode, shortname)
-        # print(turtle)
+        print(turtle)
         g = Graph()
         g.parse(format='n3', data=turtle)
 
@@ -1152,8 +1152,6 @@ class knora:
         propindex= {}  # we have to keep the order of the properties as given in the ontology....
         for row in qres:
 
-            # print(row.res.toPython())
-
             nresclass = row.res.toPython()
             nresclass = nresclass[nresclass.find('#') + 1:]
             if resclass != nresclass:
@@ -1170,10 +1168,18 @@ class knora:
             if attr is not None:
                 attr = attr.split('=')
             if propname == npropname:
+                propcnt -= 1
+
+                # process attribute (there might be multiple attributes)
                 if attr is not None:
-                    propcnt -= 1
                     if resources[resclass][propcnt]["attr"] is not None:  # TODO: why is this necessary???
                         resources[resclass][propcnt]["attr"][attr[0]] = attr[1].strip('<>')
+
+                # process superprop (there might be multiple superprops)
+                if superprop not in resources[resclass][propcnt]["superprop"]:
+                    resources[resclass][propcnt]["superprop"].append(superprop)
+                pprint.pprint(resources[resclass])
+                propcnt += 1
                 continue
             else:
                 propname = npropname
@@ -1186,12 +1192,13 @@ class knora:
             resources[resclass].append({
                 "propname": propname,
                 "otype": objtype,
-                "superpro": superprop,
+                "superprop": [superprop],
                 "guiele": guiele,
                 "attr": {attr[0]: attr[1].strip('<>')} if attr is not None else None,
                 "card": card,
                 "cardval": row.cardval.toPython()
             })
+            pprint.pprint(resources[resclass])
             if superprop == "hasLinkTo":
                 link_otypes.append(objtype)
             propindex[propname] = propcnt

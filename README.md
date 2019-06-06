@@ -564,3 +564,11 @@ For local development:
 ```bash
 $ python3 setup.py develop
 ```
+
+## Testing
+
+```bash
+$ pip3 install pytest
+$ pip3 install --editable .
+$ pytest
+```

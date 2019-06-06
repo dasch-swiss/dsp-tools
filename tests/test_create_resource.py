@@ -4,7 +4,7 @@ from pprint import pprint
 import argparse
 import json
 from jsonschema import validate
-from knora import KnoraError, knora, Sipi
+from knora import KnoraError, Knora, Sipi
 
 
 parser = argparse.ArgumentParser()
@@ -18,7 +18,7 @@ parser.add_argument("-O", "--ontoname", required=True, help="Shortname of ontolo
 args = parser.parse_args()
 
 
-con = knora(args.server, args.user, args.password)
+con = Knora(args.server, args.user, args.password)
 graph = con.get_ontology_graph('00FE', 'kpt')
 #print(graph)
 #exit(0)

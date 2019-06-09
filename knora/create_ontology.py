@@ -43,7 +43,8 @@ def main(args):
         exit(0)
 
     # create the knora connection object
-    con = Knora(args.server, args.user, args.password, ontology.get("prefixes"))
+    con = Knora(args.server, ontology.get("prefixes"))
+    con.login(args.user, args.password)
 
     # bulk_templ = con.create_schema(ontology["project"]["shortcode"], ontology["project"]["ontology"]["name"])
 

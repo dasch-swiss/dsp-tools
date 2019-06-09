@@ -92,17 +92,21 @@ class Knora:
     This is the main class which holds all the methods for communication with the Knora backend.
     """
 
-    def __init__(self, server: str, email: str, password: str, prefixes: Dict[str, str] = None):
+    def __init__(self, server: str, prefixes: Dict[str, str] = None):
         """
         Constructor requiring the server address, the user and password of KNORA
         :param server: Address of the server, e.g https://api.dasch.swiss
-        :param email: Email of user, e.g., root@example.com
-        :param password: Password of the user, e.g. test
         :param prefixes: Ontology prefixes used
         """
         self.server = server
         self.prefixes = prefixes
 
+    def login(self, email: str, password: str):
+        """
+        Method to login into KNORA which creates a session token.
+        :param email: Email of user, e.g., root@example.com
+        :param password: Password of the user, e.g. test
+        """
         credentials = {
             "email": email,
             "password": password
@@ -114,24 +118,23 @@ class Knora:
             headers={'Content-Type': 'application/json; charset=UTF-8'},
             data=jsondata
         )
-
         self.on_api_error(req)
-
         result = req.json()
         self.token = result["token"]
 
     def get_token(self):
         return self.token
 
-    def __del__(self):
+    def logout(self):
         req = requests.delete(
             self.server + '/v2/authentication',
             headers={'Authorization': 'Bearer ' + self.token}
         )
-
-        result = req.json()
+        self.on_api_error(req)
         self.token = None
 
+    def __del__(self):
+        self.logout()
 
     def on_api_error(self, res):
         """
@@ -484,7 +487,7 @@ class Knora:
                               headers={'Authorization': 'Bearer ' + self.token})
         self.on_api_error(req)
         res = req.json()
-        return req
+        return res
 
     def get_ontology_graph(self,
                            shortcode: str,
@@ -1224,13 +1227,45 @@ class Knora:
         return schema
 
     def reset_triplestore_content(self):
-        rdfdata = []
+        rdfdata = [
+            {
+                "path": "knora-ontologies/knora-admin.ttl",
+                "name": "http://www.knora.org/ontology/knora-admin"
+            },
+            {
+                "path": "knora-ontologies/knora-base.ttl",
+                "name": "http://www.knora.org/ontology/knora-base"
+            },
+            {
+                "path": "knora-ontologies/standoff-onto.ttl",
+                "name": "http://www.knora.org/ontology/standoff"
+            },
+            {
+                "path": "knora-ontologies/standoff-data.ttl",
+                "name": "http://www.knora.org/data/standoff"
+            },
+            {
+                "path": "knora-ontologies/salsah-gui.ttl",
+                "name": "http://www.knora.org/ontology/salsah-gui"
+            },
+            {
+                "path": "_test_data/all_data/admin-data.ttl",
+                "name": "http://www.knora.org/data/admin"
+            },
+            {
+                "path": "_test_data/all_data/permissions-data.ttl",
+                "name": "http://www.knora.org/data/permissions"
+            },
+            {
+                "path": "_test_data/all_data/system-data.ttl",
+                "name": "http://www.knora.org/data/0000/SystemProject"
+            }
+        ]
         jsondata = json.dumps(rdfdata)
-        url = self.server + '/admin/store/ResetTriplestoreContent'
+        url = self.server + '/admin/store/ResetTriplestoreContent?prependdefaults=false'
 
         req = requests.post(url,
-                            headers={'Content-Type': 'application/json; charset=UTF-8',
-                                     'Authorization': 'Bearer ' + self.token},
+                            headers={'Content-Type': 'application/json; charset=UTF-8'},
                             data=jsondata)
         self.on_api_error(req)
         res = req.json()

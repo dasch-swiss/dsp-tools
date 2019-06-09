@@ -12,8 +12,8 @@ parser.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", h
 parser.add_argument("-S", "--sipi", type=str, default="http://0.0.0.0:1024", help="URL of SIPI server")
 parser.add_argument("-u", "--user", default="root@example.com", help="Username for Knora")
 parser.add_argument("-p", "--password", default="test", help="The password for login")
-parser.add_argument("-P", "--projectcode", required=True, help="Project short code")
-parser.add_argument("-O", "--ontoname", required=True, help="Shortname of ontology")
+parser.add_argument("-P", "--projectcode", default="00FE", help="Project short code")
+parser.add_argument("-O", "--ontoname", default="KPT", help="Shortname of ontology")
 
 args = parser.parse_args()
 
@@ -40,7 +40,7 @@ pprint(inst1_info)
 
 #first upload image to SIPI
 sipi = Sipi(args.sipi, con.get_token())
-res = sipi.upload_image('test.tif')
+res = sipi.upload_image('example.tif')
 pprint(res)
 
 fileref = res['uploadedFiles'][0]['internalFilename']

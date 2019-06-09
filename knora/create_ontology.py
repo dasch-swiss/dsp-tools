@@ -5,9 +5,10 @@ import argparse
 import json
 from jsonschema import validate
 from knora import KnoraError, Knora
+import sys
 
 
-def main():
+def main(args):
     # parse the arguments of the command line
     parser = argparse.ArgumentParser()
     parser.add_argument("ontofile", help="path to ontology file")
@@ -17,9 +18,10 @@ def main():
     parser.add_argument("-v", "--validate", action='store_true', help="Do only validation of JSON, no upload of the ontology")
     parser.add_argument("-l", "--lists", action='store_true', help="Only create the lists")
 
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     current_dir = os.path.dirname(os.path.realpath(__file__))
+    print(current_dir)
 
     # let's read the schema for the ontology definition
     if args.lists:
@@ -232,4 +234,4 @@ def list_creator(con: Knora, proj_iri: str, list_iri: str, parent_iri: str, node
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])

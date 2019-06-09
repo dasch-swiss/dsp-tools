@@ -11,7 +11,7 @@ $ pip3 install knora
 To create an ontology, run from inside this folder:
 
 ```bash
-$ knora-create-ontology test-onto.json
+$ knora-create-ontology example-onto.json
 ```
 
 ## Create resources
@@ -19,5 +19,5 @@ $ knora-create-ontology test-onto.json
 To create resources, run from inside this folder:
 
 ```bash
-$ python3 test_create_resource.py
+$ python3 example_create_resource.py
 ```

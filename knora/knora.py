@@ -9,6 +9,7 @@ import pprint
 import validators
 import re
 from rfc3987 import parse
+from pprint import pprint
 
 
 # TODO: recheck all the documentation of this file
@@ -94,7 +95,7 @@ class Knora:
     def __init__(self, server: str, email: str, password: str, prefixes: Dict[str, str] = None):
         """
         Constructor requiring the server address, the user and password of KNORA
-        :param server: Address of the server, e.g http://data.dasch.swiss
+        :param server: Address of the server, e.g https://api.dasch.swiss
         :param email: Email of user, e.g., root@example.com
         :param password: Password of the user, e.g. test
         :param prefixes: Ontology prefixes used
@@ -293,7 +294,7 @@ class Knora:
 
         :return:
         """
-        url = self.server + '/admin/users/' + quote_plus(user_iri)
+        url = self.server + '/admin/users/iri/' + quote_plus(user_iri)
         req = requests.get(url, headers={'Authorization': 'Bearer ' + self.token})
 
         self.on_api_error(req)
@@ -443,7 +444,7 @@ class Knora:
         :param label: A label property for this ontology
         :return: Dict with "onto_iri" and "last_onto_date"
         """
-        
+
         ontology = {
             "knora-api:ontologyName": onto_name,
             "knora-api:attachedToProject": {
@@ -472,10 +473,10 @@ class Knora:
     def delete_ontology(self, onto_iri: str, last_onto_date = None):
         """
         A method to delete an ontology from /v2/ontologies
-        
+
         :param onto_iri: The ontology to delete
         :param last_onto_date: the lastModificationDate of an ontology. None by default
-        :return: 
+        :return:
         """"" #TODO: add return documentation
         url = self.server + "/v2/ontologies/" + urllib.parse.quote_plus(onto_iri)
         req = requests.delete(url,
@@ -1222,6 +1223,19 @@ class Knora:
         }
         return schema
 
+    def reset_triplestore_content(self):
+        rdfdata = []
+        jsondata = json.dumps(rdfdata)
+        url = self.server + '/admin/store/ResetTriplestoreContent'
+
+        req = requests.post(url,
+                            headers={'Content-Type': 'application/json; charset=UTF-8',
+                                     'Authorization': 'Bearer ' + self.token},
+                            data=jsondata)
+        self.on_api_error(req)
+        res = req.json()
+        pprint(res)
+        return res
 
 class Sipi:
     def __init__(self, sipiserver: str, token: str):

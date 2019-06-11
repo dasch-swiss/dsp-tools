@@ -1229,35 +1229,35 @@ class Knora:
     def reset_triplestore_content(self):
         rdfdata = [
             {
-                "path": "knora-ontologies/knora-admin.ttl",
+                "path": "./knora-ontologies/knora-admin.ttl",
                 "name": "http://www.knora.org/ontology/knora-admin"
             },
             {
-                "path": "knora-ontologies/knora-base.ttl",
+                "path": "./knora-ontologies/knora-base.ttl",
                 "name": "http://www.knora.org/ontology/knora-base"
             },
             {
-                "path": "knora-ontologies/standoff-onto.ttl",
+                "path": "./knora-ontologies/standoff-onto.ttl",
                 "name": "http://www.knora.org/ontology/standoff"
             },
             {
-                "path": "knora-ontologies/standoff-data.ttl",
+                "path": "./knora-ontologies/standoff-data.ttl",
                 "name": "http://www.knora.org/data/standoff"
             },
             {
-                "path": "knora-ontologies/salsah-gui.ttl",
+                "path": "./knora-ontologies/salsah-gui.ttl",
                 "name": "http://www.knora.org/ontology/salsah-gui"
             },
             {
-                "path": "_test_data/all_data/admin-data.ttl",
+                "path": "./_test_data/all_data/admin-data.ttl",
                 "name": "http://www.knora.org/data/admin"
             },
             {
-                "path": "_test_data/all_data/permissions-data.ttl",
+                "path": "./_test_data/all_data/permissions-data.ttl",
                 "name": "http://www.knora.org/data/permissions"
             },
             {
-                "path": "_test_data/all_data/system-data.ttl",
+                "path": "./_test_data/all_data/system-data.ttl",
                 "name": "http://www.knora.org/data/0000/SystemProject"
             }
         ]

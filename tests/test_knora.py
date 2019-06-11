@@ -45,7 +45,7 @@ def test_create_user(con):
         email=user["email"],
         givenName=user["givenName"],
         familyName=user["familyName"],
-        password="password",
+        password=user["password"],
         lang=user["lang"] if user.get("lang") is not None else "en")
 
     print(user_iri)

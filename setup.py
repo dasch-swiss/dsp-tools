@@ -31,6 +31,7 @@ setuptools.setup(
     entry_points={
           'console_scripts': [
               'knora-create-ontology=knora.create_ontology:main',
+              'knora-reset-triplestore=knora.reset_triplestore:main',
               'knoractl=knora.knora_ctl:cli'
           ],
     },

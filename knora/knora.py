@@ -88,6 +88,7 @@ class KnoraError(Exception):
 
 
 class KnoraStandoffXml:
+    """Used to handle XML strings for standoff markup"""
     def __init__(self, xmlstr: str):
         self.xmlstr = xmlstr
 
@@ -198,7 +199,7 @@ class Knora:
 
         return result["project"]
 
-    def project_exists(self, proj_iri: str):
+    def project_exists(self, proj_iri: str) -> bool:
         """Checks if a given project exists
 
         :return: Boolean

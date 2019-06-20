@@ -4,7 +4,7 @@ from pprint import pprint
 import argparse
 import json
 from jsonschema import validate
-from knora import KnoraError, Knora, Sipi
+from knora import KnoraError, KnoraStandoffXml, Knora, Sipi
 
 
 parser = argparse.ArgumentParser()
@@ -28,6 +28,7 @@ schema = con.create_schema(args.projectcode, args.ontoname)
 # pprint(schema)
 # exit(0)
 
+
 inst1_info = con.create_resource(schema, "object1", "obj1_inst1", {
     "textprop": "Dies ist ein Text!",
     "intprop": 7,
@@ -35,7 +36,10 @@ inst1_info = con.create_resource(schema, "object1", "obj1_inst1", {
     "dateprop": "1966:CE:1967-05-21",
     "decimalprop": {'value': "3.14159", 'comment': "Die Zahl PI"},
     "geonameprop": "2661604",
-    "richtextprop": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<text><p><strong>this is</strong> text</p> with standoff</text>",
+    "richtextprop": {
+        'value': KnoraStandoffXml("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<text><p><strong>this is</strong> text</p> with standoff</text>"),
+        'comment': "Text mit markup"
+    },
     "intervalprop": "13.57:15.88"
 })
 pprint(inst1_info)

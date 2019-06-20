@@ -1,4 +1,5 @@
 from .knora import KnoraError
+from .knora import KnoraStandoffXml
 from .knora import Knora
 from .knora import Sipi
 from .knora import BulkImport

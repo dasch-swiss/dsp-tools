@@ -87,6 +87,21 @@ class KnoraError(Exception):
         self.message = message
 
 
+class KnoraStandoffXml:
+    def __init__(self, xmlstr: str):
+        self.xmlstr = xmlstr
+
+    def getXml(self):
+        return self.xmlstr
+
+
+class KnoraStandoffXmlEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, KnoraStandoffXml):
+            return obj.getXml()
+        return json.JSONEncoder.default(self, obj)
+
+
 class Knora:
     """
     This is the main class which holds all the methods for communication with the Knora backend.
@@ -348,10 +363,7 @@ class Knora:
         return res['user']['id']
 
     def add_user_to_project(self, user_iri: str, project_iri: str):
-        print("USER: " + user_iri)
-        print("PROJECT: " + project_iri)
         url = self.server + '/admin/users/iri/' + quote_plus(user_iri) + '/project-memberships/' + quote_plus(project_iri)
-        print(url)
         req = requests.post(url, headers={'Authorization': 'Bearer ' + self.token})
         self.on_api_error(req)
         return None
@@ -873,10 +885,12 @@ class Knora:
             if type(val) is dict:
                 comment = val.get('comment')
                 permissions = val.get('permissions')
+                mapping = val.get('mapping')
                 val = val.get('value')
             else:
                 comment = None
                 permissions = None
+                mapping = None
 
             valdict = {
                 '@type': 'knora-api:' + prop["otype"]
@@ -885,10 +899,13 @@ class Knora:
                 valdict["knora-api:valueHasComment"] = comment
 
             if prop["otype"] == "TextValue":
-                #
-                # a normal text value without markup
-                #
-                valdict['knora-api:valueAsString'] = str(val)
+                if isinstance(val, KnoraStandoffXml):  # normal text string without markup
+                    valdict['knora-api:textValueAsXml'] = val  # no conversion to string
+                    valdict['knora-api:textValueHasMapping'] = {
+                        '@id': 'http://rdfh.ch/standoff/mappings/StandardMapping' if mapping is None else mapping
+                    }
+                else:
+                    valdict['knora-api:valueAsString'] = str(val)
             elif prop["otype"] == "ColorValue":
                 #
                 # a color value as used in HTML (e.g. "#aaccff"
@@ -1066,7 +1083,7 @@ class Knora:
                 ontoname: schema['onto_iri'] + '#'
             }
 
-        jsonstr = json.dumps(jsondata, indent=3, separators=(',', ': '))
+        jsonstr = json.dumps(jsondata, indent=3, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
         # print(jsonstr)
         url = self.server + "/v2/resources"
         req = requests.post(url,

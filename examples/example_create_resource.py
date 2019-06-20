@@ -13,18 +13,20 @@ parser.add_argument("-S", "--sipi", type=str, default="http://0.0.0.0:1024", hel
 parser.add_argument("-u", "--user", default="root@example.com", help="Username for Knora")
 parser.add_argument("-p", "--password", default="test", help="The password for login")
 parser.add_argument("-P", "--projectcode", default="00FE", help="Project short code")
-parser.add_argument("-O", "--ontoname", default="KPT", help="Shortname of ontology")
+parser.add_argument("-O", "--ontoname", default="kpt", help="Shortname of ontology")
 
 args = parser.parse_args()
 
 
-con = Knora(args.server, args.user, args.password)
-graph = con.get_ontology_graph('00FE', 'kpt')
-#print(graph)
-#exit(0)
+con = Knora(args.server)
+con.login(args.user, args.password)
+
+graph = con.get_ontology_graph(args.projectcode, args.ontoname)
+# print(graph)
+# exit(0)
 schema = con.create_schema(args.projectcode, args.ontoname)
-#pprint(schema)
-#exit(0)
+# pprint(schema)
+# exit(0)
 
 inst1_info = con.create_resource(schema, "object1", "obj1_inst1", {
     "textprop": "Dies ist ein Text!",

@@ -551,7 +551,7 @@ $ pip3 freeze > requirements.txt
 Generate distribution package. Make sure you have the latest versions of `setuptools` and `wheel` installed:
 
 ```bash
-$ python3 -m pip install --user --upgrade pip setuptools wheel
+$ python3 -m pip install --upgrade pip setuptools wheel
 $ python3 setup.py sdist bdist_wheel
 ```
 
@@ -576,7 +576,7 @@ username =your_username_on_pypi
 then upload:
 
 ```bash
-$ python3 -m pip install --user --upgrade tqdm twine
+$ python3 -m pip install --upgrade tqdm twine
 $ python3 -m twine upload dist/*
 ```
 

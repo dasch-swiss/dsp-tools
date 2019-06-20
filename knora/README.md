@@ -9,38 +9,50 @@ Most important it allow importing data by providing a methods to create new reso
 
 #### Knora()  
 Creates an access object for Knora.  
-```Knora(server, prefixes: Dict[str, str] = None)```  
+```python3
+Knora(server, prefixes: Dict[str, str] = None)
+```  
 - server: URL of the Knora API server
 - prefixes: List of extra RDF-prefixes that are being used
 - Example: ```con = Knora(args.server)```
 
 #### login()  
-This method performs a login and stored the access token. 
-```login(email: str, password: str)```  
+This method performs a login and stored the access token.  
+```python3
+login(email: str, password: str)
+```  
 - email: Emailadress of user
 - password: Password of user
 - Example: ```con.login(args.user, args.password)```
 
 #### logout()  
 This method is used to logout from Knora and remove the access token.  
-```logout()```
+```python3
+logout()
+```
 - Example: ```con.logout()```
 
 #### get_existing_projects()  
 Returns a list of all projects. Usually returns only the IRI's. If full ist true, returns all information.  
-```get_existing_projects(full: bool = False)```  
+```python3
+get_existing_projects(full: bool = False)
+```  
 
 #### get_project()  
 Returns information about a project given its shortcode.  
-```get_project(shortcode: str) -> dict```  
+```python3
+get_project(shortcode: str) -> dict
+```  
 
 #### project_exists()  
 Returns true if a project given by thee shortcode is existing.  
-```project_exists(self, proj_iri: str) -> bool```  
+```python3
+project_exists(self, proj_iri: str) -> bool
+```  
 
 #### create_project() 
-This method is used to create a new project  
-```python
+This method is used to create a new project.  
+```python3
 create_project(
   shortcode: str,
   shortname: str,
@@ -60,7 +72,7 @@ create_project(
 #### update_project()
 This method is used to modify existing project data. All parameters except the shortcode (which cannot be changed)
 are optional.  
-```
+```python3
 update_project(
   shortcode: str,
   shortname: str,
@@ -81,12 +93,14 @@ Get all users
 
 #### get_user()
 Get information about a specific user  
-```get_user(user_iri: str)```
+```python3
+get_user(user_iri: str)
+```
 - user_iri: Knora IRI identifying the user
 
 #### create_user()
 Create a new user and returns it's new IRI.  
-```
+```python3
 create_user(
   username: str,
   email: str,
@@ -104,7 +118,7 @@ create_user(
 
 #### add_user_to_project()
 Add an existing user to a project.  
-```
+```python3
 add_user_to_project(
   user_iri: str,
   project_iri: str)
@@ -114,13 +128,13 @@ add_user_to_project(
 
 #### get_existing_ontologies()
 Get short information about all ontologies existing.  
-```
+```python3
 get_existing_ontologies()
 ```
 
 #### get_project_ontologies()
 Returns the ontologiees of a given project.  
-```
+```python3
 get_project_ontologies(
 project_code: str) -> Optional[dict]
 ```
@@ -128,21 +142,21 @@ project_code: str) -> Optional[dict]
 
 #### ontology_exists()
 Test, if an ontology exists.  
-```
+```python3
 ontology_exists(onto_iri: str)
 ```
 - onto_iri: IRI of the ontology
 
 #### get_ontology_lastmoddate()
 Get the last modification date of a given ontology.  
-```
+```python3
 get_ontology_lastmoddate(self, onto_iri: str)
 ```
 - onto_iri: IRI of the ontology
 
 #### create_ontology()
 Create a new ontology.  
-```
+```python3
 create_ontology(
   onto_name: str,
   project_iri: str,
@@ -155,7 +169,7 @@ create_ontology(
 
 #### delete_ontology()
 Deletes the given ontology.  
-```
+```python3
 delete_ontology(
   onto_iri: str
   last_onto_date = None)
@@ -167,7 +181,7 @@ date of the ontology.
 
 #### get_ontology_graph()
 Get the whole ontology as RDF (text/turtle).  
-```
+```python3
 get_ontology_graph(
   shortcode: str,
   name: str)
@@ -177,5 +191,15 @@ get_ontology_graph(
 
 #### create_res_class()
 Create a new resource class.  
-
+``` python3
+create_res_class(
+  onto_iri: str,
+  onto_name: str,
+  last_onto_date: str,
+  class_name: str,
+  super_class: List[str],
+  labels: Dict[str, str],
+  comments: Optional[Dict[str, str]] = None
+) -> Dict[str, str]
+```
 

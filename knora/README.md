@@ -8,7 +8,7 @@ Most important it allow importing data by providing a methods to create new reso
 ### Knora
 
 #### Knora()  
-Creates an access object for Knora.
+Creates an access object for Knora.  
 ```Knora(server, prefixes: Dict[str, str] = None)```  
 - server: URL of the Knora API server
 - prefixes: List of extra RDF-prefixes that are being used
@@ -22,24 +22,24 @@ This method performs a login and stored the access token.
 - Example: ```con.login(args.user, args.password)```
 
 #### logout()  
+This method is used to logout from Knora and remove the access token.  
 ```logout()```
-This method is used to logout from Knora and remove the access token.
 - Example: ```con.logout()```
 
 #### get_existing_projects()  
-Returns a list of all projects. Usually returns only the IRI's. If full ist true, returns all information.
+Returns a list of all projects. Usually returns only the IRI's. If full ist true, returns all information.  
 ```get_existing_projects(full: bool = False)```  
 
 #### get_project()  
-Returns information about a project given its shortcode
+Returns information about a project given its shortcode.  
 ```get_project(shortcode: str) -> dict```  
 
 #### project_exists()  
+Returns true if a project given by thee shortcode is existing.  
 ```project_exists(self, proj_iri: str) -> bool```  
-Returns true if a project given by thee shortcode is existing
 
 #### create_project() 
-This method is used to create a new project
+This method is used to create a new project  
 ```python
 create_project(
   shortcode: str,
@@ -59,8 +59,8 @@ create_project(
 
 #### update_project()
 This method is used to modify existing project data. All parameters except the shortcode (which cannot be changed)
-are optional.
-```python
+are optional.  
+```
 update_project(
   shortcode: str,
   shortname: str,
@@ -77,15 +77,15 @@ update_project(
 - logo: Path to logo file
   
 #### get_users()
-Get all users
+Get all users  
 
 #### get_user()
-Get information about a specific user
+Get information about a specific user  
 ```get_user(user_iri: str)```
 - user_iri: Knora IRI identifying the user
 
 #### create_user()
-Create a new user and returns it's new IRI
+Create a new user and returns it's new IRI.  
 ```
 create_user(
   username: str,
@@ -103,7 +103,7 @@ create_user(
 - lang: [optional] Language string of default language
 
 #### add_user_to_project()
-Add an existing user to a project
+Add an existing user to a project.  
 ```
 add_user_to_project(
   user_iri: str,
@@ -113,13 +113,13 @@ add_user_to_project(
 - project_iri: IRI of the project
 
 #### get_existing_ontologies()
-Get short information about all ontologies existing
+Get short information about all ontologies existing.  
 ```
 get_existing_ontologies()
 ```
 
 #### get_project_ontologies()
-Returns the ontologiees of a given project
+Returns the ontologiees of a given project.  
 ```
 get_project_ontologies(
 project_code: str) -> Optional[dict]
@@ -127,21 +127,21 @@ project_code: str) -> Optional[dict]
 - project_code: Shortcode of project
 
 #### ontology_exists()
-Test, if an ontology exists
+Test, if an ontology exists.  
 ```
 ontology_exists(onto_iri: str)
 ```
 - onto_iri: IRI of the ontology
 
 #### get_ontology_lastmoddate()
-Get the last modification date of a given ontology
+Get the last modification date of a given ontology.  
 ```
 get_ontology_lastmoddate(self, onto_iri: str)
 ```
 - onto_iri: IRI of the ontology
 
 #### create_ontology()
-Create a new ontology
+Create a new ontology.  
 ```
 create_ontology(
   onto_name: str,
@@ -154,7 +154,7 @@ create_ontology(
 - returns: Dict with "onto_iri" and "last_onto_date"
 
 #### delete_ontology()
-Deletes the given ontology
+Deletes the given ontology.  
 ```
 delete_ontology(
   onto_iri: str
@@ -166,7 +166,7 @@ be deleted if the given date is earlier than the actual last modification
 date of the ontology.
 
 #### get_ontology_graph()
-Get the whole ontology as RDF (text/turtle)
+Get the whole ontology as RDF (text/turtle).  
 ```
 get_ontology_graph(
   shortcode: str,
@@ -176,6 +176,6 @@ get_ontology_graph(
 - name: Name of the ontology
 
 #### create_res_class()
-Create a new resource class
+Create a new resource class.  
 
 

@@ -4,8 +4,10 @@
 knora-py is a python package containing a command line tool for data model (ontology) creation, a library allowing creation of single resources and mass upload using the bulk import of data into the Knora framework.
 
 The package consists of:
-- ```Knora``` Python modules for accessing Knora using the API (ontology creation, data import/export etc.)
-- ```knora-create-ontology``` A command line program to create an ontology out of a simple JSON description
+- `Knora` Python modules for accessing Knora using the API (ontology creation, data import/export etc.)
+- `knora-create-ontology` A command line program to create an ontology out of a simple JSON description
+- `knora-reset-triplestore` A command line program to reset the content of the ontology. Does not require
+   a restart of the Knora-Stack.
 
 ## Install
 
@@ -135,7 +137,7 @@ The _lists_ object contains an array of lists. Here an example:
 ```
 the _lists_ element is optional.
 
-## Ontology
+### Ontology
 
 The _ontology_ object contains the definition of the data model. The ontology has
 the following elemens:
@@ -440,7 +442,7 @@ The properties object has the following fields:
 }
 ```
 
-## JSON for lists
+### JSON for lists
 
 The JSON schema for uploading hierarchical lists only is simplyfied:
 ```json
@@ -453,7 +455,7 @@ The JSON schema for uploading hierarchical lists only is simplyfied:
 ```
 The definition of the lists is the same as in the full upload of an ontology!
 
-### A full example for creating lists only
+#### A full example for creating lists only
 The following JSON definition assumes that there is a project with the shortcode _0808_.
 
 ```json
@@ -506,8 +508,27 @@ The following JSON definition assumes that there is a project with the shortcode
 }
 ```
 
+## Reseting the triplestore with `knora-reset-triplestore`
+This script reads a JSON file containing the data model (ontology) definition,
+connects to the Knora server and creates the data model.
+
+### Usage:
+
+```bash
+$ knora-reset-triplestore
+```
+It supports the following options:
+
+- _"-s server" | "--server server"_: The URl of the Knora server [default: localhost:3333]
+- _"-u username" | "--user username"_: Username to log into Knora [default: root@example.com]
+- _"-p password" | "--password password"_: The password for login to the Knora server [default: test]
+
+For resetting of the triplestore through Knora-API to work, it is necessary to start the Knora-API server
+with a configuration parameter allowing this operation (e.g., `KNORA_WEBAPI_ALLOW_RELOAD_OVER_HTTP`
+environment variable or the corresponding setting in `application.conf`).
+
 ## Bulk data import
-In order to make a bulk data import, a properly formatted XML file has to be created. The python module "knora.py" contains
+In order to make a bulk data import, a properly formatted XML file has to be created. The python module "knora" contains
 classes and methods to facilitate the creation of such a XML file.
 
 ## Requirements

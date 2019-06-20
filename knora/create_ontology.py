@@ -8,7 +8,7 @@ from knora import KnoraError, Knora
 import sys
 
 
-def main(args):
+def program(args):
     # parse the arguments of the command line
     parser = argparse.ArgumentParser()
     parser.add_argument("ontofile", help="path to ontology file")
@@ -234,5 +234,11 @@ def list_creator(con: Knora, proj_iri: str, list_iri: str, parent_iri: str, node
     return nodelist
 
 
+def main():
+    program(sys.argv[1:])
+
+
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    print(sys.argv)
+    print(sys.argv[1:])
+    program(sys.argv[1:])

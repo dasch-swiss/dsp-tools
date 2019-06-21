@@ -3,6 +3,16 @@
 This library offers classes and methods to manipulate a Knora based repository.
 Most important it allow importing data by providing a methods to create new resources.
 
+For an example go to [Examples](#examples)
+## Contents
+
+- [Basic methods](#basic-methods)
+  - [Constructor](#Knora())
+  - [login](#login)
+  - [logout](#logout)
+- [Project methods](#project-specific-methods)
+  - [get_existing_projects](#get_existing_projects())
+  
 
 ## Knora
 Knora is the base class which handles all the communication with the Knora backend. In order
@@ -37,7 +47,7 @@ logout()
 ```
 - Example: ```con.logout()```
 
-### Project/user specific methods
+### Project specific methods
 The following methods are used to add and modify projects and users
 
 #### get_existing_projects()  
@@ -514,4 +524,6 @@ upload(
 - password: Password
 - hostname: Hostname of Knora backend
 - port: Portnumber the Knora backend uses
+
+# Examples
 

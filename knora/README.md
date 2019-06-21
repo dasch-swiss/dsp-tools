@@ -3,17 +3,51 @@
 This library offers classes and methods to manipulate a Knora based repository.
 Most important it allow importing data by providing a methods to create new resources.
 
-For an example go to [Examples](#examples)
 ## Contents
 
 - [Basic methods](#basic-methods)
-  - [Constructor](#knora)
-  - [login](#login)
+  - [Knora()](#knora)
+  - [login()](#login)
   - [logout](#logout)
-- [Project methods](#project-specific-methods)
-  - [get_existing_projects](#get_existing_projects
+- [Project methods()](#project-specific-methods)
+  - [get_existing_projects()](#get_existing_projects)
+  - [get_project()](#get_project)
+  - [project_exists()](#project_exists)
+  - [create_project()](#create_project)
+  - [update_project()](#update_project)
+  - [get_users()](#get_users)
+  - [create_user()](#create_user)
+  - [add_user_to_project()](#add_user_to_project)
+- [Ontology methods](#ontology-methods)
+  - [get_existing_ontologies()](#get_existing_ontologies)
+  - [get_project_ontologies()](#get_project_ontologies)
+  - [ontology_exists()](#ontology_exists)
+  - [get_ontology_lastmoddate()](#get_ontology_lastmoddate)
+  - [create_ontology()](#create_ontology)
+  - [delete_ontology()](#delete_ontology)
+  - [get_ontology_graph()](#get_ontology_graph)
+  - [create_res_class()](#create_res_class)
+  - [create_property()](#create_property)
+  - [create_cardinality()](#create_cardinality)
+- [Lists](#lists)
+  - [create_list_node()](#create_list_node)
+  - [get_lists()](#get_lists)
+  - [get_complete_list()](#get_complete_list)
+- [Creating instances](#creating-instances)
+  - [create_resource()](#create_resource)
+    - [values parameter](#values-parameter)
+    - [Stillimage parameter](#stillimage-parameter)
+- [Other methods](#other-methods)
+  - [create_schema()](#create_schema)
+  - [reset_triplestore_content()](#reset_triplestore_content)
+- [SIPI](#sipi)
+  - [Sipi()](#Sipi)
+  - [upload_image()](#upload_image)
+- [BulkImport](#bulkImport)
+  - [Bulkimport()](#bulkimport)
+  - [add_resource()](#add_resource)
+  - [upload()](#upload)
   
-
 ## Knora
 Knora is the base class which handles all the communication with the Knora backend. In order
 to use Knora, the user has to submit his/her credentials to the Knora backend
@@ -386,7 +420,7 @@ create_resource(
 - stillimage: In case the Resource is a descendant of StillImagerepresentation, this
  parameter is indicating where the uploaded file is to be find. See below
 
-##### values parameter
+##### Values parameter
 The values are a Dict in the form:
 ```python3
 {
@@ -414,7 +448,7 @@ value must be an instance of KnoraStandoffXml, e.g.:
    ...
 ```
 
-##### stillimage parameter:
+##### Stillimage parameter:
 A stillimage has to be uploaded to Knora before it's SillImageRepresentation instance
 can be created:
 ```python3

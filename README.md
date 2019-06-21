@@ -9,6 +9,10 @@ The package consists of:
 - `knora-reset-triplestore` A command line program to reset the content of the ontology. Does not require
    a restart of the Knora-Stack.
 
+## Contents
+- [Install](#install)
+- [Creating an ontology](#)
+
 ## Install
 
 To install the latest version published on PyPI run:

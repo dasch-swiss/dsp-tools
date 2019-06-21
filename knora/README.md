@@ -7,11 +7,11 @@ For an example go to [Examples](#examples)
 ## Contents
 
 - [Basic methods](#basic-methods)
-  - [Constructor](#Knora())
+  - [Constructor](#knora)
   - [login](#login)
   - [logout](#logout)
 - [Project methods](#project-specific-methods)
-  - [get_existing_projects](#get_existing_projects())
+  - [get_existing_projects](#get_existing_projects
   
 
 ## Knora

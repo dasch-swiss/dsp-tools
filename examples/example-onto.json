@@ -5,7 +5,7 @@
   },
   "project": {
     "shortcode": "00FE",
-    "shortname": "KPT",
+    "shortname": "kpt",
     "longname": "Test-ontology for knora-py",
     "descriptions": {
       "en": "A ontology for testing knora-py"

@@ -1480,7 +1480,7 @@ class BulkImport:
             return xmlopt, value
 
         if self.schema["resources"].get(resclass) is None:
-            raise KnoraError('Resource class is not defined in ontlogy!')
+            raise KnoraError('Resource class is not defined in ontology!')
         resnode = self.new_xml_element(self.proj_prefix + ':' + resclass, {'id': str(id)})
 
         labelnode = self.new_xml_element('knoraXmlImport:label')

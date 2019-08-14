@@ -1525,7 +1525,11 @@ class BulkImport:
                         raise KnoraError(resclass + " requires exactly one " + prop_info["propname"] + "-value: several supplied!")
                 for p in properties[prop_info["propname"]]:
                     xmlopt, value = process_properties(prop_info, p)
-                    pnode = self.new_xml_element(self.proj_prefix + ':' + prop_info["propname"], xmlopt, value)
+                    if xmlopt['knoraType'] == 'link_value':
+                        pnode = self.new_xml_element(self.proj_prefix + ':' + prop_info["propname"])
+                        pnode.append(self.new_xml_element(self.proj_prefix + ':' + prop_info["otype"], xmlopt, value))
+                    else:
+                        pnode = self.new_xml_element(self.proj_prefix + ':' + prop_info["propname"], xmlopt, value)
                     resnode.append(pnode)
             else:
                 xmlopt, value = process_properties(prop_info, properties[prop_info["propname"]])

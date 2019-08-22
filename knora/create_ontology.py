@@ -57,8 +57,8 @@ def program(args):
                 shortcode=ontology["project"]["shortcode"],
                 shortname=ontology["project"]["shortname"],
                 longname=ontology["project"]["longname"],
-                descriptions=ontology["project"]["descriptions"],
-                keywords=ontology["project"]["keywords"]
+                descriptions=ontology["project"].get("descriptions"),
+                keywords=ontology["project"].get("keywords")
             )
             print("New project created: IRI: " + proj_iri)
         else:
@@ -69,8 +69,8 @@ def program(args):
                 shortcode=ontology["project"]["shortcode"],
                 shortname=ontology["project"]["shortname"],
                 longname=ontology["project"]["longname"],
-                descriptions=ontology["project"]["descriptions"],
-                keywords=ontology["project"]["keywords"]
+                descriptions=ontology["project"].get("descriptions"),
+                keywords=ontology["project"].get("keywords")
             )
         project = con.get_project(ontology["project"]["shortcode"])
         print("New project data:")

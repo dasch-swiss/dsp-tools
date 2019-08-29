@@ -234,14 +234,18 @@ class Knora:
             "shortname": shortname,
             "shortcode": shortcode,
             "longname": longname,
-            "description": descriptions,
-            "keywords": keywords,
-            "logo": logo,
             "status": True,
             "selfjoin": False
         }
+        if descriptions is not None:
+            project['description'] = descriptions
+        if keywords is not None:
+            project['keywords'] = keywords
+        if logo is not None:
+            project['logo'] = logo
 
         jsondata = json.dumps(project)
+        print(jsondata)
 
         req = requests.post(self.server + "/admin/projects",
                             headers={'Content-Type': 'application/json; charset=UTF-8',
@@ -683,7 +687,6 @@ class Knora:
         }
         property["@context"].update(additional_context)
         jsondata = json.dumps(property, indent=3, separators=(',', ': '))
-
         req = requests.post(self.server + "/v2/ontologies/properties",
                             headers={'Content-Type': 'application/json; charset=UTF-8',
                                      'Authorization': 'Bearer ' + self.token},
@@ -1287,7 +1290,7 @@ class Knora:
                             data=jsondata)
         self.on_api_error(req)
         res = req.json()
-        pprint(res)
+        #  pprint(res)
         return res
 
 class Sipi:

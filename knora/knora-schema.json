@@ -306,7 +306,7 @@
           "additionalProperties": false
         }
       },
-      "required": ["shortcode", "shortname", "longname", "ontology"],
+      "required": ["shortcode", "shortname", "longname", "ontology", "keywords"],
       "additionalProperties": false
     }
   },

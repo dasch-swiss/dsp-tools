@@ -15,9 +15,9 @@ def program(args):
     parser.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the Knora server")
     parser.add_argument("-u", "--user", default="root@example.com", help="Username for Knora")
     parser.add_argument("-p", "--password", default="test", help="The password for login")
-    parser.add_argument("-v", "--validate", action='store_true', help="Do only validation of JSON, no upload of the ontology")
+    parser.add_argument("-V", "--validate", action='store_true', help="Do only validation of JSON, no upload of the ontology")
     parser.add_argument("-l", "--lists", action='store_true', help="Only create the lists")
-
+    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
     args = parser.parse_args(args)
 
     current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -60,11 +60,10 @@ def program(args):
                 descriptions=ontology["project"].get("descriptions"),
                 keywords=ontology["project"].get("keywords")
             )
-            print("New project created: IRI: " + proj_iri)
         else:
-            print("Updating existing project!")
-            print("Old project data:")
-            pprint(project)
+            if args.verbose is not None:
+                print("Updating existing project!")
+            pprint(ontology["project"].get("keywords"))
             proj_iri = con.update_project(
                 shortcode=ontology["project"]["shortcode"],
                 shortname=ontology["project"]["shortname"],
@@ -73,17 +72,21 @@ def program(args):
                 keywords=ontology["project"].get("keywords")
             )
         project = con.get_project(ontology["project"]["shortcode"])
-        print("New project data:")
-        pprint(project)
+        if args.verbose is not None:
+            print("Project-IRI: " + proj_iri)
     else:
         project = con.get_project(ontology["project"]["shortcode"])
         proj_iri = project["id"]
 
     # now let's create the lists
+    if args.verbose is not None:
+        print("Creating lists...")
     lists = ontology["project"].get('lists')
     listrootnodes = {}
     if lists is not None:
         for rootnode in lists:
+            if args.verbose is not None:
+                print("Creating list:" + rootnode['name'])
             rootnode_iri = con.create_list_node(
                 project_iri=proj_iri,
                 name=rootnode['name'],
@@ -103,6 +106,8 @@ def program(args):
         print("The definitions of the node-id's can be found in \"lists.json\"!")
         exit(0)
 
+    if args.verbose is not None:
+        print("Adding users...")
     # now we add the users if existing
     users = ontology["project"].get('users')
     if users is not None:
@@ -114,12 +119,16 @@ def program(args):
                                        password="password",
                                        lang=user["lang"] if user.get("lang") is not None else "en")
             con.add_user_to_project(user_iri, proj_iri)
+            if args.verbose is not None:
+                print("User added: " + user['username'])
 
     # now we start creating the ontology
     # first we assemble the ontology IRI
     onto_iri = args.server + "/ontology/" + ontology["project"]["shortcode"]\
                + "/" + ontology["project"]["ontology"]["name"] + "/v2"
 
+    if args.verbose is not None:
+        print("Creating the ontology...")
     # test, if the ontolgy already exists. if so, let's delete it!
     ontos = con.get_project_ontologies(ontology["project"]["shortcode"])
     if ontos is not None:
@@ -138,6 +147,8 @@ def program(args):
     # let's create the resources
     resource_ids = {}
 
+    if args.verbose is not None:
+        print("Creating the resclasses...")
     for resource in ontology["project"]["ontology"]["resources"]:
         result = con.create_res_class(
             onto_iri=onto_iri,
@@ -149,60 +160,80 @@ def program(args):
         )
         last_onto_date = result["last_onto_date"]
         resource_ids[resource["name"]] = result["class_iri"]
+        if args.verbose is not None:
+            print("Created resclass: " + resource["name"])
 
-    pprint(resource_ids)
-
-    # let's create the properties
-    property_ids = {}
+    #
+    #  find properties that have been used for multiple resources
+    #
+    property_names = []
+    duplicate_properties = []
     for resource in ontology["project"]["ontology"]["resources"]:
         for prop in resource["properties"]:
-            guiattrs = prop.get("gui_attributes")
-            if guiattrs is not None:
-                new_guiattrs = []
-                for guiattr in guiattrs:
-                    parts = guiattr.split("=")
-                    if parts[0] == "hlist":
-                        new_guiattrs.append("hlist=<" + listrootnodes[parts[1]]["id"] + ">")
-                    else:
-                        new_guiattrs.append(guiattr)
-                guiattrs = new_guiattrs
-
-            if prop.get("super") is not None:
-                super_props = list(map(lambda a: a if ':' in a else "knora-api:" + a, prop["super"]))
+            if prop['name'] not in property_names:
+                property_names.append(prop['name'])
             else:
-                super_props = ["knora-api:hasValue"]
+                duplicate_properties.append(prop['name'])
 
-            if prop.get("object") is not None:
-                object = prop["object"] if ':' in prop["object"] else "knora-api:" + prop["object"]
+    if args.verbose is not None:
+        print("Creating the properties...")
+    # let's create the properties
+    property_ids = {}
+    property_names = []
+    for resource in ontology["project"]["ontology"]["resources"]:
+        for prop in resource["properties"]:
+            if property_ids.get(prop['name']) is None:
+                guiattrs = prop.get("gui_attributes")
+                if guiattrs is not None:
+                    new_guiattrs = []
+                    for guiattr in guiattrs:
+                        parts = guiattr.split("=")
+                        if parts[0] == "hlist":
+                            new_guiattrs.append("hlist=<" + listrootnodes[parts[1]]["id"] + ">")
+                        else:
+                            new_guiattrs.append(guiattr)
+                    guiattrs = new_guiattrs
+
+                if prop.get("super") is not None:
+                    super_props = list(map(lambda a: a if ':' in a else "knora-api:" + a, prop["super"]))
+                else:
+                    super_props = ["knora-api:hasValue"]
+
+                if prop.get("object") is not None:
+                    object = prop["object"] if ':' in prop["object"] else "knora-api:" + prop["object"]
+                else:
+                    object = None
+
+                if prop.get("subject") is not None:
+                    psubject = prop["subject"]
+                else:
+                    psubject = ontology["project"]["ontology"]["name"] + ':' + resource["name"]
+
+                result = con.create_property(
+                    onto_iri=onto_iri,
+                    onto_name=ontology["project"]["ontology"]["name"],
+                    last_onto_date=last_onto_date,
+                    prop_name=prop["name"],
+                    super_props=super_props,
+                    labels=prop["labels"],
+                    gui_element="salsah-gui:" + prop["gui_element"],
+                    gui_attributes=guiattrs,
+                    subject=psubject if prop['name'] not in duplicate_properties else None,
+                    object=object,
+                    comments=prop.get("comments")
+                )
+                last_onto_date = result["last_onto_date"]
+                property_ids[prop["name"]] = result['prop_iri']
+                if args.verbose is not None:
+                    print("Property created: {} ({})".format(prop["name"], result['prop_iri']))
             else:
-                object = None
+                print('Property \"{}\" reused!'.format(prop["name"]))
 
-            if prop.get("subject") is not None:
-                psubject = prop["subject"]
-            else:
-                psubject = ontology["project"]["ontology"]["name"] + ':' + resource["name"]
-
-            result = con.create_property(
-                onto_iri=onto_iri,
-                onto_name=ontology["project"]["ontology"]["name"],
-                last_onto_date=last_onto_date,
-                prop_name=prop["name"],
-                super_props=super_props,
-                labels=prop["labels"],
-                gui_element="salsah-gui:" + prop["gui_element"],
-                gui_attributes=guiattrs,
-                subject=psubject,
-                object=object,
-                comments=prop.get("comments")
-            )
-            last_onto_date = result["last_onto_date"]
-            property_ids[prop["name"]] = result['prop_iri']
-
+    if args.verbose is not None:
+        print("Adding cardinalities...")
     # add the cardinalities
     for resource in ontology["project"]["ontology"]["resources"]:
         for prop in resource["properties"]:
-            print("=======>" + prop["name"] + "...")
-
             result = con.create_cardinality(
                 onto_iri=onto_iri,
                 onto_name=ontology["project"]["ontology"]["name"],
@@ -212,6 +243,8 @@ def program(args):
                 occurrence=prop["cardinality"]
             )
             last_onto_date = result["last_onto_date"]
+            if args.verbose is not None:
+                print("Cardinality for {} added: {}".format(prop["name"], prop["cardinality"]))
 
     con = None  # force logout by deleting the connection object.
 

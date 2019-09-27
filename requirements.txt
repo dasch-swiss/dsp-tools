@@ -4,3 +4,5 @@ wheel
 tqdm
 twine
 pytest
+mkdocs==1.0.4
+mkdocs-material

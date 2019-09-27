@@ -1,0 +1,17 @@
+site_name: Knora-Py Documentation
+
+nav:
+    - Introduction: index.md
+    - Knoractl: knoractl.md
+
+theme:
+  name: material
+  logo: 'assets/images/dasch-icon-white.svg'
+  favicon: 'assets/images/dasch-favicon.ico'
+  palette:
+    primary: 'deep blue'
+    accent: 'deep blue'
+  feature:
+    tabs: false
+extra_css:
+  - 'assets/style/theme.css'

@@ -112,13 +112,22 @@ def program(args):
     users = ontology["project"].get('users')
     if users is not None:
         for user in users:
-            user_iri = con.create_user(username=user["username"],
-                                       email=user["email"],
-                                       givenName=user["givenName"],
-                                       familyName=user["familyName"],
-                                       password="password",
-                                       lang=user["lang"] if user.get("lang") is not None else "en")
-            con.add_user_to_project(user_iri, proj_iri)
+            try:
+                user_iri = con.create_user(username=user["username"],
+                                           email=user["email"],
+                                           givenName=user["givenName"],
+                                           familyName=user["familyName"],
+                                           password="password",
+                                           lang=user["lang"] if user.get("lang") is not None else "en")
+            except KnoraError as err:
+                print("Creating user failed: " + err.message)
+                userinfo = con.get_user_by_email(email=user["email"])
+                user_iri = userinfo['id']
+
+            try:
+                con.add_user_to_project(user_iri, proj_iri)
+            except KnoraError as err:
+                print('Adding user to project failed: ' + err.message);
             if args.verbose is not None:
                 print("User added: " + user['username'])
 
@@ -134,7 +143,10 @@ def program(args):
     if ontos is not None:
         for onto in ontos:
             if onto['iri'] == onto_iri:
-                con.delete_ontology(onto_iri, onto['moddate'])
+                try:
+                    con.delete_ontology(onto_iri, onto['moddate'])
+                except KnoraError as err:
+                    print("Deleting ontolopgy failed: " + err.message);
     onto_data = con.create_ontology(
         onto_name=ontology["project"]["ontology"]["name"],
         project_iri=proj_iri,

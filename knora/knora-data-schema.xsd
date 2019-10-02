@@ -1,0 +1,350 @@
+<?xml version="1.0"?>
+<xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+     xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning">
+
+    <!-- data type for resrefs "ID|ID|..." -->
+    <xs:simpleType name="resrefs_type">
+        <xs:restriction base="xs:token">
+            <xs:pattern value="([^\|]+)(\|[^\|]+)*" />
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- data type for knora date -->
+    <xs:simpleType name="knoradate_type">
+        <xs:restriction base="xs:token">
+            <xs:pattern value="(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})?(-\d{1,2})?(-\d{1,2})?(:CE|:BCE)?(:\d{4})?(-\d{1,2})?(-\d{1,2})?" />
+        </xs:restriction>
+    </xs:simpleType>
+       
+ 
+    <!-- data type for knora color -->
+    <xs:simpleType name="knoracolor_type">
+        <xs:restriction base="xs:token">
+            <xs:pattern value="#([0-9a-fA-F]{3}){1,2}" />
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- data type for knora interval -->
+    <xs:simpleType name="knorainterval_type">
+        <xs:restriction base="xs:token">
+            <xs:pattern value="([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)):([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+))" />
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- encoding types -->
+    <xs:simpleType name="encoding_types">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="utf8"/>
+            <xs:enumeration value="hex64"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- text value type -->
+    <xs:complexType name="text_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="encoding" type="encoding_types" use="required"/>
+                <xs:attribute name="resrefs" type="resrefs_type"/>
+                <xs:attribute name="comment" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- color value type -->
+    <xs:complexType name="color_type">
+        <xs:simpleContent>
+            <xs:extension base="knoracolor_type">
+                 <xs:attribute name="comment" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <!-- date value type -->
+    <xs:complexType name="date_type">
+        <xs:simpleContent>
+            <xs:extension base="knoradate_type">
+                <xs:attribute name="comment" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- float value type -->
+    <xs:complexType name="float_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:float">
+                <xs:attribute name="comment" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <!-- geometry value type -->
+    <xs:complexType name="geometry_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="comment" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <!-- geoname value type -->
+    <xs:complexType name="geoname_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="comment" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- list value type -->
+    <xs:complexType name="list_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="comment" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <!-- iconclass value type -->
+    <xs:complexType name="iconclass_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="comment" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <!-- integer value type -->
+    <xs:complexType name="integer_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:integer">
+                <xs:attribute name="comment" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <!-- interval value type -->
+    <xs:complexType name="interval_type">
+        <xs:simpleContent>
+            <xs:extension base="knorainterval_type">
+                <xs:attribute name="comment" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <!-- period value type -->
+    <xs:complexType name="period_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="comment" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <!-- resptr value type -->
+    <xs:complexType name="resptr_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="comment" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <!-- time value type -->
+    <xs:complexType name="time_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:dateTime">
+                <xs:attribute name="comment" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+        
+    <!-- uri value type -->
+    <xs:complexType name="uri_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:anyURI">
+                <xs:attribute name="comment" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- boolean value type -->
+    <xs:complexType name="boolean_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:boolean">
+                <xs:attribute name="comment" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <!-- textprop_type -->
+    <xs:complexType name="textprop_type">
+        <xs:sequence>
+            <xs:element name="text" type="text_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <!-- colorprop_type -->
+    <xs:complexType name="colorprop_type">
+        <xs:sequence>
+            <xs:element name="color" type="color_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <!-- dateprop_type -->
+    <xs:complexType name="dateprop_type">
+        <xs:sequence>
+            <xs:element name="date" type="date_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <!-- floatprop_type -->
+    <xs:complexType name="floatprop_type">
+        <xs:sequence>
+            <xs:element name="float" type="float_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <!-- geometryprop_type -->
+    <xs:complexType name="geometryprop_type">
+        <xs:sequence>
+            <xs:element name="geometry" type="geometry_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <!-- geonameprop_type -->
+    <xs:complexType name="geonameprop_type">
+        <xs:sequence>
+            <xs:element name="geoname" type="geoname_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <!-- listprop_type -->
+    <xs:complexType name="listprop_type">
+        <xs:sequence>
+            <xs:element name="list" type="list_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="list" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <!-- iconclassprop_type -->
+    <xs:complexType name="iconclassprop_type">
+        <xs:sequence>
+            <xs:element name="iconclass" type="iconclass_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <!-- integerprop_type -->
+    <xs:complexType name="integerprop_type">
+        <xs:sequence>
+            <xs:element name="integer" type="integer_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <!-- intervalprop_type -->
+    <xs:complexType name="intervalprop_type">
+        <xs:sequence>
+            <xs:element name="interval" type="interval_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <!-- periodprop_type -->
+    <xs:complexType name="periodprop_type">
+        <xs:sequence>
+            <xs:element name="period" type="period_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <!-- resptrprop_type -->
+    <xs:complexType name="resptrprop_type">
+        <xs:sequence>
+            <xs:element name="resptr" type="resptr_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <!-- timeprop_type -->
+    <xs:complexType name="timeprop_type">
+        <xs:sequence>
+            <xs:element name="time" type="time_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <!-- uriprop_type -->
+    <xs:complexType name="uriprop_type">
+        <xs:sequence>
+            <xs:element name="time" type="uri_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <!-- booleanprop_type -->
+    <xs:complexType name="booleanprop_type">
+        <xs:sequence>
+            <xs:element name="time" type="boolean_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <!-- image tag -->
+    <xs:complexType name="image_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string"/>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <!-- resource tag -->
+    <xs:complexType name="resource_type">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="image" type="image_type" maxOccurs="1" minOccurs="0"/>
+            <xs:element name="text-prop" type="textprop_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="color-prop" type="colorprop_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="date-prop" type="dateprop_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="float-prop" type="floatprop_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="geometry-prop" type="geometryprop_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="geoname-prop" type="geonameprop_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="list-prop" type="listprop_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="iconclass-prop" type="iconclassprop_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="integer-prop" type="integerprop_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="interval-prop" type="intervalprop_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="period-prop" type="periodprop_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="resptr-prop" type="resptrprop_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="time-prop" type="timeprop_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="uri-prop" type="uriprop_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="boolean-prop" type="booleanprop_type" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:choice>
+        <xs:attribute name="label" type="xs:string" use="required"/>
+        <xs:attribute name="restype" type="xs:string" use="required"/>
+        <xs:attribute name="unique_id" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <!-- data type for knora shortcode -->
+    <xs:simpleType name="knorashortcode_type">
+        <xs:restriction base="xs:token">
+            <xs:pattern value="[0-9a-fA-F]{4}" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- complete document -->
+    <xs:element name="knora">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="resource" type="resource_type" minOccurs="1" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="vocabulary" type="xs:string"/>
+            <xs:attribute name="shortcode" type="knorashortcode_type"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

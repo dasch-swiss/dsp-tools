@@ -204,7 +204,7 @@ class UserEntryDialog(wx.Dialog):
                                               title="User Entry",
                                               style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
 
-        user_info = con.get_user(iri)
+        user_info = con.get_user_by_iri(iri)
         existing_projects = con.get_existing_projects(full=True)
         pprint(user_info)
         pprint(existing_projects)

@@ -311,13 +311,26 @@ class Knora:
         res = req.json()
         return res['users']
 
-    def get_user(self, user_iri: str):
+    def get_user_by_iri(self, user_iri: str):
         """
         Get a list of all users
 
         :return:
         """
         url = self.server + '/admin/users/iri/' + quote_plus(user_iri)
+        req = requests.get(url, headers={'Authorization': 'Bearer ' + self.token})
+
+        self.on_api_error(req)
+        res = req.json()
+        return res['user']
+
+    def get_user_by_email(self, email: str):
+        """
+        Get a list of all users
+
+        :return:
+        """
+        url = self.server + '/admin/users/email/' + quote_plus(email)
         req = requests.get(url, headers={'Authorization': 'Bearer ' + self.token})
 
         self.on_api_error(req)
@@ -1003,6 +1016,14 @@ class Knora:
                 #
                 valdict['knora-api:uriValueAsUri'] = {
                     "@type": "xsd:anyURI",
+                    "@value": str(val)
+                }
+            elif prop["otype"] == "TimeValue":
+                #
+                # an URI
+                #
+                valdict['knora-api:timeValueAsTime'] = {
+                    "@type": "xsd:dateTime",
                     "@value": str(val)
                 }
             elif prop["otype"] == "IntervalValue":

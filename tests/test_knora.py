@@ -25,7 +25,7 @@ def test_reset_triplestore_content(con):
 
 # retrieves user information
 def test_get_user(con):
-    res = con(True).get_user("http://rdfh.ch/users/root")
+    res = con(True).get_user_by_iri("http://rdfh.ch/users/root")
     assert(res["username"] == "root")
 
 # creates a user
@@ -50,7 +50,7 @@ def test_create_user(con):
 
     print(user_iri)
 
-    res = connection.get_user(user_iri)
+    res = connection.get_user_by_iri(user_iri)
 
     assert(res["username"] == "testtest")
     assert(res["email"] == "testtest@example.com")

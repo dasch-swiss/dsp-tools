@@ -200,8 +200,8 @@ class KnoraResource:
             propdata[property.name] = vals if len(vals) > 1 else vals[0]
         return propdata
 
-
 def do_sortorder(resources: List[KnoraResource]) -> List[KnoraResource]:
+    print('GAGAGAGAGAGGA')
     #
     # here we sort the resources according to outgoing resptrs
     #
@@ -234,7 +234,7 @@ def do_sortorder(resources: List[KnoraResource]) -> List[KnoraResource]:
             print(len(notok_resources))
             for r in notok_resources:
                 print('Resource {} has unresolvable resptrs to: '.format(r.unique_id), end= ' ')
-                for (x in r.geet_resptrs()):
+                for x in r.get_resptrs():
                     print(x, end=' ')
                 print('')
                 print('=============')
@@ -247,7 +247,6 @@ def do_sortorder(resources: List[KnoraResource]) -> List[KnoraResource]:
     print(len(resources))
     return ok_resources
 
-
 def program(args) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the Knora server")
@@ -256,9 +255,7 @@ def program(args) -> None:
     parser.add_argument("-p", "--password", default="test", help="The password for login")
     parser.add_argument("-i", "--inproject", help="Shortname or SALSAH input project")
     parser.add_argument("-F", "--folder", default="-", help="Input folder")
-    parser.add_argument("-h", "--help", action="store_true", help="Print help message")
-
-    args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
+    args = parser.parse_args(args)
 
     if args.help:
         parser.print_help()

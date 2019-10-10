@@ -16,6 +16,9 @@ serve-docs: ## serve docs for local viewing
 publish-docs: ## build and publish docs to Github Pages
 	mkdocs gh-deploy
 
+test: ## runs all tests
+	python3 -m pytest
+
 clean: ## cleans the project directory
 	rm -rf dist/ build/ knora.egg-info/ .pytest_cache/ site/
 

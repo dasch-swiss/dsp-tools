@@ -11,7 +11,6 @@ import re
 from rfc3987 import parse
 from pprint import pprint
 
-
 # TODO: recheck all the documentation of this file
 """
  Properties in knora-api:
@@ -89,6 +88,7 @@ class KnoraError(Exception):
 
 class KnoraStandoffXml:
     """Used to handle XML strings for standoff markup"""
+
     def __init__(self, xmlstr: str):
         self.xmlstr = xmlstr
 
@@ -209,13 +209,13 @@ class Knora:
         return proj_iri in projects
 
     def create_project(
-            self,
-            shortcode: str,
-            shortname: str,
-            longname: str,
-            descriptions: Optional[Dict[str, str]] = None,
-            keywords: Optional[List[str]] = None,
-            logo: Optional[str] = None) -> str:
+        self,
+        shortcode: str,
+        shortname: str,
+        longname: str,
+        descriptions: Optional[Dict[str, str]] = None,
+        keywords: Optional[List[str]] = None,
+        logo: Optional[str] = None) -> str:
         """
         Create a new project
 
@@ -257,13 +257,13 @@ class Knora:
         return res["project"]["id"]
 
     def update_project(
-            self,
-            shortcode: str,
-            shortname: Optional[str] = None,
-            longname: Optional[str] = None,
-            descriptions: Optional[Dict[str, str]] = None,
-            keywords: Optional[List[str]] = None,
-            logo: Optional[str] = None) -> str:
+        self,
+        shortcode: str,
+        shortname: Optional[str] = None,
+        longname: Optional[str] = None,
+        descriptions: Optional[Dict[str, str]] = None,
+        keywords: Optional[List[str]] = None,
+        logo: Optional[str] = None) -> str:
         """
 
         :param shortcode:
@@ -302,7 +302,7 @@ class Knora:
         """
         Get a list of all users
 
-        :return:
+        :return: Json result.
         """
         url = self.server + '/admin/users'
         req = requests.get(url, headers={'Authorization': 'Bearer ' + self.token})
@@ -313,7 +313,7 @@ class Knora:
 
     def get_user_by_iri(self, user_iri: str):
         """
-        Get a list of all users
+        Get single user
 
         :return:
         """
@@ -340,8 +340,8 @@ class Knora:
     def create_user(self,
                     username: str,
                     email: str,
-                    givenName: str,
-                    familyName: str,
+                    given_name: str,
+                    family_name: str,
                     password: str,
                     lang: str = "en"):
         """
@@ -349,8 +349,8 @@ class Knora:
 
         :param username: The username for login purposes (must be unique)
         :param email: The email address of the user
-        :param givenName: The given name (surname, "Vorname", ...)
-        :param familyName: The family name
+        :param given_name: The given name (surname, "Vorname", ...)
+        :param family_name: The family name
         :param password: The password for the user
         :param lang: language code, either "en", "de", "fr", "it" [default: "en"]
         :return: The user ID as IRI
@@ -359,8 +359,8 @@ class Knora:
         userinfo = {
             "username": username,
             "email": email,
-            "givenName": givenName,
-            "familyName": familyName,
+            "givenName": given_name,
+            "familyName": family_name,
             "password": password,
             "status": True,
             "lang": lang,
@@ -381,7 +381,8 @@ class Knora:
         return res['user']['id']
 
     def add_user_to_project(self, user_iri: str, project_iri: str):
-        url = self.server + '/admin/users/iri/' + quote_plus(user_iri) + '/project-memberships/' + quote_plus(project_iri)
+        url = self.server + '/admin/users/iri/' + quote_plus(user_iri) + '/project-memberships/' + quote_plus(
+            project_iri)
         req = requests.post(url, headers={'Authorization': 'Bearer ' + self.token})
         self.on_api_error(req)
         return None
@@ -460,7 +461,7 @@ class Knora:
         for onto in result['@graph']:
             if 'knora-api:lastModificationDate' in onto:
                 all_ontos.__setitem__(onto['@id'], onto['knora-api:lastModificationDate'])
-            else :
+            else:
                 all_ontos.__setitem__(onto['@id'], None)
 
         return all_ontos[onto_iri]
@@ -500,17 +501,17 @@ class Knora:
         self.on_api_error(req)
 
         res = req.json()
-        #TODO: return also ontology name
+        # TODO: return also ontology name
         return {"onto_iri": res['@id'], "last_onto_date": res['knora-api:lastModificationDate']}
 
-    def delete_ontology(self, onto_iri: str, last_onto_date = None):
+    def delete_ontology(self, onto_iri: str, last_onto_date=None):
         """
         A method to delete an ontology from /v2/ontologies
 
         :param onto_iri: The ontology to delete
         :param last_onto_date: the lastModificationDate of an ontology. None by default
         :return:
-        """"" #TODO: add return documentation
+        """""  # TODO: add return documentation
         url = self.server + "/v2/ontologies/" + urllib.parse.quote_plus(onto_iri)
         req = requests.delete(url,
                               params={"lastModificationDate": last_onto_date},
@@ -604,18 +605,18 @@ class Knora:
         return {"class_iri": res['@graph'][0]['@id'], "last_onto_date": res['knora-api:lastModificationDate']}
 
     def create_property(
-            self,
-            onto_iri: str,
-            onto_name: str,
-            last_onto_date: str,
-            prop_name: str,
-            super_props: List[str],
-            labels: Dict[str, str],
-            gui_element: str,
-            gui_attributes: List[str] = None,
-            subject: Optional[str] = None,
-            object: Optional[str] = None,
-            comments: Optional[Dict[str, str]] = None
+        self,
+        onto_iri: str,
+        onto_name: str,
+        last_onto_date: str,
+        prop_name: str,
+        super_props: List[str],
+        labels: Dict[str, str],
+        gui_element: str,
+        gui_attributes: List[str] = None,
+        subject: Optional[str] = None,
+        object: Optional[str] = None,
+        comments: Optional[Dict[str, str]] = None
     ) -> Dict[str, str]:
         """Create a Knora property
 
@@ -710,13 +711,13 @@ class Knora:
         return {"prop_iri": res['@graph'][0]['@id'], "last_onto_date": res['knora-api:lastModificationDate']}
 
     def create_cardinality(
-            self,
-            onto_iri: str,
-            onto_name: str,
-            last_onto_date: str,
-            class_iri: str,
-            prop_iri: str,
-            occurrence: str
+        self,
+        onto_iri: str,
+        onto_name: str,
+        last_onto_date: str,
+        class_iri: str,
+        prop_iri: str,
+        occurrence: str
     ) -> Dict[str, str]:
         """Add a property with a given cardinality to a class
 
@@ -858,7 +859,7 @@ class Knora:
         self.on_api_error(req)
         return req.json()
 
-    def create_resource(self, schema: Dict, res_class: str, label: str, values: Dict, stillimage = None):
+    def create_resource(self, schema: Dict, res_class: str, label: str, values: Dict, stillimage=None):
         """
         This method creates a new resource (instance of a resource class) with the
         default permissions.
@@ -935,8 +936,9 @@ class Knora:
                 #
                 # A knora date value
                 #
-                res = re.match('(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})?(-\d{1,2})?(-\d{1,2})?(:CE|:BCE)?(:\d{4})?(-\d{1,2})?(-\d{1,2})?',
-                               str(val))
+                res = re.match(
+                    '(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})?(-\d{1,2})?(-\d{1,2})?(:CE|:BCE)?(:\d{4})?(-\d{1,2})?(-\d{1,2})?',
+                    str(val))
                 if res is None:
                     raise KnoraError("Invalid date format! " + str(val))
                 dp = res.groups()
@@ -1135,7 +1137,8 @@ class Knora:
         if len(children) == 0:
             res = list(map(lambda a: {"name": a["name"], "id": a["id"]}, children))
         else:
-            res = list(map(lambda a: {"name": a["name"], "id": a["id"], "nodes": self.list_creator(a["children"])}, children))
+            res = list(
+                map(lambda a: {"name": a["name"], "id": a["id"], "nodes": self.list_creator(a["children"])}, children))
         return res
 
     def create_schema(self, shortcode: str, shortname: str):
@@ -1191,7 +1194,7 @@ class Knora:
         propname = ''
         link_otypes = []
         propcnt = 0
-        propindex= {}  # we have to keep the order of the properties as given in the ontology....
+        propindex = {}  # we have to keep the order of the properties as given in the ontology....
         for row in qres:
 
             nresclass = row.res.toPython()
@@ -1314,6 +1317,7 @@ class Knora:
         #  pprint(res)
         return res
 
+
 class Sipi:
     def __init__(self, sipiserver: str, token: str):
         self.sipiserver = sipiserver
@@ -1347,14 +1351,16 @@ class BulkImport:
     def __init__(self, schema: Dict):
         self.schema = schema
         self.proj_prefix = 'p' + schema['shortcode'] + '-' + schema["ontoname"]
-        self.proj_iri = "http://api.knora.org/ontology/" + schema['shortcode'] + "/" + schema["ontoname"] + "/xml-import/v1#"
+        self.proj_iri = "http://api.knora.org/ontology/" + schema['shortcode'] + "/" + schema[
+            "ontoname"] + "/xml-import/v1#"
         self.xml_prefixes = {
             None: self.proj_iri,
             "xsi": "http://www.w3.org/2001/XMLSchema-instance",
             self.proj_prefix: self.proj_iri,
             "knoraXmlImport": "http://api.knora.org/ontology/knoraXmlImport/v1#"
         }
-        self.root = etree.Element('{http://api.knora.org/ontology/knoraXmlImport/v1#}resources', nsmap=self.xml_prefixes)
+        self.root = etree.Element('{http://api.knora.org/ontology/knoraXmlImport/v1#}resources',
+                                  nsmap=self.xml_prefixes)
         self.project_shortcode = schema["shortcode"]
 
     def new_xml_element(self, tag: str, options: Dict = None, value: str = None):
@@ -1478,7 +1484,8 @@ class BulkImport:
                 #     exit(0)
             elif propinfo["otype"] == 'DateValue':
                 # processing and validating date format
-                res = re.match('(GREGORIAN:|JULIAN:)?(\d{4})?(-\d{1,2})?(-\d{1,2})?(:\d{4})?(-\d{1,2})?(-\d{1,2})?', str(valuestr))
+                res = re.match('(GREGORIAN:|JULIAN:)?(\d{4})?(-\d{1,2})?(-\d{1,2})?(:\d{4})?(-\d{1,2})?(-\d{1,2})?',
+                               str(valuestr))
                 if res is None:
                     raise KnoraError("Invalid date format! " + str(valuestr))
                 dp = res.groups()
@@ -1492,9 +1499,9 @@ class BulkImport:
                 if y1 is None:
                     raise KnoraError("Invalid date format! " + str(valuestr))
                 if y2 is not None:
-                    date1 = y1*10000;
+                    date1 = y1 * 10000;
                     if m1 is not None:
-                        date1 += m1*100
+                        date1 += m1 * 100
                     if d1 is not None:
                         date1 += d1
                     date2 = y2 * 10000;
@@ -1532,21 +1539,25 @@ class BulkImport:
         for prop_info in self.schema["resources"][resclass]:
             # first we check if the cardinality allows to add this property
             if properties.get(prop_info["propname"]) is None:  # this property-value is missing
-                if prop_info["card"] == 'cardinality'\
-                        and prop_info["cardval"] == 1:
-                    raise KnoraError(resclass + " requires exactly one " + prop_info["propname"] + "-value: none supplied!")
-                if prop_info["card"] == 'minCardinality'\
-                        and prop_info["cardval"] == 1:
-                    raise KnoraError(resclass + " requires at least one " + prop_info["propname"] + "-value: none supplied!")
+                if prop_info["card"] == 'cardinality' \
+                    and prop_info["cardval"] == 1:
+                    raise KnoraError(
+                        resclass + " requires exactly one " + prop_info["propname"] + "-value: none supplied!")
+                if prop_info["card"] == 'minCardinality' \
+                    and prop_info["cardval"] == 1:
+                    raise KnoraError(
+                        resclass + " requires at least one " + prop_info["propname"] + "-value: none supplied!")
                 continue
             if type(properties[prop_info["propname"]]) is list:
                 if len(properties[prop_info["propname"]]) > 1:
                     if prop_info["card"] == 'maxCardinality' \
-                            and prop_info["cardval"] == 1:
-                        raise KnoraError(resclass + " allows maximal one " + prop_info["propname"] + "-value: several supplied!")
-                    if prop_info["card"] == 'cardinality'\
-                            and prop_info["cardval"] == 1:
-                        raise KnoraError(resclass + " requires exactly one " + prop_info["propname"] + "-value: several supplied!")
+                        and prop_info["cardval"] == 1:
+                        raise KnoraError(
+                            resclass + " allows maximal one " + prop_info["propname"] + "-value: several supplied!")
+                    if prop_info["card"] == 'cardinality' \
+                        and prop_info["cardval"] == 1:
+                        raise KnoraError(
+                            resclass + " requires exactly one " + prop_info["propname"] + "-value: several supplied!")
                 for p in properties[prop_info["propname"]]:
                     xmlopt, value = process_properties(prop_info, p)
                     if xmlopt['knoraType'] == 'link_value':

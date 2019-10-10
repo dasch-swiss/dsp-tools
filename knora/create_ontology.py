@@ -115,8 +115,8 @@ def program(args):
             try:
                 user_iri = con.create_user(username=user["username"],
                                            email=user["email"],
-                                           givenName=user["givenName"],
-                                           familyName=user["familyName"],
+                                           given_name=user["givenName"],
+                                           family_name=user["familyName"],
                                            password="password",
                                            lang=user["lang"] if user.get("lang") is not None else "en")
             except KnoraError as err:

@@ -60,11 +60,15 @@ def test_create_user(con):
 
     print(user_iri)
 
+    # check that the created user exists
     res = connection.get_user_by_iri(user_iri)
-
     assert (res["username"] == "testtest")
     assert (res["email"] == "testtest@example.com")
 
-    # try to login
+    # logout
     connection.logout()
+    assert (connection.get_token() is None)
+
+    # login
     connection.login(res["email"], "test")
+    assert (connection.get_token() is not None)

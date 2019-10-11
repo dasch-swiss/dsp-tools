@@ -118,7 +118,7 @@ def program(args):
                                            email=user["email"],
                                            given_name=user["givenName"],
                                            family_name=user["familyName"],
-                                           password=["password"],
+                                           password=user["password"],
                                            lang=user["lang"] if user.get("lang") is not None else "en")
             except KnoraError as err:
                 print("Creating user failed: " + err.message)

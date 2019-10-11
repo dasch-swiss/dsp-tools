@@ -5,6 +5,8 @@ services:
   - docker
 
 script:
+  - git clone -b wip/1457-upgrade-sipi --single-branch --depth 1 https://github.com/dasch-swiss/knora-api.git kmora-api
+  - cd knora-api && make stack-up && make init-knora-test-minimal
   - pyenv shell 3.7.1
   - pip3 install -r requirements.txt
   - pip3 install .

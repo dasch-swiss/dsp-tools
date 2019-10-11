@@ -16,8 +16,13 @@ serve-docs: ## serve docs for local viewing
 publish-docs: ## build and publish docs to Github Pages
 	mkdocs gh-deploy
 
+.PHONY: install-requirements
+install-requirements: ## install requirements
+	pip3 install -r requirements.txt
+
+.PHONY: test
 test: ## runs all tests
-	python3 -m pytest
+	cd test && python3 -m unittest
 
 clean: ## cleans the project directory
 	rm -rf dist/ build/ knora.egg-info/ .pytest_cache/ site/

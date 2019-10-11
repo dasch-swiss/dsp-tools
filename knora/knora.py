@@ -116,6 +116,7 @@ class Knora:
         """
         self.server = server
         self.prefixes = prefixes
+        self.token = None
 
     def login(self, email: str, password: str):
         """
@@ -142,12 +143,13 @@ class Knora:
         return self.token
 
     def logout(self):
-        req = requests.delete(
-            self.server + '/v2/authentication',
-            headers={'Authorization': 'Bearer ' + self.token}
-        )
-        self.on_api_error(req)
-        self.token = None
+        if self.token is not None:
+            req = requests.delete(
+                self.server + '/v2/authentication',
+                headers={'Authorization': 'Bearer ' + self.token}
+            )
+            self.on_api_error(req)
+            self.token = None
 
     def __del__(self):
         self.logout()
@@ -245,7 +247,7 @@ class Knora:
             project['logo'] = logo
 
         jsondata = json.dumps(project)
-        print(jsondata)
+        # print(jsondata)
 
         req = requests.post(self.server + "/admin/projects",
                             headers={'Content-Type': 'application/json; charset=UTF-8',

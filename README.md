@@ -33,6 +33,13 @@ $ python3 setup.py install
 The project contains a Makefile defining management tasks. Please use
 `make help` to see what is available. 
 
+## Testing
+
+```bash
+$ make install-requirements
+$ make test
+```
+
 ## Publishing to PyPi
 
 Generate distribution package. Make sure you have the latest versions of `setuptools` and `wheel` installed:
@@ -70,15 +77,7 @@ $ python3 -m twine upload dist/*
 For local development:
 
 ```bash
-$ python3 setup.py develop
-```
-
-## Testing
-
-```bash
-$ pip3 install pytest
-$ pip3 install --editable .
-$ pytest
+$ python3 setup.py --editable .
 ```
 
 ## Requirements

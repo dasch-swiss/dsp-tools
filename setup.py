@@ -27,16 +27,16 @@ setuptools.setup(
         'jsonschema',
         'click',
         'rfc3987',
-        'pprint'
+        'pprint',
     ],
     entry_points={
           'console_scripts': [
               'knora-create-ontology=knora.create_ontology:main',
               'knora-xml-import=knora.xml2knora:main',
               'knora-reset-triplestore=knora.reset_triplestore:main',
-              'knoractl=knoractl:main'
+              'knoractl=knoractl:main',
           ],
     },
     include_package_data=True,
-    zip_safe=False
+    zip_safe=False,
 )

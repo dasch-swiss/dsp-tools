@@ -6,3 +6,11 @@ twine
 pytest
 mkdocs==1.0.4
 mkdocs-material
+rdflib
+lxml
+validators
+requests
+jsonschema
+click
+rfc3987
+pprint

@@ -108,6 +108,7 @@ def program(args):
 
     if args.verbose is not None:
         print("Adding users...")
+
     # now we add the users if existing
     users = ontology["project"].get('users')
     if users is not None:
@@ -117,7 +118,7 @@ def program(args):
                                            email=user["email"],
                                            given_name=user["givenName"],
                                            family_name=user["familyName"],
-                                           password="password",
+                                           password=["password"],
                                            lang=user["lang"] if user.get("lang") is not None else "en")
             except KnoraError as err:
                 print("Creating user failed: " + err.message)

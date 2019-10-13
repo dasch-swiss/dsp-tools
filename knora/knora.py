@@ -10,6 +10,7 @@ import validators
 import re
 from rfc3987 import parse
 from pprint import pprint
+import sys
 
 # TODO: recheck all the documentation of this file
 """

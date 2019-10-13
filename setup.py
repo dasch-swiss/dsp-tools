@@ -20,7 +20,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        'rdflib',
+        'rdflib @ https://github.com/RDFLib/rdflib/tarball/master#egg=rdflib-5.0.0',
         'lxml',
         'validators',
         'requests',

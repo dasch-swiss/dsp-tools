@@ -29,14 +29,16 @@ pip_repositories()
 # allows to use requirements.txt for loading the dependencies
 load("@rules_python//python:pip.bzl", "pip_import")
 
+load("@rules_python//python:pip.bzl", "pip_import")
+
 # This rule translates the specified requirements.txt into
-# @knora_py_deps//:requirements.bzl, which itself exposes a pip_install method.
+# @my_deps//:requirements.bzl, which itself exposes a pip_install method.
 pip_import(
-   name = "knora_py_deps",
-   requirements = "//:requirements.txt",
+   name = "my_deps",
+   requirements = "//deps:requirements.txt",
 )
 
-# Load the pip_install symbol for knora_py_deps, and create the dependencies'
+# Load the pip_install symbol for my_deps, and create the dependencies'
 # repositories.
-load("@knora_py_deps//:requirements.bzl", "pip_install")
+load("@my_deps//:requirements.bzl", "pip_install")
 pip_install()

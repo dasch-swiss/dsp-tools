@@ -25,7 +25,7 @@ $ pip3 install --upgrade knora
 
 To install from source, i.e. this repository run:
 ```
-$ python3 setup.py install
+$ pip3 install .
 ```
 
 ## Makefile for repository management tasks
@@ -85,11 +85,34 @@ $ python3 setup.py --editable .
 To install the requirements:
 
 ```bash
-$ pip3 install -r requirements.txt
+$ pip3 install -r deps/requirements.txt
 ```
 
 To generate a "requirements" file (usually requirements.txt), that you commit with your project, do:
 
 ```bash
-$ pip3 freeze > requirements.txt
+$ pip3 freeze > deps/requirements.txt
+```
+
+## Experimental: Building with Bazel
+
+Knora-py supports building with [Bazel](https://bazel.build).
+
+### Perquisites
+
+Install Bazel:
+```bash
+$ brew install bazel
+```
+
+### Running tests
+
+Run all tests:
+```bash
+$ bazel test //test:all_tests
+```
+
+Run single test:
+```bash
+$ bazel test //test:test_knora
 ```

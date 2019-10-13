@@ -18,14 +18,14 @@ publish-docs: ## build and publish docs to Github Pages
 
 .PHONY: install-requirements
 install-requirements: ## install requirements
-	pip3 install -r requirements.txt
+	pip3 install -r deps/requirements.txt
 
 .PHONY: test
 test: ## runs all tests
 	cd test && python3 -m unittest
 
 clean: ## cleans the project directory
-	rm -rf dist/ build/ knora.egg-info/ .pytest_cache/ site/
+	@rm -rf dist/ build/ knora.egg-info/ .pytest_cache/ site/
 
 help: ## this help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort

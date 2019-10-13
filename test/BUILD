@@ -1,25 +1,32 @@
+# make the python rules available
 load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
 
-load("@knora_py_deps//:requirements.bzl", "requirement")
+# make the dependencies from requirements.txt available
+load("@my_deps//:requirements.bzl", "requirement")
 
 py_test(
     name = "test_create_ontology",
-    srcs = ["test/test_create_ontology.py"],
-    deps = ["//knora_py/knora/knora"],
+    srcs = ["test_create_ontology.py"],
+    deps = ["//knora:knora"],
+    data = ["test-onto.json"],
 )
 
 py_test(
     name = "test_create_resource",
-    srcs = ["test/test_create_resource.py"],
+    srcs = ["test_create_resource.py"],
     deps = [
-        "//knora/knora",
+        "//knora:knora",
         requirement("pprint"),
+    ],
+    data = [
+        "test-onto.json",
+        "test.tif"
     ],
 )
 
 py_test(
     name = "test_knora",
-    srcs = ["test/test_knora.py"],
+    srcs = ["test_knora.py"],
     deps = ["//knora:knora"],
 )
 
@@ -34,9 +41,9 @@ test_suite(
 
 py_library(
     name = "test_lib",
-    srcs = glob(["test/*.py"]),
+    srcs = glob(["*.py"]),
     deps = [
-        "//knora_py/knora/knora",
+        "//knora:knora",
     ],
 )
 

@@ -19,11 +19,29 @@ cache:
 services:
   - docker
 
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - wget
+      - pkg-config
+
+before_install:
+  - wget https://github.com/bazelbuild/bazel/releases/download/1.0.0/bazel_1.0.0-linux-x86_64.deb
+  - sha256sum -c tools/bazel_1.0.0-linux-x86_64.deb.sha256
+  - sudo dpkg -i bazel_1.0.0-linux-x86_64.deb
+
 script:
   - git clone -b wip/1457-upgrade-sipi --single-branch --depth 1 https://github.com/dasch-swiss/knora-api.git
   - ls
-  - cd knora-api && make stack-up && make init-knora-test-minimal
+  - cd $TRAVIS_BUILD_DIR/knora-api
+  - make stack-up
+  - sleep 5
+  - make init-knora-test-minimal
+  - cd $TRAVIS_BUILD_DIR
   - pyenv shell 3.7.1
-  - pip3 install -r requirements.txt
+  - make install-requirements
   - pip3 install .
   - make test
+  - bazel test //test:all_tests

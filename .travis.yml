@@ -45,6 +45,7 @@ script:
   - # hit graphdb with a request "waking-it-up"
   - curl http://localhost:7200/rest/repositories
   - make init-knora-test-minimal-free
+  - make stack-restart
   - cd $TRAVIS_BUILD_DIR
   - pyenv shell 3.7.1
   - pip3 install --upgrade pip

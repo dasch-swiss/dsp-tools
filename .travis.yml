@@ -36,6 +36,7 @@ script:
   - git clone -b wip/1457-upgrade-sipi --single-branch --depth 1 https://github.com/dasch-swiss/knora-api.git
   - ls
   - cd $TRAVIS_BUILD_DIR/knora-api
+  - export GDB_HEAP_SIZE=2G
   - make stack-up
   - docker-compose -f docker/knora.docker-compose.yml logs
   - sleep 15

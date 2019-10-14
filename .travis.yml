@@ -37,7 +37,11 @@ script:
   - ls
   - cd $TRAVIS_BUILD_DIR/knora-api
   - make stack-up
+  - docker-compose -f knora-api/docker/knora.docker-compose.yml logs
   - sleep 15
+  - docker-compose -f knora-api/docker/knora.docker-compose.yml logs
+  - # hit graphdb with a request "waking-it-up"
+  - curl http://localhost:7200/rest/repositories
   - make init-knora-test-minimal-free
   - cd $TRAVIS_BUILD_DIR
   - pyenv shell 3.7.1

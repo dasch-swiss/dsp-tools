@@ -905,8 +905,8 @@ class Knora:
             if type(val) is dict:
                 comment = val.get('comment')
                 permissions = val.get('permissions')
-                mapping = val.get('mapping')
                 val = val.get('value')
+                mapping = val.get('mapping')
             else:
                 comment = None
                 permissions = None

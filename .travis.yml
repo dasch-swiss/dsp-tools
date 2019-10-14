@@ -47,7 +47,7 @@ script:
   - make init-knora-test-minimal-free
   - cd $TRAVIS_BUILD_DIR
   - pyenv shell 3.7.1
-  - make install-requirements
-  - pip3 install .
+  - pip3 install --upgrade pip
+  - make install
   - make test
   - bazel test //test:all_tests

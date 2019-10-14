@@ -26,6 +26,10 @@ publish-docs: ## build and publish docs to Github Pages
 install-requirements: ## install requirements
 	pip3 install -r deps/requirements.txt
 
+.PHONY: install
+install: ## install from source
+	pip3 install .
+
 .PHONY: test
 test: ## runs all tests
 	cd test && python3 -m unittest

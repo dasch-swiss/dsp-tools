@@ -39,16 +39,13 @@ script:
   - cd $TRAVIS_BUILD_DIR/knora-api
   - export GDB_HEAP_SIZE=2G
   - make stack-up
-  - docker-compose -f docker/knora.docker-compose.yml logs
   - sleep 15
-  - docker-compose -f docker/knora.docker-compose.yml logs
   - make init-knora-test-minimal-free
   - sleep 15
   - make stack-restart-api
-  - docker-compose -f docker/knora.docker-compose.yml logs
   - cd $TRAVIS_BUILD_DIR
   - pyenv shell 3.7.1
   - pip3 install --upgrade pip
   - make install
   - make test
-  - bazel test //test:all_tests
+  # - bazel test //test:all_tests

@@ -2,7 +2,7 @@
 load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 
 # make the dependencies from requirements.txt available
-load("@my_deps//:requirements.bzl", "requirement")
+load("@knora_py_deps//:requirements.bzl", "requirement")
 
 py_library(
     name = "knora",
@@ -34,6 +34,7 @@ py_binary(
         "knora-schema.json",
         "knora-schema-lists.json",
     ],
+    python_version = "PY3",
 )
 
 py_binary(
@@ -48,6 +49,7 @@ py_binary(
     data = [
         "knora-data-schema.xsd"
     ],
+    python_version = "PY3",
 )
 
 py_binary(
@@ -55,6 +57,7 @@ py_binary(
     visibility = ["//visibility:public"],
     srcs = ["reset_triplestore.py"],
     deps = [":knora"],
+    python_version = "PY3",
 )
 
 py_binary(
@@ -62,4 +65,5 @@ py_binary(
     visibility = ["//visibility:public"],
     srcs = ["knoractl.py"],
     deps = [":knora"],
+    python_version = "PY3",
 )

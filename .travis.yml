@@ -40,7 +40,7 @@ script:
   - export GDB_HEAP_SIZE=2G
   - make stack-up
   - sleep 15
-  - make init-knora-test-minimal-free
+  - make init-db-test-minimal-free
   - sleep 15
   - make stack-restart-api
   - cd $TRAVIS_BUILD_DIR
@@ -48,4 +48,4 @@ script:
   - pip3 install --upgrade pip
   - make install
   - make test
-  # - bazel test //test:all_tests
+  - bazel test //test:all_tests

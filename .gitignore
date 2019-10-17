@@ -108,4 +108,3 @@ venv.bak/
 
 # bazel
 /bazel-*
-/bazel-knora-py

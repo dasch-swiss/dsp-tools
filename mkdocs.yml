@@ -2,6 +2,7 @@ site_name: Knora-Py Documentation
 
 nav:
     - Introduction: index.md
+    - knora-create_ontology: create_ontology.md
     - knora-xml-import: xml2knora.md
     - Knoractl: knoractl.md
 

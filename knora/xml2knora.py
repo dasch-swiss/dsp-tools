@@ -248,7 +248,7 @@ def do_sortorder(resources: List[KnoraResource]) -> List[KnoraResource]:
 
 def program(args) -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("inproject", help="Shortname of SALSAH input project")
+    parser.add_argument("inproject", help="Shortname of project the data should be added to")
     parser.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the Knora server")
     parser.add_argument("-S", "--sipi", type=str, default="http://0.0.0.0:1024", help="URL of SIPI server")
     parser.add_argument("-u", "--user", type=str, default="root@example.com", help="Username for Knora")

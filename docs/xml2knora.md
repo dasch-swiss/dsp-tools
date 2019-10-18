@@ -53,7 +53,7 @@ Thus, the knora-tag may b used as follows:
 
 ```
 
-### `resource`-tag
+### `<resource>`-tag
 A `resource`-tag contains all necessary information to create a resource. It
 has th following options:
 - _label_: The label, a human readable, semantical meaningfull short name of the resource [required]
@@ -88,7 +88,7 @@ The resource-tag may contain the following tags describing properties (data fiel
 
 ## Properties and values
 
-### `\<image\>`-tag
+### `<image>`-tag
 The image property contains the path to an image file. It must only be used if the
 resource is a `StillImageResource`!
 
@@ -99,7 +99,7 @@ Example:
 <image>postcards.dir/images/EURUS015a.jpg</image>
 ```
 
-### `\<text-prop\>`-tag
+### `<text-prop>`-tag
 The text property tag is used to list text values. It has one mandatory options:
 - _name_: Name of the property as given in the ontology
 
@@ -107,10 +107,10 @@ Example:
 ```xml
 <text-prop name="hasTranslation">
 ```
-The `\<text-prop\>`-tag must contain at least one `\<text\>`-tag. There are several variants of text tags:
+The `<text-prop>`-tag must contain at least one `\<text\>`-tag. There are several variants of text tags:
 
-#### `\<text\>`-tag
-The `\<text\>`-tag has the following options:
+#### `<text>`-tag
+The `<text>`-tag has the following options:
 - _encoding_: either "utf8" or "hex64" [required]
   - _utf8_: The tag describes a simple text without markup. The text is a simple utf-8 string
   - _hex64_: The tag describes a complex text containing markup. It must be a hex64 encoded string in the
@@ -147,11 +147,11 @@ a link to the internal resource with the ID="6618":
 ```
 Within one property, simple and complex text values may be mixed.
 
-### `\<color-prop\>`-tag
+### `<color-prop>`-tag
 The color-prop tag is used to define a color property. It has one mandatory options:
 - _name_: Name of the property as given in the ontology
 
-#### `\<color\>`-tag
+#### `<color>`-tag
 The color-tag is used to indicate a color value. The color has to be giiven in
 web-notation, that is a "#" followed by 3 or 6 hex numerals.
 
@@ -163,11 +163,11 @@ A propery with 2 color valus would be defined as follows:
 </color-prop>
 ```
 
-### `\<date-prop\>`-tag
+### `<date-prop>`-tag
 Is used to define knora dates. Options:
 - _name_: Name of the property as given in the ontology
 
-#### `\<date\>`-tag
+#### `<date>`-tag
 A Knora date value. It has the following format:
 ```
 calendar:epoch:yyyy-mm-dd:epoch:yyyy-mm-dd

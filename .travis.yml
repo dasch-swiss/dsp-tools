@@ -34,7 +34,7 @@ before_install:
   - sudo dpkg -i bazel_1.0.0-linux-x86_64.deb
 
 script:
-  - git clone -b wip/1457-upgrade-sipi --single-branch --depth 1 https://github.com/dasch-swiss/knora-api.git
+  - git clone -b develop --single-branch --depth 1 https://github.com/dasch-swiss/knora-api.git
   - ls
   - cd $TRAVIS_BUILD_DIR/knora-api
   - export GDB_HEAP_SIZE=2G
@@ -48,4 +48,4 @@ script:
   - pip3 install --upgrade pip
   - make install
   - make test
-  - bazel test //test:all_tests
+  - bazel test //...

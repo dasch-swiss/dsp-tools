@@ -22,7 +22,7 @@ py_library(
 )
 
 py_binary(
-    name = "knora_create_ontology",
+    name = "create_ontology",
     visibility = ["//visibility:public"],
     srcs = ["create_ontology.py"],
     deps = [
@@ -38,7 +38,7 @@ py_binary(
 )
 
 py_binary(
-    name = "knora_xml_import",
+    name = "xml2knora",
     visibility = ["//visibility:public"],
     srcs = ["xml2knora.py"],
     deps = [
@@ -53,7 +53,7 @@ py_binary(
 )
 
 py_binary(
-    name = "knora_reset_triplestore",
+    name = "reset_triplestore",
     visibility = ["//visibility:public"],
     srcs = ["reset_triplestore.py"],
     deps = [":knora"],

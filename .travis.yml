@@ -21,7 +21,13 @@ services:
 
 script:
   - git clone -b develop --single-branch --depth 1 https://github.com/dasch-swiss/knora-api.git
-  - cd knora-api && make stack-up && make init-db-test-minimal
+  - cd $TRAVIS_BUILD_DIR/knora-api
+  - make stack-up
+  - sleep 15
+  - make init-db-test-minimal
+  - sleep 15
+  - make stack-restart-api
+  - cd $TRAVIS_BUILD_DIR
   - pyenv shell 3.7.1
   - pip3 install -r requirements.txt
   - pip3 install .

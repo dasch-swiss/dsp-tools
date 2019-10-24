@@ -32,7 +32,7 @@ install: ## install from source
 
 .PHONY: test
 test: ## runs all tests
-	cd test && python3 -m unittest
+	bazel test //...
 
 .PHONY: clean
 clean: ## cleans the project directory

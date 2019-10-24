@@ -47,7 +47,4 @@ script:
   - make stack-restart-api
   - cd $TRAVIS_BUILD_DIR
   - pyenv shell 3.7.1
-  - pip3 install --upgrade pip
-  - make install
-  - make test
   - bazel test //...

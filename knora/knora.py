@@ -98,6 +98,7 @@ class KnoraStandoffXml:
 
 
 class KnoraStandoffXmlEncoder(json.JSONEncoder):
+    """Classes used as wrapper for knora standoff-XML"""
     def default(self, obj):
         if isinstance(obj, KnoraStandoffXml):
             return obj.getXml()

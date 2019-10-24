@@ -29,9 +29,9 @@ addons:
       - expect
 
 before_install:
-  - wget https://github.com/bazelbuild/bazel/releases/download/1.0.0/bazel_1.0.0-linux-x86_64.deb
-  # - sha256sum -c tools/bazel_1.0.0-linux-x86_64.deb.sha256
-  - sudo dpkg -i bazel_1.0.0-linux-x86_64.deb
+  - wget https://github.com/bazelbuild/bazel/releases/download/1.1.0/bazel_1.1.0-linux-x86_64.deb
+  # - sha256sum -c tools/bazel_1.1.0-linux-x86_64.deb.sha256
+  - sudo dpkg -i bazel_1.1.0-linux-x86_64.deb
 
 script:
   - git clone -b develop --single-branch --depth 1 https://github.com/dasch-swiss/knora-api.git

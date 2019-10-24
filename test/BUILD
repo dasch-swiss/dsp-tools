@@ -52,8 +52,8 @@ py_library(
 
 py_binary(
     name = "run_tests",
-    main = "test/run.py",
-    srcs = ["test/run.py"],
+    main = "//test:run.py",
+    srcs = ["//test:run.py"],
     deps = ["test_lib"],
     python_version = "PY3",
 )

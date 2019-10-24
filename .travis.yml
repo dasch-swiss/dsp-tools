@@ -37,7 +37,6 @@ before_install:
 
 script:
   - git clone -b develop --single-branch --depth 1 https://github.com/dasch-swiss/knora-api.git
-  - ls
   - cd $TRAVIS_BUILD_DIR/knora-api
   - export GDB_HEAP_SIZE=2G
   - make stack-up

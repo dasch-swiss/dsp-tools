@@ -22,9 +22,10 @@ services:
 script:
   - git clone -b develop --single-branch --depth 1 https://github.com/dasch-swiss/knora-api.git
   - cd $TRAVIS_BUILD_DIR/knora-api
+  - export GDB_HEAP_SIZE=2G
   - make stack-up
   - sleep 15
-  - make init-db-test-minimal
+  - make init-db-test-minimal-free
   - sleep 15
   - make stack-restart-api
   - cd $TRAVIS_BUILD_DIR

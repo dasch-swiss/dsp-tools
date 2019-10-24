@@ -243,23 +243,18 @@ def do_sortorder(resources: List[KnoraResource]) -> List[KnoraResource]:
         notok_resources = []
         cnt += 1
         print('{}. Ordering pass Finished!'.format(cnt))
-    print('Remaining: ')
-    print(len(resources))
+    print('Remaining: {}'.format(len(resources)))
     return ok_resources
 
 def program(args) -> None:
     parser = argparse.ArgumentParser()
+    parser.add_argument("inproject", help="Shortname of project the data should be added to")
     parser.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the Knora server")
     parser.add_argument("-S", "--sipi", type=str, default="http://0.0.0.0:1024", help="URL of SIPI server")
-    parser.add_argument("-u", "--user", default="root@example.com", help="Username for Knora")
-    parser.add_argument("-p", "--password", default="test", help="The password for login")
-    parser.add_argument("-i", "--inproject", help="Shortname or SALSAH input project")
-    parser.add_argument("-F", "--folder", default="-", help="Input folder")
+    parser.add_argument("-u", "--user", type=str, default="root@example.com", help="Username for Knora")
+    parser.add_argument("-p", "--password", type=str, default="test", help="The password for login")
+    parser.add_argument("-F", "--folder", default="-", help="Input folder.")
     args = parser.parse_args(args)
-
-    if args.help:
-        parser.print_help()
-        sys.exit(0)
 
     if args.folder == '-':
         folder = args.inproject + ".dir"

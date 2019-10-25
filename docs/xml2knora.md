@@ -32,7 +32,7 @@ The import file must start with the standard XML header:
 <?xml version='1.0' encoding='utf-8'?>
 ```
 
-### `knora`-tag
+### `<knora>`-tag
 The `knora`-tag describes a set of resources that are to be imported. It is the
 container for an arbitrary number of `resource` tags and may only
 contain resource tags.
@@ -69,45 +69,47 @@ the IRI used internally by Knora.
 ````
 
 The resource-tag may contain the following tags describing properties (data fields):
-- _\<image\>_: In case of the StillImageResource contains the path to the image file.
-- _\<text-prop\>_: Contains text values
-- _\<color-prop\>_: Contains color values
-- _\<date-prop\>_: Contains date values
-- _\<float-prop\>_: Contains decimal values
-- _\<geometry-prop\>_: Contains a JSON geometry definition for a region
-- _\<geoname-prop\>_: Contains a geoname.org location code
-- _\<list-prop\>_: Contains list tag labels
-- _\<iconclass-prop\>_: Contains iconclass.org codes
-- _\<integer-prop\>_: Contains integer values
-- _\<interval-prop\>_: Contains interval values
-- _\<period-prop\>_: Contains time period values
-- _\<resptr-prop\>_: Contains links othr resources
-- _\<time-prop\>_: Contains time values
-- _\<uri-prop\>_: Contains URI values
-- _\<boolean-prop\>_: Contaibs boolean values
+- _<image>_: In case of the StillImageResource contains the path to the image file.
+- _<text-prop>_: Contains text values
+- _<color-prop>_: Contains color values
+- _<date-prop>_: Contains date values
+- _<float-prop>_: Contains decimal values
+- _<geometry-prop>_: Contains a JSON geometry definition for a region
+- _<geoname-prop>_: Contains a geoname.org location code
+- _<list-prop>_: Contains list tag labels
+- _<iconclass-prop>_: Contains iconclass.org codes
+- _<integer-prop>_: Contains integer values
+- _<interval-prop>_: Contains interval values
+- _<period-prop>_: Contains time period values
+- _<resptr-prop>_: Contains links othr resources
+- _<time-prop>_: Contains time values
+- _<uri-prop>_: Contains URI values
+- _<boolean-prop>_: Contains boolean values
 
-## Properties and values
-
-### `<image>`-tag
+## `<image>`-tag
 The image property contains the path to an image file. It must only be used if the
 resource is a `StillImageResource`!
 
-_Note_: There is only _one_ \<image\> tag allowed per StillImageResource!
+_Note_: There is only _one_ <image> tag allowed per StillImageResource!
 
 Example:
 ```xml
 <image>postcards.dir/images/EURUS015a.jpg</image>
 ```
 
-### `<text-prop>`-tag
-The text property tag is used to list text values. It has one mandatory options:
+## Properties and values
+All proporty tags must have a _name_-option:
 - _name_: Name of the property as given in the ontology
 
 Example:
 ```xml
 <text-prop name="hasTranslation">
 ```
-The `<text-prop>`-tag must contain at least one `\<text\>`-tag. There are several variants of text tags:
+
+### `<text-prop>`-tag
+The text property tag is used to list text values.
+
+The `<text-prop>`-tag must contain at least one `<text>`-tag. There are several variants of text tags:
 
 #### `<text>`-tag
 The `<text>`-tag has the following options:
@@ -148,8 +150,7 @@ a link to the internal resource with the ID="6618":
 Within one property, simple and complex text values may be mixed.
 
 ### `<color-prop>`-tag
-The color-prop tag is used to define a color property. It has one mandatory options:
-- _name_: Name of the property as given in the ontology
+The color-prop tag is used to define a color property.
 
 #### `<color>`-tag
 The color-tag is used to indicate a color value. The color has to be giiven in
@@ -164,8 +165,7 @@ A propery with 2 color valus would be defined as follows:
 ```
 
 ### `<date-prop>`-tag
-Is used to define knora dates. Options:
-- _name_: Name of the property as given in the ontology
+Is used to define knora dates.
 
 #### `<date>`-tag
 A Knora date value. It has the following format:
@@ -178,5 +178,174 @@ calendar:epoch:yyyy-mm-dd:epoch:yyyy-mm-dd
 - _mm_: month with two digits 01, 02, .., 12
 - _dd_: day eith two digits
 
-If two dates are given, the date is in between the two given borders.
+If two dates are given, the date is in between the two given limits. If the day is omitted,
+then the precision it _month_, if also the month is omited, the procision is _year_.
+
+Examples:
+```
+<date>GREGORIAN:CE:2014-01-31</date>
+<date>GREGORIAN:CE:1930-09-02:CE:1930-09-03</date>
+```
+## `<float-prop>`-tag
+Properties with decimal values. Contains one or more `<float>`-tags.
+
+### `<float>`-tag
+The float tag contains a decimal number. Example:
+```
+<float>3.14159</float>
+```
+
+## `<geometry-prop>`-tag
+Properties which contain a geometric definition for a 2-D region (e.g. on an image)
+
+### `<geometry>`-tag
+A geometry is defined as a JSON object. It  contains the following data:
+- _status_: "active" or "deleted"
+- _type_: "circle", "rectangle" or "polygon"
+- _lineColor_: WEB-Color
+- _lineWidth_: integer number (in pixels)
+- _points_: Array of coordinate objects of the form `{"x": decimal, "y": decimal}`
+- _radius_: Coordinate object in the form `{"x": decimal, "y": decimal}`
+Please note that all coordinates are normalized coordinates (relative to the image size)  between 0.0 and 1.0 !
+The following example defines a poylgon:
+```
+{
+   "status": "active",
+   "type": "polygon",
+   "lineColor": "#ff3333",
+   "lineWidth": 2,
+   "points: [{"x": 0.17252396166134185, "y": 0.1597222222222222},
+             {"x": 0.8242811501597445,  "y": 0.14583333333333334},
+             {"x": 0.8242811501597445,  "y": 0.8310185185185185},
+             {"x": 0.1757188498402556,  "y": 0.8240740740740741},
+             {"x": 0.1757188498402556,  "y": 0.1597222222222222},
+             {"x": 0.16932907348242812, "y": 0.16435185185185186}],
+   "original_index": 0
+}
+```
+Thus, a <geometry>-tag may look like:
+```
+<geometry>{"status":"active","type"="circle","lineColor"="#ff0000","lineWidth"=2,"points":[{"x":0.5,"y":0.5}],"radius":{"x":0.1,"y":0.0}}</geometry>
+```
+
+## `<geoname-prop>`-tag
+Used for values that contain a [geonames.org](http://geonames.org) location ID
+
+### `<geoname>`-tag
+Contains a valid geonames.org ID. Example (City of Wien):
+```
+<geoname>2761369</geoname>
+```
+
+## `<list-prop>`-tag
+Entry into a list (list node). List nodes are identified by their `name`-property that was given when creating the list nodes (which must be unique within each list!).
+
+### `<list>`-tag
+Example:
+```
+<list>H_4128</list>
+```
+
+## `<iconclass-prop>`-tag
+Contains the short code of an iconclass entry see [iconclass.org](http://iconclass.org).
+For example the code
+`92E112`stands for `(story of) Aurora (Eos); 'Aurora' (Ripa) - infancy, upbringing
+Aurora · Ripa · air · ancient history · child · classical antiquity · goddess · gods · heaven · history · infancy · mythology · sky · upbringing · youth`
+
+### `<iconclass>`-tag
+Usage:
+```
+<iconclass>92E112</iconclass>
+```
+
+## `<integer-prop>`-tag
+Contains integer values
+
+### `<integer>`-tag
+Usage:
+```
+<integer>4711</integer>
+```
+
+## `<interval-prop>`-tag
+An interval defined a time period with a start and an end
+
+### `<interval>`-tag
+The interval-tag value has the following form or two decimals separated by a ":":
+```
+<interval>1.5:3.12</interval>
+```
+
+## `<resptr-prop>`-tag
+A link to another resource within Knora
+
+### `<resptr>`-tag
+A value containing the XML-internal ID of the resource. If there is a resource deefined as
+```
+<resource label="EURUS015a" restype="Postcard" unique_id="238807">
+…
+</resource
+```
+it can be referenced as
+
+```
+<resptr>238807</resptr>
+```
+
+## `<time-prop>`-tag
+A time property
+
+### `<time>`-tag
+This represents an exact date/time value in the form of `yyyy-mm-ddThh:mm:ss.sssssssssssszzzzzz`
+The following abbreviations describe this form:
+
+- _yyyy_ A four-digit numeral that represents the year. The value cannot begin with a negative (-) sign or a plus (+) sign. 0001 is the lexical representation of the year 1 of the Common Era (also known as 1 AD).
+The value cannot be 0000.
+- _mm_ A two-digit numeral that represents the month.
+- _dd_ A two-digit numeral that represents the day.
+- _hh_A two-digit numeral (with leading zeros as required) that represents the hours. The value must be between -14 and +14, inclusive.
+- _mm_ A two-digit numeral that represents the minute.
+- _ss_ A two-digit numeral that represents the whole seconds.
+- _ssssssssssss_ Optional. If present, a 1-to-12 digit numeral that represents the fractional seconds.
+- _zzzzzz_ Is required and represents the time zone. Each part of the datetime value that is expressed as a numeric value is constrained to the maximum value within the interval that is determined by the next-higher part of the datetime value. For example, the day value can never be 32 and cannot be 29 for month 02 and year 2002 (February 2002). 
+
+The timezone is defined as follows:
+
+- A positive (+) or negative (-) sign that is followed by hh:mm, where the following abbreviations are used:
+- _hh_ A two-digit numeral (with leading zeros as required) that represents the hours. The value must be between -14 and +14, inclusive.
+- _mm_  two-digit numeral that represents the minutes. The value of the minutes property must be zero when the hours property is equal to 14.
+- _+_ Indicates that the specified time instant is in a time zone that is ahead of the UTC time by hh hours and mm minutes.
+- _-_ Indicates that the specified time instant is in a time zone that is behind UTC time by hh hours and mm minutes.
+
+or
+
+- _Z_ The literal Z, which represents the time in UTC (Z represents Zulu time, which is equivalent to UTC). Specifying Z for the time zone is equivalent to specifying +00:00 or -00:00.
+
+The following form indicates noon on 10 October 2009, Eastern Standard Time in the United States:
+```
+<time>2009-10-10T12:00:00-05:00</time>
+<time>2019-10-23T13.45:12Z</time>
+```
+
+## `<uri-prop>`-tag
+A property containing an valid URI
+
+### `<uri>`-tag
+Contains a syntactically valid URI
+
+```
+<uri>http://www.groove-t-gang.ch</ur>
+```
+
+## `<boolean-prop`>-tag
+A property containing boolean values
+
+### `<boolean>`-tag
+Must contain the string "true" or "false", or the numeral "1" or "0"
+
+```
+<boolean>true</boolean>
+<boolean>0</boolean>
+```
+
 

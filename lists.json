@@ -1,0 +1,27 @@
+{
+   "options": {
+      "id": "http://rdfh.ch/lists/00FE/iNHOrh6_RXe02ydDCXh6Og",
+      "nodes": [
+         {
+            "opt1": {
+               "id": "http://rdfh.ch/lists/00FE/BAf0kttDSaSxKbH9x-T1_w"
+            }
+         },
+         {
+            "opt2": {
+               "id": "http://rdfh.ch/lists/00FE/CLj-eWV9SiemLQEuJQytvA"
+            }
+         },
+         {
+            "opt3": {
+               "id": "http://rdfh.ch/lists/00FE/fNoTl1NfQ6yG8lZVAa7-GQ"
+            }
+         },
+         {
+            "opt4": {
+               "id": "http://rdfh.ch/lists/00FE/H0KDgVb6Rn-ivyX_UU4ZxA"
+            }
+         }
+      ]
+   }
+}

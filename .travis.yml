@@ -19,13 +19,21 @@ cache:
 services:
   - docker
 
-script:
+env:
+  global:
+    - GDB_HEAP_SIZE=2G
+    - KNORA_GDB_LICENSE=$TRAVIS_BUILD_DIR/knora-api/travis/graphdb.license
+
+before_install:
   - git clone -b develop --single-branch --depth 1 https://github.com/dasch-swiss/knora-api.git
   - cd $TRAVIS_BUILD_DIR/knora-api
-  - export GDB_HEAP_SIZE=2G
-  - make stack-up
+  - openssl aes-256-cbc -K $encrypted_ec8f5e0fa991_key -iv $encrypted_ec8f5e0fa991_iv -in travis/secrets.tar.enc -out $TRAVIS_BUILD_DIR/travis/secrets.tar -d
+  - tar -C travis -xvf travis/secrets.tar
+
+script:
+  - cd $TRAVIS_BUILD_DIR/knora-api && make stack-up
   - sleep 15
-  - make init-db-test-minimal-free
+  - make init-db-test-minimal
   - sleep 15
   - make stack-restart-api
   - cd $TRAVIS_BUILD_DIR

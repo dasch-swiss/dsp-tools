@@ -44,7 +44,6 @@ before_install:
   - pyenv install -f ${PYTHON_VERSION}
   - pyenv global system ${PYTHON_VERSION}
   - pip3 install --upgrade pip
-  - which python3
 
 script:
   - cd $TRAVIS_BUILD_DIR/knora-api

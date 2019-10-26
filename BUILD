@@ -22,7 +22,7 @@ toolchain(
 # travis environment
 py_runtime(
     name = "ubuntu_py3_runtime",
-    interpreter_path = "/usr/bin/python3",
+    interpreter_path = "/opt/pyenv/shims/python3",
     python_version = "PY3",
 )
 py_runtime_pair(

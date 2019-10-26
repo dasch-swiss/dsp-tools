@@ -75,7 +75,7 @@ class KnoraProperty:
                     raise MyError('Unexpected start tag: "{}" <property> may contain only <value> tags!'.format(subnode.tag))
             else:
                 if subnode.tag == 'text-prop' or subnode.tag == 'color-prop' or \
-                    subnode.tag == 'date-prop' or subnode.tag == 'float-prop' or \
+                    subnode.tag == 'date-prop' or subnode.tag == 'decimal-prop' or \
                     subnode.tag == 'geometry-prop' or subnode.tag == 'geoname-prop' or \
                     subnode.tag == 'list-prop' or subnode.tag == 'iconclass-prop' or \
                     subnode.tag == 'integer-prop' or subnode.tag == 'interval-prop' or \
@@ -116,8 +116,8 @@ class KnoraResource:
                     self.properties.append(KnoraProperty(context, subnode, 'color'))
                 elif subnode.tag == 'date-prop':
                     self.properties.append(KnoraProperty(context, subnode, 'date'))
-                elif subnode.tag == 'float-prop':
-                    self.properties.append(KnoraProperty(context, subnode, 'float'))
+                elif subnode.tag == 'decimal-prop':
+                    self.properties.append(KnoraProperty(context, subnode, 'decimal'))
                 elif subnode.tag == 'geometry-prop':
                     self.properties.append(KnoraProperty(context, subnode, 'geometry'))
                 elif subnode.tag == 'geoname-prop':
@@ -201,7 +201,6 @@ class KnoraResource:
         return propdata
 
 def do_sortorder(resources: List[KnoraResource]) -> List[KnoraResource]:
-    print('GAGAGAGAGAGGA')
     #
     # here we sort the resources according to outgoing resptrs
     #

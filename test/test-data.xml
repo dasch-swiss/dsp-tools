@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='utf-8'?>
+<knora xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       shortcode="00FE" vocabulary="knora-py-test">
+    <resource label="obj_inst2"
+              restype="MyObject"
+              unique_id="obj_0002"
+              permissions="UnknownUser=VR;KnownUser=V;Creator=CR;ProjectAdmin=CR;SystemAdmin=CR">
+        <text-prop name="mySimpleText">
+            <text encoding="utf8">Dies is ein einfacher Text ohne Markup</text>
+        </text-prop>
+        <text-prop name="mySimpleText">
+            <text encoding="utf8">Dies is ein einfacher Text ohne Markup</text>
+        </text-prop>
+        <text-prop name="MyRichText">
+            <text encoding="hex64">PHA+YnM6IHdhaHJzY2hlaW5saWNoIGRhcyA8YSBocmVmPSJodHRwczovL3d3dy53aWVuLmd2LmF0L3dpa2kvaW5kZXgucGhwL0hvdGVsX1dpbWJlcmdlciI+SG90ZWwgV2ltYmVyZ2VyPC9hPjwvcD4=</text>
+        </text-prop>
+        <color-prop name="myColor">
+            <color>#00ff00</color>
+        </color-prop>
+        <date-prop name="myDate">
+            <date>JULIAN:CE:1401-05-17:CE:1402-01</date>
+        </date-prop>
+        <decimal-prop name="myDecimal">
+            <decimal comment="Eulersche Zahl">2.718281828459</decimal>
+        </decimal-prop>
+        <geoname-prop name="myGeoname">
+            <geoname comment="A sacred place for railroad fans">5416656</geoname>
+        </geoname-prop>
+        <list-prop list="options" name="myList">
+            <list>opt4</list>
+        </list-prop>
+    </resource>
+</knora>

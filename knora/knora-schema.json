@@ -1,8 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "http://knora.org/pyknora/ontology/knora-schema.json",
-  "title": "Knora JSON schema",
+  "title": "knora-py JSON schema",
   "description": "JSON Schema for Knora ontologies",
+
 
   "definitions": {
     "label": {
@@ -35,6 +36,22 @@
       "additionalProperties": false
     },
 
+    "groupdef": {
+      "type": "string",
+      "oneOf": [
+        {
+          "enum": [
+            "ProjectAdmin",
+            "SystemAdmin"
+          ]
+        },
+        {
+          "pattern": "^([\\w-]*)?:([\\w ]+)$"
+        }
+      ],
+      "additionalProperties": false
+    },
+
     "user": {
       "type": "object",
       "properties": {
@@ -55,11 +72,34 @@
         },
         "lang": {
           "pattern": "^(en|de|fr|it)"
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/groupdef"
+          }
         }
       },
       "required": ["username", "email", "givenName", "familyName", "password"]
     },
-
+    "group": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "status": {
+          "type": "boolean"
+        },
+        "selfjoin": {
+          "type": "boolean"
+        }
+      },
+      "required": ["name", "description"]
+    },
     "node": {
       "type": "object",
       "properties": {
@@ -107,7 +147,7 @@
               ]
             },
             {
-              "pattern": "^([\\w-]*):(\\w+)$"
+              "pattern": "^([\\w-]*)?:(\\w+)$"
             }
           ]
         },
@@ -153,7 +193,7 @@
                 ]
               },
               {
-                "pattern": "^([\\w-]+):(\\w+)$"
+                "pattern": "^([\\w-]+)?:(\\w+)$"
               }
             ]
           }
@@ -171,19 +211,20 @@
                 "GeonameValue",
                 "IntValue",
                 "BooleanValue",
+                "TimeValue",
                 "UriValue",
                 "IntervalValue",
                 "ListValue"
               ]
             },
             {
-              "pattern": "^([\\w-]+):(\\w+)$"
+              "pattern": "^([\\w-]+)?:(\\w+)$"
             }
           ]
         },
         "subject": {
           "type": "string",
-          "pattern": "^([\\w-]+):(\\w+)$"
+          "pattern": "^([\\w-]+)?:(\\w+)$"
         },
 
         "labels": {
@@ -195,30 +236,23 @@
         },
         "gui_element": {
           "type": "string",
-          "oneOf": [
-            {
-              "enum": [
-                "Colorpicker",
-                "Date",
-                "Geometry",
-                "Geonames",
-                "Interval",
-                "List",
-                "Pulldown",
-                "Radio",
-                "Richtext",
-                "Searchbox",
-                "SimpleText",
-                "Slider",
-                "Spinbox",
-                "Textarea",
-                "Checkbox",
-                "Fileupload"
-              ]
-            },
-            {
-              "pattern": "^([\\w-]+):(\\w+)$"
-            }
+          "enum": [
+            "Colorpicker",
+            "Date",
+            "Geometry",
+            "Geonames",
+            "Interval",
+            "List",
+            "Pulldown",
+            "Radio",
+            "Richtext",
+            "Searchbox",
+            "SimpleText",
+            "Slider",
+            "Spinbox",
+            "Textarea",
+            "Checkbox",
+            "Fileupload"
           ]
         },
         "gui_attributes": {
@@ -268,7 +302,12 @@
             "type": "string"
           }
         },
-
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/group"
+          }
+        },
         "users": {
           "type": "array",
           "items": {

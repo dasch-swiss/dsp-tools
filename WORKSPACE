@@ -41,4 +41,5 @@ pip_import(
 load("@knora_py_deps//:requirements.bzl", "pip_install")
 pip_install()
 
-
+# register our custom toolchains for the different platforms
+register_toolchains("//:homebrew_toolchain", "//:travis_toolchain")

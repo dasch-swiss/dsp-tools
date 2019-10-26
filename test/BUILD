@@ -7,7 +7,9 @@ load("@knora_py_deps//:requirements.bzl", "requirement")
 py_test(
     name = "test_create_ontology",
     srcs = ["test_create_ontology.py"],
-    deps = ["//knora:knora"],
+    deps = [
+        "//knora:knora"
+    ],
     data = ["test-onto.json"],
     python_version = "PY3",
 )
@@ -29,7 +31,12 @@ py_test(
 py_test(
     name = "test_knora",
     srcs = ["test_knora.py"],
-    deps = ["//knora:knora"],
+    deps = [
+        "//knora:knora",
+        requirement("pprint"),
+        requirement("rdflib"),
+        requirement("lxml"),
+    ],
     python_version = "PY3",
 )
 

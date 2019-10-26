@@ -5,7 +5,6 @@ from knora import Knora, Sipi
 
 class TestCreateResource(unittest.TestCase):
 
-    @unittest.skip("not implemented")
     def test_create_resource(self):
         server = "http://0.0.0.0:3333"
         sipi = "http://0.0.0.0:1024"

@@ -53,6 +53,6 @@ fileref = res['uploadedFiles'][0]['internalFilename']
 inst2_info = con.create_resource(schema, "MyImage", "image_inst1", {
     "titleprop": "Stained glass",
     "linkprop": inst1_info['iri']
-}, fileref)
+}, None, fileref)
 pprint(inst2_info)
 

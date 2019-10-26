@@ -82,7 +82,7 @@
               },
               "gui_element": "SimpleText",
               "gui_attributes": ["size=64", "maxlength=128"],
-              "cardinality": "1"
+              "cardinality": "1-n"
             },
             {
               "name": "myRichText",
@@ -99,8 +99,7 @@
               "labels": {
                 "en": "Color value"
               },
-              "gui_element": "SimpleText",
-              "gui_attributes": ["size=64", "maxlength=128"],
+              "gui_element": "Colorpicker",
               "cardinality": "0-1"
             },
             {
@@ -139,7 +138,7 @@
               },
               "gui_element": "Pulldown",
               "gui_attributes": ["hlist=options"],
-              "cardinality": "1"
+              "cardinality": "0-1"
             },
             {
               "name": "myInteger",

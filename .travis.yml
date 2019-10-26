@@ -1,10 +1,10 @@
+os: linux
 dist: bionic
-sudo: required
 
 language: scala
 
 scala:
-  - "2.12.1"
+  - "2.12.8"
 
 python:
   - "3.7"
@@ -22,8 +22,6 @@ services:
 
 addons:
   apt:
-    sources:
-      - ubuntu-toolchain-r-test
     packages:
       - wget
       - pkg-config
@@ -45,5 +43,5 @@ script:
   - sleep 15
   - make stack-restart-api
   - cd $TRAVIS_BUILD_DIR
-  - pyenv shell 3.7.1
+  - ls /usr/bin/python*
   - bazel test --test_summary=detailed --test_output=all //...

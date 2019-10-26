@@ -43,7 +43,7 @@ before_install:
   - tar -C $TRAVIS_BUILD_DIR/knora-api/travis -xvf $TRAVIS_BUILD_DIR/knora-api/travis/secrets.tar
   - pyenv install -f ${PYTHON_VERSION}
   - pyenv global system ${PYTHON_VERSION}
-  - pip3 uninstall -r $TRAVIS_BUILD_DIR/deps/requirements.txt -y
+  - pip3 uninstall -y -r <(pip3 freeze)
 
 script:
   - cd $TRAVIS_BUILD_DIR/knora-api

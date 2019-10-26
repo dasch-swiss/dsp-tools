@@ -88,11 +88,19 @@ class KnoraError(Exception):
 class KnoraStandoffXml:
     """Used to handle XML strings for standoff markup"""
 
+    iriregexp = re.compile(r'IRI:[^:]*:IRI')
+
     def __init__(self, xmlstr: str):
         self.xmlstr = xmlstr
 
     def getXml(self):
         return self.xmlstr
+
+    def findall(self):
+        return KnoraStandoffXml.iriregexp.findall(self.xmlstr)
+
+    def replace(self, fromStr: str, toStr: str):
+        self.xmlstr.replace(fromStr, toStr)
 
 
 class KnoraStandoffXmlEncoder(json.JSONEncoder):
@@ -866,7 +874,8 @@ class Knora:
                          class_name: str,
                          super_class: List[str],
                          labels: Dict[str, str],
-                         comments: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+                         comments: Optional[Dict[str, str]] = None,
+                         permissions: Optional[Dict[str, str]] = None) -> Dict[str, str]:
         """Creates a knora resource class
 
         :param onto_iri: IRI of the ontology
@@ -876,6 +885,7 @@ class Knora:
         :param super_class: List of super classes
         :param labels: Dict with labels in the form { lang: labeltext }
         :param comments: Dict with comments in the form { lang: commenttext }
+        :param permissions: Dict with permissions in the form
         :return: Dict with "class_iri" and "last_onto_date"
         """
 
@@ -1181,7 +1191,13 @@ class Knora:
         self.on_api_error(req)
         return req.json()
 
-    def create_resource(self, schema: Dict, res_class: str, label: str, values: Dict, stillimage=None):
+    def create_resource(self,
+                        schema: Dict,
+                        res_class: str,
+                        label: str,
+                        values: Dict,
+                        permissions: Optional[str] = None,
+                        stillimage: Optional[str] = None):
         """
         This method creates a new resource (instance of a resource class) with the
         default permissions.
@@ -1208,6 +1224,10 @@ class Knora:
                 "@id": schema['proj_iri']
             }
         }
+
+        if permissions is not None:
+            jsondata["knora-api:hasPermissions"] = permissions
+
         if stillimage is not None:
             jsondata["knora-api:hasStillImageFileValue"] = {
                 "@type": "knora-api:StillImageFileValue",
@@ -1236,6 +1256,10 @@ class Knora:
             valdict = {
                 '@type': 'knora-api:' + prop["otype"]
             }
+
+            if permissions is not None:
+                valdict["knora-api:hasPermissions"] = permissions
+
             if comment is not None:
                 valdict["knora-api:valueHasComment"] = comment
 
@@ -1285,7 +1309,7 @@ class Knora:
                     date2 = y2 * 10000
                     if m2 is not None:
                         date2 += m2 * 100
-                    if d1 is not None:
+                    if d2 is not None:
                         date2 += d2
                     if date1 > date2:
                         y1, y2 = y2, y1

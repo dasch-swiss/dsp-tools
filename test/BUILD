@@ -10,7 +10,9 @@ py_test(
     deps = [
         "//knora:knora"
     ],
-    data = ["test-onto.json"],
+    data = [
+        "test-onto.json"
+    ],
     python_version = "PY3",
 )
 
@@ -34,33 +36,8 @@ py_test(
     deps = [
         "//knora:knora",
         requirement("pprint"),
-        requirement("rdflib"),
         requirement("lxml"),
+        requirement("rdflib"),
     ],
-    python_version = "PY3",
-)
-
-test_suite(
-    name = "all_tests",
-    tests = [
-        "test_create_ontology",
-        "test_create_resource",
-        "test_knora",
-    ],
-)
-
-py_library(
-    name = "test_lib",
-    srcs = glob(["*.py"]),
-    deps = [
-        "//knora:knora",
-    ],
-)
-
-py_binary(
-    name = "run_tests",
-    main = "//test:run.py",
-    srcs = ["//test:run.py"],
-    deps = ["test_lib"],
     python_version = "PY3",
 )

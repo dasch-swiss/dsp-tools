@@ -10,12 +10,12 @@ python:
   - "3.7"
 
 jdk:
-  - openjdk10
+  - openjdk11
 
 cache:
   directories:
     - "$HOME/.ivy2"
-    - "$TRAVIS_BUILD_DIR/.cache"
+    - "$HOME/.cache"
 
 services:
   - docker
@@ -31,7 +31,6 @@ before_install:
   - wget https://github.com/bazelbuild/bazel/releases/download/1.1.0/bazel_1.1.0-linux-x86_64.deb
   # - sha256sum -c tools/bazel_1.1.0-linux-x86_64.deb.sha256
   - sudo dpkg -i bazel_1.1.0-linux-x86_64.deb
-  - echo "build --disk_cache=$TRAVIS_BUILD_DIR/.cache" >> .bazelrc
 
 script:
   - git clone -b develop --single-branch --depth 1 https://github.com/dasch-swiss/knora-api.git
@@ -43,5 +42,4 @@ script:
   - sleep 15
   - make stack-restart-api
   - cd $TRAVIS_BUILD_DIR
-  - ls /usr/bin/python*
   - bazel test --test_summary=detailed --test_output=all //...

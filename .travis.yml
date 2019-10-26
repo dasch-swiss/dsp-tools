@@ -16,6 +16,11 @@ cache:
   directories:
     - "$HOME/.ivy2"
 
+addons:
+  apt:
+    packages:
+      - expect
+
 services:
   - docker
 
@@ -33,7 +38,7 @@ before_install:
 script:
   - cd $TRAVIS_BUILD_DIR/knora-api && make stack-up
   - sleep 15
-  - make init-db-test
+  - make init-db-test-minimal
   - sleep 15
   - make stack-restart-api
   - cd $TRAVIS_BUILD_DIR

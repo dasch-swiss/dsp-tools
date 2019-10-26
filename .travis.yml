@@ -40,7 +40,7 @@ before_install:
   - cd $TRAVIS_BUILD_DIR/knora-api
   - openssl aes-256-cbc -K $encrypted_ec8f5e0fa991_key -iv $encrypted_ec8f5e0fa991_iv -in $TRAVIS_BUILD_DIR/knora-api/travis/secrets.tar.enc -out $TRAVIS_BUILD_DIR/knora-api/travis/secrets.tar -d
   - tar -C $TRAVIS_BUILD_DIR/knora-api/travis -xvf $TRAVIS_BUILD_DIR/knora-api/travis/secrets.tar
-  - pip3 uninstall lxml
+  - pip3 uninstall -r deps/requirements.txt -y
 
 script:
   - cd $TRAVIS_BUILD_DIR/knora-api

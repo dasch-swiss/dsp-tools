@@ -21,7 +21,6 @@ def program(args):
     args = parser.parse_args(args)
 
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    print(current_dir)
 
     # let's read the schema for the ontology definition
     if args.lists:
@@ -78,7 +77,9 @@ def program(args):
         project = con.get_project(ontology["project"]["shortcode"])
         proj_iri = project["id"]
 
+    #--------------------------------------------------------------------------
     # now let's create the lists
+    #
     if args.verbose is not None:
         print("Creating lists...")
     lists = ontology["project"].get('lists')
@@ -86,7 +87,7 @@ def program(args):
     if lists is not None:
         for rootnode in lists:
             if args.verbose is not None:
-                print("Creating list:" + rootnode['name'])
+                print("  Creating list:" + rootnode['name'])
             rootnode_iri = con.create_list_node(
                 project_iri=proj_iri,
                 name=rootnode['name'],
@@ -106,10 +107,33 @@ def program(args):
         print("The definitions of the node-id's can be found in \"lists.json\"!")
         exit(0)
 
+    #--------------------------------------------------------------------------
+    # now we add the groups if existing
+    #
+    if args.verbose is not None:
+        print("Adding groups...")
+
+    group_iris = []
+    groups = ontology["project"].get('groups')
+    if groups is not None:
+        for group in groups:
+            try:
+                group_iri = con.create_group(project_iri=proj_iri,
+                                             name=group["name"],
+                                             description=group["description"],
+                                             selfjoin=group["selfjoin"] if group.get("selfjoin") is not None else False,
+                                             status=group["status"] if group.get("status") is not None else True)
+            except KnoraError as err:
+                print("Creating group failed: " + err.message)
+            if args.verbose is not None:
+                print("  Group added: " + group['name'] + ' (' + group_iri + ')')
+
+    #--------------------------------------------------------------------------
+    # now we add the users if existing
+    #
     if args.verbose is not None:
         print("Adding users...")
 
-    # now we add the users if existing
     users = ontology["project"].get('users')
     if users is not None:
         for user in users:
@@ -122,17 +146,46 @@ def program(args):
                                            lang=user["lang"] if user.get("lang") is not None else "en")
             except KnoraError as err:
                 print("Creating user failed: " + err.message)
-                userinfo = con.get_user_by_email(email=user["email"])
-                user_iri = userinfo['id']
+            userinfo = con.get_user_by_email(email=user["email"])
+            user_iri = userinfo['id']
 
             try:
                 con.add_user_to_project(user_iri, proj_iri)
             except KnoraError as err:
                 print('Adding user to project failed: ' + err.message);
-            if args.verbose is not None:
-                print("User added: " + user['username'])
 
+            if args.verbose is not None:
+                print("  User added: " + user['username'] + ' (' + user_iri + ')')
+
+            if args.verbose is not None:
+                print("  Adding " + user['username'] + " to groups...")
+                groupnames = user["groups"]
+                for groupname in groupnames:
+                    tmp = groupname.split(':')
+                    try:
+                        if len(tmp) > 1:
+                            if tmp[0]: # we have 'proj_shortname:groupname'
+                                group_iri = con.get_group_by_pshortname_and_gname(tmp[0], tmp[1])
+                            else: # we have ':groupname' and add to currnt project
+                                group_iri = con.get_group_by_piri_and_gname(proj_iri, tmp[1])
+                            con.add_user_to_group(user_iri, group_iri)
+                            print("    " + user['username'] + " added to group " + groupname)
+                        else:
+                            if tmp[0] == "ProjectAdmin":
+                                con.add_user_to_project_admin(user_iri, proj_iri)
+                                print("    " + user['username'] + " added to group " + groupname)
+                            elif tmp[0] == "SystemAdmin":
+                                con.add_user_to_sysadmin(user_iri)
+                                print("    " + user['username'] + " added to group " + groupname)
+                            else:
+                                print("    Unknown System group: " + tmp[0])
+                    except KnoraError as err:
+                        print('    Added user to group failed: ' + err.message);
+
+
+    #--------------------------------------------------------------------------
     # now we start creating the ontology
+    #
     # first we assemble the ontology IRI
     onto_iri = args.server + "/ontology/" + ontology["project"]["shortcode"]\
                + "/" + ontology["project"]["ontology"]["name"] + "/v2"
@@ -213,7 +266,14 @@ def program(args):
                     super_props = ["knora-api:hasValue"]
 
                 if prop.get("object") is not None:
-                    object = prop["object"] if ':' in prop["object"] else "knora-api:" + prop["object"]
+                    tmp = prop["object"].split(':')
+                    if len(tmp) > 1:
+                        if tmp[0]:
+                            object = prop["object"]
+                        else:
+                            object = ontology["project"]["ontology"]["name"] + ':' + tmp[1]
+                    else:
+                        object = "knora-api:" + prop["object"]
                 else:
                     object = None
 
@@ -285,6 +345,6 @@ def main():
 
 
 if __name__ == '__main__':
-    print(sys.argv)
-    print(sys.argv[1:])
+    # print(sys.argv)
+    # print(sys.argv[1:])
     program(sys.argv[1:])

@@ -153,7 +153,7 @@
     <!-- time value type -->
     <xs:complexType name="time_type">
         <xs:simpleContent>
-            <xs:extension base="xs:dateTime">
+            <xs:extension base="xs:dateTimeStamp">
                 <xs:attribute name="comment" type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>

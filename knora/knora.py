@@ -1,4 +1,4 @@
-from typing import List, Set, Dict, Tuple, Optional
+from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
 from rdflib import Graph
 from lxml import etree
@@ -27,7 +27,6 @@ import sys
  - :seqnum
 
  Classes in knora-api:
-
  - :Resource
  - :StillImageRepresentation
  - :TextRepresentation
@@ -120,7 +119,7 @@ class Knora:
         self.prefixes = prefixes
         self.token = None
 
-    def login(self, email: str, password: str):
+    def login(self, email: str, password: str) -> None:
         """
         Method to login into KNORA which creates a session token.
         :param email: Email of user, e.g., root@example.com
@@ -141,10 +140,10 @@ class Knora:
         result = req.json()
         self.token = result["token"]
 
-    def get_token(self):
+    def get_token(self) -> str:
         return self.token
 
-    def logout(self):
+    def logout(self) -> None:
         if self.token is not None:
             req = requests.delete(
                 self.server + '/v2/authentication',
@@ -156,7 +155,7 @@ class Knora:
     def __del__(self):
         self.logout()
 
-    def on_api_error(self, res):
+    def on_api_error(self, res) -> None:
         """
         Method to check for any API errors
         :param res: The input to check, usually JSON format
@@ -169,7 +168,11 @@ class Knora:
         if 'error' in res:
             raise KnoraError("KNORA-ERROR: API error: " + res.error)
 
-    def get_existing_projects(self, full: bool = False):
+    #==========================================================================
+    # project related methods
+    #
+
+    def get_existing_projects(self, full: bool = False) -> List[Any]:
         """Returns a list of existing projects
 
         :return: List of existing projects
@@ -188,7 +191,7 @@ class Knora:
             else:
                 return list(map(lambda a: a['id'], result['projects']))
 
-    def get_project(self, shortcode: str) -> dict:
+    def get_project(self, shortcode: str) -> Dict[str,Any]:
         """Returns project data of given project
 
         :param shortcode: Shortcode of object
@@ -269,6 +272,7 @@ class Knora:
         keywords: Optional[List[str]] = None,
         logo: Optional[str] = None) -> str:
         """
+        Update project information
 
         :param shortcode:
         :param shortname:
@@ -302,7 +306,214 @@ class Knora:
         res = req.json()
         return res['project']['id']
 
-    def get_users(self):
+    #==========================================================================
+    # Group related methods
+    #
+
+    def get_groups(self) -> List[Dict[str,Any]]:
+        """
+        Returns the list of existing groups
+
+        :return: List of projects
+        """
+        url = self.server + '/admin/groups'
+
+        req = requests.get(url, headers={'Authorization': 'Bearer ' + self.token})
+
+        self.on_api_error(req)
+        res = req.json()
+
+        return res['groups']
+
+    def get_group_by_iri(self, group_iri: str) -> Dict[str,Any]:
+        """
+        Returns information about the given group
+        :param group_iri: IRI of the group
+        :return: Information about the specific group
+        """
+        url = self.server + '/admin/groups/' + quote_plus(group_iri)
+
+        req = requests.get(url, headers={'Authorization': 'Bearer ' + self.token})
+
+        self.on_api_error(req)
+        res = req.json()
+
+        return res['group']
+
+    def get_group_by_pshortname_and_gname(self,
+                                          project_shortname: str,
+                                          group_name: str) -> Union[str,None]:
+        """
+        Get a group by project shortname and group name
+
+        :param project_shortname: Project shortname
+        :param group_name: Group name
+        :return: IRI of the group
+        """
+        groupinfos = self.get_groups()
+        for groupinfo in groupinfos:
+            if groupinfo["project"]["shortname"] == project_shortname and groupinfo["name"] == group_name:
+                return groupinfo["id"]
+        return None
+
+    def get_group_by_pshortcode_and_gname(self,
+                                          project_shortcode: str,
+                                          group_name: str) -> Union[str, None]:
+        """
+        Get a group by project shortcode and group name
+
+        :param project_shortname: Project shortcode
+        :param group_name: Group name
+        :return: IRI of the group
+        """
+        groupinfos = self.get_groups()
+        for groupinfo in groupinfos:
+            if groupinfo["project"]["shortcode"] == project_shortcode and groupinfo["name"] == group_name:
+                return groupinfo["id"]
+        return None
+
+    def get_group_by_piri_and_gname(self,
+                                    project_iri: str,
+                                    group_name: str) -> Union[str, None]:
+        """
+        Get a group by project shortcode and group name
+
+        :param project_shortname: Project shortcode
+        :param group_name: Group name
+        :return: IRI of the group
+        """
+        groupinfos = self.get_groups()
+        for groupinfo in groupinfos:
+            if groupinfo["project"]["id"] == project_iri and groupinfo["name"] == group_name:
+                return groupinfo["id"]
+        return None
+
+    def create_group(self,
+                     project_iri: str,
+                     name: str,
+                     description: Union[str, Dict[str,str]],
+                     status: bool = True,
+                     selfjoin: bool = False) -> str:
+        """
+        Create a new group
+
+        :param name: Name of the group
+        :param description: Either a string with the descrioption, or a List of Dicts in the form [{"value": "descr", "language": "lang"},…]
+        :param project_iri: IRI of the project where the group belongs to
+        :param status: Active (True) or not active (False) [default: True]
+        :param selfjoin: ?? [default: False]
+        :return: IRI of the group
+        """
+
+        groupinfo = {
+            "name": name,
+            "description": description if isinstance(description, str) else list(map(lambda p: {"@language": p[0], "@value": p[1]}, description.items())),
+            "project": project_iri,
+            "status": status,
+            "selfjoin": selfjoin
+        }
+        jsondata = json.dumps(groupinfo)
+
+        url = self.server + '/admin/groups'
+
+        req = requests.post(url,
+                            headers={'Content-Type': 'application/json; charset=UTF-8',
+                                     'Authorization': 'Bearer ' + self.token},
+                            data=jsondata)
+
+        self.on_api_error(req)
+        res = req.json()
+        return res['group']['id']
+
+    def update_group(self,
+                     group_iri: str,
+                     name: Optional[str] = None,
+                     description: Optional[Union[str, Dict[str,str]]] = None,
+                     selfjoin: Optional[bool] = None) -> Union[str,None]:
+        """
+        Modify the data about a group. Only parameters that have to be changed must be indicated
+        :param group_iri: IRI of the grouo to be modified
+        :param name: New name of the group [optional]
+        :param description: Either a string with the descrioption, or a List of Dicts in the form [{"value": "descr", "language": "lang"},…] [optional]
+        :param selfjoin: True or False [optional]
+        :return: ???
+        """
+
+        groupinfo = {}
+        done = False
+        if name is not None:
+            groupinfo['name'] = name
+            done = True
+        if description is not None:
+            groupinfo['description'] = description if isinstance(description, str) else list(map(lambda p: {"@language": p[0], "@value": p[1]}, description.items()))
+            done = True
+        if selfjoin is not None:
+            groupinfo['selfjoin'] = selfjoin
+            done = True
+        if done:
+            jsondata = json.dumps(groupinfo)
+
+            url = self.server + '/admin/groups/' + quote_plus(group_iri)
+
+            req = requests.put(url,
+                                headers={'Content-Type': 'application/json; charset=UTF-8',
+                                         'Authorization': 'Bearer ' + self.token},
+                                data=jsondata)
+            self.on_api_error(req)
+            res = req.json()
+            pprint(res)
+            return res['group']['id']
+        else:
+            return None
+
+    def change_group_status(self,
+                            group_iri: str,
+                            status: bool) -> None:
+        """
+        Change the status of th group
+
+        :param group_iri: IRI of the group
+        :param status: Status (active: True, inactive: False)
+
+        :return: None
+        """
+
+        statusinfo = {
+            "status": status
+        }
+        jsondata = json.dumps(statusinfo)
+
+        url = self.server + '/admin/groups/' + quote_plus(group_iri) + '/status'
+
+        req = requests.put(url,
+                           headers={'Content-Type': 'application/json; charset=UTF-8',
+                                    'Authorization': 'Bearer ' + self.token},
+                           data=jsondata)
+        self.on_api_error(req)
+        res = req.json()
+        pprint(res)
+
+    def delete_group(self,
+                     group_iri: str) -> None:
+        """
+        Delete a group
+        :param group_iri: IRI of the group
+        :return:
+        """
+        url = self.server + '/admin/groups/' + quote_plus(group_iri)
+
+        req = requests.delete(url,
+                              headers={'Content-Type': 'application/json; charset=UTF-8',
+                                       'Authorization': 'Bearer ' + self.token})
+        self.on_api_error(req)
+        res = req.json()
+        pprint(res)
+
+    #==========================================================================
+    #  User related methods
+    #
+
+    def get_users(self) -> List[Dict[str,Any]]:
         """
         Get a list of all users
 
@@ -347,7 +558,8 @@ class Knora:
                     given_name: str,
                     family_name: str,
                     password: str,
-                    lang: str = "en"):
+                    lang: str = "en",
+                    sysadmin: bool = False):
         """
         Create a new user
 
@@ -357,6 +569,7 @@ class Knora:
         :param family_name: The family name
         :param password: The password for the user
         :param lang: language code, either "en", "de", "fr", "it" [default: "en"]
+        :param sysadmin: True if the user has system admin rights
         :return: The user ID as IRI
         """
 
@@ -368,7 +581,7 @@ class Knora:
             "password": password,
             "status": True,
             "lang": lang,
-            "systemAdmin": False
+            "systemAdmin": sysadmin
         }
 
         jsondata = json.dumps(userinfo)
@@ -384,12 +597,118 @@ class Knora:
 
         return res['user']['id']
 
-    def add_user_to_project(self, user_iri: str, project_iri: str):
+    def add_user_to_project(self,
+                            user_iri: str,
+                            project_iri: str):
+        """
+        Add a user to a project
+
+        :param user_iri: IRI of the user
+        :param project_iri: IRI of the project
+        :return: None
+        """
         url = self.server + '/admin/users/iri/' + quote_plus(user_iri) + '/project-memberships/' + quote_plus(
             project_iri)
         req = requests.post(url, headers={'Authorization': 'Bearer ' + self.token})
         self.on_api_error(req)
+
         return None
+
+    def rm_user_from_project(self,
+                            user_iri: str,
+                            project_iri: str):
+        """
+        Remove a user from a project
+
+        :param user_iri: IRI of the user
+        :param project_iri: IRI of the project
+        :return: None
+        """
+        url = self.server + '/admin/users/iri/' + quote_plus(user_iri) + '/project-memberships/' + quote_plus(
+            project_iri)
+        req = requests.delete(url, headers={'Authorization': 'Bearer ' + self.token})
+        self.on_api_error(req)
+
+        return None
+
+    def add_user_to_project_admin(self,
+                                  user_iri: str,
+                                  project_iri: str) -> None:
+        """
+        Add a user to the project admin group (knora-admin:ProjectAdmin)
+
+        :param user_iri: IRI of user
+        :param project_iri: IRI of project
+        :return: None
+        """
+        url = self.server + '/admin/users/iri/' + quote_plus(user_iri) + '/project-admin-memberships/' + quote_plus(
+            project_iri)
+        req = requests.post(url, headers={'Authorization': 'Bearer ' + self.token})
+        self.on_api_error(req)
+        return None
+
+    def rm_user_from_project_admin(self,
+                                  user_iri: str,
+                                  project_iri: str) -> None:
+        """
+        Remove a user from the project admin group
+        :param user_iri: IRI of user
+        :param project_iri: IRI of project
+        :return: None
+        """
+        url = self.server + '/admin/users/iri/' + quote_plus(user_iri) + '/project-admin-memberships/' + quote_plus(
+            project_iri)
+        req = requests.delete(url, headers={'Authorization': 'Bearer ' + self.token})
+        self.on_api_error(req)
+        return None
+
+    def add_user_to_sysadmin(self, user_iri: str) -> None:
+        """
+        Add a user to the project admin group (knora-admin:ProjectAdmin)
+
+        :param user_iri: IRI of user
+        :param project_iri: IRI of project
+        :return: None
+        """
+        url = self.server + '/admin/users/iri/' + quote_plus(user_iri) + '/SystemAdmin'
+        req = requests.post(url, headers={'Authorization': 'Bearer ' + self.token})
+        self.on_api_error(req)
+        return None
+
+    def rm_user_from_sysadmin(self, user_iri: str) -> None:
+        """
+        Remove a user from the system admin group
+
+        :param user_iri: IRI of user
+        :param project_iri: IRI of project
+        :return: None
+        """
+        url = self.server + '/admin/users/iri/' + quote_plus(user_iri) + '/SystemAdmin'
+        req = requests.delete(url, headers={'Authorization': 'Bearer ' + self.token})
+        self.on_api_error(req)
+        return None
+
+    def add_user_to_group(self,
+                          user_iri: str,
+                          group_iri: str) -> None:
+        url = self.server + '/admin/users/iri/' + quote_plus(user_iri) + '/group-memberships/' + quote_plus(group_iri)
+
+        req = requests.post(url, headers={'Authorization': 'Bearer ' + self.token})
+        self.on_api_error(req)
+        return None
+
+    def rm_user_from_group(self,
+                          user_iri: str,
+                          group_iri: str) -> None:
+        url = self.server + '/admin/users/iri/' + quote_plus(user_iri) + '/group-memberships/' + quote_plus(group_iri)
+
+        req = requests.delete(url, headers={'Authorization': 'Bearer ' + self.token})
+        self.on_api_error(req)
+        return None
+
+    #==========================================================================
+    # Ontology methods
+    #
 
     def get_existing_ontologies(self):
         """
@@ -905,10 +1224,11 @@ class Knora:
             """
 
             if type(val) is dict:
+                pprint(val)
                 comment = val.get('comment')
                 permissions = val.get('permissions')
-                val = val.get('value')
                 mapping = val.get('mapping')
+                val = val.get('value')
             else:
                 comment = None
                 permissions = None
@@ -1015,7 +1335,7 @@ class Knora:
                 #
                 # a boolean value
                 #
-                valdict['knora-api:booleanValueAsBoolean']: bool(val)
+                valdict['knora-api:booleanValueAsBoolean'] = bool(val)
             elif prop["otype"] == "UriValue":
                 #
                 # an URI
@@ -1115,7 +1435,7 @@ class Knora:
             }
 
         jsonstr = json.dumps(jsondata, indent=3, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
-        # print(jsonstr)
+        print(jsonstr)
         url = self.server + "/v2/resources"
         req = requests.post(url,
                             headers={'Content-Type': 'application/json; charset=UTF-8',

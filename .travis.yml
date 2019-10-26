@@ -17,9 +17,6 @@ cache:
     - "$HOME/.ivy2"
     - "$HOME/.cache"
 
-services:
-  - docker
-
 addons:
   apt:
     packages:
@@ -27,18 +24,27 @@ addons:
       - pkg-config
       - expect
 
+services:
+  - docker
+
+env:
+  global:
+    - GDB_HEAP_SIZE=2G
+    - KNORA_GDB_LICENSE=$TRAVIS_BUILD_DIR/knora-api/travis/graphdb.license
+
 before_install:
   - wget https://github.com/bazelbuild/bazel/releases/download/1.1.0/bazel_1.1.0-linux-x86_64.deb
-  # - sha256sum -c tools/bazel_1.1.0-linux-x86_64.deb.sha256
   - sudo dpkg -i bazel_1.1.0-linux-x86_64.deb
-
-script:
   - git clone -b develop --single-branch --depth 1 https://github.com/dasch-swiss/knora-api.git
   - cd $TRAVIS_BUILD_DIR/knora-api
-  - export GDB_HEAP_SIZE=2G
+  - openssl aes-256-cbc -K $encrypted_ec8f5e0fa991_key -iv $encrypted_ec8f5e0fa991_iv -in $TRAVIS_BUILD_DIR/knora-api/travis/secrets.tar.enc -out $TRAVIS_BUILD_DIR/knora-api/travis/secrets.tar -d
+  - tar -C $TRAVIS_BUILD_DIR/knora-api/travis -xvf $TRAVIS_BUILD_DIR/knora-api/travis/secrets.tar
+
+script:
+  - cd $TRAVIS_BUILD_DIR/knora-api
   - make stack-up
   - sleep 15
-  - make init-db-test-minimal-free
+  - make init-db-test-minimal
   - sleep 15
   - make stack-restart-api
   - cd $TRAVIS_BUILD_DIR

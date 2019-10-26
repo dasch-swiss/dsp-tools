@@ -50,6 +50,7 @@ The project definitions requires
   and the description as value. At least one description in one language is required.
 - _keywords_: An array of keywords describing the project.
 - _lists_: The definition of flat or hierarchical list (thesauri, controlled vocabularies)
+- _users_: Array of user definitions that will be added
 - _ontology_: The definition of the data model (ontology)
 
 This a project definition lokks like follows:
@@ -65,6 +66,7 @@ This a project definition lokks like follows:
    }
    "keywords": ["example", "senseless"],
    "lists": [],
+   "users": [],
    "ontology": {}
 }
 ```
@@ -112,12 +114,23 @@ The _lists_ object contains an array of lists. Here an example:
 ```
 the _lists_ element is optional.
 
+### Users
+This is an array of _user_-definitions. A user has the following elements:
+- _username_: The short username for login
+- _email_: Unique email that identifies the user
+- _givenName_: Firstname of the user
+- _familyName_: Name of the user
+- _password_: Clear initial password of the user
+- _lang_: The preferred language of the user: "en", "de", "fr", "it" [optional, default: "en"]
+- _projadmin_: True, if the user should be a project administrator [optional, default: False]
+- _sysadmin_: True, if the user should be a system administrator [optional, default: False]
+
 ### Ontology
 
 The _ontology_ object contains the definition of the data model. The ontology has
 the following elemens:
 
-- _name_: The name of the ontology. This has to be a CNAME conformant name that can be use as prefix!
+- _name_: The name of the ontology. This has to be a NCNAME conformant name that can be use as prefix!
 - _label_: Human readable and understandable name of the ontology
 - _resources_: Array defining the resources (entities) of the data model
 

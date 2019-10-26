@@ -22,12 +22,12 @@ toolchain(
 # travis environment
 py_runtime(
     name = "ubuntu_py3_runtime",
-    interpreter_path = "/usr/bin/python3.7",
+    interpreter_path = "/usr/bin/python3",
     python_version = "PY3",
 )
 py_runtime_pair(
     name = "ubuntu_py_runtime_pair",
-    py3_runtime = ":brew_py3_runtime",
+    py3_runtime = ":ubuntu_py3_runtime",
 )
 toolchain(
     name = "travis_toolchain",

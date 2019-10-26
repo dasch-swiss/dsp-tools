@@ -32,7 +32,7 @@ env:
   global:
     - GDB_HEAP_SIZE=2G
     - KNORA_GDB_LICENSE=$TRAVIS_BUILD_DIR/knora-api/travis/graphdb.license
-    - PYTHON_VERSION=3.7.4
+    - PYTHON_VERSION=3.7.1
 
 before_install:
   - wget https://github.com/bazelbuild/bazel/releases/download/1.1.0/bazel_1.1.0-linux-x86_64.deb

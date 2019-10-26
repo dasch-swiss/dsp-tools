@@ -33,7 +33,7 @@ before_install:
 script:
   - cd $TRAVIS_BUILD_DIR/knora-api && make stack-up
   - sleep 15
-  - make init-db-test-minimal
+  - make init-db-test
   - sleep 15
   - make stack-restart-api
   - cd $TRAVIS_BUILD_DIR

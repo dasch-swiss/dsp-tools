@@ -179,7 +179,7 @@
           },
           "properties": [
             {
-              "name": "Mytitle",
+              "name": "myTitle",
               "object": "TextValue",
               "labels": {
                 "en": "Title"
@@ -189,11 +189,21 @@
               "cardinality": "1"
             },
             {
-              "name": "linkprop",
+              "name": "myDescription",
+              "object": "TextValue",
+              "labels": {
+                "en": "Description",
+                "de": "Beschreibung"
+              },
+              "gui_element": "Richtext",
+              "cardinality": "0-n"
+            },
+            {
+              "name": "myLink",
               "super": ["hasLinkTo"],
               "object": ":MyObject",
               "labels": {
-                "de": "Link to"
+                "en": "Link to"
               },
               "gui_element": "Searchbox",
               "gui_attributes": ["numprops=1"],

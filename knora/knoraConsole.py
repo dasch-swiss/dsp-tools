@@ -1,5 +1,5 @@
 from typing import List, Set, Dict, Tuple, Optional
-from knora import KnoraError, knora
+from knora import KnoraError, Knora
 import wx
 from pprint import pprint
 
@@ -137,7 +137,9 @@ class OpenConnectionDialog(wx.Dialog):
             server_str = server.GetLineText(0)
             username_str = username.GetLineText(0)
             password_str = password.GetLineText(0)
-            self.con = knora(server_str, username_str, password_str)
+            self.con = Knora(server_str)
+            self.con.login(username_str, password_str)
+
         else:
             print("CANCEL PRESSED")
 
@@ -178,10 +180,10 @@ class UserPanel(wx.Panel):
         self.SetAutoLayout(1)
         self.SetSizerAndFit(topsizer)
 
-    def set_connection(self, con: knora):
+    def set_connection(self, con: Knora):
         self.con = con
 
-    def update(self, con: knora):
+    def update(self, con: Knora):
         users = con.get_users()
         self.listctl.DeleteAllItems()
         for user in users:
@@ -199,7 +201,7 @@ class UserPanel(wx.Panel):
 
 
 class UserEntryDialog(wx.Dialog):
-    def __init__(self, con: knora = None, iri: str = None, *args, **kw):
+    def __init__(self, con: Knora = None, iri: str = None, *args, **kw):
         super(UserEntryDialog, self).__init__(*args, **kw,
                                               title="User Entry",
                                               style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)

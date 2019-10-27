@@ -13,30 +13,37 @@ Go to [Full Documentation](https://dasch-swiss.github.io/knora-py/)
 
 ## Install
 
-To install the latest version published on PyPI run:
+To install the latest published version from PyPI, run:
 ```
 $ pip3 install knora
 ```
 
-To update to the latest version run:
+To upgrade to the latest published version, run:
 ```
 $ pip3 install --upgrade knora
 ```
 
-To install from source, i.e. this repository run:
-```
-$ python3 setup.py install
-```
+## Local Development Environment
+
+- Python3
+- [Bazel](https://bazel.build)
+
+Please consult the [https://docs.dasch.swiss/developers](https://docs.dasch.swiss/developers)
+documentation on how to install these prerequisites.
 
 ## Makefile for repository management tasks
 
 The project contains a Makefile defining management tasks. Please use
-`make help` to see what is available. 
+`make help` to see what is available.
+
+To install from source, i.e., this repository, run:
+```
+$ make install
+```
 
 ## Testing
 
 ```bash
-$ make install-requirements
 $ make test
 ```
 
@@ -45,8 +52,8 @@ $ make test
 Generate distribution package. Make sure you have the latest versions of `setuptools` and `wheel` installed:
 
 ```bash
-$ python3 -m pip install --upgrade pip setuptools wheel
-$ python3 setup.py sdist bdist_wheel
+$ make upgrade
+$ make dist
 ```
 
 You can install the package locally from the dist:
@@ -70,8 +77,7 @@ username =your_username_on_pypi
 then upload:
 
 ```bash
-$ python3 -m pip install --upgrade tqdm twine
-$ python3 -m twine upload dist/*
+$ make upload
 ```
 
 For local development:
@@ -85,11 +91,23 @@ $ python3 setup.py --editable .
 To install the requirements:
 
 ```bash
-$ pip3 install -r requirements.txt
+$ pip3 install -r requirements/requirements.txt
 ```
 
 To generate a "requirements" file (usually requirements.txt), that you commit with your project, do:
 
 ```bash
-$ pip3 freeze > requirements.txt
+$ pip3 freeze > requirements/requirements.txt
+```
+
+### Running tests with Bazel
+
+Run all tests:
+```bash
+$ bazel test //...
+```
+
+Run single test:
+```bash
+$ bazel test //test:test_knora
 ```

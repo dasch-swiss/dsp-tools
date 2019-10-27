@@ -1,12 +1,10 @@
-pip
 setuptools
 wheel
 tqdm
 twine
-pytest
 mkdocs==1.0.4
 mkdocs-material
-rdflib
+git+https://github.com/RDFLib/rdflib.git
 lxml
 validators
 requests

@@ -24,7 +24,7 @@ publish-docs: ## build and publish docs to Github Pages
 
 .PHONY: install-requirements
 install-requirements: ## install requirements
-	pip3 install -r deps/requirements.txt
+	pip3 install -r requirements/requirements.txt
 
 .PHONY: install
 install: ## install from source
@@ -36,7 +36,7 @@ test: ## runs all tests
 
 .PHONY: clean
 clean: ## cleans the project directory
-	@rm -rf dist/ build/ knora.egg-info/ .pytest_cache/ site/
+	@rm -rf dist/ build/ site/ knora.egg-info/
 
 .PHONY: help
 help: ## this help

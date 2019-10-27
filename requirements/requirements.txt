@@ -1,9 +1,7 @@
-pip
 setuptools
 wheel
 tqdm
 twine
-pytest
 mkdocs==1.0.4
 mkdocs-material
 git+https://github.com/RDFLib/rdflib.git

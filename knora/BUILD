@@ -26,7 +26,7 @@ py_binary(
     visibility = ["//visibility:public"],
     srcs = ["create_ontology.py"],
     deps = [
-        "knora",
+        ":knora",
         requirement("jsonschema"),
         requirement("pprint"),
     ],
@@ -42,8 +42,9 @@ py_binary(
     visibility = ["//visibility:public"],
     srcs = ["xml2knora.py"],
     deps = [
-        "knora",
+        ":knora",
         requirement("lxml"),
+        requirement("rdflib"),
         requirement("pprint"),
     ],
     data = [

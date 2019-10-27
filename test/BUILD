@@ -13,7 +13,6 @@ py_test(
     data = [
         "test-onto.json"
     ],
-    python_version = "PY3",
 )
 
 py_test(
@@ -21,13 +20,11 @@ py_test(
     srcs = ["test_create_resource.py"],
     deps = [
         "//knora:knora",
-        requirement("pprint"),
     ],
     data = [
         "test-onto.json",
         "test.tif"
     ],
-    python_version = "PY3",
 )
 
 py_test(
@@ -35,9 +32,5 @@ py_test(
     srcs = ["test_knora.py"],
     deps = [
         "//knora:knora",
-        requirement("pprint"),
-        requirement("lxml"),
-        requirement("rdflib"),
     ],
-    python_version = "PY3",
 )

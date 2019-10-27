@@ -7,7 +7,7 @@ Use `knora-xml-import` for importing data from an XML-file into knora.
 ## Usage:
 
 ```bash
-$ knora-xml-import project-show-name
+$ knora-xml-import project-shortname
 ```
 It supports the following options:
 
@@ -16,123 +16,201 @@ It supports the following options:
 - _"-u username" | "--user username"_: Username to log into Knora [default: root@example.com]
 - _"-p password" | "--password password"_: The password for login to the Knora server [default: test]
 - _"-F folder" | "--folder folder"_: Folder containing the XML-file with the data and the images [default: `project-short-name`.dir]
+- _"-i input_file" | "--infile input_file"_: Input data file (XML).
+- _"-a assets_dir" | "--assets asset_dir"_: Path to assets folder.
+- _"-I images_dir" | "--images images_dir"_: Path to images folder
+- _"-v" | "--validate"_: Do only validation of input file
 
-## Data folder
-The data folder contains the
+It is mandatory to give the project shortname, username and password to connect to the Knora backend. If no other options are given,
+knora-ml-import assumes that there is a folder with the name "`project-shortname`.dir" which contains
+
 - the XML file that has the same name as the project with the extension `.xml`
 - an optional directory called `assets` that contains icons etc.
 - a directory called `images` containing the images for StillImageResources
 - may contain the project ontology definition as JSON file
 
-## Knora import XML format
+However, the XML-import file, assets folder and the images folder may begiven on the command line.
 
-### Preample
+# Knora XML-file format for importing data
+The import file is a standard XML file as decribed below.
+
+## Preamble
 The import file must start with the standard XML header:
 ```xml
 <?xml version='1.0' encoding='utf-8'?>
 ```
 
-### `<knora>`-tag
-The `knora`-tag describes a set of resources that are to be imported. It is the
-container for an arbitrary number of `resource` tags and may only
+## `<knora>`-element
+The `<knora>`-element describes a set of resources that are to be imported. It is the
+container for an arbitrary number of `resource` elements and may only
 contain resource tags.
-The `knora`-tag defines has the following options:
+The `<knora>`-eelement defines has the following options:
 - _xmlns:xsi_: `"http://www.w3.org/2001/XMLSchema-instance"` [required]
 - _xsi:schemaLocation_: Path to knora XML schema file for validation [optional]
 - _shortcode_: Knora project shortcode, e.g. "0801" [required]
-- _vocabulary_: Name of the ontology [required]
-Thus, the knora-tag may b used as follows:
+- _ontology_: Name of the ontology [required]
+Thus, the `<knora>`-eelment may b used as follows:
 ```xml
 <knora
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="../knora-data-schema.xsd"
  shortcode="0806"
- vocabulary="webern">
+ ontology="webern">
 …
 </knora>
+```
+The `<knora>`-element can only contain
+- `<permissions>`-elements
+- `<resource>`-elements
 
+The permissions are implemented for importing data using permission sets. A permission set is
+a named element that contains the permissions for selected resources or values.
+In order to give a resource a value the permission, the named permission set is referenced.
+
+### `<permissions>`-element
+A `<permissions>`-element contains the permissions given to the selected groups. It contains a mandatory
+options `id` and must contain at least one `<allow>`-element per user group indicatng the group's permission. It has the form:
+```xml
+    <permissions id="res-default">
+        <allow group="UnknownUser">RV</allow>
+        ...
+    </permissions>
 ```
 
-### `<resource>`-tag
-A `resource`-tag contains all necessary information to create a resource. It
+Options:
+- _id_: Unique id (an xs:ID) for the permission set
+
+Subelements allowed:
+- `<allow>`
+
+#### `<allow>`-element
+The `<allow>`-element is used to defined the permission for one group. It has the form:
+```xml
+    <allow group="ProjectAdmin">CR</allow>>
+```
+The allowed values are
+(see [Knora-documentation](https://docs.knora.org/paradox/02-knora-ontologies/knora-base.html#permissions)
+for a more detailed description of the Knora permission system):
+
+- _"RV"_: Restricted view: Th associated media is shown in reduced quality.
+- _"V"_: View: The user is able to view the data readonly
+- _"M"_: Modifiy: The user may modify of a value. The original value will be preserved using the history mchanism.
+- _"D"_: Delete: The user is able to mark a resource of a value as deleted.
+- _"CR"_: The user is able to change the right of a resource or value
+
+The `group` option is mandatory:
+Options:
+
+- _group_: Defines the group for the permission. The knora systemgroups as well as project speccific groups are supported.
+           A project specific group name has the form `project-shortname:groupnam`. The system groups are:
+  - "UnknownUser"
+  - "KnownUser"
+  - "ProjectMember"
+  - "Creator"
+  - "ProjectAdmin"
+  - "SystemAdmin"
+ 
+### `<resource>`-element
+A `resource`-element contains all necessary information to create a resource. It
 has th following options:
+
 - _label_: The label, a human readable, semantical meaningfull short name of the resource [required]
 - _restype_: The resource type as defined within the ontology [required]
 - _unique_id_: A unique, arbitrary string giving a unique ID to the resource. This ID is only used during the
-import process for referencing this resource from other resources. During the import process, it will be replaced by
-the IRI used internally by Knora.
+  import process for referencing this resource from other resources. During the import process, it will be replaced by
+  the IRI used internally by Knora.
+- _permissions_: a reference to a permission set. These permissions will be applied to the newly created resoource.
 
 ````
-<resource label="EURUS015a" restype="Postcard" unique_id="238807">
+<resource label="EURUS015a"
+          restype="Postcard"
+          unique_id="238807"
+          permissions="res-def-perm">
 …
 </resource>
 ````
 
-The resource-tag may contain the following tags describing properties (data fields):
-- _<image>_: In case of the StillImageResource contains the path to the image file.
-- _<text-prop>_: Contains text values
-- _<color-prop>_: Contains color values
-- _<date-prop>_: Contains date values
-- _<float-prop>_: Contains decimal values
-- _<geometry-prop>_: Contains a JSON geometry definition for a region
-- _<geoname-prop>_: Contains a geoname.org location code
-- _<list-prop>_: Contains list tag labels
-- _<iconclass-prop>_: Contains iconclass.org codes
-- _<integer-prop>_: Contains integer values
-- _<interval-prop>_: Contains interval values
-- _<period-prop>_: Contains time period values
-- _<resptr-prop>_: Contains links othr resources
-- _<time-prop>_: Contains time values
-- _<uri-prop>_: Contains URI values
-- _<boolean-prop>_: Contains boolean values
+The `<resource>`-element contains for each property class a `property`-element which itself
+contains one or several `value`-elements. It _must_ also contain an `<image>`-element if the
+resource is a StillImage. The `property`-element must have the option `name` present which
+indicates the property class from the project specific ontology where the values belong to.
 
-## `<image>`-tag
-The image property contains the path to an image file. It must only be used if the
+_name_-option:
+
+- _"name"_: Name of the property as given in the ontology
+
+Example:
+```xml
+<text-prop name="hasTranslation">
+```
+ 
+The `<resource>`-element may contain the following tags describing properties (data fields):
+
+- _`<image>`_: In case of the StillImageResource contains the path to the image file.
+- _`<text-prop>`_: Contains text values
+- _`<color-prop>`_: Contains color values
+- _`<date-prop>`_: Contains date values
+- _`<decimal-prop>`_: Contains decimal values
+- _`<geometry-prop>`_: Contains a JSON geometry definition for a region
+- _`<geoname-prop>`_: Contains a geoname.org location code
+- _`<list-prop>`_: Contains list elements labels
+- _`<iconclass-prop>`_: Contains iconclass.org codes
+- _`<integer-prop>`_: Contains integer values
+- _`<interval-prop>`_: Contains interval values
+- _`<period-prop>`_: Contains time period values
+- _`<resptr-prop>`_: Contains links othr resources
+- _`<time-prop>`_: Contains time values
+- _`<uri-prop>`_: Contains URI values
+- _`<boolean-prop>`_: Contains boolean values
+
+#### `<image>`-element
+The `<image>`-element contains the path to an image file. It must only be used if the
 resource is a `StillImageResource`!
 
-_Note_: There is only _one_ <image> tag allowed per StillImageResource!
+_Options_:
+- none
+
+_Note_: There is only _one_ `<image>`-element allowed per StillImageResource!
 
 Example:
 ```xml
 <image>postcards.dir/images/EURUS015a.jpg</image>
 ```
 
-## Properties and values
-All proporty tags must have a _name_-option:
-- _name_: Name of the property as given in the ontology
 
-Example:
-```xml
-<text-prop name="hasTranslation">
-```
+#### `<text-prop>`-element
+The text property element is used to list text values.
 
-### `<text-prop>`-tag
-The text property tag is used to list text values.
+The `<text-prop>`-element must contain at least one `<text>`-element. There are several variants of text tags:
 
-The `<text-prop>`-tag must contain at least one `<text>`-tag. There are several variants of text tags:
+_Options_:
+- _"name"_: Name of the property as given in the ontology  (required)
 
-#### `<text>`-tag
-The `<text>`-tag has the following options:
+##### `<text>`-element
+The `<text>`-element has the following options:
 - _encoding_: either "utf8" or "hex64" [required]
-  - _utf8_: The tag describes a simple text without markup. The text is a simple utf-8 string
-  - _hex64_: The tag describes a complex text containing markup. It must be a hex64 encoded string in the
+  - _utf8_: The element describes a simple text without markup. The text is a simple utf-8 string
+  - _hex64_: The elemen describes a complex text containing markup. It must be a hex64 encoded string in the
   XML-format as defined by Knora.
 - _resrefs_: A list of resource ID's that are referenced in the markup, separated by the "|"-character such as `"2569981|6618"` [optional]
+- _permissions_: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- _comment_: A comment to this specific value.
 
-Knora-xml-import assumes that standard mapping for Knora is being used (Custom mapping to
+Knora-xml-import assumes that for markup-text (standoff-markup) standard mapping for Knora is being used (Custom mapping to
 customized standoff tags is not yet implemented!)
 
-E.g. a text containing a link to another resource must be encoded like follows:
+E.g. a text containing a link to another resource must have the following form before being
+encoded as hex64-string:
 ```xml
-'Brief: <a class="salsah-link" href="IRI:6618:IRI"><p>Webern an Willheim, 10.10.1928</p></a>'
+'<?xml version="1.0" encoding="UTF-8"?>Brief: <a class="salsah-link" href="IRI:6618:IRI"><p>Webern an Willheim, 10.10.1928</p></a>'
 ```
 Please note that the href-option withiin the anchor tag points to an internal resource of knora
 and this has to have the special format "`IRI:`res-id`:IRI`" where res-id is the resource
-id defined within the XML import file. At the moment it is not yet possible to reference
-already existing resources using the Knora-IRI (will b implemented soon).
+id defined within the XML import file. A resource already existing in knora can be referenced by
+indicating its IRI directly has _href_-option.
 
-In case the string references one or more internal resources, the option `rsrefs`_must_ be using to
-indicate there ID's! The string must be encoded using standard hex64 encoding.
+In case the string references one or more internal resources, the option `resrefs`_must_ be using to
+indicate there ID's! The ID's are separated by a "|"-character
 
 A complete example for a simple text:
 ```xml
@@ -147,14 +225,21 @@ a link to the internal resource with the ID="6618":
       <text resrefs="6618" encoding="hex64">PGEgY2xhc3M9InNhbHNhaC1saW5rIiBocmVmPSJJUkk6NjYxODpJUkkiPjxwPldlYmVybiBhbiBXaWxsaGVpbSwgMTAuMTAuMTkyODwvcD48L2E+PHA+PC9wPg==</text>
 </text-prop>
 ```
-Within one property, simple and complex text values may be mixed.
+Within one text property, simple and complex text values may be mixed.
 
-### `<color-prop>`-tag
-The color-prop tag is used to define a color property.
+#### `<color-prop>`-element
+The color-prop eelement is used to define a color property.
 
-#### `<color>`-tag
-The color-tag is used to indicate a color value. The color has to be giiven in
+_Options_:
+- _"name"_: Name of the property as given in the ontology (required)
+
+##### `<color>`-element
+The color-element is used to indicate a color value. The color has to be giiven in
 web-notation, that is a "#" followed by 3 or 6 hex numerals.
+
+_Options_:
+- _permissions_: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- _comment_: A comment to this specific value.
 
 A propery with 2 color valus would be defined as follows:
 ```xml
@@ -164,10 +249,13 @@ A propery with 2 color valus would be defined as follows:
 </color-prop>
 ```
 
-### `<date-prop>`-tag
+#### `<date-prop>`-eleement
 Is used to define knora dates.
 
-#### `<date>`-tag
+_Options_:
+- _"name"_: Name of the property as given in the ontology (required)
+
+##### `<date>`-element
 A Knora date value. It has the following format:
 ```
 calendar:epoch:yyyy-mm-dd:epoch:yyyy-mm-dd
@@ -181,24 +269,41 @@ calendar:epoch:yyyy-mm-dd:epoch:yyyy-mm-dd
 If two dates are given, the date is in between the two given limits. If the day is omitted,
 then the precision it _month_, if also the month is omited, the procision is _year_.
 
+_Options_:
+- _permissions_: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- _comment_: A comment to this specific value.
+
 Examples:
 ```
 <date>GREGORIAN:CE:2014-01-31</date>
 <date>GREGORIAN:CE:1930-09-02:CE:1930-09-03</date>
 ```
-## `<float-prop>`-tag
-Properties with decimal values. Contains one or more `<float>`-tags.
+#### `<decimal-prop>`-element
+Properties with decimal values. Contains one or more `<dcimal>`-tags.
 
-### `<float>`-tag
-The float tag contains a decimal number. Example:
+_Options_:
+- _"name"_: Name of the property as given in the ontology (required)
+
+##### `<decimal>`-element
+The float element contains a decimal number.
+
+_Options_:
+- _permissions_: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- _comment_: A comment to this specific value.
+
+Example:
 ```
 <float>3.14159</float>
 ```
 
-## `<geometry-prop>`-tag
-Properties which contain a geometric definition for a 2-D region (e.g. on an image)
+#### `<geometry-prop>`-element
+Properties which contain a geometric definition for a 2-D region (e.g. on an image). Usually thes
+are not created by an import and should be used with caution!
 
-### `<geometry>`-tag
+_Options_:
+- _"name"_: Name of the property as given in the ontology (required)
+
+##### `<geometry>`-element
 A geometry is defined as a JSON object. It  contains the following data:
 - _status_: "active" or "deleted"
 - _type_: "circle", "rectangle" or "polygon"
@@ -223,79 +328,140 @@ The following example defines a poylgon:
    "original_index": 0
 }
 ```
-Thus, a <geometry>-tag may look like:
+Thus, a <geometry>-element may look like:
 ```
 <geometry>{"status":"active","type"="circle","lineColor"="#ff0000","lineWidth"=2,"points":[{"x":0.5,"y":0.5}],"radius":{"x":0.1,"y":0.0}}</geometry>
 ```
 
-## `<geoname-prop>`-tag
+_Options_:
+- _permissions_: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- _comment_: A comment to this specific value.
+
+#### `<geoname-prop>`-element
 Used for values that contain a [geonames.org](http://geonames.org) location ID
 
-### `<geoname>`-tag
-Contains a valid geonames.org ID. Example (City of Wien):
+_Options_:
+- _"name"_: Name of the property as given in the ontology (required)
+
+##### `<geoname>`-element
+Contains a valid geonames.org ID.
+
+_Options_:
+- _permissions_: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- _comment_: A comment to this specific value.
+
+Example (City of Wien):
 ```
 <geoname>2761369</geoname>
 ```
 
-## `<list-prop>`-tag
+#### `<list-prop>`-element
 Entry into a list (list node). List nodes are identified by their `name`-property that was given when creating the list nodes (which must be unique within each list!).
 
-### `<list>`-tag
+_Options_:
+- _"name"_: Name of the property as given in the ontology (required)
+
+##### `<list>`-element
+References a node in a (pulldown- or hierarchical-) list
+
+_Options_:
+- _permissions_: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- _comment_: A comment to this specific value.
+
 Example:
 ```
 <list>H_4128</list>
 ```
 
-## `<iconclass-prop>`-tag
+#### `<iconclass-prop>`-element (_NOT YET IMPLEMENTED_)
 Contains the short code of an iconclass entry see [iconclass.org](http://iconclass.org).
 For example the code
 `92E112`stands for `(story of) Aurora (Eos); 'Aurora' (Ripa) - infancy, upbringing
 Aurora · Ripa · air · ancient history · child · classical antiquity · goddess · gods · heaven · history · infancy · mythology · sky · upbringing · youth`
 
-### `<iconclass>`-tag
+_Options_:
+- _"name"_: Name of the property as given in the ontology (required)
+
+##### `<iconclass>`-element (_NOT YET IMPLEMENTED_)
+References an [iconclass.org](https://iconclass.org) 
+
+_Options_:
+- _permissions_: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- _comment_: A comment to this specific value.
+
 Usage:
 ```
 <iconclass>92E112</iconclass>
 ```
 
-## `<integer-prop>`-tag
+#### `<integer-prop>`-element
 Contains integer values
 
-### `<integer>`-tag
+_Options_:
+- _"name"_: Name of the property as given in the ontology (required)
+
+##### `<integer>`-element
+
+_Options_:
+- _permissions_: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- _comment_: A comment to this specific value.
+
 Usage:
 ```
 <integer>4711</integer>
 ```
 
-## `<interval-prop>`-tag
+#### `<interval-prop>`-element
 An interval defined a time period with a start and an end
 
-### `<interval>`-tag
-The interval-tag value has the following form or two decimals separated by a ":":
+_Options_:
+- _"name"_: Name of the property as given in the ontology (required)
+
+##### `<interval>`-element
+The interval-tag value has the following form or two decimals separated by a ":".
+
+_Options_:
+- _permissions_: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- _comment_: A comment to this specific value.
+
+Example:
 ```
 <interval>1.5:3.12</interval>
 ```
 
-## `<resptr-prop>`-tag
+#### `<resptr-prop>`-element
 A link to another resource within Knora
 
-### `<resptr>`-tag
-A value containing the XML-internal ID of the resource. If there is a resource deefined as
+_Options_:
+- _"name"_: Name of the property as given in the ontology (required)
+
+##### `<resptr>`-element
+A value containing the XML-internal ID of the resource.
+
+_Options_:
+- _permissions_: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- _comment_: A comment to this specific value.
+
+Example:
+
+If there is a resource deefined as
 ```
 <resource label="EURUS015a" restype="Postcard" unique_id="238807">
 …
 </resource
 ```
 it can be referenced as
-
 ```
 <resptr>238807</resptr>
 ```
 
-## `<time-prop>`-tag
+#### `<time-prop>`-element
 A time property
 
-### `<time>`-tag
+_Options_:
+- _"name"_: Name of the property as given in the ontology (required)
+
+##### `<time>`-element
 This represents an exact date/time value in the form of `yyyy-mm-ddThh:mm:ss.sssssssssssszzzzzz`
 The following abbreviations describe this form:
 
@@ -321,27 +487,50 @@ or
 
 - _Z_ The literal Z, which represents the time in UTC (Z represents Zulu time, which is equivalent to UTC). Specifying Z for the time zone is equivalent to specifying +00:00 or -00:00.
 
+_Options_:
+- _permissions_: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- _comment_: A comment to this specific value.
+
+Example:
+
 The following form indicates noon on 10 October 2009, Eastern Standard Time in the United States:
 ```
 <time>2009-10-10T12:00:00-05:00</time>
 <time>2019-10-23T13.45:12Z</time>
 ```
 
-## `<uri-prop>`-tag
+#### `<uri-prop>`-element
 A property containing an valid URI
 
-### `<uri>`-tag
-Contains a syntactically valid URI
+_Options_:
+- _"name"_: Name of the property as given in the ontology (required)
 
+##### `<uri>`-element
+Contains a syntactically valid URI.
+
+_Options_:
+- _permissions_: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- _comment_: A comment to this specific value.
+
+Example:
 ```
 <uri>http://www.groove-t-gang.ch</ur>
 ```
 
-## `<boolean-prop`>-tag
+#### `<boolean-prop`>-element
 A property containing boolean values
 
-### `<boolean>`-tag
+_Options_:
+- _"name"_: Name of the property as given in the ontology (required)
+
+##### `<boolean>`-element
 Must contain the string "true" or "false", or the numeral "1" or "0"
+
+_Options_:
+- _permissions_: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- _comment_: A comment to this specific value.
+
+Example:
 
 ```
 <boolean>true</boolean>

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <knora xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       shortcode="00FE" vocabulary="kpt">
+       shortcode="00FE" ontology="kpt">
     <permissions id="res-default">
         <allow group="UnknownUser">RV</allow>
         <allow group="KnownUser">V</allow>

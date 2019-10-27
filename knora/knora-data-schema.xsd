@@ -171,7 +171,7 @@
     <!-- time value type -->
     <xs:complexType name="time_type">
         <xs:simpleContent>
-            <xs:extension base="xs:dateTimeStamp">
+            <xs:extension base="xs:dateTime">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:NCName" use="required"></xs:attribute>
             </xs:extension>
@@ -351,7 +351,6 @@
             <xs:element name="text-prop" type="textprop_type" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="color-prop" type="colorprop_type" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="date-prop" type="dateprop_type" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="float-prop" type="floatprop_type" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="geometry-prop" type="geometryprop_type" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="geoname-prop" type="geonameprop_type" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="list-prop" type="listprop_type" minOccurs="0" maxOccurs="unbounded"/>
@@ -413,7 +412,7 @@
                 <xs:element name="permissions" type="permissions_type" minOccurs="0" maxOccurs="unbounded" />
                 <xs:element name="resource" type="resource_type" minOccurs="1" maxOccurs="unbounded"/>
             </xs:sequence>
-            <xs:attribute name="vocabulary" type="xs:string"/>
+            <xs:attribute name="ontology" type="xs:string"/>
             <xs:attribute name="shortcode" type="knorashortcode_type"/>
         </xs:complexType>
         <xs:key name="permissionsId">

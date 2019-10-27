@@ -82,7 +82,6 @@ class KnoraValue:
         if node.get('resrefs') is not None:
             self.resrefs = node.attrib['resrefs'].split('|')
         if node.get('encoding') == 'hex64':
-            print('PASS hex64')
             #self.value = KnoraStandoffXml(
             #    '<?xml version="1.0" encoding="UTF-8"?>\n<text>' + \
             #    base64.b64decode("".join(node.itertext())).decode() + '</text>')
@@ -90,13 +89,9 @@ class KnoraValue:
                 base64.b64decode("".join(node.itertext())).decode() + '</text>'
         else:
             if type == 'list':
-                print('PASS list')
                 self.value = listname + ':' + "".join(node.itertext())
             else:
-                print('PASS normal')
                 self.value = "".join(node.itertext())
-        print(self.value)
-        print('=========')
         while True:
             event, subnode = next(context)
             if event == 'start':
@@ -507,19 +502,46 @@ def program(args) -> None:
     parser.add_argument("-p", "--password", type=str, default="test", help="The password for login")
     parser.add_argument("-F", "--folder", default="-", help="Input folder.")
     parser.add_argument("-i", "--infile", default="-", help="Input file.")
+    parser.add_argument("-a", "--assets", default="-", help="Assets folder.")
+    parser.add_argument("-I", "--images", default="-", help="images folder.")
+    parser.add_argument("-V", "--validate", action='store_true', help="Do only validation of JSON, no upload of the ontology")
     args = parser.parse_args(args)
+
+    current_dir = os.path.dirname(os.path.realpath(__file__))
 
     if args.folder == '-':
         folder = args.inproject + ".dir"
     else:
         folder = args.folder
 
-    assets_path = os.path.join(folder, 'assets')
-    images_path = os.path.join(folder, 'images')
+    if args.assets == '-':
+        assets_path = os.path.join(folder, 'assets')
+    else:
+        assets_path = args.assets;
+
+    if args.images == '-':
+        images_path = os.path.join(folder, 'images')
+    else:
+        images_path = args.images
+
     if args.infile == '-':
         infile_path = os.path.join(folder, args.inproject) + '.xml'
     else:
         infile_path = args.infile
+
+    xmlschema_doc = etree.parse(os.path.join(current_dir, 'knora-data-schema.xsd'))
+    xmlschema = etree.XMLSchema(xmlschema_doc)
+    doc = etree.parse(infile_path)
+    xmlschema.assertValid(doc)
+
+    del xmlschema
+    del doc
+    del xmlschema_doc
+
+    print("The imput data file is syntactically correct and passed validation!")
+
+    if args.validate:
+        exit(0)
 
     #
     # read the XML file containing the data, including project shortcode
@@ -531,7 +553,7 @@ def program(args) -> None:
         event, node = next(context)
         if event == 'start':
             if node.tag == 'knora':
-                vocabulary = node.attrib['vocabulary']
+                ontology = node.attrib['ontology']
                 shortcode = node.attrib['shortcode']
             elif event == 'start' and node.tag == 'resource':
                 resources.append(KnoraResource(context, node))
@@ -557,15 +579,12 @@ def program(args) -> None:
 
     sipi = Sipi(args.sipi, con.get_token())
 
-    graph = con.get_ontology_graph(shortcode, vocabulary)
-    schema = con.create_schema(shortcode, vocabulary)
+    graph = con.get_ontology_graph(shortcode, ontology)
+    schema = con.create_schema(shortcode, ontology)
 
     permissions_lookup: StrDict = {}
     for p in permissions.items():
         permissions_lookup[p[0]] = create_permission(con, p[1])
-
-    for p in permissions_lookup.items():
-        print(p[0] + ' --> ' + p[1])
 
     resiri_lookup: StrDict = {}
 
@@ -585,7 +604,6 @@ def program(args) -> None:
                                           permissions=permissions_lookup.get(resource.permissions),
                                           stillimage=fileref)
         else:
-            pprint(resource.get_propvals(resiri_lookup, permissions_lookup))
             resinfo = con.create_resource(schema=schema,
                                           res_class=resource.restype,
                                           label=resource.label,

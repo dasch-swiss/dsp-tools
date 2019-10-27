@@ -27,9 +27,9 @@
         <allow group="ProjectAdmin">CR</allow>
         <allow group="knora-py-test:MlsEditors">M</allow>
     </permissions>
-    <resource label="obj_inst2"
+    <resource label="obj_inst3"
               restype="MyObject"
-              unique_id="obj_0002"
+              unique_id="obj_0003"
               permissions="res-default">
         <text-prop name="mySimpleText">
             <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
@@ -62,5 +62,20 @@
         <boolean-prop name="myBoolean">
             <boolean permissions="prop-default">true</boolean>
         </boolean-prop>
+    </resource>
+    <resource label="obj_inst4"
+              restype="MyImage"
+              unique_id="obj_0004"
+              permissions="res-default">
+        <image>test.tif</image>
+        <text-prop name="myTitle">
+            <text permissions="prop-default" encoding="utf8">Blätter</text>
+        </text-prop>
+        <text-prop name="myDescription">
+            <text permissions="prop-default" encoding="utf8">Ein Testbild im TIFF format</text>
+        </text-prop>
+        <resptr-prop name="myLink">
+            <resptr>obj_0003</resptr>
+        </resptr-prop>
     </resource>
 </knora>

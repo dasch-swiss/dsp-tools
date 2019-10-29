@@ -91,13 +91,13 @@ $ python3 setup.py --editable .
 To install the requirements:
 
 ```bash
-$ pip3 install -r requirements/requirements.txt
+$ pip3 install -r requirements.txt
 ```
 
 To generate a "requirements" file (usually requirements.txt), that you commit with your project, do:
 
 ```bash
-$ pip3 freeze > requirements/requirements.txt
+$ pip3 freeze > requirements.txt
 ```
 
 ### Running tests with Bazel

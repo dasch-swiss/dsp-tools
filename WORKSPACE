@@ -4,7 +4,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 # register our custom toolchains for the different platforms
-register_toolchains("//requirements:homebrew_toolchain", "//requirements:travis_toolchain")
+register_toolchains("//:homebrew_toolchain", "//:travis_toolchain")
 
 # using custom repo with a (quick and dirty) fix because of https://github.com/bazelbuild/rules_python/issues/220
 git_repository(
@@ -27,7 +27,7 @@ load("@rules_python//python:pip.bzl", "pip_import")
 # @knora_py_deps//:requirements.bzl, which itself exposes a pip_install method.
 pip_import(
    name = "knora_py_deps",
-   requirements = "//requirements:requirements.txt",
+   requirements = "//:requirements.txt",
 )
 
 # Load the pip_install symbol for knora_py_deps, and create the dependencies'

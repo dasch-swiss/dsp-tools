@@ -24,7 +24,7 @@ publish-docs: ## build and publish docs to Github Pages
 
 .PHONY: install-requirements
 install-requirements: ## install requirements
-	pip3 install -r requirements/requirements.txt
+	pip3 install -r requirements.txt
 
 .PHONY: install
 install: ## install from source

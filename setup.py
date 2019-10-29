@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='knora',
-    version='1.2.1a1',
+    version='1.2.2',
     description='A Python library and tools for the Knora-API',
     long_description=long_description,
     long_description_content_type="text/markdown",

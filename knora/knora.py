@@ -605,6 +605,36 @@ class Knora:
 
         return res['user']['id']
 
+    def update_user(self,
+                    user_iri: str,
+                    username: Optional[str] = None,
+                    email:  Optional[str] = None,
+                    given_name: Optional[str] = None,
+                    family_name: Optional[str] = None,
+                    password: Optional[str] = None,
+                    lang: Optional[str] = None):
+        userinfo: Dict[str,Any] = {};
+        if username is not None:
+            userinfo["username"] = username
+        if email is not None:
+            userinfo["email"] = email
+        if given_name is not None:
+            userinfo["givenName"] = given_name
+        if family_name is not None:
+            userinfo["familyName"] = family_name
+        #if password is not None:
+        #    update_user["password"] = password
+        if lang is not None:
+            userinfo["lang"] = lang
+        if len(userinfo) > 0:
+            url = self.server + '/admin/users/iri/' + quote_plus(user_iri) + '/BasicUserInformation'
+            jsondata = json.dumps(userinfo)
+            req = requests.put(url,
+                               headers={'Content-Type': 'application/json; charset=UTF-8',
+                                        'Authorization': 'Bearer ' + self.token},
+                               data=jsondata)
+            self.on_api_error(req)
+
     def add_user_to_project(self,
                             user_iri: str,
                             project_iri: str):
@@ -615,8 +645,8 @@ class Knora:
         :param project_iri: IRI of the project
         :return: None
         """
-        url = self.server + '/admin/users/iri/' + quote_plus(user_iri) + '/project-memberships/' + quote_plus(
-            project_iri)
+        url = self.server + '/admin/users/iri/' + quote_plus(user_iri) + '/project-memberships/'\
+              + quote_plus(project_iri)
         req = requests.post(url, headers={'Authorization': 'Bearer ' + self.token})
         self.on_api_error(req)
 

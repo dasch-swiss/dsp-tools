@@ -1,9 +1,17 @@
+from typing import List, Set, Dict, Tuple, Optional, Any, Union
+
 import os
 import sys
 import wx
 from typing import List, Set, Dict, Tuple, Optional
 from knora import KnoraError, Knora
 from pprint import pprint
+
+path = os.path.abspath(os.path.dirname(__file__))
+if not path in sys.path:
+    sys.path.append(path)
+
+from KnDialogControl import KnDialogControl, KnDialogTextCtrl, KnDialogChoice, KnDialogCheckBox, KnCollapsileChecklist
 
 class UserPanel(wx.Panel):
     """
@@ -53,10 +61,31 @@ class UserPanel(wx.Panel):
         self.listctl.Select(0)
 
     def start_entry(self, event):
-        ue = UserEntryDialog(self.con, self.ids[self.listctl.GetFirstSelected()], self)
-        #ue = UserEntryDialog(self)
+        idx = self.listctl.GetFirstSelected()
+        user_iri = self.ids[idx]
+        ue = UserEntryDialog(self.con, user_iri, self)
+        res = ue.ShowModal()
+        if res == wx.ID_OK:
+            changeset = ue.get_changed()
+            pprint(changeset)
+            self.con.update_user(user_iri=user_iri,
+                                 username=changeset['username'],
+                                 email=changeset['email'],
+                                 given_name=changeset['firstname'],
+                                 family_name=changeset['lastname'],
+                                 lang=changeset['language'])
+            if changeset['username'] is not None:
+                self.listctl.SetItem(idx, 0, changeset['username'])
+            if changeset['lastname'] is not None:
+                self.listctl.SetItem(idx, 1, changeset['lastname'])
+            if changeset['firstname'] is not None:
+                self.listctl.SetItem(idx, 2, changeset['firstname'])
+            if changeset['email'] is not None:
+                self.listctl.SetItem(idx, 3, changeset['email'])
+        ue.Destroy()
 
 class UserEntryDialog(wx.Dialog):
+
     def __init__(self, con: Knora = None, iri: str = None, *args, **kw):
         super(UserEntryDialog, self).__init__(*args, **kw,
                                               title="User Entry",
@@ -64,76 +93,62 @@ class UserEntryDialog(wx.Dialog):
 
         user_info = con.get_user_by_iri(iri)
         existing_projects = con.get_existing_projects(full=True)
-        pprint(user_info)
-        pprint(existing_projects)
+        existing_groups = con.get_groups()
+        pprint(existing_groups)
 
         topsizer = wx.BoxSizer(wx.VERTICAL)
         panel1 = wx.Panel(self)
+        gsizer = wx.FlexGridSizer(cols=3)
 
-        gsizer = wx.FlexGridSizer(cols=2)
+        self.email = KnDialogTextCtrl(panel1, gsizer, "Email: ", "email", user_info['email'])
+        self.username = KnDialogTextCtrl(panel1, gsizer, "Username: ", "username", user_info['username'])
+        self.password = KnDialogTextCtrl(panel1, gsizer, "Password: ", "password", "", style=wx.TE_PASSWORD)
+        self.lastname = KnDialogTextCtrl(panel1, gsizer, "Lastname: ", "familyName", user_info['familyName'])
+        self.firstname = KnDialogTextCtrl(panel1, gsizer, "Firstname: ", "givenName", user_info['givenName'])
+        self.language = KnDialogChoice(panel1, gsizer, "Language: ", "lang", ["en", "de", "fr", "it"], user_info['lang'])
+        self.status = KnDialogCheckBox(panel1, gsizer, "Status: ", "status", user_info['status'])
 
-        username_l = wx.StaticText(panel1, label="Username: ")
-        username = wx.TextCtrl(panel1, name="Username", value=user_info['username'], size=wx.Size(200, -1))
-        gsizer.Add(username_l, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=3)
-        gsizer.Add(username, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=3)
 
-        password_l = wx.StaticText(panel1, label="Password: ")
-        password = wx.TextCtrl(panel1, name="password", value="test", size=wx.Size(200, -1), style=wx.TE_PASSWORD)
-        gsizer.Add(password_l, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=3)
-        gsizer.Add(password, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=3)
 
-        lastname_1 = wx.StaticText(panel1, label="Lastname: ")
-        lastname = wx.TextCtrl(panel1, name="lastname", value=user_info['familyName'], size=wx.Size(200, -1))
-        gsizer.Add(lastname_1, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=3)
-        gsizer.Add(lastname, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=3)
-
-        firstname_l = wx.StaticText(panel1, label="Firstname: ")
-        firstname = wx.TextCtrl(panel1, name="firstname", value=user_info['givenName'], size=wx.Size(200, -1))
-        gsizer.Add(firstname_l, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=3)
-        gsizer.Add(firstname, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=3)
-
-        langswitcher = {
-            "en": 0,
-            "de": 1,
-            "fr": 2,
-            "it": 3
-        }
-        language_l = wx.StaticText(panel1, label="Language: ")
-        language = wx.Choice(panel1, choices=["en", "de", "fr", "it"])
-        language.SetSelection(langswitcher[user_info['lang']])
-        gsizer.Add(language_l, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=3)
-        gsizer.Add(language, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=3)
-
-        status_l = wx.StaticText(panel1, label="Status: ")
-        status = wx.CheckBox(panel1, label="active")
-        status.SetValue(user_info['status'])
-        gsizer.Add(status_l, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=3)
-        gsizer.Add(status, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=3)
-
-        projects_l = wx.StaticText(panel1, label="Projects: ")
-        plist = list(map(lambda a: a['shortname'] + ' (' + a['shortcode'] + ')', user_info['projects']))
-
-        projects = wx.CheckListBox(panel1, choices=plist)
-        for i in range(len(plist)):
-            projects.Check(i)
-        projsizer = wx.BoxSizer(wx.VERTICAL)
-        projsizer.Add(projects, flag=wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.GROW | wx.ALL)
-        projs = list(map(lambda a: a['shortname'] + ' (' + a['shortcode'] + ')', existing_projects))
-        projlist = wx.Choice(panel1, choices=projs)
-        projsizer.Add(projlist, flag=wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.GROW | wx.ALL)
-
-        gsizer.Add(projects_l, flag=wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.GROW | wx.ALL, border=3)
-        gsizer.Add(projsizer, flag=wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.GROW | wx.ALL, border=3)
+        #gsizer.Add(projects_l, flag=wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.GROW | wx.ALL, border=3)
+        #gsizer.Add(projsizer, flag=wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.GROW | wx.ALL, border=3)
 
         gsizer.SetSizeHints(panel1)
         panel1.SetSizer(gsizer)
         panel1.SetAutoLayout(1)
         gsizer.Fit(panel1)
 
+
         topsizer.Add(panel1, flag=wx.EXPAND | wx.ALL, border=5)
+
+        project_list_formatter = lambda a: a['shortname'] + ' (' + a['shortcode'] + ')'
+        plist = list(map(project_list_formatter, user_info['projects'])) # projects user is in
+        projs = list(map(project_list_formatter, existing_projects)) # all projects
+        projs.sort()
+
+        projsel = KnCollapsileChecklist(self, topsizer, "Member of projects:", projs, plist)
+
+        group_list_formatter = lambda a: a['name'] + ' (' + a['project']['shortname'] + ')'
+        groups = list(map(group_list_formatter, existing_groups))
+
+        grpsel = KnCollapsileChecklist(self, topsizer, "Member of groups:", groups, [])
 
         bsizer = self.CreateStdDialogButtonSizer(wx.OK | wx.CANCEL)
         topsizer.Add(bsizer, flag=wx.EXPAND | wx.ALL, border=5)
 
         self.SetSizerAndFit(topsizer)
-        self.ShowModal()
+
+    def get_changed(self):
+        return {
+            "email": self.email.get_changed(),
+            "username": self.username.get_changed(),
+            "lastname": self.lastname.get_changed(),
+            "firstname": self.firstname.get_changed(),
+            "language": self.language.get_changed(),
+        }
+
+
+
+
+
+

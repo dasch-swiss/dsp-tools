@@ -635,6 +635,22 @@ class Knora:
                                data=jsondata)
             self.on_api_error(req)
 
+    def change_user_password(self,
+                             user_iri: str,
+                             admin_password: str,
+                             new_password: str):
+        data = {
+            "requesterPassword": admin_password,
+            "newPassword": new_password
+        }
+        url = self.server + '/admin/users/iri/' + quote_plus(user_iri) + '/Password'
+        jsondata = json.dumps(data)
+        req = requests.put(url,
+                           headers={'Content-Type': 'application/json; charset=UTF-8',
+                                    'Authorization': 'Bearer ' + self.token},
+                           data=jsondata)
+        self.on_api_error(req)
+
     def add_user_to_project(self,
                             user_iri: str,
                             project_iri: str):
@@ -708,8 +724,14 @@ class Knora:
         :param project_iri: IRI of project
         :return: None
         """
+        data = {
+            "systemAdmin": True
+        }
         url = self.server + '/admin/users/iri/' + quote_plus(user_iri) + '/SystemAdmin'
-        req = requests.post(url, headers={'Authorization': 'Bearer ' + self.token})
+        jsondata = json.dumps(data)
+        req = requests.put(url, headers={'Content-Type': 'application/json; charset=UTF-8',
+                                         'Authorization': 'Bearer ' + self.token},
+                            data=jsondata)
         self.on_api_error(req)
         return None
 
@@ -721,8 +743,14 @@ class Knora:
         :param project_iri: IRI of project
         :return: None
         """
+        data = {
+            "systemAdmin": False
+        }
         url = self.server + '/admin/users/iri/' + quote_plus(user_iri) + '/SystemAdmin'
-        req = requests.delete(url, headers={'Authorization': 'Bearer ' + self.token})
+        jsondata = json.dumps(data)
+        req = requests.put(url, headers={'Content-Type': 'application/json; charset=UTF-8',
+                                         'Authorization': 'Bearer ' + self.token},
+                              data=jsondata)
         self.on_api_error(req)
         return None
 

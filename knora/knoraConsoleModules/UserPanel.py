@@ -3,7 +3,6 @@ from typing import List, Set, Dict, Tuple, Optional, Any, Union
 import os
 import sys
 import wx
-from typing import List, Set, Dict, Tuple, Optional
 from knora import KnoraError, Knora
 from pprint import pprint
 
@@ -11,10 +10,14 @@ path = os.path.abspath(os.path.dirname(__file__))
 if not path in sys.path:
     sys.path.append(path)
 
+from models.Helpers import Languages, Actions, LangString
+from models.KnoraUser import KnoraUser
+from models.Connection import Connection
+
 from KnDialogControl import KnDialogControl, KnDialogTextCtrl, KnDialogChoice, KnDialogCheckBox, KnCollapsiblePicker
 
 def show_error(msg: str, knerr: KnoraError):
-    dlg = wx.MessageDialog(self,
+    dlg = wx.MessageDialog(None,
                            message=msg + "\n" + knerr.message,
                            caption='Error',
                            style=wx.OK | wx.ICON_ERROR)
@@ -47,6 +50,7 @@ class UserPanel(wx.Panel):
         self.edit_button = wx.Button(parent=self, label="edit")
         self.edit_button.Bind(wx.EVT_BUTTON, self.start_entry)
         self.new_button = wx.Button(parent=self, label="new")
+        self.new_button.Bind(wx.EVT_BUTTON, self.new_entry)
         bottomsizer.Add(self.edit_button, proportion=1, flag=wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=3)
         bottomsizer.Add(self.new_button, proportion=1, flag=wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=3)
 
@@ -54,29 +58,36 @@ class UserPanel(wx.Panel):
         self.SetAutoLayout(1)
         self.SetSizerAndFit(topsizer)
 
-    def set_connection(self, con: Knora):
+    def set_connection(self, con: Connection):
         self.con = con
 
-    def update(self, con: Knora):
-        users = con.get_users()
+    def update(self, con: Connection):
+        users = KnoraUser.getAllUsers(con)
         self.listctl.DeleteAllItems()
         for user in users:
-            self.listctl.Append((user['username'], user['familyName'], user['givenName'], user['email']))
-            self.ids.append(user['id'])
+            self.listctl.Append((user.username, user.familyName, user.givenName, user.email))
+            self.ids.append(user.id)
         self.listctl.SetColumnWidth(0, -1)
         self.listctl.SetColumnWidth(1, -1)
         self.listctl.SetColumnWidth(2, -1)
         self.listctl.SetColumnWidth(3, -1)
         self.listctl.Select(0)
 
+    def new_entry(self, event):
+        idx = self.listctl.GetFirstSelected()
+        user_iri = self.ids[idx]
+        ue = UserEntryDialog(self.con, user_iri, True, self)
+        res = ue.ShowModal()
+
     def start_entry(self, event):
         idx = self.listctl.GetFirstSelected()
         user_iri = self.ids[idx]
-        ue = UserEntryDialog(self.con, user_iri, self)
+        ue = UserEntryDialog(self.con, user_iri, False, self)
         res = ue.ShowModal()
         if res == wx.ID_OK:
             changeset = ue.get_changed()
             try:
+
                 self.con.update_user(user_iri=user_iri,
                                      username=changeset['username'],
                                      email=changeset['email'],
@@ -126,8 +137,9 @@ class UserPanel(wx.Panel):
 class UserEntryDialog(wx.Dialog):
 
     def __init__(self,
-                 con: Knora = None,
+                 con: Connection = None,
                  user_iri: str = None,
+                 newentry: bool = True,
                  *args, **kw):
         super(UserEntryDialog, self).__init__(*args, **kw,
                                               title="User Entry",
@@ -135,30 +147,42 @@ class UserEntryDialog(wx.Dialog):
         self.user_iri = user_iri
         self.con = con
         try:
-            self.user_info = self.con.get_user_by_iri(user_iri)
-            self.all_projects = self.con.get_existing_projects(full=True)
+            if not newentry:
+                tmpuser = KnoraUser(con=con, id=user_iri)
+                self.user = tmpuser.read()
+            else:
+                self.user = KnoraUser(con=con)
+            self.all_projects = KnoraProject.getAllProjects(con)
             self.all_groups = self.con.get_groups()
         except KnoraError as knerr:
             show_error("Couldn't get information from knora", knerr)
+            return
         #pprint(self.all_groups)
         pprint(self.user_info)
 
         topsizer = wx.BoxSizer(wx.VERTICAL)
         panel1 = wx.Panel(self)
-        gsizer = wx.FlexGridSizer(cols=3)
+        if newentry:
+            cols = 2
+        else:
+            cols = 3
+        gsizer = wx.FlexGridSizer(cols=cols)
 
         self.email = KnDialogTextCtrl(panel1, gsizer, "Email: ", "email", self.user_info['email'])
         self.username = KnDialogTextCtrl(panel1, gsizer, "Username: ", "username", self.user_info['username'])
-        self.password = KnDialogTextCtrl(panel1, gsizer, "Password: ", "password", "", style=wx.TE_PASSWORD)
+        self.password = KnDialogTextCtrl(panel1, gsizer, "Password: ", "password", self.user_info['password'], style=wx.TE_PASSWORD)
         self.lastname = KnDialogTextCtrl(panel1, gsizer, "Lastname: ", "familyName", self.user_info['familyName'])
         self.firstname = KnDialogTextCtrl(panel1, gsizer, "Firstname: ", "givenName", self.user_info['givenName'])
         self.language = KnDialogChoice(panel1, gsizer, "Language: ", "lang", ["en", "de", "fr", "it"], self.user_info['lang'])
 
         self.is_sysadmin = False;
-        tmp = self.user_info['permissions']['groupsPerProject']
-        if tmp.get('http://www.knora.org/ontology/knora-admin#SystemProject') is not None:
-            if "http://www.knora.org/ontology/knora-admin#SystemAdmin" in tmp['http://www.knora.org/ontology/knora-admin#SystemProject']:
-                self.is_sysadmin = True
+        if not newentry:
+            tmp = self.user_info['permissions']['groupsPerProject']
+            if tmp.get('http://www.knora.org/ontology/knora-admin#SystemProject') is not None:
+                if "http://www.knora.org/ontology/knora-admin#SystemAdmin" in tmp['http://www.knora.org/ontology/knora-admin#SystemProject']:
+                    self.is_sysadmin = True
+        else:
+            self.is_sysadmin = None
         self.sysadmin = KnDialogCheckBox(panel1, gsizer, "Sysadmin: ", " ", self.is_sysadmin)
         self.status = KnDialogCheckBox(panel1, gsizer, "Status: ", "active", self.user_info['status'])
 
@@ -172,40 +196,53 @@ class UserEntryDialog(wx.Dialog):
         #
         # preparing project information
         #
-        project_list_formatter = lambda a: a['shortname'] + ' (' + a['shortcode'] + ')'
+        if not newentry:
+            tmp = list(filter(lambda a: 'http://www.knora.org/ontology/knora-admin#ProjectMember' in a[1], self.user_info['permissions']['groupsPerProject'].items()))
+            member_proj_iris = list(map(lambda a: a[0], tmp))
 
-        self.all_projs = list(map(project_list_formatter, self.all_projects)) # all projects
-        self.all_proj_iris = list(map(lambda a: a['id'], self.all_projects))
+            tmp = list(filter(lambda a: 'http://www.knora.org/ontology/knora-admin#ProjectAdmin' in a[1], self.user_info['permissions']['groupsPerProject'].items()))
+            admin_proj_iris = list(map(lambda a: a[0], tmp))
 
-        chosen_projs = list(map(project_list_formatter, self.user_info['projects']))  # projects user is in
-        #self.sel_proj_iris = list(map(lambda a: a['id'], user_info['projects']))
+        project_list_formatter = lambda a: (a['shortname'] + ' (' + a['shortcode'] + ')', a['id'])
 
-        available_projs = list(filter(lambda a: a not in chosen_projs, self.all_projs))
+        self.projmap_name_iri = dict(map(lambda a: (a['shortname'] + ' (' + a['shortcode'] + ')', a['id']), self.all_projects)) # all projects
+        self.projmap_iri_name = dict(map(lambda a: (a['id'], a['shortname'] + ' (' + a['shortcode'] + ')'), self.all_projects))
 
-        self.projsel = KnCollapsiblePicker(self,
-                                           topsizer,
-                                           "Member of projects:",
-                                           available_projs,
-                                           chosen_projs,
-                                           [],
-                                           self.proj_cb,
-                                           self.add_to_proj,
-                                           self.rm_from_proj)
+        if not newentry:
+            self.member_proj_names = list(map(lambda a: self.projmap_iri_name[a], member_proj_iris))
+            notmember_proj_iris = list(filter(lambda a: a not in member_proj_iris, list(self.projmap_iri_name.keys())))
+        else:
+            self.member_proj_names = []
+            notmember_proj_iris = list(self.projmap_iri_name.keys())
 
-        # get list of selected project IRI's
-        sp = self.projsel.GetCheckedItems()
-        sel_proj_iris = []
-        for i in sp:
-            sel_proj_iris.append(self.all_proj_iris[i])
+        self.notmember_proj_names = list(map(lambda a: self.projmap_iri_name[a], notmember_proj_iris))
 
-        # select the right groups
+        if not newentry:
+            self.admin_proj_names = list(map(lambda a: self.projmap_iri_name[a], admin_proj_iris))
+        else:
+            self.admin_proj_names = []
+
+        self.projsel = KnCollapsiblePicker(parent=self,
+                                           sizer=topsizer,
+                                           label="Is in project: (Checked: admin)",
+                                           available=self.notmember_proj_names,
+                                           chosen=self.member_proj_names,
+                                           selected=self.admin_proj_names,
+                                           on_change_cb=self.projadmin_cb,
+                                           on_add_cb=self.add_to_proj,
+                                           on_rm_cb=self.rm_from_proj)
+
+
         self.group_list_formatter = lambda a: a['name'] + ' (' + a['project']['shortname'] + ')'
-        valid_grps = list(filter(lambda a: a['project']['id'] in sel_proj_iris, self.all_groups))
-        all_grps = list(map(self.group_list_formatter, valid_grps))
-        sel_grps = list(map(self.group_list_formatter, self.user_info['groups']))
-        #self.group_iris = list(map(lambda a: a['id'], valid_groups))
+        all_group_names = list(map(self.group_list_formatter, self.all_groups))
 
-        #self.grpsel = KnCollapsileChecklist(self, topsizer, "Member of groups:", all_grps, sel_grps, self.group_cb)
+        self.grpsel = KnCollapsiblePicker(parent=self,
+                                          sizer=topsizer,
+                                          label="Member of groups:",
+                                          available=None,
+                                          chosen=all_group_names,
+                                          selected=[],
+                                          on_change_cb=self.group_cb)
 
         bsizer = self.CreateStdDialogButtonSizer(wx.OK | wx.CANCEL)
         topsizer.Add(bsizer, flag=wx.EXPAND | wx.ALL, border=5)
@@ -225,27 +262,43 @@ class UserEntryDialog(wx.Dialog):
         }
 
     def add_to_proj(self, s):
-        i = self.all_projs.index(s)
-        proj_iri = self.all_proj_iris[i]
-        self.con.add_user_to_project(self.user_iri, proj_iri)
+        proj_iri = self.projmap_name_iri[s]
+        try:
+            self.con.add_user_to_project(self.user_iri, proj_iri)
+        except KnoraError as knerr:
+            show_error("Coudn't add user to project!", knerr)
+        self.member_proj_names.append(s)
+        self.notmember_proj_names.remove(s)
 
     def rm_from_proj(self, s):
-        i = self.all_projs.index(s)
-        proj_iri = self.all_proj_iris[i]
-        self.con.rm_user_from_project(self.user_iri, proj_iri)
+        proj_iri = self.projmap_name_iri[s]
+        # if user is also admin of project, we first remove him from being an admin
+        if s in self.admin_proj_names:
+            try:
+                self.con.rm_user_from_project_admin(self.user_iri, proj_iri)
+            except:
+                show_error("Couldn't remove user from project admin!")
+            self.admin_proj_names.remove(s)
+        try:
+            self.con.rm_user_from_project(self.user_iri, proj_iri)
+        except KnoraError as knerr:
+            show_error("Couldn't remove user from project!", knerr)
+        self.member_proj_names.remove(s)
+        self.notmember_proj_names.append(s)
 
-    def proj_cb(self, event):
-        print("Projects CheckListBox changed!")
-        sp = self.projsel.GetCheckedItems()
-        sel_proj_iris = []
-        for i in sp:
-            sel_proj_iris.append(self.all_proj_iris[i])
-        valid_grps = list(filter(lambda a: a['project']['id'] in sel_proj_iris, self.all_groups))
-        all_grps = list(map(self.group_list_formatter, valid_grps))
-        sel_grps = list(map(self.group_list_formatter, self.user_info['groups']))
-        self.grpsel.rebuild(all_grps, sel_grps)
+    def projadmin_cb(self, s, on) -> bool:
+        proj_iri = self.projmap_name_iri[s]
+        try:
+            if on:
+                self.con.add_user_to_project_admin(self.user_iri, proj_iri)
+            else:
+                self.con.rm_user_from_project_admin(self.user_iri, proj_iri)
+        except KnoraError as knerr:
+            show_error("Couldn't modify admin flag of project", knerr)
+            return False
+        return True
 
-    def group_cb(self, event):
+    def group_cb(self, s, on) -> bool:
         print("Groups CheckListBox changed!")
 
 

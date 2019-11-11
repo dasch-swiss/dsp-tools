@@ -53,22 +53,28 @@ class KnDialogControl:
                  gsizer: wx.FlexGridSizer,
                  label: str,
                  name: str,
-                 control: wx.Control):
+                 control: wx.Control,
+                 newentry: bool = False):
         self.label = wx.StaticText(panel, label=label)
         self.control = control
+        self.newentry = newentry
 
-        self.undo = wx.Button(panel, label="X", size=wx.Size(25, -1))
-        self.undo.Bind(wx.EVT_BUTTON, self.reset_ctrl)
-        self.undo.Disable()
+        if not newentry:
+            self.undo = wx.Button(panel, label="X", size=wx.Size(25, -1))
+            self.undo.Bind(wx.EVT_BUTTON, self.reset_ctrl)
+            self.undo.Disable()
         gsizer.Add(self.label, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=3)
         gsizer.Add(self.control, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=3)
-        gsizer.Add(self.undo, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=3)
+        if not newentry:
+            gsizer.Add(self.undo, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=3)
 
     def control_changed(self, event):
-        self.undo.Enable()
+        if not self.newentry:
+            self.undo.Enable()
 
     def reset_ctrl(self, event):
-        self.undo.Disable()
+        if not self.newentry:
+            self.undo.Disable()
 
     def get_changed(self):
         return None
@@ -79,16 +85,22 @@ class KnDialogTextCtrl(KnDialogControl):
                  gsizer: wx.FlexGridSizer,
                  label: str,
                  name: str,
-                 value: str,
+                 value: Optional[str] = None,
                  style = None):
         self.orig_value = value
         if style is None:
-            self.text_ctrl = wx.TextCtrl(panel, name=name, value=value, size=wx.Size(200, -1))
+            self.text_ctrl = wx.TextCtrl(panel,
+                                         name=name,
+                                         value=value if value is not None else "",
+                                         size=wx.Size(200, -1))
         else:
-            self.text_ctrl = wx.TextCtrl(panel, name=name, value=value, size=wx.Size(200, -1),
-                                     style=style)
+            self.text_ctrl = wx.TextCtrl(panel,
+                                         name=name,
+                                         value=value if value is not None else "",
+                                         size=wx.Size(200, -1),
+                                         style=style)
         self.text_ctrl.Bind(wx.EVT_TEXT, self.text_changed)
-        super().__init__(panel, gsizer, label, name, self.text_ctrl)
+        super().__init__(panel, gsizer, label, name, self.text_ctrl, True if value is None else False)
 
     def text_changed(self, event):
         super().control_changed(event)
@@ -112,7 +124,7 @@ class KnDialogChoice(KnDialogControl):
                  label: str,
                  name: str,
                  choices: List[str],
-                 value: str):
+                 value: Optional[str] = None):
         self.orig_value = value
         self.switcher: Dict[str, int] = {}
         i = 0
@@ -120,9 +132,10 @@ class KnDialogChoice(KnDialogControl):
             self.switcher[c] = i
             i += 1
         self.choice_ctrl = wx.Choice(panel, choices=choices)
-        self.choice_ctrl.SetSelection(self.switcher[value])
+        if value is not None:
+            self.choice_ctrl.SetSelection(self.switcher[value])
         self.choice_ctrl.Bind(wx.EVT_CHOICE, self.choice_changed)
-        super().__init__(panel, gsizer, label, name, self.choice_ctrl)
+        super().__init__(panel, gsizer, label, name, self.choice_ctrl, True if value is None else False)
 
     def choice_changed(self, event):
         super().control_changed(event)
@@ -145,12 +158,13 @@ class KnDialogCheckBox(KnDialogControl):
                  gsizer: wx.FlexGridSizer,
                  label: str,
                  name: str,
-                 status: bool):
+                 status: Optional[bool] = None):
         self.orig_status = status
         self.checkbox_ctrl = wx.CheckBox(panel, label=label)
-        self.checkbox_ctrl.SetValue(status)
+        if status is not None:
+            self.checkbox_ctrl.SetValue(status)
         self.checkbox_ctrl.Bind(wx.EVT_CHECKBOX, self.checkbox_changed)
-        super().__init__(panel, gsizer, label, name, self.checkbox_ctrl)
+        super().__init__(panel, gsizer, label, name, self.checkbox_ctrl, True if status is None else False)
 
     def checkbox_changed(self, event):
         super().control_changed(event)
@@ -172,7 +186,7 @@ class KnCollapsiblePicker:
                  parent: wx.Window,
                  sizer: wx.Sizer,
                  label: str,
-                 available: List[str],
+                 available: Union[List[str],None],
                  chosen: List[str],
                  selected: List[str],
                  on_change_cb: Callable[[wx.Event], None],
@@ -190,16 +204,18 @@ class KnCollapsiblePicker:
         self.cpp = self.cp.GetPane()
         self.localsizer = wx.BoxSizer(wx.VERTICAL)
         self.itemlist = wx.CheckListBox(self.cpp, choices=self.chosen)
-        self.itemlist.Bind(wx.EVT_CHECKLISTBOX, self.on_change_cb)
+        self.itemlist.Bind(wx.EVT_CHECKLISTBOX, self.checkbox_changed_cb)
         for sel in selected:
             self.itemlist.Check(self.chosen.index(sel))
         self.cpp.SetSizer(self.localsizer)
         self.localsizer.SetSizeHints(self.cpp)
         self.localsizer.Add(self.itemlist, flag=wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.GROW | wx.ALL)
-        self.modify = wx.Button(self.cpp, label="Add/Remove...")
-        self.modify.Bind(wx.EVT_BUTTON, self.picker)
 
-        self.localsizer.Add(self.modify, flag=wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.ALL)
+        if self.available is not None:
+            self.modify = wx.Button(self.cpp, label="Add/Remove...")
+            self.modify.Bind(wx.EVT_BUTTON, self.picker)
+            self.localsizer.Add(self.modify, flag=wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.ALL)
+
         self.cpp.SetSizer(self.localsizer)
 
         sizer.Add(self.cp, 0, flag=wx.EXPAND | wx.ALL | wx.GROW, border=5)
@@ -232,21 +248,24 @@ class KnCollapsiblePicker:
 
         d.Destroy()
 
+    def checkbox_changed_cb(self, event):
+        s = event.GetString()
+        all_s = self.itemlist.GetCheckedStrings()
+        on = s in all_s
+        res = self.on_change_cb(s, on)
+        if not res:
+            i = self.itemlist.FindString(s)
+            if on:
+                self.itemlist.Check(i, True)
+            else:
+                self.itemlist.Check(i, False)
+
+
     def GetCheckedItems(self):
         return self.itemlist.GetCheckedItems()
 
     def GetCheckedStrings(self):
         return self.itemlist.GetCheckedStrings()
 
-    def rebuild(self, choices: List[str], selected: List[str]):
-        self.choices = choices
-        self.itemlist.Destroy()
-        self.itemlist = wx.CheckListBox(self.cpp, choices=self.choices)
-        self.itemlist.Bind(wx.EVT_CHECKLISTBOX, self.on_change_cb)
-        for sel in selected:
-            self.itemlist.Check(choices.index(sel))
-        self.localsizer.Add(self.itemlist, flag=wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.GROW | wx.ALL)
-        self.itemlist.Fit()
-        self.itemlist.GetParent().SendSizeEvent()
 
 

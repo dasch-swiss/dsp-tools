@@ -9,6 +9,7 @@ path = os.path.abspath(os.path.dirname(__file__))
 if not path in sys.path:
     sys.path.append(path)
 
+from models.Connection import Connection
 from knoraConsoleModules.ProjectPanel import ProjectPanel
 from knoraConsoleModules.UserPanel import UserPanel
 
@@ -154,7 +155,7 @@ class OpenConnectionDialog(wx.Dialog):
             server_str = server.GetLineText(0)
             username_str = username.GetLineText(0)
             password_str = password.GetLineText(0)
-            self.con = Knora(server_str)
+            self.con = Connection(server_str)
             self.con.login(username_str, password_str)
 
         else:
@@ -169,6 +170,7 @@ if __name__ == '__main__':
 
     app = wx.App()
     frm = KnoraConsole(None, title='Knora Console V0.1.1 Beta', size=wx.Size(800, 600))
+
     frm.Show()
     app.MainLoop()
     print("Bye Bye")

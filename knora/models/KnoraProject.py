@@ -2,18 +2,30 @@ import os
 import sys
 import requests
 import json
+from pystrict import strict
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from enum import Enum, unique
 from urllib.parse import quote_plus
 from pprint import pprint
 
 path = os.path.abspath(os.path.dirname(__file__))
+(head, tail)  = os.path.split(path)
+if not head in sys.path:
+    sys.path.append(head)
 if not path in sys.path:
     sys.path.append(path)
 
-from Helpers import Languages, Actions, LangString, BaseError
-from Connection import Connection
+from models.Helpers import Languages, Actions, LangString, BaseError
+from models.Connection import Connection
 
+class SetEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, set):
+            return list(obj)
+        return json.JSONEncoder.default(self, obj)
+
+
+@strict
 class KnoraProject:
     SYSTEM_PROJECT: str = "http://www.knora.org/ontology/knora-admin#SystemProject"
     _id: str
@@ -40,6 +52,8 @@ class KnoraProject:
                  selfjoin: Optional[bool] = None,
                  status: Optional[bool] = None,
                  logo: Optional[str] = None):
+        if not isinstance(con, Connection):
+            raise BaseError ('"con"-parameter must be an instance of Connection')
         self.con = con
         self._id = str(id) if id is not None else None
         self._shortcode = str(shortcode) if shortcode is not None else None
@@ -85,7 +99,7 @@ class KnoraProject:
 
     @shortname.setter
     def shortname(self, value: str) -> None:
-        self._shortname = value
+        self._shortname = str(value)
         self.changed.add('shortname')
 
     @property
@@ -94,7 +108,7 @@ class KnoraProject:
 
     @longname.setter
     def longname(self, value: str) -> None:
-        self._longname = value
+        self._longname = str(value)
         self.changed.add('longname')
 
     @property
@@ -102,11 +116,11 @@ class KnoraProject:
         return self._description
 
     @description.setter
-    def description(self, value: LangString):
+    def description(self, value: LangString) -> None:
         self._descriptions = value
         self.changed.add('description')
 
-    def add_description(self, lang: Union[Languages, str], value):
+    def addDescription(self, lang: Union[Languages, str], value) -> None:
         if isinstance(lang, Languages):
             self._descriptions[lang] = value
             self.changed.add('description')
@@ -117,7 +131,7 @@ class KnoraProject:
             self._description[lmap[lang]] = value
             self.changed.add('description')
 
-    def rm_description(self, lang: Union[Languages, str]):
+    def rmDescription(self, lang: Union[Languages, str]) -> None:
         if isinstance(lang, Languages):
             del self._description[lang]
             self.changed.add('description')
@@ -221,7 +235,17 @@ class KnoraProject:
         if status is None:
             raise BaseError("Status is missing")
         logo = json_obj.get('logo')
-        return cls(con, id, shortcode, shortname, longname, description, keywords, ontologies, selfjoin, status, logo)
+        return cls(con=con,
+                   id=id,
+                   shortcode=shortcode,
+                   shortname=shortname,
+                   longname=longname,
+                   description=description,
+                   keywords=keywords,
+                   ontologies=ontologies,
+                   selfjoin=selfjoin,
+                   status=status,
+                   logo=logo)
 
     def toJsonObj(self, action: Actions):
         tmp = {}
@@ -265,18 +289,18 @@ class KnoraProject:
 
     def create(self):
         jsonobj = self.toJsonObj(Actions.Create)
-        jsondata = json.dumps(jsonobj)
+        jsondata = json.dumps(jsonobj, cls=SetEncoder)
         result = self.con.post('/admin/projects', jsondata)
-        return KnoraProject.fromJsonObj(result['project'])
+        return KnoraProject.fromJsonObj(self.con, result['project'])
 
     def read(self):
         result = self.con.get('/admin/projects/iri/' + quote_plus(self._id))
-        return KnoraProject.fromJsonObj(result['project'])
+        return KnoraProject.fromJsonObj(self.con, result['project'])
 
     def update(self):
         jsonobj = self.toJsonObj(Actions.Update)
         if jsonobj:
-            jsondata = json.dumps(jsonobj)
+            jsondata = json.dumps(jsonobj, cls=SetEncoder)
             result = self.con.put('/admin/projects/iri/' + quote_plus(self.id), jsondata)
             return KnoraProject.fromJsonObj(self.con, result['project'])
         else:
@@ -299,11 +323,20 @@ class KnoraProject:
         print('  Shortcode:  {}'.format(self._shortcode))
         print('  Shortname:  {}'.format(self._shortname))
         print('  Longname:   {}'.format(self._longname))
-        print('  Description:')
-        for descr in self._description.items():
-            print('    {}: {}'.format(descr[0], descr[1]))
-        print('  Keywords:   {}'.format(' '.join(self._keywords)))
-        print('  Ontologies: {}'.format(' '.join(self._ontologies)))
+        if self._description is not None:
+            print('  Description:')
+            for descr in self._description.items():
+                print('    {}: {}'.format(descr[0], descr[1]))
+        else:
+            print('  Description: None')
+        if self._keywords is not None:
+            print('  Keywords:   {}'.format(' '.join(self._keywords)))
+        else:
+            print('  Keywords:   None')
+        if self._ontologies is not None:
+            print('  Ontologies: {}'.format(' '.join(self._ontologies)))
+        else:
+            print('  Ontologies: None')
         print('  Selfjoin:   {}'.format(self._selfjoin))
         print('  Status:     {}'.format(self._status))
 
@@ -316,6 +349,8 @@ if __name__ == '__main__':
     for project in projects:
         project.print()
 
+    print('==============================================================')
+
     new_project = KnoraProject(con=con,
                                shortcode='F11F',
                                shortname='mytest3',
@@ -323,14 +358,21 @@ if __name__ == '__main__':
                                description=LangString({Languages.EN: 'My Tests description'}),
                                keywords={'AAA', 'BBB'},
                                selfjoin=False,
-                               status=True)
+                               status=True).create()
+
     new_project.print()
 
     new_project.longname = 'A long name fore a short project'
     new_project.status = False
     new_project.description = LangString({Languages.DE: 'Beschreibung meines Tests'})
-    pprint(new_project.keywords)
-    new_project.keywords = new_project.add_keyword('CCC')
-    new_project.update()
+    new_project.add_keyword('CCC')
+    new_project = new_project.update()
     new_project.print()
 
+    new_project =  new_project.delete()
+
+    print('**************************************************************')
+    projects = KnoraProject.getAllProjects(con)
+
+    for project in projects:
+        project.print()

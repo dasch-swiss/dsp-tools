@@ -28,6 +28,7 @@ setuptools.setup(
         'click',
         'rfc3987',
         'pprint',
+        'pystrict',
     ],
     entry_points={
           'console_scripts': [

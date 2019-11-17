@@ -86,18 +86,19 @@ class KnDialogTextCtrl(KnDialogControl):
                  label: str,
                  name: str,
                  value: Optional[str] = None,
+                 size: Optional[wx.Size] = None,
                  style = None):
         self.orig_value = value
         if style is None:
             self.text_ctrl = wx.TextCtrl(panel,
                                          name=name,
                                          value=value if value is not None else "",
-                                         size=wx.Size(200, -1))
+                                         size=wx.Size(200, -1) if size is None else size)
         else:
             self.text_ctrl = wx.TextCtrl(panel,
                                          name=name,
                                          value=value if value is not None else "",
-                                         size=wx.Size(200, -1),
+                                         size=wx.Size(200, -1) if size is None else size,
                                          style=style)
         self.text_ctrl.Bind(wx.EVT_TEXT, self.text_changed)
         super().__init__(panel, gsizer, label, name, self.text_ctrl, True if value is None else False)
@@ -108,6 +109,10 @@ class KnDialogTextCtrl(KnDialogControl):
     def reset_ctrl(self, event):
         self.text_ctrl.SetValue(self.orig_value)
         super().reset_ctrl(event)
+
+    def get_value(self):
+        value = self.text_ctrl.GetValue()
+        return value if value else None
 
     def get_changed(self):
         new_value = self.text_ctrl.GetValue()
@@ -125,15 +130,16 @@ class KnDialogChoice(KnDialogControl):
                  name: str,
                  choices: List[str],
                  value: Optional[str] = None):
-        self.orig_value = value
-        self.switcher: Dict[str, int] = {}
+        self.choices = choices
+        self.orig_value = choices[0] if value is None else value
+        self.switcherStrToInt: Dict[str, int] = {}
         i = 0
-        for c in choices:
-            self.switcher[c] = i
+        for c in self.choices:
+            self.switcherStrToInt[c] = i
             i += 1
         self.choice_ctrl = wx.Choice(panel, choices=choices)
         if value is not None:
-            self.choice_ctrl.SetSelection(self.switcher[value])
+            self.choice_ctrl.SetSelection(self.switcherStrToInt[value])
         self.choice_ctrl.Bind(wx.EVT_CHOICE, self.choice_changed)
         super().__init__(panel, gsizer, label, name, self.choice_ctrl, True if value is None else False)
 
@@ -141,15 +147,19 @@ class KnDialogChoice(KnDialogControl):
         super().control_changed(event)
 
     def reset_ctrl(self, event):
-        self.choice_ctrl.SetSelection(self.switcher[self.orig_value])
+        self.choice_ctrl.SetSelection(self.switcherStrToInt[self.orig_value])
         super().reset_ctrl(event)
+
+    def get_value(self):
+        value = self.choice_ctrl.GetCurrentSelection()
+        return self.choices[value]
 
     def get_changed(self):
         new_value = self.choice_ctrl.GetCurrentSelection()
-        if self.switcher[self.orig_value] == new_value:
+        if self.orig_value == self.choices[new_value]:
             return None
         else:
-            return new_value
+            return self.choices[new_value]
 
 
 class KnDialogCheckBox(KnDialogControl):
@@ -172,6 +182,9 @@ class KnDialogCheckBox(KnDialogControl):
     def reset_ctrl(self, event):
         self.checkbox_ctrl.SetValue(self.orig_status)
         super().reset_ctrl(event)
+
+    def get_value(self):
+        return self.checkbox_ctrl.GetValue()
 
     def get_changed(self):
         new_status = self.checkbox_ctrl.GetValue()

@@ -1,16 +1,28 @@
+import os
+import sys
 import requests
 import json
+from pystrict import strict
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from enum import Enum, unique
 from urllib.parse import quote_plus
 from pprint import pprint
 
-from Helpers import Languages, Actions, LangString, BaseError
-from Connection import Connection
+path = os.path.abspath(os.path.dirname(__file__))
+(head, tail)  = os.path.split(path)
+if not head in sys.path:
+    sys.path.append(head)
+if not path in sys.path:
+    sys.path.append(path)
 
+from models.Helpers import Languages, Actions, LangString, BaseError
+from models.Connection import Connection
+
+@strict
 class KnoraGroup:
     PROJECT_MEMBER_GROUP: str = "http://www.knora.org/ontology/knora-admin#ProjectMember"
     PROJECT_ADMIN_GROUP: str = "http://www.knora.org/ontology/knora-admin#ProjectAdmin"
+    PROJECT_SYSTEMADMIN_GROUP: str = "http://www.knora.org/ontology/knora-admin#SystemAdmin"
 
     _id: str
     _name: str
@@ -21,19 +33,21 @@ class KnoraGroup:
 
     def __init__(self,
                  con: Connection,
-                 id: str = None,
-                 name: str = None,
-                 description: str = None,
-                 project: str = None,
-                 selfjoin: bool = False,
-                 status: bool = True):
+                 id: Optional[str] = None,
+                 name: Optional[str] = None,
+                 description: Optional[str] = None,
+                 project: Optional[str] = None,
+                 selfjoin: Optional[bool] = None,
+                 status: Optional[bool] = None):
+        if not isinstance(con, Connection):
+            raise BaseError ('"con"-parameter must be an instance of Connection')
         self.con = con
-        self._id = id
-        self._name = name
+        self._id = str(id) if id is not None else None
+        self._name = str(name) if name is not None else None
         self._description = description
-        self._project = project
-        self._selfjoin = selfjoin
-        self._status = status
+        self._project = str(project) if project is not None else None
+        self._selfjoin = bool(selfjoin) if selfjoin is not None else None
+        self._status = bool(status) if status is not None else None
         self.changed = set()
 
     @property
@@ -201,6 +215,7 @@ if __name__ == '__main__':
                            name="KNORA-PY TEST",
                            description="Test project for knora-py",
                            project="http://rdfh.ch/projects/00FF",
+                           status=True,
                            selfjoin=False).create()
     new_group.print()
 

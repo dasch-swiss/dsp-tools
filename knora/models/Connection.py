@@ -74,11 +74,15 @@ class Connection:
         if 'error' in res:
             raise KnoraError("KNORA-ERROR: API error: " + res.error)
 
-    def post(self, path: str, jsondata: str):
-        req = requests.post(self.server + path,
-                            headers={'Content-Type': 'application/json; charset=UTF-8',
-                                     'Authorization': 'Bearer ' + self.token},
-                            data=jsondata)
+    def post(self, path: str, jsondata: Optional[str] = None):
+        if jsondata is None:
+            req = requests.post(self.server + path,
+                                headers={'Authorization': 'Bearer ' + self.token})
+        else:
+            req = requests.post(self.server + path,
+                                headers={'Content-Type': 'application/json; charset=UTF-8',
+                                         'Authorization': 'Bearer ' + self.token},
+                                data=jsondata)
         self.on_api_error(req)
         result = req.json()
         return result
@@ -90,11 +94,15 @@ class Connection:
         result = req.json()
         return result
 
-    def put(self, path: str, jsondata: str):
-        req = requests.put(self.server + path,
-                           headers={'Content-Type': 'application/json; charset=UTF-8',
-                                    'Authorization': 'Bearer ' + self.token},
-                           data=jsondata)
+    def put(self, path: str, jsondata: Optional[str] = None):
+        if jsondata is None:
+            req = requests.put(self.server + path,
+                               headers={'Authorization': 'Bearer ' + self.token})
+        else:
+            req = requests.put(self.server + path,
+                               headers={'Content-Type': 'application/json; charset=UTF-8',
+                                        'Authorization': 'Bearer ' + self.token},
+                               data=jsondata)
         self.on_api_error(req)
         result = req.json()
         return result

@@ -12,3 +12,4 @@ jsonschema
 click
 rfc3987
 pprint
+pystrict

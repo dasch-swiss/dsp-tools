@@ -9,10 +9,13 @@ path = os.path.abspath(os.path.dirname(__file__))
 if not path in sys.path:
     sys.path.append(path)
 
-#from knora import KnoraError, Knora
 from models.Helpers import Languages, Actions, LangString
+#from models.KnoraUser import KnoraUser
 from models.KnoraProject import KnoraProject
+#from models.KnoraGroup import KnoraGroup
 from models.Connection import Connection
+
+from KnDialogControl import KnDialogControl, KnDialogTextCtrl, KnDialogChoice, KnDialogCheckBox, KnCollapsiblePicker
 
 class ProjectPanel(wx.Panel):
     """
@@ -37,7 +40,7 @@ class ProjectPanel(wx.Panel):
 
         bottomsizer = wx.BoxSizer(wx.HORIZONTAL)
         self.edit_button = wx.Button(parent=self, label="edit")
-        self.edit_button.Bind(wx.EVT_BUTTON, self.start_entry)
+        self.edit_button.Bind(wx.EVT_BUTTON, self.edit_entry)
         self.new_button = wx.Button(parent=self, label="new")
         bottomsizer.Add(self.edit_button, proportion=1, flag=wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=3)
         bottomsizer.Add(self.new_button, proportion=1, flag=wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=3)
@@ -49,13 +52,17 @@ class ProjectPanel(wx.Panel):
     def set_connection(self, con: Connection):
         self.con = con
 
-    def update(self, con: Connection):
-        projects = KnoraProject.getAllProjects(con)
+    def update(self):
+
+        projects = KnoraProject.getAllProjects(self.con)
 
         #projects = con.get_existing_projects(True)
         self.listctl.DeleteAllItems()
         for project in projects:
-            self.listctl.Append((project.shortcode, project.shortname, project.longname, project.description[Languages.EN]))
+            self.listctl.Append((project.shortcode,
+                                 project.shortname,
+                                 project.longname,
+                                 project.description[Languages.EN]))
             self.ids.append(project.id)
         self.listctl.SetColumnWidth(0, -1)
         self.listctl.SetColumnWidth(1, -1)
@@ -67,3 +74,66 @@ class ProjectPanel(wx.Panel):
         pass
         #ue = UserEntryDialog(self.con, self.ids[self.listctl.GetFirstSelected()], self)
         #ue = UserEntryDialog(self)
+
+    def edit_entry(self, event):
+        idx = self.listctl.GetFirstSelected()
+        project_iri = self.ids[idx]
+        pe = ProjectEntryDialog(self.con, project_iri, False, self)
+        res = pe.ShowModal()
+
+
+class ProjectEntryDialog(wx.Dialog):
+
+    def __init__(self,
+                 con: Connection = None,
+                 project_iri: str = None,
+                 newentry: bool = True,
+                 *args, **kw):
+        super().__init__(*args, **kw,
+                         title="Project Entry",
+                         style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+        self.project_iri = project_iri
+        self.con = con
+        try:
+            if newentry:
+                self.project = Knoraproject(con=con)
+            else:
+                tmpproject = KnoraProject(con=con, id=project_iri)
+                self.project = tmpproject.read()
+            #self.all_projects = KnoraProject.getAllProjects(con)
+            #self.all_groups = KnoraGroup.getAllGroups(con)
+        except KnoraError as knerr:
+            show_error("Couldn't get information from knora", knerr)
+            return
+        topsizer = wx.BoxSizer(wx.VERTICAL)
+        panel1 = wx.Panel(self)
+        if newentry:
+            cols = 2
+        else:
+            cols = 3
+        gsizer = wx.FlexGridSizer(cols=cols)
+
+        tmp_shortcode = None if newentry else self.project.shortcode if self.project.shortcode is not None else ""
+        self.shortcode = KnDialogTextCtrl(panel1, gsizer, "Shortcode: ", "shortcode", tmp_shortcode)
+
+        tmp_shortname = None if newentry else self.project.shortname if self.project.shortname is not None else ""
+        self.shortname = KnDialogTextCtrl(panel1, gsizer, "Shortname: ", "shortname", tmp_shortname)
+
+        tmp_longname = None if newentry else self.project.longname if self.project.longname is not None else ""
+        self.longname = KnDialogTextCtrl(panel1, gsizer, "Longname: ", "longname", tmp_longname, size=wx.Size(200,50), style=wx.TE_MULTILINE)
+
+        self.selfjoin= KnDialogCheckBox(panel1, gsizer, "Selfjoin: ", "selfjoin", self.project.selfjoin)
+        self.status = KnDialogCheckBox(panel1, gsizer, "Status: ", "active", self.project.status)
+
+
+        gsizer.SetSizeHints(panel1)
+        panel1.SetSizer(gsizer)
+        panel1.SetAutoLayout(1)
+        gsizer.Fit(panel1)
+
+        topsizer.Add(panel1, flag=wx.EXPAND | wx.ALL, border=5)
+
+        bsizer = self.CreateStdDialogButtonSizer(wx.OK | wx.CANCEL)
+        topsizer.Add(bsizer, flag=wx.EXPAND | wx.ALL, border=5)
+
+        self.SetSizerAndFit(topsizer)

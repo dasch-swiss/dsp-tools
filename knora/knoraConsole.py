@@ -95,10 +95,10 @@ class KnoraConsole(wx.Frame):
             self.con = dialog.get_res()
 
             self.project_panel.set_connection(self.con)
-            self.project_panel.update(self.con)
+            self.project_panel.update()
 
             self.up.set_connection(self.con)
-            self.up.update(self.con)
+            self.up.update()
 
     def onDisconnect(self, event):
         wx.MessageBox("Disconnect from server")

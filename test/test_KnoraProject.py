@@ -36,7 +36,6 @@ def erase_project():
 
 class TestKnoraProject(unittest.TestCase):
 
-
     def tearDown(self):
         res = erase_project()
 
@@ -71,17 +70,16 @@ class TestKnoraProject(unittest.TestCase):
         project = KnoraProject(
             con=con,
             id='http://rdfh.ch/projects/0001'
-        )
-        nproject = project.read()
-        self.assertIsNotNone(nproject)
-        self.assertEqual(nproject.id, 'http://rdfh.ch/projects/0001')
-        self.assertEqual(nproject.shortcode, '0001')
-        self.assertEqual(nproject.shortname, 'anything')
-        self.assertEqual(nproject.longname, 'Anything Project')
-        self.assertEqual(nproject.description['en'], 'Anything Project is a testing project ')
-        self.assertEqual(nproject.selfjoin, False)
-        self.assertEqual(nproject.status, False)
-        self.assertEqual(nproject.keywords, {'test', 'dasch', 'anything'})
+        ).read()
+        self.assertIsNotNone(project)
+        self.assertEqual(project.id, 'http://rdfh.ch/projects/0001')
+        self.assertEqual(project.shortcode, '0001')
+        self.assertEqual(project.shortname, 'anything')
+        self.assertEqual(project.longname, 'Anything Project')
+        self.assertEqual(project.description['en'], 'Anything Project is a testing project ')
+        self.assertEqual(project.selfjoin, False)
+        self.assertEqual(project.status, False)
+        self.assertEqual(project.keywords, {'test', 'dasch', 'anything'})
 
     def test_create(self):
         con = KnoraConnection('http://0.0.0.0:3333')

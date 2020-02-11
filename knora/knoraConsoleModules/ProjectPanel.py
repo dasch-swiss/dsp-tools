@@ -9,11 +9,11 @@ path = os.path.abspath(os.path.dirname(__file__))
 if not path in sys.path:
     sys.path.append(path)
 
-from models.Helpers import Languages, Actions, LangString
+from models.KnoraHelpers import Languages, Actions, LangString
 #from models.KnoraUser import KnoraUser
 from models.KnoraProject import KnoraProject
 #from models.KnoraGroup import KnoraGroup
-from models.Connection import Connection
+from models.KnoraConnection import KnoraConnection
 
 from KnDialogControl import KnDialogControl, KnDialogTextCtrl, KnDialogChoice, KnDialogCheckBox, KnCollapsiblePicker
 
@@ -49,7 +49,7 @@ class ProjectPanel(wx.Panel):
         self.SetAutoLayout(1)
         self.SetSizerAndFit(topsizer)
 
-    def set_connection(self, con: Connection):
+    def set_connection(self, con: KnoraConnection):
         self.con = con
 
     def update(self):
@@ -85,7 +85,7 @@ class ProjectPanel(wx.Panel):
 class ProjectEntryDialog(wx.Dialog):
 
     def __init__(self,
-                 con: Connection = None,
+                 con: KnoraConnection = None,
                  project_iri: str = None,
                  newentry: bool = True,
                  *args, **kw):

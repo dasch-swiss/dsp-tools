@@ -15,8 +15,8 @@ if not head in sys.path:
 if not path in sys.path:
     sys.path.append(path)
 
-from models.Helpers import Languages, Actions, LangString, BaseError
-from models.Connection import Connection
+from models.KnoraHelpers import Languages, Actions, LangString, BaseError
+from models.KnoraConnection import KnoraConnection
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -24,9 +24,91 @@ class SetEncoder(json.JSONEncoder):
             return list(obj)
         return json.JSONEncoder.default(self, obj)
 
+"""
+This module implements the handling (CRUD) of Knora projects.
+
+CREATE:
+    * Instantiate a new object of the class KnoraProject with all required parameters
+    * Call the ``create``-method on the instance
+
+READ:
+    * Instantiate a new object with ``id``(IRI of project) given
+    * Call the ``read``-method on the instance
+    * Access the information that has been provided to the instance
+
+UPDATE:
+    * You need an instance of an existing KnoraProject by reading an instance
+    * Change the attributes by assigning the new values
+    * Call the ``update```method on the instance
+
+DELETE
+    * Instantiate a new objects with ``id``(IRI of project) given, or use any instance that has the id set
+    * Call the ``delete``-method on the instance
+
+In addition there is a static methods ``getAllProjects`` which returns a list of all projects
+"""
 
 @strict
 class KnoraProject:
+    """
+    This class represents a project in Knora.
+
+    Attributes
+    ----------
+
+    con : KnoraConnection
+        A KnoraConnection instance to a Knora server
+
+    id : str
+        IRI of the project [readonly, cannot be modified after creation of instance]
+
+    shortcode : str
+        Knora project shortcode [readonly, cannot be modified after creation of instance]
+
+    shortname : str
+        Knora project shortname [read/write]
+
+    longname : str
+        Knora project longname [read/write]
+
+    description : LangString
+        Knora project description in a given language (Languages.EN, Languages.DE, Languages.FR, Languages.IT).
+        A desciption can be add/replaced or removed with the methods ``addDescription``and ``rmDescription``.
+
+    keywords : Set[str]
+        Set of keywords describing the project. Keywords can be added/removed by the methods ``addKeyword``
+        and ``rmKeyword``
+
+    ontologies : Set[str]
+        Set if IRI's of te ontologies attached to the project [readonly]
+
+    selfjoin : bool
+        Boolean if the project allows selfjoin
+
+
+    Methods
+    -------
+
+    create : Knora project information object
+        Creates a new project and returns the information from the project as it is in Knora
+
+    read : Knora project information object
+        Read project data from an existing project
+
+    update : Knora project information object
+        Updates the changed attributes and returns the updated information from the project as it is in Knora
+
+    delete : Knora result code
+        Deletes a project and returns the result code
+
+    getAllprojects [static]: List of all projects
+        Returns a list of all projects available
+
+    print : None
+        Prints the project information to stdout
+
+    """
+
     SYSTEM_PROJECT: str = "http://www.knora.org/ontology/knora-admin#SystemProject"
     _id: str
     _shortcode: str
@@ -41,7 +123,7 @@ class KnoraProject:
     changed: Set[str]
 
     def __init__(self,
-                 con:  Connection,
+                 con:  KnoraConnection,
                  id: Optional[str] = None,
                  shortcode: Optional[str] = None,
                  shortname: Optional[str] = None,
@@ -52,8 +134,24 @@ class KnoraProject:
                  selfjoin: Optional[bool] = None,
                  status: Optional[bool] = None,
                  logo: Optional[str] = None):
-        if not isinstance(con, Connection):
-            raise BaseError ('"con"-parameter must be an instance of Connection')
+        """
+        Constructor for KnoraProject
+
+        :param con: KnoraConnection instance
+        :param id: IRI of the project [required for CREATE, READ]
+        :param shortcode: Shortcode of the project. String inf the form 'XXXX' where each X is a hexadezimal sign 0-1,A,B,C,D,E,F. [required for CREATE]
+        :param shortname: Shortname of the project [required for CREATE]
+        :param longname: Longname of the project [required for CREATE]
+        :param description: LangString instance containing the description [required for CREATE]
+        :param keywords: Set of keywords [required for CREATE]
+        :param ontologies: Set of ontologies that belong to this project [optional]
+        :param selfjoin: Allow selfjoin [required for CREATE]
+        :param status: Status of project (active if True) [required for CREATE]
+        :param logo: Path to logo image file [optional] NOT YET USED
+        """
+
+        if not isinstance(con, KnoraConnection):
+            raise BaseError ('"con"-parameter must be an instance of KnoraConnection')
         self.con = con
         self._id = str(id) if id is not None else None
         self._shortcode = str(shortcode) if shortcode is not None else None
@@ -77,6 +175,9 @@ class KnoraProject:
         tmpstr = self._id + "\n  " + self._shortcode + "\n  " + self._shortname
         return tmpstr
 
+    #
+    # Here follows a list of getters/setters
+    #
     @property
     def id(self) -> Optional[str]:
         return self._id
@@ -120,7 +221,15 @@ class KnoraProject:
         self._descriptions = value
         self.changed.add('description')
 
-    def addDescription(self, lang: Union[Languages, str], value) -> None:
+    def addDescription(self, lang: Union[Languages, str], value: str) -> None:
+        """
+        Add/replace a project description with the given language (executed at next update)
+
+        :param lang: The language the description is in, either a string "EN", "DE", "FR", "IT" or a Language instance
+        :param value: The text of the description
+        :return: None
+        """
+
         if isinstance(lang, Languages):
             self._descriptions[lang] = value
             self.changed.add('description')
@@ -132,6 +241,12 @@ class KnoraProject:
             self.changed.add('description')
 
     def rmDescription(self, lang: Union[Languages, str]) -> None:
+        """
+        Remove a description from a project (executed at next update)
+
+        :param lang: The language the description to be removed is in, either a string "EN", "DE", "FR", "IT" or a Language instance
+        :return: None
+        """
         if isinstance(lang, Languages):
             del self._description[lang]
             self.changed.add('description')
@@ -154,11 +269,26 @@ class KnoraProject:
         else:
             raise BaseError('Must be a set of strings!')
 
-    def add_keyword(self, value: str):
+    def addKeyword(self, value: str):
+        """
+        Add a new keyword to the set of keywords. (executed at next update)
+        May raise a BaseError
+
+        :param value: keyword
+        :return: None
+        """
+
         self._keywords.add(value)
         self.changed.add('keywords')
 
-    def rm_keyword(self, value: str):
+    def rmKeyword(self, value: str):
+        """
+        Remove a keyword from the list of keywords (executed at next update)
+        May raise a BaseError
+
+        :param value: keyword
+        :return: None
+        """
         try:
             self._keywords.remove(value)
         except KeyError as ke:
@@ -178,8 +308,8 @@ class KnoraProject:
         return self._selfjoin
 
     @selfjoin.setter
-    def selfjoin(selfself, value: bool) ->  None:
-        if self._selfjoint != value:
+    def selfjoin(self, value: bool) ->  None:
+        if self._selfjoin != value:
             self.changed.add('selfjoin')
         self._selfjoin = value
 
@@ -202,7 +332,17 @@ class KnoraProject:
         self.changed.add('logo')
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: Any):
+    def fromJsonObj(cls, con: KnoraConnection, json_obj: Any) -> Any:
+        """
+        Internal method! Should not be used directly!
+
+        This method is used to create a KnoraProject instance from the JSON data returned by Knora
+
+        :param con: KnoraConnection instance
+        :param json_obj: JSON data returned by Knora as python3 object
+        :return: KnoraProjet instance
+        """
+
         id = json_obj.get('id')
         if id is None:
             raise BaseError('Project id is missing')
@@ -247,7 +387,16 @@ class KnoraProject:
                    status=status,
                    logo=logo)
 
-    def toJsonObj(self, action: Actions):
+    def toJsonObj(self, action: Actions) -> Any:
+        """
+        Internal method! Should not be used directly!
+
+        Creates a JSON-object from the KnoraProject instance that can be used to call Knora
+
+        :param action: Action the object is used for (Action.CREATE or Action.UPDATE)
+        :return: JSON-object
+        """
+
         tmp = {}
         if action == Actions.Create:
             if self._shortcode is None:
@@ -287,17 +436,35 @@ class KnoraProject:
                 tmp['status'] = self._status
         return tmp
 
-    def create(self):
+    def create(self) -> Any:
+        """
+        Create a new project in Knora
+
+        :return: JSON-object from Knora
+        """
+
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder)
         result = self.con.post('/admin/projects', jsondata)
         return KnoraProject.fromJsonObj(self.con, result['project'])
 
-    def read(self):
+    def read(self) -> Any:
+        """
+        Read a project from Knora
+
+        :return: JSON-object from Knora
+        """
+
         result = self.con.get('/admin/projects/iri/' + quote_plus(self._id))
         return KnoraProject.fromJsonObj(self.con, result['project'])
 
-    def update(self):
+    def update(self) -> Union[Any, None]:
+        """
+        Udate the project info in Knora with the modified data in this project instance
+
+        :return: JSON-object from Knora refecting the update
+        """
+
         jsonobj = self.toJsonObj(Actions.Update)
         if jsonobj:
             jsondata = json.dumps(jsonobj, cls=SetEncoder)
@@ -306,18 +473,36 @@ class KnoraProject:
         else:
             return None
 
-    def delete(self):
+    def delete(self):  #ToDo: better return parameter
+        """
+        Delete the given Knora project
+
+        :return: Knora response
+        """
+
         result = self.con.delete('/admin/projects/iri/' + quote_plus(self._id))
-        return result
+        return KnoraProject.fromJsonObj(self.con, result['project'])
 
     @staticmethod
-    def getAllProjects(con: Connection):
+    def getAllProjects(con: KnoraConnection) -> List[Any]:
+        """
+        Get all existing projects in Knora
+
+        :param con: KnoraConnection instance
+        :return:
+        """
         result = con.get('/admin/projects')
         if 'projects' not in result:
             raise BaseError("Request got no projects!")
         return list(map(lambda a: KnoraProject.fromJsonObj(con, a), result['projects']))
 
     def print(self):
+        """
+        print info to stdout
+
+        :return: None
+        """
+
         print('Project Info:')
         print('  Id:         {}'.format(self._id))
         print('  Shortcode:  {}'.format(self._shortcode))
@@ -341,7 +526,7 @@ class KnoraProject:
         print('  Status:     {}'.format(self._status))
 
 if __name__ == '__main__':
-    con = Connection('http://0.0.0.0:3333')
+    con = KnoraConnection('http://0.0.0.0:3333')
     con.login('root@example.com', 'test')
 
     projects = KnoraProject.getAllProjects(con)

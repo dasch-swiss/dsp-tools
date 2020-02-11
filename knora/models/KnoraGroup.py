@@ -15,11 +15,62 @@ if not head in sys.path:
 if not path in sys.path:
     sys.path.append(path)
 
-from models.Helpers import Languages, Actions, LangString, BaseError
-from models.Connection import Connection
+from models.KnoraHelpers import Languages, Actions, LangString, BaseError
+from models.KnoraConnection import Connection
 
+"""
+This module implements the handling (CRUD) of Knora groups.
+
+CREATE:
+    * Instantiate a new object of the class KnoraGroup with all required parameters
+    * Call the ``create``-method on the instance
+
+READ:
+    * Instantiate a new object with ``id``(IRI of group) given
+    * Call the ``read``-method on the instance
+    * Access the information that has been provided to the instance
+
+UPDATE:
+    * You need an instance of an existing KnoraProject by reading an instance
+    * Change the attributes by assigning the new values
+    * Call the ``update```method on the instance
+
+DELETE
+    * Instantiate a new objects with ``id``(IRI of group) given, or use any instance that has the id set
+    * Call the ``delete``-method on the instance
+
+"""
 @strict
 class KnoraGroup:
+    """
+    This class represents a Knota group
+
+    Attributes
+    ----------
+
+    con : Connection
+        A connection instance to a Knora server
+
+    id : str
+        IRI of the group [get only, cannot be modified after creation of instance]
+
+    name : str
+        Name of the group
+
+    description : str
+        A description of the group
+
+    project : str
+        IRI of a project [get only, cannot be modified after creation of instance]
+
+    selfjoin : boolean
+        A flag indicating if selfjoin is allowed in this group
+
+    status : boolean
+        A flag indicating if the group is active (True) or inactive/makred deleted (False)
+
+    """
+
     PROJECT_MEMBER_GROUP: str = "http://www.knora.org/ontology/knora-admin#ProjectMember"
     PROJECT_ADMIN_GROUP: str = "http://www.knora.org/ontology/knora-admin#ProjectAdmin"
     PROJECT_SYSTEMADMIN_GROUP: str = "http://www.knora.org/ontology/knora-admin#SystemAdmin"

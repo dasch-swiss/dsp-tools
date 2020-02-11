@@ -13,13 +13,23 @@ class KnoraError(Exception):
     def __init__(self, message):
         self.message = message
 
-class Connection:
+class KnoraConnection:
+    """
+    An KnoraConnection instance represents a connection to a Knora server.
+
+    Attributes
+    ----------
+
+    none (internal use attributes should not be modified/set directly)
+    """
+
     def __init__(self, server: str, prefixes: Dict[str, str] = None):
         """
         Constructor requiring the server address, the user and password of KNORA
         :param server: Address of the server, e.g https://api.dasch.swiss
         :param prefixes: Ontology prefixes used
         """
+
         self.server = server
         self.prefixes = prefixes
         self.token = None
@@ -30,6 +40,7 @@ class Connection:
         :param email: Email of user, e.g., root@example.com
         :param password: Password of the user, e.g. test
         """
+
         credentials = {
             "email": email,
             "password": password
@@ -46,9 +57,19 @@ class Connection:
         self.token = result["token"]
 
     def get_token(self) -> str:
+        """
+        Returns the token
+        :return: token string
+        """
+
         return self.token
 
     def logout(self) -> None:
+        """
+        Performs a logout
+        :return: None
+        """
+
         if self.token is not None:
             req = requests.delete(
                 self.server + '/v2/authentication',
@@ -74,27 +95,65 @@ class Connection:
         if 'error' in res:
             raise KnoraError("KNORA-ERROR: API error: " + res.error)
 
+
     def post(self, path: str, jsondata: Optional[str] = None):
+        """
+        Post Json data to a given server using a HTTP POST request
+        :param path: Path of RESTful route
+        :param jsondata: Valid JSON as string
+        :return: Response from server
+        """
+
+        if path[0] != '/':
+            path = '/' + path
         if jsondata is None:
-            req = requests.post(self.server + path,
-                                headers={'Authorization': 'Bearer ' + self.token})
+            if self.token is not None:
+                req = requests.post(self.server + path,
+                                    headers={'Authorization': 'Bearer ' + self.token})
+            else:
+                req = requests.post(self.server + path)
         else:
-            req = requests.post(self.server + path,
-                                headers={'Content-Type': 'application/json; charset=UTF-8',
-                                         'Authorization': 'Bearer ' + self.token},
-                                data=jsondata)
+            if self.token is not None:
+                req = requests.post(self.server + path,
+                                    headers={'Content-Type': 'application/json; charset=UTF-8',
+                                            'Authorization': 'Bearer ' + self.token},
+                                    data=jsondata)
+            else:
+                req = requests.post(self.server + path,
+                                    headers={'Content-Type': 'application/json; charset=UTF-8'},
+                                    data=jsondata)
         self.on_api_error(req)
         result = req.json()
         return result
 
     def get(self, path: str):
-        req = requests.get(self.server + path,
-                           headers={'Authorization': 'Bearer ' + self.token})
+        """
+        Get data from a server using a HTTP GET request
+        :param path: Path of RESTful route
+        :return: Response from server
+        """
+
+        if path[0] != '/':
+            path = '/' + path
+        if self.token is None:
+            req = requests.get(self.server + path)
+        else:
+            req = requests.get(self.server + path,
+                               headers={'Authorization': 'Bearer ' + self.token})
         self.on_api_error(req)
         result = req.json()
         return result
 
     def put(self, path: str, jsondata: Optional[str] = None):
+        """
+        Send data to a RESTful server using a HTTP PUT request
+        :param path: Path of RESTful route
+        :param jsondata: Valid JSON as string
+        :return:
+        """
+
+        if path[0] != '/':
+            path = '/' + path
         if jsondata is None:
             req = requests.put(self.server + path,
                                headers={'Authorization': 'Bearer ' + self.token})
@@ -108,6 +167,14 @@ class Connection:
         return result
 
     def delete(self, path: str):
+        """
+        Send a delete request using the HTTP DELETE request
+        :param path: Path of RESTful route
+        :return: Response from server
+        """
+
+        if path[0] != '/':
+            path = '/' + path
         req = requests.delete(self.server + path,
                               headers={'Authorization': 'Bearer ' + self.token})
         self.on_api_error(req)

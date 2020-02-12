@@ -58,8 +58,8 @@ class TestKnoraGroup(unittest.TestCase):
         self.assertEqual(group.name, 'KNORA-PY-TEST')
         self.assertEqual(group.description, 'Test project for knora-py')
         self.assertEqual(group.project, 'http://rdfh.ch/projects/0001')
-        self.assertEqual(group.status, True)
-        self.assertEqual(group.selfjoin, False)
+        self.assertTrue(group.status)
+        self.assertFalse(group.selfjoin)
 
     def test_KnoraGroup_read(self):
         con = KnoraConnection('http://0.0.0.0:3333')
@@ -70,8 +70,8 @@ class TestKnoraGroup(unittest.TestCase):
         self.assertEqual(group.name, 'Thing searcher')
         self.assertEqual(group.description, 'A group for thing searchers.')
         self.assertEqual(group.project, 'http://rdfh.ch/projects/0001')
-        self.assertEqual(group.status, True)
-        self.assertEqual(group.selfjoin, True)
+        self.assertTrue(group.status)
+        self.assertTrue(group.selfjoin)
 
     def test_KnoraGroup_create(self):
         global __iri
@@ -89,8 +89,8 @@ class TestKnoraGroup(unittest.TestCase):
         self.assertEqual(group.name, 'KNORA-PY TEST')
         self.assertEqual(group.description, 'Test project for knora-py')
         self.assertEqual(group.project, 'http://rdfh.ch/projects/0001')
-        self.assertEqual(group.status, True)
-        self.assertEqual(group.selfjoin, False)
+        self.assertTrue(group.status)
+        self.assertFalse(group.selfjoin)
 
     def test_KnoraGroup_update(self):
         con = KnoraConnection('http://0.0.0.0:3333')
@@ -111,8 +111,8 @@ class TestKnoraGroup(unittest.TestCase):
         self.assertEqual(group.name, 'KNORA-PY TEST - modified')
         self.assertEqual(group.description, 'gaga gaga gaga gaga gaga gaga gaga')
         self.assertEqual(group.project, 'http://rdfh.ch/projects/0001')
-        self.assertEqual(group.status, False)
-        self.assertEqual(group.selfjoin, True)
+        self.assertFalse(group.status)
+        self.assertTrue(group.selfjoin)
 
     def test_KnoraGroup_delete(self):
         con = KnoraConnection('http://0.0.0.0:3333')
@@ -129,8 +129,8 @@ class TestKnoraGroup(unittest.TestCase):
         self.assertEqual(ngroup.name, 'KNORA-PY TEST')
         self.assertEqual(ngroup.description, 'Test project for knora-py')
         self.assertEqual(ngroup.project, 'http://rdfh.ch/projects/0001')
-        self.assertEqual(ngroup.status, False)
-        self.assertEqual(ngroup.selfjoin, False)
+        self.assertFalse(ngroup.status)
+        self.assertFalse(ngroup.selfjoin)
 
     def test_getAllGroups(self):
         con = KnoraConnection('http://0.0.0.0:3333')

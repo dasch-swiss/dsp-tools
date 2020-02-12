@@ -16,7 +16,7 @@ if not path in sys.path:
     sys.path.append(path)
 
 from models.KnoraHelpers import Languages, Actions, LangString, BaseError
-from models.KnoraConnection import Connection
+from models.KnoraConnection import KnoraConnection
 from models.KnoraGroup import KnoraGroup
 from models.KnoraProject import KnoraProject
 
@@ -148,7 +148,7 @@ class KnoraUser:
     change_admin: Set[str]
 
     def __init__(self,
-                 con:  Connection,
+                 con:  KnoraConnection,
                  id: Optional[str] = None,
                  username: Optional[str] = None,
                  email: Optional[str] = None,
@@ -165,7 +165,7 @@ class KnoraUser:
 
         The constructor is user internally or externally, when a new user should be created in Knora.
 
-        :param con: Connection instance [required]
+        :param con: KnoraConnection instance [required]
         :param id: IRI of the user [required for CREATE, READ]
         :param username: Username [required for CREATE]
         :param email: Email address [required for CREATE]
@@ -179,8 +179,8 @@ class KnoraUser:
         :param in_groups: Set with group-IRI's the user should belong to [optional]
         """
 
-        if not isinstance(con, Connection):
-            raise BaseError ('"con"-parameter must be an instance of Connection')
+        if not isinstance(con, KnoraConnection):
+            raise BaseError ('"con"-parameter must be an instance of KnoraConnection')
         self.con = con
         self._id = str(id) if id is not None else None
         self._username = str(username) if username is not None else None
@@ -336,10 +336,10 @@ class KnoraUser:
         :return: None
         """
 
-        if value in self.add_from_group:
+        if value in self.add_to_group:
             self.rm_from_group.pop(value)
         elif value not in self._in_groups:
-            self.add_to_project.add(value)
+            self.add_to_group.add(value)
             self.changed.add('in_groups')
         else:
             raise BaseError("Already member of this group!")
@@ -433,13 +433,13 @@ class KnoraUser:
             raise BaseError("User is not member of project!")
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: Any) -> KnoraUser:
+    def fromJsonObj(cls, con: KnoraConnection, json_obj: Any):
         """
         Internal method! Should not be used directly!
 
         This method is used to create a KnoraUser instance from the JSON data returned by Knora
 
-        :param con: Connection instance
+        :param con: KnoraConnection instance
         :param json_obj: JSON data returned by Knora as python3 object
         :return: KnoraUser instance
         """
@@ -625,7 +625,11 @@ class KnoraUser:
             else:
                 result = self.con.delete('/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
 
-        pprint(result)
+        for p in self.add_to_group:
+            print('http://0.0.0.0:3333/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
+            result = self.con.post('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
+        for p in self.rm_from_group:
+            result = self.con.delete('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
         return KnoraUser.fromJsonObj(self.con, result['user'])
 
     def delete(self):
@@ -633,15 +637,15 @@ class KnoraUser:
         Delete the user in nore (NOT YET IMPLEMENTED)
         :return: None
         """
-
-        pass
+        result = self.con.delete('/admin/users/iri/' + quote_plus(self._id))
+        return KnoraUser.fromJsonObj(self.con, result['user'])
 
     @staticmethod
-    def getAllUsers(con: Connection) -> List[Any]:
+    def getAllUsers(con: KnoraConnection) -> List[Any]:
         """
         Get a list of all users (static method)
 
-        :param con: Connection instance
+        :param con: KnoraConnection instance
         :return: List of users
         """
 
@@ -677,7 +681,7 @@ class KnoraUser:
 
 
 if __name__ == '__main__':
-    con = Connection('http://0.0.0.0:3333')
+    con = KnoraConnection('http://0.0.0.0:3333')
     con.login('root@example.com', 'test')
 
     users = KnoraUser.getAllUsers(con)

@@ -34,3 +34,35 @@ py_test(
         "//knora:knora",
     ],
 )
+
+py_test(
+    name = "test_KnoraConnection",
+    srcs = ["test_KnoraConnection.py"],
+    deps = [
+        "//knora:knora",
+    ],
+)
+
+py_test(
+    name = "test_KnoraGroup",
+    srcs = ["test_KnoraGroup.py"],
+    deps = [
+        "//knora:knora",
+    ],
+)
+
+py_test(
+    name = "test_KnoraProject",
+    srcs = ["test_KnoraProject.py"],
+    deps = [
+        "//knora:knora",
+    ],
+)
+
+py_test(
+    name = "test_KnoraUser",
+    srcs = ["test_KnoraUser.py"],
+    deps = [
+        "//knora:knora",
+    ],
+)

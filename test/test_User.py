@@ -4,7 +4,7 @@ import requests
 from urllib.parse import quote_plus
 
 from context import BaseError, Languages, Actions, LangString
-from context import KnoraUser, KnoraConnection
+from context import User, Connection
 
 
 def erase_user(iri = None):
@@ -38,12 +38,12 @@ def erase_user(iri = None):
     return req.status_code
 
 
-class TestKnoraUser(unittest.TestCase):
+class TestUser(unittest.TestCase):
 
     iri = None
-    username = 'wiley'
-    email = 'wiley.coyote@canyon.com'
-    givenName = 'Wiley'
+    username = 'wilee'
+    email = 'wilee.coyote@canyon.com'
+    givenName = 'Wile E.'
     familyName = 'Coyote'
     password = 'BeepBeep'
     lang = Languages.EN
@@ -53,9 +53,9 @@ class TestKnoraUser(unittest.TestCase):
     in_groups = {"http://rdfh.ch/groups/00FF/images-reviewer"}
 
     def createTestUser(self):
-        con = KnoraConnection('http://0.0.0.0:3333')
+        con = Connection('http://0.0.0.0:3333')
         con.login('root@example.com', 'test')
-        user = KnoraUser(
+        user = User(
             con=con,
             username=self.username,
             email=self.email,
@@ -68,18 +68,18 @@ class TestKnoraUser(unittest.TestCase):
             in_projects=self.in_projects,
             in_groups=self.in_groups
         ).create()
-        self.assertIsNotNone(user)
+        self.assertIsNotNone(user.id)
         self.iri = user.id
         return user
 
     def tearDown(self):
         res = erase_user(self.iri)
 
-    def test_KnoraUser(self):
-        con = KnoraConnection('http://0.0.0.0:3333')
+    def test_User(self):
+        con = Connection('http://0.0.0.0:3333')
         con.login('root@example.com', 'test')
 
-        user = KnoraUser(
+        user = User(
             con=con,
             username=self.username,
             email=self.email,
@@ -102,10 +102,10 @@ class TestKnoraUser(unittest.TestCase):
         self.assertEqual(user.in_projects, self.in_projects)
         self.assertEqual(user.in_groups, self.in_groups)
 
-    def test_KnoraUser_read(self):
-        con = KnoraConnection('http://0.0.0.0:3333')
+    def test_User_read(self):
+        con = Connection('http://0.0.0.0:3333')
         con.login('root@example.com', 'test')
-        user = KnoraUser(
+        user = User(
             con=con,
             id='http://rdfh.ch/users/91e19f1e01'
         ).read()
@@ -118,7 +118,24 @@ class TestKnoraUser(unittest.TestCase):
         self.assertFalse(user.sysadmin)
         self.assertEqual(user.in_projects, {"http://rdfh.ch/projects/0803": False})
 
-    def test_KnoraUser_create(self):
+    def test_User_read2(self):
+        user = self.createTestUser()
+        con = Connection('http://0.0.0.0:3333')
+        con.login('root@example.com', 'test')
+        user = User(
+            con=con,
+            email=self.email
+        ).read()
+        self.assertEqual(user.username, self.username)
+        self.assertEqual(user.familyName, self.familyName)
+        self.assertEqual(user.givenName, self.givenName)
+        self.assertEqual(user.lang, self.lang)
+        self.assertTrue(user.status)
+        self.assertTrue(user.sysadmin)
+        self.assertEqual(user.in_projects, self.in_projects)
+        self.assertEqual(user.in_groups, self.in_groups)
+
+    def test_User_create(self):
         user = self.createTestUser()
         self.assertEqual(user.username, self.username)
         self.assertEqual(user.email, self.email)
@@ -130,19 +147,85 @@ class TestKnoraUser(unittest.TestCase):
         self.assertEqual(user.in_projects, self.in_projects)
         self.assertEqual(user.in_groups, self.in_groups)
 
-    def test_KnoraUser_delete(self):
+    def test_User_delete(self):
         user = self.createTestUser()
         nuser = user.delete()
         self.assertIsNotNone(nuser)
         self.assertFalse(nuser.status)
 
-    def test_KnoraUser_addToGroup(self):
+    def test_User_update(self):
+        user = self.createTestUser()
+        user.email = 'roadrunner.geococcyx@canyon.com'
+        user.username = 'roadrunner'
+        user.givenName = 'roadrunner'
+        user.familyName = 'Geococcyx'
+        user.lang = 'fr'
+        user.status = False
+        user.sysadmin = False
+        nuser = user.update()
+        self.assertEqual(nuser.email, 'roadrunner.geococcyx@canyon.com')
+        self.assertEqual(nuser.username, 'roadrunner')
+        self.assertEqual(nuser.givenName, 'roadrunner')
+        self.assertEqual(nuser.familyName, 'Geococcyx')
+        self.assertEqual(nuser.lang, Languages.FR)
+        self.assertFalse(nuser.status)
+        self.assertFalse(nuser.sysadmin)
+
+    def test_User_update2(self):
+        user = self.createTestUser()
+        user.password = 'gagagagagagagaga'
+        nuser = user.update('test')
+        self.assertIsNotNone(nuser)
+
+    def test_User_addToGroup(self):
         user = self.createTestUser()
         user.addToGroup('http://rdfh.ch/groups/0001/thing-searcher')
         nuser = user.update()
         self.assertIsNotNone(nuser)
         self.assertEqual(nuser.in_groups, {"http://rdfh.ch/groups/00FF/images-reviewer", 'http://rdfh.ch/groups/0001/thing-searcher'})
 
+    def test_User_rmFromGroup(self):
+        user = self.createTestUser()
+        user.rmFromGroup('http://rdfh.ch/groups/00FF/images-reviewer')
+        nuser = user.update()
+        self.assertIsNotNone(nuser)
+
+    def test_User_addToProject(self):
+        user = self.createTestUser()
+        user.addToProject('http://rdfh.ch/projects/00FF', False)
+        nuser = user.update()
+        self.assertIsNotNone(nuser)
+        self.assertEqual(nuser.in_projects, {"http://rdfh.ch/projects/0001": True, 'http://rdfh.ch/projects/00FF': False})
+
+    def test_User_rmFromProject(self):
+        user = self.createTestUser()
+        user.rmFromProject('http://rdfh.ch/projects/0001')
+        nuser = user.update()
+        self.assertIsNotNone(nuser)
+        self.assertEqual(nuser.in_projects, {})
+
+    def test_User_unmakeProjectAdmin(self):
+        user = self.createTestUser()
+        user.unmakeProjectAdmin('http://rdfh.ch/projects/0001')
+        nuser = user.update()
+        self.assertIsNotNone(nuser)
+        self.assertEqual(nuser.in_projects, {'http://rdfh.ch/projects/0001': False})
+
+    def test_User_makeProjectAdmin(self):
+        user = self.createTestUser()
+        user.addToProject('http://rdfh.ch/projects/00FF', False)
+        user = user.update()
+        user.makeProjectAdmin('http://rdfh.ch/projects/00FF')
+        nuser = user.update()
+        self.assertIsNotNone(nuser)
+        self.assertEqual(nuser.in_projects, {'http://rdfh.ch/projects/0001': True, 'http://rdfh.ch/projects/00FF': True})
+
+    def test_getAllUsers(self):
+        con = Connection('http://0.0.0.0:3333')
+        con.login('root@example.com', 'test')
+        all_users = User.getAllUsers(con)
+        for u in all_users:
+            self.assertIsNotNone(u.id)
 
 if __name__ == '__main__':
     unittest.main()

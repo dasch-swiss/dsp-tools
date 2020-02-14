@@ -4,7 +4,7 @@ import requests
 from urllib.parse import quote_plus
 
 from context import BaseError, Languages, Actions, LangString
-from context import KnoraProject, KnoraConnection
+from context import Project, Connection
 
 def erase_project():
     sparql = """
@@ -34,14 +34,14 @@ def erase_project():
         print('TEXT: ' + req.text)
     return req.status_code
 
-class TestKnoraProject(unittest.TestCase):
+class TestProject(unittest.TestCase):
 
     def tearDown(self):
         res = erase_project()
 
-    def test_KnoraProject(self):
-        con = KnoraConnection('http://0.0.0.0:3333')
-        project = KnoraProject(
+    def test_Project(self):
+        con = Connection('http://0.0.0.0:3333')
+        project = Project(
             con=con,
             id='http://rdfch/gaga',
             shortcode='0FF0',
@@ -66,8 +66,8 @@ class TestKnoraProject(unittest.TestCase):
         self.assertEqual(project.logo, 'gaga.gif')
 
     def test_read(self):
-        con = KnoraConnection('http://0.0.0.0:3333')
-        project = KnoraProject(
+        con = Connection('http://0.0.0.0:3333')
+        project = Project(
             con=con,
             id='http://rdfh.ch/projects/0001'
         ).read()
@@ -82,9 +82,9 @@ class TestKnoraProject(unittest.TestCase):
         self.assertEqual(project.keywords, {'test', 'dasch', 'anything'})
 
     def test_create(self):
-        con = KnoraConnection('http://0.0.0.0:3333')
+        con = Connection('http://0.0.0.0:3333')
         con.login('root@example.com', 'test')
-        project = KnoraProject(
+        project = Project(
             con=con,
             shortcode='0FF0',
             shortname="pytest",
@@ -107,9 +107,9 @@ class TestKnoraProject(unittest.TestCase):
         self.assertEqual(nproject.keywords, {'test', 'testing', 'gaga'})
 
     def test_update(self):
-        con = KnoraConnection('http://0.0.0.0:3333')
+        con = Connection('http://0.0.0.0:3333')
         con.login('root@example.com', 'test')
-        project = KnoraProject(
+        project = Project(
             con=con,
             shortcode='0FF0',
             shortname="pytest",
@@ -143,9 +143,9 @@ class TestKnoraProject(unittest.TestCase):
         self.assertEqual(nnproject.keywords, {'test', 'testing', 'Guguseli'})
 
     def test_delete(self):
-        con = KnoraConnection('http://0.0.0.0:3333')
+        con = Connection('http://0.0.0.0:3333')
         con.login('root@example.com', 'test')
-        project = KnoraProject(
+        project = Project(
             con=con,
             shortcode='0FF0',
             shortname="pytest",

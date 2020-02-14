@@ -9,7 +9,7 @@ path = os.path.abspath(os.path.dirname(__file__))
 if not path in sys.path:
     sys.path.append(path)
 
-from models.KnoraConnection import KnoraConnection
+from models.Connection import Connection
 from knoraConsoleModules.ProjectPanel import ProjectPanel
 from knoraConsoleModules.UserPanel import UserPanel
 

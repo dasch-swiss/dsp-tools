@@ -10,11 +10,11 @@ path = os.path.abspath(os.path.dirname(__file__))
 if not path in sys.path:
     sys.path.append(path)
 
-from models.KnoraHelpers import Languages, Actions, LangString
-from models.KnoraUser import KnoraUser
-from models.KnoraProject import KnoraProject
-from models.KnoraGroup import KnoraGroup
-from models.KnoraConnection import KnoraConnection
+from models.Helpers import Languages, Actions, LangString
+from models.User import User
+from models.Project import Project
+from models.Group import Group
+from models.Connection import Connection
 
 from KnDialogControl import KnDialogControl, KnDialogTextCtrl, KnDialogChoice, KnDialogCheckBox, KnCollapsiblePicker
 
@@ -60,11 +60,11 @@ class UserPanel(wx.Panel):
         self.SetAutoLayout(1)
         self.SetSizerAndFit(topsizer)
 
-    def set_connection(self, con: KnoraConnection):
+    def set_connection(self, con: Connection):
         self.con = con
 
     def update(self):
-        users = KnoraUser.getAllUsers(self.con)
+        users = User.getAllUsers(self.con)
         self.listctl.DeleteAllItems()
         for user in users:
             self.listctl.Append((user.username,
@@ -99,7 +99,7 @@ class UserPanel(wx.Panel):
         ue = UserEntryDialog(self.con, user_iri, False, self)
         res = ue.ShowModal()
         if res == wx.ID_OK:
-            user: KnoraUser = ue.get_changed()
+            user: User = ue.get_changed()
             if 'password' in user.changed:
                 dlg = wx.TextEntryDialog(
                     self, 'Please enter Your admin password', 'Password',
@@ -122,7 +122,7 @@ class UserPanel(wx.Panel):
 class UserEntryDialog(wx.Dialog):
 
     def __init__(self,
-                 con: KnoraConnection = None,
+                 con: Connection = None,
                  user_iri: str = None,
                  newentry: bool = True,
                  *args, **kw):
@@ -133,12 +133,12 @@ class UserEntryDialog(wx.Dialog):
         self.con = con
         try:
             if newentry:
-                self.user = KnoraUser(con=con)
+                self.user = User(con=con)
             else:
-                tmpuser = KnoraUser(con=con, id=user_iri)
+                tmpuser = User(con=con, id=user_iri)
                 self.user = tmpuser.read()
-            self.all_projects = KnoraProject.getAllProjects(con)
-            self.all_groups = KnoraGroup.getAllGroups(con)
+            self.all_projects = Project.getAllProjects(con)
+            self.all_groups = Group.getAllGroups(con)
         except KnoraError as knerr:
             show_error("Couldn't get information from knora", knerr)
             return
@@ -233,7 +233,7 @@ class UserEntryDialog(wx.Dialog):
 
         self.SetSizerAndFit(topsizer)
 
-    def get_value(self) -> KnoraUser:
+    def get_value(self) -> User:
         self.user.email = self.email.get_value()
         self.user.username = self.username.get_value()
         self.user.familyName = self.familyName.get_value()
@@ -245,7 +245,7 @@ class UserEntryDialog(wx.Dialog):
         self.user.sysadmin = self.sysadmin.get_value()
         return self.user
 
-    def get_changed(self) -> KnoraUser:
+    def get_changed(self) -> User:
         self.user.email = self.email.get_changed()
         self.user.username = self.username.get_changed()
         self.user.familyName = self.familyName.get_changed()

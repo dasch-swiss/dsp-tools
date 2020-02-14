@@ -1,7 +1,7 @@
 import unittest
 import pprint
 
-from context import Connection, Error
+from Connection import Connection, Error
 
 
 class TestConnection(unittest.TestCase):

@@ -9,11 +9,11 @@ path = os.path.abspath(os.path.dirname(__file__))
 if not path in sys.path:
     sys.path.append(path)
 
-from models.KnoraHelpers import Languages, Actions, LangString
-#from models.KnoraUser import KnoraUser
-from models.KnoraProject import KnoraProject
-#from models.KnoraGroup import KnoraGroup
-from models.KnoraConnection import KnoraConnection
+from models.Helpers import Languages, Actions, LangString
+#from models.User import User
+from models.Project import Project
+#from models.Group import Group
+from models.Connection import Connection
 
 from KnDialogControl import KnDialogControl, KnDialogTextCtrl, KnDialogChoice, KnDialogCheckBox, KnCollapsiblePicker
 
@@ -49,12 +49,12 @@ class ProjectPanel(wx.Panel):
         self.SetAutoLayout(1)
         self.SetSizerAndFit(topsizer)
 
-    def set_connection(self, con: KnoraConnection):
+    def set_connection(self, con: Connection):
         self.con = con
 
     def update(self):
 
-        projects = KnoraProject.getAllProjects(self.con)
+        projects = Project.getAllProjects(self.con)
 
         #projects = con.get_existing_projects(True)
         self.listctl.DeleteAllItems()
@@ -85,7 +85,7 @@ class ProjectPanel(wx.Panel):
 class ProjectEntryDialog(wx.Dialog):
 
     def __init__(self,
-                 con: KnoraConnection = None,
+                 con: Connection = None,
                  project_iri: str = None,
                  newentry: bool = True,
                  *args, **kw):
@@ -96,12 +96,12 @@ class ProjectEntryDialog(wx.Dialog):
         self.con = con
         try:
             if newentry:
-                self.project = Knoraproject(con=con)
+                self.project = Project(con=con)
             else:
-                tmpproject = KnoraProject(con=con, id=project_iri)
+                tmpproject = Project(con=con, id=project_iri)
                 self.project = tmpproject.read()
-            #self.all_projects = KnoraProject.getAllProjects(con)
-            #self.all_groups = KnoraGroup.getAllGroups(con)
+            #self.all_projects = Project.getAllProjects(con)
+            #self.all_groups = Group.getAllGroups(con)
         except KnoraError as knerr:
             show_error("Couldn't get information from knora", knerr)
             return

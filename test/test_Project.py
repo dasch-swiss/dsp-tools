@@ -3,8 +3,9 @@ import pprint
 import requests
 from urllib.parse import quote_plus
 
-from context import BaseError, Languages, Actions, LangString
-from context import Project, Connection
+from Connection import Connection
+from Helpers import BaseError, Languages, Actions, LangString
+from Project import Project
 
 def erase_project():
     sparql = """
@@ -76,10 +77,10 @@ class TestProject(unittest.TestCase):
         self.assertEqual(project.shortcode, '0001')
         self.assertEqual(project.shortname, 'anything')
         self.assertEqual(project.longname, 'Anything Project')
-        self.assertEqual(project.description['en'], 'Anything Project is a testing project ')
+        self.assertEqual(project.description['en'], 'Anything Project')
         self.assertEqual(project.selfjoin, False)
-        self.assertEqual(project.status, False)
-        self.assertEqual(project.keywords, {'test', 'dasch', 'anything'})
+        self.assertEqual(project.status, True)
+        self.assertEqual(project.keywords, {'dasch', 'test', 'anything'})
 
     def test_create(self):
         con = Connection('http://0.0.0.0:3333')

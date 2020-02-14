@@ -3,8 +3,10 @@ import pprint
 import requests
 from urllib.parse import quote_plus
 
-from context import BaseError, Languages, Actions, LangString
-from context import Project, ListNode, Connection
+from Connection import Connection
+from Helpers import BaseError, Languages, Actions, LangString
+from ListNode import ListNode
+from Project import Project
 
 
 def erase_node(iri = None):

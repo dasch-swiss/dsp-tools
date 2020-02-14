@@ -28,6 +28,29 @@ py_test(
 )
 
 py_test(
+    name = "test_Connection",
+    srcs = ["test_Connection.py"],
+    deps = [
+        "//knora/models:Connection",
+        requirement("pprint"),
+    ],
+)
+
+py_test(
+    name = "test_Group",
+    srcs = ["test_Group.py"],
+    deps = [
+        "//knora/models:Connection",
+        "//knora/models:Group",
+        "//knora/models:Helpers",
+        requirement("pprint"),
+        requirement("requests"),
+        requirement("pystrict"),
+    ],
+    imports = ["."],
+)
+
+py_test(
     name = "test_knora",
     srcs = ["test_knora.py"],
     deps = [
@@ -36,33 +59,35 @@ py_test(
 )
 
 py_test(
-    name = "test_KnoraConnection",
-    srcs = ["test_KnoraConnection.py"],
+    name = "test_ListNode",
+    srcs = ["test_ListNode.py"],
     deps = [
-        "//knora:knora",
+        "//knora/models:Connection",
+        "//knora/models:Helpers",
+        "//knora/models:ListNode",
+        "//knora/models:Project",
+        requirement("pystrict"),
     ],
 )
 
 py_test(
-    name = "test_KnoraGroup",
-    srcs = ["test_KnoraGroup.py"],
+    name = "test_Project",
+    srcs = ["test_Project.py"],
     deps = [
-        "//knora:knora",
+        "//knora/models:Connection",
+        "//knora/models:Helpers",
+        "//knora/models:Project",
+        requirement("pystrict"),
     ],
 )
 
 py_test(
-    name = "test_KnoraProject",
-    srcs = ["test_KnoraProject.py"],
+    name = "test_User",
+    srcs = ["test_User.py"],
     deps = [
-        "//knora:knora",
-    ],
-)
-
-py_test(
-    name = "test_KnoraUser",
-    srcs = ["test_KnoraUser.py"],
-    deps = [
-        "//knora:knora",
+        "//knora/models:Connection",
+        "//knora/models:Helpers",
+        "//knora/models:User",
+        requirement("pystrict"),
     ],
 )

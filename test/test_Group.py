@@ -3,8 +3,9 @@ import pprint
 import requests
 from urllib.parse import quote_plus
 
-from context import BaseError, Languages, Actions, LangString
-from context import Group, Connection
+from Connection import Connection
+from Group import Group
+from Helpers import BaseError, Languages, Actions, LangString
 
 
 def erase_group(iri = None):

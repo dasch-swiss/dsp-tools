@@ -5,63 +5,76 @@ load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 load("@knora_py_deps//:requirements.bzl", "requirement")
 
 py_library(
-    name = "KnoraConnection",
+    name = "Connection",
     visibility = ["//visibility:public"],
-    srcs = ["KnoraConnection.py"],
+    srcs = ["Connection.py"],
     deps = [
         requirement("requests"),
         requirement("pprint"),
     ],
-    data = ["__init__.py"],
+    imports = ["."],
 )
 
 py_library(
-    name = "KnoraGroup",
+    name = "Group",
     visibility = ["//visibility:public"],
-    srcs = ["KnoraGroup.py"],
+    srcs = ["Group.py"],
     deps = [
+        ":Helpers",
+        ":Connection",
         requirement("requests"),
         requirement("pprint"),
-        ":KnoraHelpers",
-        ":KnoraConnection",
     ],
-    data = ["__init__.py"],
+    imports = ["."],
 )
 
 py_library(
-    name = "KnoraHelpers",
+    name = "Helpers",
     visibility = ["//visibility:public"],
-    srcs = ["KnoraHelpers.py"],
+    srcs = ["Helpers.py"],
     deps = [
         requirement("pprint"),
     ],
-    data = ["__init__.py"],
+    imports = ["."],
 )
 
 py_library(
-    name = "KnoraProject",
+    name = "ListNode",
     visibility = ["//visibility:public"],
-    srcs = ["KnoraProject.py"],
+    srcs = ["ListNode.py"],
     deps = [
+        ":Connection",
+        ":Helpers",
+        ":Project",
+        requirement("pprint"),
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "Project",
+    visibility = ["//visibility:public"],
+    srcs = ["Project.py"],
+    deps = [
+        ":Helpers",
+        ":Connection",
         requirement("requests"),
         requirement("pprint"),
-        ":KnoraHelpers",
-        ":KnoraConnection"
     ],
-    data = ["__init__.py"],
+    imports = ["."],
 )
 
 py_library(
-    name = "KnoraUser",
+    name = "User",
     visibility = ["//visibility:public"],
-    srcs = ["KnoraUser.py"],
+    srcs = ["User.py"],
     deps = [
+        ":Connection",
+        ":Helpers",
+        ":Group",
+        ":Project",
         requirement("requests"),
         requirement("pprint"),
-        ":KnoraConnection",
-        ":KnoraHelpers",
-        ":KnoraGroup",
-        ":KnoraProject"
     ],
-    data = ["__init__.py"],
+    imports = ["."],
 )

@@ -15,16 +15,16 @@ if not head in sys.path:
 if not path in sys.path:
     sys.path.append(path)
 
-from models.KnoraHelpers import Languages, Actions, LangString, BaseError
-from models.KnoraConnection import KnoraConnection
-from models.KnoraGroup import KnoraGroup
-from models.KnoraProject import KnoraProject
+from models.Helpers import Languages, Actions, LangString, BaseError
+from models.Connection import Connection
+from models.Group import Group
+from models.Project import Project
 
 """
 This module implements the handling (CRUD) of Knora users.
 
 CREATE:
-    * Instantiate a new object of the class KnoraUser with all required parameters
+    * Instantiate a new object of the class User with all required parameters
     * Call the ``create``-method on the instance to create the new user
 
 READ:
@@ -33,7 +33,7 @@ READ:
     * Access the information that has been ptovided to the instance
 
 UPDATE:
-    * You need an instance of an existing KnoraUser by reading an instance
+    * You need an instance of an existing User by reading an instance
     * Change the attributes by assigning the new values
     * Call the ``update```method on the instance
 
@@ -45,7 +45,7 @@ In addition there is a static methods ``getAllProjects`` which returns a list of
 """
 
 @strict
-class KnoraUser:
+class User:
     """
     This class represents a user in Knora.
 
@@ -148,7 +148,7 @@ class KnoraUser:
     change_admin: Set[str]
 
     def __init__(self,
-                 con:  KnoraConnection,
+                 con:  Connection,
                  id: Optional[str] = None,
                  username: Optional[str] = None,
                  email: Optional[str] = None,
@@ -161,11 +161,11 @@ class KnoraUser:
                  in_projects: Optional[Dict[str,bool]] = None,
                  in_groups: Optional[Set[str]] = None):
         """
-        Constructor for KnoraUser
+        Constructor for User
 
         The constructor is user internally or externally, when a new user should be created in Knora.
 
-        :param con: KnoraConnection instance [required]
+        :param con: Connection instance [required]
         :param id: IRI of the user [required for CREATE, READ]
         :param username: Username [required for CREATE]
         :param email: Email address [required for CREATE]
@@ -179,8 +179,8 @@ class KnoraUser:
         :param in_groups: Set with group-IRI's the user should belong to [optional]
         """
 
-        if not isinstance(con, KnoraConnection):
-            raise BaseError ('"con"-parameter must be an instance of KnoraConnection')
+        if not isinstance(con, Connection):
+            raise BaseError ('"con"-parameter must be an instance of Connection')
         self.con = con
         self._id = str(id) if id is not None else None
         self._username = str(username) if username is not None else None
@@ -272,7 +272,8 @@ class KnoraUser:
 
     @property
     def password(self) -> Optional[str]:
-        raise BaseError('Password cannot be read!')
+        return None
+        #raise BaseError('Password cannot be read!')
 
     @password.setter
     def password(self, value: Optional[str]):
@@ -297,7 +298,6 @@ class KnoraUser:
             if lmap.get(value) is None:
                 raise BaseError('Invalid language string "' + value + '"!')
             self._lang = lmap[value]
-            pprint(self._lang)
             self.changed.add('lang')
 
     @property
@@ -353,10 +353,10 @@ class KnoraUser:
         """
 
         if value in self.add_to_group:
-            self.add_to_project.discard(value)
-        elif value in self._in_group:
-            self.rm_from_projectadd(value)
-            self.changed.add('in_groupss')
+            self.add_to_group.discard(value)
+        elif value in self._in_groups:
+            self.rm_from_group.add(value)
+            self.changed.add('in_groups')
         else:
             raise BaseError("User is not in groups!")
 
@@ -433,15 +433,15 @@ class KnoraUser:
             raise BaseError("User is not member of project!")
 
     @classmethod
-    def fromJsonObj(cls, con: KnoraConnection, json_obj: Any):
+    def fromJsonObj(cls, con: Connection, json_obj: Any):
         """
         Internal method! Should not be used directly!
 
-        This method is used to create a KnoraUser instance from the JSON data returned by Knora
+        This method is used to create a User instance from the JSON data returned by Knora
 
-        :param con: KnoraConnection instance
+        :param con: Connection instance
         :param json_obj: JSON data returned by Knora as python3 object
-        :return: KnoraUser instance
+        :return: User instance
         """
 
         id = json_obj.get('id')
@@ -466,15 +466,15 @@ class KnoraUser:
             sysadmin = False
             project_groups = json_obj['permissions']['groupsPerProject']
             for project in project_groups:
-                if project == KnoraProject.SYSTEM_PROJECT:
-                    if KnoraGroup.PROJECT_SYSTEMADMIN_GROUP in project_groups[project]:
+                if project == Project.SYSTEM_PROJECT:
+                    if Group.PROJECT_SYSTEMADMIN_GROUP in project_groups[project]:
                         sysadmin = True
                 else:
                     for group in project_groups[project]:
-                        if group == KnoraGroup.PROJECT_MEMBER_GROUP:
+                        if group == Group.PROJECT_MEMBER_GROUP:
                             if in_projects.get(project) is None:
                                 in_projects[project] = False
-                        elif group == KnoraGroup.PROJECT_ADMIN_GROUP:
+                        elif group == Group.PROJECT_ADMIN_GROUP:
                             in_projects[project] = True
                         else:
                             in_groups.add(group)
@@ -494,7 +494,7 @@ class KnoraUser:
         """
         Internal method! Should not be used directly!
 
-        Creates a JSON-object from the KnoraProject instance that can be used to call Knora
+        Creates a JSON-object from the Project instance that can be used to call Knora
 
         :param action: Action the object is used for (Action.CREATE or Action.UPDATE)
         :return: JSON-object
@@ -521,7 +521,7 @@ class KnoraUser:
                 raise BaseError("'language' is mandatory!")
             tmp['lang'] = self._lang.value
             tmp['status'] = True if self._status is None else self._status
-            tmp['systemAdmin'] = False if self._status is None else self._sysadmin
+            tmp['systemAdmin'] = False if self._sysadmin is None else self._sysadmin
         elif action == Actions.Update:
             tmp_changed = False
             if self._username is not None and 'username' in self.changed:
@@ -549,6 +549,11 @@ class KnoraUser:
                 tmp_changed = True
             else:
                 tmp['lang'] = None
+            if self._sysadmin is not None and 'sysadmin' in self.changed:
+                tmp['sysadmin'] = self._sysadmin
+                tmp_changed = True
+            else:
+                tmp['sysadmin'] = None
             if not tmp_changed:
                 tmp = {}
         return tmp
@@ -572,17 +577,21 @@ class KnoraUser:
         if self._in_groups is not None:
             for group in self._in_groups:
                 result = self.con.post('/admin/users/iri/' + quote_plus(id) + '/group-memberships/' + quote_plus(group))
-        return KnoraUser.fromJsonObj(self.con, result['user'])
+        return User.fromJsonObj(self.con, result['user'])
 
     def read(self) -> Any:
         """
-        Read the user information from Knora
+        Read the user information from Knora. The User object must have a valid id or email!
 
         :return: JSON-object from Knora
         """
-
-        result = self.con.get('/admin/users/iri/' + quote_plus(self._id))
-        return KnoraUser.fromJsonObj(self.con, result['user'])
+        if self._id is not None:
+            result = self.con.get('/admin/users/iri/' + quote_plus(self._id))
+        elif self._email is not None:
+            result = self.con.get('/admin/users/email/' + quote_plus(self._email))
+        else:
+            raise BaseError('Either user-id or email is required!')
+        return User.fromJsonObj(self.con, result['user'])
 
     def update(self, requesterPassword: Optional[str] = None) -> Any:
         """
@@ -609,14 +618,20 @@ class KnoraUser:
             }
             jsondata = json.dumps(jsonobj)
             result = self.con.put('/admin/users/iri/' + quote_plus(self.id) + '/Password', jsondata)
+        if 'sysadmin' in self.changed:
+            jsonobj = {'systemAdmin': self._sysadmin}
+            jsondata = json.dumps(jsonobj)
+            result = self.con.put('/admin/users/iri/' + quote_plus(self.id) + '/SystemAdmin', jsondata)
         for p in self.add_to_project.items():
             result = self.con.post('/admin/users/iri/' + quote_plus(self._id) + '/project-memberships/' + quote_plus(p[0]))
             if p[1]:
                 result = self.con.post('/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
+
         for p in self.rm_from_project:
             if self._in_projects.get(p) is not None and self._in_projects[p]:
                 result = self.con.delete('/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p))
             result = self.con.delete('/admin/users/iri/' + quote_plus(self._id) + '/project-memberships/' + quote_plus(p))
+
         for p in self.change_admin.items():
             if not p[0] in self._in_projects:
                 raise BaseError('user must be member of project!')
@@ -626,11 +641,10 @@ class KnoraUser:
                 result = self.con.delete('/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
 
         for p in self.add_to_group:
-            print('http://0.0.0.0:3333/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
             result = self.con.post('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
         for p in self.rm_from_group:
             result = self.con.delete('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
-        return KnoraUser.fromJsonObj(self.con, result['user'])
+        return User.fromJsonObj(self.con, result['user'])
 
     def delete(self):
         """
@@ -638,21 +652,21 @@ class KnoraUser:
         :return: None
         """
         result = self.con.delete('/admin/users/iri/' + quote_plus(self._id))
-        return KnoraUser.fromJsonObj(self.con, result['user'])
+        return User.fromJsonObj(self.con, result['user'])
 
     @staticmethod
-    def getAllUsers(con: KnoraConnection) -> List[Any]:
+    def getAllUsers(con: Connection) -> List[Any]:
         """
         Get a list of all users (static method)
 
-        :param con: KnoraConnection instance
+        :param con: Connection instance
         :return: List of users
         """
 
         result = con.get('/admin/users')
         if 'users' not in result:
             raise BaseError("Request got no users!")
-        return list(map(lambda a: KnoraUser.fromJsonObj(con, a), result['users']))
+        return list(map(lambda a: User.fromJsonObj(con, a), result['users']))
 
     def print(self) -> None:
         """
@@ -681,17 +695,17 @@ class KnoraUser:
 
 
 if __name__ == '__main__':
-    con = KnoraConnection('http://0.0.0.0:3333')
+    con = Connection('http://0.0.0.0:3333')
     con.login('root@example.com', 'test')
 
-    users = KnoraUser.getAllUsers(con)
+    users = User.getAllUsers(con)
     for u in users:
         uu = u.read()
         uu.print()
 
     print('======================================')
 
-    new_user = KnoraUser(
+    new_user = User(
         con=con,
         username="lrosenth",
         email="lukas.rosenthaler@gmail.com",

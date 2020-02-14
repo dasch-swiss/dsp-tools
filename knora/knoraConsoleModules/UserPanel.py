@@ -156,7 +156,7 @@ class UserEntryDialog(wx.Dialog):
         tmp_username = None if newentry else self.user.username if self.user.username is not None else ""
         self.username = KnDialogTextCtrl(panel1, gsizer, "Username: ", "username", tmp_username)
 
-        tmp_password = None if newentry else self.user.password if self.user.password is not None else ""
+        tmp_password = None if newentry else ""
         self.password = KnDialogTextCtrl(panel1, gsizer, "Password: ", "password", tmp_password, style=wx.TE_PASSWORD)
         self.password2 = KnDialogTextCtrl(panel1, gsizer, "Password: ", "password", tmp_password, style=wx.TE_PASSWORD)
 

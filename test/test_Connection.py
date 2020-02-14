@@ -1,28 +1,28 @@
 import unittest
 import pprint
 
-from context import KnoraConnection, KnoraError
+from context import Connection, Error
 
 
-class TestKnoraConnection(unittest.TestCase):
-    def test_KnoraConnection(self):
-        con = KnoraConnection('http://0.0.0.0:3333')
-        self.assertIsInstance(con, KnoraConnection)
+class TestConnection(unittest.TestCase):
+    def test_Connection(self):
+        con = Connection('http://0.0.0.0:3333')
+        self.assertIsInstance(con, Connection)
 
     def test_loginout(self):
-        con = KnoraConnection('http://0.0.0.0:3333')
+        con = Connection('http://0.0.0.0:3333')
         con.login('root@example.com', 'test')
         self.assertIsNotNone(con.token)
         con.logout()
         self.assertIsNone(con.token)
-        self.assertRaisesRegex(KnoraError, 'KNORA-ERROR: status code=400*', con.login, 'invalid', 'invalid')
+        self.assertRaisesRegex(Error, 'KNORA-ERROR: status code=400*', con.login, 'invalid', 'invalid')
 
     def test_get(self):
-        con = KnoraConnection('http://0.0.0.0:3333')
+        con = Connection('http://0.0.0.0:3333')
         res = con.get("/ontology/0001/anything/simple/v2")
         con.logout()
         self.assertIsNotNone(res['@graph'])
-        self.assertRaises(KnoraError, con.get, "/gagaga")
+        self.assertRaises(Error, con.get, "/gagaga")
 
     def test_put(self):
         pass
@@ -48,7 +48,7 @@ class TestKnoraConnection(unittest.TestCase):
             }
         }
         """
-        con = KnoraConnection('http://0.0.0.0:3333')
+        con = Connection('http://0.0.0.0:3333')
         con.login('root@example.com', 'test')
         res = con.post('/v2/resources', resinfo)
         self.assertIsNotNone(res['@id'])

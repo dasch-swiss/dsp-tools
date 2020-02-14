@@ -15,14 +15,14 @@ if not head in sys.path:
 if not path in sys.path:
     sys.path.append(path)
 
-from models.KnoraHelpers import Languages, Actions, LangString, BaseError
-from models.KnoraConnection import KnoraConnection
+from models.Helpers import Languages, Actions, LangString, BaseError
+from models.Connection import Connection
 
 """
 This module implements the handling (CRUD) of Knora groups.
 
 CREATE:
-    * Instantiate a new object of the class KnoraGroup with all required parameters
+    * Instantiate a new object of the class Group with all required parameters
     * Call the ``create``-method on the instance
 
 READ:
@@ -31,7 +31,7 @@ READ:
     * Access the information that has been provided to the instance
 
 UPDATE:
-    * You need an instance of an existing KnoraProject by reading an instance
+    * You need an instance of an existing Project by reading an instance
     * Change the attributes by assigning the new values
     * Call the ``update```method on the instance
 
@@ -41,14 +41,14 @@ DELETE
 
 """
 @strict
-class KnoraGroup:
+class Group:
     """
     This class represents a Knota group
 
     Attributes
     ----------
 
-    con : KnoraConnection
+    con : Connection
         A connection instance to a Knora server
 
     id : str
@@ -83,15 +83,15 @@ class KnoraGroup:
     _status: bool
 
     def __init__(self,
-                 con: KnoraConnection,
+                 con: Connection,
                  id: Optional[str] = None,
                  name: Optional[str] = None,
                  description: Optional[str] = None,
                  project: Optional[str] = None,
                  selfjoin: Optional[bool] = None,
                  status: Optional[bool] = None):
-        if not isinstance(con, KnoraConnection):
-            raise BaseError ('"con"-parameter must be an instance of KnoraConnection')
+        if not isinstance(con, Connection):
+            raise BaseError ('"con"-parameter must be an instance of Connection')
         self.con = con
         self._id = str(id) if id is not None else None
         self._name = str(name) if name is not None else None
@@ -154,7 +154,7 @@ class KnoraGroup:
         self.changed.add('status')
 
     @classmethod
-    def fromJsonObj(cls, con: KnoraConnection, json_obj: Any):
+    def fromJsonObj(cls, con: Connection, json_obj: Any):
         id = json_obj.get('id')
         if id is None:
             raise BaseError('Group "id" is missing in JSON from knora')
@@ -212,34 +212,34 @@ class KnoraGroup:
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj)
         result = self.con.post('/admin/groups', jsondata)
-        return KnoraGroup.fromJsonObj(self.con, result['group'])
+        return Group.fromJsonObj(self.con, result['group'])
 
     def read(self):
         result = self.con.get('/admin/groups/' + quote_plus(self._id))
-        return KnoraGroup.fromJsonObj(self.con, result['group'])
+        return Group.fromJsonObj(self.con, result['group'])
 
     def update(self):
         jsonobj = self.toJsonObj(Actions.Update)
         if jsonobj:
             jsondata = json.dumps(jsonobj)
             result = self.con.put('/admin/groups/' + quote_plus(self.id), jsondata)
-            updated_group = KnoraGroup.fromJsonObj(self.con, result['group'])
+            updated_group = Group.fromJsonObj(self.con, result['group'])
         if self._status is not None and 'status' in self.changed:
             jsondata = json.dumps({'status': self._status})
             result = self.con.put('/admin/groups/' + quote_plus(self.id) + '/status', jsondata)
-            updated_group = KnoraGroup.fromJsonObj(self.con, result['group'])
+            updated_group = Group.fromJsonObj(self.con, result['group'])
         return updated_group
 
     def delete(self):
         result = self.con.delete('/admin/groups/' + quote_plus(self._id))
-        return KnoraGroup.fromJsonObj(self.con, result['group'])
+        return Group.fromJsonObj(self.con, result['group'])
 
     @staticmethod
-    def getAllGroups(con: KnoraConnection):
+    def getAllGroups(con: Connection):
         result = con.get('/admin/groups')
         if 'groups' not in result:
             raise BaseError("Request got no groups!")
-        return list(map(lambda a: KnoraGroup.fromJsonObj(con, a), result['groups']))
+        return list(map(lambda a: Group.fromJsonObj(con, a), result['groups']))
 
     def print(self):
         print('Group Info:')
@@ -253,14 +253,14 @@ class KnoraGroup:
 
 
 if __name__ == '__main__':
-    con = KnoraConnection('http://0.0.0.0:3333')
+    con = Connection('http://0.0.0.0:3333')
     con.login('root@example.com', 'test')
 
-    groups = KnoraGroup.getAllGroups(con)
+    groups = Group.getAllGroups(con)
     for group in groups:
         group.print()
 
-    new_group = KnoraGroup(con=con,
+    new_group = Group(con=con,
                            name="KNORA-PY TEST",
                            description="Test project for knora-py",
                            project="http://rdfh.ch/projects/00FF",
@@ -293,6 +293,6 @@ if __name__ == '__main__':
     new_group.delete()
 
     print('=========================')
-    groups = KnoraGroup.getAllGroups(con)
+    groups = Group.getAllGroups(con)
     for group in groups:
         group.print()

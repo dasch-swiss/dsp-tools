@@ -7,15 +7,15 @@ from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from enum import Enum, unique
 from urllib.parse import quote_plus
 
-class KnoraError(Exception):
+class Error(Exception):
     """Handles errors happening in this file"""
 
     def __init__(self, message):
         self.message = message
 
-class KnoraConnection:
+class Connection:
     """
-    An KnoraConnection instance represents a connection to a Knora server.
+    An Connection instance represents a connection to a Knora server.
 
     Attributes
     ----------
@@ -86,14 +86,14 @@ class KnoraConnection:
         """
         Method to check for any API errors
         :param res: The input to check, usually JSON format
-        :return: Possible KnoraError that is being raised
+        :return: Possible Error that is being raised
         """
 
         if (res.status_code != 200):
-            raise KnoraError("KNORA-ERROR: status code=" + str(res.status_code) + "\nMessage:" + res.text)
+            raise Error("KNORA-ERROR: status code=" + str(res.status_code) + "\nMessage:" + res.text)
 
         if 'error' in res:
-            raise KnoraError("KNORA-ERROR: API error: " + res.error)
+            raise Error("KNORA-ERROR: API error: " + res.error)
 
 
     def post(self, path: str, jsondata: Optional[str] = None):

@@ -77,7 +77,7 @@ class TestProject(unittest.TestCase):
         self.assertEqual(project.shortcode, '0001')
         self.assertEqual(project.shortname, 'anything')
         self.assertEqual(project.longname, 'Anything Project')
-        self.assertEqual(project.description['en'], 'Anything Project is a testing project ')
+        self.assertEqual(project.description['en'], 'Anything Project')
         self.assertEqual(project.selfjoin, False)
         self.assertEqual(project.status, True)
         self.assertEqual(project.keywords, {'dasch', 'test', 'anything'})

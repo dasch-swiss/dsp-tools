@@ -15,8 +15,8 @@ if not head in sys.path:
 if not path in sys.path:
     sys.path.append(path)
 
-from models.Helpers import Languages, Actions, LangString, BaseError
-from models.Connection import Connection
+from Helpers import Languages, Actions, LangString, BaseError
+from Connection import Connection
 
 """
 This module implements the handling (CRUD) of Knora groups.

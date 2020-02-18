@@ -1442,7 +1442,20 @@ class Knora:
                 #
                 # a boolean value
                 #
-                valdict['knora-api:booleanValueAsBoolean'] = bool(val)
+                if type(val) == bool:
+                    valdict['knora-api:booleanValueAsBoolean'] = val
+                elif type(val) == str:
+                    if val.upper() == 'TRUE':
+                        valdict['knora-api:booleanValueAsBoolean'] = True
+                    elif val.upper() == 'FALSE':
+                        valdict['knora-api:booleanValueAsBoolean'] = False
+                    else:
+                        raise KnoraError("Invalid boolean format! " + str(val))
+                elif type(val) == int:
+                    if val == 0:
+                        valdict['knora-api:booleanValueAsBoolean'] = False
+                    else:
+                        valdict['knora-api:booleanValueAsBoolean'] = True
             elif prop["otype"] == "UriValue":
                 #
                 # an URI

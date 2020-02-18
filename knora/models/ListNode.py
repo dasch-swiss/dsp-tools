@@ -8,9 +8,9 @@ from enum import Enum, unique
 from urllib.parse import quote_plus
 from pprint import pprint
 
-from models.Helpers import Languages, Actions, LangString, BaseError
-from models.Connection import Connection
-from models.Project import Project
+from Helpers import Languages, Actions, LangString, BaseError
+from Connection import Connection
+from Project import Project
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):

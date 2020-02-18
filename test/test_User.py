@@ -3,8 +3,9 @@ import pprint
 import requests
 from urllib.parse import quote_plus
 
-from context import BaseError, Languages, Actions, LangString
-from context import User, Connection
+from Connection import Connection
+from Helpers import BaseError, Languages, Actions, LangString
+from User import User
 
 
 def erase_user(iri = None):
@@ -114,7 +115,7 @@ class TestUser(unittest.TestCase):
         self.assertEqual(user.familyName, 'Admin-alt')
         self.assertEqual(user.givenName, 'Administrator-alt')
         self.assertEqual(user.lang, Languages.DE)
-        self.assertFalse(user.status)
+        self.assertTrue(user.status)
         self.assertFalse(user.sysadmin)
         self.assertEqual(user.in_projects, {"http://rdfh.ch/projects/0803": False})
 

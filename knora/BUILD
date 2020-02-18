@@ -18,7 +18,7 @@ py_library(
         requirement("rfc3987"),
         requirement("pprint"),
     ],
-    data = ["__init__.py"],
+    imports = ["."],
 )
 
 py_binary(
@@ -57,6 +57,14 @@ py_binary(
     name = "reset_triplestore",
     visibility = ["//visibility:public"],
     srcs = ["reset_triplestore.py"],
+    deps = [":knora"],
+    python_version = "PY3",
+)
+
+py_binary(
+    name = "knoraConsole",
+    visibility = ["//visibility:public"],
+    srcs = ["knoraConsole.py"],
     deps = [":knora"],
     python_version = "PY3",
 )

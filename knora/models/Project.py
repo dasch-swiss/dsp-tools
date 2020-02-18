@@ -15,8 +15,8 @@ if not head in sys.path:
 if not path in sys.path:
     sys.path.append(path)
 
-from models.Helpers import Languages, Actions, LangString, BaseError
-from models.Connection import Connection
+from Helpers import Languages, Actions, LangString, BaseError
+from Connection import Connection
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -108,8 +108,6 @@ class Project:
         Prints the project information to stdout
 
     """
-
-    SYSTEM_PROJECT: str = "http://www.knora.org/ontology/knora-admin#SystemProject"
     _id: str
     _shortcode: str
     _shortname: str
@@ -121,6 +119,8 @@ class Project:
     _status: bool
     _logo: Optional[str]
     changed: Set[str]
+
+    SYSTEM_PROJECT: str = "http://www.knora.org/ontology/knora-admin#SystemProject"
 
     def __init__(self,
                  con:  Connection,

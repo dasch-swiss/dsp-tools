@@ -50,26 +50,6 @@ py_test(
     imports = ["."],
 )
 
-#py_test(
-#    name = "test_knora",
-#    srcs = ["test_knora.py"],
-#    deps = [
-#        "//knora:knora",
-#    ],
-#)
-
-py_test(
-    name = "test_ListNode",
-    srcs = ["test_ListNode.py"],
-    deps = [
-        "//knora/models:Connection",
-        "//knora/models:Helpers",
-        "//knora/models:ListNode",
-        "//knora/models:Project",
-        requirement("pystrict"),
-    ],
-)
-
 py_test(
     name = "test_Project",
     srcs = ["test_Project.py"],
@@ -104,24 +84,4 @@ py_test(
     ],
 )
 
-py_test(
-    name = "test_Project",
-    srcs = ["test_Project.py"],
-    deps = [
-        "//knora/models:Connection",
-        "//knora/models:Helpers",
-        "//knora/models:Project",
-        requirement("pystrict"),
-    ],
-)
 
-py_test(
-    name = "test_User",
-    srcs = ["test_User.py"],
-    deps = [
-        "//knora/models:Connection",
-        "//knora/models:Helpers",
-        "//knora/models:User",
-        requirement("pystrict"),
-    ],
-)

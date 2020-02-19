@@ -108,8 +108,6 @@ class Project:
         Prints the project information to stdout
 
     """
-
-    SYSTEM_PROJECT: str = "http://www.knora.org/ontology/knora-admin#SystemProject"
     _id: str
     _shortcode: str
     _shortname: str
@@ -121,6 +119,8 @@ class Project:
     _status: bool
     _logo: Optional[str]
     changed: Set[str]
+
+    SYSTEM_PROJECT: str = "http://www.knora.org/ontology/knora-admin#SystemProject"
 
     def __init__(self,
                  con:  Connection,

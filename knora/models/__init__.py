@@ -1,6 +1,6 @@
-from .Connection import Connection, Error
-from .Group import Group
-from .Helpers import BaseError, Languages, Actions, LangString
-from .ListNode import ListNode
-from .Project import Project
-from .User import User
+from .connection import Connection, Error
+from .group import Group
+from .helpers import BaseError, Languages, Actions, LangString
+from .listnode import ListNode
+from .project import Project
+from .user import User

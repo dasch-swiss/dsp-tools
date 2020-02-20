@@ -5,9 +5,9 @@ load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 load("@knora_py_deps//:requirements.bzl", "requirement")
 
 py_library(
-    name = "Connection",
+    name = "connection",
     visibility = ["//visibility:public"],
-    srcs = ["Connection.py"],
+    srcs = ["connection.py"],
     deps = [
         requirement("requests"),
         requirement("pprint"),
@@ -16,12 +16,12 @@ py_library(
 )
 
 py_library(
-    name = "Group",
+    name = "group",
     visibility = ["//visibility:public"],
-    srcs = ["Group.py"],
+    srcs = ["group.py"],
     deps = [
-        ":Helpers",
-        ":Connection",
+        ":helpers",
+        ":connection",
         requirement("requests"),
         requirement("pprint"),
     ],
@@ -29,9 +29,9 @@ py_library(
 )
 
 py_library(
-    name = "Helpers",
+    name = "helpers",
     visibility = ["//visibility:public"],
-    srcs = ["Helpers.py"],
+    srcs = ["helpers.py"],
     deps = [
         requirement("pprint"),
     ],
@@ -39,25 +39,25 @@ py_library(
 )
 
 py_library(
-    name = "ListNode",
+    name = "listnode",
     visibility = ["//visibility:public"],
-    srcs = ["ListNode.py"],
+    srcs = ["listnode.py"],
     deps = [
-        ":Connection",
-        ":Helpers",
-        ":Project",
+        ":connection",
+        ":helpers",
+        ":project",
         requirement("pprint"),
     ],
     imports = ["."],
 )
 
 py_library(
-    name = "Project",
+    name = "project",
     visibility = ["//visibility:public"],
-    srcs = ["Project.py"],
+    srcs = ["project.py"],
     deps = [
-        ":Helpers",
-        ":Connection",
+        ":helpers",
+        ":connection",
         requirement("requests"),
         requirement("pprint"),
     ],
@@ -65,14 +65,14 @@ py_library(
 )
 
 py_library(
-    name = "User",
+    name = "user",
     visibility = ["//visibility:public"],
-    srcs = ["User.py"],
+    srcs = ["user.py"],
     deps = [
-        ":Connection",
-        ":Helpers",
-        ":Group",
-        ":Project",
+        ":connection",
+        ":helpers",
+        ":group",
+        ":project",
         requirement("requests"),
         requirement("pprint"),
     ],

@@ -28,21 +28,21 @@ load("@knora_py_deps//:requirements.bzl", "requirement")
 #)
 
 py_test(
-    name = "test_Connection",
-    srcs = ["test_Connection.py"],
+    name = "test_connection",
+    srcs = ["test_connection.py"],
     deps = [
-        "//knora/models:Connection",
+        "//knora/models:connection",
         requirement("pprint"),
     ],
 )
 
 py_test(
-    name = "test_Group",
-    srcs = ["test_Group.py"],
+    name = "test_group",
+    srcs = ["test_group.py"],
     deps = [
-        "//knora/models:Connection",
-        "//knora/models:Group",
-        "//knora/models:Helpers",
+        "//knora/models:connection",
+        "//knora/models:group",
+        "//knora/models:helpers",
         requirement("pprint"),
         requirement("requests"),
         requirement("pystrict"),
@@ -51,35 +51,35 @@ py_test(
 )
 
 py_test(
-    name = "test_Project",
-    srcs = ["test_Project.py"],
+    name = "test_project",
+    srcs = ["test_project.py"],
     deps = [
-        "//knora/models:Connection",
-        "//knora/models:Helpers",
-        "//knora/models:Project",
+        "//knora/models:connection",
+        "//knora/models:helpers",
+        "//knora/models:project",
         requirement("pystrict"),
     ],
 )
 
 py_test(
-    name = "test_User",
-    srcs = ["test_User.py"],
+    name = "test_user",
+    srcs = ["test_user.py"],
     deps = [
-        "//knora/models:Connection",
-        "//knora/models:Helpers",
-        "//knora/models:User",
+        "//knora/models:connection",
+        "//knora/models:helpers",
+        "//knora/models:user",
         requirement("pystrict"),
     ],
 )
 
 py_test(
-    name = "test_ListNode",
-    srcs = ["test_ListNode.py"],
+    name = "test_listnode",
+    srcs = ["test_listnode.py"],
     deps = [
-        "//knora/models:Connection",
-        "//knora/models:Helpers",
-        "//knora/models:ListNode",
-        "//knora/models:Project",
+        "//knora/models:connection",
+        "//knora/models:helpers",
+        "//knora/models:listnode",
+        "//knora/models:project",
         requirement("pystrict"),
     ],
 )

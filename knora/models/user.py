@@ -15,10 +15,10 @@ if not head in sys.path:
 if not path in sys.path:
     sys.path.append(path)
 
-from Helpers import Languages, Actions, LangString, BaseError
-from Connection import Connection
-from Group import Group
-from Project import Project
+from helpers import Languages, Actions, LangString, BaseError
+from connection import Connection
+from group import Group
+from project import Project
 
 """
 This module implements the handling (CRUD) of Knora users.

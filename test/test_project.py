@@ -3,9 +3,9 @@ import pprint
 import requests
 from urllib.parse import quote_plus
 
-from Connection import Connection
-from Helpers import BaseError, Languages, Actions, LangString
-from Project import Project
+from connection import Connection
+from helpers import BaseError, Languages, Actions, LangString
+from project import Project
 
 def erase_project():
     sparql = """

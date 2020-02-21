@@ -8,9 +8,9 @@ from enum import Enum, unique
 from urllib.parse import quote_plus
 from pprint import pprint
 
-from Helpers import Languages, Actions, LangString, BaseError
-from Connection import Connection
-from Project import Project
+from helpers import Languages, Actions, LangString, BaseError
+from connection import Connection
+from project import Project
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -18,17 +18,113 @@ class SetEncoder(json.JSONEncoder):
             return list(obj)
         return json.JSONEncoder.default(self, obj)
 
+"""
+This module implements the handling (CRUD) of Knora ListNodes and adds some function to read whole lists.
+
+CREATE:
+    * Instantiate a new object of the class ListNode with all required parameters
+    * Call the ``create``-method on the instance
+
+READ:
+    * Instantiate a new object with ``id``(IRI of list(-node) given
+    * Call the ``read``-method on the instance
+    * Access the information that has been provided to the instance
+
+UPDATE:
+    * Only partially implemented. Only "label" and "comment" attributes may be changed.
+    * You need an instance of an existing ListNode by reading an instance
+    * Change the attributes by assigning the new values
+    * Call the ``update```method on the instance
+
+DELETE
+    * NOT YET IMPLEMENTED BY Knora backend!
+    * Instantiate a new objects with ``id``(IRI of project) given, or use any instance that has the id set
+    * Call the ``delete``-method on the instance
+
+In addition there is a static methods ``getAllProjects`` which returns a list of all projects
+"""
+
 
 @strict
 class ListNode:
+    """
+    This class represents a list node or a while list from Knora
+
+    Attributes
+    ----------
+
+    con : Connection
+        A Connection instance to a Knora server (for some operation a login has to be performedwith valid credentials)
+
+    id : str
+        IRI of the project [readonly, cannot be modified after creation of instance]
+
+    project : str
+        IRI of project. Only used for the creation of a new list (root node) [write].
+
+    label : LangString
+        A LangString instance with language depenedent labels. Setting this attributes overwites all entries
+        with the new ones. In order to add/remove a specific entry, use "addLabel" or "rmLabel".
+        At least one label is required [read/write].
+
+    comment : LangString
+        A LangString instance with language depenedent comments. Setting this attributes overwites all entries
+        with the new ones.In order to add/remove a specific entry, use "addComment" or "rmComment".
+
+    name : str
+        A unique name for the ListNode (unique regarding the whole list) [read/write].
+
+    parent : IRI | ListNode
+        Is required and allowed only for the CREATE operation. Otherwise use the
+        "children" attribute [write].
+
+    isRootNode : bool
+        Is True if the ListNode is a root node of a list Cannot be set [read].
+
+    children : List[ListNode]
+        Contains a list of children nodes. This attribute is only avaliable for nodes that have been read by the
+        method "getAllNodes()"! [read]
+
+    rootNodeIri : str
+        IRI of the root node. This attribute is only avaliable for nodes that have been read by the
+        method "getAllNodes()"! [read]
+
+    Methods
+    -------
+
+    create : Knora ListNode information object
+        Creates a new project and returns the information from the project as it is in Knora. Used to create new lists
+        or append new ListNodes to an existing list. If appending, the attribute "parent" must not be None!
+
+    read : Knora ListNode information object
+        Read single list node
+
+    update : Knora ListNode information object
+        Updates the changed attributes and returns the updated information from the ListNode as it is in Knora
+
+    delete : Knora result code
+        Deletes a ListNode and returns the result code [NOT YET IMPLEMENTED!]
+
+    getAllNodes : ListNode
+        Get all nodes of a list. The IRI of the root node must be supplied.
+
+    getAllLists [static]:
+        returns all lists of a given project.
+
+    print : None
+        Prints the ListNode information to stdout (no recursion for children!)
+
+    """
 
     _id: str
     _project: str
     _label: LangString
     _comment: LangString
     _name: str
-    _parent: 'ListNode'
+    _parent: str
     _isRootNode: bool
+    _children: List['ListNode']
+    _rootNodeIri: str
     changed: Set[str]
 
     def __init__(self,
@@ -38,23 +134,38 @@ class ListNode:
                  label: Optional[LangString] = LangString(),
                  comment: Optional[LangString] = LangString(),
                  name: Optional[str] = None,
-                 parent: Optional['ListNode'] = None,
-                 isRootNode: Optional[bool] = None):
+                 parent: Optional[Union['ListNode', str]] = None,
+                 isRootNode: Optional[bool] = None,
+                 children: Optional[List['ListNode']] = None,
+                 rootNodeIri: Optional[str] = None):
         """
+        This is the constructor for the ListNode object. For
 
-        :param con:
-        :param id:
-        :param project:
-        :param label:
-        :param comment:
-        :param name:
-        :param parent:
-        :param isRootNode:
+        CREATE:
+            * The "con" and at least one "label" are required
+        READ:
+            * The "con" and "id" attributes are required
+        UPDATE:
+            * Only "label", "comment" and "name" may be changed
+        DELETE:
+            * Not yet implemented in the Knora-backend
+
+        :param con: A valid Connection instance with a user logged in that has the appropriate permissions
+        :param id: IRI of the project [readonly, cannot be modified after creation of instance]
+        :param project: IRI of project. Only used for the creation of a new list (root node) [write].
+        :param label: A LangString instance with language depenedent labels. Setting this attributes overwites all entries with the new ones. In order to add/remove a specific entry, use "addLabel" or "rmLabel". At least one label is required [read/write].
+        :param comment: A LangString instance with language depenedent comments. Setting this attributes overwites all entries with the new ones.In order to add/remove a specific entry, use "addComment" or "rmComment".
+        :param name: A unique name for the ListNode (unique regarding the whole list) [read/write].
+        :param parent: Is required and allowed only for the CREATE operation. Otherwise use the "children" attribute [write].
+        :param isRootNode: Is True if the ListNode is a root node of a list Cannot be set [read].
+        :param children: Contains a list of children nodes. This attribute is only avaliable for nodes that have been read by the method "getAllNodes()"! [read]
+        :param rootNodeIri: IRI of the root node. This attribute is only avaliable for nodes that have been read by the method "getAllNodes()"! [read]
         """
 
         if not isinstance(con, Connection):
             raise BaseError ('"con"-parameter must be an instance of Connection')
         self.con = con
+
         self._project = project.id if isinstance(project, Project) else str(project) if project is not None else None
         self._id = str(id) if id is not None else None
         if not isinstance(label, LangString) and label is not None:
@@ -66,8 +177,21 @@ class ListNode:
         self._name = name if name is not None else None
         if not isinstance(parent, ListNode) and parent is not None:
             raise BaseError('Parent must be ListNode instance or None!')
-        self._parent = parent
+        if isinstance(parent, ListNode):
+            self._parent = parent.id
+        else:
+            self._parent = parent
         self._isRootNode = isRootNode
+        if children is not None:
+            if isinstance(children, List) and len(children) > 0 and isinstance(children[0], ListNode):
+                self._children = children
+            else:
+                raise BaseError('Children must be list of ListNodes!')
+        else:
+            self._children = None
+        if not isinstance(rootNodeIri, str) and rootNodeIri is not None:
+            raise BaseError('rootNodeIri must be a str!')
+        self._rootNodeIri = rootNodeIri
         self.changed = set()
 
     #
@@ -195,12 +319,51 @@ class ListNode:
         self.changed.add('name')
 
     @property
+    def parent(self) -> Optional[str]:
+        raise BaseError('Property parent cannot be read!')
+
+    @parent.setter
+    def parent(self, value: any):
+        raise BaseError('Property parent cannot be set!')
+
+    @property
     def isRootNode(self) -> Optional[bool]:
         return self._isRootNode
 
     @isRootNode.setter
-    def isRootNode(selfself, value: bool) -> None:
+    def isRootNode(self, value: bool) -> None:
         raise BaseError('Property isRootNode cannot be set!')
+
+    @property
+    def children(self) -> Optional[List['ListNode']]:
+        return self._children
+
+    @staticmethod
+    def _getChildren(con: Connection, children: List[Any]) -> Optional[List['ListNode']]:
+        """
+        Internal method! Should not be used directly!
+
+        Static method gets a recursive List of children nodes
+
+        :param con: Valid Connection instance
+        :param children: json object of children
+        :return: List of ListNode instances
+        """
+
+        if len(children) == 0:
+            return None
+        child_nodes = []
+        for child in children:
+            child_nodes.append(ListNode.fromJsonObj(con, child))
+        return child_nodes
+
+    @property
+    def rootNodeIri(self) -> Optional[str]:
+        return self._rootNodeIri
+
+    @rootNodeIri.setter
+    def rootNodeIri(self, value: str):
+        raise BaseError('rootNodeIri cannot be set!')
 
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any) -> Any:
@@ -236,6 +399,13 @@ class ListNode:
         parent = json_obj.get('parentNodeIri')
         isRootNode = json_obj.get('isRootNode')
 
+        child_info = json_obj.get('children')
+        children = None
+        if child_info is not None:
+            children = ListNode._getChildren(con, child_info)
+
+        rootNodeIri = json_obj.get('hasRootNode')
+
         return cls(con=con,
                    id=id,
                    project=project,
@@ -243,9 +413,11 @@ class ListNode:
                    comment=comment,
                    name=name,
                    parent=parent,
-                   isRootNode=isRootNode)
+                   isRootNode=isRootNode,
+                   children=children,
+                   rootNodeIri=rootNodeIri)
 
-    def toJsonObj(self, action: Actions) -> Any:
+    def toJsonObj(self, action: Actions, listIri: str = None) -> Any:
         """
         Internal method! Should not be used directly!
 
@@ -270,16 +442,18 @@ class ListNode:
             if self._parent is not None:
                 tmp['parentNodeIri'] = self._parent
         elif action == Actions.Update:
+            if self.id is None:
+                raise BaseError("There must be a node id given!")
+            tmp['listIri'] = listIri
+            if self._project is None:
+                raise BaseError("There must be a project id given!")
+            tmp['projectIri'] = self._project
             if not self._label.isEmpty() and 'label' in self.changed:
                 tmp['labels'] = self._label.toJsonObj()
             if not self._comment.isEmpty() and 'comment' in self.changed:
                 tmp['comments'] = self._comment.toJsonObj()
             if self._name is not None and 'name' in self.changed:
                 tmp['name'] = self._name
-            if self._parent is not None and 'parent' in self.changed:
-                tmp['parentNodeIri'] = self._parent
-
-            pass
         return tmp
 
     def create(self) -> 'ListNode':
@@ -308,16 +482,63 @@ class ListNode:
         result = self.con.get('/admin/lists/nodes/' + quote_plus(self._id))
         return self.fromJsonObj(self.con, result['nodeinfo'])
 
+    def update(self) -> Union[Any, None]:
+        """
+        Udate the ListNode info in Knora with the modified data in this ListNode instance
+
+        :return: JSON-object from Knora refecting the update
+        """
+
+        jsonobj = self.toJsonObj(Actions.Update, self.id)
+        if jsonobj:
+            jsondata = json.dumps(jsonobj, cls=SetEncoder)
+            result = self.con.put('/admin/lists/infos/' + quote_plus(self.id), jsondata)
+            return ListNode.fromJsonObj(self.con, result['listinfo'])
+        else:
+            return None
+
     def delete(self) -> None:
         """
         Delete the given ListNode
 
         :return: Knora response
         """
-
+        raise BaseError("NOT YET IMPLEMENTED BY KNORA BACKEND!")
         result = self.con.delete('/admin/lists/' + quote_plus(self._id))
         return result
         #return Project.fromJsonObj(self.con, result['project'])
+
+    def getAllNodes(self):
+        """
+        Get all nodes of the list. Mus be called from a ListNode instance that has at least set the
+        list iri!
+
+        :return: Root node of list with recursive ListNodes ("children"-attributes)
+        """
+        
+        result = self.con.get('/admin/lists/' + quote_plus(self._id))
+        if 'list' not in result:
+            raise BaseError("Request got no list!")
+        if 'listinfo' not in result['list']:
+            raise BaseError("Request got no proper list information!")
+        root = ListNode.fromJsonObj(self.con, result['list']['listinfo'])
+        if 'children' in result['list']:
+            root._children = ListNode._getChildren(self.con, result['list']['children'])
+        return root
+
+    @staticmethod
+    def getAllLists(con: Connection, project_iri: str) -> List['ListNode']:
+        """
+        Get all lists of the specified project
+
+        :param con: Connection instance
+        :param project_iri: Iri/id of project
+        :return: list of ListNodes
+        """
+        result = con.get('/admin/lists?projectIri=' + quote_plus(project_iri))
+        if 'lists' not in result:
+            raise BaseError("Request got no lists!")
+        return list(map(lambda a: ListNode.fromJsonObj(con, a), result['lists']))
 
 
     def print(self):
@@ -330,21 +551,18 @@ class ListNode:
         print('Node Info:')
         print('  Id:        {}'.format(self._id))
         print('  Project:   {}'.format(self._project))
-        print('  Name:      ')
-        if self._name is not None:
-            print('{}'.format(self._name))
-        else:
-            print('None')
+        print('  Name:      {}'.format(self._name))
         print('  Label:     ')
         if self._label is not None:
             for lbl in self._label.items():
-                print('{}: {}'.format(lbl[0], lbl[1]))
+                print('             {}: {}'.format(lbl[0], lbl[1]))
         else:
-            print('None')
+            print('             None')
         print('  Comment:   ')
         if self._comment is not None:
-            for lbl in self._label.items():
-                print('{}: {}'.format(lbl[0], lbl[1]))
+            for lbl in self._comment.items():
+                print('             {}: {}'.format(lbl[0], lbl[1]))
         else:
-            print('None')
-        print('  IsRootNode: {}').format(self._isRootNode)
+            print('             None')
+        print('  Parent', self._parent)
+        print('  IsRootNode: {}'.format(self._isRootNode))

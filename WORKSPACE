@@ -4,7 +4,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 # register our custom toolchains for the different platforms
-register_toolchains("//:homebrew_toolchain", "//:travis_toolchain")
+#register_toolchains("//:homebrew_toolchain", "//:travis_toolchain")
 
 # using certain commit that includes fix: https://github.com/bazelbuild/rules_python/issues/220
 git_repository(

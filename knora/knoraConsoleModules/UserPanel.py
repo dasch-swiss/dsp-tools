@@ -10,11 +10,11 @@ path = os.path.abspath(os.path.dirname(__file__))
 if not path in sys.path:
     sys.path.append(path)
 
-from models.Helpers import Languages, Actions, LangString
-from models.User import User
-from models.Project import Project
-from models.Group import Group
-from models.Connection import Connection
+from models.helpers import Languages, Actions, LangString
+from models.user import User
+from models.project import Project
+from models.group import Group
+from models.connection import Connection
 
 from KnDialogControl import KnDialogControl, KnDialogTextCtrl, KnDialogChoice, KnDialogCheckBox, KnCollapsiblePicker
 

@@ -1,0 +1,31 @@
+name: CI
+
+on: [push]
+
+env:
+  KNORA_GDB_LICENSE: ${{ github.workspace }}/ci/graphdb/UNIBAS_DEV_GRAPHDB_SE_latest-31-12-2020_1cores.license
+  GRAPHDB_HEAP_SIZE: 4G
+
+jobs:
+  test-integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+      - name: Checkout private ci-assets
+        uses: actions/checkout@v2
+        with:
+          repository: dasch-swiss/dsp-ci-assets
+          token: ${{ secrets.GitHub_PAT }} # `GitHub_PAT` is a secret that contains the PAT.
+          path: ci
+      - name: install requirements
+        run: sudo apt-get install expect ca-certificates-java
+      - name: install bazel
+        run: |
+          wget https://github.com/bazelbuild/bazel/releases/download/2.0.0/bazel_2.0.0-linux-x86_64.deb
+          sudo dpkg -i bazel_2.0.0-linux-x86_64.deb
+      - name: run test-ci
+        run: make test-ci

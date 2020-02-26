@@ -144,11 +144,12 @@ class Connection:
         result = req.json()
         return result
 
-    def put(self, path: str, jsondata: Optional[str] = None):
+    def put(self, path: str, jsondata: Optional[str] = None, content_type: str = 'application/json'):
         """
         Send data to a RESTful server using a HTTP PUT request
         :param path: Path of RESTful route
         :param jsondata: Valid JSON as string
+        :param content_type: HTTP Content-Type [default: 'application/json']
         :return:
         """
 
@@ -159,14 +160,14 @@ class Connection:
                                headers={'Authorization': 'Bearer ' + self.token})
         else:
             req = requests.put(self.server + path,
-                               headers={'Content-Type': 'application/json; charset=UTF-8',
+                               headers={'Content-Type': content_type + '; charset=UTF-8',
                                         'Authorization': 'Bearer ' + self.token},
                                data=jsondata)
         self.on_api_error(req)
         result = req.json()
         return result
 
-    def delete(self, path: str):
+    def delete(self, path: str, params: Optional[any] = None):
         """
         Send a delete request using the HTTP DELETE request
         :param path: Path of RESTful route
@@ -175,8 +176,14 @@ class Connection:
 
         if path[0] != '/':
             path = '/' + path
-        req = requests.delete(self.server + path,
-                              headers={'Authorization': 'Bearer ' + self.token})
+        if params is not None:
+            req = requests.delete(self.server + path,
+                                  headers={'Authorization': 'Bearer ' + self.token},
+                                  params=params)
+
+        else:
+            req = requests.delete(self.server + path,
+                                  headers={'Authorization': 'Bearer ' + self.token})
         self.on_api_error(req)
         result = req.json()
         return result

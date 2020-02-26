@@ -8,7 +8,7 @@ from enum import Enum, unique
 from urllib.parse import quote_plus
 from pprint import pprint
 
-from helpers import Languages, Actions, LangString, BaseError
+from helpers import Languages, Actions, LangString, LangStringParam, BaseError
 from connection import Connection
 from project import Project
 
@@ -131,8 +131,8 @@ class ListNode:
                  con: Connection,
                  id: Optional[str] = None,
                  project: Optional[Union[Project, str]] = None,
-                 label: Optional[LangString] = LangString(),
-                 comment: Optional[LangString] = LangString(),
+                 label: LangStringParam = None,
+                 comment: LangStringParam = None,
                  name: Optional[str] = None,
                  parent: Optional[Union['ListNode', str]] = None,
                  isRootNode: Optional[bool] = None,
@@ -170,11 +170,9 @@ class ListNode:
         self._id = str(id) if id is not None else None
         if not isinstance(label, LangString) and label is not None:
             raise BaseError('Labels must be LangString instance or None!')
-        self._label = label
-        if not isinstance(comment, LangString) and comment is not None:
-            raise BaseError('Comments must be LangString instance or None!')
-        self._comment = comment
-        self._name = name if name is not None else None
+        self._label = LangString(label)
+        self._comment = LangString(comment)
+        self._name = str(name) if name is not None else None
         if not isinstance(parent, ListNode) and parent is not None:
             raise BaseError('Parent must be ListNode instance or None!')
         if isinstance(parent, ListNode):
@@ -218,12 +216,9 @@ class ListNode:
         return self._label
 
     @label.setter
-    def label(self, value: LangString) -> None:
-        if value is not None and instanceof(value, LangString):
-            self._label = value
-            self.changed.add('label')
-        else:
-            raise BaseError('Not a valid LangString')
+    def label(self, value: Optional[Union[LangString, str]]) -> None:
+        self._label = LangString(value)
+        self.changed.add('label')
 
     def addLabel(self, lang: Union[Languages, str], value: str) -> None:
         """
@@ -234,15 +229,8 @@ class ListNode:
         :return: None
         """
 
-        if isinstance(lang, Languages):
-            self._label[lang] = value
-            self.changed.add('label')
-        else:
-            lmap = dict(map(lambda a: (a.value, a), Languages))
-            if lmap.get(lang) is None:
-                raise BaseError('Invalid language string "' + lang  + '"!')
-            self._label[lmap[lang]] = value
-            self.changed.add('label')
+        self._label[lang] = value
+        self.changed.add('label')
 
     def rmLabel(self, lang: Union[Languages, str]) -> None:
         """
@@ -251,27 +239,17 @@ class ListNode:
         :param lang: The language the label to be removed is in, either a string "EN", "DE", "FR", "IT" or a Language instance
         :return: None
         """
-        if isinstance(lang, Languages):
-            del self._label[lang]
-            self.changed.add('label')
-        else:
-            lmap = dict(map(lambda a: (a.value, a), Languages))
-            if lmap.get(lang) is None:
-                raise BaseError('Invalid language string "' + lang  + '"!')
-            del self._label[lmap[lang]]
-            self.changed.add('label')
+        del self._label[lang]
+        self.changed.add('label')
 
     @property
     def comment(self) -> Optional[LangString]:
         return self._comment
 
     @comment.setter
-    def comment(self, value: LangString) -> None:
-        if value is not None and instanceof(value, LangString):
-            self._comment = value
-            self.changed.add('comment')
-        else:
-            raise BaseError('Not a valid LangString')
+    def comment(self,  value: Optional[Union[LangString, str]]) -> None:
+        self._comment = LangString(value)
+        self.changed.add('comment')
 
     def addComment(self, lang: Union[Languages, str], value: str) -> None:
         """
@@ -282,15 +260,8 @@ class ListNode:
         :return: None
         """
 
-        if isinstance(lang, Languages):
-            self._comment[lang] = value
-            self.changed.add('comment')
-        else:
-            lmap = dict(map(lambda a: (a.value, a), Languages))
-            if lmap.get(lang) is None:
-                raise BaseError('Invalid language string "' + lang  + '"!')
-            self._comment[lmap[lang]] = value
-            self.changed.add('comment')
+        self._comment[lang] = value
+        self.changed.add('comment')
 
     def rmComment(self, lang: Union[Languages, str]) -> None:
         """
@@ -299,15 +270,8 @@ class ListNode:
         :param lang: The language the comment to be removed is in, either a string "EN", "DE", "FR", "IT" or a Language instance
         :return: None
         """
-        if isinstance(lang, Languages):
-            del self._comment[lang]
-            self.changed.add('comment')
-        else:
-            lmap = dict(map(lambda a: (a.value, a), Languages))
-            if lmap.get(lang) is None:
-                raise BaseError('Invalid language string "' + lang  + '"!')
-            del self._comment[lmap[lang]]
-            self.changed.add('comment')
+        del self._comment[lang]
+        self.changed.add('comment')
 
     @property
     def name(self) -> Optional[str]:
@@ -381,20 +345,9 @@ class ListNode:
         project = json_obj.get('projectIri')
         if id is None:
             raise BaseError('ListNode id is missing')
-        lbl = json_obj.get('labels')
-        if lbl is not None:
-            label = LangString()
-            for l in lbl:
-                label[l['language'] if l.get('language') is not None else 'en'] = l['value']
-        else:
-            label = None
-        cmt = json_obj.get('comments')
-        if cmt is not None:
-            comment = LangString()
-            for c in cmt:
-                comment[c['language'] if c.get('language') is not None else 'en'] = c['value']
-        else:
-            comment = None
+
+        label = LangString.fromJsonObj(json_obj.get('labels'))
+        comment = LangString.fromJsonObj(json_obj.get('comments'))
         name = json_obj.get('name')
         parent = json_obj.get('parentNodeIri')
         isRootNode = json_obj.get('isRootNode')
@@ -467,9 +420,11 @@ class ListNode:
         jsondata = json.dumps(jsonobj, cls=SetEncoder)
         if self._parent is not None:
             result = self.con.post('/admin/lists/'+ quote_plus(self._parent), jsondata)
+            pprint(result)
             return ListNode.fromJsonObj(self.con, result['nodeinfo'])
         else:
             result = self.con.post('/admin/lists', jsondata)
+            pprint(result)
             return ListNode.fromJsonObj(self.con, result['list']['listinfo'])
 
     def read(self) -> Any:
@@ -515,7 +470,7 @@ class ListNode:
 
         :return: Root node of list with recursive ListNodes ("children"-attributes)
         """
-        
+
         result = self.con.get('/admin/lists/' + quote_plus(self._id))
         if 'list' not in result:
             raise BaseError("Request got no list!")

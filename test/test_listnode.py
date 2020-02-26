@@ -9,8 +9,6 @@ from listnode import ListNode
 from project import Project
 
 
-
-
 class TestListNode(unittest.TestCase):
     iris = []
     project = 'http://rdfh.ch/projects/0001'

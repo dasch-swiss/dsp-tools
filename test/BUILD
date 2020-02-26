@@ -84,4 +84,15 @@ py_test(
     ],
 )
 
+py_test(
+    name = "test_ontology",
+    srcs = ["test_ontology.py"],
+    deps = [
+        "//knora/models:connection",
+        "//knora/models:helpers",
+        "//knora/models:ontology",
+        requirement("pystrict"),
+    ],
+)
+
 

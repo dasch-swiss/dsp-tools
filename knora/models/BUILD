@@ -78,3 +78,30 @@ py_library(
     ],
     imports = ["."],
 )
+
+py_library(
+    name = "ontology",
+    visibility = ["//visibility:public"],
+    srcs = ["ontology.py"],
+    deps = [
+        ":connection",
+        ":helpers",
+        ":resourceclass",
+        requirement("requests"),
+        requirement("pprint"),
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "resourceclass",
+    visibility = ["//visibility:public"],
+    srcs = ["resourceclass.py"],
+    deps = [
+        ":connection",
+        ":helpers",
+        requirement("requests"),
+        requirement("pprint"),
+    ],
+    imports = ["."],
+)

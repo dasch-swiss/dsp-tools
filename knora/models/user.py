@@ -15,7 +15,7 @@ if not head in sys.path:
 if not path in sys.path:
     sys.path.append(path)
 
-from helpers import Languages, Actions, LangString, BaseError
+from helpers import Languages, Actions, BaseError
 from connection import Connection
 from group import Group
 from project import Project

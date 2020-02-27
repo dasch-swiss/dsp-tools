@@ -37,12 +37,23 @@ py_test(
 )
 
 py_test(
+    name = "test_langstring",
+    srcs = ["test_langstring.py"],
+    deps = [
+        "//knora/models:helpers",
+        "//knora/models:langstring",
+        requirement("pprint"),
+        requirement("pystrict"),
+    ],
+)
+
+py_test(
     name = "test_group",
     srcs = ["test_group.py"],
     deps = [
         "//knora/models:connection",
         "//knora/models:group",
-        "//knora/models:helpers",
+        "//knora/models:langstring",
         requirement("pprint"),
         requirement("requests"),
         requirement("pystrict"),
@@ -56,6 +67,7 @@ py_test(
     deps = [
         "//knora/models:connection",
         "//knora/models:helpers",
+        "//knora/models:langstring",
         "//knora/models:project",
         requirement("pystrict"),
     ],
@@ -78,6 +90,7 @@ py_test(
     deps = [
         "//knora/models:connection",
         "//knora/models:helpers",
+        "//knora/models:langstring",
         "//knora/models:listnode",
         "//knora/models:project",
         requirement("pystrict"),

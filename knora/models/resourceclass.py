@@ -14,8 +14,9 @@ if not head in sys.path:
 if not path in sys.path:
     sys.path.append(path)
 
-from helpers import Languages, Actions, LangString, BaseError, Context, Cardinality
+from helpers import Actions, BaseError, Context, Cardinality
 from connection import Connection
+from langstring import Languages, LangStringParam, LangString
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -90,6 +91,18 @@ class HasProperty:
             self.ptype = self.Ptype.other
         self.property = p
 
+    def print(self, offset: int = 0):
+        blank = ' '
+        if self.ptype == self.Ptype.system:
+            print(f'{blank:>{offset}}Has Property (system)')
+        elif self.ptype == self.Ptype.knora:
+            print(f'{blank:>{offset}}Has Property (knora)')
+        else:
+            print(f'{blank:>{offset}}Has Property (project)')
+        print(f'{blank:>{offset + 2}}Property: {self.property}')
+        print(f'{blank:>{offset + 2}}Cardinality: {self.cardinality.value}')
+
+
 
 
 
@@ -97,7 +110,7 @@ class HasProperty:
 class ResourceClass:
     _name: str
     _ontology_id: str
-    _superclasses: str
+    _superclasses: List[str]
     _label: LangString
     _comment: LangString
     _permissions: str
@@ -109,10 +122,11 @@ class ResourceClass:
                  context: Context,
                  name: Optional[str] = None,
                  ontology_id: Optional[str] = None,
-                 superclasses: Optional[Union['ResourceClass', str]] = None,
+                 superclasses: Optional[List[Union['ResourceClass', str]]] = None,
                  label: Optional[Union[LangString, str]] = None,
                  comment: Optional[Union[LangString, str]] = None,
-                 permissions: Optional[str] = None):
+                 permissions: Optional[str] = None,
+                 has_properties: Optional[List[str]] = None):
         if not isinstance(con, Connection):
             raise BaseError('"con"-parameter must be an instance of Connection')
         if not isinstance(context, Context):
@@ -121,7 +135,7 @@ class ResourceClass:
         self._name = name
         self._ontology_id = ontology_id
         if isinstance(superclasses, ResourceClass):
-            self._superclasses = superclasses.id
+            self._superclasses = list(map(lambda a: a.id, superclasses))
         else:
             self._superclasses = superclasses
         #
@@ -149,6 +163,7 @@ class ResourceClass:
         else:
             self._comment = None
         self._permissions = permissions
+        self._has_properties = has_properties
 
     #
     # Here follows a list of getters/setters
@@ -262,8 +277,11 @@ class ResourceClass:
         if superclasses_obj is not None:
             supercls: List[Any] = list(filter(lambda a: a.get('@id') is not None, superclasses_obj))
             superclasses: List[str] = list(map(lambda a: a['@id'], supercls))
-            has_props: List[Any] = list(filter(lambda a: a.get('@type') == owl + ':Restriction', superclasses_obj))
+            has_props: List[Any] = list(filter(lambda a: a.get('@type') == (owl + ':Restriction'), superclasses_obj))
             has_properties: List[HasProperty] = list(map(lambda a: HasProperty(context, a), has_props))
+        else:
+            superclasses = None
+            has_properties = None
 
         label = LangString.fromJsonLdObj(json_obj.get(rdfs + ':label'))
         comment = LangString.fromJsonLdObj(json_obj.get(rdfs + ':comment'))
@@ -273,16 +291,29 @@ class ResourceClass:
                    ontology_id=ontology_id,
                    superclasses=superclasses,
                    label=label,
-                   comment=comment)
+                   comment=comment,
+                   has_properties=has_properties)
 
     def print(self, offset: int = 0):
         blank = ' '
         print(f'{blank:>{offset}}Resource Class Info')
         print(f'{blank:>{offset+2}}Name:            {self._name}')
         print(f'{blank:>{offset+2}}Ontology prefix: {self._ontology_id}')
+        print(f'{blank:>{offset+2}}Superclasses:')
+        if self._superclasses is not None:
+            for sc in self._superclasses:
+                print(f'{blank:>{offset + 4}}{sc}')
         if self._label is not None:
             print(f'{blank:>{offset + 2}}Labels:')
             self._label.print(offset + 4)
+        if self._comment is not None:
+            print(f'{blank:>{offset + 2}}Comments:')
+            self._comment.print(offset + 4)
+        if self._has_properties is not None:
+            print(f'{blank:>{offset + 2}}Has properties:')
+            if self._has_properties is not None:
+                for hp in self._has_properties:
+                    hp.print(offset + 4)
 
 
 

@@ -15,7 +15,9 @@ if not head in sys.path:
 if not path in sys.path:
     sys.path.append(path)
 
-from helpers import Languages, Actions, LangString, LangStringParam, BaseError
+from helpers import Actions, BaseError
+from langstring import Languages, LangStringParam, LangString
+
 from connection import Connection
 
 class SetEncoder(json.JSONEncoder):

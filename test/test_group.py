@@ -5,7 +5,8 @@ from urllib.parse import quote_plus
 
 from connection import Connection
 from group import Group
-from helpers import BaseError, Languages, Actions, LangString
+from helpers import BaseError, Actions
+from langstring import Languages, LangStringParam, LangString
 
 
 def erase_group(iri = None):

@@ -13,7 +13,8 @@ if not head in sys.path:
 if not path in sys.path:
     sys.path.append(path)
 
-from helpers import Languages, Actions, BaseError, Context
+from helpers import Actions, BaseError, Context
+#from langstring import Languages, LangStringParam, LangString
 from connection import Connection
 from resourceclass import ResourceClass, HasProperty
 
@@ -55,7 +56,7 @@ class Ontology:
         self._name = name
         self._label = label
         self._lastModificationDate = lastModificationDate
-        self._resource_classes = resource_classes if isinstance(resource_classes, ResourceClass) else None
+        self._resource_classes = resource_classes
         self._context = context if context is not None else Context()
         self.changed = set()
 
@@ -237,4 +238,7 @@ class Ontology:
         print('  Label:                {}'.format(self._label))
         print('  Project:              {}'.format(self._project))
         print('  LastModificationDate: {}'.format(self._lastModificationDate))
+        print('  Resource Classes:')
+        for rc in self._resource_classes:
+            rc.print(4)
 

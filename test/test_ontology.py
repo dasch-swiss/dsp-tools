@@ -4,7 +4,9 @@ import requests
 from urllib.parse import quote_plus
 
 from connection import Connection
-from helpers import BaseError, Languages, Actions, LangString
+from helpers import BaseError, Actions
+from langstring import Languages, LangStringParam, LangString
+
 from ontology import Ontology
 
 
@@ -70,6 +72,8 @@ class TestOntology(unittest.TestCase):
         self.assertEqual(onto.project, "http://rdfh.ch/projects/0001")
         self.assertEqual(onto.label, "The anything ontology")
         self.assertIsNotNone(onto.lastModificationDate)
+        onto.print()
+        self.assertTrue(False)
 
     def test_create(self):
         onto = self.createTestOntology()

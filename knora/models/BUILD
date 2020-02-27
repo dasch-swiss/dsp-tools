@@ -39,12 +39,24 @@ py_library(
 )
 
 py_library(
+    name = "langstring",
+    visibility = ["//visibility:public"],
+    srcs = ["langstring.py"],
+    deps = [
+        ":helpers",
+        requirement("pprint"),
+    ],
+    imports = ["."],
+)
+
+py_library(
     name = "listnode",
     visibility = ["//visibility:public"],
     srcs = ["listnode.py"],
     deps = [
         ":connection",
         ":helpers",
+        ":langstring",
         ":project",
         requirement("pprint"),
     ],
@@ -57,6 +69,7 @@ py_library(
     srcs = ["project.py"],
     deps = [
         ":helpers",
+        ":langstring",
         ":connection",
         requirement("requests"),
         requirement("pprint"),
@@ -86,6 +99,7 @@ py_library(
     deps = [
         ":connection",
         ":helpers",
+        ":langstring",
         ":resourceclass",
         requirement("requests"),
         requirement("pprint"),
@@ -100,6 +114,7 @@ py_library(
     deps = [
         ":connection",
         ":helpers",
+        ":langstring",
         requirement("requests"),
         requirement("pprint"),
     ],

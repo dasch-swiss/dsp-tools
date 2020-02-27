@@ -8,7 +8,8 @@ from enum import Enum, unique
 from urllib.parse import quote_plus
 from pprint import pprint
 
-from helpers import Languages, Actions, LangString, LangStringParam, BaseError
+from helpers import Actions, BaseError
+from langstring import Languages, LangStringParam, LangString
 from connection import Connection
 from project import Project
 

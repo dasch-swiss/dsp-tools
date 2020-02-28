@@ -146,6 +146,8 @@ class Ontology:
             resource_classes = list(map(lambda a: ResourceClass.fromJsonObj(con=con,
                                                                             context=context,
                                                                             json_obj=a), resclasses_obj))
+            standoffclasses_obj = list(filter(lambda a: a.get(knora_api + ':isStandoffClass') is not None, json_obj.get('@graph')))
+            # ToDo: parse standoff classes
         else:
             resource_classes = None
         return cls(con=con,

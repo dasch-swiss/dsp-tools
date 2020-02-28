@@ -39,12 +39,24 @@ py_library(
 )
 
 py_library(
+    name = "langstring",
+    visibility = ["//visibility:public"],
+    srcs = ["langstring.py"],
+    deps = [
+        ":helpers",
+        requirement("pprint"),
+    ],
+    imports = ["."],
+)
+
+py_library(
     name = "listnode",
     visibility = ["//visibility:public"],
     srcs = ["listnode.py"],
     deps = [
         ":connection",
         ":helpers",
+        ":langstring",
         ":project",
         requirement("pprint"),
     ],
@@ -57,6 +69,7 @@ py_library(
     srcs = ["project.py"],
     deps = [
         ":helpers",
+        ":langstring",
         ":connection",
         requirement("requests"),
         requirement("pprint"),
@@ -73,6 +86,49 @@ py_library(
         ":helpers",
         ":group",
         ":project",
+        requirement("requests"),
+        requirement("pprint"),
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "ontology",
+    visibility = ["//visibility:public"],
+    srcs = ["ontology.py"],
+    deps = [
+        ":connection",
+        ":helpers",
+        ":langstring",
+        ":resourceclass",
+        requirement("requests"),
+        requirement("pprint"),
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "resourceclass",
+    visibility = ["//visibility:public"],
+    srcs = ["resourceclass.py"],
+    deps = [
+        ":connection",
+        ":helpers",
+        ":langstring",
+        requirement("requests"),
+        requirement("pprint"),
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "propertyclass",
+    visibility = ["//visibility:public"],
+    srcs = ["propertyclass.py"],
+    deps = [
+        ":connection",
+        ":helpers",
+        ":langstring",
         requirement("requests"),
         requirement("pprint"),
     ],

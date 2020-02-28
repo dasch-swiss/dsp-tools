@@ -15,7 +15,9 @@ if not head in sys.path:
 if not path in sys.path:
     sys.path.append(path)
 
-from helpers import Languages, Actions, LangString, BaseError
+from helpers import Actions, BaseError
+from langstring import Languages, LangStringParam, LangString
+
 from connection import Connection
 
 class SetEncoder(json.JSONEncoder):
@@ -128,7 +130,7 @@ class Project:
                  shortcode: Optional[str] = None,
                  shortname: Optional[str] = None,
                  longname: Optional[str] = None,
-                 description: Optional[LangString] = LangString(),
+                 description: LangStringParam = None,
                  keywords: Optional[Set[str]] = None,
                  ontologies: Optional[Set[str]] = None,
                  selfjoin: Optional[bool] = None,
@@ -153,22 +155,18 @@ class Project:
         if not isinstance(con, Connection):
             raise BaseError ('"con"-parameter must be an instance of Connection')
         self.con = con
-        self._id = str(id) if id is not None else None
-        self._shortcode = str(shortcode) if shortcode is not None else None
-        self._shortname = str(shortname) if shortname is not None else None
-        self._longname = str(longname) if longname is not None else None
-        if not isinstance(description, LangString) and description is not None:
-            raise BaseError('Description must be LangString instance or None!')
-        self._description = description
-        if not isinstance(keywords, set) and keywords is not None:
-            raise BaseError('Keywords must be a set of strings or None!')
+        self._id = id
+        self._shortcode = shortcode
+        self._shortname = shortname
+        self._longname = longname
+        self._description = LangString(description)
         self._keywords = keywords
         if not isinstance(ontologies, set) and ontologies is not None:
             raise BaseError('Ontologies must be a set of strings or None!')
         self._ontologies = ontologies
-        self._selfjoin = bool(selfjoin) if selfjoin is not None else None
-        self._status = bool(status) if status is not None else None
-        self._logo = str(logo) if logo is not None else None
+        self._selfjoin = selfjoin
+        self._status = status
+        self._logo = logo
         self.changed = set()
 
     def __str__(self):
@@ -217,12 +215,9 @@ class Project:
         return self._description
 
     @description.setter
-    def description(self, value: LangString) -> None:
-        if value is not None and instanceof(value, LangString):
-            self._descriptions = value
-            self.changed.add('description')
-        else:
-            raise BaseError('Not a valid LangString')
+    def description(self, value: Optional[LangString]) -> None:
+        self._description = LangString(value)
+        self.changed.add('description')
 
     def addDescription(self, lang: Union[Languages, str], value: str) -> None:
         """
@@ -233,15 +228,8 @@ class Project:
         :return: None
         """
 
-        if isinstance(lang, Languages):
-            self._descriptions[lang] = value
-            self.changed.add('description')
-        else:
-            lmap = dict(map(lambda a: (a.value, a), Languages))
-            if lmap.get(lang) is None:
-                raise BaseError('Invalid language string "' + lang  + '"!')
-            self._description[lmap[lang]] = value
-            self.changed.add('description')
+        self._description[lang] = value
+        self.changed.add('description')
 
     def rmDescription(self, lang: Union[Languages, str]) -> None:
         """
@@ -250,15 +238,9 @@ class Project:
         :param lang: The language the description to be removed is in, either a string "EN", "DE", "FR", "IT" or a Language instance
         :return: None
         """
-        if isinstance(lang, Languages):
-            del self._description[lang]
-            self.changed.add('description')
-        else:
-            lmap = dict(map(lambda a: (a.value, a), Languages))
-            if lmap.get(lang) is None:
-                raise BaseError('Invalid language string "' + lang  + '"!')
-            del self._description[lmap[lang]]
-            self.changed.add('description')
+
+        del self._description[lang]
+        self.changed.add('description')
 
     @property
     def keywords(self) -> Set[str]:
@@ -358,13 +340,7 @@ class Project:
         longname = json_obj.get('longname')
         if longname is None:
             raise BaseError("Longname is missing")
-        descr = json_obj.get('description')
-        if descr is not None:
-            description = LangString()
-            for d in descr:
-                description[d['language'] if d.get('language') is not None else 'en'] = d['value']
-        else:
-            description = None
+        description = LangString.fromJsonObj(json_obj.get('description'))
         keywords = set(json_obj.get('keywords'))
         if keywords is None:
             raise BaseError("Keywords are missing")
@@ -451,7 +427,7 @@ class Project:
         result = self.con.post('/admin/projects', jsondata)
         return Project.fromJsonObj(self.con, result['project'])
 
-    def read(self) -> Any:
+    def read(self) -> 'Project':
         """
         Read a project from Knora
 
@@ -461,7 +437,7 @@ class Project:
         result = self.con.get('/admin/projects/iri/' + quote_plus(self._id))
         return Project.fromJsonObj(self.con, result['project'])
 
-    def update(self) -> Union[Any, None]:
+    def update(self) -> Union['Project', None]:
         """
         Udate the project info in Knora with the modified data in this project instance
 
@@ -476,7 +452,7 @@ class Project:
         else:
             return None
 
-    def delete(self):  #ToDo: better return parameter
+    def delete(self) -> 'Project':
         """
         Delete the given Knora project
 

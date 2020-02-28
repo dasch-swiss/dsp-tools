@@ -10,12 +10,6 @@ class BaseError(Exception):
         super().__init__()
         self.message = message
 
-@unique
-class Languages(Enum):
-    EN = 'en'
-    DE = 'de'
-    FR = 'fr'
-    IT = 'it'
 
 class Actions(Enum):
     Create = 1
@@ -23,67 +17,51 @@ class Actions(Enum):
     Update = 3
     Delete = 4
 
-class LangString:
-    langstrs: Dict[Languages,str]
+@unique
+class Cardinality(Enum):
+    C_1 = "1",
+    C_0_1 = "0-1",
+    C_1_n = "1-n",
+    C_0_n = "0-n"
 
-    def __init__(self,
-                 initvalue: Optional[Dict[Languages,str]] = None):
-        if initvalue is not None:
-            self.langstrs = initvalue
+
+class Context:
+    _context: Dict[str, str]
+    _rcontext: Dict[str, str]
+
+    def __init__(self, context: Optional[Dict[str, str]] = None):
+        if context is not None:
+            self._context = context
         else:
-            self.langstrs = {}
+            self._context = {
+                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+                "owl": "http://www.w3.org/2002/07/owl#",
+                "xsd": "http://www.w3.org/2001/XMLSchema#",
+                "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
+                "salsah-gui": "http://api.knora.org/ontology/salsah-gui/v2#"
+            }
+        self._rcontext = dict(map(lambda x: (x[1], x[0]), self._context.items()))
 
-    def __getitem__(self, key: Union[Languages,str]):
-        if isinstance(key, Enum):
-            if self.langstrs.get(key) is None:
-                for l in self.langstrs:
-                    return self.langstrs[l]
-                return  None
-            else:
-                return self.langstrs[key]
-        else:
-            lmap = dict(map(lambda a: (a.value, a), Languages))
-            if lmap.get(key) is None:
-                raise BaseError('Invalid language string "' + key  + '"!')
-            if self.langstrs.get(lmap[key]) is None:
-                for l in self.langstrs:
-                    return self.langstrs[l]
-                return None
-            else:
-                return self.langstrs[lmap[key]]
+    @property
+    def context(self):
+        return self._context
 
-    def __setitem__(self, key: Union[Languages,str], value: str):
-        if isinstance(key, Languages):
-            self.langstrs[key] = value
-        else:
-            lmap = dict(map(lambda a: (a.value, a), Languages))
-            if lmap.get(key) is None:
-                raise BaseError('Invalid language string "' + key  + '"!')
-            self.langstrs[lmap[key]] = value
+    @context.setter
+    def context(self, value: Dict[str, str]):
+        if value is not None and isinstance(value, dict):
+            self._context = value
 
-    def __delitem__(self, key: Union[Languages,str]):
-        if isinstance(key, Languages):
-            del self.langstrs[key]
-        else:
-            lmap = dict(map(lambda a: (a.value, a), Languages))
-            if lmap.get(key) is None:
-                raise BaseError('Invalid language string "' + key  + '"!')
-            del self.langstrs[lmap[key]]
+    def addContext(self, prefix: str, iri: str):
+        self._context[prefix] = iri
+        self._rcontext[iri] = prefix
 
-    def __str__(self):
-        tmpstr = '{'
-        for p in self.langstrs:
-            tmpstr += '=' + p.value + ':' + self.langstrs[p]
-        tmpstr += '}'
-        return tmpstr
+    def iriFromPrefix(self, prefix: str) -> Optional[str]:
+        return self._context.get(prefix)
 
-    def items(self):
-        return self.langstrs.items()
+    def prefixFromIri(self, iri: str) -> Optional[str]:
+        return self._rcontext.get(iri)
 
-    def isEmpty(self):
-        return not bool(self.langstrs)
-
-    def toJsonObj(self):
-        return list(map(lambda a: { 'language': a[0].value, 'value': a[1]}, self.langstrs.items()))
-
+    def toJsonObj(self) -> Dict[str, str]:
+        return self._context
 

@@ -1,14 +1,13 @@
 import unittest
 import pprint
 import requests
-from urllib.parse import quote_plus
 
 from connection import Connection
-from helpers import BaseError, Languages, Actions, LangString
+from helpers import BaseError, Actions
+from langstring import Languages, LangStringParam, LangString
+
 from listnode import ListNode
 from project import Project
-
-
 
 
 class TestListNode(unittest.TestCase):

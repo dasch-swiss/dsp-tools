@@ -265,7 +265,6 @@ class ResourceClass:
         salsah_gui = context.prefixFromIri("http://api.knora.org/ontology/salsah-gui/v2#")
 
         if not (json_obj.get(knora_api + ':isResourceClass') or json_obj.get(knora_api + ':isStandoffClass')):
-            pprint(json_obj)
             raise BaseError("This is not a resource!")
 
         if json_obj.get('@id') is None:

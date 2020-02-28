@@ -6,3 +6,5 @@ from .listnode import ListNode
 from .project import Project
 from .user import User
 from .ontology import Ontology
+from .resourceclass import ResourceClass
+from .propertyclass import PropertyClass

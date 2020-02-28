@@ -230,7 +230,23 @@ class PropertyClass:
     @property
     def linkvalue(self) -> bool:
         return self._linkvalue
-    
+
     @linkvalue.setter
     def linkvalue(self) -> None:
         raise BaseError('"linkvalue" cannot be modified!')
+
+    @classmethod
+    def fromJsonObj(cls, con: Connection, context: Context, json_obj: Any) -> Any:
+        if not isinstance(con, Connection):
+            raise BaseError('"con"-parameter must be an instance of Connection')
+        if not isinstance(context, Context):
+            raise BaseError('"context"-parameter must be an instance of Context')
+        rdf = context.prefixFromIri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+        rdfs = context.prefixFromIri("http://www.w3.org/2000/01/rdf-schema#")
+        owl = context.prefixFromIri("http://www.w3.org/2002/07/owl#")
+        xsd = context.prefixFromIri("http://www.w3.org/2001/XMLSchema#")
+        knora_api = context.prefixFromIri("http://api.knora.org/ontology/knora-api/v2#")
+        salsah_gui = context.prefixFromIri("http://api.knora.org/ontology/salsah-gui/v2#")
+
+        if not (json_obj.get(knora_api + ':isResourceProperty')):
+            raise BaseError("This is not a property!")

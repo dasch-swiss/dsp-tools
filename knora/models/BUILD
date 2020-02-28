@@ -120,3 +120,17 @@ py_library(
     ],
     imports = ["."],
 )
+
+py_library(
+    name = "propertyclass",
+    visibility = ["//visibility:public"],
+    srcs = ["propertyclass.py"],
+    deps = [
+        ":connection",
+        ":helpers",
+        ":langstring",
+        requirement("requests"),
+        requirement("pprint"),
+    ],
+    imports = ["."],
+)

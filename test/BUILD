@@ -108,4 +108,40 @@ py_test(
     ],
 )
 
+py_test(
+    name = "test_resourceclass",
+    srcs = ["test_resourceclass.py"],
+    deps = [
+        "//knora/models:connection",
+        "//knora/models:helpers",
+        "//knora/models:ontology",
+        "//knora/models:resourceclass",
+        requirement("pystrict"),
+    ],
+)
+
+py_test(
+    name = "test_propertyclass",
+    srcs = ["test_propertyclass.py"],
+    deps = [
+        "//knora/models:connection",
+        "//knora/models:helpers",
+        "//knora/models:ontology",
+        "//knora/models:propertyclass",
+        requirement("pystrict"),
+    ],
+)
+
+py_test(
+    name = "test_all",
+    srcs = ["test_all.py"],
+    deps = [
+        "//knora/models:connection",
+        "//knora/models:helpers",
+        "//knora/models:ontology",
+        "//knora/models:resourceclass",
+        "//knora/models:propertyclass",
+        requirement("pystrict"),
+    ],
+)
 

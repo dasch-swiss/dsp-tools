@@ -1,6 +1,9 @@
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from enum import Enum, unique
-from helpers import BaseError
+
+from models.helpers import BaseError
+
+from pprint import pprint
 
 @unique
 class Languages(Enum):
@@ -74,8 +77,8 @@ class LangString:
             self._simplestring = None
             self._langstrs = dict(map(mymapper, initvalue.items()))
         elif isinstance(initvalue, LangString):
-            self._simplestring = None
-            self._langstrs = dict(map(mymapper, initvalue.items()))
+            self._simplestring = initvalue._simplestring
+            self._langstrs = initvalue._langstrs
         else:
             raise BaseError("No a valid language definition!")
 
@@ -93,11 +96,15 @@ class LangString:
                 except:
                     return None
         else:
-            self._simplestring = None  # Let's delete the string without language if there is one...
+            pass
+            # self._simplestring = None  # Let's delete the string without language if there is one...
         if isinstance(key, Enum):
             if self._langstrs.get(key) is None:
                 for l in self._langstrs:
-                    return self._langstrs[l]
+                    if self._langstrs.get(l) is not None:
+                        return self._langstrs[l]
+                if self._simplestring is not None:
+                    return self._simplestring
                 return None
             else:
                 return self._langstrs[key]
@@ -107,7 +114,10 @@ class LangString:
                 raise BaseError('Invalid language string "' + key + '"!')
             if self._langstrs.get(lmap[key.lower()]) is None:
                 for l in self._langstrs:
-                    return self._langstrs[l]
+                    if self._langstrs.get(l) is not None:
+                        return self._langstrs[l]
+                if self._simplestring is not None:
+                    return self._simplestring
                 return None
             else:
                 return self._langstrs[lmap[key.lower()]]
@@ -190,6 +200,9 @@ class LangString:
                 lstrs[Languages.FR] = o.get('@value')
             elif lang == 'it':
                 lstrs[Languages.IT] = o.get('@value')
+            else:
+                if o.get('@value') is not None:
+                    return cls(o.get('@value'))
         return cls(lstrs)
 
     @classmethod
@@ -211,6 +224,10 @@ class LangString:
                 lstrs[Languages.FR] = o.get('value')
             elif lang == 'it':
                 lstrs[Languages.IT] = o.get('value')
+            else:
+                if o.get('value') is not None:
+                    print('PASSED A')
+                    return cls(o.get('value'))
         return cls(lstrs)
 
     def print(self, offset: Optional[int] = None):

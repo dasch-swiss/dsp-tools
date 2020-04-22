@@ -111,3 +111,4 @@ Run single test:
 ```bash
 $ bazel test //test:test_knora
 ```
+

@@ -1,0 +1,717 @@
+{
+  "prefixes": {
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "dcterms": "http://purl.org/dc/terms/"
+  },
+  "project": {
+    "shortcode": "0828",
+    "shortname": "BiZ",
+    "longname": "Bildung in Zahlen",
+    "descriptions": {
+      "de": "Bildung in Zahlen",
+      "fr": "L'éducation en chiffres"
+    },
+    "keywords": [
+      "Bildung",
+      "Bildungsstatistik"
+    ],
+    "lists": [
+      {
+        "name": "raum",
+        "labels": {
+          "de": "Bildungsraum"
+        },
+        "nodes": [
+          {
+            "name": "ag",
+            "labels": {
+              "de": "AG"
+            }
+          },
+          {
+            "name": "ar",
+            "labels": {
+              "de": "AR"
+            }
+          },
+          {
+            "name": "ai",
+            "labels": {
+              "de": "AI"
+            }
+          },
+          {
+            "name": "bl",
+            "labels": {
+              "de": "BL"
+            }
+          },
+          {
+            "name": "bs",
+            "labels": {
+              "de": "BS"
+            }
+          },
+          {
+            "name": "be",
+            "labels": {
+              "de": "BE"
+            }
+          },
+          {
+            "name": "fr",
+            "labels": {
+              "de": "FR"
+            }
+          },
+          {
+            "name": "ge",
+            "labels": {
+              "de": "GE"
+            }
+          },
+          {
+            "name": "gl",
+            "labels": {
+              "de": "GL"
+            }
+          },
+          {
+            "name": "gr",
+            "labels": {
+              "de": "GR"
+            }
+          },
+          {
+            "name": "ju",
+            "labels": {
+              "de": "JU"
+            }
+          },
+          {
+            "name": "lu",
+            "labels": {
+              "de": "LU"
+            }
+          },
+          {
+            "name": "ne",
+            "labels": {
+              "de": "NE"
+            }
+          },
+          {
+            "name": "nw",
+            "labels": {
+              "de": "NW"
+            }
+          },
+          {
+            "name": "ow",
+            "labels": {
+              "de": "OW"
+            }
+          },
+          {
+            "name": "sg",
+            "labels": {
+              "de": "SG"
+            }
+          },
+          {
+            "name": "sh",
+            "labels": {
+              "de": "SH"
+            }
+          },
+          {
+            "name": "SZ",
+            "labels": {
+              "de": "SZ"
+            }
+          },
+          {
+            "name": "so",
+            "labels": {
+              "de": "SO"
+            }
+          },
+          {
+            "name": "ti",
+            "labels": {
+              "de": "TI"
+            }
+          },
+          {
+            "name": "tg",
+            "labels": {
+              "de": "TG"
+            }
+          },
+          {
+            "name": "ur",
+            "labels": {
+              "de": "UR"
+            }
+          },
+          {
+            "name": "vd",
+            "labels": {
+              "de": "VD"
+            }
+          },
+          {
+            "name": "vs",
+            "labels": {
+              "de": "VS"
+            }
+          },
+          {
+            "name": "zh",
+            "labels": {
+              "de": "ZH"
+            }
+          },
+          {
+            "name": "zg",
+            "labels": {
+              "de": "ZG"
+            }
+          }
+        ]
+      },
+      {
+        "name": "bildungssystematiken",
+        "labels": {
+          "de": "Bildungssystematiken"
+        },
+        "nodes": [
+          {
+            "name": "obligatorisch",
+            "labels": {
+              "de": "Obligatorische Schule"
+            }
+          },
+          {
+            "name": "gymnasium",
+            "labels": {
+              "de": "Gymnasium"
+            }
+          }
+        ]
+      },
+      {
+        "name": "bildungsgang",
+        "labels": {
+          "de": "Bildungsgang"
+        },
+        "nodes": [
+          {
+            "name": "primarschule_kanton",
+            "labels": {
+              "de": "Primarschule [Kanton]"
+            }
+          },
+          {
+            "name": "mädchenarbeitsschule_kanton",
+            "labels": {
+              "de": "Mädchenarbeitsschule [Kanton]"
+            }
+          },
+          {
+            "name": "hilfsklasse_kanton",
+            "labels": {
+              "de": "Hilfsklasse [Kanton]"
+            }
+          },
+          {
+            "name": "erweiterte_oberschule_kanton",
+            "labels": {
+              "de": "Erweiterte Oberschule [Kanton]"
+            }
+          },
+          {
+            "name": "anpassungsklasse_kanton",
+            "labels": {
+              "de": "Anpassungsklasse [Kanton]"
+            }
+          },
+          {
+            "name": "weiterbildungsklasse_kanton",
+            "labels": {
+              "de": "Weiterbildungsklasse [Kanton]"
+            }
+          },
+          {
+            "name": "privat_primarschule_kanton",
+            "labels": {
+              "de": "Privat Primarschule [Kanton]"
+            }
+          }
+        ]
+      },
+      {
+        "name": "traegerschaft",
+        "labels": {
+          "de": "Trägerschaft"
+        },
+        "nodes": [
+          {
+            "name": "oeffentlich",
+            "labels": {
+              "de": "öffentlich"
+            }
+          },
+          {
+            "name": "privat",
+            "labels": {
+              "de": "privat"
+            }
+          }
+        ]
+      }
+    ],
+    "groups": [
+      {
+        "name": "biz-editors",
+        "description": "Editors for the BiZ-project",
+        "selfjoin": false,
+        "status": true
+      }
+    ],
+    "users": [
+      {
+        "username": "biz",
+        "email": "biz@test.org",
+        "givenName": "biz",
+        "familyName": "biz",
+        "password": "biz",
+        "lang": "en",
+        "groups": [":biz-editors"],
+        "projects": [":admin","anything:member"]
+      }
+    ],
+    "ontologies": [
+      {
+        "name": "biz",
+        "label": "Bildung in Zahlen",
+        "properties": [
+          {
+            "name": "schulcode",
+            "object": "TextValue",
+            "labels": {
+              "de": "Schulcode"
+            },
+            "gui_element": "SimpleText",
+            "gui_attributes": [
+              "size=32",
+              "maxlength=128"
+            ]
+          },
+          {
+            "name": "schulname",
+            "object": "TextValue",
+            "labels": {
+              "de": "Name der Schule"
+            },
+            "gui_element": "SimpleText",
+            "gui_attributes": [
+              "size=32",
+              "maxlength=128"
+            ]
+          },
+          {
+            "name": "bildungsgang",
+            "object": "ListValue",
+            "labels": {
+              "de": "Bildungsgang"
+            },
+            "gui_element": "Pulldown",
+            "gui_attributes": [
+              "hlist=bildungsgang"
+            ]
+          },
+          {
+            "name": "persname",
+            "object": "TextValue",
+            "labels": {
+              "de": "Name"
+            },
+            "gui_element": "SimpleText",
+            "gui_attributes": [
+              "size=32",
+              "maxlength=128"
+            ]
+          },
+          {
+            "name": "tabellencode",
+            "object": "TextValue",
+            "labels": {
+              "de": "Tabellencode"
+            },
+            "gui_element": "SimpleText",
+            "gui_attributes": [
+              "size=32",
+              "maxlength=128"
+            ]
+          },
+          {
+            "name": "schule",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": ":Schule",
+            "labels": {
+              "en": "Schule"
+            },
+            "gui_element": "Searchbox",
+            "gui_attributes": [
+              "numprops=1"
+            ]
+          },
+          {
+            "name": "downloadlink",
+            "object": "TextValue",
+            "labels": {
+              "de": "Download"
+            },
+            "gui_element": "SimpleText",
+            "gui_attributes": [
+              "size=32",
+              "maxlength=128"
+            ]
+          },
+          {
+            "name": "raum",
+            "object": "ListValue",
+            "labels": {
+              "de": "Raum"
+            },
+            "gui_element": "Pulldown",
+            "gui_attributes": [
+              "hlist=raum"
+            ]
+          },
+          {
+            "name": "zeitraum",
+            "object": "DateValue",
+            "labels": {
+              "de": "Zeitraum"
+            },
+            "gui_element": "Date"
+          },
+          {
+            "name": "bildungssystematik",
+            "object": "ListValue",
+            "labels": {
+              "de": "Bildungssystematik"
+            },
+            "gui_element": "Pulldown",
+            "gui_attributes": [
+              "hlist=bildungssystematiken"
+            ]
+          },
+          {
+            "name": "traegerschaft",
+            "object": "ListValue",
+            "labels": {
+              "de": "Trägerschaft"
+            },
+            "gui_element": "Pulldown",
+            "gui_attributes": [
+              "hlist=traegerschaft"
+            ]
+          },
+          {
+            "name": "summe",
+            "object": "BooleanValue",
+            "labels": {
+              "de": "Summe"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "maennlich",
+            "object": "BooleanValue",
+            "labels": {
+              "de": "Männlich"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "weiblich",
+            "object": "BooleanValue",
+            "labels": {
+              "de": "Weiblich"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "sprachregion",
+            "object": "BooleanValue",
+            "labels": {
+              "de": "Sprachregion"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "anstellungsstatus",
+            "object": "BooleanValue",
+            "labels": {
+              "de": "Anstellungsstatus"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "herkunft",
+            "object": "BooleanValue",
+            "labels": {
+              "de": "Herkunft [Land]"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "klassenfuehrung",
+            "object": "BooleanValue",
+            "labels": {
+              "de": "Klassenführung"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "absenztyp",
+            "object": "BooleanValue",
+            "labels": {
+              "de": "Absenztyp"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "massnahmetyp",
+            "object": "BooleanValue",
+            "labels": {
+              "de": "Massnahmetyp"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "quelle",
+            "object": "TextValue",
+            "labels": {
+              "de": "Quelle"
+            },
+            "gui_element": "SimpleText",
+            "gui_attributes": [
+              "size=64",
+              "maxlength=128"
+            ]
+          },
+          {
+            "name": "autor",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": ":Person",
+            "labels": {
+              "de": "Autor"
+            },
+            "gui_element": "Searchbox",
+            "gui_attributes": [
+              "numprops=1"
+            ]
+          },
+          {
+            "name": "autor_aufbereitung",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": ":Person",
+            "labels": {
+              "de": "Autor Aufbereitung"
+            },
+            "gui_element": "Searchbox",
+            "gui_attributes": [
+              "numprops=1"
+            ]
+          },
+          {
+            "name": "projektleitung",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": ":Person",
+            "labels": {
+              "de": "Projektleitung"
+            },
+            "gui_element": "Searchbox",
+            "gui_attributes": [
+              "numprops=1"
+            ]
+          },
+          {
+            "name": "publikationsdatum",
+            "object": "DateValue",
+            "labels": {
+              "de": "Publikationsdatum"
+            },
+            "gui_element": "Date"
+          }
+        ],
+        "resources": [
+          {
+            "name": "Schule",
+            "super": "Resource",
+            "labels": {
+              "de": "Schule"
+            },
+            "cardinalities": [
+              {
+                "propname": ":schulcode",
+                "gui_order": 1,
+                "cardinality": "1"
+              },
+              {
+                "propname": ":schulname",
+                "gui_order": 2,
+                "cardinality": "1"
+              },
+              {
+                "propname": ":bildungsgang",
+                "gui_order": 3,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name": "Person",
+            "super": "Resource",
+            "labels": {
+              "de": "Person"
+            },
+            "cardinalities": [
+              {
+                "propname": ":persname",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name": "Tabellenmetadaten",
+            "super": "Resource",
+            "labels": {
+              "de": "Tabellenmetadaten"
+            },
+            "cardinalities": [
+              {
+                "propname": ":tabellencode",
+                "gui_order": 1,
+                "cardinality": "1"
+              },
+              {
+                "propname": ":schule",
+                "gui_order": 2,
+                "cardinality": "1"
+              },
+              {
+                "propname": ":downloadlink",
+                "cardinality": "1",
+                "gui_order": 3
+              },
+              {
+                "propname": ":raum",
+                "gui_order": 4,
+                "cardinality": "0-1"
+              },
+              {
+                "propname": ":zeitraum",
+                 "gui_order": 5,
+                "cardinality": "1"
+              },
+              {
+                "propname": ":bildungssystematik",
+                "gui_order": 6,
+                "cardinality": "1"
+              },
+              {
+                "propname": ":traegerschaft",
+                "gui_order": 7,
+                "cardinality": "0-1"
+              },
+              {
+                "propname": ":summe",
+                "cardinality": "1",
+                "gui_order": 8
+              },
+              {
+                "propname": ":maennlich",
+                "gui_order": 9,
+                "cardinality": "1"
+              },
+              {
+                "propname": ":weiblich",
+                "gui_order": 10,
+                "cardinality": "1"
+              },
+              {
+                "propname": ":sprachregion",
+                "gui_order": 11,
+                "cardinality": "1"
+              },
+              {
+                "propname": ":anstellungsstatus",
+                "gui_order": 12,
+                "cardinality": "1"
+              },
+              {
+                "propname": ":herkunft",
+                "gui_order": 13,
+                "cardinality": "1"
+              },
+              {
+                "propname": ":klassenfuehrung",
+                "gui_order": 14,
+                "cardinality": "1"
+              },
+              {
+                "propname": ":absenztyp",
+                "gui_order": 15,
+                "cardinality": "1"
+              },
+              {
+                "propname": ":massnahmetyp",
+                "gui_order": 16,
+                "cardinality": "1"
+              },
+              {
+                "propname": ":quelle",
+                "gui_order": 17,
+                "cardinality": "0-n"
+              },
+              {
+                "propname": ":autor",
+                "gui_order": 18,
+                "cardinality": "0-n"
+              },
+              {
+                "propname": ":autor_aufbereitung",
+                "gui_order": 19,
+                "cardinality": "0-n"
+              },
+              {
+                "propname": ":projektleitung",
+                "gui_order": 20,
+                "cardinality": "0-n"
+              },
+              {
+                "propname": ":publikationsdatum",
+                "gui_order": 21,
+                "cardinality": "1"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

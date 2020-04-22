@@ -313,7 +313,9 @@ def program(args):
                 last_onto_date=last_onto_date,
                 class_iri=ontology["project"]["ontology"]["name"] + ':' + resource["name"],
                 prop_iri=ontology["project"]["ontology"]["name"] + ':' + prop["name"],
-                occurrence=prop["cardinality"]
+                occurrence=prop["cardinality"],
+                gui_order=int(prop["gui_order"]),
+
             )
             last_onto_date = result["last_onto_date"]
             if args.verbose is not None:

@@ -1,8 +1,8 @@
 import unittest
 import pprint
 
-from helpers import BaseError, Actions
-from langstring import Languages, LangStringParam, LangString
+from models.helpers import BaseError, Actions
+from models.langstring import Languages, LangStringParam, LangString
 
 
 class TestLangString(unittest.TestCase):

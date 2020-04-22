@@ -11,16 +11,16 @@ from pprint import pprint
 path = os.path.abspath(os.path.dirname(__file__))
 (head, tail)  = os.path.split(path)
 if not head in sys.path:
-    sys.path.append(head)
+    sys.path.insert(0, head)
 if not path in sys.path:
-    sys.path.append(path)
+    sys.path.insert(0, path)
 
-from helpers import Actions, BaseError
-from langstring import Languages
+from models.helpers import Actions, BaseError
+from models.langstring import Languages
 
-from connection import Connection
-from group import Group
-from project import Project
+from models.connection import Connection
+from models.group import Group
+from models.project import Project
 
 """
 This module implements the handling (CRUD) of Knora users.
@@ -142,9 +142,9 @@ class User:
     _status: bool
     _sysadmin: bool
     _in_groups: Set[str]
-    _in_projects: Dict[str,bool]
-    add_to_project: Dict[str,bool]
-    rm_from_project: Dict[str,bool]
+    _in_projects: Dict[str, bool]
+    add_to_project: Dict[str, bool]
+    rm_from_project: Dict[str, bool]
     add_to_group: Dict[str,bool]
     rm_from_group: Set[str]
     change_admin: Set[str]
@@ -160,7 +160,7 @@ class User:
                  lang: Optional[Union[str,Languages]] = None,
                  status: Optional[bool] = None,
                  sysadmin: Optional[bool] = None,
-                 in_projects: Optional[Dict[str,bool]] = None,
+                 in_projects: Optional[Dict[str, bool]] = None,
                  in_groups: Optional[Set[str]] = None):
         """
         Constructor for User
@@ -323,11 +323,11 @@ class User:
             self.changed.add('sysadmin')
 
     @property
-    def in_groups(self):
+    def in_groups(self) -> Set[str]:
         return self._in_groups
 
     @in_groups.setter
-    def in_project(self, value: Any):
+    def in_groups(self, value: Any):
         raise BaseError('Group membership cannot be modified directly! Use methods "addToGroup" and "rmFromGroup"')
 
     def addToGroup(self, value: str):
@@ -363,7 +363,7 @@ class User:
             raise BaseError("User is not in groups!")
 
     @property
-    def in_projects(self):
+    def in_projects(self) -> Dict[str, bool]:
         return self._in_projects
 
     @in_projects.setter
@@ -591,6 +591,8 @@ class User:
             result = self.con.get('/admin/users/iri/' + quote_plus(self._id))
         elif self._email is not None:
             result = self.con.get('/admin/users/email/' + quote_plus(self._email))
+        elif self._username is not None:
+            result = self.con.get('/admin/users/username/' + quote_plus(self._username))
         else:
             raise BaseError('Either user-id or email is required!')
         return User.fromJsonObj(self.con, result['user'])

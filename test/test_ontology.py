@@ -3,11 +3,10 @@ import pprint
 import requests
 from urllib.parse import quote_plus
 
-from connection import Connection
-from helpers import BaseError, Actions
-from langstring import Languages, LangStringParam, LangString
-
-from ontology import Ontology
+from models.connection import Connection
+from models.helpers import BaseError, Actions, LastModificationDate
+from models.langstring import Languages, LangStringParam, LangString
+from models.ontology import Ontology
 
 
 def erase_ontology(iri=None):
@@ -60,7 +59,7 @@ class TestOntology(unittest.TestCase):
         )
         self.assertEqual(onto.project, self.project)
         self.assertEqual(onto.label, self.label)
-        self.assertEqual(onto.lastModificationDate, "2017-12-19T15:23:42.166Z")
+        self.assertEqual(onto.lastModificationDate, LastModificationDate("2017-12-19T15:23:42.166Z"))
 
     def test_read(self):
         con = Connection('http://0.0.0.0:3333')
@@ -68,12 +67,11 @@ class TestOntology(unittest.TestCase):
             con=con,
             id='http://0.0.0.0:3333/ontology/0001/anything/v2'
         ).read()
+        onto.print()
         self.assertEqual(onto.id, "http://0.0.0.0:3333/ontology/0001/anything/v2")
         self.assertEqual(onto.project, "http://rdfh.ch/projects/0001")
         self.assertEqual(onto.label, "The anything ontology")
         self.assertIsNotNone(onto.lastModificationDate)
-        onto.print()
-        self.assertTrue(False)
 
     def test_create(self):
         onto = self.createTestOntology()
@@ -89,15 +87,16 @@ class TestOntology(unittest.TestCase):
 
     def test_delete(self):
         onto = self.createTestOntology()
-        res = onto.delete()
+        res = onto.delete(onto.lastModificationDate)
         self.assertIsNotNone(res)
 
     def test_get_ontologies_of_project(self):
         con = Connection('http://0.0.0.0:3333')
         ontos = Ontology.getProjectOntologies(con, self.project)
-        self.assertEqual(len(ontos), 2)
-        self.assertEqual(ontos[0].id, 'http://0.0.0.0:3333/ontology/0001/anything/v2')
-        self.assertEqual(ontos[1].id, 'http://0.0.0.0:3333/ontology/0001/pythontest/v2')
+        ontolist = list(map(lambda x: x.id, ontos))
+        self.assertIn('http://0.0.0.0:3333/ontology/0001/anything/v2', ontolist)
+        self.assertIn('http://0.0.0.0:3333/ontology/0001/minimal/v2', ontolist)
+        self.assertIn('http://0.0.0.0:3333/ontology/0001/something/v2', ontolist)
 
 
 if __name__ == '__main__':

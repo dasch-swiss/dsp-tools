@@ -9,14 +9,15 @@ from pprint import pprint
 path = os.path.abspath(os.path.dirname(__file__))
 (head, tail)  = os.path.split(path)
 if not head in sys.path:
-    sys.path.append(head)
+    sys.path.insert(0, head)
 if not path in sys.path:
-    sys.path.append(path)
+    sys.path.insert(0, path)
 
-from helpers import Actions, BaseError, Context
-#from langstring import Languages, LangStringParam, LangString
-from connection import Connection
-from resourceclass import ResourceClass, HasProperty
+from models.helpers import Actions, BaseError, Context, LastModificationDate
+from models.connection import Connection
+from models.resourceclass import ResourceClass, HasProperty
+from models.propertyclass import PropertyClass
+from models.project import Project
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -34,29 +35,40 @@ class Ontology:
     _project: str
     _name: str
     _label: str
-    _lastModificationDate: str
+    _lastModificationDate: LastModificationDate
     _resource_classes: List[ResourceClass]
+    _property_classes: List[PropertyClass]
     _context: Context
     changed: Set[str]
 
     def __init__(self,
                  con:  Connection,
                  id: Optional[str] = None,
-                 project: Optional[str] = None,
+                 project: Optional[Union[str, Project]] = None,
                  name: Optional[str] = None,
                  label: Optional[str] = None,
-                 lastModificationDate: Optional[str] = None,
+                 lastModificationDate: Optional[Union[str, LastModificationDate]] = None,
                  resource_classes: List[ResourceClass] = None,
+                 property_classes: List[PropertyClass] = None,
                  context: Context = None):
         if not isinstance(con, Connection):
             raise BaseError('"con"-parameter must be an instance of Connection')
         self.con = con
         self._id = id
-        self._project = project
+        if isinstance(project, Project):
+            self._project = project.id
+        else:
+            self._project = project
         self._name = name
         self._label = label
-        self._lastModificationDate = lastModificationDate
+        if lastModificationDate is None:
+            self._lastModificationDate = None
+        elif isinstance(lastModificationDate, LastModificationDate):
+            self._lastModificationDate = lastModificationDate
+        else:
+            self._lastModificationDate = LastModificationDate(lastModificationDate)
         self._resource_classes = resource_classes
+        self._property_classes = property_classes
         self._context = context if context is not None else Context()
         self.changed = set()
 
@@ -94,11 +106,11 @@ class Ontology:
         self.changed.add('label')
 
     @property
-    def lastModificationDate(self):
+    def lastModificationDate(self) -> LastModificationDate:
         return self._lastModificationDate
 
     @lastModificationDate.setter
-    def lastModificationDate(self, value: str):
+    def lastModificationDate(self, value: Union[str, LastModificationDate]):
         raise BaseError("An ontology's lastModificationDate cannot be modified!")
 
     @property
@@ -107,7 +119,29 @@ class Ontology:
 
     @resource_classes.setter
     def resource_classes(self, value: List[ResourceClass]):
-        raise BaseError('"resource_classes cannot be set!')
+        self._resource_classes = value
+
+    def addResourceClass(self, resclass: ResourceClass):
+        self._resource_classes.append(resclass)
+
+    @property
+    def property_classes(self):
+        return self._property_classes
+
+    @property_classes.setter
+    def property_classes(self, value: List[PropertyClass]):
+        self._property_classes = value
+
+    def addPropertyClass(self, propclass: PropertyClass):
+        self._proeprty_classes.append(propclass)
+
+    @property
+    def context(self):
+        return self._context
+
+    @context.setter
+    def context(self, value: Context):
+        raise BaseError('"Context" cannot be set!')
 
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any) -> Any:
@@ -122,6 +156,9 @@ class Ontology:
         # evaluate the JSON-LD context to get the proper prefixes
         #
         context = Context(json_obj.get('@context'))
+        tmps = json_obj['@id'].split('/')
+        context.addContext(tmps[-2], json_obj['@id'] + '#')
+
         rdf = context.prefixFromIri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
         rdfs = context.prefixFromIri("http://www.w3.org/2000/01/rdf-schema#")
         owl = context.prefixFromIri("http://www.w3.org/2002/07/owl#")
@@ -138,9 +175,13 @@ class Ontology:
         if json_obj[knora_api + ':attachedToProject'].get('@id') is None:
             raise BaseError('Ontology not attached to a project')
         project = json_obj[knora_api + ':attachedToProject']['@id']
-        last_modification_date = json_obj.get(knora_api + ':lastModificationDate')
-        if last_modification_date is None:
-            raise BaseError('Ontology has no lastModificationDate!')
+        tmp = json_obj.get(knora_api + ':lastModificationDate')
+        if tmp is not None:
+            last_modification_date = LastModificationDate(json_obj.get(knora_api + ':lastModificationDate'))
+        else:
+            last_modification_date = "1960-01-00T00:00:00.000000Z"
+        resource_classes = None
+        property_classes = None
         if json_obj.get('@graph') is not None:
             resclasses_obj = list(filter(lambda a: a.get(knora_api + ':isResourceClass') is not None, json_obj.get('@graph')))
             resource_classes = list(map(lambda a: ResourceClass.fromJsonObj(con=con,
@@ -148,15 +189,21 @@ class Ontology:
                                                                             json_obj=a), resclasses_obj))
             standoffclasses_obj = list(filter(lambda a: a.get(knora_api + ':isStandoffClass') is not None, json_obj.get('@graph')))
             # ToDo: parse standoff classes
-        else:
-            resource_classes = None
+
+            properties_obj = list(filter(lambda a: a.get(knora_api + ':isResourceProperty') is not None, json_obj.get('@graph')))
+            property_classes = list(map(lambda a: PropertyClass.fromJsonObj(con=con,
+                                                                            context=context,
+                                                                            json_obj=a), properties_obj))
         return cls(con=con,
                    id=id,
                    label=label,
                    project=project,
+                   name=this_onto,  # TODO: corresponds the prefix always to the ontology name?
                    lastModificationDate=last_modification_date,
                    resource_classes=resource_classes,
+                   property_classes=property_classes,
                    context=context)
+
 
     def toJsonObj(self, action: Actions) -> Any:
         rdf = self._context.prefixFromIri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
@@ -187,12 +234,7 @@ class Ontology:
                 tmp = {
                     '@id': self._id,
                     rdfs + ':label': self._label,
-                    # ToDo: Change to dateTimeStamp in version 12 of Knora API!!!
-                    #knora_api + ':lastModificationDate': {
-                    #    "@type": xsd + ":dateTimeStamp",
-                    #    "@value": self._lastModificationDate
-                    #},
-                    knora_api + ':lastModificationDate': self._lastModificationDate,
+                    knora_api + ':lastModificationDate': self._lastModificationDate.toJsonObj(),
                     "@context": self._context.toJsonObj()
                 }
         return tmp
@@ -216,8 +258,8 @@ class Ontology:
         result = self.con.get('/v2/ontologies/allentities/' + quote_plus(self._id))
         return Ontology.fromJsonObj(self.con, result)
 
-    def delete(self) -> Optional[str]:
-        result = self.con.delete('/v2/ontologies/' + quote_plus(self._id), params={'lastModificationDate': self._lastModificationDate})
+    def delete(self, last_modification_date: LastModificationDate) -> Optional[str]:
+        result = self.con.delete('/v2/ontologies/' + quote_plus(self._id), params={'lastModificationDate': str(last_modification_date)})
         return result.get('knora-api:result')
 
     @staticmethod
@@ -239,8 +281,13 @@ class Ontology:
         print('  Id:                   {}'.format(self._id))
         print('  Label:                {}'.format(self._label))
         print('  Project:              {}'.format(self._project))
-        print('  LastModificationDate: {}'.format(self._lastModificationDate))
+        print('  LastModificationDate: {}'.format(str(self._lastModificationDate)))
+        print('  Property Classes:')
+        if self._property_classes is not None:
+            for pc in self._property_classes:
+                pc.print(4)
         print('  Resource Classes:')
-        for rc in self._resource_classes:
-            rc.print(4)
+        if self._resource_classes is not None:
+            for rc in self._resource_classes:
+                rc.print(4)
 

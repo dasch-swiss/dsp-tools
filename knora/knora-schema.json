@@ -4,7 +4,6 @@
   "title": "knora-py JSON schema",
   "description": "JSON Schema for Knora ontologies",
 
-
   "definitions": {
     "label": {
       "type": "object",
@@ -38,18 +37,13 @@
 
     "groupdef": {
       "type": "string",
-      "oneOf": [
-        {
-          "enum": [
-            "ProjectAdmin",
-            "SystemAdmin"
-          ]
-        },
-        {
-          "pattern": "^([\\w-]*)?:([\\w ]+)$"
-        }
-      ],
+      "pattern": "^(([\\w-]*)?:([\\w ]+))|(SystemAdmin)$",
       "additionalProperties": false
+    },
+
+    "projectdef": {
+      "type": "string",
+      "pattern": "^([\\w-]*)?:(member|admin)$"
     },
 
     "user": {
@@ -78,10 +72,17 @@
           "items": {
             "$ref": "#/definitions/groupdef"
           }
+        },
+        "projects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/projectdef"
+          }
         }
       },
       "required": ["username", "email", "givenName", "familyName", "password"]
     },
+
     "group": {
       "type": "object",
       "properties": {
@@ -100,6 +101,7 @@
       },
       "required": ["name", "description"]
     },
+
     "node": {
       "type": "object",
       "properties": {
@@ -123,36 +125,14 @@
       "additionalProperties": false
     },
 
-    "resource": {
+    "ontology": {
       "type": "object",
       "properties": {
         "name": {
           "type": "string"
         },
-        "super": {
-          "type": "string",
-          "oneOf": [
-            {
-              "enum": [
-                "Resource",
-                "StillImageRepresentation",
-                "TextRepresentation",
-                "AudioRepresentation",
-                "DDDRepresentation",
-                "DocumentRepresentation",
-                "MovingImageRepresentation",
-                "Annotation",
-                "LinkObj",
-                "Region"
-              ]
-            },
-            {
-              "pattern": "^([\\w-]*)?:(\\w+)$"
-            }
-          ]
-        },
-        "labels": {
-          "$ref": "#/definitions/label"
+        "label": {
+          "type": "string"
         },
         "comments": {
           "$ref": "#/definitions/comment"
@@ -162,9 +142,15 @@
           "items": {
             "$ref": "#/definitions/property"
           }
+        },
+       "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/resource"
+          }
         }
       },
-      "required": ["name", "super", "labels", "properties"],
+      "required": ["name", "label", "properties", "resources"],
       "additionalProperties": false
     },
 
@@ -230,10 +216,7 @@
         "labels": {
           "$ref": "#/definitions/label"
         },
-        "cardinality": {
-          "type": "string",
-          "enum": ["1", "0-1", "1-n", "0-n"]
-        },
+
         "gui_element": {
           "type": "string",
           "enum": [
@@ -266,6 +249,70 @@
         }
       },
       "required": ["name", "object", "labels", "gui_element"],
+      "additionalProperties": false
+    },
+
+    "cardinality":{
+      "type": "object",
+      "properties": {
+        "propname": {
+          "type": "string",
+          "pattern": "^(([\\w-]*)?:([\\w ]+))$"
+        },
+        "cardinality": {
+          "type": "string",
+          "enum": ["1", "0-1", "1-n", "0-n"]
+        },
+        "gui_order": {
+          "type": "integer"
+        }
+      },
+      "required": ["propname", "cardinality", "gui_order"],
+      "additionalProperties": false
+    },
+
+    "resource": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "super": {
+          "type": "string",
+          "oneOf": [
+            {
+              "enum": [
+                "Resource",
+                "StillImageRepresentation",
+                "TextRepresentation",
+                "AudioRepresentation",
+                "DDDRepresentation",
+                "DocumentRepresentation",
+                "MovingImageRepresentation",
+                "Annotation",
+                "LinkObj",
+                "Region"
+              ]
+            },
+            {
+              "pattern": "^([\\w-]*)?:(\\w+)$"
+            }
+          ]
+        },
+        "labels": {
+          "$ref": "#/definitions/label"
+        },
+        "comments": {
+          "$ref": "#/definitions/comment"
+        },
+        "cardinalities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/cardinality"
+          }
+        }
+      },
+      "required": ["name", "super", "labels", "cardinalities"],
       "additionalProperties": false
     }
   },
@@ -322,30 +369,14 @@
           }
         },
 
-        "ontology": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "label": {
-              "type": "string"
-            },
-            "comments": {
-              "$ref": "#/definitions/comment"
-            },
-            "resources": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/resource"
-              }
-            }
-          },
-          "required": ["name", "label", "resources"],
-          "additionalProperties": false
+        "ontologies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ontology"
+          }
         }
       },
-      "required": ["shortcode", "shortname", "longname", "ontology", "keywords"],
+      "required": ["shortcode", "shortname", "longname", "ontologies", "keywords"],
       "additionalProperties": false
     }
   },

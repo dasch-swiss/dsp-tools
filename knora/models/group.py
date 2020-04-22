@@ -15,10 +15,10 @@ if not head in sys.path:
 if not path in sys.path:
     sys.path.append(path)
 
-from helpers import Actions, BaseError
-from langstring import Languages
-
-from connection import Connection
+from models.helpers import Actions, BaseError
+from models.langstring import Languages
+from models.connection import Connection
+from models.project import Project
 
 """
 This module implements the handling (CRUD) of Knora groups.
@@ -62,8 +62,9 @@ class Group:
     description : str
         A description of the group
 
-    project : str
-        IRI of a project [get only, cannot be modified after creation of instance]
+    project : str | project
+        either the IRI of a project [get only, cannot be modified after creation of instance]
+        or an valid Project instance
 
     selfjoin : boolean
         A flag indicating if selfjoin is allowed in this group
@@ -89,7 +90,7 @@ class Group:
                  id: Optional[str] = None,
                  name: Optional[str] = None,
                  description: Optional[str] = None,
-                 project: Optional[str] = None,
+                 project: Optional[Union[str, Project]] = None,
                  selfjoin: Optional[bool] = None,
                  status: Optional[bool] = None):
         if not isinstance(con, Connection):
@@ -98,7 +99,10 @@ class Group:
         self._id = str(id) if id is not None else None
         self._name = str(name) if name is not None else None
         self._description = description
-        self._project = str(project) if project is not None else None
+        if project is not None and isinstance(project, Project):
+            self._project = project.id
+        else:
+            self._project = str(project) if project is not None else None
         self._selfjoin = bool(selfjoin) if selfjoin is not None else None
         self._status = bool(status) if status is not None else None
         self.changed = set()
@@ -109,7 +113,7 @@ class Group:
 
     @id.setter
     def id(self, value: str) -> None:
-        raise BaseError('User id cannot be modified!')
+        raise BaseError('Group id cannot be modified!')
 
     @property
     def name(self) -> Optional[str]:
@@ -237,7 +241,7 @@ class Group:
         return Group.fromJsonObj(self.con, result['group'])
 
     @staticmethod
-    def getAllGroups(con: Connection):
+    def getAllGroups(con: Connection) -> List['Group']:
         result = con.get('/admin/groups')
         if 'groups' not in result:
             raise BaseError("Request got no groups!")

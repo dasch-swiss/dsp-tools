@@ -1018,7 +1018,7 @@ class Knora:
         :param super_props: List of super-properties
         :param labels: Dict with labels in the form { lang: labeltext }
         :param gui_element: Valid GUI-Element
-        :param gui_attributes: Valid GUI-Attributes (or None
+        :param gui_attributes: Valid GUI-Attributes (or None)
         :param subject: Full name (prefix:name) of subject resource class
         :param object: Full name (prefix:name) of object resource class
         :param comments: Dict with comments in the form { lang: commenttext }
@@ -1108,7 +1108,8 @@ class Knora:
         last_onto_date: str,
         class_iri: str,
         prop_iri: str,
-        occurrence: str
+        occurrence: str,
+        gui_order: Optional[int] = None
     ) -> Dict[str, str]:
         """Add a property with a given cardinality to a class
 
@@ -1118,6 +1119,7 @@ class Knora:
         :param class_iri: IRI of the class to which the property will be added
         :param prop_iri: IRI of the property that should be added
         :param occurrence: Occurrence: "1", "0-1", "0-n" or "1-n"
+        :param gui_order: Ordering of properties in GUI
         :return: Dict with "last_onto_date" key
         """
         switcher = {
@@ -1147,13 +1149,19 @@ class Knora:
             }],
             "@context": {
                 "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-                "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
                 "owl": "http://www.w3.org/2002/07/owl#",
                 "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
                 "xsd": "http://www.w3.org/2001/XMLSchema#",
+                "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
+                "salsah-gui": "http://api.knora.org/ontology/salsah-gui/v2#",
                 onto_name: onto_iri + "#"
             }
         }
+        if gui_order is not None:
+            cardinality['@graph'][0]["rdfs:subClassOf"]["salsah-gui:guiOrder"] = int(gui_order)
+
+
+
 
         jsondata = json.dumps(cardinality, indent=3, separators=(',', ': '))
 

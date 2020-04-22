@@ -3,10 +3,11 @@ import pprint
 import requests
 from urllib.parse import quote_plus
 
-from connection import Connection
-from group import Group
-from helpers import BaseError, Actions
-from langstring import Languages, LangStringParam, LangString
+from models.connection import Connection
+from models.group import Group
+from models.helpers import BaseError, Actions
+from models.langstring import Languages, LangStringParam, LangString
+from models.project import Project
 
 
 def erase_group(iri = None):
@@ -68,7 +69,7 @@ class TestGroup(unittest.TestCase):
         con.login('root@example.com', 'test')
 
         group = Group(con=con,
-                           id='http://rdfh.ch/groups/0001/thing-searcher').read()
+                      id='http://rdfh.ch/groups/0001/thing-searcher').read()
         self.assertEqual(group.name, 'Thing searcher')
         self.assertEqual(group.description, 'A group for thing searchers.')
         self.assertEqual(group.project, 'http://rdfh.ch/projects/0001')

@@ -11,14 +11,14 @@ from pprint import pprint
 path = os.path.abspath(os.path.dirname(__file__))
 (head, tail)  = os.path.split(path)
 if not head in sys.path:
-    sys.path.append(head)
+    sys.path.insert(0, head)
 if not path in sys.path:
-    sys.path.append(path)
+    sys.path.insert(0, path)
 
-from helpers import Actions, BaseError
-from langstring import Languages, LangStringParam, LangString
 
-from connection import Connection
+from models.helpers import Actions, BaseError
+from models.langstring import Languages, LangStringParam, LangString
+from models.connection import Connection, Error
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -153,7 +153,7 @@ class Project:
         """
 
         if not isinstance(con, Connection):
-            raise BaseError ('"con"-parameter must be an instance of Connection')
+           raise BaseError ('"con"-parameter must be an instance of Connection')
         self.con = con
         self._id = id
         self._shortcode = shortcode
@@ -247,9 +247,12 @@ class Project:
         return self._keywords
 
     @keywords.setter
-    def keywords(self, value: Set[str]):
+    def keywords(self, value: Union[List[str], Set[str]]):
         if isinstance(value, set):
-            self_.keywords = value
+            self._keywords = value
+            self.changed.add('keywords')
+        elif isinstance(value, list):
+            self._keywords = set(value)
             self.changed.add('keywords')
         else:
             raise BaseError('Must be a set of strings!')
@@ -433,8 +436,10 @@ class Project:
 
         :return: JSON-object from Knora
         """
-
-        result = self.con.get('/admin/projects/iri/' + quote_plus(self._id))
+        if self._id is not None:
+            result = self.con.get('/admin/projects/iri/' + quote_plus(self._id))
+        elif self._shortcode is not None:
+            result = self.con.get('/admin/projects/shortcode/' + quote_plus(self._shortcode))
         return Project.fromJsonObj(self.con, result['project'])
 
     def update(self) -> Union['Project', None]:
@@ -463,7 +468,7 @@ class Project:
         return Project.fromJsonObj(self.con, result['project'])
 
     @staticmethod
-    def getAllProjects(con: Connection) -> List[Any]:
+    def getAllProjects(con: Connection) -> List['Project']:
         """
         Get all existing projects in Knora
 

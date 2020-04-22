@@ -8,10 +8,10 @@ from enum import Enum, unique
 from urllib.parse import quote_plus
 from pprint import pprint
 
-from helpers import Actions, BaseError
-from langstring import Languages, LangStringParam, LangString
-from connection import Connection
-from project import Project
+from models.helpers import Actions, BaseError
+from models.langstring import Languages, LangStringParam, LangString
+from models.connection import Connection
+from models.project import Project
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -169,8 +169,6 @@ class ListNode:
 
         self._project = project.id if isinstance(project, Project) else str(project) if project is not None else None
         self._id = str(id) if id is not None else None
-        if not isinstance(label, LangString) and label is not None:
-            raise BaseError('Labels must be LangString instance or None!')
         self._label = LangString(label)
         self._comment = LangString(comment)
         self._name = str(name) if name is not None else None
@@ -391,6 +389,8 @@ class ListNode:
             tmp['labels'] = self._label.toJsonObj()
             if not self._comment.isEmpty():
                 tmp['comments'] = self._comment.toJsonObj()
+            else:
+                tmp['comments'] = []
             if self._name is not None:
                 tmp['name'] = self._name
             if self._parent is not None:
@@ -421,11 +421,9 @@ class ListNode:
         jsondata = json.dumps(jsonobj, cls=SetEncoder)
         if self._parent is not None:
             result = self.con.post('/admin/lists/'+ quote_plus(self._parent), jsondata)
-            pprint(result)
             return ListNode.fromJsonObj(self.con, result['nodeinfo'])
         else:
             result = self.con.post('/admin/lists', jsondata)
-            pprint(result)
             return ListNode.fromJsonObj(self.con, result['list']['listinfo'])
 
     def read(self) -> Any:

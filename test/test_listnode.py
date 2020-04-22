@@ -2,12 +2,12 @@ import unittest
 import pprint
 import requests
 
-from connection import Connection
-from helpers import BaseError, Actions
-from langstring import Languages, LangStringParam, LangString
+from models.connection import Connection
+from models.helpers import BaseError, Actions
+from models.langstring import Languages, LangStringParam, LangString
 
-from listnode import ListNode
-from project import Project
+from models.listnode import ListNode
+from models.project import Project
 
 
 class TestListNode(unittest.TestCase):

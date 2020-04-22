@@ -31,7 +31,7 @@ class Context:
 
     def __init__(self, context: Optional[Dict[str, str]] = None):
         if context is not None:
-            self._context = context
+            self._context = dict(map(lambda x: (x[0], x[1].strip()), context.items()))
         else:
             self._context = {
                 "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -57,11 +57,101 @@ class Context:
         self._rcontext[iri] = prefix
 
     def iriFromPrefix(self, prefix: str) -> Optional[str]:
-        return self._context.get(prefix)
+        if self._context.get(prefix) is not None:
+            return self._context.get(prefix)[:-1]
+        else:
+            return None
 
     def prefixFromIri(self, iri: str) -> Optional[str]:
+        if iri[-1] != '#':
+            iri = iri + '#'
         return self._rcontext.get(iri)
+
+    def getQualifiedIri(self, val: Optional[str]) -> Optional[str]:
+        if val is None:
+            return None
+        tmp = val.split('#')
+        if len(tmp) > 1:
+            return val
+        else:
+            return self.iriFromPrefix(tmp[0]) + '#' + tmp[1]
+
+    def getPrefixIri(self, val: Optional[str]) -> Optional[str]:
+        if val is None:
+            return None
+        tmp = val.split('#')
+        if len(tmp) > 1:
+            return self.prefixFromIri(tmp[0]) + ':' + tmp[1]
+        else:
+            return val
 
     def toJsonObj(self) -> Dict[str, str]:
         return self._context
 
+    def print(self):
+        for a in self._context.items():
+            print(a[0] + ': "' + a[1] + '"')
+
+
+class LastModificationDate:
+    _last_modification_date: str;
+
+    def __init__(self, val: Any):
+        if isinstance(val, str):
+            self._last_modification_date = val;
+        else:
+            if val.get("@type") is not None and val.get("@type") == "xsd:dateTimeStamp":
+                self._last_modification_date = val["@value"]
+            else:
+                raise BaseError("Invalid LastModificationDate")
+
+    def __eq__(self, other: Union[str, 'LastModificationDate']) -> bool:
+        if isinstance(other, str):
+            other = LastModificationDate(other)
+        return self._last_modification_date == other._last_modification_date
+
+    def __lt__(self, other: 'LastModificationDate') -> bool:
+        if isinstance(other, str):
+            other = LastModificationDate(other)
+        return self._last_modification_date < other._last_modification_date
+
+    def __le__(self, other: 'LastModificationDate') -> bool:
+        if isinstance(other, str):
+            other = LastModificationDate(other)
+        return self._last_modification_date <= other._last_modification_date
+
+    def __gt__(self, other: 'LastModificationDate') -> bool:
+        if isinstance(other, str):
+            other = LastModificationDate(other)
+        return self._last_modification_date > other._last_modification_date
+
+    def __ge__(self, other: 'LastModificationDate') -> bool:
+        if isinstance(other, str):
+            other = LastModificationDate(other)
+        return self._last_modification_date >= other._last_modification_date
+
+    def __ne__(self, other: 'LastModificationDate') -> bool:
+        if isinstance(other, str):
+            other = LastModificationDate(other)
+        return self._last_modification_date != other._last_modification_date
+
+    def __str__(self: 'LastModificationDate') -> Union[None, str]:
+        return self._last_modification_date
+
+    def toJsonObj(self):
+        return {
+            "@type": "xsd:dateTimeStamp",
+            "@value": self._last_modification_date
+        }
+
+
+class WithId:
+    _tmp: str = None
+
+    def __init__(self, obj: Optional[Dict[str, str]]):
+        if obj is None:
+            return
+        self._tmp = obj.get('@id')
+
+    def str(self) -> Optional[str]:
+        return self._tmp

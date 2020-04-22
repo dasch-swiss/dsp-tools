@@ -67,8 +67,8 @@ class HasProperty:
         return self._ontology_id
 
     @ontology_id.setter
-    def ontology_id(self, value: str) -> None:
-        raise BaseError('"ontology_id" cannot be modified!')
+    def ontology_id(self, value: Optional[str]) -> None:
+        self._ontology_id = value
 
     @property
     def property_id(self) -> Optional[str]:
@@ -79,13 +79,21 @@ class HasProperty:
         raise BaseError('"property_id" cannot be modified!')
 
     @property
+    def resclass_id(self) -> Optional[str]:
+        return self._resclass_id
+
+    @resclass_id.setter
+    def resclass_id(self, value: Optional[str]) -> None:
+        self._resclass_id = value
+
+    @property
     def cardinality(self) -> Optional[Cardinality]:
         return self._cardinality
 
-    @property_id.setter
-    def cardinality(self, value: Cardinality) -> None:
+    @cardinality.setter
+    def cardinality(self, value: Optional[Cardinality]) -> None:
         self._cardinality = value
-        self._changed.append('cardinality')
+        self._changed.add('cardinality')
 
     @classmethod
     def fromJsonObj(cls, con: Connection, context: Context, jsonld_obj: Any) -> Tuple[str, 'HasProperty']:
@@ -229,17 +237,13 @@ class HasProperty:
         jsondata = json.dumps(jsonobj, cls=SetEncoder)
         result = self.con.put('/v2/ontologies/cardinalities', jsondata)
         last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
+        # TODO: self._changed = str()
         return last_modification_date, ResourceClass.fromJsonObj(self.con, self._context, result['@graph'])
 
+
     def delete(self, last_modification_date: LastModificationDate) -> LastModificationDate:
-        tmp = self._property_id.split(':')
-        iri: str
-        if len(tmp) > 1:
-            iri = self._context.iriFromPrefix(tmp[0]) + '#' + tmp[1]
-        else:
-            iri = tmp[0]
-        result = self.con.delete('/v2/ontologies/cardinalities/' + quote_plus(iri) + '?lastModificationDate=' + str(last_modification_date))
-        return LastModificationDate(result['knora-api:lastModificationDate'])
+        raise BaseError("Cannot remove a single property from a class!")
+        # ToDo: Check with Ben if we could add this feature...
 
     def print(self, offset: int = 0):
         blank = ' '
@@ -432,23 +436,34 @@ class ResourceClass:
     def addProperty(self, property_id: str, cardinality: Cardinality, last_modification_date: LastModificationDate) -> Optional[LastModificationDate]:
         if self._has_properties.get(property_id) is None:
             latest_modification_date, resclass = HasProperty(con=self.con,
-                                                           context=self._context,
-                                                           ontology_id=self._ontology_id,
-                                                           property_id=property_id,
-                                                           resclass_id=self.id,
-                                                           cardinality=cardinality).create(last_modification_date)
+                                                             context=self._context,
+                                                             ontology_id=self._ontology_id,
+                                                             property_id=property_id,
+                                                             resclass_id=self.id,
+                                                             cardinality=cardinality).create(last_modification_date)
             hp = resclass.getProperty(property_id)
+            hp.ontology_id = self._context.iriFromPrefix(self._ontology_id)
+            hp.resclass_id = self.id
             self._has_properties[hp.property_id] = hp
             return latest_modification_date
         else:
-            return None
+            raise BaseError("Property already has cardinality in this class!")
 
-    def rmProperty(self, property_id: str, last_modification_date: LastModificationDate):
-        HasProperty(con=self.con,
-                    context=self._context,
-                    ontology_id=self._ontology_id,
-                    property_id=property_id,
-                    resclass_id=self.id).delete(last_modification_date)
+    def updateProperty(self, property_id: str, cardinality: Cardinality, last_modification_date: LastModificationDate) -> Optional[LastModificationDate]:
+        property_id = self._context.getPrefixIri(property_id)
+        if self._has_properties.get(property_id) is not None:
+            has_properties = self._has_properties[property_id]
+            onto_id = has_properties.ontology_id  # save for later user
+            rescl_id = has_properties.resclass_id  # save for later user
+            has_properties.cardinality = cardinality
+            latest_modification_date, resclass = has_properties.update(last_modification_date)
+            hp = resclass.getProperty(property_id)
+            hp.ontology_id = self._context.iriFromPrefix(onto_id)  # restore value
+            hp.resclass_id = rescl_id  # restore value
+            self._has_properties[hp.property_id] = hp
+            return latest_modification_date
+        else:
+            return last_modification_date
 
     @classmethod
     def fromJsonObj(cls, con: Connection, context: Context, json_obj: Any) -> Any:

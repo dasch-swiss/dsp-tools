@@ -6,12 +6,12 @@ from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
 from pprint import pprint
 
-path = os.path.abspath(os.path.dirname(__file__))
-(head, tail)  = os.path.split(path)
-if not head in sys.path:
-    sys.path.insert(0, head)
-if not path in sys.path:
-    sys.path.insert(0, path)
+#path = os.path.abspath(os.path.dirname(__file__))
+#(head, tail)  = os.path.split(path)
+#if not head in sys.path:
+#    sys.path.insert(0, head)
+#if not path in sys.path:
+#    sys.path.insert(0, path)
 
 from models.helpers import Actions, BaseError, Context, LastModificationDate
 from models.connection import Connection

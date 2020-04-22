@@ -194,7 +194,6 @@ class PropertyClass:
                 raise BaseError('Not a valid LangString')
         self._changed.add('label')
 
-
     def addLabel(self, lang: Union[Languages, str], value: str) -> None:
         self._label[lang] = value
         self._changed.add('label')

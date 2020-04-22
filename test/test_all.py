@@ -96,7 +96,15 @@ class TestAllClass(unittest.TestCase):
         # Create HasProperty (cardinality)
         #
         self.last_modification_date = resclass.addProperty(propclass.id, Cardinality.C_1, self.last_modification_date)
-        resclass.print()
+        self.assertEqual(resclass.getProperty(propclass.id).cardinality, Cardinality.C_1)
+        self.assertIsNotNone(self.last_modification_date)
+
+        #
+        # Modify HasProperty (cardinality)
+        #
+        self.last_modification_date = resclass.updateProperty(propclass.id, Cardinality.C_1_n, self.last_modification_date)
+        self.assertEqual(resclass.getProperty(propclass.id).cardinality, Cardinality.C_1_n)
+        self.assertIsNotNone(self.last_modification_date)
 
 
 if __name__ == '__main__':

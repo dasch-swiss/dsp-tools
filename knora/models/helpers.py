@@ -17,6 +17,7 @@ class Actions(Enum):
     Update = 3
     Delete = 4
 
+
 @unique
 class Cardinality(Enum):
     C_1 = "1",

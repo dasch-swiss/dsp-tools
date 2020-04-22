@@ -7,6 +7,7 @@ from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from enum import Enum, unique
 from urllib.parse import quote_plus
 
+
 class Error(Exception):
     """Handles errors happening in this file"""
 

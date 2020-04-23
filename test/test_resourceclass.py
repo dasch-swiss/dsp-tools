@@ -4,7 +4,7 @@ import requests
 from urllib.parse import quote_plus
 
 from models.connection import Connection
-from models.helpers import BaseError, Actions
+from models.helpers import BaseError, Actions, LastModificationDate
 from models.langstring import Languages, LangStringParam, LangString
 from models.ontology import Ontology
 from models.resourceclass import ResourceClass, HasProperty
@@ -17,8 +17,8 @@ class TestResourceClass(unittest.TestCase):
     onto_name = 'resclass-test'
     onto_label = 'resclass_test_ontology'
 
-    onto: str
-    last_modification_date: str
+    onto: Ontology
+    last_modification_date: LastModificationDate
 
     label = LangString({Languages.DE: 'MyResClassLabel'})
     comment = LangString({Languages.DE: 'This is a resource class for testing'})
@@ -34,15 +34,13 @@ class TestResourceClass(unittest.TestCase):
         #
         # Create a test ontology
         #
-        self.onto = Ontology(
+        self.last_modification_date, self.onto = Ontology(
             con=self.con,
             project=self.project,
             name=self.onto_name,
             label=self.onto_label,
         ).create()
         self.assertIsNotNone(self.onto.id)
-        self.last_modification_date = self.onto.lastModificationDate
-        self.onto = self.onto.read()
 
     def tearDown(self):
         #
@@ -73,19 +71,8 @@ class TestResourceClass(unittest.TestCase):
         #
         # Again get ontology data
         #
-        self.onto = self.onto.read()
-        print('3) Last modification date: ', self.onto.lastModificationDate)
-        self.assertEqual(str(self.onto.lastModificationDate), str(self.last_modification_date))
-        self.last_modification_date = self.onto.lastModificationDate
-
         self.last_modification_date = resclass.delete(self.last_modification_date)
 
-        #
-        # Again get ontology data
-        #
-        self.onto = self.onto.read()
-        print('4) Last modification date: ', self.onto.lastModificationDate)
-        self.assertEqual(str(self.onto.lastModificationDate), str(self.last_modification_date))
 
     def test_ResourceClass_update(self):
         #

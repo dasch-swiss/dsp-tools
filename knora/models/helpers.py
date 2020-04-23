@@ -33,6 +33,8 @@ class Context:
     def __init__(self, context: Optional[Dict[str, str]] = None):
         if context is not None:
             self._context = dict(map(lambda x: (x[0], x[1].strip()), context.items()))
+            if "salsah-gui" not in self._context:
+                self._context["salsah-gui"] = "http://api.knora.org/ontology/salsah-gui/v2#"
         else:
             self._context = {
                 "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -54,6 +56,8 @@ class Context:
             self._context = value
 
     def addContext(self, prefix: str, iri: str):
+        if iri[-1] != '#':
+            iri = iri + '#'
         self._context[prefix] = iri
         self._rcontext[iri] = prefix
 
@@ -100,6 +104,8 @@ class LastModificationDate:
     def __init__(self, val: Any):
         if isinstance(val, str):
             self._last_modification_date = val;
+        elif isinstance(val, LastModificationDate):
+            self._last_modification_date = str(val)
         else:
             if val.get("@type") is not None and val.get("@type") == "xsd:dateTimeStamp":
                 self._last_modification_date = val["@value"]

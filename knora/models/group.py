@@ -8,13 +8,6 @@ from enum import Enum, unique
 from urllib.parse import quote_plus
 from pprint import pprint
 
-#path = os.path.abspath(os.path.dirname(__file__))
-#(head, tail)  = os.path.split(path)
-#if not head in sys.path:
-#    sys.path.append(head)
-#if not path in sys.path:
-#    sys.path.append(path)
-
 from models.helpers import Actions, BaseError
 from models.langstring import Languages
 from models.connection import Connection

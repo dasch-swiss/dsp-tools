@@ -3,7 +3,7 @@ import pprint
 import requests
 
 from models.connection import Connection
-from models.helpers import BaseError, Actions, Cardinality
+from models.helpers import BaseError, Actions, Cardinality, LastModificationDate
 from models.langstring import Languages, LangStringParam, LangString
 from models.ontology import Ontology
 from models.resourceclass import ResourceClass, HasProperty
@@ -26,10 +26,9 @@ class TestAllClass(unittest.TestCase):
 
     con: Connection
     onto: Ontology
-    last_modification_date: str
+    last_modification_date: LastModificationDate
 
     def setUp(self) -> None:
-        print('setUp()')
         #
         # Connect to Knora
         #
@@ -39,15 +38,13 @@ class TestAllClass(unittest.TestCase):
         #
         # Create a test ontology
         #
-        self.onto = Ontology(
+        self.last_modification_date, self.onto = Ontology(
             con=self.con,
             project=self.project,
             name=self.onto_name,
             label=self.onto_label,
         ).create()
         self.assertIsNotNone(self.onto.id)
-        self.onto = self.onto.read()
-        self.last_modification_date = self.onto.lastModificationDate
 
     def tearDown(self):
         #

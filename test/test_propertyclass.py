@@ -5,7 +5,7 @@ from urllib.parse import quote_plus
 import time
 
 from models.connection import Connection
-from models.helpers import BaseError, Actions
+from models.helpers import BaseError, Actions, LastModificationDate
 from models.langstring import Languages, LangStringParam, LangString
 from models.ontology import Ontology
 from models.propertyclass import PropertyClass
@@ -16,8 +16,8 @@ class TestPropertyClass(unittest.TestCase):
     onto_name = 'propclass-test'
     onto_label = 'propclass_test_ontology'
 
-    onto: str
-    last_modification_date: str
+    onto: Ontology
+    last_modification_date: LastModificationDate
     con: Connection
 
     name = 'MyPropClassName'
@@ -36,15 +36,14 @@ class TestPropertyClass(unittest.TestCase):
         #
         # Create a test ontology
         #
-        self.onto = Ontology(
+        self.last_modification_date, self.onto = Ontology(
             con=self.con,
             project=self.project,
             name=self.onto_name,
             label=self.onto_label,
         ).create()
+        self.onto.context.print()
         self.assertIsNotNone(self.onto.id)
-        self.onto = self.onto.read()
-        self.last_modification_date = self.onto.lastModificationDate
 
     def tearDown(self):
         #
@@ -77,22 +76,16 @@ class TestPropertyClass(unittest.TestCase):
         #
         # Again get ontology data
         #
-        self.onto = self.onto.read()
-        self.assertEqual(str(self.onto.lastModificationDate), str(self.last_modification_date))
-        self.last_modification_date = self.onto.lastModificationDate
-
-
+        self.last_modification_date, self.onto = self.onto.read()
         self.last_modification_date = propclass.delete(self.last_modification_date)
 
         #
         # Again get ontology data
         #
-        self.onto = self.onto.read()
-        self.assertEqual(str(self.onto.lastModificationDate), str(self.last_modification_date))
+        self.last_modification_date, self.onto = self.onto.read()
 
     def test_PropertyClass_update(self):
-        self.onto = self.onto.read()
-        self.last_modification_date = self.onto.lastModificationDate
+        self.last_modification_date, self.onto = self.onto.read()
 
         #
         # create test resource class

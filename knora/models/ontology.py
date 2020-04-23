@@ -1,17 +1,11 @@
 import os
 import sys
 import json
+import copy
 from pystrict import strict
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
 from pprint import pprint
-
-#path = os.path.abspath(os.path.dirname(__file__))
-#(head, tail)  = os.path.split(path)
-#if not head in sys.path:
-#    sys.path.insert(0, head)
-#if not path in sys.path:
-#    sys.path.insert(0, path)
 
 from models.helpers import Actions, BaseError, Context, LastModificationDate
 from models.connection import Connection
@@ -28,6 +22,35 @@ class SetEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
+"""
+This model implements the handling of ontologies. It is to note that ResourceClasses, PropertyClasses
+as well as the assignment of PropertyCLasses to the ResourceClasses (with a given cardinality)
+is handeld in "cooperation" with the propertyclass.py (PropertyClass) and resourceclass.py (ResourceClass
+and HasProperty) modules.
+
+_Note_: All modifications to an onology
+
+CREATE:
+    * Instantiate a new object of the Ontology class with all required parameters
+    * Call the ``create``-method on the instance to create the ontology withing the backend
+
+READ:
+    * Instantiate a new object with ``id``(IRI of ontology) given
+    * Call the ``read``-method on the instance. Reading the ontology also reads all
+      associated PropertyClasses and ResourceClasses as well as the assignments.
+    * Access the information that has been provided to the instance
+
+UPDATE:
+    * You need an instance of an existing Ontology by reading an instance
+    * Change the attributes by assigning the new values
+    * Call the ``update```method on the instance
+
+DELETE
+    * Instantiate a new objects with ``id``(IRI of group) given, or use any instance that has the id set,
+      that is, that You've read before
+    * Call the ``delete``-method on the instance
+
+"""
 @strict
 class Ontology:
     con: Connection
@@ -144,7 +167,7 @@ class Ontology:
         raise BaseError('"Context" cannot be set!')
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: Any) -> Any:
+    def fromJsonObj(cls, con: Connection, json_obj: Any) -> Tuple[LastModificationDate, 'Ontology']:
         #
         # First let's get the ID (IRI) of the ontology
         #
@@ -179,7 +202,7 @@ class Ontology:
         if tmp is not None:
             last_modification_date = LastModificationDate(json_obj.get(knora_api + ':lastModificationDate'))
         else:
-            last_modification_date = "1960-01-00T00:00:00.000000Z"
+            last_modification_date = None
         resource_classes = None
         property_classes = None
         if json_obj.get('@graph') is not None:
@@ -194,18 +217,58 @@ class Ontology:
             property_classes = list(map(lambda a: PropertyClass.fromJsonObj(con=con,
                                                                             context=context,
                                                                             json_obj=a), properties_obj))
-        return cls(con=con,
-                   id=id,
-                   label=label,
-                   project=project,
-                   name=this_onto,  # TODO: corresponds the prefix always to the ontology name?
-                   lastModificationDate=last_modification_date,
-                   resource_classes=resource_classes,
-                   property_classes=property_classes,
-                   context=context)
+        return last_modification_date, cls(con=con,
+                                           id=id,
+                                           label=label,
+                                           project=project,
+                                           name=this_onto,  # TODO: corresponds the prefix always to the ontology name?
+                                           lastModificationDate=last_modification_date,
+                                           resource_classes=resource_classes,
+                                           property_classes=property_classes,
+                                           context=context)
 
+    @classmethod
+    def allOntologiesFromJsonObj(cls, con: Connection, json_obj: Any) -> Dict[str, 'Ontology']:
+        context = Context(json_obj.get('@context'))
+        rdf = context.prefixFromIri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+        rdfs = context.prefixFromIri("http://www.w3.org/2000/01/rdf-schema#")
+        owl = context.prefixFromIri("http://www.w3.org/2002/07/owl#")
+        xsd = context.prefixFromIri("http://www.w3.org/2001/XMLSchema#")
+        knora_api = context.prefixFromIri("http://api.knora.org/ontology/knora-api/v2#")
+        salsah_gui = context.prefixFromIri("http://api.knora.org/ontology/salsah-gui/v2#")
+        ontos: Dict[std, 'Ontology'] = {}
+        for o in json_obj['@graph']:
+            if o.get('@type') != owl + ':Ontology':
+                raise BaseError("Found something that is not an ontology!")
+            id = o.get('@id')
+            if id is None:
+                raise BaseError('Ontology id is missing')
+            if o.get(knora_api + ':attachedToProject') is None:
+                raise BaseError('Ontology not attached to a project (1)')
+            if o[knora_api + ':attachedToProject'].get('@id') is None:
+                raise BaseError('Ontology not attached to a project (2)')
+            project = o[knora_api + ':attachedToProject']['@id']
+            tmp = o.get(knora_api + ':lastModificationDate')
+            if tmp is not None:
+                last_modification_date = LastModificationDate(o.get(knora_api + ':lastModificationDate'))
+            else:
+                last_modification_date = None
+            label = o.get(rdfs + ':label')
+            if label is None:
+                raise BaseError('Ontology label is missing')
+            this_onto = id.split('/')[-2]
+            context2 = copy.deepcopy(context)
+            context2.addContext(this_onto, id)
+            onto = cls(con=con,
+                       id=id,
+                       label=label,
+                       name=this_onto,
+                       lastModificationDate=last_modification_date,
+                       context=context2)
+            ontos[id] = onto
+        return ontos
 
-    def toJsonObj(self, action: Actions) -> Any:
+    def toJsonObj(self, action: Actions, last_modification_date: Optional[LastModificationDate] = None) -> Any:
         rdf = self._context.prefixFromIri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
         rdfs = self._context.prefixFromIri("http://www.w3.org/2000/01/rdf-schema#")
         owl = self._context.prefixFromIri("http://www.w3.org/2002/07/owl#")
@@ -230,31 +293,34 @@ class Ontology:
                 "@context": self._context
             }
         elif action == Actions.Update:
+            if last_modification_date is None:
+                raise BaseError("'last_modification_date' must be given!")
+            if isinstance(last_modification_date, str):
+                last_modification_date = LastModificationDate(last_modification_date)
+            elif not isinstance(last_modification_date, LastModificationDate):
+                raise BaseError("Must be string or LastModificationClass instance!")
             if self._label is not None and 'label' in self.changed:
                 tmp = {
                     '@id': self._id,
                     rdfs + ':label': self._label,
-                    knora_api + ':lastModificationDate': self._lastModificationDate.toJsonObj(),
+                    knora_api + ':lastModificationDate': last_modification_date.toJsonObj(),
                     "@context": self._context.toJsonObj()
                 }
         return tmp
 
-    def create(self) -> 'Ontology':
+    def create(self) -> Tuple[LastModificationDate, 'Ontology']:
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder)
         result = self.con.post('/v2/ontologies', jsondata)
         return Ontology.fromJsonObj(self.con, result)
 
-    def update(self) -> Union['Ontology', None]:
-        jsonobj = self.toJsonObj(Actions.Update)
-        if jsonobj:
-            jsondata = json.dumps(jsonobj, cls=SetEncoder)
-            result = self.con.put('/v2/ontologies/metadata', jsondata, 'application/ld+json')
-            return Ontology.fromJsonObj(self.con, result)
-        else:
-            return None
+    def update(self, last_modification_date: LastModificationDate) -> Tuple[LastModificationDate, 'Ontology']:
+        jsonobj = self.toJsonObj(Actions.Update, last_modification_date)
+        jsondata = json.dumps(jsonobj, cls=SetEncoder)
+        result = self.con.put('/v2/ontologies/metadata', jsondata, 'application/ld+json')
+        return Ontology.fromJsonObj(self.con, result)
 
-    def read(self) -> 'Ontology':
+    def read(self) -> Tuple[LastModificationDate, 'Ontology']:
         result = self.con.get('/v2/ontologies/allentities/' + quote_plus(self._id))
         return Ontology.fromJsonObj(self.con, result)
 
@@ -267,14 +333,7 @@ class Ontology:
         if project_id is None:
             raise BaseError('Project ID must be defined!')
         result = con.get('/v2/ontologies/metadata/' + quote_plus(project_id))
-        ontos = []
-        if '@graph' in result:  # multiple ontologies
-            ontos = list(map(lambda a: Ontology.fromJsonObj(con, a), result['@graph']))
-        elif '@id' in result:  # single ontology
-            ontos[Ontology.fromJsonObj(con, result)]
-        else:
-            raise BaseError('Something went wrong....!')
-        return ontos
+        return Ontology.allOntologiesFromJsonObj(con, result)
 
     def print(self) -> None:
         print('Ontology Info:')

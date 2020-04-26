@@ -6,7 +6,7 @@ import json
 from jsonschema import validate
 import sys
 
-from models.helpers import Actions, BaseError
+from models.helpers import Actions, BaseError, Context, Cardinality
 from models.langstring import Languages, LangStringParam, LangString
 from models.connection import Connection, Error
 from models.project import Project
@@ -14,6 +14,8 @@ from models.listnode import ListNode
 from models.group import Group
 from models.user import User
 from models.ontology import Ontology
+from models.propertyclass import PropertyClass
+from models.resourceclass import ResourceClass
 
 def program(args):
     #
@@ -266,6 +268,7 @@ def program(args):
                 try:
                     tmp_user.update()
                 except Error as err:
+                    pprint(tmp_user)
                     print("Updating user failed: " + err.message)
                     exit(103)
                 #
@@ -312,7 +315,7 @@ def program(args):
     #
     ontologies = datamodel["project"]["ontologies"]
     for ontology in ontologies:
-        newontology = Ontology(
+        last_modification_date, newontology = Ontology(
             con=con,
             project=project,
             label=ontology["label"],
@@ -324,8 +327,42 @@ def program(args):
         #
         # First we create the empty resource classes
         #
-        propclasses = datamodel["project"]["ontologies"]["properties"]
+        resclasses = ontology["resources"]
+        newresclasses: Dict[str, ResourceClass] = {}
+        for resclass in resclasses:
+            resname = resclass.get("name")
+            super_classes = resclass.get("super")
+            if isinstance(super_classes, str):
+                super_classes = [super_classes]
+            reslabel = LangString(resclass.get("labels"))
+            rescomment = resclass.get("comment")
+            if rescomment is not None:
+                rescomment = LangString(rescomment)
+            try:
+                last_modification_date, newresclass = ResourceClass(
+                    con=con,
+                    context=newontology.context,
+                    ontology_id=newontology.id,
+                    name=resname,
+                    superclasses=super_classes,
+                    label=reslabel,
+                    comment=rescomment
+                ).create(last_modification_date)
+            except Error as err:
+                print("Creating resource class failed: " + err.message)
+                exit(105)
+            newresclasses[newresclass.id] = newresclass
+            if args.verbose is not None:
+                newresclass.print()
+
+        #
+        # Then we create the property classes
+        #
+        propclasses = ontology["properties"]
+        newpropclasses: Dict[str, ResourceClass] = {}
         for propclass in propclasses:
+            propname = propclass.get("name")
+            proplabel = LangString(propclass.get("labels"))
             #
             # get the super-property/ies if defined. Valid forms are:
             #   - "prefix:superproperty" : fully qualified name of property in another ontology. The prefix has to
@@ -356,17 +393,62 @@ def program(args):
                 object = None
 
             if propclass.get("subject") is not None:
-                psubject = propclass["subject"]
+                subject = propclass["subject"]
             else:
-                psubject = ontology["project"]["ontology"]["name"] + ':' + resource["name"]
-            newpropclass = PropertyClass(
-                con=con,
-                context=context,
-                ontology=newontology,
-                superproperties=super_props,
-                object=object,
-                subject=
-            )
+                subject = None
+            gui_element = propclass.get("gui_element")
+            gui_attributes = propclass.get("gui_attributes")
+            if gui_attributes is not None and gui_attributes.get("hlist") is not None:
+                gui_attributes['hlist'] = "<" + listrootnodes[gui_attributes['hlist']]["id"] + ">"
+            propcomment = propclass.get("comment")
+            if propcomment is not None:
+                propcomment = LangString(propcomment)
+            else:
+                propcomment = "no comment given"
+            try:
+                last_modification_date, newpropclass = PropertyClass(
+                    con=con,
+                    context=newontology.context,
+                    label=proplabel,
+                    name=propname,
+                    ontology_id=newontology.id,
+                    superproperties=super_props,
+                    object=object,
+                    subject=subject,
+                    gui_element="salsah-gui:" + gui_element,
+                    gui_attributes=gui_attributes,
+                    comment=propcomment
+                ).create(last_modification_date)
+            except Error as err:
+                print("Creating property class failed: " + err.message)
+                exit(105)
+            newpropclasses[newpropclass.id] = newpropclass
+            if args.verbose is not None:
+                newpropclass.print()
+
+        #
+        # Add cardinalities
+        #
+        switcher = {
+            "1": Cardinality.C_1,
+            "0-1": Cardinality.C_0_1,
+            "0-n": Cardinality.C_0_n,
+            "1-n": Cardinality.C_1_n
+        }
+        for resclass in resclasses:
+            for cardinfo in resclass["cardinalities"]:
+                rc = newresclasses.get(newontology.id + '#' + resclass["name"])
+                cardinality = switcher[cardinfo["cardinality"]]
+                tmp = cardinfo["propname"].split(':')
+                if len(tmp) > 1:
+                    if tmp[0]:
+                        propid = cardinfo["propname"] # fully qualified name
+                    else:
+                        propid = newontology.name + ':' + tmp[1]
+                else:
+                    propid = "knora-api:" + cardinfo["propname"]
+                last_modification_date = rc.addProperty(propid, cardinality, last_modification_date)
+
 
 def list_creator(con: Connection, project: Project, parent_node: ListNode, nodes: List[dict]):
     nodelist = []

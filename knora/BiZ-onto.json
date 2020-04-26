@@ -281,11 +281,11 @@
     ],
     "users": [
       {
-        "username": "biz",
-        "email": "biz@test.org",
-        "givenName": "biz",
-        "familyName": "biz",
-        "password": "biz",
+        "username": "bizedit",
+        "email": "bizedit@test.org",
+        "givenName": "biz-given",
+        "familyName": "biz-family",
+        "password": "biz1234",
         "lang": "en",
         "groups": [":biz-editors"],
         "projects": [":admin","anything:member"]
@@ -303,10 +303,10 @@
               "de": "Schulcode"
             },
             "gui_element": "SimpleText",
-            "gui_attributes": [
-              "size=32",
-              "maxlength=128"
-            ]
+            "gui_attributes": {
+              "size": 32,
+              "maxlength": 128
+            }
           },
           {
             "name": "schulname",
@@ -315,10 +315,10 @@
               "de": "Name der Schule"
             },
             "gui_element": "SimpleText",
-            "gui_attributes": [
-              "size=32",
-              "maxlength=128"
-            ]
+            "gui_attributes": {
+              "size": 32,
+              "maxlength": 128
+            }
           },
           {
             "name": "bildungsgang",
@@ -327,9 +327,9 @@
               "de": "Bildungsgang"
             },
             "gui_element": "Pulldown",
-            "gui_attributes": [
-              "hlist=bildungsgang"
-            ]
+            "gui_attributes": {
+              "hlist": "bildungsgang"
+            }
           },
           {
             "name": "persname",
@@ -338,10 +338,10 @@
               "de": "Name"
             },
             "gui_element": "SimpleText",
-            "gui_attributes": [
-              "size=32",
-              "maxlength=128"
-            ]
+            "gui_attributes": {
+              "size": 32,
+              "maxlength": 128
+            }
           },
           {
             "name": "tabellencode",
@@ -350,13 +350,13 @@
               "de": "Tabellencode"
             },
             "gui_element": "SimpleText",
-            "gui_attributes": [
-              "size=32",
-              "maxlength=128"
-            ]
+            "gui_attributes": {
+              "size": 32,
+              "maxlength": 128
+            }
           },
           {
-            "name": "schule",
+            "name": "fuerschule",
             "super": [
               "hasLinkTo"
             ],
@@ -365,9 +365,9 @@
               "en": "Schule"
             },
             "gui_element": "Searchbox",
-            "gui_attributes": [
-              "numprops=1"
-            ]
+            "gui_attributes": {
+              "numprops": 1
+            }
           },
           {
             "name": "downloadlink",
@@ -376,10 +376,10 @@
               "de": "Download"
             },
             "gui_element": "SimpleText",
-            "gui_attributes": [
-              "size=32",
-              "maxlength=128"
-            ]
+            "gui_attributes": {
+              "size": 32,
+              "maxlength": 128
+            }
           },
           {
             "name": "raum",
@@ -388,9 +388,9 @@
               "de": "Raum"
             },
             "gui_element": "Pulldown",
-            "gui_attributes": [
-              "hlist=raum"
-            ]
+            "gui_attributes": {
+              "hlist": "raum"
+            }
           },
           {
             "name": "zeitraum",
@@ -407,9 +407,9 @@
               "de": "Bildungssystematik"
             },
             "gui_element": "Pulldown",
-            "gui_attributes": [
-              "hlist=bildungssystematiken"
-            ]
+            "gui_attributes": {
+              "hlist": "bildungssystematiken"
+            }
           },
           {
             "name": "traegerschaft",
@@ -418,9 +418,9 @@
               "de": "Trägerschaft"
             },
             "gui_element": "Pulldown",
-            "gui_attributes": [
-              "hlist=traegerschaft"
-            ]
+            "gui_attributes": {
+              "hlist": "traegerschaft"
+            }
           },
           {
             "name": "summe",
@@ -501,10 +501,10 @@
               "de": "Quelle"
             },
             "gui_element": "SimpleText",
-            "gui_attributes": [
-              "size=64",
-              "maxlength=128"
-            ]
+            "gui_attributes": {
+              "size": 64,
+              "maxlength": 128
+            }
           },
           {
             "name": "autor",
@@ -516,9 +516,9 @@
               "de": "Autor"
             },
             "gui_element": "Searchbox",
-            "gui_attributes": [
-              "numprops=1"
-            ]
+            "gui_attributes": {
+              "numprops": 1
+            }
           },
           {
             "name": "autor_aufbereitung",
@@ -530,9 +530,9 @@
               "de": "Autor Aufbereitung"
             },
             "gui_element": "Searchbox",
-            "gui_attributes": [
-              "numprops=1"
-            ]
+            "gui_attributes": {
+              "numprops": 1
+            }
           },
           {
             "name": "projektleitung",
@@ -544,9 +544,9 @@
               "de": "Projektleitung"
             },
             "gui_element": "Searchbox",
-            "gui_attributes": [
-              "numprops=1"
-            ]
+            "gui_attributes": {
+              "numprops": 1
+            }
           },
           {
             "name": "publikationsdatum",
@@ -609,7 +609,7 @@
                 "cardinality": "1"
               },
               {
-                "propname": ":schule",
+                "propname": ":fuerschule",
                 "gui_order": 2,
                 "cardinality": "1"
               },

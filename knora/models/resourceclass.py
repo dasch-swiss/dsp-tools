@@ -540,7 +540,8 @@ class ResourceClass:
                 superclasses = [{"@id": "knora-api:Resource"}]
             else:
                 superclasses = list(map(resolve_resref, self._superclasses))
-
+            if self._comment is None or self._comment.isEmpty():
+                self._comment = LangString("no comment vailable")
             tmp = {
                 "@id": ontid,  # self._ontology_id,
                 "@type": "owl:Ontology",

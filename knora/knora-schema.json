@@ -238,12 +238,48 @@
             "Fileupload"
           ]
         },
+
         "gui_attributes": {
-          "type": "array",
-          "items": {
-            "type": "string"
+          "type": "object",
+          "properties": {
+            "size": {
+              "type": "integer"
+            },
+            "maxsize": {
+              "type": "integer"
+            },
+            "hlist": {
+              "type": "string"
+            },
+            "numprops": {
+              "type": "integer"
+            },
+            "ncolors": {
+              "type": "integer"
+            },
+            "cols": {
+              "type": "integer"
+            },
+            "rows": {
+              "type": "integer"
+            },
+            "width": {
+              "type": "string",
+              "pattern": "^%[0-9]*$"
+            },
+            "wrap": {
+              "type": "string",
+              "enum": ["soft", "hard"]
+            },
+            "max": {
+              "type": "number"
+            },
+            "min": {
+              "type": "number"
+            }
           }
         },
+
         "comments": {
           "$ref": "#/definitions/comment"
         }

@@ -227,7 +227,6 @@ class LangString:
                 lstrs[Languages.IT] = o.get('value')
             else:
                 if o.get('value') is not None:
-                    print('PASSED A')
                     return cls(o.get('value'))
         return cls(lstrs)
 

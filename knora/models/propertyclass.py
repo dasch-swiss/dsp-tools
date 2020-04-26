@@ -350,21 +350,23 @@ class PropertyClass:
                     "@id": propid,
                     "@type": "owl:ObjectProperty",
                     "rdfs:label": self._label.toJsonLdObj(),
-                    "rdfs:comment": self._comment.toJsonLdObj(),
                     "rdfs:subPropertyOf": superproperties
                 }],
                 "@context": self._context.toJsonObj()
             }
+            if self._comment is not None:
+                if not self._comment.isEmpty():
+                    tmp['@graph'][0]["rdfs:comment"] = self._comment.toJsonLdObj()
             if self._subject is not None:
                 tmp['@graph'][0]["knora-api:subjectType"] = resolve_propref(self._subject)
             if self._object is not None:
                 tmp['@graph'][0]["knora-api:objectType"] = resolve_propref(self._object)
             if self._gui_element is not None:
                 tmp['@graph'][0]["salsah-gui:guiElement"] = {
-                    "@id": self._subject
+                    "@id": self._gui_element
                 }
             if self._gui_attributes:
-                ga = list(map(lambda x: x[0] + '=' + x[1], self._gui_attributes.items()))
+                ga = list(map(lambda x: x[0] + '=' + str(x[1]), self._gui_attributes.items()))
                 tmp['@graph'][0]["salsah-gui:guiAttribute"] = ga
         elif action == Actions.Update:
             tmp = {

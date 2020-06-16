@@ -66,6 +66,121 @@
     "ontology": {
       "name": "kpt",
       "label": "Test ontology for knora-py",
+      "properties": [
+        {
+          "name": "mySimpleText",
+          "object": "TextValue",
+          "labels": {
+            "en": "Text-Property"
+          },
+          "gui_element": "SimpleText",
+          "gui_attributes": ["size=64", "maxlength=128"]
+        },
+        {
+          "name": "myRichText",
+          "object": "TextValue",
+          "labels": {
+            "en": "Richtext value"
+          },
+          "gui_element": "Richtext"
+        },
+        {
+          "name": "myColor",
+          "object": "ColorValue",
+          "labels": {
+            "en": "Color value"
+          },
+          "gui_element": "Colorpicker"
+        },
+        {
+          "name": "myDate",
+          "object": "DateValue",
+          "labels": {
+            "en": "Date value"
+          },
+          "gui_element": "Date"
+        },
+        {
+          "name": "myDecimal",
+          "object": "DecimalValue",
+          "labels": {
+            "en": "Decimal value"
+          },
+          "gui_element": "SimpleText",
+          "gui_attributes": ["size=16", "maxlength=16"]
+        },
+        {
+          "name": "myGeoname",
+          "object": "GeonameValue",
+          "labels": {
+            "en": "Geolocation"
+          },
+          "gui_element": "Geonames"
+        },
+        {
+          "name": "myList",
+          "object": "ListValue",
+          "labels": {
+            "en": "List value"
+          },
+          "gui_element": "Pulldown",
+          "gui_attributes": ["hlist=options"]
+        },
+        {
+          "name": "myInteger",
+          "object": "IntValue",
+          "labels": {
+            "en": "Integer value"
+          },
+          "gui_element": "Spinbox",
+          "gui_attributes": ["min=0", "max=9"]
+        },
+        {
+          "name": "myInterval",
+          "object": "IntervalValue",
+          "labels": {
+            "en": "Interval value"
+          },
+          "gui_element": "SimpleText",
+          "gui_attributes": ["size=32", "maxlength=32"]
+        },
+        {
+          "name": "myBoolean",
+          "object": "BooleanValue",
+          "labels": {
+            "en": "Boolean value"
+          },
+          "gui_element": "Checkbox"
+        },
+        {
+          "name": "myTitle",
+          "object": "TextValue",
+          "labels": {
+            "en": "Title"
+          },
+          "gui_element": "SimpleText",
+          "gui_attributes": ["size=32", "maxlength=32"]
+        },
+        {
+          "name": "myDescription",
+          "object": "TextValue",
+          "labels": {
+            "en": "Description",
+            "de": "Beschreibung"
+          },
+          "gui_element": "Richtext"
+        },
+        {
+          "name": "myLink",
+          "super": ["hasLinkTo"],
+          "object": ":MyObject",
+          "labels": {
+            "en": "Link to"
+          },
+          "gui_element": "Searchbox",
+          "gui_attributes": ["numprops=1"]
+        }
+      ],
       "resources": [
         {
           "name": "MyObject",
@@ -73,100 +188,55 @@
           "labels": {
             "en": "Object type 1"
           },
-          "properties": [
+          "cardinalities": [
             {
-              "name": "mySimpleText",
-              "object": "TextValue",
-              "labels": {
-                "en": "Text-Property"
-              },
-              "gui_element": "SimpleText",
-              "gui_attributes": ["size=64", "maxlength=128"],
+              "propname": "mySimpleText",
+              "gui_order": 1,
               "cardinality": "1-n"
             },
             {
-              "name": "myRichText",
-              "object": "TextValue",
-              "labels": {
-                "en": "Richtext value"
-              },
-              "gui_element": "Richtext",
+              "propname": "myRichText",
+              "gui_order": 2,
               "cardinality": "0-1"
             },
             {
-              "name": "myColor",
-              "object": "ColorValue",
-              "labels": {
-                "en": "Color value"
-              },
-              "gui_element": "Colorpicker",
+              "propname": "myColor",
+              "gui_order": 3,
               "cardinality": "0-1"
             },
             {
-              "name": "myDate",
-              "object": "DateValue",
-              "labels": {
-                "en": "Date value"
-              },
-              "gui_element": "Date",
+              "propname": "myDate",
+              "gui_order": 4,
               "cardinality": "1-n"
             },
             {
-              "name": "myDecimal",
-              "object": "DecimalValue",
-              "labels": {
-                "en": "Decimal value"
-              },
-              "gui_element": "SimpleText",
-              "gui_attributes": ["size=16", "maxlength=16"],
+              "propname": "myDecimal",
+              "gui_order": 5,
               "cardinality": "0-1"
             },
             {
-              "name": "myGeoname",
-              "object": "GeonameValue",
-              "labels": {
-                "en": "Geolocation"
-              },
-              "gui_element": "Geonames",
+              "propname": "myGeoname",
+              "gui_order": 6,
               "cardinality": "0-1"
             },
             {
-              "name": "myList",
-              "object": "ListValue",
-              "labels": {
-                "en": "List value"
-              },
-              "gui_element": "Pulldown",
-              "gui_attributes": ["hlist=options"],
+              "propname": "myList",
+              "gui_order": 7,
               "cardinality": "0-1"
             },
             {
               "name": "myInteger",
-              "object": "IntValue",
-              "labels": {
-                "en": "Integer value"
-              },
-              "gui_element": "Spinbox",
-              "gui_attributes": ["min=0", "max=9"],
+              "gui_order": 8,
               "cardinality": "0-1"
             },
             {
               "name": "myInterval",
-              "object": "IntervalValue",
-              "labels": {
-                "en": "Interval value"
-              },
-              "gui_element": "SimpleText",
-              "gui_attributes": ["size=32", "maxlength=32"],
+              "gui_order": 9,
               "cardinality": "0-1"
             },
             {
               "name": "myBoolean",
-              "object": "BooleanValue",
-              "labels": {
-                "en": "Boolean value"
-              },
-              "gui_element": "Checkbox",
+              "gui_order": 10,
               "cardinality": "0-1"
             }
           ]
@@ -177,36 +247,20 @@
           "labels": {
             "en": "Object type 2 (with image and link)"
           },
-          "properties": [
+          "cardinalities": [
             {
-              "name": "myTitle",
-              "object": "TextValue",
-              "labels": {
-                "en": "Title"
-              },
-              "gui_element": "SimpleText",
-              "gui_attributes": ["size=32", "maxlength=32"],
+              "propname": "myTitle",
+              "gui_order": 1,
               "cardinality": "1"
             },
             {
-              "name": "myDescription",
-              "object": "TextValue",
-              "labels": {
-                "en": "Description",
-                "de": "Beschreibung"
-              },
-              "gui_element": "Richtext",
+              "propname": "myDescription",
+              "gui_order": 2,
               "cardinality": "0-n"
             },
             {
-              "name": "myLink",
-              "super": ["hasLinkTo"],
-              "object": ":MyObject",
-              "labels": {
-                "en": "Link to"
-              },
-              "gui_element": "Searchbox",
-              "gui_attributes": ["numprops=1"],
+              "propname": "myLink",
+              "gui_order": 3,
               "cardinality": "0-n"
             }
           ]

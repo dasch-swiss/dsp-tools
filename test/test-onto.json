@@ -60,10 +60,10 @@
         "familyName": "user",
         "password": "test",
         "lang": "en",
-        "groups": ["ProjectAdmin", ":MlsEditors"]
+        "groups": [":ProjectAdmin", ":MlsEditors"]
       }
     ],
-    "ontology": {
+    "ontologies": [ {
       "name": "kpt",
       "label": "Test ontology for knora-py",
       "properties": [
@@ -74,7 +74,10 @@
             "en": "Text-Property"
           },
           "gui_element": "SimpleText",
-          "gui_attributes": ["size=64", "maxlength=128"]
+          "gui_attributes": {
+            "size": 64,
+            "maxsize": 128
+          }
         },
         {
           "name": "myRichText",
@@ -107,7 +110,10 @@
             "en": "Decimal value"
           },
           "gui_element": "SimpleText",
-          "gui_attributes": ["size=16", "maxlength=16"]
+          "gui_attributes": {
+            "size": 16,
+            "maxlength": 16
+          }
         },
         {
           "name": "myGeoname",
@@ -124,7 +130,7 @@
             "en": "List value"
           },
           "gui_element": "Pulldown",
-          "gui_attributes": ["hlist=options"]
+          "gui_attributes":  { "hlist": "options" }
         },
         {
           "name": "myInteger",
@@ -133,7 +139,7 @@
             "en": "Integer value"
           },
           "gui_element": "Spinbox",
-          "gui_attributes": ["min=0", "max=9"]
+          "gui_attributes": { "min": 0, "max": 9 }
         },
         {
           "name": "myInterval",
@@ -142,7 +148,7 @@
             "en": "Interval value"
           },
           "gui_element": "SimpleText",
-          "gui_attributes": ["size=32", "maxlength=32"]
+          "gui_attributes": { "size": 32, "maxlength": 32 }
         },
         {
           "name": "myBoolean",
@@ -159,7 +165,7 @@
             "en": "Title"
           },
           "gui_element": "SimpleText",
-          "gui_attributes": ["size=32", "maxlength=32"]
+          "gui_attributes": { "size": 32, "maxsize": 32 }
         },
         {
           "name": "myDescription",
@@ -178,7 +184,7 @@
             "en": "Link to"
           },
           "gui_element": "Searchbox",
-          "gui_attributes": ["numprops=1"]
+          "gui_attributes": { "numprops": 1 }
         }
       ],
       "resources": [
@@ -190,52 +196,52 @@
           },
           "cardinalities": [
             {
-              "propname": "mySimpleText",
+              "propname": ":mySimpleText",
               "gui_order": 1,
               "cardinality": "1-n"
             },
             {
-              "propname": "myRichText",
+              "propname": ":myRichText",
               "gui_order": 2,
               "cardinality": "0-1"
             },
             {
-              "propname": "myColor",
+              "propname": ":myColor",
               "gui_order": 3,
               "cardinality": "0-1"
             },
             {
-              "propname": "myDate",
+              "propname": ":myDate",
               "gui_order": 4,
               "cardinality": "1-n"
             },
             {
-              "propname": "myDecimal",
+              "propname": ":myDecimal",
               "gui_order": 5,
               "cardinality": "0-1"
             },
             {
-              "propname": "myGeoname",
+              "propname": ":myGeoname",
               "gui_order": 6,
               "cardinality": "0-1"
             },
             {
-              "propname": "myList",
+              "propname": ":myList",
               "gui_order": 7,
               "cardinality": "0-1"
             },
             {
-              "name": "myInteger",
+              "propname": ":myInteger",
               "gui_order": 8,
               "cardinality": "0-1"
             },
             {
-              "name": "myInterval",
+              "propname": ":myInterval",
               "gui_order": 9,
               "cardinality": "0-1"
             },
             {
-              "name": "myBoolean",
+              "propname": ":myBoolean",
               "gui_order": 10,
               "cardinality": "0-1"
             }
@@ -249,17 +255,17 @@
           },
           "cardinalities": [
             {
-              "propname": "myTitle",
+              "propname": ":myTitle",
               "gui_order": 1,
               "cardinality": "1"
             },
             {
-              "propname": "myDescription",
+              "propname": ":myDescription",
               "gui_order": 2,
               "cardinality": "0-n"
             },
             {
-              "propname": "myLink",
+              "propname": ":myLink",
               "gui_order": 3,
               "cardinality": "0-n"
             }
@@ -267,5 +273,6 @@
         }
       ]
     }
+  ]
   }
 }

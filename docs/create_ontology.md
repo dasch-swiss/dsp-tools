@@ -141,6 +141,85 @@ Array of _ontology_-definitions. An ontology contains the definition of the data
     }
 ```
 
+### Properties
+
+Properties are the definitions of the data fields a resource class may or must have.
+The properties object has the following fields:
+
+- _name_: A name for the property
+- _super_: An array of properties this property derives from. A property has to be derived from at least one base property. The most generic base property Knora offers is _hasValue_. 
+  In addition the property may be a subproperty of properties defined in external ontologies. In this case the qualified name including the prefix has to be given.
+  The following base properties are definied by Knora:
+  - _hasValue_: This is the most generic base.
+  - _hasLinkTo_: This value represents a link to another resource. You have to indicate the
+    the "_object_" as a prefixed IRI that identifies the resource class this link points to.
+  - _hasColor_: Defines a color value (_ColorValue_)
+  - _hasComment_: Defines a "standard" comment
+  - _hasGeometry_: Defines a geometry value (a JSON describing a polygon, circle or rectangle), see _ColorValue_
+  - _isPartOf_: A special variant of _hasLinkTo_. It says that an instance of the given resource class
+    is an integral part of another resource class. E.g. a "page" is a prt of a "book".
+  - _isRegionOf_: A special variant of _hasLinkTo_. It means that the given resource class
+    is a "region" of another resource class. This is typically used to describe regions
+    of interest in images.
+  - _isAnnotationOf_: A special variant of _hasLinkTo_.  It denotes the given resource class
+    as an annotation to another resource class.
+  - _seqnum_: An integer that is used to define a sequence number in an ordered set of
+    instances.
+- _object_: The "object" defines the type of the value that the property will store.
+  The following object types are allowed:
+  - _TextValue_: Represents a text that may contain standoff markup
+  - _ColorValue_: A string in the form "#rrggbb" (standard web color format)
+  - _DateValue_: represents a date. It is a string having the format "_calendar":"start":"end"
+    - _calender_ is either _GREGORIAN_ or _JULIAN_
+    - _start_ has the form _yyyy_-_mm_-_dd_. If only the year is given, the precision
+      is to the year, of only the year and month are given, the precision is to a month.
+    - _end_ is optional if the date represents a clearely defined period or uncertainty.
+      In total, a DateValue has the following form: "GREGORIAN:1925:1927-03-22"
+      which means antime in between 1925 and the 22nd March 1927.
+  - _DecimalValue_: a number with decimal point
+  - _GeomValue_: Represents a geometrical shape as JSON.
+  - _GeonameValue_: Represents a location ID in geonames.org
+  - _IntValue_: Represents an integer value
+  - _BooleanValue_: Represents a Boolean ("true" or "false)
+  - _UriValue_: : Represents an URI
+  - _IntervalValue_: Represents a time-interval
+  - _ListValue_: Represents a node of a (possibly hierarchical) list
+- _subject_: The type to which this property is attached to. It has to be a prefixed Resource class.
+- _labels_: Language dependent, human readable names
+- _gui_element_: The gui_element is – strictly seen – not part of the data. It gives the
+  generic GUI a hint about how the property should be presented to the used. Each gui_element
+  may have associated gui_attributes which contain further hints.
+  There are the following gui_elements available:
+  - _Colorpicker_: The only GUI element for _ColorValue_. Let's You pick a color. It requires the attribute "ncolors=integer"
+  - _Date_: The only GUI element for _DateValue_. A date picker gui. No attributes
+  - _Geometry_: Not Yet Implemented.
+  - _Geonames_: The only GUI element for _GeonameValue_. Interfaces with geonames.org and allows to select a location
+  - _Interval_: Not Yet Implemented.
+  - _List_: A list of values. The Attribute "hlist=<list-iri>" is mandatory!
+  - _Pulldown_: A GUI element for _ListValue_. Pulldown for list values. Works also for hierarchical lists. The Attribute "hlist=<list-iri>" is mandatory!
+  - _Radio_: A GUI element for _ListValue_. A set of radio buttons. The Attribute "hlist=<list-iri>" is mandatory!
+  - _SimpleText_: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes "maxlength=integer" and "size=integer" are optional.
+  - _Textarea_: A GUI element for _TextValue_. Presents a multiline textentry box. Optional attributes are "cols=integer",  "rows=integer", "width=percent" and "wrap=soft|hard".
+  - _Richtext_: A GUI element for _TextValue_. Provides a richtext editor.
+  - _Searchbox_: Must be used with _hasLinkTo_ properties. Allows to search and enter a resource that the given resource should link to. The Attribute "numprops=integer"
+    indicates how many properties of the found resources should be indicated. It's mandatory!
+  - _Slider_: A GUI element for _DecimalValue_. Provides a slider to select a decimal value. The attributes "max=decimal" and "min=decimal" are mandatory!
+  - _Spinbox_: A GUI element for _IntegerValue_. A text field with and "up"- and "down"-button for increment/decrement. The attributes "max=decimal" and "min=decimal" are optional.
+  - _Checkbox_: A GUI element for _BooleanValue_. 
+  - _Fileupload_: not yet documented!
+- _gui_attributes_: See above. Depending on the _gui_element_, be none or a mix of:
+  - _size_: integer
+  - _maxsize_: integer
+  - _hlist_: string, IRI of the root list node
+  - _numprops_: integer
+  - _ncolors_: integer
+  - _cols_: integer
+  - _rows_: integer
+  - _width_: string with pattern `^%[0-9]*$`
+  - _wrap_: enum: [`soft`, `hard`]
+  - _max_: integer
+  - _min_: integer
+
 ### Resources
 The resource classes are the primary entities of the data model. A resource class
 is a template for the representation of a real object that is represented in
@@ -221,87 +300,6 @@ Example:
             }
           ]  
 ```
-
-
-
-### Properties
-
-Properties are the definitions of the data fields a resource class may or must have.
-The properties object has the following fields:
-
-- _name_: A name for the property
-- _super_: An array of properties this property derives from. A property has to be derived from at least one base property. The most generic base property Knora offers is _hasValue_. 
-  In addition the property may be a subproperty of properties defined in external ontologies. In this case the qualified name including the prefix has to be given.
-  The following base properties are definied by Knora:
-  - _hasValue_: This is the most generic base.
-  - _hasLinkTo_: This value represents a link to another resource. You have to indicate the
-    the "_object_" as a prefixed IRI that identifies the resource class this link points to.
-  - _hasColor_: Defines a color value (_ColorValue_)
-  - _hasComment_: Defines a "standard" comment
-  - _hasGeometry_: Defines a geometry value (a JSON describing a polygon, circle or rectangle), see _ColorValue_
-  - _isPartOf_: A special variant of _hasLinkTo_. It says that an instance of the given resource class
-    is an integral part of another resource class. E.g. a "page" is a prt of a "book".
-  - _isRegionOf_: A special variant of _hasLinkTo_. It means that the given resource class
-    is a "region" of another resource class. This is typically used to describe regions
-    of interest in images.
-  - _isAnnotationOf_: A special variant of _hasLinkTo_.  It denotes the given resource class
-    as an annotation to another resource class.
-  - _seqnum_: An integer that is used to define a sequence number in an ordered set of
-    instances.
-- _object_: The "object" defines the type of the value that the property will store.
-  The following object types are allowed:
-  - _TextValue_: Represents a text that may contain standoff markup
-  - _ColorValue_: A string in the form "#rrggbb" (standard web color format)
-  - _DateValue_: represents a date. It is a string having the format "_calendar":"start":"end"
-    - _calender_ is either _GREGORIAN_ or _JULIAN_
-    - _start_ has the form _yyyy_-_mm_-_dd_. If only the year is given, the precision
-      is to the year, of only the year and month are given, the precision is to a month.
-    - _end_ is optional if the date represents a clearely defined period or uncertainty.
-    In total, a DateValue has the following form: "GREGORIAN:1925:1927-03-22"
-    which means antime in between 1925 and the 22nd March 1927.
-  - _DecimalValue_: a number with decimal point
-  - _GeomValue_: Represents a geometrical shape as JSON.
-  - _GeonameValue_: Represents a location ID in geonames.org
-  - _IntValue_: Represents an integer value
-  - _BooleanValue_: Represents a Boolean ("true" or "false)
-  - _UriValue_: : Represents an URI
-  - _IntervalValue_: Represents a time-interval
-  - _ListValue_: Represents a node of a (possibly hierarchical) list
-- _subject_: The type to which this property is attached to. It has to be a prefixed Resource class.
-- _labels_: Language dependent, human readable names
-- _gui_element_: The gui_element is – strictly seen – not part of the data. It gives the
-  generic GUI a hint about how the property should be presented to the used. Each gui_element
-  may have associated gui_attributes which contain further hints.
-  There are the following gui_elements available:
-  - _Colorpicker_: The only GUI element for _ColorValue_. Let's You pick a color. It requires the attribute "ncolors=integer"
-  - _Date_: The only GUI element for _DateValue_. A date picker gui. No attributes
-  - _Geometry_: Not Yet Implemented.
-  - _Geonames_: The only GUI element for _GeonameValue_. Interfaces with geonames.org and allows to select a location
-  - _Interval_: Not Yet Implemented.
-  - _List_: A list of values. The Attribute "hlist=<list-iri>" is mandatory!
-  - _Pulldown_: A GUI element for _ListValue_. Pulldown for list values. Works also for hierarchical lists. The Attribute "hlist=<list-iri>" is mandatory!
-  - _Radio_: A GUI element for _ListValue_. A set of radio buttons. The Attribute "hlist=<list-iri>" is mandatory!
-  - _SimpleText_: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes "maxlength=integer" and "size=integer" are optional.
-  - _Textarea_: A GUI element for _TextValue_. Presents a multiline textentry box. Optional attributes are "cols=integer",  "rows=integer", "width=percent" and "wrap=soft|hard".
-  - _Richtext_: A GUI element for _TextValue_. Provides a richtext editor.
-  - _Searchbox_: Must be used with _hasLinkTo_ properties. Allows to search and enter a resource that the given resource should link to. The Attribute "numprops=integer"
-     indicates how many properties of the found resources should be indicated. It's mandatory!
-  - _Slider_: A GUI element for _DecimalValue_. Provides a slider to select a decimal value. The attributes "max=decimal" and "min=decimal" are mandatory!
-  - _Spinbox_: A GUI element for _IntegerValue_. A text field with and "up"- and "down"-button for increment/decrement. The attributes "max=decimal" and "min=decimal" are optional.
-  - _Checkbox_: A GUI element for _BooleanValue_. 
-  - _Fileupload_: not yet documented!
-- _gui_attributes_: See above. Depending on the _gui_element_, be none or a mix of:
-  - _size_: integer
-  - _maxsize_: integer
-  - _hlist_: string, IRI of the root list node
-  - _numprops_: integer
-  - _ncolors_: integer
-  - _cols_: integer
-  - _rows_: integer
-  - _width_: string with pattern `^%[0-9]*$`
-  - _wrap_: enum: [`soft`, `hard`]
-  - _max_: integer
-  - _min_: integer
 
 ### A complete example for a full ontology
 

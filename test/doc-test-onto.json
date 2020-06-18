@@ -1,158 +1,183 @@
 {
     "prefixes": {
-      "foaf": "http://xmlns.com/foaf/0.1/",
-      "dcterms": "http://purl.org/dc/terms/"
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "dcterms": "http://purl.org/dc/terms/"
     },
     "project": {
-      "shortcode": "0170",
-      "shortname": "teimp",
-      "longname": "Test Import",
-      "descriptions": {
-        "en": "This is a project for testing the creation of ontologies and data",
-        "de": "Dies ist ein Projekt, um die Erstellung von Ontologien und Datenimport zu testen"
-      },
-      "keywords": ["test", "import"],
-      "lists": [
-        {
-          "name": "orgtpye",
-          "labels": {
-            "de": "Roganisationsart",
-            "en": "Organization Type"
-          },
-          "nodes": [
-            {
-              "name": "business",
-              "labels": {
-                "en": "Commerce",
-                "de": "Handel"
-              },
-              "comments": {
-                "en": "no comment",
-                "de": "kein Kommentar"
-              },
-              "nodes": [
-                {
-                  "name": "transport",
-                  "labels": {
-                    "en": "Transportation",
-                    "de": "Transport"
-                  }
+        "shortcode": "0170",
+        "shortname": "teimp",
+        "longname": "Test Import",
+        "descriptions": {
+            "en": "This is a project for testing the creation of ontologies and data",
+            "de": "Dies ist ein Projekt, um die Erstellung von Ontologien und Datenimport zu testen"
+        },
+        "keywords": ["test", "import"],
+        "lists": [{
+            "name": "orgtpye",
+            "labels": {
+                "de": "Roganisationsart",
+                "en": "Organization Type"
+            },
+            "nodes": [{
+                    "name": "business",
+                    "labels": {
+                        "en": "Commerce",
+                        "de": "Handel"
+                    },
+                    "comments": {
+                        "en": "no comment",
+                        "de": "kein Kommentar"
+                    },
+                    "nodes": [{
+                            "name": "transport",
+                            "labels": {
+                                "en": "Transportation",
+                                "de": "Transport"
+                            }
+                        },
+                        {
+                            "name": "finances",
+                            "labels": {
+                                "en": "Finances",
+                                "de": "Finanzen"
+                            }
+                        }
+                    ]
                 },
                 {
-                  "name": "finances",
-                  "labels": {
-                    "en": "Finances",
-                    "de": "Finanzen"
-                  }
+                    "name": "society",
+                    "labels": {
+                        "en": "Society",
+                        "de": "Gesellschaft"
+                    }
                 }
-              ]
-            },
-            {
-              "name": "society",
-              "labels": {
-                "en": "Society",
-                "de": "Gesellschaft"
-              }
-            }
-          ]
-        }
-      ],
-      "ontology": {
-        "name": "teimp",
-        "label": "Test import ontology",
-        "resources": [
-          {
-            "name": "person",
-            "super": "Resource",
-            "labels": {
-              "en": "Person",
-              "de": "Person"
-            },
-            "comments": {
-              "en": "Represents a human being",
-              "de": "Repräsentiert eine Person/Menschen"
-            },
-            "properties": [
-              {
-                "name": "firstname",
-                "super": ["hasValue", "foaf:givenName"],
-                "object": "TextValue",
-                "labels": {
-                  "en": "Firstname",
-                  "de": "Vorname"
-                },
-                "gui_element": "SimpleText",
-                "gui_attributes": ["size=24", "maxlength=32"],
-                "cardinality": "1"
-              },
-              {
-                "name": "lastname",
-                "super": ["hasValue", "foaf:familyName"],
-                "object": "TextValue",
-                "labels": {
-                  "en": "Lastname",
-                  "de": "Nachname"
-                },
-                "gui_element": "SimpleText",
-                "gui_attributes": ["size=24", "maxlength=64"],
-                "cardinality": "1"
-              },
-              {
-                "name": "member",
-                "super": ["hasLinkTo"],
-                "object": "teimp:organization",
-                "labels": {
-                  "en": "member of",
-                  "de": "Mitglied von"
-                },
-                "gui_element": "Searchbox",
-                "cardinality": "0-n"
-              }
             ]
-          },
-          {
-            "name": "organization",
-            "super": "Resource",
-            "labels": {
-              "en": "Organization",
-              "de": "Organisation"
-            },
-            "comments": {
-              "en": "Denotes an organizational unit",
-              "de": "Eine Institution oder Trägerschaft"
-            },
-            "properties": [
-              {
-                "name": "name",
-                "super": ["hasValue"],
-                "object": "TextValue",
-                "labels": {
-                  "en": "Name",
-                  "de": "Name"
+        }],
+        "ontologies": [{
+            "name": "teimp",
+            "label": "Test import ontology",
+            "properties": [{
+                    "name": "firstname",
+                    "super": ["hasValue", "foaf:givenName"],
+                    "object": "TextValue",
+                    "labels": {
+                        "en": "Firstname",
+                        "de": "Vorname"
+                    },
+                    "gui_element": "SimpleText",
+                    "gui_attributes": {
+                        "size": 24,
+                        "maxlength": 32
+                    }
                 },
-                "gui_element": "SimpleText",
-                "gui_attributes": ["size=64", "maxlength=64"],
-                "cardinality": "1-n"
-              },
-              {
-                "name": "orgtype",
-                "super": ["hasValue"],
-                "object": "ListValue",
-                "labels": {
-                  "en": "Organizationtype",
-                  "de": "Organisationstyp"
+                {
+                    "name": "lastname",
+                    "super": ["hasValue", "foaf:familyName"],
+                    "object": "TextValue",
+                    "labels": {
+                        "en": "Lastname",
+                        "de": "Nachname"
+                    },
+                    "gui_element": "SimpleText",
+                    "gui_attributes": {
+                        "size": 24,
+                        "maxlength": 64
+                    }
                 },
-                "comments": {
-                  "en": "Type of organization",
-                  "de": "Art der Organisation"
+                {
+                    "name": "member",
+                    "super": ["hasLinkTo"],
+                    "object": "teimp:organization",
+                    "labels": {
+                        "en": "member of",
+                        "de": "Mitglied von"
+                    },
+                    "gui_element": "Searchbox"
                 },
-                "gui_element": "Pulldown",
-                "gui_attributes": ["hlist=orgtype"],
-                "cardinality": "1-n"
-              }
+                {
+                    "name": "name",
+                    "super": ["hasValue"],
+                    "object": "TextValue",
+                    "labels": {
+                        "en": "Name",
+                        "de": "Name"
+                    },
+                    "gui_element": "SimpleText",
+                    "gui_attributes": {
+                        "size": 64,
+                        "maxlength": 64
+                    }
+                },
+                {
+                    "name": "orgtype",
+                    "super": ["hasValue"],
+                    "object": "ListValue",
+                    "labels": {
+                        "en": "Organizationtype",
+                        "de": "Organisationstyp"
+                    },
+                    "comments": {
+                        "en": "Type of organization",
+                        "de": "Art der Organisation"
+                    },
+                    "gui_element": "Pulldown",
+                    "gui_attributes": {
+                        "hlist": "orgtype"
+                    }
+                }
+            ],
+            "resources": [{
+                    "name": "person",
+                    "super": "Resource",
+                    "labels": {
+                        "en": "Person",
+                        "de": "Person"
+                    },
+                    "comments": {
+                        "en": "Represents a human being",
+                        "de": "Repräsentiert eine Person/Menschen"
+                    },
+                    "cardinalities": [{
+                            "propname": ":firstname",
+                            "gui_order": 1,
+                            "cardinality": "1"
+                        },
+                        {
+                            "propname": ":lastname",
+                            "gui_order": 2,
+                            "cardinality": "1"
+                        },
+                        {
+                            "propname": ":member",
+                            "gui_order": 3,
+                            "cardinality": "0-n"
+                        }
+                    ]
+                },
+                {
+                    "name": "organization",
+                    "super": "Resource",
+                    "labels": {
+                        "en": "Organization",
+                        "de": "Organisation"
+                    },
+                    "comments": {
+                        "en": "Denotes an organizational unit",
+                        "de": "Eine Institution oder Trägerschaft"
+                    },
+                    "cardinalities": [{
+                            "propname": ":name",
+                            "gui_order": 1,
+                            "cardinality": "1-n"
+                        },
+                        {
+                            "propname": ":orgtype",
+                            "gui_order": 2,
+                            "cardinality": "1-n"
+                        }
+                    ]
+                }
             ]
-          }
-        ]
-      }
+        }]
     }
-  }
+}

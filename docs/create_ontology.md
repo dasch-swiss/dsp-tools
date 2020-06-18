@@ -11,7 +11,7 @@ connects to the Knora server and creates the data model.
 ```bash
 $ knora-create-ontology data_model_definition.json
 ```
-It supports the foloowing options:
+It supports the folowing options:
 
 - _"-s server" | "--server server"_: The URl of the Knora server [default: localhost:3333]
 - _"-u username" | "--user username"_: Username to log into Knora [default: root@example.com]
@@ -51,10 +51,10 @@ The project definitions requires
 - _keywords_: An array of keywords describing the project.
 - _lists_: The definition of flat or hierarchical list (thesauri, controlled vocabularies)
 - _users_: Array of user definitions that will be added
-- _ontology_: The definition of the data model (ontology)
+- _ontologies_: The definition of the data models (ontologies)
 
-This a project definition lokks like follows:
-  
+This a project definition looks like follows:
+
 ```json
 "project": {
    "shortcode": "0809",
@@ -67,7 +67,7 @@ This a project definition lokks like follows:
    "keywords": ["example", "senseless"],
    "lists": [],
    "users": [],
-   "ontology": {}
+   "ontologies": []
 }
 ```
 
@@ -125,17 +125,16 @@ This is an array of _user_-definitions. A user has the following elements:
 - _projadmin_: True, if the user should be a project administrator [optional, default: False]
 - _sysadmin_: True, if the user should be a system administrator [optional, default: False]
 
-### Ontology
+### Ontologies
 
-The _ontology_ object contains the definition of the data model. The ontology has
-the following elemens:
+Array of _ontology_-definitions. An ontology contains the definition of the data model. The ontology has the following elements:
 
 - _name_: The name of the ontology. This has to be a NCNAME conformant name that can be use as prefix!
 - _label_: Human readable and understandable name of the ontology
 - _resources_: Array defining the resources (entities) of the data model
 
 ```json
-    "ontology": {
+    {
       "name": "teimp",
       "label": "Test import ontology",
       "resources": []
@@ -175,7 +174,7 @@ A resource consists of the following definitions:
   has to have the form _prefix_:_resourceclassname_.
 - _labels_: Language dependent, human readable names
 - _comments_: Language dependend comments (optional)
-- _properties_: Array of property definition for this resource class.
+- _cardinalities_: Array of the properties for this resource class (see below)
 
 Example:
 
@@ -189,19 +188,50 @@ Example:
             "en": "Represents a human being",
             "de": "Repräsentiert eine Person/Menschen"
           },
-          "properties": […]
+          "cardinalities": […]
         }
 ```
 
+### Cardinalities
+
+List of cardinalities. A cardinality is a description of how to attach a property to a resource class, specifying:
+
+- _propname_: the name of the property, as described in the above list of properties
+- _cardinality_: The cardinality indicates how often a given property may occur. The possible values
+  are:
+  - "1": Exactly once (mandatory one value and only one)
+  - "0-1": The value may be omitted, but can occur only once
+  - "1-n": At least one value must be present. But multiple values may be present.
+  - "0-n": The value may be omitted, but may also occur multiple times.
+- _gui_order_: an integer specifying the rank of this property when displayed in a graphical user interface (gui)
+
+Example:
+
+```json
+          "cardinalities": [
+            {
+              "propname": ":mySimpleText",
+              "gui_order": 1,
+              "cardinality": "1-n"
+            },
+            {
+              "propname": ":myRichText",
+              "gui_order": 2,
+              "cardinality": "0-1"
+            }
+          ]  
+```
+
+
+
 ### Properties
-Properties are the definition of the data fields a resource class may or must have.
+
+Properties are the definitions of the data fields a resource class may or must have.
 The properties object has the following fields:
 
 - _name_: A name for the property
-- _super_: A property has to be derived from at least one base property. The most generic base property
-  Knora offers is _hasValue_. In addition the property may by als a subproperty of
-  properties defined in external ontologies. In this case the qualified name including
-  the prefix has to be given.
+- _super_: An array of properties this property derives from. A property has to be derived from at least one base property. The most generic base property Knora offers is _hasValue_. 
+  In addition the property may be a subproperty of properties defined in external ontologies. In this case the qualified name including the prefix has to be given.
   The following base properties are definied by Knora:
   - _hasValue_: This is the most generic base.
   - _hasLinkTo_: This value represents a link to another resource. You have to indicate the
@@ -237,6 +267,7 @@ The properties object has the following fields:
   - _UriValue_: : Represents an URI
   - _IntervalValue_: Represents a time-interval
   - _ListValue_: Represents a node of a (possibly hierarchical) list
+- _subject_: The type to which this property is attached to. It has to be a prefixed Resource class.
 - _labels_: Language dependent, human readable names
 - _gui_element_: The gui_element is – strictly seen – not part of the data. It gives the
   generic GUI a hint about how the property should be presented to the used. Each gui_element
@@ -259,13 +290,18 @@ The properties object has the following fields:
   - _Spinbox_: A GUI element for _IntegerValue_. A text field with and "up"- and "down"-button for increment/decrement. The attributes "max=decimal" and "min=decimal" are optional.
   - _Checkbox_: A GUI element for _BooleanValue_. 
   - _Fileupload_: not yet documented!
-- _gui_attributes_: See above
-- _cardinality_: The cardinality indicates how often a given property may occur. The possible values
-  are:
-  - "1": Exactly once (mandatory one value and only one)
-  - "0-1": The value may be omitted, but can occur only once
-  - "1-n": At least one value must be present. But multiple values may be present.
-  - "0-n": The value may be omitted, but may also occur multiple times.
+- _gui_attributes_: See above. Depending on the _gui_element_, be none or a mix of:
+  - _size_: integer
+  - _maxsize_: integer
+  - _hlist_: string, IRI of the root list node
+  - _numprops_: integer
+  - _ncolors_: integer
+  - _cols_: integer
+  - _rows_: integer
+  - _width_: string with pattern `^%[0-9]*$`
+  - _wrap_: enum: [`soft`, `hard`]
+  - _max_: integer
+  - _min_: integer
 
 ### A complete example for a full ontology
 

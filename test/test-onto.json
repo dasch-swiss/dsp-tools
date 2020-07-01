@@ -60,7 +60,7 @@
         "familyName": "user",
         "password": "test",
         "lang": "en",
-        "groups": [":ProjectAdmin", ":MlsEditors"]
+        "groups": ["knora-admin:ProjectAdmin", ":MlsEditors"]
       }
     ],
     "ontologies": [ {

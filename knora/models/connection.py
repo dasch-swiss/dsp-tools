@@ -127,20 +127,29 @@ class Connection:
         result = req.json()
         return result
 
-    def get(self, path: str):
+    def get(self, path: str, headers: Optional[Dict[str, str]] = None):
         """
         Get data from a server using a HTTP GET request
         :param path: Path of RESTful route
+        :param headers: ...
         :return: Response from server
         """
 
         if path[0] != '/':
             path = '/' + path
         if self.token is None:
-            req = requests.get(self.server + path)
+            if headers is None:
+                req = requests.get(self.server + path)
+            else:
+                req = requests.get(self.server + path, headers)
         else:
-            req = requests.get(self.server + path,
-                               headers={'Authorization': 'Bearer ' + self.token})
+            if headers is None:
+                req = requests.get(self.server + path,
+                                   headers={'Authorization': 'Bearer ' + self.token})
+            else:
+                headers['Authorization'] = 'Bearer ' + self.token
+                req = requests.get(self.server + path, headers)
+
         self.on_api_error(req)
         result = req.json()
         return result

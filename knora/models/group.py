@@ -38,7 +38,7 @@ DELETE
 @strict
 class Group:
     """
-    This class represents a Knota group
+    This class represents a Knora group
 
     Attributes
     ----------

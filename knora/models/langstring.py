@@ -242,3 +242,11 @@ class LangString:
     @property
     def langstrs(self):
         return self._langstrs
+
+    def createDefinitionFileObj(self) -> Union[str, Dict[str, str]]:
+        if self._simplestring is not None:
+            return self._simplestring
+        langstring = {}
+        for p in self.items():
+            langstring[p[0].value] = p[1]
+        return langstring

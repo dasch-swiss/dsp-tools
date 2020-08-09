@@ -608,6 +608,8 @@ class ResourceClass:
         result = self.con.delete('v2/ontologies/classes/' + quote_plus(self._id) + '?lastModificationDate=' + str(last_modification_date))
         return LastModificationDate(result['knora-api:lastModificationDate'])
 
+    def createDefinitionFileObj(self, context: Context):
+        pass
 
     def print(self, offset: int = 0):
         blank = ' '

@@ -422,6 +422,30 @@ class PropertyClass:
         result = self.con.delete('/v2/ontologies/properties/' + quote_plus(self._id) + '?lastModificationDate=' + str(last_modification_date))
         return LastModificationDate(result['knora-api:lastModificationDate'])
 
+    def createDefinitionFileObj(self, context: Context):
+        property = {
+            "name": self._name
+        }
+        if self._object is not None:
+            property["name"] = self._name
+        if self._superproperties is not None:
+            superprops = [];
+            for sc in self._superproperties:
+                superprops.append(sc)
+        if self._object is not None:
+            property["object"] = context.reduceIri(self._object)
+        if self._label is not None:
+            property["labels"] = self._label.createDefinitionFileObj()
+        if self._gui_element is not None:
+            property["gui_element"] = context.reduceIri(self._gui_element)
+        if self._gui_attributes is not None:
+            gui_elements = {}
+            for (attname, attvalue) in self._gui_attributes.items():
+                gui_elements[attname] = attvalue
+            property["gui_attributes"] = gui_elements
+        return property
+
+
     def print(self, offset: int = 0):
         blank = ' '
         print(f'{blank:>{offset}}Property Class Info')

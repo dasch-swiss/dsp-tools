@@ -1,5 +1,6 @@
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from enum import Enum, unique
+import re
 
 from pprint import pprint
 
@@ -52,27 +53,59 @@ class Context:
 
     @context.setter
     def context(self, value: Dict[str, str]):
+        """
+        Setter function for the context out of a dict in the form { prefix1 : iri1, prefix2, iri2, …}
+
+        :param value: Dictionary of context
+        :return: None
+        """
         if value is not None and isinstance(value, dict):
             self._context = value
 
     def addContext(self, prefix: str, iri: str):
+        """
+        Add a new context to a context instance
+
+        :param prefix: The prefix that should be used
+        :param iri: The IRI that belongs to this context prefix
+        :return: None
+        """
         if iri[-1] != '#':
             iri = iri + '#'
         self._context[prefix] = iri
         self._rcontext[iri] = prefix
 
     def iriFromPrefix(self, prefix: str) -> Optional[str]:
+        """
+        Returns the full IRI belonging to this prefix, without trailing "#"!
+
+        :param prefix: Prefix of the context entry
+        :return: The full IRI without trailing "#"
+        """
         if self._context.get(prefix) is not None:
             return self._context.get(prefix)[:-1]
         else:
             return None
 
     def prefixFromIri(self, iri: str) -> Optional[str]:
+        """
+        Get the IRI from a full context that hs or has not a a traling "#"
+
+        :param iri: The full IRI with or without trailing "#"
+        :return: the prefix of this context element
+        """
         if iri[-1] != '#':
             iri = iri + '#'
         return self._rcontext.get(iri)
 
     def getQualifiedIri(self, val: Optional[str]) -> Optional[str]:
+        """
+        We will return the full qualified IRI, if it is not yet a full qualified IRI. If
+        the IRI is already fully qualified, the we just return it.
+
+        :param val: The input IRI
+        :return: the fully qualified IRI
+        """
         if val is None:
             return None
         tmp = val.split('#')
@@ -82,6 +115,12 @@ class Context:
             return self.iriFromPrefix(tmp[0]) + '#' + tmp[1]
 
     def getPrefixIri(self, val: Optional[str]) -> Optional[str]:
+        """
+        We reduce a fully qualified IRI to a short one in the form "prefix:name"
+
+        :param val: Fully qualified IRI
+        :return: Return short from of IRI ("prefix:name")
+        """
         if val is None:
             return None
         tmp = val.split('#')
@@ -91,11 +130,43 @@ class Context:
             return val
 
     def toJsonObj(self) -> Dict[str, str]:
+        """
+        Return a python object that can be jsonfied...
+        :return: Object to be jsonfied
+        """
         return self._context
 
-    def print(self):
+    def print(self) -> None:
         for a in self._context.items():
             print(a[0] + ': "' + a[1] + '"')
+
+    def reduceIri(self, iristr: str, ontoname: Optional[str]) -> str:
+        """
+        Reduce an IRI to the form that is used within the definition json file. It expects
+        the context object to have entries (prefixes)  for all IRI's
+        - if it's an external IRI, it returns: "prefix:name"
+        - if it's in the same ontology, it returns ":name"
+        - if it's a system ontoloy ("knora-api" or "salsah-gui") it returns "name"
+        :param iristr:
+        :return:
+        """
+        rdf = self.prefixFromIri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+        rdfs = self.prefixFromIri("http://www.w3.org/2000/01/rdf-schema#")
+        owl = self.prefixFromIri("http://www.w3.org/2002/07/owl#")
+        xsd = self.prefixFromIri("http://www.w3.org/2001/XMLSchema#")
+        knora_api = self.prefixFromIri("http://api.knora.org/ontology/knora-api/v2#")
+        salsah_gui = self.prefixFromIri("http://api.knora.org/ontology/salsah-gui/v2#")
+
+        exp = re.compile('^http.*')  # It is already a fully IRI
+        if exp.match(iristr):
+            iristr = self.getPrefixIri(iristr)
+        tmp = iristr.split(':')
+        if tmp[0] == knora_api or tmp[0] == salsah_gui:
+            return tmp[1]
+        elif ontoname is not None and tmp[0] == ontoname:
+            pass
+        else:
+            return iristr
 
 
 class LastModificationDate:
@@ -162,3 +233,5 @@ class WithId:
 
     def str(self) -> Optional[str]:
         return self._tmp
+
+

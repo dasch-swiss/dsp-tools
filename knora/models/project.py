@@ -436,11 +436,17 @@ class Project:
 
         :return: JSON-object from Knora
         """
+        result = None
         if self._id is not None:
             result = self.con.get('/admin/projects/iri/' + quote_plus(self._id))
         elif self._shortcode is not None:
             result = self.con.get('/admin/projects/shortcode/' + quote_plus(self._shortcode))
-        return Project.fromJsonObj(self.con, result['project'])
+        elif self._shortname is not None:
+            result = self.con.get('/admin/projects/shortname/' + quote_plus(self._shortname))
+        if result is not None:
+            return Project.fromJsonObj(self.con, result['project'])
+        else:
+            return None
 
     def update(self) -> Union['Project', None]:
         """
@@ -479,6 +485,18 @@ class Project:
         if 'projects' not in result:
             raise BaseError("Request got no projects!")
         return list(map(lambda a: Project.fromJsonObj(con, a), result['projects']))
+
+    def createDefinitionFileObj(self):
+        project = {
+            "shortcode": self._shortcode,
+            "shortname": self._shortname,
+            "longname": self._longname,
+            "descriptions": self._description.createDefinitionFileObj(),
+            "keywords": []
+        }
+        for keyword in self._keywords:
+            project["keywords"].append(keyword)
+        return project
 
     def print(self):
         """

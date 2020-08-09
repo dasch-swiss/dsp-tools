@@ -236,7 +236,7 @@ class Ontology:
         xsd = context.prefixFromIri("http://www.w3.org/2001/XMLSchema#")
         knora_api = context.prefixFromIri("http://api.knora.org/ontology/knora-api/v2#")
         salsah_gui = context.prefixFromIri("http://api.knora.org/ontology/salsah-gui/v2#")
-        ontos: Dict[std, 'Ontology'] = {}
+        ontos: Dict[str, 'Ontology'] = {}
         for o in json_obj['@graph']:
             if o.get('@type') != owl + ':Ontology':
                 raise BaseError("Found something that is not an ontology!")
@@ -334,6 +334,21 @@ class Ontology:
             raise BaseError('Project ID must be defined!')
         result = con.get('/v2/ontologies/metadata/' + quote_plus(project_id))
         return Ontology.allOntologiesFromJsonObj(con, result)
+
+    @staticmethod
+    def getOntologyFromServer(con: Connection, shortcode: str, name: str):
+        result = con.get("/ontology/" + shortcode + "/" + name + "/v2")
+        return Ontology.fromJsonObj(con, result)
+
+    def createDefinitionFileObj(self):
+        ontology = {
+            "name": self._name,
+            "label": self._label,
+            "properties": []
+        }
+        for prop in self._property_classes:
+            ontology["properties"].append(prop.createDefinitionFileObj(self.context))
+        return ontology
 
     def print(self) -> None:
         print('Ontology Info:')

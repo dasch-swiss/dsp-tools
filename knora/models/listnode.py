@@ -164,7 +164,7 @@ class ListNode:
         """
 
         if not isinstance(con, Connection):
-            raise BaseError ('"con"-parameter must be an instance of Connection')
+            raise BaseError('"con"-parameter must be an instance of Connection')
         self.con = con
 
         self._project = project.id if isinstance(project, Project) else str(project) if project is not None else None
@@ -464,7 +464,7 @@ class ListNode:
 
     def getAllNodes(self):
         """
-        Get all nodes of the list. Mus be called from a ListNode instance that has at least set the
+        Get all nodes of the list. Must be called from a ListNode instance that has at least set the
         list iri!
 
         :return: Root node of list with recursive ListNodes ("children"-attributes)
@@ -494,6 +494,42 @@ class ListNode:
             raise BaseError("Request got no lists!")
         return list(map(lambda a: ListNode.fromJsonObj(con, a), result['lists']))
 
+    def _createDefinitionFileObj(self, children: List["ListNode"]):
+        """
+        Create an object that corresponds to the syntax of the input to "create_onto".
+        Node: This method must be used only internally (for recursion)!!
+
+        :param children: List of children nodes
+        :return: A python object that can be jsonfied to correspond to the syntax of the input to "create_onto".
+        """
+        listnodeobjs = []
+        for listnode in children:
+            listnodeobj = {
+                "name": listnode.name,
+                "label": listnode.label.createDefinitionFileObj(),
+            }
+            if not listnode.comment.isEmpty():
+                listnodeobj["comment"] = listnode.comment.createDefinitionFileObj()
+            if listnode.children:
+                listnodeobj["nodes"] = self._createDefinitionFileObj(listnode.children)
+            listnodeobjs.append(listnodeobj)
+        return listnodeobjs
+
+    def createDefinitionFileObj(self):
+        """
+        Create an object that corresponds to the syntax of the input to "create_onto".
+        :return: A python object that can be jsonfied to correspond to the syntax of the input to "create_onto".
+        """
+        self.print()
+        listnode = {
+            "name": self._name,
+            "label": self._label.createDefinitionFileObj(),
+        }
+        if not self._comment.isEmpty():
+            listnode["comment"] = self._comment.createDefinitionFileObj()
+        if self._children:
+            listnode["nodes"] = self._createDefinitionFileObj(self._children)
+        return listnode
 
     def print(self):
         """
@@ -507,13 +543,13 @@ class ListNode:
         print('  Project:   {}'.format(self._project))
         print('  Name:      {}'.format(self._name))
         print('  Label:     ')
-        if self._label is not None:
+        if self._label:
             for lbl in self._label.items():
                 print('             {}: {}'.format(lbl[0], lbl[1]))
         else:
             print('             None')
         print('  Comment:   ')
-        if self._comment is not None:
+        if self._comment.isEmpty():
             for lbl in self._comment.items():
                 print('             {}: {}'.format(lbl[0], lbl[1]))
         else:

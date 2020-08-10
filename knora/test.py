@@ -64,8 +64,6 @@ def program(args):
         exit(-1)
     project = project.read()
 
-    pprint(project.ontologies)
-
     projectobj = project.createDefinitionFileObj()
 
     #
@@ -78,17 +76,20 @@ def program(args):
         listobj.append(ll.createDefinitionFileObj())
     projectobj["lists"] = listobj
 
-    #mod_date, ontology = Ontology.getOntologyFromServer(con, "0807", "mls")
+    projectobj["ontologies"] = []
+    for ontology in project.ontologies:
+        oparts = ontology.split("/")
+        name = oparts[len(oparts) - 1]
+        shortcode = oparts[len(oparts) - 2]
+        lastmoddate, ontology = Ontology.getOntologyFromServer(con=con, shortcode=shortcode, name=name)
+        projectobj["ontologies"].append(ontology.createDefinitionFileObj())
 
-    #projectobj["ontologies"] = ontology.createDefinitionFileObj()
+    umbrella = {
+        "project": projectobj
+    }
 
     with open('data.json', 'w', encoding='utf8') as outfile:
-        json.dump(projectobj, outfile, indent=3, ensure_ascii=False)
-
-
-
-    #with open('data.json', 'w') as outfile:
-        #json.dump(gaga, outfile, indent=3)
+        json.dump(umbrella, outfile, indent=3, ensure_ascii=False)
 
 def main():
     program(sys.argv[1:])

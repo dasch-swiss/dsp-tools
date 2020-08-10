@@ -5,34 +5,34 @@
   "description": "JSON Schema for Knora ontologies",
 
   "definitions": {
-    "label": {
-      "type": "object",
-      "patternProperties": {
-        "^(en|de|fr|it)": {
+
+    "langstring": {
+      "anyOf": [
+        {
+          "type": "object",
+          "patternProperties": {
+            "^(en|de|fr|it)": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
           "type": "string"
         }
-      },
-      "additionalProperties": false
+      ]
+    },
+
+    "label": {
+      "$ref": "#/definitions/langstring"
     },
 
     "description": {
-      "type": "object",
-      "patternProperties": {
-        "^(en|de|fr|it)": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false
+      "$ref": "#/definitions/langstring"
     },
 
     "comment": {
-      "type": "object",
-      "patternProperties": {
-        "^(en|de|fr|it)": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false
+      "$ref": "#/definitions/langstring"
     },
 
     "groupdef": {
@@ -44,6 +44,35 @@
     "projectdef": {
       "type": "string",
       "pattern": "^([\\w-]*)?:(member|admin)$"
+    },
+
+    "resourcedef": {
+      "type": ["string", "array"],
+      "oneOf": [
+        {
+          "enum": [
+            "Resource",
+            "StillImageRepresentation",
+            "TextRepresentation",
+            "AudioRepresentation",
+            "DDDRepresentation",
+            "DocumentRepresentation",
+            "MovingImageRepresentation",
+            "Annotation",
+            "LinkObj",
+            "Region"
+          ]
+        },
+        {
+          "pattern": "^([\\w-]*)?:(\\w+)$"
+        },
+        {
+          "pattern": "^(http)(s)?://.*"
+        }
+      ],
+      "items": {
+        "$ref": "#/definitions/resourcedef"
+      }
     },
 
     "user": {
@@ -180,6 +209,9 @@
               },
               {
                 "pattern": "^([\\w-]+)?:(\\w+)$"
+              },
+              {
+                "pattern": "^(http)(s)?://.*"
               }
             ]
           }
@@ -265,7 +297,7 @@
             },
             "width": {
               "type": "string",
-              "pattern": "^%[0-9]*$"
+              "pattern": "^[0-9]*%$"
             },
             "wrap": {
               "type": "string",
@@ -303,7 +335,7 @@
           "type": "integer"
         }
       },
-      "required": ["propname", "cardinality", "gui_order"],
+      "required": ["propname", "cardinality"],
       "additionalProperties": false
     },
 
@@ -314,26 +346,7 @@
           "type": "string"
         },
         "super": {
-          "type": "string",
-          "oneOf": [
-            {
-              "enum": [
-                "Resource",
-                "StillImageRepresentation",
-                "TextRepresentation",
-                "AudioRepresentation",
-                "DDDRepresentation",
-                "DocumentRepresentation",
-                "MovingImageRepresentation",
-                "Annotation",
-                "LinkObj",
-                "Region"
-              ]
-            },
-            {
-              "pattern": "^([\\w-]*)?:(\\w+)$"
-            }
-          ]
+          "$ref": "#/definitions/resourcedef"
         },
         "labels": {
           "$ref": "#/definitions/label"

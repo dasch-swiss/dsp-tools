@@ -31,6 +31,7 @@ class HasProperty:
     _property_id: str
     _reclass_id: str
     _cardinality: Cardinality
+    _gui_order: int
     _is_inherited: bool
     _ptype: Ptype
     _changed: Set
@@ -42,6 +43,7 @@ class HasProperty:
                  property_id: Optional[str] = None,
                  resclass_id: Optional[str] = None,
                  cardinality: Optional[Cardinality] = None,
+                 gui_order: Optional[int] = None,
                  is_inherited: Optional[bool] = None,
                  ptype: Optional[Ptype] = None):
         if not isinstance(context, Context):
@@ -55,6 +57,7 @@ class HasProperty:
         self._property_id = property_id
         self._resclass_id = resclass_id
         self._cardinality = cardinality
+        self._gui_order = gui_order
         self._is_inherited = is_inherited
         self._ptype = ptype
         self._changed = set()
@@ -95,8 +98,21 @@ class HasProperty:
         self._cardinality = value
         self._changed.add('cardinality')
 
+    @property
+    def gui_order(self) -> Optional[int]:
+        return self._gui_order
+
+    @gui_order.setter
+    def gui_order(self, value: int) -> None:
+        self._gui_order = value
+
+    @property
+    def ptype(self) -> Ptype:
+        return self._ptype
+
     @classmethod
     def fromJsonObj(cls, con: Connection, context: Context, jsonld_obj: Any) -> Tuple[str, 'HasProperty']:
+        #pprint(jsonld_obj)
         if not isinstance(con, Connection):
             raise BaseError('"con"-parameter must be an instance of Connection')
         if not isinstance(context, Context):
@@ -157,11 +173,17 @@ class HasProperty:
             ptype = HasProperty.Ptype.other
             ontology_id = context.iriFromPrefix(pp[0])
         property_id = p
+
+        gui_order: int = None
+        if jsonld_obj.get(salsah_gui + ':guiOrder') is not None:
+            gui_order = jsonld_obj[salsah_gui + ':guiOrder']
+            print("++++++++++++++++++>", jsonld_obj[salsah_gui + ':guiOrder'])
         return property_id, cls(con=con,
                                 context=context,
                                 ontology_id=ontology_id,
                                 property_id=property_id,
                                 cardinality=cardinality,
+                                gui_order=gui_order,
                                 is_inherited=is_inherited,
                                 ptype=ptype)
 
@@ -240,10 +262,19 @@ class HasProperty:
         # TODO: self._changed = str()
         return last_modification_date, ResourceClass.fromJsonObj(self.con, self._context, result['@graph'])
 
-
     def delete(self, last_modification_date: LastModificationDate) -> LastModificationDate:
         raise BaseError("Cannot remove a single property from a class!")
         # ToDo: Check with Ben if we could add this feature...
+
+    def createDefinitionFileObj(self, context: Context, shortname: str):
+        context.print()
+        cardinality = {}
+        if self._ptype == HasProperty.Ptype.other:
+            cardinality["propname"] = context.reduceIri(self._property_id, shortname)
+            cardinality["cardinality"] = self._cardinality.value[0]
+            if self._gui_order:
+                cardinality["gui_order"] = self._gui_order
+        return cardinality
 
     def print(self, offset: int = 0):
         blank = ' '
@@ -608,8 +639,29 @@ class ResourceClass:
         result = self.con.delete('v2/ontologies/classes/' + quote_plus(self._id) + '?lastModificationDate=' + str(last_modification_date))
         return LastModificationDate(result['knora-api:lastModificationDate'])
 
-    def createDefinitionFileObj(self, context: Context):
-        pass
+    def createDefinitionFileObj(self, context: Context, shortname: str):
+        resource = {
+            "name": self._name,
+            "labels": self._label.createDefinitionFileObj(),
+        }
+        if self._comment:
+            resource["comments"] = self._comment.createDefinitionFileObj(),
+        if self._superclasses:
+            if len(self._superclasses) > 1:
+                superclasses = []
+                for sc in self._superclasses:
+                    superclasses.append(context.reduceIri(sc, shortname))
+            else:
+                superclasses = context.reduceIri(self._superclasses[0], shortname)
+            resource["super"] = superclasses
+        if self._has_properties:
+            cardinalities = []
+            for pid, hp in self._has_properties.items():
+                if hp.ptype == HasProperty.Ptype.other:
+                    cardinalities.append(hp.createDefinitionFileObj(context, shortname))
+            resource["cardinalities"] = cardinalities
+
+        return resource
 
     def print(self, offset: int = 0):
         blank = ' '

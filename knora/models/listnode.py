@@ -520,7 +520,6 @@ class ListNode:
         Create an object that corresponds to the syntax of the input to "create_onto".
         :return: A python object that can be jsonfied to correspond to the syntax of the input to "create_onto".
         """
-        self.print()
         listnode = {
             "name": self._name,
             "label": self._label.createDefinitionFileObj(),

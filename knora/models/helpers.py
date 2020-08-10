@@ -140,7 +140,7 @@ class Context:
         for a in self._context.items():
             print(a[0] + ': "' + a[1] + '"')
 
-    def reduceIri(self, iristr: str, ontoname: Optional[str]) -> str:
+    def reduceIri(self, iristr: str, ontoname: Optional[str] = None) -> str:
         """
         Reduce an IRI to the form that is used within the definition json file. It expects
         the context object to have entries (prefixes)  for all IRI's
@@ -164,7 +164,7 @@ class Context:
         if tmp[0] == knora_api or tmp[0] == salsah_gui:
             return tmp[1]
         elif ontoname is not None and tmp[0] == ontoname:
-            pass
+            return ':' + tmp[1]
         else:
             return iristr
 

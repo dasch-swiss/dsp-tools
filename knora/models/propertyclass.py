@@ -422,29 +422,59 @@ class PropertyClass:
         result = self.con.delete('/v2/ontologies/properties/' + quote_plus(self._id) + '?lastModificationDate=' + str(last_modification_date))
         return LastModificationDate(result['knora-api:lastModificationDate'])
 
-    def createDefinitionFileObj(self, context: Context):
+    def createDefinitionFileObj(self, context: Context, shortname: str):
+        """
+        Create an object that jsonfied can be used as input to "create_onto"
+
+        :param context: Context of the ontology
+        :param shortname: Shortname of the ontology
+        :return: Python object to be jsonfied
+        """
         property = {
             "name": self._name
         }
         if self._object is not None:
             property["name"] = self._name
         if self._superproperties is not None:
-            superprops = [];
+            superprops = []
             for sc in self._superproperties:
-                superprops.append(sc)
+                superprops.append(context.reduceIri(sc, shortname))
+            property["super"] = superprops
         if self._object is not None:
-            property["object"] = context.reduceIri(self._object)
+            property["object"] = context.reduceIri(self._object, shortname)
         if self._label is not None:
             property["labels"] = self._label.createDefinitionFileObj()
         if self._gui_element is not None:
-            property["gui_element"] = context.reduceIri(self._gui_element)
-        if self._gui_attributes is not None:
+            property["gui_element"] = context.reduceIri(self._gui_element, shortname)
+        if self._gui_attributes:
             gui_elements = {}
             for (attname, attvalue) in self._gui_attributes.items():
-                gui_elements[attname] = attvalue
+                if attname == "size":
+                    gui_elements[attname] = int(attvalue)
+                elif attname == "maxsize":
+                    gui_elements[attname] = int(attvalue)
+                elif attname == "hlist":
+                    gui_elements[attname] = str(attvalue)
+                elif attname == "numprops":
+                    gui_elements[attname] = int(attvalue)
+                elif attname == "ncolors":
+                    gui_elements[attname] = int(attvalue)
+                elif attname == "cols":
+                    gui_elements[attname] = int(attvalue)
+                elif attname == "rows":
+                    gui_elements[attname] = int(attvalue)
+                elif attname == "width":
+                    gui_elements[attname] = str(attvalue)
+                elif attname == "wrap":
+                    gui_elements[attname] = str(attvalue)
+                elif attname == "max":
+                    gui_elements[attname] = float(attvalue)
+                elif attname == "min":
+                    gui_elements[attname] = float(attvalue)
+                else:
+                    gui_elements[attname] = str(attvalue)
             property["gui_attributes"] = gui_elements
         return property
-
 
     def print(self, offset: int = 0):
         blank = ' '

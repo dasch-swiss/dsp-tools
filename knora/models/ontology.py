@@ -344,10 +344,17 @@ class Ontology:
         ontology = {
             "name": self._name,
             "label": self._label,
-            "properties": []
+            "properties": [],
+            "resources": []
         }
         for prop in self._property_classes:
-            ontology["properties"].append(prop.createDefinitionFileObj(self.context))
+            if "knora-api:hasLinkToValue" in prop.superproperties:
+                continue
+            ontology["properties"].append(prop.createDefinitionFileObj(self.context, self._name))
+
+        for res in self._resource_classes:
+            ontology["resources"].append(res.createDefinitionFileObj(self.context, self._name))
+
         return ontology
 
     def print(self) -> None:

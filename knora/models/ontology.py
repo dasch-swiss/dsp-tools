@@ -7,7 +7,7 @@ from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
 from pprint import pprint
 
-from models.helpers import Actions, BaseError, Context, LastModificationDate
+from models.helpers import Actions, BaseError, Context, LastModificationDate, OntoInfo
 from models.connection import Connection
 from models.resourceclass import ResourceClass, HasProperty
 from models.propertyclass import PropertyClass
@@ -19,6 +19,8 @@ class SetEncoder(json.JSONEncoder):
             return list(obj)
         elif isinstance(obj, Context):
             return obj.toJsonObj()
+        elif isinstance(obj, OntoInfo):
+            return {"iri": obj.iri, "hashtag": obj.hashtag}
         return json.JSONEncoder.default(self, obj)
 
 
@@ -180,15 +182,15 @@ class Ontology:
         #
         context = Context(json_obj.get('@context'))
         tmps = json_obj['@id'].split('/')
-        context.addContext(tmps[-2], json_obj['@id'] + '#')
+        context.add_context(tmps[-2], json_obj['@id'] + '#')
 
-        rdf = context.prefixFromIri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-        rdfs = context.prefixFromIri("http://www.w3.org/2000/01/rdf-schema#")
-        owl = context.prefixFromIri("http://www.w3.org/2002/07/owl#")
-        xsd = context.prefixFromIri("http://www.w3.org/2001/XMLSchema#")
-        knora_api = context.prefixFromIri("http://api.knora.org/ontology/knora-api/v2#")
-        salsah_gui = context.prefixFromIri("http://api.knora.org/ontology/salsah-gui/v2#")
-        this_onto = context.prefixFromIri(id + "#")
+        rdf = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+        rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
+        owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
+        xsd = context.prefix_from_iri("http://www.w3.org/2001/XMLSchema#")
+        knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
+        salsah_gui = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
+        this_onto = context.prefix_from_iri(id + "#")
 
         label = json_obj.get(rdfs + ':label')
         if label is None:
@@ -230,12 +232,12 @@ class Ontology:
     @classmethod
     def allOntologiesFromJsonObj(cls, con: Connection, json_obj: Any) -> Dict[str, 'Ontology']:
         context = Context(json_obj.get('@context'))
-        rdf = context.prefixFromIri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-        rdfs = context.prefixFromIri("http://www.w3.org/2000/01/rdf-schema#")
-        owl = context.prefixFromIri("http://www.w3.org/2002/07/owl#")
-        xsd = context.prefixFromIri("http://www.w3.org/2001/XMLSchema#")
-        knora_api = context.prefixFromIri("http://api.knora.org/ontology/knora-api/v2#")
-        salsah_gui = context.prefixFromIri("http://api.knora.org/ontology/salsah-gui/v2#")
+        rdf = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+        rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
+        owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
+        xsd = context.prefix_from_iri("http://www.w3.org/2001/XMLSchema#")
+        knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
+        salsah_gui = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
         ontos: Dict[str, 'Ontology'] = {}
         for o in json_obj['@graph']:
             if o.get('@type') != owl + ':Ontology':
@@ -258,7 +260,7 @@ class Ontology:
                 raise BaseError('Ontology label is missing')
             this_onto = id.split('/')[-2]
             context2 = copy.deepcopy(context)
-            context2.addContext(this_onto, id)
+            context2.add_context(this_onto, id)
             onto = cls(con=con,
                        id=id,
                        label=label,
@@ -269,12 +271,12 @@ class Ontology:
         return ontos
 
     def toJsonObj(self, action: Actions, last_modification_date: Optional[LastModificationDate] = None) -> Any:
-        rdf = self._context.prefixFromIri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-        rdfs = self._context.prefixFromIri("http://www.w3.org/2000/01/rdf-schema#")
-        owl = self._context.prefixFromIri("http://www.w3.org/2002/07/owl#")
-        xsd = self._context.prefixFromIri("http://www.w3.org/2001/XMLSchema#")
-        knora_api = self._context.prefixFromIri("http://api.knora.org/ontology/knora-api/v2#")
-        salsah_gui = self._context.prefixFromIri("http://api.knora.org/ontology/salsah-gui/v2#")
+        rdf = self._context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+        rdfs = self._context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
+        owl = self._context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
+        xsd = self._context.prefix_from_iri("http://www.w3.org/2001/XMLSchema#")
+        knora_api = self._context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
+        salsah_gui = self._context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
         # this_onto = self._context.prefixFromIri(self._id + "#")
         tmp = {}
         if action == Actions.Create:
@@ -290,7 +292,7 @@ class Ontology:
                     "@id": self._project
                 },
                 rdfs + ":label": self._label,
-                "@context": self._context
+                "@context": self._context.toJsonObj()
             }
         elif action == Actions.Update:
             if last_modification_date is None:

@@ -8,14 +8,6 @@ from enum import Enum, unique
 from urllib.parse import quote_plus
 from pprint import pprint
 
-#path = os.path.abspath(os.path.dirname(__file__))
-#(head, tail)  = os.path.split(path)
-#if not head in sys.path:
-#    sys.path.insert(0, head)
-#if not path in sys.path:
-#    sys.path.insert(0, path)
-
-
 from models.helpers import Actions, BaseError
 from models.langstring import Languages, LangStringParam, LangString
 from models.connection import Connection, Error
@@ -110,17 +102,17 @@ class Project:
         Prints the project information to stdout
 
     """
-    _id: str
-    _shortcode: str
-    _shortname: str
-    _longname: str
-    _description: LangString
-    _keywords: Set[str]
-    _ontologies: Set[str]
-    _selfjoin: bool
-    _status: bool
-    _logo: Optional[str]
-    changed: Set[str]
+    __id: str
+    __shortcode: str
+    __shortname: str
+    __longname: str
+    __description: LangString
+    __keywords: Set[str]
+    __ontologies: Set[str]
+    __selfjoin: bool
+    __status: bool
+    __logo: Optional[str]
+    __changed: Set[str]
 
     SYSTEM_PROJECT: str = "http://www.knora.org/ontology/knora-admin#SystemProject"
 
@@ -155,22 +147,22 @@ class Project:
         if not isinstance(con, Connection):
            raise BaseError ('"con"-parameter must be an instance of Connection')
         self.con = con
-        self._id = id
-        self._shortcode = shortcode
-        self._shortname = shortname
-        self._longname = longname
-        self._description = LangString(description)
-        self._keywords = keywords
+        self.__id = id
+        self.__shortcode = shortcode
+        self.__shortname = shortname
+        self.__longname = longname
+        self.__description = LangString(description)
+        self.__keywords = keywords
         if not isinstance(ontologies, set) and ontologies is not None:
             raise BaseError('Ontologies must be a set of strings or None!')
-        self._ontologies = ontologies
-        self._selfjoin = selfjoin
-        self._status = status
-        self._logo = logo
-        self.changed = set()
+        self.__ontologies = ontologies
+        self.__selfjoin = selfjoin
+        self.__status = status
+        self.__logo = logo
+        self.__changed = set()
 
     def __str__(self):
-        tmpstr = self._id + "\n  " + self._shortcode + "\n  " + self._shortname
+        tmpstr = self.__id + "\n  " + self.__shortcode + "\n  " + self.__shortname
         return tmpstr
 
     #
@@ -178,7 +170,7 @@ class Project:
     #
     @property
     def id(self) -> Optional[str]:
-        return self._id
+        return self.__id
 
     @id.setter
     def id(self, value: str) -> None:
@@ -186,7 +178,7 @@ class Project:
 
     @property
     def shortcode(self) -> Optional[str]:
-        return self._shortcode
+        return self.__shortcode
 
     @shortcode.setter
     def shortcode(self, value: str) -> None:
@@ -194,30 +186,30 @@ class Project:
 
     @property
     def shortname(self) -> Optional[str]:
-        return self._shortname
+        return self.__shortname
 
     @shortname.setter
     def shortname(self, value: str) -> None:
-        self._shortname = str(value)
-        self.changed.add('shortname')
+        self.__shortname = str(value)
+        self.__changed.add('shortname')
 
     @property
     def longname(self) -> Optional[str]:
-        return self._longname
+        return self.__longname
 
     @longname.setter
     def longname(self, value: str) -> None:
-        self._longname = str(value)
-        self.changed.add('longname')
+        self.__longname = str(value)
+        self.__changed.add('longname')
 
     @property
     def description(self) -> Optional[LangString]:
-        return self._description
+        return self.__description
 
     @description.setter
     def description(self, value: Optional[LangString]) -> None:
-        self._description = LangString(value)
-        self.changed.add('description')
+        self.__description = LangString(value)
+        self.__changed.add('description')
 
     def addDescription(self, lang: Union[Languages, str], value: str) -> None:
         """
@@ -228,8 +220,8 @@ class Project:
         :return: None
         """
 
-        self._description[lang] = value
-        self.changed.add('description')
+        self.__description[lang] = value
+        self.__changed.add('description')
 
     def rmDescription(self, lang: Union[Languages, str]) -> None:
         """
@@ -239,21 +231,21 @@ class Project:
         :return: None
         """
 
-        del self._description[lang]
-        self.changed.add('description')
+        del self.__description[lang]
+        self.__changed.add('description')
 
     @property
     def keywords(self) -> Set[str]:
-        return self._keywords
+        return self.__keywords
 
     @keywords.setter
     def keywords(self, value: Union[List[str], Set[str]]):
         if isinstance(value, set):
-            self._keywords = value
-            self.changed.add('keywords')
+            self.__keywords = value
+            self.__changed.add('keywords')
         elif isinstance(value, list):
-            self._keywords = set(value)
-            self.changed.add('keywords')
+            self.__keywords = set(value)
+            self.__changed.add('keywords')
         else:
             raise BaseError('Must be a set of strings!')
 
@@ -266,8 +258,8 @@ class Project:
         :return: None
         """
 
-        self._keywords.add(value)
-        self.changed.add('keywords')
+        self.__keywords.add(value)
+        self.__changed.add('keywords')
 
     def rmKeyword(self, value: str):
         """
@@ -278,14 +270,14 @@ class Project:
         :return: None
         """
         try:
-            self._keywords.remove(value)
+            self.__keywords.remove(value)
         except KeyError as ke:
             raise BaseError('Keyword "'  + value + '" is not in keyword set')
-        self.changed.add('keywords')
+        self.__changed.add('keywords')
 
     @property
     def ontologies(self) -> Set[str]:
-        return self._ontologies
+        return self.__ontologies
 
     @ontologies.setter
     def ontologies(self, value: Set[str]) -> None:
@@ -293,31 +285,31 @@ class Project:
 
     @property
     def selfjoin(self) -> Optional[bool]:
-        return self._selfjoin
+        return self.__selfjoin
 
     @selfjoin.setter
     def selfjoin(self, value: bool) ->  None:
-        if self._selfjoin != value:
-            self.changed.add('selfjoin')
-        self._selfjoin = value
+        if self.__selfjoin != value:
+            self.__changed.add('selfjoin')
+        self.__selfjoin = value
 
     @property
     def status(self) -> bool:
-        return self._status
+        return self.__status
 
     @status.setter
     def status(self, value: bool) -> None:
-        self._status = value
-        self.changed.add('status')
+        self.__status = value
+        self.__changed.add('status')
 
     @property
     def logo(self) -> str:
-        return self._logo
+        return self.__logo
 
     @logo.setter
     def logo(self, value: str) -> None:
-        self._logo = value
-        self.changed.add('logo')
+        self.__logo = value
+        self.__changed.add('logo')
 
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any) -> Any:
@@ -381,42 +373,51 @@ class Project:
 
         tmp = {}
         if action == Actions.Create:
-            if self._shortcode is None:
+            if self.__shortcode is None:
                 raise BaseError("There must be a valid project shortcode!")
-            tmp['shortcode'] = self._shortcode
-            if self._shortname is None:
+            tmp['shortcode'] = self.__shortcode
+            if self.__shortname is None:
                 raise BaseError("There must be a valid project shortname!")
-            tmp['shortname'] = self._shortname
-            if self._longname is  None:
+            tmp['shortname'] = self.__shortname
+            if self.__longname is  None:
                 raise BaseError("There must be a valid project longname!")
-            tmp['longname'] = self._longname
-            if self._description.isEmpty():
+            tmp['longname'] = self.__longname
+            if self.__description.isEmpty():
                 raise BaseError("There must be a valid project description!")
-            tmp['description'] = self._description.toJsonObj()
-            if len(self._keywords) > 0:
-                tmp['keywords'] = self._keywords
-            if self._selfjoin is None:
+            tmp['description'] = self.__description.toJsonObj()
+            if len(self.__keywords) > 0:
+                tmp['keywords'] = self.__keywords
+            if self.__selfjoin is None:
                 raise BaseError("selfjoin must be defined (True or False!")
-            tmp['selfjoin'] = self._selfjoin
-            if self._status is None:
+            tmp['selfjoin'] = self.__selfjoin
+            if self.__status is None:
                 raise BaseError("status must be defined (True or False!")
-            tmp['status'] = self._status
+            tmp['status'] = self.__status
         elif action == Actions.Update:
-            if self._shortcode is not None and 'shortcode' in self.changed:
-                tmp['shortcode'] = self._shortcode
-            if self._shortname is not None  and 'shortname' in self.changed:
-                tmp['shortname'] = self._shortname
-            if self._longname is not None and 'longname' in self.changed:
-                tmp['longname'] = self._longname
-            if not self._description.isEmpty() and 'description' in self.changed:
-                tmp['description'] = self._description.toJsonObj()
-            if len(self._keywords) > 0 and 'keywords' in self.changed:
-                tmp['keywords'] = self._keywords
-            if self._selfjoin is not None and 'selfjoin' in self.changed:
-                tmp['selfjoin'] = self._selfjoin
-            if self._status is not None and 'status' in self.changed:
-                tmp['status'] = self._status
+            if self.__shortcode is not None and 'shortcode' in self.__changed:
+                tmp['shortcode'] = self.__shortcode
+            if self.__shortname is not None  and 'shortname' in self.__changed:
+                tmp['shortname'] = self.__shortname
+            if self.__longname is not None and 'longname' in self.__changed:
+                tmp['longname'] = self.__longname
+            if not self.__description.isEmpty() and 'description' in self.__changed:
+                tmp['description'] = self.__description.toJsonObj()
+            if len(self.__keywords) > 0 and 'keywords' in self.__changed:
+                tmp['keywords'] = self.__keywords
+            if self.__selfjoin is not None and 'selfjoin' in self.__changed:
+                tmp['selfjoin'] = self.__selfjoin
+            if self.__status is not None and 'status' in self.__changed:
+                tmp['status'] = self.__status
         return tmp
+
+    def createDefinitionFileObj(self):
+        return {
+            "shortcode": self.__shortcode,
+            "shortname": self.__shortname,
+            "longname": self.__longname,
+            "descriptions": self.__description.createDefinitionFileObj(),
+            "keywords": [kw for kw in self.__keywords]
+        }
 
     def create(self) -> 'Project':
         """
@@ -437,12 +438,12 @@ class Project:
         :return: JSON-object from Knora
         """
         result = None
-        if self._id is not None:
-            result = self.con.get('/admin/projects/iri/' + quote_plus(self._id))
-        elif self._shortcode is not None:
-            result = self.con.get('/admin/projects/shortcode/' + quote_plus(self._shortcode))
-        elif self._shortname is not None:
-            result = self.con.get('/admin/projects/shortname/' + quote_plus(self._shortname))
+        if self.__id is not None:
+            result = self.con.get('/admin/projects/iri/' + quote_plus(self.__id))
+        elif self.__shortcode is not None:
+            result = self.con.get('/admin/projects/shortcode/' + quote_plus(self.__shortcode))
+        elif self.__shortname is not None:
+            result = self.con.get('/admin/projects/shortname/' + quote_plus(self.__shortname))
         if result is not None:
             return Project.fromJsonObj(self.con, result['project'])
         else:
@@ -470,7 +471,7 @@ class Project:
         :return: Knora response
         """
 
-        result = self.con.delete('/admin/projects/iri/' + quote_plus(self._id))
+        result = self.con.delete('/admin/projects/iri/' + quote_plus(self.__id))
         return Project.fromJsonObj(self.con, result['project'])
 
     @staticmethod
@@ -486,18 +487,6 @@ class Project:
             raise BaseError("Request got no projects!")
         return list(map(lambda a: Project.fromJsonObj(con, a), result['projects']))
 
-    def createDefinitionFileObj(self):
-        project = {
-            "shortcode": self._shortcode,
-            "shortname": self._shortname,
-            "longname": self._longname,
-            "descriptions": self._description.createDefinitionFileObj(),
-            "keywords": []
-        }
-        for keyword in self._keywords:
-            project["keywords"].append(keyword)
-        return project
-
     def print(self):
         """
         print info to stdout
@@ -506,26 +495,26 @@ class Project:
         """
 
         print('Project Info:')
-        print('  Id:         {}'.format(self._id))
-        print('  Shortcode:  {}'.format(self._shortcode))
-        print('  Shortname:  {}'.format(self._shortname))
-        print('  Longname:   {}'.format(self._longname))
-        if self._description is not None:
+        print('  Id:         {}'.format(self.__id))
+        print('  Shortcode:  {}'.format(self.__shortcode))
+        print('  Shortname:  {}'.format(self.__shortname))
+        print('  Longname:   {}'.format(self.__longname))
+        if self.__description is not None:
             print('  Description:')
-            for descr in self._description.items():
+            for descr in self.__description.items():
                 print('    {}: {}'.format(descr[0], descr[1]))
         else:
             print('  Description: None')
-        if self._keywords is not None:
-            print('  Keywords:   {}'.format(' '.join(self._keywords)))
+        if self.__keywords is not None:
+            print('  Keywords:   {}'.format(' '.join(self.__keywords)))
         else:
             print('  Keywords:   None')
-        if self._ontologies is not None:
-            print('  Ontologies: {}'.format(' '.join(self._ontologies)))
+        if self.__ontologies is not None:
+            print('  Ontologies: {}'.format(' '.join(self.__ontologies)))
         else:
             print('  Ontologies: None')
-        print('  Selfjoin:   {}'.format(self._selfjoin))
-        print('  Status:     {}'.format(self._status))
+        print('  Selfjoin:   {}'.format(self.__selfjoin))
+        print('  Status:     {}'.format(self.__status))
 
 if __name__ == '__main__':
     con = Connection('http://0.0.0.0:3333')
@@ -556,7 +545,7 @@ if __name__ == '__main__':
     new_project = new_project.update()
     new_project.print()
 
-    new_project =  new_project.delete()
+    new_project = new_project.delete()
 
     print('**************************************************************')
     projects = Project.getAllProjects(con)

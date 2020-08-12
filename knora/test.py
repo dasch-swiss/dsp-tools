@@ -37,9 +37,6 @@ def program(args):
     parser.add_argument("-c", "--shortcode", type=str, help="Shortcode of the project")
     parser.add_argument("-n", "--shortname", type=str, help="Shortname of the project")
     parser.add_argument("-i", "--iri", type=str, help="Project iri")
-    #parser.add_argument("-V", "--validate", action='store_true', help="Do only validation of JSON, no upload of the ontology")
-    #parser.add_argument("-l", "--lists", action='store_true', help="Only create the lists")
-    #parser.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
     args = parser.parse_args(args)
 
     current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -69,11 +66,11 @@ def program(args):
     #
     # now collect the lists
     #
-    lists = ListNode.getAllLists(con=con, project_iri=project.id)
+    listroots = ListNode.getAllLists(con=con, project_iri=project.id)
     listobj = []
-    for l in lists:
-        ll = l.getAllNodes()
-        listobj.append(ll.createDefinitionFileObj())
+    for listroot in listroots:
+        complete_list = listroot.getAllNodes()
+        listobj.append(complete_list.createDefinitionFileObj())
     projectobj["lists"] = listobj
 
     projectobj["ontologies"] = []
@@ -85,11 +82,14 @@ def program(args):
         projectobj["ontologies"].append(ontology.createDefinitionFileObj())
 
     umbrella = {
+        "prefixes": ontology.context.get_externals_used(),
         "project": projectobj
     }
 
     with open('data.json', 'w', encoding='utf8') as outfile:
         json.dump(umbrella, outfile, indent=3, ensure_ascii=False)
+
+    print(ontology.context)
 
 def main():
     program(sys.argv[1:])

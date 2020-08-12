@@ -51,7 +51,7 @@ class HasProperty:
         self.con = con
         self._context = context
         if ontology_id is not None and '#' not in ontology_id:
-            self._ontology_id = context.iriFromPrefix(ontology_id)
+            self._ontology_id = context.iri_from_prefix(ontology_id)
         else:
             self._ontology_id = ontology_id
         self._property_id = property_id
@@ -118,12 +118,12 @@ class HasProperty:
         if not isinstance(context, Context):
             raise BaseError('"context"-parameter must be an instance of Context')
 
-        rdf = context.prefixFromIri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-        rdfs = context.prefixFromIri("http://www.w3.org/2000/01/rdf-schema#")
-        owl = context.prefixFromIri("http://www.w3.org/2002/07/owl#")
-        xsd = context.prefixFromIri("http://www.w3.org/2001/XMLSchema#")
-        knora_api = context.prefixFromIri("http://api.knora.org/ontology/knora-api/v2#")
-        salsah_gui = context.prefixFromIri("http://api.knora.org/ontology/salsah-gui/v2#")
+        rdf = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+        rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
+        owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
+        xsd = context.prefix_from_iri("http://www.w3.org/2001/XMLSchema#")
+        knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
+        salsah_gui = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
 
         if jsonld_obj.get('@type') is None or jsonld_obj.get('@type') != owl + ":Restriction":
             raise BaseError('Expected restriction type')
@@ -171,13 +171,12 @@ class HasProperty:
             ptype = HasProperty.Ptype.knora
         else:
             ptype = HasProperty.Ptype.other
-            ontology_id = context.iriFromPrefix(pp[0])
+            ontology_id = context.iri_from_prefix(pp[0])
         property_id = p
 
         gui_order: int = None
         if jsonld_obj.get(salsah_gui + ':guiOrder') is not None:
             gui_order = jsonld_obj[salsah_gui + ':guiOrder']
-            print("++++++++++++++++++>", jsonld_obj[salsah_gui + ':guiOrder'])
         return property_id, cls(con=con,
                                 context=context,
                                 ontology_id=ontology_id,
@@ -267,10 +266,9 @@ class HasProperty:
         # ToDo: Check with Ben if we could add this feature...
 
     def createDefinitionFileObj(self, context: Context, shortname: str):
-        context.print()
         cardinality = {}
         if self._ptype == HasProperty.Ptype.other:
-            cardinality["propname"] = context.reduceIri(self._property_id, shortname)
+            cardinality["propname"] = context.reduce_iri(self._property_id, shortname)
             cardinality["cardinality"] = self._cardinality.value[0]
             if self._gui_order:
                 cardinality["gui_order"] = self._gui_order
@@ -462,7 +460,7 @@ class ResourceClass:
         if self._has_properties is None:
             return None
         else:
-            return self._has_properties.get(self._context.getPrefixIri(property_id))
+            return self._has_properties.get(self._context.get_prefixed_iri(property_id))
 
     def addProperty(self, property_id: str, cardinality: Cardinality, last_modification_date: LastModificationDate) -> Optional[LastModificationDate]:
         if self._has_properties.get(property_id) is None:
@@ -473,7 +471,7 @@ class ResourceClass:
                                                              resclass_id=self.id,
                                                              cardinality=cardinality).create(last_modification_date)
             hp = resclass.getProperty(property_id)
-            hp.ontology_id = self._context.iriFromPrefix(self._ontology_id)
+            hp.ontology_id = self._context.iri_from_prefix(self._ontology_id)
             hp.resclass_id = self.id
             self._has_properties[hp.property_id] = hp
             return latest_modification_date
@@ -481,7 +479,7 @@ class ResourceClass:
             raise BaseError("Property already has cardinality in this class!")
 
     def updateProperty(self, property_id: str, cardinality: Cardinality, last_modification_date: LastModificationDate) -> Optional[LastModificationDate]:
-        property_id = self._context.getPrefixIri(property_id)
+        property_id = self._context.get_prefixed_iri(property_id)
         if self._has_properties.get(property_id) is not None:
             has_properties = self._has_properties[property_id]
             onto_id = has_properties.ontology_id  # save for later user
@@ -489,7 +487,7 @@ class ResourceClass:
             has_properties.cardinality = cardinality
             latest_modification_date, resclass = has_properties.update(last_modification_date)
             hp = resclass.getProperty(property_id)
-            hp.ontology_id = self._context.iriFromPrefix(onto_id)  # restore value
+            hp.ontology_id = self._context.iri_from_prefix(onto_id)  # restore value
             hp.resclass_id = rescl_id  # restore value
             self._has_properties[hp.property_id] = hp
             return latest_modification_date
@@ -504,12 +502,12 @@ class ResourceClass:
             raise BaseError('"con"-parameter must be an instance of Connection')
         if not isinstance(context, Context):
             raise BaseError('"context"-parameter must be an instance of Context')
-        rdf = context.prefixFromIri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-        rdfs = context.prefixFromIri("http://www.w3.org/2000/01/rdf-schema#")
-        owl = context.prefixFromIri("http://www.w3.org/2002/07/owl#")
-        xsd = context.prefixFromIri("http://www.w3.org/2001/XMLSchema#")
-        knora_api = context.prefixFromIri("http://api.knora.org/ontology/knora-api/v2#")
-        salsah_gui = context.prefixFromIri("http://api.knora.org/ontology/salsah-gui/v2#")
+        rdf = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+        rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
+        owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
+        xsd = context.prefix_from_iri("http://www.w3.org/2001/XMLSchema#")
+        knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
+        salsah_gui = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
 
         if not (json_obj.get(knora_api + ':isResourceClass') or json_obj.get(knora_api + ':isStandoffClass')):
             raise BaseError("This is not a resource!")
@@ -517,7 +515,7 @@ class ResourceClass:
         if json_obj.get('@id') is None:
             raise BaseError('Resource class has no "@id"!')
         tmp_id = json_obj.get('@id').split(':')
-        id = context.iriFromPrefix(tmp_id[0]) + '#' + tmp_id[1]
+        id = context.iri_from_prefix(tmp_id[0]) + '#' + tmp_id[1]
         ontology_id = tmp_id[0]
         name = tmp_id[1]
         superclasses_obj = json_obj.get(rdfs + ':subClassOf')
@@ -550,18 +548,18 @@ class ResourceClass:
                 if tmp[0]:
                     return {"@id": resref}  # fully qualified name in the form "prefix:name"
                 else:
-                    return {"@id": self._context.prefixFromIri(self._ontology_id) + ':' + tmp[1]}  # ":name" in current ontology
+                    return {"@id": self._context.prefix_from_iri(self._ontology_id) + ':' + tmp[1]}  # ":name" in current ontology
             else:
                 return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
 
         tmp = {}
         exp = re.compile('^http.*')  # It is already a fully IRI
         if exp.match(self._ontology_id):
-            resid = self._context.prefixFromIri(self._ontology_id) + ":" + self._name
+            resid = self._context.prefix_from_iri(self._ontology_id) + ":" + self._name
             ontid = self._ontology_id
         else:
             resid = self._ontology_id + ":" + self._name
-            ontid = self._context.iriFromPrefix(self._ontology_id)
+            ontid = self._context.iri_from_prefix(self._ontology_id)
         if action == Actions.Create:
             if self._name is None:
                 raise BaseError("There must be a valid resource class name!")
@@ -650,9 +648,9 @@ class ResourceClass:
             if len(self._superclasses) > 1:
                 superclasses = []
                 for sc in self._superclasses:
-                    superclasses.append(context.reduceIri(sc, shortname))
+                    superclasses.append(context.reduce_iri(sc, shortname))
             else:
-                superclasses = context.reduceIri(self._superclasses[0], shortname)
+                superclasses = context.reduce_iri(self._superclasses[0], shortname)
             resource["super"] = superclasses
         if self._has_properties:
             cardinalities = []

@@ -100,7 +100,7 @@ class UserPanel(wx.Panel):
         res = ue.ShowModal()
         if res == wx.ID_OK:
             user: User = ue.get_changed()
-            if 'password' in user.changed:
+            if 'password' in user.__changed:
                 dlg = wx.TextEntryDialog(
                     self, 'Please enter Your admin password', 'Password',
                     style=wx.TE_PASSWORD | wx.OK | wx.CANCEL)

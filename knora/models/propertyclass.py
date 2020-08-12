@@ -251,19 +251,19 @@ class PropertyClass:
             raise BaseError('"con"-parameter must be an instance of Connection')
         if not isinstance(context, Context):
             raise BaseError('"context"-parameter must be an instance of Context')
-        rdf = context.prefixFromIri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-        rdfs = context.prefixFromIri("http://www.w3.org/2000/01/rdf-schema#")
-        owl = context.prefixFromIri("http://www.w3.org/2002/07/owl#")
-        xsd = context.prefixFromIri("http://www.w3.org/2001/XMLSchema#")
-        knora_api = context.prefixFromIri("http://api.knora.org/ontology/knora-api/v2#")
-        salsah_gui = context.prefixFromIri("http://api.knora.org/ontology/salsah-gui/v2#")
+        rdf = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+        rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
+        owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
+        xsd = context.prefix_from_iri("http://www.w3.org/2001/XMLSchema#")
+        knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
+        salsah_gui = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
 
         if not (json_obj.get(knora_api + ':isResourceProperty')):
             raise BaseError("This is not a property!")
         if json_obj.get('@id') is None:
             raise BaseError('Property class has no "@id"!')
         tmp_id = json_obj.get('@id').split(':')
-        id = context.iriFromPrefix(tmp_id[0]) + '#' + tmp_id[1]
+        id = context.iri_from_prefix(tmp_id[0]) + '#' + tmp_id[1]
         ontology_id = tmp_id[0]
         name = tmp_id[1]
         superproperties_obj = json_obj.get(rdfs + ':subPropertyOf')
@@ -320,18 +320,18 @@ class PropertyClass:
                 if tmp[0]:
                     return {"@id": resref}  # fully qualified name in the form "prefix:name"
                 else:
-                    return {"@id": self._context.prefixFromIri(self._ontology_id) + ':' + tmp[1]}  # ":name" in current ontology
+                    return {"@id": self._context.prefix_from_iri(self._ontology_id) + ':' + tmp[1]}  # ":name" in current ontology
             else:
                 return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
 
         tmp = {}
         exp = re.compile('^http.*')  # It is already a fully IRI
         if exp.match(self._ontology_id):
-            propid = self._context.prefixFromIri(self._ontology_id) + ":" + self._name
+            propid = self._context.prefix_from_iri(self._ontology_id) + ":" + self._name
             ontid = self._ontology_id
         else:
             propid = self._ontology_id + ":" + self._name
-            ontid = self._context.iriFromPrefix(self._ontology_id)
+            ontid = self._context.iri_from_prefix(self._ontology_id)
         if action == Actions.Create:
             if self._name is None:
                 raise BaseError("There must be a valid property class name!")
@@ -438,14 +438,14 @@ class PropertyClass:
         if self._superproperties is not None:
             superprops = []
             for sc in self._superproperties:
-                superprops.append(context.reduceIri(sc, shortname))
+                superprops.append(context.reduce_iri(sc, shortname))
             property["super"] = superprops
         if self._object is not None:
-            property["object"] = context.reduceIri(self._object, shortname)
+            property["object"] = context.reduce_iri(self._object, shortname)
         if self._label is not None:
             property["labels"] = self._label.createDefinitionFileObj()
         if self._gui_element is not None:
-            property["gui_element"] = context.reduceIri(self._gui_element, shortname)
+            property["gui_element"] = context.reduce_iri(self._gui_element, shortname)
         if self._gui_attributes:
             gui_elements = {}
             for (attname, attvalue) in self._gui_attributes.items():

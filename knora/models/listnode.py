@@ -458,7 +458,7 @@ class ListNode:
         :return: Knora response
         """
         raise BaseError("NOT YET IMPLEMENTED BY KNORA BACKEND!")
-        result = self.con.delete('/admin/lists/' + quote_plus(self._id))
+        result = self.con.delete('/admin/lists/' + quote_plus(self.__id))
         return result
         #return Project.fromJsonObj(self.con, result['project'])
 

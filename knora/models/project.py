@@ -525,8 +525,6 @@ if __name__ == '__main__':
     for project in projects:
         project.print()
 
-    print('==============================================================')
-
     new_project = Project(con=con,
                                shortcode='F11F',
                                shortname='mytest3',

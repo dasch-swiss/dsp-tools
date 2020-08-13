@@ -30,7 +30,7 @@ as well as the assignment of PropertyCLasses to the ResourceClasses (with a give
 is handeld in "cooperation" with the propertyclass.py (PropertyClass) and resourceclass.py (ResourceClass
 and HasProperty) modules.
 
-_Note_: All modifications to an onology
+_Note_: All modifications to an ontology
 
 CREATE:
     * Instantiate a new object of the Ontology class with all required parameters

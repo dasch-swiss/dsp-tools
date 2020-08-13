@@ -64,6 +64,7 @@ class Ontology:
     _resource_classes: List[ResourceClass]
     _property_classes: List[PropertyClass]
     _context: Context
+    _skiplist: List[str]
     changed: Set[str]
 
     def __init__(self,
@@ -96,6 +97,7 @@ class Ontology:
         self._property_classes = property_classes
         self._context = context if context is not None else Context()
         self.changed = set()
+        self._skiplist = []
 
     @property
     def id(self):
@@ -181,9 +183,8 @@ class Ontology:
         # evaluate the JSON-LD context to get the proper prefixes
         #
         context = Context(json_obj.get('@context'))
-        tmps = json_obj['@id'].split('/')
-        context.add_context(tmps[-2], json_obj['@id'] + '#')
-
+        onto_name = id.split('/')[-2]
+        context.add_context(onto_name, id + '#')
         rdf = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
         rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
         owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
@@ -351,11 +352,13 @@ class Ontology:
         }
         for prop in self._property_classes:
             if "knora-api:hasLinkToValue" in prop.superproperties:
+                self._skiplist.append(self._name + ":" + prop.name)
                 continue
             ontology["properties"].append(prop.createDefinitionFileObj(self.context, self._name))
+        pprint(self._skiplist)
 
         for res in self._resource_classes:
-            ontology["resources"].append(res.createDefinitionFileObj(self.context, self._name))
+            ontology["resources"].append(res.createDefinitionFileObj(self.context, self._name, self._skiplist))
 
         return ontology
 
@@ -363,6 +366,7 @@ class Ontology:
         print('Ontology Info:')
         print('  Id:                   {}'.format(self._id))
         print('  Label:                {}'.format(self._label))
+        print('  Name:                 {}'.format(self._name))
         print('  Project:              {}'.format(self._project))
         print('  LastModificationDate: {}'.format(str(self._lastModificationDate)))
         print('  Property Classes:')

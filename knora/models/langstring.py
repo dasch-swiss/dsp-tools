@@ -45,7 +45,8 @@ class LangString:
     "some:thing" = [{
       '@language': 'xx',
       '@value': 'a string in language xx'
-    },{…},…]
+    },
+    {…},…]
     ```
 
     or a simple string without language:
@@ -183,8 +184,10 @@ class LangString:
             return list(map(lambda a: {'@language': a[0].value, '@value': a[1]}, self._langstrs.items()))
 
     @classmethod
-    def fromJsonLdObj(cls, obj: Union[List[Dict[str, str]], str]) -> 'LangString':
-        if isinstance(obj, str) or obj is None:
+    def fromJsonLdObj(cls, obj: Optional[Union[List[Dict[str, str]], str]]) -> 'LangString':
+        if obj is None:
+            return None
+        if isinstance(obj, str):
             return cls(obj)
         if isinstance(obj, list):
             objs = obj
@@ -208,7 +211,9 @@ class LangString:
 
     @classmethod
     def fromJsonObj(cls, obj: Optional[Any]) -> 'LangString':
-        if isinstance(obj, str) or obj is None:
+        if obj is None:
+            return None
+        if isinstance(obj, str):
             return cls(obj)
         if isinstance(obj, list):
             objs = obj

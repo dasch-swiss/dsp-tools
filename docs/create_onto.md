@@ -82,8 +82,20 @@ A node has the following elements:
 - _comments_: language dependent comments (optional) in the form ```{ "<lang>": "<comment>, ... }```
 - _nodes_: Array of subnodes (optional – leave out if there are no subnodes, that is a flat list)
 
-The _lists_ object contains an _array of lists_. Here an example:
+The _lists_ object contains an _array of lists_. Here an example for a list that has the following structure:
+<!---
 
++-orgtype
+|
++--+-business +
+   |          |
+   |          +-transport
+   |          |
+   |          +-finances
+   |
+   +-society
+  
+--->
 ```json
     "lists": [
       {
@@ -147,6 +159,11 @@ This is an array of _user_-definitions. A user has the following elements:
 - _lang_: The preferred language of the user: "en", "de", "fr", "it" [optional, default: "en"]
 - _projects_: List of projects the user belongs to
 
+<!---
+Da müsssen wir noch den Code ansehen. Ein Benutzer kann auch "normales" Mitglied sein, oder "admin" (mit mehr Rechten)
+oder gar "system" (dann ist er System user – das sollten dann auch nur DaSCH-Mitgliueder sein ;-)
+--->
+
 Example:
 ```json
     "users": [
@@ -171,7 +188,7 @@ The _ontology_ object contains the definition of the data model. The ontology ha
 the following elemens:
 
 - _name_: The name of the ontology. This has to be a NCNAME conformant name that can be use as prefix!
-- _label_: Human readable and understandable name of the ontology
+- _label_: Human readable and understandable name of the ontology <!--- ToDo: wieder erwähnen, dass format { sprache: wert, …} ist --->
 - _resources_: Array defining the resources (entities) of the data model
 
 ```json
@@ -211,7 +228,7 @@ The properties object has the following fields:
     instances.
 - _object_: The "object" defines the data type of the value that the property will store.
   The following object types are allowed:
-  - _TextValue_: Represents a text that may contain standoff markup
+  - _TextValue_: Represents a text that may contain internal standoff markup
   - _ColorValue_: A string in the form "#rrggbb" (standard web color format)
   - _DateValue_: represents a date. It is a string having the format "_calendar":"start":"end"
     - _calender_ is either _GREGORIAN_ or _JULIAN_
@@ -232,6 +249,10 @@ The properties object has the following fields:
   generic GUI a hint about how the property should be presented to the used. Each gui_element
   may have associated gui_attributes which contain further hints.
   There are the following gui_elements available:
+  <!---
+  Müsste man hier die Attribute, welche pro Element möglich seind, etwas besser (systematischer) hervorheben?
+  Eventuell hier zusätzlich mit Untertitelns "####", "#####" arbeiten???
+  --->
   - _Colorpicker_: The only GUI element for _ColorValue_. Let's You pick a color. It requires the attribute "ncolors=integer"
   - _Date_: The only GUI element for _DateValue_. A date picker gui. No attributes
   - _Geometry_: Not Yet Implemented.
@@ -264,7 +285,7 @@ A resource consists of the following definitions:
 - _super_: A resource class is always derived from an other resource. The
   most generic resource class Knora offers is _"Resource"_. The following
   parent predefined resources are provided by knora:
-  - _Resource_: A generic "thing" that represents an item from the reral world
+  - _Resource_: A generic "thing" that represents an item from the reåal world
   - _StillImageRepresentation_: An object that is connected to a still image
   - _TextRepresentation_: An object that is connected to an (external) text (Not Yet Implemented)
   - _AudioRepresentation_: An object representing audio data (Not Yet Implemented)
@@ -281,9 +302,12 @@ A resource consists of the following definitions:
   
 - _cardinalities: Array of references to the properties that the resource may hold including the
    cardinality. A cardinality has the following properties:
+   <!--- hier vielleicht erklären, was die Kardinalität bedeutet... Die phil-I-er können vermutlich mit diesem Begriff
+   nichts anfangen --->
    - _propname_: The of the property. If its used in the form ":"propname, the current ontology is
      references, if the ":" is omitted, a knora standard ontology is refrences, otherwise the full
-     prefix of the ontology has to be used.
+     prefix of the ontology has to be used. <!--- das hier ist sehr knapp. Kann man da ausführlicher und verständlicher
+     formulieren?? --->
    - _gui_order_: An integer number which will help the GUI to display the properties in the desired
      order
    - _cardinality_: Indicates how often a given property may occur. The possible values
@@ -324,3 +348,6 @@ Example:
             ]
           }]
 ```
+<!--- hier hinten müsste man ein kompletter Beispiel anfügen, das sämtliche Möglichkeiten zeit,
+trotzdem so knapp wie möglich ist.. Schreib mal selber eine Ontologie und versuch sie dann, in einen lokalen
+Server zu implementieren.... --->

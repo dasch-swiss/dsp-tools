@@ -506,7 +506,7 @@ class ListNode:
         for listnode in children:
             listnodeobj = {
                 "name": listnode.name,
-                "label": listnode.label.createDefinitionFileObj(),
+                "labels": listnode.label.createDefinitionFileObj(),
             }
             if not listnode.comment.isEmpty():
                 listnodeobj["comment"] = listnode.comment.createDefinitionFileObj()
@@ -522,7 +522,7 @@ class ListNode:
         """
         listnode = {
             "name": self._name,
-            "label": self._label.createDefinitionFileObj(),
+            "labels": self._label.createDefinitionFileObj(),
         }
         if not self._comment.isEmpty():
             listnode["comment"] = self._comment.createDefinitionFileObj()

@@ -52,9 +52,9 @@ class Actions(Enum):
 
 @unique
 class Cardinality(Enum):
-    C_1 = "1",
-    C_0_1 = "0-1",
-    C_1_n = "1-n",
+    C_1 = "1"
+    C_0_1 = "0-1"
+    C_1_n = "1-n"
     C_0_n = "0-n"
 
 
@@ -173,7 +173,8 @@ class Context:
         :return: None
         """
         if iri.endswith("#"):
-            self.__context[prefix] = OntoInfo(iri[:-1], True)
+            iri = iri[:-1]
+            self.__context[prefix] = OntoInfo(iri, True)
         else:
             self.__context[prefix] = OntoInfo(iri, False)
         self.__rcontext[iri] = prefix
@@ -266,7 +267,6 @@ class Context:
         #
         # check if the iri already has the form "prefix:name"
         #
-        print("=================>", iri)
         m = re.match("([\w-]+):([\w-]+)", iri)
         if m and m.span()[1] == len(iri):
             return iri

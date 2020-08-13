@@ -29,7 +29,7 @@ class HasProperty:
     _context: Context
     _ontology_id: str
     _property_id: str
-    _reclass_id: str
+    _resclass_id: str
     _cardinality: Cardinality
     _gui_order: int
     _is_inherited: bool
@@ -269,7 +269,7 @@ class HasProperty:
         cardinality = {}
         if self._ptype == HasProperty.Ptype.other:
             cardinality["propname"] = context.reduce_iri(self._property_id, shortname)
-            cardinality["cardinality"] = self._cardinality.value[0]
+            cardinality["cardinality"] = self._cardinality.value
             if self._gui_order:
                 cardinality["gui_order"] = self._gui_order
         return cardinality
@@ -286,6 +286,7 @@ class HasProperty:
         print(f'{blank:>{offset + 2}}Cardinality: {self._cardinality.value}')
         if self._ptype == HasProperty.Ptype.other:
             print(f'{blank:>{offset + 2}}Ontology_id: {self._ontology_id}')
+        print(f'{blank:>{offset + 2}}Resclass: {self._resclass_id}')
 
 
 @strict
@@ -637,13 +638,13 @@ class ResourceClass:
         result = self.con.delete('v2/ontologies/classes/' + quote_plus(self._id) + '?lastModificationDate=' + str(last_modification_date))
         return LastModificationDate(result['knora-api:lastModificationDate'])
 
-    def createDefinitionFileObj(self, context: Context, shortname: str):
+    def createDefinitionFileObj(self, context: Context, shortname: str, skiplist: List[str]):
         resource = {
             "name": self._name,
             "labels": self._label.createDefinitionFileObj(),
         }
         if self._comment:
-            resource["comments"] = self._comment.createDefinitionFileObj(),
+            resource["comments"] = self._comment.createDefinitionFileObj()
         if self._superclasses:
             if len(self._superclasses) > 1:
                 superclasses = []
@@ -655,6 +656,9 @@ class ResourceClass:
         if self._has_properties:
             cardinalities = []
             for pid, hp in self._has_properties.items():
+                if hp.property_id in skiplist:
+                    print("Skip ", hp.property_id)
+                    continue
                 if hp.ptype == HasProperty.Ptype.other:
                     cardinalities.append(hp.createDefinitionFileObj(context, shortname))
             resource["cardinalities"] = cardinalities

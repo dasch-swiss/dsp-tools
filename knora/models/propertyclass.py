@@ -13,6 +13,7 @@ from models.helpers import Actions, BaseError, Context, Cardinality, LastModific
 from models.connection import Connection
 from models.langstring import Languages, LangStringParam, LangString
 from models.project import Project
+from models.listnode import ListNode
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -454,7 +455,9 @@ class PropertyClass:
                 elif attname == "maxsize":
                     gui_elements[attname] = int(attvalue)
                 elif attname == "hlist":
-                    gui_elements[attname] = str(attvalue)
+                    iri = attvalue[1:-1]
+                    rootnode = ListNode(con=self.con, id=iri).read()
+                    gui_elements[attname] = rootnode.name
                 elif attname == "numprops":
                     gui_elements[attname] = int(attvalue)
                 elif attname == "ncolors":

@@ -5,6 +5,7 @@ import argparse
 import json
 from jsonschema import validate
 import sys
+import re
 
 from models.helpers import Actions, BaseError, Context, Cardinality
 from models.langstring import Languages, LangStringParam, LangString
@@ -17,46 +18,121 @@ from models.ontology import Ontology
 from models.propertyclass import PropertyClass
 from models.resourceclass import ResourceClass
 
-def program(args):
-    #
-    # parse the arguments of the command line
-    #
-    parser = argparse.ArgumentParser()
-    parser.add_argument("datamodelfile", help="path to data model file")
-    parser.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the Knora server")
-    parser.add_argument("-u", "--user", default="root@example.com", help="Username for Knora")
-    parser.add_argument("-p", "--password", default="test", help="The password for login")
-    parser.add_argument("-V", "--validate", action='store_true', help="Do only validation of JSON, no upload of the ontology")
-    parser.add_argument("-l", "--lists", action='store_true', help="Only create the lists")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
-    args = parser.parse_args(args)
 
+def validate_list(input_file: str) -> None:
     current_dir = os.path.dirname(os.path.realpath(__file__))
 
     # let's read the schema for the data model definition
-    if args.lists:
-        with open(os.path.join(current_dir, 'knora-schema-lists.json')) as s:
-            schema = json.load(s)
-    else:
-        with open(os.path.join(current_dir, 'knora-schema.json')) as s:
-            schema = json.load(s)
-
+    with open(os.path.join(current_dir, 'knora-schema-lists.json')) as s:
+        schema = json.load(s)
     # read the data model definition
-    with open(args.datamodelfile) as f:
+    with open(input_file) as f:
         datamodel = json.load(f)
 
     # validate the data model definition in order to be sure that it is correct
     validate(datamodel, schema)
-    print("data model is syntactically correct and passed validation!")
+    print("Data model is syntactically correct and passed validation!")
 
-    if args.validate:
-        exit(0)
+
+def validate_ontology(input_file: str) -> None:
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+
+    with open(os.path.join(current_dir, 'knora-schema.json')) as s:
+        schema = json.load(s)
+    # read the data model definition
+    with open(input_file) as f:
+        datamodel = json.load(f)
+
+    # validate the data model definition in order to be sure that it is correct
+    validate(datamodel, schema)
+    print("Data model is syntactically correct and passed validation!")
+
+def create_lists (input_file: str, output_file: str, server: str, user: str, password: str, verbose: bool) -> bool:
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+
+    # let's read the schema for the data model definition
+    with open(os.path.join(current_dir, 'knora-schema-lists.json')) as s:
+        schema = json.load(s)
+    # read the data model definition
+    with open(input_file) as f:
+        datamodel = json.load(f)
+
+    # validate the data model definition in order to be sure that it is correct
+    validate(datamodel, schema)
+    if verbose:
+        print("Data model is syntactically correct and passed validation!")
 
     #
     # Connect to the DaSCH Service Platform API
     #
-    con = Connection(args.server)
-    con.login(args.user, args.password)
+    con = Connection(server)
+    con.login(user, password)
+
+    # --------------------------------------------------------------------------
+    # let's read the prefixes of external ontologies that may be used
+    #
+    context = Context(datamodel["prefixes"])
+
+    # --------------------------------------------------------------------------
+    # Let's get the project which must exist
+    #
+    project = Project(
+        con=con,
+        shortcode=datamodel["project"]["shortcode"],
+    ).read()
+    assert project is not None
+
+    # --------------------------------------------------------------------------
+    # now let's create the lists
+    #
+    if verbose:
+        print("Creating lists...")
+    lists = datamodel["project"].get('lists')
+    listrootnodes = {}
+    if lists is not None:
+        for rootnode in lists:
+            if verbose is not None:
+                print("  Creating list:" + rootnode['name'])
+            root_list_node = ListNode(
+                con=con,
+                project=project,
+                label=rootnode['labels'],
+                comment=rootnode.get('comments'),
+                name=rootnode['name']
+            ).create()
+            listnodes = list_creator(con, project, root_list_node, rootnode['nodes'])
+            listrootnodes[rootnode['name']] = {
+                "id": root_list_node.id,
+                "nodes": listnodes
+            }
+
+    with open(output_file, 'w', encoding="utf-8") as fp:
+        json.dump(listrootnodes, fp, indent=3, sort_keys=True)
+        print("The definitions of the node-id's can be found in \"{}}\"!".format(output_file))
+    return True
+
+
+def create_ontology(input_file: str, lists_file: str, server: str, user: str, password: str, verbose: bool) -> bool:
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+
+    # let's read the schema for the data model definition
+    with open(os.path.join(current_dir, 'knora-schema.json')) as s:
+        schema = json.load(s)
+
+    # read the data model definition
+    with open(input_file) as f:
+        datamodel = json.load(f)
+
+    # validate the data model definition in order to be sure that it is correct
+    validate(datamodel, schema)
+    if verbose:
+        print("Data model is syntactically correct and passed validation!")
+
+    #
+    # Connect to the DaSCH Service Platform API
+    #
+    con = Connection(server)
+    con.login(user, password)
 
     # --------------------------------------------------------------------------
     # let's read the prefixes of external ontologies that may be used
@@ -67,69 +143,60 @@ def program(args):
     # Let's create the project...
     #
     project = None
-    if not args.lists:
-        #
-        # Deal with the project info
-        #
-        try:
-            # we try to read the project to see if it's existing....
-            project = Project(
-                con=con,
-                shortcode=datamodel["project"]["shortcode"],
-            ).read()
-            #
-            # we got it, update the project data if necessary...
-            #
-            if project.shortname != datamodel["project"]["shortname"]:
-                project.shortname = datamodel["project"]["shortname"]
-            if project.longname != datamodel["project"]["longname"]:
-                project.longname == datamodel["project"]["longname"]
-            project.description = datamodel["project"].get("descriptions")
-            project.keywords = set(datamodel["project"].get("keywords"))
-            nproject = project.update()
-            if nproject is not None:
-                project = nproject
-            if args.verbose:
-                print("Modified project:")
-                project.print()
-        except:
-            #
-            # The project doesn't exist yet – let's create it
-            #
-            try:
-                project = Project(
-                    con=con,
-                    shortcode=datamodel["project"]["shortcode"],
-                    shortname=datamodel["project"]["shortname"],
-                    longname=datamodel["project"]["longname"],
-                    description=LangString(datamodel["project"].get("descriptions")),
-                    keywords=set(datamodel["project"].get("keywords")),
-                    selfjoin=False,
-                    status=True
-                ).create()
-            except BaseError as err:
-                print("Creating project failed: " + err.message)
-                exit(100)
-            if args.verbose:
-                print("Created project:")
-                project.print()
-    else:
+    try:
+        # we try to read the project to see if it's existing....
         project = Project(
             con=con,
             shortcode=datamodel["project"]["shortcode"],
         ).read()
+        #
+        # we got it, update the project data if necessary...
+        #
+        if project.shortname != datamodel["project"]["shortname"]:
+            project.shortname = datamodel["project"]["shortname"]
+        if project.longname != datamodel["project"]["longname"]:
+            project.longname == datamodel["project"]["longname"]
+        project.description = datamodel["project"].get("descriptions")
+        project.keywords = set(datamodel["project"].get("keywords"))
+        nproject = project.update()
+        if nproject is not None:
+            project = nproject
+        if verbose:
+            print("Modified project:")
+            project.print()
+    except:
+        #
+        # The project doesn't exist yet – let's create it
+        #
+        try:
+            project = Project(
+                con=con,
+                shortcode=datamodel["project"]["shortcode"],
+                shortname=datamodel["project"]["shortname"],
+                longname=datamodel["project"]["longname"],
+                description=LangString(datamodel["project"].get("descriptions")),
+                keywords=set(datamodel["project"].get("keywords")),
+                selfjoin=False,
+                status=True
+            ).create()
+        except BaseError as err:
+            print("Creating project failed: " + err.message)
+            return False
+        if verbose:
+            print("Created project:")
+            project.print()
     assert project is not None
 
     # --------------------------------------------------------------------------
     # now let's create the lists
     #
-    if args.verbose is not None:
+    if verbose:
         print("Creating lists...")
     lists = datamodel["project"].get('lists')
     listrootnodes = {}
     if lists is not None:
         for rootnode in lists:
-            if args.verbose is not None:
+            if verbose is not None:
                 print("  Creating list:" + rootnode['name'])
             root_list_node = ListNode(
                 con=con,
@@ -146,22 +213,18 @@ def program(args):
 
     with open('lists.json', 'w', encoding="utf-8") as fp:
         json.dump(listrootnodes, fp, indent=3, sort_keys=True)
-        print("The definitions of the node-id's can be found in \"lists.json\"!")
-
-    if args.lists:
-        exit(0)
+        print("The definitions of the node-id's can be found in \"{}\"!".format('lists.json'))
 
     # --------------------------------------------------------------------------
     # now let's add the groups (if there are groups defined...)
     #
-    if args.verbose is not None:
+    if verbose:
         print("Adding groups...")
 
     new_groups = {}
     groups = datamodel["project"].get('groups')
     if groups is not None:
         for group in groups:
-            new_group = None
             try:
                 new_group = Group(con=con,
                                   name=group["name"],
@@ -171,15 +234,16 @@ def program(args):
                                   selfjoin=group["selfjoin"] if group.get("selfjoin") is not None else False).create()
             except BaseError as err:
                 print("Creating group failed: " + err.message)
-                exit(101)
+                return False
             new_groups[new_group.name] = new_group
-            if args.verbose is not None:
+            if verbose:
+                print("Groups:")
                 new_group.print()
 
     # --------------------------------------------------------------------------
     # now let's add the users (if there are users defined...)
     #
-    if args.verbose is not None:
+    if verbose:
         print("Adding users...")
     all_groups: List[Group] = []
     all_projects: List[Project] = []
@@ -191,7 +255,8 @@ def program(args):
             for groupname in user["groups"]:
                 #
                 # First we determine the groups the user is in because we can do this in one call
-                # groupname has the form [proj_shortname]:groupname|"SystemAdmin" (projectname omitted = current project)
+                # groupname has the form [proj_shortname]:groupname|"SystemAdmin"
+                # (projectname omitted = current project)
                 #
                 tmp = groupname.split(':')
                 if len(tmp) > 1:
@@ -268,9 +333,9 @@ def program(args):
                 try:
                     tmp_user.update()
                 except Error as err:
-                    pprint(tmp_user)
+                    tmp_user.print()
                     print("Updating user failed: " + err.message)
-                    exit(103)
+                    return False
                 #
                 # now we update group and project membership
                 # Note: we do NOT remove any mambership here, we just add!
@@ -306,8 +371,9 @@ def program(args):
                     ).create()
                 except Error as err:
                     print("Creating user failed: " + err.message)
-                    exit(104)
-            if args.verbose is not None:
+                    return False
+            if verbose:
+                print("New user:")
                 new_user.print()
 
     # --------------------------------------------------------------------------
@@ -321,7 +387,8 @@ def program(args):
             label=ontology["label"],
             name=ontology["name"]
         ).create()
-        if args.verbose is not None:
+        if verbose:
+            print("Created empty ontology:")
             newontology.print()
 
         #
@@ -352,7 +419,8 @@ def program(args):
                 print("Creating resource class failed: " + err.message)
                 exit(105)
             newresclasses[newresclass.id] = newresclass
-            if args.verbose is not None:
+            if verbose is not None:
+                print("New resource class:")
                 newresclass.print()
 
         #
@@ -382,10 +450,13 @@ def program(args):
             #
             if propclass.get("object") is not None:
                 tmp = propclass["object"].split(':')
+                pprint(tmp)
                 if len(tmp) > 1:
                     if tmp[0]:
                         object = propclass["object"] # fully qualified name
                     else:
+                        pprint(newontology)
+                        newontology.print()
                         object = newontology.name + ':' + tmp[1]
                 else:
                     object = "knora-api:" + propclass["object"]
@@ -421,9 +492,10 @@ def program(args):
                 ).create(last_modification_date)
             except Error as err:
                 print("Creating property class failed: " + err.message)
-                exit(105)
+                return False
             newpropclasses[newpropclass.id] = newpropclass
-            if args.verbose is not None:
+            if verbose:
+                print("New property class:")
                 newpropclass.print()
 
         #
@@ -448,6 +520,7 @@ def program(args):
                 else:
                     propid = "knora-api:" + cardinfo["propname"]
                 last_modification_date = rc.addProperty(propid, cardinality, last_modification_date)
+    return True
 
 
 def list_creator(con: Connection, project: Project, parent_node: ListNode, nodes: List[dict]):
@@ -467,6 +540,96 @@ def list_creator(con: Connection, project: Project, parent_node: ListNode, nodes
         else:
             nodelist.append({newnode.name: {"id": newnode.id}})
     return nodelist
+
+
+def get_ontology(ontoident: str, outfile: str, server: str, user: str, password: str, verbose: bool) -> bool:
+    con = Connection(server)
+    # con.login(user, password)
+    if re.match("^[0-9aAbBcCdDeEfF]{4}$", ontoident):
+        project = Project(con=con, shortcode=ontoident)
+    elif re.match("^[\\w-]+$", ontoident):
+        project = Project(con=con, shortname=ontoident)
+    elif re.match("^(http)s?://([\\w\\.\\-~]+:?\\d{,4})(/[\\w\\-~]+)+$", ontoident):
+        project = Project(con=con, shortname=ontoident)
+    else:
+        print("Invalid ontology identification!")
+        return False
+
+    project = project.read()
+
+    projectobj = project.createDefinitionFileObj()
+
+    #
+    # now collect the lists
+    #
+    listroots = ListNode.getAllLists(con=con, project_iri=project.id)
+    listobj = []
+    for listroot in listroots:
+        complete_list = listroot.getAllNodes()
+        listobj.append(complete_list.createDefinitionFileObj())
+    projectobj["lists"] = listobj
+
+    projectobj["ontologies"] = []
+    for ontology in project.ontologies:
+        oparts = ontology.split("/")
+        name = oparts[len(oparts) - 1]
+        shortcode = oparts[len(oparts) - 2]
+        lastmoddate, ontology = Ontology.getOntologyFromServer(con=con, shortcode=shortcode, name=name)
+        projectobj["ontologies"].append(ontology.createDefinitionFileObj())
+
+    umbrella = {
+        "prefixes": ontology.context.get_externals_used(),
+        "project": projectobj
+    }
+
+    with open(outfile, 'w', encoding='utf8') as outfile:
+        json.dump(umbrella, outfile, indent=3, ensure_ascii=False)
+
+    print(ontology.context)
+
+def program(args):
+    #
+    # parse the arguments of the command line
+    #
+    parser = argparse.ArgumentParser(
+        description="A program to create and manipulate ontologies based on the DaSCH Service Platform and Knora"
+    )
+    subparsers = parser.add_subparsers(title="Subcommands",
+                                       description='Valid subcommands are',
+                                       help='sub-command help')
+
+    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
+    parser.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the Knora server")
+    parser.add_argument("-u", "--user", default="root@example.com", help="Username for Knora")
+    parser.add_argument("-p", "--password", default="test", help="The password for login")
+
+    parser_create = subparsers.add_parser('create', help='Create ontologies, lists etc.')
+    parser_create.set_defaults(action="create")
+    parser_create.add_argument("-V", "--validate", action='store_true', help="Do only validation of JSON, no upload of the ontology")
+    parser_create.add_argument("datamodelfile", help="path to data model file")
+    parser_create.add_argument("-L", "--listfile", type=str, default="lists.json", help="Name of list node informationfile")
+    parser_create.add_argument("-l", "--lists", action='store_true', help="Only create the lists")
+
+    parser_get = subparsers.add_parser('get', help='Get ontology information from server')
+    parser_get.set_defaults(action="get")
+    parser_get.add_argument("outfile", help="path to data model file", default="onto.json")
+    parser_get.add_argument("-o", "--ontology", type=str, help="Shortcode, shortname or iri of ontology", required=True)
+
+    args = parser.parse_args(args)
+
+    if args.action == "create":
+        if args.lists:
+            if args.validate:
+                validate_list(args.datamodelfile)
+            else:
+                create_lists(args.datamodelfile, args.listfile)
+        else:
+            if args.validate:
+                validate_ontology(args.datamodelfile)
+            else:
+                create_ontology(args.datamodelfile, args.listfile, args.server, args.user, args.password, args.verbose)
+    elif args.action == "get":
+        get_ontology(args.ontology, args.outfile, args.server, args.user, args.password, args.verbose)
 
 
 def main():

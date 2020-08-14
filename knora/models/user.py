@@ -148,6 +148,7 @@ class User:
     add_to_group: Dict[str,bool]
     rm_from_group: Set[str]
     change_admin: Set[str]
+    __changed: Set[str]
 
     def __init__(self,
                  con:  Connection,
@@ -213,7 +214,7 @@ class User:
             raise BaseError('In_groups must be a set of strings or None!')
 
         self._sysadmin = None if sysadmin is None else bool(sysadmin)
-        self.changed = set()
+        self.__changed = set()
         self.add_to_project = {}
         self.rm_from_project = {}
         self.change_admin = {}
@@ -237,7 +238,7 @@ class User:
         if value is None:
             return
         self._username = str(value)
-        self.changed.add('username')
+        self.__changed.add('username')
 
     @property
     def email(self) -> Optional[str]:
@@ -248,7 +249,7 @@ class User:
         if value is None:
             return
         self._email = str(value)
-        self.changed.add('email')
+        self.__changed.add('email')
 
     @property
     def givenName(self) -> Optional[str]:
@@ -259,7 +260,7 @@ class User:
         if value is None:
             return
         self._givenName = str(value)
-        self.changed.add('givenName')
+        self.__changed.add('givenName')
 
     @property
     def familyName(self) -> Optional[str]:
@@ -270,7 +271,7 @@ class User:
         if value is None:
             return
         self._familyName = str(value)
-        self.changed.add('familyName')
+        self.__changed.add('familyName')
 
     @property
     def password(self) -> Optional[str]:
@@ -282,7 +283,7 @@ class User:
         if value is None:
             return
         self._password = str(value)
-        self.changed.add('password')
+        self.__changed.add('password')
 
     @property
     def lang(self) -> Optional[Languages]:
@@ -294,13 +295,13 @@ class User:
             return
         if isinstance(value, Languages):
             self._lang = value
-            self.changed.add('lang')
+            self.__changed.add('lang')
         else:
             lmap = dict(map(lambda a: (a.value, a), Languages))
             if lmap.get(value) is None:
                 raise BaseError('Invalid language string "' + value + '"!')
             self._lang = lmap[value]
-            self.changed.add('lang')
+            self.__changed.add('lang')
 
     @property
     def status(self) -> bool:
@@ -310,7 +311,7 @@ class User:
     def status(self, value: Optional[bool]) -> None:
         self._status = None if value is None else bool(value)
         if value is not None:
-            self.changed.add('status')
+            self.__changed.add('status')
 
     @property
     def sysadmin(self) -> bool:
@@ -320,7 +321,7 @@ class User:
     def sysadmin(self, value: bool):
         self._sysadmin = None if value is None else bool(value)
         if value is not None:
-            self.changed.add('sysadmin')
+            self.__changed.add('sysadmin')
 
     @property
     def in_groups(self) -> Set[str]:
@@ -342,7 +343,7 @@ class User:
             self.rm_from_group.pop(value)
         elif value not in self._in_groups:
             self.add_to_group.add(value)
-            self.changed.add('in_groups')
+            self.__changed.add('in_groups')
         else:
             raise BaseError("Already member of this group!")
 
@@ -358,7 +359,7 @@ class User:
             self.add_to_group.discard(value)
         elif value in self._in_groups:
             self.rm_from_group.add(value)
-            self.changed.add('in_groups')
+            self.__changed.add('in_groups')
         else:
             raise BaseError("User is not in groups!")
 
@@ -383,7 +384,7 @@ class User:
             self.rm_from_project.pop(value)
         elif value not in self._in_projects:
             self.add_to_project[value] = padmin
-            self.changed.add('in_projects')
+            self.__changed.add('in_projects')
         else:
             raise BaseError("Already member of this project!")
 
@@ -399,7 +400,7 @@ class User:
             self.add_to_project.pop(value)
         elif value in self._in_projects:
             self.rm_from_project[value] = self._in_projects[value]
-            self.changed.add('in_projects')
+            self.__changed.add('in_projects')
         else:
             raise BaseError("Project is not in list of member projects!")
 
@@ -413,7 +414,7 @@ class User:
 
         if value in self._in_projects:
             self.change_admin[value] = True
-            self.changed.add('in_projects')
+            self.__changed.add('in_projects')
         elif value in self.add_to_project:
             self.add_to_project[value] = True
         else:
@@ -428,11 +429,14 @@ class User:
         """
         if value in self._in_projects:
             self.change_admin[value] = False
-            self.changed.add('in_projects')
+            self.__changed.add('in_projects')
         elif value in self.add_to_project:
             self.add_to_project[value] = False
         else:
             raise BaseError("User is not member of project!")
+
+    def has_changed(self, name: str):
+        return name in self.__changed
 
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any):
@@ -526,32 +530,32 @@ class User:
             tmp['systemAdmin'] = False if self._sysadmin is None else self._sysadmin
         elif action == Actions.Update:
             tmp_changed = False
-            if self._username is not None and 'username' in self.changed:
+            if self._username is not None and 'username' in self.__changed:
                 tmp['username'] = self._username
                 tmp_changed = self._username
             else:
                 tmp['username'] = None
-            if self._email is not None  and 'email' in self.changed:
+            if self._email is not None  and 'email' in self.__changed:
                 tmp['email'] = self._email
                 tmp_changed = True
             else:
                 tmp['email'] = self._email
-            if self._givenName is not None and 'givenName' in self.changed:
+            if self._givenName is not None and 'givenName' in self.__changed:
                 tmp['givenName'] = self._givenName
                 tmp_changed = True
             else:
                 tmp['givenName'] = None
-            if self._familyName is not None and 'familyName' in self.changed:
+            if self._familyName is not None and 'familyName' in self.__changed:
                 tmp['familyName'] = self._familyName
                 tmp_changed = True
             else:
                 tmp['familyName'] = None
-            if self._lang is not None and 'lang' in self.changed:
+            if self._lang is not None and 'lang' in self.__changed:
                 tmp['lang'] = self._lang.value
                 tmp_changed = True
             else:
                 tmp['lang'] = None
-            if self._sysadmin is not None and 'sysadmin' in self.changed:
+            if self._sysadmin is not None and 'sysadmin' in self.__changed:
                 tmp['sysadmin'] = self._sysadmin
                 tmp_changed = True
             else:
@@ -609,11 +613,11 @@ class User:
         if jsonobj:
             jsondata = json.dumps(jsonobj)
             result = self.con.put('/admin/users/iri/' + quote_plus(self.id) + '/BasicUserInformation', jsondata)
-        if 'status' in self.changed:
+        if 'status' in self.__changed:
             jsonobj = {'status': self._status}
             jsondata = json.dumps(jsonobj)
             result = self.con.put('/admin/users/iri/' + quote_plus(self.id) + '/Status', jsondata)
-        if 'password' in self.changed:
+        if 'password' in self.__changed:
             if requesterPassword is None:
                 raise BaseError("Requester's password is missing!")
             jsonobj = {
@@ -622,7 +626,7 @@ class User:
             }
             jsondata = json.dumps(jsonobj)
             result = self.con.put('/admin/users/iri/' + quote_plus(self.id) + '/Password', jsondata)
-        if 'sysadmin' in self.changed:
+        if 'sysadmin' in self.__changed:
             jsonobj = {'systemAdmin': self._sysadmin}
             jsondata = json.dumps(jsonobj)
             result = self.con.put('/admin/users/iri/' + quote_plus(self.id) + '/SystemAdmin', jsondata)

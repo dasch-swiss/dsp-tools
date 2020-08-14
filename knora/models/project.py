@@ -190,8 +190,9 @@ class Project:
 
     @shortname.setter
     def shortname(self, value: str) -> None:
-        self.__shortname = str(value)
-        self.__changed.add('shortname')
+        if self.__shortname != str(value):
+            self.__shortname = str(value)
+            self.__changed.add('shortname')
 
     @property
     def longname(self) -> Optional[str]:
@@ -199,8 +200,9 @@ class Project:
 
     @longname.setter
     def longname(self, value: str) -> None:
-        self.__longname = str(value)
-        self.__changed.add('longname')
+        if self.__longname != str(value):
+            self.__longname = str(value)
+            self.__changed.add('longname')
 
     @property
     def description(self) -> Optional[LangString]:
@@ -288,10 +290,10 @@ class Project:
         return self.__selfjoin
 
     @selfjoin.setter
-    def selfjoin(self, value: bool) ->  None:
+    def selfjoin(self, value: bool) -> None:
         if self.__selfjoin != value:
             self.__changed.add('selfjoin')
-        self.__selfjoin = value
+            self.__selfjoin = value
 
     @property
     def status(self) -> bool:
@@ -299,8 +301,9 @@ class Project:
 
     @status.setter
     def status(self, value: bool) -> None:
-        self.__status = value
-        self.__changed.add('status')
+        if self.__status != value:
+            self.__status = value
+            self.__changed.add('status')
 
     @property
     def logo(self) -> str:
@@ -308,8 +311,9 @@ class Project:
 
     @logo.setter
     def logo(self, value: str) -> None:
-        self.__logo = value
-        self.__changed.add('logo')
+        if self.__logo != value:
+            self.__logo = value
+            self.__changed.add('logo')
 
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any) -> Any:
@@ -379,13 +383,13 @@ class Project:
             if self.__shortname is None:
                 raise BaseError("There must be a valid project shortname!")
             tmp['shortname'] = self.__shortname
-            if self.__longname is  None:
+            if self.__longname is None:
                 raise BaseError("There must be a valid project longname!")
             tmp['longname'] = self.__longname
             if self.__description.isEmpty():
                 raise BaseError("There must be a valid project description!")
             tmp['description'] = self.__description.toJsonObj()
-            if len(self.__keywords) > 0:
+            if self.__keywords is not None and len(self.__keywords) > 0:
                 tmp['keywords'] = self.__keywords
             if self.__selfjoin is None:
                 raise BaseError("selfjoin must be defined (True or False!")

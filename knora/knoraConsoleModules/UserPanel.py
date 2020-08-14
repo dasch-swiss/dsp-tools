@@ -10,15 +10,20 @@ path = os.path.abspath(os.path.dirname(__file__))
 if not path in sys.path:
     sys.path.append(path)
 
-from models.helpers import Languages, Actions, LangString
-from models.user import User
+from models.helpers import Actions, BaseError, Context, Cardinality
+from models.langstring import Languages, LangStringParam, LangString
+from models.connection import Connection, Error
 from models.project import Project
+from models.listnode import ListNode
 from models.group import Group
-from models.connection import Connection
+from models.user import User
+from models.ontology import Ontology
+from models.propertyclass import PropertyClass
+from models.resourceclass import ResourceClass
 
 from KnDialogControl import KnDialogControl, KnDialogTextCtrl, KnDialogChoice, KnDialogCheckBox, KnCollapsiblePicker
 
-def show_error(msg: str, knerr: KnoraError):
+def show_error(msg: str, knerr: BaseError):
     dlg = wx.MessageDialog(None,
                            message=msg + "\n" + knerr.message,
                            caption='Error',
@@ -53,8 +58,8 @@ class UserPanel(wx.Panel):
         self.edit_button.Bind(wx.EVT_BUTTON, self.edit_entry)
         self.new_button = wx.Button(parent=self, label="new")
         self.new_button.Bind(wx.EVT_BUTTON, self.new_entry)
-        bottomsizer.Add(self.edit_button, proportion=1, flag=wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=3)
-        bottomsizer.Add(self.new_button, proportion=1, flag=wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=3)
+        bottomsizer.Add(self.edit_button, proportion=1, flag=wx.EXPAND | wx.ALL, border=3)
+        bottomsizer.Add(self.new_button, proportion=1, flag=wx.EXPAND | wx.ALL, border=3)
 
         topsizer.Add(bottomsizer, proportion=0, flag=wx.EXPAND)
         self.SetAutoLayout(1)
@@ -100,7 +105,7 @@ class UserPanel(wx.Panel):
         res = ue.ShowModal()
         if res == wx.ID_OK:
             user: User = ue.get_changed()
-            if 'password' in user.__changed:
+            if user.has_changed('password'):
                 dlg = wx.TextEntryDialog(
                     self, 'Please enter Your admin password', 'Password',
                     style=wx.TE_PASSWORD | wx.OK | wx.CANCEL)
@@ -246,10 +251,24 @@ class UserEntryDialog(wx.Dialog):
         return self.user
 
     def get_changed(self) -> User:
-        self.user.email = self.email.get_changed()
-        self.user.username = self.username.get_changed()
-        self.user.familyName = self.familyName.get_changed()
-        self.user.givenName = self.givenName.get_changed()
+        tmp = self.email.get_changed()
+        if tmp is not None:
+            self.user.email = tmp
+
+        tmp = self.username.get_changed()
+        if tmp is not None:
+            self.user.username = tmp
+
+        tmp = self.familyName.get_changed()
+        if tmp is not None:
+            self.user.familyName = tmp
+
+        tmp = self.givenName.get_changed()
+        if tmp is not None:
+            self.user.givenName = tmp
+
+        tmp = self.lang.get_changed()
+        if tmp is not None:
         self.user.lang = self.lang.get_changed()
         self.user.status = self.status.get_changed()
         self.user.password = self.password.get_changed()

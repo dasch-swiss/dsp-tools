@@ -87,7 +87,8 @@ class KnDialogTextCtrl(KnDialogControl):
                  name: str,
                  value: Optional[str] = None,
                  size: Optional[wx.Size] = None,
-                 style = None):
+                 style = None,
+                 enabled: bool = True):
         self.orig_value = value
         if style is None:
             self.text_ctrl = wx.TextCtrl(panel,
@@ -101,6 +102,8 @@ class KnDialogTextCtrl(KnDialogControl):
                                          size=wx.Size(200, -1) if size is None else size,
                                          style=style)
         self.text_ctrl.Bind(wx.EVT_TEXT, self.text_changed)
+        if not enabled:
+            self.text_ctrl.Disable()
         super().__init__(panel, gsizer, label, name, self.text_ctrl, True if value is None else False)
 
     def text_changed(self, event):
@@ -222,12 +225,12 @@ class KnCollapsiblePicker:
             self.itemlist.Check(self.chosen.index(sel))
         self.cpp.SetSizer(self.localsizer)
         self.localsizer.SetSizeHints(self.cpp)
-        self.localsizer.Add(self.itemlist, flag=wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.GROW | wx.ALL)
+        self.localsizer.Add(self.itemlist, flag=wx.EXPAND | wx.GROW | wx.ALL)
 
         if self.available is not None:
             self.modify = wx.Button(self.cpp, label="Add/Remove...")
             self.modify.Bind(wx.EVT_BUTTON, self.picker)
-            self.localsizer.Add(self.modify, flag=wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.ALL)
+            self.localsizer.Add(self.modify, flag=wx.EXPAND | wx.ALL)
 
         self.cpp.SetSizer(self.localsizer)
 

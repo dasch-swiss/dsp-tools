@@ -156,6 +156,18 @@ class LangString:
     def __iter__(self):
         return LangStringIterator(self)
 
+    def get_by_lang(self, key: Optional[Union[Languages, str]] = None) -> Optional[str]:
+        if key is None:
+            return self._simplestring
+        else:
+            if isinstance(key, Enum):
+                return self._langstrs.get(key)
+            else:
+                lmap = dict(map(lambda a: (a.value, a), Languages))
+                if lmap.get(key.lower()) is None:
+                    raise BaseError('Invalid language string "' + key + '"!')
+                return self._langstrs.get(lmap[key.lower()])
+
     def items(self):
         return self._langstrs.items()
 

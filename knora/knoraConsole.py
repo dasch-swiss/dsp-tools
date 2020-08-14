@@ -2,14 +2,20 @@ import os
 import sys
 import wx
 from typing import List, Set, Dict, Tuple, Optional
-from knora import KnoraError, Knora
+#from knora import KnoraError, Knora
 from pprint import pprint
 
-path = os.path.abspath(os.path.dirname(__file__))
-if not path in sys.path:
-    sys.path.append(path)
+from models.helpers import Actions, BaseError, Context, Cardinality
+from models.langstring import Languages, LangStringParam, LangString
+from models.connection import Connection, Error
+from models.project import Project
+from models.listnode import ListNode
+from models.group import Group
+from models.user import User
+from models.ontology import Ontology
+from models.propertyclass import PropertyClass
+from models.resourceclass import ResourceClass
 
-from models.Connection import Connection
 from knoraConsoleModules.ProjectPanel import ProjectPanel
 from knoraConsoleModules.UserPanel import UserPanel
 
@@ -155,7 +161,7 @@ class OpenConnectionDialog(wx.Dialog):
             server_str = server.GetLineText(0)
             username_str = username.GetLineText(0)
             password_str = password.GetLineText(0)
-            self.con = KnoraConnection(server_str)
+            self.con = Connection(server_str)
             self.con.login(username_str, password_str)
 
         else:

@@ -104,6 +104,7 @@ py_test(
         "//knora/models:connection",
         "//knora/models:helpers",
         "//knora/models:ontology",
+        "//knora/models:listnode",
         requirement("pystrict"),
     ],
 )
@@ -116,6 +117,7 @@ py_test(
         "//knora/models:helpers",
         "//knora/models:ontology",
         "//knora/models:resourceclass",
+        "//knora/models:listnode",
         requirement("pystrict"),
     ],
 )
@@ -128,6 +130,7 @@ py_test(
         "//knora/models:helpers",
         "//knora/models:ontology",
         "//knora/models:propertyclass",
+        "//knora/models:listnode",
         requirement("pystrict"),
     ],
 )
@@ -141,6 +144,7 @@ py_test(
         "//knora/models:ontology",
         "//knora/models:resourceclass",
         "//knora/models:propertyclass",
+        "//knora/models:listnode",
         requirement("pystrict"),
     ],
 )

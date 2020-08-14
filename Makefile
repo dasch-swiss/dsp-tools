@@ -16,7 +16,7 @@ clone-knora-stack:
 
 .PHONY: knora-stack
 knora-stack: ## runs the knora-stack
-	$(MAKE) -C $(CURRENT_DIR)/.tmp/knora-stack stack-down-delete-volumes
+	@$(MAKE) -C $(CURRENT_DIR)/.tmp/knora-stack stack-down-delete-volumes
 	$(MAKE) -C $(CURRENT_DIR)/.tmp/knora-stack init-db-test
 	$(MAKE) -C $(CURRENT_DIR)/.tmp/knora-stack stack-up
 	$(MAKE) -C $(CURRENT_DIR)/.tmp/knora-stack stack-logs-api-no-follow

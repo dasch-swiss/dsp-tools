@@ -7,7 +7,7 @@ env:
 
 jobs:
   test-integration:
-    name: JS Lib Test Integration
+    name: Integration Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source

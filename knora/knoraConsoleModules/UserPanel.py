@@ -115,6 +115,7 @@ class UserPanel(wx.Panel):
                 dlg.Destroy()
             else:
                 user.print()
+                pprint(user.changed)
                 user = user.update()
 
             self.listctl.SetItem(idx, 0, user.username)
@@ -187,7 +188,6 @@ class UserEntryDialog(wx.Dialog):
         #
         if not newentry:
             tmp = list(filter(lambda a: not a[1], self.user.in_projects.items()))
-            #member_proj_iris = list(map(lambda a: a[0], tmp))
             member_proj_iris = list(map(lambda a: a[0], self.user.in_projects.items()))
 
             tmp = list(filter(lambda a: a[1], self.user.in_projects.items()))
@@ -222,15 +222,17 @@ class UserEntryDialog(wx.Dialog):
                                            on_add_cb=self.add_to_proj,
                                            on_rm_cb=self.rm_from_proj)
 
-        self.group_list_formatter = lambda a: a.name
-        all_group_names = list(map(self.group_list_formatter, self.all_groups))
+        all_group_names = list(map(lambda a: a.name, self.all_groups))
+        self.grpmap_name_iri = dict(map(lambda a: (a.name, a.id), self.all_groups))
+        self.grpmap_iri_name = dict(map(lambda a: (a.id, a.name), self.all_groups))
+        self.in_groups = list(map(lambda a: self.grpmap_iri_name[a], self.user.in_groups))
 
         self.grpsel = KnCollapsiblePicker(parent=self,
                                           sizer=topsizer,
                                           label="Member of groups:",
                                           available=None,
                                           chosen=all_group_names,
-                                          selected=[],
+                                          selected=list(self.in_groups),
                                           on_change_cb=self.group_cb)
 
         bsizer = self.CreateStdDialogButtonSizer(wx.OK | wx.CANCEL)
@@ -239,15 +241,22 @@ class UserEntryDialog(wx.Dialog):
         self.SetSizerAndFit(topsizer)
 
     def get_value(self) -> User:
-        self.user.email = self.email.get_value()
-        self.user.username = self.username.get_value()
-        self.user.familyName = self.familyName.get_value()
-        self.user.givenName = self.givenName.get_value()
-        print('==>LANG: ', self.lang.get_value())
-        self.user.lang = self.lang.get_value()
-        self.user.status = self.status.get_value()
-        self.user.password = self.password.get_value()
-        self.user.sysadmin = self.sysadmin.get_value()
+        in_groups = set(map(lambda x: self.grpmap_name_iri[x], self.grpsel.GetCheckedStrings()))
+        in_projects = dict(map(lambda x: (self.projmap_name_iri[x[0]], x[1]), self.projsel.GetItemsAndCheck().items()))
+        pp = self.projsel.GetItemsAndCheck()
+        self.user = User(
+            con=self.con,
+            username=self.username.get_value(),
+            email=self.email.get_value(),
+            givenName=self.givenName.get_value(),
+            familyName=self.familyName.get_value(),
+            lang=self.lang.get_value(),
+            password=self.password.get_value(),
+            status=self.status.get_value(),
+            sysadmin=self.sysadmin.get_value(),
+            in_groups=in_groups,
+            in_projects=in_projects
+        )
         return self.user
 
     def get_changed(self) -> User:
@@ -269,10 +278,19 @@ class UserEntryDialog(wx.Dialog):
 
         tmp = self.lang.get_changed()
         if tmp is not None:
-        self.user.lang = self.lang.get_changed()
-        self.user.status = self.status.get_changed()
-        self.user.password = self.password.get_changed()
-        self.user.sysadmin = self.sysadmin.get_changed()
+            self.user.lang = tmp
+
+        tmp = self.status.get_changed()
+        if tmp is not None:
+            self.user.status = tmp
+
+        tmp = self.password.get_changed()
+        if tmp is not None:
+            self.user.password = tmp
+
+        tmp = self.sysadmin.get_changed()
+        if tmp is not None:
+            self.user.sysadmin = tmp
         return self.user
 
     def add_to_proj(self, s)-> None:
@@ -307,7 +325,17 @@ class UserEntryDialog(wx.Dialog):
         return True
 
     def group_cb(self, s, on) -> bool:
-        print("Groups CheckListBox changed!")
+        print("Groups CheckListBox changed!", self.grpmap_name_iri[s])
+        grp_iri = self.grpmap_name_iri[s]
+        try:
+            if on:
+                self.user.addToGroup(grp_iri)
+            else:
+                self.user.rmFromGroup(grp_iri)
+        except BaseError as knerr:
+            show_error("Couldn't modify group membershio flag of group", knerr)
+            return False
+        return True
 
 
 

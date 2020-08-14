@@ -68,7 +68,6 @@ class ProjectPanel(wx.Panel):
 
     def update(self):
         projects = Project.getAllProjects(self.con)
-        #projects = con.get_existing_projects(True)
         self.listctl.DeleteAllItems()
         for project in projects:
             self.listctl.Append((project.shortcode,

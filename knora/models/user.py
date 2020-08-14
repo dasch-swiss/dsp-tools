@@ -145,7 +145,7 @@ class User:
     _in_projects: Dict[str, bool]
     add_to_project: Dict[str, bool]
     rm_from_project: Dict[str, bool]
-    add_to_group: Dict[str,bool]
+    add_to_group: Set[str]
     rm_from_group: Set[str]
     change_admin: Set[str]
     __changed: Set[str]
@@ -339,7 +339,7 @@ class User:
         :return: None
         """
 
-        if value in self.add_to_group:
+        if value in self.rm_from_group:
             self.rm_from_group.pop(value)
         elif value not in self._in_groups:
             self.add_to_group.add(value)
@@ -434,6 +434,10 @@ class User:
             self.add_to_project[value] = False
         else:
             raise BaseError("User is not member of project!")
+
+    @property
+    def changed(self) -> Set[str]:
+        return self.__changed
 
     def has_changed(self, name: str):
         return name in self.__changed
@@ -533,33 +537,21 @@ class User:
             if self._username is not None and 'username' in self.__changed:
                 tmp['username'] = self._username
                 tmp_changed = self._username
-            else:
-                tmp['username'] = None
-            if self._email is not None  and 'email' in self.__changed:
+            if self._email is not None and 'email' in self.__changed:
                 tmp['email'] = self._email
                 tmp_changed = True
-            else:
-                tmp['email'] = self._email
             if self._givenName is not None and 'givenName' in self.__changed:
                 tmp['givenName'] = self._givenName
                 tmp_changed = True
-            else:
-                tmp['givenName'] = None
             if self._familyName is not None and 'familyName' in self.__changed:
                 tmp['familyName'] = self._familyName
                 tmp_changed = True
-            else:
-                tmp['familyName'] = None
             if self._lang is not None and 'lang' in self.__changed:
                 tmp['lang'] = self._lang.value
                 tmp_changed = True
-            else:
-                tmp['lang'] = None
             if self._sysadmin is not None and 'sysadmin' in self.__changed:
                 tmp['sysadmin'] = self._sysadmin
                 tmp_changed = True
-            else:
-                tmp['sysadmin'] = None
             if not tmp_changed:
                 tmp = {}
         return tmp
@@ -649,10 +641,13 @@ class User:
                 result = self.con.delete('/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
 
         for p in self.add_to_group:
+            print('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
             result = self.con.post('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
         for p in self.rm_from_group:
             result = self.con.delete('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
-        return User.fromJsonObj(self.con, result['user'])
+        user = User(con=self.con, id=self._id).read()
+        user.print()
+        return user
 
     def delete(self):
         """

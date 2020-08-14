@@ -18,6 +18,7 @@ from models.resourceclass import ResourceClass
 
 from knoraConsoleModules.ProjectPanel import ProjectPanel
 from knoraConsoleModules.UserPanel import UserPanel
+from knoraConsoleModules.GroupPanel import GroupPanel
 
 
 class KnoraConsole(wx.Frame):
@@ -40,8 +41,11 @@ class KnoraConsole(wx.Frame):
         self.project_panel = ProjectPanel(self.nb)
         self.nb.InsertPage(index=0, page=self.project_panel, text="Projects")
 
+        self.gp = GroupPanel(self.nb)
+        self.nb.InsertPage(index=1, page=self.gp, text="Groups")
+
         self.up = UserPanel(self.nb)
-        self.nb.InsertPage(index=1, page=self.up, text="Users")
+        self.nb.InsertPage(index=2, page=self.up, text="Users")
 
         self.con = None
 
@@ -105,6 +109,10 @@ class KnoraConsole(wx.Frame):
 
             self.up.set_connection(self.con)
             self.up.update()
+
+            self.gp.set_connection(self.con)
+            self.gp.update()
+
 
     def onDisconnect(self, event):
         wx.MessageBox("Disconnect from server")

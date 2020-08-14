@@ -132,7 +132,8 @@ class KnDialogChoice(KnDialogControl):
                  label: str,
                  name: str,
                  choices: List[str],
-                 value: Optional[str] = None):
+                 value: Optional[str] = None,
+                 enabled: bool = True):
         self.choices = choices
         self.orig_value = choices[0] if value is None else value
         self.switcherStrToInt: Dict[str, int] = {}
@@ -144,6 +145,8 @@ class KnDialogChoice(KnDialogControl):
         if value is not None:
             self.choice_ctrl.SetSelection(self.switcherStrToInt[value])
         self.choice_ctrl.Bind(wx.EVT_CHOICE, self.choice_changed)
+        if not enabled:
+            self.choice_ctrl.Disable()
         super().__init__(panel, gsizer, label, name, self.choice_ctrl, True if value is None else False)
 
     def choice_changed(self, event):
@@ -282,6 +285,12 @@ class KnCollapsiblePicker:
 
     def GetCheckedStrings(self):
         return self.itemlist.GetCheckedStrings()
+
+    def GetItemsAndCheck(self) -> Dict[str, bool]:
+        count = self.itemlist.GetCount()
+        all = [self.itemlist.GetString(x) for x in range(count)]
+        checked = self.itemlist.GetCheckedStrings()
+        return dict(map(lambda x: (x, x in checked), all))
 
 
 

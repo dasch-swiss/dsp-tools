@@ -14,17 +14,25 @@ jobs:
         uses: actions/checkout@v1
         with:
           fetch-depth: 1
-      - name: Checkout private ci-assets
-        uses: actions/checkout@v2
+      - uses: joschi/setup-jdk@v2
         with:
-          repository: dasch-swiss/dsp-ci-assets
-          token: ${{ secrets.GitHub_PAT }} # `GitHub_PAT` is a secret that contains the PAT.
-          path: ci
+          java-version: '11' # The OpenJDK version to make available on the path
+          architecture: 'x64' # defaults to 'x64'
       - name: install requirements
-        run: sudo apt-get install expect
-      - name: prepare needed graphdb-se files
-        run: make ci-prepare-graphdb
-        env:
-          LICENSE_ENCRYPTION_KEY: ${{ secrets.license_encryption_key }}
+        run: sudo apt-get install ca-certificates-java expect
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Set up Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+      - name: Install dependencies
+        run: |
+          npm install --global @bazel/bazelisk
       - name: run test-integration
-        run: make test-integration
+        run: |
+          make install-requirements
+          make install
+          make test

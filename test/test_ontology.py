@@ -78,9 +78,10 @@ class TestOntology(unittest.TestCase):
 
     def test_get_ontologies_of_project(self):
         ontolist = Ontology.getProjectOntologies(self.con, self.project)
-        self.assertIn('http://0.0.0.0:3333/ontology/0001/anything/v2', ontolist)
-        self.assertIn('http://0.0.0.0:3333/ontology/0001/minimal/v2', ontolist)
-        self.assertIn('http://0.0.0.0:3333/ontology/0001/something/v2', ontolist)
+        ontolist_ids = [x.id for x in ontolist]
+        self.assertIn('http://0.0.0.0:3333/ontology/0001/anything/v2', ontolist_ids)
+        self.assertIn('http://0.0.0.0:3333/ontology/0001/minimal/v2', ontolist_ids)
+        self.assertIn('http://0.0.0.0:3333/ontology/0001/something/v2', ontolist_ids)
 
 
 if __name__ == '__main__':

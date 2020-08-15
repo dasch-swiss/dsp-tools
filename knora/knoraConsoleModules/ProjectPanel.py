@@ -70,6 +70,7 @@ class ProjectPanel(wx.Panel):
         projects = Project.getAllProjects(self.con)
         self.listctl.DeleteAllItems()
         for project in projects:
+            print(project.id)
             self.listctl.Append((project.shortcode,
                                  project.shortname,
                                  project.longname,

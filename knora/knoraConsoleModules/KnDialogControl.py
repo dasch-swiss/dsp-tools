@@ -79,6 +79,25 @@ class KnDialogControl:
     def get_changed(self):
         return None
 
+class KnDialogStaticText(KnDialogControl):
+    def __init__(self,
+                 panel: wx.Panel,
+                 gsizer: wx.FlexGridSizer,
+                 label: str,
+                 name: str,
+                 value: Optional[str] = None,
+                 style = None):
+        if style is None:
+            self.static_text = wx.StaticText(panel,
+                                             name=name,
+                                             label=value if value is not None else "")
+        else:
+            self.static_text = wx.StaticText(panel,
+                                             name=name,
+                                             label=value if value is not None else "",
+                                             style=style)
+        super().__init__(panel, gsizer, label, name, self.static_text, True if value is None else False)
+
 class KnDialogTextCtrl(KnDialogControl):
     def __init__(self,
                  panel: wx.Panel,

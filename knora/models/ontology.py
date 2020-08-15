@@ -60,6 +60,7 @@ class Ontology:
     _project: str
     _name: str
     _label: str
+    _comment: str
     _lastModificationDate: LastModificationDate
     _resource_classes: List[ResourceClass]
     _property_classes: List[PropertyClass]
@@ -73,6 +74,7 @@ class Ontology:
                  project: Optional[Union[str, Project]] = None,
                  name: Optional[str] = None,
                  label: Optional[str] = None,
+                 comment: Optional[str] = None,
                  lastModificationDate: Optional[Union[str, LastModificationDate]] = None,
                  resource_classes: List[ResourceClass] = None,
                  property_classes: List[PropertyClass] = None,
@@ -87,6 +89,7 @@ class Ontology:
             self._project = project
         self._name = name
         self._label = label
+        self._comment = comment
         if lastModificationDate is None:
             self._lastModificationDate = None
         elif isinstance(lastModificationDate, LastModificationDate):
@@ -100,7 +103,7 @@ class Ontology:
         self._skiplist = []
 
     @property
-    def id(self):
+    def id(self) -> str:
         return self._id
 
     @id.setter
@@ -108,7 +111,7 @@ class Ontology:
         raise BaseError('Ontology id cannot be modified!')
 
     @property
-    def project(self):
+    def project(self) -> str:
         return self._project
 
     @project.setter
@@ -116,12 +119,12 @@ class Ontology:
         raise BaseError("An ontology's project cannot be modified!")
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
     @name.setter
     def name(self, value: str):
-        raise BaseError("An ontology's project cannot be modified!")
+        raise BaseError("An ontology's name cannot be modified!")
 
     @property
     def label(self):
@@ -131,6 +134,15 @@ class Ontology:
     def label(self, value: str):
         self._label = str(value)
         self.changed.add('label')
+
+    @property
+    def comment(self):
+        return self._comment
+
+    @comment.setter
+    def comment(self, value: str):
+        self._comment = str(value)
+        self.changed.add('comment')
 
     @property
     def lastModificationDate(self) -> LastModificationDate:
@@ -196,6 +208,7 @@ class Ontology:
         label = json_obj.get(rdfs + ':label')
         if label is None:
             raise BaseError('Ontology label is missing')
+        comment = json_obj.get(rdfs + ':comment')
         if json_obj.get(knora_api + ':attachedToProject') is None:
             raise BaseError('Ontology not attached to a project')
         if json_obj[knora_api + ':attachedToProject'].get('@id') is None:
@@ -225,13 +238,53 @@ class Ontology:
                                            label=label,
                                            project=project,
                                            name=this_onto,  # TODO: corresponds the prefix always to the ontology name?
+                                           comment=comment,
                                            lastModificationDate=last_modification_date,
                                            resource_classes=resource_classes,
                                            property_classes=property_classes,
                                            context=context)
 
     @classmethod
-    def allOntologiesFromJsonObj(cls, con: Connection, json_obj: Any) -> Dict[str, 'Ontology']:
+    def __oneOntologiesFromJsonObj(cls, con: Connection, json_obj: Any, context: Context) -> 'Ontology':
+        rdf = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+        rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
+        owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
+        xsd = context.prefix_from_iri("http://www.w3.org/2001/XMLSchema#")
+        knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
+        salsah_gui = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
+        if json_obj.get('@type') != owl + ':Ontology':
+            raise BaseError("Found something that is not an ontology!")
+        id = json_obj.get('@id')
+        if id is None:
+            raise BaseError('Ontology id is missing')
+        if json_obj.get(knora_api + ':attachedToProject') is None:
+            raise BaseError('Ontology not attached to a project (1)')
+        if json_obj[knora_api + ':attachedToProject'].get('@id') is None:
+            raise BaseError('Ontology not attached to a project (2)')
+        project = json_obj[knora_api + ':attachedToProject']['@id']
+        tmp = json_obj.get(knora_api + ':lastModificationDate')
+        if tmp is not None:
+            last_modification_date = LastModificationDate(json_obj.get(knora_api + ':lastModificationDate'))
+        else:
+            last_modification_date = None
+        label = json_obj.get(rdfs + ':label')
+        if label is None:
+            raise BaseError('Ontology label is missing')
+        comment = json_obj.get(rdfs + ':comment')
+        this_onto = id.split('/')[-2]
+        context2 = copy.deepcopy(context)
+        context2.add_context(this_onto, id)
+        return cls(con=con,
+                   id=id,
+                   label=label,
+                   project=project,
+                   name=this_onto,
+                   comment=comment,
+                   lastModificationDate=last_modification_date,
+                   context=context2)
+
+    @classmethod
+    def allOntologiesFromJsonObj(cls, con: Connection, json_obj: Any) -> List['Ontology']:
         context = Context(json_obj.get('@context'))
         rdf = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
         rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
@@ -239,36 +292,12 @@ class Ontology:
         xsd = context.prefix_from_iri("http://www.w3.org/2001/XMLSchema#")
         knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
         salsah_gui = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
-        ontos: Dict[str, 'Ontology'] = {}
-        for o in json_obj['@graph']:
-            if o.get('@type') != owl + ':Ontology':
-                raise BaseError("Found something that is not an ontology!")
-            id = o.get('@id')
-            if id is None:
-                raise BaseError('Ontology id is missing')
-            if o.get(knora_api + ':attachedToProject') is None:
-                raise BaseError('Ontology not attached to a project (1)')
-            if o[knora_api + ':attachedToProject'].get('@id') is None:
-                raise BaseError('Ontology not attached to a project (2)')
-            project = o[knora_api + ':attachedToProject']['@id']
-            tmp = o.get(knora_api + ':lastModificationDate')
-            if tmp is not None:
-                last_modification_date = LastModificationDate(o.get(knora_api + ':lastModificationDate'))
-            else:
-                last_modification_date = None
-            label = o.get(rdfs + ':label')
-            if label is None:
-                raise BaseError('Ontology label is missing')
-            this_onto = id.split('/')[-2]
-            context2 = copy.deepcopy(context)
-            context2.add_context(this_onto, id)
-            onto = cls(con=con,
-                       id=id,
-                       label=label,
-                       name=this_onto,
-                       lastModificationDate=last_modification_date,
-                       context=context2)
-            ontos[id] = onto
+        ontos: List['Ontology'] = []
+        if json_obj.get('@graph') is not None:
+            for o in json_obj['@graph']:
+                ontos.append(Ontology.__oneOntologiesFromJsonObj(con, o, context))
+        else:
+            ontos.append(Ontology.__oneOntologiesFromJsonObj(con, json_obj, context))
         return ontos
 
     def toJsonObj(self, action: Actions, last_modification_date: Optional[LastModificationDate] = None) -> Any:
@@ -295,6 +324,8 @@ class Ontology:
                 rdfs + ":label": self._label,
                 "@context": self._context.toJsonObj()
             }
+            if self._comment is not None:
+                tmp[rdfs + ":comment"] = self._comment
         elif action == Actions.Update:
             if last_modification_date is None:
                 raise BaseError("'last_modification_date' must be given!")
@@ -309,6 +340,8 @@ class Ontology:
                     knora_api + ':lastModificationDate': last_modification_date.toJsonObj(),
                     "@context": self._context.toJsonObj()
                 }
+            if self._comment is not None and 'comment in self.changed:':
+                tmp[rdfs + ':comment'] = self._comment
         return tmp
 
     def create(self) -> Tuple[LastModificationDate, 'Ontology']:
@@ -332,6 +365,11 @@ class Ontology:
         return result.get('knora-api:result')
 
     @staticmethod
+    def getAllOntologies(con: Connection) -> List['Ontology']:
+        result = con.get('/v2/ontologies/metadata/')
+        return Ontology.allOntologiesFromJsonObj(con, result)
+
+    @staticmethod
     def getProjectOntologies(con: Connection, project_id: str) -> List['Ontology']:
         if project_id is None:
             raise BaseError('Project ID must be defined!')
@@ -350,6 +388,8 @@ class Ontology:
             "properties": [],
             "resources": []
         }
+        if self._comment is not None:
+            ontology["comment"] = self._comment
         for prop in self._property_classes:
             if "knora-api:hasLinkToValue" in prop.superproperties:
                 self._skiplist.append(self._name + ":" + prop.name)

@@ -19,6 +19,7 @@ from models.resourceclass import ResourceClass
 from knoraConsoleModules.ProjectPanel import ProjectPanel
 from knoraConsoleModules.UserPanel import UserPanel
 from knoraConsoleModules.GroupPanel import GroupPanel
+from knoraConsoleModules.OntoPanel import OntoPanel
 
 
 class KnoraConsole(wx.Frame):
@@ -41,11 +42,14 @@ class KnoraConsole(wx.Frame):
         self.project_panel = ProjectPanel(self.nb)
         self.nb.InsertPage(index=0, page=self.project_panel, text="Projects")
 
-        self.gp = GroupPanel(self.nb)
-        self.nb.InsertPage(index=1, page=self.gp, text="Groups")
+        self.group_panel = GroupPanel(self.nb)
+        self.nb.InsertPage(index=1, page=self.group_panel, text="Groups")
 
-        self.up = UserPanel(self.nb)
-        self.nb.InsertPage(index=2, page=self.up, text="Users")
+        self.user_panel = UserPanel(self.nb)
+        self.nb.InsertPage(index=2, page=self.user_panel, text="Users")
+
+        self.onto_panel = OntoPanel(self.nb)
+        self.nb.InsertPage(index=3, page=self.onto_panel, text="Ontologies")
 
         self.con = None
 
@@ -107,12 +111,14 @@ class KnoraConsole(wx.Frame):
             self.project_panel.set_connection(self.con)
             self.project_panel.update()
 
-            self.up.set_connection(self.con)
-            self.up.update()
+            self.user_panel.set_connection(self.con)
+            self.user_panel.update()
 
-            self.gp.set_connection(self.con)
-            self.gp.update()
+            self.group_panel.set_connection(self.con)
+            self.group_panel.update()
 
+            self.onto_panel.set_connection(self.con)
+            self.onto_panel.update()
 
     def onDisconnect(self, event):
         wx.MessageBox("Disconnect from server")

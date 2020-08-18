@@ -158,7 +158,6 @@
         </xs:simpleContent>
     </xs:complexType>
     
-    <!-- resptr value type -->
     <xs:complexType name="resptr_type">
         <xs:simpleContent>
             <xs:extension base="xs:string">
@@ -366,7 +365,7 @@
         </xs:choice>
         <xs:attribute name="label" type="xs:string" use="required"/>
         <xs:attribute name="restype" type="xs:string" use="required"/>
-        <xs:attribute name="unique_id" type="xs:string" use="required"/>
+        <xs:attribute name="id" type="xs:ID" use="required"/>
         <xs:attribute name="permissions" type="xs:NCName" use="required"></xs:attribute>
     </xs:complexType>
 

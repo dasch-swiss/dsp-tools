@@ -253,7 +253,7 @@ class Ontology:
         knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
         salsah_gui = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
         if json_obj.get('@type') != owl + ':Ontology':
-            raise BaseError("Found something that is not an ontology!")
+            return None
         id = json_obj.get('@id')
         if id is None:
             raise BaseError('Ontology id is missing')
@@ -297,7 +297,9 @@ class Ontology:
             for o in json_obj['@graph']:
                 ontos.append(Ontology.__oneOntologiesFromJsonObj(con, o, context))
         else:
-            ontos.append(Ontology.__oneOntologiesFromJsonObj(con, json_obj, context))
+            onto = Ontology.__oneOntologiesFromJsonObj(con, json_obj, context)
+            if onto is not None:
+                ontos.append(onto)
         return ontos
 
     def toJsonObj(self, action: Actions, last_modification_date: Optional[LastModificationDate] = None) -> Any:

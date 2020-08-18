@@ -21,6 +21,8 @@ from models.propertyclass import PropertyClass
 from models.resourceclass import ResourceClass
 
 from KnDialogControl import KnDialogControl, KnDialogTextCtrl, KnDialogChoice, KnDialogCheckBox, KnCollapsiblePicker, KnDialogStaticText
+from ResourcePanel import ResourcePanel
+from PropertyPanel import PropertyPanel
 
 def show_error(msg: str, knerr: BaseError):
     dlg = wx.MessageDialog(None,
@@ -193,12 +195,22 @@ class OntologyEntryDialog(wx.Dialog):
         tmp_project = None if newentry else self.proj_iri_name.get(self.onto.project)
         self.project = KnDialogChoice(panel1, gsizer, "Project", "project", proj_names, tmp_project, enabled=enable_project)
 
+
         gsizer.SetSizeHints(panel1)
         panel1.SetSizer(gsizer)
         panel1.SetAutoLayout(1)
         gsizer.Fit(panel1)
 
         topsizer.Add(panel1, flag=wx.EXPAND | wx.ALL, border=5)
+
+        if not newentry:
+            self.splitter = wx.SplitterWindow(parent=self)
+            self.leftp = ResourcePanel(parent=self.splitter, con=self.con, onto=self.onto)
+            self.rightp = PropertyPanel(parent=self.splitter, con=self.con, onto=self.onto)
+
+            self.splitter.SplitVertically(self.leftp, self.rightp)
+
+            topsizer.Add(self.splitter, flag=wx.EXPAND | wx.ALL, border=5)
 
         bsizer = self.CreateStdDialogButtonSizer(wx.OK | wx.CANCEL)
         topsizer.Add(bsizer, flag=wx.EXPAND | wx.ALL, border=5)

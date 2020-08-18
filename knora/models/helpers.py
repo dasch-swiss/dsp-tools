@@ -72,6 +72,7 @@ class Context:
         "dcterms": OntoInfo("http://purl.org/dc/terms/", False),
         "skos": OntoInfo("http://www.w3.org/2004/02/skos/core", True),
         "bibtex": OntoInfo("http://purl.org/net/nknouf/ns/bibtex", True),
+        "bibo": OntoInfo("http://purl.org/ontology/bibo/", False),
         "cidoc": OntoInfo("http://purl.org/NET/cidoc-crm/core", True)
     }
 
@@ -290,7 +291,7 @@ class Context:
                 self.__rcontext[entry[1].iri] = entry[0]
                 prefix = entry[0]
             else:
-                raise BaseError("Ontology not known! Cannot generate full qualified IRI")
+                raise BaseError("Ontology {} not known! Cannot generate full qualified IRI: prefix={}".format(iri, prefix))
         return prefix + ':' + element
 
     def reduce_iri(self, iristr: str, ontoname: Optional[str] = None) -> str:

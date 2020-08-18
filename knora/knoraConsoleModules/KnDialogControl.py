@@ -55,7 +55,7 @@ class KnDialogControl:
                  name: str,
                  control: wx.Control,
                  newentry: bool = False,
-                 changed_cb: Optional[Callable[[wx.Event], None]] = None):
+                 changed_cb: Optional[Callable[[wx.Event, Optional[Any]], None]] = None):
         self.label = wx.StaticText(panel, label=label)
         self.control = control
         self.newentry = newentry
@@ -70,11 +70,11 @@ class KnDialogControl:
         if not newentry:
             gsizer.Add(self.undo, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=3)
 
-    def control_changed(self, event):
+    def control_changed(self, event: wx.Event, user_data: Any = None):
         if not self.newentry:
             self.undo.Enable()
         if self.changed_cb is not None:
-            self.changed_cb(wx.Event)
+            self.changed_cb(wx.Event, user_data)
 
     def reset_ctrl(self, event):
         if not self.newentry:
@@ -175,10 +175,12 @@ class KnDialogChoice(KnDialogControl):
 
     def set_choices(self, choices: List[str]):
         self.choice_ctrl.Clear()
-        self.choice_ctrl.Insert(choices)
+        self.choice_ctrl.Append(choices)
+        self.choices = choices
+        super().control_changed(None, self.get_value())
 
     def choice_changed(self, event):
-        super().control_changed(event)
+        super().control_changed(event, self.get_value())
 
     def reset_ctrl(self, event):
         self.choice_ctrl.SetSelection(self.switcherStrToInt[self.orig_value])
@@ -278,8 +280,10 @@ class KnDialogChoiceArr(KnDialogControl):
     def set_choices(self, choices: List[str]):
         self.choice_ctrl.Clear()
         self.choice_ctrl.Insert(choices)
+        self.choices = choices
 
     def choice_changed(self, event):
+        print("======> choice_changed")
         super().control_changed(event)
 
     def reset_ctrl(self, event):
@@ -314,19 +318,22 @@ class KnDialogSuperProperties(KnDialogControl):
 
         self.prefixes = [key for key, x in self.all_properties.items()]
 
-
         self.container = wx.Panel(panel, style=wx.BORDER_SIMPLE)
         self.winsizer = wx.BoxSizer(wx.VERTICAL)
 
         self.ele1 = wx.BoxSizer(wx.HORIZONTAL)
         self.prefix1_ctrl = wx.Choice(self.container, choices=['knora-api'])
+        self.prefix1_ctrl.Bind(wx.EVT_CHOICE, self.choice_changed)
         self.ele1.Add(self.prefix1_ctrl)
         self.sep1_ctrl = wx.StaticText(self.container, label=' : ')
         self.ele1.Add(self.sep1_ctrl)
         self.props1 = [key for key, x in self.all_properties['knora-api'].items()]
         self.prop1_ctrl = wx.Choice(self.container, choices=self.props1)
+        self.prop1_ctrl.Bind(wx.EVT_CHOICE, self.choice_changed)
         self.ele1.Add(self.prop1_ctrl)
         self.winsizer.Add(self.ele1)
+        if value is not None and type(value) is list:
+            self.prop1_ctrl.SetSelection(self.props1.index(value[0]))
 
         self.bsizer = wx.BoxSizer(wx.HORIZONTAL)
         self.add = wx.Button(self.container, label="+", size=wx.Size(25, -1))
@@ -337,23 +344,33 @@ class KnDialogSuperProperties(KnDialogControl):
         self.bsizer.Add(self.remove)
 
         self.prop2_ctrl: List[wx.Choice] = []
+        self.prefix2_ctrl: List[wx.Choice] = []
 
         self.winsizer.Add(self.bsizer)
         self.container.SetSizerAndFit(self.winsizer)
 
+        if not enabled:
+            self.prefix1_ctrl.Disable()
+            self.prop1_ctrl.Disable()
+            for i in range(0, self.pcnt):
+                self.prefix2_ctrl[i].Disable()
+                self.prop2_ctrl.Disable()
+            self.add.Disable()
+            self.remove.Disable()
+
         super().__init__(panel, gsizer, label, name, self.container, True if value is None else False, changed_cb)
 
     def add_field(self, event) -> None:
-    def add_field(self, event) -> None:
         container2 = wx.Panel(self.container, style=wx.BORDER_NONE)
         ele2 = wx.BoxSizer(wx.HORIZONTAL)
-        prefix2_ctrl = wx.Choice(container2, id=self.pcnt, choices=self.prefixes)
-        prefix2_ctrl.Bind(wx.EVT_CHOICE, self.prefix_changed)
-        ele2.Add(prefix2_ctrl, flag=wx.EXPAND)
+        self.prefix2_ctrl.append(wx.Choice(container2, id=self.pcnt, choices=self.prefixes))
+        self.prefix2_ctrl[self.pcnt].Bind(wx.EVT_CHOICE, self.prefix_changed)
+        ele2.Add(self.prefix2_ctrl[self.pcnt], flag=wx.EXPAND)
         sep2_ctrl = wx.StaticText(container2, label=' : ')
         ele2.Add(sep2_ctrl, flag=wx.EXPAND)
         props2 = [key for key, x in self.all_properties['knora-api'].items()]
         self.prop2_ctrl.append(wx.Choice(container2, choices=props2))
+        self.prop2_ctrl[self.pcnt].Bind(wx.EVT_CHOICE, self.choice_changed)
         ele2.Add(self.prop2_ctrl[self.pcnt], flag=wx.EXPAND)
         container2.SetSizerAndFit(ele2)
         self.pcnt = self.pcnt + 1
@@ -363,6 +380,7 @@ class KnDialogSuperProperties(KnDialogControl):
         self.container.SetSizerAndFit(self.winsizer)
         self.panel.SetSizerAndFit(self.gsizer)
         self.panel.GetParent().resize()
+        super().control_changed(event, self.get_value())
 
     def remove_field(self, event: wx.Event) -> None:
         if self.pcnt == 0:
@@ -371,10 +389,12 @@ class KnDialogSuperProperties(KnDialogControl):
         item = self.winsizer.GetItem(n - 2)
         item.GetWindow().Destroy()
         self.prop2_ctrl.pop()
+        self.prefix2_ctrl.pop()
         self.container.SetSizerAndFit(self.winsizer)
         self.panel.SetSizerAndFit(self.gsizer)
         self.panel.GetParent().resize()
         self.pcnt = self.pcnt - 1
+        super().control_changed(event, self.get_value())
 
     def prefix_changed(self, event: wx.Event) -> None:
         id = event.GetId()
@@ -385,8 +405,20 @@ class KnDialogSuperProperties(KnDialogControl):
         self.prop2_ctrl[id].Clear()
         items = [key for key, val in self.all_properties[self.prefixes[value]].items()]
         self.prop2_ctrl[id].Append(items)
+        self.choice_changed(event)
 
-    def get_value(self):
+    def get_value(self) -> List[Tuple[str, str]]:
+        prop1 = self.props1[self.prop1_ctrl.GetCurrentSelection()]
+        result: List[Tuple[str, str]] = [('knora-api', prop1)]
+        for i in range(0, self.pcnt):
+            prefix = self.prefixes[self.prefix2_ctrl[i].GetCurrentSelection()]
+            items = [key for key, val in self.all_properties[prefix].items()]
+            prop2 = items[self.prop2_ctrl[i].GetCurrentSelection()]
+            result.append((prefix, prop2))
+        return result
+
+    def choice_changed(self, event) -> None:
+        super().control_changed(event, self.get_value())
 
 
 class KnDialogCheckBox(KnDialogControl):

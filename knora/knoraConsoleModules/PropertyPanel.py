@@ -32,20 +32,27 @@ def show_error(msg: str, knerr: BaseError):
     dlg.Destroy()
 
 
-resp = {
-    'Representation',
-    'AudioRepresentation',
-    'DDDRepresentation',
-    'DocumentRepresentation',
-    'MovingImageRepresentation',
-    'StillImageRepresentation',
-    'TextRepresentation',
+reps = {
+    'knora-api:Representation',
+    'knora-api:AudioRepresentation',
+    'knora-api:DDDRepresentation',
+    'knora-api:DocumentRepresentation',
+    'knora-api:MovingImageRepresentation',
+    'knora-api:StillImageRepresentation',
+    'knora-api:TextRepresentation',
+}
+
+ress = {
+    'knora-api:Annotation',
+    'knora-api:ExternalResource',
+    'knora-api:Region',
+    'knora-api:LinkObj'
 }
 
 knora_api_properties = {
     'hasValue': {'TextValue', 'UriValue', 'BooleanValue', 'IntValue', 'DecimalValue', 'DateValue',
                  'TimeValue', 'ListValue', 'IntervalValue', 'GeonameValue', 'GeomValue'},
-    'hasLinkTo': {'#res'},
+    'hasLinkTo': {'#res', '#rep'},
     'hasRepresentation': {'#rep'},
     'isPartOf': {'#res'},
     'seqnum': {'IntValue'},
@@ -185,6 +192,20 @@ all_properties = {
     'foaf': foaf_properties
 }
 
+gui_elements = {
+    'TextValue': ['SimpleText', 'Textarea', 'Richtext'],
+    'UriValue': ['SimpleText'],
+    'BooleanValue': ['Checkbox'],
+    'IntValue': ['SimpleText', 'Spinbox'],
+    'DecimalValue': ['SimpleText', 'Slider'],
+    'DateValue': ['Date'],
+    'ListValue': ['Pulldown', 'List', 'Radio'],
+    'IntervalValue': ['SimpleText', 'Interval'],
+    'GeonameValue': ['Geonames'],
+    'GeomValue': ['Geometry', 'SimpleText'],
+    'ColorValue': ['Colorpicker']
+}
+
 class PropertyPanel(wx.Window):
     def __init__(self,
                  con: Connection = None,
@@ -205,6 +226,10 @@ class PropertyPanel(wx.Window):
         self.listctl.AppendColumn("Label", width=wx.LIST_AUTOSIZE)
         for cnt, prop in enumerate(onto.property_classes):
             if 'knora-api:hasLinkToValue' in prop.superproperties:
+                continue
+            if 'knora-api:isPartOfValue' in prop.superproperties:
+                continue
+            if 'knora-api:isRegionOfValue' in prop.superproperties:
                 continue
             self.listctl.Append((prop.name, prop.label[Languages.EN]))
             self.ids.append(cnt)
@@ -259,6 +284,7 @@ class PropertyEntryDialog(wx.Dialog):
                          title="Property Entry",
                          style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
         self.con = con
+        self.onto = onto
         try:
             if newentry:
                 self.property = PropertyClass(con=con, context=onto.context)
@@ -306,28 +332,17 @@ class PropertyEntryDialog(wx.Dialog):
                             'hasGeometry', 'isRegionOf', 'isAnnotationOf', 'other']
         # ToDo: if "hasLinkTo", "isPartOf", "isRegionOf" is selected/deselected, adjust choices of "object"!
 
-        #if not newentry:
-        #    tmp_super_prop = None if newentry else [onto.context.reduce_iri(x) for x in self.property.superproperties]
-        #else:
-        #    tmp_super_prop = None
-        #self.superpops_choice = KnDialogChoiceArr(panel1, gsizer, "Superproperties", "superproperties",
-        #                                      super_properties, tmp_super_prop, enabled=enable_all, changed_cb=self.super_changed)
-        prefixes = ['knora-api']
-        #tmp = Ontology.getProjectOntologies(con=self.con, project_id=onto.project)
-        #if tmp:
-        #    project_ontoprefixes = [x.name for x in tmp]
-        #    prefixes.extend(project_ontoprefixes)
-        #tmp = Ontology.getProjectOntologies(con=self.con, project_id="http://www.knora.org/ontology/knora-admin#SystemProject")
-        #if tmp:
-        #    shared_ontoprefixes = [x.name for x in tmp]
-        #    prefixes.extend(shared_ontoprefixes)
-
-        pprint(prefixes)
+        if not newentry:
+            tmp = [self.onto.context.reduce_iri(x) for x in self.property.superproperties]
+        tmp_super = None if newentry else tmp if tmp is not None else []
         self.superprops = KnDialogSuperProperties(panel=panel1,
                                                   gsizer=gsizer,
                                                   label="Superproperties",
                                                   name="superproperties",
-                                                  all_properties=all_properties)
+                                                  all_properties=all_properties,
+                                                  value=tmp_super,
+                                                  changed_cb=self.super_changed,
+                                                  enabled=enable_all)
 
         objects = ['TextValue', 'ListValue', 'DateValue', 'BooleanValue', 'IntValue', 'DecimalValue',
                    'UriValue', 'GeonameValue', 'IntervalValue', 'ColorValue', 'GeomValue']
@@ -338,27 +353,35 @@ class PropertyEntryDialog(wx.Dialog):
                 "isRegionOf" in superproperties or "isAnnotationOf" in superproperties:
                 res = [':' + x.name for x in onto.resource_classes]
                 objects.extend(res)
-                objects.append('other')
+                objects.extend({x.split(':')[1] for x in ress})
         tmp_object = None if newentry else onto.context.reduce_iri(self.property.object, onto.name)
-        self.object = KnDialogChoice(panel1, gsizer, "Datatype (object)", "object",
-                                              objects, tmp_object, enabled=enable_all)
-        # ToDo: Add other option with selection of prefix and resname
-
-        gui_elements = {
-            'TextValue': ['SimpleText', 'Textarea', 'Richtext'],
-            'UriValue': ['SimpleText'],
-            'BooleanValue': ['Checkbox'],
-            'IntValue': ['SimpleText', 'Spinbox'],
-            'DecimalValue': ['SimpleText', 'Slider'],
-            'DateValue': ['Date'],
-            'ListValue': ['Pulldown', 'List', 'Radio'],
-            'hasLinkTo': ['Searchbox'],
-            'IntervalValue': ['SimpleText', 'Interval'],
-            'GeonameValue': ['Geonames'],
-            'GeomValue': ['Geometry', 'SimpleText']
-        }
+        self.object = KnDialogChoice(panel=panel1,
+                                     gsizer=gsizer,
+                                     label="Datatype (object)",
+                                     name="object",
+                                     choices=objects,
+                                     value=tmp_object,
+                                     changed_cb=self.object_changed,
+                                     enabled=enable_all)
 
 
+        object = self.object.get_value()
+        objects = [k for k, v in gui_elements.items()]
+        if object in objects:
+            choices = gui_elements[object]
+        else:
+            choices = ['Searchbox']
+        if not newentry:
+            tmp = self.onto.context.reduce_iri(self.property.gui_element)
+        else:
+            tmp = None
+        self.gui_element = KnDialogChoice(panel=panel1,
+                                          gsizer=gsizer,
+                                          label="GUI Element",
+                                          name="gui_element",
+                                          choices=choices,
+                                          value=tmp,
+                                          enabled=enable_all)
 
         gsizer.SetSizeHints(panel1)
         panel1.SetSizer(gsizer)
@@ -372,11 +395,40 @@ class PropertyEntryDialog(wx.Dialog):
 
         self.SetSizerAndFit(self.topsizer)
 
-    def super_changed(self, event: wx.Event):
-        print('gagagagagagagagagg')
-        pprint(self)
-        pprint(event)
+    def super_changed(self, event: wx.Event, user_data: Any):
+        object_set = None
+        for prefix, super in user_data:
+            if object_set is None:
+                object_set = all_properties[prefix][super]
+            else:
+                object_set = object_set & all_properties[prefix][super]
 
+        if '#res' in object_set:
+            object_set.remove('#res')
+            object_set.update({x.split(':')[1] for x in ress})
+            pontos = Ontology.getProjectOntologies(con=self.con, project_id=self.onto.project)
+            for ponto in pontos:
+                lmd, fullonto = ponto.read()
+                prefix = ':' if fullonto.name == self.onto.name else fullonto.name +':'
+                reslist = [prefix + x.name for x in fullonto.resource_classes]
+                object_set.update(reslist)
+        elif '#rep' in object_set:
+            object_set.remove('#rep')
+            pontos = Ontology.getProjectOntologies(con=self.con, project_id=self.onto.project)
+            for ponto in pontos:
+                lmd, fullonto = ponto.read()
+                prefix = ':' if fullonto.name == self.onto.name else fullonto.name +':'
+                reslist = [prefix + x.name for x in fullonto.resource_classes if len(set(x.superclasses) & reps) > 0]
+                object_set.update(reslist)
+        self.object.set_choices(list(object_set))
+
+    def object_changed(self, event, object):
+        objects = [k for k, v in gui_elements.items()]
+        if object in objects:
+            choices = gui_elements[object]
+        else:
+            choices = ['Searchbox']
+        self.gui_element.set_choices(choices)
 
     def resize(self):
         self.SetSizerAndFit(self.topsizer)

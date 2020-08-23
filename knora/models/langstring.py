@@ -156,6 +156,16 @@ class LangString:
     def __iter__(self):
         return LangStringIterator(self)
 
+    def __eq__(self, other: 'LangString'):
+        equal = self._simplestring == other._simplestring
+        if equal:
+            for lang in Languages:
+                equal = self._langstrs.get(lang) == other._langstrs.get(lang)
+                if not equal:
+                    break
+        return equal
+
+
     def get_by_lang(self, key: Optional[Union[Languages, str]] = None) -> Optional[str]:
         if key is None:
             return self._simplestring
@@ -249,7 +259,7 @@ class LangString:
 
     def print(self, offset: Optional[int] = None):
         blank = ' '
-        print(f'{blank:>{offset}}LangString:')
+        #print(f'{blank:>{offset}}LangString:')
         if self._simplestring is not None:
             print(f'{blank:>{offset + 2}}{self._simplestring}')
         else:

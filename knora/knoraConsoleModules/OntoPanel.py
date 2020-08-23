@@ -137,6 +137,7 @@ class OntoPanel(wx.Panel):
         if res == wx.ID_OK:
             lmd, onto = ontology_entry.get_changed()
             lmd, onto = onto.update(lmd)
+            onto.print()
             self.listctl.SetItem(idx, 0, onto.name)
             self.listctl.SetItem(idx, 2, onto.label)
 

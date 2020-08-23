@@ -53,6 +53,7 @@ class KnoraConsole(wx.Frame):
 
         self.con = None
 
+        self.SetIcon(wx.Icon("app.png"))
 
     def makeMenuBar(self):
         """

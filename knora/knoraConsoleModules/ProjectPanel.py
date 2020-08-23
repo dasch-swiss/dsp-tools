@@ -4,6 +4,7 @@ import os
 import sys
 import wx
 from pprint import pprint
+import re
 
 path = os.path.abspath(os.path.dirname(__file__))
 if not path in sys.path:
@@ -111,6 +112,84 @@ class ProjectPanel(wx.Panel):
 
         pe.Destroy()
 
+SHORTCODE = 1
+SHORTNAME = 2
+LONGNAME = 3
+KEYWORDS = 4
+
+class ProjectValidator(wx.Validator):
+
+    def __init__(self, flag=None):
+        wx.Validator.__init__(self)
+        self.flag = flag
+
+    def Clone(self):
+        return ProjectValidator(self.flag)
+
+    def Validate(self, win):
+        print("------->Validate()")
+        textCtrl = self.GetWindow()
+        text = textCtrl.GetValue()
+
+        if self.flag == SHORTCODE:
+            if len(text) != 4:
+                wx.MessageBox("Sortcode must be exactely 4 hex digits!", "Error")
+                textCtrl.SetBackgroundColour("pink")
+                textCtrl.SetFocus()
+                textCtrl.Refresh()
+                return False
+            for x in text:
+                if x not in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'A', 'B', 'C', 'D', 'E', 'F']:
+                    wx.MessageBox("Sortcode must be exactely 4 hex digits!", "Error")
+                    textCtrl.SetBackgroundColour("pink")
+                    textCtrl.SetFocus()
+                    textCtrl.Refresh()
+                    return False
+            return True
+        elif self.flag == SHORTNAME:
+            if len(text) == 0:
+                wx.MessageBox("A shortname must be given!", "Error")
+                textCtrl.SetBackgroundColour("pink")
+                textCtrl.SetFocus()
+                textCtrl.Refresh()
+                return False
+            if not re.match("^[\\w\-]+$", text):
+                wx.MessageBox("A valid shortname must be given! (letters A-Z, a-z, 0-9, _, -)", "Error")
+                textCtrl.SetBackgroundColour("pink")
+                textCtrl.SetFocus()
+                textCtrl.Refresh()
+                return False
+            return True
+        elif self.flag == LONGNAME:
+            if len(text) == 0:
+                wx.MessageBox("A longname must be given!", "Error")
+                textCtrl.SetBackgroundColour("pink")
+                textCtrl.SetFocus()
+                textCtrl.Refresh()
+                return False
+            return True
+        elif self.flag == KEYWORDS:
+            if len(text) == 0:
+                wx.MessageBox("A comma separated list of keywords must be given!", "Error")
+                textCtrl.SetBackgroundColour("pink")
+                textCtrl.SetFocus()
+                textCtrl.Refresh()
+                return False
+            if not re.match("^([\\w\- ]+)( *, *[\\w\-]+)*", text):
+                wx.MessageBox("A comma separated list of keywords must be given!", "Error")
+                textCtrl.SetBackgroundColour("pink")
+                textCtrl.SetFocus()
+                textCtrl.Refresh()
+                return False
+
+            return True
+        return True
+
+    def TransferToWindow(self):
+        return True
+
+    def TransferFromWindow(self):
+        return True
 
 class ProjectEntryDialog(wx.Dialog):
 
@@ -146,10 +225,12 @@ class ProjectEntryDialog(wx.Dialog):
         gsizer = wx.FlexGridSizer(cols=cols)
 
         tmp_shortcode = None if newentry else self.project.shortcode if self.project.shortcode is not None else ""
-        self.shortcode = KnDialogTextCtrl(panel1, gsizer, "Shortcode: ", "shortcode", tmp_shortcode, enabled=enable_shortcode)
+        self.shortcode = KnDialogTextCtrl(panel1, gsizer, "Shortcode: ", "shortcode", tmp_shortcode,
+                                          enabled=enable_shortcode, validator=ProjectValidator(SHORTCODE))
 
         tmp_shortname = None if newentry else self.project.shortname if self.project.shortname is not None else ""
-        self.shortname = KnDialogTextCtrl(panel1, gsizer, "Shortname: ", "shortname", tmp_shortname, enabled=enable_shortcode)
+        self.shortname = KnDialogTextCtrl(panel1, gsizer, "Shortname: ", "shortname", tmp_shortname,
+                                          enabled=enable_shortcode, validator=ProjectValidator(SHORTNAME))
 
         tmp_longname = None if newentry else self.project.longname if self.project.longname is not None else ""
         self.longname = KnDialogTextCtrl(panel1, gsizer, "Longname: ", "longname", tmp_longname, size=wx.Size(400, 70), style=wx.TE_MULTILINE)
@@ -176,7 +257,9 @@ class ProjectEntryDialog(wx.Dialog):
             self.descr_ = KnDialogTextCtrl(panel1, gsizer, "Description (it): ", "descr_", tmp_descr_, size=wx.Size(200,50), style=wx.TE_MULTILINE)
 
         tmp_keywords = None if newentry else ', '.join(self.project.keywords) if self.project.shortname is not None else ""
-        self.keywords = KnDialogTextCtrl(panel1, gsizer, "Keywords: ", "keywords", tmp_keywords, size=wx.Size(400, 70), style=wx.TE_MULTILINE)
+        self.keywords = KnDialogTextCtrl(panel1, gsizer, "Keywords: ", "keywords", tmp_keywords,
+                                         size=wx.Size(400, 70), style=wx.TE_MULTILINE,
+                                         validator=ProjectValidator(KEYWORDS))
 
         self.selfjoin= KnDialogCheckBox(panel1, gsizer, "Selfjoin: ", "selfjoin", self.project.selfjoin)
         self.status = KnDialogCheckBox(panel1, gsizer, "Status: ", "active", self.project.status)

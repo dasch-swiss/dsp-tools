@@ -150,7 +150,7 @@ class Ontology:
 
     @lastModificationDate.setter
     def lastModificationDate(self, value: Union[str, LastModificationDate]):
-        raise BaseError("An ontology's lastModificationDate cannot be modified!")
+        self._lastModificationDate = LastModificationDate(value)
 
     @property
     def resource_classes(self):
@@ -172,7 +172,7 @@ class Ontology:
         self._property_classes = value
 
     def addPropertyClass(self, propclass: PropertyClass):
-        self._proeprty_classes.append(propclass)
+        self._property_classes.append(propclass)
 
     @property
     def context(self):
@@ -335,13 +335,14 @@ class Ontology:
                 last_modification_date = LastModificationDate(last_modification_date)
             elif not isinstance(last_modification_date, LastModificationDate):
                 raise BaseError("Must be string or LastModificationClass instance!")
+            tmp = {
+                '@id': self._id,
+                rdfs + ':label': self._label,
+                knora_api + ':lastModificationDate': last_modification_date.toJsonObj(),
+                "@context": self._context.toJsonObj()
+            }
             if self._label is not None and 'label' in self.changed:
-                tmp = {
-                    '@id': self._id,
-                    rdfs + ':label': self._label,
-                    knora_api + ':lastModificationDate': last_modification_date.toJsonObj(),
-                    "@context": self._context.toJsonObj()
-                }
+                tmp[rdfs + ':label'] = self._label
             if self._comment is not None and 'comment in self.changed:':
                 tmp[rdfs + ':comment'] = self._comment
         return tmp
@@ -359,7 +360,7 @@ class Ontology:
         return Ontology.fromJsonObj(self.con, result)
 
     def read(self) -> Tuple[LastModificationDate, 'Ontology']:
-        result = self.con.get('/v2/ontologies/allentities/' + quote_plus(self._id))
+        result = self.con.get('/v2/ontologies/allentities/' + quote_plus(self._id) + '?allLanguages=true')
         return Ontology.fromJsonObj(self.con, result)
 
     def delete(self, last_modification_date: LastModificationDate) -> Optional[str]:
@@ -375,7 +376,7 @@ class Ontology:
     def getProjectOntologies(con: Connection, project_id: str) -> List['Ontology']:
         if project_id is None:
             raise BaseError('Project ID must be defined!')
-        result = con.get('/v2/ontologies/metadata/' + quote_plus(project_id))
+        result = con.get('/v2/ontologies/metadata/' + quote_plus(project_id) + '?allLanguages=true')
         return Ontology.allOntologiesFromJsonObj(con, result)
 
     @staticmethod
@@ -397,7 +398,6 @@ class Ontology:
                 self._skiplist.append(self._name + ":" + prop.name)
                 continue
             ontology["properties"].append(prop.createDefinitionFileObj(self.context, self._name))
-        pprint(self._skiplist)
 
         for res in self._resource_classes:
             ontology["resources"].append(res.createDefinitionFileObj(self.context, self._name, self._skiplist))

@@ -70,6 +70,7 @@ class Context:
         "foaf": OntoInfo("http://xmlns.com/foaf/0.1/", False),
         "dc": OntoInfo("http://purl.org/dc/elements/1.1/", False),
         "dcterms": OntoInfo("http://purl.org/dc/terms/", False),
+        "dcmi": OntoInfo("http://purl.org/dc/dcmitype/", False),
         "skos": OntoInfo("http://www.w3.org/2004/02/skos/core", True),
         "bibtex": OntoInfo("http://purl.org/net/nknouf/ns/bibtex", True),
         "bibo": OntoInfo("http://purl.org/ontology/bibo/", False),

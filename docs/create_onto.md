@@ -364,14 +364,11 @@ A property ***must*** be derived from at least one base property. The most gener
 The "object" defines the data type of the value that the property will store.
   The following object types are allowed:
   - `TextValue`: Represents a text that may contain standoff markup  
-    *gui-elements / gui_attributes*:
+    *gui\_elements / gui\_attributes*:
     - `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes  
       _gui_attributes_:
       - `maxlength=integer` (optional): Maximal length (number of caharcter accepted)
       - `size=integer` (optional):  Size (width) of widget
-      _gui_attributes_:
-      - `maxlength=integer` (optional): The maximum number of characters accepted
-      - `size=integer"` (optional): The size of the input field
     - `Textarea`: A GUI element for _TextValue_. Presents a multiline textentry box. Optional attributes are.  
       _gui_attributes_:
       - `cols=integer` (optional): Number of cols of the textarea
@@ -437,8 +434,8 @@ The "object" defines the data type of the value that the property will store.
     - `Spinbox`: A GUI element for _IntegerValue_. A text field with and "up"- and "down"-button for
       increment/decrement. The attributes "max=decimal" and "min=decimal" are optional.  
       _gui_attributes_:
-      - `max=decimal` (optional): Maximal value
-      - `min=decimal` (optional): Minimal value
+      - `max=integer` (optional): Maximal value
+      - `min=integer` (optional): Minimal value
       
   - `BooleanValue`: Represents a Boolean ("true" or "false)  
     *gui-elements / gui_attributes*:

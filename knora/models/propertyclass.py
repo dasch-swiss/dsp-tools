@@ -128,7 +128,7 @@ class PropertyClass:
         raise BaseError('"ontology_id" cannot be modified!')
 
     @property
-    def superproperties(self) -> Optional[str]:
+    def superproperties(self) -> Optional[List[str]]:
         return self._superproperties
 
     @superproperties.setter

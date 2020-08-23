@@ -670,7 +670,9 @@ class ResourceClass:
             else:
                 superclasses = list(map(resolve_resref, self.__superclasses))
             if self.__comment is None or self.__comment.isEmpty():
-                self.__comment = LangString("no comment vailable")
+                self.__comment = LangString("no comment available")
+            if self.__label is None or self.__label.isEmpty():
+                self.__label = LangString("no label available")
             tmp = {
                 "@id": ontid,  # self._ontology_id,
                 "@type": "owl:Ontology",

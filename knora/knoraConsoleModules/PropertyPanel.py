@@ -4,6 +4,7 @@ import os
 import sys
 import wx
 from pprint import pprint
+import copy
 
 path = os.path.abspath(os.path.dirname(__file__))
 if not path in sys.path:
@@ -21,7 +22,8 @@ from models.propertyclass import PropertyClass
 from models.resourceclass import ResourceClass
 
 from KnDialogControl import KnDialogControl, KnDialogTextCtrl, KnDialogChoice, KnDialogChoiceArr, \
-    KnDialogCheckBox, KnCollapsiblePicker, KnDialogStaticText, KnDialogSuperProperties
+    KnDialogCheckBox, KnCollapsiblePicker, KnDialogStaticText, KnDialogSuperProperties, KnDialogGuiAttributes, \
+    KnDialogLangStringCtrl
 
 def show_error(msg: str, knerr: BaseError):
     dlg = wx.MessageDialog(None,
@@ -206,6 +208,24 @@ gui_elements = {
     'ColorValue': ['Colorpicker']
 }
 
+gui_attributes = {
+    'SimpleText': ['maxlength=integer', 'size=integer'],
+    'Textarea': ['cols=integer', 'rows=integer', 'width=percent', 'wrap=soft|hard'],
+    'Richtext': [],
+    'Date': [],
+    'Pulldown': ['hlist=<list-name>'],
+    'Checkbox': [],
+    'List': ['hlist=<list-name>'],
+    'Radio': ['hlist=<list-name>'],
+    'Slider': ['max=decimal', 'min=decimal'],
+    'Spinbox': ['max=integer', 'max=integer'],
+    'Interval': [],
+    'Geonames': [],
+    'Geometry': [],
+    'Colorpicker': ['ncolors=integer'],
+    'Searchbox': ['numprops=integer']
+}
+
 class PropertyPanel(wx.Window):
     def __init__(self,
                  con: Connection = None,
@@ -225,6 +245,8 @@ class PropertyPanel(wx.Window):
         self.listctl.AppendColumn("Name", width=wx.LIST_AUTOSIZE)
         self.listctl.AppendColumn("Label", width=wx.LIST_AUTOSIZE)
         for cnt, prop in enumerate(onto.property_classes):
+            if prop.object == 'knora-api:LinkValue':
+                continue
             if 'knora-api:hasLinkToValue' in prop.superproperties:
                 continue
             if 'knora-api:isPartOfValue' in prop.superproperties:
@@ -249,15 +271,18 @@ class PropertyPanel(wx.Window):
         self.SetSizerAndFit(topsizer)
 
     def new_entry(self, event):
-        idx = self.listctl.GetFirstSelected()
-        dialog = PropertyEntryDialog(self.con, self.onto, self.ids[idx], True, self)
+        dialog = PropertyEntryDialog(self.con, self.onto, None, True, self)
         res = dialog.ShowModal()
         if res == wx.ID_OK:
             property = dialog.get_value()
-            property = property.create()
+            lmd, property = property.create(self.onto.lastModificationDate)
+            property.print()
+            lmd2, self.onto = self.onto.read()
+            self.onto.lastModificationDate = lmd
             self.listctl.Append((property.name,
-                                 property.label))
+                                 property.label[Languages.EN]))
             self.ids.append(property.id)
+        dialog.Destroy()
 
     def edit_entry(self, event):
         idx = self.listctl.GetFirstSelected()
@@ -265,10 +290,13 @@ class PropertyPanel(wx.Window):
         res = dialog.ShowModal()
         if res == wx.ID_OK:
             property: PropertyClass = dialog.get_changed()
-            property.update()
+            lmd, property = property.update(self.onto.lastModificationDate)
+            lmd2, self.onto = self.onto.read()
+            pprint(lmd)
+            pprint(lmd2)
+            self.onto.lastModificationDate = lmd
             self.listctl.SetItem(idx, 0, property.name)
-            self.listctl.SetItem(idx, 1, property.label)
-
+            self.listctl.SetItem(idx, 1, property.label[Languages.EN])
         dialog.Destroy()
 
 
@@ -280,15 +308,31 @@ class PropertyEntryDialog(wx.Dialog):
                  pindex: int = None,
                  newentry: bool = True,
                  *args, **kw):
+        """
+        Create a dialog window to enter or modify a property
+
+        :param con: Connection instance
+        :param onto: The current ontology
+        :param pindex: Index of the property in the list of property classes, None for a new entry
+        :param newentry: True, if we want to enter a new property
+        :param args:
+        :param kw:
+        """
         super().__init__(*args, **kw,
                          title="Property Entry",
                          style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
         self.con = con
-        self.onto = onto
+        lmd, self.onto = onto.read()
+
+        #
+        # Get all ontologies beloning to the current project
+        #
+        self.pontos = Ontology.getProjectOntologies(con=self.con, project_id=self.onto.project)
+
         try:
             if newentry:
                 self.property = PropertyClass(con=con, context=onto.context)
-                self.last_modification_date = None
+                self.last_modification_date = onto.lastModificationDate
             else:
                 self.property = onto.property_classes[pindex]
         except BaseError as knerr:
@@ -305,83 +349,124 @@ class PropertyEntryDialog(wx.Dialog):
             enable_all = False
         gsizer = wx.FlexGridSizer(cols=cols)
 
+        #
+        # property name
+        #
         tmp_name = None if newentry else self.property.name if self.property.name is not None else ""
-        self.name = KnDialogTextCtrl(panel1, gsizer, "Name: ", "name", tmp_name)
+        self.name = KnDialogTextCtrl(panel1, gsizer, "Name: ", "name", tmp_name, enabled=enable_all)
 
+        #
+        # property labels (language dependent)
+        #
         if not newentry:
-            tmp = self.property.label.get_by_lang(Languages.EN)
-        tmp_label_en = None if newentry else tmp if tmp is not None else ""
-        self.label_en = KnDialogTextCtrl(panel1, gsizer, "Label (en): ", "label_en", tmp_label_en)
+            tmp = self.property.label if self.property.label is not None else LangString("")
+        else:
+            tmp = None
+        self.label = KnDialogLangStringCtrl(panel1, gsizer, "Label: ", "label", tmp, size=wx.Size(400, -1))
 
+        #
+        # property comment (language dependent)
+        #
+        if self.property.comment:
+            print(self.property.comment._simplestring)
+            pprint(self.property.comment._langstrs)
         if not newentry:
-            tmp = self.property.label.get_by_lang(Languages.DE)
-        tmp_label_de = None if newentry else tmp if tmp is not None else ""
-        self.label_de = KnDialogTextCtrl(panel1, gsizer, "Label (de): ", "label_de", tmp_label_de)
+            tmp = self.property.comment if self.property.comment is not None else LangString("")
+        else:
+            tmp = None
+        self.comment = KnDialogLangStringCtrl(panel1, gsizer, "Comment: ", "comment", tmp,
+                                              size=wx.Size(400, 50), style=wx.TE_MULTILINE)
 
-        if not newentry:
-            tmp = self.property.label.get_by_lang(Languages.FR)
-        tmp_label_fr = None if newentry else tmp if tmp is not None else ""
-        self.label_fr = KnDialogTextCtrl(panel1, gsizer, "Label (fr): ", "label_fr", tmp_label_fr)
-
-        if not newentry:
-            tmp = self.property.label.get_by_lang(Languages.IT)
-        tmp_label_it = None if newentry else tmp if tmp is not None else ""
-        self.label_it = KnDialogTextCtrl(panel1, gsizer, "Label (it): ", "label_it", tmp_label_it)
-
-        super_properties = ['hasValue', 'hasLinkTo', 'isPartOf', 'seqnum', 'hasColor', 'hasComment',
-                            'hasGeometry', 'isRegionOf', 'isAnnotationOf', 'other']
-        # ToDo: if "hasLinkTo", "isPartOf", "isRegionOf" is selected/deselected, adjust choices of "object"!
-
+        #
+        # now we process the list of super properties
+        #
         if not newentry:
             tmp = [self.onto.context.reduce_iri(x) for x in self.property.superproperties]
         tmp_super = None if newentry else tmp if tmp is not None else []
+
+        self.aproperties2 = copy.deepcopy(all_properties)
+        for ponto in self.pontos:
+            lmd, tmp_ponto = ponto.read()
+            if tmp_ponto.property_classes is None:
+                continue
+            for pprop in tmp_ponto.property_classes:
+                if self.aproperties2.get(tmp_ponto.name) is None:
+                    self.aproperties2[tmp_ponto.name] = {}
+                self.aproperties2[tmp_ponto.name][pprop.name] = {self.onto.context.reduce_iri(pprop.object)}
+        self.aproperties1 = copy.deepcopy(self.aproperties2)
+        del self.aproperties1['dcterms']
+        del self.aproperties1['foaf']
         self.superprops = KnDialogSuperProperties(panel=panel1,
                                                   gsizer=gsizer,
-                                                  label="Superproperties",
+                                                  label="Superproperties: ",
                                                   name="superproperties",
-                                                  all_properties=all_properties,
+                                                  all_properties1=self.aproperties1,
+                                                  all_properties=self.aproperties2,
                                                   value=tmp_super,
                                                   changed_cb=self.super_changed,
                                                   enabled=enable_all)
 
+        #
+        # now we process the options
+        #
         objects = ['TextValue', 'ListValue', 'DateValue', 'BooleanValue', 'IntValue', 'DecimalValue',
                    'UriValue', 'GeonameValue', 'IntervalValue', 'ColorValue', 'GeomValue']
 
         if not newentry:
-            superproperties = [onto.context.reduce_iri(x) for x in self.property.superproperties]
-            if "hasLinkTo" in superproperties or "isPartOf" in superproperties or \
-                "isRegionOf" in superproperties or "isAnnotationOf" in superproperties:
-                res = [':' + x.name for x in onto.resource_classes]
-                objects.extend(res)
-                objects.extend({x.split(':')[1] for x in ress})
-        tmp_object = None if newentry else onto.context.reduce_iri(self.property.object, onto.name)
+            objects = {self.property.object}
+            tmp_object = self.property.object
+        else:
+            tmp_object = None if newentry else onto.context.reduce_iri(self.property.object, onto.name)
         self.object = KnDialogChoice(panel=panel1,
                                      gsizer=gsizer,
-                                     label="Datatype (object)",
+                                     label="Datatype (object): ",
                                      name="object",
-                                     choices=objects,
+                                     choices=list(objects),
                                      value=tmp_object,
                                      changed_cb=self.object_changed,
                                      enabled=enable_all)
 
-
-        object = self.object.get_value()
+        object = onto.context.reduce_iri(self.object.get_value())
         objects = [k for k, v in gui_elements.items()]
-        if object in objects:
-            choices = gui_elements[object]
+        if object is not None:
+            if object in objects:
+                choices = gui_elements[object]
+            else:
+                choices = ['Searchbox']
         else:
-            choices = ['Searchbox']
+            choices = []
         if not newentry:
-            tmp = self.onto.context.reduce_iri(self.property.gui_element)
+            if self.property.gui_element is not None:
+                tmp = self.onto.context.reduce_iri(self.property.gui_element)
+            else:
+                tmp = ""
         else:
             tmp = None
         self.gui_element = KnDialogChoice(panel=panel1,
                                           gsizer=gsizer,
-                                          label="GUI Element",
+                                          label="GUI Element: ",
                                           name="gui_element",
                                           choices=choices,
                                           value=tmp,
+                                          changed_cb=self.gui_element_changed,
                                           enabled=enable_all)
+
+        gele = self.gui_element.get_value()
+        rootnodes = ListNode.getAllLists(con=self.con, project_iri=onto.project)
+        lists = [x.label[Languages.EN] for x in rootnodes]
+        if not newentry:
+            tmp = self.property.gui_attributes
+        else:
+            tmp = None
+        self.gui_attributes = KnDialogGuiAttributes(panel=panel1,
+                                                    gsizer=gsizer,
+                                                    label="GUI Attributes: ",
+                                                    name="gui_attribute",
+                                                    gui_element=gele,
+                                                    all_attributes=gui_attributes,
+                                                    all_lists=lists,
+                                                    value=tmp,
+                                                    enabled=enable_all)
 
         gsizer.SetSizeHints(panel1)
         panel1.SetSizer(gsizer)
@@ -395,34 +480,40 @@ class PropertyEntryDialog(wx.Dialog):
 
         self.SetSizerAndFit(self.topsizer)
 
+    def expand_res_rep(self, object_set: Set[str]):
+        if '#res' in object_set:
+            object_set.remove('#res')
+            object_set.update({x.split(':')[1] for x in ress})
+            for ponto in self.pontos:
+                lmd, fullonto = ponto.read()
+                prefix = ':' if fullonto.name == self.onto.name else fullonto.name + ':'
+                reslist = [prefix + x.name for x in fullonto.resource_classes]
+                object_set.update(reslist)
+        if '#rep' in object_set:
+            object_set.remove('#rep')
+            for ponto in self.pontos:
+                lmd, fullonto = ponto.read()
+                prefix = ':' if fullonto.name == self.onto.name else fullonto.name + ':'
+                reslist = [prefix + x.name for x in fullonto.resource_classes if len(set(x.superclasses) & reps) > 0]
+                object_set.update(reslist)
+
     def super_changed(self, event: wx.Event, user_data: Any):
         object_set = None
         for prefix, super in user_data:
             if object_set is None:
-                object_set = all_properties[prefix][super]
+                object_set = self.aproperties2[prefix][super]
+                self.expand_res_rep(object_set)
+                print(object_set)
             else:
-                object_set = object_set & all_properties[prefix][super]
-
-        if '#res' in object_set:
-            object_set.remove('#res')
-            object_set.update({x.split(':')[1] for x in ress})
-            pontos = Ontology.getProjectOntologies(con=self.con, project_id=self.onto.project)
-            for ponto in pontos:
-                lmd, fullonto = ponto.read()
-                prefix = ':' if fullonto.name == self.onto.name else fullonto.name +':'
-                reslist = [prefix + x.name for x in fullonto.resource_classes]
-                object_set.update(reslist)
-        elif '#rep' in object_set:
-            object_set.remove('#rep')
-            pontos = Ontology.getProjectOntologies(con=self.con, project_id=self.onto.project)
-            for ponto in pontos:
-                lmd, fullonto = ponto.read()
-                prefix = ':' if fullonto.name == self.onto.name else fullonto.name +':'
-                reslist = [prefix + x.name for x in fullonto.resource_classes if len(set(x.superclasses) & reps) > 0]
-                object_set.update(reslist)
+                tmp = self.aproperties2[prefix][super]
+                self.expand_res_rep(tmp)
+                object_set = object_set & tmp
+                print(self.aproperties2[prefix][super])
+                print(object_set)
         self.object.set_choices(list(object_set))
 
     def object_changed(self, event, object):
+        print('object changed!')
         objects = [k for k, v in gui_elements.items()]
         if object in objects:
             choices = gui_elements[object]
@@ -430,11 +521,38 @@ class PropertyEntryDialog(wx.Dialog):
             choices = ['Searchbox']
         self.gui_element.set_choices(choices)
 
+    def gui_element_changed(self, event, gele):
+        print('gui_element changed!:', gele)
+        self.gui_attributes.set_gui_element(gele)
+        pass
+
     def resize(self):
         self.SetSizerAndFit(self.topsizer)
 
     def get_value(self) -> PropertyClass:
-        pass
+        superproperties = [x[0] + ':' + x[1] for x in self.superprops.get_value()]
+        gui_element = 'salsah-gui:' + self.gui_element.get_value()
+
+        self.propertyclass = PropertyClass(
+            con=self.con,
+            context=self.onto.context,
+            name=self.name.get_value(),
+            label=self.label.get_value(),
+            comment=self.comment.get_value(),
+            ontology_id=self.onto.id,
+            superproperties=superproperties,
+            object=self.object.get_value(),
+            gui_element=gui_element,
+            gui_attributes=self.gui_attributes.get_value()
+        )
+        self.propertyclass.print()
+        return self.propertyclass
 
     def get_changed(self) -> PropertyClass:
-        pass
+        tmp = self.label.get_changed()
+        if tmp is not None:
+            self.property.label = tmp
+        tmp = self.comment.get_changed()
+        if tmp is not None:
+            self.property.comment = tmp
+        return self.property

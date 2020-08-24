@@ -6,16 +6,16 @@ import json
 from jsonschema import validate
 import sys
 
-from models.helpers import Actions, BaseError, Context, Cardinality
-from models.langstring import Languages, LangStringParam, LangString
-from models.connection import Connection, Error
-from models.project import Project
-from models.listnode import ListNode
-from models.group import Group
-from models.user import User
-from models.ontology import Ontology
-from models.propertyclass import PropertyClass
-from models.resourceclass import ResourceClass
+from knora.models.helpers import Actions, BaseError, Context, Cardinality
+from knora.models.langstring import Languages, LangStringParam, LangString
+from knora.models.connection import Connection, Error
+from knora.models.project import Project
+from knora.models.listnode import ListNode
+from knora.models.group import Group
+from knora.models.user import User
+from knora.models.ontology import Ontology
+from knora.models.propertyclass import PropertyClass
+from knora.models.resourceclass import ResourceClass
 
 def program(args):
     #
@@ -198,8 +198,10 @@ def program(args):
                     group = None
                     if tmp[0] and tmp[0] != '':
                         # we have 'proj_shortname:groupname
+                        print(all_groups)
                         if not all_groups:
                             all_groups = Group.getAllGroups(con)
+                        print(all_groups)
                         tmp_group = list(filter(lambda g: g.project.shortname == tmp[0] and g.name == tmp[1], all_groups))
                         assert len(tmp_group) == 1
                         group = tmp_group[0]

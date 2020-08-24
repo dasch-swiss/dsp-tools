@@ -6,24 +6,20 @@ import wx
 from pprint import pprint
 import copy
 
-path = os.path.abspath(os.path.dirname(__file__))
-if not path in sys.path:
-    sys.path.append(path)
+from knora.models.helpers import Actions, BaseError, Context, Cardinality, LastModificationDate
+from knora.models.langstring import Languages, LangStringParam, LangString
+from knora.models.connection import Connection, Error
+from knora.models.project import Project
+from knora.models.listnode import ListNode
+from knora.models.group import Group
+from knora.models.user import User
+from knora.models.ontology import Ontology
+from knora.models.propertyclass import PropertyClass
+from knora.models.resourceclass import ResourceClass
 
-from models.helpers import Actions, BaseError, Context, Cardinality, LastModificationDate
-from models.langstring import Languages, LangStringParam, LangString
-from models.connection import Connection, Error
-from models.project import Project
-from models.listnode import ListNode
-from models.group import Group
-from models.user import User
-from models.ontology import Ontology
-from models.propertyclass import PropertyClass
-from models.resourceclass import ResourceClass
-
-from KnDialogControl import KnDialogControl, KnDialogTextCtrl, KnDialogChoice, KnDialogChoiceArr, \
+from knora.knoraConsoleModules.KnDialogControl import KnDialogControl, KnDialogTextCtrl, KnDialogChoice, KnDialogChoiceArr, \
     KnDialogCheckBox, KnCollapsiblePicker, KnDialogStaticText, KnDialogSuperResourceClasses, KnDialogGuiAttributes, \
-    KnDialogLangStringCtrl
+    KnDialogLangStringCtrl, KnDialogHasProperty
 
 
 def show_error(msg: str, knerr: BaseError):
@@ -296,6 +292,14 @@ class ResourceClassEntryDialog(wx.Dialog):
                                                          changed_cb=self.super_changed,
                                                          enabled=enable_all)
 
+        value = {name: {'cardinality': hasprop.cardinality, 'gui_order': hasprop.gui_order}
+                 for (name, hasprop)  in self.resourceclass.has_properties.items}
+        self.has_properties_ctrl = KnDialogHasProperty(panel=panel1,
+                                                       gsizer=gsizer,
+                                                       label="Has properties: ",
+                                                       name="has_properties",
+                                                       all_props=None,
+                                                       value=value)
         gsizer.SetSizeHints(panel1)
         panel1.SetSizer(gsizer)
         panel1.SetAutoLayout(1)

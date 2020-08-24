@@ -494,6 +494,16 @@ def do_sortorder(resources: List[KnoraResource]) -> List[KnoraResource]:
     return ok_resources
 
 def program(args) -> None:
+    """
+    This is the main program that starts everyting
+
+    :param args:
+    :return:
+    """
+
+    #
+    # first we read the command line options
+    #
     parser = argparse.ArgumentParser()
     parser.add_argument("inproject", help="Shortname of project the data should be added to")
     parser.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the Knora server")
@@ -509,6 +519,9 @@ def program(args) -> None:
 
     current_dir = os.path.dirname(os.path.realpath(__file__))
 
+    #
+    # prepare (create) local directories to store all information
+    #
     if args.folder == '-':
         folder = args.inproject + ".dir"
     else:

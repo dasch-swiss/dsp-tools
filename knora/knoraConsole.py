@@ -5,21 +5,21 @@ from typing import List, Set, Dict, Tuple, Optional
 #from knora import KnoraError, Knora
 from pprint import pprint
 
-from models.helpers import Actions, BaseError, Context, Cardinality
-from models.langstring import Languages, LangStringParam, LangString
-from models.connection import Connection, Error
-from models.project import Project
-from models.listnode import ListNode
-from models.group import Group
-from models.user import User
-from models.ontology import Ontology
-from models.propertyclass import PropertyClass
-from models.resourceclass import ResourceClass
+from knora.models.helpers import Actions, BaseError, Context, Cardinality
+from knora.models.langstring import Languages, LangStringParam, LangString
+from knora.models.connection import Connection, Error
+from knora.models.project import Project
+from knora.models.listnode import ListNode
+from knora.models.group import Group
+from knora.models.user import User
+from knora.models.ontology import Ontology
+from knora.models.propertyclass import PropertyClass
+from knora.models.resourceclass import ResourceClass
 
-from knoraConsoleModules.ProjectPanel import ProjectPanel
-from knoraConsoleModules.UserPanel import UserPanel
-from knoraConsoleModules.GroupPanel import GroupPanel
-from knoraConsoleModules.OntoPanel import OntoPanel
+from knora.knoraConsoleModules.ProjectPanel import ProjectPanel
+from knora.knoraConsoleModules.UserPanel import UserPanel
+from knora.knoraConsoleModules.GroupPanel import GroupPanel
+from knora.knoraConsoleModules.OntoPanel import OntoPanel
 
 
 class KnoraConsole(wx.Frame):

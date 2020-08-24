@@ -1,18 +1,21 @@
-from typing import List, Set, Dict, Tuple, Optional, Any, Union, Callable
+from typing import Any, Union, List, Set, Dict, Tuple, Optional, Callable, TypedDict
 
-import os
-import sys
 import wx
-from typing import List, Set, Dict, Tuple, Optional, Callable
+import wx.grid
 
-from models.langstring import Languages, LangStringParam, LangString
-from knora import KnoraError, Knora
+from knora.models.langstring import Languages, LangStringParam, LangString
+from knora.models.helpers import Cardinality
 from pprint import pprint
 
 from wx.lib.itemspicker import ItemsPicker, \
                                EVT_IP_SELECTION_CHANGED, \
                                IP_SORT_CHOICES, IP_SORT_SELECTED,\
                                IP_REMOVE_FROM_CHOICES
+
+
+class HasPropertyInfo(TypedDict):
+    cardinality: Cardinality
+    gui_order: int
 
 class ItemsPickerDialog(wx.Dialog):
     def __init__(self,
@@ -966,3 +969,37 @@ class KnDialogGuiAttributes(KnDialogControl):
             else:
                 pass
         return values
+
+
+class KnDialogHasProperty(KnDialogControl):
+    def __init__(self,
+                 panel: wx.Panel,
+                 gsizer: wx.FlexGridSizer,
+                 label: str,
+                 name: str,
+                 all_props: Dict[str, List[str]] = None,
+                 value: Dict[str, HasPropertyInfo] = None,  # {<name>: HasPropertyInfo}
+                 enabled: bool = True,
+                 changed_cb: Optional[Callable[[wx.Event], None]] = None):
+        self.gsizer = gsizer
+        self.panel = panel
+        self.container = wx.Panel(self.panel, style=wx.BORDER_SIMPLE)
+        self.winsizer = wx.BoxSizer(wx.VERTICAL)
+        self.grid = wx.grid.Grid(self.container)
+        self.grid.CreateGrid(len(value), 4)
+        row = 0
+        for key, val in value.items():
+            self.grid.SetCellValue(row, 0, key)
+            self.grid.setCellEditor(row, 1, wx.grid.GridCellChoiceEditor(choices=[x.value for x in Cardinality]))
+            self.grid.SetCellValue(row, 1, val.cardinality.value)
+            self.grid.setCellEditor(row, 2, wx.grid.GridCellNumberEditor(min=0, max=-1))
+            self.grid.SetCellValue(row, 2, val.gui_order)
+            row = row + 1
+        self.winsizer.Add(self.grid, flag=wx.EXPAND | wx.ALL)
+
+        self.container.SetSizerAndFit(self.winsizer)
+        self.panel.SetSizerAndFit(self.gsizer)
+        self.panel.GetParent().resize()
+        self.panel.Layout()
+        super().__init__(panel, gsizer, label, name, self.container, True if value is None else False, changed_cb)
+

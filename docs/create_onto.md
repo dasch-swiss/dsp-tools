@@ -38,8 +38,8 @@ A complete ontology definition looks like this:
   },
   "project": {
     "shortcode": "0123",
-    "shortname": "AwK",
-    "longname": "Archiving with Knora",
+    "shortname": "BiZ",
+    "longname": "Bildung in Zahlen",
     "descriptions": {},
     "keywords": [],
     "lists": [],

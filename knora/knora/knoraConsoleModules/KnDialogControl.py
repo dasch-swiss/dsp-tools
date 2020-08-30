@@ -37,6 +37,7 @@ class PropertyStatus(Enum):
     NEW = "(new)"
     DELETED = "(deleted)"
 
+
 class HasPropertyInfo(TypedDict):
     """
     Each ResourceClass instance has a member variable that holds a list of the properties

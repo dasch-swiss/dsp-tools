@@ -172,7 +172,7 @@ class Ontology:
         lmd, resourceclass = resourceclass.update(self._lastModificationDate)
         self._lastModificationDate = lmd
         self._resource_classes[index] = resourceclass
-        return resourceclass
+        return lmd, resourceclass
 
     def removeResourceClass(self, index: int, erase: bool = False) -> None:
         if erase:
@@ -191,6 +191,18 @@ class Ontology:
 
     def addPropertyClass(self, propclass: PropertyClass):
         self._property_classes.append(propclass)
+
+    def updatePropertyClass(self, index: int, propclass: PropertyClass) -> PropertyClass:
+        lmd, propclass = propclass.update(self._lastModificationDate)
+        self._lastModificationDate = lmd
+        self._property_classes[index] = propclass
+        return lmd, propclass
+
+    def removePropertyClass(self, index: int, erase: bool = False) -> None:
+        if erase:
+            lmd = self._property_classes[index].delete(self._lastModificationDate)
+            self._lastModificationDate = lmd
+        del self._property_classes[index]
 
     @property
     def context(self):

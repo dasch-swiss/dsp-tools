@@ -21,11 +21,11 @@ py_library(
     srcs = ["ProjectPanel.py"],
     deps = [
         requirement("pprint"),
-        "//knora/models:connection",
-        "//knora/models:group",
-        "//knora/models:helpers",
-        "//knora/models:project",
-        "//knora/models:user",
+        "//knora/knora/models:connection",
+        "//knora/knora/models:group",
+        "//knora/knora/models:helpers",
+        "//knora/knora/models:project",
+        "//knora/knora/models:user",
         ":KnDialogControl"
     ],
     data = ["__init__.py"],
@@ -38,11 +38,11 @@ py_library(
     deps = [
         requirement("pprint"),
         "//knora:knora",
-        "//knora/models:connection",
-        "//knora/models:group",
-        "//knora/models:helpers",
-        "//knora/models:project",
-        "//knora/models:user",
+        "//knora/knora/models:connection",
+        "//knora/knora/models:group",
+        "//knora/knora/models:helpers",
+        "//knora/knora/models:project",
+        "//knora/knora/models:user",
         ":KnDialogControl"
     ],
     data = ["__init__.py"],

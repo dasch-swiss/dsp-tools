@@ -17,17 +17,9 @@ from knora.models.ontology import Ontology
 from knora.models.propertyclass import PropertyClass
 from knora.models.resourceclass import ResourceClass
 
-from knora.knoraConsoleModules.KnDialogControl import KnDialogControl, KnDialogTextCtrl, KnDialogChoice, KnDialogChoiceArr, \
-    KnDialogCheckBox, KnCollapsiblePicker, KnDialogStaticText, KnDialogSuperProperties, KnDialogGuiAttributes, \
-    KnDialogLangStringCtrl
-
-def show_error(msg: str, knerr: BaseError):
-    dlg = wx.MessageDialog(None,
-                           message=msg + "\n" + knerr.message,
-                           caption='Error',
-                           style=wx.OK | wx.ICON_ERROR)
-    dlg.ShowModal()
-    dlg.Destroy()
+from knora.knoraConsoleModules.KnDialogControl import show_error, KnDialogControl, KnDialogTextCtrl, KnDialogChoice, \
+    KnDialogChoiceArr, KnDialogCheckBox, KnCollapsiblePicker, KnDialogStaticText, KnDialogSuperProperties, \
+    KnDialogGuiAttributes, KnDialogLangStringCtrl
 
 
 reps = {
@@ -222,16 +214,30 @@ gui_attributes = {
     'Searchbox': ['numprops=integer']
 }
 
+
 class PropertyPanel(wx.Window):
+    """
+    Panel to modify/add properties
+    """
     def __init__(self,
                  con: Connection = None,
                  onto: Ontology = None,
                  *args, **kw):
+        """
+        Constructor of property panel
+        :param con: Connection instance connected to a knora server
+        :param onto: Instance of the current Ontology
+        :param args: Other arguments
+        :param kw: Other keywords
+        """
         super().__init__(*args, **kw)
 
         self.con = con
         self.onto = onto
         topsizer = wx.BoxSizer(wx.VERTICAL)
+
+        self.label = wx.StaticText(self, label="Properties:")
+        topsizer.Add(self.label)
 
         self.ids: List[int] = []
         self.listctl = wx.ListCtrl(self,
@@ -259,45 +265,92 @@ class PropertyPanel(wx.Window):
         self.edit_button.Bind(wx.EVT_BUTTON, self.edit_entry)
         self.new_button = wx.Button(parent=self, label="new")
         self.new_button.Bind(wx.EVT_BUTTON, self.new_entry)
+        self.delete_button = wx.Button(parent=self, label="delete")
+        self.delete_button.Bind(wx.EVT_BUTTON, self.delete_entry)
         bottomsizer.Add(self.edit_button, proportion=1, flag=wx.EXPAND | wx.ALL, border=3)
         bottomsizer.Add(self.new_button, proportion=1, flag=wx.EXPAND | wx.ALL, border=3)
+        bottomsizer.Add(self.delete_button, proportion=1, flag=wx.EXPAND | wx.ALL, border=3)
 
         topsizer.Add(bottomsizer, proportion=0, flag=wx.EXPAND)
         self.SetAutoLayout(1)
         self.SetSizerAndFit(topsizer)
 
-    def new_entry(self, event):
+    def new_entry(self, event: wx.Event) -> None:
+        """
+        Create a new property class
+        :param event: wx.Event instance
+        :return: None
+        """
         dialog = PropertyEntryDialog(self.con, self.onto, None, True, self)
         res = dialog.ShowModal()
         if res == wx.ID_OK:
             property = dialog.get_value()
-            lmd, property = property.create(self.onto.lastModificationDate)
-            property.print()
-            lmd2, self.onto = self.onto.read()
+            try:
+                lmd, property = property.create(self.onto.lastModificationDate)
+            except BaseError as err:
+                show_error("Couldn't create a new property class!", err)
+                return None
+            try:
+                lmd2, self.onto = self.onto.read()
+            except BaseError as err:
+                show_error("Couldn't read modified ontology!", err)
+                return None
             self.onto.lastModificationDate = lmd
             self.listctl.Append((property.name,
                                  property.label[Languages.EN]))
             self.ids.append(property.id)
         dialog.Destroy()
 
-    def edit_entry(self, event):
+    def edit_entry(self, event: wx.Event) -> None:
+        """
+         Modify an existing property class.
+        :param event: wx.Event instance
+        :return: None
+        """
         idx = self.listctl.GetFirstSelected()
         dialog = PropertyEntryDialog(self.con, self.onto, self.ids[idx], False, self)
         res = dialog.ShowModal()
         if res == wx.ID_OK:
             property: PropertyClass = dialog.get_changed()
-            lmd, property = property.update(self.onto.lastModificationDate)
-            lmd2, self.onto = self.onto.read()
-            pprint(lmd)
-            pprint(lmd2)
+            try:
+                lmd, property = property.update(self.onto.lastModificationDate)
+            except BaseError as err:
+                show_error("Couln't modify the resource class!", err)
+                return None
+            try:
+                lmd2, self.onto = self.onto.read()
+            except BaseError as err:
+                show_error("Couldn't read modified ontology!", err)
+                return None
             self.onto.lastModificationDate = lmd
             self.listctl.SetItem(idx, 0, property.name)
             self.listctl.SetItem(idx, 1, property.label[Languages.EN])
         dialog.Destroy()
 
+    def delete_entry(self, event: wx.Event) -> None:
+        """
+        Delete a property class
+        :param event: wx.Event instance
+        :return: None
+        """
+        idx = self.listctl.GetFirstSelected()
+        dlg = wx.MessageDialog(parent=self,
+                               message="Do You really want to delete this property class?",
+                               caption="Delete ?",
+                               style=wx.OK | wx.CANCEL | wx.CANCEL_DEFAULT | wx.ICON_QUESTION)
+        val = dlg.ShowModal()
+        if val == wx.ID_OK:
+            try:
+                self.onto.removePropertyClass(index=idx, erase=True)
+                self.listctl.DeleteItem(idx)
+            except BaseError as err:
+                show_error("Couldn't delete property class", err)
+
 
 class PropertyEntryDialog(wx.Dialog):
-
+    """
+    Dialog for modifying or changing the fields of a property class
+    """
     def __init__(self,
                  con: Connection = None,
                  onto: Ontology = None,
@@ -308,7 +361,7 @@ class PropertyEntryDialog(wx.Dialog):
         Create a dialog window to enter or modify a property
 
         :param con: Connection instance
-        :param onto: The current ontology
+        :param onto: Instance of current ontology
         :param pindex: Index of the property in the list of property classes, None for a new entry
         :param newentry: True, if we want to enter a new property
         :param args:
@@ -323,7 +376,10 @@ class PropertyEntryDialog(wx.Dialog):
         #
         # Get all ontologies beloning to the current project
         #
-        self.pontos = Ontology.getProjectOntologies(con=self.con, project_id=self.onto.project)
+        try:
+            self.pontos = Ontology.getProjectOntologies(con=self.con, project_id=self.onto.project)
+        except BaseError as err:
+            show_error("Couldn't get ontologies of current project!", err)
 
         try:
             if newentry:
@@ -349,7 +405,13 @@ class PropertyEntryDialog(wx.Dialog):
         # property name
         #
         tmp_name = None if newentry else self.property.name if self.property.name is not None else ""
-        self.name = KnDialogTextCtrl(panel1, gsizer, "Name: ", "name", tmp_name, enabled=enable_all)
+        self.name = KnDialogTextCtrl(panel=panel1,
+                                     gsizer=gsizer,
+                                     label="Name: ",
+                                     name="name",
+                                     value=tmp_name,
+                                     enabled=enable_all,
+                                     size=wx.Size(400, -1))
 
         #
         # property labels (language dependent)
@@ -358,20 +420,27 @@ class PropertyEntryDialog(wx.Dialog):
             tmp = self.property.label if self.property.label is not None else LangString("")
         else:
             tmp = None
-        self.label = KnDialogLangStringCtrl(panel1, gsizer, "Label: ", "label", tmp, size=wx.Size(400, -1))
+        self.label = KnDialogLangStringCtrl(panel=panel1,
+                                            gsizer=gsizer,
+                                            label="Label: ",
+                                            name="label",
+                                            value=tmp,
+                                            size=wx.Size(400, -1))
 
         #
         # property comment (language dependent)
         #
-        if self.property.comment:
-            print(self.property.comment._simplestring)
-            pprint(self.property.comment._langstrs)
         if not newentry:
             tmp = self.property.comment if self.property.comment is not None else LangString("")
         else:
             tmp = None
-        self.comment = KnDialogLangStringCtrl(panel1, gsizer, "Comment: ", "comment", tmp,
-                                              size=wx.Size(400, 50), style=wx.TE_MULTILINE)
+        self.comment = KnDialogLangStringCtrl(panel=panel1,
+                                              gsizer=gsizer,
+                                              label="Comment: ",
+                                              name="comment",
+                                              value=tmp,
+                                              size=wx.Size(400, 50),
+                                              style=wx.TE_MULTILINE)
 
         #
         # now we process the list of super properties
@@ -422,7 +491,10 @@ class PropertyEntryDialog(wx.Dialog):
                                      changed_cb=self.object_changed,
                                      enabled=enable_all)
 
-        object = onto.context.reduce_iri(self.object.get_value())
+        try:
+            object = onto.context.reduce_iri(self.object.get_value())
+        except BaseError as err:
+            show_error("Couldn't reduce the IRI '{}'!".format(self.object.get_value()), err)
         objects = [k for k, v in gui_elements.items()]
         if object is not None:
             if object in objects:
@@ -433,7 +505,10 @@ class PropertyEntryDialog(wx.Dialog):
             choices = []
         if not newentry:
             if self.property.gui_element is not None:
-                tmp = self.onto.context.reduce_iri(self.property.gui_element)
+                try:
+                    tmp = self.onto.context.reduce_iri(self.property.gui_element)
+                except BaseError as err:
+                    show_error("Couldn't reduce the IRI '{}'!".format(self.property.gui_element), err)
             else:
                 tmp = ""
         else:
@@ -448,7 +523,10 @@ class PropertyEntryDialog(wx.Dialog):
                                           enabled=enable_all)
 
         gele = self.gui_element.get_value()
-        rootnodes = ListNode.getAllLists(con=self.con, project_iri=onto.project)
+        try:
+            rootnodes = ListNode.getAllLists(con=self.con, project_iri=onto.project)
+        except BaseError as err:
+            show_error("Couldn't get the lists of the project!", err)
         lists = [x.label[Languages.EN] for x in rootnodes]
         if not newentry:
             tmp = self.property.gui_attributes
@@ -476,7 +554,14 @@ class PropertyEntryDialog(wx.Dialog):
 
         self.SetSizerAndFit(self.topsizer)
 
-    def expand_res_rep(self, object_set: Set[str]):
+    def expand_res_rep(self, object_set: Set[str]) -> None:
+        """
+        Expand the name "#res" and "#rep" in the list of possible "objects". "#res" will be exaneded into a set of
+        available resources, and "#res" to a set of available representations.
+
+        :param object_set: Set of objects that are allowed
+        :return: None
+        """
         if '#res' in object_set:
             object_set.remove('#res')
             object_set.update({x.split(':')[1] for x in ress})
@@ -493,7 +578,14 @@ class PropertyEntryDialog(wx.Dialog):
                 reslist = [prefix + x.name for x in fullonto.resource_classes if len(set(x.superclasses) & reps) > 0]
                 object_set.update(reslist)
 
-    def super_changed(self, event: wx.Event, user_data: Any):
+    def super_changed(self, event: wx.Event, user_data: Any = None) -> None:
+        """
+        Callbak if the superproperty has changed
+
+        :param event: ex.Event instance
+        :param user_data: Not used
+        :return:
+        """
         object_set = None
         for prefix, super in user_data:
             if object_set is None:
@@ -508,8 +600,14 @@ class PropertyEntryDialog(wx.Dialog):
                 print(object_set)
         self.object.set_choices(list(object_set))
 
-    def object_changed(self, event, object):
-        print('object changed!')
+    def object_changed(self, event, object: str) -> None:
+        """
+        Callback if the "object" of the property class has changed.
+
+        :param event: ex.Event instance
+        :param object: The new "object" of the property class as string
+        :return: None
+        """
         objects = [k for k, v in gui_elements.items()]
         if object in objects:
             choices = gui_elements[object]
@@ -517,38 +615,62 @@ class PropertyEntryDialog(wx.Dialog):
             choices = ['Searchbox']
         self.gui_element.set_choices(choices)
 
-    def gui_element_changed(self, event, gele):
-        print('gui_element changed!:', gele)
+    def gui_element_changed(self, event: wx.Event, gele: str) -> None:
+        """
+        Callback if the gui_element changed.
+        :param event: wx.Event instance
+        :param gele:
+        :return:
+        """
         self.gui_attributes.set_gui_element(gele)
-        pass
 
     def resize(self):
+        """
+        Resize the topsizer
+        :return:
+        """
         self.SetSizerAndFit(self.topsizer)
 
-    def get_value(self) -> PropertyClass:
+    def get_value(self) -> Union[PropertyClass, None]:
+        """
+        Get all values from the property class entry form and create a new ProprtyClass instance.
+
+        :return: A PropertyClass instance on success, else None
+        """
         superproperties = [x[0] + ':' + x[1] for x in self.superprops.get_value()]
         gui_element = 'salsah-gui:' + self.gui_element.get_value()
 
-        self.propertyclass = PropertyClass(
-            con=self.con,
-            context=self.onto.context,
-            name=self.name.get_value(),
-            label=self.label.get_value(),
-            comment=self.comment.get_value(),
-            ontology_id=self.onto.id,
-            superproperties=superproperties,
-            object=self.object.get_value(),
-            gui_element=gui_element,
-            gui_attributes=self.gui_attributes.get_value()
-        )
-        self.propertyclass.print()
+        try:
+            self.propertyclass = PropertyClass(
+                con=self.con,
+                context=self.onto.context,
+                name=self.name.get_value(),
+                label=self.label.get_value(),
+                comment=self.comment.get_value(),
+                ontology_id=self.onto.id,
+                superproperties=superproperties,
+                object=self.object.get_value(),
+                gui_element=gui_element,
+                gui_attributes=self.gui_attributes.get_value()
+            )
+        except BaseError as err:
+            show_error("Couldn't create a new PropertyClass instance", err)
+            return None
         return self.propertyclass
 
-    def get_changed(self) -> PropertyClass:
-        tmp = self.label.get_changed()
-        if tmp is not None:
-            self.property.label = tmp
-        tmp = self.comment.get_changed()
-        if tmp is not None:
-            self.property.comment = tmp
+    def get_changed(self) -> Union[PropertyClass, None]:
+        """
+        Get all changed values from a property class form
+        :return: PropertyClass instance on success, None otherwise
+        """
+        try:
+            tmp = self.label.get_changed()
+            if tmp is not None:
+                self.property.label = tmp
+            tmp = self.comment.get_changed()
+            if tmp is not None:
+                self.property.comment = tmp
+        except BaseError as err:
+            show_error("Couldn't modify PropertyClass instance", err)
+            return None
         return self.property

@@ -17,18 +17,11 @@ from knora.models.ontology import Ontology
 from knora.models.propertyclass import PropertyClass
 from knora.models.resourceclass import ResourceClass, HasProperty
 
-from knora.knoraConsoleModules.KnDialogControl import KnDialogControl, KnDialogTextCtrl, KnDialogChoice, KnDialogChoiceArr, \
-    KnDialogCheckBox, KnCollapsiblePicker, KnDialogStaticText, KnDialogSuperResourceClasses, KnDialogGuiAttributes, \
-    KnDialogLangStringCtrl, KnDialogHasProperty, PropertyStatus
+from knora.knoraConsoleModules.KnDialogControl import show_error, KnDialogControl, KnDialogTextCtrl, KnDialogChoice, \
+    KnDialogChoiceArr, KnDialogCheckBox, KnCollapsiblePicker, KnDialogStaticText, KnDialogSuperResourceClasses, \
+    KnDialogGuiAttributes, KnDialogLangStringCtrl, KnDialogHasProperty, PropertyStatus
 
 
-def show_error(msg: str, knerr: BaseError):
-    dlg = wx.MessageDialog(None,
-                           message=msg + "\n" + str(knerr),
-                           caption='Error',
-                           style=wx.OK | wx.ICON_ERROR)
-    dlg.ShowModal()
-    dlg.Destroy()
 
 permissions = {
     'RV': 'restricted view',
@@ -118,15 +111,28 @@ all_classes = {
 
 
 class ResourcePanel(wx.Window):
+    """
+    Panel to edit/create a Resource
+    """
     def __init__(self,
                  con: Connection = None,
                  onto: Ontology = None,
                  *args, **kw):
+        """
+        Constructor of resource panel
+        :param con: Connection instance to Knora
+        :param onto: The current ontology (Ontology instance)
+        :param args: Other arguments
+        :param kw: Other keywords
+        """
         super().__init__(*args, **kw)
 
         self.con = con
         self.onto = onto
         topsizer = wx.BoxSizer(wx.VERTICAL)
+
+        self.label = wx.StaticText(self, label="Resources:")
+        topsizer.Add(self.label)
 
         self.reslist = wx.ListCtrl(self,
                                    name="resources",
@@ -139,7 +145,7 @@ class ResourcePanel(wx.Window):
         for cnt, res in enumerate(onto.resource_classes):
             supers = [onto.context.reduce_iri(x) for x in res.superclasses]
             self.reslist.Append((res.name, res.label[Languages.EN], ", ".join(supers)))
-
+        self.reslist.Select(0)
         topsizer.Add(self.reslist, proportion=1, flag=wx.EXPAND | wx.ALL, border=5)
 
         bottomsizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -157,31 +163,51 @@ class ResourcePanel(wx.Window):
         self.SetAutoLayout(1)
         self.SetSizerAndFit(topsizer)
 
-    def new_entry(self, event):
+    def new_entry(self, event: wx.Event) -> None:
+        """
+        Create a new Resourceclass.
+        :param event: wx.Event instance
+        :return: None
+        """
         dialog = ResourceClassEntryDialog(self.con, self.onto, None, True, self)
         res = dialog.ShowModal()
         if res == wx.ID_OK:
             resourceclass = dialog.get_value()
-            index, resourceclass = self.onto.addResourceClass(resourceclass=resourceclass, create=True)
+            try:
+                index, resourceclass = self.onto.addResourceClass(resourceclass=resourceclass, create=True)
+            except BaseError as err:
+                show_error("Couln't create resource!", err)
+                return None
             self.reslist.Append((resourceclass.name,
                                  resourceclass.label[Languages.EN]))
         dialog.Destroy()
 
-    def edit_entry(self, event):
+    def edit_entry(self, event: wx.Event) -> None:
+        """
+        Edit/modify an existing resource class.
+        :param event: ex.Event instance
+        :return: None
+        """
         idx = self.reslist.GetFirstSelected()
         dialog = ResourceClassEntryDialog(self.con, self.onto, idx, False, self)
         res = dialog.ShowModal()
         if res == wx.ID_OK:
             resourceclass: ResourceClass = dialog.get_changed()
-            resource_class = self.onto.updateResourceClass(idx, resourceclass)
-            #lmd, resourceclass = resourceclass.update(self.onto.lastModificationDate)
-            #lmd2, self.onto = self.onto.read()
-            #self.onto.lastModificationDate = lmd
+            try:
+                lmd, resourceclass = self.onto.updateResourceClass(idx, resourceclass)
+            except BaseError as err:
+                show_error("Coul'nt modify the resource!", err)
+                return
             self.reslist.SetItem(idx, 0, resourceclass.name)
             self.reslist.SetItem(idx, 1, resourceclass.label[Languages.EN])
         dialog.Destroy()
 
-    def delete_entry(self, event):
+    def delete_entry(self, event: wx.Event) -> None:
+        """
+        Delete a resource class (only possible if it is not refrenced)
+        :param event: wx.Event instance
+        :return: None
+        """
         idx = self.reslist.GetFirstSelected()
         dlg = wx.MessageDialog(parent=self,
                                message="Do You really want to delete this resource?",
@@ -194,7 +220,6 @@ class ResourcePanel(wx.Window):
                 self.reslist.DeleteItem(idx)
             except BaseError as err:
                 show_error("Couldn't delete resource class", err)
-
 
 
 class ResourceClassEntryDialog(wx.Dialog):
@@ -212,8 +237,8 @@ class ResourceClassEntryDialog(wx.Dialog):
         :param onto: The current ontology
         :param rindex: Index of the resource in the list of resource classes
         :param newentry: True, if we want to enter a new property
-        :param args:
-        :param kw:
+        :param args: Other arguments
+        :param kw: Other kewords
         """
         super().__init__(*args, **kw,
                          title="Property Entry",
@@ -224,7 +249,10 @@ class ResourceClassEntryDialog(wx.Dialog):
         #
         # Get all ontologies belonging to the current project
         #
-        self.pontos = Ontology.getProjectOntologies(con=self.con, project_id=self.onto.project)
+        try:
+            self.pontos = Ontology.getProjectOntologies(con=self.con, project_id=self.onto.project)
+        except BaseError as err:
+            show_error("Couln't get all project ontologies!", err)
 
         try:
             if newentry:
@@ -250,7 +278,12 @@ class ResourceClassEntryDialog(wx.Dialog):
         # resource class name
         #
         tmp_name = None if newentry else self.resourceclass.name if self.resourceclass.name is not None else ""
-        self.name = KnDialogTextCtrl(panel1, gsizer, "Name: ", "name", tmp_name, enabled=enable_all)
+        self.name = KnDialogTextCtrl(panel=panel1,
+                                     gsizer=gsizer,
+                                     label="Name: ",
+                                     name="name",
+                                     value=tmp_name,
+                                     enabled=enable_all)
 
         #
         # resource class labels (language dependent)
@@ -259,20 +292,27 @@ class ResourceClassEntryDialog(wx.Dialog):
             tmp = self.resourceclass.label if self.resourceclass.label is not None else LangString("")
         else:
             tmp = None
-        self.label = KnDialogLangStringCtrl(panel1, gsizer, "Label: ", "label", tmp, size=wx.Size(400, -1))
+        self.label = KnDialogLangStringCtrl(panel=panel1,
+                                            gsizer=gsizer,
+                                            label="Label: ",
+                                            name="label",
+                                            value=tmp,
+                                            size=wx.Size(400, -1))
 
         #
-        # property comment (language dependent)
+        # resource class comment (language dependent)
         #
-        if self.resourceclass.comment:
-            print(self.resourceclass.comment._simplestring)
-            pprint(self.resourceclass.comment._langstrs)
         if not newentry:
             tmp = self.resourceclass.comment if self.resourceclass.comment is not None else LangString("")
         else:
             tmp = None
-        self.comment = KnDialogLangStringCtrl(panel1, gsizer, "Comment: ", "comment", tmp,
-                                              size=wx.Size(400, 50), style=wx.TE_MULTILINE)
+        self.comment = KnDialogLangStringCtrl(panel=panel1,
+                                              gsizer=gsizer,
+                                              label="Comment: ",
+                                              name="comment",
+                                              value=tmp,
+                                              size=wx.Size(400, 50),
+                                              style=wx.TE_MULTILINE)
 
         #
         # now we process the list of super resource classes
@@ -321,10 +361,13 @@ class ResourceClassEntryDialog(wx.Dialog):
         #
         # Get all ontologies belonging to the current project
         #
-        self.pontos = Ontology.getProjectOntologies(con=self.con, project_id=self.onto.project)
+        try:
+            self.pontos = Ontology.getProjectOntologies(con=self.con, project_id=self.onto.project)
+        except BaseError as err:
+            show_error("Couldn't get project ontologies!", err)
 
         #
-        # collect all properties from all omtologies in this project  ToDo: properties from shared ontologies
+        # collect all properties from all ontologies in this project  ToDo: properties from shared ontologies
         #
         self.all_props: List[str] = []
         for ponto in self.pontos:
@@ -365,33 +408,45 @@ class ResourceClassEntryDialog(wx.Dialog):
     def resize(self):
         self.SetSizerAndFit(self.topsizer)
 
-    def get_value(self) -> ResourceClass:
+    def get_value(self) -> Union[ResourceClass, None]:
+        """
+        Get all values for creating a new resource class
+        :return: An instance of ResourceClass on success, None on failure
+        """
         superclasses = [x[0] + ':' + x[1] for x in self.superclasses.get_value()]
-
-        self.resourceclass = ResourceClass(
-            con=self.con,
-            context=self.onto.context,
-            name=self.name.get_value(),
-            label=self.label.get_value(),
-            comment=self.comment.get_value(),
-            ontology_id=self.onto.id,
-            superclasses=superclasses
-        )
+        try:
+            self.resourceclass = ResourceClass(
+                con=self.con,
+                context=self.onto.context,
+                name=self.name.get_value(),
+                label=self.label.get_value(),
+                comment=self.comment.get_value(),
+                ontology_id=self.onto.id,
+                superclasses=superclasses
+            )
+        except BaseError as err:
+            show_error("Couln't create a ResourceClass instance!", err)
+            return None
         return self.resourceclass
 
-    def get_changed(self) -> ResourceClass:
-        tmp = self.label.get_changed()
-        if tmp is not None:
-            self.resourceclass.label = tmp
-        tmp = self.comment.get_changed()
-        if tmp is not None:
-            self.resourceclass.comment = tmp
-        tmp = self.has_properties_ctrl.get_changed()
-        if tmp:
-            for propname, propinfo in tmp:
-                if propinfo['status'] == PropertyStatus.CHANGED:
-                    self.resourceclass.updateProperty()
-        print('++++++++++++++++++++++++++++++++')
-        pprint(tmp)
-        print('++++++++++++++++++++++++++++++++')
+    def get_changed(self) -> Union[ResourceClass, None]:
+        """
+        Get all changed fields form the dialog and update the ResourceClass instance
+        :return: The modified ResourceClass instance on success, None on failure.
+        """
+        try:
+            tmp = self.label.get_changed()
+            if tmp is not None:
+                self.resourceclass.label = tmp
+            tmp = self.comment.get_changed()
+            if tmp is not None:
+                self.resourceclass.comment = tmp
+            tmp = self.has_properties_ctrl.get_changed()
+            if tmp:
+                for propname, propinfo in tmp:
+                    if propinfo['status'] == PropertyStatus.CHANGED:
+                        self.resourceclass.updateProperty()
+        except BaseError as err:
+            show_error("Couldn't modify existing ResourceClass instance!", err)
+            return None
         return self.resourceclass

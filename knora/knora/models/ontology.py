@@ -153,15 +153,33 @@ class Ontology:
         self._lastModificationDate = LastModificationDate(value)
 
     @property
-    def resource_classes(self):
+    def resource_classes(self) -> List[ResourceClass]:
         return self._resource_classes
 
     @resource_classes.setter
-    def resource_classes(self, value: List[ResourceClass]):
+    def resource_classes(self, value: List[ResourceClass]) -> None:
         self._resource_classes = value
 
-    def addResourceClass(self, resclass: ResourceClass):
-        self._resource_classes.append(resclass)
+    def addResourceClass(self, resourceclass: ResourceClass, create: bool = False) -> Tuple[int, ResourceClass]:
+        if create:
+            lmd, resourceclass = resourceclass.create(self._lastModificationDate)
+            self.lastModificationDate = lmd
+        self._resource_classes.append(resourceclass)
+        index = len(self._resource_classes) - 1
+        return index, resourceclass
+
+    def updateResourceClass(self, index: int, resourceclass: ResourceClass) -> ResourceClass:
+        lmd, resourceclass = resourceclass.update(self._lastModificationDate)
+        self._lastModificationDate = lmd
+        self._resource_classes[index] = resourceclass
+        return resourceclass
+
+    def removeResourceClass(self, index: int, erase: bool = False) -> None:
+        if erase:
+            lmd = self._resource_classes[index].delete(self._lastModificationDate)
+            self._lastModificationDate = lmd
+        del self._resource_classes[index]
+
 
     @property
     def property_classes(self):

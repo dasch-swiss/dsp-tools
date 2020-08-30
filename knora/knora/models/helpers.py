@@ -42,6 +42,11 @@ class BaseError(Exception):
         """
         return "ERROR: " + self.__message + "!"
 
+    @property
+    def message(self) -> str:
+        return self.__message
+
+
 @unique
 class Actions(Enum):
     Create = 1
@@ -239,7 +244,7 @@ class Context:
         if self.__is_iri(val):
             return val
         tmp = val.split(':')
-        if len(tmp) > 1:
+        if len(tmp) < 2:
             raise BaseError("There is no separator to identify the prefix: " + val)
         iri_info = self.__context.get(tmp[0])
         if iri_info is None:

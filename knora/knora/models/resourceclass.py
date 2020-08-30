@@ -549,11 +549,11 @@ class ResourceClass:
         raise BaseError('"permissions" cannot be modified!')
 
     @property
-    def has_property(self) -> Dict[str, HasProperty]:
+    def has_properties(self) -> Dict[str, HasProperty]:
         return self.___has_properties
 
-    @has_property.setter
-    def has_property(self, value: str) -> None:
+    @has_properties.setter
+    def has_properties(self, value: str) -> None:
         raise BaseError('"has_property" cannot be modified!')
 
     def getProperty(self, property_id) -> Optional[HasProperty]:

@@ -7,6 +7,8 @@ from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from enum import Enum, unique
 from urllib.parse import quote_plus
 
+from knora.models.helpers import Actions, BaseError
+
 
 class Error(Exception):
     """Handles errors happening in this file"""
@@ -91,10 +93,10 @@ class Connection:
         """
 
         if (res.status_code != 200):
-            raise Error("KNORA-ERROR: status code=" + str(res.status_code) + "\nMessage:" + res.text)
+            raise BaseError("KNORA-ERROR: status code=" + str(res.status_code) + "\nMessage:" + res.text)
 
         if 'error' in res:
-            raise Error("KNORA-ERROR: API error: " + res.error)
+            raise BaseError("KNORA-ERROR: API error: " + res.error)
 
 
     def post(self, path: str, jsondata: Optional[str] = None):

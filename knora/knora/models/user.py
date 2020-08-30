@@ -276,7 +276,6 @@ class User:
     @property
     def password(self) -> Optional[str]:
         return None
-        #raise BaseError('Password cannot be read!')
 
     @password.setter
     def password(self, value: Optional[str]):
@@ -549,9 +548,6 @@ class User:
             if self._lang is not None and 'lang' in self.__changed:
                 tmp['lang'] = self._lang.value
                 tmp_changed = True
-            if self._sysadmin is not None and 'sysadmin' in self.__changed:
-                tmp['sysadmin'] = self._sysadmin
-                tmp_changed = True
             if not tmp_changed:
                 tmp = {}
         return tmp
@@ -646,7 +642,6 @@ class User:
         for p in self.rm_from_group:
             result = self.con.delete('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
         user = User(con=self.con, id=self._id).read()
-        user.print()
         return user
 
     def delete(self):

@@ -3,36 +3,88 @@ from typing import Any, Union, List, Set, Dict, Tuple, Optional, Callable, Typed
 import wx
 import wx.grid
 
-from knora.models.langstring import Languages, LangStringParam, LangString
-from knora.models.helpers import Cardinality
 from pprint import pprint
+from copy import deepcopy
+from enum import Enum, unique
+
 
 from wx.lib.itemspicker import ItemsPicker, \
                                EVT_IP_SELECTION_CHANGED, \
                                IP_SORT_CHOICES, IP_SORT_SELECTED,\
                                IP_REMOVE_FROM_CHOICES
+import wx.lib.scrolledpanel
 
+from knora.models.langstring import Languages, LangStringParam, LangString
+from knora.models.helpers import Cardinality, BaseError
+
+from knora.widgets.doublepassword import DoublePasswordCtrl
+
+
+
+def show_error(message: str, err: BaseError) -> None:
+    dlg = wx.MessageDialog(None,
+                           message=message + "\n" + err.message,
+                           caption='Error',
+                           style=wx.OK | wx.ICON_ERROR)
+    dlg.ShowModal()
+    dlg.Destroy()
+
+
+@unique
+class PropertyStatus(Enum):
+    UNCHANGED = "(unchanged)"
+    CHANGED = "(changed)"
+    NEW = "(new)"
+    DELETED = "(deleted)"
 
 class HasPropertyInfo(TypedDict):
-    cardinality: Cardinality
+    """
+    Each ResourceClass instance has a member variable that holds a list of the properties
+    this must/should have (implemented in triplestore using cardinality restrictions). In Addition
+    the gui_order is defined which gives the GUI hints in which order the data fields should
+    be displayed. Thus this is kind of a "case-class" and type defintion for typing
+    """
+    cardinality: Cardinality  # see knora/models/helper.py
     gui_order: int
+    status: PropertyStatus
+
+
+
 
 class ItemsPickerDialog(wx.Dialog):
+    """
+    A Class that implements a picker dialog, that is a dialog with available options
+    on the left and selectd options on the right. We can add/remove options by shifting
+    from right to left or vice versa.
+    """
     def __init__(self,
                  parent: wx.Window,
-                 available: List[str],
-                 chosen: List[str],
-                 ipStyle):
+                 titlestr: str = 'TITEL',
+                 leftstr: str = 'LEFT',
+                 rightstr: str = 'RIGHT',
+                 available: List[str] = [],
+                 chosen: List[str] = [],
+                 ipStyle = IP_REMOVE_FROM_CHOICES):
+        """
+        Constructor to create a picker dialog window
+        :param parent: Parent window
+        :param titlestr: Window title
+        :param leftstr: Label for the left side
+        :param rightstr: Label for the right side
+        :param available: List of not-selected but available labels
+        :param chosen: List of already chosen entries
+        :param ipStyle: wx styles
+        """
         super().__init__(
             parent=parent,
-            title="Project membership",
+            title=titlestr,
             style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         self.ip = ItemsPicker(self,
                               choices=available,
-                              label='Available projects',
-                              selectedLabel='Member of project:',
+                              label=leftstr,
+                              selectedLabel=rightstr,
                               ipStyle=ipStyle)
         self.ip.SetSelections(chosen)
         #self.ip.Bind(EVT_IP_SELECTION_CHANGED, self.OnSelectionChange)
@@ -45,10 +97,18 @@ class ItemsPickerDialog(wx.Dialog):
 
         self.SetSizerAndFit(sizer)
 
-    def GetSelections(self):
+    def GetSelections(self) -> List[str]:
+        """
+        Get all selected items
+        :return: List of selected items
+        """
         return self.ip.GetSelections()
 
-    def GetItems(self):
+    def GetItems(self) -> List[str]:
+        """
+        Get all items
+        :return: List of all items
+        """
         return self.ip.GetItems()
 
 
@@ -60,11 +120,13 @@ class KnDialogControl:
                  name: str,
                  control: wx.Control,
                  newentry: bool = False,
-                 changed_cb: Optional[Callable[[wx.Event, Optional[Any]], None]] = None):
+                 changed_cb: Optional[Callable[[wx.Event, Optional[Any]], None]] = None,
+                 reset_cb: Optional[Callable[[wx.Event], None]] = None):
         self.label = wx.StaticText(panel, label=label)
         self.control = control
         self.newentry = newentry
         self.changed_cb = changed_cb
+        self.reset_cb = reset_cb
 
         if not newentry:
             self.undo = wx.Button(panel, label="X", size=wx.Size(25, -1))
@@ -79,11 +141,13 @@ class KnDialogControl:
         if not self.newentry:
             self.undo.Enable()
         if self.changed_cb is not None:
-            self.changed_cb(wx.Event, user_data)
+            self.changed_cb(event, user_data)
 
     def reset_ctrl(self, event):
         if not self.newentry:
             self.undo.Disable()
+        if self.reset_cb is not None:
+            self.reset_cb(event)
 
     def get_changed(self):
         return None
@@ -95,16 +159,11 @@ class KnDialogStaticText(KnDialogControl):
                  label: str,
                  name: str,
                  value: Optional[str] = None,
-                 style = None):
-        if style is None:
-            self.static_text = wx.StaticText(panel,
-                                             name=name,
-                                             label=value if value is not None else "")
-        else:
-            self.static_text = wx.StaticText(panel,
-                                             name=name,
-                                             label=value if value is not None else "",
-                                             style=style)
+                 style: int = 0):
+        self.static_text = wx.StaticText(panel,
+                                         name=name,
+                                         label=value if value is not None else "",
+                                         style=style)
         super().__init__(panel, gsizer, label, name, self.static_text, True if value is None else False)
 
 
@@ -115,42 +174,32 @@ class KnDialogTextCtrl(KnDialogControl):
                  label: str,
                  name: str,
                  value: Optional[str] = None,
-                 size: Optional[wx.Size] = None,
-                 style=None,
+                 size: wx.Size = wx.DefaultSize,
+                 style: int = 0,
+                 password: bool = False,
                  enabled: bool = True,
-                 validator: Optional[wx.Validator] = None):
+                 validator: Optional[wx.Validator] = wx.DefaultValidator,
+                 changed_cb: Optional[Callable[[wx.Event, Optional[Any]], None]] = None):
         self.orig_value = value
-        if style is None:
-            if validator is None:
-                self.text_ctrl = wx.TextCtrl(panel,
-                                            name=name,
-                                            value=value if value is not None else "",
-                                            size=wx.Size(200, -1) if size is None else size)
-            else:
-                self.text_ctrl = wx.TextCtrl(panel,
-                                             name=name,
-                                             value=value if value is not None else "",
-                                             size=wx.Size(200, -1) if size is None else size,
-                                             validator=validator)
+        if password:
+            self.text_ctrl = DoublePasswordCtrl(panel,
+                                                name=name,
+                                                value=value if value is not None else "",
+                                                size=wx.Size(200, -1) if size != wx.DefaultSize else size,
+                                                style=style,
+                                                validator=validator)
         else:
-            if validator is None:
-                self.text_ctrl = wx.TextCtrl(panel,
-                                            name=name,
-                                            value=value if value is not None else "",
-                                            size=wx.Size(200, -1) if size is None else size,
-                                            style=style)
-            else:
-                self.text_ctrl = wx.TextCtrl(panel,
-                                            name=name,
-                                            value=value if value is not None else "",
-                                            size=wx.Size(200, -1) if size is None else size,
-                                            style=style,
-                                            validator=validator)
+            self.text_ctrl = wx.TextCtrl(panel,
+                                         name=name,
+                                         value=value if value is not None else "",
+                                         size=wx.Size(200, -1) if size != wx.DefaultSize else size,
+                                         style=style,
+                                         validator=validator)
 
         self.text_ctrl.Bind(wx.EVT_TEXT, self.text_changed)
         if not enabled:
             self.text_ctrl.Disable()
-        super().__init__(panel, gsizer, label, name, self.text_ctrl, True if value is None else False)
+        super().__init__(panel, gsizer, label, name, self.text_ctrl, True if value is None else False, changed_cb)
 
     def text_changed(self, event):
         super().control_changed(event)
@@ -170,6 +219,9 @@ class KnDialogTextCtrl(KnDialogControl):
         else:
             return new_value
 
+    def SetValidator(self, validator: wx.Validator = wx.DefaultValidator):
+        self.text_ctrl.SetValidator(validator)
+
 
 class KnDialogLangStringCtrl(KnDialogControl):
     def __init__(self,
@@ -185,11 +237,12 @@ class KnDialogLangStringCtrl(KnDialogControl):
         self.orig_value = value
 
         self.container = wx.Panel(panel, style=wx.BORDER_SIMPLE)
-        self.winsizer = wx.BoxSizer(wx.VERTICAL)
+        #self.winsizer = wx.BoxSizer(wx.VERTICAL)
+        self.winsizer = wx.FlexGridSizer(cols=2)
         self.text_ctrl: Dict[Languages, wx.TextCtrl] = {}
 
         if value is not None:
-            langlabel = 'No language chosen:'
+            langlabel = 'No lang:'
             self.no_langlabel = wx.StaticText(self.container, label=langlabel)
             self.winsizer.Add(self.no_langlabel)
             value_no = value.get_by_lang() if value is not None else None
@@ -824,6 +877,9 @@ class KnCollapsiblePicker:
 
     def picker(self, event):
         d = ItemsPickerDialog(self.cp,
+                              titlestr="Project membership",
+                              leftstr='Available projects:',
+                              rightstr='Member of project:',
                               available=self.available,
                               chosen=self.chosen,
                               ipStyle=IP_REMOVE_FROM_CHOICES)
@@ -972,30 +1028,82 @@ class KnDialogGuiAttributes(KnDialogControl):
 
 
 class KnDialogHasProperty(KnDialogControl):
+    """
+    Implements a knora-specific "has_property" widget to be used within a KnDialogControl
+    """
     def __init__(self,
                  panel: wx.Panel,
                  gsizer: wx.FlexGridSizer,
                  label: str,
                  name: str,
-                 all_props: Dict[str, List[str]] = None,
+                 all_props: List[str] = None,
                  value: Dict[str, HasPropertyInfo] = None,  # {<name>: HasPropertyInfo}
                  enabled: bool = True,
                  changed_cb: Optional[Callable[[wx.Event], None]] = None):
+        """
+        Constructor of "has_property" widget for use within a KnDialogControl
+        :param panel: Parent panel
+        :param gsizer: Parent sizer to be assumed a wc.FlexGridSizer
+        :param label: Label for control (visible string in the GUI)
+        :param name: Name of the window (wx internal use)
+        :param all_props: List of all properties posible/allowed
+        :param value: Dict of selected properties in the form Dict[str, HasPropertyInfo]: {<name>: HasPropertyInfo}
+        :param enabled: True if widget can modify data
+        :param changed_cb: Callback if something is changed
+        """
+        self.value: Dict[str, HasPropertyInfo] = value
+        self.orig_value: Dict[str, HasPropertyInfo] = deepcopy(value)
+        self.all_props: List[str] = all_props
         self.gsizer = gsizer
         self.panel = panel
         self.container = wx.Panel(self.panel, style=wx.BORDER_SIMPLE)
         self.winsizer = wx.BoxSizer(wx.VERTICAL)
-        self.grid = wx.grid.Grid(self.container)
-        self.grid.CreateGrid(len(value), 4)
-        row = 0
-        for key, val in value.items():
-            self.grid.SetCellValue(row, 0, key)
-            self.grid.setCellEditor(row, 1, wx.grid.GridCellChoiceEditor(choices=[x.value for x in Cardinality]))
-            self.grid.SetCellValue(row, 1, val.cardinality.value)
-            self.grid.setCellEditor(row, 2, wx.grid.GridCellNumberEditor(min=0, max=-1))
-            self.grid.SetCellValue(row, 2, val.gui_order)
-            row = row + 1
-        self.winsizer.Add(self.grid, flag=wx.EXPAND | wx.ALL)
+
+        self.has_property_grid = wx.lib.scrolledpanel.ScrolledPanel(self.container, -1,
+                                                                    size=(400, 150),
+                                                                    style=wx.TAB_TRAVERSAL | wx.SUNKEN_BORDER,
+                                                                    name="has_property_grid")
+        self.has_property_gsizer = wx.FlexGridSizer(cols=4, vgap=2, hgap=6)
+
+        font = wx.Font(wx.FontInfo().Bold())
+        name_label_ctrl = wx.StaticText(parent=self.has_property_grid, label="Name")  #.SetFont(font)
+        name_label_ctrl.SetFont(font)
+        self.has_property_gsizer.Add(name_label_ctrl, flag=wx.EXPAND)
+
+        cardinality_label_ctrl = wx.StaticText(parent=self.has_property_grid, label="Card.")  #.SetFont(font)
+        cardinality_label_ctrl.SetFont(font)
+        self.has_property_gsizer.Add(cardinality_label_ctrl, flag=wx.EXPAND)
+
+        order_label_ctrl = wx.StaticText(parent=self.has_property_grid, label="Order")  #.SetFont(font)
+        order_label_ctrl.SetFont(font)
+        self.has_property_gsizer.Add(order_label_ctrl, flag=wx.EXPAND)
+
+        status_label_ctrl = wx.StaticText(parent=self.has_property_grid, label="Status")  #.SetFont(font)
+        status_label_ctrl.SetFont(font)
+        self.has_property_gsizer.Add(status_label_ctrl, flag=wx.EXPAND)
+
+        self.name_ctrl: List[wx.StaticText] = []
+        self.cardinality_ctrl: List[wx.Choice] = []
+        self.order_ctrl: List[wx.SpinCtrl] = []
+        self.status_ctrl: List[wx.StaticText] = []
+        self.idx: Dict[str, int] = {x.value: i for i, x in enumerate(Cardinality)}  # lookuptable propnames to index
+        self.rcnt = 0
+        if value:
+            for propname, propinfo in value.items():
+                self.add_one_property(propname=propname,
+                                      propinfo=propinfo,
+                                      propstatus=PropertyStatus.UNCHANGED)
+                self.rcnt = self.rcnt + 1
+
+        self.winsizer.Add(self.has_property_grid)
+
+        self.modify = wx.Button(self.container, label="Add/Remove...")
+        self.modify.Bind(wx.EVT_BUTTON, self.picker)
+        self.winsizer.Add(self.modify, flag=wx.EXPAND | wx.ALL)
+
+        self.has_property_grid.SetSizer(self.has_property_gsizer)
+        self.has_property_grid.SetAutoLayout(1)
+        self.has_property_grid.SetupScrolling()
 
         self.container.SetSizerAndFit(self.winsizer)
         self.panel.SetSizerAndFit(self.gsizer)
@@ -1003,3 +1111,156 @@ class KnDialogHasProperty(KnDialogControl):
         self.panel.Layout()
         super().__init__(panel, gsizer, label, name, self.container, True if value is None else False, changed_cb)
 
+    def add_one_property(self,
+                         propname: str,
+                         propinfo: HasPropertyInfo,
+                         propstatus: PropertyStatus):
+        self.name_ctrl.append(wx.StaticText(parent=self.has_property_grid, label=propname))
+        self.has_property_gsizer.Add(self.name_ctrl[self.rcnt], flag=wx.EXPAND)
+
+        self.cardinality_ctrl.append(wx.Choice(parent=self.has_property_grid, choices=[x.value for x in Cardinality]))
+        self.cardinality_ctrl[self.rcnt].Bind(wx.EVT_CHOICE, lambda event: self.cardinality_changed(event, propname))
+        self.cardinality_ctrl[self.rcnt].SetSelection(self.idx[propinfo['cardinality'].value])
+        self.has_property_gsizer.Add(self.cardinality_ctrl[self.rcnt], flag=wx.EXPAND)
+
+        self.order_ctrl.append(wx.SpinCtrl(parent=self.has_property_grid,
+                                           value=str(propinfo['gui_order'])
+                                           if propinfo.get('gui_order') is not None else "0",
+                                           size=(50, -1), min=0, max=99))
+        self.order_ctrl[self.rcnt].Bind(wx.EVT_SPINCTRL, lambda event: self.gui_order_changed(event, propname))
+        self.has_property_gsizer.Add(self.order_ctrl[self.rcnt], flag=wx.EXPAND)
+
+        self.status_ctrl.append(wx.StaticText(parent=self.has_property_grid, label=propstatus.value))
+        self.has_property_gsizer.Add(self.status_ctrl[self.rcnt], flag=wx.EXPAND)
+
+    def rm_one_property(self, propname: str) -> None:
+        """
+        This method removes a property from the list and value object.
+        Note: Should only by used for properties that have been added berfore interactively!
+
+        :param propname: Name of the property
+        :return: None
+        """
+        vkeys = [*self.value]
+        if propname in vkeys:
+            i = vkeys.index(propname)
+            self.name_ctrl[i].Destroy()
+            self.cardinality_ctrl[i].Destroy()
+            self.order_ctrl[i].Destroy()
+            self.status_ctrl[i].Destroy()
+            del self.value[propname]
+        self.has_property_grid.SetAutoLayout(1)
+        self.has_property_grid.SetupScrolling()
+        self.panel.GetParent().resize()
+        self.panel.Layout()
+
+    def change_status(self, propname: str, status: PropertyStatus) -> None:
+        """
+        Changes the status of property
+
+        :param propname: Name of the property
+        :param status: The new status
+        :return: None
+        """
+        self.value[propname]['status'] = status
+        vkeys = [*self.value]
+        if propname in vkeys:
+            i = vkeys.index(propname)
+            self.status_ctrl[i].SetLabel(self.value[propname]['status'].value)
+            if status == PropertyStatus.DELETED:
+                self.cardinality_ctrl[i].Disable()
+                self.order_ctrl[i].Disable()
+            else:
+                self.cardinality_ctrl[i].Enable()
+                self.order_ctrl[i].Enable()
+
+
+        else:
+            print('ERRROR!!!!!!!!!!!!!!')
+
+    def cardinality_changed(self, event: wx.Event, propname: str) -> None:
+        choice = event.GetEventObject()
+        value = choice.GetCurrentSelection()
+        cardlist = [x for i, x in enumerate(Cardinality)]
+        self.value[propname]['cardinality'] = cardlist[value]
+        if self.value[propname]['status'] == PropertyStatus.UNCHANGED:
+            self.change_status(propname, PropertyStatus.CHANGED)
+
+    def gui_order_changed(self, event: wx.Event, propname: str) -> None:
+        spin = event.GetEventObject()
+        value = spin.GetValue()
+        self.value[propname]['cardinality'] = int(value)
+        if self.value[propname]['status'] == PropertyStatus.UNCHANGED:
+            self.change_status(propname, PropertyStatus.CHANGED)
+
+    def picker(self, event):
+        chosen = [propname for propname, propinfo in self.value.items() if propinfo['status'] != PropertyStatus.DELETED]
+        available = [x for x in self.all_props if x not in chosen]
+        d = ItemsPickerDialog(self.panel,
+                              titlestr="Has property",
+                              leftstr="Available properties",
+                              rightstr="Chosen properties",
+                              available=available,
+                              chosen=chosen,  # all keys of dict as list
+                              ipStyle=IP_REMOVE_FROM_CHOICES)
+        res = d.ShowModal()
+        if res == wx.ID_OK:
+            for elestr in d.GetItems():
+                if elestr not in available:
+                    #
+                    # we mark the HasPropertyClass instance for deletion
+                    #
+                    if self.value.get(elestr) is not None:
+                        if self.value[elestr]['status'] == PropertyStatus.NEW:
+                            # this property has been added before interactively by the user
+                            self.rm_one_property(elestr)
+                        else:
+                            # this is a property that has been here initially
+                            self.change_status(elestr, PropertyStatus.DELETED)
+            for elestr in d.GetSelections():
+                if elestr not in chosen:
+                    #
+                    # add a new HasPropertyClass instance
+                    #
+                    if self.value.get(elestr) is not None:
+                        # the property has already been on the list if has_properties before
+                        if self.orig_value.get(elestr) is not None:
+                            # the property has been on the "original" has_properties list
+                            # we add again what previously has been deleted interactively by the user
+                            self.value[elestr]['cardinality'] = self.orig_value[elestr]['cardinality']
+                            self.value[elestr]['gui_order'] = self.orig_value[elestr]['gui_order']
+                            self.change_status(elestr, PropertyStatus.UNCHANGED)
+                            vkeys = [*self.value]
+                            if elestr in vkeys:
+                                i = vkeys.index(elestr)
+                                self.cardinality_ctrl[i].SetSelection(self.idx[self.value[elestr]['cardinality'].value])
+                                self.order_ctrl[i].SetValue(str(self.value[elestr]['gui_order']))
+                        else:
+                            # has been added, then deleted and now we add it again
+                            # should never occur, since we remove such properties when deleted!
+                            self.change_status(elestr, PropertyStatus.NEW)
+                    else:
+                        # we add a new one
+                        info: HasPropertyInfo = {'cardinality': Cardinality.C_0_1,
+                                                 'gui_order': self.rcnt,
+                                                 'status': PropertyStatus.NEW}
+                        self.add_one_property(propname=elestr,
+                                              propinfo=info,
+                                              propstatus=PropertyStatus.NEW)
+                        self.value[elestr] = info
+                        self.rcnt = self.rcnt + 1
+        self.has_property_grid.SetAutoLayout(1)
+        self.has_property_grid.SetupScrolling()
+        self.panel.GetParent().resize()
+        self.panel.Layout()
+        d.Destroy()
+
+    def get_value(self) -> Optional[Dict[str, HasPropertyInfo]]:
+        return self.value if self.value else None
+
+    def get_changed(self) -> Optional[Dict[str, HasPropertyInfo]]:
+        new_value = {propname: propinfo for propname, propinfo in self.value.items() if propinfo['status'] != PropertyStatus.UNCHANGED}
+        if new_value:
+            return None
+        else:
+            return new_value

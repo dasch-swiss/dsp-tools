@@ -15,16 +15,16 @@ from knora.models.group import Group
 from knora.models.user import User
 from knora.models.ontology import Ontology
 from knora.models.propertyclass import PropertyClass
-from knora.models.resourceclass import ResourceClass
+from knora.models.resourceclass import ResourceClass, HasProperty
 
 from knora.knoraConsoleModules.KnDialogControl import KnDialogControl, KnDialogTextCtrl, KnDialogChoice, KnDialogChoiceArr, \
     KnDialogCheckBox, KnCollapsiblePicker, KnDialogStaticText, KnDialogSuperResourceClasses, KnDialogGuiAttributes, \
-    KnDialogLangStringCtrl, KnDialogHasProperty
+    KnDialogLangStringCtrl, KnDialogHasProperty, PropertyStatus
 
 
 def show_error(msg: str, knerr: BaseError):
     dlg = wx.MessageDialog(None,
-                           message=msg + "\n" + knerr.message,
+                           message=msg + "\n" + str(knerr),
                            caption='Error',
                            style=wx.OK | wx.ICON_ERROR)
     dlg.ShowModal()
@@ -128,7 +128,6 @@ class ResourcePanel(wx.Window):
         self.onto = onto
         topsizer = wx.BoxSizer(wx.VERTICAL)
 
-        self.ids: List[int] = []
         self.reslist = wx.ListCtrl(self,
                                    name="resources",
                                    style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES)
@@ -140,7 +139,6 @@ class ResourcePanel(wx.Window):
         for cnt, res in enumerate(onto.resource_classes):
             supers = [onto.context.reduce_iri(x) for x in res.superclasses]
             self.reslist.Append((res.name, res.label[Languages.EN], ", ".join(supers)))
-            self.ids.append(cnt)
 
         topsizer.Add(self.reslist, proportion=1, flag=wx.EXPAND | wx.ALL, border=5)
 
@@ -149,8 +147,11 @@ class ResourcePanel(wx.Window):
         self.edit_button.Bind(wx.EVT_BUTTON, self.edit_entry)
         self.new_button = wx.Button(parent=self, label="new")
         self.new_button.Bind(wx.EVT_BUTTON, self.new_entry)
+        self.delete_button = wx.Button(parent=self, label="delete")
+        self.delete_button.Bind(wx.EVT_BUTTON, self.delete_entry)
         bottomsizer.Add(self.edit_button, proportion=1, flag=wx.EXPAND | wx.ALL, border=3)
         bottomsizer.Add(self.new_button, proportion=1, flag=wx.EXPAND | wx.ALL, border=3)
+        bottomsizer.Add(self.delete_button, proportion=1, flag=wx.EXPAND | wx.ALL, border=3)
 
         topsizer.Add(bottomsizer, proportion=0, flag=wx.EXPAND)
         self.SetAutoLayout(1)
@@ -161,29 +162,40 @@ class ResourcePanel(wx.Window):
         res = dialog.ShowModal()
         if res == wx.ID_OK:
             resourceclass = dialog.get_value()
-            lmd, resourceclass = resourceclass.create(self.onto.lastModificationDate)
-            resourceclass.print()
-            lmd2, self.onto = self.onto.read()
-            self.onto.lastModificationDate = lmd
+            index, resourceclass = self.onto.addResourceClass(resourceclass=resourceclass, create=True)
             self.reslist.Append((resourceclass.name,
                                  resourceclass.label[Languages.EN]))
-            self.ids.append(resourceclass.id)
         dialog.Destroy()
 
     def edit_entry(self, event):
         idx = self.reslist.GetFirstSelected()
-        dialog = ResourceClassEntryDialog(self.con, self.onto, self.ids[idx], False, self)
+        dialog = ResourceClassEntryDialog(self.con, self.onto, idx, False, self)
         res = dialog.ShowModal()
         if res == wx.ID_OK:
             resourceclass: ResourceClass = dialog.get_changed()
-            lmd, resourceclass = resourceclass.update(self.onto.lastModificationDate)
-            lmd2, self.onto = self.onto.read()
-            pprint(lmd)
-            pprint(lmd2)
-            self.onto.lastModificationDate = lmd
+            resource_class = self.onto.updateResourceClass(idx, resourceclass)
+            #lmd, resourceclass = resourceclass.update(self.onto.lastModificationDate)
+            #lmd2, self.onto = self.onto.read()
+            #self.onto.lastModificationDate = lmd
             self.reslist.SetItem(idx, 0, resourceclass.name)
             self.reslist.SetItem(idx, 1, resourceclass.label[Languages.EN])
         dialog.Destroy()
+
+    def delete_entry(self, event):
+        idx = self.reslist.GetFirstSelected()
+        dlg = wx.MessageDialog(parent=self,
+                               message="Do You really want to delete this resource?",
+                               caption="Delete ?",
+                               style=wx.OK | wx.CANCEL | wx.CANCEL_DEFAULT | wx.ICON_QUESTION)
+        val = dlg.ShowModal()
+        if val == wx.ID_OK:
+            try:
+                self.onto.removeResourceClass(index=idx, erase=True)
+                self.reslist.DeleteItem(idx)
+            except BaseError as err:
+                show_error("Couldn't delete resource class", err)
+
+
 
 class ResourceClassEntryDialog(wx.Dialog):
 
@@ -292,13 +304,48 @@ class ResourceClassEntryDialog(wx.Dialog):
                                                          changed_cb=self.super_changed,
                                                          enabled=enable_all)
 
-        value = {name: {'cardinality': hasprop.cardinality, 'gui_order': hasprop.gui_order}
-                 for (name, hasprop)  in self.resourceclass.has_properties.items}
+        if self.resourceclass.has_properties is not None and len(self.resourceclass.has_properties) > 0:
+            link_value_props = {propclass.id for propclass in onto.property_classes
+                                if propclass.object == 'knora-api:LinkValue' or
+                                'knora-api:hasLinkToValue' in propclass.superproperties or
+                                'knora-api:isPartOfValue' in propclass.superproperties or
+                                'knora-api:isRegionOfValue' in propclass.superproperties}
+
+            value = { name: {'cardinality': hasprop.cardinality, 'gui_order': hasprop.gui_order, 'status': PropertyStatus.UNCHANGED}
+                      for (name, hasprop) in self.resourceclass.has_properties.items()
+                      if hasprop.ptype == HasProperty.Ptype.other and
+                      onto.context.get_qualified_iri(hasprop.property_id) not in link_value_props }
+        else:
+            value = {}
+
+        #
+        # Get all ontologies belonging to the current project
+        #
+        self.pontos = Ontology.getProjectOntologies(con=self.con, project_id=self.onto.project)
+
+        #
+        # collect all properties from all omtologies in this project  ToDo: properties from shared ontologies
+        #
+        self.all_props: List[str] = []
+        for ponto in self.pontos:
+            lmd, tmp_ponto = ponto.read()
+            if tmp_ponto.property_classes is None:
+                continue
+            for pprop in tmp_ponto.property_classes:
+                if pprop.object == 'knora-api:LinkValue':
+                    continue
+                if 'knora-api:hasLinkToValue' in pprop.superproperties:
+                    continue
+                if 'knora-api:isPartOfValue' in pprop.superproperties:
+                    continue
+                if 'knora-api:isRegionOfValue' in pprop.superproperties:
+                    continue
+                self.all_props.append(tmp_ponto.name + ':' + pprop.name)
         self.has_properties_ctrl = KnDialogHasProperty(panel=panel1,
                                                        gsizer=gsizer,
                                                        label="Has properties: ",
                                                        name="has_properties",
-                                                       all_props=None,
+                                                       all_props=self.all_props,
                                                        value=value)
         gsizer.SetSizeHints(panel1)
         panel1.SetSizer(gsizer)
@@ -339,4 +386,12 @@ class ResourceClassEntryDialog(wx.Dialog):
         tmp = self.comment.get_changed()
         if tmp is not None:
             self.resourceclass.comment = tmp
+        tmp = self.has_properties_ctrl.get_changed()
+        if tmp:
+            for propname, propinfo in tmp:
+                if propinfo['status'] == PropertyStatus.CHANGED:
+                    self.resourceclass.updateProperty()
+        print('++++++++++++++++++++++++++++++++')
+        pprint(tmp)
+        print('++++++++++++++++++++++++++++++++')
         return self.resourceclass

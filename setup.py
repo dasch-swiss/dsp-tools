@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='knora',
-    version='1.2.3',
+    version='1.3.0',
     description='A Python library and tools for the Knora-API',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -27,8 +27,8 @@ setuptools.setup(
         'jsonschema',
         'click',
         'rfc3987',
-        'pprint',
         'pystrict',
+        'wxpython'
     ],
     entry_points={
           'console_scripts': [

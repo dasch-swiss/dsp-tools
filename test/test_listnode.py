@@ -2,12 +2,12 @@ import unittest
 import pprint
 import requests
 
-from models.connection import Connection
-from models.helpers import BaseError, Actions
-from models.langstring import Languages, LangStringParam, LangString
+from knora.models.connection import Connection
+from knora.models.helpers import BaseError, Actions
+from knora.models.langstring import Languages, LangStringParam, LangString
 
-from models.listnode import ListNode
-from models.project import Project
+from knora.models.listnode import ListNode
+from knora.models.project import Project
 
 
 class TestListNode(unittest.TestCase):

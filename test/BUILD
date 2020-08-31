@@ -31,8 +31,8 @@ py_test(
     name = "test_connection",
     srcs = ["test_connection.py"],
     deps = [
-        "//knora/models:connection",
-        requirement("pprint"),
+        "//knora/knora/models:connection",
+#        requirement("pprint"),
     ],
 )
 
@@ -40,9 +40,9 @@ py_test(
     name = "test_langstring",
     srcs = ["test_langstring.py"],
     deps = [
-        "//knora/models:helpers",
-        "//knora/models:langstring",
-        requirement("pprint"),
+        "//knora/knora/models:helpers",
+        "//knora/knora/models:langstring",
+#        requirement("pprint"),
         requirement("pystrict"),
     ],
 )
@@ -51,10 +51,10 @@ py_test(
     name = "test_group",
     srcs = ["test_group.py"],
     deps = [
-        "//knora/models:connection",
-        "//knora/models:group",
-        "//knora/models:langstring",
-        requirement("pprint"),
+        "//knora/knora/models:connection",
+        "//knora/knora/models:group",
+        "//knora/knora/models:langstring",
+#        requirement("pprint"),
         requirement("requests"),
         requirement("pystrict"),
     ],
@@ -65,10 +65,10 @@ py_test(
     name = "test_project",
     srcs = ["test_project.py"],
     deps = [
-        "//knora/models:connection",
-        "//knora/models:helpers",
-        "//knora/models:langstring",
-        "//knora/models:project",
+        "//knora/knora/models:connection",
+        "//knora/knora/models:helpers",
+        "//knora/knora/models:langstring",
+        "//knora/knora/models:project",
         requirement("pystrict"),
     ],
 )
@@ -77,9 +77,9 @@ py_test(
     name = "test_user",
     srcs = ["test_user.py"],
     deps = [
-        "//knora/models:connection",
-        "//knora/models:helpers",
-        "//knora/models:user",
+        "//knora/knora/models:connection",
+        "//knora/knora/models:helpers",
+        "//knora/knora/models:user",
         requirement("pystrict"),
     ],
 )
@@ -88,11 +88,11 @@ py_test(
     name = "test_listnode",
     srcs = ["test_listnode.py"],
     deps = [
-        "//knora/models:connection",
-        "//knora/models:helpers",
-        "//knora/models:langstring",
-        "//knora/models:listnode",
-        "//knora/models:project",
+        "//knora/knora/models:connection",
+        "//knora/knora/models:helpers",
+        "//knora/knora/models:langstring",
+        "//knora/knora/models:listnode",
+        "//knora/knora/models:project",
         requirement("pystrict"),
     ],
 )
@@ -101,10 +101,10 @@ py_test(
     name = "test_ontology",
     srcs = ["test_ontology.py"],
     deps = [
-        "//knora/models:connection",
-        "//knora/models:helpers",
-        "//knora/models:ontology",
-        "//knora/models:listnode",
+        "//knora/knora/models:connection",
+        "//knora/knora/models:helpers",
+        "//knora/knora/models:ontology",
+        "//knora/knora/models:listnode",
         requirement("pystrict"),
     ],
 )
@@ -113,11 +113,11 @@ py_test(
     name = "test_resourceclass",
     srcs = ["test_resourceclass.py"],
     deps = [
-        "//knora/models:connection",
-        "//knora/models:helpers",
-        "//knora/models:ontology",
-        "//knora/models:resourceclass",
-        "//knora/models:listnode",
+        "//knora/knora/models:connection",
+        "//knora/knora/models:helpers",
+        "//knora/knora/models:ontology",
+        "//knora/knora/models:resourceclass",
+        "//knora/knora/models:listnode",
         requirement("pystrict"),
     ],
 )
@@ -126,11 +126,11 @@ py_test(
     name = "test_propertyclass",
     srcs = ["test_propertyclass.py"],
     deps = [
-        "//knora/models:connection",
-        "//knora/models:helpers",
-        "//knora/models:ontology",
-        "//knora/models:propertyclass",
-        "//knora/models:listnode",
+        "//knora/knora/models:connection",
+        "//knora/knora/models:helpers",
+        "//knora/knora/models:ontology",
+        "//knora/knora/models:propertyclass",
+        "//knora/knora/models:listnode",
         requirement("pystrict"),
     ],
 )
@@ -139,12 +139,12 @@ py_test(
     name = "test_all",
     srcs = ["test_all.py"],
     deps = [
-        "//knora/models:connection",
-        "//knora/models:helpers",
-        "//knora/models:ontology",
-        "//knora/models:resourceclass",
-        "//knora/models:propertyclass",
-        "//knora/models:listnode",
+        "//knora/knora/models:connection",
+        "//knora/knora/models:helpers",
+        "//knora/knora/models:ontology",
+        "//knora/knora/models:resourceclass",
+        "//knora/knora/models:propertyclass",
+        "//knora/knora/models:listnode",
         requirement("pystrict"),
     ],
 )

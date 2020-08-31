@@ -2,11 +2,11 @@ import unittest
 import pprint
 import requests
 
-from models.connection import Connection
-from models.helpers import BaseError, Actions, Cardinality, LastModificationDate
-from models.langstring import Languages, LangStringParam, LangString
-from models.ontology import Ontology
-from models.resourceclass import ResourceClass, HasProperty
+from knora.models.connection import Connection
+from knora.models.helpers import BaseError, Actions, Cardinality, LastModificationDate
+from knora.models.langstring import Languages, LangStringParam, LangString
+from knora.models.ontology import Ontology
+from knora.models.resourceclass import ResourceClass, HasProperty
 from models.propertyclass import PropertyClass
 
 

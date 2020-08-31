@@ -3,11 +3,11 @@ import pprint
 import requests
 from urllib.parse import quote_plus
 
-from models.connection import Connection
-from models.helpers import BaseError, Actions, LastModificationDate
-from models.langstring import Languages, LangStringParam, LangString
-from models.ontology import Ontology
-from models.resourceclass import ResourceClass, HasProperty
+from knora.models.connection import Connection
+from knora.models.helpers import BaseError, Actions, LastModificationDate
+from knora.models.langstring import Languages, LangStringParam, LangString
+from knora.models.ontology import Ontology
+from knora.models.resourceclass import ResourceClass, HasProperty
 
 
 class TestResourceClass(unittest.TestCase):

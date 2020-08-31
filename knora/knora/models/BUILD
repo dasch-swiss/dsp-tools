@@ -10,7 +10,7 @@ py_library(
     srcs = ["connection.py"],
     deps = [
         requirement("requests"),
-        requirement("pprint"),
+#        requirement("pprint"),
     ],
     imports = [".."],
 )
@@ -25,7 +25,7 @@ py_library(
         ":langstring",
         ":project",
         requirement("requests"),
-        requirement("pprint"),
+#        requirement("pprint"),
     ],
     imports = [".."],
 )
@@ -35,7 +35,7 @@ py_library(
     visibility = ["//visibility:public"],
     srcs = ["helpers.py"],
     deps = [
-        requirement("pprint"),
+#        requirement("pprint"),
     ],
     imports = [".", ".."],
 )
@@ -46,7 +46,7 @@ py_library(
     srcs = ["langstring.py"],
     deps = [
         ":helpers",
-        requirement("pprint"),
+#        requirement("pprint"),
     ],
     imports = [".."],
 )
@@ -60,7 +60,7 @@ py_library(
         ":helpers",
         ":langstring",
         ":project",
-        requirement("pprint"),
+#        requirement("pprint"),
     ],
     imports = [".."],
 )
@@ -74,7 +74,7 @@ py_library(
         ":langstring",
         ":connection",
         requirement("requests"),
-        requirement("pprint"),
+#        requirement("pprint"),
     ],
     imports = [".."],
 )
@@ -89,7 +89,7 @@ py_library(
         ":group",
         ":project",
         requirement("requests"),
-        requirement("pprint"),
+#        requirement("pprint"),
     ],
     imports = [".."],
 )
@@ -105,7 +105,7 @@ py_library(
         ":resourceclass",
         ":propertyclass",
         requirement("requests"),
-        requirement("pprint"),
+#        requirement("pprint"),
     ],
     imports = [".."],
 )
@@ -119,7 +119,7 @@ py_library(
         ":helpers",
         ":langstring",
         requirement("requests"),
-        requirement("pprint"),
+#        requirement("pprint"),
     ],
     imports = [".."],
 )
@@ -133,7 +133,7 @@ py_library(
         ":helpers",
         ":langstring",
         requirement("requests"),
-        requirement("pprint"),
+#        requirement("pprint"),
     ],
     imports = [".."],
 )

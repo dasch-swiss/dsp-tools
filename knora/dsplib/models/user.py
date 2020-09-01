@@ -1,12 +1,9 @@
 import os
 import sys
-import requests
 import json
 from pystrict import strict
 from typing import List, Set, Dict, Tuple, Optional, Any, Union, NewType
-from enum import Enum, unique
 from urllib.parse import quote_plus
-from pprint import pprint
 
 path = os.path.abspath(os.path.dirname(__file__))
 (head, tail)  = os.path.split(path)
@@ -17,7 +14,6 @@ if not path in sys.path:
 
 from ..models.helpers import Actions, BaseError
 from ..models.langstring import Languages
-
 from ..models.connection import Connection
 from ..models.group import Group
 from ..models.project import Project

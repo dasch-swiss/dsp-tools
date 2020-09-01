@@ -1,13 +1,8 @@
 import unittest
-import pprint
-import requests
-from urllib.parse import quote_plus
 
-from knora.models.connection import Connection
-from knora.models.helpers import BaseError, Actions, LastModificationDate
-from knora.models.langstring import Languages, LangStringParam, LangString
-from knora.models.ontology import Ontology
-
+from dsplib.models.connection import Connection
+from dsplib.models.helpers import BaseError, Actions, LastModificationDate
+from dsplib.models.ontology import Ontology
 
 
 class TestOntology(unittest.TestCase):

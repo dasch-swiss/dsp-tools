@@ -3,8 +3,6 @@ from typing import NewType, List, Set, Dict, Tuple, Optional, Any, Union, Patter
 from enum import Enum, unique
 import re
 
-from pprint import pprint
-
 #
 # here we do some data typing that should help
 #

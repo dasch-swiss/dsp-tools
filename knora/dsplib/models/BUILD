@@ -12,7 +12,7 @@ py_library(
         ":helpers",
         requirement("requests"),
     ],
-    imports = [".."],
+    imports = ["."],
 )
 
 py_library(
@@ -22,22 +22,19 @@ py_library(
     deps = [
         ":helpers",
         ":connection",
-        ":langstring",
         ":project",
         requirement("requests"),
-#        requirement("pprint"),
+        requirement("pystrict"),
     ],
-    imports = [".."],
+    imports = ["."],
 )
 
 py_library(
     name = "helpers",
     visibility = ["//visibility:public"],
     srcs = ["helpers.py"],
-    deps = [
-#        requirement("pprint"),
-    ],
-    imports = [".", ".."],
+    deps = [],
+    imports = ["."],
 )
 
 py_library(
@@ -46,9 +43,8 @@ py_library(
     srcs = ["langstring.py"],
     deps = [
         ":helpers",
-#        requirement("pprint"),
     ],
-    imports = [".."],
+    imports = ["."],
 )
 
 py_library(
@@ -60,9 +56,8 @@ py_library(
         ":helpers",
         ":langstring",
         ":project",
-#        requirement("pprint"),
     ],
-    imports = [".."],
+    imports = ["."],
 )
 
 py_library(
@@ -73,10 +68,8 @@ py_library(
         ":helpers",
         ":langstring",
         ":connection",
-        requirement("requests"),
-#        requirement("pprint"),
     ],
-    imports = [".."],
+    imports = ["."],
 )
 
 py_library(
@@ -88,10 +81,9 @@ py_library(
         ":helpers",
         ":group",
         ":project",
-        requirement("requests"),
-#        requirement("pprint"),
+        ":langstring"
     ],
-    imports = [".."],
+    imports = ["."],
 )
 
 py_library(
@@ -104,10 +96,8 @@ py_library(
         ":project",
         ":resourceclass",
         ":propertyclass",
-        requirement("requests"),
-#        requirement("pprint"),
     ],
-    imports = [".."],
+    imports = ["."],
 )
 
 py_library(
@@ -118,10 +108,8 @@ py_library(
         ":connection",
         ":helpers",
         ":langstring",
-        requirement("requests"),
-#        requirement("pprint"),
     ],
-    imports = [".."],
+    imports = ["."],
 )
 
 py_library(
@@ -132,8 +120,7 @@ py_library(
         ":connection",
         ":helpers",
         ":langstring",
-        requirement("requests"),
-#        requirement("pprint"),
+        ":listnode"
     ],
-    imports = [".."],
+    imports = ["."],
 )

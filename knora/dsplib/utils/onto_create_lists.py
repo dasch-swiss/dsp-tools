@@ -6,7 +6,6 @@ from ..models.helpers import Actions, BaseError, Context, Cardinality
 from ..models.connection import Connection
 from ..models.project import Project
 from ..models.listnode import ListNode
-
 from .onto_commons import list_creator
 
 def create_lists (input_file: str, output_file: str, server: str, user: str, password: str, verbose: bool) -> bool:

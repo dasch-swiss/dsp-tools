@@ -1,13 +1,8 @@
 import unittest
-import pprint
-import requests
 
-from knora.models.connection import Connection
-from knora.models.helpers import BaseError, Actions
-from knora.models.langstring import Languages, LangStringParam, LangString
-
-from knora.models.listnode import ListNode
-from knora.models.project import Project
+from dsplib.models.connection import Connection
+from dsplib.models.langstring import Languages, LangStringParam, LangString
+from dsplib.models.listnode import ListNode
 
 
 class TestListNode(unittest.TestCase):

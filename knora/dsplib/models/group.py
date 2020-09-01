@@ -1,17 +1,11 @@
-import os
-import sys
-import requests
 import json
 from pystrict import strict
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
-from enum import Enum, unique
 from urllib.parse import quote_plus
-from pprint import pprint
 
-from ..models.helpers import Actions, BaseError
-from ..models.langstring import Languages
-from ..models.connection import Connection
-from ..models.project import Project
+from .helpers import Actions, BaseError
+from .connection import Connection
+from .project import Project
 
 """
 This module implements the handling (CRUD) of Knora groups.

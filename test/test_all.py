@@ -1,13 +1,11 @@
 import unittest
-import pprint
-import requests
 
-from knora.models.connection import Connection
-from knora.models.helpers import BaseError, Actions, Cardinality, LastModificationDate
-from knora.models.langstring import Languages, LangStringParam, LangString
-from knora.models.ontology import Ontology
-from knora.models.resourceclass import ResourceClass, HasProperty
-from models.propertyclass import PropertyClass
+from dsplib.models.connection import Connection
+from dsplib.models.helpers import BaseError, Actions, Cardinality, LastModificationDate
+from dsplib.models.langstring import Languages, LangStringParam, LangString
+from dsplib.models.ontology import Ontology
+from dsplib.models.resourceclass import ResourceClass, HasProperty
+from dsplib.models.propertyclass import PropertyClass
 
 
 class TestAllClass(unittest.TestCase):

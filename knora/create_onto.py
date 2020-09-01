@@ -1,10 +1,10 @@
 import argparse
 import sys
 
-from libknora.utils.onto_validate import validate_list, validate_ontology
-from libknora.utils.onto_create_lists import create_lists
-from libknora.utils.onto_create_ontology import create_ontology
-from libknora.utils.onto_get import get_ontology
+from dsplib.utils.onto_validate import validate_list, validate_ontology
+from dsplib.utils.onto_create_lists import create_lists
+from dsplib.utils.onto_create_ontology import create_ontology
+from dsplib.utils.onto_get import get_ontology
 
 
 def program(args):

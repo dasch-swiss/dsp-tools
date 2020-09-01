@@ -1,18 +1,14 @@
-import os
-import sys
 import json
 import re
 
 from pystrict import strict
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
-from enum import Enum
 from urllib.parse import quote_plus
 from pprint import pprint
 
 from ..models.helpers import Actions, BaseError, Context, Cardinality, LastModificationDate, WithId
 from ..models.connection import Connection
 from ..models.langstring import Languages, LangStringParam, LangString
-from ..models.project import Project
 from ..models.listnode import ListNode
 
 class SetEncoder(json.JSONEncoder):

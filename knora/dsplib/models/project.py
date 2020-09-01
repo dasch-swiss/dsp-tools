@@ -1,16 +1,11 @@
-import os
-import sys
-import requests
 import json
 from pystrict import strict
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
-from enum import Enum, unique
 from urllib.parse import quote_plus
-from pprint import pprint
 
-from ..models.helpers import Actions, BaseError
-from ..models.langstring import Languages, LangStringParam, LangString
-from ..models.connection import Connection
+from .helpers import Actions, BaseError
+from .langstring import Languages, LangStringParam, LangString
+from .connection import Connection
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):

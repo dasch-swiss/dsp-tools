@@ -1,5 +1,3 @@
-import os
-import sys
 import json
 import re
 from pystrict import strict
@@ -8,9 +6,9 @@ from enum import Enum
 from urllib.parse import quote_plus
 from pprint import pprint
 
-from ..models.helpers import Actions, BaseError, Context, Cardinality, LastModificationDate
-from ..models.connection import Connection
-from ..models.langstring import Languages, LangStringParam, LangString
+from .helpers import Actions, BaseError, Context, Cardinality, LastModificationDate
+from .connection import Connection
+from .langstring import Languages, LangStringParam, LangString
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):

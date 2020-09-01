@@ -1,9 +1,6 @@
-import sys
 import unittest
-import pprint
 
-from knora.models.helpers import BaseError, Actions
-from knora.models.langstring import Languages, LangStringParam, LangString
+from dsplib.models.langstring import Languages, LangStringParam, LangString
 
 
 class TestLangString(unittest.TestCase):

@@ -1,17 +1,14 @@
-import os
-import sys
 import json
 import copy
 from pystrict import strict
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
-from pprint import pprint
 
-from ..models.helpers import Actions, BaseError, Context, LastModificationDate, OntoInfo
-from ..models.connection import Connection
-from ..models.resourceclass import ResourceClass, HasProperty
-from ..models.propertyclass import PropertyClass
-from ..models.project import Project
+from .helpers import Actions, BaseError, Context, LastModificationDate, OntoInfo
+from .connection import Connection
+from .resourceclass import ResourceClass, HasProperty
+from .propertyclass import PropertyClass
+from .project import Project
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):

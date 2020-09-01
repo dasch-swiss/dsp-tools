@@ -1,7 +1,8 @@
 import unittest
 import pprint
 
-from models.connection import Connection, Error
+from dsplib.models.helpers import BaseError
+from dsplib.models.connection import Connection
 
 
 class TestConnection(unittest.TestCase):
@@ -15,14 +16,14 @@ class TestConnection(unittest.TestCase):
         self.assertIsNotNone(con.token)
         con.logout()
         self.assertIsNone(con.token)
-        self.assertRaisesRegex(Error, 'KNORA-ERROR: status code=400*', con.login, 'invalid', 'invalid')
+        self.assertRaisesRegex(BaseError, 'KNORA-ERROR: status code=400*', con.login, 'invalid', 'invalid')
 
     def test_get(self):
         con = Connection('http://0.0.0.0:3333')
         res = con.get("/ontology/0001/anything/simple/v2")
         con.logout()
         self.assertIsNotNone(res['@graph'])
-        self.assertRaises(Error, con.get, "/gagaga")
+        self.assertRaises(BaseError, con.get, "/gagaga")
 
     def test_put(self):
         pass

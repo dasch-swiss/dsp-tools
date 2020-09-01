@@ -3,7 +3,7 @@ import json
 
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
 
-from ..models.helpers import Actions, BaseError
+from .helpers import Actions, BaseError
 
 
 class Connection:

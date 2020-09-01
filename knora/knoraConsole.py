@@ -1,26 +1,13 @@
-import os
-import sys
 import wx
 import wx.adv
 from wx.adv import TaskBarIcon as TaskBarIcon
-from typing import List, Set, Dict, Tuple, Optional
-from pprint import pprint
+from dsplib.models.connection import Connection
 
-from libknora.models.helpers import Actions, BaseError, Context, Cardinality
-from libknora.models.langstring import Languages, LangStringParam, LangString
-from libknora.models.connection import Connection, Error
-from libknora.models.project import Project
-from libknora.models.listnode import ListNode
-from libknora.models.group import Group
-from libknora.models.user import User
-from libknora.models.ontology import Ontology
-from libknora.models.propertyclass import PropertyClass
-from libknora.models.resourceclass import ResourceClass
+from dsplib.knoraConsoleModules.ProjectPanel import ProjectPanel
+from dsplib.knoraConsoleModules.UserPanel import UserPanel
+from dsplib.knoraConsoleModules.GroupPanel import GroupPanel
+from dsplib.knoraConsoleModules.OntoPanel import OntoPanel
 
-from libknora.knoraConsoleModules.ProjectPanel import ProjectPanel
-from libknora.knoraConsoleModules.UserPanel import UserPanel
-from libknora.knoraConsoleModules.GroupPanel import GroupPanel
-from libknora.knoraConsoleModules.OntoPanel import OntoPanel
 
 class DemoTaskBarIcon(TaskBarIcon):
     TBMENU_RESTORE = wx.NewIdRef()
@@ -115,8 +102,6 @@ class KnoraConsole(wx.Frame):
         self.nb.InsertPage(index=3, page=self.onto_panel, text="Ontologies")
 
         self.con = None
-
-        self.SetIcon(wx.Icon("app.png"))
 
     def makeMenuBar(self):
         """

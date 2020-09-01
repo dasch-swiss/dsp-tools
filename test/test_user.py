@@ -1,12 +1,8 @@
 import unittest
-import pprint
-import requests
-from urllib.parse import quote_plus
 
-from knora.models.connection import Connection
-from knora.models.helpers import BaseError, Actions
-from knora.models.langstring import Languages, LangStringParam, LangString
-from knora.models.user import User
+from dsplib.models.connection import Connection
+from dsplib.models.langstring import Languages, LangStringParam, LangString
+from dsplib.models.user import User
 
 
 class TestUser(unittest.TestCase):

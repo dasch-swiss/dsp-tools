@@ -1,6 +1,5 @@
 import os
 from typing import List, Set, Dict, Tuple, Optional
-from pprint import pprint
 import json
 from jsonschema import validate
 
@@ -355,12 +354,10 @@ def create_ontology(input_file: str, lists_file: str, server: str, user: str, pa
             #
             if propclass.get("object") is not None:
                 tmp = propclass["object"].split(':')
-                pprint(tmp)
                 if len(tmp) > 1:
                     if tmp[0]:
                         object = propclass["object"] # fully qualified name
                     else:
-                        pprint(newontology)
                         newontology.print()
                         object = newontology.name + ':' + tmp[1]
                 else:

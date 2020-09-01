@@ -8,9 +8,9 @@ from enum import Enum, unique
 from urllib.parse import quote_plus
 from pprint import pprint
 
-from knora.models.helpers import Actions, BaseError
-from knora.models.langstring import Languages, LangStringParam, LangString
-from knora.models.connection import Connection, Error
+from ..models.helpers import Actions, BaseError
+from ..models.langstring import Languages, LangStringParam, LangString
+from ..models.connection import Connection
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):

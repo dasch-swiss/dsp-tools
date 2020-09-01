@@ -8,10 +8,10 @@ from enum import Enum, unique
 from urllib.parse import quote_plus
 from pprint import pprint
 
-from knora.models.helpers import Actions, BaseError
-from knora.models.langstring import Languages
-from knora.models.connection import Connection
-from knora.models.project import Project
+from ..models.helpers import Actions, BaseError
+from ..models.langstring import Languages
+from ..models.connection import Connection
+from ..models.project import Project
 
 """
 This module implements the handling (CRUD) of Knora groups.

@@ -1,7 +1,7 @@
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from enum import Enum, unique
 
-from knora.models.helpers import BaseError
+from ..models.helpers import BaseError
 
 from pprint import pprint
 

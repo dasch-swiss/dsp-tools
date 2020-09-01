@@ -1,27 +1,10 @@
-import os
-from typing import List, Set, Dict, Tuple, Optional
-from pprint import pprint
 import argparse
-import json
-from jsonschema import validate
 import sys
-import re
 
-from knora.models.helpers import Actions, BaseError, Context, Cardinality
-from knora.models.langstring import Languages, LangStringParam, LangString
-from knora.models.connection import Connection, Error
-from knora.models.project import Project
-from knora.models.listnode import ListNode
-from knora.models.group import Group
-from knora.models.user import User
-from knora.models.ontology import Ontology
-from knora.models.propertyclass import PropertyClass
-from knora.models.resourceclass import ResourceClass
-
-from onto_validate import validate_list, validate_ontology
-from onto_create_lists import create_lists
-from onto_create_ontology import create_ontology
-from onto_get import get_ontology
+from libknora.utils.onto_validate import validate_list, validate_ontology
+from libknora.utils.onto_create_lists import create_lists
+from libknora.utils.onto_create_ontology import create_ontology
+from libknora.utils.onto_get import get_ontology
 
 
 def program(args):

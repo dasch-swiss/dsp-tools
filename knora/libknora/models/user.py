@@ -15,12 +15,12 @@ if not head in sys.path:
 if not path in sys.path:
     sys.path.insert(0, path)
 
-from knora.models.helpers import Actions, BaseError
-from knora.models.langstring import Languages
+from ..models.helpers import Actions, BaseError
+from ..models.langstring import Languages
 
-from knora.models.connection import Connection
-from knora.models.group import Group
-from knora.models.project import Project
+from ..models.connection import Connection
+from ..models.group import Group
+from ..models.project import Project
 
 """
 This module implements the handling (CRUD) of Knora users.

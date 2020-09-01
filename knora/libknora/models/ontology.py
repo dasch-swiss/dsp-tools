@@ -7,11 +7,11 @@ from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
 from pprint import pprint
 
-from knora.models.helpers import Actions, BaseError, Context, LastModificationDate, OntoInfo
-from knora.models.connection import Connection
-from knora.models.resourceclass import ResourceClass, HasProperty
-from knora.models.propertyclass import PropertyClass
-from knora.models.project import Project
+from ..models.helpers import Actions, BaseError, Context, LastModificationDate, OntoInfo
+from ..models.connection import Connection
+from ..models.resourceclass import ResourceClass, HasProperty
+from ..models.propertyclass import PropertyClass
+from ..models.project import Project
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):

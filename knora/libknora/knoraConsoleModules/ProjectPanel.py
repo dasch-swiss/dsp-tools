@@ -6,18 +6,12 @@ import wx
 from pprint import pprint
 import re
 
-from knora.models.helpers import Actions, BaseError, Context, Cardinality
-from knora.models.langstring import Languages, LangStringParam, LangString
-from knora.models.connection import Connection, Error
-from knora.models.project import Project
-from knora.models.listnode import ListNode
-from knora.models.group import Group
-from knora.models.user import User
-from knora.models.ontology import Ontology
-from knora.models.propertyclass import PropertyClass
-from knora.models.resourceclass import ResourceClass
+from ..models.helpers import Actions, BaseError, Context, Cardinality
+from ..models.langstring import Languages, LangStringParam, LangString
+from ..models.connection import Connection, Error
+from ..models.project import Project
 
-from knora.knoraConsoleModules.KnDialogControl import show_error, KnDialogControl, KnDialogTextCtrl, \
+from ..knoraConsoleModules.KnDialogControl import show_error, KnDialogControl, KnDialogTextCtrl, \
     KnDialogChoice, KnDialogCheckBox, KnCollapsiblePicker, KnDialogLangStringCtrl
 
 

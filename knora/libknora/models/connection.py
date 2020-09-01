@@ -1,20 +1,10 @@
 import requests
 import json
-import urllib
-import pprint
 
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
-from enum import Enum, unique
-from urllib.parse import quote_plus
 
-from knora.models.helpers import Actions, BaseError
+from ..models.helpers import Actions, BaseError
 
-
-class Error(Exception):
-    """Handles errors happening in this file"""
-
-    def __init__(self, message):
-        self.message = message
 
 class Connection:
     """

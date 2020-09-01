@@ -9,11 +9,11 @@ from enum import Enum
 from urllib.parse import quote_plus
 from pprint import pprint
 
-from knora.models.helpers import Actions, BaseError, Context, Cardinality, LastModificationDate, WithId
-from knora.models.connection import Connection
-from knora.models.langstring import Languages, LangStringParam, LangString
-from knora.models.project import Project
-from knora.models.listnode import ListNode
+from ..models.helpers import Actions, BaseError, Context, Cardinality, LastModificationDate, WithId
+from ..models.connection import Connection
+from ..models.langstring import Languages, LangStringParam, LangString
+from ..models.project import Project
+from ..models.listnode import ListNode
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):

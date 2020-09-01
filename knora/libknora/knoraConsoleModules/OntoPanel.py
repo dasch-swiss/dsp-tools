@@ -8,21 +8,21 @@ import re
 from pprint import pprint
 from enum import Enum, unique
 
-from knora.models.helpers import Actions, BaseError, Context, Cardinality, LastModificationDate
-from knora.models.langstring import Languages, LangStringParam, LangString
-from knora.models.connection import Connection, Error
-from knora.models.project import Project
-from knora.models.listnode import ListNode
-from knora.models.group import Group
-from knora.models.user import User
-from knora.models.ontology import Ontology
-from knora.models.propertyclass import PropertyClass
-from knora.models.resourceclass import ResourceClass
+from ..models.helpers import Actions, BaseError, Context, Cardinality, LastModificationDate
+from ..models.langstring import Languages, LangStringParam, LangString
+from ..models.connection import Connection, Error
+from ..models.project import Project
+from ..models.listnode import ListNode
+from ..models.group import Group
+from ..models.user import User
+from ..models.ontology import Ontology
+from ..models.propertyclass import PropertyClass
+from ..models.resourceclass import ResourceClass
 
-from knora.knoraConsoleModules.KnDialogControl import show_error, KnDialogControl, KnDialogTextCtrl, KnDialogChoice, \
+from ..knoraConsoleModules.KnDialogControl import show_error, KnDialogControl, KnDialogTextCtrl, KnDialogChoice, \
     KnDialogCheckBox, KnCollapsiblePicker, KnDialogStaticText
-from knora.knoraConsoleModules.ResourcePanel import ResourcePanel
-from knora.knoraConsoleModules.PropertyPanel import PropertyPanel
+from ..knoraConsoleModules.ResourcePanel import ResourcePanel
+from ..knoraConsoleModules.PropertyPanel import PropertyPanel
 
 
 class OntoPanel(wx.Panel):

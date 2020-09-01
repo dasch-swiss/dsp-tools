@@ -9,8 +9,8 @@ py_library(
     visibility = ["//visibility:public"],
     srcs = ["connection.py"],
     deps = [
+        ":helpers",
         requirement("requests"),
-#        requirement("pprint"),
     ],
     imports = [".."],
 )

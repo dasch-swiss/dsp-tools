@@ -1,24 +1,21 @@
 import os
 from typing import List, Set, Dict, Tuple, Optional
 from pprint import pprint
-import argparse
 import json
 from jsonschema import validate
-import sys
-import re
 
-from knora.models.helpers import Actions, BaseError, Context, Cardinality
-from knora.models.langstring import Languages, LangStringParam, LangString
-from knora.models.connection import Connection, Error
-from knora.models.project import Project
-from knora.models.listnode import ListNode
-from knora.models.group import Group
-from knora.models.user import User
-from knora.models.ontology import Ontology
-from knora.models.propertyclass import PropertyClass
-from knora.models.resourceclass import ResourceClass
+from ..models.helpers import Actions, BaseError, Context, Cardinality
+from ..models.langstring import Languages, LangStringParam, LangString
+from ..models.connection import Connection
+from ..models.project import Project
+from ..models.listnode import ListNode
+from ..models.group import Group
+from ..models.user import User
+from ..models.ontology import Ontology
+from ..models.propertyclass import PropertyClass
+from ..models.resourceclass import ResourceClass
 
-from onto_commons import list_creator
+from .onto_commons import list_creator
 
 def create_ontology(input_file: str, lists_file: str, server: str, user: str, password: str, verbose: bool) -> bool:
     current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -211,12 +208,12 @@ def create_ontology(input_file: str, lists_file: str, server: str, user: str, pa
             tmp_user = None
             try:
                 tmp_user = User(con, username=user["username"]).read()
-            except Error as err:
+            except BaseError as err:
                 pass
             if tmp_user is None:
                 try:
                     tmp_user = User(con, email=user["email"]).read()
-                except Error as err:
+                except BaseError as err:
                     pass
             if tmp_user:
                 #
@@ -240,7 +237,7 @@ def create_ontology(input_file: str, lists_file: str, server: str, user: str, pa
                     tmp_user.sysadmin = sysadmin
                 try:
                     tmp_user.update()
-                except Error as err:
+                except BaseError as err:
                     tmp_user.print()
                     print("Updating user failed: " + err.message)
                     return False
@@ -277,7 +274,7 @@ def create_ontology(input_file: str, lists_file: str, server: str, user: str, pa
                         in_projects=project_infos,
                         in_groups=group_ids
                     ).create()
-                except Error as err:
+                except BaseError as err:
                     print("Creating user failed: " + err.message)
                     return False
             if verbose:
@@ -323,7 +320,7 @@ def create_ontology(input_file: str, lists_file: str, server: str, user: str, pa
                     label=reslabel,
                     comment=rescomment
                 ).create(last_modification_date)
-            except Error as err:
+            except BaseError as err:
                 print("Creating resource class failed: " + err.message)
                 exit(105)
             newresclasses[newresclass.id] = newresclass
@@ -398,7 +395,7 @@ def create_ontology(input_file: str, lists_file: str, server: str, user: str, pa
                     gui_attributes=gui_attributes,
                     comment=propcomment
                 ).create(last_modification_date)
-            except Error as err:
+            except BaseError as err:
                 print("Creating property class failed: " + err.message)
                 return False
             newpropclasses[newpropclass.id] = newpropclass

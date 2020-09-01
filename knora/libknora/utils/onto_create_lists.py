@@ -1,24 +1,13 @@
 import os
-from typing import List, Set, Dict, Tuple, Optional
-from pprint import pprint
-import argparse
 import json
 from jsonschema import validate
-import sys
-import re
 
-from knora.models.helpers import Actions, BaseError, Context, Cardinality
-from knora.models.langstring import Languages, LangStringParam, LangString
-from knora.models.connection import Connection, Error
-from knora.models.project import Project
-from knora.models.listnode import ListNode
-from knora.models.group import Group
-from knora.models.user import User
-from knora.models.ontology import Ontology
-from knora.models.propertyclass import PropertyClass
-from knora.models.resourceclass import ResourceClass
+from ..models.helpers import Actions, BaseError, Context, Cardinality
+from ..models.connection import Connection
+from ..models.project import Project
+from ..models.listnode import ListNode
 
-from onto_commons import list_creator
+from .onto_commons import list_creator
 
 def create_lists (input_file: str, output_file: str, server: str, user: str, password: str, verbose: bool) -> bool:
     current_dir = os.path.dirname(os.path.realpath(__file__))

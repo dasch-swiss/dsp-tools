@@ -4,24 +4,23 @@ import wx
 import wx.adv
 from wx.adv import TaskBarIcon as TaskBarIcon
 from typing import List, Set, Dict, Tuple, Optional
-#from knora import KnoraError, Knora
 from pprint import pprint
 
-from knora.models.helpers import Actions, BaseError, Context, Cardinality
-from knora.models.langstring import Languages, LangStringParam, LangString
-from knora.models.connection import Connection, Error
-from knora.models.project import Project
-from knora.models.listnode import ListNode
-from knora.models.group import Group
-from knora.models.user import User
-from knora.models.ontology import Ontology
-from knora.models.propertyclass import PropertyClass
-from knora.models.resourceclass import ResourceClass
+from libknora.models.helpers import Actions, BaseError, Context, Cardinality
+from libknora.models.langstring import Languages, LangStringParam, LangString
+from libknora.models.connection import Connection, Error
+from libknora.models.project import Project
+from libknora.models.listnode import ListNode
+from libknora.models.group import Group
+from libknora.models.user import User
+from libknora.models.ontology import Ontology
+from libknora.models.propertyclass import PropertyClass
+from libknora.models.resourceclass import ResourceClass
 
-from knora.knoraConsoleModules.ProjectPanel import ProjectPanel
-from knora.knoraConsoleModules.UserPanel import UserPanel
-from knora.knoraConsoleModules.GroupPanel import GroupPanel
-from knora.knoraConsoleModules.OntoPanel import OntoPanel
+from libknora.knoraConsoleModules.ProjectPanel import ProjectPanel
+from libknora.knoraConsoleModules.UserPanel import UserPanel
+from libknora.knoraConsoleModules.GroupPanel import GroupPanel
+from libknora.knoraConsoleModules.OntoPanel import OntoPanel
 
 class DemoTaskBarIcon(TaskBarIcon):
     TBMENU_RESTORE = wx.NewIdRef()

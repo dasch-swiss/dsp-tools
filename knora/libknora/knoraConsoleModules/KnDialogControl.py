@@ -14,10 +14,9 @@ from wx.lib.itemspicker import ItemsPicker, \
                                IP_REMOVE_FROM_CHOICES
 import wx.lib.scrolledpanel
 
-from knora.models.langstring import Languages, LangStringParam, LangString
-from knora.models.helpers import Cardinality, BaseError
-
-from knora.widgets.doublepassword import DoublePasswordCtrl
+from ..models.langstring import Languages, LangStringParam, LangString
+from ..models.helpers import Cardinality, BaseError
+from ..widgets.doublepassword import DoublePasswordCtrl
 
 
 

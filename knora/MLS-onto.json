@@ -1,0 +1,2056 @@
+{
+  "prefixes": {
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "dcterms": "http://purl.org/dc/terms/"
+  },
+  "project": {
+    "shortcode": "0809",
+    "shortname": "MLS",
+    "longname": "Musikalisches Lexikon der Schweiz",
+    "descriptions": {
+      "de": "Musikalisches Lexikon der Schweiz"
+    },
+    "keywords": ["Musik", "Musikwissenschaft"],
+    "lists": [
+      {
+        "name": "sex",
+        "labels": {
+          "de": "Geschlecht"
+        },
+        "nodes": [
+          {
+            "name": "male",
+            "labels": {
+              "de": "männlich"
+            }
+          },
+          {
+            "name": "female",
+            "labels": {
+              "de": "weiblich"
+            }
+          }
+        ]
+      },
+      {
+        "name": "persfunctions",
+        "labels": {
+          "de": "Personentätigkeiten"
+        },
+        "nodes": [
+          {
+            "name": "PF_1",
+            "labels": {
+              "de": "Komposition"
+            }
+          },
+          {
+            "name": "PF_2",
+            "labels": {
+              "de": "Interpretation"
+            }
+          },
+          {
+            "name": "PF_4",
+            "labels": {
+              "de": "Musiktheorie"
+            }
+          },
+          {
+            "name": "PF_5",
+            "labels": {
+              "de": "Tonmeister/in"
+            }
+          },
+          {
+            "name": "PF_5365",
+            "labels": {
+              "de": "Minnesänger"
+            }
+          },
+          {
+            "name": "PF_5367",
+            "labels": {
+              "de": "Stadtmusiker"
+            }
+          },
+          {
+            "name": "PF_5369",
+            "labels": {
+              "de": "Musikdruck"
+            }
+          },
+          {
+            "name": "PF_5370",
+            "labels": {
+              "de": "Lehrtätigkeit"
+            }
+          },
+          {
+            "name": "PF_5376",
+            "labels": {
+              "de": "Musikdirektor/in"
+            }
+          },
+          {
+            "name": "PF_5395",
+            "labels": {
+              "de": "Mathematik"
+            }
+          },
+          {
+            "name": "PF_5396",
+            "labels": {
+              "de": "Philosophie"
+            }
+          },
+          {
+            "name": "PF_5397",
+            "labels": {
+              "de": "Physik"
+            }
+          },
+          {
+            "name": "PF_5405",
+            "labels": {
+              "de": "Theologie"
+            }
+          },
+          {
+            "name": "PF_5406",
+            "labels": {
+              "de": "Choralmagister"
+            }
+          },
+          {
+            "name": "PF_5408",
+            "labels": {
+              "de": "Kantor"
+            }
+          },
+          {
+            "name": "PF_5409",
+            "labels": {
+              "de": "Arrangeur"
+            }
+          },
+          {
+            "name": "PF_5410",
+            "labels": {
+              "de": "Kapellmeister"
+            }
+          },
+          {
+            "name": "PF_5411",
+            "labels": {
+              "de": "Korrepetition"
+            }
+          },
+          {
+            "name": "PF_5412",
+            "labels": {
+              "de": "Chordirektion"
+            }
+          },
+          {
+            "name": "PF_5420",
+            "labels": {
+              "de": "Konstrukteur"
+            }
+          },
+          {
+            "name": "PF_5421",
+            "labels": {
+              "de": "Klangmaler"
+            }
+          },
+          {
+            "name": "PF_5422",
+            "labels": {
+              "de": "Malerei"
+            }
+          },
+          {
+            "name": "PF_5426",
+            "labels": {
+              "de": "Orgelbauer"
+            }
+          },
+          {
+            "name": "PF_5430",
+            "labels": {
+              "de": "Orgelexperte"
+            }
+          },
+          {
+            "name": "PF_5432",
+            "labels": {
+              "de": "Kabarett"
+            }
+          },
+          {
+            "name": "PF_5433",
+            "labels": {
+              "de": "Abt"
+            }
+          },
+          {
+            "name": "PF_5434",
+            "labels": {
+              "de": "Pfarramt"
+            }
+          },
+          {
+            "name": "PF_5435",
+            "labels": {
+              "de": "Musikförderung"
+            }
+          },
+          {
+            "name": "PF_5436",
+            "labels": {
+              "de": "Musikpädagogik"
+            }
+          },
+          {
+            "name": "PF_5437",
+            "labels": {
+              "de": "Dramaturgie"
+            }
+          },
+          {
+            "name": "PF_5441",
+            "labels": {
+              "de": "Zahnarzt"
+            }
+          },
+          {
+            "name": "PF_5445",
+            "labels": {
+              "de": "Humanist/in"
+            }
+          },
+          {
+            "name": "PF_5448",
+            "labels": {
+              "de": "Musikwissenschaft"
+            }
+          },
+          {
+            "name": "PF_5449",
+            "labels": {
+              "de": "Regie"
+            }
+          },
+          {
+            "name": "PF_5454",
+            "labels": {
+              "de": "Publizist/in"
+            }
+          },
+          {
+            "name": "PF_5455",
+            "labels": {
+              "de": "Autor/in"
+            }
+          },
+          {
+            "name": "PF_5459",
+            "labels": {
+              "de": "Editor/in"
+            }
+          },
+          {
+            "name": "PF_5464",
+            "labels": {
+              "de": "Klavierfabrikant"
+            }
+          },
+          {
+            "name": "PF_5465",
+            "labels": {
+              "de": "Abteileiter"
+            }
+          },
+          {
+            "name": "PF_5467",
+            "labels": {
+              "de": "Musikedition"
+            }
+          },
+          {
+            "name": "PF_5469",
+            "labels": {
+              "de": "Konventuale"
+            }
+          },
+          {
+            "name": "PF_5474",
+            "labels": {
+              "de": "Pastor"
+            }
+          },
+          {
+            "name": "PF_5477",
+            "labels": {
+              "de": "Improvisation"
+            }
+          },
+          {
+            "name": "PF_5485",
+            "labels": {
+              "de": "Schauspieler"
+            }
+          },
+          {
+            "name": "PF_5488",
+            "labels": {
+              "de": "Direktor/in"
+            }
+          },
+          {
+            "name": "PF_5491",
+            "labels": {
+              "de": "Bischof"
+            }
+          },
+          {
+            "name": "PF_5492",
+            "labels": {
+              "de": "Volksmusik"
+            }
+          },
+          {
+            "name": "PF_5494",
+            "labels": {
+              "de": "Musikinstruktor"
+            }
+          },
+          {
+            "name": "PF_5495",
+            "labels": {
+              "de": "Musikverlag"
+            }
+          },
+          {
+            "name": "PF_5501",
+            "labels": {
+              "de": "Solorepetition"
+            }
+          },
+          {
+            "name": "PF_5504",
+            "labels": {
+              "de": "Konzertmeister/in"
+            }
+          },
+          {
+            "name": "PF_5511",
+            "labels": {
+              "de": "Prorektor"
+            }
+          },
+          {
+            "name": "PF_5519",
+            "labels": {
+              "de": "Kustos"
+            }
+          },
+          {
+            "name": "PF_5520",
+            "labels": {
+              "de": "Dichtung"
+            }
+          },
+          {
+            "name": "PF_5521",
+            "labels": {
+              "de": "Militärinstruktor"
+            }
+          },
+          {
+            "name": "PF_5522",
+            "labels": {
+              "de": "Rektorat"
+            }
+          },
+          {
+            "name": "PF_5523",
+            "labels": {
+              "de": "Journalismus"
+            }
+          },
+          {
+            "name": "PF_5524",
+            "labels": {
+              "de": "Kaplan"
+            }
+          },
+          {
+            "name": "PF_5527",
+            "labels": {
+              "de": "Klavierbauer"
+            }
+          },
+          {
+            "name": "PF_5528",
+            "labels": {
+              "de": "Musikhistoriker/in"
+            }
+          },
+          {
+            "name": "PF_5537",
+            "labels": {
+              "de": "Verbandspräsident/in"
+            }
+          },
+          {
+            "name": "PF_5538",
+            "labels": {
+              "de": "Orchesterleitung"
+            }
+          },
+          {
+            "name": "PF_5544",
+            "labels": {
+              "de": "Jazzmusik"
+            }
+          },
+          {
+            "name": "PF_5546",
+            "labels": {
+              "de": "Kongressleiter"
+            }
+          },
+          {
+            "name": "PF_5551",
+            "labels": {
+              "de": "Kapitular"
+            }
+          },
+          {
+            "name": "PF_5553",
+            "labels": {
+              "de": "Bibliothekar/in"
+            }
+          },
+          {
+            "name": "PF_5555",
+            "labels": {
+              "de": "Mönch"
+            }
+          },
+          {
+            "name": "PF_5557",
+            "labels": {
+              "de": "Direktion"
+            }
+          },
+          {
+            "name": "PF_5558",
+            "labels": {
+              "de": "Chorleitung"
+            }
+          },
+          {
+            "name": "PF_5559",
+            "labels": {
+              "de": "Amt"
+            }
+          },
+          {
+            "name": "PF_5560",
+            "labels": {
+              "de": "Musikleitung"
+            }
+          },
+          {
+            "name": "PF_5563",
+            "labels": {
+              "de": "Performance"
+            }
+          },
+          {
+            "name": "PF_5568",
+            "labels": {
+              "de": "Vikar"
+            }
+          },
+          {
+            "name": "PF_5570",
+            "labels": {
+              "de": "Moderation"
+            }
+          },
+          {
+            "name": "PF_5577",
+            "labels": {
+              "de": "Mäzen"
+            }
+          },
+          {
+            "name": "PF_5578",
+            "labels": {
+              "de": "Radio"
+            }
+          },
+          {
+            "name": "PF_5582",
+            "labels": {
+              "de": "Prediger"
+            }
+          },
+          {
+            "name": "PF_5583",
+            "labels": {
+              "de": "Dekan"
+            }
+          },
+          {
+            "name": "PF_5586",
+            "labels": {
+              "de": "Eremit"
+            }
+          },
+          {
+            "name": "PF_5587",
+            "labels": {
+              "de": "Schulmeister\n"
+            }
+          },
+          {
+            "name": "PF_5588",
+            "labels": {
+              "de": "Reformation"
+            }
+          },
+          {
+            "name": "PF_5589",
+            "labels": {
+              "de": "Konzertleitung"
+            }
+          },
+          {
+            "name": "PF_5591",
+            "labels": {
+              "de": "Magister"
+            }
+          },
+          {
+            "name": "PF_5593",
+            "labels": {
+              "de": "Giesser"
+            }
+          },
+          {
+            "name": "PF_5594",
+            "labels": {
+              "de": "Pädagogik"
+            }
+          },
+          {
+            "name": "PF_5596",
+            "labels": {
+              "de": "Bergbauer"
+            }
+          },
+          {
+            "name": "PF_5603",
+            "labels": {
+              "de": "Instrumentenbauer"
+            }
+          },
+          {
+            "name": "PF_5605",
+            "labels": {
+              "de": "Konzertbegleitung"
+            }
+          },
+          {
+            "name": "PF_5609",
+            "labels": {
+              "de": "Korrespondenz"
+            }
+          },
+          {
+            "name": "PF_5610",
+            "labels": {
+              "de": "Dozent/in"
+            }
+          },
+          {
+            "name": "PF_5613",
+            "labels": {
+              "de": "Bandleader/in"
+            }
+          },
+          {
+            "name": "PF_5614",
+            "labels": {
+              "de": "Kunstförderung"
+            }
+          },
+          {
+            "name": "PF_5615",
+            "labels": {
+              "de": "Kulturförderung"
+            }
+          },
+          {
+            "name": "PF_5616",
+            "labels": {
+              "de": "Professe"
+            }
+          },
+          {
+            "name": "PF_5617",
+            "labels": {
+              "de": "Liedsammlung"
+            }
+          },
+          {
+            "name": "PF_5618",
+            "labels": {
+              "de": "Redaktion"
+            }
+          },
+          {
+            "name": "PF_5619",
+            "labels": {
+              "de": "Administration"
+            }
+          },
+          {
+            "name": "PF_5620",
+            "labels": {
+              "de": "Militär"
+            }
+          },
+          {
+            "name": "PF_5621",
+            "labels": {
+              "de": "Kaufmann"
+            }
+          },
+          {
+            "name": "PF_5627",
+            "labels": {
+              "de": "Präperation Herbarium"
+            }
+          },
+          {
+            "name": "PF_5629",
+            "labels": {
+              "de": "Druckerei"
+            }
+          },
+          {
+            "name": "PF_5631",
+            "labels": {
+              "de": "Studiomusiker/in"
+            }
+          },
+          {
+            "name": "PF_5636",
+            "labels": {
+              "de": "Musikredaktion"
+            }
+          },
+          {
+            "name": "PF_5637",
+            "labels": {
+              "de": "Propst"
+            }
+          },
+          {
+            "name": "PF_5638",
+            "labels": {
+              "de": "Bürgermeister"
+            }
+          },
+          {
+            "name": "PF_5639",
+            "labels": {
+              "de": "Gastprofessor"
+            }
+          },
+          {
+            "name": "PF_5642",
+            "labels": {
+              "de": "Produktionsleitung"
+            }
+          },
+          {
+            "name": "PF_5643",
+            "labels": {
+              "de": "Filmdrehbuchautor"
+            }
+          },
+          {
+            "name": "PF_5644",
+            "labels": {
+              "de": "Vorstandsmitglied"
+            }
+          },
+          {
+            "name": "PF_5645",
+            "labels": {
+              "de": "Forschungskomission"
+            }
+          },
+          {
+            "name": "PF_5646",
+            "labels": {
+              "de": "Archivleitung"
+            }
+          },
+          {
+            "name": "PF_5649",
+            "labels": {
+              "de": "Kirchenmusik\n"
+            }
+          },
+          {
+            "name": "PF_5650",
+            "labels": {
+              "de": "Musikrat"
+            }
+          },
+          {
+            "name": "PF_5651",
+            "labels": {
+              "de": "Stiftungsrat"
+            }
+          },
+          {
+            "name": "PF_5652",
+            "labels": {
+              "de": "Kommissionspräsident"
+            }
+          },
+          {
+            "name": "PF_5653",
+            "labels": {
+              "de": "Regionator"
+            }
+          },
+          {
+            "name": "PF_5654",
+            "labels": {
+              "de": "Choralsammlung"
+            }
+          },
+          {
+            "name": "PF_5655",
+            "labels": {
+              "de": "Inspektion"
+            }
+          },
+          {
+            "name": "PF_5656",
+            "labels": {
+              "de": "Musikforschung"
+            }
+          },
+          {
+            "name": "PF_5657",
+            "labels": {
+              "de": "Königin"
+            }
+          },
+          {
+            "name": "PF_5658",
+            "labels": {
+              "de": "Illustrator/in"
+            }
+          },
+          {
+            "name": "PF_5659",
+            "labels": {
+              "de": "Priester\n"
+            }
+          },
+          {
+            "name": "PF_5663",
+            "labels": {
+              "de": "Konzerttätigkeit"
+            }
+          },
+          {
+            "name": "PF_5664",
+            "labels": {
+              "de": "Opertätigkeit"
+            }
+          },
+          {
+            "name": "PF_5666",
+            "labels": {
+              "de": "Franziskaner"
+            }
+          },
+          {
+            "name": "PF_5668",
+            "labels": {
+              "de": "Festivaltätigkeit"
+            }
+          },
+          {
+            "name": "PF_5669",
+            "labels": {
+              "de": "Stiftungstätigkeit"
+            }
+          },
+          {
+            "name": "PF_5670",
+            "labels": {
+              "de": "Musikgesellschaft"
+            }
+          },
+          {
+            "name": "PF_5671",
+            "labels": {
+              "de": "Eventmanager/in"
+            }
+          },
+          {
+            "name": "PF_5672",
+            "labels": {
+              "de": "Wettbewerbsgründung"
+            }
+          },
+          {
+            "name": "PF_5673",
+            "labels": {
+              "de": "Preisträger/in"
+            }
+          },
+          {
+            "name": "PF_5675",
+            "labels": {
+              "de": "Katechet"
+            }
+          },
+          {
+            "name": "PF_5678",
+            "labels": {
+              "de": "Seelsorger/in"
+            }
+          },
+          {
+            "name": "PF_5679",
+            "labels": {
+              "de": "Glockengiesser"
+            }
+          },
+          {
+            "name": "PF_5682",
+            "labels": {
+              "de": "Instrumentenstimmung"
+            }
+          },
+          {
+            "name": "PF_5685",
+            "labels": {
+              "de": "Lektorat"
+            }
+          },
+          {
+            "name": "PF_5686",
+            "labels": {
+              "de": "Schriftleitung"
+            }
+          },
+          {
+            "name": "PF_5687",
+            "labels": {
+              "de": "Landwirtschaft"
+            }
+          },
+          {
+            "name": "PF_5688",
+            "labels": {
+              "de": "Klanginstallation"
+            }
+          },
+          {
+            "name": "PF_5689",
+            "labels": {
+              "de": "Elektronik"
+            }
+          },
+          {
+            "name": "PF_5690",
+            "labels": {
+              "de": "Bundesrat"
+            }
+          },
+          {
+            "name": "PF_5697",
+            "labels": {
+              "de": "Psychologie"
+            }
+          },
+          {
+            "name": "PF_5699",
+            "labels": {
+              "de": "Musikreferent/in"
+            }
+          },
+          {
+            "name": "PF_5700",
+            "labels": {
+              "de": "Musikkomitee"
+            }
+          },
+          {
+            "name": "PF_5701",
+            "labels": {
+              "de": "Musikberatung"
+            }
+          },
+          {
+            "name": "PF_5702",
+            "labels": {
+              "de": "Vereinspräsidium"
+            }
+          },
+          {
+            "name": "PF_5708",
+            "labels": {
+              "de": "Visitation"
+            }
+          },
+          {
+            "name": "PF_5709",
+            "labels": {
+              "de": "Politik"
+            }
+          },
+          {
+            "name": "PF_5713",
+            "labels": {
+              "de": "Kinematografie"
+            }
+          },
+          {
+            "name": "PF_5714",
+            "labels": {
+              "de": "Instrumentensammlung"
+            }
+          },
+          {
+            "name": "PF_5715",
+            "labels": {
+              "de": "Musikbibliothek"
+            }
+          },
+          {
+            "name": "PF_5716",
+            "labels": {
+              "de": "Klostermitglied"
+            }
+          },
+          {
+            "name": "PF_5719",
+            "labels": {
+              "de": "Psalmenbearbeitung"
+            }
+          },
+          {
+            "name": "PF_5720",
+            "labels": {
+              "de": "Präzeptor"
+            }
+          },
+          {
+            "name": "PF_5721",
+            "labels": {
+              "de": "Noviziat"
+            }
+          },
+          {
+            "name": "PF_5723",
+            "labels": {
+              "de": "Nationalrat\n"
+            }
+          },
+          {
+            "name": "PF_5724",
+            "labels": {
+              "de": "Diplomatie"
+            }
+          },
+          {
+            "name": "PF_5726",
+            "labels": {
+              "de": "Ministerium"
+            }
+          },
+          {
+            "name": "PF_5727",
+            "labels": {
+              "de": "Rechtswissenschaft"
+            }
+          },
+          {
+            "name": "PF_5728",
+            "labels": {
+              "de": "Schultheiss"
+            }
+          },
+          {
+            "name": "PF_5732",
+            "labels": {
+              "de": "Medizin"
+            }
+          },
+          {
+            "name": "PF_5734",
+            "labels": {
+              "de": "Benediktinerabtei"
+            }
+          },
+          {
+            "name": "PF_5735",
+            "labels": {
+              "de": "Philologie"
+            }
+          },
+          {
+            "name": "PF_5736",
+            "labels": {
+              "de": "Botanik"
+            }
+          },
+          {
+            "name": "PF_5740",
+            "labels": {
+              "de": "Kanzlei"
+            }
+          },
+          {
+            "name": "PF_5741",
+            "labels": {
+              "de": "Kanoniker"
+            }
+          },
+          {
+            "name": "PF_5743",
+            "labels": {
+              "de": "Handwerk"
+            }
+          },
+          {
+            "name": "PF_5748",
+            "labels": {
+              "de": "Hospitant"
+            }
+          },
+          {
+            "name": "PF_5750",
+            "labels": {
+              "de": "Rezensent/in"
+            }
+          },
+          {
+            "name": "PF_5751",
+            "labels": {
+              "de": "Archäologie"
+            }
+          },
+          {
+            "name": "PF_5752",
+            "labels": {
+              "de": "Numismatik"
+            }
+          },
+          {
+            "name": "PF_5753",
+            "labels": {
+              "de": "Kompilator"
+            }
+          },
+          {
+            "name": "PF_5754",
+            "labels": {
+              "de": "Notationskunde"
+            }
+          },
+          {
+            "name": "PF_5759",
+            "labels": {
+              "de": "Notist/in\n"
+            }
+          },
+          {
+            "name": "PF_5773",
+            "labels": {
+              "de": "Autodidakt/in"
+            }
+          },
+          {
+            "name": "PF_5776",
+            "labels": {
+              "de": "Widmungsträger/in"
+            }
+          },
+          {
+            "name": "PF_5785",
+            "labels": {
+              "de": "Spitalmeister"
+            }
+          },
+          {
+            "name": "PF_5787",
+            "labels": {
+              "de": "Hugenott"
+            }
+          },
+          {
+            "name": "PF_5790",
+            "labels": {
+              "de": "Holzbildhauerei"
+            }
+          },
+          {
+            "name": "PF_5794",
+            "labels": {
+              "de": "Jury"
+            }
+          },
+          {
+            "name": "PF_5799",
+            "labels": {
+              "de": "Hofschauspiel"
+            }
+          },
+          {
+            "name": "PF_5808",
+            "labels": {
+              "de": "Plattenproduktion"
+            }
+          },
+          {
+            "name": "PF_5809",
+            "labels": {
+              "de": "Werbetexter/in"
+            }
+          },
+          {
+            "name": "PF_5819",
+            "labels": {
+              "de": "Übersetzer/in"
+            }
+          },
+          {
+            "name": "PF_5838",
+            "labels": {
+              "de": "Erziehungsrat"
+            }
+          },
+          {
+            "name": "PF_5845",
+            "labels": {
+              "de": "Dramatiker"
+            }
+          },
+          {
+            "name": "PF_5847",
+            "labels": {
+              "de": "Intendant/in"
+            }
+          },
+          {
+            "name": "PF_5850",
+            "labels": {
+              "de": "Sänger/in"
+            }
+          },
+          {
+            "name": "PF_5851",
+            "labels": {
+              "de": "Singer-Songwriter"
+            }
+          },
+          {
+            "name": "PF_5852",
+            "labels": {
+              "de": "Drehbuchautor/in"
+            }
+          },
+          {
+            "name": "PF_5854",
+            "labels": {
+              "de": "Schriftsteller/in"
+            }
+          },
+          {
+            "name": "PF_5863",
+            "labels": {
+              "de": "Kunstgeschichte"
+            }
+          },
+          {
+            "name": "PF_5865",
+            "labels": {
+              "de": "Archidiakon"
+            }
+          },
+          {
+            "name": "PF_5866",
+            "labels": {
+              "de": "Zunftmeister"
+            }
+          },
+          {
+            "name": "PF_5869",
+            "labels": {
+              "de": "Scholaster"
+            }
+          },
+          {
+            "name": "PF_5870",
+            "labels": {
+              "de": "Antistes"
+            }
+          },
+          {
+            "name": "PF_5871",
+            "labels": {
+              "de": "Stadtschreiber/in"
+            }
+          },
+          {
+            "name": "PF_5872",
+            "labels": {
+              "de": "Stadtammann"
+            }
+          },
+          {
+            "name": "PF_5873",
+            "labels": {
+              "de": "Grafik"
+            }
+          },
+          {
+            "name": "PF_5874",
+            "labels": {
+              "de": "Glasmalerei"
+            }
+          },
+          {
+            "name": "PF_5877",
+            "labels": {
+              "de": "Kunstsammlung"
+            }
+          },
+          {
+            "name": "PF_5881",
+            "labels": {
+              "de": "Vogt"
+            }
+          },
+          {
+            "name": "PF_5882",
+            "labels": {
+              "de": "Theater"
+            }
+          },
+          {
+            "name": "PF_5884",
+            "labels": {
+              "de": "Bühnenbild"
+            }
+          },
+          {
+            "name": "PF_5886",
+            "labels": {
+              "de": "Zirkus"
+            }
+          },
+          {
+            "name": "PF_5887",
+            "labels": {
+              "de": "Tanz"
+            }
+          },
+          {
+            "name": "PF_5888",
+            "labels": {
+              "de": "Akrobatik"
+            }
+          },
+          {
+            "name": "PF_5889",
+            "labels": {
+              "de": "Theaterkritik"
+            }
+          },
+          {
+            "name": "PF_5893",
+            "labels": {
+              "de": "Bebop"
+            }
+          },
+          {
+            "name": "PF_5895",
+            "labels": {
+              "de": "Erasmuswesen"
+            }
+          },
+          {
+            "name": "PF_5896",
+            "labels": {
+              "de": "Gedichtsammlung"
+            }
+          },
+          {
+            "name": "PF_5897",
+            "labels": {
+              "de": "Theaterreform"
+            }
+          },
+          {
+            "name": "PF_5898",
+            "labels": {
+              "de": "Inszenierungstheorie"
+            }
+          },
+          {
+            "name": "PF_5900",
+            "labels": {
+              "de": "Akustik"
+            }
+          },
+          {
+            "name": "PF_5902",
+            "labels": {
+              "de": "Psalmensammlung"
+            }
+          },
+          {
+            "name": "PF_5903",
+            "labels": {
+              "de": "Rhetorik"
+            }
+          },
+          {
+            "name": "PF_5906",
+            "labels": {
+              "de": "Kirchengesang"
+            }
+          },
+          {
+            "name": "PF_5907",
+            "labels": {
+              "de": "Diakon"
+            }
+          },
+          {
+            "name": "PF_5915",
+            "labels": {
+              "de": "Succentor"
+            }
+          },
+          {
+            "name": "PF_5917",
+            "labels": {
+              "de": "Filmmusik"
+            }
+          },
+          {
+            "name": "PF_5918",
+            "labels": {
+              "de": "Ballett"
+            }
+          },
+          {
+            "name": "PF_5925",
+            "labels": {
+              "de": "Orientalistik"
+            }
+          },
+          {
+            "name": "PF_5926",
+            "labels": {
+              "de": "Kirchengeschichte"
+            }
+          },
+          {
+            "name": "PF_5933",
+            "labels": {
+              "de": "Musikpsychologie"
+            }
+          },
+          {
+            "name": "PF_5961",
+            "labels": {
+              "de": "Suisa"
+            }
+          },
+          {
+            "name": "PF_5968",
+            "labels": {
+              "de": "Àsthetik"
+            }
+          },
+          {
+            "name": "PF_5972",
+            "labels": {
+              "de": "Korrektor/in"
+            }
+          },
+          {
+            "name": "PF_5982",
+            "labels": {
+              "de": "Agronomie"
+            }
+          },
+          {
+            "name": "PF_5983",
+            "labels": {
+              "de": "Philanthropie"
+            }
+          },
+          {
+            "name": "PF_5984",
+            "labels": {
+              "de": "Computermusik"
+            }
+          },
+          {
+            "name": "PF_5985",
+            "labels": {
+              "de": "Karmelit"
+            }
+          },
+          {
+            "name": "PF_5986",
+            "labels": {
+              "de": "Historiker/in"
+            }
+          },
+          {
+            "name": "PF_5987",
+            "labels": {
+              "de": "Naturwissenschaft"
+            }
+          },
+          {
+            "name": "PF_5989",
+            "labels": {
+              "de": "Staatsverwaltung"
+            }
+          },
+          {
+            "name": "PF_5990",
+            "labels": {
+              "de": "Gemeindeverwaltung"
+            }
+          },
+          {
+            "name": "PF_5992",
+            "labels": {
+              "de": "Feuilletonkritik"
+            }
+          },
+          {
+            "name": "PF_5998",
+            "labels": {
+              "de": "Fernsehproduktion"
+            }
+          },
+          {
+            "name": "PF_5999",
+            "labels": {
+              "de": "Linguistik"
+            }
+          },
+          {
+            "name": "PF_6001",
+            "labels": {
+              "de": "Musikpräfekt"
+            }
+          }
+        ]
+      },
+      {
+        "name": "articletype",
+        "labels": {
+          "de": "Artikeltyp"
+        },
+        "nodes": [
+          {
+            "name": "person",
+            "labels": {
+              "de": "Person"
+            }
+          },
+          {
+            "name": "institution",
+            "labels": {
+              "de": "Institution"
+            }
+          },
+          {
+            "name": "list",
+            "labels": {
+              "de": "Liste"
+            }
+          },
+          {
+            "name": "location",
+            "labels": {
+              "de": "Ort"
+            }
+          },
+          {
+            "name": "thing",
+            "labels": {
+              "de": "Sache"
+            }
+          }
+        ]
+      }
+    ],
+    "ontology": {
+      "name": "mls",
+      "label": "Musikalisches Lexikon der Schweiz",
+      "resources": [
+        {
+          "name": "lexicon",
+          "super": "Resource",
+          "labels": {
+            "de": "Lexikon"
+          },
+          "properties": [
+            {
+              "name": "shortname",
+              "object": "TextValue",
+              "labels": {
+                "de": "Kürzel"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=32", "maxlength=128"],
+              "cardinality": "1"
+            },
+            {
+              "name": "citationform",
+              "object": "TextValue",
+              "labels": {
+                "de": "Zitierform"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=32", "maxlength=128"],
+              "cardinality": "1"
+            },
+            {
+              "name": "lexiconcomment",
+              "object": "TextValue",
+              "labels": {
+                "de": "Kommentar"
+              },
+              "gui_element": "Textarea",
+              "gui_attributes": ["width=99%", "rows=2"],
+              "cardinality": "0-n"
+            },
+            {
+              "name": "lexiconweblink",
+              "object": "UriValue",
+              "labels": {
+                "de": "Link KVK"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=64", "maxlength=128"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "inLibrary",
+              "super": ["hasLinkTo"],
+              "object": "mls:library",
+              "labels": {
+                "de": "in Bibliothek"
+              },
+              "gui_element": "Searchbox",
+              "gui_attributes": ["numprops=1"],
+              "cardinality": "0-n"
+            }
+          ]
+        },
+        {
+          "name": "lemma",
+          "super": "Resource",
+          "labels": {
+            "de": "Musikalisches Lexikon der Schweiz"
+          },
+          "properties": [
+            {
+              "name": "Lemmaval",
+              "object": "TextValue",
+              "labels": {
+                "de": "Lemma"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=32", "maxlength=128"],
+              "cardinality": "1"
+            },
+            {
+              "name": "isDeceased",
+              "object": "BooleanValue",
+              "labels": {
+                "de": "verstorben"
+              },
+              "gui_element": "Checkbox",
+              "gui_attributes": [],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "isRelevant",
+              "object": "BooleanValue",
+              "labels": {
+                "de": "relevant"
+              },
+              "gui_element": "Checkbox",
+              "gui_attributes": [],
+              "cardinality": "0-1"
+
+            },
+            {
+              "name": "lemmadescription",
+              "object": "TextValue",
+              "labels": {
+                "de": "Beschreibung"
+              },
+              "gui_element": "Textarea",
+              "gui_attributes": ["width=99%", "rows=2"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "lemmatype",
+              "object": "ListValue",
+              "labels": {
+                "de": "Lemmatyp"
+              },
+              "gui_element": "Pulldown",
+              "gui_attributes": ["hlist=articletype"],
+              "cardinality": "1"
+            },
+            {
+              "name": "hasSex",
+              "object": "ListValue",
+              "labels": {
+                "de": "Geschlecht"
+              },
+              "gui_element": "Pulldown",
+              "gui_attributes": ["hlist=sex"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "lemmacomment",
+              "object": "TextValue",
+              "labels": {
+                "de": "Kommentar"
+              },
+              "gui_element": "Textarea",
+              "gui_attributes": ["width=99%", "rows=2"],
+              "cardinality": "0-n"
+            },
+            {
+              "name": "startdate",
+              "object": "DateValue",
+              "labels": {
+                "de": "Anfangsdatum"
+              },
+              "gui_element": "Date",
+              "gui_attributes": [],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "startinfo",
+              "object": "TextValue",
+              "labels": {
+                "de": "Anfangsinfo"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=32", "maxlength=32"],
+              "cardinality": "0-1"
+            },
+                        {
+              "name": "enddate",
+              "object": "DateValue",
+              "labels": {
+                "de": "Enddatum"
+              },
+              "gui_element": "Date",
+              "gui_attributes": [],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "endinfo",
+              "object": "TextValue",
+              "labels": {
+                "de": "Endinfo"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=32", "maxlength=32"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "gnd",
+              "object": "TextValue",
+              "labels": {
+                "de": "GND"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=32", "maxlength=32"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "viaf",
+              "object": "TextValue",
+              "labels": {
+                "de": "VIAF"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=32", "maxlength=32"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "firstname",
+              "super": ["hasValue", "foaf:givenName"],
+              "object": "TextValue",
+              "labels": {
+                "de": "Vorname"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=32", "maxlength=32"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "variants",
+              "object": "TextValue",
+              "labels": {
+                "de": "Varianten"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=32", "maxlength=32"],
+              "cardinality": "0-n"
+            },
+            {
+              "name": "birthlocation",
+              "object": "GeonameValue",
+              "labels": {
+                "de": "Ort Geburt"
+              },
+              "gui_element": "Geonames",
+              "gui_attributes": [],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "worklocation",
+              "object": "GeonameValue",
+              "labels": {
+                "de": "Ort Tätigkeit"
+              },
+              "gui_element": "Geonames",
+              "gui_attributes": [],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "dyinglocation",
+              "object": "GeonameValue",
+              "labels": {
+                "de": "Ort Tod"
+              },
+              "gui_element": "Geonames",
+              "gui_attributes": [],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "sublemma",
+              "super": ["hasLinkTo"],
+              "object": "mls:lemma",
+              "labels": {
+                "de": "Untergeordnetes Lemma"
+              },
+              "gui_element": "Searchbox",
+              "gui_attributes": [],
+              "cardinality": "0-n"
+            }
+          ]
+        },
+        {
+          "name": "library",
+          "super": "Resource",
+          "labels": {
+            "de": "Bibliothek"
+          },
+          "properties": [
+            {
+              "name": "sigle",
+              "object": "TextValue",
+              "labels": {
+                "de": "Sigle"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=16", "maxlength=16"],
+              "cardinality": "1"
+            },
+            {
+              "name": "location",
+              "object": "GeonameValue",
+              "labels": {
+                "de": "Ort"
+              },
+              "gui_element": "Geonames",
+              "gui_attributes": [],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "librarydescription",
+              "object": "TextValue",
+              "labels": {
+                "de": "Beschreibung"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=64", "maxlength=128"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "libraryweblink",
+              "object": "UriValue",
+              "labels": {
+                "de": "Web-Link"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=64", "maxlength=128"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "catalogue",
+              "object": "UriValue",
+              "labels": {
+                "de": "Katalog"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=64", "maxlength=128"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "address",
+              "object": "TextValue",
+              "labels": {
+                "de": "Adresse/Kontakt"
+              },
+              "gui_element": "Textarea",
+              "gui_attributes": ["width=99%", "rows=3"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "librarycomment",
+              "object": "TextValue",
+              "labels": {
+                "de": "Kommentar"
+              },
+              "gui_element": "Textarea",
+              "gui_attributes": ["width=99%", "rows=2"],
+              "cardinality": "0-n"
+            }
+          ]
+        },
+        {
+          "name": "article",
+          "super": "Resource",
+          "labels": {
+            "de": "Artikel"
+          },
+          "properties": [
+            {
+              "name": "articletype",
+              "object": "ListValue",
+              "labels": {
+                "de": "Artikeltyp"
+              },
+              "gui_element": "Pulldown",
+              "gui_attributes": ["hlist=articletype"],
+              "cardinality": "1"
+            },
+            {
+              "name":"hasLemma",
+              "super": ["hasLinkTo"],
+              "object": "mls:lemma",
+              "labels": {
+                "de": "Lemma"
+              },
+              "gui_element": "Searchbox",
+              "gui_attributes": ["numprops=1"],
+              "cardinality": "1"
+            },
+            {
+              "name": "origspelling",
+              "object": "TextValue",
+              "labels": {
+                "de": "Originalschreibung"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=64", "maxlength=128"],
+              "cardinality": "0-1"
+            },
+            {
+              "name":"hasLexicon",
+              "super": ["hasLinkTo"],
+              "object": "mls:lexicon",
+              "labels": {
+                "de": "in Lexikon"
+              },
+              "gui_element": "Searchbox",
+              "gui_attributes": ["numprops=1"],
+              "cardinality": "1"
+            },
+            {
+              "name": "pages",
+              "object": "TextValue",
+              "labels": {
+                "de": "Seite"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=16", "maxlength=16"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "articletext",
+              "object": "TextValue",
+              "labels": {
+                "de": "Artikel"
+              },
+              "gui_element": "Textarea",
+              "gui_attributes": ["rows=5", "width=99%", "wrap=soft"],
+              "cardinality": "1"
+            },
+            {
+              "name": "numlines",
+              "object": "IntValue",
+              "labels": {
+                "de": "Zeilen"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=6", "maxlength=6"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "articlecomment",
+              "object": "TextValue",
+              "labels": {
+                "de": "Kommentar"
+              },
+              "gui_element": "Textarea",
+              "gui_attributes": ["width=99%", "rows=2"],
+              "cardinality": "0-n"
+            },
+            {
+              "name": "state",
+              "object": "TextValue",
+              "labels": {
+                "de": "Zustand"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=32","maxlength=32"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "internallex",
+              "object": "TextValue",
+              "labels": {
+                "de": "Interne Lexicographische Information"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=128", "maxlength=128"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "link",
+              "object": "UriValue",
+              "labels": {
+                "de": "Link"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=128", "maxlength=128"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "shortinfo",
+              "object": "TextValue",
+              "labels": {
+                "de": "Kurzinformation"
+              },
+              "gui_element": "Textarea",
+              "gui_attributes": ["width=99%", "rows=2"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "theatrelexcode",
+              "object": "TextValue",
+              "labels": {
+                "de": "Theaterlexikon Code"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=32", "maxlength=128"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "ticinolexcode",
+              "object": "TextValue",
+              "labels": {
+                "de": "Link Dizionario Ticinese"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=32", "maxlength=128"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "fonotecacode",
+              "object": "TextValue",
+              "labels": {
+                "de": "Fonoteca Code"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=32", "maxlength=128"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "hlscode",
+              "object": "TextValue",
+              "labels": {
+                "de": "HLS Code"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=32", "maxlength=128"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "oemlcode",
+              "object": "TextValue",
+              "labels": {
+                "de": "OEML Code"
+              },
+              "gui_element": "SimpleText",
+              "gui_attributes": ["size=32", "maxlength=128"],
+              "cardinality": "0-1"
+            },
+            {
+              "name": "subarticle",
+              "super": ["hasLinkTo"],
+              "object": "mls:article",
+              "labels": {
+                "de": "Untergeordneter Artikel"
+              },
+              "gui_element": "Searchbox",
+              "gui_attributes": [],
+              "cardinality": "0-n"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,13 +1,8 @@
 import unittest
-import pprint
-import requests
-from urllib.parse import quote_plus
 
-from models.connection import Connection
-from models.helpers import BaseError, Actions
-from models.langstring import Languages, LangStringParam, LangString
-
-from models.user import User
+from dsplib.models.connection import Connection
+from dsplib.models.langstring import Languages, LangStringParam, LangString
+from dsplib.models.user import User
 
 
 class TestUser(unittest.TestCase):

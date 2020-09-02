@@ -1,25 +1,70 @@
-import os
-import sys
 import wx
-from typing import List, Set, Dict, Tuple, Optional
-#from knora import KnoraError, Knora
-from pprint import pprint
+import wx.adv
+from wx.adv import TaskBarIcon as TaskBarIcon
+from dsplib.models.connection import Connection
 
-from models.helpers import Actions, BaseError, Context, Cardinality
-from models.langstring import Languages, LangStringParam, LangString
-from models.connection import Connection, Error
-from models.project import Project
-from models.listnode import ListNode
-from models.group import Group
-from models.user import User
-from models.ontology import Ontology
-from models.propertyclass import PropertyClass
-from models.resourceclass import ResourceClass
+from dsplib.knoraConsoleModules.ProjectPanel import ProjectPanel
+from dsplib.knoraConsoleModules.UserPanel import UserPanel
+from dsplib.knoraConsoleModules.GroupPanel import GroupPanel
+from dsplib.knoraConsoleModules.OntoPanel import OntoPanel
 
-from knoraConsoleModules.ProjectPanel import ProjectPanel
-from knoraConsoleModules.UserPanel import UserPanel
-from knoraConsoleModules.GroupPanel import GroupPanel
-from knoraConsoleModules.OntoPanel import OntoPanel
+
+class DemoTaskBarIcon(TaskBarIcon):
+    TBMENU_RESTORE = wx.NewIdRef()
+    TBMENU_CLOSE   = wx.NewIdRef()
+
+    def __init__(self, frame):
+        TaskBarIcon.__init__(self, wx.adv.TBI_DOCK) # wx.adv.TBI_CUSTOM_STATUSITEM
+        self.frame = frame
+
+        # Set the image
+        icon = self.MakeIcon(wx.Image('icons/knora-py-logo.png', wx.BITMAP_TYPE_PNG))
+        self.SetIcon(icon, "Knora-py Console")
+        self.imgidx = 1
+
+        # bind some events
+        self.Bind(wx.adv.EVT_TASKBAR_LEFT_DCLICK, self.OnTaskBarActivate)
+        self.Bind(wx.EVT_MENU, self.OnTaskBarActivate, id=self.TBMENU_RESTORE)
+        self.Bind(wx.EVT_MENU, self.OnTaskBarClose, id=self.TBMENU_CLOSE)
+
+
+    def CreatePopupMenu(self):
+        """
+        This method is called by the base class when it needs to popup
+        the menu for the default EVT_RIGHT_DOWN event.  Just create
+        the menu how you want it and return it from this function,
+        the base class takes care of the rest.
+        """
+        menu = wx.Menu()
+        menu.Append(self.TBMENU_RESTORE, "Restore Knora-py Console")
+        menu.Append(self.TBMENU_CLOSE,   "Close Knora-py Console")
+        return menu
+
+
+    def MakeIcon(self, img):
+        """
+        The various platforms have different requirements for the
+        icon size...
+        """
+        if "wxMSW" in wx.PlatformInfo:
+            img = img.Scale(16, 16)
+        elif "wxGTK" in wx.PlatformInfo:
+            img = img.Scale(22, 22)
+        # wxMac can be any size upto 128x128, so leave the source img alone....
+        icon = wx.Icon(img.ConvertToBitmap())
+        return icon
+
+
+    def OnTaskBarActivate(self, evt):
+        if self.frame.IsIconized():
+            self.frame.Iconize(False)
+        if not self.frame.IsShown():
+            self.frame.Show(True)
+        self.frame.Raise()
+
+
+    def OnTaskBarClose(self, evt):
+        wx.CallAfter(self.frame.Close)
 
 
 class KnoraConsole(wx.Frame):
@@ -29,6 +74,11 @@ class KnoraConsole(wx.Frame):
 
     def __init__(self, *args, **kw):
         super(KnoraConsole, self).__init__(*args, **kw)
+
+        try:
+            self.tbicon = DemoTaskBarIcon(self)
+        except:
+            self.tbicon = None
 
         # create a menu bar
         self.makeMenuBar()
@@ -52,8 +102,6 @@ class KnoraConsole(wx.Frame):
         self.nb.InsertPage(index=3, page=self.onto_panel, text="Ontologies")
 
         self.con = None
-
-        self.SetIcon(wx.Icon("app.png"))
 
     def makeMenuBar(self):
         """

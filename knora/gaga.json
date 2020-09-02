@@ -1,0 +1,2538 @@
+{
+   "prefixes": {
+      "images": "http://0.0.0.0:3333/ontology/00FF/images/v2",
+      "dcterms": "http://purl.org/dc/terms/"
+   },
+   "project": {
+      "shortcode": "00FF",
+      "shortname": "images",
+      "longname": "Image Collection Demo",
+      "descriptions": {
+         "en": "A demo project of a collection of images"
+      },
+      "keywords": [
+         "collection",
+         "images"
+      ],
+      "lists": [
+         {
+            "name": null,
+            "label": {
+               "de": "Bildart"
+            },
+            "comment": {
+               "de": "Art des Bildes oder Photographie"
+            },
+            "nodes": [
+               {
+                  "name": "foto_sw",
+                  "label": {
+                     "de": "Fotografie s/w"
+                  }
+               },
+               {
+                  "name": "laserkopie",
+                  "label": "Laserkopie"
+               },
+               {
+                  "name": "foto_chamois",
+                  "label": "Fotografie chamois"
+               },
+               {
+                  "name": "foto_digital",
+                  "label": "Fotografie digital"
+               },
+               {
+                  "name": "foto_farb",
+                  "label": "Fotografie farb"
+               },
+               {
+                  "name": "foto_kol",
+                  "label": {
+                     "de": "Fotografie kol"
+                  }
+               },
+               {
+                  "name": "postkarte_sw",
+                  "label": "Postkarte s/w"
+               },
+               {
+                  "name": "postkarte_farb",
+                  "label": "Postkarte farb"
+               },
+               {
+                  "name": "postkarte_kol",
+                  "label": "Postkarte kol"
+               },
+               {
+                  "name": "dia_farb",
+                  "label": {
+                     "de": "Dia farbig"
+                  }
+               },
+               {
+                  "name": "dia_sw",
+                  "label": "Dia s/w"
+               },
+               {
+                  "name": "negativ_sw",
+                  "label": "Negativ s/w"
+               },
+               {
+                  "name": "negativ_farb",
+                  "label": "Negativ farb."
+               },
+               {
+                  "name": "gemaelde",
+                  "label": "Gemälde"
+               },
+               {
+                  "name": "stich",
+                  "label": "Stich"
+               },
+               {
+                  "name": "zeichnung",
+                  "label": "Zeichnung"
+               },
+               {
+                  "name": "druck",
+                  "label": "Druck"
+               },
+               {
+                  "name": "glasplatte_p",
+                  "label": "Glasplatte (positiv)"
+               },
+               {
+                  "name": "glasplatte_n",
+                  "label": "Glasplatte (negativ)"
+               },
+               {
+                  "name": "plakat",
+                  "label": {
+                     "de": "Plakate"
+                  }
+               },
+               {
+                  "name": "unknown",
+                  "label": "Unbekannt"
+               }
+            ]
+         },
+         {
+            "name": null,
+            "label": {
+               "de": "Jahreszeit",
+               "en": "Season"
+            },
+            "nodes": [
+               {
+                  "name": "sommer",
+                  "label": "Sommer"
+               },
+               {
+                  "name": "winter",
+                  "label": {
+                     "de": "Winter"
+                  }
+               }
+            ]
+         },
+         {
+            "name": null,
+            "label": {
+               "de": "Zugangsart"
+            },
+            "nodes": [
+               {
+                  "name": "geschenk",
+                  "label": "Geschenk"
+               },
+               {
+                  "name": "kauf",
+                  "label": {
+                     "de": "Kauf"
+                  }
+               },
+               {
+                  "name": "tausch",
+                  "label": "Tausch"
+               }
+            ]
+         },
+         {
+            "name": null,
+            "label": {
+               "de": "Titel",
+               "en": "Title",
+               "fr": "Titre"
+            },
+            "comment": {
+               "de": "Hierarchisches Stichwortverzeichnis / Signatur der Bilder"
+            },
+            "nodes": [
+               {
+                  "name": "1ALL",
+                  "label": "ALLGEMEINES",
+                  "nodes": [
+                     {
+                        "name": "1",
+                        "label": "BIBLIOTHEKEN ST. MORITZ"
+                     },
+                     {
+                        "name": "6",
+                        "label": "SAMMELBÄNDE, FOTOALBEN"
+                     }
+                  ]
+               },
+               {
+                  "name": "2GEO",
+                  "label": {
+                     "de": "GEOGRAPHIE"
+                  },
+                  "nodes": [
+                     {
+                        "name": "1",
+                        "label": "SCHWEIZ",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Personen"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "2",
+                        "label": "GRAUBÜNDEN",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Personen"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "3",
+                        "label": {
+                           "de": "ENGADIN"
+                        },
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": {
+                                 "de": "Flugaufnahmen"
+                              }
+                           },
+                           {
+                              "name": "2",
+                              "label": "Landschaft Sommer ohne Ortschaften"
+                           },
+                           {
+                              "name": "3",
+                              "label": "Landschaft Sommer mit Ortschaften"
+                           },
+                           {
+                              "name": "4",
+                              "label": "Landschaft Winter ohne Ortschaften"
+                           },
+                           {
+                              "name": "5",
+                              "label": {
+                                 "de": "Landschaft Winter mit Ortschaften"
+                              }
+                           },
+                           {
+                              "name": "6",
+                              "label": {
+                                 "de": "Landschaft Seen"
+                              }
+                           },
+                           {
+                              "name": "7",
+                              "label": "Landschaft Berge"
+                           },
+                           {
+                              "name": "8",
+                              "label": "Ortschaften Sommer",
+                              "nodes": [
+                                 {
+                                    "name": "1",
+                                    "label": "Maloja"
+                                 },
+                                 {
+                                    "name": "2",
+                                    "label": "Sils"
+                                 },
+                                 {
+                                    "name": "3",
+                                    "label": "Silvaplana"
+                                 },
+                                 {
+                                    "name": "4",
+                                    "label": "Surlej"
+                                 },
+                                 {
+                                    "name": "5",
+                                    "label": "Champfèr"
+                                 },
+                                 {
+                                    "name": "6",
+                                    "label": "Pontresina"
+                                 },
+                                 {
+                                    "name": "7",
+                                    "label": "Celerina"
+                                 },
+                                 {
+                                    "name": "8",
+                                    "label": "Samedan"
+                                 },
+                                 {
+                                    "name": "9",
+                                    "label": "Bever"
+                                 },
+                                 {
+                                    "name": "10",
+                                    "label": "La Punt"
+                                 },
+                                 {
+                                    "name": "11",
+                                    "label": "Chamues-ch"
+                                 },
+                                 {
+                                    "name": "12",
+                                    "label": "Madulain"
+                                 },
+                                 {
+                                    "name": "13",
+                                    "label": {
+                                       "de": "Zuoz"
+                                    }
+                                 },
+                                 {
+                                    "name": "14",
+                                    "label": "S-chanf"
+                                 },
+                                 {
+                                    "name": "15",
+                                    "label": "Cinous-chel"
+                                 },
+                                 {
+                                    "name": "16",
+                                    "label": "Fex"
+                                 },
+                                 {
+                                    "name": "17",
+                                    "label": "Unterengadin"
+                                 },
+                                 {
+                                    "name": "18",
+                                    "label": {
+                                       "de": "Personen"
+                                    }
+                                 }
+                              ]
+                           },
+                           {
+                              "name": "9",
+                              "label": "Ortschaften Winter",
+                              "nodes": [
+                                 {
+                                    "name": "1",
+                                    "label": "Maloja"
+                                 },
+                                 {
+                                    "name": "2",
+                                    "label": "Sils"
+                                 },
+                                 {
+                                    "name": "3",
+                                    "label": "Silvaplana"
+                                 },
+                                 {
+                                    "name": "4",
+                                    "label": {
+                                       "de": "Surlej"
+                                    }
+                                 },
+                                 {
+                                    "name": "5",
+                                    "label": "Champfèr"
+                                 },
+                                 {
+                                    "name": "6",
+                                    "label": "Pontresina"
+                                 },
+                                 {
+                                    "name": "7",
+                                    "label": "Celerina"
+                                 },
+                                 {
+                                    "name": "8",
+                                    "label": "Samedan"
+                                 },
+                                 {
+                                    "name": "9",
+                                    "label": {
+                                       "de": "Bever"
+                                    }
+                                 },
+                                 {
+                                    "name": "10",
+                                    "label": "La Punt"
+                                 },
+                                 {
+                                    "name": "11",
+                                    "label": "Chamues-ch"
+                                 },
+                                 {
+                                    "name": "12",
+                                    "label": "Madulain"
+                                 },
+                                 {
+                                    "name": "13",
+                                    "label": "Zuoz"
+                                 },
+                                 {
+                                    "name": "14",
+                                    "label": {
+                                       "de": "S-chanf"
+                                    }
+                                 },
+                                 {
+                                    "name": "15",
+                                    "label": "Cinous-chel"
+                                 },
+                                 {
+                                    "name": "16",
+                                    "label": "Fex"
+                                 },
+                                 {
+                                    "name": "17",
+                                    "label": "Unterengadin"
+                                 },
+                                 {
+                                    "name": "18",
+                                    "label": "Personen"
+                                 }
+                              ]
+                           }
+                        ]
+                     },
+                     {
+                        "name": "4",
+                        "label": {
+                           "de": "ST. MORITZ"
+                        },
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "St. Moritz Dorf und Bad Winter"
+                           },
+                           {
+                              "name": "2",
+                              "label": "St. Moritz Dorf Sommer"
+                           },
+                           {
+                              "name": "3",
+                              "label": "St. Moritz Bad Sommer"
+                           },
+                           {
+                              "name": "4",
+                              "label": "St. Moritz Denkmäler"
+                           },
+                           {
+                              "name": "5",
+                              "label": {
+                                 "de": "St. Moritz Landschaft Sommer"
+                              }
+                           },
+                           {
+                              "name": "6",
+                              "label": "St. Moritz Landschaft Winter"
+                           },
+                           {
+                              "name": "7",
+                              "label": "St. Moritz Schulhäuser"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "5",
+                        "label": "SUEDTAELER",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Ortschaften"
+                           },
+                           {
+                              "name": "2",
+                              "label": {
+                                 "de": "Landschaften"
+                              }
+                           },
+                           {
+                              "name": "3",
+                              "label": "Personen"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "6",
+                        "label": "LANDKARTEN UND PANORAMEN",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Landkarten"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Panoramen"
+                           }
+                        ]
+                     }
+                  ]
+               },
+               {
+                  "name": "3GES",
+                  "label": "GESCHICHTE",
+                  "nodes": [
+                     {
+                        "name": "1",
+                        "label": "SCHWEIZ"
+                     },
+                     {
+                        "name": "2",
+                        "label": "GRAUBÜNDEN"
+                     },
+                     {
+                        "name": "3",
+                        "label": "ENGADIN"
+                     },
+                     {
+                        "name": "4",
+                        "label": "ST. MORITZ"
+                     },
+                     {
+                        "name": "5",
+                        "label": {
+                           "de": "BIOGRAPHIEN"
+                        },
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Personen A-Z",
+                              "nodes": [
+                                 {
+                                    "name": "1",
+                                    "label": "Personen A"
+                                 },
+                                 {
+                                    "name": "2",
+                                    "label": "Personen B"
+                                 },
+                                 {
+                                    "name": "3",
+                                    "label": "Personen C"
+                                 },
+                                 {
+                                    "name": "4",
+                                    "label": {
+                                       "de": "Personen D"
+                                    }
+                                 },
+                                 {
+                                    "name": "5",
+                                    "label": "Personen E"
+                                 },
+                                 {
+                                    "name": "6",
+                                    "label": "Personen F"
+                                 },
+                                 {
+                                    "name": "7",
+                                    "label": "Personen G"
+                                 },
+                                 {
+                                    "name": "8",
+                                    "label": "Personen H"
+                                 },
+                                 {
+                                    "name": "9",
+                                    "label": "Personen I"
+                                 },
+                                 {
+                                    "name": "10",
+                                    "label": "Personen J"
+                                 },
+                                 {
+                                    "name": "11",
+                                    "label": "Personen K"
+                                 },
+                                 {
+                                    "name": "12",
+                                    "label": "Personen L"
+                                 },
+                                 {
+                                    "name": "13",
+                                    "label": "Personen M"
+                                 },
+                                 {
+                                    "name": "14",
+                                    "label": "Personen N"
+                                 },
+                                 {
+                                    "name": "15",
+                                    "label": "Personen O"
+                                 },
+                                 {
+                                    "name": "16",
+                                    "label": "Personen P"
+                                 },
+                                 {
+                                    "name": "17",
+                                    "label": "Personen Q"
+                                 },
+                                 {
+                                    "name": "18",
+                                    "label": "Personen R"
+                                 },
+                                 {
+                                    "name": "19",
+                                    "label": "Personen S"
+                                 },
+                                 {
+                                    "name": "20",
+                                    "label": {
+                                       "de": "Personen T"
+                                    }
+                                 },
+                                 {
+                                    "name": "21",
+                                    "label": {
+                                       "de": "Personen U"
+                                    }
+                                 },
+                                 {
+                                    "name": "22",
+                                    "label": "Personen V"
+                                 },
+                                 {
+                                    "name": "23",
+                                    "label": "Personen W"
+                                 },
+                                 {
+                                    "name": "24",
+                                    "label": "Personen X"
+                                 },
+                                 {
+                                    "name": "25",
+                                    "label": {
+                                       "de": "Personen Y"
+                                    }
+                                 },
+                                 {
+                                    "name": "26",
+                                    "label": {
+                                       "de": "Personen Z"
+                                    }
+                                 }
+                              ]
+                           },
+                           {
+                              "name": "2",
+                              "label": "Personen unbekannt"
+                           },
+                           {
+                              "name": "3",
+                              "label": "Gruppen Einheimische"
+                           },
+                           {
+                              "name": "4",
+                              "label": "Kinder Winter"
+                           },
+                           {
+                              "name": "5",
+                              "label": "Kinder Sommer"
+                           },
+                           {
+                              "name": "6",
+                              "label": {
+                                 "de": "Sonnenbadende"
+                              }
+                           },
+                           {
+                              "name": "7",
+                              "label": "Zuschauer"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "7",
+                        "label": "WAPPEN UND FAHNEN"
+                     },
+                     {
+                        "name": "9",
+                        "label": "KRIEGE UND MILITÄR"
+                     }
+                  ]
+               },
+               {
+                  "name": "4KUN",
+                  "label": "KUNST",
+                  "nodes": [
+                     {
+                        "name": "5",
+                        "label": "MALEREI",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Ausstellungen"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Gemälde"
+                           },
+                           {
+                              "name": "3",
+                              "label": "Karrikaturen und Kritik"
+                           },
+                           {
+                              "name": "4",
+                              "label": "Segantini und Museum"
+                           },
+                           {
+                              "name": "5",
+                              "label": {
+                                 "de": "Sgrafitti"
+                              }
+                           }
+                        ]
+                     },
+                     {
+                        "name": "6",
+                        "label": "MUSIK, THEATER UND RADIO",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Kurorchester"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Musik"
+                           },
+                           {
+                              "name": "3",
+                              "label": "Zirkus"
+                           },
+                           {
+                              "name": "4",
+                              "label": {
+                                 "de": "Theater"
+                              }
+                           },
+                           {
+                              "name": "5",
+                              "label": "Tanz"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "7",
+                        "label": "FILM UND FOTO",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Heidi Film"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Foto"
+                           },
+                           {
+                              "name": "3",
+                              "label": {
+                                 "de": "Film"
+                              }
+                           }
+                        ]
+                     },
+                     {
+                        "name": "8",
+                        "label": "BILDHAUEREI UND KUNSTGEWERBE",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Modelle"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Schneeskulpturen"
+                           },
+                           {
+                              "name": "3",
+                              "label": "Plastiken"
+                           },
+                           {
+                              "name": "4",
+                              "label": {
+                                 "de": "Stiche"
+                              }
+                           },
+                           {
+                              "name": "5",
+                              "label": "Bildhauerei"
+                           },
+                           {
+                              "name": "6",
+                              "label": "Kunstgewerbe"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "9",
+                        "label": "ST. MORITZ GRAFIKEN UND PLAKATE",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Grafiken"
+                           },
+                           {
+                              "name": "2",
+                              "label": {
+                                 "de": "Holzschnitte"
+                              }
+                           },
+                           {
+                              "name": "3",
+                              "label": "Plakate"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "10",
+                        "label": "ARCHITEKTUR",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Architektur / Inneneinrichtungen"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Pläne"
+                           }
+                        ]
+                     }
+                  ]
+               },
+               {
+                  "name": "5MED",
+                  "label": {
+                     "de": "MEDIZIN"
+                  },
+                  "nodes": [
+                     {
+                        "name": "1",
+                        "label": "MEDIZIN UND NATURHEILKUNDE"
+                     },
+                     {
+                        "name": "3",
+                        "label": "HEILBAD UND QUELLEN",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Heilbad aussen"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Heilbad innen"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "4",
+                        "label": {
+                           "de": "SPITAL UND KLINIKEN / KINDERHEIME"
+                        }
+                     }
+                  ]
+               },
+               {
+                  "name": "6NAT",
+                  "label": "NATURKUNDE",
+                  "nodes": [
+                     {
+                        "name": "2",
+                        "label": "FAUNA",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Fischen"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Jagen"
+                           },
+                           {
+                              "name": "3",
+                              "label": {
+                                 "de": "Tiere"
+                              }
+                           }
+                        ]
+                     },
+                     {
+                        "name": "3",
+                        "label": "FLORA",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Blumen"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Bäume"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "4",
+                        "label": "GEOLOGIE UND MINERALOGIE"
+                     },
+                     {
+                        "name": "5",
+                        "label": {
+                           "de": "KLIMATOLOGIE UND METEOROLOGIE"
+                        },
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Gewässer und Überschwemmungen"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Gletscher"
+                           },
+                           {
+                              "name": "3",
+                              "label": "Lawinen"
+                           },
+                           {
+                              "name": "4",
+                              "label": "Schnee, Raureif, Eisblumen"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "6",
+                        "label": {
+                           "de": "UMWELT"
+                        }
+                     }
+                  ]
+               },
+               {
+                  "name": "7REL",
+                  "label": "RELIGION",
+                  "nodes": [
+                     {
+                        "name": "1",
+                        "label": "RELIGION UND KIRCHEN",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "St. Moritz Kirchen"
+                           }
+                        ]
+                     }
+                  ]
+               },
+               {
+                  "name": "8SOZ",
+                  "label": "SOZIALES",
+                  "nodes": [
+                     {
+                        "name": "1",
+                        "label": "VERFASSUNGEN UND GESETZE"
+                     },
+                     {
+                        "name": "2",
+                        "label": "GEMEINDEWESEN",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Wasserwirtschaft"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Feuer und Feuerwehr"
+                           },
+                           {
+                              "name": "3",
+                              "label": "Polizei und Behörde"
+                           },
+                           {
+                              "name": "4",
+                              "label": "Abfallbewirtschaftung"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "3",
+                        "label": "SCHULWESEN"
+                     },
+                     {
+                        "name": "4",
+                        "label": "VOLKSKUNDE",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Bälle und Verkleidungen"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Chalandamarz"
+                           },
+                           {
+                              "name": "3",
+                              "label": "Engadiner Museum"
+                           },
+                           {
+                              "name": "4",
+                              "label": {
+                                 "de": "Feste und Umzüge"
+                              }
+                           },
+                           {
+                              "name": "5",
+                              "label": "Schlitteda"
+                           },
+                           {
+                              "name": "6",
+                              "label": "Trachten"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "6",
+                        "label": "PARTEIEN UND GRUPPIERUNGEN"
+                     },
+                     {
+                        "name": "7",
+                        "label": "SCHWESTERNSTÄTDE"
+                     }
+                  ]
+               },
+               {
+                  "name": "9SPO",
+                  "label": {
+                     "de": "SPORT"
+                  },
+                  "nodes": [
+                     {
+                        "name": "0",
+                        "label": {
+                           "de": "SPORT"
+                        },
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Bridge"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Boxen"
+                           },
+                           {
+                              "name": "3",
+                              "label": "Camping"
+                           },
+                           {
+                              "name": "4",
+                              "label": {
+                                 "de": "Fechten"
+                              }
+                           },
+                           {
+                              "name": "5",
+                              "label": {
+                                 "de": "Fitness"
+                              }
+                           },
+                           {
+                              "name": "6",
+                              "label": "Höhentraining"
+                           },
+                           {
+                              "name": "7",
+                              "label": "Krafttraining"
+                           },
+                           {
+                              "name": "8",
+                              "label": {
+                                 "de": "Leichtathletik"
+                              }
+                           },
+                           {
+                              "name": "9",
+                              "label": "Pokale, Preise, Medallien"
+                           },
+                           {
+                              "name": "10",
+                              "label": {
+                                 "de": "Schiessen"
+                              }
+                           },
+                           {
+                              "name": "11",
+                              "label": "Turnen"
+                           },
+                           {
+                              "name": "12",
+                              "label": "Zeitmessung"
+                           },
+                           {
+                              "name": "13",
+                              "label": "Hornussen"
+                           },
+                           {
+                              "name": "14",
+                              "label": "Schwingen"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "1",
+                        "label": "WINTERSPORT",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Cricket"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Schlitteln"
+                           },
+                           {
+                              "name": "3",
+                              "label": "Schneeschuhlaufen"
+                           },
+                           {
+                              "name": "4",
+                              "label": "Tailing"
+                           },
+                           {
+                              "name": "5",
+                              "label": {
+                                 "de": "Wind-, Schlittenhundrennen"
+                              }
+                           }
+                        ]
+                     },
+                     {
+                        "name": "2",
+                        "label": "SKI",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Verschiedenes"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Skiakrobatik"
+                           },
+                           {
+                              "name": "3",
+                              "label": "Ski Corvatsch"
+                           },
+                           {
+                              "name": "4",
+                              "label": {
+                                 "de": "Skifahren"
+                              }
+                           },
+                           {
+                              "name": "5",
+                              "label": "Ski Kilometer-Lancé"
+                           },
+                           {
+                              "name": "6",
+                              "label": "Ski SOS"
+                           },
+                           {
+                              "name": "7",
+                              "label": "Skitouren"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "2-2",
+                        "label": "SKISCHULE"
+                     },
+                     {
+                        "name": "2-3",
+                        "label": {
+                           "de": "SKIRENNEN UND SKISPRINGEN"
+                        },
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Skirennen"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Ski Rennpisten"
+                           },
+                           {
+                              "name": "3",
+                              "label": "Personen"
+                           },
+                           {
+                              "name": "4",
+                              "label": "Guardia Grischa"
+                           },
+                           {
+                              "name": "5",
+                              "label": {
+                                 "de": "Ski Vorweltmeisterschaft 1973"
+                              }
+                           },
+                           {
+                              "name": "6",
+                              "label": "Ski Weltmeisterschaft 1974"
+                           },
+                           {
+                              "name": "7",
+                              "label": "Ski Weltmeisterschaft 2003"
+                           },
+                           {
+                              "name": "8",
+                              "label": "Skispringen"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "2-4",
+                        "label": "SKILANGLAUF UND ENGADIN SKIMARATHON",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": {
+                                 "de": "Skilanglauf"
+                              }
+                           },
+                           {
+                              "name": "2",
+                              "label": "Engadin Skimarathon"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "2-5",
+                        "label": "SNOWBOARD UND SNOWBOARDSCHULE"
+                     },
+                     {
+                        "name": "3",
+                        "label": "OLYMPIADEN",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Olympiade 1928"
+                           },
+                           {
+                              "name": "2",
+                              "label": {
+                                 "de": "Olympiade 1948"
+                              }
+                           }
+                        ]
+                     },
+                     {
+                        "name": "4",
+                        "label": "EISSPORT",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Eishockey und Bandy"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Eislaufen",
+                              "nodes": [
+                                 {
+                                    "name": "1",
+                                    "label": "Gefrorene Seen"
+                                 },
+                                 {
+                                    "name": "2",
+                                    "label": {
+                                       "de": "Gymkhana"
+                                    }
+                                 },
+                                 {
+                                    "name": "3",
+                                    "label": "Eisrevue"
+                                 },
+                                 {
+                                    "name": "4",
+                                    "label": "Paarlauf"
+                                 },
+                                 {
+                                    "name": "5",
+                                    "label": "Schnellauf"
+                                 },
+                                 {
+                                    "name": "6",
+                                    "label": "Kellner auf Eis"
+                                 },
+                                 {
+                                    "name": "7",
+                                    "label": {
+                                       "de": "Personen"
+                                    }
+                                 }
+                              ]
+                           },
+                           {
+                              "name": "3",
+                              "label": "Eissegeln, -Surfen"
+                           },
+                           {
+                              "name": "4",
+                              "label": "Eisstadion"
+                           },
+                           {
+                              "name": "5",
+                              "label": "Curling",
+                              "nodes": [
+                                 {
+                                    "name": "1",
+                                    "label": "Personen"
+                                 }
+                              ]
+                           },
+                           {
+                              "name": "6",
+                              "label": {
+                                 "de": "Eisstockschiessen"
+                              }
+                           },
+                           {
+                              "name": "7",
+                              "label": "Kunsteisbahn Ludains"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "5",
+                        "label": "CRESTA RUN UND BOB",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Bob Run",
+                              "nodes": [
+                                 {
+                                    "name": "1",
+                                    "label": "Personen"
+                                 },
+                                 {
+                                    "name": "2",
+                                    "label": {
+                                       "de": "Stürze"
+                                    }
+                                 },
+                                 {
+                                    "name": "3",
+                                    "label": "Bau"
+                                 }
+                              ]
+                           },
+                           {
+                              "name": "2",
+                              "label": "Cresta Run",
+                              "nodes": [
+                                 {
+                                    "name": "1",
+                                    "label": "Personen"
+                                 },
+                                 {
+                                    "name": "2",
+                                    "label": "Bau"
+                                 }
+                              ]
+                           },
+                           {
+                              "name": "3",
+                              "label": "Rodeln"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "6",
+                        "label": "PFERDESPORT",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Concours Hippique"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Pferderennen"
+                           },
+                           {
+                              "name": "3",
+                              "label": "Polo"
+                           },
+                           {
+                              "name": "4",
+                              "label": "Reiten"
+                           },
+                           {
+                              "name": "5",
+                              "label": "Reithalle"
+                           },
+                           {
+                              "name": "6",
+                              "label": "Skikjöring"
+                           },
+                           {
+                              "name": "7",
+                              "label": "Fahrturnier"
+                           },
+                           {
+                              "name": "8",
+                              "label": "Zuschauer"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "7",
+                        "label": "BALLSPORT",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Billiard"
+                           },
+                           {
+                              "name": "2",
+                              "label": {
+                                 "de": "Fussball"
+                              }
+                           },
+                           {
+                              "name": "3",
+                              "label": {
+                                 "de": "Kegeln"
+                              }
+                           },
+                           {
+                              "name": "4",
+                              "label": "Golf",
+                              "nodes": [
+                                 {
+                                    "name": "1",
+                                    "label": "Minigolf"
+                                 },
+                                 {
+                                    "name": "2",
+                                    "label": "Sommergolf"
+                                 },
+                                 {
+                                    "name": "3",
+                                    "label": {
+                                       "de": "Wintergolf"
+                                    }
+                                 }
+                              ]
+                           },
+                           {
+                              "name": "5",
+                              "label": {
+                                 "de": "Tennis"
+                              }
+                           },
+                           {
+                              "name": "6",
+                              "label": "Volleyball"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "8",
+                        "label": "ALPINISMUS",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Alpinismus"
+                           },
+                           {
+                              "name": "2",
+                              "label": {
+                                 "de": "Berghütten und Restaurants"
+                              }
+                           },
+                           {
+                              "name": "3",
+                              "label": {
+                                 "de": "Trecking mit Tieren"
+                              }
+                           },
+                           {
+                              "name": "4",
+                              "label": "Wandern"
+                           },
+                           {
+                              "name": "5",
+                              "label": "Spazieren"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "9",
+                        "label": {
+                           "de": "FLIEGEN"
+                        },
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Ballon"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Delta"
+                           },
+                           {
+                              "name": "3",
+                              "label": "Flugzeuge"
+                           },
+                           {
+                              "name": "4",
+                              "label": "Helikopter"
+                           },
+                           {
+                              "name": "5",
+                              "label": "Segelflieger"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "10",
+                        "label": "RADSPORT",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Autorennen",
+                              "nodes": [
+                                 {
+                                    "name": "1",
+                                    "label": "Malojarennen"
+                                 },
+                                 {
+                                    "name": "2",
+                                    "label": "Berninarennen"
+                                 },
+                                 {
+                                    "name": "3",
+                                    "label": "Shellstrasse"
+                                 },
+                                 {
+                                    "name": "4",
+                                    "label": "Personen"
+                                 },
+                                 {
+                                    "name": "5",
+                                    "label": {
+                                       "de": "Verschiedenes"
+                                    }
+                                 }
+                              ]
+                           },
+                           {
+                              "name": "2",
+                              "label": "Geschicklichkeitsfahren"
+                           },
+                           {
+                              "name": "3",
+                              "label": "Schönheitskonkurrenz"
+                           },
+                           {
+                              "name": "4",
+                              "label": "Inline Skating"
+                           },
+                           {
+                              "name": "5",
+                              "label": "Montainbiking"
+                           },
+                           {
+                              "name": "6",
+                              "label": {
+                                 "de": "Radfahren"
+                              }
+                           },
+                           {
+                              "name": "7",
+                              "label": "Motorradfahren"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "11",
+                        "label": "WASSERSPORT",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Schwimmen Hallenbäder"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Schwimmen Seen"
+                           },
+                           {
+                              "name": "3",
+                              "label": {
+                                 "de": "Rudern"
+                              }
+                           },
+                           {
+                              "name": "4",
+                              "label": "Segeln"
+                           },
+                           {
+                              "name": "5",
+                              "label": "Windsurfen"
+                           },
+                           {
+                              "name": "6",
+                              "label": "Tauchen"
+                           },
+                           {
+                              "name": "7",
+                              "label": "Rafting"
+                           },
+                           {
+                              "name": "8",
+                              "label": {
+                                 "de": "Kitesurfen"
+                              }
+                           }
+                        ]
+                     }
+                  ]
+               },
+               {
+                  "name": "10WIR",
+                  "label": "WIRTSCHAFT",
+                  "nodes": [
+                     {
+                        "name": "1",
+                        "label": "VERKEHR",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Autos, Busse und Postautos"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Boote"
+                           },
+                           {
+                              "name": "3",
+                              "label": {
+                                 "de": "Flugplatz Samedan"
+                              }
+                           },
+                           {
+                              "name": "4",
+                              "label": "Kommunikation"
+                           },
+                           {
+                              "name": "5",
+                              "label": "Kutschen und Pferdetransporte"
+                           },
+                           {
+                              "name": "6",
+                              "label": "Luftseilbahnen und Stationen"
+                           },
+                           {
+                              "name": "7",
+                              "label": "Schneeräumungs- und Pistenfahrzeuge"
+                           },
+                           {
+                              "name": "8",
+                              "label": {
+                                 "de": "Schneekanonen"
+                              }
+                           },
+                           {
+                              "name": "9",
+                              "label": "Skilifte"
+                           },
+                           {
+                              "name": "10",
+                              "label": "Standseilbahnen und Stationen"
+                           },
+                           {
+                              "name": "11",
+                              "label": "Strassen und Pässe"
+                           },
+                           {
+                              "name": "12",
+                              "label": "Tram"
+                           },
+                           {
+                              "name": "13",
+                              "label": {
+                                 "de": "Wegweiser"
+                              }
+                           }
+                        ]
+                     },
+                     {
+                        "name": "1-1",
+                        "label": "EISENBAHNEN",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Eisenbahnen und Bahnhöfe"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "2",
+                        "label": "FREMDENVERKEHR",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Casino"
+                           },
+                           {
+                              "name": "2",
+                              "label": {
+                                 "de": "Gäste"
+                              }
+                           },
+                           {
+                              "name": "3",
+                              "label": "Mode"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "3",
+                        "label": "HOTELLERIE",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Hotels und Restaurants A-Z",
+                              "nodes": [
+                                 {
+                                    "name": "hotel_a",
+                                    "label": "Hotel A"
+                                 },
+                                 {
+                                    "name": "hotel_b",
+                                    "label": "Hotel B"
+                                 },
+                                 {
+                                    "name": "hotel_c",
+                                    "label": "Hotel C"
+                                 },
+                                 {
+                                    "name": "hotel_d",
+                                    "label": "Hotel D"
+                                 },
+                                 {
+                                    "name": "hotel_e",
+                                    "label": {
+                                       "de": "Hotel E"
+                                    }
+                                 },
+                                 {
+                                    "name": "hotel_f",
+                                    "label": "Hotel F"
+                                 },
+                                 {
+                                    "name": "hotel_g",
+                                    "label": "Hotel G"
+                                 },
+                                 {
+                                    "name": "hotel_h",
+                                    "label": "Hotel H"
+                                 },
+                                 {
+                                    "name": "hotel_i",
+                                    "label": "Hotel I"
+                                 },
+                                 {
+                                    "name": "hotel_j",
+                                    "label": {
+                                       "de": "Hotel J"
+                                    }
+                                 },
+                                 {
+                                    "name": "hotel_k",
+                                    "label": "Hotel K"
+                                 },
+                                 {
+                                    "name": "hotel_l",
+                                    "label": "Hotel L"
+                                 },
+                                 {
+                                    "name": "hotel_m",
+                                    "label": "Hotel M"
+                                 },
+                                 {
+                                    "name": "hotel_n",
+                                    "label": "Hotel N"
+                                 },
+                                 {
+                                    "name": "hotel_o",
+                                    "label": {
+                                       "de": "Hotel O"
+                                    }
+                                 },
+                                 {
+                                    "name": "hotel_p",
+                                    "label": "Hotel P"
+                                 },
+                                 {
+                                    "name": "hotel_q",
+                                    "label": "Hotel Q"
+                                 },
+                                 {
+                                    "name": "hotel_r",
+                                    "label": "Hotel R"
+                                 },
+                                 {
+                                    "name": "hotel_s",
+                                    "label": "Hotel S"
+                                 },
+                                 {
+                                    "name": "hotel_t",
+                                    "label": {
+                                       "de": "Hotel T"
+                                    }
+                                 },
+                                 {
+                                    "name": "hotel_u",
+                                    "label": "Hotel U"
+                                 },
+                                 {
+                                    "name": "hotel_v",
+                                    "label": "Hotel V"
+                                 },
+                                 {
+                                    "name": "hotel_w",
+                                    "label": "Hotel W"
+                                 },
+                                 {
+                                    "name": "hotel_x",
+                                    "label": "Hotel X"
+                                 },
+                                 {
+                                    "name": "hotel_y",
+                                    "label": "Hotel Y"
+                                 },
+                                 {
+                                    "name": "hotel_z",
+                                    "label": {
+                                       "de": "Hotel Z"
+                                    }
+                                 }
+                              ]
+                           },
+                           {
+                              "name": "2",
+                              "label": "Essen"
+                           },
+                           {
+                              "name": "3",
+                              "label": {
+                                 "de": "Menükarten"
+                              }
+                           }
+                        ]
+                     },
+                     {
+                        "name": "4",
+                        "label": "KURVEREIN",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Personal und Büro"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Anlässe und Reisen"
+                           },
+                           {
+                              "name": "3",
+                              "label": "Markenzeichen St. Moritz"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "6",
+                        "label": {
+                           "de": "GEWERBE"
+                        },
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Arbeitswelt"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Reklame"
+                           },
+                           {
+                              "name": "3",
+                              "label": "Bauwesen"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "7",
+                        "label": "ENERGIEWIRTSCHAFT",
+                        "nodes": [
+                           {
+                              "name": "1",
+                              "label": "Elektrizität"
+                           },
+                           {
+                              "name": "2",
+                              "label": "Wasserkraft"
+                           },
+                           {
+                              "name": "3",
+                              "label": "Solarenergie"
+                           }
+                        ]
+                     },
+                     {
+                        "name": "8",
+                        "label": "AGRARWIRTSCHAFT"
+                     },
+                     {
+                        "name": "9",
+                        "label": "WALDWIRTSCHAFT"
+                     }
+                  ]
+               }
+            ]
+         }
+      ],
+      "ontologies": [
+         {
+            "name": "images",
+            "label": "The images demo ontology",
+            "properties": [
+               {
+                  "name": "address",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "TextValue",
+                  "labels": "Address",
+                  "gui_element": "SimpleText",
+                  "gui_attributes": {
+                     "maxlength": "64",
+                     "size": 64
+                  }
+               },
+               {
+                  "name": "bearbeiter",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "TextValue",
+                  "labels": "Editor",
+                  "gui_element": "SimpleText",
+                  "gui_attributes": {
+                     "maxlength": "32",
+                     "size": 32
+                  }
+               },
+               {
+                  "name": "bildart",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "ListValue",
+                  "labels": "Image type",
+                  "gui_element": "Pulldown",
+                  "gui_attributes": {
+                     "hlist": "<http://rdfh.ch/lists/00FF/6cce4ce5>"
+                  }
+               },
+               {
+                  "name": "bildnr",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "TextValue",
+                  "labels": "Picture ID",
+                  "gui_element": "SimpleText",
+                  "gui_attributes": {
+                     "maxlength": "6",
+                     "size": 6
+                  }
+               },
+               {
+                  "name": "city",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "TextValue",
+                  "labels": "City",
+                  "gui_element": "SimpleText",
+                  "gui_attributes": {
+                     "maxlength": "64",
+                     "size": 64
+                  }
+               },
+               {
+                  "name": "comment",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "TextValue",
+                  "labels": "Comment",
+                  "gui_element": "Textarea",
+                  "gui_attributes": {
+                     "rows": 7,
+                     "width": "95%",
+                     "wrap": "soft"
+                  }
+               },
+               {
+                  "name": "copyright",
+                  "super": [
+                     "hasLinkTo"
+                  ],
+                  "object": ":person",
+                  "labels": "Copyright",
+                  "gui_element": "Searchbox",
+                  "gui_attributes": {
+                     "numprops": 2
+                  }
+               },
+               {
+                  "name": "description",
+                  "super": [
+                     "hasValue",
+                     "dcterms:description"
+                  ],
+                  "object": "TextValue",
+                  "labels": "Description",
+                  "gui_element": "Textarea",
+                  "gui_attributes": {
+                     "rows": 10,
+                     "width": "95%",
+                     "wrap": "soft"
+                  }
+               },
+               {
+                  "name": "eingangsdatum",
+                  "super": [
+                     "hasValue",
+                     "dcterms:date"
+                  ],
+                  "object": "DateValue",
+                  "labels": "Date of receipt",
+                  "gui_element": "Date"
+               },
+               {
+                  "name": "email",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "TextValue",
+                  "labels": "Email",
+                  "gui_element": "SimpleText",
+                  "gui_attributes": {
+                     "maxlength": "128",
+                     "size": 128
+                  }
+               },
+               {
+                  "name": "erfassungsdatum",
+                  "super": [
+                     "hasValue",
+                     "dcterms:date"
+                  ],
+                  "object": "DateValue",
+                  "labels": "Date of acquisition",
+                  "gui_element": "Date"
+               },
+               {
+                  "name": "erwerbsdatum",
+                  "super": [
+                     "hasValue",
+                     "dcterms:date"
+                  ],
+                  "object": "DateValue",
+                  "labels": "Date of acquisition",
+                  "gui_element": "Date"
+               },
+               {
+                  "name": "fax",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "TextValue",
+                  "labels": "Fax",
+                  "gui_element": "SimpleText",
+                  "gui_attributes": {
+                     "maxlength": "32",
+                     "size": 32
+                  }
+               },
+               {
+                  "name": "firstname",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "TextValue",
+                  "labels": "First name",
+                  "gui_element": "SimpleText",
+                  "gui_attributes": {
+                     "maxlength": "32",
+                     "size": 32
+                  }
+               },
+               {
+                  "name": "format",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "TextValue",
+                  "labels": "Format",
+                  "gui_element": "SimpleText",
+                  "gui_attributes": {
+                     "maxlength": "32",
+                     "size": 32
+                  }
+               },
+               {
+                  "name": "hatBildformat",
+                  "super": [
+                     "hasLinkTo"
+                  ],
+                  "object": ":bildformat",
+                  "labels": "Bildformat",
+                  "gui_element": "Searchbox",
+                  "gui_attributes": {
+                     "numprops": 1
+                  }
+               },
+               {
+                  "name": "institution",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "TextValue",
+                  "labels": "Institution",
+                  "gui_element": "SimpleText",
+                  "gui_attributes": {
+                     "maxlength": "64",
+                     "size": 64
+                  }
+               },
+               {
+                  "name": "jahr_exakt",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "TextValue",
+                  "labels": "Year",
+                  "gui_element": "SimpleText",
+                  "gui_attributes": {
+                     "maxlength": "8",
+                     "size": 8
+                  }
+               },
+               {
+                  "name": "jahreszeit",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "ListValue",
+                  "labels": "Season",
+                  "gui_element": "Radio",
+                  "gui_attributes": {
+                     "hlist": "<http://rdfh.ch/lists/00FF/d19af9ab>"
+                  }
+               },
+               {
+                  "name": "jahrzehnt",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "DateValue",
+                  "labels": "Decade",
+                  "gui_element": "Date"
+               },
+               {
+                  "name": "lastname",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "TextValue",
+                  "labels": "Name",
+                  "gui_element": "SimpleText",
+                  "gui_attributes": {
+                     "maxlength": "32",
+                     "size": 32
+                  }
+               },
+               {
+                  "name": "lieferant",
+                  "super": [
+                     "hasLinkTo"
+                  ],
+                  "object": ":person",
+                  "labels": "Supplier",
+                  "gui_element": "Searchbox",
+                  "gui_attributes": {
+                     "numprops": 2
+                  }
+               },
+               {
+                  "name": "mutationsdatum",
+                  "super": [
+                     "hasValue",
+                     "dcterms:date"
+                  ],
+                  "object": "DateValue",
+                  "labels": "Mutation date",
+                  "gui_element": "Date"
+               },
+               {
+                  "name": "negativnummer",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "TextValue",
+                  "labels": "Number of negative",
+                  "gui_element": "SimpleText",
+                  "gui_attributes": {
+                     "maxlength": "32",
+                     "size": 32
+                  }
+               },
+               {
+                  "name": "phone",
+                  "super": [
+                     "hasValue",
+                     "http://xmlns.com/foaf/0.1/phone"
+                  ],
+                  "object": "TextValue",
+                  "labels": "Telefon",
+                  "gui_element": "SimpleText",
+                  "gui_attributes": {
+                     "maxlength": "32",
+                     "size": 32
+                  }
+               },
+               {
+                  "name": "preis",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "TextValue",
+                  "labels": "Price",
+                  "gui_element": "SimpleText",
+                  "gui_attributes": {
+                     "maxlength": "16",
+                     "size": 16
+                  }
+               },
+               {
+                  "name": "signatur",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "TextValue",
+                  "labels": "Signature",
+                  "gui_element": "SimpleText",
+                  "gui_attributes": {
+                     "maxlength": "16",
+                     "size": 16
+                  }
+               },
+               {
+                  "name": "stueckzahl",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "IntValue",
+                  "labels": "No. of items",
+                  "gui_element": "Spinbox",
+                  "gui_attributes": {
+                     "max": 99.0,
+                     "min": 0.0
+                  }
+               },
+               {
+                  "name": "titel",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "ListValue",
+                  "labels": "Title",
+                  "gui_element": "List",
+                  "gui_attributes": {
+                     "hlist": "<http://rdfh.ch/lists/00FF/73d0ec0302>"
+                  }
+               },
+               {
+                  "name": "urheber",
+                  "super": [
+                     "hasLinkTo"
+                  ],
+                  "object": ":person",
+                  "labels": "Creator",
+                  "gui_element": "Searchbox",
+                  "gui_attributes": {
+                     "numprops": 2
+                  }
+               },
+               {
+                  "name": "zipcode",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "TextValue",
+                  "labels": "ZIP-Code",
+                  "gui_element": "SimpleText",
+                  "gui_attributes": {
+                     "maxlength": "16",
+                     "size": 16
+                  }
+               },
+               {
+                  "name": "zugangsart",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "ListValue",
+                  "labels": "Type of acquisition",
+                  "gui_element": "Radio",
+                  "gui_attributes": {
+                     "hlist": "<http://rdfh.ch/lists/00FF/0702a01e01>"
+                  }
+               }
+            ],
+            "resources": [
+               {
+                  "name": "bild",
+                  "labels": "Image",
+                  "comments": [
+                     "An image of the demo image collection"
+                  ],
+                  "super": "StillImageRepresentation",
+                  "cardinalities": [
+                     {
+                        "propname": ":titel",
+                        "cardinality": "1"
+                     },
+                     {
+                        "propname": ":signatur",
+                        "cardinality": "1",
+                        "gui_order": 1
+                     },
+                     {
+                        "propname": ":bildnr",
+                        "cardinality": "1",
+                        "gui_order": 2
+                     },
+                     {
+                        "propname": ":description",
+                        "cardinality": "1",
+                        "gui_order": 3
+                     },
+                     {
+                        "propname": ":jahreszeit",
+                        "cardinality": "1-n",
+                        "gui_order": 4
+                     },
+                     {
+                        "propname": ":jahrzehnt",
+                        "cardinality": "1",
+                        "gui_order": 5
+                     },
+                     {
+                        "propname": ":jahr_exakt",
+                        "cardinality": "1",
+                        "gui_order": 6
+                     },
+                     {
+                        "propname": ":hatBildformat",
+                        "cardinality": "0",
+                        "gui_order": 7
+                     },
+                     {
+                        "propname": ":hatBildformatValue",
+                        "cardinality": "0",
+                        "gui_order": 7
+                     },
+                     {
+                        "propname": ":erfassungsdatum",
+                        "cardinality": "1",
+                        "gui_order": 8
+                     },
+                     {
+                        "propname": ":mutationsdatum",
+                        "cardinality": "1",
+                        "gui_order": 9
+                     },
+                     {
+                        "propname": ":bearbeiter",
+                        "cardinality": "1",
+                        "gui_order": 10
+                     },
+                     {
+                        "propname": ":negativnummer",
+                        "cardinality": "0-1",
+                        "gui_order": 11
+                     },
+                     {
+                        "propname": ":urheber",
+                        "cardinality": "0-1",
+                        "gui_order": 12
+                     },
+                     {
+                        "propname": ":urheberValue",
+                        "cardinality": "0-1",
+                        "gui_order": 12
+                     },
+                     {
+                        "propname": ":copyright",
+                        "cardinality": "0-1",
+                        "gui_order": 13
+                     },
+                     {
+                        "propname": ":copyrightValue",
+                        "cardinality": "0-1",
+                        "gui_order": 13
+                     }
+                  ]
+               },
+               {
+                  "name": "bildformat",
+                  "labels": "Image format",
+                  "comments": [
+                     {}
+                  ],
+                  "super": "Resource",
+                  "cardinalities": [
+                     {
+                        "propname": ":bildart",
+                        "cardinality": "0-1"
+                     },
+                     {
+                        "propname": ":erwerbsdatum",
+                        "cardinality": "0-1",
+                        "gui_order": 1
+                     },
+                     {
+                        "propname": ":format",
+                        "cardinality": "0-1",
+                        "gui_order": 2
+                     },
+                     {
+                        "propname": ":lieferant",
+                        "cardinality": "0-1",
+                        "gui_order": 3
+                     },
+                     {
+                        "propname": ":lieferantValue",
+                        "cardinality": "0-1",
+                        "gui_order": 3
+                     },
+                     {
+                        "propname": ":stueckzahl",
+                        "cardinality": "0-1",
+                        "gui_order": 4
+                     },
+                     {
+                        "propname": ":zugangsart",
+                        "cardinality": "0-1",
+                        "gui_order": 5
+                     },
+                     {
+                        "propname": ":preis",
+                        "cardinality": "0-1",
+                        "gui_order": 6
+                     },
+                     {
+                        "propname": ":eingangsdatum",
+                        "cardinality": "0-1",
+                        "gui_order": 7
+                     },
+                     {
+                        "propname": ":comment",
+                        "cardinality": "0",
+                        "gui_order": 8
+                     }
+                  ]
+               },
+               {
+                  "name": "person",
+                  "labels": "Person",
+                  "comments": [
+                     "Person"
+                  ],
+                  "super": "Resource",
+                  "cardinalities": [
+                     {
+                        "propname": ":lastname",
+                        "cardinality": "1"
+                     },
+                     {
+                        "propname": ":firstname",
+                        "cardinality": "1",
+                        "gui_order": 1
+                     },
+                     {
+                        "propname": ":institution",
+                        "cardinality": "0-1",
+                        "gui_order": 2
+                     },
+                     {
+                        "propname": ":address",
+                        "cardinality": "0-1",
+                        "gui_order": 3
+                     },
+                     {
+                        "propname": ":city",
+                        "cardinality": "0-1",
+                        "gui_order": 4
+                     },
+                     {
+                        "propname": ":zipcode",
+                        "cardinality": "0-1",
+                        "gui_order": 5
+                     },
+                     {
+                        "propname": ":phone",
+                        "cardinality": "0-1",
+                        "gui_order": 6
+                     },
+                     {
+                        "propname": ":fax",
+                        "cardinality": "0-1",
+                        "gui_order": 7
+                     },
+                     {
+                        "propname": ":email",
+                        "cardinality": "0-1",
+                        "gui_order": 8
+                     }
+                  ]
+               }
+            ]
+         }
+      ]
+   }
+}

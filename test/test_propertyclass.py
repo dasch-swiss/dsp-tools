@@ -1,14 +1,11 @@
 import unittest
 import pprint
-import requests
-from urllib.parse import quote_plus
-import time
 
-from models.connection import Connection
-from models.helpers import BaseError, Actions, LastModificationDate
-from models.langstring import Languages, LangStringParam, LangString
-from models.ontology import Ontology
-from models.propertyclass import PropertyClass
+from dsplib.models.connection import Connection
+from dsplib.models.helpers import BaseError, Actions, LastModificationDate
+from dsplib.models.langstring import Languages, LangStringParam, LangString
+from dsplib.models.ontology import Ontology
+from dsplib.models.propertyclass import PropertyClass
 
 
 class TestPropertyClass(unittest.TestCase):
@@ -51,7 +48,6 @@ class TestPropertyClass(unittest.TestCase):
         #
         result = self.onto.delete(self.last_modification_date)
         self.assertIsNotNone(result)
-        pprint.pprint(result)
 
 
     def test_PropertyClass_create(self):

@@ -1,13 +1,8 @@
 import unittest
-import pprint
-import requests
-from urllib.parse import quote_plus
 
-from models.connection import Connection
-from models.helpers import BaseError, Actions, LastModificationDate
-from models.langstring import Languages, LangStringParam, LangString
-from models.ontology import Ontology
-
+from dsplib.models.connection import Connection
+from dsplib.models.helpers import BaseError, Actions, LastModificationDate
+from dsplib.models.ontology import Ontology
 
 
 class TestOntology(unittest.TestCase):

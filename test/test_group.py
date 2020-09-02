@@ -1,14 +1,7 @@
 import unittest
-import pprint
-import requests
-from urllib.parse import quote_plus
 
-from models.connection import Connection
-from models.group import Group
-from models.helpers import BaseError, Actions
-from models.langstring import Languages, LangStringParam, LangString
-from models.project import Project
-
+from dsplib.models.connection import Connection
+from dsplib.models.group import Group
 
 
 class TestGroup(unittest.TestCase):

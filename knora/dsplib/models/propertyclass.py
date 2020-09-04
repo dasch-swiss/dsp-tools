@@ -4,7 +4,6 @@ import re
 from pystrict import strict
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
-from pprint import pprint
 
 from ..models.helpers import Actions, BaseError, Context, Cardinality, LastModificationDate, WithId
 from ..models.connection import Connection
@@ -496,7 +495,6 @@ class PropertyClass:
         if self._gui_attributes is not None:
             print(f'{blank:>{offset + 4}}Gui Attributes:')
             if self._gui_attributes is not None:
-                pprint(self._gui_attributes)
                 for (attname, attvalue) in self._gui_attributes.items():
                     print(f'{blank:>{offset + 6}}Attribute: {attname} Value: {attvalue}')
         if self._comment is not None:

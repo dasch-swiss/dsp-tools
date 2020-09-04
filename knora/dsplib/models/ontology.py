@@ -165,7 +165,7 @@ class Ontology:
         index = len(self._resource_classes) - 1
         return index, resourceclass
 
-    def updateResourceClass(self, index: int, resourceclass: ResourceClass) -> ResourceClass:
+    def updateResourceClass(self, index: int, resourceclass: ResourceClass) -> Tuple[LastModificationDate, ResourceClass]:
         lmd, resourceclass = resourceclass.update(self._lastModificationDate)
         self._lastModificationDate = lmd
         self._resource_classes[index] = resourceclass
@@ -186,10 +186,15 @@ class Ontology:
     def property_classes(self, value: List[PropertyClass]):
         self._property_classes = value
 
-    def addPropertyClass(self, propclass: PropertyClass):
-        self._property_classes.append(propclass)
+    def addPropertyClass(self, propclass: PropertyClass, create: bool = False) -> Tuple[int, ResourceClass]:
+        if create:
+            lmd, resourceclass = propclass.create(self._lastModificationDate)
+            self.lastModificationDate = lmd
+        self._property_classes.append(resourceclass)
+        index = len(self._property_classes) - 1
+        return index, propclass
 
-    def updatePropertyClass(self, index: int, propclass: PropertyClass) -> PropertyClass:
+    def updatePropertyClass(self, index: int, propclass: PropertyClass) -> Tuple[LastModificationDate, PropertyClass]:
         lmd, propclass = propclass.update(self._lastModificationDate)
         self._lastModificationDate = lmd
         self._property_classes[index] = propclass

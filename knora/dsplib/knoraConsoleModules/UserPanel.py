@@ -1,9 +1,6 @@
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
 
-import os
-import sys
 import wx
-from pprint import pprint
 import re
 
 from enum import Enum, unique
@@ -12,12 +9,8 @@ from ..models.helpers import Actions, BaseError, Context, Cardinality
 from ..models.langstring import Languages, LangStringParam, LangString
 from ..models.connection import Connection
 from ..models.project import Project
-from ..models.listnode import ListNode
 from ..models.group import Group
 from ..models.user import User
-from ..models.ontology import Ontology
-from ..models.propertyclass import PropertyClass
-from ..models.resourceclass import ResourceClass
 
 from ..knoraConsoleModules.KnDialogControl import show_error, KnDialogControl, KnDialogTextCtrl, KnDialogChoice,\
     KnDialogCheckBox, KnCollapsiblePicker

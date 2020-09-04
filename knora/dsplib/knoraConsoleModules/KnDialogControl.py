@@ -19,7 +19,6 @@ from ..models.helpers import Cardinality, BaseError
 from ..widgets.doublepassword import DoublePasswordCtrl
 
 
-
 def show_error(message: str, err: BaseError) -> None:
     dlg = wx.MessageDialog(None,
                            message=message + "\n" + err.message,
@@ -49,8 +48,6 @@ class HasPropertyInfo(TypedDict):
     status: PropertyStatus
 
 
-
-
 class ItemsPickerDialog(wx.Dialog):
     """
     A Class that implements a picker dialog, that is a dialog with available options
@@ -65,16 +62,6 @@ class ItemsPickerDialog(wx.Dialog):
                  available: List[str] = [],
                  chosen: List[str] = [],
                  ipStyle = IP_REMOVE_FROM_CHOICES):
-        """
-        Constructor to create a picker dialog window
-        :param parent: Parent window
-        :param titlestr: Window title
-        :param leftstr: Label for the left side
-        :param rightstr: Label for the right side
-        :param available: List of not-selected but available labels
-        :param chosen: List of already chosen entries
-        :param ipStyle: wx styles
-        """
         super().__init__(
             parent=parent,
             title=titlestr,
@@ -98,17 +85,9 @@ class ItemsPickerDialog(wx.Dialog):
         self.SetSizerAndFit(sizer)
 
     def GetSelections(self) -> List[str]:
-        """
-        Get all selected items
-        :return: List of selected items
-        """
         return self.ip.GetSelections()
 
     def GetItems(self) -> List[str]:
-        """
-        Get all items
-        :return: List of all items
-        """
         return self.ip.GetItems()
 
 
@@ -132,6 +111,8 @@ class KnDialogControl:
             self.undo = wx.Button(panel, label="X", size=wx.Size(25, -1))
             self.undo.Bind(wx.EVT_BUTTON, self.reset_ctrl)
             self.undo.Disable()
+        else:
+            self.undo = None
         gsizer.Add(self.label, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=3)
         gsizer.Add(self.control, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=3)
         if not newentry:
@@ -201,12 +182,18 @@ class KnDialogTextCtrl(KnDialogControl):
             self.text_ctrl.Disable()
         super().__init__(panel, gsizer, label, name, self.text_ctrl, True if value is None else False, changed_cb)
 
-    def text_changed(self, event):
+    def text_changed(self, event) -> None:
         super().control_changed(event)
 
-    def reset_ctrl(self, event):
+    def reset_ctrl(self, event) -> None:
         self.text_ctrl.SetValue(self.orig_value)
         super().reset_ctrl(event)
+
+    def set_value(self, value: Optional[str]) -> None:
+        self.text_ctrl.SetValue(value if value else "")
+        self.orig_value = value
+        if self.undo:
+            self.undo.Disable()
 
     def get_value(self):
         value = self.text_ctrl.GetValue()
@@ -337,6 +324,17 @@ class KnDialogLangStringCtrl(KnDialogControl):
             self.text_ctrl[lang].SetValue(val if val is not None else "")
         super().reset_ctrl(event)
 
+    def set_value(self, value: LangString):
+        val = value.get_by_lang()
+        self.text_ctrl_no.SetValue(val if val else "")
+        for lang in Languages:
+            val = value.get_by_lang(lang)
+            self.text_ctrl[lang].SetValue(val if val else "")
+        self.orig_value = value
+        if self.undo:
+            self.undo.Disable()
+
+
     def get_value(self) -> LangString:
         value: Dict[Languages, str] = {}
         for lang in Languages:
@@ -381,20 +379,26 @@ class KnDialogChoice(KnDialogControl):
             self.choice_ctrl.Disable()
         super().__init__(panel, gsizer, label, name, self.choice_ctrl, True if value is None else False, changed_cb)
 
-    def set_choices(self, choices: List[str]):
+    def set_choices(self, choices: List[str]) -> None:
         self.choice_ctrl.Clear()
         self.choice_ctrl.Append(choices)
         self.choices = choices
         super().control_changed(None, self.get_value())
 
-    def choice_changed(self, event):
+    def choice_changed(self, event: wx.Event) -> None:
         super().control_changed(event, self.get_value())
 
-    def reset_ctrl(self, event):
+    def reset_ctrl(self, event: wx.Event) -> None:
         self.choice_ctrl.SetSelection(self.switcherStrToInt[self.orig_value])
         super().reset_ctrl(event)
 
-    def get_value(self) ->Union[str, None]:
+    def set_value(self, value: Optional[int]) -> None:
+        self.choice_ctrl.SetSelection(value if value else 0)
+        self.orig_value = value
+        if self.undo:
+            self.undo.Disable()
+
+    def get_value(self) -> Union[str, None]:
         value = self.choice_ctrl.GetCurrentSelection()
         if value == -1:
             return None
@@ -433,7 +437,7 @@ class KnDialogChoiceArr(KnDialogControl):
         self.container = wx.Panel(panel, style=wx.BORDER_SIMPLE)
         self.winsizer = wx.BoxSizer(wx.VERTICAL)
 
-        self.choice_ctrl = []
+        self.choice_ctrl: List[wx.Choice] = []
         if value is not None:
             for val in value:
                 tmp_choice_ctrl = wx.Choice(self.container, choices=self.choices)
@@ -824,6 +828,12 @@ class KnDialogCheckBox(KnDialogControl):
     def reset_ctrl(self, event):
         self.checkbox_ctrl.SetValue(self.orig_status)
         super().reset_ctrl(event)
+
+    def set_value(self, status: Optional[bool]):
+        self.checkbox_ctrl.SetValue(status if status is not None else False)
+        self.orig_status = status
+        if self.undo:
+            self.undo.Disable()
 
     def get_value(self):
         return self.checkbox_ctrl.GetValue()

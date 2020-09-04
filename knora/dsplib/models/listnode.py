@@ -112,15 +112,15 @@ class ListNode:
 
     """
 
-    _id: str
-    _project: str
+    _id: Union[str, None]
+    _project: Union[str, None]
     _label: LangString
     _comment: LangString
-    _name: str
-    _parent: str
+    _name: Union[str, None]
+    _parent: Union[str, None]
     _isRootNode: bool
-    _children: List['ListNode']
-    _rootNodeIri: str
+    _children: Union[List['ListNode'], None]
+    _rootNodeIri: Union[str, None]
     changed: Set[str]
 
     def __init__(self,
@@ -167,12 +167,10 @@ class ListNode:
         self._label = LangString(label)
         self._comment = LangString(comment)
         self._name = str(name) if name is not None else None
-        if not isinstance(parent, ListNode) and parent is not None:
-            raise BaseError('Parent must be ListNode instance or None!')
-        if isinstance(parent, ListNode):
+        if parent and isinstance(parent, ListNode):
             self._parent = parent.id
         else:
-            self._parent = parent
+            self._parent = str(parent) if parent else None
         self._isRootNode = isRootNode
         if children is not None:
             if isinstance(children, List) and len(children) > 0 and isinstance(children[0], ListNode):
@@ -203,7 +201,10 @@ class ListNode:
 
     @project.setter
     def project(self, value: str) -> None:
-        raise BaseError('Project id cannot be modified!')
+        if self._project:
+            raise BaseError('Project id cannot be modified!')
+        else:
+            self._project = value
 
     @property
     def label(self) -> Optional[LangString]:
@@ -278,11 +279,14 @@ class ListNode:
 
     @property
     def parent(self) -> Optional[str]:
-        raise BaseError('Property parent cannot be read!')
+        return self._parent if self._parent else None
 
     @parent.setter
-    def parent(self, value: any):
-        raise BaseError('Property parent cannot be set!')
+    def parent(self, value: Union[str, 'ListNode']):
+        if isinstance(value, ListNode):
+            self._parent = value.id
+        else:
+            self._parent = value
 
     @property
     def isRootNode(self) -> Optional[bool]:
@@ -297,7 +301,10 @@ class ListNode:
         return self._children
 
     @staticmethod
-    def _getChildren(con: Connection, children: List[Any]) -> Optional[List['ListNode']]:
+    def __getChildren(con: Connection,
+                      parent_iri: str,
+                      project_iri: str,
+                      children: List[Any]) -> Optional[List['ListNode']]:
         """
         Internal method! Should not be used directly!
 
@@ -307,13 +314,19 @@ class ListNode:
         :param children: json object of children
         :return: List of ListNode instances
         """
+        if children:
+            child_nodes: List[Any] = []
+            for child in children:
 
-        if len(children) == 0:
+                if 'parentNodeIri' not in child:
+                    child['parentNodeIri'] = parent_iri
+                if 'projectIri' not in child:
+                    child['projectIri'] = project_iri
+                child_node = ListNode.fromJsonObj(con, child)
+                child_nodes.append(child_node)
+            return child_nodes
+        else:
             return None
-        child_nodes = []
-        for child in children:
-            child_nodes.append(ListNode.fromJsonObj(con, child))
-        return child_nodes
 
     @property
     def rootNodeIri(self) -> Optional[str]:
@@ -336,10 +349,9 @@ class ListNode:
         """
 
         id = json_obj.get('id')
-        project = json_obj.get('projectIri')
         if id is None:
             raise BaseError('ListNode id is missing')
-
+        project = json_obj.get('projectIri')
         label = LangString.fromJsonObj(json_obj.get('labels'))
         comment = LangString.fromJsonObj(json_obj.get('comments'))
         name = json_obj.get('name')
@@ -349,8 +361,10 @@ class ListNode:
         child_info = json_obj.get('children')
         children = None
         if child_info is not None:
-            children = ListNode._getChildren(con, child_info)
-
+            children = ListNode.__getChildren(con=con,
+                                              parent_iri=id,
+                                              project_iri=project,
+                                              children=child_info)
         rootNodeIri = json_obj.get('hasRootNode')
 
         return cls(con=con,
@@ -457,7 +471,7 @@ class ListNode:
         return result
         #return Project.fromJsonObj(self.con, result['project'])
 
-    def getAllNodes(self):
+    def getAllNodes(self) -> 'ListNode':
         """
         Get all nodes of the list. Must be called from a ListNode instance that has at least set the
         list iri!
@@ -472,19 +486,25 @@ class ListNode:
             raise BaseError("Request got no proper list information!")
         root = ListNode.fromJsonObj(self.con, result['list']['listinfo'])
         if 'children' in result['list']:
-            root._children = ListNode._getChildren(self.con, result['list']['children'])
+            root._children = ListNode.__getChildren(con=self.con,
+                                                    parent_iri=root.id,
+                                                    project_iri=root.project,
+                                                    children=result['list']['children'])
         return root
 
     @staticmethod
-    def getAllLists(con: Connection, project_iri: str) -> List['ListNode']:
+    def getAllLists(con: Connection, project_iri: Optional[str] = None) -> List['ListNode']:
         """
-        Get all lists of the specified project
+        Get all lists. If a project IRI is given, it returns the lists of the specified project
 
         :param con: Connection instance
         :param project_iri: Iri/id of project
         :return: list of ListNodes
         """
-        result = con.get('/admin/lists?projectIri=' + quote_plus(project_iri))
+        if project_iri is None:
+            result = con.get('/admin/lists')
+        else:
+            result = con.get('/admin/lists?projectIri=' + quote_plus(project_iri))
         if 'lists' not in result:
             raise BaseError("Request got no lists!")
         return list(map(lambda a: ListNode.fromJsonObj(con, a), result['lists']))

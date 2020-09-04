@@ -169,7 +169,7 @@ class Context:
         else:
             raise BaseError("Error in parameter to context setter")
 
-    def add_context(self, prefix: str, iri: str):
+    def add_context(self, prefix: str, iri: Optional[str] = None):
         """
         Add a new context to a context instance
 
@@ -177,11 +177,21 @@ class Context:
         :param iri: The IRI that belongs to this context prefix
         :return: None
         """
-        if iri.endswith("#"):
-            iri = iri[:-1]
-            self.__context[prefix] = OntoInfo(iri, True)
+        if iri is None:
+            if prefix in self.knora_ontologies:
+                return
+            if prefix in self.base_ontologies:
+                return
+            if prefix in self.common_ontologies:
+                self.__context[prefix] = self.common_ontologies[prefix]
+            else:
+                raise BaseError("The prefix '{}' is not known!".format(prefix))
         else:
-            self.__context[prefix] = OntoInfo(iri, False)
+            if iri.endswith("#"):
+                iri = iri[:-1]
+                self.__context[prefix] = OntoInfo(iri, True)
+            else:
+                self.__context[prefix] = OntoInfo(iri, False)
         self.__rcontext[iri] = prefix
 
     def iri_from_prefix(self, prefix: str) -> Optional[str]:
@@ -330,11 +340,12 @@ class Context:
         Return a python object that can be jsonfied...
         :return: Object to be jsonfied
         """
-        return {prefix: oinfo.iri + '#' if oinfo.hashtag else '' for (prefix, oinfo) in self.__context.items()}
+        return {prefix: oinfo.iri + '#' if oinfo.hashtag else oinfo.iri
+                for prefix, oinfo in self.__context.items()}
 
     def get_externals_used(self) -> Dict[str, str]:
         exclude = ["rdf", "rdfs", "owl", "xsd", "knora-api", "salsah-gui"]
-        return {prefix: onto.iri for (prefix, onto) in self.__context.items() if prefix not in exclude}
+        return {prefix: onto.iri for prefix, onto in self.__context.items() if prefix not in exclude}
 
     def print(self) -> None:
         for a in self.__context.items():

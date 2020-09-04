@@ -4,6 +4,7 @@ from wx.adv import TaskBarIcon as TaskBarIcon
 from dsplib.models.connection import Connection
 
 from dsplib.knoraConsoleModules.ProjectPanel import ProjectPanel
+from dsplib.knoraConsoleModules.ListPanel import ListPanel
 from dsplib.knoraConsoleModules.UserPanel import UserPanel
 from dsplib.knoraConsoleModules.GroupPanel import GroupPanel
 from dsplib.knoraConsoleModules.OntoPanel import OntoPanel
@@ -92,14 +93,17 @@ class KnoraConsole(wx.Frame):
         self.project_panel = ProjectPanel(self.nb)
         self.nb.InsertPage(index=0, page=self.project_panel, text="Projects")
 
+        self.list_panel = ListPanel(self.nb)
+        self.nb.InsertPage(index=1, page=self.list_panel, text="Lists")
+
         self.group_panel = GroupPanel(self.nb)
-        self.nb.InsertPage(index=1, page=self.group_panel, text="Groups")
+        self.nb.InsertPage(index=2, page=self.group_panel, text="Groups")
 
         self.user_panel = UserPanel(self.nb)
-        self.nb.InsertPage(index=2, page=self.user_panel, text="Users")
+        self.nb.InsertPage(index=3, page=self.user_panel, text="Users")
 
         self.onto_panel = OntoPanel(self.nb)
-        self.nb.InsertPage(index=3, page=self.onto_panel, text="Ontologies")
+        self.nb.InsertPage(index=4, page=self.onto_panel, text="Ontologies")
 
         self.con = None
 
@@ -159,6 +163,9 @@ class KnoraConsole(wx.Frame):
 
             self.project_panel.set_connection(self.con)
             self.project_panel.update()
+
+            self.list_panel.set_connection(self.con)
+            self.list_panel.update()
 
             self.user_panel.set_connection(self.con)
             self.user_panel.update()

@@ -342,6 +342,15 @@ class OntologyEntryDialog(wx.Dialog):
                                                name="mod_date",
                                                value=str(self.last_modification_date))
 
+        tmp_project = None if newentry else self.proj_iri_name.get(self.onto.project)
+        self.project = KnDialogChoice(panel=panel1,
+                                      gsizer=gsizer,
+                                      label="Project",
+                                      name="project",
+                                      choices=proj_names,
+                                      value=tmp_project,
+                                      enabled=enable_project)
+
         tmp_name = None if newentry else self.onto.name if self.onto.name is not None else ""
         self.name = KnDialogTextCtrl(panel=panel1,
                                      gsizer=gsizer,
@@ -368,14 +377,6 @@ class OntologyEntryDialog(wx.Dialog):
                                         size=wx.Size(400, 70),
                                         style=wx.TE_MULTILINE)
 
-        tmp_project = None if newentry else self.proj_iri_name.get(self.onto.project)
-        self.project = KnDialogChoice(panel=panel1,
-                                      gsizer=gsizer,
-                                      label="Project",
-                                      name="project",
-                                      choices=proj_names,
-                                      value=tmp_project,
-                                      enabled=enable_project)
 
 
         gsizer.SetSizeHints(panel1)

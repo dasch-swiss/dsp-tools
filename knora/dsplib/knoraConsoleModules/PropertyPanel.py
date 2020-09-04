@@ -1,21 +1,14 @@
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
 
-import os
-import sys
 import wx
-from pprint import pprint
 import copy
 
 from ..models.helpers import Actions, BaseError, Context, Cardinality, LastModificationDate
 from ..models.langstring import Languages, LangStringParam, LangString
 from ..models.connection import Connection
-from ..models.project import Project
 from ..models.listnode import ListNode
-from ..models.group import Group
-from ..models.user import User
 from ..models.ontology import Ontology
 from ..models.propertyclass import PropertyClass
-from ..models.resourceclass import ResourceClass
 
 from ..knoraConsoleModules.KnDialogControl import show_error, KnDialogControl, KnDialogTextCtrl, KnDialogChoice, \
     KnDialogChoiceArr, KnDialogCheckBox, KnCollapsiblePicker, KnDialogStaticText, KnDialogSuperProperties, \
@@ -286,19 +279,13 @@ class PropertyPanel(wx.Window):
         if res == wx.ID_OK:
             property = dialog.get_value()
             try:
-                lmd, property = property.create(self.onto.lastModificationDate)
+                index, property = self.onto.addPropertyClass(propclass=property, create=True)
             except BaseError as err:
                 show_error("Couldn't create a new property class!", err)
                 return None
-            try:
-                lmd2, self.onto = self.onto.read()
-            except BaseError as err:
-                show_error("Couldn't read modified ontology!", err)
-                return None
-            self.onto.lastModificationDate = lmd
             self.listctl.Append((property.name,
                                  property.label[Languages.EN]))
-            self.ids.append(property.id)
+            self.ids.append(index)
         dialog.Destroy()
 
     def edit_entry(self, event: wx.Event) -> None:
@@ -313,16 +300,10 @@ class PropertyPanel(wx.Window):
         if res == wx.ID_OK:
             property: PropertyClass = dialog.get_changed()
             try:
-                lmd, property = property.update(self.onto.lastModificationDate)
+                lmd, property = self.onto.updatePropertyClass(self.ids[idx], property)
             except BaseError as err:
-                show_error("Couln't modify the resource class!", err)
+                show_error("Couldn't modify the resource class!", err)
                 return None
-            try:
-                lmd2, self.onto = self.onto.read()
-            except BaseError as err:
-                show_error("Couldn't read modified ontology!", err)
-                return None
-            self.onto.lastModificationDate = lmd
             self.listctl.SetItem(idx, 0, property.name)
             self.listctl.SetItem(idx, 1, property.label[Languages.EN])
         dialog.Destroy()
@@ -341,10 +322,11 @@ class PropertyPanel(wx.Window):
         val = dlg.ShowModal()
         if val == wx.ID_OK:
             try:
-                self.onto.removePropertyClass(index=idx, erase=True)
+                self.onto.removePropertyClass(index=self.ids[idx], erase=True)
                 self.listctl.DeleteItem(idx)
+                del [self.idsidx]
             except BaseError as err:
-                show_error("Couldn't delete property class", err)
+                show_error("Couldn't delete property class!", err)
 
 
 class PropertyEntryDialog(wx.Dialog):
@@ -591,13 +573,10 @@ class PropertyEntryDialog(wx.Dialog):
             if object_set is None:
                 object_set = self.aproperties2[prefix][super]
                 self.expand_res_rep(object_set)
-                print(object_set)
             else:
                 tmp = self.aproperties2[prefix][super]
                 self.expand_res_rep(tmp)
                 object_set = object_set & tmp
-                print(self.aproperties2[prefix][super])
-                print(object_set)
         self.object.set_choices(list(object_set))
 
     def object_changed(self, event, object: str) -> None:
@@ -638,6 +617,13 @@ class PropertyEntryDialog(wx.Dialog):
         :return: A PropertyClass instance on success, else None
         """
         superproperties = [x[0] + ':' + x[1] for x in self.superprops.get_value()]
+        for sp in superproperties:
+            tmp = sp.split(':')
+            if len(tmp) > 1 and tmp[0] != "":
+                self.onto.context.add_context(tmp[0])
+        tmp = self.object.get_value().split(':')
+        if len(tmp) > 1 and tmp[0] != "":
+            self.onto.context.add_context(tmp[0])
         gui_element = 'salsah-gui:' + self.gui_element.get_value()
 
         try:

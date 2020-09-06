@@ -2,6 +2,8 @@ from typing import List, Set, Dict, Tuple, Optional, Any, Union, Callable
 
 import wx
 
+from pprint import pprint
+
 from ..models.helpers import Actions, BaseError, Context, Cardinality
 from ..models.langstring import Languages, LangStringParam, LangString
 from ..models.connection import Connection
@@ -69,9 +71,10 @@ class ListPanel(wx.Panel):
         except BaseError as err:
             show_error("Couldn't get the existing projects!", err)
             return
+        self.ids = []
         self.proj_iri_name = dict(map(lambda x: (x.id, x.shortname), self.projects))
         self.proj_name_iri = dict(map(lambda x: (x.shortname, x.id), self.projects))
-        self.pnames = [x.shortname for x in self.projects if x.shortname != "SystemProject"]
+        self.pnames = [x.shortname for x in self.projects if x.shortname != "SystemProject" and x.status]
         self.pnames.insert(0, "-")
         self.pfilter.Clear()
         self.pfilter.Append(self.pnames)
@@ -118,7 +121,6 @@ class ListPanel(wx.Panel):
 
     def new_entry(self, event: wx.Event) -> None:
         idx = self.listctl.GetFirstSelected()
-        list_iri = self.ids[idx]
         list_entry = NewListNodeDialog(parent=self, con=self.con)
         res = list_entry.ShowModal()
         if res == wx.ID_OK:
@@ -132,10 +134,14 @@ class ListPanel(wx.Panel):
                                  list.name if list.name else "-",
                                  list.label[Languages.EN]))
             self.ids.append(list.id)
+            pprint(self.ids)
+            list.print()
 
     def edit_entry(self, event: wx.Event) -> None:
         idx = self.listctl.GetFirstSelected()
+        print(idx)
         rootnode_iri = self.ids[idx]
+        print(rootnode_iri)
         list_entry = ModifyListNodeDialog(parent=self,
                                           con=self.con,
                                           rootnode_iri=rootnode_iri,
@@ -471,7 +477,7 @@ class ModifyListNodeDialog(wx.Dialog):
 
         self.topsizer.Add(self.splitsizer, flag=wx.EXPAND | wx.ALL, border=5)
 
-        bsizer = self.CreateStdDialogButtonSizer(wx.CLOSE)
+        bsizer = self.CreateStdDialogButtonSizer(wx.CANCEL)
         self.topsizer.Add(bsizer, flag=wx.EXPAND | wx.ALL, border=5)
 
         self.SetSizerAndFit(self.topsizer)

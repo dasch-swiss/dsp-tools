@@ -1,7 +1,5 @@
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
 
-import os
-import sys
 import wx
 from pprint import pprint
 import copy
@@ -9,18 +7,12 @@ import copy
 from ..models.helpers import Actions, BaseError, Context, Cardinality, LastModificationDate
 from ..models.langstring import Languages, LangStringParam, LangString
 from ..models.connection import Connection
-from ..models.project import Project
-from ..models.listnode import ListNode
-from ..models.group import Group
-from ..models.user import User
 from ..models.ontology import Ontology
-from ..models.propertyclass import PropertyClass
 from ..models.resourceclass import ResourceClass, HasProperty
 
 from ..knoraConsoleModules.KnDialogControl import show_error, KnDialogControl, KnDialogTextCtrl, KnDialogChoice, \
     KnDialogChoiceArr, KnDialogCheckBox, KnCollapsiblePicker, KnDialogStaticText, KnDialogSuperResourceClasses, \
     KnDialogGuiAttributes, KnDialogLangStringCtrl, KnDialogHasProperty, PropertyStatus
-
 
 
 permissions = {
@@ -145,7 +137,8 @@ class ResourcePanel(wx.Window):
         for cnt, res in enumerate(onto.resource_classes):
             supers = [onto.context.reduce_iri(x) for x in res.superclasses]
             self.reslist.Append((res.name, res.label[Languages.EN], ", ".join(supers)))
-        self.reslist.Select(0)
+        if self.reslist.GetItemCount() > 0:
+            self.reslist.Select(0)
         topsizer.Add(self.reslist, proportion=1, flag=wx.EXPAND | wx.ALL, border=5)
 
         bottomsizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -196,7 +189,7 @@ class ResourcePanel(wx.Window):
             try:
                 lmd, resourceclass = self.onto.updateResourceClass(idx, resourceclass)
             except BaseError as err:
-                show_error("Coul'nt modify the resource!", err)
+                show_error("Couldn't modify the resource!", err)
                 return
             self.reslist.SetItem(idx, 0, resourceclass.name)
             self.reslist.SetItem(idx, 1, resourceclass.label[Languages.EN])
@@ -244,7 +237,7 @@ class ResourceClassEntryDialog(wx.Dialog):
                          title="Property Entry",
                          style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
         self.con = con
-        lmd, self.onto = onto.read()
+        self.onto = onto.read()
 
         #
         # Get all ontologies belonging to the current project
@@ -257,7 +250,6 @@ class ResourceClassEntryDialog(wx.Dialog):
         try:
             if newentry:
                 self.resourceclass = ResourceClass(con=con, context=onto.context)
-                self.last_modification_date = onto.lastModificationDate
             else:
                 self.resourceclass = onto.resource_classes[rindex]
         except BaseError as knerr:

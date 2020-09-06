@@ -90,7 +90,7 @@ class KnoraConsole(wx.Frame):
 
         self.nb = wx.Notebook(self)
 
-        self.project_panel = ProjectPanel(self.nb)
+        self.project_panel = ProjectPanel(parent=self.nb, on_project_added_cb=self.project_added_cb)
         self.nb.InsertPage(index=0, page=self.project_panel, text="Projects")
 
         self.list_panel = ListPanel(self.nb)
@@ -106,6 +106,10 @@ class KnoraConsole(wx.Frame):
         self.nb.InsertPage(index=4, page=self.onto_panel, text="Ontologies")
 
         self.con = None
+
+    def project_added_cb(self):
+        self.list_panel.update()
+        self.onto_panel.update()
 
     def makeMenuBar(self):
         """

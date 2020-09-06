@@ -1,4 +1,4 @@
-from typing import List, Set, Dict, Tuple, Optional, Any, Union
+from typing import List, Set, Dict, Tuple, Optional, Any, Union, Callable
 
 import os
 import sys
@@ -19,9 +19,11 @@ class ProjectPanel(wx.Panel):
     """
     This class implements the project overview panel.
     """
-    def __init__(self, *args, **kw):
+    def __init__(self,
+                 on_project_added_cb: Optional[Callable[[None], None]],
+                 *args, **kw):
         super(ProjectPanel, self).__init__(*args, **kw)
-
+        self.on_project_added_cb = on_project_added_cb
         self.con = None
         self.ids = []
 
@@ -108,6 +110,7 @@ class ProjectPanel(wx.Panel):
                                      project.longname,
                                      'active' if project.status else 'inactive'))
                 self.ids.append(project.id)
+            self.on_project_added_cb()
 
     def edit_entry(self, event: wx.Event) -> None:
         """

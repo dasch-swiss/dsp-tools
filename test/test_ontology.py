@@ -27,7 +27,7 @@ class TestOntology(unittest.TestCase):
         self.assertEqual(onto.lastModificationDate, LastModificationDate("2017-12-19T15:23:42.166Z"))
 
     def test_read(self):
-        self.last_modification_date, onto = Ontology(
+        onto = Ontology(
             con=self.con,
             id='http://0.0.0.0:3333/ontology/0001/anything/v2'
         ).read()
@@ -37,7 +37,7 @@ class TestOntology(unittest.TestCase):
         self.assertIsNotNone(onto.lastModificationDate)
 
     def test_create(self):
-        self.last_modification_date, onto = Ontology(
+        onto = Ontology(
             con=self.con,
             project=self.project,
             name="testonto_1",
@@ -49,7 +49,7 @@ class TestOntology(unittest.TestCase):
         self.assertEqual(onto.project, self.project)
 
     def test_update(self):
-        self.last_modification_date, onto = Ontology(
+        onto = Ontology(
             con=self.con,
             project=self.project,
             name="testonto_2",
@@ -57,18 +57,18 @@ class TestOntology(unittest.TestCase):
         ).create()
         self.assertIsNotNone(onto.id)
         onto.label = 'This is a modified label!'
-        self.last_modification_date, onto = onto.update(self.last_modification_date)
+        onto = onto.update()
         self.assertEqual(onto.label, 'This is a modified label!')
 
     def test_delete(self):
-        self.last_modification_date, onto = Ontology(
+        onto = Ontology(
             con=self.con,
             project=self.project,
             name="testonto_3",
             label="test ontology 3",
         ).create()
         self.assertIsNotNone(onto.id)
-        res = onto.delete(self.last_modification_date)
+        res = onto.delete()
         self.assertIsNotNone(res)
 
     def test_get_ontologies_of_project(self):

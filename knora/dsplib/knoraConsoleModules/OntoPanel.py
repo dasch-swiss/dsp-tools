@@ -108,6 +108,7 @@ class OntoPanel(wx.Panel):
         self.pfilter.Clear()
         self.pfilter.Append(self.pnames)
         self.listctl.DeleteAllItems()
+        self.ids = []
         for ontology in ontologies:
             if self.proj_iri_name.get(ontology.project) == "SystemProject":
                 continue
@@ -165,7 +166,7 @@ class OntoPanel(wx.Panel):
         if res == wx.ID_OK:
             onto = ontology_entry.get_value()
             try:
-                lmd, onto = onto.create()
+                onto = onto.create()
             except BaseError as err:
                 show_error("Couldn't create the new ontology!", err)
                 return
@@ -187,9 +188,9 @@ class OntoPanel(wx.Panel):
         ontology_entry = OntologyEntryDialog(self.con, onto_iri, False, self)
         res = ontology_entry.ShowModal()
         if res == wx.ID_OK:
-            lmd, onto = ontology_entry.get_changed()
+            onto = ontology_entry.get_changed()
             try:
-                lmd, onto = onto.update(lmd)
+                onto = onto.update()
             except BaseError as err:
                 show_error("Couln't modify the ontology!", err)
                 return
@@ -218,8 +219,8 @@ class OntoPanel(wx.Panel):
         val = dlg.ShowModal()
         if val == wx.ID_OK:
             try:
-                lmd, onto = Ontology(con=self.con, id=onto_iri).read()
-                result = onto.delete(lmd)
+                onto = Ontology(con=self.con, id=onto_iri).read()
+                result = onto.delete()
             except BaseError as err:
                 show_error("Couldn't delete ontology!", err)
             else:
@@ -435,4 +436,4 @@ class OntologyEntryDialog(wx.Dialog):
             show_error("Can not modify ontology data", err)
             return None
 
-        return self.last_modification_date, self.onto
+        return self.onto

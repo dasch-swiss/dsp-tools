@@ -20,6 +20,7 @@ from ..models.resourceclass import ResourceClass
 from ..knoraConsoleModules.KnDialogControl import show_error, KnDialogControl, KnDialogTextCtrl, KnDialogChoice,\
     KnDialogCheckBox, KnCollapsiblePicker
 
+from pprint import pprint
 
 class GroupPanel(wx.Panel):
     """
@@ -116,6 +117,8 @@ class GroupPanel(wx.Panel):
         if res == wx.ID_OK:
             group = ge.get_value()
             group = group.create()
+            pprint(self.proj_iri_name)
+            print(group.project)
             self.listctl.Append((group.name,
                                  self.proj_iri_name[group.project],
                                  group.description))

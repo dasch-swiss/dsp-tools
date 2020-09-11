@@ -3,9 +3,12 @@ from pystrict import strict
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
 
+from pprint import pprint
+
 from .helpers import Actions, BaseError
 from .langstring import Languages, LangStringParam, LangString
 from .connection import Connection
+
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -321,7 +324,6 @@ class Project:
         :param json_obj: JSON data returned by Knora as python3 object
         :return: Project instance
         """
-
         id = json_obj.get('id')
         if id is None:
             raise BaseError('Project id is missing')
@@ -340,7 +342,7 @@ class Project:
             raise BaseError("Keywords are missing")
         ontologies = set(json_obj.get('ontologies'))
         if ontologies is None:
-            raise BaseError("Keywords are missing")
+            raise BaseError("ontologies are missing")
         selfjoin = json_obj.get('selfjoin')
         if selfjoin is None:
             raise BaseError("Selfjoin is missing")

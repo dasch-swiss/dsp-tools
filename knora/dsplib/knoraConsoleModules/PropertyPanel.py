@@ -300,7 +300,7 @@ class PropertyPanel(wx.Window):
         if res == wx.ID_OK:
             property: PropertyClass = dialog.get_changed()
             try:
-                lmd, property = self.onto.updatePropertyClass(self.ids[idx], property)
+                property = self.onto.updatePropertyClass(self.ids[idx], property)
             except BaseError as err:
                 show_error("Couldn't modify the resource class!", err)
                 return None
@@ -353,7 +353,7 @@ class PropertyEntryDialog(wx.Dialog):
                          title="Property Entry",
                          style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
         self.con = con
-        lmd, self.onto = onto.read()
+        self.onto = onto.read()
 
         #
         # Get all ontologies beloning to the current project
@@ -433,7 +433,7 @@ class PropertyEntryDialog(wx.Dialog):
 
         self.aproperties2 = copy.deepcopy(all_properties)
         for ponto in self.pontos:
-            lmd, tmp_ponto = ponto.read()
+            tmp_ponto = ponto.read()
             if tmp_ponto.property_classes is None:
                 continue
             for pprop in tmp_ponto.property_classes:
@@ -548,14 +548,14 @@ class PropertyEntryDialog(wx.Dialog):
             object_set.remove('#res')
             object_set.update({x.split(':')[1] for x in ress})
             for ponto in self.pontos:
-                lmd, fullonto = ponto.read()
+                fullonto = ponto.read()
                 prefix = ':' if fullonto.name == self.onto.name else fullonto.name + ':'
                 reslist = [prefix + x.name for x in fullonto.resource_classes]
                 object_set.update(reslist)
         if '#rep' in object_set:
             object_set.remove('#rep')
             for ponto in self.pontos:
-                lmd, fullonto = ponto.read()
+                fullonto = ponto.read()
                 prefix = ':' if fullonto.name == self.onto.name else fullonto.name + ':'
                 reslist = [prefix + x.name for x in fullonto.resource_classes if len(set(x.superclasses) & reps) > 0]
                 object_set.update(reslist)

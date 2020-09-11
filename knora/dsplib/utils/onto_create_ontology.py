@@ -285,12 +285,13 @@ def create_ontology(input_file: str, lists_file: str, server: str, user: str, pa
     #
     ontologies = datamodel["project"]["ontologies"]
     for ontology in ontologies:
-        last_modification_date, newontology = Ontology(
+        newontology = Ontology(
             con=con,
             project=project,
             label=ontology["label"],
             name=ontology["name"]
         ).create()
+        last_modification_date = newontology.lastModificationDate
         if verbose:
             print("Created empty ontology:")
             newontology.print()
@@ -319,6 +320,7 @@ def create_ontology(input_file: str, lists_file: str, server: str, user: str, pa
                     label=reslabel,
                     comment=rescomment
                 ).create(last_modification_date)
+                newontology.lastModificationDate = last_modification_date
             except BaseError as err:
                 print("Creating resource class failed: " + err.message)
                 exit(105)
@@ -392,6 +394,7 @@ def create_ontology(input_file: str, lists_file: str, server: str, user: str, pa
                     gui_attributes=gui_attributes,
                     comment=propcomment
                 ).create(last_modification_date)
+                newontology.lastModificationDate = last_modification_date
             except BaseError as err:
                 print("Creating property class failed: " + err.message)
                 return False
@@ -416,10 +419,15 @@ def create_ontology(input_file: str, lists_file: str, server: str, user: str, pa
                 tmp = cardinfo["propname"].split(':')
                 if len(tmp) > 1:
                     if tmp[0]:
-                        propid = cardinfo["propname"] # fully qualified name
+                        propid = cardinfo["propname"]  # fully qualified name
                     else:
                         propid = newontology.name + ':' + tmp[1]
                 else:
                     propid = "knora-api:" + cardinfo["propname"]
-                last_modification_date = rc.addProperty(propid, cardinality, last_modification_date)
+                gui_order = cardinfo.get('gui_order')
+                last_modification_date = rc.addProperty(property_id=propid,
+                                                        cardinality=cardinality,
+                                                        gui_order=gui_order,
+                                                        last_modification_date=last_modification_date)
+                newontology.lastModificationDate = last_modification_date
     return True

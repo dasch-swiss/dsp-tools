@@ -109,6 +109,8 @@ class KnoraConsole(wx.Frame):
 
     def project_added_cb(self):
         self.list_panel.update()
+        self.group_panel.update()
+        self.user_panel.update()
         self.onto_panel.update()
 
     def makeMenuBar(self):

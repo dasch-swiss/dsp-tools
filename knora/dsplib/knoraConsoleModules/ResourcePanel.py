@@ -1,18 +1,16 @@
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
 
 import wx
-from pprint import pprint
 import copy
 
-from ..models.helpers import Actions, BaseError, Context, Cardinality, LastModificationDate
-from ..models.langstring import Languages, LangStringParam, LangString
+from ..models.helpers import BaseError
+from ..models.langstring import Languages, LangString
 from ..models.connection import Connection
 from ..models.ontology import Ontology
 from ..models.resourceclass import ResourceClass, HasProperty
 
-from ..knoraConsoleModules.KnDialogControl import show_error, KnDialogControl, KnDialogTextCtrl, KnDialogChoice, \
-    KnDialogChoiceArr, KnDialogCheckBox, KnCollapsiblePicker, KnDialogStaticText, KnDialogSuperResourceClasses, \
-    KnDialogGuiAttributes, KnDialogLangStringCtrl, KnDialogHasProperty, PropertyStatus
+from ..knoraConsoleModules.KnDialogControl import show_error, KnDialogTextCtrl, KnDialogSuperResourceClasses, \
+    KnDialogLangStringCtrl, KnDialogHasProperty, PropertyStatus, HasPropertyInfo
 
 
 permissions = {
@@ -96,9 +94,10 @@ foaf_classes = {
 
 all_classes = {
     'knora-api': knora_api_resclasses,
-    'dcterms': dcterm_classes,
-    'dcmi': dcmi_classes,
-    'foaf': foaf_classes
+    # Needed s soon as backend supports superclasses of external ontologies (dcterms,dcmi,foaf)
+    # 'dcterms': dcterm_classes,
+    # 'dcmi': dcmi_classes,
+    # 'foaf': foaf_classes
 }
 
 
@@ -165,14 +164,26 @@ class ResourcePanel(wx.Window):
         dialog = ResourceClassEntryDialog(self.con, self.onto, None, True, self)
         res = dialog.ShowModal()
         if res == wx.ID_OK:
-            resourceclass = dialog.get_value()
+            resourceclass, cardinfo = dialog.get_value()
             try:
                 index, resourceclass = self.onto.addResourceClass(resourceclass=resourceclass, create=True)
             except BaseError as err:
-                show_error("Couln't create resource!", err)
+                show_error("Couldn't create resource!", err)
                 return None
+            supers = [self.onto.context.reduce_iri(x) for x in resourceclass.superclasses]
             self.reslist.Append((resourceclass.name,
-                                 resourceclass.label[Languages.EN]))
+                                 resourceclass.label[Languages.EN],
+                                 ", ".join(supers)))
+        if cardinfo:
+            for propname, propinfo in cardinfo.items():
+                try:
+                    lmd = resourceclass.addProperty(property_id=self.onto.context.get_qualified_iri(propname),
+                                                    cardinality=propinfo['cardinality'],
+                                                    gui_order=propinfo['gui_order'],
+                                                    last_modification_date=self.onto.lastModificationDate)
+                    self.onto.lastModificationDate = lmd
+                except BaseError as err:
+                    show_error("Couldn't add property to the resource!", err)
         dialog.Destroy()
 
     def edit_entry(self, event: wx.Event) -> None:
@@ -185,14 +196,34 @@ class ResourcePanel(wx.Window):
         dialog = ResourceClassEntryDialog(self.con, self.onto, idx, False, self)
         res = dialog.ShowModal()
         if res == wx.ID_OK:
-            resourceclass: ResourceClass = dialog.get_changed()
+            resourceclass, cardinfo = dialog.get_changed()
             try:
-                lmd, resourceclass = self.onto.updateResourceClass(idx, resourceclass)
+                resourceclass = self.onto.updateResourceClass(idx, resourceclass)
             except BaseError as err:
                 show_error("Couldn't modify the resource!", err)
                 return
             self.reslist.SetItem(idx, 0, resourceclass.name)
             self.reslist.SetItem(idx, 1, resourceclass.label[Languages.EN])
+            if cardinfo:
+                for propname, propinfo in cardinfo.items():
+                    if propinfo['status'] == PropertyStatus.NEW:
+                        try:
+                            lmd = resourceclass.addProperty(property_id=self.onto.context.get_qualified_iri(propname),
+                                                            cardinality=propinfo['cardinality'],
+                                                            gui_order=propinfo['gui_order'],
+                                                            last_modification_date=self.onto.lastModificationDate)
+                            self.onto.lastModificationDate = lmd
+                        except BaseError as err:
+                            show_error("Couldn't add property to the resource!", err)
+                    elif propinfo['status'] == PropertyStatus.CHANGED:
+                        try:
+                            lmd = resourceclass.updateProperty(property_id=self.onto.context.get_qualified_iri(propname),
+                                                               cardinality=propinfo['cardinality'],
+                                                               gui_order=propinfo['gui_order'],
+                                                               last_modification_date=self.onto.lastModificationDate)
+                            self.onto.lastModificationDate = lmd
+                        except BaseError as err:
+                            show_error("Couldn't modify has_property of the resource!", err)
         dialog.Destroy()
 
     def delete_entry(self, event: wx.Event) -> None:
@@ -315,7 +346,7 @@ class ResourceClassEntryDialog(wx.Dialog):
 
         self.aclasses2 = copy.deepcopy(all_classes)
         for ponto in self.pontos:
-            lmd, tmp_ponto = ponto.read()
+            tmp_ponto = ponto.read()
             if tmp_ponto.resource_classes is None:
                 continue
             for pres in tmp_ponto.resource_classes:
@@ -323,9 +354,10 @@ class ResourceClassEntryDialog(wx.Dialog):
                     self.aclasses2[tmp_ponto.name] = set()
                 self.aclasses2[tmp_ponto.name].add(pres.name)
         self.aclasses1 = copy.deepcopy(self.aclasses2)
-        del self.aclasses1['dcterms']
-        del self.aclasses1['dcmi']
-        del self.aclasses1['foaf']
+        # Needed s soon as backend supports superclasses of external ontologies (dcterms,dcmi,foaf)
+        # del self.aclasses1['dcterms']
+        # del self.aclasses1['dcmi']
+        # del self.aclasses1['foaf']
         self.superclasses = KnDialogSuperResourceClasses(panel=panel1,
                                                          gsizer=gsizer,
                                                          label="Superclasses: ",
@@ -343,13 +375,12 @@ class ResourceClassEntryDialog(wx.Dialog):
                                 'knora-api:isPartOfValue' in propclass.superproperties or
                                 'knora-api:isRegionOfValue' in propclass.superproperties}
 
-            value = { name: {'cardinality': hasprop.cardinality, 'gui_order': hasprop.gui_order, 'status': PropertyStatus.UNCHANGED}
-                      for (name, hasprop) in self.resourceclass.has_properties.items()
-                      if hasprop.ptype == HasProperty.Ptype.other and
-                      onto.context.get_qualified_iri(hasprop.property_id) not in link_value_props }
+            value = {name: {'cardinality': hasprop.cardinality, 'gui_order': hasprop.gui_order, 'status': PropertyStatus.UNCHANGED}
+                     for (name, hasprop) in self.resourceclass.has_properties.items()
+                     if hasprop.ptype == HasProperty.Ptype.other and
+                     onto.context.get_qualified_iri(hasprop.property_id) not in link_value_props }
         else:
             value = {}
-
         #
         # Get all ontologies belonging to the current project
         #
@@ -363,7 +394,7 @@ class ResourceClassEntryDialog(wx.Dialog):
         #
         self.all_props: List[str] = []
         for ponto in self.pontos:
-            lmd, tmp_ponto = ponto.read()
+            tmp_ponto = ponto.read()
             if tmp_ponto.property_classes is None:
                 continue
             for pprop in tmp_ponto.property_classes:
@@ -400,7 +431,7 @@ class ResourceClassEntryDialog(wx.Dialog):
     def resize(self):
         self.SetSizerAndFit(self.topsizer)
 
-    def get_value(self) -> Union[ResourceClass, None]:
+    def get_value(self) -> Tuple[Union[ResourceClass, None], Union[str, HasPropertyInfo, None]]:
         """
         Get all values for creating a new resource class
         :return: An instance of ResourceClass on success, None on failure
@@ -417,11 +448,12 @@ class ResourceClassEntryDialog(wx.Dialog):
                 superclasses=superclasses
             )
         except BaseError as err:
-            show_error("Couln't create a ResourceClass instance!", err)
+            show_error("Couldn't create a ResourceClass instance!", err)
             return None
-        return self.resourceclass
+        has_properties = self.has_properties_ctrl.get_value()
+        return self.resourceclass, has_properties
 
-    def get_changed(self) -> Union[ResourceClass, None]:
+    def get_changed(self) -> Tuple[Union[ResourceClass, None], Union[str, HasPropertyInfo, None]]:
         """
         Get all changed fields form the dialog and update the ResourceClass instance
         :return: The modified ResourceClass instance on success, None on failure.
@@ -433,12 +465,9 @@ class ResourceClassEntryDialog(wx.Dialog):
             tmp = self.comment.get_changed()
             if tmp is not None:
                 self.resourceclass.comment = tmp
-            tmp = self.has_properties_ctrl.get_changed()
-            if tmp:
-                for propname, propinfo in tmp:
-                    if propinfo['status'] == PropertyStatus.CHANGED:
-                        self.resourceclass.updateProperty()
         except BaseError as err:
             show_error("Couldn't modify existing ResourceClass instance!", err)
             return None
-        return self.resourceclass
+
+        has_properties = self.has_properties_ctrl.get_changed()
+        return self.resourceclass, has_properties

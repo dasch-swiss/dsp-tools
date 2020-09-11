@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from typing import NewType, List, Set, Dict, Tuple, Optional, Any, Union, Pattern
 from enum import Enum, unique
+from traceback import format_exc
 import re
+import sys
 
 #
 # here we do some data typing that should help
@@ -17,6 +19,10 @@ class OntoInfo:
 
 
 ContextType = NewType("ContextType", Dict[str, OntoInfo])
+
+
+def LINE():
+    return sys._getframe(1).f_lineno
 
 
 class BaseError(Exception):
@@ -38,7 +44,7 @@ class BaseError(Exception):
         Convert to string
         :return: stringyfied error message
         """
-        return "ERROR: " + self.__message + "!"
+        return "ERROR: " + self.__message + "!\n\n" + format_exc()
 
     @property
     def message(self) -> str:
@@ -169,7 +175,7 @@ class Context:
         else:
             raise BaseError("Error in parameter to context setter")
 
-    def add_context(self, prefix: str, iri: Optional[str] = None):
+    def add_context(self, prefix: str, iri: Optional[str] = None) -> None:
         """
         Add a new context to a context instance
 
@@ -201,6 +207,8 @@ class Context:
         :param prefix: Prefix of the context entry
         :return: The full IRI without trailing "#"
         """
+        if self.__is_iri(prefix):
+            return prefix
         if self.__context.get(prefix) is not None:
             return self.__context.get(prefix).iri
         else:

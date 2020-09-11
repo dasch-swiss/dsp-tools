@@ -3,7 +3,6 @@ from typing import Any, Union, List, Set, Dict, Tuple, Optional, Callable, Typed
 import wx
 import wx.grid
 
-from pprint import pprint
 from copy import deepcopy
 from enum import Enum, unique
 
@@ -484,7 +483,6 @@ class KnDialogChoiceArr(KnDialogControl):
 
     def remove_field(self, event):
         n = self.winsizer.GetItemCount()
-        print("n=", n)
         item = self.winsizer.GetItem(n - 2)
         item.GetWindow().Destroy()
         self.container.SetSizerAndFit(self.winsizer)
@@ -637,9 +635,7 @@ class KnDialogSuperProperties(KnDialogControl):
     def prefix2_changed(self, event: wx.Event) -> None:
         id = event.GetId()
         choice = event.GetEventObject()
-        print('id=', id)
         value = choice.GetCurrentSelection()
-        print('value=', self.prefixes[value])
         self.prop2_ctrl[id].Clear()
         items = [key for key, val in self.all_properties[self.prefixes[value]].items()]
         self.prop2_ctrl[id].Append(items)
@@ -784,9 +780,7 @@ class KnDialogSuperResourceClasses(KnDialogControl):
     def prefix2_changed(self, event: wx.Event) -> None:
         id = event.GetId()
         choice = event.GetEventObject()
-        print('id=', id)
         value = choice.GetCurrentSelection()
-        print('value=', self.prefixes[value])
         self.resclass2_ctrl[id].Clear()
         items = list(self.all_resourceclasses[self.prefixes[value]])
         self.resclass2_ctrl[id].Append(items)
@@ -799,7 +793,7 @@ class KnDialogSuperResourceClasses(KnDialogControl):
         result: List[Tuple[str, str]] = [(prefix1, resclass1)]
         for i in range(0, self.pcnt):
             prefix = self.prefixes[self.prefix2_ctrl[i].GetCurrentSelection()]
-            items = [key for key, val in self.all_resourceclasses[prefix].items()]
+            items = list(self.all_resourceclasses[prefix])
             resclass2 = items[self.resclass2_ctrl[i].GetCurrentSelection()]
             result.append((prefix, resclass2))
         return result
@@ -1199,7 +1193,7 @@ class KnDialogHasProperty(KnDialogControl):
     def gui_order_changed(self, event: wx.Event, propname: str) -> None:
         spin = event.GetEventObject()
         value = spin.GetValue()
-        self.value[propname]['cardinality'] = int(value)
+        self.value[propname]['gui_order'] = int(value)
         if self.value[propname]['status'] == PropertyStatus.UNCHANGED:
             self.change_status(propname, PropertyStatus.CHANGED)
 
@@ -1266,11 +1260,16 @@ class KnDialogHasProperty(KnDialogControl):
         d.Destroy()
 
     def get_value(self) -> Optional[Dict[str, HasPropertyInfo]]:
-        return self.value if self.value else None
+        value = {propname: propinfo for propname, propinfo in self.value.items()}
+        if value:
+            return value
+        else:
+            return None
 
     def get_changed(self) -> Optional[Dict[str, HasPropertyInfo]]:
-        new_value = {propname: propinfo for propname, propinfo in self.value.items() if propinfo['status'] != PropertyStatus.UNCHANGED}
+        new_value = {propname: propinfo for propname, propinfo in self.value.items()
+                     if propinfo['status'] != PropertyStatus.UNCHANGED}
         if new_value:
-            return None
-        else:
             return new_value
+        else:
+            return None

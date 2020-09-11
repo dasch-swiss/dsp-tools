@@ -189,10 +189,18 @@ class OntoPanel(wx.Panel):
         res = ontology_entry.ShowModal()
         if res == wx.ID_OK:
             onto = ontology_entry.get_changed()
+            if not onto.has_changed():
+                ontology_entry.Destroy()
+                return
             try:
-                onto = onto.update()
+                #onto = onto.update()  ToDo: Remove the comment as soon as API bug is fixed!!!!!
+                info = wx.MessageDialog(parent=self,
+                                        message="Because of a Bug, Label and Comment of an ontology cannot be modified",
+                                        caption="Information",
+                                        style=wx.ICON_WARNING | wx.OK)
+                info.ShowModal()
             except BaseError as err:
-                show_error("Couln't modify the ontology!", err)
+                show_error("Couldn't modify the ontology!", err)
                 return
             self.listctl.SetItem(idx, 0, onto.name)
             self.listctl.SetItem(idx, 2, onto.label)
@@ -316,9 +324,8 @@ class OntologyEntryDialog(wx.Dialog):
         try:
             if newentry:
                 self.onto = Ontology(con=con)
-                self.last_modification_date = None
             else:
-                self.last_modification_date, self.onto = Ontology(con=con, id=onto_iri).read()
+                self.onto = Ontology(con=con, id=onto_iri).read()
             self.all_projects = Project.getAllProjects(con)
         except BaseError as err:
             show_error("Couldn't get information from knora", err)
@@ -341,7 +348,7 @@ class OntologyEntryDialog(wx.Dialog):
                                                gsizer=gsizer,
                                                label="Last Mod.-date:",
                                                name="mod_date",
-                                               value=str(self.last_modification_date))
+                                               value=str(self.onto.lastModificationDate))
 
         tmp_project = None if newentry else self.proj_iri_name.get(self.onto.project)
         self.project = KnDialogChoice(panel=panel1,

@@ -4,11 +4,12 @@ from pystrict import strict
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from enum import Enum
 from urllib.parse import quote_plus
+
 from pprint import pprint
 
 from .helpers import Actions, BaseError, Context, Cardinality, LastModificationDate
 from .connection import Connection
-from .langstring import Languages, LangStringParam, LangString
+from .langstring import Languages, LangString
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -20,7 +21,7 @@ class SetEncoder(json.JSONEncoder):
 This model implements the handling of resource classes. It contains two classes that work closely together:
     * "HasProperty" deals with the association of Property-instances with the Resource-instances. This association
       is done using the "cardinality"-clause
-    *  "ResourceClass" is the main class representing a knora resource class.
+    * "ResourceClass" is the main class representing a knora resource class.
 """
 @strict
 class HasProperty:
@@ -54,16 +55,14 @@ class HasProperty:
             raise BaseError('"context"-parameter must be an instance of Context')
         self.con = con
         self.__context = context
-        if ontology_id is not None and '#' not in ontology_id:
+        if ontology_id is not None:
             self.__ontology_id = context.iri_from_prefix(ontology_id)
-        else:
-            self.__ontology_id = ontology_id
         self.__property_id = property_id
         self.__resclass_id = resclass_id
         self.__cardinality = cardinality
         self.__gui_order = gui_order
         self.__is_inherited = is_inherited
-        self._ptype = ptype
+        self.__ptype = ptype
         self.__changed = set()
 
     #
@@ -109,14 +108,14 @@ class HasProperty:
     @gui_order.setter
     def gui_order(self, value: int) -> None:
         self.__gui_order = value
+        self.__changed.add('gui_order')
 
     @property
     def ptype(self) -> Ptype:
-        return self._ptype
+        return self.__ptype
 
     @classmethod
     def fromJsonObj(cls, con: Connection, context: Context, jsonld_obj: Any) -> Tuple[str, 'HasProperty']:
-        #pprint(jsonld_obj)
         if not isinstance(con, Connection):
             raise BaseError('"con"-parameter must be an instance of Connection')
         if not isinstance(context, Context):
@@ -190,6 +189,8 @@ class HasProperty:
                                 ptype=ptype)
 
     def toJsonObj(self, lastModificationDate: LastModificationDate, action: Actions) -> Any:
+        if self.__cardinality is None:
+            raise BaseError("There must be a cardinality given!")
         tmp = {}
         switcher = {
             Cardinality.C_1: ("owl:cardinality", 1),
@@ -216,6 +217,8 @@ class HasProperty:
                 }],
                 "@context": self.__context.toJsonObj()
             }
+            if self.__gui_order is not None:
+                tmp["@graph"][0]["rdfs:subClassOf"]["salsah-gui:guiOrder"] = self.__gui_order
         elif action == Actions.Update:
             tmp = {
                 "@id": self.__ontology_id,
@@ -234,6 +237,8 @@ class HasProperty:
                 }],
                 "@context": self.__context.toJsonObj()
             }
+            if self.__gui_order is not None and 'gui_order' in self.__changed:
+                tmp["@graph"][0]["rdfs:subClassOf"]["salsah-gui:guiOrder"] = self.__gui_order
         return tmp
 
     def create(self, last_modification_date: LastModificationDate) -> Tuple[LastModificationDate, 'ResourceClass']:
@@ -258,7 +263,7 @@ class HasProperty:
         if self.__cardinality is None:
             raise BaseError("Cardinality id required")
         jsonobj = self.toJsonObj(last_modification_date, Actions.Update)
-        jsondata = json.dumps(jsonobj, cls=SetEncoder)
+        jsondata = json.dumps(jsonobj, indent=3, cls=SetEncoder)
         result = self.con.put('/v2/ontologies/cardinalities', jsondata)
         last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
         # TODO: self._changed = str()
@@ -270,24 +275,24 @@ class HasProperty:
 
     def createDefinitionFileObj(self, context: Context, shortname: str):
         cardinality = {}
-        if self._ptype == HasProperty.Ptype.other:
+        if self.__ptype == HasProperty.Ptype.other:
             cardinality["propname"] = context.reduce_iri(self.__property_id, shortname)
             cardinality["cardinality"] = self.__cardinality.value
-            if self.__gui_order:
+            if self.__gui_order is not None:
                 cardinality["gui_order"] = self.__gui_order
         return cardinality
 
     def print(self, offset: int = 0):
         blank = ' '
-        if self._ptype == HasProperty.Ptype.system:
+        if self.__ptype == HasProperty.Ptype.system:
             print(f'{blank:>{offset}}Has Property (system)')
-        elif self._ptype == HasProperty.Ptype.knora:
+        elif self.__ptype == HasProperty.Ptype.knora:
             print(f'{blank:>{offset}}Has Property (knora)')
         else:
             print(f'{blank:>{offset}}Has Property (project)')
         print(f'{blank:>{offset + 2}}Property: {self.__property_id}')
         print(f'{blank:>{offset + 2}}Cardinality: {self.__cardinality.value}')
-        if self._ptype == HasProperty.Ptype.other:
+        if self.__ptype == HasProperty.Ptype.other:
             print(f'{blank:>{offset + 2}}Ontology_id: {self.__ontology_id}')
         print(f'{blank:>{offset + 2}}Resclass: {self.__resclass_id}')
 
@@ -382,7 +387,7 @@ class ResourceClass:
     __label: LangString
     __comment: LangString
     __permissions: str
-    ___has_properties: Dict[str, HasProperty]
+    __has_properties: Dict[str, HasProperty]
     __changed: Set[str]
 
     def __init__(self,
@@ -418,7 +423,8 @@ class ResourceClass:
         self.__context = context
         self.__id = id
         self.__name = name
-        self.__ontology_id = ontology_id
+        if ontology_id is not None:
+            self.__ontology_id = context.iri_from_prefix(ontology_id)
         if isinstance(superclasses, ResourceClass):
             self.__superclasses = list(map(lambda a: a.id, superclasses))
         else:
@@ -448,7 +454,7 @@ class ResourceClass:
         else:
             self.__comment = None
         self.__permissions = permissions
-        self.___has_properties = has_properties
+        self.__has_properties = has_properties
         self.__changed = set()
 
     #
@@ -547,50 +553,62 @@ class ResourceClass:
 
     @property
     def has_properties(self) -> Dict[str, HasProperty]:
-        return self.___has_properties
+        return self.__has_properties
 
     @has_properties.setter
     def has_properties(self, value: str) -> None:
         raise BaseError('"has_property" cannot be modified!')
 
     def getProperty(self, property_id) -> Optional[HasProperty]:
-        if self.___has_properties is None:
+        if self.__has_properties is None:
             return None
         else:
-            return self.___has_properties.get(self.__context.get_prefixed_iri(property_id))
+            return self.__has_properties.get(self.__context.get_prefixed_iri(property_id))
 
-    def addProperty(self, property_id: str,
+    def addProperty(self,
+                    last_modification_date: LastModificationDate,
+                    property_id: str,
                     cardinality: Cardinality,
-                    last_modification_date: LastModificationDate) -> Optional[LastModificationDate]:
-        if self.___has_properties.get(property_id) is None:
+                    gui_order: Optional[int] = None,
+                    ) -> Optional[LastModificationDate]:
+        if self.__has_properties.get(property_id) is None:
             latest_modification_date, resclass = HasProperty(con=self.con,
                                                              context=self.__context,
                                                              ontology_id=self.__ontology_id,
                                                              property_id=property_id,
                                                              resclass_id=self.id,
-                                                             cardinality=cardinality).create(last_modification_date)
+                                                             cardinality=cardinality,
+                                                             gui_order=gui_order).create(last_modification_date)
             hp = resclass.getProperty(property_id)
             hp.ontology_id = self.__context.iri_from_prefix(self.__ontology_id)
-            hp.resclass_id = self.id
-            self.___has_properties[hp.property_id] = hp
+            hp.resclass_id = self.__id
+            self.__has_properties[hp.property_id] = hp
             return latest_modification_date
         else:
             raise BaseError("Property already has cardinality in this class!")
 
-    def updateProperty(self, property_id: str,
-                       cardinality: Cardinality,
-                       last_modification_date: LastModificationDate) -> Optional[LastModificationDate]:
+    def updateProperty(self,
+                       last_modification_date: LastModificationDate,
+                       property_id: str,
+                       cardinality: Optional[Cardinality],
+                       gui_order: Optional[int] = None,
+                       ) -> Optional[LastModificationDate]:
         property_id = self.__context.get_prefixed_iri(property_id)
-        if self.___has_properties.get(property_id) is not None:
-            has_properties = self.___has_properties[property_id]
-            onto_id = has_properties.ontology_id  # save for later user
-            rescl_id = has_properties.resclass_id  # save for later user
-            has_properties.cardinality = cardinality
+        if self.__has_properties.get(property_id) is not None:
+            has_properties = self.__has_properties[property_id]
+            #onto_id = has_properties.ontology_id  # save for later user
+            #rescl_id = has_properties.resclass_id  # save for later user
+            has_properties.ontology_id = self.__ontology_id
+            has_properties.resclass_id = self.__id
+            if cardinality:
+                has_properties.cardinality = cardinality
+            if gui_order:
+                has_properties.gui_order = gui_order
             latest_modification_date, resclass = has_properties.update(last_modification_date)
             hp = resclass.getProperty(property_id)
-            hp.ontology_id = self.__context.iri_from_prefix(onto_id)  # restore value
-            hp.resclass_id = rescl_id  # restore value
-            self.___has_properties[hp.property_id] = hp
+            hp.ontology_id = self.__ontology_id  # self.__context.iri_from_prefix(onto_id)  # restore value
+            hp.resclass_id = self.__id  # rescl_id  # restore value
+            self.__has_properties[hp.property_id] = hp
             return latest_modification_date
         else:
             return last_modification_date
@@ -647,6 +665,7 @@ class ResourceClass:
             tmp = resref.split(':')
             if len(tmp) > 1:
                 if tmp[0]:
+                    self.__context.add_context(tmp[0])
                     return {"@id": resref}  # fully qualified name in the form "prefix:name"
                 else:
                     return {"@id": self.__context.prefix_from_iri(self.__ontology_id) + ':' + tmp[1]}  # ":name" in current ontology
@@ -708,7 +727,8 @@ class ResourceClass:
 
     def create(self, last_modification_date: LastModificationDate) -> Tuple[LastModificationDate, 'ResourceClass']:
         jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
-        jsondata = json.dumps(jsonobj)
+        jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
+        print(jsondata)
         result = self.con.post('/v2/ontologies/classes', jsondata)
         last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
         return last_modification_date, ResourceClass.fromJsonObj(self.con, self.__context, result['@graph'])
@@ -755,11 +775,10 @@ class ResourceClass:
             else:
                 superclasses = context.reduce_iri(self.__superclasses[0], shortname)
             resource["super"] = superclasses
-        if self.___has_properties:
+        if self.__has_properties:
             cardinalities = []
-            for pid, hp in self.___has_properties.items():
+            for pid, hp in self.__has_properties.items():
                 if hp.property_id in skiplist:
-                    print("Skip ", hp.property_id)
                     continue
                 if hp.ptype == HasProperty.Ptype.other:
                     cardinalities.append(hp.createDefinitionFileObj(context, shortname))
@@ -782,10 +801,10 @@ class ResourceClass:
         if self.__comment is not None:
             print(f'{blank:>{offset + 2}}Comments:')
             self.__comment.print(offset + 4)
-        if self.___has_properties is not None:
+        if self.__has_properties is not None:
             print(f'{blank:>{offset + 2}}Has properties:')
-            if self.___has_properties is not None:
-                for pid, hp in self.___has_properties.items():
+            if self.__has_properties is not None:
+                for pid, hp in self.__has_properties.items():
                     hp.print(offset + 4)
 
 

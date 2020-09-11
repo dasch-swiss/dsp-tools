@@ -6,7 +6,7 @@ from urllib.parse import quote_plus
 
 from .helpers import Actions, BaseError, Context, LastModificationDate, OntoInfo
 from .connection import Connection
-from .resourceclass import ResourceClass, HasProperty
+from .resourceclass import ResourceClass
 from .propertyclass import PropertyClass
 from .project import Project
 
@@ -73,8 +73,8 @@ class Ontology:
                  label: Optional[str] = None,
                  comment: Optional[str] = None,
                  lastModificationDate: Optional[Union[str, LastModificationDate]] = None,
-                 resource_classes: List[ResourceClass] = None,
-                 property_classes: List[PropertyClass] = None,
+                 resource_classes: List[ResourceClass] = [],
+                 property_classes: List[PropertyClass] = [],
                  context: Context = None):
         if not isinstance(con, Connection):
             raise BaseError('"con"-parameter must be an instance of Connection')
@@ -159,6 +159,7 @@ class Ontology:
 
     def addResourceClass(self, resourceclass: ResourceClass, create: bool = False) -> Tuple[int, ResourceClass]:
         if create:
+            print('Calling resourceclass.create in Ontology.addResourceClass')
             lmd, resourceclass = resourceclass.create(self.__lastModificationDate)
             self.__lastModificationDate = lmd
         self.__resource_classes.append(resourceclass)
@@ -179,7 +180,7 @@ class Ontology:
 
 
     @property
-    def property_classes(self):
+    def property_classes(self) -> List[PropertyClass]:
         return self.__property_classes
 
     @property_classes.setter
@@ -213,6 +214,12 @@ class Ontology:
     @context.setter
     def context(self, value: Context):
         raise BaseError('"Context" cannot be set!')
+
+    def has_changed(self) -> bool:
+        if self.__changed:
+            return True
+        else:
+            return False
 
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any) -> 'Ontology':
@@ -377,13 +384,19 @@ class Ontology:
 
     def create(self) -> 'Ontology':
         jsonobj = self.toJsonObj(Actions.Create)
-        jsondata = json.dumps(jsonobj, cls=SetEncoder)
+        jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
+        print("================Ontology.create()========================")
+        print(jsondata)
+        print("----------------Ontology.create()------------------------")
         result = self.con.post('/v2/ontologies', jsondata)
         return Ontology.fromJsonObj(self.con, result)
 
     def update(self) -> 'Ontology':
         jsonobj = self.toJsonObj(Actions.Update)
-        jsondata = json.dumps(jsonobj, cls=SetEncoder)
+        jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
+        print("================Ontology.update()========================")
+        print(jsondata)
+        print("----------------Ontology.update()------------------------")
         result = self.con.put('/v2/ontologies/metadata', jsondata, 'application/ld+json')
         return Ontology.fromJsonObj(self.con, result)
 
@@ -409,7 +422,7 @@ class Ontology:
         return Ontology.allOntologiesFromJsonObj(con, result)
 
     @staticmethod
-    def getOntologyFromServer(con: Connection, shortcode: str, name: str):
+    def getOntologyFromServer(con: Connection, shortcode: str, name: str) -> 'Ontology':
         result = con.get("/ontology/" + shortcode + "/" + name + "/v2")
         return Ontology.fromJsonObj(con, result)
 
@@ -441,11 +454,11 @@ class Ontology:
         print('  Project:              {}'.format(self.__project))
         print('  LastModificationDate: {}'.format(str(self.__lastModificationDate)))
         print('  Property Classes:')
-        if self.__property_classes is not None:
+        if self.__property_classes:
             for pc in self.__property_classes:
                 pc.print(4)
         print('  Resource Classes:')
-        if self.__resource_classes is not None:
+        if self.__resource_classes:
             for rc in self.__resource_classes:
                 rc.print(4)
 

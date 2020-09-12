@@ -5,7 +5,6 @@ import sys
 import wx
 import re
 
-from pprint import pprint
 from enum import Enum, unique
 
 from ..models.helpers import Actions, BaseError, Context, Cardinality, LastModificationDate
@@ -193,12 +192,7 @@ class OntoPanel(wx.Panel):
                 ontology_entry.Destroy()
                 return
             try:
-                #onto = onto.update()  ToDo: Remove the comment as soon as API bug is fixed!!!!!
-                info = wx.MessageDialog(parent=self,
-                                        message="Because of a Bug, Label and Comment of an ontology cannot be modified",
-                                        caption="Information",
-                                        style=wx.ICON_WARNING | wx.OK)
-                info.ShowModal()
+                onto = onto.update()
             except BaseError as err:
                 show_error("Couldn't modify the ontology!", err)
                 return

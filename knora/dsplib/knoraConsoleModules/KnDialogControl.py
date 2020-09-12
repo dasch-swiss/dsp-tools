@@ -697,12 +697,16 @@ class KnDialogSuperResourceClasses(KnDialogControl):
         self.prefix1_ctrl = wx.Choice(self.container, choices=self.prefixes1)
         self.prefix1_ctrl.Bind(wx.EVT_CHOICE, self.prefix1_changed)
         self.ele1.Add(self.prefix1_ctrl)
+
         self.sep1_ctrl = wx.StaticText(self.container, label=' : ')
         self.ele1.Add(self.sep1_ctrl)
+
         self.resclasses1 = list(self.all_resourceclasses1[tmp_prefix1])
+        self.resclasses1.sort()
         self.resclass1_ctrl = wx.Choice(self.container, choices=self.resclasses1)
         self.resclass1_ctrl.Bind(wx.EVT_CHOICE, self.choice_changed)
         self.ele1.Add(self.resclass1_ctrl)
+
         self.winsizer.Add(self.ele1)
         if value is not None and type(value) is list:
             self.prefix1_ctrl.SetSelection(self.prefixes1.index(tmp_prefix1))
@@ -741,8 +745,9 @@ class KnDialogSuperResourceClasses(KnDialogControl):
         ele2.Add(self.prefix2_ctrl[self.pcnt], flag=wx.EXPAND)
         sep2_ctrl = wx.StaticText(container2, label=' : ')
         ele2.Add(sep2_ctrl, flag=wx.EXPAND)
-        resclasses2 = list(self.all_resourceclasses['knora-api'])
-        self.resclass2_ctrl.append(wx.Choice(container2, choices=resclasses2))
+        items = list(self.all_resourceclasses['knora-api'])
+        items.sort()
+        self.resclass2_ctrl.append(wx.Choice(container2, choices=items))
         self.resclass2_ctrl[self.pcnt].Bind(wx.EVT_CHOICE, self.choice_changed)
         ele2.Add(self.resclass2_ctrl[self.pcnt], flag=wx.EXPAND)
         container2.SetSizerAndFit(ele2)
@@ -774,6 +779,7 @@ class KnDialogSuperResourceClasses(KnDialogControl):
         value = choice.GetCurrentSelection()
         self.resclass1_ctrl.Clear()
         items = list(self.all_resourceclasses1[self.prefixes1[value]])
+        items.sort()
         self.resclass1_ctrl.Append(items)
         self.choice_changed(event)
 
@@ -783,17 +789,18 @@ class KnDialogSuperResourceClasses(KnDialogControl):
         value = choice.GetCurrentSelection()
         self.resclass2_ctrl[id].Clear()
         items = list(self.all_resourceclasses[self.prefixes[value]])
+        items.sort()
         self.resclass2_ctrl[id].Append(items)
         self.choice_changed(event)
 
     def get_value(self) -> List[Tuple[str, str]]:
         prefix1 = self.prefixes1[self.prefix1_ctrl.GetCurrentSelection()]
-        items = list(self.all_resourceclasses1[prefix1])
+        items = list(self.all_resourceclasses1[prefix1]).sort()
         resclass1 = items[self.resclass1_ctrl.GetCurrentSelection()]
         result: List[Tuple[str, str]] = [(prefix1, resclass1)]
         for i in range(0, self.pcnt):
             prefix = self.prefixes[self.prefix2_ctrl[i].GetCurrentSelection()]
-            items = list(self.all_resourceclasses[prefix])
+            items = list(self.all_resourceclasses[prefix]).sort()
             resclass2 = items[self.resclass2_ctrl[i].GetCurrentSelection()]
             result.append((prefix, resclass2))
         return result

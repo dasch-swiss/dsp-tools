@@ -174,16 +174,16 @@ class ResourcePanel(wx.Window):
             self.reslist.Append((resourceclass.name,
                                  resourceclass.label[Languages.EN],
                                  ", ".join(supers)))
-        if cardinfo:
-            for propname, propinfo in cardinfo.items():
-                try:
-                    lmd = resourceclass.addProperty(property_id=self.onto.context.get_qualified_iri(propname),
-                                                    cardinality=propinfo['cardinality'],
-                                                    gui_order=propinfo['gui_order'],
-                                                    last_modification_date=self.onto.lastModificationDate)
-                    self.onto.lastModificationDate = lmd
-                except BaseError as err:
-                    show_error("Couldn't add property to the resource!", err)
+            if cardinfo:
+                for propname, propinfo in cardinfo.items():
+                    try:
+                        lmd = resourceclass.addProperty(property_id=self.onto.context.get_qualified_iri(propname),
+                                                        cardinality=propinfo['cardinality'],
+                                                        gui_order=propinfo['gui_order'],
+                                                        last_modification_date=self.onto.lastModificationDate)
+                        self.onto.lastModificationDate = lmd
+                    except BaseError as err:
+                        show_error("Couldn't add property to the resource!", err)
         dialog.Destroy()
 
     def edit_entry(self, event: wx.Event) -> None:

@@ -11,7 +11,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url='https://github.com/dasch-swiss/knora-py',
     author='Lukas Rosenthaler',
-    author_email='lukas.rosenthaler@unibas.ch',
+    author_email='lukas.rosenthaler@dasch.swiss',
     license='GPLv3',
     packages=setuptools.find_packages(),
     classifiers=[
@@ -32,11 +32,10 @@ setuptools.setup(
     ],
     entry_points={
           'console_scripts': [
-              'knora-create-ontology=knora.create_onto:main',
-              'knora-console=knora.knoraConole:main'
+              'knora-create-onto=knora.create_onto:main',
+              'knora-console=knora.knoraConsole:main'
               'knora-xml-import=knora.xml2knora:main',
               'knora-reset-triplestore=knora.reset_triplestore:main',
-              'knoractl=knoractl:main',
           ],
     },
     include_package_data=True,

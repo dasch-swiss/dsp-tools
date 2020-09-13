@@ -1,5 +1,8 @@
 import argparse
 import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 from dsplib.utils.onto_validate import validate_list, validate_ontology
 from dsplib.utils.onto_create_lists import create_lists

@@ -1,29 +1,49 @@
 [![PyPI version](https://badge.fury.io/py/knora.svg)](https://badge.fury.io/py/knora)
 
-# knora-create-ontology
+# knora-create-onto
 
-`knora-create-ontology` creates an ontology. Furthermore, the script reads a JSON file containing the data model 
-(ontology) definition, connects to the Knora server and creates the data model.
+- `knora-create-onto create` creates an ontology. Furthermore, the script reads a JSON file containing the data model 
+  (ontology) definition, connects to the Knora server and creates the data model.
+- `knora-create-onto get` reads an ontology from a server and creates a JSON file that can be used by
+  `knora-create-onto create`
 
 ## Usage
 
+### Create an ontology on a server
+
 ```bash
-$ knora-create-ontology data_model_definition.json
+$ knora-create-onto create [options] data_model_definition.json
 ```
 The above command line supports the following options:
 
 - _"-s server" | "--server server"_: URL of the Knora server [default: localhost:3333].
 - _"-u username" | "--user username"_: Username to log into Knora [default: root@example.com].
 - _"-p password" | "--password password"_: Password for login to the Knora server [default: test].
-- _"-v" | "--validate"_: If this flag is set, only the validation of the JSON runs.
+- _"-V" | "--validate"_: If this flag is set, only the validation of the JSON runs.
 - _"-l" | "--lists"_: This only creates the lists using a [simplified schema](#json-for-lists). Please note
   that in this case the project __must__ exist.
+- _"-v" | "--verbose"_: Print out some information about progress
   
 So for example you can have the command:
 
 ```
-$ knora-create-ontology data_model_definition.json -s
+$ knora-create-onto create -s https://api.server data_model_definition.json
 ```
+
+### Get an ontology from a server
+
+```bash
+$ knora-create-onto get [options] output-file
+```
+
+The above command line supports the following options:
+
+- _"-s server" | "--server server"_: URL of the Knora server [default: localhost:3333].
+- _"-u username" | "--user username"_: Username to log into Knora [default: root@example.com].
+- _"-p password" | "--password password"_: Password for login to the Knora server [default: test].
+- _"-P project" | "--project shortcode|shortname|iri"_: Shortcode, shortname or iri of project
+- _"-v" | "--verbose"_: Print out some information about progress
+
 
 ## JSON ontology definition format
 

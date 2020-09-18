@@ -6,17 +6,18 @@ from typing import List, Set, Dict, Tuple, Optional, Any, Union, NewType
 from urllib.parse import quote_plus
 
 path = os.path.abspath(os.path.dirname(__file__))
-(head, tail)  = os.path.split(path)
+(head, tail) = os.path.split(path)
 if not head in sys.path:
     sys.path.insert(0, head)
 if not path in sys.path:
     sys.path.insert(0, path)
 
-from ..models.helpers import Actions, BaseError
-from ..models.langstring import Languages
-from ..models.connection import Connection
-from ..models.group import Group
-from ..models.project import Project
+from .helpers import Actions, BaseError
+from .langstring import Languages
+from .connection import Connection
+from .model import Model
+from .group import Group
+from .project import Project
 
 """
 This module implements the handling (CRUD) of Knora users.
@@ -43,7 +44,7 @@ In addition there is a static methods ``getAllProjects`` which returns a list of
 """
 
 @strict
-class User:
+class User(Model):
     """
     This class represents a user in Knora.
 
@@ -139,12 +140,11 @@ class User:
     _sysadmin: bool
     _in_groups: Set[str]
     _in_projects: Dict[str, bool]
-    add_to_project: Dict[str, bool]
-    rm_from_project: Dict[str, bool]
-    add_to_group: Set[str]
-    rm_from_group: Set[str]
-    change_admin: Set[str]
-    __changed: Set[str]
+    _add_to_project: Dict[str, bool]
+    _rm_from_project: Dict[str, bool]
+    _add_to_group: Set[str]
+    _rm_from_group: Set[str]
+    _change_admin: Set[str]
 
     def __init__(self,
                  con:  Connection,
@@ -177,10 +177,7 @@ class User:
         :param in_projects: Dict with project-IRI as key, boolean(True=project admin) as value [optional]
         :param in_groups: Set with group-IRI's the user should belong to [optional]
         """
-
-        if not isinstance(con, Connection):
-            raise BaseError ('"con"-parameter must be an instance of Connection')
-        self.con = con
+        super().__init__(con)
         self._id = str(id) if id is not None else None
         self._username = str(username) if username is not None else None
         self._email = str(email) if email is not None else None
@@ -210,12 +207,11 @@ class User:
             raise BaseError('In_groups must be a set of strings or None!')
 
         self._sysadmin = None if sysadmin is None else bool(sysadmin)
-        self.__changed = set()
-        self.add_to_project = {}
-        self.rm_from_project = {}
-        self.change_admin = {}
-        self.add_to_group = set()
-        self.rm_from_group = set()
+        self._add_to_project = {}
+        self._rm_from_project = {}
+        self._change_admin = {}
+        self._add_to_group = set()
+        self._rm_from_group = set()
 
     @property
     def id(self) -> Optional[str]:
@@ -234,7 +230,7 @@ class User:
         if value is None:
             return
         self._username = str(value)
-        self.__changed.add('username')
+        self._changed.add('username')
 
     @property
     def email(self) -> Optional[str]:
@@ -245,7 +241,7 @@ class User:
         if value is None:
             return
         self._email = str(value)
-        self.__changed.add('email')
+        self._changed.add('email')
 
     @property
     def givenName(self) -> Optional[str]:
@@ -256,7 +252,7 @@ class User:
         if value is None:
             return
         self._givenName = str(value)
-        self.__changed.add('givenName')
+        self._changed.add('givenName')
 
     @property
     def familyName(self) -> Optional[str]:
@@ -267,7 +263,7 @@ class User:
         if value is None:
             return
         self._familyName = str(value)
-        self.__changed.add('familyName')
+        self._changed.add('familyName')
 
     @property
     def password(self) -> Optional[str]:
@@ -278,7 +274,7 @@ class User:
         if value is None:
             return
         self._password = str(value)
-        self.__changed.add('password')
+        self._changed.add('password')
 
     @property
     def lang(self) -> Optional[Languages]:
@@ -290,13 +286,13 @@ class User:
             return
         if isinstance(value, Languages):
             self._lang = value
-            self.__changed.add('lang')
+            self._changed.add('lang')
         else:
             lmap = dict(map(lambda a: (a.value, a), Languages))
             if lmap.get(value) is None:
                 raise BaseError('Invalid language string "' + value + '"!')
             self._lang = lmap[value]
-            self.__changed.add('lang')
+            self._changed.add('lang')
 
     @property
     def status(self) -> bool:
@@ -306,7 +302,7 @@ class User:
     def status(self, value: Optional[bool]) -> None:
         self._status = None if value is None else bool(value)
         if value is not None:
-            self.__changed.add('status')
+            self._changed.add('status')
 
     @property
     def sysadmin(self) -> bool:
@@ -316,7 +312,7 @@ class User:
     def sysadmin(self, value: bool):
         self._sysadmin = None if value is None else bool(value)
         if value is not None:
-            self.__changed.add('sysadmin')
+            self._changed.add('sysadmin')
 
     @property
     def in_groups(self) -> Set[str]:
@@ -334,11 +330,11 @@ class User:
         :return: None
         """
 
-        if value in self.rm_from_group:
-            self.rm_from_group.pop(value)
+        if value in self._rm_from_group:
+            self._rm_from_group.pop(value)
         elif value not in self._in_groups:
-            self.add_to_group.add(value)
-            self.__changed.add('in_groups')
+            self._add_to_group.add(value)
+            self._changed.add('in_groups')
         else:
             raise BaseError("Already member of this group!")
 
@@ -350,11 +346,11 @@ class User:
         :return: None
         """
 
-        if value in self.add_to_group:
-            self.add_to_group.discard(value)
+        if value in self._add_to_group:
+            self._add_to_group.discard(value)
         elif value in self._in_groups:
-            self.rm_from_group.add(value)
-            self.__changed.add('in_groups')
+            self._rm_from_group.add(value)
+            self._changed.add('in_groups')
         else:
             raise BaseError("User is not in groups!")
 
@@ -375,11 +371,11 @@ class User:
         :return: None
         """
 
-        if value in self.rm_from_project:
-            self.rm_from_project.pop(value)
+        if value in self._rm_from_project:
+            self._rm_from_project.pop(value)
         elif value not in self._in_projects:
-            self.add_to_project[value] = padmin
-            self.__changed.add('in_projects')
+            self._add_to_project[value] = padmin
+            self._changed.add('in_projects')
         else:
             raise BaseError("Already member of this project!")
 
@@ -391,11 +387,11 @@ class User:
         :return: None
         """
 
-        if value in self.add_to_project:
-            self.add_to_project.pop(value)
+        if value in self._add_to_project:
+            self._add_to_project.pop(value)
         elif value in self._in_projects:
-            self.rm_from_project[value] = self._in_projects[value]
-            self.__changed.add('in_projects')
+            self._rm_from_project[value] = self._in_projects[value]
+            self._changed.add('in_projects')
         else:
             raise BaseError("Project is not in list of member projects!")
 
@@ -408,10 +404,10 @@ class User:
         """
 
         if value in self._in_projects:
-            self.change_admin[value] = True
-            self.__changed.add('in_projects')
-        elif value in self.add_to_project:
-            self.add_to_project[value] = True
+            self._change_admin[value] = True
+            self._changed.add('in_projects')
+        elif value in self._add_to_project:
+            self._add_to_project[value] = True
         else:
             raise BaseError("User is not member of project!")
 
@@ -423,19 +419,19 @@ class User:
         :return: None
         """
         if value in self._in_projects:
-            self.change_admin[value] = False
-            self.__changed.add('in_projects')
-        elif value in self.add_to_project:
-            self.add_to_project[value] = False
+            self._change_admin[value] = False
+            self._changed.add('in_projects')
+        elif value in self._add_to_project:
+            self._add_to_project[value] = False
         else:
             raise BaseError("User is not member of project!")
 
     @property
     def changed(self) -> Set[str]:
-        return self.__changed
+        return self._changed
 
     def has_changed(self, name: str):
-        return name in self.__changed
+        return name in self._changed
 
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any):
@@ -529,19 +525,19 @@ class User:
             tmp['systemAdmin'] = False if self._sysadmin is None else self._sysadmin
         elif action == Actions.Update:
             tmp_changed = False
-            if self._username is not None and 'username' in self.__changed:
+            if self._username is not None and 'username' in self._changed:
                 tmp['username'] = self._username
                 tmp_changed = self._username
-            if self._email is not None and 'email' in self.__changed:
+            if self._email is not None and 'email' in self._changed:
                 tmp['email'] = self._email
                 tmp_changed = True
-            if self._givenName is not None and 'givenName' in self.__changed:
+            if self._givenName is not None and 'givenName' in self._changed:
                 tmp['givenName'] = self._givenName
                 tmp_changed = True
-            if self._familyName is not None and 'familyName' in self.__changed:
+            if self._familyName is not None and 'familyName' in self._changed:
                 tmp['familyName'] = self._familyName
                 tmp_changed = True
-            if self._lang is not None and 'lang' in self.__changed:
+            if self._lang is not None and 'lang' in self._changed:
                 tmp['lang'] = self._lang.value
                 tmp_changed = True
             if not tmp_changed:
@@ -597,11 +593,11 @@ class User:
         if jsonobj:
             jsondata = json.dumps(jsonobj)
             result = self.con.put('/admin/users/iri/' + quote_plus(self.id) + '/BasicUserInformation', jsondata)
-        if 'status' in self.__changed:
+        if 'status' in self._changed:
             jsonobj = {'status': self._status}
             jsondata = json.dumps(jsonobj)
             result = self.con.put('/admin/users/iri/' + quote_plus(self.id) + '/Status', jsondata)
-        if 'password' in self.__changed:
+        if 'password' in self._changed:
             if requesterPassword is None:
                 raise BaseError("Requester's password is missing!")
             jsonobj = {
@@ -610,21 +606,21 @@ class User:
             }
             jsondata = json.dumps(jsonobj)
             result = self.con.put('/admin/users/iri/' + quote_plus(self.id) + '/Password', jsondata)
-        if 'sysadmin' in self.__changed:
+        if 'sysadmin' in self._changed:
             jsonobj = {'systemAdmin': self._sysadmin}
             jsondata = json.dumps(jsonobj)
             result = self.con.put('/admin/users/iri/' + quote_plus(self.id) + '/SystemAdmin', jsondata)
-        for p in self.add_to_project.items():
+        for p in self._add_to_project.items():
             result = self.con.post('/admin/users/iri/' + quote_plus(self._id) + '/project-memberships/' + quote_plus(p[0]))
             if p[1]:
                 result = self.con.post('/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
 
-        for p in self.rm_from_project:
+        for p in self._rm_from_project:
             if self._in_projects.get(p) is not None and self._in_projects[p]:
                 result = self.con.delete('/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p))
             result = self.con.delete('/admin/users/iri/' + quote_plus(self._id) + '/project-memberships/' + quote_plus(p))
 
-        for p in self.change_admin.items():
+        for p in self._change_admin.items():
             if not p[0] in self._in_projects:
                 raise BaseError('user must be member of project!')
             if p[1]:
@@ -632,10 +628,10 @@ class User:
             else:
                 result = self.con.delete('/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
 
-        for p in self.add_to_group:
+        for p in self._add_to_group:
             print('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
             result = self.con.post('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
-        for p in self.rm_from_group:
+        for p in self._rm_from_group:
             result = self.con.delete('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
         user = User(con=self.con, id=self._id).read()
         return user

@@ -1,8 +1,12 @@
+import os
+import sys
 import wx
 import wx.adv
 from wx.adv import TaskBarIcon as TaskBarIcon
-from dsplib.models.connection import Connection
 
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+
+from dsplib.models.connection import Connection
 from dsplib.knoraConsoleModules.ProjectPanel import ProjectPanel
 from dsplib.knoraConsoleModules.ListPanel import ListPanel
 from dsplib.knoraConsoleModules.UserPanel import UserPanel
@@ -19,7 +23,9 @@ class DemoTaskBarIcon(TaskBarIcon):
         self.frame = frame
 
         # Set the image
-        icon = self.MakeIcon(wx.Image('icons/knora-py-logo.png', wx.BITMAP_TYPE_PNG))
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        print('----->', current_dir)
+        icon = self.MakeIcon(wx.Image(os.path.join(current_dir,'icons/knora-py-logo.png'), wx.BITMAP_TYPE_PNG))
         self.SetIcon(icon, "Knora-py Console")
         self.imgidx = 1
 
@@ -245,6 +251,13 @@ class OpenConnectionDialog(wx.Dialog):
 
     def get_res(self):
         return self.con
+
+def mainknora():
+    app = wx.App()
+    frm = KnoraConsole(None, title='Knora Console V0.1.1 Beta', size=wx.Size(800, 600))
+    frm.Show()
+    app.MainLoop()
+    print("Bye Bye")
 
 if __name__ == '__main__':
     # When this module is run (not imported) then create the app, the

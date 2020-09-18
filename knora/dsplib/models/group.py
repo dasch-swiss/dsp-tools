@@ -5,6 +5,7 @@ from urllib.parse import quote_plus
 
 from .helpers import Actions, BaseError
 from .connection import Connection
+from .model import Model
 from .project import Project
 
 """
@@ -30,7 +31,7 @@ DELETE
 
 """
 @strict
-class Group:
+class Group(Model):
     """
     This class represents a Knora group
 
@@ -65,13 +66,12 @@ class Group:
     PROJECT_ADMIN_GROUP: str = "http://www.knora.org/ontology/knora-admin#ProjectAdmin"
     PROJECT_SYSTEMADMIN_GROUP: str = "http://www.knora.org/ontology/knora-admin#SystemAdmin"
 
-    __id: str
-    __name: str
-    __description: str
-    __project: str
-    __selfjoin: bool
-    __status: bool
-    __changed: set
+    _id: str
+    _name: str
+    _description: str
+    _project: str
+    _selfjoin: bool
+    _status: bool
 
     def __init__(self,
                  con: Connection,
@@ -81,49 +81,46 @@ class Group:
                  project: Optional[Union[str, Project]] = None,
                  selfjoin: Optional[bool] = None,
                  status: Optional[bool] = None):
-        if not isinstance(con, Connection):
-            raise BaseError ('"con"-parameter must be an instance of Connection')
-        self.con = con
-        self.__id = str(id) if id is not None else None
-        self.__name = str(name) if name is not None else None
-        self.__description = description
+        super().__init__(con)
+        self._id = str(id) if id is not None else None
+        self._name = str(name) if name is not None else None
+        self._description = description
         if project is not None and isinstance(project, Project):
-            self.__project = project.id
+            self._project = project.id
         else:
-            self.__project = str(project) if project is not None else None
-        self.__selfjoin = bool(selfjoin) if selfjoin is not None else None
-        self.__status = bool(status) if status is not None else None
-        self.__changed = set()
+            self._project = str(project) if project is not None else None
+        self._selfjoin = bool(selfjoin) if selfjoin is not None else None
+        self._status = bool(status) if status is not None else None
 
     @property
     def id(self) -> Optional[str]:
-        return self.__id
+        return self._id
 
-    @id.setter
+    @_id.setter
     def id(self, value: str) -> None:
         raise BaseError('Group id cannot be modified!')
 
     @property
     def name(self) -> Optional[str]:
-        return self.__name
+        return self._name
 
     @name.setter
     def name(self, value: str):
-        self.__name = value
-        self.__changed.add('name')
+        self._name = value
+        self._changed.add('name')
 
     @property
     def description(self):
-        return self.__description
+        return self._description
 
     @description.setter
     def description(self, value: Optional[str]):
-        self.__description = value
-        self.__changed.add('description')
+        self._description = value
+        self._changed.add('description')
 
     @property
     def project(self):
-        return self.__project
+        return self._project
 
     @project.setter
     def project(self, value: str):
@@ -131,24 +128,24 @@ class Group:
 
     @property
     def selfjoin(self) -> bool:
-        return self.__selfjoin
+        return self._selfjoin
 
     @selfjoin.setter
     def selfjoin(self, value: bool) -> None:
-        self.__selfjoin = value
-        self.__changed.add('selfjoin')
+        self._selfjoin = value
+        self._changed.add('selfjoin')
 
     @property
     def status(self) -> bool:
-        return self.__status
+        return self._status
 
     @status.setter
     def status(self, value: bool) -> None:
-        self.__status = value
-        self.__changed.add('status')
+        self._status = value
+        self._changed.add('status')
 
     def has_changed(self) -> bool:
-        if self.__changed:
+        if self._changed:
             return True
         else:
             return False
@@ -185,27 +182,27 @@ class Group:
     def toJsonObj(self, action: Actions):
         tmp = {}
         if action == Actions.Create:
-            if self.__name is None:
+            if self._name is None:
                 raise BaseError("There must be a valid name!")
-            tmp['name'] = self.__name
-            if self.__description is not None:
-                tmp['description'] = self.__description
-            if self.__project is None:
+            tmp['name'] = self._name
+            if self._description is not None:
+                tmp['description'] = self._description
+            if self._project is None:
                 raise BaseError("There must be a valid project!")
-            tmp['project'] = self.__project
-            if self.__selfjoin is None:
+            tmp['project'] = self._project
+            if self._selfjoin is None:
                 raise BaseError("There must be a valid value for selfjoin!")
-            tmp['selfjoin'] = self.__selfjoin
-            if self.__status is None:
+            tmp['selfjoin'] = self._selfjoin
+            if self._status is None:
                 raise BaseError("There must be a valid value for status!")
-            tmp['status'] = self.__status
+            tmp['status'] = self._status
         else:
-            if self.__name is not None and 'name' in self.__changed:
-                tmp['name'] = self.__name
-            if self.__description is not None and 'description' in self.__changed:
-                tmp['description'] = self.__description
-            if self.__selfjoin is not None and 'selfjoin' in self.__changed:
-                tmp['selfjoin'] = self.__selfjoin
+            if self._name is not None and 'name' in self._changed:
+                tmp['name'] = self._name
+            if self._description is not None and 'description' in self._changed:
+                tmp['description'] = self._description
+            if self._selfjoin is not None and 'selfjoin' in self._changed:
+                tmp['selfjoin'] = self._selfjoin
         return tmp
 
     def create(self):
@@ -215,23 +212,23 @@ class Group:
         return Group.fromJsonObj(self.con, result['group'])
 
     def read(self):
-        result = self.con.get('/admin/groups/' + quote_plus(self.__id))
+        result = self.con.get('/admin/groups/' + quote_plus(self._id))
         return Group.fromJsonObj(self.con, result['group'])
 
     def update(self):
         jsonobj = self.toJsonObj(Actions.Update)
         if jsonobj:
             jsondata = json.dumps(jsonobj)
-            result = self.con.put('/admin/groups/' + quote_plus(self.id), jsondata)
+            result = self.con.put('/admin/groups/' + quote_plus(self._id), jsondata)
             updated_group = Group.fromJsonObj(self.con, result['group'])
-        if self.__status is not None and 'status' in self.__changed:
-            jsondata = json.dumps({'status': self.__status})
-            result = self.con.put('/admin/groups/' + quote_plus(self.id) + '/status', jsondata)
+        if self._status is not None and 'status' in self._changed:
+            jsondata = json.dumps({'status': self._status})
+            result = self.con.put('/admin/groups/' + quote_plus(self._id) + '/status', jsondata)
             updated_group = Group.fromJsonObj(self.con, result['group'])
         return updated_group
 
     def delete(self):
-        result = self.con.delete('/admin/groups/' + quote_plus(self.__id))
+        result = self.con.delete('/admin/groups/' + quote_plus(self._id))
         return Group.fromJsonObj(self.con, result['group'])
 
     @staticmethod
@@ -243,12 +240,12 @@ class Group:
 
     def print(self):
         print('Group Info:')
-        print('  Id:          {}'.format(self.__id))
-        print('  Name:        {}'.format(self.__name))
-        print('  Description: {}'.format(self.__description))
-        print('  Project:     {}'.format(self.__project))
-        print('  Selfjoin:    {}'.format(self.__selfjoin))
-        print('  Status:      {}'.format(self.__status))
+        print('  Id:          {}'.format(self._id))
+        print('  Name:        {}'.format(self._name))
+        print('  Description: {}'.format(self._description))
+        print('  Project:     {}'.format(self._project))
+        print('  Selfjoin:    {}'.format(self._selfjoin))
+        print('  Status:      {}'.format(self._status))
 
 
 

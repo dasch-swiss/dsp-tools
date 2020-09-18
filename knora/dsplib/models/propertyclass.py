@@ -5,10 +5,11 @@ from pystrict import strict
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
 
-from ..models.helpers import Actions, BaseError, Context, Cardinality, LastModificationDate, WithId
-from ..models.connection import Connection
-from ..models.langstring import Languages, LangStringParam, LangString
-from ..models.listnode import ListNode
+from .helpers import Actions, BaseError, Context, Cardinality, LastModificationDate, WithId
+from .connection import Connection
+from .model import Model
+from .langstring import Languages, LangStringParam, LangString
+from .listnode import ListNode
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -18,21 +19,20 @@ class SetEncoder(json.JSONEncoder):
 
 
 @strict
-class PropertyClass:
-    __context: Context
-    __id: str
-    __name: str
-    __ontology_id: str
-    __superproperties: List[str]
-    __object: str
-    __subject: str
-    __gui_element: str
-    __gui_attributes: Dict[str, str]
-    __label: LangString
-    __comment: LangString
-    __editable: bool
-    __linkvalue: bool
-    __changed: Set[str]
+class PropertyClass(Model):
+    _context: Context
+    _id: str
+    _name: str
+    _ontology_id: str
+    _superproperties: List[str]
+    _object: str
+    _subject: str
+    _gui_element: str
+    _gui_attributes: Dict[str, str]
+    _label: LangString
+    _comment: LangString
+    _editable: bool
+    _linkvalue: bool
 
     def __init__(self,
                  con: Connection,
@@ -49,58 +49,56 @@ class PropertyClass:
                  comment: Optional[Union[LangString, str]] = None,
                  editable: Optional[bool] = None,
                  linkvalue: Optional[bool] = None):
-        if not isinstance(con, Connection):
-            raise BaseError('"con"-parameter must be an instance of Connection')
+        super().__init__(con)
         if not isinstance(context, Context):
             raise BaseError('"context"-parameter must be an instance of Context')
         self.con = con
-        self.__context = context
-        self.__id = id
-        self.__name = name
-        self.__ontology_id = ontology_id
+        self._context = context
+        self._id = id
+        self._name = name
+        self._ontology_id = ontology_id
         if isinstance(superproperties, PropertyClass):
-            self.__superproperties = list(map(lambda a: a.id, superproperties))
+            self._superproperties = list(map(lambda a: a.id, superproperties))
         else:
-            self.__superproperties = superproperties
-        self.__object = object
-        self.__subject = subject
-        self.__gui_element = gui_element
-        self.__gui_attributes = gui_attributes
+            self._superproperties = superproperties
+        self._object = object
+        self._subject = subject
+        self._gui_element = gui_element
+        self._gui_attributes = gui_attributes
         #
         # process label
         #
         if label is not None:
             if isinstance(label, str):
-                self.__label = LangString(label)
+                self._label = LangString(label)
             elif isinstance(label, LangString):
-                self.__label = label
+                self._label = label
             else:
                 raise BaseError('Invalid LangString for label!')
         else:
-            self.__label = None
+            self._label = None
         #
         # process comment
         #
         if comment is not None:
             if isinstance(comment, str):
-                self.__comment = LangString(comment)
+                self._comment = LangString(comment)
             elif isinstance(comment, LangString):
-                self.__comment = comment
+                self._comment = comment
             else:
                 raise BaseError('Invalid LangString for comment!')
         else:
-            self.__comment = None
+            self._comment = None
 
-        self.__editable = editable
-        self.__linkvalue = linkvalue
-        self.__changed = set()
+        self._editable = editable
+        self._linkvalue = linkvalue
 
     #
     # Here follows a list of getters/setters
     #
     @property
     def name(self) -> Optional[str]:
-        return self.__name
+        return self._name
 
     @name.setter
     def name(self, value: str) -> None:
@@ -108,7 +106,7 @@ class PropertyClass:
 
     @property
     def id(self) -> Optional[str]:
-        return self.__id
+        return self._id
 
     @id.setter
     def id(self, value: str) -> None:
@@ -116,7 +114,7 @@ class PropertyClass:
 
     @property
     def ontology_id(self) -> Optional[str]:
-        return self.__ontology_id
+        return self._ontology_id
 
     @ontology_id.setter
     def ontology_id(self, value: str) -> None:
@@ -124,7 +122,7 @@ class PropertyClass:
 
     @property
     def superproperties(self) -> Optional[List[str]]:
-        return self.__superproperties
+        return self._superproperties
 
     @superproperties.setter
     def superproperties(self, value: str) -> None:
@@ -132,7 +130,7 @@ class PropertyClass:
 
     @property
     def object(self) -> Optional[str]:
-        return self.__object
+        return self._object
 
     @object.setter
     def object(self, value: Any):
@@ -140,7 +138,7 @@ class PropertyClass:
 
     @property
     def subject(self) -> Optional[str]:
-        return self.__subject
+        return self._subject
 
     @subject.setter
     def subject(self, value: Any):
@@ -148,84 +146,84 @@ class PropertyClass:
 
     @property
     def gui_element(self) -> Optional[str]:
-        return self.__gui_element
+        return self._gui_element
 
     @gui_element.setter
     def gui_element(self, value: str) -> None:
-        self.__gui_element = value
-        self.__changed.append('gui_element')
+        self._gui_element = value
+        self._changed.append('gui_element')
 
     @property
     def gui_attributes(self) -> Optional[Dict[str, str]]:
-        return self.__gui_attributes
+        return self._gui_attributes
 
     @gui_attributes.setter
     def gui_attributes(self, value: List[Dict[str, str]]) -> None:
-        self.__gui_attributes = value
-        self.__changed.append('gui_attributes')
+        self._gui_attributes = value
+        self._changed.append('gui_attributes')
 
     def addGuiAttribute(self, key: str, value: str) -> None:
-        self.__gui_attributes[key] = value
-        self.__changed.append('gui_attributes')
+        self._gui_attributes[key] = value
+        self._changed.append('gui_attributes')
 
     def rmGuiAttribute(self, key: str) -> None:
-        if self.__gui_attributes.get(key) is not None:
-            del self.__gui_attributes[key]
-            self.__changed.append('gui_attributes')
+        if self._gui_attributes.get(key) is not None:
+            del self._gui_attributes[key]
+            self._changed.append('gui_attributes')
 
     @property
     def label(self) -> Optional[LangString]:
-        return self.__label
+        return self._label
 
     @label.setter
     def label(self, value: Optional[Union[LangString, str]]) -> None:
         if value is None:
-            self.__label.empty()  # clear all labels
+            self._label.empty()  # clear all labels
         else:
             if isinstance(value, LangString):
-                self.__label = value
+                self._label = value
             elif isinstance(value, str):
-                self.__label = LangString(value)
+                self._label = LangString(value)
             else:
                 raise BaseError('Not a valid LangString')
-        self.__changed.add('label')
+        self._changed.add('label')
 
     def addLabel(self, lang: Union[Languages, str], value: str) -> None:
-        self.__label[lang] = value
-        self.__changed.add('label')
+        self._label[lang] = value
+        self._changed.add('label')
 
     def rmLabel(self, lang: Union[Languages, str]) -> None:
-        del self.__label[lang]
-        self.__changed.add('label')
+        del self._label[lang]
+        self._changed.add('label')
 
     @property
     def comment(self) -> Optional[LangString]:
-        return self.__comment
+        return self._comment
 
     @comment.setter
     def comment(self, value: Optional[LangString]) -> None:
         if value is None:
-            self.__comment.empty()  # clear all comments!
+            self._comment.empty()  # clear all comments!
         else:
             if isinstance(value, LangString):
-                self.__comment = value
+                self._comment = value
             elif isinstance(value, str):
-                self.__comment = LangString(value)
+                self._comment = LangString(value)
             else:
                 raise BaseError('Not a valid LangString')
-        self.__changed.add('comment')
+        self._changed.add('comment')
 
     def addComment(self, lang: Union[Languages, str], value: str) -> None:
-        self.__comment[lang] = value
-        self.__changed.add('comment')
+        self._comment[lang] = value
+        self._changed.add('comment')
 
     def rmComment(self, lang: Union[Languages, str]) -> None:
-        del self.__comment[lang]
-        self.__changed.add('comment')
+        del self._comment[lang]
+        self._changed.add('comment')
 
     @property
     def editable(self) -> bool:
-        return self.__editable
+        return self._editable
 
     @editable.setter
     def editable(self, value: bool) -> None:
@@ -233,7 +231,7 @@ class PropertyClass:
 
     @property
     def linkvalue(self) -> bool:
-        return self.__linkvalue
+        return self._linkvalue
 
     @linkvalue.setter
     def linkvalue(self) -> None:
@@ -316,27 +314,27 @@ class PropertyClass:
                 if tmp[0]:
                     return {"@id": resref}  # fully qualified name in the form "prefix:name"
                 else:
-                    return {"@id": self.__context.prefix_from_iri(self.__ontology_id) + ':' + tmp[1]}  # ":name" in current ontology
+                    return {"@id": self._context.prefix_from_iri(self._ontology_id) + ':' + tmp[1]}  # ":name" in current ontology
             else:
                 return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
 
         tmp = {}
         exp = re.compile('^http.*')  # It is already a fully IRI
-        if exp.match(self.__ontology_id):
-            propid = self.__context.prefix_from_iri(self.__ontology_id) + ":" + self.__name
-            ontid = self.__ontology_id
+        if exp.match(self._ontology_id):
+            propid = self._context.prefix_from_iri(self._ontology_id) + ":" + self._name
+            ontid = self._ontology_id
         else:
-            propid = self.__ontology_id + ":" + self.__name
-            ontid = self.__context.iri_from_prefix(self.__ontology_id)
+            propid = self._ontology_id + ":" + self._name
+            ontid = self._context.iri_from_prefix(self._ontology_id)
         if action == Actions.Create:
-            if self.__name is None:
+            if self._name is None:
                 raise BaseError("There must be a valid property class name!")
-            if self.__ontology_id is None:
+            if self._ontology_id is None:
                 raise BaseError("There must be a valid ontology_id given!")
-            if self.__superproperties is None:
+            if self._superproperties is None:
                 superproperties = [{"@id": "knora-api:hasValue"}]
             else:
-                superproperties = list(map(resolve_propref, self.__superproperties))
+                superproperties = list(map(resolve_propref, self._superproperties))
 
             tmp = {
                 "@id": ontid,  # self._ontology_id,
@@ -345,24 +343,24 @@ class PropertyClass:
                 "@graph": [{
                     "@id": propid,
                     "@type": "owl:ObjectProperty",
-                    "rdfs:label": self.__label.toJsonLdObj(),
+                    "rdfs:label": self._label.toJsonLdObj(),
                     "rdfs:subPropertyOf": superproperties
                 }],
-                "@context": self.__context.toJsonObj()
+                "@context": self._context.toJsonObj()
             }
-            if self.__comment is not None:
-                if not self.__comment.isEmpty():
-                    tmp['@graph'][0]["rdfs:comment"] = self.__comment.toJsonLdObj()
-            if self.__subject is not None:
-                tmp['@graph'][0]["knora-api:subjectType"] = resolve_propref(self.__subject)
-            if self.__object is not None:
-                tmp['@graph'][0]["knora-api:objectType"] = resolve_propref(self.__object)
-            if self.__gui_element is not None:
+            if self._comment is not None:
+                if not self._comment.isEmpty():
+                    tmp['@graph'][0]["rdfs:comment"] = self._comment.toJsonLdObj()
+            if self._subject is not None:
+                tmp['@graph'][0]["knora-api:subjectType"] = resolve_propref(self._subject)
+            if self._object is not None:
+                tmp['@graph'][0]["knora-api:objectType"] = resolve_propref(self._object)
+            if self._gui_element is not None:
                 tmp['@graph'][0]["salsah-gui:guiElement"] = {
-                    "@id": self.__gui_element
+                    "@id": self._gui_element
                 }
-            if self.__gui_attributes:
-                ga = list(map(lambda x: x[0] + '=' + str(x[1]), self.__gui_attributes.items()))
+            if self._gui_attributes:
+                ga = list(map(lambda x: x[0] + '=' + str(x[1]), self._gui_attributes.items()))
                 tmp['@graph'][0]["salsah-gui:guiAttribute"] = ga
         elif action == Actions.Update:
             tmp = {
@@ -373,14 +371,14 @@ class PropertyClass:
                     "@id": propid,
                     "@type": "owl:ObjectProperty",
                 }],
-                "@context": self.__context.toJsonObj(),
+                "@context": self._context.toJsonObj(),
             }
             if what == 'label':
-                if not self.__label.isEmpty() and 'label' in self.__changed:
-                    tmp['@graph'][0]['rdfs:label'] = self.__label.toJsonLdObj()
+                if not self._label.isEmpty() and 'label' in self._changed:
+                    tmp['@graph'][0]['rdfs:label'] = self._label.toJsonLdObj()
             if what == 'comment':
-                if not self.__comment.isEmpty() and 'comment' in self.__changed:
-                    tmp['@graph'][0]['rdfs:comment'] = self.__comment.toJsonLdObj()
+                if not self._comment.isEmpty() and 'comment' in self._changed:
+                    tmp['@graph'][0]['rdfs:comment'] = self._comment.toJsonLdObj()
 
         return tmp
 
@@ -389,7 +387,7 @@ class PropertyClass:
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=2)
         result = self.con.post('/v2/ontologies/properties', jsondata)
         last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
-        return last_modification_date, PropertyClass.fromJsonObj(self.con, self.__context, result['@graph'])
+        return last_modification_date, PropertyClass.fromJsonObj(self.con, self._context, result['@graph'])
 
     def update(self, last_modification_date: LastModificationDate) -> Tuple[LastModificationDate, 'ResourceClass']:
         #
@@ -397,25 +395,25 @@ class PropertyClass:
         #
         result = None
         something_changed = False
-        if 'label' in self.__changed:
+        if 'label' in self._changed:
             jsonobj = self.toJsonObj(last_modification_date, Actions.Update, 'label')
             jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
             result = self.con.put('/v2/ontologies/properties', jsondata)
             last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
             something_changed = True
-        if 'comment' in self.__changed:
+        if 'comment' in self._changed:
             jsonobj = self.toJsonObj(last_modification_date, Actions.Update, 'comment')
             jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
             result = self.con.put('/v2/ontologies/properties', jsondata)
             last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
             something_changed = True
         if something_changed:
-            return last_modification_date, PropertyClass.fromJsonObj(self.con, self.__context, result['@graph'])
+            return last_modification_date, PropertyClass.fromJsonObj(self.con, self._context, result['@graph'])
         else:
             return last_modification_date, self
 
     def delete(self, last_modification_date: LastModificationDate) -> LastModificationDate:
-        result = self.con.delete('/v2/ontologies/properties/' + quote_plus(self.__id) + '?lastModificationDate=' + str(last_modification_date))
+        result = self.con.delete('/v2/ontologies/properties/' + quote_plus(self._id) + '?lastModificationDate=' + str(last_modification_date))
         return LastModificationDate(result['knora-api:lastModificationDate'])
 
     def createDefinitionFileObj(self, context: Context, shortname: str):
@@ -427,24 +425,24 @@ class PropertyClass:
         :return: Python object to be jsonfied
         """
         property = {
-            "name": self.__name
+            "name": self._name
         }
-        if self.__object is not None:
-            property["name"] = self.__name
-        if self.__superproperties is not None:
+        if self._object is not None:
+            property["name"] = self._name
+        if self._superproperties is not None:
             superprops = []
-            for sc in self.__superproperties:
+            for sc in self._superproperties:
                 superprops.append(context.reduce_iri(sc, shortname))
             property["super"] = superprops
-        if self.__object is not None:
-            property["object"] = context.reduce_iri(self.__object, shortname)
-        if self.__label is not None:
-            property["labels"] = self.__label.createDefinitionFileObj()
-        if self.__gui_element is not None:
-            property["gui_element"] = context.reduce_iri(self.__gui_element, shortname)
-        if self.__gui_attributes:
+        if self._object is not None:
+            property["object"] = context.reduce_iri(self._object, shortname)
+        if self._label is not None:
+            property["labels"] = self._label.createDefinitionFileObj()
+        if self._gui_element is not None:
+            property["gui_element"] = context.reduce_iri(self._gui_element, shortname)
+        if self._gui_attributes:
             gui_elements = {}
-            for (attname, attvalue) in self.__gui_attributes.items():
+            for (attname, attvalue) in self._gui_attributes.items():
                 if attname == "size":
                     gui_elements[attname] = int(attvalue)
                 elif attname == "maxsize":
@@ -477,32 +475,32 @@ class PropertyClass:
     def print(self, offset: int = 0):
         blank = ' '
         print(f'{blank:>{offset}}Property Class Info')
-        print(f'{blank:>{offset+2}}Name:            {self.__name}')
-        print(f'{blank:>{offset+2}}Ontology prefix: {self.__ontology_id}')
+        print(f'{blank:>{offset+2}}Name:            {self._name}')
+        print(f'{blank:>{offset+2}}Ontology prefix: {self._ontology_id}')
         print(f'{blank:>{offset+2}}Superproperties:')
-        if self.__superproperties is not None:
-            for sc in self.__superproperties:
+        if self._superproperties is not None:
+            for sc in self._superproperties:
                 print(f'{blank:>{offset + 4}}{sc}')
-        if self.__label is not None:
+        if self._label is not None:
             print(f'{blank:>{offset + 2}}Labels:')
-            self.__label.print(offset + 4)
-        if self.__subject is not None:
-            print(f'{blank:>{offset + 4}}Subject: {self.__subject}')
-        if self.__object is not None:
-            print(f'{blank:>{offset + 4}}Object: {self.__object}')
-        if self.__gui_element is not None:
-            print(f'{blank:>{offset + 4}}Guielement: {self.__gui_element}')
-        if self.__gui_attributes is not None:
+            self._label.print(offset + 4)
+        if self._subject is not None:
+            print(f'{blank:>{offset + 4}}Subject: {self._subject}')
+        if self._object is not None:
+            print(f'{blank:>{offset + 4}}Object: {self._object}')
+        if self._gui_element is not None:
+            print(f'{blank:>{offset + 4}}Guielement: {self._gui_element}')
+        if self._gui_attributes is not None:
             print(f'{blank:>{offset + 4}}Gui Attributes:')
-            if self.__gui_attributes is not None:
-                for (attname, attvalue) in self.__gui_attributes.items():
+            if self._gui_attributes is not None:
+                for (attname, attvalue) in self._gui_attributes.items():
                     print(f'{blank:>{offset + 6}}Attribute: {attname} Value: {attvalue}')
-        if self.__comment is not None:
+        if self._comment is not None:
             print(f'{blank:>{offset + 2}}Comments:')
-            self.__comment.print(offset + 4)
-        if self.__editable is not None:
-            print(f'{blank:>{offset + 4}}Editable: {self.__editable}')
-        if self.__linkvalue is not None:
-            print(f'{blank:>{offset + 4}}Editable: {self.__linkvalue}')
+            self._comment.print(offset + 4)
+        if self._editable is not None:
+            print(f'{blank:>{offset + 4}}Editable: {self._editable}')
+        if self._linkvalue is not None:
+            print(f'{blank:>{offset + 4}}Editable: {self._linkvalue}')
 
 

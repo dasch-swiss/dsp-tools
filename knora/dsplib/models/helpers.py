@@ -29,7 +29,7 @@ class BaseError(Exception):
     """
     A basic error class
     """
-    __message: str
+    _message: str
 
     def __init__(self, message: str) -> None:
         """
@@ -37,18 +37,18 @@ class BaseError(Exception):
         :param message: error message string
         """
         super().__init__()
-        self.__message = message
+        self._message = message
 
     def __str__(self) -> str:
         """
         Convert to string
         :return: stringyfied error message
         """
-        return "ERROR: " + self.__message + "!\n\n" + format_exc()
+        return "ERROR: " + self._message + "!\n\n" + format_exc()
 
     @property
     def message(self) -> str:
-        return self.__message
+        return self._message
 
 
 @unique
@@ -71,9 +71,9 @@ class Context:
     """
     This class holds a JSON-LD context with the ontology IRI's and the associated prefixes
     """
-    __context: ContextType
-    __rcontext: Dict[str, str]
-    __exp: Pattern
+    _context: ContextType
+    _rcontext: Dict[str, str]
+    _exp: Pattern
 
     common_ontologies: ContextType = {
         "foaf": OntoInfo("http://xmlns.com/foaf/0.1/", False),
@@ -106,7 +106,7 @@ class Context:
         :return: True, if val corresponds to IRI pattern
         """
 
-        m = self.__exp.match(val)
+        m = self._exp.match(val)
         return m.span()[1] == len(val) if m else False
 
     def __init__(self, context: Optional[Dict[str, str]] = None):
@@ -119,27 +119,27 @@ class Context:
         #
         # regexp to test for a complete IRI (including fragment identifier)
         #
-        self.__exp = re.compile("^(http)s?://([\\w\\.\\-~]+:?\\d{,4})(/[\\w\\-~]+)+(#[\\w\\-~]*)?")
+        self._exp = re.compile("^(http)s?://([\\w\\.\\-~]+:?\\d{,4})(/[\\w\\-~]+)+(#[\\w\\-~]*)?")
 
         if context:
             cleaned_input: Dict[str, str] = {prefix: onto for (prefix, onto) in context.items() if self.base_ontologies.get(prefix) is None and self.knora_ontologies.get(prefix) is None}
-            self.__context = {}
+            self._context = {}
             for prefix, onto in cleaned_input.items():
-                self.__context[prefix] = OntoInfo(onto[:-1], True) if onto.endswith('#') else OntoInfo(onto, False)
+                self._context[prefix] = OntoInfo(onto[:-1], True) if onto.endswith('#') else OntoInfo(onto, False)
             #
             # we always want the base ontologies/prefixes included in the context
             #
             for cc in self.base_ontologies.items():
-                if self.__context.get(cc[0]) is None:
-                    self.__context[cc[0]] = cc[1]
+                if self._context.get(cc[0]) is None:
+                    self._context[cc[0]] = cc[1]
             #
             # we always want the knora ontologies/prefixes included in the context
             #
             for cc in self.knora_ontologies.items():
-                if self.__context.get(cc[0]) is None:
-                    self.__context[cc[0]] = cc[1]
+                if self._context.get(cc[0]) is None:
+                    self._context[cc[0]] = cc[1]
         else:
-            self.__context = {
+            self._context = {
                 "rdf": OntoInfo("http://www.w3.org/1999/02/22-rdf-syntax-ns", True),
                 "rdfs": OntoInfo("http://www.w3.org/2000/01/rdf-schema", True),
                 "owl": OntoInfo("http://www.w3.org/2002/07/owl", True),
@@ -147,11 +147,11 @@ class Context:
                 "knora-api": OntoInfo("http://api.knora.org/ontology/knora-api/v2", True),
                 "salsah-gui": OntoInfo("http://api.knora.org/ontology/salsah-gui/v2", True)
             }
-        self.__rcontext = dict(map(lambda x: (x[1].iri, x[0]), self.__context.items()))
+        self._rcontext = dict(map(lambda x: (x[1].iri, x[0]), self._context.items()))
 
     def __str__(self) -> str:
         output = "Context:\n"
-        for prefix, val in self.__context.items():
+        for prefix, val in self._context.items():
             output += "  " + prefix + ": " + val.iri + "\n"
         return output
 
@@ -160,7 +160,7 @@ class Context:
     #
     @property
     def context(self) -> ContextType:
-        return self.__context
+        return self._context
 
     @context.setter
     def context(self, value: ContextType) -> None:
@@ -171,7 +171,7 @@ class Context:
         :return: None
         """
         if value is not None and isinstance(value, ContextType):
-            self.__context = value
+            self._context = value
         else:
             raise BaseError("Error in parameter to context setter")
 
@@ -189,16 +189,16 @@ class Context:
             if prefix in self.base_ontologies:
                 return
             if prefix in self.common_ontologies:
-                self.__context[prefix] = self.common_ontologies[prefix]
+                self._context[prefix] = self.common_ontologies[prefix]
             else:
                 raise BaseError("The prefix '{}' is not known!".format(prefix))
         else:
             if iri.endswith("#"):
                 iri = iri[:-1]
-                self.__context[prefix] = OntoInfo(iri, True)
+                self._context[prefix] = OntoInfo(iri, True)
             else:
-                self.__context[prefix] = OntoInfo(iri, False)
-        self.__rcontext[iri] = prefix
+                self._context[prefix] = OntoInfo(iri, False)
+        self._rcontext[iri] = prefix
 
     def iri_from_prefix(self, prefix: str) -> Optional[str]:
         """
@@ -209,8 +209,8 @@ class Context:
         """
         if self.__is_iri(prefix):
             return prefix
-        if self.__context.get(prefix) is not None:
-            return self.__context.get(prefix).iri
+        if self._context.get(prefix) is not None:
+            return self._context.get(prefix).iri
         else:
             return None
 
@@ -228,21 +228,21 @@ class Context:
             raise BaseError("String does not conform to IRI patter: " + iri)
         if iri.endswith("#"):
             iri = iri[:-1]
-        result = self.__rcontext.get(iri)
+        result = self._rcontext.get(iri)
         if result is None:
             entrylist = list(filter(lambda x: x[1].iri == iri, self.common_ontologies.items()))
             if len(entrylist) == 1:
                 entry = entrylist[0]
-                self.__context[entry[0]] = entry[1]  # add to list of prefixes used
-                self.__rcontext[entry[1].iri] = entry[0]
+                self._context[entry[0]] = entry[1]  # add to list of prefixes used
+                self._rcontext[entry[1].iri] = entry[0]
                 result = entry[0]
             else:
                 tmp = iri.split('/')
                 if tmp[-1] == "v2":
                     #
                     # we have a knora ontology name "http://server/ontology/shortcode/shortname/v2"
-                    self.__context[tmp[-2]] = OntoInfo(iri, True)  # add to list of prefixes used
-                    self.__rcontext[iri] = tmp[-2]
+                    self._context[tmp[-2]] = OntoInfo(iri, True)  # add to list of prefixes used
+                    self._rcontext[iri] = tmp[-2]
                 else:
                     raise BaseError("Iri cannot be resolved to a well-known prefix!")
         return result
@@ -262,13 +262,13 @@ class Context:
         tmp = val.split(':')
         if len(tmp) < 2:
             raise BaseError("There is no separator to identify the prefix: " + val)
-        iri_info = self.__context.get(tmp[0])
+        iri_info = self._context.get(tmp[0])
         if iri_info is None:
             entrylist = list(filter(lambda x: x[1].iri == tmp[0], self.common_ontologies.items()))
             if len(entrylist) == 1:
                 entry = entrylist[0]
-                self.__context[entry[0]] = entry[1]  # add to list of prefixes used
-                self.__rcontext[entry[1].iri] = entry[0]
+                self._context[entry[0]] = entry[1]  # add to list of prefixes used
+                self._rcontext[entry[1].iri] = entry[0]
                 iri_info = entry[1]
             else:
                 raise BaseError("Ontology not known! Cannot generate full qualified IRI")
@@ -304,13 +304,13 @@ class Context:
         else:
             ontopart = iri[:splitpoint]
             element = iri[splitpoint + 1:]
-        prefix = self.__rcontext.get(ontopart)
+        prefix = self._rcontext.get(ontopart)
         if prefix is None:
             entrylist = list(filter(lambda x: x[1].iri == ontopart, self.common_ontologies.items()))
             if len(entrylist) == 1:
                 entry = entrylist[0]
-                self.__context[entry[0]] = entry[1]  # add to list of prefixes used
-                self.__rcontext[entry[1].iri] = entry[0]
+                self._context[entry[0]] = entry[1]  # add to list of prefixes used
+                self._rcontext[entry[1].iri] = entry[0]
                 prefix = entry[0]
             else:
                 raise BaseError("Ontology {} not known! Cannot generate full qualified IRI: prefix={}".format(iri, prefix))
@@ -349,14 +349,14 @@ class Context:
         :return: Object to be jsonfied
         """
         return {prefix: oinfo.iri + '#' if oinfo.hashtag else oinfo.iri
-                for prefix, oinfo in self.__context.items()}
+                for prefix, oinfo in self._context.items()}
 
     def get_externals_used(self) -> Dict[str, str]:
         exclude = ["rdf", "rdfs", "owl", "xsd", "knora-api", "salsah-gui"]
-        return {prefix: onto.iri for prefix, onto in self.__context.items() if prefix not in exclude}
+        return {prefix: onto.iri for prefix, onto in self._context.items() if prefix not in exclude}
 
     def print(self) -> None:
-        for a in self.__context.items():
+        for a in self._context.items():
             print(a[0] + ': "' + a[1].iri + '"')
 
 

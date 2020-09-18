@@ -2,10 +2,13 @@
 
 # knora-create-onto
 
+The command `create-onto` can be used to upload a data model (ontology) from a JSON file to a knora server, or to dump
+a data model from a knora server to a JSON file.
+
 - `knora-create-onto create` creates an ontology. Furthermore, the script reads a JSON file containing the data model 
   (ontology) definition, connects to the Knora server and creates the data model.
-- `knora-create-onto get` reads an ontology from a server and creates a JSON file that can be used by
-  `knora-create-onto create`
+- `knora-create-onto get` reads an ontology from a server and creates a JSON file that can be used again by
+  `knora-create-onto create` to implement the data model on another server
 
 ## Usage
 

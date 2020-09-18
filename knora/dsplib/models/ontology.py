@@ -6,6 +6,7 @@ from urllib.parse import quote_plus
 
 from .helpers import Actions, BaseError, Context, LastModificationDate, OntoInfo
 from .connection import Connection
+from .model import Model
 from .resourceclass import ResourceClass
 from .propertyclass import PropertyClass
 from .project import Project
@@ -51,19 +52,17 @@ DELETE
 
 """
 @strict
-class Ontology:
-    con: Connection
-    __id: str
-    __project: str
-    __name: str
-    __label: str
-    __comment: str
-    __lastModificationDate: LastModificationDate
-    __resource_classes: List[ResourceClass]
-    __property_classes: List[PropertyClass]
-    __context: Context
-    __skiplist: List[str]
-    __changed: Set[str]
+class Ontology(Model):
+    _id: str
+    _project: str
+    _name: str
+    _label: str
+    _comment: str
+    _lastModificationDate: LastModificationDate
+    _resource_classes: List[ResourceClass]
+    _property_classes: List[PropertyClass]
+    _context: Context
+    _skiplist: List[str]
 
     def __init__(self,
                  con:  Connection,
@@ -76,32 +75,29 @@ class Ontology:
                  resource_classes: List[ResourceClass] = [],
                  property_classes: List[PropertyClass] = [],
                  context: Context = None):
-        if not isinstance(con, Connection):
-            raise BaseError('"con"-parameter must be an instance of Connection')
-        self.con = con
-        self.__id = id
+        super().__init__(con)
+        self._id = id
         if isinstance(project, Project):
-            self.__project = project.id
+            self._project = project.id
         else:
-            self.__project = project
-        self.__name = name
-        self.__label = label
-        self.__comment = comment
+            self._project = project
+        self._name = name
+        self._label = label
+        self._comment = comment
         if lastModificationDate is None:
-            self.__lastModificationDate = None
+            self._lastModificationDate = None
         elif isinstance(lastModificationDate, LastModificationDate):
-            self.__lastModificationDate = lastModificationDate
+            self._lastModificationDate = lastModificationDate
         else:
-            self.__lastModificationDate = LastModificationDate(lastModificationDate)
-        self.__resource_classes = resource_classes
-        self.__property_classes = property_classes
-        self.__context = context if context is not None else Context()
-        self.__changed = set()
-        self.__skiplist = []
+            self._lastModificationDate = LastModificationDate(lastModificationDate)
+        self._resource_classes = resource_classes
+        self._property_classes = property_classes
+        self._context = context if context is not None else Context()
+        self._skiplist = []
 
     @property
     def id(self) -> str:
-        return self.__id
+        return self._id
 
     @id.setter
     def id(self, value: str):
@@ -109,7 +105,7 @@ class Ontology:
 
     @property
     def project(self) -> str:
-        return self.__project
+        return self._project
 
     @project.setter
     def project(self, value: str):
@@ -117,7 +113,7 @@ class Ontology:
 
     @property
     def name(self) -> str:
-        return self.__name
+        return self._name
 
     @name.setter
     def name(self, value: str):
@@ -125,101 +121,95 @@ class Ontology:
 
     @property
     def label(self):
-        return self.__label
+        return self._label
 
     @label.setter
     def label(self, value: str):
-        self.__label = str(value)
-        self.__changed.add('label')
+        self._label = str(value)
+        self._changed.add('label')
 
     @property
     def comment(self):
-        return self.__comment
+        return self._comment
 
     @comment.setter
     def comment(self, value: str):
-        self.__comment = str(value)
-        self.__changed.add('comment')
+        self._comment = str(value)
+        self._changed.add('comment')
 
     @property
     def lastModificationDate(self) -> LastModificationDate:
-        return self.__lastModificationDate
+        return self._lastModificationDate
 
     @lastModificationDate.setter
     def lastModificationDate(self, value: Union[str, LastModificationDate]):
-        self.__lastModificationDate = LastModificationDate(value)
+        self._lastModificationDate = LastModificationDate(value)
 
     @property
     def resource_classes(self) -> List[ResourceClass]:
-        return self.__resource_classes
+        return self._resource_classes
 
     @resource_classes.setter
     def resource_classes(self, value: List[ResourceClass]) -> None:
-        self.__resource_classes = value
+        self._resource_classes = value
 
     def addResourceClass(self, resourceclass: ResourceClass, create: bool = False) -> Tuple[int, ResourceClass]:
         if create:
             print('Calling resourceclass.create in Ontology.addResourceClass')
-            lmd, resourceclass = resourceclass.create(self.__lastModificationDate)
-            self.__lastModificationDate = lmd
-        self.__resource_classes.append(resourceclass)
-        index = len(self.__resource_classes) - 1
+            lmd, resourceclass = resourceclass.create(self._lastModificationDate)
+            self._lastModificationDate = lmd
+        self._resource_classes.append(resourceclass)
+        index = len(self._resource_classes) - 1
         return index, resourceclass
 
     def updateResourceClass(self, index: int, resourceclass: ResourceClass) -> ResourceClass:
-        lmd, resourceclass = resourceclass.update(self.__lastModificationDate)
-        self.__lastModificationDate = lmd
-        self.__resource_classes[index] = resourceclass
+        lmd, resourceclass = resourceclass.update(self._lastModificationDate)
+        self._lastModificationDate = lmd
+        self._resource_classes[index] = resourceclass
         return resourceclass
 
     def removeResourceClass(self, index: int, erase: bool = False) -> None:
         if erase:
-            lmd = self.__resource_classes[index].delete(self.__lastModificationDate)
-            self.__lastModificationDate = lmd
-        del self.__resource_classes[index]
+            lmd = self._resource_classes[index].delete(self._lastModificationDate)
+            self._lastModificationDate = lmd
+        del self._resource_classes[index]
 
 
     @property
     def property_classes(self) -> List[PropertyClass]:
-        return self.__property_classes
+        return self._property_classes
 
     @property_classes.setter
     def property_classes(self, value: List[PropertyClass]):
-        self.__property_classes = value
+        self._property_classes = value
 
     def addPropertyClass(self, propclass: PropertyClass, create: bool = False) -> Tuple[int, ResourceClass]:
         if create:
-            lmd, resourceclass = propclass.create(self.__lastModificationDate)
-            self.__lastModificationDate = lmd
-        self.__property_classes.append(resourceclass)
-        index = len(self.__property_classes) - 1
+            lmd, resourceclass = propclass.create(self._lastModificationDate)
+            self._lastModificationDate = lmd
+        self._property_classes.append(resourceclass)
+        index = len(self._property_classes) - 1
         return index, propclass
 
     def updatePropertyClass(self, index: int, propclass: PropertyClass) -> PropertyClass:
-        lmd, propclass = propclass.update(self.__lastModificationDate)
-        self.__lastModificationDate = lmd
-        self.__property_classes[index] = propclass
+        lmd, propclass = propclass.update(self._lastModificationDate)
+        self._lastModificationDate = lmd
+        self._property_classes[index] = propclass
         return propclass
 
     def removePropertyClass(self, index: int, erase: bool = False) -> None:
         if erase:
-            lmd = self.__property_classes[index].delete(self.__lastModificationDate)
-            self.__lastModificationDate = lmd
-        del self.__property_classes[index]
+            lmd = self._property_classes[index].delete(self._lastModificationDate)
+            self._lastModificationDate = lmd
+        del self._property_classes[index]
 
     @property
     def context(self):
-        return self.__context
+        return self._context
 
     @context.setter
     def context(self, value: Context):
         raise BaseError('"Context" cannot be set!')
-
-    def has_changed(self) -> bool:
-        if self.__changed:
-            return True
-        else:
-            return False
 
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any) -> 'Ontology':
@@ -342,71 +332,65 @@ class Ontology:
         return ontos
 
     def toJsonObj(self, action: Actions) -> Any:
-        rdf = self.__context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-        rdfs = self.__context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
-        owl = self.__context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
-        xsd = self.__context.prefix_from_iri("http://www.w3.org/2001/XMLSchema#")
-        knora_api = self.__context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
-        salsah_gui = self.__context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
+        rdf = self._context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+        rdfs = self._context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
+        owl = self._context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
+        xsd = self._context.prefix_from_iri("http://www.w3.org/2001/XMLSchema#")
+        knora_api = self._context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
+        salsah_gui = self._context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
         # this_onto = self._context.prefixFromIri(self._id + "#")
         tmp = {}
         if action == Actions.Create:
-            if self.__name is None:
+            if self._name is None:
                 raise BaseError('There must be a valid name given!')
-            if self.__label is None:
+            if self._label is None:
                 raise BaseError('There must be a valid label given!')
-            if self.__project is None:
+            if self._project is None:
                 raise BaseError('There must be a valid project given!')
             tmp = {
-                knora_api + ":ontologyName": self.__name,
+                knora_api + ":ontologyName": self._name,
                 knora_api + ":attachedToProject": {
-                    "@id": self.__project
+                    "@id": self._project
                 },
-                rdfs + ":label": self.__label,
-                "@context": self.__context.toJsonObj()
+                rdfs + ":label": self._label,
+                "@context": self._context.toJsonObj()
             }
-            if self.__comment is not None:
-                tmp[rdfs + ":comment"] = self.__comment
+            if self._comment is not None:
+                tmp[rdfs + ":comment"] = self._comment
         elif action == Actions.Update:
-            if self.__lastModificationDate is None:
+            if self._lastModificationDate is None:
                 raise BaseError("'last_modification_date' must be in ontology!")
             tmp = {
-                '@id': self.__id,
-                rdfs + ':label': self.__label,
-                knora_api + ':lastModificationDate': self.__lastModificationDate.toJsonObj(),
-                "@context": self.__context.toJsonObj()
+                '@id': self._id,
+                rdfs + ':label': self._label,
+                knora_api + ':lastModificationDate': self._lastModificationDate.toJsonObj(),
+                "@context": self._context.toJsonObj()
             }
-            if self.__label is not None and 'label' in self.__changed:
-                tmp[rdfs + ':label'] = self.__label
-            if self.__comment is not None and 'comment in self.changed:':
-                tmp[rdfs + ':comment'] = self.__comment
+            if self._label is not None and 'label' in self._changed:
+                tmp[rdfs + ':label'] = self._label
+            if self._comment is not None and 'comment' in self._changed:
+                tmp[rdfs + ':comment'] = self._comment
         return tmp
 
     def create(self) -> 'Ontology':
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-        print("================Ontology.create()========================")
-        print(jsondata)
-        print("----------------Ontology.create()------------------------")
-        result = self.con.post('/v2/ontologies', jsondata)
-        return Ontology.fromJsonObj(self.con, result)
+        result = self._con.post('/v2/ontologies', jsondata)
+        return Ontology.fromJsonObj(self._con, result)
 
     def update(self) -> 'Ontology':
         jsonobj = self.toJsonObj(Actions.Update)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-        print("================Ontology.update()========================")
-        print(jsondata)
-        print("----------------Ontology.update()------------------------")
-        result = self.con.put('/v2/ontologies/metadata', jsondata, 'application/ld+json')
-        return Ontology.fromJsonObj(self.con, result)
+        result = self._con.put('/v2/ontologies/metadata', jsondata, 'application/ld+json')
+        return Ontology.fromJsonObj(self._con, result)
 
     def read(self) -> 'Ontology':
-        result = self.con.get('/v2/ontologies/allentities/' + quote_plus(self.__id) + '?allLanguages=true')
-        return Ontology.fromJsonObj(self.con, result)
+        result = self._con.get('/v2/ontologies/allentities/' + quote_plus(self._id) + '?allLanguages=true')
+        return Ontology.fromJsonObj(self._con, result)
 
     def delete(self) -> Optional[str]:
-        result = self.con.delete('/v2/ontologies/' + quote_plus(self.__id),
-                                 params={'lastModificationDate': str(self.__lastModificationDate)})
+        result = self._con.delete('/v2/ontologies/' + quote_plus(self._id),
+                                   params={'lastModificationDate': str(self._lastModificationDate)})
         return result.get('knora-api:result')
 
     @staticmethod
@@ -428,37 +412,37 @@ class Ontology:
 
     def createDefinitionFileObj(self):
         ontology = {
-            "name": self.__name,
-            "label": self.__label,
+            "name": self._name,
+            "label": self._label,
             "properties": [],
             "resources": []
         }
-        if self.__comment is not None:
-            ontology["comment"] = self.__comment
-        for prop in self.__property_classes:
+        if self._comment is not None:
+            ontology["comment"] = self._comment
+        for prop in self._property_classes:
             if "knora-api:hasLinkToValue" in prop.superproperties:
-                self.__skiplist.append(self.__name + ":" + prop.name)
+                self._skiplist.append(self._name + ":" + prop.name)
                 continue
-            ontology["properties"].append(prop.createDefinitionFileObj(self.context, self.__name))
+            ontology["properties"].append(prop.createDefinitionFileObj(self.context, self._name))
 
-        for res in self.__resource_classes:
-            ontology["resources"].append(res.createDefinitionFileObj(self.context, self.__name, self.__skiplist))
+        for res in self._resource_classes:
+            ontology["resources"].append(res.createDefinitionFileObj(self.context, self._name, self._skiplist))
 
         return ontology
 
     def print(self) -> None:
         print('Ontology Info:')
-        print('  Id:                   {}'.format(self.__id))
-        print('  Label:                {}'.format(self.__label))
-        print('  Name:                 {}'.format(self.__name))
-        print('  Project:              {}'.format(self.__project))
-        print('  LastModificationDate: {}'.format(str(self.__lastModificationDate)))
+        print('  Id:                   {}'.format(self._id))
+        print('  Label:                {}'.format(self._label))
+        print('  Name:                 {}'.format(self._name))
+        print('  Project:              {}'.format(self._project))
+        print('  LastModificationDate: {}'.format(str(self._lastModificationDate)))
         print('  Property Classes:')
-        if self.__property_classes:
-            for pc in self.__property_classes:
+        if self._property_classes:
+            for pc in self._property_classes:
                 pc.print(4)
         print('  Resource Classes:')
-        if self.__resource_classes:
-            for rc in self.__resource_classes:
+        if self._resource_classes:
+            for rc in self._resource_classes:
                 rc.print(4)
 

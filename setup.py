@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='knora',
-    version='1.3.0',
+    version='1.3.1',
     description='A Python library and tools for the Knora-API',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -19,6 +19,7 @@ setuptools.setup(
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
     ],
+    python_requires='>=3.8.5',
     install_requires=[
         'rdflib',
         'lxml',

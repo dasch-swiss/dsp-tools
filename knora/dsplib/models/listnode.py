@@ -6,6 +6,7 @@ from urllib.parse import quote_plus
 from .helpers import Actions, BaseError
 from .langstring import Languages, LangStringParam, LangString
 from .connection import Connection
+from .model import Model
 from .project import Project
 
 class SetEncoder(json.JSONEncoder):
@@ -42,7 +43,7 @@ In addition there is a static methods ``getAllProjects`` which returns a list of
 
 
 @strict
-class ListNode:
+class ListNode(Model):
     """
     This class represents a list node or a while list from Knora
 
@@ -112,16 +113,15 @@ class ListNode:
 
     """
 
-    __id: Union[str, None]
-    __project: Union[str, None]
-    __label: LangString
-    __comment: LangString
-    __name: Union[str, None]
-    __parent: Union[str, None]
-    __isRootNode: bool
-    __children: Union[List['ListNode'], None]
-    __rootNodeIri: Union[str, None]
-    __changed: Set[str]
+    _id: Union[str, None]
+    _project: Union[str, None]
+    _label: LangString
+    _comment: LangString
+    _name: Union[str, None]
+    _parent: Union[str, None]
+    _isRootNode: bool
+    _children: Union[List['ListNode'], None]
+    _rootNodeIri: Union[str, None]
 
     def __init__(self,
                  con: Connection,
@@ -158,38 +158,35 @@ class ListNode:
         :param rootNodeIri: IRI of the root node. This attribute is only avaliable for nodes that have been read by the method "getAllNodes()"! [read]
         """
 
-        if not isinstance(con, Connection):
-            raise BaseError('"con"-parameter must be an instance of Connection')
-        self.con = con
+        super().__init__(con)
 
-        self.__project = project.id if isinstance(project, Project) else str(project) if project is not None else None
-        self.__id = str(id) if id is not None else None
-        self.__label = LangString(label)
-        self.__comment = LangString(comment)
-        self.__name = str(name) if name is not None else None
+        self._project = project.id if isinstance(project, Project) else str(project) if project is not None else None
+        self._id = str(id) if id is not None else None
+        self._label = LangString(label)
+        self._comment = LangString(comment)
+        self._name = str(name) if name is not None else None
         if parent and isinstance(parent, ListNode):
-            self.__parent = parent.id
+            self._parent = parent.id
         else:
-            self.__parent = str(parent) if parent else None
-        self.__isRootNode = isRootNode
+            self._parent = str(parent) if parent else None
+        self._isRootNode = isRootNode
         if children is not None:
             if isinstance(children, List) and len(children) > 0 and isinstance(children[0], ListNode):
-                self.__children = children
+                self._children = children
             else:
                 raise BaseError('Children must be list of ListNodes!')
         else:
-            self.__children = None
+            self._children = None
         if not isinstance(rootNodeIri, str) and rootNodeIri is not None:
             raise BaseError('rootNodeIri must be a str!')
-        self.__rootNodeIri = rootNodeIri
-        self.__changed = set()
+        self._rootNodeIri = rootNodeIri
 
     #
     # Here follows a list of getters/setters
     #
     @property
     def id(self) -> Optional[str]:
-        return self.__id
+        return self._id
 
     @id.setter
     def id(self, value: str) -> None:
@@ -197,23 +194,23 @@ class ListNode:
 
     @property
     def project(self) -> Optional[str]:
-        return self.__project
+        return self._project
 
     @project.setter
     def project(self, value: str) -> None:
-        if self.__project:
+        if self._project:
             raise BaseError('Project id cannot be modified!')
         else:
-            self.__project = value
+            self._project = value
 
     @property
     def label(self) -> Optional[LangString]:
-        return self.__label
+        return self._label
 
     @label.setter
     def label(self, value: Optional[Union[LangString, str]]) -> None:
-        self.__label = LangString(value)
-        self.__changed.add('label')
+        self._label = LangString(value)
+        self._changed.add('label')
 
     def addLabel(self, lang: Union[Languages, str], value: str) -> None:
         """
@@ -224,8 +221,8 @@ class ListNode:
         :return: None
         """
 
-        self.__label[lang] = value
-        self.__changed.add('label')
+        self._label[lang] = value
+        self._changed.add('label')
 
     def rmLabel(self, lang: Union[Languages, str]) -> None:
         """
@@ -234,17 +231,17 @@ class ListNode:
         :param lang: The language the label to be removed is in, either a string "EN", "DE", "FR", "IT" or a Language instance
         :return: None
         """
-        del self.__label[lang]
-        self.__changed.add('label')
+        del self._label[lang]
+        self._changed.add('label')
 
     @property
     def comment(self) -> Optional[LangString]:
-        return self.__comment
+        return self._comment
 
     @comment.setter
     def comment(self,  value: Optional[Union[LangString, str]]) -> None:
-        self.__comment = LangString(value)
-        self.__changed.add('comment')
+        self._comment = LangString(value)
+        self._changed.add('comment')
 
     def addComment(self, lang: Union[Languages, str], value: str) -> None:
         """
@@ -255,8 +252,8 @@ class ListNode:
         :return: None
         """
 
-        self.__comment[lang] = value
-        self.__changed.add('comment')
+        self._comment[lang] = value
+        self._changed.add('comment')
 
     def rmComment(self, lang: Union[Languages, str]) -> None:
         """
@@ -265,32 +262,32 @@ class ListNode:
         :param lang: The language the comment to be removed is in, either a string "EN", "DE", "FR", "IT" or a Language instance
         :return: None
         """
-        del self.__comment[lang]
-        self.__changed.add('comment')
+        del self._comment[lang]
+        self._changed.add('comment')
 
     @property
     def name(self) -> Optional[str]:
-        return self.__name
+        return self._name
 
     @name.setter
     def name(self, value: str) -> None:
-        self.__name = str(value)
-        self.__changed.add('name')
+        self._name = str(value)
+        self._changed.add('name')
 
     @property
     def parent(self) -> Optional[str]:
-        return self.__parent if self.__parent else None
+        return self._parent if self._parent else None
 
     @parent.setter
     def parent(self, value: Union[str, 'ListNode']):
         if isinstance(value, ListNode):
-            self.__parent = value.id
+            self._parent = value.id
         else:
-            self.__parent = value
+            self._parent = value
 
     @property
     def isRootNode(self) -> Optional[bool]:
-        return self.__isRootNode
+        return self._isRootNode
 
     @isRootNode.setter
     def isRootNode(self, value: bool) -> None:
@@ -298,7 +295,7 @@ class ListNode:
 
     @property
     def children(self) -> Optional[List['ListNode']]:
-        return self.__children
+        return self._children
 
     @staticmethod
     def __getChildren(con: Connection,
@@ -330,14 +327,14 @@ class ListNode:
 
     @property
     def rootNodeIri(self) -> Optional[str]:
-        return self.__rootNodeIri
+        return self._rootNodeIri
 
     @rootNodeIri.setter
     def rootNodeIri(self, value: str):
         raise BaseError('rootNodeIri cannot be set!')
 
     def has_changed(self) -> bool:
-        if self.__changed:
+        if self._changed:
             return True
         else:
             return False
@@ -396,33 +393,33 @@ class ListNode:
 
         tmp = {}
         if action == Actions.Create:
-            if self.__project is None:
+            if self._project is None:
                 raise BaseError("There must be a project id given!")
-            tmp['projectIri'] = self.__project
-            if self.__label.isEmpty():
+            tmp['projectIri'] = self._project
+            if self._label.isEmpty():
                 raise BaseError("There must be a valid ListNode label!")
-            tmp['labels'] = self.__label.toJsonObj()
-            if not self.__comment.isEmpty():
-                tmp['comments'] = self.__comment.toJsonObj()
+            tmp['labels'] = self._label.toJsonObj()
+            if not self._comment.isEmpty():
+                tmp['comments'] = self._comment.toJsonObj()
             else:
                 tmp['comments'] = []
-            if self.__name is not None:
-                tmp['name'] = self.__name
-            if self.__parent is not None:
-                tmp['parentNodeIri'] = self.__parent
+            if self._name is not None:
+                tmp['name'] = self._name
+            if self._parent is not None:
+                tmp['parentNodeIri'] = self._parent
         elif action == Actions.Update:
             if self.id is None:
                 raise BaseError("There must be a node id given!")
             tmp['listIri'] = listIri
-            if self.__project is None:
+            if self._project is None:
                 raise BaseError("There must be a project id given!")
-            tmp['projectIri'] = self.__project
-            if not self.__label.isEmpty() and 'label' in self.__changed:
-                tmp['labels'] = self.__label.toJsonObj()
-            if not self.__comment.isEmpty() and 'comment' in self.__changed:
-                tmp['comments'] = self.__comment.toJsonObj()
-            if self.__name is not None and 'name' in self.__changed:
-                tmp['name'] = self.__name
+            tmp['projectIri'] = self._project
+            if not self._label.isEmpty() and 'label' in self._changed:
+                tmp['labels'] = self._label.toJsonObj()
+            if not self._comment.isEmpty() and 'comment' in self._changed:
+                tmp['comments'] = self._comment.toJsonObj()
+            if self._name is not None and 'name' in self._changed:
+                tmp['name'] = self._name
         return tmp
 
     def create(self) -> 'ListNode':
@@ -434,8 +431,8 @@ class ListNode:
 
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder)
-        if self.__parent is not None:
-            result = self.con.post('/admin/lists/' + quote_plus(self.__parent), jsondata)
+        if self._parent is not None:
+            result = self.con.post('/admin/lists/' + quote_plus(self._parent), jsondata)
             return ListNode.fromJsonObj(self.con, result['nodeinfo'])
         else:
             result = self.con.post('/admin/lists', jsondata)
@@ -448,7 +445,7 @@ class ListNode:
         :return: JSON-object from Knora
         """
 
-        result = self.con.get('/admin/lists/nodes/' + quote_plus(self.__id))
+        result = self.con.get('/admin/lists/nodes/' + quote_plus(self._id))
         return self.fromJsonObj(self.con, result['nodeinfo'])
 
     def update(self) -> Union[Any, None]:
@@ -473,7 +470,7 @@ class ListNode:
         :return: Knora response
         """
         raise BaseError("NOT YET IMPLEMENTED BY KNORA BACKEND!")
-        result = self.con.delete('/admin/lists/' + quote_plus(self.__id))
+        result = self.con.delete('/admin/lists/' + quote_plus(self._id))
         return result
         #return Project.fromJsonObj(self.con, result['project'])
 
@@ -485,17 +482,17 @@ class ListNode:
         :return: Root node of list with recursive ListNodes ("children"-attributes)
         """
 
-        result = self.con.get('/admin/lists/' + quote_plus(self.__id))
+        result = self.con.get('/admin/lists/' + quote_plus(self._id))
         if 'list' not in result:
             raise BaseError("Request got no list!")
         if 'listinfo' not in result['list']:
             raise BaseError("Request got no proper list information!")
         root = ListNode.fromJsonObj(self.con, result['list']['listinfo'])
         if 'children' in result['list']:
-            root.__children = ListNode.__getChildren(con=self.con,
-                                                     parent_iri=root.id,
-                                                     project_iri=root.project,
-                                                     children=result['list']['children'])
+            root._children = ListNode.__getChildren(con=self.con,
+                                                    parent_iri=root.id,
+                                                    project_iri=root.project,
+                                                    children=result['list']['children'])
         return root
 
     @staticmethod
@@ -542,13 +539,13 @@ class ListNode:
         :return: A python object that can be jsonfied to correspond to the syntax of the input to "create_onto".
         """
         listnode = {
-            "name": self.__name,
-            "labels": self.__label.createDefinitionFileObj(),
+            "name": self._name,
+            "labels": self._label.createDefinitionFileObj(),
         }
-        if not self.__comment.isEmpty():
-            listnode["comment"] = self.__comment.createDefinitionFileObj()
-        if self.__children:
-            listnode["nodes"] = self._createDefinitionFileObj(self.__children)
+        if not self._comment.isEmpty():
+            listnode["comment"] = self._comment.createDefinitionFileObj()
+        if self._children:
+            listnode["nodes"] = self._createDefinitionFileObj(self._children)
         return listnode
 
     def print(self):
@@ -559,20 +556,20 @@ class ListNode:
         """
 
         print('Node Info:')
-        print('  Id:        {}'.format(self.__id))
-        print('  Project:   {}'.format(self.__project))
-        print('  Name:      {}'.format(self.__name))
+        print('  Id:        {}'.format(self._id))
+        print('  Project:   {}'.format(self._project))
+        print('  Name:      {}'.format(self._name))
         print('  Label:     ')
-        if self.__label:
-            for lbl in self.__label.items():
+        if self._label:
+            for lbl in self._label.items():
                 print('             {}: {}'.format(lbl[0], lbl[1]))
         else:
             print('             None')
         print('  Comment:   ')
-        if self.__comment.isEmpty():
-            for lbl in self.__comment.items():
+        if self._comment.isEmpty():
+            for lbl in self._comment.items():
                 print('             {}: {}'.format(lbl[0], lbl[1]))
         else:
             print('             None')
-        print('  Parent', self.__parent)
-        print('  IsRootNode: {}'.format(self.__isRootNode))
+        print('  Parent', self._parent)
+        print('  IsRootNode: {}'.format(self._isRootNode))

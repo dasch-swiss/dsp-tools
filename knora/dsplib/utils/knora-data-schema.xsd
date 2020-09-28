@@ -42,20 +42,19 @@
     <xs:simpleType name="encoding_types">
         <xs:restriction base="xs:string">
             <xs:enumeration value="utf8"/>
-            <xs:enumeration value="hex64"/>
+            <xs:enumeration value="basic"/>
         </xs:restriction>
     </xs:simpleType>
 
     <!-- text value type -->
-    <xs:complexType name="text_type">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute name="encoding" type="encoding_types" use="required"/>
-                <xs:attribute name="resrefs" type="resrefs_type"/>
-                <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="required"></xs:attribute>
-            </xs:extension>
-        </xs:simpleContent>
+    <xs:complexType name="text_type" mixed="true">
+        <xs:sequence>
+            <xs:any minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="encoding" type="encoding_types" use="required"/>
+        <xs:attribute name="resrefs" type="resrefs_type"/>
+        <xs:attribute name="comment" type="xs:string"/>
+        <xs:attribute name="permissions" type="xs:NCName" use="required"></xs:attribute>
     </xs:complexType>
 
     <!-- color value type -->

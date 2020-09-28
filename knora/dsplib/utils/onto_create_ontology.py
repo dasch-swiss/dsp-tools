@@ -16,7 +16,13 @@ from ..models.resourceclass import ResourceClass
 
 from .onto_commons import list_creator
 
-def create_ontology(input_file: str, lists_file: str, server: str, user: str, password: str, verbose: bool) -> bool:
+
+def create_ontology(input_file: str,
+                    lists_file: str,
+                    server: str,
+                    user: str,
+                    password: str,
+                    verbose: bool) -> bool:
     current_dir = os.path.dirname(os.path.realpath(__file__))
 
     # let's read the schema for the data model definition

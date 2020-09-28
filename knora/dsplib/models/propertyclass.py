@@ -52,7 +52,6 @@ class PropertyClass(Model):
         super().__init__(con)
         if not isinstance(context, Context):
             raise BaseError('"context"-parameter must be an instance of Context')
-        self.con = con
         self._context = context
         self._id = id
         self._name = name
@@ -385,9 +384,9 @@ class PropertyClass(Model):
     def create(self, last_modification_date: LastModificationDate) -> Tuple[LastModificationDate, 'PropertyClass']:
         jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=2)
-        result = self.con.post('/v2/ontologies/properties', jsondata)
+        result = self._con.post('/v2/ontologies/properties', jsondata)
         last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
-        return last_modification_date, PropertyClass.fromJsonObj(self.con, self._context, result['@graph'])
+        return last_modification_date, PropertyClass.fromJsonObj(self._con, self._context, result['@graph'])
 
     def update(self, last_modification_date: LastModificationDate) -> Tuple[LastModificationDate, 'ResourceClass']:
         #
@@ -398,22 +397,22 @@ class PropertyClass(Model):
         if 'label' in self._changed:
             jsonobj = self.toJsonObj(last_modification_date, Actions.Update, 'label')
             jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-            result = self.con.put('/v2/ontologies/properties', jsondata)
+            result = self._con.put('/v2/ontologies/properties', jsondata)
             last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
             something_changed = True
         if 'comment' in self._changed:
             jsonobj = self.toJsonObj(last_modification_date, Actions.Update, 'comment')
             jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-            result = self.con.put('/v2/ontologies/properties', jsondata)
+            result = self._con.put('/v2/ontologies/properties', jsondata)
             last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
             something_changed = True
         if something_changed:
-            return last_modification_date, PropertyClass.fromJsonObj(self.con, self._context, result['@graph'])
+            return last_modification_date, PropertyClass.fromJsonObj(self._con, self._context, result['@graph'])
         else:
             return last_modification_date, self
 
     def delete(self, last_modification_date: LastModificationDate) -> LastModificationDate:
-        result = self.con.delete('/v2/ontologies/properties/' + quote_plus(self._id) + '?lastModificationDate=' + str(last_modification_date))
+        result = self._con.delete('/v2/ontologies/properties/' + quote_plus(self._id) + '?lastModificationDate=' + str(last_modification_date))
         return LastModificationDate(result['knora-api:lastModificationDate'])
 
     def createDefinitionFileObj(self, context: Context, shortname: str):
@@ -449,7 +448,7 @@ class PropertyClass(Model):
                     gui_elements[attname] = int(attvalue)
                 elif attname == "hlist":
                     iri = attvalue[1:-1]
-                    rootnode = ListNode(con=self.con, id=iri).read()
+                    rootnode = ListNode(con=self._con, id=iri).read()
                     gui_elements[attname] = rootnode.name
                 elif attname == "numprops":
                     gui_elements[attname] = int(attvalue)

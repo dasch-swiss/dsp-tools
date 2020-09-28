@@ -6,31 +6,50 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 from dsplib.models.connection import Connection
 from dsplib.models.resource import ResourceInstanceFactory
 from dsplib.models.value import BooleanValue, ColorValue, DateValue, DecimalValue, IntValue, IntervalValue, TextValue, \
-    UriValue, KnoraStandoffXml
+    UriValue, KnoraStandoffXml, make_value
 from pprint import pprint
 
+#
+# Connect to server and make a login
+#
 con = Connection('http://0.0.0.0:3333')
 con.login('root@example.com', 'test')
+
+#
+# Make class factory for project 'anything. The factory creates classes that implement the CRUD methods
+# for the given resource classes, that is to create, read, update and delete instances (=resources) of the given classesd
+#
 factory = ResourceInstanceFactory(con, 'anything')
 resclassnames = factory.get_resclass_names()
 
+#
+# Get an python class of a BlueThing resource class
+#
 BlueThing = factory.get_resclass('anything:BlueThing')
 a_blue_thing = BlueThing(con=con,
                          label='BlueThing',
                          values={
-                            'anythinghas:Boolean': True,
-                            'anything:hasColor': ['#ff0033', '#0077FF'],
-                            'anything:hasDate': ('1833', 'not verified!'),
-                            'anything:hasDecimal': 3.14159,
-                            'anything:hasInteger': "42",
-                            'anything:hasInterval': [("0.0:3.0", "first interval"), ("3.5:3.7", "second interval")],
-                            'anything:hasRichtext': KnoraStandoffXml("This is <b>bold</b> text."),
-                            'anything:hasText': "Dies ist ein einfacher Text",
-                            'anything:hasUri': 'http://gaga.com'
+                             'anything:hasBoolean': True,
+                             'anything:hasColor': ['#ff0033', '#0077FF'],
+                             'anything:hasDate': make_value(value='1833', comment='not verified!'),
+                             'anything:hasDecimal': 3.14159,
+                             'anything:hasInteger': "42",
+                             'anything:hasTimeStamp': "2004-04-12T13:20:00Z",
+                             'anything:hasInterval': [make_value(value="0.0:3.0", comment="first interval"),
+                                                      make_value(value="3.5:3.7", comment="second interval")],
+                             'anything:hasRichtext': KnoraStandoffXml("This is <em>bold</em> text."),
+                             'anything:hasText': "Dies ist ein einfacher Text",
+                             'anything:hasUri': 'http://gaga.com:65500/gugus'
                          }).create()
-for resclassname in resclassnames:
-#    print('=======>', resclassname)
-#    RC = factory.get_resclass(resclassname)
-#    gaga = RC(con=con, label='TEST')
-#    #gaga.create()
+print('IRI=', a_blue_thing.iri)
+print('ARK=', a_blue_thing.ark)
+print('VARK=', a_blue_thing.vark)
+
+new_blue_thing = a_blue_thing.read()
+new_blue_thing.print()
+
+print("====================================================")
+an_old_thing = BlueThing(con=con, iri="http://rdfh.ch/0001/H6gBWUuJSuuO-CilHV8kQw").read()
+an_old_thing.print()
+
 

@@ -96,7 +96,7 @@ class Group(Model):
     def id(self) -> Optional[str]:
         return self._id
 
-    @_id.setter
+    @id.setter
     def id(self, value: str) -> None:
         raise BaseError('Group id cannot be modified!')
 

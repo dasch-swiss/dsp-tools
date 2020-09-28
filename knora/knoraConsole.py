@@ -3,6 +3,9 @@ import sys
 import wx
 import wx.adv
 from wx.adv import TaskBarIcon as TaskBarIcon
+import pkg_resources  # part of setuptools
+
+version = pkg_resources.require("knora")[0].version
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
@@ -193,7 +196,7 @@ class KnoraConsole(wx.Frame):
 
     def onAbout(self, event):
         """Display an About Dialog"""
-        wx.MessageBox("Knora Console",
+        wx.MessageBox("Knora Console V" + version,
                       "Knora Console, a tool for setting up Knora",
                       wx.OK | wx.ICON_INFORMATION)
 

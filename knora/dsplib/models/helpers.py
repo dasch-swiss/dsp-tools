@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import NewType, List, Set, Dict, Tuple, Optional, Any, Union, Pattern
 from enum import Enum, unique
 from traceback import format_exc
+from pystrict import strict
 import re
 import sys
 
@@ -66,7 +67,29 @@ class Cardinality(Enum):
     C_1_n = "1-n"
     C_0_n = "0-n"
 
+@strict
+class ContextIterator:
+    _context: 'Context'
+    _prefixes: List[str]
+    _index: int
 
+    def __init__(self, context: 'Context'):
+        self._context = context
+        self._prefixes = [x for x in self._context.context]
+        self._index = 0
+
+    def __next__(self):
+        if len(self._context.context) == 0 and self._index == 0:
+            return None, None
+        elif self._index < len(self._context.context):
+            tmp = self._prefixes[self._index]
+            self._index += 1
+            return tmp, self._context.context[tmp]
+        else:
+            raise StopIteration
+
+
+@strict
 class Context:
     """
     This class holds a JSON-LD context with the ontology IRI's and the associated prefixes
@@ -119,7 +142,7 @@ class Context:
         #
         # regexp to test for a complete IRI (including fragment identifier)
         #
-        self._exp = re.compile("^(http)s?://([\\w\\.\\-~]+:?\\d{,4})(/[\\w\\-~]+)+(#[\\w\\-~]*)?")
+        self._exp = re.compile("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?")
 
         if context:
             cleaned_input: Dict[str, str] = {prefix: onto for (prefix, onto) in context.items() if self.base_ontologies.get(prefix) is None and self.knora_ontologies.get(prefix) is None}
@@ -149,6 +172,27 @@ class Context:
             }
         self._rcontext = dict(map(lambda x: (x[1].iri, x[0]), self._context.items()))
 
+    def __len__(self) -> int:
+        return len(self._context)
+
+    def __getitem__(self, key: str) -> OntoInfo:
+        return self._context[key]
+
+    def __setitem__(self, key: str, value: OntoInfo):
+        self._context[key] = value
+        self._rcontext[value.iri] = key
+
+    def __delitem__(self, key: str) -> None:
+        iri = self._context[key].iri
+        del self._context[key].iri
+        del self._rcontext[iri]
+
+    def __contains__(self, key: str) -> bool:
+        return key in self._context
+
+    def __iter__(self) -> ContextIterator:
+        return ContextIterator(self)
+
     def __str__(self) -> str:
         output = "Context:\n"
         for prefix, val in self._context.items():
@@ -174,6 +218,10 @@ class Context:
             self._context = value
         else:
             raise BaseError("Error in parameter to context setter")
+
+    @property
+    def rcontext(self) -> Dict[str, str]:
+        return self._rcontext
 
     def add_context(self, prefix: str, iri: Optional[str] = None) -> None:
         """

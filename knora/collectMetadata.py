@@ -280,8 +280,8 @@ class EditBaseDialog(wx.Dialog):
 
 
 class EditNamingDialog(wx.Dialog):
-    """ This class produces a dialog window to aquire the fundamental information bits of the project
-        These are:  Shortcode of the project, shorttitle of the project, Ark identifier, Official long title of the
+    """ This class produces a dialog window to acquire the fundamental information bits of the project
+        These are:  Shortcode of the project, short title of the project, Ark identifier, Official long title of the
         project, language, file names, file descriptions, dataset is part of the project (???) """
 
     def __init__(self, pFiles, selection):
@@ -293,8 +293,17 @@ class EditNamingDialog(wx.Dialog):
         print(pFiles[1]['repo'])
         label1 = pFiles[1]['repo']
 
-        self.main_sizer = wx.BoxSizer(wx.VERTICAL)
+        repos = DataHandling().get_repo()
+        # Remove after testing...
+        print("repos: ")
+        print(repos)
+        print("repos selection: ")
+        print(repos[selection])
+        number = len(repos[self.selection])
+        print("number: ")
+        print(number)
 
+        self.main_sizer = wx.BoxSizer(wx.VERTICAL)
         header_sizer = wx.BoxSizer(wx.VERTICAL)
         project_label = wx.StaticText(self, label="Current Project: " + label1)
         subject_label = wx.StaticText(self, label="Fundamental Names and Definitions")
@@ -303,63 +312,149 @@ class EditNamingDialog(wx.Dialog):
         self.main_sizer.Add(header_sizer, 0, wx.LEFT)
 
         sizer = wx.GridBagSizer(5, 5)
-        shortname = wx.StaticText(self, label="Short Name:")
-        sizer.Add(shortname, pos=(0, 0), flag=wx.ALL, border=5)
-        self.tc_shortname = wx.TextCtrl(self)
-        sizer.Add(self.tc_shortname, pos=(0, 1), span=(1, 2), flag=wx.EXPAND | wx.ALL, border=5)
 
-        shortcode = wx.StaticText(self, label="Shortcode:")
-        sizer.Add(shortcode, pos=(1, 0), flag=wx.ALL, border=5)
-        self.tc_shortcode = wx.TextCtrl(self)
-        sizer.Add(self.tc_shortcode, pos=(1, 1), span=(1, 2), flag=wx.EXPAND | wx.ALL, border=5)
+        if len(repos[self.selection]) == 4:
+            print("Some functional metadata available")
+            text_ctl_shortname = repos[selection][3][0]['short name']
+            text_ctl_shortcode = repos[selection][3][1]['short code']
+            text_ctl_long_title = repos[selection][3][2]['long title']
+            text_ctl_ark_identifier = repos[selection][3][3]['ark identifier']
+            text_ctl_language = repos[selection][3][4]['language']
+            # Remove after testing
+            print(text_ctl_shortname)
+            print(text_ctl_shortcode)
+            print(text_ctl_long_title)
+            print(text_ctl_ark_identifier)
+            print(text_ctl_language)
 
-        long_title = wx.StaticText(self, label="Official long title of the project: ")
-        sizer.Add(long_title, pos=(2, 0), flag=wx.ALL, border=5)
-        self.tc_long_title = wx.TextCtrl(self, size=(350, 50), style=wx.TE_MULTILINE)
-        sizer.Add(self.tc_long_title, pos=(2, 1), flag=wx.EXPAND | wx.ALL, border=5)
+            shortname = wx.StaticText(self, label="Short Name:")
+            sizer.Add(shortname, pos=(0, 0), flag=wx.ALL, border=5)
+            self.tc_shortname = wx.TextCtrl(self,  value=text_ctl_shortname)
+            sizer.Add(self.tc_shortname, pos=(0, 1), span=(1, 2), flag=wx.EXPAND | wx.ALL, border=5)
+            shortcode = wx.StaticText(self, label="Shortcode:")
+            sizer.Add(shortcode, pos=(1, 0), flag=wx.ALL, border=5)
+            self.tc_shortcode = wx.TextCtrl(self, value=text_ctl_shortcode)
+            sizer.Add(self.tc_shortcode, pos=(1, 1), span=(1, 2), flag=wx.EXPAND | wx.ALL, border=5)
+            long_title = wx.StaticText(self, label="Official long title of the project: ")
+            sizer.Add(long_title, pos=(2, 0), flag=wx.ALL, border=5)
+            self.tc_long_title = wx.TextCtrl(self, size=(350, 50), style=wx.TE_MULTILINE, value=text_ctl_long_title)
+            sizer.Add(self.tc_long_title, pos=(2, 1), flag=wx.EXPAND | wx.ALL, border=5)
+            ark_identifier = wx.StaticText(self, label="ARK Identifier:")
+            sizer.Add(ark_identifier, pos=(3, 0), flag=wx.ALL, border=5)
+            self.tc_ark_identifier = wx.TextCtrl(self, value=text_ctl_ark_identifier)
+            sizer.Add(self.tc_ark_identifier, pos=(3, 1), span=(1, 2), flag=wx.EXPAND | wx.ALL, border=5)
+            language = wx.StaticText(self, label="Language:")
+            sizer.Add(language, pos=(4, 0), flag=wx.ALL, border=5)
+            languages = ['German', 'French', 'Italian', 'English']
+            self.combo = wx.ComboBox(self, choices=languages, value=text_ctl_language)
+            sizer.Add(self.combo, pos=(4, 1), flag=wx.ALL | wx.EXPAND, border=5)
+            self.main_sizer.Add(sizer, 0, wx.EXPAND)
 
-        ark_identifier = wx.StaticText(self, label="ARK Identifier:")
-        sizer.Add(ark_identifier, pos=(3, 0), flag=wx.ALL, border=5)
-        self.tc_ark_identifier = wx.TextCtrl(self)
-        sizer.Add(self.tc_ark_identifier, pos=(3, 1), span=(1, 2), flag=wx.EXPAND | wx.ALL, border=5)
+            btn_sizer = wx.BoxSizer()
+            save_btn = wx.Button(self, label='Save')
+            save_btn.Bind(wx.EVT_BUTTON, self.on_save_reload)
+            btn_sizer.Add(save_btn, 0, wx.ALL, 5)
+            btn_sizer.Add(wx.Button(
+                self, id=wx.ID_CANCEL), 0, wx.ALL, 5
+            )
+            self.main_sizer.Add(btn_sizer, 0, wx.CENTER)
+            self.SetSizer(self.main_sizer)
+        else:
+            print("Functional metadata not yet available")
+            shortname = wx.StaticText(self, label="Short Name:")
+            sizer.Add(shortname, pos=(0, 0), flag=wx.ALL, border=5)
+            self.tc_shortname = wx.TextCtrl(self)
+            sizer.Add(self.tc_shortname, pos=(0, 1), span=(1, 2), flag=wx.EXPAND | wx.ALL, border=5)
+            shortcode = wx.StaticText(self, label="Shortcode:")
+            sizer.Add(shortcode, pos=(1, 0), flag=wx.ALL, border=5)
+            self.tc_shortcode = wx.TextCtrl(self)
+            sizer.Add(self.tc_shortcode, pos=(1, 1), span=(1, 2), flag=wx.EXPAND | wx.ALL, border=5)
+            long_title = wx.StaticText(self, label="Official long title of the project: ")
+            sizer.Add(long_title, pos=(2, 0), flag=wx.ALL, border=5)
+            self.tc_long_title = wx.TextCtrl(self, size=(350, 50), style=wx.TE_MULTILINE)
+            sizer.Add(self.tc_long_title, pos=(2, 1), flag=wx.EXPAND | wx.ALL, border=5)
+            ark_identifier = wx.StaticText(self, label="ARK Identifier:")
+            sizer.Add(ark_identifier, pos=(3, 0), flag=wx.ALL, border=5)
+            self.tc_ark_identifier = wx.TextCtrl(self)
+            sizer.Add(self.tc_ark_identifier, pos=(3, 1), span=(1, 2), flag=wx.EXPAND | wx.ALL, border=5)
+            language = wx.StaticText(self, label="Language:")
+            sizer.Add(language, pos=(4, 0), flag=wx.ALL, border=5)
+            languages = ['German', 'French', 'Italian', 'English']
+            self.combo = wx.ComboBox(self, choices=languages)
+            sizer.Add(self.combo, pos=(4, 1), flag=wx.ALL | wx.EXPAND, border=5)
+            self.main_sizer.Add(sizer, 0, wx.EXPAND)
 
-        language = wx.StaticText(self, label="Language:")
-        sizer.Add(language, pos=(4, 0), flag=wx.ALL, border=5)
+            btn_sizer = wx.BoxSizer()
+            save_btn = wx.Button(self, label='Save')
+            save_btn.Bind(wx.EVT_BUTTON, self.on_save_new)
+            btn_sizer.Add(save_btn, 0, wx.ALL, 5)
+            btn_sizer.Add(wx.Button(
+                self, id=wx.ID_CANCEL), 0, wx.ALL, 5
+            )
+            self.main_sizer.Add(btn_sizer, 0, wx.CENTER)
+            self.SetSizer(self.main_sizer)
 
-        languages = ['German', 'French', 'Italian', 'English']
-        self.combo = wx.ComboBox(self, choices=languages)
-
-        sizer.Add(self.combo, pos=(4, 1), flag=wx.ALL | wx.EXPAND, border=5)
-
-        self.main_sizer.Add(sizer, 0, wx.EXPAND)
-
-        btn_sizer = wx.BoxSizer()
-        save_btn = wx.Button(self, label='Save')
-        save_btn.Bind(wx.EVT_BUTTON, self.on_save)
-
-        btn_sizer.Add(save_btn, 0, wx.ALL, 5)
-        btn_sizer.Add(wx.Button(
-            self, id=wx.ID_CANCEL), 0, wx.ALL, 5
-        )
-        self.main_sizer.Add(btn_sizer, 0, wx.CENTER)
-
-        self.SetSizer(self.main_sizer)
-
-    def on_save(self, event):
+    def on_save_new(self, event):
         print("Save pressed")
         txt_short_name = self.tc_shortname.GetValue()
         txt_short_code = self.tc_shortcode.GetValue()
         txt_long_title = self.tc_long_title.GetValue()
         txt_ark_identifier = self.tc_ark_identifier.GetValue()
         txt_language = self.combo.GetValue()
-        print("Short Name: " + txt_short_name)
-        print("Short code: " + txt_short_code)
-        print("Long title: " + txt_long_title)
-        print("Ark Identifier: " + txt_ark_identifier)
-        print("Language: " + txt_language)
-
+        print("Selection: ")
+        print(self.selection)
+        repos = DataHandling().get_repo()
+        print("Repo: ")
+        print(repos[self.selection])
+        metadata = []
         """ Now we create the dictionaries: """
+        dict_s_n = {'short name': txt_short_name}
+        dict_s_c = {'short code': txt_short_code}
+        dict_l_t = {'long title': txt_long_title}
+        dict_a_i = {'ark identifier': txt_ark_identifier}
+        dict_lg = {'language': txt_language}
+        metadata.append(dict_s_n)
+        metadata.append(dict_s_c)
+        metadata.append(dict_l_t)
+        metadata.append(dict_a_i)
+        metadata.append(dict_lg)
+        # This will be different
+        repos[self.selection].append(metadata)
+        print("Repos after appending metadata: ")
+        print(repos[self.selection])
+        DataHandling().store_repo(repos)
+        self.Close()
 
+    def on_save_reload(self, event):
+        print("Save pressed")
+        txt_short_name = self.tc_shortname.GetValue()
+        txt_short_code = self.tc_shortcode.GetValue()
+        txt_long_title = self.tc_long_title.GetValue()
+        txt_ark_identifier = self.tc_ark_identifier.GetValue()
+        txt_language = self.combo.GetValue()
+        print("Selection: ")
+        print(self.selection)
+        repos = DataHandling().get_repo()
+        print("Repo: ")
+        print(repos[self.selection])
+        metadata = []
+        """ Now we create the dictionaries: """
+        dict_s_n = {'short name': txt_short_name}
+        dict_s_c = {'short code': txt_short_code}
+        dict_l_t = {'long title': txt_long_title}
+        dict_a_i = {'ark identifier': txt_ark_identifier}
+        dict_lg = {'language': txt_language}
+        metadata.append(dict_s_n)
+        metadata.append(dict_s_c)
+        metadata.append(dict_l_t)
+        metadata.append(dict_a_i)
+        metadata.append(dict_lg)
+        # This will be different
+        # repos[self.selection].append(metadata)
+        repos[self.selection][3] = metadata
+        print("Repos after appending metadata: ")
+        print(repos[self.selection])
+        DataHandling().store_repo(repos)
         self.Close()
 
 

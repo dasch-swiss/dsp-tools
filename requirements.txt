@@ -2,7 +2,7 @@ setuptools
 wheel
 tqdm
 twine
-mkdocs==1.0.4
+mkdocs==1.1.2
 mkdocs-material
 rdflib
 lxml
@@ -11,5 +11,5 @@ requests
 jsonschema
 click
 rfc3987
-pprint
 pystrict
+wxpython

@@ -1,27 +1,13 @@
-import os
-from typing import List, Set, Dict, Tuple, Optional
-from pprint import pprint
 import argparse
-import json
-from jsonschema import validate
 import sys
-import re
+import os
 
-from models.helpers import Actions, BaseError, Context, Cardinality
-from models.langstring import Languages, LangStringParam, LangString
-from models.connection import Connection, Error
-from models.project import Project
-from models.listnode import ListNode
-from models.group import Group
-from models.user import User
-from models.ontology import Ontology
-from models.propertyclass import PropertyClass
-from models.resourceclass import ResourceClass
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
-from onto_validate import validate_list, validate_ontology
-from onto_create_lists import create_lists
-from onto_create_ontology import create_ontology
-from onto_get import get_ontology
+from dsplib.utils.onto_validate import validate_list, validate_ontology
+from dsplib.utils.onto_create_lists import create_lists
+from dsplib.utils.onto_create_ontology import create_ontology
+from dsplib.utils.onto_get import get_ontology
 
 
 def program(args):
@@ -47,12 +33,12 @@ def program(args):
     parser_create.add_argument("-l", "--lists", action='store_true', help="Only create the lists")
     parser_create.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
 
-    parser_get = subparsers.add_parser('get', help='Get ontology information from server')
+    parser_get = subparsers.add_parser('get', help='Get project/ontology information from server')
     parser_get.set_defaults(action="get")
     parser_get.add_argument("-u", "--user", default="root@example.com", help="Username for Knora")
     parser_get.add_argument("-p", "--password", default="test", help="The password for login")
     parser_get.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the Knora server")
-    parser_get.add_argument("-o", "--ontology", type=str, help="Shortcode, shortname or iri of ontology", required=True)
+    parser_get.add_argument("-P", "--project", type=str, help="Shortcode, shortname or iri of project", required=True)
     parser_get.add_argument("outfile", help="path to data model file", default="onto.json")
     parser_get.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
 
@@ -70,7 +56,7 @@ def program(args):
             else:
                 create_ontology(args.datamodelfile, args.listfile, args.server, args.user, args.password, args.verbose)
     elif args.action == "get":
-        get_ontology(args.ontology, args.outfile, args.server, args.user, args.password, args.verbose)
+        get_ontology(args.project, args.outfile, args.server, args.user, args.password, args.verbose)
 
 
 def main():

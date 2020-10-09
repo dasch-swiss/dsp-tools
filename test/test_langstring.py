@@ -1,8 +1,6 @@
 import unittest
-import pprint
 
-from models.helpers import BaseError, Actions
-from models.langstring import Languages, LangStringParam, LangString
+from dsplib.models.langstring import Languages, LangStringParam, LangString
 
 
 class TestLangString(unittest.TestCase):

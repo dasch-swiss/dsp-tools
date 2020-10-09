@@ -1,13 +1,11 @@
 import unittest
-import pprint
-import requests
 
-from models.connection import Connection
-from models.helpers import BaseError, Actions, Cardinality, LastModificationDate
-from models.langstring import Languages, LangStringParam, LangString
-from models.ontology import Ontology
-from models.resourceclass import ResourceClass, HasProperty
-from models.propertyclass import PropertyClass
+from dsplib.models.connection import Connection
+from dsplib.models.helpers import BaseError, Actions, Cardinality, LastModificationDate
+from dsplib.models.langstring import Languages, LangStringParam, LangString
+from dsplib.models.ontology import Ontology
+from dsplib.models.resourceclass import ResourceClass, HasProperty
+from dsplib.models.propertyclass import PropertyClass
 
 
 class TestAllClass(unittest.TestCase):
@@ -38,19 +36,20 @@ class TestAllClass(unittest.TestCase):
         #
         # Create a test ontology
         #
-        self.last_modification_date, self.onto = Ontology(
+        self.onto = Ontology(
             con=self.con,
             project=self.project,
             name=self.onto_name,
             label=self.onto_label,
         ).create()
+        self.last_modification_date = self.onto.lastModificationDate
         self.assertIsNotNone(self.onto.id)
 
     def tearDown(self):
         #
         # remove test ontology
         #
-        result = self.onto.delete(self.last_modification_date)
+        result = self.onto.delete()
         self.assertIsNotNone(result)
 
     def test_AllThings_create(self):
@@ -65,6 +64,7 @@ class TestAllClass(unittest.TestCase):
             label=self.resclass_label,
             comment=self.resclass_comment
         ).create(self.last_modification_date)
+        self.onto.lastModificationDate = self.last_modification_date
         self.assertIsNotNone(resclass.id)
 
         self.assertEqual(resclass.name, self.resclass_name)
@@ -83,6 +83,7 @@ class TestAllClass(unittest.TestCase):
             label=self.propclass_label,
             comment=self.propclass_comment
         ).create(self.last_modification_date)
+        self.onto.lastModificationDate = self.last_modification_date
         self.assertIsNotNone(propclass.id)
 
         self.assertEqual(propclass.name, self.propclass_name)
@@ -93,6 +94,7 @@ class TestAllClass(unittest.TestCase):
         # Create HasProperty (cardinality)
         #
         self.last_modification_date = resclass.addProperty(propclass.id, Cardinality.C_1, self.last_modification_date)
+        self.onto.lastModificationDate = self.last_modification_date
         self.assertEqual(resclass.getProperty(propclass.id).cardinality, Cardinality.C_1)
         self.assertIsNotNone(self.last_modification_date)
 
@@ -100,6 +102,7 @@ class TestAllClass(unittest.TestCase):
         # Modify HasProperty (cardinality)
         #
         self.last_modification_date = resclass.updateProperty(propclass.id, Cardinality.C_1_n, self.last_modification_date)
+        self.onto.lastModificationDate = self.last_modification_date
         self.assertEqual(resclass.getProperty(propclass.id).cardinality, Cardinality.C_1_n)
         self.assertIsNotNone(self.last_modification_date)
 

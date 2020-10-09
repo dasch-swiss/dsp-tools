@@ -1,13 +1,8 @@
 import unittest
-import pprint
-import requests
 
-from models.connection import Connection
-from models.helpers import BaseError, Actions
-from models.langstring import Languages, LangStringParam, LangString
-
-from models.listnode import ListNode
-from models.project import Project
+from dsplib.models.connection import Connection
+from dsplib.models.langstring import Languages, LangStringParam, LangString
+from dsplib.models.listnode import ListNode
 
 
 class TestListNode(unittest.TestCase):

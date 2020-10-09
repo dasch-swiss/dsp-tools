@@ -1,0 +1,84 @@
+{
+   "prefixes": {
+      "testonto": "http://0.0.0.0:3333/ontology/4123/testonto/v2"
+   },
+   "project": {
+      "shortcode": "4123",
+      "shortname": "testproj",
+      "longname": "testproj",
+      "descriptions": {
+         "en": "testproj"
+      },
+      "keywords": [
+         "test"
+      ],
+      "lists": [],
+      "ontologies": [
+         {
+            "name": "testonto",
+            "label": "testonto",
+            "properties": [
+               {
+                  "name": "prop1",
+                  "super": [
+                     "hasValue"
+                  ],
+                  "object": "BooleanValue",
+                  "labels": "prop1",
+                  "gui_element": "Checkbox"
+               },
+               {
+                  "name": "prop2",
+                  "super": [
+                     "hasColor"
+                  ],
+                  "object": "ColorValue",
+                  "labels": "prop2",
+                  "gui_element": "Colorpicker",
+                  "gui_attributes": {
+                     "ncolors": 16
+                  }
+               }
+            ],
+            "resources": [
+               {
+                  "name": "res1",
+                  "labels": "res1",
+                  "comments": "res1",
+                  "super": "Resource",
+                  "cardinalities": [
+                     {
+                        "propname": ":prop1",
+                        "cardinality": "0-1",
+                        "gui_order": 0
+                     },
+                     {
+                        "propname": ":prop2",
+                        "cardinality": "0-1",
+                        "gui_order": 1
+                     }
+                  ]
+               },
+               {
+                  "name": "res2",
+                  "labels": "res2",
+                  "comments": "res2",
+                  "super": "StillImageRepresentation",
+                  "cardinalities": [
+                     {
+                        "propname": ":prop1",
+                        "cardinality": "0-1",
+                        "gui_order": 2
+                     },
+                     {
+                        "propname": ":prop2",
+                        "cardinality": "0-1",
+                        "gui_order": 3
+                     }
+                  ]
+               }
+            ]
+         }
+      ]
+   }
+}

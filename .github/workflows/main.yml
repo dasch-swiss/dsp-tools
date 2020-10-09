@@ -19,7 +19,7 @@ jobs:
           java-version: '11' # The OpenJDK version to make available on the path
           architecture: 'x64' # defaults to 'x64'
       - name: install requirements
-        run: sudo apt-get install ca-certificates-java expect
+        run: sudo apt-get install ca-certificates-java expect libxml2-dev libxslt-dev
       - name: Set up Python 3.9
         uses: actions/setup-python@v2
         with:

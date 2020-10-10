@@ -6,13 +6,11 @@ from typing import List, Set, Dict, Tuple, Optional, Any, Union, Type
 from rfc3987 import parse
 from pprint import pprint
 
+from .connection import Connection
 from .helpers import Actions, BaseError, Cardinality
 from .langstring import LangString
-from .connection import Connection
-from .permission import PermissionValue, PermissionsIterator, Permissions
-
 from .listnode import ListNode
-
+from .permission import PermissionValue, PermissionsIterator, Permissions
 
 @strict
 class KnoraStandoffXml:

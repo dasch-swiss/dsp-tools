@@ -29,6 +29,7 @@ py_test(
     deps = [
         "//knora/dsplib/models:connection",
         "//knora/dsplib/models:group",
+        "//knora/dsplib/models:model",
     ],
     imports = [".", "../knora"],
 )

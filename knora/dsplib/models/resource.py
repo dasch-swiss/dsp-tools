@@ -9,16 +9,16 @@ from rfc3987 import parse
 from typing import List, Set, Dict, Tuple, Optional, Any, Union, Type
 from copy import deepcopy
 
-from .langstring import LangString
-from .helpers import OntoInfo, Actions, BaseError, Cardinality, Context
 from .connection import Connection
-from .model import Model
-from .project import Project
+from .helpers import OntoInfo, Actions, BaseError, Cardinality, Context
+from .langstring import LangString
 from .listnode import ListNode
+from .model import Model
 from .ontology import Ontology
+from .permission import PermissionValue, PermissionsIterator, Permissions
+from .project import Project
 from .propertyclass import PropertyClass
 from .resourceclass import ResourceClass, HasProperty
-from .permission import PermissionValue, PermissionsIterator, Permissions
 from .value import KnoraStandoffXml, Value, TextValue, ColorValue, DateValue, DecimalValue, GeomValue, GeonameValue, \
     IntValue, BooleanValue, UriValue, TimeValue, IntervalValue, ListValue, LinkValue, fromJsonLdObj
 

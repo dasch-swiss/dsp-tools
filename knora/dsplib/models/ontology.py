@@ -4,12 +4,12 @@ from pystrict import strict
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
 
-from .helpers import Actions, BaseError, Context, LastModificationDate, OntoInfo
 from .connection import Connection
+from .helpers import Actions, BaseError, Context, LastModificationDate, OntoInfo
 from .model import Model
-from .resourceclass import ResourceClass
-from .propertyclass import PropertyClass
 from .project import Project
+from .propertyclass import PropertyClass
+from .resourceclass import ResourceClass
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):

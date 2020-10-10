@@ -1,7 +1,6 @@
 import requests
 from .helpers import BaseError
 
-
 class Sipi:
     def __init__(self, sipiserver: str, token: str):
         self.sipiserver = sipiserver

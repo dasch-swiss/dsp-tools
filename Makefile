@@ -30,8 +30,8 @@ dist: ## generate distribution package
 upload: ## upload distribution package to PyPi
 	python3 -m twine upload dist/*
 
-.PHONY: upgrade
-upgrade: ## upgrade packages necessary for testing, building, packaging and uploading to PyPi
+.PHONY: upgrade-dist-tools
+upgrade-dist-tool: ## upgrade packages necessary for testing, building, packaging and uploading to PyPi
 	python3 -m pip install --upgrade pip setuptools wheel tqdm twine pytest mkdocs mkdocs
 
 .PHONY: build-docs

@@ -52,7 +52,7 @@ $ make test
 Generate distribution package. Make sure you have the latest versions of `setuptools` and `wheel` installed:
 
 ```bash
-$ make upgrade
+$ make upgrade-dist-tools
 $ make dist
 ```
 
@@ -64,7 +64,7 @@ $ python3 -m pip ./dist/some_name.whl
 
 Upload package with `twine`,
 
-first create `~/.pypirc`:
+first create `~/.pypirc` in your home folder:
 
 ```bash
 [distutils] 
@@ -109,6 +109,6 @@ $ bazel test //...
 
 Run single test:
 ```bash
-$ bazel test //test:test_knora
+$ bazel test //test:test_user
 ```
 

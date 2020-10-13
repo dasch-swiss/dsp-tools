@@ -85,7 +85,7 @@ class ProjectPanel(wx.Panel):
         provides an edit button.
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent, selection=None):
         super().__init__(parent)
         """ Here we create the window ... """
         main_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -104,6 +104,9 @@ class ProjectPanel(wx.Panel):
         edit_button = wx.Button(self, label='Edit')
         edit_button.Bind(wx.EVT_BUTTON, self.on_edit)
         main_sizer.Add(edit_button, 0, wx.ALL | wx.CENTER, 5)
+        process_xml_button = wx.Button(self, label='Process selected to XML')
+        process_xml_button.Bind(wx.EVT_BUTTON, self.on_process_xml)
+        main_sizer.Add(process_xml_button, 0, wx.ALL | wx.Center, 5)
         self.SetSizer(main_sizer)
 
         """ Can we write a separate function for this whole block? (Fetching and displaying data comes several times.
@@ -158,13 +161,29 @@ class ProjectPanel(wx.Panel):
             print(pFiles)
             # print(selection)
             """ Here we call the edit dialog
-                ToDo: pFiles, project, project_data: this is confusing. By the way, it is not a dictionary
+                ToDo: pFiles, project, project_data: this is confusing. By the way, it is not a dictionary: Done?
             """
             dlg = EditBaseDialog(pFiles, selection)
             dlg.ShowModal()
             """ This starts the reload of the view. Saving data is done by the save function inside the Dialog box. """
             self.load_view()
             dlg.Destroy()
+
+    def on_process_xml(self, event):
+        """ Set selection and call create_xml """
+        selection = self.list_ctrl.GetFocusedItem()
+        if selection >= 0:
+
+            # print(selection)
+            """ Here we call the create_xml function of HandleXML class
+                I start without dialog. Maybe we create a dialog box, which indicates success or failure...
+            """
+            # dlg = EditBaseDialog(pFiles, selection)
+            # dlg.ShowModal()
+            """ Quick and dirty..."""
+            HandleXML().create_xml(selection)
+            # self.load_view()
+            # dlg.Destroy()
 
     def add_new_project(self, folder_path, index):
         """ Adds a new project.
@@ -327,9 +346,12 @@ class EditNamingDialog(wx.Dialog):
             print(text_ctl_ark_identifier)
             print(text_ctl_language)
 
-            shortname = wx.StaticText(self, label="Short Name:")
+            shortname = wx.StaticText(self, label="Short Name: (required)")
             sizer.Add(shortname, pos=(0, 0), flag=wx.ALL, border=5)
-            self.tc_shortname = wx.TextCtrl(self,  value=text_ctl_shortname)
+            # asterisk = wx.StaticText(self, label="*")
+            # asterisk.SetForegroundColour((255, 0, 0))
+            # sizer.Add(asterisk, pos=(0, 0), flag=wx.ALL)
+            self.tc_shortname = wx.TextCtrl(self, value=text_ctl_shortname)
             sizer.Add(self.tc_shortname, pos=(0, 1), span=(1, 2), flag=wx.EXPAND | wx.ALL, border=5)
             shortcode = wx.StaticText(self, label="Shortcode:")
             sizer.Add(shortcode, pos=(1, 0), flag=wx.ALL, border=5)
@@ -363,9 +385,9 @@ class EditNamingDialog(wx.Dialog):
             print("Functional metadata not yet available")
             shortname = wx.StaticText(self, label="Short Name: (required)")
             sizer.Add(shortname, pos=(0, 0), flag=wx.ALL, border=5)
-            asterisk = wx.StaticText(self, label="*")
-            asterisk.SetForegroundColour((255, 0, 0))
-            sizer.Add(asterisk, pos=(0, 0), flag=wx.ALL)
+            # asterisk = wx.StaticText(self, label="*")
+            # asterisk.SetForegroundColour((255, 0, 0))
+            # sizer.Add(asterisk, pos=(0, 0), flag=wx.ALL)
             self.tc_shortname = wx.TextCtrl(self)
             sizer.Add(self.tc_shortname, pos=(0, 1), span=(1, 2), flag=wx.EXPAND | wx.ALL, border=5)
             shortcode = wx.StaticText(self, label="Shortcode:")
@@ -464,21 +486,39 @@ class EditNamingDialog(wx.Dialog):
 class HandleXML(DataHandling):
     """ This Class generates the element tree and applies the respective Data to the element tree. """
 
-    def __init__(self, selection):
+    def __init__(self):
+
+        self.repos = DataHandling().get_repo()
+
+
+    def create_xml(self, selection):
+        """ Here we create the RDF Model and derived from it a XML, JSON or Turtle file or whatever """
+
         self.selection = selection
 
-        self.repos = super.get_repo()
+        print("Trying to create XML-File via RDF_LIB")
+        print("For Testing:")
+        print("Selection:")
+        print(self.selection)
+        print("All repositories available...")
+        print(self.repos)
+        print("Selected repository: ")
+        print(self.repos[self.selection])
 
-    def create_xml(self):
+        repo = self.repos[self.selection]
+        print(repo)
+
         root = ET.Element("root")
         project = ET.SubElement(root, "Project Resources")
-
-        folder_contents = self.repos[self.selection]['folder']
+        # very static...
+        folder_contents = repo[0]['folder']
         ET.SubElement(project, "Folder", name="Folder").text = folder_contents
-        repo_name = self.repos[self.selection]['repo']
+        repo_name = repo[1]['repo']
         ET.SubElement(project, "Project", name="Project").text = repo_name
-        file_list = self.repos[self.selection]['files']
+        file_list = repo[2]['files']
         ET.SubElement(project, "Files", name="Files").text = file_list
+        print("xml-dump:")
+        ET.dump(root)
 
 
 if __name__ == '__main__':

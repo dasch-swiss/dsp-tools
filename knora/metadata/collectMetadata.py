@@ -361,8 +361,11 @@ class EditNamingDialog(wx.Dialog):
             self.SetSizer(self.main_sizer)
         else:
             print("Functional metadata not yet available")
-            shortname = wx.StaticText(self, label="Short Name:")
+            shortname = wx.StaticText(self, label="Short Name: (required)")
             sizer.Add(shortname, pos=(0, 0), flag=wx.ALL, border=5)
+            asterisk = wx.StaticText(self, label="*")
+            asterisk.SetForegroundColour((255, 0, 0))
+            sizer.Add(asterisk, pos=(0, 0), flag=wx.ALL)
             self.tc_shortname = wx.TextCtrl(self)
             sizer.Add(self.tc_shortname, pos=(0, 1), span=(1, 2), flag=wx.EXPAND | wx.ALL, border=5)
             shortcode = wx.StaticText(self, label="Shortcode:")

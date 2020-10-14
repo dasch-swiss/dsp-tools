@@ -32,7 +32,7 @@ READ:
     * Access the information that has been provided to the instance
 
 UPDATE:
-    * Only partially implemented. Only "label" and "comment" attributes may be changed.
+    * "label", "comment", and "name" attributes may be changed.
     * You need an instance of an existing ListNode by reading an instance
     * Change the attributes by assigning the new values
     * Call the ``update```method on the instance
@@ -446,7 +446,7 @@ class ListNode:
         jsonobj = self.toJsonObj(Actions.Update, self.id)
         if jsonobj:
             jsondata = json.dumps(jsonobj, cls=SetEncoder)
-            result = self.con.put('/admin/lists/infos/' + quote_plus(self.id), jsondata)
+            result = self.con.put('/admin/lists/' + quote_plus(self.id), jsondata)
             return ListNode.fromJsonObj(self.con, result['listinfo'])
         else:
             return None

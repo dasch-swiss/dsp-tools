@@ -48,7 +48,7 @@ class ProjectFrame(wx.Frame):
 
     def __init__(self):
         super().__init__(parent=None,
-                         title='Project Data Editor', size=(1100, 350))
+                         title='Project Data Editor', size=(1100, 450))
         self.panel = ProjectPanel(self)
         self.create_menu()
         self.Show()
@@ -89,6 +89,10 @@ class ProjectPanel(wx.Panel):
         super().__init__(parent)
         """ Here we create the window ... """
         main_sizer = wx.BoxSizer(wx.VERTICAL)
+        title = wx.StaticText(self, label="DaSCH Service Platform - Metadata Collection", size=(400, -1))
+        main_sizer.Add(title, 0, wx.ALL | wx.LEFT, 10)
+
+        """ Here we might do some cosmetics (Title, info button and the like ... """
         self.folder_path = ""
         self.row_obj_dict = {}
 
@@ -100,6 +104,7 @@ class ProjectPanel(wx.Panel):
         self.create_header()
 
         """ Here we create the Edit button"""
+
         main_sizer.Add(self.list_ctrl, 0, wx.ALL | wx.EXPAND, 20)
         edit_button = wx.Button(self, label='Edit')
         edit_button.Bind(wx.EVT_BUTTON, self.on_edit)
@@ -173,7 +178,6 @@ class ProjectPanel(wx.Panel):
         """ Set selection and call create_xml """
         selection = self.list_ctrl.GetFocusedItem()
         if selection >= 0:
-
             # print(selection)
             """ Here we call the create_xml function of HandleXML class
                 I start without dialog. Maybe we create a dialog box, which indicates success or failure...
@@ -278,6 +282,10 @@ class EditBaseDialog(wx.Dialog):
         # reload view ??? Or is this a different situation?
         dlg.Destroy()
 
+    """
+        We should apply this widget to all forms. See below.
+    """
+
     def add_widgets(self, label_text, text_ctrl):
         row_sizer = wx.BoxSizer(wx.HORIZONTAL)
         label = wx.StaticText(self, label=label_text, size=(50, -1))
@@ -304,6 +312,7 @@ class EditNamingDialog(wx.Dialog):
         project, language, file names, file descriptions, dataset is part of the project (???) """
 
     def __init__(self, pFiles, selection):
+
         title = "New dialog box"
         super().__init__(parent=None, title=title, size=(600, 400))
         self.pFiles = pFiles
@@ -332,6 +341,7 @@ class EditNamingDialog(wx.Dialog):
 
         sizer = wx.GridBagSizer(5, 5)
 
+        """ If there is metadata available, it will be displayed """
         if len(repos[self.selection]) == 4:
             print("Some functional metadata available")
             text_ctl_shortname = repos[selection][3][0]['short name']
@@ -339,39 +349,23 @@ class EditNamingDialog(wx.Dialog):
             text_ctl_long_title = repos[selection][3][2]['long title']
             text_ctl_ark_identifier = repos[selection][3][3]['ark identifier']
             text_ctl_language = repos[selection][3][4]['language']
-            # Remove after testing
-            print(text_ctl_shortname)
-            print(text_ctl_shortcode)
-            print(text_ctl_long_title)
-            print(text_ctl_ark_identifier)
-            print(text_ctl_language)
-
-            shortname = wx.StaticText(self, label="Short Name: (required)")
-            sizer.Add(shortname, pos=(0, 0), flag=wx.ALL, border=5)
-            # asterisk = wx.StaticText(self, label="*")
-            # asterisk.SetForegroundColour((255, 0, 0))
-            # sizer.Add(asterisk, pos=(0, 0), flag=wx.ALL)
             self.tc_shortname = wx.TextCtrl(self, value=text_ctl_shortname)
-            sizer.Add(self.tc_shortname, pos=(0, 1), span=(1, 2), flag=wx.EXPAND | wx.ALL, border=5)
-            shortcode = wx.StaticText(self, label="Shortcode:")
-            sizer.Add(shortcode, pos=(1, 0), flag=wx.ALL, border=5)
+            self.add_widgets(sizer, 'Short Name: (required)', 'Fill in shortname of project, max. 8 characters, no blanks, required.', 0,
+                             0, self.tc_shortname)
             self.tc_shortcode = wx.TextCtrl(self, value=text_ctl_shortcode)
-            sizer.Add(self.tc_shortcode, pos=(1, 1), span=(1, 2), flag=wx.EXPAND | wx.ALL, border=5)
-            long_title = wx.StaticText(self, label="Official long title of the project: ")
-            sizer.Add(long_title, pos=(2, 0), flag=wx.ALL, border=5)
-            self.tc_long_title = wx.TextCtrl(self, size=(350, 50), style=wx.TE_MULTILINE, value=text_ctl_long_title)
-            sizer.Add(self.tc_long_title, pos=(2, 1), flag=wx.EXPAND | wx.ALL, border=5)
-            ark_identifier = wx.StaticText(self, label="ARK Identifier:")
-            sizer.Add(ark_identifier, pos=(3, 0), flag=wx.ALL, border=5)
+            self.add_widgets(sizer, 'Shortcode:', 'Ask DSP for shortcode of your project, required.', 1,
+                             0, self.tc_shortcode)
+            self.tc_long_title = wx.TextCtrl(self, size=(350, 60), style=wx.TE_MULTILINE, value=text_ctl_long_title)
+            self.add_widgets(sizer, 'Official long title of the project: ', 'Insert the official long title of your project.', 2,
+                             0, self.tc_long_title)
             self.tc_ark_identifier = wx.TextCtrl(self, value=text_ctl_ark_identifier)
-            sizer.Add(self.tc_ark_identifier, pos=(3, 1), span=(1, 2), flag=wx.EXPAND | wx.ALL, border=5)
-            language = wx.StaticText(self, label="Language:")
-            sizer.Add(language, pos=(4, 0), flag=wx.ALL, border=5)
+            self.add_widgets(sizer, 'ARK Identifier:', 'If you are not certain, ask your DSP manager.',
+                             3, 0, self.tc_ark_identifier)
             languages = ['German', 'French', 'Italian', 'English']
             self.combo = wx.ComboBox(self, choices=languages, value=text_ctl_language)
-            sizer.Add(self.combo, pos=(4, 1), flag=wx.ALL | wx.EXPAND, border=5)
-            self.main_sizer.Add(sizer, 0, wx.EXPAND)
+            self.add_widgets(sizer, 'Language', 'Insert the main language, your project is in.', 4, 0, self.combo)
 
+            self.main_sizer.Add(sizer, 0, wx.EXPAND)
             btn_sizer = wx.BoxSizer()
             save_btn = wx.Button(self, label='Save')
             save_btn.Bind(wx.EVT_BUTTON, self.on_save_reload)
@@ -381,34 +375,26 @@ class EditNamingDialog(wx.Dialog):
             )
             self.main_sizer.Add(btn_sizer, 0, wx.CENTER)
             self.SetSizer(self.main_sizer)
+
         else:
-            print("Functional metadata not yet available")
-            shortname = wx.StaticText(self, label="Short Name: (required)")
-            sizer.Add(shortname, pos=(0, 0), flag=wx.ALL, border=5)
-            # asterisk = wx.StaticText(self, label="*")
-            # asterisk.SetForegroundColour((255, 0, 0))
-            # sizer.Add(asterisk, pos=(0, 0), flag=wx.ALL)
+            # no metadata available
             self.tc_shortname = wx.TextCtrl(self)
-            sizer.Add(self.tc_shortname, pos=(0, 1), span=(1, 2), flag=wx.EXPAND | wx.ALL, border=5)
-            shortcode = wx.StaticText(self, label="Shortcode:")
-            sizer.Add(shortcode, pos=(1, 0), flag=wx.ALL, border=5)
+            self.add_widgets(sizer, 'Short Name: (required)', 'Fill in shortname of project, ask DSP, if uncertain.',
+                             0, 0, self.tc_shortname)
             self.tc_shortcode = wx.TextCtrl(self)
-            sizer.Add(self.tc_shortcode, pos=(1, 1), span=(1, 2), flag=wx.EXPAND | wx.ALL, border=5)
-            long_title = wx.StaticText(self, label="Official long title of the project: ")
-            sizer.Add(long_title, pos=(2, 0), flag=wx.ALL, border=5)
-            self.tc_long_title = wx.TextCtrl(self, size=(350, 50), style=wx.TE_MULTILINE)
-            sizer.Add(self.tc_long_title, pos=(2, 1), flag=wx.EXPAND | wx.ALL, border=5)
-            ark_identifier = wx.StaticText(self, label="ARK Identifier:")
-            sizer.Add(ark_identifier, pos=(3, 0), flag=wx.ALL, border=5)
+            self.add_widgets(sizer, 'Shortcode: (required)', 'Ask DSP for shortcode of your project, required.', 1,
+                             0, self.tc_shortcode)
+            self.tc_long_title = wx.TextCtrl(self, size=(350, 60), style=wx.TE_MULTILINE)
+            self.add_widgets(sizer, 'Official long title of the project',
+                             'Insert the official long title of your project.', 2, 0, self.tc_long_title)
             self.tc_ark_identifier = wx.TextCtrl(self)
-            sizer.Add(self.tc_ark_identifier, pos=(3, 1), span=(1, 2), flag=wx.EXPAND | wx.ALL, border=5)
-            language = wx.StaticText(self, label="Language:")
-            sizer.Add(language, pos=(4, 0), flag=wx.ALL, border=5)
+            self.add_widgets(sizer, 'ARK Identifier:', 'If you are not certain, ask your DSP manager.',
+                             3, 0, self.tc_ark_identifier)
             languages = ['German', 'French', 'Italian', 'English']
             self.combo = wx.ComboBox(self, choices=languages)
-            sizer.Add(self.combo, pos=(4, 1), flag=wx.ALL | wx.EXPAND, border=5)
-            self.main_sizer.Add(sizer, 0, wx.EXPAND)
+            self.add_widgets(sizer, 'Language', 'Insert the main language, your project is in.', 4, 0, self.combo)
 
+            self.main_sizer.Add(sizer, 0, wx.EXPAND)
             btn_sizer = wx.BoxSizer()
             save_btn = wx.Button(self, label='Save')
             save_btn.Bind(wx.EVT_BUTTON, self.on_save_new)
@@ -418,6 +404,27 @@ class EditNamingDialog(wx.Dialog):
             )
             self.main_sizer.Add(btn_sizer, 0, wx.CENTER)
             self.SetSizer(self.main_sizer)
+
+    # noinspection PyAttributeOutsideInit
+    def add_widgets(self, sizer, label_text, tooltip_text, pos_x, pos_y, text_control):
+        """
+        This function compresses the writing of Grid form entries. The next step will be to move it into a
+        helper class to make it accessible for other classes.
+
+        Parameters
+        ----------
+        sizer : wx.GridBagSizer
+        label_text : basestring
+        tooltip_text : basestring
+        pos_x : integer
+        pos_y : integer
+        text_control : wx.TextControl
+        """
+        self.text_control = text_control
+        label = wx.StaticText(self, label=label_text)
+        sizer.Add(label, pos=(pos_x, pos_y), flag=wx.ALL, border=5)
+        text_control.SetToolTip(tooltip_text)
+        sizer.Add(text_control, pos=(pos_x, pos_y + 1), flag=wx.EXPAND | wx.ALL, border=5)
 
     def on_save_new(self, event):
         print("Save pressed")
@@ -487,9 +494,7 @@ class HandleXML(DataHandling):
     """ This Class generates the element tree and applies the respective Data to the element tree. """
 
     def __init__(self):
-
         self.repos = DataHandling().get_repo()
-
 
     def create_xml(self, selection):
         """ Here we create the RDF Model and derived from it a XML, JSON or Turtle file or whatever """

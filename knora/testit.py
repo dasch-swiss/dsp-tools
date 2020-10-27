@@ -7,6 +7,7 @@ from dsplib.models.connection import Connection
 from dsplib.models.resource import ResourceInstanceFactory
 from dsplib.models.value import BooleanValue, ColorValue, DateValue, DecimalValue, IntValue, IntervalValue, TextValue, \
     UriValue, KnoraStandoffXml, make_value
+from dsplib.models.sipi import Sipi
 from pprint import pprint
 
 #
@@ -26,6 +27,11 @@ resclassnames = factory.get_resclass_names()
 # Get an python class of a BlueThing resource class
 #
 BlueThing = factory.get_resclass('anything:BlueThing')
+
+print("====================================================")
+an_old_thing = BlueThing(con=con, iri="http://rdfh.ch/0001/H6gBWUuJSuuO-CilHV8kQw").read()
+an_old_thing.print()
+
 a_blue_thing = BlueThing(con=con,
                          label='BlueThing',
                          values={
@@ -48,8 +54,16 @@ print('VARK=', a_blue_thing.vark)
 new_blue_thing = a_blue_thing.read()
 new_blue_thing.print()
 
-print("====================================================")
-an_old_thing = BlueThing(con=con, iri="http://rdfh.ch/0001/H6gBWUuJSuuO-CilHV8kQw").read()
-an_old_thing.print()
-
+ThingPicture = factory.get_resclass('anything:ThingPicture')
+sipi = Sipi('http://0.0.0.0:1024', con.get_token())
+img = sipi.upload_image('gaga.tif')
+fileref = img['uploadedFiles'][0]['internalFilename']
+a_thing_picture = ThingPicture(con=con,
+                               label='ThingPicture',
+                               stillimage=fileref,
+                               values={
+                                   'anything:hasPictureTitle': "A Thing Picture named Lena"
+                               }).create()
+print('??????????????????????????????????????????')
+a_thing_picture.print()
 

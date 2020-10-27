@@ -9,6 +9,7 @@ from rfc3987 import parse
 from typing import List, Set, Dict, Tuple, Optional, Any, Union, Type
 from copy import deepcopy
 
+from .group import Group
 from .langstring import LangString
 from .helpers import OntoInfo, Actions, BaseError, Cardinality, Context
 from .connection import Connection
@@ -50,6 +51,7 @@ class ResourceInstance(Model):
     _label: Union[str, None]
     _permissions: Union[Permissions, None]
     _upermission: Union[PermissionValue, None]
+    _stillimage: Union[str, None]
     _values: Union[Dict[Value, List[Value]], None]
 
     def __init__(self,
@@ -60,7 +62,8 @@ class ResourceInstance(Model):
                  label: Optional[str] = None,
                  permissions: Optional[Permissions] = None,
                  upermission: Optional[PermissionValue] = None,
-                 values: Optional[Dict[str, Union[str, List[str], Value, List[Value]]]] = None):
+                 stillimage: Optional[str] = None,
+                 values: Optional[Dict[str, Union[str, List[str], Dict[str, str], List[Dict[str,str]], Value, List[Value]]]] = None):
         super().__init__(con)
         self._iri = iri
         self._label = label
@@ -68,10 +71,20 @@ class ResourceInstance(Model):
         self._vark = vark
         self._permissions = permissions
         self._upermission = upermission
+        if self.baseclass == 'StillImageRepresentation' and stillimage is None:
+            raise BaseError("The baseclass \"StillImageRepresentation\" requires a stillimage value!")
+        if self.baseclass != 'StillImageRepresentation' and stillimage is not None:
+            raise BaseError("The baseclass \"{}\" does not allow a stillimage value!".format(self.baseclass))
+        if self.baseclass == 'StillImageRepresentation' and stillimage is not None:
+            self._stillimage = stillimage
+        else:
+            self._stillimage = None
+
         self._values = {}
         if values:
             self._values = {}
             for propname, propinfo in self.properties.items():
+                # if propinfo.valtype is LinkValue:
                 vals = values.get(propname)
                 if vals is not None:
                     valcnt: int = 0
@@ -83,16 +96,24 @@ class ResourceInstance(Model):
                             if type(val) is Value:
                                 self._values[propname].append(val)
                             elif type(val) is dict:
+                                if propinfo.valtype is ListValue:
+                                    val['lists'] = self.lists
                                 self._values[propname].append(propinfo.valtype(**val))
                             else:
+                                if propinfo.valtype is ListValue:
+                                    val = {'value': val, 'lists': self.list}
                                 self._values[propname].append(propinfo.valtype(val))
                             valcnt = valcnt + 1
                     else:  # we do have only one value for this property
                         if type(vals) is Value:
                             self._values[propname] = vals
                         elif type(vals) is dict:
+                            if propinfo.valtype is ListValue:
+                                vals['lists'] = self.lists
                             self._values[propname] = propinfo.valtype(**vals)
                         else:
+                            if propinfo.valtype is ListValue:
+                                vals = {'value': val, 'lists': self.list}
                             self._values[propname] = propinfo.valtype(vals)
                 else:
                     if propinfo.cardinality == Cardinality.C_1 or propinfo.cardinality == Cardinality.C_1_n:
@@ -160,13 +181,22 @@ class ResourceInstance(Model):
                 "@id": self.project
             }
             tmp['rdfs:label'] = self._label
+            if self._stillimage:
+                tmp["knora-api:hasStillImageFileValue"] = {
+                    "@type": "knora-api:StillImageFileValue",
+                    "knora-api:fileValueHasFilename": self._stillimage
+                }
             for propname, valtype in self._values.items():
                 if type(valtype) is list:
+                    if type(valtype[0]) is LinkValue:
+                        propname += 'Value'
                     tmp[propname] = []
                     for vt in valtype:
                         tmp[propname].append(vt.toJsonLdObj(action))
                     pass
                 else:
+                    if type(valtype) is LinkValue:
+                        propname += 'Value'
                     tmp[propname] = valtype.toJsonLdObj(action)
             tmp['@context'] = self.context
         else:
@@ -176,6 +206,7 @@ class ResourceInstance(Model):
     def create(self):
         jsonobj = self.toJsonLdObj(Actions.Create)
         jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
+        print(jsondata)
         result = self._con.post('/v2/resources', jsondata)
         newinstance = self.clone()
         newinstance._iri = result['@id']
@@ -210,13 +241,13 @@ class ResourceInstance(Model):
                 print(name, ':', str(val))
 
 
-
 @strict
 class ResourceInstanceFactory:
     _con: Connection
     _project: Project
     _lists = List[ListNode]
     _ontologies = Dict[str, Ontology]
+    _ontoname2iri = Dict[str, str]
     _context: Context
 
     def __init__(self,
@@ -233,11 +264,17 @@ class ResourceInstanceFactory:
             raise BaseError("Invalid project identification!")
         self._project = project.read()
 
-        self._lists = ListNode.getAllLists(con=self._con, project_iri=self._project.id)
+        tmp = ListNode.getAllLists(con=self._con, project_iri=self._project.id)
+        self._lists = []
+        for rnode in tmp:
+            self._lists.append(rnode.getAllNodes())
 
         tmp_ontologies = Ontology.getProjectOntologies(con, self._project.id)
-        # ToDo tmp_ontologies = Ontology.getProjectOntologies(con, --SHARED-ONTOLOGY-PROJECT-ID--)
-        # ToDo merge...
+        shared_project = Project(con=self._con, shortcode="0000").read()
+        shared_ontologies = Ontology.getProjectOntologies(con, shared_project.id)
+        tmp_ontologies.extend(shared_ontologies)
+        self._ontoname2iri = {x.name: x.id for x in tmp_ontologies}
+
         ontology_ids = [x.id for x in tmp_ontologies]
         self._ontologies = {}
         self._properties = {}
@@ -250,6 +287,10 @@ class ResourceInstanceFactory:
             self._properties.update({name + ':' + x.name: x for x in self._ontologies[name].property_classes})
             self._context.update(self._ontologies[name].context)
 
+    @property
+    def lists(self) -> List[ListNode]:
+        return self._lists
+
     def get_resclass_names(self) -> List[str]:
         resclass_names: List[str] = []
         for name, onto in self._ontologies.items():
@@ -257,9 +298,22 @@ class ResourceInstanceFactory:
                 resclass_names.append(onto.context.get_prefixed_iri(resclass.id))
         return resclass_names
 
+    def _get_baseclass(self, superclasses: List[str]) -> Union[str, None]:
+        for sc in superclasses:
+            ontoname, classname = sc.split(':')
+            if ontoname == 'knora-api':
+                return classname
+            o = self._ontologies.get(ontoname)
+            if o is None:
+                continue
+            gaga = [x for x in o.resource_classes if x.name == classname][0]
+            return self._get_baseclass(gaga.superclasses)
+        return None
+
     def get_resclass(self, prefixedresclass: str) -> Type:
         prefix, resclass_name = prefixedresclass.split(':')
-        resclass = [x for x in self._ontologies[prefix]._resource_classes if x.name == resclass_name][0]
+        resclass = [x for x in self._ontologies[prefix].resource_classes if x.name == resclass_name][0]
+        baseclass = self._get_baseclass(resclass.superclasses)
         props: Dict[str, Propinfo] = {}
         switcher = {
             'knora-api:TextValue': TextValue,
@@ -293,7 +347,9 @@ class ResourceInstanceFactory:
                                                gui_order=has_property.gui_order)
         return type(resclass_name, (ResourceInstance,), {'project': self._project.id,
                                                          'classname': prefixedresclass,
+                                                         'baseclass': baseclass,
                                                          'context': self._context,
-                                                         'properties': props})
+                                                         'properties': props,
+                                                         'lists': self._lists})
 
 

@@ -6,7 +6,8 @@ from typing import List, Set, Dict, Tuple, Optional, Any, Union, Type
 from rfc3987 import parse
 from pprint import pprint
 
-from .helpers import Actions, BaseError, Cardinality
+from .group import Group
+from .helpers import IriTest, Actions, BaseError, Cardinality
 from .langstring import LangString
 from .connection import Connection
 from .permission import PermissionValue, PermissionsIterator, Permissions
@@ -21,17 +22,20 @@ class KnoraStandoffXml:
     __iriregexp = re.compile(r'IRI:[^:]*:IRI')
     __xmlstr: str
 
-    def __init__(self, xmlstr: str):
-        self.__xmlstr = xmlstr
+    def __init__(self, xmlstr: str) -> str:
+        self.__xmlstr = str(xmlstr)
+
+    def __str__(self) -> str:
+        return self.__xmlstr
 
     def getXml(self) -> str:
         return self.__xmlstr
 
-    def findall(self):
+    def findall(self) -> Union[List[str], None]:
         return self.__iriregexp.findall(self.__xmlstr)
 
     def replace(self, fromStr: str, toStr: str) -> None:
-        self.__xmlstr.replace(fromStr, toStr)
+        self.__xmlstr = self.__xmlstr.replace(fromStr, toStr)
 
 
 @strict
@@ -45,6 +49,7 @@ class Value:
 
     def __init__(self,
                  iri: Optional[str] = None,
+                 groups: Optional[Group] = None,
                  comment: Optional[LangString] = None,
                  permissions: Optional[Permissions] = None,
                  upermission: Optional[PermissionValue] = None,
@@ -58,7 +63,12 @@ class Value:
         self._vark_url = vark_url
 
     def __str__(self):
-        tmpstr = "(iri: " + self._iri
+        if self._iri:
+            tmpstr = "(iri: " + self._iri
+        else:
+            tmpstr = ('(iri: -')
+        if self._permissions:
+            tmpstr = ", permissions: " + str(self._permissions)
         if self._comment:
             tmpstr += ", comment: " + self._comment
         tmpstr += ")"
@@ -93,7 +103,7 @@ class Value:
         tmp = {}
         if action == Actions.Create:
             if self._permissions is not None:
-                tmp["knora-api:hasPermissions"] = str(self._permissions)
+                tmp["knora-api:hasPermissions"] = self.permissions.toJsonLdObj()
 
             if self._comment is not None:
                 tmp["knora-api:valueHasComment"] = str(self._comment)
@@ -195,7 +205,7 @@ class TextValue(Value):
         return tmp
 
     def __str__(self) -> str:
-        return self._value + ' ' + super().__str__()
+        return str(self._value)
 
 
 @strict
@@ -825,28 +835,35 @@ class ListValue(Value):
 
         def find_listnode(nodes: List[ListNode], name: str) -> Union[str, None]:
             for node in nodes:
+                print('node.name=', node.name, '  name=', name)
                 if node.name == name:
                     return node.id
                 else:
-                    node_id = find_listnode(node.children, name)
-                    if node_id is not None:
-                        return node_id
+                    if node.children is not None:
+                        node_id = find_listnode(node.children, name)
+                        if node_id is not None:
+                            return node_id
             return None
 
-        iriparts = parse(str(value), rule='IRI')
-        if iriparts['scheme'] == 'http' or iriparts['scheme'] == 'https':
+        if IriTest.test(str(value)):
             self._value = str(value)
         else:
-            if iriparts['authority'] is not None:
+            tmp = str(value).split(':')
+            if len(tmp) > 1:
+                if tmp[0]:
+                    listname = tmp[0]
+                    nodename = tmp[1]
+                else:
+                    raise BaseError("Invalid list node: \"" + str(value) + "\" !")
+            else:
                 raise BaseError("Invalid list node: \"" + str(value) + "\" !")
-            listname = iriparts['scheme']
-            nodename = iriparts['path']
             if lists is None:
                 raise BaseError("Lists from ResourceInstanceFactory must be provided!")
             node_iri = None
             for list in lists:
                 if list.name == listname:
-                    node_iri = find_listnode(list.children, str(value))
+                    node_iri = find_listnode(list.children, nodename)
+                    print('=====>', node_iri)
             if node_iri is not None:
                 self._value = node_iri
             else:
@@ -895,8 +912,8 @@ class LinkValue(Value):
 
     def __init__(self,
                  value: str,
-                 restype: str,
-                 reslabel: str,
+                 restype: Optional[str] = None,
+                 reslabel: Optional[str] = None,
                  comment: Optional[LangString] = None,
                  permissions: Optional[Permissions] = None,
                  upermission: Optional[PermissionValue] = None,

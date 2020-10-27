@@ -12,7 +12,7 @@
     <!-- group type for allow..." -->
     <xs:simpleType name="group_types">
         <xs:restriction base="xs:token">
-            <xs:pattern value="(UnknownUser|KnownUser|ProjectMember|Creator|ProjectAdmin|SystemAdmin|([\w-]+):(\w+))" />
+            <xs:pattern value="(UnknownUser|KnownUser|ProjectMember|Creator|ProjectAdmin|SystemAdmin|([\w-]+):([\w ]+))" />
         </xs:restriction>
     </xs:simpleType>
 
@@ -42,14 +42,14 @@
     <xs:simpleType name="encoding_types">
         <xs:restriction base="xs:string">
             <xs:enumeration value="utf8"/>
-            <xs:enumeration value="basic"/>
+            <xs:enumeration value="xml"/>
         </xs:restriction>
     </xs:simpleType>
 
     <!-- text value type -->
     <xs:complexType name="text_type" mixed="true">
         <xs:sequence>
-            <xs:any minOccurs="0"/>
+            <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="encoding" type="encoding_types" use="required"/>
         <xs:attribute name="resrefs" type="resrefs_type"/>
@@ -410,7 +410,7 @@
                 <xs:element name="permissions" type="permissions_type" minOccurs="0" maxOccurs="unbounded" />
                 <xs:element name="resource" type="resource_type" minOccurs="1" maxOccurs="unbounded"/>
             </xs:sequence>
-            <xs:attribute name="ontology" type="xs:string"/>
+            <xs:attribute name="default-ontology" type="xs:string"/>
             <xs:attribute name="shortcode" type="knorashortcode_type"/>
         </xs:complexType>
         <xs:key name="permissionsId">

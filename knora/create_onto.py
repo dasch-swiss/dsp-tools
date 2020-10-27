@@ -8,6 +8,7 @@ from dsplib.utils.onto_validate import validate_list, validate_ontology
 from dsplib.utils.onto_create_lists import create_lists
 from dsplib.utils.onto_create_ontology import create_ontology
 from dsplib.utils.onto_get import get_ontology
+from dsplib.utils.xml_upload import xml_upload
 
 
 def program(args):
@@ -42,6 +43,16 @@ def program(args):
     parser_get.add_argument("outfile", help="path to data model file", default="onto.json")
     parser_get.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
 
+    parser_upload = subparsers.add_parser('xmlupload', help='Upload data from XML file to server')
+    parser_upload.set_defaults(action="xmlupload")
+    parser_upload.add_argument("-u", "--user", type=str, default="root@example.com", help="Username for Knora")
+    parser_upload.add_argument("-p", "--password", type=str, default="test", help="The password for login")
+    parser_upload.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the Knora server")
+    parser_upload.add_argument("-i", "--imgdir", type=str, default=".", help="Path to folder containing the images")
+    parser_upload.add_argument("-S", "--sipi", type=str, default="http://0.0.0.0:1024", help="URL of SIPI server")
+    parser_upload.add_argument("xmlfile", help="path to xml file containing the data", default="data.xml")
+    parser_upload.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
+
     args = parser.parse_args(args)
 
     if args.action == "create":
@@ -57,6 +68,15 @@ def program(args):
                 create_ontology(args.datamodelfile, args.listfile, args.server, args.user, args.password, args.verbose)
     elif args.action == "get":
         get_ontology(args.project, args.outfile, args.server, args.user, args.password, args.verbose)
+    elif args.action == "xmlupload":
+        xml_upload(input_file=args.xmlfile,
+                   server=args.server,
+                   user=args.user,
+                   password=args.password,
+                   imgdir=args.imgdir,
+                   sipi=args.sipi,
+                   verbose=args.verbose)
+
 
 
 def main():

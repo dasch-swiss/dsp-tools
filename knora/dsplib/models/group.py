@@ -208,28 +208,28 @@ class Group(Model):
     def create(self):
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj)
-        result = self.con.post('/admin/groups', jsondata)
-        return Group.fromJsonObj(self.con, result['group'])
+        result = self._con.post('/admin/groups', jsondata)
+        return Group.fromJsonObj(self._con, result['group'])
 
     def read(self):
-        result = self.con.get('/admin/groups/' + quote_plus(self._id))
-        return Group.fromJsonObj(self.con, result['group'])
+        result = self._con.get('/admin/groups/' + quote_plus(self._id))
+        return Group.fromJsonObj(self._con, result['group'])
 
     def update(self):
         jsonobj = self.toJsonObj(Actions.Update)
         if jsonobj:
             jsondata = json.dumps(jsonobj)
-            result = self.con.put('/admin/groups/' + quote_plus(self._id), jsondata)
-            updated_group = Group.fromJsonObj(self.con, result['group'])
+            result = self._con.put('/admin/groups/' + quote_plus(self._id), jsondata)
+            updated_group = Group.fromJsonObj(self._con, result['group'])
         if self._status is not None and 'status' in self._changed:
             jsondata = json.dumps({'status': self._status})
-            result = self.con.put('/admin/groups/' + quote_plus(self._id) + '/status', jsondata)
-            updated_group = Group.fromJsonObj(self.con, result['group'])
+            result = self._con.put('/admin/groups/' + quote_plus(self._id) + '/status', jsondata)
+            updated_group = Group.fromJsonObj(self._con, result['group'])
         return updated_group
 
     def delete(self):
-        result = self.con.delete('/admin/groups/' + quote_plus(self._id))
-        return Group.fromJsonObj(self.con, result['group'])
+        result = self._con.delete('/admin/groups/' + quote_plus(self._id))
+        return Group.fromJsonObj(self._con, result['group'])
 
     @staticmethod
     def getAllGroups(con: Connection) -> List['Group']:
@@ -237,6 +237,7 @@ class Group(Model):
         if 'groups' not in result:
             raise BaseError("Request got no groups!")
         return list(map(lambda a: Group.fromJsonObj(con, a), result['groups']))
+
 
     def print(self):
         print('Group Info:')

@@ -25,6 +25,14 @@ ContextType = NewType("ContextType", Dict[str, OntoInfo])
 def LINE():
     return sys._getframe(1).f_lineno
 
+class IriTest:
+    __iri_regexp = re.compile("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?")
+
+    @classmethod
+    def test(cls, val: str) -> bool:
+        m = cls.__iri_regexp.match(val)
+        return m.span()[1] == len(val) if m else False
+
 
 class BaseError(Exception):
     """
@@ -255,7 +263,8 @@ class Context:
         :param prefix: Prefix of the context entry
         :return: The full IRI without trailing "#"
         """
-        if self.__is_iri(prefix):
+        #if self.__is_iri(prefix):
+        if IriTest.test(prefix):
             return prefix
         if self._context.get(prefix) is not None:
             return self._context.get(prefix).iri
@@ -272,7 +281,8 @@ class Context:
         :param iri: The full IRI with or without trailing "#", or
         :return: the prefix of this context element, or None, if not found
         """
-        if not self.__is_iri(iri):
+        #if not self.__is_iri(iri):
+        if not IriTest.test(iri):
             raise BaseError("String does not conform to IRI patter: " + iri)
         if iri.endswith("#"):
             iri = iri[:-1]
@@ -305,7 +315,8 @@ class Context:
         """
         if val is None:
             return None
-        if self.__is_iri(val):
+        #if self.__is_iri(val):
+        if IriTest.test(val):
             return val
         tmp = val.split(':')
         if len(tmp) < 2:
@@ -341,7 +352,8 @@ class Context:
         m = re.match("([\w-]+):([\w-]+)", iri)
         if m and m.span()[1] == len(iri):
             return iri
-        if not self.__is_iri(iri):
+        #if not self.__is_iri(iri):
+        if not IriTest.test(iri):
             raise BaseError("String does not conform to IRI patter: " + iri)
 
         splitpoint = iri.find('#')
@@ -381,7 +393,8 @@ class Context:
         knora_api = self.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
         salsah_gui = self.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
 
-        if self.__is_iri(iristr):
+        #if self.__is_iri(iristr):
+        if IriTest.test(iristr):
             iristr = self.get_prefixed_iri(iristr)
         tmp = iristr.split(':')
         if tmp[0] == knora_api or tmp[0] == salsah_gui:

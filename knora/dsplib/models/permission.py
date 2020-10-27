@@ -3,6 +3,9 @@ from typing import List, Set, Dict, Tuple, Optional, Any, Union, Type
 from pystrict import strict
 import re
 
+from dsplib.models.group import Group
+from dsplib.models.helpers import BaseError
+
 
 @unique
 class PermissionValue(Enum):
@@ -11,6 +14,16 @@ class PermissionValue(Enum):
     M = 4
     D = 8
     CR = 16
+
+    def __str__(self):
+        tmp = {
+            1: 'RV',
+            2: 'V',
+            4: 'M',
+            8: 'D',
+            16: 'CR'
+        }
+        return tmp[self.value]
 
 
 @strict
@@ -40,7 +53,10 @@ class Permissions:
 
     def __init__(self,
                  permissions: Optional[Dict[PermissionValue, List[str]]] = None):
-        self._permissions = permissions
+        if permissions is None:
+            self._permissions = {}
+        else:
+            self._permissions = permissions
 
     def __getitem__(self, key: PermissionValue) -> Union[List[str], None]:
         return self._permissions.get(key)
@@ -65,14 +81,22 @@ class Permissions:
         for permission, groups in self._permissions.items():
             if tmpstr:
                 tmpstr += '|'
-            tmpstr += permission.name + ' ' + ",".join(groups)
+            tmpstr += str(permission) + ' ' + ",".join(groups)
         return tmpstr
 
     def add(self, key: PermissionValue, val: str):
         if self._permissions.get(key) is None:
             self._permissions[key] = [val]
         else:
-            self._permissions.append(val)
+            self._permissions[key].append(val)
+
+    def toJsonLdObj(self):
+        tmpstr = ''
+        for permission, groups in self._permissions.items():
+            if tmpstr:
+                tmpstr += '|'
+            tmpstr += permission + ' ' + ",".join(groups)
+        return tmpstr
 
     @classmethod
     def fromString(cls, permstr: str):

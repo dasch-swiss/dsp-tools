@@ -432,11 +432,11 @@ class ListNode(Model):
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder)
         if self._parent is not None:
-            result = self.con.post('/admin/lists/' + quote_plus(self._parent), jsondata)
-            return ListNode.fromJsonObj(self.con, result['nodeinfo'])
+            result = self._con.post('/admin/lists/' + quote_plus(self._parent), jsondata)
+            return ListNode.fromJsonObj(self._con, result['nodeinfo'])
         else:
-            result = self.con.post('/admin/lists', jsondata)
-            return ListNode.fromJsonObj(self.con, result['list']['listinfo'])
+            result = self._con.post('/admin/lists', jsondata)
+            return ListNode.fromJsonObj(self._con, result['list']['listinfo'])
 
     def read(self) -> Any:
         """
@@ -445,8 +445,8 @@ class ListNode(Model):
         :return: JSON-object from Knora
         """
 
-        result = self.con.get('/admin/lists/nodes/' + quote_plus(self._id))
-        return self.fromJsonObj(self.con, result['nodeinfo'])
+        result = self._con.get('/admin/lists/nodes/' + quote_plus(self._id))
+        return self.fromJsonObj(self._con, result['nodeinfo'])
 
     def update(self) -> Union[Any, None]:
         """
@@ -458,8 +458,8 @@ class ListNode(Model):
         jsonobj = self.toJsonObj(Actions.Update, self.id)
         if jsonobj:
             jsondata = json.dumps(jsonobj, cls=SetEncoder)
-            result = self.con.put('/admin/lists/infos/' + quote_plus(self.id), jsondata)
-            return ListNode.fromJsonObj(self.con, result['listinfo'])
+            result = self._con.put('/admin/lists/infos/' + quote_plus(self.id), jsondata)
+            return ListNode.fromJsonObj(self._con, result['listinfo'])
         else:
             return None
 
@@ -470,7 +470,7 @@ class ListNode(Model):
         :return: Knora response
         """
         raise BaseError("NOT YET IMPLEMENTED BY KNORA BACKEND!")
-        result = self.con.delete('/admin/lists/' + quote_plus(self._id))
+        result = self._con.delete('/admin/lists/' + quote_plus(self._id))
         return result
         #return Project.fromJsonObj(self.con, result['project'])
 
@@ -482,14 +482,14 @@ class ListNode(Model):
         :return: Root node of list with recursive ListNodes ("children"-attributes)
         """
 
-        result = self.con.get('/admin/lists/' + quote_plus(self._id))
+        result = self._con.get('/admin/lists/' + quote_plus(self._id))
         if 'list' not in result:
             raise BaseError("Request got no list!")
         if 'listinfo' not in result['list']:
             raise BaseError("Request got no proper list information!")
-        root = ListNode.fromJsonObj(self.con, result['list']['listinfo'])
+        root = ListNode.fromJsonObj(self._con, result['list']['listinfo'])
         if 'children' in result['list']:
-            root._children = ListNode.__getChildren(con=self.con,
+            root._children = ListNode.__getChildren(con=self._con,
                                                     parent_iri=root.id,
                                                     project_iri=root.project,
                                                     children=result['list']['children'])

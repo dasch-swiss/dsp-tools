@@ -71,7 +71,7 @@ class Project(Model):
         and ``rmKeyword``
 
     ontologies : Set[str]
-        Set if IRI's of te ontologies attached to the project [readonly]
+        Set if IRI's of the ontologies attached to the project [readonly]
 
     selfjoin : bool
         Boolean if the project allows selfjoin

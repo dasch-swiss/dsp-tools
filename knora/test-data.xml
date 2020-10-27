@@ -30,14 +30,14 @@
     </permissions>
     <resource label="obj_inst3"
               restype="MyObject"
-              unique_id="obj_0003"
+              id="obj_0003"
               permissions="res-default">
         <text-prop name="mySimpleText">
             <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
             <text permissions="prop-restricted" encoding="utf8">Nochmals einen einfachen Text</text>
         </text-prop>
         <text-prop name="myRichText">
-            <text permissions="prop-default" encoding="hex64">PHA+YnM6IHdhaHJzY2hlaW5saWNoIGRhcyA8YSBocmVmPSJodHRwczovL3d3dy53aWVuLmd2LmF0L3dpa2kvaW5kZXgucGhwL0hvdGVsX1dpbWJlcmdlciI+SG90ZWwgV2ltYmVyZ2VyPC9hPjwvcD4=</text>
+            <text permissions="prop-default" encoding="basic">This is <em>bold and <strong>string</strong></em> text!</text>
         </text-prop>
         <color-prop name="myColor">
             <color permissions="prop-default" >#00ff00</color>
@@ -66,7 +66,7 @@
     </resource>
     <resource label="obj_inst4"
               restype="MyImage"
-              unique_id="obj_0004"
+              id="obj_0004"
               permissions="res-default">
         <image>test.tif</image>
         <text-prop name="myTitle">

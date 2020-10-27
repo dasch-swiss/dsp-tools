@@ -33,7 +33,9 @@ py_library(
     name = "helpers",
     visibility = ["//visibility:public"],
     srcs = ["helpers.py"],
-    deps = [],
+    deps = [
+        requirement("pystrict"),
+    ],
     imports = ["."],
 )
 
@@ -61,6 +63,40 @@ py_library(
 )
 
 py_library(
+    name = "model",
+    visibility = ["//visibility:public"],
+    srcs = ["model.py"],
+    deps = [
+        ":connection",
+        ":helpers",
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "ontology",
+    visibility = ["//visibility:public"],
+    srcs = ["ontology.py"],
+    deps = [
+        ":connection",
+        ":helpers",
+        ":project",
+        ":propertyclass",
+        ":resourceclass",
+        requirement("pystrict"),
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "permission",
+    visibility = ["//visibility:public"],
+    srcs = ["permission.py"],
+    deps = [],
+    imports = ["."],
+)
+
+py_library(
     name = "project",
     visibility = ["//visibility:public"],
     srcs = ["project.py"],
@@ -68,6 +104,61 @@ py_library(
         ":helpers",
         ":langstring",
         ":connection",
+        ":model",
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "propertyclass",
+    visibility = ["//visibility:public"],
+    srcs = ["propertyclass.py"],
+    deps = [
+        ":connection",
+        ":helpers",
+        ":langstring",
+        ":listnode"
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "resource",
+    visibility = ["//visibility:public"],
+    srcs = ["resource.py"],
+    deps = [
+        ":connection",
+        ":helpers",
+        ":langstring",
+        ":model",
+        ":ontology",
+        ":permission",
+        ":project",
+        ":propertyclass",
+        ":resourceclass",
+        ":value",
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "resourceclass",
+    visibility = ["//visibility:public"],
+    srcs = ["resourceclass.py"],
+    deps = [
+        ":connection",
+        ":helpers",
+        ":langstring",
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "sipi",
+    visibility = ["//visibility:public"],
+    srcs = ["sipi.py"],
+    deps = [
+        ":helpers",
     ],
     imports = ["."],
 )
@@ -87,40 +178,22 @@ py_library(
 )
 
 py_library(
-    name = "ontology",
+    name = "value",
     visibility = ["//visibility:public"],
-    srcs = ["ontology.py"],
-    deps = [
-        ":connection",
-        ":helpers",
-        ":project",
-        ":resourceclass",
-        ":propertyclass",
-    ],
-    imports = ["."],
-)
-
-py_library(
-    name = "resourceclass",
-    visibility = ["//visibility:public"],
-    srcs = ["resourceclass.py"],
+    srcs = ["value.py"],
     deps = [
         ":connection",
         ":helpers",
         ":langstring",
+        ":listnode",
+        ":permission",
+        requirement("pystrict"),
     ],
     imports = ["."],
 )
 
-py_library(
-    name = "propertyclass",
-    visibility = ["//visibility:public"],
-    srcs = ["propertyclass.py"],
-    deps = [
-        ":connection",
-        ":helpers",
-        ":langstring",
-        ":listnode"
-    ],
-    imports = ["."],
-)
+
+
+
+
+

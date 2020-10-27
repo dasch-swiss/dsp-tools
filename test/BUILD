@@ -5,6 +5,21 @@ load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
 load("@knora_py_deps//:requirements.bzl", "requirement")
 
 py_test(
+    name = "test_all",
+    srcs = ["test_all.py"],
+    deps = [
+        "//knora/dsplib/models:connection",
+        "//knora/dsplib/models:langstring",
+        "//knora/dsplib/models:helpers",
+        "//knora/dsplib/models:ontology",
+        "//knora/dsplib/models:resourceclass",
+        "//knora/dsplib/models:propertyclass",
+        "//knora/dsplib/models:listnode",
+    ],
+    imports = [".", "../knora"],
+)
+
+py_test(
     name = "test_connection",
     srcs = ["test_connection.py"],
     deps = [
@@ -15,42 +30,21 @@ py_test(
 )
 
 py_test(
-    name = "test_langstring",
-    srcs = ["test_langstring.py"],
-    deps = [
-        "//knora/dsplib/models:langstring",
-    ],
-    imports = [".", "../knora"],
-)
-
-py_test(
     name = "test_group",
     srcs = ["test_group.py"],
     deps = [
         "//knora/dsplib/models:connection",
         "//knora/dsplib/models:group",
+        "//knora/dsplib/models:model",
     ],
     imports = [".", "../knora"],
 )
 
 py_test(
-    name = "test_project",
-    srcs = ["test_project.py"],
+    name = "test_langstring",
+    srcs = ["test_langstring.py"],
     deps = [
-        "//knora/dsplib/models:connection",
         "//knora/dsplib/models:langstring",
-        "//knora/dsplib/models:project",
-    ],
-    imports = [".", "../knora"],
-)
-
-py_test(
-    name = "test_user",
-    srcs = ["test_user.py"],
-    deps = [
-        "//knora/dsplib/models:connection",
-        "//knora/dsplib/models:langstring",
-        "//knora/dsplib/models:user",
     ],
     imports = [".", "../knora"],
 )
@@ -78,14 +72,12 @@ py_test(
 )
 
 py_test(
-    name = "test_resourceclass",
-    srcs = ["test_resourceclass.py"],
+    name = "test_project",
+    srcs = ["test_project.py"],
     deps = [
         "//knora/dsplib/models:connection",
         "//knora/dsplib/models:langstring",
-        "//knora/dsplib/models:helpers",
-        "//knora/dsplib/models:ontology",
-        "//knora/dsplib/models:resourceclass",
+        "//knora/dsplib/models:project",
     ],
     imports = [".", "../knora"],
 )
@@ -104,17 +96,25 @@ py_test(
 )
 
 py_test(
-    name = "test_all",
-    srcs = ["test_all.py"],
+    name = "test_resourceclass",
+    srcs = ["test_resourceclass.py"],
     deps = [
         "//knora/dsplib/models:connection",
         "//knora/dsplib/models:langstring",
         "//knora/dsplib/models:helpers",
         "//knora/dsplib/models:ontology",
         "//knora/dsplib/models:resourceclass",
-        "//knora/dsplib/models:propertyclass",
-        "//knora/dsplib/models:listnode",
     ],
     imports = [".", "../knora"],
 )
 
+py_test(
+    name = "test_user",
+    srcs = ["test_user.py"],
+    deps = [
+        "//knora/dsplib/models:connection",
+        "//knora/dsplib/models:langstring",
+        "//knora/dsplib/models:user",
+    ],
+    imports = [".", "../knora"],
+)

@@ -143,7 +143,7 @@ So a simple example definition of the "project" object could look like this:
    "lists": […],
    "groups": […],
    "users": […],
-   "ontology": {…}
+   "ontology": […]
 }
 ```
 
@@ -628,7 +628,11 @@ The following parent predefined resources are provided by Knora:
   has the following properties: _hasComment_ (1-n), _hasLinkTo_ (1-n)
   - _Region_: Represents a simple region. The class has the following properties:
   _hasColor_ (1), _isRegionOf_ (1) _hasGeometry_ (1), _isRegionOf_ (1), _hasComment_ (0-n)
-  
+#### _Cardinalities_
+Cardinalities is an array that contains the information about the connections between resources. It tells what type 
+connections a single resource has as well as how many times the connection is established. Thus, the actual "network" is 
+saved in this array
+
 - _cardinalities_: Array of references to the properties that the resource may hold including the
    cardinality. A cardinality has the following properties:
    - _propname_: The name of the property. If it's used in the form ":"propname, the current ontology is referenced. If 

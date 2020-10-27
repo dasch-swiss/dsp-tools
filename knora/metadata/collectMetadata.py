@@ -1,50 +1,135 @@
 import wx
 import os
 import pickle
+from pprint import pprint
 from typing import List, Any
 import xml.etree.ElementTree as ET
+from metaDataSet import MetaDataSet, Property
+
+################# TODO List #################
+#
+# - generalize forms with custom widget
+# - allow custom widget to handle any kind of UI element, not just text box
+# - maybe have two separate widgets: form and field, where a form takes multiple fields?
+# - "files", what does it actually do? how should we work with it?
+# - more properties
+# - how to handle dates?
+# - how to handle cardinality?
+#
+# - add more properties
+#
+#############################################
+
+################ Idea List ##################
+#
+# - instead of too many up-popping dialogs, we could work with tabs
+#   (see e.g.: https://pythonspot.com/wxpython-tabs/ )
+# - if so, underneath the tabbed `wx.Notebook`, we could always have the same save and cancel buttons
+# - I'd love to have an over-arching progress bar that indicates to the user, how much of the forms they have filled out
+#   (see wx.Gauge)
+# 
+#############################################
+
+def collectMetadata():
+    """
+    Runner function that launches the app.
+
+    Calling this method initiates a data handler and opens the GUI.
+    """
+    # create a data handler
+    global data_handler
+    data_handler = DataHandling()
+    # open GUI
+    app = wx.App()
+    frame = ProjectFrame()
+    app.MainLoop()
 
 
 class DataHandling:
-    """ This class handles data. It checks for availability in the filesystem, and
-         if not, creates the data structure. It also takes care for the storage on disk.
-        The data are stored as a pickle file. """
+    """ This class handles data.
+    
+    It checks for availability in the filesystem, and
+    if not, creates the data structure. It also takes care for the storage on disk.
+    The data are stored as a pickle file.
+
+    The class should not be called as a static.
+    Rather, there should at any given time be an instance of this class (`data_handler`) be available.
+    All calls should be done on this instance, as it holds the actual data representation.
+    """
 
     def __init__(self):
-        self.repos = List[Any]
-        self.home = os.path.expanduser("~")
-        self.path = self.home + "/DaSCH/config/repos.data"
-        self.ontop = "/DaSCH/config/"
-        self.fullpath = self.home + self.ontop
+        self.projects = []
+        self.data_storage = os.path.expanduser("~") + "/DaSCH/config/repos.data"
+        # LATER: path could be made customizable
+        self.load_data()
 
-        if os.path.exists(self.path):
-            f = open(self.path, 'rb')
-            self.repos = pickle.load(f)
-            f.close()
-        else:
-            """ Create directories first """
-            os.makedirs(self.fullpath, exist_ok=True)
-            """ create the empty file and write a structure """
-            f = open(self.path, 'wb')
-            self.repos: List[Any] = []
-            pickle.dump(self.repos, f)
-            f.close()
 
-    def get_repo(self):
-        """ will this function always work? """
-        return self.repos
+    def add_project(self, folder_path: str):
+        """
+        Add a new project.
 
-    def store_repo(self, repos):
-        self.repos = repos
-        f = open(self.path, 'wb')
-        """ Dump the object to the file """
-        pickle.dump(repos, f)
-        f.close()
+        This project adds a new project folder to the collection after the user specified the folder.
+
+        The Project is appended at the end of the list.
+
+        Args:
+            folder_path (str): path to the project folder
+        """        
+        index = len(self.projects)
+        folder_name = os.path.basename(folder_path)
+        dataset = MetaDataSet(index, folder_name, folder_path)
+        self.projects.append(dataset)
+        self.save_data()
+
+
+    def load_data(self):
+        """
+        Load data from previous runtimes (if any).
+
+        Currently, this checks `~/DaSCH/config/repos.data`.
+        """
+        if not os.path.exists(self.data_storage):
+            os.makedirs(os.path.dirname(self.data_storage), exist_ok=True)
+            return
+        with open(self.data_storage, 'rb') as file:
+            self.projects = pickle.load(file)
+            # LATER: in principal, we could append the data instead of replacing it
+            # (for loading multiple data sets and combining them)
+            # would have to make sure the indices are correct and no doubles are being added
+                
+
+    def save_data(self):
+        """
+        Save data to disc.
+
+        Currently, the data are stored under `~/DaSCH/config/repos.data`.
+        """
+        # LATER: could let the user decide where to store the data.
+        print("Saving data...")
+        for p in self.projects:
+            print(p)
+        with open(self.data_storage, 'wb') as file:
+            pickle.dump(self.projects, file)
+        
+    
+    def process_data(self, index: int):
+        """
+        ToDo: implement this class.
+        """
+        # TODO: implement data procession.
+        # Probably just calls processing on the selected data set
+        print(f'Should be processing Dataset: {index}')
+
+
+########## Here starts UI stuff ##############
 
 
 class ProjectFrame(wx.Frame):
-    """ This class sets the Project frame, and creates the file menu. Here we open folders and
-        ingest new project files """
+    """
+    This class sets the Project frame, and creates the file menu.
+
+    Here we open folders and ingest new project files.
+    """
 
     def __init__(self):
         super().__init__(parent=None,
@@ -73,26 +158,27 @@ class ProjectFrame(wx.Frame):
         dlg = wx.DirDialog(self, title,
                            style=wx.DD_DEFAULT_STYLE)
         if dlg.ShowModal() == wx.ID_OK:
-            """ Here the update function is called. This function is strictly restricted to new folders.
-                New data will be appended to the available structure. Add an index """
-            index = self.panel.index
-            self.panel.add_new_project(dlg.GetPath(), index)
+            # Here the update function is called. This function is strictly restricted to new folders.
+            # New data will be appended to the available structure. Add an index
+            # index = self.panel.index
+            self.panel.add_new_project(dlg.GetPath())
         dlg.Destroy()
 
 
 class ProjectPanel(wx.Panel):
-    """ This class manages the window content. It displays a list of projects, which are selectable and
-        provides an edit button.
+    """ This class manages the window content.
+    
+    It displays a list of projects, which are selectable and provides an edit button.
     """
 
     def __init__(self, parent, selection=None):
         super().__init__(parent)
-        """ Here we create the window ... """
+        # Here we create the window ...
         main_sizer = wx.BoxSizer(wx.VERTICAL)
         title = wx.StaticText(self, label="DaSCH Service Platform - Metadata Collection", size=(400, -1))
         main_sizer.Add(title, 0, wx.ALL | wx.LEFT, 10)
 
-        """ Here we might do some cosmetics (Title, info button and the like ... """
+        # TODO: Here we might do some cosmetics (Title, info button and the like ...
         self.folder_path = ""
         self.row_obj_dict = {}
 
@@ -103,167 +189,113 @@ class ProjectPanel(wx.Panel):
 
         self.create_header()
 
-        """ Here we create the Edit button"""
-
+        # Here we create the Edit button
         main_sizer.Add(self.list_ctrl, 0, wx.ALL | wx.EXPAND, 20)
         edit_button = wx.Button(self, label='Edit')
         edit_button.Bind(wx.EVT_BUTTON, self.on_edit)
         main_sizer.Add(edit_button, 0, wx.ALL | wx.CENTER, 5)
         process_xml_button = wx.Button(self, label='Process selected to XML')
-        process_xml_button.Bind(wx.EVT_BUTTON, self.on_process_xml)
+        process_xml_button.Bind(wx.EVT_BUTTON, self.on_process_data)
         main_sizer.Add(process_xml_button, 0, wx.ALL | wx.Center, 5)
         self.SetSizer(main_sizer)
 
-        """ Can we write a separate function for this whole block? (Fetching and displaying data comes several times.
-        Redundant and Error prone ). Just see below... """
+        self.display_repos()
 
-        repos = DataHandling().get_repo()
 
-        self.index = 0
-        for project in repos:
-            if project:
-                # print(project)
-                self.list_ctrl.InsertItem(self.index, project[0]['folder'])
-                self.list_ctrl.SetItem(self.index, 1, project[1]['repo'])
-                self.list_ctrl.SetItem(self.index, 2, project[2]['files'])
-                self.row_obj_dict[self.index] = project
-                self.index += 1
-            else:
-                break
+    def display_repos(self):
+        """
+        Display all loaded repos in the list.
+        """
+        for project in data_handler.projects:
+            self.list_ctrl.InsertItem(project.index, project.path)
+            self.list_ctrl.SetItem(project.index, 1, project.name)
+            self.list_ctrl.SetItem(project.index, 2, str(project.files))
+            # TODO: make this look pretty? depends on what we do with files
+
 
     def create_header(self):
-
-        """ Here we create the header for once and always... """
-        """ Construct a header """
+        """ Here we create the header for once and always...
+        """
+        # Construct a header
         self.list_ctrl.InsertColumn(0, 'Folder', width=340)
         self.list_ctrl.InsertColumn(1, 'Project', width=240)
         self.list_ctrl.InsertColumn(2, 'List of files', width=500)
 
+
     def load_view(self):
-
-        """ The previous list contents is cleared before reloading it... """
+        # The previous list contents is cleared before reloading it
         self.list_ctrl.ClearAll()
-        """ Construct a header """
+        # Construct a header
         self.create_header()
+        self.display_repos()
 
-        """ Read the data from filesystem and display in a loop """
-        repos = DataHandling().get_repo()
-        # print(repos)
-        self.index = 0
-        for project in repos:
-            # print(project)
-            self.list_ctrl.InsertItem(self.index, project[0]['folder'])
-            self.list_ctrl.SetItem(self.index, 1, project[1]['repo'])
-            self.list_ctrl.SetItem(self.index, 2, project[2]['files'])
-            self.row_obj_dict[self.index] = project
-            self.index += 1
 
     def on_edit(self, event):
-        """ This function calls the EditBaseDialog and hands over pFiles, a list. """
+        """ This function calls the EditBaseDialog and hands over pFiles, a list.
+        """
         selection = self.list_ctrl.GetFocusedItem()
         if selection >= 0:
-            pFiles = self.row_obj_dict[selection]
-            print(pFiles)
-            # print(selection)
-            """ Here we call the edit dialog
-                ToDo: pFiles, project, project_data: this is confusing. By the way, it is not a dictionary: Done?
-            """
-            dlg = EditBaseDialog(pFiles, selection)
+            repo = data_handler.projects[selection]
+            dlg = EditBaseDialog(repo)
             dlg.ShowModal()
-            """ This starts the reload of the view. Saving data is done by the save function inside the Dialog box. """
+            # This starts the reload of the view. Saving data is done by the save function inside the Dialog box.
             self.load_view()
             dlg.Destroy()
 
-    def on_process_xml(self, event):
+
+    def on_process_data(self, event):
         """ Set selection and call create_xml """
         selection = self.list_ctrl.GetFocusedItem()
         if selection >= 0:
-            # print(selection)
-            """ Here we call the create_xml function of HandleXML class
-                I start without dialog. Maybe we create a dialog box, which indicates success or failure...
-            """
-            # dlg = EditBaseDialog(pFiles, selection)
-            # dlg.ShowModal()
-            """ Quick and dirty..."""
-            HandleXML().create_xml(selection)
-            # self.load_view()
-            # dlg.Destroy()
+            data_handler.process_data(selection)
+            # LATER: let this return indication of success. display something to the user.
 
-    def add_new_project(self, folder_path, index):
-        """ Adds a new project.
+
+    def add_new_project(self, folder_path):
+        """ Add a new project.
+
             Where is this function called? It is called by on_open_folder in in the Class ProjectFrame
             What should this function do? It should get a new project, store it and then reload the project list
         """
-        self.index_test = index
-        print("Index_test: ")
-        print(self.index_test)
-        self.folder_path = folder_path
-        repos = DataHandling().get_repo()
-        project_data = []
-        """ Here we get the index for the new project"""
-        self.index = 0
-        for project in repos:
-            self.index += 1
-
+        # QUESTION: why do we need this?
         dir_list = os.listdir(folder_path)
         if '.DS_Store' in dir_list:
             dir_list.remove('.DS_Store')
+        
+        data_handler.add_project(folder_path)
+        self.display_repos()
 
-        ttls = ""
-        first = True
-        for b in range(len(dir_list)):
-            if first:
-                ttls += dir_list[b]
-                first = False
-            else:
-                ttls += ", " + dir_list[b]
-        """ Slicing the last folder to denominate a project name """
-        array = folder_path.split("/")
-        last_one = len(array)
-        project_name = array[last_one - 1]
-        """ Now we produce dictionaries"""
-        f_path = {'folder': folder_path}
-        p_repo = {'repo': project_name}
-        f_files = {'files': ttls}
-        project_data.append(f_path)
-        project_data.append(p_repo)
-        project_data.append(f_files)
-        repos.append(project_data)
-        """ Now we write the repos to disk... """
-        DataHandling().store_repo(repos)
-        self.load_view()
 
 
 class EditBaseDialog(wx.Dialog):
     """ This class manages the editing on the first level: folder, project and files """
 
-    def __init__(self, pFiles, selection):
-        """ pFiles is expected to be a dictionary within a list.
-            This we get from the on_edit Dialog but we do not get it, directly if we try to select a newly
-            added project add_new project """
-        self.selection = selection
-        self.pFiles = pFiles
-        title = "Editing " + self.pFiles[1]['repo']
-
-        """ Here we have a problem. We expect a dictionary within a list but we get a list
-            if a new project has been added.
+    # def __init__(self, pFiles, selection):
+    def __init__(self, dataset: MetaDataSet):
         """
+        pFiles is expected to be a dictionary within a list.
+
+        This we get from the on_edit Dialog but we do not get it, directly if we try to select a newly
+        added project add_new project
+        """
+        self.dataset = dataset
+        title = "Editing " + dataset.name
+
         super().__init__(parent=None, title=title, size=(500, 250))
 
         self.main_sizer = wx.BoxSizer(wx.VERTICAL)
-        self.folder = wx.TextCtrl(self, value=self.pFiles[0]['folder'])
+        self.folder = wx.TextCtrl(self, value=dataset.path)
         self.add_widgets('Folder', self.folder)
-        self.project = wx.TextCtrl(self, value=self.pFiles[1]['repo'])
+        self.project = wx.TextCtrl(self, value=dataset.name)
         self.add_widgets('Project', self.project)
-        self.files = wx.TextCtrl(self, value=self.pFiles[2]['files'])
+        self.files = wx.TextCtrl(self, value=str(dataset.files))
         self.add_widgets('Files', self.files)
 
         btn_sizer = wx.BoxSizer()
         save_btn = wx.Button(self, label='Save')
         save_btn.Bind(wx.EVT_BUTTON, self.on_save)
         btn_sizer.Add(save_btn, 0, wx.ALL, 5)
-        btn_sizer.Add(wx.Button(
-            self, id=wx.ID_CANCEL), 0, wx.ALL, 5)
+        btn_sizer.Add(wx.Button(self, id=wx.ID_CANCEL), 0, wx.ALL, 5)
         self.main_sizer.Add(btn_sizer, 0, wx.CENTER)
 
         p_btn_sizer = wx.BoxSizer()
@@ -276,15 +308,14 @@ class EditBaseDialog(wx.Dialog):
 
     def on_edit_definitions(self, event):
         """ This dialog calls the second level dialog class (short name, short code etc.) """
-        dlg = EditNamingDialog(self.pFiles, self.selection)
+        dlg = EditNamingDialog(self.dataset)
         dlg.ShowModal()
         """ Saving data and reload??? is done by the save function inside the Dialog box. """
         # reload view ??? Or is this a different situation?
         dlg.Destroy()
 
-    """
-        We should apply this widget to all forms. See below.
-    """
+        # TODO: We should apply this widget to all forms. See below.
+
 
     def add_widgets(self, label_text, text_ctrl):
         row_sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -294,119 +325,75 @@ class EditBaseDialog(wx.Dialog):
         self.main_sizer.Add(row_sizer, 0, wx.EXPAND)
 
     def on_save(self, event):
-        self.pFiles[0]['folder'] = self.folder.GetValue()
-        self.pFiles[1]['repo'] = self.project.GetValue()
-        self.pFiles[2]['files'] = self.files.GetValue()
-        """ First we get the repos, then we replace the repo, we have changed by selection,
-            and then we write write the repos to disk again. """
-        repos = DataHandling().get_repo()
-        repos[self.selection] = self.pFiles
-        """ Now we write the repos to disk... Reload is done by the calling dialog """
-        DataHandling().store_repo(repos)
+        self.dataset.path = self.folder.GetValue()
+        self.dataset.name = self.project.GetValue()
+        self.dataset.files = self.files.GetValue()
+        # FIXME: how can files be editable like this?
+        # do files even need to be editable?
+        # what do we do with file information?
+        data_handler.save_data()
         self.Close()
 
 
 class EditNamingDialog(wx.Dialog):
-    """ This class produces a dialog window to acquire the fundamental information bits of the project
-        These are:  Shortcode of the project, short title of the project, Ark identifier, Official long title of the
-        project, language, file names, file descriptions, dataset is part of the project (???) """
+    """
+    This class produces a dialog window to acquire the fundamental information bits of the project.
 
-    def __init__(self, pFiles, selection):
+    These are:  Shortcode of the project, short title of the project, Ark identifier, Official long title of the
+    project, language, file names, file descriptions, dataset is part of the project (???)
+    """
 
+    def __init__(self, dataset: MetaDataSet):
         title = "New dialog box"
         super().__init__(parent=None, title=title, size=(600, 400))
-        self.pFiles = pFiles
-        self.selection = selection
-        print(self.selection)
-        print(pFiles[1]['repo'])
-        label1 = pFiles[1]['repo']
-
-        repos = DataHandling().get_repo()
-        # Remove after testing...
-        print("repos: ")
-        print(repos)
-        print("repos selection: ")
-        print(repos[selection])
-        number = len(repos[self.selection])
-        print("number: ")
-        print(number)
+        self.dataset = dataset
 
         self.main_sizer = wx.BoxSizer(wx.VERTICAL)
         header_sizer = wx.BoxSizer(wx.VERTICAL)
-        project_label = wx.StaticText(self, label="Current Project: " + label1)
+        project_label = wx.StaticText(self, label="Current Project: " + dataset.name)
         subject_label = wx.StaticText(self, label="Fundamental Names and Definitions")
         header_sizer.Add(project_label, 0, wx.EXPAND)
         header_sizer.Add(subject_label, 0, wx.EXPAND)
         self.main_sizer.Add(header_sizer, 0, wx.LEFT)
 
         sizer = wx.GridBagSizer(5, 5)
+        self.tc_name = wx.TextCtrl(self)
+        self.add_widgets(sizer, dataset.project.name, 0, 0, self.tc_name)
+        self.tc_description = wx.TextCtrl(self, size=(350, 60), style=wx.TE_MULTILINE)
+        self.add_widgets(sizer, dataset.project.description, 1, 0, self.tc_description)
+        self.tc_url = wx.TextCtrl(self)
+        self.add_widgets(sizer, dataset.project.url, 2, 0, self.tc_url)
 
-        """ If there is metadata available, it will be displayed """
-        if len(repos[self.selection]) == 4:
-            print("Some functional metadata available")
-            text_ctl_shortname = repos[selection][3][0]['short name']
-            text_ctl_shortcode = repos[selection][3][1]['short code']
-            text_ctl_long_title = repos[selection][3][2]['long title']
-            text_ctl_ark_identifier = repos[selection][3][3]['ark identifier']
-            text_ctl_language = repos[selection][3][4]['language']
-            self.tc_shortname = wx.TextCtrl(self, value=text_ctl_shortname)
-            self.add_widgets(sizer, 'Short Name: (required)', 'Fill in shortname of project, max. 8 characters, no blanks, required.', 0,
-                             0, self.tc_shortname)
-            self.tc_shortcode = wx.TextCtrl(self, value=text_ctl_shortcode)
-            self.add_widgets(sizer, 'Shortcode:', 'Ask DSP for shortcode of your project, required.', 1,
-                             0, self.tc_shortcode)
-            self.tc_long_title = wx.TextCtrl(self, size=(350, 60), style=wx.TE_MULTILINE, value=text_ctl_long_title)
-            self.add_widgets(sizer, 'Official long title of the project: ', 'Insert the official long title of your project.', 2,
-                             0, self.tc_long_title)
-            self.tc_ark_identifier = wx.TextCtrl(self, value=text_ctl_ark_identifier)
-            self.add_widgets(sizer, 'ARK Identifier:', 'If you are not certain, ask your DSP manager.',
-                             3, 0, self.tc_ark_identifier)
-            languages = ['German', 'French', 'Italian', 'English']
-            self.combo = wx.ComboBox(self, choices=languages, value=text_ctl_language)
-            self.add_widgets(sizer, 'Language', 'Insert the main language, your project is in.', 4, 0, self.combo)
+        # TODO: Start date
+        # TODO: End date
+        # TODO: Temporal Coverage
+        # TODO: Spacial Coverage
+        # TODO: Funder
+        # TODO: Grant
+        # TODO: Keywords
+        # TODO: Discipline
+        # etc.
 
-            self.main_sizer.Add(sizer, 0, wx.EXPAND)
-            btn_sizer = wx.BoxSizer()
-            save_btn = wx.Button(self, label='Save')
-            save_btn.Bind(wx.EVT_BUTTON, self.on_save_reload)
-            btn_sizer.Add(save_btn, 0, wx.ALL, 5)
-            btn_sizer.Add(wx.Button(
-                self, id=wx.ID_CANCEL), 0, wx.ALL, 5
-            )
-            self.main_sizer.Add(btn_sizer, 0, wx.CENTER)
-            self.SetSizer(self.main_sizer)
+        # Note: that's how language was done previousely
+        # text_ctl_language = ['language']
+        # languages = ['German', 'French', 'Italian', 'English']
+        # self.combo = wx.ComboBox(self, choices=languages, value=text_ctl_language)
+        # self.add_widgets(sizer, 'Language', 'Insert the main language, your project is in.', 4, 0, self.combo)
 
-        else:
-            # no metadata available
-            self.tc_shortname = wx.TextCtrl(self)
-            self.add_widgets(sizer, 'Short Name: (required)', 'Fill in shortname of project, ask DSP, if uncertain.',
-                             0, 0, self.tc_shortname)
-            self.tc_shortcode = wx.TextCtrl(self)
-            self.add_widgets(sizer, 'Shortcode: (required)', 'Ask DSP for shortcode of your project, required.', 1,
-                             0, self.tc_shortcode)
-            self.tc_long_title = wx.TextCtrl(self, size=(350, 60), style=wx.TE_MULTILINE)
-            self.add_widgets(sizer, 'Official long title of the project',
-                             'Insert the official long title of your project.', 2, 0, self.tc_long_title)
-            self.tc_ark_identifier = wx.TextCtrl(self)
-            self.add_widgets(sizer, 'ARK Identifier:', 'If you are not certain, ask your DSP manager.',
-                             3, 0, self.tc_ark_identifier)
-            languages = ['German', 'French', 'Italian', 'English']
-            self.combo = wx.ComboBox(self, choices=languages)
-            self.add_widgets(sizer, 'Language', 'Insert the main language, your project is in.', 4, 0, self.combo)
+        self.main_sizer.Add(sizer, 0, wx.EXPAND)
+        btn_sizer = wx.BoxSizer()
+        save_btn = wx.Button(self, label='Save')
+        save_btn.Bind(wx.EVT_BUTTON, self.on_save)
+        btn_sizer.Add(save_btn, 0, wx.ALL, 5)
+        btn_sizer.Add(wx.Button(
+            self, id=wx.ID_CANCEL), 0, wx.ALL, 5
+        )
+        self.main_sizer.Add(btn_sizer, 0, wx.CENTER)
+        self.SetSizer(self.main_sizer)
 
-            self.main_sizer.Add(sizer, 0, wx.EXPAND)
-            btn_sizer = wx.BoxSizer()
-            save_btn = wx.Button(self, label='Save')
-            save_btn.Bind(wx.EVT_BUTTON, self.on_save_new)
-            btn_sizer.Add(save_btn, 0, wx.ALL, 5)
-            btn_sizer.Add(wx.Button(
-                self, id=wx.ID_CANCEL), 0, wx.ALL, 5
-            )
-            self.main_sizer.Add(btn_sizer, 0, wx.CENTER)
-            self.SetSizer(self.main_sizer)
 
-    # noinspection PyAttributeOutsideInit
-    def add_widgets(self, sizer, label_text, tooltip_text, pos_x, pos_y, text_control):
+    def add_widgets(self, sizer, prop: Property, pos_x, pos_y, text_control):
+        # LATER: adjust to new params
         """
         This function compresses the writing of Grid form entries. The next step will be to move it into a
         helper class to make it accessible for other classes.
@@ -414,119 +401,69 @@ class EditNamingDialog(wx.Dialog):
         Parameters
         ----------
         sizer : wx.GridBagSizer
-        label_text : basestring
-        tooltip_text : basestring
+        prop : `metaDataSet.Property`
         pos_x : integer
         pos_y : integer
         text_control : wx.TextControl
         """
+        # TODO: do something with datatype
+        # TODO: do something with cardinality
+        # TODO: this currently assumes every value to be a string. How can we solve this?
+        # -> generalize, so that widget can take any kind of UI element
+        value = ""
+        if prop.value:
+            value = str(prop.value)
+        text_control.SetValue(value)
         self.text_control = text_control
-        label = wx.StaticText(self, label=label_text)
+        label = wx.StaticText(self, label=prop.name)
         sizer.Add(label, pos=(pos_x, pos_y), flag=wx.ALL, border=5)
-        text_control.SetToolTip(tooltip_text)
+        text_control.SetToolTip(prop.description)
         sizer.Add(text_control, pos=(pos_x, pos_y + 1), flag=wx.EXPAND | wx.ALL, border=5)
 
-    def on_save_new(self, event):
+    def on_save(self, event):
         print("Save pressed")
-        txt_short_name = self.tc_shortname.GetValue()
-        txt_short_code = self.tc_shortcode.GetValue()
-        txt_long_title = self.tc_long_title.GetValue()
-        txt_ark_identifier = self.tc_ark_identifier.GetValue()
-        txt_language = self.combo.GetValue()
-        print("Selection: ")
-        print(self.selection)
-        repos = DataHandling().get_repo()
-        print("Repo: ")
-        print(repos[self.selection])
-        metadata = []
-        """ Now we create the dictionaries: """
-        dict_s_n = {'short name': txt_short_name}
-        dict_s_c = {'short code': txt_short_code}
-        dict_l_t = {'long title': txt_long_title}
-        dict_a_i = {'ark identifier': txt_ark_identifier}
-        dict_lg = {'language': txt_language}
-        metadata.append(dict_s_n)
-        metadata.append(dict_s_c)
-        metadata.append(dict_l_t)
-        metadata.append(dict_a_i)
-        metadata.append(dict_lg)
-        # This will be different
-        repos[self.selection].append(metadata)
-        print("Repos after appending metadata: ")
-        print(repos[self.selection])
-        DataHandling().store_repo(repos)
+        self.dataset.project.name.value = self.tc_name.GetValue()
+        self.dataset.project.description.value = self.tc_description.GetValue()
+        self.dataset.project.url.value = self.tc_url.GetValue()
+        data_handler.save_data()
         self.Close()
 
-    def on_save_reload(self, event):
-        print("Save pressed")
-        txt_short_name = self.tc_shortname.GetValue()
-        txt_short_code = self.tc_shortcode.GetValue()
-        txt_long_title = self.tc_long_title.GetValue()
-        txt_ark_identifier = self.tc_ark_identifier.GetValue()
-        txt_language = self.combo.GetValue()
-        print("Selection: ")
-        print(self.selection)
-        repos = DataHandling().get_repo()
-        print("Repo: ")
-        print(repos[self.selection])
-        metadata = []
-        """ Now we create the dictionaries: """
-        dict_s_n = {'short name': txt_short_name}
-        dict_s_c = {'short code': txt_short_code}
-        dict_l_t = {'long title': txt_long_title}
-        dict_a_i = {'ark identifier': txt_ark_identifier}
-        dict_lg = {'language': txt_language}
-        metadata.append(dict_s_n)
-        metadata.append(dict_s_c)
-        metadata.append(dict_l_t)
-        metadata.append(dict_a_i)
-        metadata.append(dict_lg)
-        # This will be different
-        # repos[self.selection].append(metadata)
-        repos[self.selection][3] = metadata
-        print("Repos after appending metadata: ")
-        print(repos[self.selection])
-        DataHandling().store_repo(repos)
-        self.Close()
+# LATER: probably obsolete? in any case, move functionality to metaDataSet
+# class HandleXML(DataHandling):
+#     """ This Class generates the element tree and applies the respective Data to the element tree. """
 
+#     def __init__(self):
+#         self.repos = DataHandling().get_repo()
 
-class HandleXML(DataHandling):
-    """ This Class generates the element tree and applies the respective Data to the element tree. """
+#     def create_xml(self, selection):
+#         """ Here we create the RDF Model and derived from it a XML, JSON or Turtle file or whatever """
 
-    def __init__(self):
-        self.repos = DataHandling().get_repo()
+#         self.selection = selection
 
-    def create_xml(self, selection):
-        """ Here we create the RDF Model and derived from it a XML, JSON or Turtle file or whatever """
+#         print("Trying to create XML-File via RDF_LIB")
+#         print("For Testing:")
+#         print("Selection:")
+#         print(self.selection)
+#         print("All repositories available...")
+#         print(self.repos)
+#         print("Selected repository: ")
+#         print(self.repos[self.selection])
 
-        self.selection = selection
+#         repo = self.repos[self.selection]
+#         print(repo)
 
-        print("Trying to create XML-File via RDF_LIB")
-        print("For Testing:")
-        print("Selection:")
-        print(self.selection)
-        print("All repositories available...")
-        print(self.repos)
-        print("Selected repository: ")
-        print(self.repos[self.selection])
-
-        repo = self.repos[self.selection]
-        print(repo)
-
-        root = ET.Element("root")
-        project = ET.SubElement(root, "Project Resources")
-        # very static...
-        folder_contents = repo[0]['folder']
-        ET.SubElement(project, "Folder", name="Folder").text = folder_contents
-        repo_name = repo[1]['repo']
-        ET.SubElement(project, "Project", name="Project").text = repo_name
-        file_list = repo[2]['files']
-        ET.SubElement(project, "Files", name="Files").text = file_list
-        print("xml-dump:")
-        ET.dump(root)
+#         root = ET.Element("root")
+#         project = ET.SubElement(root, "Project Resources")
+#         # very static...
+#         folder_contents = repo[0]['folder']
+#         ET.SubElement(project, "Folder", name="Folder").text = folder_contents
+#         repo_name = repo[1]['repo']
+#         ET.SubElement(project, "Project", name="Project").text = repo_name
+#         file_list = repo[2]['files']
+#         ET.SubElement(project, "Files", name="Files").text = file_list
+#         print("xml-dump:")
+#         ET.dump(root)
 
 
 if __name__ == '__main__':
-    app = wx.App()
-    frame = ProjectFrame()
-    app.MainLoop()
+    collectMetadata()

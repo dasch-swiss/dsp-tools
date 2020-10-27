@@ -27,7 +27,7 @@ from metaDataSet import MetaDataSet, Property
 # - if so, underneath the tabbed `wx.Notebook`, we could always have the same save and cancel buttons
 # - I'd love to have an over-arching progress bar that indicates to the user, how much of the forms they have filled out
 #   (see wx.Gauge)
-# 
+#
 #############################################
 
 def collectMetadata():
@@ -47,7 +47,7 @@ def collectMetadata():
 
 class DataHandling:
     """ This class handles data.
-    
+
     It checks for availability in the filesystem, and
     if not, creates the data structure. It also takes care for the storage on disk.
     The data are stored as a pickle file.
@@ -74,7 +74,7 @@ class DataHandling:
 
         Args:
             folder_path (str): path to the project folder
-        """        
+        """
         index = len(self.projects)
         folder_name = os.path.basename(folder_path)
         dataset = MetaDataSet(index, folder_name, folder_path)
@@ -96,7 +96,7 @@ class DataHandling:
             # LATER: in principal, we could append the data instead of replacing it
             # (for loading multiple data sets and combining them)
             # would have to make sure the indices are correct and no doubles are being added
-                
+
 
     def save_data(self):
         """
@@ -110,8 +110,8 @@ class DataHandling:
             print(p)
         with open(self.data_storage, 'wb') as file:
             pickle.dump(self.projects, file)
-        
-    
+
+
     def process_data(self, index: int):
         """
         ToDo: implement this class.
@@ -167,7 +167,7 @@ class ProjectFrame(wx.Frame):
 
 class ProjectPanel(wx.Panel):
     """ This class manages the window content.
-    
+
     It displays a list of projects, which are selectable and provides an edit button.
     """
 
@@ -194,6 +194,11 @@ class ProjectPanel(wx.Panel):
         edit_button = wx.Button(self, label='Edit')
         edit_button.Bind(wx.EVT_BUTTON, self.on_edit)
         main_sizer.Add(edit_button, 0, wx.ALL | wx.CENTER, 5)
+
+        edit_tabs_button = wx.Button(self, label='Edit in Tabs')
+        edit_tabs_button.Bind(wx.EVT_BUTTON, self.on_edit_tabbed)
+        main_sizer.Add(edit_tabs_button, 0, wx.ALL | wx.CENTER, 5)
+
         process_xml_button = wx.Button(self, label='Process selected to XML')
         process_xml_button.Bind(wx.EVT_BUTTON, self.on_process_data)
         main_sizer.Add(process_xml_button, 0, wx.ALL | wx.Center, 5)
@@ -242,6 +247,19 @@ class ProjectPanel(wx.Panel):
             self.load_view()
             dlg.Destroy()
 
+    def on_edit_tabbed(self, event):
+        """ This function calls the EditBaseDialog and hands over pFiles, a list.
+                """
+        selection = self.list_ctrl.GetFocusedItem()
+        if selection >= 0:
+            repo = data_handler.projects[selection]
+            dlg = TabbedWindow(repo)
+            dlg.ShowModal()
+            # This starts the reload of the view. Saving data is done by the save function inside the Dialog box.
+            self.load_view()
+            dlg.Destroy()
+
+
 
     def on_process_data(self, event):
         """ Set selection and call create_xml """
@@ -261,7 +279,7 @@ class ProjectPanel(wx.Panel):
         dir_list = os.listdir(folder_path)
         if '.DS_Store' in dir_list:
             dir_list.remove('.DS_Store')
-        
+
         data_handler.add_project(folder_path)
         self.display_repos()
 
@@ -359,8 +377,10 @@ class EditNamingDialog(wx.Dialog):
         sizer = wx.GridBagSizer(5, 5)
         self.tc_name = wx.TextCtrl(self)
         self.add_widgets(sizer, dataset.project.name, 0, 0, self.tc_name)
+
         self.tc_description = wx.TextCtrl(self, size=(350, 60), style=wx.TE_MULTILINE)
         self.add_widgets(sizer, dataset.project.description, 1, 0, self.tc_description)
+
         self.tc_url = wx.TextCtrl(self)
         self.add_widgets(sizer, dataset.project.url, 2, 0, self.tc_url)
 
@@ -427,6 +447,108 @@ class EditNamingDialog(wx.Dialog):
         self.dataset.project.url.value = self.tc_url.GetValue()
         data_handler.save_data()
         self.Close()
+
+class TabOne(wx.Panel):
+    def __init__(self, parent, dataset):
+        wx.Panel.__init__(self, parent)
+        self.dataset = dataset
+        # GUI Operations
+        main_sizer = wx.BoxSizer(wx.VERTICAL)
+        project_label = wx.StaticText(self, label="Current Project: " + self.dataset.name)
+        main_sizer.Add(project_label, flag=wx.CENTER, border=10)
+        """ This is all very static for the moment. This will change, as soon I see all the data.
+            I will try to implement a loop over the datasets...
+            Only for testing, doesn't make much sense for now...
+        """
+
+        sizer = wx.GridBagSizer(5, 5)
+
+        path_label = wx.StaticText(self, label="Path (Readonly: ")
+        sizer.Add(path_label, pos=(0, 0), border=5)
+
+        path_field = wx.TextCtrl(self, size=(500, 50), style=wx.TE_MULTILINE | wx.TE_READONLY)
+        path_field.SetValue(self.dataset.path)
+        sizer.Add(path_field, pos=(0, 1), border=5)
+
+        path_help = wx.StaticText(self, label="Here a field for help, a pop-up-dialog or the like")
+        sizer.Add(path_help, pos=(0, 2), border=5)
+
+        # sizer.Add(project_label, pos=(0,1), flag=wx.ALL, border=5)
+        main_sizer.Add(sizer, flag=wx.CENTER, border=15)
+
+        self.SetSizer(main_sizer)
+
+class TabTwo(wx.Panel):
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent)
+        t = wx.StaticText(self, -1, "Project")
+
+class TabThree(wx.Panel):
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent)
+        t = wx.StaticText(self, -1, "DataSet")
+
+class TabFour(wx.Panel):
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent)
+        t = wx.StaticText(self, -1, "Person")
+
+class TabFive(wx.Panel):
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent)
+        t = wx.StaticText(self, -1, "Organisation")
+
+class TabSix(wx.Panel):
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent)
+        t = wx.StaticText(self, -1, "Data Management Plan")
+
+
+
+class TabbedWindow(wx.Dialog):
+    def __init__(self, dataset: MetaDataSet):
+        wx.Frame.__init__(self, parent=None, title="Metadata tabs", size=(1100, 500))
+
+        self.dataset = dataset
+        # project_label = wx.StaticText(self, label="Current Project: " + dataset.name)
+
+        # Create a panel and notebook (tabs holder)
+        panel = wx.Panel(self)
+        nb = wx.Notebook(panel)
+        nb.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.on_tab_change)
+
+        # Create the tab windows
+        tab1 = TabOne(nb, self.dataset)
+        tab2 = TabTwo(nb)
+        tab3 = TabThree(nb)
+        tab4 = TabFour(nb)
+        tab5 = TabFive(nb)
+        tab6 = TabSix(nb)
+
+        # Add the windows to tabs and name them.
+        nb.AddPage(tab1, "Base Data")
+        nb.AddPage(tab2, "Project")
+        nb.AddPage(tab3, "Dataset")
+        nb.AddPage(tab4, "Person")
+        nb.AddPage(tab5, "Organisation")
+        nb.AddPage(tab6, "Data Management Plan")
+
+        # Set notebook in a sizer to create the layout
+        sizer = wx.BoxSizer()
+        sizer.Add(nb, 1, wx.EXPAND)
+        panel.SetSizer(sizer)
+
+    def on_tab_change(self, event):
+        print("tab changed")
+
+
+
+
+
+
+
+
+
 
 # LATER: probably obsolete? in any case, move functionality to metaDataSet
 # class HandleXML(DataHandling):

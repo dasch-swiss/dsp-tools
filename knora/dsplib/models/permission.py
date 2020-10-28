@@ -95,7 +95,7 @@ class Permissions:
         for permission, groups in self._permissions.items():
             if tmpstr:
                 tmpstr += '|'
-            tmpstr += permission + ' ' + ",".join(groups)
+            tmpstr += str(permission) + ' ' + ",".join(groups)
         return tmpstr
 
     @classmethod

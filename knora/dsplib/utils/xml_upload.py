@@ -103,9 +103,6 @@ class KnoraValue:
             tmpidlist = self._value.findall()
             if tmpidlist:
                 refs = set()
-                print('************************')
-                pprint(tmpidlist)
-                print('************************')
                 for tmpid in tmpidlist:
                     refs.add(tmpid.split(':')[1])
                 self._resrefs = list(refs)

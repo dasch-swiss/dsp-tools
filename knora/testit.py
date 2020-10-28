@@ -7,6 +7,7 @@ from dsplib.models.connection import Connection
 from dsplib.models.resource import ResourceInstanceFactory
 from dsplib.models.value import BooleanValue, ColorValue, DateValue, DecimalValue, IntValue, IntervalValue, TextValue, \
     UriValue, KnoraStandoffXml, make_value
+from dsplib.models.permission import PermissionValue, Permissions, PermissionsIterator
 from dsplib.models.sipi import Sipi
 from pprint import pprint
 
@@ -58,12 +59,18 @@ ThingPicture = factory.get_resclass('anything:ThingPicture')
 sipi = Sipi('http://0.0.0.0:1024', con.get_token())
 img = sipi.upload_image('gaga.tif')
 fileref = img['uploadedFiles'][0]['internalFilename']
-a_thing_picture = ThingPicture(con=con,
-                               label='ThingPicture',
-                               stillimage=fileref,
-                               values={
-                                   'anything:hasPictureTitle': "A Thing Picture named Lena"
-                               }).create()
+resperm = Permissions({PermissionValue.M: ["knora-admin:UnknownUser", "knora-admin:KnownUser"],
+                       PermissionValue.CR: ["knora-admin:Creator", "knora-admin:ProjectAdmin"]})
+a_thing_picture = ThingPicture(
+    con=con,
+    label='ThingPicture',
+    stillimage=fileref,
+    permissions=resperm,
+    values={
+        'anything:hasPictureTitle': make_value(value="A Thing Picture named Lena", permissions=resperm)
+    }
+).create()
 print('??????????????????????????????????????????')
+
 a_thing_picture.print()
 

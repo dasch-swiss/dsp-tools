@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='knora',
-    version='1.3.1',
+    version='1.3.2',
     description='A Python library and tools for the Knora-API',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -33,9 +33,8 @@ setuptools.setup(
     ],
     entry_points={
           'console_scripts': [
-              'knora-create-onto=knora.create_onto:main',
+              'dsp-tools=knora.dsp-tools:main',
               'knora-console=knora.knoraConsole:main'
-              'knora-xml-import=knora.xml2knora:main',
               'knora-reset-triplestore=knora.reset_triplestore:main',
           ],
     },

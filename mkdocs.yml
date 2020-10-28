@@ -2,7 +2,7 @@ site_name: Knora-Py Documentation
 
 nav:
     - Introduction: index.md
-    - knora-create-onto: create_onto.md
+    - dsp-tools: create_onto.md
     - knora-console: knora_console.md
     - knora-xml-import: xml2knora.md
     - Knoractl: knoractl.md

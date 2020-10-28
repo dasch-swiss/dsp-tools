@@ -181,6 +181,8 @@ class ResourceInstance(Model):
                 "@id": self.project
             }
             tmp['rdfs:label'] = self._label
+            if self._permissions:
+                tmp["knora-api:hasPermissions"] = self._permissions.toJsonLdObj()
             if self._stillimage:
                 tmp["knora-api:hasStillImageFileValue"] = {
                     "@type": "knora-api:StillImageFileValue",

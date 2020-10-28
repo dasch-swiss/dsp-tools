@@ -1,27 +1,29 @@
 [![PyPI version](https://badge.fury.io/py/knora.svg)](https://badge.fury.io/py/knora)
 
-# knora-create-onto
+# dsp-tools
 
-The command `create-onto` can be used to upload a data model (ontology) from a JSON file to a knora server, or to dump
-a data model from a knora server to a JSON file.
+The command `dsp-tools` can be used to upload a data model (ontology) from a JSON file to a DaSCH Service Platform (DSP)
+server, to dump a data model from a DSP server to a JSON file, or to upload data to a DSP server from
+a XML file
 
-- `knora-create-onto create` creates an ontology. Furthermore, the script reads a JSON file containing the data model 
-  (ontology) definition, connects to the Knora server and creates the data model.
-- `knora-create-onto get` reads an ontology from a server and creates a JSON file that can be used again by
-  `knora-create-onto create` to implement the data model on another server
+- `dsp-tools create` creates an ontology. Furthermore, the script reads a JSON file containing the data model 
+  (ontology) definition, connects to the DSP server and creates the data model.
+- `dsp-tools get` reads an ontology from a server and creates a JSON file that can be used again by
+  `dsp-tools create` to implement the data model on another server
+- `dsp-tools xmlupload` to upload data from a XML file
 
 ## Usage
 
 ### Create an ontology on a server
 
 ```bash
-$ knora-create-onto create [options] data_model_definition.json
+$ dsp-tools create [options] data_model_definition.json
 ```
 The above command line supports the following options:
 
-- _"-s server" | "--server server"_: URL of the Knora server [default: localhost:3333].
-- _"-u username" | "--user username"_: Username to log into Knora [default: root@example.com].
-- _"-p password" | "--password password"_: Password for login to the Knora server [default: test].
+- _"-s server" | "--server server"_: URL of the DSP server [default: localhost:3333].
+- _"-u username" | "--user username"_: Username to log into DSP [default: root@example.com].
+- _"-p password" | "--password password"_: Password for login to the DSP server [default: test].
 - _"-V" | "--validate"_: If this flag is set, only the validation of the JSON runs.
 - _"-l" | "--lists"_: This only creates the lists using a [simplified schema](#json-for-lists). Please note
   that in this case the project __must__ exist.
@@ -30,13 +32,13 @@ The above command line supports the following options:
 So for example you can have the command:
 
 ```
-$ knora-create-onto create -s https://api.server data_model_definition.json
+$ dsp-tools create -s https://api.server data_model_definition.json
 ```
 
 ### Get an ontology from a server
 
 ```bash
-$ knora-create-onto get [options] output-file
+$ dsp-tools get [options] output-file
 ```
 
 The above command line supports the following options:
@@ -47,6 +49,20 @@ The above command line supports the following options:
 - _"-P project" | "--project shortcode|shortname|iri"_: Shortcode, shortname or iri of project
 - _"-v" | "--verbose"_: Print out some information about progress
 
+### Upload data to a DSP server
+
+```bash
+$ dsp-tools xmlupload [options] xml-data-file
+```
+
+This command line uploads all the data defined in the XML file. It supports the following options:
+
+- _"-s server" | "--server server"_: URL of the Knora server [default: localhost:3333].
+- _"-u username" | "--user username"_: Username to log into Knora [default: root@example.com].
+- _"-p password" | "--password password"_: Password for login to the Knora server [default: test].
+
+    parser_upload.add_argument("-i", "--imgdir", type=str, default=".", help="Path to folder containing the images")
+    parser_upload.add_argument("-S", "--sipi", type=str, default="http://0.0.0.0:1024", help="URL of SIPI server")
 
 ## JSON ontology definition format
 

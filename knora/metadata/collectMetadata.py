@@ -454,29 +454,42 @@ class TabOne(wx.Panel):
     def __init__(self, parent, dataset):
         wx.Panel.__init__(self, parent)
         self.dataset = dataset
-        # GUI Operations
+
+        ##### Project name as caption
         main_sizer = wx.BoxSizer(wx.VERTICAL)
         project_label = wx.StaticText(self, label="Current Project: " + self.dataset.name)
         main_sizer.Add(project_label, flag=wx.CENTER, border=10)
-        """ This is all very static for the moment. This will change, as soon I see all the data.
-            I will try to implement a loop over the datasets...
-            Only for testing, doesn't make much sense for now...
-        """
+        main_sizer.AddSpacer(5)
 
-        sizer = wx.GridBagSizer(5, 5)
-
-        path_label = wx.StaticText(self, label="Path (Readonly: ")
-        sizer.Add(path_label, pos=(0, 0), border=5)
-
+        ##### Path to folder
+        path_sizer = wx.GridBagSizer(5, 5)
+        path_label = wx.StaticText(self, label="Path (Readonly): ")
+        path_sizer.Add(path_label, pos=(0, 0), border=5)
         path_field = wx.TextCtrl(self, size=(500, 50), style=wx.TE_MULTILINE | wx.TE_READONLY)
         path_field.SetValue(self.dataset.path)
-        sizer.Add(path_field, pos=(0, 1), border=5)
-
+        path_sizer.Add(path_field, pos=(0, 1), border=5)
         path_help = wx.Button(self, label="?")
-        path_help.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event, "I am a help text", "I am a sample text"))
-        sizer.Add(path_help, pos=(0, 2), border=5)
+        path_help.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event, 
+                                                                "Path to the folder with the data", 
+                                                                "/some/path/to/folder"))
+        path_sizer.Add(path_help, pos=(0, 2), border=5)
+        main_sizer.Add(path_sizer, flag=wx.CENTER, border=15)
 
-        main_sizer.Add(sizer, flag=wx.CENTER, border=15)
+        ##### Files
+        files_sizer = wx.GridBagSizer(5, 5)
+        files_label = wx.StaticText(self, label="Files: ")
+        files_sizer.Add(files_label, pos=(0, 0), border=5)
+        file_list = wx.ListCtrl(self, style=wx.LC_REPORT | wx.BORDER_SUNKEN)
+        file_list.InsertColumn(0, "Files")
+        # path_field = wx.TextCtrl(self, size=(500, 50), style=wx.TE_MULTILINE | wx.TE_READONLY)
+        # files_sizer.SetValue(self.dataset.path)
+        files_sizer.Add(file_list, pos=(0, 1), border=5)
+        path_help = wx.Button(self, label="?")
+        path_help.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event, 
+                                                                "Files associated with the project", 
+                                                                "sample_project.zip"))
+        files_sizer.Add(path_help, pos=(0, 2), border=5)
+        main_sizer.Add(files_sizer, flag=wx.EXPAND, border=15)
 
         self.SetSizer(main_sizer)
 
@@ -536,6 +549,9 @@ class HelpPopup(wx.PopupTransientWindow):
         self.Layout()
 
 
+# QUESTION: there is one major downside to have this as a dialog instead of a frame:
+# users can't resize the window. (on the other hand: frame can't be modal.) 
+# What's more important?
 class TabbedWindow(wx.Dialog):
     def __init__(self, parent, dataset: MetaDataSet):
         wx.Dialog.__init__(self, parent=parent, title="Metadata tabs", size=(800, 500))

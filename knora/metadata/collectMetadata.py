@@ -456,49 +456,46 @@ class TabOne(wx.Panel):
         self.dataset = dataset
 
         ##### Project name as caption
-        main_sizer = wx.BoxSizer(wx.VERTICAL)
-        project_label = wx.StaticText(self, label="Current Project: " + self.dataset.name)
-        main_sizer.Add(project_label, flag=wx.CENTER, border=10)
-        main_sizer.AddSpacer(5)
+        sizer = wx.GridBagSizer(10, 10)
+        project_label = wx.StaticText(self, label="Current Project:")
+        project_name = wx.StaticText(self, label=self.dataset.name)
+        # QUESTION: should this be changeable?
+        sizer.Add(project_label, pos=(0, 0))
+        sizer.Add(project_name, pos=(0, 1))
 
         ##### Path to folder
-        path_sizer = wx.GridBagSizer(5, 5)
         path_label = wx.StaticText(self, label="Path (Readonly): ")
-        path_sizer.Add(path_label, pos=(0, 0), border=5)
-        path_field = wx.TextCtrl(self, size=(500, 50), style=wx.TE_MULTILINE | wx.TE_READONLY)
+        sizer.Add(path_label, pos=(1, 0))
+        path_field = wx.TextCtrl(self, style=wx.TE_READONLY, size=(550,-1))
         path_field.SetValue(self.dataset.path)
-        path_sizer.Add(path_field, pos=(0, 1), border=5)
+        sizer.Add(path_field, pos=(1, 1))
+        # TODO: add buton to change folder?
         path_help = wx.Button(self, label="?")
         path_help.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event, 
                                                                 "Path to the folder with the data", 
                                                                 "/some/path/to/folder"))
-        path_sizer.Add(path_help, pos=(0, 2), border=5)
-        main_sizer.Add(path_sizer, flag=wx.CENTER, border=15)
+        sizer.Add(path_help, pos=(1, 2))
 
         ##### Files
-        files_sizer = wx.GridBagSizer(5, 5)
         files_label = wx.StaticText(self, label="Files: ")
-        files_sizer.Add(files_label, pos=(0, 0), border=5)
-        file_list = wx.ListCtrl(self, style=wx.LC_REPORT | wx.BORDER_SUNKEN)
-        file_list.InsertColumn(0, "Files")
-        # path_field = wx.TextCtrl(self, size=(500, 50), style=wx.TE_MULTILINE | wx.TE_READONLY)
-        # files_sizer.SetValue(self.dataset.path)
-        files_sizer.Add(file_list, pos=(0, 1), border=5)
+        sizer.Add(files_label, pos=(2, 0))
+        file_list = wx.ListBox(self, size=(550,-1))
+        # TODO: Add Buttons to add and delete files
+        # TODO: add all files in data to listbox
+        sizer.Add(file_list, pos=(2, 1))
         path_help = wx.Button(self, label="?")
         path_help.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event, 
                                                                 "Files associated with the project", 
                                                                 "sample_project.zip"))
-        files_sizer.Add(path_help, pos=(0, 2), border=5)
-        main_sizer.Add(files_sizer, flag=wx.EXPAND, border=15)
+        sizer.Add(path_help, pos=(2, 2))
 
-        self.SetSizer(main_sizer)
+        sizer.AddGrowableCol(1)
+        self.SetSizer(sizer)
 
     def show_help(self, evt, message, sample):
         win = HelpPopup(self, message, sample)
-        # win = HelpPopup(self, wx.NO_BORDER, message, sample)
         btn = evt.GetEventObject()
         pos = btn.ClientToScreen( (0,0) )
-        # print(pos)
         sz =  btn.GetSize()
         win.Position(pos, (0, sz[1]))
         win.Popup()

@@ -1,7 +1,7 @@
 import wx
 import os
 import pickle
-from pprint import pprint
+# from pprint import pprint
 from typing import List, Any
 import xml.etree.ElementTree as ET
 from metaDataSet import MetaDataSet, Property
@@ -253,11 +253,13 @@ class ProjectPanel(wx.Panel):
         selection = self.list_ctrl.GetFocusedItem()
         if selection >= 0:
             repo = data_handler.projects[selection]
-            dlg = TabbedWindow(repo)
+            dlg = TabbedWindow(self, repo)
             dlg.ShowModal()
+            # dlg.Show()  # QUESTION: should we use show or showmodal? I'm unsure, both seems to have pros and cons
+
             # This starts the reload of the view. Saving data is done by the save function inside the Dialog box.
-            self.load_view()
-            dlg.Destroy()
+            # self.load_view()
+            # dlg.Destroy()
 
 
 
@@ -470,13 +472,23 @@ class TabOne(wx.Panel):
         path_field.SetValue(self.dataset.path)
         sizer.Add(path_field, pos=(0, 1), border=5)
 
-        path_help = wx.StaticText(self, label="Here a field for help, a pop-up-dialog or the like")
+        path_help = wx.Button(self, label="?")
+        path_help.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event, "I am a help text", "I am a sample text"))
         sizer.Add(path_help, pos=(0, 2), border=5)
 
-        # sizer.Add(project_label, pos=(0,1), flag=wx.ALL, border=5)
         main_sizer.Add(sizer, flag=wx.CENTER, border=15)
 
         self.SetSizer(main_sizer)
+
+    def show_help(self, evt, message, sample):
+        win = HelpPopup(self, message, sample)
+        # win = HelpPopup(self, wx.NO_BORDER, message, sample)
+        btn = evt.GetEventObject()
+        pos = btn.ClientToScreen( (0,0) )
+        # print(pos)
+        sz =  btn.GetSize()
+        win.Position(pos, (0, sz[1]))
+        win.Popup()
 
 class TabTwo(wx.Panel):
     def __init__(self, parent):
@@ -505,9 +517,28 @@ class TabSix(wx.Panel):
 
 
 
+class HelpPopup(wx.PopupTransientWindow):
+    def __init__(self, parent, message, sample):
+        wx.PopupTransientWindow.__init__(self, parent)
+        panel = wx.Panel(self)
+        
+        st = wx.StaticText(panel, -1,
+                        "Description:\n" +
+                        message + "\n\n" +
+                        "Example:\n" +
+                        sample)
+
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(st, 0, wx.ALL, 5)
+        panel.SetSizer(sizer)
+        sizer.Fit(panel)
+        sizer.Fit(self)
+        self.Layout()
+
+
 class TabbedWindow(wx.Dialog):
-    def __init__(self, dataset: MetaDataSet):
-        wx.Frame.__init__(self, parent=None, title="Metadata tabs", size=(1100, 500))
+    def __init__(self, parent, dataset: MetaDataSet):
+        wx.Dialog.__init__(self, parent=parent, title="Metadata tabs", size=(800, 500))
 
         self.dataset = dataset
         # project_label = wx.StaticText(self, label="Current Project: " + dataset.name)
@@ -533,14 +564,32 @@ class TabbedWindow(wx.Dialog):
         nb.AddPage(tab5, "Organisation")
         nb.AddPage(tab6, "Data Management Plan")
 
+        nb_sizer = wx.BoxSizer()
+        nb_sizer.Add(nb, 1, wx.EXPAND)
+
+        # Buttons
+        save_button = wx.Button(panel, label='Save')
+        save_button.Bind(wx.EVT_BUTTON, self.on_save)
+        button_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        button_sizer.Add(save_button, 0, wx.ALL, 5)
+        button_sizer.Add(wx.Button(panel, id=wx.ID_CANCEL), 0, wx.ALL, 5)
+
         # Set notebook in a sizer to create the layout
-        sizer = wx.BoxSizer()
-        sizer.Add(nb, 1, wx.EXPAND)
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(nb_sizer, 1, wx.ALL|wx.EXPAND, 5)
+        sizer.AddStretchSpacer(0)
+        sizer.Add(button_sizer, 1, wx.ALL, 5)
         panel.SetSizer(sizer)
+
+        # self.Show()
 
     def on_tab_change(self, event):
         print("tab changed")
 
+    def on_save(self, event):
+        print("should save tabs content")
+        # TODO: implement
+        self.Close()
 
 
 

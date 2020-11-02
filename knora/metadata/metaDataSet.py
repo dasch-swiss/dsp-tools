@@ -4,6 +4,24 @@ from enum import Enum
 The Classes defined here aim to represent a metadata-set, closely following the metadata ontology.
 """
 
+
+class Cardinality(Enum):
+    """
+    A set of cardinalities that may be used for properties.
+    """
+    UNBOUND = 0
+    ONE = 1
+    ZERO_OR_ONE = 2
+    ONE_TO_UNBOUND = 3
+    ONE_TO_TWO = 4
+
+
+class Datatype(Enum):
+    """
+    A set of cardinalities that may be used for properties.
+    """
+    STRING = 0
+
 class MetaDataSet:
     """ Representation of a data set.
 
@@ -83,20 +101,24 @@ class Project():
     def __init__(self, name):
         self.name = Property("Name", 
                              "The name of the Project", 
-                             "xsd:string", 
+                             "Test Project",
+                             Datatype.STRING, 
                              Cardinality.ONE,
                              name)
         self.description = Property("Description",
                                     "Description of the Project",
-                                    "xsd:string",
+                                    "",  # TODO: add example
+                                    Datatype.STRING, 
                                     Cardinality.ONE)
         self.keywords = Property("Keywords",
                                 "Keywords and tags",
-                                "xsd:string",
+                                "",  # TODO: add example
+                                Datatype.STRING,
                                 Cardinality.ONE_TO_UNBOUND)
         self.discipline = Property("Discipline",
                                 "Discipline and research fields from UNESCO nomenclature: https://skos.um.es/unesco6/?l=en or from http://www.snf.ch/SiteCollectionDocuments/allg_disziplinenliste.pdf",
-                                "xsd:string / sh:IRI",
+                                "",  # TODO: add example
+                                "xsd:string / sh:IRI", # TODO: check if that's correct!
                                 Cardinality.ONE_TO_UNBOUND)
         # TODO: Start date
         # TODO: End date
@@ -107,26 +129,25 @@ class Project():
         # etc.
         self.url = Property("URL",
                             "Landing page or Website of the project. We recommend DSP Landing Page",
+                            "",  # TODO: add example
                             "xsd:string / sh:IRI",
                             Cardinality.ONE_TO_TWO)
+
+    def get_properties(self):
+        return [
+            self.name,
+            self.description,
+            self.keywords,
+            self.discipline,
+            # TODO: more
+            self.url
+        ]
 
 # TODO: dsp-repo:Dataset
 # TODO: dsp-repo:Person
 # TODO: dsp-repo:Organization
 # TODO: dsp-repo:Grant (?)
 # TODO: dsp-repo:DataManagementPlan
-
-
-class Cardinality(Enum):
-    """
-    A set of cardinalities that may be used for properties.
-    """
-    UNBOUND = 0
-    ONE = 1
-    ZERO_OR_ONE = 2
-    ONE_TO_UNBOUND = 3
-    ONE_TO_TWO = 4
-
 
 
 class Property():
@@ -141,9 +162,10 @@ class Property():
     # datatype = None
     # cardinality = None
 
-    def __init__(self, name: str, description: str, datatype: str, cardinality=Cardinality.UNBOUND, value=None):
+    def __init__(self, name: str, description: str, example: str, datatype: Datatype.STRING, cardinality=Cardinality.UNBOUND, value=None):
         self.name = name
         self.description = description
+        self.example = example
         self.datatype = datatype
         self.cardinality = cardinality
         self.value = value

@@ -4,7 +4,7 @@ import pickle
 # from pprint import pprint
 from typing import List, Any
 import xml.etree.ElementTree as ET
-from metaDataSet import MetaDataSet, Property
+from metaDataSet import MetaDataSet, Property, Cardinality, Datatype
 
 ################# TODO List #################
 #
@@ -500,30 +500,64 @@ class TabOne(wx.Panel):
         win.Position(pos, (0, sz[1]))
         win.Popup()
 
-class TabTwo(wx.Panel):
-    def __init__(self, parent):
-        wx.Panel.__init__(self, parent)
-        t = wx.StaticText(self, -1, "Project")
+class DataTab(wx.Panel):
 
-class TabThree(wx.Panel):
-    def __init__(self, parent):
+    def __init__(self, parent, dataset, title):
         wx.Panel.__init__(self, parent)
-        t = wx.StaticText(self, -1, "DataSet")
+        self.dataset = dataset
+        sizer = wx.GridBagSizer(10, 10)
+        if dataset:
+            for i, prop in enumerate(dataset.get_properties()):
+                self.add_widgets(dataset, prop, sizer, i)
+        self.SetSizer(sizer)
 
-class TabFour(wx.Panel):
-    def __init__(self, parent):
-        wx.Panel.__init__(self, parent)
-        t = wx.StaticText(self, -1, "Person")
+    def add_widgets(self, dataset, prop, sizer, index):
+        name_label = wx.StaticText(self, label=prop.name+": ")
+        sizer.Add(name_label, pos=(index, 0))
+        # TODO: handle different datatypes
+        # TODO: handle different cardinalities
+        if prop.datatype == Datatype.STRING:
+            if prop.cardinality == Cardinality.ONE:
+                textcontrol = wx.TextCtrl(self, size=(550, -1))
+                if prop.value:
+                    textcontrol.SetValue(prop.value)
+                sizer.Add(textcontrol, pos=(index,1))
+        btn = wx.Button(self, label="?")
+        btn.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event, prop.description, prop.example))
+        sizer.Add(btn, pos=(index,2))
 
-class TabFive(wx.Panel):
-    def __init__(self, parent):
-        wx.Panel.__init__(self, parent)
-        t = wx.StaticText(self, -1, "Organisation")
+    def show_help(self, evt, message, sample):
+        win = HelpPopup(self, message, sample)
+        btn = evt.GetEventObject()
+        pos = btn.ClientToScreen( (0,0) )
+        sz =  btn.GetSize()
+        win.Position(pos, (0, sz[1]))
+        win.Popup()
 
-class TabSix(wx.Panel):
-    def __init__(self, parent):
-        wx.Panel.__init__(self, parent)
-        t = wx.StaticText(self, -1, "Data Management Plan")
+# class TabTwo(wx.Panel):
+#     def __init__(self, parent):
+#         wx.Panel.__init__(self, parent)
+#         t = wx.StaticText(self, -1, "Project")
+
+# class TabThree(wx.Panel):
+#     def __init__(self, parent):
+#         wx.Panel.__init__(self, parent)
+#         t = wx.StaticText(self, -1, "DataSet")
+
+# class TabFour(wx.Panel):
+#     def __init__(self, parent):
+#         wx.Panel.__init__(self, parent)
+#         t = wx.StaticText(self, -1, "Person")
+
+# class TabFive(wx.Panel):
+#     def __init__(self, parent):
+#         wx.Panel.__init__(self, parent)
+#         t = wx.StaticText(self, -1, "Organisation")
+
+# class TabSix(wx.Panel):
+#     def __init__(self, parent):
+#         wx.Panel.__init__(self, parent)
+#         t = wx.StaticText(self, -1, "Data Management Plan")
 
 
 
@@ -563,11 +597,16 @@ class TabbedWindow(wx.Dialog):
 
         # Create the tab windows
         tab1 = TabOne(nb, self.dataset)
-        tab2 = TabTwo(nb)
-        tab3 = TabThree(nb)
-        tab4 = TabFour(nb)
-        tab5 = TabFive(nb)
-        tab6 = TabSix(nb)
+        tab2 = DataTab(nb, self.dataset.project, "Project")
+        tab3 = DataTab(nb, None, "Dataset")
+        tab4 = DataTab(nb, None, "Person")
+        tab5 = DataTab(nb, None, "Organisation")
+        tab6 = DataTab(nb, None, "Data Management Plan")
+        # tab2 = TabTwo(nb)
+        # tab3 = TabThree(nb)
+        # tab4 = TabFour(nb)
+        # tab5 = TabFive(nb)
+        # tab6 = TabSix(nb)
 
         # Add the windows to tabs and name them.
         nb.AddPage(tab1, "Base Data")

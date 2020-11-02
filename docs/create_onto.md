@@ -22,11 +22,23 @@ It supports the foloowing options:
 
 ## JSON ontology definition format
 
-The JSON file contains a first object an object with the ```prefixes``` for
-external ontologies that are being used, followed by the definition of
-the project wic h includes all resources and properties:
+The first object listed in the JSON file contains the ```prefixes``` of external ontologies that are also used in the 
+current project. 
 
 ### Prefixes
+
+```json
+{
+  "prefixes": {
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "dcterms": "http://purl.org/dc/terms/"
+  }
+}
+```
+
+### Project data
+Right after the prefix object must come the ```project``` object, which contains all resources and properties of the current 
+project.
 
 ```json
 {
@@ -38,20 +50,28 @@ the project wic h includes all resources and properties:
 }
 ```
 
-### Project data
-The project definitions requires
+The "project" object is the bread and butter of the ontology. All important properties of the ontology are 
+specified therein. 
 
-- _"shortcode"_: A hexadecimal string in the range between "0000" and "FFFF" uniquely identifying the project. The short
-  code has to be provided by the DaSCH.
-- _"shortname"_: A short name (string)
-- a _"longname"_: A longer string giving the full name for the project
-- _descriptions_: Strings describing the projects content. These
+The project definitions ***requires exactly*** all of the following datafields:
+
+- _"shortcode"_: A hexadecimal string in the range between "0000" and "FFFF" that's used to uniquely identifying the 
+project. The shortcode has to be provided by the DaSCH.
+- _"shortname"_: A short name (string) for the project. It's ment like a nickname. Is the name of the Project e.g. 
+Albus Percival Wulfric Brian Dumbledore? A shortname for him could be "Albi"
+- a _"longname"_: A longer string giving the full name for the project. In our case, the longname would be "Albus 
+Percival Wulfric Brian Dumbledore"
+- _descriptions_: *Exactly* one or more strings describing the projects content. These
   descriptions can be supplied in several languages (currently _"en"_, _"de"_, _"fr"_ and _"it"_ are supported).
   The descriptions have to be given as JSON object with the language as key
-  and the description as value. At least one description in one language is required.
-- _keywords_: An array of keywords describing the project.
-- _lists_: The definition of flat or hierarchical list (thesauri, controlled vocabularies)
-- _users_: Array of user definitions that will be added
+  and the description as value. (See the example down below in the curly bracket after "desctiptions" to see what that means)
+- _keywords_: An array of keywords describing the project. (Array can be empty as well e.i. "keywords": [] )
+- _lists_: An array containing flat or hierarchical ordered terms. These terms 
+are used to further define the scope of the project. Is your project all about letters written in different paper formats? 
+Use a list that contains the terms ["A4", A3", "A2", "A1"] (This would be ordered hierarchically). 
+Is your project about diplomatic texts between the different cantons? A list such as ["BL", "BS", "VS", ...] could be ideal
+ (this would be a flat list). (This array can be empty as well)
+- _users_: Array of user definitions that will be added (Can be empty as well)
 - _ontology_: The definition of the data model (ontology)
 
 This a project definition lokks like follows:

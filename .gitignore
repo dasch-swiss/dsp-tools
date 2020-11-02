@@ -108,3 +108,4 @@ venv.bak/
 # bazel
 /bazel-*
 /.ijwb/
+.DS_Store

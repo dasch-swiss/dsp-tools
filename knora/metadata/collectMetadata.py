@@ -262,7 +262,6 @@ class ProjectPanel(wx.Panel):
             # dlg.Destroy()
 
 
-
     def on_process_data(self, event):
         """ Set selection and call create_xml """
         selection = self.list_ctrl.GetFocusedItem()
@@ -466,26 +465,26 @@ class TabOne(wx.Panel):
         ##### Path to folder
         path_label = wx.StaticText(self, label="Path (Readonly): ")
         sizer.Add(path_label, pos=(1, 0))
-        path_field = wx.TextCtrl(self, style=wx.TE_READONLY, size=(550,-1))
+        path_field = wx.TextCtrl(self, style=wx.TE_READONLY, size=(550, -1))
         path_field.SetValue(self.dataset.path)
         sizer.Add(path_field, pos=(1, 1))
-        # TODO: add buton to change folder?
+        # TODO: add button to change folder?
         path_help = wx.Button(self, label="?")
-        path_help.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event, 
-                                                                "Path to the folder with the data", 
+        path_help.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event,
+                                                                "Path to the folder with the data",
                                                                 "/some/path/to/folder"))
         sizer.Add(path_help, pos=(1, 2))
 
         ##### Files
         files_label = wx.StaticText(self, label="Files: ")
         sizer.Add(files_label, pos=(2, 0))
-        file_list = wx.ListBox(self, size=(550,-1))
+        file_list = wx.ListBox(self, size=(550, -1))
         # TODO: Add Buttons to add and delete files
         # TODO: add all files in data to listbox
         sizer.Add(file_list, pos=(2, 1))
         path_help = wx.Button(self, label="?")
-        path_help.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event, 
-                                                                "Files associated with the project", 
+        path_help.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event,
+                                                                "Files associated with the project",
                                                                 "sample_project.zip"))
         sizer.Add(path_help, pos=(2, 2))
 
@@ -565,7 +564,7 @@ class HelpPopup(wx.PopupTransientWindow):
     def __init__(self, parent, message, sample):
         wx.PopupTransientWindow.__init__(self, parent)
         panel = wx.Panel(self)
-        
+
         st = wx.StaticText(panel, -1,
                         "Description:\n" +
                         message + "\n\n" +
@@ -581,8 +580,11 @@ class HelpPopup(wx.PopupTransientWindow):
 
 
 # QUESTION: there is one major downside to have this as a dialog instead of a frame:
-# users can't resize the window. (on the other hand: frame can't be modal.) 
+# users can't resize the window. (on the other hand: frame can't be modal.)
 # What's more important?
+
+# What do we expect users to work with? desktops, laptops, no tablets, I think. There should not be a need to resize, if there is enough space.
+# In my opinion, modal should help users not to get lost in the process...
 class TabbedWindow(wx.Dialog):
     def __init__(self, parent, dataset: MetaDataSet):
         wx.Dialog.__init__(self, parent=parent, title="Metadata tabs", size=(800, 500))
@@ -636,6 +638,7 @@ class TabbedWindow(wx.Dialog):
         # self.Show()
 
     def on_tab_change(self, event):
+        # This function should make sure, changes are saved if user changes tab. So there will be a save mechanism
         print("tab changed")
 
     def on_save(self, event):

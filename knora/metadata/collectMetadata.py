@@ -1,6 +1,7 @@
 import wx
 import os
 import pickle
+
 # from pprint import pprint
 from typing import List, Any
 import xml.etree.ElementTree as ET
@@ -517,10 +518,20 @@ class DataTab(wx.Panel):
         # TODO: handle different cardinalities
         if prop.datatype == Datatype.STRING:
             if prop.cardinality == Cardinality.ONE:
+                print("Datatype.STRING")
+                print("Cardinality.ONE")
                 textcontrol = wx.TextCtrl(self, size=(550, -1))
                 if prop.value:
                     textcontrol.SetValue(prop.value)
-                sizer.Add(textcontrol, pos=(index,1))
+                sizer.Add(textcontrol, pos=(index, 1))
+            if prop.datatype == Cardinality.ONE_TO_UNBOUND:
+                print("Datatype.STRING")
+                print("Cardinality: ONE_TO_UNBOUND")
+        if prop.datatype == Datatype.DATETIME:
+            if prop.cardinality == Cardinality.ONE:
+                print("Datatype.DATETIME")
+                print("Cardinality.ONE")
+
         btn = wx.Button(self, label="?")
         btn.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event, prop.description, prop.example))
         sizer.Add(btn, pos=(index,2))
@@ -528,7 +539,7 @@ class DataTab(wx.Panel):
     def show_help(self, evt, message, sample):
         win = HelpPopup(self, message, sample)
         btn = evt.GetEventObject()
-        pos = btn.ClientToScreen( (0,0) )
+        pos = btn.ClientToScreen((0, 0))
         sz =  btn.GetSize()
         win.Position(pos, (0, sz[1]))
         win.Popup()

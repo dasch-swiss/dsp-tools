@@ -23,6 +23,7 @@ class Datatype(Enum):
     STRING = 0
     DATETIME = 1
 
+
 class MetaDataSet:
     """ Representation of a data set.
 
@@ -43,6 +44,7 @@ class MetaDataSet:
     @property
     def index(self):
         return self.__index
+
     @index.setter
     def index(self, i: int):
         self.__index = i
@@ -50,6 +52,7 @@ class MetaDataSet:
     @property
     def name(self):
         return self.__name
+
     @name.setter
     def name(self, name: str):
         self.__name = name
@@ -57,6 +60,7 @@ class MetaDataSet:
     @property
     def path(self):
         return self.__path
+
     @path.setter
     def path(self, path: str):
         self.__path = path
@@ -64,6 +68,7 @@ class MetaDataSet:
     @property
     def files(self):
         return self.__files
+
     @files.setter
     def files(self, files: list):
         self.__files = files
@@ -112,29 +117,29 @@ class Project():
                                     Datatype.STRING,
                                     Cardinality.ONE)
         self.keywords = Property("Keywords",
-                                "Keywords and tags",
-                                "",  # TODO: add example
-                                Datatype.STRING,
-                                Cardinality.ONE_TO_UNBOUND)  # TODO: implement plus button in GUI to add keywords
+                                 "Keywords and tags",
+                                 "mathematics, science, history of science, history of mathematics. Use the plus sign to have a new field for each key word.",
+                                 Datatype.STRING,
+                                 Cardinality.ONE_TO_UNBOUND)  # TODO: implement plus button in GUI to add keywords
 
         self.discipline = Property("Discipline",
-                                "Discipline and research fields from UNESCO nomenclature: https://skos.um.es/unesco6/?l=en or from http://www.snf.ch/SiteCollectionDocuments/allg_disziplinenliste.pdf",
-                                "",  # TODO: add example
-                                "xsd:string / sh:IRI", # TODO: check if that's correct!
-                                Cardinality.ONE_TO_UNBOUND)
+                                   "Discipline and research fields from UNESCO nomenclature: https://skos.um.es/unesco6/?l=en or from http://www.snf.ch/SiteCollectionDocuments/allg_disziplinenliste.pdf",
+                                   "",  # TODO: add example
+                                   "xsd:string / sh:IRI",  # TODO: check if that's correct!
+                                   Cardinality.ONE_TO_UNBOUND)
         # TODO: Start date
         self.startDate = Property("Start Date",
                                   "The date when the project started, e. g. when funding was granted.",
                                   "",  # TODO: add example
                                   Datatype.DATETIME,
-                                  Cardinality.One)
+                                  Cardinality.ONE)
 
         # TODO: End date
         self.endDate = Property("End Date",
-                                  "The date when the project was finished, e. g. when the last changes to the project data where completed.",
-                                  "",  # TODO: add example
-                                  Datatype.DATETIME,
-                                  Cardinality.One)
+                                "The date when the project was finished, e. g. when the last changes to the project data where completed.",
+                                "",  # TODO: add example
+                                Datatype.DATETIME,
+                                Cardinality.ONE)
 
         # TODO: Temporal Coverage
         # TODO: Spacial Coverage
@@ -153,9 +158,12 @@ class Project():
             self.description,
             self.keywords,
             self.discipline,
+            self.startDate,
+            self.endDate,
             # TODO: more
             self.url
         ]
+
 
 # TODO: dsp-repo:Dataset
 # TODO: dsp-repo:Person
@@ -176,7 +184,8 @@ class Property():
     # datatype = None
     # cardinality = None
 
-    def __init__(self, name: str, description: str, example: str, datatype: Datatype.STRING, cardinality=Cardinality.UNBOUND, value=None):
+    def __init__(self, name: str, description: str, example: str, datatype: Datatype.STRING,
+                 cardinality=Cardinality.UNBOUND, value=None):
         self.name = name
         self.description = description
         self.example = example

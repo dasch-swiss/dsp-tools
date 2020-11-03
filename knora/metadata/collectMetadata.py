@@ -7,6 +7,7 @@ from typing import List, Any
 import xml.etree.ElementTree as ET
 from metaDataSet import MetaDataSet, Property, Cardinality, Datatype
 
+
 ################# TODO List #################
 #
 # - generalize forms with custom widget
@@ -64,7 +65,6 @@ class DataHandling:
         # LATER: path could be made customizable
         self.load_data()
 
-
     def add_project(self, folder_path: str):
         """
         Add a new project.
@@ -82,7 +82,6 @@ class DataHandling:
         self.projects.append(dataset)
         self.save_data()
 
-
     def load_data(self):
         """
         Load data from previous runtimes (if any).
@@ -98,7 +97,6 @@ class DataHandling:
             # (for loading multiple data sets and combining them)
             # would have to make sure the indices are correct and no doubles are being added
 
-
     def save_data(self):
         """
         Save data to disc.
@@ -111,7 +109,6 @@ class DataHandling:
             print(p)
         with open(self.data_storage, 'wb') as file:
             pickle.dump(self.projects, file)
-
 
     def process_data(self, index: int):
         """
@@ -207,7 +204,6 @@ class ProjectPanel(wx.Panel):
 
         self.display_repos()
 
-
     def display_repos(self):
         """
         Display all loaded repos in the list.
@@ -218,7 +214,6 @@ class ProjectPanel(wx.Panel):
             self.list_ctrl.SetItem(project.index, 2, str(project.files))
             # TODO: make this look pretty? depends on what we do with files
 
-
     def create_header(self):
         """ Here we create the header for once and always...
         """
@@ -227,14 +222,12 @@ class ProjectPanel(wx.Panel):
         self.list_ctrl.InsertColumn(1, 'Project', width=240)
         self.list_ctrl.InsertColumn(2, 'List of files', width=500)
 
-
     def load_view(self):
         # The previous list contents is cleared before reloading it
         self.list_ctrl.ClearAll()
         # Construct a header
         self.create_header()
         self.display_repos()
-
 
     def on_edit(self, event):
         """ This function calls the EditBaseDialog and hands over pFiles, a list.
@@ -262,14 +255,12 @@ class ProjectPanel(wx.Panel):
             # self.load_view()
             # dlg.Destroy()
 
-
     def on_process_data(self, event):
         """ Set selection and call create_xml """
         selection = self.list_ctrl.GetFocusedItem()
         if selection >= 0:
             data_handler.process_data(selection)
             # LATER: let this return indication of success. display something to the user.
-
 
     def add_new_project(self, folder_path):
         """ Add a new project.
@@ -284,7 +275,6 @@ class ProjectPanel(wx.Panel):
 
         data_handler.add_project(folder_path)
         self.display_repos()
-
 
 
 class EditBaseDialog(wx.Dialog):
@@ -335,7 +325,6 @@ class EditBaseDialog(wx.Dialog):
         dlg.Destroy()
 
         # TODO: We should apply this widget to all forms. See below.
-
 
     def add_widgets(self, label_text, text_ctrl):
         row_sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -413,7 +402,6 @@ class EditNamingDialog(wx.Dialog):
         self.main_sizer.Add(btn_sizer, 0, wx.CENTER)
         self.SetSizer(self.main_sizer)
 
-
     def add_widgets(self, sizer, prop: Property, pos_x, pos_y, text_control):
         # LATER: adjust to new params
         """
@@ -450,6 +438,7 @@ class EditNamingDialog(wx.Dialog):
         data_handler.save_data()
         self.Close()
 
+
 class TabOne(wx.Panel):
     def __init__(self, parent, dataset):
         wx.Panel.__init__(self, parent)
@@ -472,8 +461,8 @@ class TabOne(wx.Panel):
         # TODO: add button to change folder?
         path_help = wx.Button(self, label="?")
         path_help.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event,
-                                                                "Path to the folder with the data",
-                                                                "/some/path/to/folder"))
+                                                                   "Path to the folder with the data",
+                                                                   "/some/path/to/folder"))
         sizer.Add(path_help, pos=(1, 2))
 
         ##### Files
@@ -485,8 +474,8 @@ class TabOne(wx.Panel):
         sizer.Add(file_list, pos=(2, 1))
         path_help = wx.Button(self, label="?")
         path_help.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event,
-                                                                "Files associated with the project",
-                                                                "sample_project.zip"))
+                                                                   "Files associated with the project",
+                                                                   "sample_project.zip"))
         sizer.Add(path_help, pos=(2, 2))
 
         sizer.AddGrowableCol(1)
@@ -495,15 +484,17 @@ class TabOne(wx.Panel):
     def show_help(self, evt, message, sample):
         win = HelpPopup(self, message, sample)
         btn = evt.GetEventObject()
-        pos = btn.ClientToScreen( (0,0) )
-        sz =  btn.GetSize()
+        pos = btn.ClientToScreen((0, 0))
+        sz = btn.GetSize()
         win.Position(pos, (0, sz[1]))
         win.Popup()
+
 
 class DataTab(wx.Panel):
 
     def __init__(self, parent, dataset, title):
         wx.Panel.__init__(self, parent)
+
         self.dataset = dataset
         sizer = wx.GridBagSizer(10, 10)
         if dataset:
@@ -512,10 +503,11 @@ class DataTab(wx.Panel):
         self.SetSizer(sizer)
 
     def add_widgets(self, dataset, prop, sizer, index):
-        name_label = wx.StaticText(self, label=prop.name+": ")
+        name_label = wx.StaticText(self, label=prop.name + ": ")
         sizer.Add(name_label, pos=(index, 0))
         # TODO: handle different datatypes
         # TODO: handle different cardinalities
+
         if prop.datatype == Datatype.STRING:
             if prop.cardinality == Cardinality.ONE:
                 print("Datatype.STRING")
@@ -523,26 +515,42 @@ class DataTab(wx.Panel):
                 textcontrol = wx.TextCtrl(self, size=(550, -1))
                 if prop.value:
                     textcontrol.SetValue(prop.value)
-                sizer.Add(textcontrol, pos=(index, 1))
-            if prop.datatype == Cardinality.ONE_TO_UNBOUND:
+                sizer.Add(textcontrol, pos=(index, 1), span=(1, 2))
+            if prop.cardinality == Cardinality.ONE_TO_UNBOUND:
                 print("Datatype.STRING")
                 print("Cardinality: ONE_TO_UNBOUND")
+                if dataset.keywords:
+                    print(dataset.keywords.name)
+                    textcontrol = wx.TextCtrl(self, size=(150, -1))
+                    if prop.value:
+                        textcontrol.SetValue(prop.value)
+                    sizer.Add(textcontrol, pos=(index, 1))
+                    plusbutton = wx.Button(self, label="+")
+                    sizer.Add(plusbutton, pos=(index, 2))
+
         if prop.datatype == Datatype.DATETIME:
             if prop.cardinality == Cardinality.ONE:
                 print("Datatype.DATETIME")
                 print("Cardinality.ONE")
+                if dataset.startDate:
+                    print("Date Picker Field for Start Date")
+                    print(dataset.startDate.name)
+                if dataset.endDate:
+                    print("Date Picker Field for End Date")
+                    print(dataset.endDate.name)
 
         btn = wx.Button(self, label="?")
         btn.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event, prop.description, prop.example))
-        sizer.Add(btn, pos=(index,2))
+        sizer.Add(btn, pos=(index, 3))
 
     def show_help(self, evt, message, sample):
         win = HelpPopup(self, message, sample)
         btn = evt.GetEventObject()
         pos = btn.ClientToScreen((0, 0))
-        sz =  btn.GetSize()
+        sz = btn.GetSize()
         win.Position(pos, (0, sz[1]))
         win.Popup()
+
 
 # class TabTwo(wx.Panel):
 #     def __init__(self, parent):
@@ -570,17 +578,16 @@ class DataTab(wx.Panel):
 #         t = wx.StaticText(self, -1, "Data Management Plan")
 
 
-
 class HelpPopup(wx.PopupTransientWindow):
     def __init__(self, parent, message, sample):
         wx.PopupTransientWindow.__init__(self, parent)
         panel = wx.Panel(self)
 
         st = wx.StaticText(panel, -1,
-                        "Description:\n" +
-                        message + "\n\n" +
-                        "Example:\n" +
-                        sample)
+                           "Description:\n" +
+                           message + "\n\n" +
+                           "Example:\n" +
+                           sample)
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(st, 0, wx.ALL, 5)
@@ -641,7 +648,7 @@ class TabbedWindow(wx.Dialog):
 
         # Set notebook in a sizer to create the layout
         sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(nb_sizer, 1, wx.ALL|wx.EXPAND, 5)
+        sizer.Add(nb_sizer, 1, wx.ALL | wx.EXPAND, 5)
         sizer.AddStretchSpacer(0)
         sizer.Add(button_sizer, 1, wx.ALL, 5)
         panel.SetSizer(sizer)
@@ -656,13 +663,6 @@ class TabbedWindow(wx.Dialog):
         print("should save tabs content")
         # TODO: implement
         self.Close()
-
-
-
-
-
-
-
 
 
 # LATER: probably obsolete? in any case, move functionality to metaDataSet

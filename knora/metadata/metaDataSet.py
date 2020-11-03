@@ -21,12 +21,13 @@ class Datatype(Enum):
     A set of cardinalities that may be used for properties.
     """
     STRING = 0
+    DATETIME = 1
 
 class MetaDataSet:
     """ Representation of a data set.
 
     This class represents a data set of project metadata.
-    
+
     It holds the following properties:
     - index: the index of the dataset in the UI (list item).
       Note: in some case, we'll need to make sure this stays correct
@@ -38,7 +39,7 @@ class MetaDataSet:
 
     At a later stage, this class should be able to return a representation of its data in form of an RDF graph.
     """
-    
+
     @property
     def index(self):
         return self.__index
@@ -84,7 +85,7 @@ class MetaDataSet:
                 self.project
             ]
         })
-        
+
     # TODO: add a "convert_to_rdf()" method or something like this
 
 
@@ -97,31 +98,44 @@ class Project():
 
     # name = None
     # description = None
-    
+
     def __init__(self, name):
-        self.name = Property("Name", 
-                             "The name of the Project", 
+        self.name = Property("Name",
+                             "The name of the Project",
                              "Test Project",
-                             Datatype.STRING, 
+                             Datatype.STRING,
                              Cardinality.ONE,
                              name)
         self.description = Property("Description",
                                     "Description of the Project",
-                                    "",  # TODO: add example
-                                    Datatype.STRING, 
+                                    "This is a test project. All properties have been used to test these. You will just describe your project briefly.",
+                                    Datatype.STRING,
                                     Cardinality.ONE)
         self.keywords = Property("Keywords",
                                 "Keywords and tags",
                                 "",  # TODO: add example
                                 Datatype.STRING,
-                                Cardinality.ONE_TO_UNBOUND)
+                                Cardinality.ONE_TO_UNBOUND)  # TODO: implement plus button in GUI to add keywords
+
         self.discipline = Property("Discipline",
                                 "Discipline and research fields from UNESCO nomenclature: https://skos.um.es/unesco6/?l=en or from http://www.snf.ch/SiteCollectionDocuments/allg_disziplinenliste.pdf",
                                 "",  # TODO: add example
                                 "xsd:string / sh:IRI", # TODO: check if that's correct!
                                 Cardinality.ONE_TO_UNBOUND)
         # TODO: Start date
+        self.startDate = Property("Start Date",
+                                  "The date when the project started, e. g. when funding was granted.",
+                                  "",  # TODO: add example
+                                  Datatype.DATETIME,
+                                  Cardinality.One)
+
         # TODO: End date
+        self.endDate = Property("End Date",
+                                  "The date when the project was finished, e. g. when the last changes to the project data where completed.",
+                                  "",  # TODO: add example
+                                  Datatype.DATETIME,
+                                  Cardinality.One)
+
         # TODO: Temporal Coverage
         # TODO: Spacial Coverage
         # TODO: Funder

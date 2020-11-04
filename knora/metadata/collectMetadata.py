@@ -503,6 +503,15 @@ class DataTab(wx.Panel):
         self.SetSizer(sizer)
 
     def add_widgets(self, dataset, prop, sizer, index):
+        """
+        Add a row of widgets.
+
+        Args:
+            dataset (DataSet): the dataset to which the property belongs
+            prop (Property): the property that is to be displayed
+            sizer (Sizer): The Sizer in which the widgets are to be displayed
+            index (int): the row to put the widgets in, within the sizer
+        """
         name_label = wx.StaticText(self, label=prop.name + ": ")
         sizer.Add(name_label, pos=(index, 0))
         # TODO: handle different datatypes
@@ -562,11 +571,17 @@ class DataTab(wx.Panel):
         sizer.Add(btn, pos=(index, 2))
 
     def add_to_list(self, event, content_list, addable):
+        """
+        add an object to a listbox.
+        """
         if not addable:
             return
         content_list.Append(str(addable))
 
     def show_help(self, evt, message, sample):
+        """
+        Show a help dialog
+        """
         win = HelpPopup(self, message, sample)
         btn = evt.GetEventObject()
         pos = btn.ClientToScreen((0, 0))

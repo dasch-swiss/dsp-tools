@@ -643,7 +643,12 @@ class HelpPopup(wx.PopupTransientWindow):
 # In my opinion, modal should help users not to get lost in the process...
 class TabbedWindow(wx.Dialog):
     def __init__(self, parent, dataset: MetaDataSet):
-        wx.Dialog.__init__(self, parent=parent, title="Metadata tabs", size=(900, 800))
+        # TODO: this should not be so big, rather, the panels should be scrollable, if they get too large
+        wx.Dialog.__init__(self, 
+                    parent=parent,
+                    title="Metadata tabs", 
+                    size=(900, 800), 
+                    style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
 
         self.dataset = dataset
         # project_label = wx.StaticText(self, label="Current Project: " + dataset.name)

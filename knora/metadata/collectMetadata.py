@@ -515,18 +515,36 @@ class DataTab(wx.Panel):
                 textcontrol = wx.TextCtrl(self, size=(550, -1))
                 if prop.value:
                     textcontrol.SetValue(prop.value)
-                sizer.Add(textcontrol, pos=(index, 1), span=(1, 2))
+                sizer.Add(textcontrol, pos=(index, 1))
             if prop.cardinality == Cardinality.ONE_TO_UNBOUND:
                 print("Datatype.STRING")
                 print("Cardinality: ONE_TO_UNBOUND")
-                if dataset.keywords:
-                    print(dataset.keywords.name)
-                    textcontrol = wx.TextCtrl(self, size=(150, -1))
-                    if prop.value:
-                        textcontrol.SetValue(prop.value)
-                    sizer.Add(textcontrol, pos=(index, 1))
-                    plusbutton = wx.Button(self, label="+")
-                    sizer.Add(plusbutton, pos=(index, 2))
+                inner_sizer = wx.BoxSizer()
+                textcontrol = wx.TextCtrl(self, size=(200, -1))
+                inner_sizer.Add(textcontrol)
+                inner_sizer.AddSpacer(5)
+                plus_button = wx.Button(self, label="+")
+                plus_button.Bind(wx.EVT_BUTTON, 
+                                 lambda e: self.add_to_list(e, 
+                                                            content_list, 
+                                                            textcontrol.GetValue()))
+                inner_sizer.Add(plus_button)
+                inner_sizer.AddSpacer(5)
+                content_list = wx.ListBox(self, size=(250,-1))
+                if prop.value:
+                    for val in prop.value:
+                        content_list.Append(val)
+                inner_sizer.Add(content_list)
+                sizer.Add(inner_sizer, pos=(index, 1))
+                # if dataset.keywords:
+                #     print('test')
+                #     print(dataset.keywords.name)
+                #     textcontrol = wx.TextCtrl(self, size=(150, -1))
+                #     if prop.value:
+                #         textcontrol.SetValue(prop.value)
+                #     sizer.Add(textcontrol, pos=(index, 1))
+                #     plusbutton = wx.Button(self, label="+")
+                #     sizer.Add(plusbutton, pos=(index, 2))
 
         if prop.datatype == Datatype.DATETIME:
             if prop.cardinality == Cardinality.ONE:
@@ -541,7 +559,12 @@ class DataTab(wx.Panel):
 
         btn = wx.Button(self, label="?")
         btn.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event, prop.description, prop.example))
-        sizer.Add(btn, pos=(index, 3))
+        sizer.Add(btn, pos=(index, 2))
+
+    def add_to_list(self, event, content_list, addable):
+        if not addable:
+            return
+        content_list.Append(str(addable))
 
     def show_help(self, evt, message, sample):
         win = HelpPopup(self, message, sample)

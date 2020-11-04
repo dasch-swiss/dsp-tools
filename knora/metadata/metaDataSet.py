@@ -21,7 +21,14 @@ class Datatype(Enum):
     A set of cardinalities that may be used for properties.
     """
     STRING = 0
-    DATETIME = 1
+    DATETIME = 1  # TODO: change in ontology. should be `date`
+    STRING_OR_URL = 2
+    PLACE = 3
+    PERSON_OR_ORGANIZATION = 4
+    GRANT = 5
+    DATA_MANAGEMENT_PLAN = 6
+    URL = 7
+
 
 
 class MetaDataSet:
@@ -124,33 +131,79 @@ class Project():
 
         self.discipline = Property("Discipline",
                                    "Discipline and research fields from UNESCO nomenclature: https://skos.um.es/unesco6/?l=en or from http://www.snf.ch/SiteCollectionDocuments/allg_disziplinenliste.pdf",
-                                   "",  # TODO: add example
-                                   "xsd:string / sh:IRI",  # TODO: check if that's correct!
+                                   "http://skos.um.es/unesco6/11",
+                                   Datatype.STRING_OR_URL,
                                    Cardinality.ONE_TO_UNBOUND)
         # TODO: Start date
         self.startDate = Property("Start Date",
                                   "The date when the project started, e. g. when funding was granted.",
-                                  "",  # TODO: add example
+                                  "2000-07-26T21:32:52",
                                   Datatype.DATETIME,
                                   Cardinality.ONE)
 
         # TODO: End date
         self.endDate = Property("End Date",
                                 "The date when the project was finished, e. g. when the last changes to the project data where completed.",
-                                "",  # TODO: add example
+                                "2000-07-26T21:32:52",
                                 Datatype.DATETIME,
                                 Cardinality.ONE)
 
-        # TODO: Temporal Coverage
-        # TODO: Spacial Coverage
-        # TODO: Funder
-        # TODO: Grant
-        # etc.
+        self.temporalCoverage = Property("Temporal coverage",
+                            "Temporal coverage of the project from http://perio.do/en/ or https://chronontology.dainst.org/",
+                            "http://chronontology.dainst.org/period/Ef9SyESSafJ1",
+                            Datatype.STRING_OR_URL,
+                            Cardinality.ONE_TO_UNBOUND)
+
+        self.spacialCoverage = Property("Spacial coverage",
+                            "Spatial coverage of the project from Geonames URL: https://www.geonames.org/ and or from Pleiades URL: https://pleiades.stoa.org/places",
+                            "https://www.geonames.org/6255148/europe.html",
+                            Datatype.PLACE,
+                            Cardinality.ONE_TO_UNBOUND)
+
+        self.funder = Property("Funder",
+                            "Funding person or institution of the project",
+                            "",
+                            Datatype.PERSON_OR_ORGANIZATION,
+                            Cardinality.ONE_TO_UNBOUND)
+
+        self.grant = Property("Grant",
+                            "Grant of the project",
+                            "",
+                            Datatype.GRANT)
+
         self.url = Property("URL",
                             "Landing page or Website of the project. We recommend DSP Landing Page",
-                            "",  # TODO: add example
-                            "xsd:string / sh:IRI",
+                            "https://test.dasch.swiss/",
+                            Datatype.URL,
                             Cardinality.ONE_TO_TWO)
+
+        self.shortcode = Property("Shortcode",
+                            "Internal shortcode of the project",
+                            "0000",
+                            Datatype.STRING,
+                            Cardinality.ONE)
+
+        self.alternateName = Property("Alternate Name",
+                            "Alternative name of the project, e.g. in case of an overly long official name",
+                            "Another Title",
+                            Datatype.STRING)
+
+        self.dataManagementPlan = Property("Data Management Plan",
+                            "Data Management Plan of the project",
+                            "",
+                            Datatype.DATA_MANAGEMENT_PLAN,
+                            Cardinality.ZERO_OR_ONE)
+
+        self.publication = Property("Publication",
+                            "Publications produced during the lifetime of the project",
+                            "Doe, J. (2000). A Publication.",
+                            Datatype.STRING)
+
+        self.contactPoint = Property("Contact Point",
+                            "Contact information",
+                            "",
+                            Datatype.PERSON_OR_ORGANIZATION,
+                            Cardinality.ZERO_OR_ONE)
 
     def get_properties(self):
         return [
@@ -160,8 +213,16 @@ class Project():
             self.discipline,
             self.startDate,
             self.endDate,
-            # TODO: more
-            self.url
+            self.temporalCoverage,
+            self.spacialCoverage,
+            self.funder,
+            self.grant,
+            self.url,
+            self.shortcode,
+            self.alternateName,
+            self.dataManagementPlan,
+            self.publication,
+            self.contactPoint
         ]
 
 

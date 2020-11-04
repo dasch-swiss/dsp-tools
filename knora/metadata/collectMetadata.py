@@ -6,6 +6,7 @@ import pickle
 from typing import List, Any
 import xml.etree.ElementTree as ET
 from metaDataSet import MetaDataSet, Property, Cardinality, Datatype
+from metaDataHelpers import DateCtrl, CalendarDlg
 
 
 ################# TODO List #################
@@ -496,12 +497,15 @@ class DataTab(wx.Panel):
         wx.Panel.__init__(self, parent)
 
         self.dataset = dataset
+        global only_once
+        only_once = 0
         sizer = wx.GridBagSizer(10, 10)
         if dataset:
             for i, prop in enumerate(dataset.get_properties()):
                 self.add_widgets(dataset, prop, sizer, i)
         self.SetSizer(sizer)
 
+    # noinspection PyGlobalUndefined
     def add_widgets(self, dataset, prop, sizer, index):
         """
         Add a row of widgets.
@@ -512,6 +516,7 @@ class DataTab(wx.Panel):
             sizer (Sizer): The Sizer in which the widgets are to be displayed
             index (int): the row to put the widgets in, within the sizer
         """
+
         name_label = wx.StaticText(self, label=prop.name + ": ")
         sizer.Add(name_label, pos=(index, 0))
         # TODO: handle different datatypes
@@ -533,42 +538,79 @@ class DataTab(wx.Panel):
                 inner_sizer.Add(textcontrol)
                 inner_sizer.AddSpacer(5)
                 plus_button = wx.Button(self, label="+")
-                plus_button.Bind(wx.EVT_BUTTON, 
-                                 lambda e: self.add_to_list(e, 
-                                                            content_list, 
+                plus_button.Bind(wx.EVT_BUTTON,
+                                 lambda e: self.add_to_list(e,
+                                                            content_list,
                                                             textcontrol.GetValue()))
                 inner_sizer.Add(plus_button)
                 inner_sizer.AddSpacer(5)
-                content_list = wx.ListBox(self, size=(250,-1))
+                content_list = wx.ListBox(self, size=(250, -1))
                 if prop.value:
                     for val in prop.value:
                         content_list.Append(val)
                 inner_sizer.Add(content_list)
                 sizer.Add(inner_sizer, pos=(index, 1))
-                # if dataset.keywords:
-                #     print('test')
-                #     print(dataset.keywords.name)
-                #     textcontrol = wx.TextCtrl(self, size=(150, -1))
-                #     if prop.value:
-                #         textcontrol.SetValue(prop.value)
-                #     sizer.Add(textcontrol, pos=(index, 1))
-                #     plusbutton = wx.Button(self, label="+")
-                #     sizer.Add(plusbutton, pos=(index, 2))
 
-        if prop.datatype == Datatype.DATETIME:
-            if prop.cardinality == Cardinality.ONE:
-                print("Datatype.DATETIME")
-                print("Cardinality.ONE")
-                if dataset.startDate:
-                    print("Date Picker Field for Start Date")
-                    print(dataset.startDate.name)
-                if dataset.endDate:
-                    print("Date Picker Field for End Date")
-                    print(dataset.endDate.name)
+                # minus_button = wx.Button(self, label="-")
+                # minus_button.Bind(wx.EVT_BUTTON,
+                #                  lambda e: self.remove_from_list(e, content_list,
+                #                                                  content_list.GetValue()))
+                print(content_list)
+
+                # if len(content_list) > 0:
+                #    inner_sizer.Add(minus_button)
+                #    inner_sizer.AddSpacer(5)
+
+        if prop.datatype == Datatype.DATETIME and prop.cardinality == Cardinality.ONE and dataset.startDate.name == "Start Date":
+
+            print("Datatype.DATETIME")
+            print("Cardinality.ONE")
+
+            print("Date Picker Field for Start Date")
+            print(dataset.startDate.name)
+            input_format = '%d-%m-%Y'
+            # display_format = '%a %d %b %Y'
+            display_format = '%d-%m-%Y'
+
+            start_date = DateCtrl(self, size=(130, -1), pos=(150, 80),
+                                  input_format=input_format, display_format=display_format,
+                                  title='Start Date', default_to_today=False, allow_null=False)
+            if only_once == 0:
+                sizer.Add(start_date, pos=(index, 1))
+                only_once + 1
+
+            self.first_time = True  # don't validate date first time
+            self.SetFocus()
+
+        else:
+            print("Date Picker Field for End Date")
+            print(dataset.endDate.name)
+
+            input_format = '%d-%m-%Y'
+            # display_format = '%a %d %b %Y'
+            display_format = '%d-%m-%Y'
+
+
+            # end_date = DateCtrl(self, size=(130, -1), pos=(150, 80),
+            #                      input_format=input_format, display_format=display_format,
+            #                      title='End Date', default_to_today=False, allow_null=False)
+
+            # sizer.Add(end_date, pos=(index, 1))
+
+
+            self.first_time = True  # don't validate date first time
+            self.SetFocus()
 
         btn = wx.Button(self, label="?")
         btn.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event, prop.description, prop.example))
         sizer.Add(btn, pos=(index, 2))
+
+    def on_t_got_focus(self, evt):
+        if self.first_time:
+            self.first_time = False
+        else:
+            self.start_date.convert_to_wx_date()
+        evt.Skip()
 
     def add_to_list(self, event, content_list, addable):
         """
@@ -577,6 +619,14 @@ class DataTab(wx.Panel):
         if not addable:
             return
         content_list.Append(str(addable))
+
+    def remove_from_list(self, event, content_list, removable):
+        """
+        remove an object from a listbox.
+        """
+        if not removable:
+            return
+        content_list.Remove(str(removable))
 
     def show_help(self, evt, message, sample):
         """
@@ -588,32 +638,6 @@ class DataTab(wx.Panel):
         sz = btn.GetSize()
         win.Position(pos, (0, sz[1]))
         win.Popup()
-
-
-# class TabTwo(wx.Panel):
-#     def __init__(self, parent):
-#         wx.Panel.__init__(self, parent)
-#         t = wx.StaticText(self, -1, "Project")
-
-# class TabThree(wx.Panel):
-#     def __init__(self, parent):
-#         wx.Panel.__init__(self, parent)
-#         t = wx.StaticText(self, -1, "DataSet")
-
-# class TabFour(wx.Panel):
-#     def __init__(self, parent):
-#         wx.Panel.__init__(self, parent)
-#         t = wx.StaticText(self, -1, "Person")
-
-# class TabFive(wx.Panel):
-#     def __init__(self, parent):
-#         wx.Panel.__init__(self, parent)
-#         t = wx.StaticText(self, -1, "Organisation")
-
-# class TabSix(wx.Panel):
-#     def __init__(self, parent):
-#         wx.Panel.__init__(self, parent)
-#         t = wx.StaticText(self, -1, "Data Management Plan")
 
 
 class HelpPopup(wx.PopupTransientWindow):
@@ -644,11 +668,11 @@ class HelpPopup(wx.PopupTransientWindow):
 class TabbedWindow(wx.Dialog):
     def __init__(self, parent, dataset: MetaDataSet):
         # TODO: this should not be so big, rather, the panels should be scrollable, if they get too large
-        wx.Dialog.__init__(self, 
-                    parent=parent,
-                    title="Metadata tabs", 
-                    size=(900, 800), 
-                    style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+        wx.Dialog.__init__(self,
+                           parent=parent,
+                           title="Metadata tabs",
+                           size=(900, 800),
+                           style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
 
         self.dataset = dataset
         # project_label = wx.StaticText(self, label="Current Project: " + dataset.name)
@@ -665,11 +689,7 @@ class TabbedWindow(wx.Dialog):
         tab4 = DataTab(nb, None, "Person")
         tab5 = DataTab(nb, None, "Organisation")
         tab6 = DataTab(nb, None, "Data Management Plan")
-        # tab2 = TabTwo(nb)
-        # tab3 = TabThree(nb)
-        # tab4 = TabFour(nb)
-        # tab5 = TabFive(nb)
-        # tab6 = TabSix(nb)
+
 
         # Add the windows to tabs and name them.
         nb.AddPage(tab1, "Base Data")
@@ -706,43 +726,6 @@ class TabbedWindow(wx.Dialog):
         print("should save tabs content")
         # TODO: implement
         self.Close()
-
-
-# LATER: probably obsolete? in any case, move functionality to metaDataSet
-# class HandleXML(DataHandling):
-#     """ This Class generates the element tree and applies the respective Data to the element tree. """
-
-#     def __init__(self):
-#         self.repos = DataHandling().get_repo()
-
-#     def create_xml(self, selection):
-#         """ Here we create the RDF Model and derived from it a XML, JSON or Turtle file or whatever """
-
-#         self.selection = selection
-
-#         print("Trying to create XML-File via RDF_LIB")
-#         print("For Testing:")
-#         print("Selection:")
-#         print(self.selection)
-#         print("All repositories available...")
-#         print(self.repos)
-#         print("Selected repository: ")
-#         print(self.repos[self.selection])
-
-#         repo = self.repos[self.selection]
-#         print(repo)
-
-#         root = ET.Element("root")
-#         project = ET.SubElement(root, "Project Resources")
-#         # very static...
-#         folder_contents = repo[0]['folder']
-#         ET.SubElement(project, "Folder", name="Folder").text = folder_contents
-#         repo_name = repo[1]['repo']
-#         ET.SubElement(project, "Project", name="Project").text = repo_name
-#         file_list = repo[2]['files']
-#         ET.SubElement(project, "Files", name="Files").text = file_list
-#         print("xml-dump:")
-#         ET.dump(root)
 
 
 if __name__ == '__main__':

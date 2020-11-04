@@ -5,7 +5,7 @@ import wx.adv
 from datetime import date as dt
 
 
-class DataHelpers:
+class FormHelper:
 
     def add_widgets(self):
         pass

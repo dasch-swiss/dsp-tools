@@ -522,6 +522,7 @@ class DataTab(wx.Panel):
         # TODO: handle different datatypes
         # TODO: handle different cardinalities
 
+        # String
         if prop.datatype == Datatype.STRING:
             if prop.cardinality == Cardinality.ONE:
                 print("Datatype.STRING")
@@ -550,56 +551,20 @@ class DataTab(wx.Panel):
                         content_list.Append(val)
                 inner_sizer.Add(content_list)
                 sizer.Add(inner_sizer, pos=(index, 1))
-
-                # minus_button = wx.Button(self, label="-")
-                # minus_button.Bind(wx.EVT_BUTTON,
-                #                  lambda e: self.remove_from_list(e, content_list,
-                #                                                  content_list.GetValue()))
                 print(content_list)
-
-                # if len(content_list) > 0:
-                #    inner_sizer.Add(minus_button)
-                #    inner_sizer.AddSpacer(5)
-
-        if prop.datatype == Datatype.DATETIME and prop.cardinality == Cardinality.ONE and dataset.startDate.name == "Start Date":
-
-            print("Datatype.DATETIME")
-            print("Cardinality.ONE")
-
-            print("Date Picker Field for Start Date")
-            print(dataset.startDate.name)
-            input_format = '%d-%m-%Y'
-            # display_format = '%a %d %b %Y'
-            display_format = '%d-%m-%Y'
-
-            start_date = DateCtrl(self, size=(130, -1), pos=(150, 80),
-                                  input_format=input_format, display_format=display_format,
-                                  title='Start Date', default_to_today=False, allow_null=False)
-            if only_once == 0:
-                sizer.Add(start_date, pos=(index, 1))
-                only_once + 1
-
-            self.first_time = True  # don't validate date first time
-            self.SetFocus()
-
-        else:
-            print("Date Picker Field for End Date")
-            print(dataset.endDate.name)
-
-            input_format = '%d-%m-%Y'
-            # display_format = '%a %d %b %Y'
-            display_format = '%d-%m-%Y'
-
-
-            # end_date = DateCtrl(self, size=(130, -1), pos=(150, 80),
-            #                      input_format=input_format, display_format=display_format,
-            #                      title='End Date', default_to_today=False, allow_null=False)
-
-            # sizer.Add(end_date, pos=(index, 1))
-
-
-            self.first_time = True  # don't validate date first time
-            self.SetFocus()
+        # date
+        elif prop.datatype == Datatype.DATETIME:
+            if prop.cardinality == Cardinality.ONE:
+                input_format = '%d-%m-%Y'
+                display_format = '%d-%m-%Y'
+                start_date = DateCtrl(self, size=(130, -1), pos=(150, 80),
+                                    input_format=input_format, display_format=display_format,
+                                    title='Start Date', default_to_today=False, allow_null=False)
+                if only_once == 0:
+                    sizer.Add(start_date, pos=(index, 1))
+                    only_once + 1
+                self.first_time = True  # don't validate date first time
+                self.SetFocus()
 
         btn = wx.Button(self, label="?")
         btn.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event, prop.description, prop.example))

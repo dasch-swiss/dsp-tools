@@ -65,7 +65,7 @@ class DateCtrl(wx.ComboCtrl):
         abs_x, abs_y = self.ScreenPosition
         rect = wx.Rect(abs_x+self.b_x1, abs_y+self.b_y1,
             self.b_x2-self.b_x1+1, self.b_y2-self.b_y1+1)
-        tip = wx.TipWindow(self, 'Show calendar\n(F4 or space)')
+        tip = wx.TipWindow(self, 'Press to pick a date)')
         # tip will be destroyed when mouse leaves this rect
         tip.SetBoundingRect(rect)
 

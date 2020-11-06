@@ -4,8 +4,8 @@
 knora-py is a python package containing a command line tool for data model (ontology) creation, a library allowing creation of single resources and mass upload using the bulk import of data into the Knora framework.
 
 The package consists of:
-- `Knora` Python modules for accessing Knora using the API (ontology creation, data import/export etc.)
-- `knora-create-ontology` A command line program to create an ontology out of a simple JSON description
+- `dsplib` Python modules for accessing Knora using the API (ontology creation, data import/export etc.)
+- `dsp-tools` A command line program to create an ontology out of a simple JSON description
 - `knora-reset-triplestore` A command line program to reset the content of the ontology. Does not require
    a restart of the Knora-Stack.  
 
@@ -52,7 +52,7 @@ $ make test
 Generate distribution package. Make sure you have the latest versions of `setuptools` and `wheel` installed:
 
 ```bash
-$ make upgrade
+$ make upgrade-dist-tools
 $ make dist
 ```
 
@@ -64,7 +64,7 @@ $ python3 -m pip ./dist/some_name.whl
 
 Upload package with `twine`,
 
-first create `~/.pypirc`:
+first create `~/.pypirc` in your home folder:
 
 ```bash
 [distutils] 
@@ -109,6 +109,6 @@ $ bazel test //...
 
 Run single test:
 ```bash
-$ bazel test //test:test_knora
+$ bazel test //test:test_user
 ```
 

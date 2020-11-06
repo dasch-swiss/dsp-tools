@@ -28,7 +28,7 @@ py_binary(
     deps = [
         ":knora",
         requirement("jsonschema"),
-        requirement("pprint"),
+#        requirement("pprint"),
     ],
     data = [
         "knora-schema.json",
@@ -45,7 +45,7 @@ py_binary(
         ":knora",
         requirement("lxml"),
         requirement("rdflib"),
-        requirement("pprint"),
+#        requirement("pprint"),
     ],
     data = [
         "knora-data-schema.xsd"

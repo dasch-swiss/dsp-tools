@@ -1,73 +1,18 @@
 import unittest
-import pprint
-import requests
 
-from models.connection import Connection
-from models.helpers import BaseError, Actions
-from models.langstring import Languages, LangStringParam, LangString
-
-from models.listnode import ListNode
-from models.project import Project
+from dsplib.models.connection import Connection
+from dsplib.models.langstring import Languages, LangStringParam, LangString
+from dsplib.models.listnode import ListNode
 
 
 class TestListNode(unittest.TestCase):
-    iris = []
     project = 'http://rdfh.ch/projects/0001'
-    label = LangString({Languages.DE: 'Eine Liste'})
-    comment = LangString({Languages.DE: 'Dies ist der Root-Node einer Liste'})
-    name = 'my_root'
-
-    def erase_node(self):
-        for iri in self.iris:
-            sparql = """
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX owl: <http://www.w3.org/2002/07/owl#>
-            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-            PREFIX knora-base: <http://www.knora.org/ontology/knora-base#>
-                DELETE {
-                    GRAPH <http://www.knora.org/data/0001/anything> {
-                        <%s> ?property ?value
-                    }
-                } WHERE {
-                    GRAPH <http://www.knora.org/data/0001/anything> {
-                        <%s> ?property ?value
-                    }
-                }
-            """ % (iri, iri)
-            req = requests.post('http://localhost:7200/repositories/knora-test/statements',
-                                headers={'Content-Type': 'application/sparql-update',
-                                         'Accept': 'application/json, text/plain, */*'},
-                                data=sparql)
-            if 'error' in req:
-                print('ERROR: ' + req.error)
-            if req.status_code != 204:
-                print('STATUS-CODE: ' + str(req.status_code))
-                print('TEXT: ' + req.text)
-                return req.status_code
-
-    def createTestNode(self):
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
-        node = ListNode(
-            con=con,
-            project=self.project,
-            label=self.label,
-            comment=self.comment,
-            name=self.name
-        ).create()
-        self.assertIsNotNone(node.id)
-        self.iris.append(node.id)
-        return node
-
-    def tearDown(self):
-        res = self.erase_node()
-
-    def test_ListNode(self):
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
-
 
     def test_ListNode_read(self):
+        """
+        Read an existing node
+        :return: None
+        """
         con = Connection('http://0.0.0.0:3333')
         con.login('root@example.com', 'test')
         node = ListNode(
@@ -80,6 +25,10 @@ class TestListNode(unittest.TestCase):
         self.assertTrue(node.isRootNode)
 
     def test_ListNode_read2(self):
+        """
+        read another existing node
+        :return:
+        """
         con = Connection('http://0.0.0.0:3333')
         con.login('root@example.com', 'test')
         node = ListNode(
@@ -93,18 +42,36 @@ class TestListNode(unittest.TestCase):
         self.assertIsNone(node.children)
 
     def test_ListNode_create(self):
-        node = self.createTestNode()
-        self.assertEqual(node.project, self.project)
-        self.assertEqual(node.label['de'], self.label['de'])
-        self.assertEqual(node.comment['de'], self.comment['de'])
-        self.assertEqual(node.name, self.name)
-        self.assertTrue(node.isRootNode)
-        self.iris.append(node.id)
-
-    def test_ListNode_hierarchy(self):
-        node = self.createTestNode()
         con = Connection('http://0.0.0.0:3333')
         con.login('root@example.com', 'test')
+        node = ListNode(
+            con=con,
+            project=self.project,
+            label=LangString({Languages.DE: "root node 1"}),
+            comment=LangString({Languages.DE: "first root node"}),
+            name="test_node_1"
+        ).create()
+        self.assertIsNotNone(node.id)
+        self.assertEqual(node.project, self.project)
+        self.assertEqual(node.label['de'], "root node 1")
+        self.assertEqual(node.comment['de'], "first root node")
+        self.assertEqual(node.name, "test_node_1")
+        self.assertTrue(node.isRootNode)
+
+    def test_ListNode_hierarchy(self):
+        """
+        Create a node and a sub-node
+        :return: None
+        """
+        con = Connection('http://0.0.0.0:3333')
+        con.login('root@example.com', 'test')
+        node = ListNode(
+            con=con,
+            project=self.project,
+            label=LangString({Languages.DE: "root node 2"}),
+            comment=LangString({Languages.DE: "second root node"}),
+            name="test_node_2"
+        ).create()
         node2 = ListNode(
             con=con,
             project=self.project,
@@ -113,14 +80,25 @@ class TestListNode(unittest.TestCase):
             name="NODE2",
             parent=node
         ).create()
-        self.iris.append(node2.id)
         self.assertEqual(node2.label['de'], 'Eine Knoten der Liste')
         self.assertEqual(node2.comment['de'], "So ein Kommentar")
         self.assertEqual(node2.name, "NODE2")
         self.assertFalse(node2.isRootNode)
 
     def test_ListNode_update(self):
-        node = self.createTestNode()
+        """
+        Update the data of a node...
+        :return:
+        """
+        con = Connection('http://0.0.0.0:3333')
+        con.login('root@example.com', 'test')
+        node = ListNode(
+            con=con,
+            project=self.project,
+            label=LangString({Languages.DE: "root node 3"}),
+            comment=LangString({Languages.DE: "Third root node"}),
+            name="test_node_3"
+        ).create()
         node.addLabel('fr', 'Une racine d\' une liste')
         node.rmLabel('de')
         node.addComment('fr', 'un commentaire en français')
@@ -132,6 +110,10 @@ class TestListNode(unittest.TestCase):
         self.assertEqual(node.name, 'GAGAGA')
 
     def test_ListNode_getAllLists(self):
+        """
+        gett all root nodes, that is all lists
+        :return: None
+        """
         con = Connection('http://0.0.0.0:3333')
         con.login('root@example.com', 'test')
         lists = ListNode.getAllLists(con, 'http://rdfh.ch/projects/0001')
@@ -140,6 +122,10 @@ class TestListNode(unittest.TestCase):
         self.assertIn('http://rdfh.ch/lists/0001/treeList', tmp)
 
     def test_ListNode_getAllNodes(self):
+        """
+        Get all node of a list
+        :return: None
+        """
         con = Connection('http://0.0.0.0:3333')
         con.login('root@example.com', 'test')
         root = ListNode(

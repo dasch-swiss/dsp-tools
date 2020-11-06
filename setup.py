@@ -5,13 +5,13 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='knora',
-    version='1.2.3',
+    version='1.3.2',
     description='A Python library and tools for the Knora-API',
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='https://github.com/dasch-swiss/knora-py',
     author='Lukas Rosenthaler',
-    author_email='lukas.rosenthaler@unibas.ch',
+    author_email='lukas.rosenthaler@dasch.swiss',
     license='GPLv3',
     packages=setuptools.find_packages(),
     classifiers=[
@@ -19,6 +19,7 @@ setuptools.setup(
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
     ],
+    python_requires='>=3.8.5',
     install_requires=[
         'rdflib',
         'lxml',
@@ -27,15 +28,14 @@ setuptools.setup(
         'jsonschema',
         'click',
         'rfc3987',
-        'pprint',
         'pystrict',
+        'wxpython'
     ],
     entry_points={
           'console_scripts': [
-              'knora-create-ontology=knora.create_ontology:main',
-              'knora-xml-import=knora.xml2knora:main',
+              'dsp-tools=knora.dsp-tools:main',
+              'knora-console=knora.knoraConsole:main'
               'knora-reset-triplestore=knora.reset_triplestore:main',
-              'knoractl=knoractl:main',
           ],
     },
     include_package_data=True,

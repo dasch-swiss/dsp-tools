@@ -522,8 +522,8 @@ class DataTab(wx.Panel):
         # TODO: handle different datatypes
         # TODO: handle different cardinalities
 
-        # String
-        if prop.datatype == Datatype.STRING:
+        # String or String/URL
+        if prop.datatype == Datatype.STRING or prop.datatype == Datatype.STRING_OR_URL or prop.datatype == Datatype.PLACE:
             if prop.cardinality == Cardinality.ONE:
                 print("Datatype.STRING")
                 print("Cardinality.ONE")
@@ -660,9 +660,9 @@ class TabbedWindow(wx.Dialog):
         nb.AddPage(tab1, "Base Data")
         nb.AddPage(tab2, "Project")
         nb.AddPage(tab3, "Dataset")
-        nb.AddPage(tab4, "Person")
-        nb.AddPage(tab5, "Organisation")
-        nb.AddPage(tab6, "Data Management Plan")
+        # nb.AddPage(tab4, "Person")
+        # nb.AddPage(tab5, "Organisation")
+        # nb.AddPage(tab6, "Data Management Plan")
 
         nb_sizer = wx.BoxSizer()
         nb_sizer.Add(nb, 1, wx.EXPAND)

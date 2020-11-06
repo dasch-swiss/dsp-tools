@@ -163,7 +163,7 @@ class Project():
                             Cardinality.ONE_TO_UNBOUND)
 
         self.spacialCoverage = Property("Spacial coverage",
-                            "Spatial coverage of the project from Geonames URL: https://www.geonames.org/ and or from Pleiades URL: https://pleiades.stoa.org/places",
+                            "Spatial coverage of the project from Geonames URL: https://www.geonames.org/ or from Pleiades URL: https://pleiades.stoa.org/places",
                             "https://www.geonames.org/6255148/europe.html",
                             Datatype.PLACE,
                             Cardinality.ONE_TO_UNBOUND)

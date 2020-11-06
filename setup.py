@@ -33,7 +33,7 @@ setuptools.setup(
     ],
     entry_points={
           'console_scripts': [
-              'dsp-tools=knora.dsp-tools:main',
+              'dsp-tools=knora.dsp_tools:main',
               'knora-console=knora.knoraConsole:main'
               'knora-reset-triplestore=knora.reset_triplestore:main',
           ],

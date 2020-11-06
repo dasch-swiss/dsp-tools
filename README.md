@@ -1,7 +1,7 @@
 [![PyPI version](https://badge.fury.io/py/knora.svg)](https://badge.fury.io/py/knora)
 
-# knora-py
-knora-py is a python package containing a command line tool for data model (ontology) creation, a library allowing creation of single resources and mass upload using the bulk import of data into the Knora framework.
+# DSP-TOOLS - The DaSCH Service Platform Tools Repository
+dsp-tools is a python package containing a command line tool for data model (ontology) creation, a library allowing creation of single resources and mass upload using the bulk import of data into the Knora framework.
 
 The package consists of:
 - `dsplib` Python modules for accessing Knora using the API (ontology creation, data import/export etc.)

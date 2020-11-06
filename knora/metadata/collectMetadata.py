@@ -553,7 +553,7 @@ class DataTab(wx.Panel):
                 sizer.Add(inner_sizer, pos=(index, 1))
                 print(content_list)
         # date
-        elif prop.datatype == Datatype.DATETIME:
+        elif prop.datatype == Datatype.DATE:
             if prop.cardinality == Cardinality.ONE:
                 input_format = '%d-%m-%Y'
                 display_format = '%d-%m-%Y'
@@ -650,7 +650,7 @@ class TabbedWindow(wx.Dialog):
         # Create the tab windows
         tab1 = TabOne(nb, self.dataset)
         tab2 = DataTab(nb, self.dataset.project, "Project")
-        tab3 = DataTab(nb, None, "Dataset")
+        tab3 = DataTab(nb, self.dataset.dataset, "Dataset")
         tab4 = DataTab(nb, None, "Person")
         tab5 = DataTab(nb, None, "Organisation")
         tab6 = DataTab(nb, None, "Data Management Plan")

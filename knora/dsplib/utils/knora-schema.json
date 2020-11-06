@@ -1,0 +1,434 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://knora.org/pyknora/ontology/knora-schema.json",
+  "title": "knora-py JSON schema",
+  "description": "JSON Schema for Knora ontologies",
+
+  "definitions": {
+
+    "langstring": {
+      "anyOf": [
+        {
+          "type": "object",
+          "patternProperties": {
+            "^(en|de|fr|it)": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+
+    "label": {
+      "$ref": "#/definitions/langstring"
+    },
+
+    "description": {
+      "$ref": "#/definitions/langstring"
+    },
+
+    "comment": {
+      "$ref": "#/definitions/langstring"
+    },
+
+    "groupdef": {
+      "type": "string",
+      "pattern": "^(([\\w-]*)?:([\\w ]+))|(SystemAdmin)$",
+      "additionalProperties": false
+    },
+
+    "projectdef": {
+      "type": "string",
+      "pattern": "^([\\w-]*)?:(member|admin)$"
+    },
+
+    "resourcedef": {
+      "type": ["string", "array"],
+      "oneOf": [
+        {
+          "enum": [
+            "Resource",
+            "StillImageRepresentation",
+            "TextRepresentation",
+            "AudioRepresentation",
+            "DDDRepresentation",
+            "DocumentRepresentation",
+            "MovingImageRepresentation",
+            "Annotation",
+            "LinkObj",
+            "Region"
+          ]
+        },
+        {
+          "pattern": "^([\\w-]*)?:(\\w+)$"
+        },
+        {
+          "pattern": "^(http)(s)?://.*"
+        }
+      ],
+      "items": {
+        "$ref": "#/definitions/resourcedef"
+      }
+    },
+
+    "user": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "givenName": {
+          "type": "string"
+        },
+        "familyName": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "lang": {
+          "pattern": "^(en|de|fr|it)"
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/groupdef"
+          }
+        },
+        "projects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/projectdef"
+          }
+        }
+      },
+      "required": ["username", "email", "givenName", "familyName", "password"]
+    },
+
+    "group": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "status": {
+          "type": "boolean"
+        },
+        "selfjoin": {
+          "type": "boolean"
+        }
+      },
+      "required": ["name", "description"]
+    },
+
+    "node": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "labels": {
+          "$ref": "#/definitions/label"
+        },
+        "comments": {
+          "$ref": "#/definitions/comment"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/node"
+          }
+        }
+      },
+      "required": ["name", "labels"],
+      "additionalProperties": false
+    },
+
+    "ontology": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "comments": {
+          "$ref": "#/definitions/comment"
+        },
+        "properties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/property"
+          }
+        },
+       "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/resource"
+          }
+        }
+      },
+      "required": ["name", "label", "properties", "resources"],
+      "additionalProperties": false
+    },
+
+    "property": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "super": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "oneOf": [
+              {
+                "enum": [
+                  "hasValue",
+                  "hasLinkTo",
+                  "hasColor",
+                  "hasComment",
+                  "hasGeometry",
+                  "isPartOf",
+                  "isRegionOf",
+                  "isAnnotationOf",
+                  "seqnum"
+                ]
+              },
+              {
+                "pattern": "^([\\w-]+)?:(\\w+)$"
+              },
+              {
+                "pattern": "^(http)(s)?://.*"
+              }
+            ]
+          }
+        },
+        "object": {
+          "type": "string",
+          "oneOf": [
+            {
+              "enum": [
+                "TextValue",
+                "ColorValue",
+                "DateValue",
+                "DecimalValue",
+                "GeomValue",
+                "GeonameValue",
+                "IntValue",
+                "BooleanValue",
+                "TimeValue",
+                "UriValue",
+                "IntervalValue",
+                "ListValue"
+              ]
+            },
+            {
+              "pattern": "^([\\w-]+)?:(\\w+)$"
+            }
+          ]
+        },
+        "subject": {
+          "type": "string",
+          "pattern": "^([\\w-]+)?:(\\w+)$"
+        },
+
+        "labels": {
+          "$ref": "#/definitions/label"
+        },
+
+        "gui_element": {
+          "type": "string",
+          "enum": [
+            "Colorpicker",
+            "Date",
+            "Geometry",
+            "Geonames",
+            "Interval",
+            "List",
+            "Pulldown",
+            "Radio",
+            "Richtext",
+            "Searchbox",
+            "SimpleText",
+            "Slider",
+            "Spinbox",
+            "Textarea",
+            "Checkbox",
+            "Fileupload"
+          ]
+        },
+
+        "gui_attributes": {
+          "type": "object",
+          "properties": {
+            "size": {
+              "type": "integer"
+            },
+            "maxsize": {
+              "type": "integer"
+            },
+            "hlist": {
+              "type": "string"
+            },
+            "numprops": {
+              "type": "integer"
+            },
+            "ncolors": {
+              "type": "integer"
+            },
+            "cols": {
+              "type": "integer"
+            },
+            "rows": {
+              "type": "integer"
+            },
+            "width": {
+              "type": "string",
+              "pattern": "^[0-9]*%$"
+            },
+            "wrap": {
+              "type": "string",
+              "enum": ["soft", "hard"]
+            },
+            "max": {
+              "type": "number"
+            },
+            "min": {
+              "type": "number"
+            }
+          }
+        },
+
+        "comments": {
+          "$ref": "#/definitions/comment"
+        }
+      },
+      "required": ["name", "object", "labels", "gui_element"],
+      "additionalProperties": false
+    },
+
+    "cardinality":{
+      "type": "object",
+      "properties": {
+        "propname": {
+          "type": "string",
+          "pattern": "^(([\\w-]*)?:([\\w ]+))$"
+        },
+        "cardinality": {
+          "type": "string",
+          "enum": ["1", "0-1", "1-n", "0-n"]
+        },
+        "gui_order": {
+          "type": "integer"
+        }
+      },
+      "required": ["propname", "cardinality"],
+      "additionalProperties": false
+    },
+
+    "resource": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "super": {
+          "$ref": "#/definitions/resourcedef"
+        },
+        "labels": {
+          "$ref": "#/definitions/label"
+        },
+        "comments": {
+          "$ref": "#/definitions/comment"
+        },
+        "cardinalities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/cardinality"
+          }
+        }
+      },
+      "required": ["name", "super", "labels", "cardinalities"],
+      "additionalProperties": false
+    }
+  },
+
+  "type": "object",
+  "properties": {
+    "prefixes": {
+      "type": "object",
+      "patternProperties": {
+        "^[\\w-]+$": { "format" : "uri" }
+      },
+      "additionalProperties": false
+    },
+
+    "project": {
+      "type": "object",
+      "properties": {
+        "shortcode": {
+          "type": "string",
+          "pattern": "^[0-9A-F]{4}$"
+        },
+        "shortname": {
+          "type": "string"
+        },
+        "longname": {
+          "type": "string"
+        },
+        "descriptions": {
+          "$ref": "#/definitions/description"
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/group"
+          }
+        },
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/user"
+          }
+        },
+
+        "lists": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/node"
+          }
+        },
+
+        "ontologies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ontology"
+          }
+        }
+      },
+      "required": ["shortcode", "shortname", "longname", "ontologies", "keywords"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["project"],
+  "additionalProperties": false
+}

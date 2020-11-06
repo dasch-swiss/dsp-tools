@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='utf-8'?>
+<knora xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       shortcode="00FE" ontology="kpt">
+    <!-- permissions: see https://docs.knora.org/03-apis/api-v2/reading-user-permissions/ -->
+    <permissions id="res-default">
+        <allow group="UnknownUser">RV</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="knora-py-test:MlsEditors">D</allow>
+    </permissions>
+    <permissions id="res-restricted">
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>>
+        <allow group="ProjectAdmin">CR</allow>>
+        <allow group="knora-py-test:MlsEditors">M</allow>>
+    </permissions>
+    <permissions id="prop-default">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>>
+        <allow group="knora-py-test:MlsEditors">D</allow>>
+    </permissions>
+    <permissions id="prop-restricted">
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="knora-py-test:MlsEditors">M</allow>
+    </permissions>
+    <resource label="obj_inst3"
+              restype="MyObject"
+              id="obj_0003"
+              permissions="res-default">
+        <text-prop name="mySimpleText">
+            <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
+            <text permissions="prop-restricted" encoding="utf8">Nochmals einen einfachen Text</text>
+        </text-prop>
+        <text-prop name="myRichText">
+            <text permissions="prop-default" encoding="basic">This is <em>bold and <strong>string</strong></em> text!</text>
+        </text-prop>
+        <color-prop name="myColor">
+            <color permissions="prop-default" >#00ff00</color>
+        </color-prop>
+        <date-prop name="myDate">
+            <date permissions="prop-default" >JULIAN:CE:1401-05-17:CE:1402-01</date>
+        </date-prop>
+        <decimal-prop name="myDecimal">
+            <decimal permissions="prop-default" comment="Eulersche Zahl">2.718281828459</decimal>
+        </decimal-prop>
+        <geoname-prop name="myGeoname">
+            <geoname permissions="prop-default" comment="A sacred place for railroad fans">5416656</geoname>
+        </geoname-prop>
+        <list-prop list="options" name="myList">
+            <list permissions="prop-default" >opt4</list>
+        </list-prop>
+        <integer-prop name="myInteger">
+            <integer permissions="prop-default">4711</integer>
+        </integer-prop>
+        <interval-prop name="myInterval">
+            <interval permissions="prop-default">12.5:14.2</interval>
+        </interval-prop>
+        <boolean-prop name="myBoolean">
+            <boolean permissions="prop-default">true</boolean>
+        </boolean-prop>
+    </resource>
+    <resource label="obj_inst4"
+              restype="MyImage"
+              id="obj_0004"
+              permissions="res-default">
+        <image>test.tif</image>
+        <text-prop name="myTitle">
+            <text permissions="prop-default" encoding="utf8">Blätter</text>
+        </text-prop>
+        <text-prop name="myDescription">
+            <text permissions="prop-default" encoding="utf8">Ein Testbild im TIFF format</text>
+        </text-prop>
+        <resptr-prop name="myLink">
+            <resptr permissions="prop-default">obj_0003</resptr>
+        </resptr-prop>
+    </resource>
+</knora>

@@ -1356,12 +1356,12 @@ class Knora:
                 valdict["knora-api:valueHasComment"] = comment
 
             if prop["otype"] == "TextValue":
-                if isinstance(val, KnoraStandoffXml):  # normal text string without markup
+                if isinstance(val, KnoraStandoffXml):  # text with XML markup
                     valdict['knora-api:textValueAsXml'] = val  # no conversion to string
                     valdict['knora-api:textValueHasMapping'] = {
                         '@id': 'http://rdfh.ch/standoff/mappings/StandardMapping' if mapping is None else mapping
                     }
-                else:
+                else:  # normal text string without markup
                     valdict['knora-api:valueAsString'] = str(val)
             elif prop["otype"] == "ColorValue":
                 #

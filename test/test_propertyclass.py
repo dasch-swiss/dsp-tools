@@ -1,14 +1,11 @@
 import unittest
 import pprint
-import requests
-from urllib.parse import quote_plus
-import time
 
-from models.connection import Connection
-from models.helpers import BaseError, Actions, LastModificationDate
-from models.langstring import Languages, LangStringParam, LangString
-from models.ontology import Ontology
-from models.propertyclass import PropertyClass
+from dsplib.models.connection import Connection
+from dsplib.models.helpers import BaseError, Actions, LastModificationDate
+from dsplib.models.langstring import Languages, LangStringParam, LangString
+from dsplib.models.ontology import Ontology
+from dsplib.models.propertyclass import PropertyClass
 
 
 class TestPropertyClass(unittest.TestCase):
@@ -36,22 +33,21 @@ class TestPropertyClass(unittest.TestCase):
         #
         # Create a test ontology
         #
-        self.last_modification_date, self.onto = Ontology(
+        self.onto = Ontology(
             con=self.con,
             project=self.project,
             name=self.onto_name,
             label=self.onto_label,
         ).create()
-        self.onto.context.print()
         self.assertIsNotNone(self.onto.id)
+        self.last_modification_date = self.onto.lastModificationDate
 
     def tearDown(self):
         #
         # remove test ontology
         #
-        result = self.onto.delete(self.last_modification_date)
+        result = self.onto.delete()
         self.assertIsNotNone(result)
-        pprint.pprint(result)
 
 
     def test_PropertyClass_create(self):
@@ -67,6 +63,7 @@ class TestPropertyClass(unittest.TestCase):
             label=self.label,
             comment=self.comment
         ).create(self.last_modification_date)
+        self.onto.lastModificationDate = self.last_modification_date
         self.assertIsNotNone(propclass.id)
 
         self.assertEqual(propclass.name, self.name)
@@ -76,16 +73,17 @@ class TestPropertyClass(unittest.TestCase):
         #
         # Again get ontology data
         #
-        self.last_modification_date, self.onto = self.onto.read()
+        self.onto = self.onto.read()
+        self.last_modification_date = self.onto.lastModificationDate
         self.last_modification_date = propclass.delete(self.last_modification_date)
 
         #
         # Again get ontology data
         #
-        self.last_modification_date, self.onto = self.onto.read()
+        self.onto = self.onto.read()
 
     def test_PropertyClass_update(self):
-        self.last_modification_date, self.onto = self.onto.read()
+        self.onto = self.onto.read()
 
         #
         # create test resource class
@@ -99,6 +97,7 @@ class TestPropertyClass(unittest.TestCase):
             label=self.label,
             comment=self.comment
         ).create(self.last_modification_date)
+        self.onto.lastModificationDate = self.last_modification_date
         self.assertIsNotNone(propclass.id)
 
         #
@@ -108,6 +107,7 @@ class TestPropertyClass(unittest.TestCase):
         propclass.rmLabel('de')
         propclass.addComment('it', "Commentario italiano")
         self.last_modification_date, propclass = propclass.update(self.last_modification_date)
+        self.onto.lastModificationDate = self.last_modification_date
         self.assertEqual(propclass.label['en'], "This is english gaga")
         self.assertEqual(propclass.comment['it'], "Commentario italiano")
 
@@ -115,6 +115,7 @@ class TestPropertyClass(unittest.TestCase):
         # Now delete the resource class to clean up
         #
         self.last_modification_date = propclass.delete(self.last_modification_date)
+        self.onto.lastModificationDate = self.last_modification_date
 
 
 if __name__ == '__main__':

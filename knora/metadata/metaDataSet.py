@@ -180,7 +180,7 @@ class Project():
                             Datatype.GRANT)
 
         self.url = Property("URL",
-                            "Landing page or Website of the project. We recommend DSP Landing Page",
+                            "Landing page or Website of the project. We recommend DSP Landing Page. Optionally, a second URL can be added too.",
                             "https://test.dasch.swiss/",
                             Datatype.URL,
                             Cardinality.ONE_TO_TWO)

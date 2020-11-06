@@ -519,11 +519,14 @@ class DataTab(wx.Panel):
 
         name_label = wx.StaticText(self, label=prop.name + ": ")
         sizer.Add(name_label, pos=(index, 0))
-        # TODO: handle different datatypes
-        # TODO: handle different cardinalities
 
-        # String or String/URL
-        if prop.datatype == Datatype.STRING or prop.datatype == Datatype.STRING_OR_URL or prop.datatype == Datatype.PLACE:
+        # TODO: indicate optional vs. mandatory values
+
+        # String or String/URL etc.
+        if prop.datatype == Datatype.STRING \
+                    or prop.datatype == Datatype.STRING_OR_URL \
+                    or prop.datatype == Datatype.URL \
+                    or prop.datatype == Datatype.PLACE:
             if prop.cardinality == Cardinality.ONE:
                 print("Datatype.STRING")
                 print("Cardinality.ONE")
@@ -531,7 +534,17 @@ class DataTab(wx.Panel):
                 if prop.value:
                     textcontrol.SetValue(prop.value)
                 sizer.Add(textcontrol, pos=(index, 1))
-            if prop.cardinality == Cardinality.ONE_TO_UNBOUND:
+            elif prop.cardinality == Cardinality.ONE_TO_TWO:
+                inner_sizer = wx.BoxSizer(wx.VERTICAL)
+                textcontrol1 = wx.TextCtrl(self, size=(550, -1))
+                # TODO: add existing values, if any
+                inner_sizer.Add(textcontrol1)
+                inner_sizer.AddSpacer(5)
+                textcontrol2 = wx.TextCtrl(self, size=(550, -1))
+                textcontrol2.SetHint('Second value is optional')
+                inner_sizer.Add(textcontrol2)
+                sizer.Add(inner_sizer, pos=(index, 1))
+            elif prop.cardinality == Cardinality.ONE_TO_UNBOUND:
                 print("Datatype.STRING")
                 print("Cardinality: ONE_TO_UNBOUND")
                 inner_sizer = wx.BoxSizer()
@@ -651,9 +664,9 @@ class TabbedWindow(wx.Dialog):
         tab1 = TabOne(nb, self.dataset)
         tab2 = DataTab(nb, self.dataset.project, "Project")
         tab3 = DataTab(nb, self.dataset.dataset, "Dataset")
-        tab4 = DataTab(nb, None, "Person")
-        tab5 = DataTab(nb, None, "Organisation")
-        tab6 = DataTab(nb, None, "Data Management Plan")
+        # tab4 = DataTab(nb, None, "Person")
+        # tab5 = DataTab(nb, None, "Organisation")
+        # tab6 = DataTab(nb, None, "Data Management Plan")
 
 
         # Add the windows to tabs and name them.

@@ -258,7 +258,9 @@ class ProjectPanel(wx.Panel):
         if selection >= 0:
             repo = data_handler.projects[selection]
             dlg = TabbedWindow(self, repo)
-            dlg.ShowModal()
+            # dlg.ShowModal()
+            dlg.Show()
+            self.Disable()
 
     def on_process_data(self, event):
         """ Set selection and call create_xml """
@@ -640,14 +642,22 @@ class HelpPopup(wx.PopupTransientWindow):
         self.Layout()
 
 
-class TabbedWindow(wx.Dialog):
+class TabbedWindow(wx.Frame):
     def __init__(self, parent, dataset: MetaDataSet):
         # TODO: this should not be so big, rather, the panels should be scrollable, if they get too large
-        wx.Dialog.__init__(self,
-                           parent=parent,
-                           title="Metadata tabs",
-                           size=(900, 800),
-                           style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+        # wx.Dialog.__init__(self,
+        #                    parent=parent,
+        #                    title="Metadata tabs",
+        #                    size=(900, 600),
+        #                    style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+        
+        wx.Frame.__init__(self,parent, id=-1,title="",pos=wx.DefaultPosition,
+                        size=(900, 600), style=wx.DEFAULT_FRAME_STYLE,
+                        name="Metadata tabs")
+        self.Bind(wx.EVT_CLOSE, self.on_close)
+
+        self.panel = wx.ScrolledWindow(self,wx.ID_ANY)
+        self.panel.SetScrollbars(1, 1, 1, 1)
 
         # Try to catch ESC-event
         # msvcrt only works with Windows...
@@ -655,11 +665,13 @@ class TabbedWindow(wx.Dialog):
         #    aborted = True
         #    break
 
+        self.parent = parent
         self.dataset = dataset
         # project_label = wx.StaticText(self, label="Current Project: " + dataset.name)
 
         # Create a panel and notebook (tabs holder)
-        panel = wx.Panel(self)
+        panel = self.panel
+        # panel = wx.Panel(self)
         nb = wx.Notebook(panel)
         nb.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.on_tab_change)
 
@@ -685,14 +697,16 @@ class TabbedWindow(wx.Dialog):
         # Buttons
         save_button = wx.Button(panel, label='Save')
         save_button.Bind(wx.EVT_BUTTON, self.on_save)
+        cancel_button = wx.Button(panel, label='Cancel')
+        cancel_button.Bind(wx.EVT_BUTTON, self.on_close)
         button_sizer = wx.BoxSizer(wx.HORIZONTAL)
         button_sizer.Add(save_button, 0, wx.ALL, 5)
-        button_sizer.Add(wx.Button(panel, id=wx.ID_CANCEL), 0, wx.ALL, 5)
+        button_sizer.Add(cancel_button, 0, wx.ALL, 5)
 
         # Set notebook in a sizer to create the layout
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(nb_sizer, 1, wx.ALL | wx.EXPAND, 5)
-        sizer.AddStretchSpacer(0)
+        sizer.AddSpacer(5)
         sizer.Add(button_sizer, 1, wx.ALL, 5)
         panel.SetSizer(sizer)
 
@@ -701,11 +715,20 @@ class TabbedWindow(wx.Dialog):
     def on_tab_change(self, event):
         # This function should make sure, changes are saved if user changes tab. So there will be a save mechanism
         print("tab changed")
+        # TODO: save here
 
     def on_save(self, event):
         print("should save tabs content")
         # TODO: implement
         self.Close()
+
+    def on_close(self, event):
+        self.close()
+
+    def close(self):
+        print("closing...")
+        self.parent.Enable()
+        self.Destroy()
 
 
 if __name__ == '__main__':

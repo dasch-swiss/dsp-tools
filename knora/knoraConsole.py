@@ -5,7 +5,7 @@ import wx.adv
 from wx.adv import TaskBarIcon as TaskBarIcon
 import pkg_resources  # part of setuptools
 
-version = pkg_resources.require("knora")[0].version
+# version = pkg_resources.require("knora")[0].version
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
@@ -19,7 +19,7 @@ from dsplib.knoraConsoleModules.OntoPanel import OntoPanel
 
 class DemoTaskBarIcon(TaskBarIcon):
     TBMENU_RESTORE = wx.NewIdRef()
-    TBMENU_CLOSE   = wx.NewIdRef()
+    TBMENU_CLOSE = wx.NewIdRef()
 
     def __init__(self, frame):
         TaskBarIcon.__init__(self, wx.adv.TBI_DOCK) # wx.adv.TBI_CUSTOM_STATUSITEM

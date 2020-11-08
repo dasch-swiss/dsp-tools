@@ -3,7 +3,6 @@ import os
 import pickle
 
 
-# from pprint import pprint
 from typing import List, Any
 import xml.etree.ElementTree as ET
 from metaDataSet import MetaDataSet, Property, Cardinality, Datatype
@@ -14,21 +13,12 @@ from metaDataHelpers import DateCtrl, CalendarDlg
 #
 # - generalize forms with custom widget
 # - allow custom widget to handle any kind of UI element, not just text box
-# - maybe have two separate widgets: form and field, where a form takes multiple fields?
-# - "files", what does it actually do? how should we work with it?
-# - more properties
-# - how to handle dates?
-# - how to handle cardinality?
-#
-# - add more properties
+# - more properties, classes
 #
 #############################################
 
 ################ Idea List ##################
 #
-# - instead of too many up-popping dialogs, we could work with tabs
-#   (see e.g.: https://pythonspot.com/wxpython-tabs/ )
-# - if so, underneath the tabbed `wx.Notebook`, we could always have the same save and cancel buttons
 # - I'd love to have an over-arching progress bar that indicates to the user, how much of the forms they have filled out
 #   (see wx.Gauge)
 #
@@ -192,6 +182,10 @@ class ProjectPanel(wx.Panel):
         # Here we create the Edit button
         main_sizer.Add(self.list_ctrl, 0, wx.ALL | wx.EXPAND, 20)
 
+        new_folder_button = wx.Button(self, label='New Folder')
+        new_folder_button.Bind(wx.EVT_BUTTON, parent.on_open_folder)
+        main_sizer.Add(new_folder_button, 0, wx.ALL | wx.CENTER, 5)
+
         # Something is not yet working...
         # edit_button = wx.Button(self, label='Add Folder')
         # edit_button.Bind(wx.EVT_BUTTON, self.on_open_folder)
@@ -265,11 +259,6 @@ class ProjectPanel(wx.Panel):
             repo = data_handler.projects[selection]
             dlg = TabbedWindow(self, repo)
             dlg.ShowModal()
-            # dlg.Show()  # QUESTION: should we use show or showmodal? I'm unsure, both seems to have pros and cons
-
-            # This starts the reload of the view. Saving data is done by the save function inside the Dialog box.
-            # self.load_view()
-            # dlg.Destroy()
 
     def on_process_data(self, event):
         """ Set selection and call create_xml """
@@ -284,7 +273,6 @@ class ProjectPanel(wx.Panel):
             Where is this function called? It is called by on_open_folder in in the Class ProjectFrame
             What should this function do? It should get a new project, store it and then reload the project list
         """
-        # QUESTION: why do we need this?
         dir_list = os.listdir(folder_path)
         if '.DS_Store' in dir_list:
             dir_list.remove('.DS_Store')
@@ -652,12 +640,6 @@ class HelpPopup(wx.PopupTransientWindow):
         self.Layout()
 
 
-# QUESTION: there is one major downside to have this as a dialog instead of a frame:
-# users can't resize the window. (on the other hand: frame can't be modal.)
-# What's more important?
-
-# What do we expect users to work with? desktops, laptops, no tablets, I think. There should not be a need to resize, if there is enough space.
-# In my opinion, modal should help users not to get lost in the process...
 class TabbedWindow(wx.Dialog):
     def __init__(self, parent, dataset: MetaDataSet):
         # TODO: this should not be so big, rather, the panels should be scrollable, if they get too large

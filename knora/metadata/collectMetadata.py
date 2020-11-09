@@ -14,6 +14,7 @@ from metaDataHelpers import DateCtrl, CalendarDlg
 # - generalize forms with custom widget
 # - allow custom widget to handle any kind of UI element, not just text box
 # - more properties, classes
+# - call method when something changed in a field, there, call specific validation
 #
 #############################################
 
@@ -53,6 +54,7 @@ class DataHandling:
 
     def __init__(self):
         self.projects = []
+        self.containers = []
         self.data_storage = os.path.expanduser("~") + "/DaSCH/config/repos.data"
         # LATER: path could be made customizable
         self.load_data()
@@ -109,6 +111,23 @@ class DataHandling:
         # TODO: implement data procession.
         # Probably just calls processing on the selected data set
         print(f'Should be processing Dataset: {index}')
+
+    def validate_all(self, dataset):
+        """
+        TODO: docstring
+        """
+        print("should be validating the data")
+        # TODO: validate: call validation. and give indication, if there is a problem
+
+    def update_all(self, dataset):
+        """
+        TODO: docstring
+        """
+        for prop in dataset.project.get_properties():
+            prop.update()
+        for prop in dataset.dataset.get_properties():
+            prop.update()
+        
 
 
 ########## Here starts UI stuff ##############
@@ -498,34 +517,9 @@ class TabOne(wx.Panel):
         win.Popup()
 
 
-class DataTab(wx.ScrolledWindow):
-
-    def __init__(self, parent, dataset, title):
-        wx.Panel.__init__(self, parent, style=wx.EXPAND)
-
-        self.dataset = dataset
-
-        sizer = wx.GridBagSizer(10, 10)
-        if dataset:
-            for i, prop in enumerate(dataset.get_properties()):
-                self.add_widgets(dataset, prop, sizer, i)
-        self.SetSizer(sizer)
-
-        self.SetScrollbars(1, 1, 1, 1)
-
-    # noinspection PyGlobalUndefined
-    def add_widgets(self, dataset, prop, sizer, index):
-        """
-        Add a row of widgets.
-
-        Args:
-            dataset (DataSet): the dataset to which the property belongs
-            prop (Property): the property that is to be displayed
-            sizer (Sizer): The Sizer in which the widgets are to be displayed
-            index (int): the row to put the widgets in, within the sizer
-        """
-
-        name_label = wx.StaticText(self, label=prop.name + ": ")
+class PropertyRow():
+    def __init__(self, parent, dataset, prop, sizer, index):
+        name_label = wx.StaticText(parent, label=prop.name + ": ")
         sizer.Add(name_label, pos=(index, 0))
 
         # TODO: indicate optional vs. mandatory values
@@ -538,17 +532,17 @@ class DataTab(wx.ScrolledWindow):
             if prop.cardinality == Cardinality.ONE:
                 print("Datatype.STRING")
                 print("Cardinality.ONE")
-                textcontrol = wx.TextCtrl(self, size=(550, -1))
+                textcontrol = wx.TextCtrl(parent, size=(550, -1))
                 if prop.value:
                     textcontrol.SetValue(prop.value)
                 sizer.Add(textcontrol, pos=(index, 1))
             elif prop.cardinality == Cardinality.ONE_TO_TWO:
                 inner_sizer = wx.BoxSizer(wx.VERTICAL)
-                textcontrol1 = wx.TextCtrl(self, size=(550, -1))
+                textcontrol1 = wx.TextCtrl(parent, size=(550, -1))
                 # TODO: add existing values, if any
                 inner_sizer.Add(textcontrol1)
                 inner_sizer.AddSpacer(5)
-                textcontrol2 = wx.TextCtrl(self, size=(550, -1))
+                textcontrol2 = wx.TextCtrl(parent, size=(550, -1))
                 textcontrol2.SetHint('Second value is optional')
                 inner_sizer.Add(textcontrol2)
                 sizer.Add(inner_sizer, pos=(index, 1))
@@ -556,17 +550,17 @@ class DataTab(wx.ScrolledWindow):
                 print("Datatype.STRING")
                 print("Cardinality: ONE_TO_UNBOUND")
                 inner_sizer = wx.BoxSizer()
-                textcontrol = wx.TextCtrl(self, size=(200, -1))
+                textcontrol = wx.TextCtrl(parent, size=(200, -1))
                 inner_sizer.Add(textcontrol)
                 inner_sizer.AddSpacer(5)
-                plus_button = wx.Button(self, label="+")
+                plus_button = wx.Button(parent, label="+")
                 plus_button.Bind(wx.EVT_BUTTON,
-                                 lambda e: self.add_to_list(e,
+                                 lambda e: parent.add_to_list(e,
                                                             content_list,
                                                             textcontrol.GetValue()))
                 inner_sizer.Add(plus_button)
                 inner_sizer.AddSpacer(5)
-                content_list = wx.ListBox(self, size=(250, -1))
+                content_list = wx.ListBox(parent, size=(250, -1))
                 if prop.value:
                     for val in prop.value:
                         content_list.Append(val)
@@ -578,18 +572,41 @@ class DataTab(wx.ScrolledWindow):
             if prop.cardinality == Cardinality.ONE:
                 input_format = '%d-%m-%Y'
                 display_format = '%d-%m-%Y'
-                start_date = DateCtrl(self, size=(130, -1), pos=(150, 80),
+                start_date = DateCtrl(parent, size=(130, -1), pos=(150, 80),
                                       input_format=input_format, display_format=display_format,
                                       title='Start Date', default_to_today=False, allow_null=False)
 
                 sizer.Add(start_date, pos=(index, 1))
 
-                self.first_time = True  # don't validate date first time
-                self.SetFocus()
+                parent.first_time = True  # don't validate date first time
+                parent.SetFocus()
 
-        btn = wx.Button(self, label="?")
-        btn.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event, prop.description, prop.example))
+        btn = wx.Button(parent, label="?")
+        btn.Bind(wx.EVT_BUTTON, lambda event: parent.show_help(event, prop.description, prop.example))
         sizer.Add(btn, pos=(index, 2))
+
+    def get_value(self):
+        print("I have a value")
+        pass
+
+
+class DataTab(wx.ScrolledWindow):
+
+    def __init__(self, parent, dataset, title):
+        wx.Panel.__init__(self, parent, style=wx.EXPAND)
+
+        self.dataset = dataset
+
+        sizer = wx.GridBagSizer(10, 10)
+        if dataset:
+            for i, prop in enumerate(dataset.get_properties()):
+                # self.add_widgets(dataset, prop, sizer, i)
+                row = PropertyRow(self, dataset, prop, sizer, i)
+                prop.gui_container = row
+        self.SetSizer(sizer)
+
+        self.SetScrollbars(1, 1, 1, 1)
+
 
     def on_t_got_focus(self, evt):
         if self.first_time:
@@ -735,7 +752,9 @@ class TabbedWindow(wx.Frame):
 
     def save(self):
         print("should save tabs content")
-        # TODO: implement
+        data_handler.update_all(self.dataset)
+        data_handler.validate_all(self.dataset)
+        data_handler.save_data()
 
     def close(self):
         self.parent.Enable()

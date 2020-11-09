@@ -380,3 +380,10 @@ class Property():
         self.cardinality = cardinality
         self.value = value
         self.value_options = value_options
+        self.gui_container = None
+
+    def update(self):
+        """
+        Updates the property value according to its GUI component's current value
+        """
+        self.value = self.gui_container.get_value()

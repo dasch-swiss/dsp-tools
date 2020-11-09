@@ -11,10 +11,8 @@ from metaDataHelpers import DateCtrl, CalendarDlg
 
 ################# TODO List #################
 #
-# - generalize forms with custom widget
-# - allow custom widget to handle any kind of UI element, not just text box
 # - more properties, classes
-# - call method when something changed in a field, there, call specific validation
+# - call method when something changed in a field; then, call specific validation
 #
 #############################################
 
@@ -78,7 +76,9 @@ class DataHandling:
 
     def associate_container(self, prop, container):
         """
-        TODO: docstring
+        Stores a pair of `metaDataSet.Property` and `PropertyRow` in the Handler's container dict.
+
+        This allows to update a property value according to it's associated UI component.
         """
         self.containers[prop] = container
 
@@ -120,7 +120,7 @@ class DataHandling:
 
     def validate_all(self, dataset):
         """
-        TODO: docstring
+        Validates all properties in a specific `MetaDataSet.`
         """
         print("should be validating the data")
         # TODO: validate: call validation. and give indication, if there is a problem
@@ -233,6 +233,9 @@ class ProjectPanel(wx.Panel):
         self.display_repos()
 
     def on_open_folder(self, event):
+        """
+        Open a new folder and add it to projects.
+        """
         title = "Choose a directory:"
         dlg = wx.DirDialog(self, title,
                            style=wx.DD_DEFAULT_STYLE)
@@ -274,7 +277,6 @@ class ProjectPanel(wx.Panel):
         if selection >= 0:
             repo = data_handler.projects[selection]
             dlg = TabbedWindow(self, repo)
-            # dlg.ShowModal()
             dlg.Show()
             self.Disable()
 
@@ -300,6 +302,9 @@ class ProjectPanel(wx.Panel):
 
 
 class TabOne(wx.Panel):
+    """
+    Tab holding the project base information
+    """
     def __init__(self, parent, dataset):
         wx.Panel.__init__(self, parent)
         self.dataset = dataset
@@ -318,7 +323,7 @@ class TabOne(wx.Panel):
         path_field = wx.TextCtrl(self, style=wx.TE_READONLY, size=(550, -1))
         path_field.SetValue(self.dataset.path)
         sizer.Add(path_field, pos=(1, 1))
-        # TODO: add button to change folder?
+        # TODO: add button to change folder
         path_help = wx.Button(self, label="?")
         path_help.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event,
                                                                    "Path to the folder with the data",
@@ -336,8 +341,8 @@ class TabOne(wx.Panel):
         path_help.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event,
                                                                    "Files associated with the project",
                                                                    "sample_project.zip"))
+        # TODO: give some indication on the state of this dataset. (valid, invalid, percentage of properties or similar)
         sizer.Add(path_help, pos=(2, 2))
-
         sizer.AddGrowableCol(1)
         self.SetSizer(sizer)
 
@@ -351,6 +356,20 @@ class TabOne(wx.Panel):
 
 
 class PropertyRow():
+    """
+    A row in a tab of the UI
+
+    This Class organizes a single row in the data tabs.
+    Upon initiation, the UI elements ara generated and placed.
+    Later on, the data handler can let this class return the value that the property should be assigned.
+
+    Args:
+        parent (wx.ScrolledWindow): The scrolled panel in which the row is to be placed.
+        dataset (Any): The Dataset that is to be displayed
+        prop (Property): The property to be displayed
+        sizer (wx.Sizer): The sizer that organizes the layout of the parent component
+        index (int): the row in the sizer grid
+    """
     def __init__(self, parent, dataset, prop, sizer, index):
         self.prop = prop
         name_label = wx.StaticText(parent, label=prop.name + ": ")
@@ -423,6 +442,9 @@ class PropertyRow():
         sizer.Add(btn, pos=(index, 2))
 
     def get_value(self):
+        """
+        Returns the new property value that has been entered to the UI
+        """
         datatype = self.prop.datatype
         cardinality = self.prop.cardinality
         # String or String/URL etc.

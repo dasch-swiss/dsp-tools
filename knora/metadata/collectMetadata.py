@@ -199,6 +199,7 @@ class ProjectPanel(wx.Panel):
         process_xml_button.Bind(wx.EVT_BUTTON, self.on_process_data)
         main_sizer.Add(process_xml_button, 0, wx.ALL | wx.Center, 5)
         self.SetSizer(main_sizer)
+        self.Fit()
 
         self.display_repos()
 
@@ -497,10 +498,10 @@ class TabOne(wx.Panel):
         win.Popup()
 
 
-class DataTab(wx.Panel):
+class DataTab(wx.ScrolledWindow):
 
     def __init__(self, parent, dataset, title):
-        wx.Panel.__init__(self, parent)
+        wx.Panel.__init__(self, parent, style=wx.EXPAND)
 
         self.dataset = dataset
 
@@ -509,6 +510,8 @@ class DataTab(wx.Panel):
             for i, prop in enumerate(dataset.get_properties()):
                 self.add_widgets(dataset, prop, sizer, i)
         self.SetSizer(sizer)
+
+        self.SetScrollbars(1, 1, 1, 1)
 
     # noinspection PyGlobalUndefined
     def add_widgets(self, dataset, prop, sizer, index):
@@ -656,8 +659,7 @@ class TabbedWindow(wx.Frame):
                         name="Metadata tabs")
         self.Bind(wx.EVT_CLOSE, self.on_close)
 
-        self.panel = wx.ScrolledWindow(self,wx.ID_ANY)
-        self.panel.SetScrollbars(1, 1, 1, 1)
+        self.panel = wx.Panel(self)
 
         # Try to catch ESC-event
         # msvcrt only works with Windows...
@@ -673,6 +675,7 @@ class TabbedWindow(wx.Frame):
         panel = self.panel
         # panel = wx.Panel(self)
         nb = wx.Notebook(panel)
+        nb.SetMinSize((900, 500))
         nb.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.on_tab_change)
 
         # Create the tab windows
@@ -705,10 +708,12 @@ class TabbedWindow(wx.Frame):
 
         # Set notebook in a sizer to create the layout
         sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(nb_sizer, 1, wx.ALL | wx.EXPAND, 5)
+        sizer.Add(nb_sizer, 0, wx.ALL | wx.EXPAND, 5)
         sizer.AddSpacer(5)
-        sizer.Add(button_sizer, 1, wx.ALL, 5)
+        sizer.Add(button_sizer, 0, wx.ALL | wx.BOTTOM, 5)
         panel.SetSizer(sizer)
+
+        print(sizer.Fit(self))
 
         # self.Show()
 

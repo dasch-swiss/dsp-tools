@@ -54,7 +54,7 @@ class DataHandling:
 
     def __init__(self):
         self.projects = []
-        self.containers = []
+        self.containers = {}
         self.data_storage = os.path.expanduser("~") + "/DaSCH/config/repos.data"
         # LATER: path could be made customizable
         self.load_data()
@@ -75,6 +75,12 @@ class DataHandling:
         dataset = MetaDataSet(index, folder_name, folder_path)
         self.projects.append(dataset)
         self.save_data()
+
+    def associate_container(self, prop, container):
+        """
+        TODO: docstring
+        """
+        self.containers[prop] = container
 
     def load_data(self):
         """
@@ -124,9 +130,13 @@ class DataHandling:
         TODO: docstring
         """
         for prop in dataset.project.get_properties():
-            prop.update()
+            container = self.containers[prop]
+            prop.value = container.get_value()
+            print(prop.value)
         for prop in dataset.dataset.get_properties():
-            prop.update()
+            container = self.containers[prop]
+            prop.value = container.get_value()
+            print(prop.value)
         
 
 
@@ -519,6 +529,7 @@ class TabOne(wx.Panel):
 
 class PropertyRow():
     def __init__(self, parent, dataset, prop, sizer, index):
+        self.prop = prop
         name_label = wx.StaticText(parent, label=prop.name + ": ")
         sizer.Add(name_label, pos=(index, 0))
 
@@ -529,26 +540,29 @@ class PropertyRow():
             or prop.datatype == Datatype.STRING_OR_URL \
             or prop.datatype == Datatype.URL \
             or prop.datatype == Datatype.PLACE:
-            if prop.cardinality == Cardinality.ONE:
-                print("Datatype.STRING")
-                print("Cardinality.ONE")
+            if prop.cardinality == Cardinality.ONE:  # String or similar, exactly 1
                 textcontrol = wx.TextCtrl(parent, size=(550, -1))
                 if prop.value:
                     textcontrol.SetValue(prop.value)
                 sizer.Add(textcontrol, pos=(index, 1))
-            elif prop.cardinality == Cardinality.ONE_TO_TWO:
+                self.data_widget = textcontrol
+            elif prop.cardinality == Cardinality.ONE_TO_TWO:  # String or similar, 1-2
                 inner_sizer = wx.BoxSizer(wx.VERTICAL)
                 textcontrol1 = wx.TextCtrl(parent, size=(550, -1))
-                # TODO: add existing values, if any
                 inner_sizer.Add(textcontrol1)
                 inner_sizer.AddSpacer(5)
                 textcontrol2 = wx.TextCtrl(parent, size=(550, -1))
                 textcontrol2.SetHint('Second value is optional')
                 inner_sizer.Add(textcontrol2)
+                if prop.value:
+                    if len(prop.value) > 0 and prop.value[0]:
+                        textcontrol1.SetValue(prop.value[0])
+                    if len(prop.value) > 1 and prop.value[1]:
+                        textcontrol2.SetValue(prop.value[1])
                 sizer.Add(inner_sizer, pos=(index, 1))
-            elif prop.cardinality == Cardinality.ONE_TO_UNBOUND:
-                print("Datatype.STRING")
-                print("Cardinality: ONE_TO_UNBOUND")
+                self.data_widget = [textcontrol1, textcontrol2]
+            elif prop.cardinality == Cardinality.ONE_TO_UNBOUND \
+                    or prop.cardinality == Cardinality.UNBOUND:  # String or similar, 1-n or 0-n
                 inner_sizer = wx.BoxSizer()
                 textcontrol = wx.TextCtrl(parent, size=(200, -1))
                 inner_sizer.Add(textcontrol)
@@ -567,27 +581,40 @@ class PropertyRow():
                 inner_sizer.Add(content_list)
                 sizer.Add(inner_sizer, pos=(index, 1))
                 print(content_list)
+                self.data_widget = content_list
         # date
         elif prop.datatype == Datatype.DATE:
             if prop.cardinality == Cardinality.ONE:
                 input_format = '%d-%m-%Y'
                 display_format = '%d-%m-%Y'
-                start_date = DateCtrl(parent, size=(130, -1), pos=(150, 80),
+                date = DateCtrl(parent, size=(130, -1), pos=(150, 80),
                                       input_format=input_format, display_format=display_format,
-                                      title='Start Date', default_to_today=False, allow_null=False)
-
-                sizer.Add(start_date, pos=(index, 1))
-
+                                      title=prop.name, default_to_today=False, allow_null=False)
+                sizer.Add(date, pos=(index, 1))
                 parent.first_time = True  # don't validate date first time
                 parent.SetFocus()
+                self.data_widget = date
 
         btn = wx.Button(parent, label="?")
         btn.Bind(wx.EVT_BUTTON, lambda event: parent.show_help(event, prop.description, prop.example))
         sizer.Add(btn, pos=(index, 2))
 
     def get_value(self):
-        print("I have a value")
-        pass
+        datatype = self.prop.datatype
+        cardinality = self.prop.cardinality
+        # String or String/URL etc.
+        if datatype == Datatype.STRING \
+                or datatype == Datatype.STRING_OR_URL \
+                or datatype == Datatype.URL \
+                or datatype == Datatype.PLACE:
+            if cardinality == Cardinality.ONE:
+                return self.data_widget.GetValue()
+            if cardinality == Cardinality.ONE_TO_TWO:
+                return [self.data_widget[0].GetValue(), self.data_widget[1].GetValue()]
+            if cardinality == Cardinality.ONE_TO_UNBOUND \
+                    or cardinality == Cardinality.UNBOUND:
+                return self.data_widget.GetStrings()
+        return "Coudn't find my value... sorry"
 
 
 class DataTab(wx.ScrolledWindow):
@@ -602,7 +629,7 @@ class DataTab(wx.ScrolledWindow):
             for i, prop in enumerate(dataset.get_properties()):
                 # self.add_widgets(dataset, prop, sizer, i)
                 row = PropertyRow(self, dataset, prop, sizer, i)
-                prop.gui_container = row
+                data_handler.associate_container(prop, row)
         self.SetSizer(sizer)
 
         self.SetScrollbars(1, 1, 1, 1)
@@ -664,13 +691,6 @@ class HelpPopup(wx.PopupTransientWindow):
 
 class TabbedWindow(wx.Frame):
     def __init__(self, parent, dataset: MetaDataSet):
-        # TODO: this should not be so big, rather, the panels should be scrollable, if they get too large
-        # wx.Dialog.__init__(self,
-        #                    parent=parent,
-        #                    title="Metadata tabs",
-        #                    size=(900, 600),
-        #                    style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
-        
         wx.Frame.__init__(self,parent, id=-1,title="",pos=wx.DefaultPosition,
                         size=(900, 600), style=wx.DEFAULT_FRAME_STYLE,
                         name="Metadata tabs")
@@ -686,7 +706,6 @@ class TabbedWindow(wx.Frame):
 
         self.parent = parent
         self.dataset = dataset
-        # project_label = wx.StaticText(self, label="Current Project: " + dataset.name)
 
         # Create a panel and notebook (tabs holder)
         panel = self.panel

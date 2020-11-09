@@ -238,8 +238,7 @@ class ProjectPanel(wx.Panel):
                            style=wx.DD_DEFAULT_STYLE)
         if dlg.ShowModal() == wx.ID_OK:
             # Here the update function is called. This function is strictly restricted to new folders.
-            # New data will be appended to the available structure. Add an index
-            # index = self.panel.index
+            # New data will be appended to the available structure.
             self.panel.add_new_project(dlg.GetPath())
         dlg.Destroy()
 
@@ -267,19 +266,6 @@ class ProjectPanel(wx.Panel):
         # Construct a header
         self.create_header()
         self.display_repos()
-
-    # # Das muss weg...
-    # def on_edit(self, event):
-    #     """ This function calls the EditBaseDialog and hands over pFiles, a list.
-    #     """
-    #     selection = self.list_ctrl.GetFocusedItem()
-    #     if selection >= 0:
-    #         repo = data_handler.projects[selection]
-    #         dlg = EditBaseDialog(repo)
-    #         dlg.ShowModal()
-    #         # This starts the reload of the view. Saving data is done by the save function inside the Dialog box.
-    #         self.load_view()
-    #         dlg.Destroy()
 
     def on_edit_tabbed(self, event):
         """ This function calls the EditBaseDialog and hands over pFiles, a list.
@@ -312,169 +298,6 @@ class ProjectPanel(wx.Panel):
         data_handler.add_project(folder_path)
         self.display_repos()
 
-
-# Die Klasse muss weg
-# class EditBaseDialog(wx.Dialog):
-#     """ This class manages the editing on the first level: folder, project and files """
-#
-#     # def __init__(self, pFiles, selection):
-#     def __init__(self, dataset: MetaDataSet):
-#         """
-#         pFiles is expected to be a dictionary within a list.
-#
-#         This we get from the on_edit Dialog but we do not get it, directly if we try to select a newly
-#         added project add_new project
-#         """
-#         self.dataset = dataset
-#         title = "Editing " + dataset.name
-#
-#         super().__init__(parent=None, title=title, size=(500, 250))
-#
-#         self.main_sizer = wx.BoxSizer(wx.VERTICAL)
-#         self.folder = wx.TextCtrl(self, value=dataset.path)
-#         self.add_widgets('Folder', self.folder)
-#         self.project = wx.TextCtrl(self, value=dataset.name)
-#         self.add_widgets('Project', self.project)
-#         self.files = wx.TextCtrl(self, value=str(dataset.files))
-#         self.add_widgets('Files', self.files)
-#
-#         btn_sizer = wx.BoxSizer()
-#         save_btn = wx.Button(self, label='Save')
-#         save_btn.Bind(wx.EVT_BUTTON, self.on_save)
-#         btn_sizer.Add(save_btn, 0, wx.ALL, 5)
-#         btn_sizer.Add(wx.Button(self, id=wx.ID_CANCEL), 0, wx.ALL, 5)
-#         self.main_sizer.Add(btn_sizer, 0, wx.CENTER)
-#
-#         p_btn_sizer = wx.BoxSizer()
-#         naming_btn = wx.Button(self, label='Project Base Names')
-#         naming_btn.Bind(wx.EVT_BUTTON, self.on_edit_definitions)
-#         p_btn_sizer.Add(naming_btn, 0, wx.ALL, 5)
-#         self.main_sizer.Add(p_btn_sizer, 0, wx.CENTER)
-#
-#         self.SetSizer(self.main_sizer)
-#
-#     def on_edit_definitions(self, event):
-#         """ This dialog calls the second level dialog class (short name, short code etc.) """
-#         dlg = EditNamingDialog(self.dataset)
-#         dlg.ShowModal()
-#         """ Saving data and reload??? is done by the save function inside the Dialog box. """
-#         # reload view ??? Or is this a different situation?
-#         dlg.Destroy()
-#
-#         # TODO: We should apply this widget to all forms. See below.
-#
-#     def add_widgets(self, label_text, text_ctrl):
-#         row_sizer = wx.BoxSizer(wx.HORIZONTAL)
-#         label = wx.StaticText(self, label=label_text, size=(50, -1))
-#         row_sizer.Add(label, 0, wx.ALL, 5)
-#         row_sizer.Add(text_ctrl, 1, wx.ALL | wx.EXPAND, 5)
-#         self.main_sizer.Add(row_sizer, 0, wx.EXPAND)
-#
-#     # def on_save(self, event):
-#     #     self.dataset.path = self.folder.GetValue()
-#     #     self.dataset.name = self.project.GetValue()
-#     #     self.dataset.files = self.files.GetValue()
-#     #     # FIXME: how can files be editable like this?
-#     #     # do files even need to be editable?
-#     #     # what do we do with file information?
-#     #     data_handler.save_data()
-#     #     self.Close()
-
-# Die Klasse darf auch weg...
-# class EditNamingDialog(wx.Dialog):
-#     """
-#     This class produces a dialog window to acquire the fundamental information bits of the project.
-#
-#     These are:  Shortcode of the project, short title of the project, Ark identifier, Official long title of the
-#     project, language, file names, file descriptions, dataset is part of the project (???)
-#     """
-#
-#     def __init__(self, dataset: MetaDataSet):
-#         title = "New dialog box"
-#         super().__init__(parent=None, title=title, size=(600, 400))
-#         self.dataset = dataset
-#
-#         self.main_sizer = wx.BoxSizer(wx.VERTICAL)
-#         header_sizer = wx.BoxSizer(wx.VERTICAL)
-#         project_label = wx.StaticText(self, label="Current Project: " + dataset.name)
-#         subject_label = wx.StaticText(self, label="Fundamental Names and Definitions")
-#         header_sizer.Add(project_label, 0, wx.EXPAND)
-#         header_sizer.Add(subject_label, 0, wx.EXPAND)
-#         self.main_sizer.Add(header_sizer, 0, wx.LEFT)
-#
-#         sizer = wx.GridBagSizer(5, 5)
-#         self.tc_name = wx.TextCtrl(self)
-#         self.add_widgets(sizer, dataset.project.name, 0, 0, self.tc_name)
-#
-#         self.tc_description = wx.TextCtrl(self, size=(350, 60), style=wx.TE_MULTILINE)
-#         self.add_widgets(sizer, dataset.project.description, 1, 0, self.tc_description)
-#
-#         self.tc_url = wx.TextCtrl(self)
-#         self.add_widgets(sizer, dataset.project.url, 2, 0, self.tc_url)
-#
-#         # TODO: Start date
-#         # TODO: End date
-#         # TODO: Temporal Coverage
-#         # TODO: Spacial Coverage
-#         # TODO: Funder
-#         # TODO: Grant
-#         # TODO: Keywords
-#         # TODO: Discipline
-#         # etc.
-#
-#         # Note: that's how language was done previousely
-#         # text_ctl_language = ['language']
-#         # languages = ['German', 'French', 'Italian', 'English']
-#         # self.combo = wx.ComboBox(self, choices=languages, value=text_ctl_language)
-#         # self.add_widgets(sizer, 'Language', 'Insert the main language, your project is in.', 4, 0, self.combo)
-#
-#         self.main_sizer.Add(sizer, 0, wx.EXPAND)
-#         btn_sizer = wx.BoxSizer()
-#         save_btn = wx.Button(self, label='Save')
-#         save_btn.Bind(wx.EVT_BUTTON, self.on_save)
-#         btn_sizer.Add(save_btn, 0, wx.ALL, 5)
-#         btn_sizer.Add(wx.Button(
-#             self, id=wx.ID_CANCEL), 0, wx.ALL, 5
-#         )
-#         self.main_sizer.Add(btn_sizer, 0, wx.CENTER)
-#         self.SetSizer(self.main_sizer)
-#
-#     def add_widgets(self, sizer, prop: Property, pos_x, pos_y, text_control):
-#         # LATER: adjust to new params
-#         """
-#         This function compresses the writing of Grid form entries. The next step will be to move it into a
-#         helper class to make it accessible for other classes.
-#
-#         Parameters
-#         ----------
-#         sizer : wx.GridBagSizer
-#         prop : `metaDataSet.Property`
-#         pos_x : integer
-#         pos_y : integer
-#         text_control : wx.TextControl
-#         """
-#         # TODO: do something with datatype
-#         # TODO: do something with cardinality
-#         # TODO: this currently assumes every value to be a string. How can we solve this?
-#         # -> generalize, so that widget can take any kind of UI element
-#         value = ""
-#         if prop.value:
-#             value = str(prop.value)
-#         text_control.SetValue(value)
-#         self.text_control = text_control
-#         label = wx.StaticText(self, label=prop.name)
-#         sizer.Add(label, pos=(pos_x, pos_y), flag=wx.ALL, border=5)
-#         text_control.SetToolTip(prop.description)
-#         sizer.Add(text_control, pos=(pos_x, pos_y + 1), flag=wx.EXPAND | wx.ALL, border=5)
-#
-#     def on_save(self, event):
-#         print("Save pressed")
-#         self.dataset.project.name.value = self.tc_name.GetValue()
-#         self.dataset.project.description.value = self.tc_description.GetValue()
-#         self.dataset.project.url.value = self.tc_url.GetValue()
-#         data_handler.save_data()
-#         self.Close()
-#
 
 class TabOne(wx.Panel):
     def __init__(self, parent, dataset):
@@ -614,7 +437,7 @@ class PropertyRow():
             if cardinality == Cardinality.ONE_TO_UNBOUND \
                     or cardinality == Cardinality.UNBOUND:
                 return self.data_widget.GetStrings()
-        return "Coudn't find my value... sorry"
+        return "Couldn't find my value... sorry"
 
 
 class DataTab(wx.ScrolledWindow):
@@ -695,15 +518,7 @@ class TabbedWindow(wx.Frame):
                         size=(900, 600), style=wx.DEFAULT_FRAME_STYLE,
                         name="Metadata tabs")
         self.Bind(wx.EVT_CLOSE, self.on_close)
-
         self.panel = wx.Panel(self)
-
-        # Try to catch ESC-event
-        # msvcrt only works with Windows...
-        # if msvcrt.kbhit() and msvcrt.getch() == chr(27).encode():
-        #    aborted = True
-        #    break
-
         self.parent = parent
         self.dataset = dataset
 
@@ -719,7 +534,7 @@ class TabbedWindow(wx.Frame):
         tab2 = DataTab(nb, self.dataset.project, "Project")
         tab3 = DataTab(nb, self.dataset.dataset, "Dataset")
         # tab4 = DataTab(nb, None, "Person")
-        # tab5 = DataTab(nb, None, "Organisation")
+        # tab5 = DataTab(nb, None, "Organization")
         # tab6 = DataTab(nb, None, "Data Management Plan")
 
         # Add the windows to tabs and name them.
@@ -727,7 +542,7 @@ class TabbedWindow(wx.Frame):
         nb.AddPage(tab2, "Project")
         nb.AddPage(tab3, "Dataset")
         # nb.AddPage(tab4, "Person")
-        # nb.AddPage(tab5, "Organisation")
+        # nb.AddPage(tab5, "Organization")
         # nb.AddPage(tab6, "Data Management Plan")
 
         nb_sizer = wx.BoxSizer()

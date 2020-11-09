@@ -700,10 +700,13 @@ class TabbedWindow(wx.Frame):
         # Buttons
         save_button = wx.Button(panel, label='Save')
         save_button.Bind(wx.EVT_BUTTON, self.on_save)
+        saveclose_button = wx.Button(panel, label='Save and Close')
+        saveclose_button.Bind(wx.EVT_BUTTON, self.on_saveclose)
         cancel_button = wx.Button(panel, label='Cancel')
         cancel_button.Bind(wx.EVT_BUTTON, self.on_close)
         button_sizer = wx.BoxSizer(wx.HORIZONTAL)
         button_sizer.Add(save_button, 0, wx.ALL, 5)
+        button_sizer.Add(saveclose_button, 0, wx.ALL, 5)
         button_sizer.Add(cancel_button, 0, wx.ALL, 5)
 
         # Set notebook in a sizer to create the layout
@@ -718,20 +721,23 @@ class TabbedWindow(wx.Frame):
         # self.Show()
 
     def on_tab_change(self, event):
-        # This function should make sure, changes are saved if user changes tab. So there will be a save mechanism
-        print("tab changed")
-        # TODO: save here
+        self.save()
 
     def on_save(self, event):
-        print("should save tabs content")
-        # TODO: implement
-        self.Close()
+        self.save()
+
+    def on_saveclose(self, event):
+        self.save()
+        self.close()
 
     def on_close(self, event):
         self.close()
 
+    def save(self):
+        print("should save tabs content")
+        # TODO: implement
+
     def close(self):
-        print("closing...")
         self.parent.Enable()
         self.Destroy()
 

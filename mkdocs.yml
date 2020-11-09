@@ -2,9 +2,10 @@ site_name: Knora-Py Documentation
 
 nav:
     - Introduction: index.md
-    - dsp-tools: create_onto.md
+    - dsp-tools: dsp-tools.md
+    - JSON data model format: dsp-tools-create.md
+    - Bulk data import: dsp-tools-xmlupload.md
     - knora-console: knora_console.md
-    - knora-xml-import: xml2knora.md
     - Knoractl: knoractl.md
 
 theme:

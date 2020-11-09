@@ -22,7 +22,6 @@ def program(args):
                                        description='Valid subcommands are',
                                        help='sub-command help')
 
-
     parser_create = subparsers.add_parser('create', help='Create ontologies, lists etc.')
     parser_create.set_defaults(action="create")
     parser_create.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the Knora server")

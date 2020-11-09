@@ -1,36 +1,5 @@
 [![PyPI version](https://badge.fury.io/py/knora.svg)](https://badge.fury.io/py/knora)
 
-# knora-xml-import
-
-Use `knora-xml-import` for importing data from an XML-file into knora.
-
-## Usage:
-
-```bash
-$ knora-xml-import project-shortname
-```
-It supports the following options:
-
-- _"-s server" | "--server server"_: The URl of the Knora server [default: http://0.0.0.0:3333]
-- _"-S sipi-server" | "--sipi sipi-server"_: The URL of the SIPI IIIF server [default: http://0.0.0.0:1024]
-- _"-u username" | "--user username"_: Username to log into Knora [default: root@example.com]
-- _"-p password" | "--password password"_: The password for login to the Knora server [default: test]
-- _"-F folder" | "--folder folder"_: Folder containing the XML-file with the data and the images [default: `project-short-name`.dir]
-- _"-i input_file" | "--infile input_file"_: Input data file (XML).
-- _"-a assets_dir" | "--assets asset_dir"_: Path to assets folder.
-- _"-I images_dir" | "--images images_dir"_: Path to images folder
-- _"-v" | "--validate"_: Do only validation of input file
-
-It is mandatory to give the project shortname, username and password to connect to the Knora backend. If no other options are given,
-knora-ml-import assumes that there is a folder with the name "`project-shortname`.dir" which contains
-
-- the XML file that has the same name as the project with the extension `.xml`
-- an optional directory called `assets` that contains icons etc.
-- a directory called `images` containing the images for StillImageResources
-- may contain the project ontology definition as JSON file
-
-However, the XML-import file, assets folder and the images folder may begiven on the command line.
-
 # Knora XML-file format for importing data
 The import file is a standard XML file as decribed below.
 
@@ -40,15 +9,17 @@ The import file must start with the standard XML header:
 <?xml version='1.0' encoding='utf-8'?>
 ```
 
-## `<knora>`-element
+## &lt;knora&gt;
 The `<knora>`-element describes a set of resources that are to be imported. It is the
 container for an arbitrary number of `resource` elements and may only
 contain resource tags.
 The `<knora>`-eelement defines has the following options:
+
 - _xmlns:xsi_: `"http://www.w3.org/2001/XMLSchema-instance"` [required]
 - _xsi:schemaLocation_: Path to knora XML schema file for validation [optional]
 - _shortcode_: Knora project shortcode, e.g. "0801" [required]
 - _ontology_: Name of the ontology [required]
+
 Thus, the `<knora>`-eelment may b used as follows:
 ```xml
 <knora
@@ -67,23 +38,52 @@ The permissions are implemented for importing data using permission sets. A perm
 a named element that contains the permissions for selected resources or values.
 In order to give a resource a value the permission, the named permission set is referenced.
 
-### `<permissions>`-element
-A `<permissions>`-element contains the permissions given to the selected groups. It contains a mandatory
-options `id` and must contain at least one `<allow>`-element per user group indicatng the group's permission. It has the form:
+### &lt;permissions&gt;
+The DSP-server provides for each resource and each field of a resource access control. For a more thorough discussion
+of the permission and access system of the DSP platform, see
+[DSP platform permissions](https://docs.knora.org/02-knora-ontologies/knora-base/#permissions)
+The following access rights are defined by the DSP platform which apply to either the resource or field:
+
+- `RV`: _Restricted View permission_: The user sees a somehow restricted view of the element. E.g. in case of a still image
+  resource, the image is displeyed at reduced resolution or with a watermark overlay.
+- `V`: _View permission_: The user has read access to the element
+- `M`: _Modifiy permission_: The user may alter/modify the element, but may not delete it
+- `D`: _Delete permission_: The user is allowed to delete the element
+- `CR`: _Change Right permission_: The user may change the permission of the element
+
+The user does not hold directly the permissions, but may belong to an arbitrary number of groups which hold the
+permissions. By default, the following groups always exist, and each user belongs to at least one of them
+
+- `UnkownUser`: The user is not known to the DSP platform (no login)
+- `KnownUser`: The user is known (performed login), but is not member of the project the element belongs to
+- `ProjectMember`: The user belongs to the same project as the data element retrieved
+- `ProjectAdmin`: The user is project administrator in the project the data element belongs to
+- `Creator`: The user is the "owner" of the element, that is the one that created the element
+- `SystemAdmin`: System administrator
+
+In addition, more groups with arbitrary names can be created by the project admins. For referencing such a group,
+the projectname has to be prepended before the group name separated by a colon, e.g. `knora-py-test:MlsEditors`.
+
+A `<permissions>`-element contains the permissions given to the selected groups and is called a _permission set_. It
+contains a mandatory option `id` and must contain at least one `<allow>`-element per user group indicating the group's 
+permission. It has the form:
 ```xml
-    <permissions id="res-default">
+     <permissions id="res-default">
         <allow group="UnknownUser">RV</allow>
-        ...
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="knora-py-test:MlsEditors">D</allow>
     </permissions>
 ```
 
-Options:
-- _id_: Unique id (an xs:ID) for the permission set
+_Options_:
+- _id_: Unique id (an xs:ID) for the permission set. It is used to reference a permission set.
 
-Subelements allowed:
-- `<allow>`
+_Subelements allowed_:
+- `<allow>`: defines the permission for one group
 
-#### `<allow>`-element
+#### &lt;allow&gt;
 The `<allow>`-element is used to defined the permission for one group. It has the form:
 ```xml
     <allow group="ProjectAdmin">CR</allow>>
@@ -98,28 +98,34 @@ for a more detailed description of the Knora permission system):
 - _"D"_: Delete: The user is able to mark a resource of a value as deleted.
 - _"CR"_: The user is able to change the right of a resource or value
 
-The `group` option is mandatory:
-Options:
+The `group` option is mandatory.
+
+_Options_:
 
 - _group_: Defines the group for the permission. The knora systemgroups as well as project speccific groups are supported.
            A project specific group name has the form `project-shortname:groupnam`. The system groups are:
-  - "UnknownUser"
-  - "KnownUser"
-  - "ProjectMember"
-  - "Creator"
-  - "ProjectAdmin"
-  - "SystemAdmin"
+    - "UnknownUser"
+    - "KnownUser"
+    - "ProjectMember"
+    - "Creator"
+    - "ProjectAdmin"
+    - "SystemAdmin"
+    
+_Subelements allowed_: None
  
-### `<resource>`-element
+### `<resource>`
 A `resource`-element contains all necessary information to create a resource. It
-has th following options:
+has the following options:
+
+_Options_:
 
 - _label_: The label, a human readable, semantical meaningfull short name of the resource [required]
 - _restype_: The resource type as defined within the ontology [required]
-- _unique_id_: A unique, arbitrary string giving a unique ID to the resource. This ID is only used during the
+- _id_: A unique, arbitrary string giving a unique ID to the resource. This ID is only used during the
   import process for referencing this resource from other resources. During the import process, it will be replaced by
-  the IRI used internally by Knora.
+  the IRI used internally by Knora. [required]
 - _permissions_: a reference to a permission set. These permissions will be applied to the newly created resoource.
+  [optional]
 
 ````
 <resource label="EURUS015a"

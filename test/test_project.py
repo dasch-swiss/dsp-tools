@@ -11,7 +11,7 @@ class TestProject(unittest.TestCase):
         con = Connection('http://0.0.0.0:3333')
         project = Project(
             con=con,
-            id='http://rdfch/gaga',
+            id='http://rdfh.ch/gaga',
             shortcode='0FF0',
             shortname="pytest",
             longname="Python testing",
@@ -22,7 +22,7 @@ class TestProject(unittest.TestCase):
             logo='gaga.gif'
         )
         self.assertIsNotNone(project)
-        self.assertEqual(project.id, 'http://rdfch/gaga')
+        self.assertEqual(project.id, 'http://rdfh.ch/gaga')
         self.assertEqual(project.shortcode, '0FF0')
         self.assertEqual(project.shortname, 'pytest')
         self.assertEqual(project.longname, 'Python testing')

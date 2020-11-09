@@ -431,8 +431,8 @@ The "object" defines the data type of the value that the property will store.
   - `GeonameValue`: Represents a location ID in geonames.org  
     *gui-elements / gui_attributes*:
     - `Geonames`: The only GUI element for _GeonameValue_. Interfaces are with geonames.org and it allows to select a 
-    location.
-      _gui_attributes_: No attributes
+    location.  
+    _gui_attributes_: No attributes
       
   - `IntValue`: Represents an integer value  
     *gui-elements / gui_attributes*:

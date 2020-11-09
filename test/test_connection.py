@@ -1,5 +1,9 @@
+import sys
 import unittest
 import pprint
+import os
+
+sys.path.append("../knora")
 
 from dsplib.models.helpers import BaseError
 from dsplib.models.connection import Connection

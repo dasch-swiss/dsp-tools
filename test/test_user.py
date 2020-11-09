@@ -23,7 +23,7 @@ class TestUser(unittest.TestCase):
             status=True,
             sysadmin=True,
             in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/00FF/images-reviewer"}
+            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
         )
         self.assertEqual(user.username, 'wilee')
         self.assertEqual(user.email, 'wilee.coyote@canyon.com')
@@ -33,7 +33,7 @@ class TestUser(unittest.TestCase):
         self.assertEqual(user.lang, Languages.EN)
         self.assertTrue(user.sysadmin)
         self.assertEqual(user.in_projects, {"http://rdfh.ch/projects/0001": True})
-        self.assertEqual(user.in_groups, {"http://rdfh.ch/groups/00FF/images-reviewer"})
+        self.assertEqual(user.in_groups, {"http://rdfh.ch/groups/0001/thing-searcher"})
 
     def test_User_read(self):
         user = User(
@@ -61,7 +61,7 @@ class TestUser(unittest.TestCase):
             status=True,
             sysadmin=True,
             in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/00FF/images-reviewer"}
+            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
         ).create()
         self.assertEqual(user.username, 'wilee')
         self.assertEqual(user.email, 'wilee.coyote@canyon.com')
@@ -71,7 +71,7 @@ class TestUser(unittest.TestCase):
         self.assertEqual(user.lang, Languages.EN)
         self.assertTrue(user.sysadmin)
         self.assertEqual(user.in_projects, {"http://rdfh.ch/projects/0001": True})
-        self.assertEqual(user.in_groups, {"http://rdfh.ch/groups/00FF/images-reviewer"})
+        self.assertEqual(user.in_groups, {"http://rdfh.ch/groups/0001/thing-searcher"})
 
     def test_User_read2(self):
         user = User(
@@ -85,7 +85,7 @@ class TestUser(unittest.TestCase):
             status=True,
             sysadmin=True,
             in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/00FF/images-reviewer"}
+            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
         ).create()
         user = User(
             con=self.con,
@@ -98,7 +98,7 @@ class TestUser(unittest.TestCase):
         self.assertTrue(user.status)
         self.assertTrue(user.sysadmin)
         self.assertEqual(user.in_projects, {"http://rdfh.ch/projects/0001": True})
-        self.assertEqual(user.in_groups, {"http://rdfh.ch/groups/00FF/images-reviewer"})
+        self.assertEqual(user.in_groups, {"http://rdfh.ch/groups/0001/thing-searcher"})
 
     def test_User_delete(self):
         user = User(
@@ -112,7 +112,7 @@ class TestUser(unittest.TestCase):
             status=True,
             sysadmin=True,
             in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/00FF/images-reviewer"}
+            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
         ).create()
         nuser = user.delete()
         self.assertIsNotNone(nuser)
@@ -130,7 +130,7 @@ class TestUser(unittest.TestCase):
             status=True,
             sysadmin=True,
             in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/00FF/images-reviewer"}
+            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
         ).create()
         user.email = 'roadrunner.geococcyx@canyon.com'
         user.username = 'roadrunner'
@@ -160,7 +160,7 @@ class TestUser(unittest.TestCase):
             status=True,
             sysadmin=True,
             in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/00FF/images-reviewer"}
+            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
         ).create()
         user.password = 'gagagagagagagaga'
         nuser = user.update('test')
@@ -172,7 +172,7 @@ class TestUser(unittest.TestCase):
         user.addToGroup('http://rdfh.ch/groups/0001/thing-searcher')
         nuser = user.update()
         self.assertIsNotNone(nuser)
-        self.assertEqual(nuser.in_groups, {"http://rdfh.ch/groups/00FF/images-reviewer", 'http://rdfh.ch/groups/0001/thing-searcher'})
+        self.assertEqual(nuser.in_groups, {"http://rdfh.ch/groups/0001/thing-searcher", 'http://rdfh.ch/groups/0001/thing-searcher'})
 
     def test_User_rmFromGroup(self):
         user = User(
@@ -204,7 +204,7 @@ class TestUser(unittest.TestCase):
             status=True,
             sysadmin=True,
             in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/00FF/images-reviewer"}
+            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
         ).create()
         user.addToProject('http://rdfh.ch/projects/00FF', False)
         nuser = user.update()
@@ -223,7 +223,7 @@ class TestUser(unittest.TestCase):
             status=True,
             sysadmin=True,
             in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/00FF/images-reviewer"}
+            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
         ).create()
         user.rmFromProject('http://rdfh.ch/projects/0001')
         nuser = user.update()
@@ -242,7 +242,7 @@ class TestUser(unittest.TestCase):
             status=True,
             sysadmin=True,
             in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/00FF/images-reviewer"}
+            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
         ).create()
         user.unmakeProjectAdmin('http://rdfh.ch/projects/0001')
         nuser = user.update()
@@ -261,7 +261,7 @@ class TestUser(unittest.TestCase):
             status=True,
             sysadmin=True,
             in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/00FF/images-reviewer"}
+            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
         ).create()
         user.addToProject('http://rdfh.ch/projects/00FF', False)
         user = user.update()

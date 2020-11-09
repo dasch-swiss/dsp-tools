@@ -421,7 +421,6 @@ class Context:
             print(a[0] + ': "' + a[1].iri + '"')
 
 
-
 class LastModificationDate:
     """
     Class to hold and process the last modification date of a ontology

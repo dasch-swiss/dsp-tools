@@ -137,7 +137,7 @@ class DataHandling:
             container = self.containers[prop]
             prop.value = container.get_value()
             print(prop.value)
-        
+
 
 
 ########## Here starts UI stuff ##############
@@ -249,6 +249,7 @@ class ProjectPanel(wx.Panel):
         """
         Display all loaded repos in the list.
         """
+
         for project in data_handler.projects:
             self.list_ctrl.InsertItem(project.index, project.path)
             self.list_ctrl.SetItem(project.index, 1, project.name)
@@ -298,7 +299,8 @@ class ProjectPanel(wx.Panel):
             dir_list.remove('.DS_Store')
 
         data_handler.add_project(folder_path)
-        self.display_repos()
+        # self.display_repos()
+        self.load_view()
 
 
 class TabOne(wx.Panel):

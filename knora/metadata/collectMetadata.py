@@ -2,7 +2,6 @@ import wx
 import os
 import pickle
 
-
 from typing import List, Any
 import xml.etree.ElementTree as ET
 from metaDataSet import MetaDataSet, Property, Cardinality, Datatype
@@ -137,7 +136,6 @@ class DataHandling:
             container = self.containers[prop]
             prop.value = container.get_value()
             print(prop.value)
-
 
 
 ########## Here starts UI stuff ##############
@@ -307,6 +305,7 @@ class TabOne(wx.Panel):
     """
     Tab holding the project base information
     """
+
     def __init__(self, parent, dataset):
         wx.Panel.__init__(self, parent)
         self.dataset = dataset
@@ -372,6 +371,7 @@ class PropertyRow():
         sizer (wx.Sizer): The sizer that organizes the layout of the parent component
         index (int): the row in the sizer grid
     """
+
     def __init__(self, parent, dataset, prop, sizer, index):
         self.prop = prop
         name_label = wx.StaticText(parent, label=prop.name + ": ")
@@ -406,7 +406,7 @@ class PropertyRow():
                 sizer.Add(inner_sizer, pos=(index, 1))
                 self.data_widget = [textcontrol1, textcontrol2]
             elif prop.cardinality == Cardinality.ONE_TO_UNBOUND \
-                    or prop.cardinality == Cardinality.UNBOUND:  # String or similar, 1-n or 0-n
+                or prop.cardinality == Cardinality.UNBOUND:  # String or similar, 1-n or 0-n
                 inner_sizer = wx.BoxSizer()
                 textcontrol = wx.TextCtrl(parent, size=(200, -1))
                 inner_sizer.Add(textcontrol)
@@ -414,8 +414,8 @@ class PropertyRow():
                 plus_button = wx.Button(parent, label="+")
                 plus_button.Bind(wx.EVT_BUTTON,
                                  lambda e: parent.add_to_list(e,
-                                                            content_list,
-                                                            textcontrol.GetValue()))
+                                                              content_list,
+                                                              textcontrol.GetValue()))
                 inner_sizer.Add(plus_button)
                 inner_sizer.AddSpacer(5)
                 content_list = wx.ListBox(parent, size=(250, -1))
@@ -432,12 +432,14 @@ class PropertyRow():
                 input_format = '%d-%m-%Y'
                 display_format = '%d-%m-%Y'
                 date = DateCtrl(parent, size=(130, -1), pos=(150, 80),
-                                      input_format=input_format, display_format=display_format,
-                                      title=prop.name, default_to_today=False, allow_null=False)
+                                input_format=input_format, display_format=display_format,
+                                title=prop.name, default_to_today=False, allow_null=False)
                 sizer.Add(date, pos=(index, 1))
                 parent.first_time = True  # don't validate date first time
                 parent.SetFocus()
                 self.data_widget = date
+                print("Datum: ")
+                print(date.GetValue())
 
         btn = wx.Button(parent, label="?")
         btn.Bind(wx.EVT_BUTTON, lambda event: parent.show_help(event, prop.description, prop.example))
@@ -451,15 +453,15 @@ class PropertyRow():
         cardinality = self.prop.cardinality
         # String or String/URL etc.
         if datatype == Datatype.STRING \
-                or datatype == Datatype.STRING_OR_URL \
-                or datatype == Datatype.URL \
-                or datatype == Datatype.PLACE:
+            or datatype == Datatype.STRING_OR_URL \
+            or datatype == Datatype.URL \
+            or datatype == Datatype.PLACE:
             if cardinality == Cardinality.ONE:
                 return self.data_widget.GetValue()
             if cardinality == Cardinality.ONE_TO_TWO:
                 return [self.data_widget[0].GetValue(), self.data_widget[1].GetValue()]
             if cardinality == Cardinality.ONE_TO_UNBOUND \
-                    or cardinality == Cardinality.UNBOUND:
+                or cardinality == Cardinality.UNBOUND:
                 return self.data_widget.GetStrings()
         return "Couldn't find my value... sorry"
 
@@ -472,15 +474,30 @@ class DataTab(wx.ScrolledWindow):
         self.dataset = dataset
 
         sizer = wx.GridBagSizer(10, 10)
+
         if dataset:
             for i, prop in enumerate(dataset.get_properties()):
                 # self.add_widgets(dataset, prop, sizer, i)
                 row = PropertyRow(self, dataset, prop, sizer, i)
                 data_handler.associate_container(prop, row)
         self.SetSizer(sizer)
+        print("index i: ")
+        print(i)
 
-        self.SetScrollbars(1, 1, 1, 1)
+        self.SetScrollbars(0, 16, 60, 15)
 
+        # save_button = wx.Button(self, label='Save')
+        # # save_button.Bind(wx.EVT_BUTTON, self.on_save)
+        # saveclose_button = wx.Button(self, label='Save and Close')
+        # # saveclose_button.Bind(wx.EVT_BUTTON, self.on_saveclose)
+        # cancel_button = wx.Button(self, label='Cancel')
+        # # cancel_button.Bind(wx.EVT_BUTTON, self.on_close)
+        # button_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        # button_sizer.Add(save_button, 0, wx.ALL, 5)
+        # button_sizer.Add(saveclose_button, 0, wx.ALL, 5)
+        # button_sizer.Add(cancel_button, 0, wx.ALL, 5)
+        # sizer.Add(button_sizer, pos=(0, i+1), span=(1, 3), flag=wx.ALL | wx.BOTTOM, border=5)
+        # self.SetSizer(sizer)
 
     def on_t_got_focus(self, evt):
         if self.first_time:
@@ -500,7 +517,10 @@ class DataTab(wx.ScrolledWindow):
     def remove_from_list(self, event, content_list, removable):
         """
         remove an object from a listbox.
+
         """
+        # ToDo: make it work...
+
         if not removable:
             return
         content_list.Remove(str(removable))
@@ -538,9 +558,9 @@ class HelpPopup(wx.PopupTransientWindow):
 
 class TabbedWindow(wx.Frame):
     def __init__(self, parent, dataset: MetaDataSet):
-        wx.Frame.__init__(self,parent, id=-1,title="",pos=wx.DefaultPosition,
-                        size=(900, 600), style=wx.DEFAULT_FRAME_STYLE,
-                        name="Metadata tabs")
+        wx.Frame.__init__(self, parent, id=-1, title="", pos=wx.DefaultPosition,
+                          size=(900, 600), style=wx.DEFAULT_FRAME_STYLE,
+                          name="Metadata tabs")
         self.Bind(wx.EVT_CLOSE, self.on_close)
         self.panel = wx.Panel(self)
         self.parent = parent
@@ -570,7 +590,7 @@ class TabbedWindow(wx.Frame):
         # nb.AddPage(tab6, "Data Management Plan")
 
         nb_sizer = wx.BoxSizer()
-        nb_sizer.Add(nb, 1, wx.EXPAND)
+        nb_sizer.Add(nb, 1, wx.ALL | wx.EXPAND)
 
         # Buttons
         save_button = wx.Button(panel, label='Save')
@@ -590,6 +610,7 @@ class TabbedWindow(wx.Frame):
         sizer.AddSpacer(5)
         sizer.Add(button_sizer, 0, wx.ALL | wx.BOTTOM, 5)
         panel.SetSizer(sizer)
+        # sizer.Fit(self)
 
         print(sizer.Fit(self))
 

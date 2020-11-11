@@ -381,14 +381,13 @@ class PropertyRow():
         name_label = wx.StaticText(parent, label=prop.name + ": ")
         sizer.Add(name_label, pos=(index, 0))
 
-        # TODO: indicate optional vs. mandatory values
-
         # String or String/URL etc.
         if prop.datatype == Datatype.STRING \
             or prop.datatype == Datatype.STRING_OR_URL \
             or prop.datatype == Datatype.URL \
             or prop.datatype == Datatype.PLACE:
-            if prop.cardinality == Cardinality.ONE:  # String or similar, exactly 1
+            if prop.cardinality == Cardinality.ONE \
+                or prop.cardinality == Cardinality.ZERO_OR_ONE:  # String or similar, exactly 1 or 0-1
                 textcontrol = wx.TextCtrl(parent, size=(550, -1))
                 if prop.value:
                     textcontrol.SetValue(prop.value)
@@ -465,7 +464,8 @@ class PropertyRow():
             or datatype == Datatype.STRING_OR_URL \
             or datatype == Datatype.URL \
             or datatype == Datatype.PLACE:
-            if cardinality == Cardinality.ONE:
+            if cardinality == Cardinality.ONE \
+                or cardinality == Cardinality.ZERO_OR_ONE:
                 return self.data_widget.GetValue()
             if cardinality == Cardinality.ONE_TO_TWO:
                 return [self.data_widget[0].GetValue(), self.data_widget[1].GetValue()]

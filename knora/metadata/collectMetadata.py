@@ -55,6 +55,7 @@ class DataHandling:
         self.data_storage = os.path.expanduser("~") + "/DaSCH/config/repos.data"
         # LATER: path could be made customizable
         self.load_data()
+        print("Data loaded.")
 
     def add_project(self, folder_path: str):
         """
@@ -95,9 +96,9 @@ class DataHandling:
             # LATER: in principal, we could append the data instead of replacing it
             # (for loading multiple data sets and combining them)
             # would have to make sure the indices are correct and no doubles are being added
-            for pr in self.projects:
-                print("Loading projects: ")
-                print(pr)
+            # for pr in self.projects:
+            #     print("Loading projects: ")
+            #     print(pr)
 
     def save_data(self):
         """
@@ -107,8 +108,8 @@ class DataHandling:
         """
         # LATER: could let the user decide where to store the data.
         print("Saving data...")
-        for p in self.projects:
-            print(p)
+        # for p in self.projects:
+        #     print(p)
         with open(self.data_storage, 'wb') as file:
             pickle.dump(self.projects, file)
 
@@ -134,11 +135,11 @@ class DataHandling:
         for prop in dataset.project.get_properties():
             container = self.containers[prop]
             prop.value = container.get_value()
-            print(prop.value)
+            # print(prop.value)
         for prop in dataset.dataset.get_properties():
             container = self.containers[prop]
             prop.value = container.get_value()
-            print(prop.value)
+            # print(prop.value)
 
 
 ########## Here starts UI stuff ##############
@@ -427,28 +428,23 @@ class PropertyRow():
                         content_list.Append(val)
                 inner_sizer.Add(content_list)
                 sizer.Add(inner_sizer, pos=(index, 1))
-                print(content_list)
+                # print(content_list)
                 self.data_widget = content_list
         # date
         elif prop.datatype == Datatype.DATE:
             if prop.cardinality == Cardinality.ONE:
                 input_format = '%d-%m-%Y'
                 display_format = '%d-%m-%Y'
-                if prop.value:
-                    print("We have a date: ")
-                    print(prop.value)
-                    DateCtrl.date = prop.value
-
                 date = DateCtrl(parent, size=(130, -1), pos=(150, 80),
                                 input_format=input_format, display_format=display_format,
-                                title=prop.name, default_to_today=False, allow_null=False)
+                                title=prop.name, default_to_today=False, allow_null=False, 
+                                initial_date=prop.value)
                 sizer.Add(date, pos=(index, 1))
                 parent.first_time = True  # don't validate date first time
                 parent.SetFocus()
                 self.data_widget = date
                 print("Datum: ")
-                print(date.GetValue())
-                print(date)
+                print(date.date)
 
         btn = wx.Button(parent, label="?")
         btn.Bind(wx.EVT_BUTTON, lambda event: parent.show_help(event, prop.description, prop.example))
@@ -464,8 +460,7 @@ class PropertyRow():
         if datatype == Datatype.STRING \
             or datatype == Datatype.STRING_OR_URL \
             or datatype == Datatype.URL \
-            or datatype == Datatype.PLACE \
-            or datatype == Datatype.DATE:
+            or datatype == Datatype.PLACE:
             if cardinality == Cardinality.ONE:
                 return self.data_widget.GetValue()
             if cardinality == Cardinality.ONE_TO_TWO:
@@ -473,6 +468,11 @@ class PropertyRow():
             if cardinality == Cardinality.ONE_TO_UNBOUND \
                 or cardinality == Cardinality.UNBOUND:
                 return self.data_widget.GetStrings()
+        elif datatype == Datatype.DATE:
+            if cardinality == Cardinality.ONE:
+                print(f'Date: {self.data_widget.GetValue()}')
+                return self.data_widget.GetValue()
+
         return "Couldn't find my value... sorry"
 
 
@@ -622,7 +622,7 @@ class TabbedWindow(wx.Frame):
         panel.SetSizer(sizer)
         # sizer.Fit(self)
 
-        print(sizer.Fit(self))
+        sizer.Fit(self)
 
         # self.Show()
 

@@ -16,8 +16,12 @@ class DateCtrl(wx.ComboCtrl):
     DISPLAY_FORMAT = 1
 
     def __init__(self, parent, size, pos, input_format, display_format,
-            title, default_to_today, allow_null):
+            title, default_to_today, allow_null, initial_date):
         wx.ComboCtrl.__init__(self, parent, size=size, pos=pos)
+
+        # TODO: display initial_date as the date, instead of a default
+        # Note: this can be either None or a string ot the date
+        # and should be handled accordingly
 
         self.input_format = input_format
         self.display_format = display_format

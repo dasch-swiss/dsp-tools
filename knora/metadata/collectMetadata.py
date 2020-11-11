@@ -449,6 +449,9 @@ class PropertyRow():
         btn = wx.Button(parent, label="?")
         btn.Bind(wx.EVT_BUTTON, lambda event: parent.show_help(event, prop.description, prop.example))
         sizer.Add(btn, pos=(index, 2))
+        opt = wx.StaticText(parent, label=Cardinality.get_optionality_string(prop.cardinality))
+        sizer.Add(opt, pos=(index, 3))
+
 
     def get_value(self):
         """
@@ -580,7 +583,7 @@ class TabbedWindow(wx.Frame):
         panel = self.panel
         # panel = wx.Panel(self)
         nb = wx.Notebook(panel)
-        nb.SetMinSize((900, 500))
+        nb.SetMinSize((950, 500))
         nb.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.on_tab_change)
 
         # Create the tab windows

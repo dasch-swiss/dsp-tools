@@ -22,6 +22,15 @@ class Cardinality(Enum):
     ONE_TO_UNBOUND = 3
     ONE_TO_TWO = 4
 
+    def get_optionality_string(card):
+        if card == Cardinality.ONE \
+            or card == Cardinality.ONE_TO_TWO \
+            or card == Cardinality.ONE_TO_UNBOUND:
+            return "Mandatory"
+        if card == Cardinality.UNBOUND \
+            or card == Cardinality.ZERO_OR_ONE:
+            return "Optional"
+
 
 class Datatype(Enum):
     """

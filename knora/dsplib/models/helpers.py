@@ -349,7 +349,7 @@ class Context:
         #
         # check if the iri already has the form "prefix:name"
         #
-        m = re.match("([\w-]+):([\w-]+)", iri)
+        m = re.match("([\\w-]+):([\\w-]+)", iri)
         if m and m.span()[1] == len(iri):
             return iri
         #if not self.__is_iri(iri):

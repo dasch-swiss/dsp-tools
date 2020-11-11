@@ -95,6 +95,9 @@ class DataHandling:
             # LATER: in principal, we could append the data instead of replacing it
             # (for loading multiple data sets and combining them)
             # would have to make sure the indices are correct and no doubles are being added
+            for pr in self.projects:
+                print("Loading projects: ")
+                print(pr)
 
     def save_data(self):
         """
@@ -431,6 +434,11 @@ class PropertyRow():
             if prop.cardinality == Cardinality.ONE:
                 input_format = '%d-%m-%Y'
                 display_format = '%d-%m-%Y'
+                if prop.value:
+                    print("We have a date: ")
+                    print(prop.value)
+                    DateCtrl.date = prop.value
+
                 date = DateCtrl(parent, size=(130, -1), pos=(150, 80),
                                 input_format=input_format, display_format=display_format,
                                 title=prop.name, default_to_today=False, allow_null=False)
@@ -440,6 +448,7 @@ class PropertyRow():
                 self.data_widget = date
                 print("Datum: ")
                 print(date.GetValue())
+                print(date)
 
         btn = wx.Button(parent, label="?")
         btn.Bind(wx.EVT_BUTTON, lambda event: parent.show_help(event, prop.description, prop.example))
@@ -455,7 +464,8 @@ class PropertyRow():
         if datatype == Datatype.STRING \
             or datatype == Datatype.STRING_OR_URL \
             or datatype == Datatype.URL \
-            or datatype == Datatype.PLACE:
+            or datatype == Datatype.PLACE \
+            or datatype == Datatype.DATE:
             if cardinality == Cardinality.ONE:
                 return self.data_widget.GetValue()
             if cardinality == Cardinality.ONE_TO_TWO:
@@ -481,8 +491,8 @@ class DataTab(wx.ScrolledWindow):
                 row = PropertyRow(self, dataset, prop, sizer, i)
                 data_handler.associate_container(prop, row)
         self.SetSizer(sizer)
-        print("index i: ")
-        print(i)
+        # print("index i: ")
+        # print(i)
 
         self.SetScrollbars(0, 16, 60, 15)
 

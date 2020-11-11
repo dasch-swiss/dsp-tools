@@ -242,11 +242,6 @@ class Dataset():
     """
     
     def __init__(self, name):
-        self.sameAs = Property("Alternative URL",
-                            "Alternative URL to the dataset, if applicable",
-                            "https://test.dasch.swiss/",
-                            Datatype.URL,
-                            Cardinality.UNBOUND)
         self.title = Property("Title",
                             "Title of the dataset",
                             "Dataset-Title",
@@ -263,6 +258,11 @@ class Dataset():
                                 "This is merely an exemplary dataset",
                                 Datatype.STRING_OR_URL,
                                 Cardinality.ONE_TO_UNBOUND)
+        self.sameAs = Property("Alternative URL",
+                            "Alternative URL to the dataset, if applicable",
+                            "https://test.dasch.swiss/",
+                            Datatype.URL,
+                            Cardinality.UNBOUND)
         self.typeOfData = Property("Type of data",
                                 "Type of data related to the dataset: xml, text, image, movie, audio",
                                 "xml",

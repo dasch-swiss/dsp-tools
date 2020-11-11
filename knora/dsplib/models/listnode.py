@@ -9,6 +9,8 @@ from .connection import Connection
 from .model import Model
 from .project import Project
 
+from pprint import pprint
+
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, set):
@@ -458,7 +460,8 @@ class ListNode(Model):
         jsonobj = self.toJsonObj(Actions.Update, self.id)
         if jsonobj:
             jsondata = json.dumps(jsonobj, cls=SetEncoder)
-            result = self._con.put('/admin/lists/infos/' + quote_plus(self.id), jsondata)
+            result = self._con.put('/admin/lists/' + quote_plus(self.id), jsondata)
+            pprint(result)
             return ListNode.fromJsonObj(self._con, result['listinfo'])
         else:
             return None

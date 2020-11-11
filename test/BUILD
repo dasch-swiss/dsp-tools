@@ -5,21 +5,6 @@ load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
 load("@knora_py_deps//:requirements.bzl", "requirement")
 
 py_test(
-    name = "test_all",
-    srcs = ["test_all.py"],
-    deps = [
-        "//knora/dsplib/models:connection",
-        "//knora/dsplib/models:langstring",
-        "//knora/dsplib/models:helpers",
-        "//knora/dsplib/models:ontology",
-        "//knora/dsplib/models:resourceclass",
-        "//knora/dsplib/models:propertyclass",
-        "//knora/dsplib/models:listnode",
-    ],
-    imports = [".", "../knora"],
-)
-
-py_test(
     name = "test_connection",
     srcs = ["test_connection.py"],
     deps = [

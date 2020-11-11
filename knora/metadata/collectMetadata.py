@@ -432,7 +432,8 @@ class PropertyRow():
                 self.data_widget = content_list
         # date
         elif prop.datatype == Datatype.DATE:
-            if prop.cardinality == Cardinality.ONE:
+            if prop.cardinality == Cardinality.ONE \
+                or prop.cardinality == Cardinality.ZERO_OR_ONE:
                 input_format = '%d-%m-%Y'
                 display_format = '%d-%m-%Y'
                 date = DateCtrl(parent, size=(130, -1), pos=(150, 80),

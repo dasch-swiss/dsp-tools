@@ -1,0 +1,96 @@
+@startuml
+
+class metaDataSet.MetaDataSet {
+    +int index
+    +str name
+    +str path
+    +List files
+    ..
+    +Project project
+    +Dataset dataset
+}
+
+class metaDataSet.Project {
+    +Property name
+    +Property description
+    +Property keywords
+    +Property discipline
+    +Property startDate
+    +Property endDate
+    +Property temporalCoverage
+    +Property spacialCoverage
+    +Property funder
+    +Property grant
+    +Property url
+    +Property shortcode
+    +Property alternateName
+    +Property dataManagementPlan
+    +Property publication
+    +Property contactPoint
+    +List[Property] get_properties()
+}
+
+class metaDataSet.Dataset {
+    +Property title
+    +Property alternativeTitle
+    +Property abstract
+    +Property sameAs
+    +Property typeOfData
+    +Property documentation
+    +Property license
+    +Property accessConditions
+    +Property howToCite
+    +Property status
+    +Property datePublished
+    +Property language
+    +Property project
+    +Property attribution
+    +Property dateCreated
+    +Property dateModified
+    +Property distribution
+    +List[Property] get_properties()
+}
+
+
+class metaDataSet.Property {
+    +str name
+    +str description
+    +str example
+    +Datatype datatype
+    +Cardinality cardinality
+    +List[str] value_options
+    ..
+    +str|List[str] value
+}
+
+enum metaDataSet.Cardinality {
+    UNBOUND
+    ONE
+    ZERO_OR_ONE
+    ONE_TO_UNBOUND
+    ONE_TO_TWO
+}
+
+enum metaDataSet.Datatype {
+    STRING
+    DATE
+    STRING_OR_URL
+    PLACE
+    PERSON_OR_ORGANIZATION
+    GRANT
+    DATA_MANAGEMENT_PLAN
+    URL
+    CONTROLLED_VOCABULARY
+    PROJECT
+    ATTRIBUTION
+}
+
+collectMetadata.DataHandling --o metaDataSet.MetaDataSet
+metaDataSet.MetaDataSet --o metaDataSet.Project
+metaDataSet.MetaDataSet --o metaDataSet.Dataset
+metaDataSet.Project --o metaDataSet.Property
+metaDataSet.Dataset --o metaDataSet.Property
+metaDataSet.Property --* metaDataSet.Cardinality
+metaDataSet.Property --* metaDataSet.Datatype
+
+@enduml

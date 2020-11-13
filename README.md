@@ -1,26 +1,30 @@
-[![PyPI version](https://badge.fury.io/py/knora.svg)](https://badge.fury.io/py/knora)
+[![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
 # DSP-TOOLS - The DaSCH Service Platform Tools Repository
-dsp-tools is a python package containing a command line tool for data model (ontology) creation, a library allowing creation of single resources and mass upload using the bulk import of data into the Knora framework.
+dsp-tools is a python package containing a command line tool for data model (ontology) creation, a library allowing
+creation of single resources and mass upload using the bulk import of data into the Knora framework.
 
 The package consists of:
 - `dsplib` Python modules for accessing Knora using the API (ontology creation, data import/export etc.)
-- `dsp-tools` A command line program to create an ontology out of a simple JSON description
-- `knora-reset-triplestore` A command line program to reset the content of the ontology. Does not require
-   a restart of the Knora-Stack.  
+- `dsp-tools` A command line program to perfrom several operations on a DSP server:
+    - create an ontology out of a simple JSON description
+    - dump an existing ontology from a DSP server to a JSON file
+    - Bulk-upload of data from a XML data file
 
-Go to [Full Documentation](https://dasch-swiss.github.io/knora-py/)
+Go to [Full Documentation](https://dasch-swiss.github.io/dsp-tools/)
 
 ## Install
 
+_Please note that dsp-tools require Python 3.9 for working properly!_
+
 To install the latest published version from PyPI, run:
 ```
-$ pip3 install knora
+$ pip3 install dsp-tools
 ```
 
 To upgrade to the latest published version, run:
 ```
-$ pip3 install --upgrade knora
+$ pip3 install --upgrade dsp-tools
 ```
 
 ## Local Development Environment
@@ -59,7 +63,7 @@ $ make dist
 You can install the package locally from the dist:
 
 ```bash
-$ python3 -m pip ./dist/some_name.whl
+$ python3 -m pip install ./dist/some_name.whl
 ```
 
 Upload package with `twine`,

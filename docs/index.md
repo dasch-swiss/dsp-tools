@@ -1,30 +1,30 @@
-[![PyPI version](https://badge.fury.io/py/knora.svg)](https://badge.fury.io/py/knora)
+[![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# knora-py
-knora-py is a python package containing
+# dsp-tools
+dsp-tools is a python package containing
 
 - a command line tool for data model (ontology) creation and manipulation based on JSON input file
-- a gui-based local tool to directly manipulate project data, users, groups and data models on a live server
 - Python3 modules that implement CRUD (Create, Read, Update, Delete) operations for projects, users, groups and
   ontologies
 
 The package consists of:
 
-- `knora-create-onto` A command line program to create an data model from a simple JSON description or to read a
-  data model from a live knora server and dump it into a JSOn file.
-- `knora-console` A small GUI app for creating projects ontologies, users and group directly on a live knora server
-- a set of python3 modules
+- `dsplib` Python modules for accessing Knora using the API (ontology creation, data import/export etc.)
+- `dsp-tools` A command line program to perfrom several operations on a DSP server:
+    - create an ontology out of a simple JSON description
+    - dump an existing ontology from a DSP server to a JSON file
+    - Bulk-upload of data from a XML data file
 
 ## Install
 
 To install the latest version published on PyPI run:
 ```
-$ pip3 install knora
+$ pip3 install dsp-tools
 ```
 
 To update to the latest version run:
 ```
-$ pip3 install --upgrade knora
+$ pip3 install --upgrade dsp-tools
 ```
 
 To install from source, i.e. this repository run:

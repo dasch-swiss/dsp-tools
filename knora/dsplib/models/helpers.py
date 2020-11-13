@@ -25,6 +25,8 @@ ContextType = NewType("ContextType", Dict[str, OntoInfo])
 def LINE():
     return sys._getframe(1).f_lineno
 
+
+@strict
 class IriTest:
     __iri_regexp = re.compile("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?")
 
@@ -34,6 +36,7 @@ class IriTest:
         return m.span()[1] == len(val) if m else False
 
 
+@strict
 class BaseError(Exception):
     """
     A basic error class

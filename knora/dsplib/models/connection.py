@@ -1,11 +1,12 @@
 import requests
 import json
-
+from pystrict import strict
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
 
 from .helpers import Actions, BaseError
 
 
+@strict
 class Connection:
     """
     An Connection instance represents a connection to a Knora server.
@@ -15,6 +16,10 @@ class Connection:
 
     none (internal use attributes should not be modified/set directly)
     """
+
+    server: str
+    prefixes: Union[Dict[str, str], None]
+    token: Union[str, None]
 
     def __init__(self, server: str, prefixes: Dict[str, str] = None):
         """
@@ -82,12 +87,11 @@ class Connection:
         :return: Possible Error that is being raised
         """
 
-        if (res.status_code != 200):
+        if res.status_code != 200:
             raise BaseError("KNORA-ERROR: status code=" + str(res.status_code) + "\nMessage:" + res.text)
 
         if 'error' in res:
             raise BaseError("KNORA-ERROR: API error: " + res.error)
-
 
     def post(self, path: str, jsondata: Optional[str] = None):
         """
@@ -109,7 +113,7 @@ class Connection:
             if self.token is not None:
                 req = requests.post(self.server + path,
                                     headers={'Content-Type': 'application/json; charset=UTF-8',
-                                            'Authorization': 'Bearer ' + self.token},
+                                             'Authorization': 'Bearer ' + self.token},
                                     data=jsondata)
             else:
                 req = requests.post(self.server + path,

@@ -5,8 +5,6 @@ nav:
     - dsp-tools: dsp-tools.md
     - JSON data model format: dsp-tools-create.md
     - Bulk data import: dsp-tools-xmlupload.md
-    - knora-console: knora_console.md
-    - Knoractl: knoractl.md
 
 theme:
   name: material

@@ -1,4 +1,4 @@
-[![PyPI version](https://badge.fury.io/py/knora.svg)](https://badge.fury.io/py/knora)
+[![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
 # dsp-tools
 In order to work with a DaSCH Service Platform server (DSP-server), the user has to create a data

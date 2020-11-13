@@ -1,7 +1,7 @@
 # JSON ontology definition format
 
 ## Introduction
-This document contains all the information you need to create an ontology that's used by Knora.
+This document contains all the information you need to create an ontology that's used by DSP.
 
 In the first section you find a rough overview of the ontology definition, all the necessary components with a 
 definition and a short example of the definition.
@@ -38,6 +38,8 @@ both objects have further fine grained definition levels.
 
 
 ### "Prefixes" object
+`"prefixes": { "prefix": <iri>", ...}`  
+
 The "prefixes" object contains - as you may already have guessed by the name - the `prefixes` of *external* ontologies 
 that are also used in the current project. All prefixes are composed of a keyword, followed by its iri. This is used as 
 a shortcut for later so that you don't always have to specify the full qualified iri but can use the much shorter 
@@ -57,6 +59,7 @@ As you can see in the example below, you can have more then one prefix too. In t
 ```
 
 ### "Project" object
+`"project": {"key": <value>", ...}`  
 
 Right after the "prefix" object the "project" object has to follow, which contains all resources and properties of the 
 ontology. The "project" object is the bread and butter of the ontology. All its important properties are specified therein. 
@@ -97,27 +100,32 @@ So a simple example definition of the "project" object could look like this:
 }
 ```
 
- 
 ## Simple key/value pairs
 At that point we will go through all of this step by step and take a more in depth view on the individual fields of the 
 "project" object. The first four fields of the "project" object are "key"/"value" pairs. Therefore they are quite simple. 
 
 ### Shortcode
+`"shortcode": "<4-hex-characters>`  
 
 It's a hexadecimal string in the range between "0000" and "FFFF" that's used to uniquely identifying the project. The 
 shortcode has to be provided by the DaSCH.
 
 ### Shortname
+`"shortname": "<string>"`  
 
 This is a short name (string) for the project. It's ment to be like a nickname. If the name of the project is e.g. 
-"Albus Percival Wulfric Dumbledore", then the shortname for it could be "Albi".
+"Albus Percival Wulfric Dumbledore", then the shortname for it could be "Albi". It should be in the form of a
+[xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName), that is a name without blanks and special characters like
+":", ";", "&", "%" etc., but "-" and "_" are allowed
 
 ### Longname
+`"longname": "<string>"`  
 
 A longer string that provides the full name of the project. In our example, the longname would be "Albus Percival 
 Wulfric Dumbledore".
 
 ### Descriptions
+`"descriptions": {"<lang>": "<string>", ...}`  
 
 The descriptions specify the content of the project in *exactly* one or more strings. These descriptions can be 
 supplied in several languages (currently _"en"_, _"de"_, _"fr"_ and _"it"_ are supported). The descriptions have to be 
@@ -129,100 +137,152 @@ The following fields are **not** simple "key"/"value" pairs. They do have a key,
 and therefore has an internal structure. Due to the increased complexity of these objects, they are looked at in more detail.
 
 ### Keywords
+`"keywords": ["<string>", "<string>", ...]`  
 
 An array of keywords is used to roughly describe the project in single words. A project that deals e.g. with old 
 monastery manuscripts could possess the keywords "monastery", "manuscripts", "medieval", (...). The array can be empty 
 as well e.i. "keywords": [].
 
 ### Lists 
-<!--- Hier sollte eine *gutes" Beispiel aus den GW rein! --->
+`"lists": [<list-definition>,<list-definition>,...]`  
 
-The list object is used to give the resources of the ontology a taxonomic quality. A taxonomy makes it possible to 
-place a set of objects in subcategories. The big advantage of a taxonomic structure is that the user can subcategorize 
-the objects. This allows the user to formulate his search requests more or less specifically as desired. 
+Often in order to characterize or classify a real world object, we use a sequential or hierarchical list of terms. For
+example a hypothetical classification of classical music genres could be as :
 
-Suppose an ontology is about the animal kingdom. The individual resources of our ontology symbolize individual animal species. It would 
-now be practical if we could search in a query only for animals that belong to the class of mammals. Or one would wish 
-to find only invertebrates. Or one would like to find very specifically only all kinds of small cats. The taxonomy, 
-which is defined in the list object, makes this possible. 
+- Orchestral music
+  - Symphony
+  - Symphony poem
+  - Overture
+  - Concerto
+  - Ballet
+  - Incidential music
+  - Suite
+- Chamber music
+  - String trio
+  - Piano trio
+  - String quartet
+  - Piano quartet
+  - String quintet
+  - Piano quintet
+  - Other
+- Solo instrumental
+  - Organ
+  - Piano
+  - Harpsichord
+  - Spinet
+  - Guitar
+  - Lute
+  - Violin
+  - Flute
+  - Other
+- Vocal Music
+  - Choir
+    - Oratorios
+    - Passions
+    - Cantatas
+    - Masses
+    - Motets
+    - Madrigals
+    - Psalms
+  - Solo
+    - Songs
+    - Arias
+- Opera
+  - Comic opera
+  - Serious Opera
+  - Opera Semiseria
+  - Opera Conrnique
+  - Grand opera
+  - Opera verismo
+  
+DSP allows to define such controlled vocabularies or thesauri. They can be arranged "flat" or in "hierarchies" (as the
+given example about music genres is). The definition of these entities are called "lists" in the DSP. Thus, the 
+list object is used to give the resources of the ontology a taxonomic quality. A taxonomy makes it possible to 
+categorize a resource. The big advantage of a taxonomic structure as it is implemented by the DSP 
+is that the user can subcategorize the objects. This allows the user to formulate his search requests more or less
+specifically as desired. Thus, in the example above a search for "Vocal music" would result in all works that ate
+characterized by a subelement of "Vocal music". However a search for "Masses" would retrun only works that 
+have been characterized as such. The number of hierarchy levels is not limited, but for practical reasons
+should not exceed 3-4 levels 
 
-A taxonomy is a hierarchical list of categories in a kind of tree structure. The taxonomy must be complete. This means 
-that the entire set of resources can be mapped to the sub-categorization of the taxonomy. To come back to the previous 
-example: It must not be possible that an animal within our resource set cannot be mapped to a subcategory of our taxonomy. 
+Thus, a taxonomy is a hierarchical list of categories in a tree-like structure. The taxonomy must be complete. This means 
+that the entire set of resources must be mappable to the sub-categorization of the taxonomy. To come back to the previous 
+example: It must not occur that an musical work within our resource set cannot be mapped to a subcategory of our
+taxonomy about classical music.  The taxonomic-hierarchical structure is mapped using JSON. This is because JSON
+inherently implements a tree structure as well. The root of the taxonomy tree is always the name of the taxonomy. The
+root always stands alone at the top of the tree. It is followed by any number of levels, on which any number of
+subcategories can be placed. 
 
-The taxonomic-hirarchical structure is mapped using JSON. This is because JSON inherently implements a tree structure as well.
-
-The root of the taxonomy tree is always the name of the taxonomy. The root always stands alone at the top of the tree. 
-It is followed by any number of levels, on which any number of subcategories can be placed. 
-
-Suppose you want to build a taxonomy of dogs. The root would be the name of the taxonomy e.g. "dogtaxonomy". The next level on 
-the hierarchy could be the wolf, because all dogs are descended from the wolf. So we have one element on root level - 
-the name of the taxonomy, and one element on the next lower level, the wolf (Canis lupus). The wolf, in turn, has four 
-closest relatives: the Matris Optima, the Intermediate, the Leiner and the Inostranzewi. Our taxonomy now looks as 
-follows: On the root-plane we have the name of the taxonomy. As only child node we have the wolf on the second level. 
-This node has four children on the third level. This taxonomy can be continued until we have categorized all kinds of dogs. 
-As a side note: This dog taxonomy has been largely disproved in modern times, but is well suited to represent the 
-structure of a list object. 
-
-As already mentioned, the big advantage of a taxonomic categorization of resources is that we can search for dog breeds 
-very concretely. We can generally filter for "wolf", where we find all dog breeds that exist. Or we can search 
-specifically for "Spaniel", where we find all subcategories of Spaniel, such as Clumber Spaniel or Sussex Spaniel 
+Suppose you want to build a taxonomy of the classical musical genres as above. The root level would be the name of the
+taxonomy e.g. "classicalmusicgenres". The next level on the hierarchy would be the basic genres, in our example
+"Orchestral music", "Chamber music", "Solo instrumental", "Vocal Music" and "Opera". Each if these categories may have
+subcategories. In our example "Opera" would have the subcategories "Comic opera", "Serious Opera",
+"Opera Semiseria", "Opera Cornique", "Grand opera" and "Opera verismo". Each of these could again have
+subcategories, and so forth.
 
 It is important to note that a flat taxonomy is also allowed. This means that a taxonomy from exactly two levels is 
 allowed. We have a root level, with the name of the taxonomy, followed by a single level. Within this second level, 
-any number of categories can coexist equally, but since they are on the same level, they are not hierarchically dependent on each other. 
+any number of categories can coexist equally, but since they are on the same level, they are not hierarchically
+dependent on each other. For example, you could define a taxonomy "soccer clubs", which have the categories "FCB",
+"FCZ", (...) in the second level. FC Basel has no hierarchical connection to FC Zürich. Their taxonomic structure is
+therefore flat.
 
-For example, you could define a taxonomy "soccer clubs", which have the categories "FCB", "FCZ", (...) in the second 
-level. FCBasel has no hierarchical connection to FCZürich. Their taxonomic structure is therefore flat.
-
-A resource can be assigned to a taxonomic node within its properties. So a resource "animal" can have the property 
-"mammal". It is important to note that it is possible that a resource can have more than one taxonomic name. How many 
-different taxonomic names a resource can have depends on its cardinality. If it has only the cardinality of 1, it can 
-have only one taxonomic name. But if it has a cardinality of 10, the property can be used for ten different things - 
-thus potentially supporting ten different taxonomic categories. This is the reason why a property can have more than 
-one taxonomic name. 
+A resource can be assigned to a taxonomic node within its properties. So a resource of type "musical work" with the
+title "La Traviata" would have the property/attribute "musical-genre" with the value "Grand opera". Within the DSP,
+each property or attribute has an assigned cardinality. Sometimes, a taxonomy allows that an object may belong to 
+different categories at the same time (e.g. an image which depicts several categories at the same time). In these cases, a cardinality &gt; 1 allows to add multiple attributes
+of the same time. See further below the description of the [cardinalities](#cardinalities)
 
 A node of the Taxonomy may have the following elements:
 
-- _name_: Name of the node. This should be unique for the given list. The name-element is optional.
-- _labels_: Language dependent labels in the form ```{ "<lang>": "<label>, ... }```. The labels-element is mandatory. 
+- _name_: Name of the node. This should be unique for the given list. The name-element is _optional_ but highly
+  recommended].
+- _labels_: Language dependent labels in the form ```{ "<lang>": "<label>, ... }```. The labels-element is _mandatory_. 
 It needs to specify at least one language.
 - _comments_: Language dependent comments (optional) in the form ```{ "<lang>": "<comment>, ... }```. The comments-element 
-is optional.
+  is _optional_.
 - _nodes_: Array of subnodes. If you have a non-hierarchical taxonomy (i.e. a taxonomy with only 2 levels, the root 
-level and another level), you don't have child nodes. Therefore the nodes element can be omitted in case of a flat taxonomy. 
+  level and another level), you don't have child nodes. Therefore the nodes element can be omitted in case of a flat
+  taxonomy. 
 
 Here is an example on how to build a taxonomic structure with the help of JSON:
 
 ```json
     "lists": [
       {
-        "name": "dogtaxonomy",
-        "labels": { "de": "hunderassen", "en": "dogbreeds" },
+        "name": "classicalmusicgenres",
+        "labels": { "de": "Musikkategorien für klassische Musik", "en": "Genres of classical music" },
         "nodes": [
           {
-            "name": "canis lupus",
-            "labels": { "en": "Wolf", "de": "Wolf" },
-            "comments": { "en": "the original wolf", "de": "der originale wolf" },
+            "name": "orchestral",
+            "labels": { "en": "Orchestral music", "de": "Orchestermusik" },
+            "comments": { "en": "Multiple instruments together", "de": "Mehrere Instrumente zusammen" },
             "nodes": [
               {
-                "name": "matris optima",
-                "labels": { "en": "shepherddogs", "de": "schäferhunde" }
+                "name": "symphony",
+                "labels": { "en": "Symphony", "de": "Symphonie" }
               },
               {
-                "name": "intermediate",
-                "labels": { "en": "huntingdogs", "de": "jagdhunde" }
+                "name": "symphonicpoem",
+                "labels": { "en": "Symphonic poem", "de": "Symphonische Dichtung" }
               },
               {
-                "name": "leiner",
-                "labels": { "en": "greyhounds", "de": "windhunde" }
+                "name": "overture",
+                "labels": { "en": "Overture", "de": "Overtüre" }
               },
               {
-                "name": "inostranzewi",
-                "labels": { "en": "mastiffs", "de": "mastiffs" }
-              }
+                "name": "concerto",
+                "labels": { "en": "Conerto", "de": "Konzert" }
+              },
+              ...
             ]
-          }
+          },
+          {
+            "name": "chambermusic",
+            "labels": { "en": "Chamber music", "de": "Kammermusik" },
+            "nodes": [...]
+          },
+          ...
         ]
       }
     ]
@@ -230,6 +290,7 @@ Here is an example on how to build a taxonomic structure with the help of JSON:
 As already mentioned before, the _lists_ element is optional. If there are no lists, this element has to be omitted.
 
 ### Groups
+`"groups": [<group-definition>, <group-definition>,...]`  
 
 This object contains _groups_-definitions. This is (only) used to specify the permissions a user gets. A project may 
 define user groups such as "project-admins", "students" etc. and give the members of each group individual permissions.
@@ -255,6 +316,7 @@ Example:
 The _groups_ element is optional and can therefore be left out.
 
 ### Users
+`"users": [<user-definition>, <user-definition>,...]`  
 
 This object contains _user_-definitions. You can set user traits here. A user has the following elements:
 - _username_: The short username for the login. Similar to a nickname. 
@@ -283,23 +345,38 @@ Example:
 ```
 The _users_ element is optional and can therefore be omitted.
 
-### Ontology
+### Ontologies
+`"ontologies": [<ontology-definition>, <ontology-definition>, ...]`  
 
-Most of the definitions for our ontology will be done under the category "ontology": {} inside of the curly brackets. 
-This is the core of the ontology definition. We know, you've already read a whole lot of text so far, but this section 
-is probably the most important one.
+Most of the definitions for our ontology will be done under the category `"ontologies": [{...}, {...}]` inside of the
+curly brackets. A project may have multiple ontologies, where the second may depend on the first, the third on the
+second and first, etc. The core of the ontology definition is within the {}-brsckets. We know, you've already read a
+whole lot of text so far, but this section is probably the most important one.
 
-Firstly lets talk about what an ontology actually is. This is necessary so that afterwards it will get easier to 
-understand, what the different fields of the ontology definition do. 
+First, lets talk about what an ontology actually is. This will make it much easier to 
+understand the different fields of the ontology definition. 
 
-An ontology is a formally ordered representation of a set of terminologies. Dependencies, relationships and relations 
-between the individual components of the set are recorded and noted in a logical, formal language. In contrast to a 
-taxonomy, which defines a mere hierarchical structure within a range of terms, an ontology is much more a network of 
-information of logical dependencies of term elements. 
+An ontology is a formal representation of a set of terminologies which finally represent real world objects.
+Dependencies, attributes and relations of and between the individual components of the set are recorded in a
+logical, formal language. In contrast to a taxonomy, which defines a mere hierarchical structure within a range of
+terms, an ontology is much more a network of information of logical dependencies of term elements. Or, in other words,
+an ontology defines a strict, formal "data model" for real world _concepts_ such as "Person", "Work", "Artist" etc.
  
-A full-fledged ontology thus has to offer at least *two* things: a set of objects or terms (called resources) - the 
-actual elements of the terminology set - as well as dependency rules that describe the dependencies of the individual 
-resources between one and another (called properties). 
+A full-fledged ontology thus has to offer at least *two* things: a set of _concepts_ or terms (called _resources_,
+actually "resource classes", but we use somehow inconsistently the term resource inhere) - that represent _concepts_
+of real world objects - as well as attributes or _properties_ describing these resources. These properties are linked
+either to a final value or may define a relationship to another resource (-class). Let's assume that we define a
+resource called "Person" and two properties called "hasBirthday" and "hasParent". For a specific incarnation of a
+"Person" (we call this an _instance_), "hasBirthday" will have a final value such as "1960-05-21", whereas
+"hasParent" will link to another instance of a Person.
+
+Within DSP, properties may be re-used for different resources. E.g. a property "description" may be used for a resource
+called "image" as well as "movie". Therefore the list of properties is separated from the list of resources. The
+properties are assigned to the resources by defining "_cardinalities_". A cardinality indicates, if a property is
+mandatory or can be omitted (e.g. if unknown), and if a property may be used several times on the same instance of a
+resource. The latter may make sense for resources that are known under several names. In such a case, a
+"hasName"-property would have a cardinality that allows multiple use on the same instance of a resource. The cardinality
+definitiones are explained [further below](#cardinality).
 
 To fully capture everything an ontology has to provide, we use *four* different elements that describe the resources as 
 well as the dependencies inside our ontology. They are: 
@@ -311,32 +388,42 @@ well as the dependencies inside our ontology. They are:
 
 Example:
 ```json
-    "ontology": {
-      "name": "seworon",
-      "label": "Secrets of the world ontology",
-      "properties": […],
-      "resources": […]
-    }
+    "ontologies": [
+       {
+          "name": "seworon",
+          "label": "Secrets of the world ontology",
+          "properties": [...],
+          "resources": [...]
+       },
+       {...},
+       ...
+    ]
 ```
 Now lets see what each field does.
 
-### Name
+#### Name
+`"name": "<string>"`  
 
-First of all, our overall ontology needs a name. After all, we want to create a ontology about a specific subject or set of terms. 
+First of all, our overall ontology needs a name. After all, we want to create a ontology about a specific subject or
+set of terms. 
 
-As a "speciality", the *name of the ontology* has to be a NCNAME conformant name that can be used as prefix. NCNAME 
-means that it has to be a single word without any special characters (like e.g. " . : ! ? # + (...) ") and without any blanks. 
+As a "speciality", the *name of the ontology* has to be a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName)
+conformant name that can be used as prefix. [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName) 
+means that it has to be a single word without any special characters (like e.g. " . : ! ? # + (...) ") and
+without any blanks. 
 
-### Label
+#### Label
+`"label": "<string>"`  
 
 Since the "name" of your ontology needs to be in this special format, we like to have a human readable and 
 understandable name of the ontology. This is done in the "label".
 
-### Properties
+#### Properties
+`"properties": [<property-definition>, <property-definition>, ...]`  
 
 At first, it seems a bit illogical to have to define the properties *before* the resources. After all, a property 
 always describes the characteristics of a *resource*. However, it is necessary to define the properties *before* the 
-resources. The reason for that is that a property - a dependency between resources - can be used in our program not 
+resources. The reason for that is that a property - a dependency between resources - can be used in our ontology not 
 only for a single resource but for several. If we would e.g. have a property that describes "is descendent of", we can 
 use this property not only to describe the family relations of a human family but at the same time use the same 
 property to describe the relations of e.g. an animal family. 
@@ -344,9 +431,8 @@ property to describe the relations of e.g. an animal family.
 A properties-array describes all the properties that are used for our terminology space. It's all the properties that 
 describe all the possible connections and dependencies between our entire set of terms.
 
-The following should also be mentioned: We are restricted to a list of properties, we can choose from. We can't create 
-our own "new" properties. However, the list is exceptionally large and should cover all the needs for properties we 
-want to choose for our ontology.
+The following should also be mentioned: We are restricted to a given list of *data types* we can choose from for our
+properties, . We can't create our own "new" data types. However, the list of value types should cover all the needs.
 
 A property has mandatory and optional fields. The following fields are mandatory:
 - _name_
@@ -354,160 +440,390 @@ A property has mandatory and optional fields. The following fields are mandatory
 - _object_
 - _gui_element_
 
+Please note that *object" is used to define the data type. The reason is that internally each data type is again
+represented by a resource that holds a lot of additional information, notable a complete change history. The
+_gui_element_ depends on the object
+
 The following fields are optional (can be omitted):
 - _super_
 - _gui_attributes_
 
-*name*
+The _gui_attributes_ depends on the _gui_element_ chosen!
 
-A name for the property e.g. "idesof"
+##### Name
+`"name": "<NCNAME>"`  
 
-*labels*
+A name for the property e.g. "pageOf", "hasBirthdate", "createdBy".
+
+##### Labels
+`"labels": {"<language>": "<string>", ...}`  
 
 Similar to the name property, the label describes the property. In contrast to the name, which serves as a pure 
 abbreviation, the label is human readable. Thus, use language dependent, human readable names e.g. "is descendent of".
-The labels-field has the following form: `{ "<lang>": "<value>", …}`
+The labels-field has the following form: `{ "<lang>": "<value>", ...}`
 where `<lang>` is either "en", "de", "fr" or "it", and `<value>` is a string.
     
-*object*
+##### Object / gui_element / gui_attribute
+`"object": "<data-type-object>"`  
 
 The "object" defines the data type of the value that the property will store.
-  The following object types are allowed:
-  - `TextValue`: Represents a text that may contain standoff markup  
-    *gui\_elements / gui\_attributes*:
-    - `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes are:
-      _gui_attributes_:
-      - `maxlength=integer` (optional): Maximal length (number of character accepted)
-      - `size=integer` (optional):  Size (width) of widget
-    - `Textarea`: A GUI element for _TextValue_. Presents a multiline textentry box. The optional attributes are:  
-      _gui_attributes_:
-      - `cols=integer` (optional): Number of cols of the textarea
-      - `rows=integer` (optional): Number of rows of the textarea
-      - `width=percent` (optional): Width of the field on screen
-      - `wrap=soft|hard` (optional): Wrapping of text
-    - `Richtext`: A GUI element for _TextValue_. Provides a richtext editor.
-      - _gui_attributes_: No attributes
-      
-  - `ColorValue`: A string in the form "#rrggbb" (standard web color format)  
-    *gui-elements / gui_attributes*:
-    - `Colorpicker`: The only GUI element for _ColorValue_. It's used to choose a color.
-      _gui_attributes_:
-      - `ncolors=integer` (mandatory): Number of colors the color picker should present.
-      
-  - `DateValue`: represents a date. It's a string with the format `calendar:start:end`
-    - _calender_ is either _GREGORIAN_ or _JULIAN_
-    - _start_ has the form _yyyy_-_mm_-_dd_. If only the year is given, the precision is to the year. If only the year 
-    and month is given, the precision is to the month.
-    - _end_ is optional if the date represents a clearly defined period or uncertainty.  
+The following object types are allowed:
   
-    In total, a DateValue has the following form: "GREGORIAN:1925:1927-03-22"
-    which means anytime in between 1925 and the 22nd March 1927.  
-    *gui-elements / gui_attributes*:
-    - `Date`: The only GUI element for _DateValue_. A date picker gui.  
-      _gui_attributes_: No attributes
-      
-  - `DecimalValue`: A number with decimal point  
-    *gui-elements / gui_attributes*:
-    - `Slider`: A GUI element for _DecimalValue_. Provides a slider to select a decimal value.  
-      _gui_attributes_:
-      - `max=decimal` (mandatory): Maximal value
-      - `min=decimal` (mandatory): Minimal value
-    - `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
-      "maxlength=integer" and "size=integer" are optional.  
-      _gui_attributes_:
-      - `maxlength=integer` (optional): The maximum number of characters accepted
-      - `size=integer"` (optional): The size of the input field
-      
-  - `GeomValue`: Represents a geometrical shape as JSON.  
-    *gui-elements / gui_attributes*:
-    - `Geometry`: Not Yet Implemented.  
-      _gui_attributes_: No attributes
-    - `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
-      "maxlength=integer" and "size=integer" are optional.  
-      _gui_attributes_:
-      - `maxlength=integer` (optional): The maximum number of characters accepted
-      - `size=integer"` (optional): The size of the input field
-      
-  - `GeonameValue`: Represents a location ID in geonames.org  
-    *gui-elements / gui_attributes*:
-    - `Geonames`: The only GUI element for _GeonameValue_. Interfaces are with geonames.org and it allows to select a 
-    location.  
-    _gui_attributes_: No attributes
-      
-  - `IntValue`: Represents an integer value  
-    *gui-elements / gui_attributes*:
-    - `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
-      "maxlength=integer" and "size=integer" are optional.  
-      _gui_attributes_:
-      - `maxlength=integer` (optional): The maximum number of characters accepted
-      - `size=integer"` (optional): The size of the input field
-    - `Spinbox`: A GUI element for _IntegerValue_. A text field with and "up"- and "down"-button for
-      increment/decrement. The attributes "max=decimal" and "min=decimal" are optional.  
-      _gui_attributes_:
-      - `max=integer` (optional): Maximal value
-      - `min=integer` (optional): Minimal value
-      
-  - `BooleanValue`: Represents a Boolean ("true" or "false)  
-    *gui-elements / gui_attributes*:
-    - `Checkbox`: A GUI element for _BooleanValue_.  
-      _gui_attributes_: No attributes
-      
-  - `UriValue`: : Represents an URI  
-    *gui-elements / gui_attributes*:
-    - `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
-      "maxlength=integer" and "size=integer" are optional.  
-      _gui_attributes_:
-      - `maxlength=integer` (optional): The maximum number of characters accepted
-      - `size=integer"` (optional): The size of the input field
-      
-  - `IntervalValue`: Represents a time-interval  
-    *gui-elements / gui_attributes*:
-    - `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
-      "maxlength=integer" and "size=integer" are optional.  
-      _gui_attributes_:
-      - `maxlength=integer` (optional): The maximum number of characters accepted
-      - `size=integer"` (optional): The size of the input field
-    - `Interval`: Not Yet Implemented.  
-      _gui_attributes_: No attributes
-      
-  - `ListValue`: Represents a node of a (possibly hierarchical) list  
-    *gui-elements / gui_attributes*:
-    - `Radio`: A GUI element for _ListValue_. A set of radio buttons. This works only with flat lists!  
-      _gui_attributes_:
-      - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
-    - `List`: A GUI element for _ListValue_. A list of values to select one from.  
-      _gui_attributes_:
-      - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
-    - `Pulldown`: A GUI element for _ListValue_. Pulldown for list values. Works also for hierarchical lists.  
-      _gui_attributes_:
-      - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
-      
-  - `LinkValue`: Represents a link to another resource  
-    *gui-elements/gui_attributes*:
-    - `Searchbox`: Must be used with _hasLinkTo_ properties. Allows to search and enter a resource that the
-      given resource should link to. 
-      It has one gui_attribute that indicates how many properties of the found resources should be indicated.
-      It's mandatory!  
-      _gui_attributes_:
-      - `numprops=integer` (mandatory): While dynamically displaying the search result, the number of properties that
-        should be displayed.
+###### TextValue
+`"object": "TextValue"`  
 
-  - `--`: Not yet documented  
-    *gui-elements/gui_attributes*:
-    - `Fileupload`: not yet documented!  
-    _gui_attributes_: No attributes
+Represents a text that may contain standoff markup  
+*gui\_elements / gui\_attributes*:  
 
-Like already mentioned before: The following two fields are optional (can be omitted):
+- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes are:
+  _gui_attributes_:
+  - `maxlength=integer` (optional): Maximal length (number of character accepted)
+  - `size=integer` (optional):  Size (width) of widget
+- `Textarea`: A GUI element for _TextValue_. Presents a multiline textentry box. The optional attributes are:  
+  _gui_attributes_:
+  - `cols=integer` (optional): Number of cols of the textarea
+  - `rows=integer` (optional): Number of rows of the textarea
+  - `width=percent` (optional): Width of the field on screen
+  - `wrap=soft|hard` (optional): Wrapping of text
+- `Richtext`: A GUI element for _TextValue_. Provides a richtext editor.
+  - _gui_attributes_: No attributes
+  
+*Example:*
+```json
+{
+  "name": "hasPictureTitle",
+  "super": [
+    "hasValue"
+  ],
+  "object": "TextValue",
+  "labels": {"en": "Title"},
+  "gui_element": "SimpleText",
+  "gui_attributes": {
+    "maxlength": "255",
+    "size": 80
+  }
+}
+```
+###### ColorValue
+`"object": "ColorValue`  
 
-*super*
+A string in the form "#rrggbb" (standard web color format)  
+*gui-elements / gui_attributes*:
+    
+- `Colorpicker`: The only GUI element for _ColorValue_. It's used to choose a color.
+  _gui_attributes_:
+  - `ncolors=integer` (mandatory): Number of colors the color picker should present.
 
-A property ***must*** be derived from at least one base property. The most generic base property that Knora offers is 
-_hasValue_. In addition the property may be a subproperty of properties defined in external ontologies. In this case 
-the qualified name - including the prefix - has to be given.
-  The following base properties are defined by Knora:
+*Example:*
+```json
+{
+  "name": "hasColor",
+  "super": [
+    "hasValue"
+  ],
+  "object": "ColorValue",
+  "labels": {"en":  "Color"},
+  "gui_element": "Colorpicker"
+}
+```
+###### DateValue
+`object": "DateValue"`  
+Represents a date. It's a string with the format `calendar:start:end`
+
+Please note that the DateValue is an extremely flexible data type. It can represent an exact date or a date with a given
+uncertainty, and the date can be given in several calendars (currently the Gregorian and the Julian calendars are
+supported, with the Jewish and Islamic coming soon). Internally, a date is always represented as a start and end date.
+If start and end date match, it's an exact date. A value like "1893" will automatically be expanded to a range from
+January 1st 1893 to December 31st 1893.  
+
+- _calender_ is either _GREGORIAN_ or _JULIAN_
+- _start_ has the form _yyyy_-_mm_-_dd_. If only the year is given, the precision is to the year. If only the year 
+    and month is given, the precision is to the month.
+- _end_ is optional if the date represents a clearly defined period or uncertainty.  
+  
+In total, a DateValue has the following form: "GREGORIAN:1925:1927-03-22"
+which means anytime in between 1925 and the 22nd March 1927.  
+*gui-elements / gui_attributes*:
+- `Date`: The only GUI element for _DateValue_. A date picker gui.  
+  _gui_attributes_: No attributes
+
+*Example:*
+```json
+{
+  "name": "hasDate",
+  "super": [
+    "hasValue"
+  ],
+  "object": "DateValue",
+  "labels": {"en": "Date"},
+  "gui_element": "Date"
+}
+```
+
+###### DecimalValue
+`"object": "DecimalValue"`  
+
+A number with decimal point  
+*gui-elements / gui_attributes*:
+- `Slider`: A GUI element for _DecimalValue_. Provides a slider to select a decimal value.  
+  _gui_attributes_:
+  - `max=decimal` (mandatory): Maximal value
+  - `min=decimal` (mandatory): Minimal value
+- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
+  "maxlength=integer" and "size=integer" are optional.  
+  _gui_attributes_:
+  - `maxlength=integer` (optional): The maximum number of characters accepted
+  - `size=integer"` (optional): The size of the input field
+
+*Example:*
+```json
+{
+  "name": "hasDecimal",
+  "super": [
+  "hasValue"
+  ],
+  "object": "DecimalValue",
+  "labels": {"en": "Decimal number"},
+  "gui_element": "SimpleText",
+  "gui_attributes": {
+    "maxlength": "255",
+    "size": 80
+  }
+}
+```  
+    
+###### GeomValue
+`"object": "GeomValue"`  
+
+Represents a geometrical shape as JSON. Geometrical shapes are used to define regions of interest (ROI's) on still
+images or moving images. 
+*gui-elements / gui_attributes*:
+- `Geometry`: Not Yet Implemented.  
+  _gui_attributes_: No attributes
+- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
+  "maxlength=integer" and "size=integer" are optional.  
+  _gui_attributes_:
+  - `maxlength=integer` (optional): The maximum number of characters accepted
+  - `size=integer"` (optional): The size of the input field
+
+*Example*:
+```json
+{
+  "name": "hasGeometry",
+  "super": [
+    "hasValue"
+  ],
+  "object": "GeomValue",
+  "labels": "Geometry",
+  "gui_element": "SimpleText"
+}
+```
+###### GeonameValue
+Represents a location ID in geonames.org. The DSP platform uses identifiers provided by
+[geonames.org](https://geonames.orgs) to identify geographical locations.  
+*gui-elements / gui_attributes*:
+- `Geonames`: The only valid GUI element for _GeonameValue_. It interfaces are with geonames.org and it allows to select a 
+  location.  
+  _gui_attributes_: No attributes
+
+*Example:*
+```json
+{
+  "name": "hasGeoname",
+  "super": [
+    "hasValue"
+  ],
+  "object": "GeonameValue",
+  "labels": {"en": "Geoname"},
+  "gui_element": "Geonames"
+  }
+```
+
+###### IntValue
+`"object": "IntValue"`  
+
+Represents an integer value  
+*gui-elements / gui_attributes*:
+- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
+  "maxlength=integer" and "size=integer" are optional.  
+  _gui_attributes_:
+  - `maxlength=integer` (optional): The maximum number of characters accepted
+  - `size=integer"` (optional): The size of the input field
+- `Spinbox`: A GUI element for _IntegerValue_. A text field with and "up"- and "down"-button for
+  increment/decrement. The attributes "max=decimal" and "min=decimal" are optional.  
+  _gui_attributes_:
+  - `max=integer` (optional): Maximal value
+  - `min=integer` (optional): Minimal value
+
+*Example:*
+```json
+{
+  "name": "hasInteger",
+  "super": [
+    "hasValue"
+  ],
+  "object": "IntValue",
+  "labels": {"en":  "Integer"},
+  "gui_element": "Spinbox",
+  "gui_attributes": {
+    "max": 0.0,
+    "min": 10.0
+  }
+}
+```
+
+###### BooleanValue
+`"object": "BooleanValue"`  
+
+Represents a Boolean ("true" or "false)  
+*gui-elements / gui_attributes*:
+- `Checkbox`: A GUI element for _BooleanValue_.  
+  _gui_attributes_: No attributes
+
+*Example:*
+```json
+{
+  "name": "hasBoolean",
+  "super": [
+    "hasValue"
+  ],
+  "object": "BooleanValue",
+  "labels": {"en": "Boolean value"},
+  "gui_element": "Checkbox"
+}
+```
+
+###### UriValue
+`"object": "UriValue"`  
+
+Represents an URI  
+*gui-elements / gui_attributes*:
+- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
+  "maxlength=integer" and "size=integer" are optional.  
+  _gui_attributes_:
+  - `maxlength=integer` (optional): The maximum number of characters accepted
+  - `size=integer"` (optional): The size of the input field
+
+*Example:*
+```json
+{
+  "name": "hasUri",
+  "super": [
+    "hasValue"
+  ],
+  "object": "UriValue",
+  "labels": {"en": "URI"},
+  "gui_element": "SimpleText",
+  "gui_attributes": {
+    "maxlength": "255",
+    "size": 80
+  }
+}
+```
+
+###### IntervalValue
+`"object": "IntervalValue"`  
+
+Represents a time-interval  
+*gui-elements / gui_attributes*:
+- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
+  "maxlength=integer" and "size=integer" are optional.  
+  _gui_attributes_:
+  - `maxlength=integer` (optional): The maximum number of characters accepted
+  - `size=integer"` (optional): The size of the input field
+- `Interval`: Not Yet Implemented.  
+  _gui_attributes_: No attributes
+
+*Example:*
+```json
+{
+  "name": "hasInterval",
+  "super": [
+    "hasValue"
+  ],
+  "object": "IntervalValue",
+  "labels": {"en": "Time interval"},
+  "gui_element": "Interval"
+}
+```
+
+###### ListValue
+`"object": "ListValue"`  
+
+Represents a node of a (possibly hierarchical) list  
+*gui-elements / gui_attributes*:
+- `Radio`: A GUI element for _ListValue_. A set of radio buttons. This works only with flat lists!  
+  _gui_attributes_:
+  - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
+- `List`: A GUI element for _ListValue_. A list of values to select one from.  
+  _gui_attributes_:
+  - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
+- `Pulldown`: A GUI element for _ListValue_. Pulldown for list values. Works also for hierarchical lists.  
+  _gui_attributes_:
+  - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
+
+*Example:*
+```json
+{
+  "name": "hasListItem",
+  "super": [
+    "hasValue"
+  ],
+  "object": "ListValue",
+  "labels": {"en": "List element"},
+  "gui_element": "List",
+  "gui_attributes": {
+    "hlist": "treelistroot"
+  }
+}
+```
+
+###### LinkValue
+`"object": ":<resource-name>"`  
+
+LinkValues do not follow the pattern of the previous data types, because they do not connect to a final value but to
+another resource which has to be defined. Thus, the "object" denomiates the resource class the link will point to. If
+the resource is defined in the same ontology, the name has to be prepended by a ":", if the resource is defined in
+another (previously defined) ontology, the ontology name has to be prepended separated by a color ":", e.g.
+"other-onto:MyResource". The "super"-element has to be "hasLinkTo" or at least derived from "hasLinkTo" (how to derive
+a resource or property from another one is not part of this documentation).
+  
+*gui-elements/gui_attributes*:
+- `Searchbox`: Must be used with _hasLinkTo_ properties. Allows to search and enter a resource that the
+  given resource should link to. It has one gui_attribute that indicates how many properties of the found resources
+  should be indicated. It's mandatory!  
+  _gui_attributes_:
+  - `numprops=integer` (mandatory): While dynamically displaying the search result, the number of properties that
+    should be displayed.
+
+*Example:*
+```json
+{
+  "name": "hasOtherThing",
+  "super": [
+    "hasLinkTo"
+  ],
+  "object": ":Thing",
+  "labels": "Another thing",
+  "gui_element": "Searchbox"
+ }
+```
+Like already mentioned before: The following two fields are optional (can be omitted), with the notable exception
+of the "super" clause in case of LinkValues where the super clause is mandatory:
+
+##### Super
+`"super": ["<super-property>", "<super-property>, ...]`  
+
+A property ***must*** be derived from at least one base property. The most generic base property that the DSP offers is 
+_hasValue_. In addition the property may be a subproperty of properties defined in external or other ontologies.
+External ontologies like `dcterms` or `foaf`must be defined in the "prefix"-section.
+
+In this case the qualified name - including the prefix of the external or internal ontology- has to be given.
+  The following base properties are defined by DSP:
   - `hasValue`: This is the most generic base.
   - `hasLinkTo`: This value represents a link to another resource. You have to indicate the "_object_" as a prefixed 
-  IRI that identifies the resource class this link points to.
+  name that identifies the resource class this link points to (a ":" prepended to the name is sufficient if the
+  resource is defined in the current ontology).
   - `hasColor`: Defines a color value (_ColorValue_)
   - `hasComment`: Defines a "standard" comment
   - `hasGeometry`: Defines a geometry value (a JSON describing a polygon, circle or rectangle), see _ColorValue_
@@ -517,7 +833,8 @@ the qualified name - including the prefix - has to be given.
   resource class. This is typically used to describe regions of interest in images.
   - `isAnnotationOf`: A special variant of _hasLinkTo_. It denotes the given resource class as an annotation to another 
   resource class.
-  - `seqnum`: An integer that is used to define a sequence number in an ordered set of instances.
+  - `seqnum`: An integer that is used to define a sequence number in an ordered set of instances, e.g. the ordering of
+    the pages in a bokk (independent of the page naming) 
 
 To sum the `Properties` section up, here we have an example for a complete properties definition:
 ````json
@@ -549,7 +866,9 @@ To sum the `Properties` section up, here we have an example for a complete prope
         ]
 
 ````
-### Resources
+
+#### Resources
+`"resources": [<resource-definition>, <resource-definition>, ...]`  
 The resource classes are the primary entities of the data model. They are the actual objects/terms inside our 
 terminology space. A resource class is a template for the representation of a real object that is represented in the 
 DaSCH database. A resource class defines properties (aka _data fields_). For each of these properties a data type as 
@@ -557,44 +876,64 @@ well as the cardinality have to defined.
 
 A resource needs to have the following fields:
 
-### _name_
+##### Name
+`"name": "<NCNAME>"`  
 A name for the resource.
-### _label_
+
+##### Labels
+`"labels": {"<lang>": "<string>", ...}`  
+
 The string displayed of the resource is being accessed.
-### _super_
-A resource class is always derived from an other resource. The most generic resource class Knora offers is _"Resource"_. 
-The following parent predefined resources are provided by Knora:
-  - _Resource_: A generic "thing" that represents an item from the real world
-  - _StillImageRepresentation_: An object that is connected to a still image
-  - _TextRepresentation_: An object that is connected to an (external) text (Not Yet Implemented)
-  - _AudioRepresentation_: An object representing audio data (Not Yet Implemented)
-  - _DDDRepresentation_: An object representing a 3-D representation (Not Yet Implemented)
-  - _DocumentRepresentation_: An object representing an opaque document (e.g. a PDF)
-  - _MovingImageRepresentation_: An object representing a moving image (video, film)
-  - _Annotation_: A predefined annotation object. It has the following properties
-  defined:
-    - _hasComment_ (1-n), _isAnnotationOf_ (1)
-  - _LinkObj_: A resource class linking together several other, generic, resource classes. The class
-  has the following properties: _hasComment_ (1-n), _hasLinkTo_ (1-n)
-  - _Region_: Represents a simple region. The class has the following properties:
-  _hasColor_ (1), _isRegionOf_ (1) _hasGeometry_ (1), _isRegionOf_ (1), _hasComment_ (0-n)
-### _Cardinalities_
+
+##### Super
+`"super": ["<super-resource>", "<super-resource>", ...]`  
+
+A resource  is always derived from at least one other resource. The most generic resource class DSP offers
+is _"Resource"_. A resource may additionally also be derived from resources defined in external ontologies.
+The following parent predefined resources are provided by Knora:  
+
+  - `Resource` A generic "thing" that represents an item from the real world
+  - `StillImageRepresentation`: An object that is connected to a still image
+  - `TextRepresentation`: An object that is connected to an (external) text (Not Yet Implemented)
+  - `AudioRepresentation`: An object representing audio data (Not Yet Implemented)
+  - `DDDRepresentation`: An object representing a 3-D representation (Not Yet Implemented)
+  - `DocumentRepresentation`: An object representing an opaque document (e.g. a PDF)
+  - `MovingImageRepresentation`: An object representing a moving image (video, film)
+  - `Annotation`: A predefined annotation object. It has automaticalle the following predefined properties
+    defined:
+    - `hasComment` (1-n)
+    - `isAnnotationOf` (1)
+  - `LinkObj`: A resource class linking together several other, generic, resource classes. The class
+  has the following properties:
+  - `hasComment` (1-n)
+  - `hasLinkTo` (1-n)
+  - `Region`: Represents a simple region. The class has the following properties:
+     - `hasColor` (1)
+     - `isRegionOf` (1)
+     - `hasGeometry` (1)
+     - `isRegionOf` (1)
+     - `hasComment` (0-n)
+
+##### Cardinalities
+`"cardinalities": [...]`  
+
+<a name="cardinalities"></a>
 Cardinalities is an array that contains the information about the connections between resources. It tells what type 
 connections a single resource has as well as how many times the connection is established. Thus, the actual "network" is 
 saved in this array
 
-- _cardinalities_: Array of references to the properties that the resource may hold including the
-   cardinality. A cardinality has the following properties:
-   - _propname_: The name of the property. If it's used in the form ":"propname, the current ontology is referenced. If 
-   the ":" is omitted, a Knora standard ontology is referenced, otherwise the full prefix of the ontology has to be used.
-   - _gui_order_: An integer number which will help the GUI to display the properties in the desired
-     order
-   - _cardinality_: Indicates how often a given property may occur. The possible values
-     are:
-     - "1": Exactly once (mandatory one value and only one)
-     - "0-1": The value may be omitted, but can occur only once
-     - "1-n": At least one value must be present. But multiple values may be present
-     - "0-n": The value may be omitted, but may also occur multiple times
+- `cardinalities`: Array of references to the properties that the resource may hold including the
+  cardinality. A cardinality has the following properties:
+  - `propname`: The name of the property. If it's used in the form ":"propname, the current ontology is referenced. If 
+    the ":" is omitted, a DSP standard ontology is referenced, otherwise the full prefix of the ontology has to be used.
+  - `gui_order`: An integer number which will help the GUI to display the properties in the desired
+    order
+  - `cardinality`: Indicates how often a given property may occur. The possible values
+    are:  
+    - `"1"`: Exactly once (mandatory one value and only one)
+    - `"0-1"`: The value may be omitted, but can occur only once
+    - `"1-n"`: At least one value must be present. But multiple values may be present
+    - `"0-n"`: The value may be omitted, but may also occur multiple times
    
 Example for a resource definition:
 ```json

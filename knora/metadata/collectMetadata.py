@@ -482,19 +482,33 @@ class PropertyRow():
 
 class DataTab(wx.ScrolledWindow):
 
-    def __init__(self, parent, dataset, title):
+    def __init__(self, parent, dataset, title, multiple=False):
         wx.Panel.__init__(self, parent, style=wx.EXPAND)
 
         self.dataset = dataset
-
+        self.multiple = multiple
+        outer_sizer = wx.BoxSizer(wx.VERTICAL)
         sizer = wx.GridBagSizer(10, 10)
 
         if dataset:
-            for i, prop in enumerate(dataset.get_properties()):
+            ds = dataset
+            if multiple:
+                ds = dataset[0]
+            for i, prop in enumerate(ds.get_properties()):
                 # self.add_widgets(dataset, prop, sizer, i)
-                row = PropertyRow(self, dataset, prop, sizer, i)
+                row = PropertyRow(self, ds, prop, sizer, i)
                 data_handler.associate_container(prop, row)
-        self.SetSizer(sizer)
+        
+        if multiple:
+            dataset_listbox = wx.ListBox(self, size=(800,-1))
+            # TODO: add logic for selecting something in the listbox
+            for ds in dataset:
+                dataset_listbox.Append(str(ds))
+            # TODO: option to add new item
+            outer_sizer.Add(dataset_listbox)
+            outer_sizer.AddSpacer(20)
+        outer_sizer.Add(sizer)
+        self.SetSizer(outer_sizer)
         # print("index i: ")
         # print(i)
 
@@ -591,8 +605,8 @@ class TabbedWindow(wx.Frame):
         tab1 = TabOne(nb, self.dataset)
         tab2 = DataTab(nb, self.dataset.project, "Project")
         tab3 = DataTab(nb, self.dataset.dataset, "Dataset")
-        tab4 = DataTab(nb, self.dataset.persons, "Person")
-        tab5 = DataTab(nb, self.dataset.organizations, "Organization")
+        tab4 = DataTab(nb, self.dataset.persons, "Person", multiple=True)
+        tab5 = DataTab(nb, self.dataset.organizations, "Organization", multiple=True)
         # tab6 = DataTab(nb, None, "Data Management Plan")
 
         # Add the windows to tabs and name them.

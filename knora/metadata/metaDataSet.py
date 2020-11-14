@@ -112,8 +112,8 @@ class MetaDataSet:
         self.files = []
         self.project = Project(name)
         self.dataset = Dataset(name)
-        self.persons = []
-        self.organizations = []
+        self.persons = [Person()]
+        self.organizations = [Organization()]
 
     def __str__(self):
         return str({
@@ -123,7 +123,9 @@ class MetaDataSet:
             "files": self.files,
             "metadata": [
                 self.project,
-                self.dataset
+                self.dataset,
+                self.persons,
+                self.organizations
             ]
         })
 
@@ -249,6 +251,9 @@ class Project():
             self.publication,
             self.contactPoint
         ]
+    
+    def __str__(self):
+        return f"dsp-repo:Project <{self.name}>"
 
 
 class Dataset():
@@ -368,6 +373,9 @@ class Dataset():
             self.dateModified,
             self.distribution
         ]
+    
+    def __str__(self):
+        return f"dsp-repo:Dataset <{self.title}>"
 
 
 class Person():
@@ -438,8 +446,9 @@ class Person():
             self.jobTitle,
             self.role
         ]
-
-
+    
+    def __str__(self):
+        return f"dsp-repo:Person <{self.givenName} {self.familyName}>"
 
 
 class Organization():
@@ -483,6 +492,9 @@ class Organization():
             self.address,
             self.url
         ]
+    
+    def __str__(self):
+        return f"dsp-repo:Organization <{self.name}>"
 
 
 # TODO: dsp-repo:Grant (?)
@@ -511,3 +523,8 @@ class Property():
         self.cardinality = cardinality
         self.value = value
         self.value_options = value_options
+    
+    def __str__(self):
+        if self.value:
+            return str(self.value)
+        return f"<Property '{self.name}' undefined>"

@@ -21,6 +21,7 @@ class Cardinality(Enum):
     ZERO_OR_ONE = 2
     ONE_TO_UNBOUND = 3
     ONE_TO_TWO = 4
+    ZERO_TO_TWO = 5
 
     def get_optionality_string(card):
         if card == Cardinality.ONE \
@@ -28,7 +29,8 @@ class Cardinality(Enum):
             or card == Cardinality.ONE_TO_UNBOUND:
             return "Mandatory"
         if card == Cardinality.UNBOUND \
-            or card == Cardinality.ZERO_OR_ONE:
+            or card == Cardinality.ZERO_OR_ONE\
+            or card == Cardinality.ZERO_TO_TWO:
             return "Optional"
 
 
@@ -47,6 +49,10 @@ class Datatype(Enum):
     CONTROLLED_VOCABULARY = 8
     PROJECT = 9
     ATTRIBUTION = 10
+    IRI = 11
+    ADDRESS = 12
+    PERSON = 13
+    ORGANIZATION = 14
 
 
 
@@ -247,7 +253,7 @@ class Dataset():
     """
     Dataset Shape.
 
-    Corresponds to `dsp-repo_Dataset` in the ontology.
+    Corresponds to `dsp-repo:Dataset` in the ontology.
     """
     
     def __init__(self, name):
@@ -362,10 +368,124 @@ class Dataset():
         ]
 
 
-# TODO: dsp-repo:Person
-# TODO: dsp-repo:Organization
+class Person():
+    """
+    Person Shape.
+
+    Corresponds to `dsp-repo:Person` in the ontology.
+    """
+    
+    def __init__(self):
+        self.sameAs = Property("Alternative URL",
+                            "Alternative URL, pointing to an authority file (ORCID, VIAF, GND, ...)",
+                            "https://orcid.org/000-000-000-000",
+                            Datatype.URL,
+                            Cardinality.UNBOUND)
+                            
+        self.givenName = Property("Given name",
+                            "Given name of the person",
+                            "John",
+                            Datatype.STRING,
+                            Cardinality.ONE_TO_UNBOUND)
+                            
+        self.familyName = Property("Family name",
+                            "Family name of the person",
+                            "Doe",
+                            Datatype.STRING,
+                            Cardinality.ONE_TO_UNBOUND)
+                            
+        self.email = Property("E-mail",
+                            "E-mail address of the person",
+                            "john.doe@dasch.swiss",
+                            Datatype.IRI,
+                            Cardinality.ZERO_TO_TWO)
+                            
+        self.address = Property("Address",
+                            "Postal address of the person",
+                            "",
+                            Datatype.ADDRESS,
+                            Cardinality.UNBOUND)
+                            
+        self.memberOf = Property("Member of",
+                            "Affiliation of the person",
+                            "",
+                            Datatype.ORGANIZATION,
+                            Cardinality.ONE_TO_UNBOUND)
+                            
+        self.jobTitle = Property("Job title",
+                            "Position/Job title of the person",
+                            "Dr.",
+                            Datatype.STRING,
+                            Cardinality.ONE_TO_UNBOUND)
+                            
+        self.role = Property("Role",
+                            "Role of the person within the project/dataset",
+                            "Editor",
+                            Datatype.STRING,
+                            Cardinality.ONE_TO_UNBOUND)
+
+
+    def get_properties(self):
+        return [
+            self.sameAs,
+            self.givenName,
+            self.familyName,
+            self.email,
+            self.address,
+            self.memberOf,
+            self.jobTitle,
+            self.role
+        ]
+
+
+
+
+class Organization():
+    """
+    Organization Shape.
+
+    Corresponds to `dsp-repo:Organization` in the ontology.
+    """
+    
+    def __init__(self):
+                            
+        self.name = Property("Legal Name",
+                            "Legal name of the organization",
+                            "DaSCH",
+                            Datatype.STRING,
+                            Cardinality.ONE_TO_UNBOUND)
+                            
+        self.email = Property("E-mail",
+                            "E-mail address of the organization",
+                            "info@dasch.swiss",
+                            Datatype.IRI,
+                            Cardinality.ZERO_OR_ONE)
+                            
+        self.address = Property("Address",
+                            "Postal address of the organization",
+                            "",
+                            Datatype.ADDRESS,
+                            Cardinality.UNBOUND)
+                            
+        self.url = Property("URL",
+                            "URL of the organization",
+                            "https://dasch.swiss",
+                            Datatype.URL,
+                            Cardinality.ZERO_OR_ONE)
+
+
+    def get_properties(self):
+        return [
+            self.name,
+            self.email,
+            self.address,
+            self.url
+        ]
+
+
 # TODO: dsp-repo:Grant (?)
 # TODO: dsp-repo:DataManagementPlan
+# TODO: schema:PostalAddress
 
 
 class Property():

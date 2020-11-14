@@ -112,6 +112,8 @@ class MetaDataSet:
         self.files = []
         self.project = Project(name)
         self.dataset = Dataset(name)
+        self.persons = []
+        self.organizations = []
 
     def __str__(self):
         return str({

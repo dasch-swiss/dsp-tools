@@ -591,16 +591,16 @@ class TabbedWindow(wx.Frame):
         tab1 = TabOne(nb, self.dataset)
         tab2 = DataTab(nb, self.dataset.project, "Project")
         tab3 = DataTab(nb, self.dataset.dataset, "Dataset")
-        # tab4 = DataTab(nb, None, "Person")
-        # tab5 = DataTab(nb, None, "Organization")
+        tab4 = DataTab(nb, self.dataset.persons, "Person")
+        tab5 = DataTab(nb, self.dataset.organizations, "Organization")
         # tab6 = DataTab(nb, None, "Data Management Plan")
 
         # Add the windows to tabs and name them.
         nb.AddPage(tab1, "Base Data")
         nb.AddPage(tab2, "Project")
         nb.AddPage(tab3, "Dataset")
-        # nb.AddPage(tab4, "Person")
-        # nb.AddPage(tab5, "Organization")
+        nb.AddPage(tab4, "Person")
+        nb.AddPage(tab5, "Organization")
         # nb.AddPage(tab6, "Data Management Plan")
 
         nb_sizer = wx.BoxSizer()

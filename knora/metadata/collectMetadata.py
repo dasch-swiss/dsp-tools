@@ -132,14 +132,10 @@ class DataHandling:
         """
         TODO: docstring
         """
-        for prop in dataset.project.get_properties():
+        for prop in dataset.get_all_properties():
             container = self.containers[prop]
             prop.value = container.get_value()
-            # print(prop.value)
-        for prop in dataset.dataset.get_properties():
-            container = self.containers[prop]
-            prop.value = container.get_value()
-            # print(prop.value)
+            print(prop.value)
 
 
 ########## Here starts UI stuff ##############

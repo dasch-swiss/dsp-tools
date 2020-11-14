@@ -129,6 +129,16 @@ class MetaDataSet:
             ]
         })
 
+    def get_all_properties(self):
+        res = self.project.get_properties()
+        res.extend(self.dataset.get_properties())
+        for p in self.persons:
+            res.extend(p.get_properties())
+        for o in self.organizations:
+            res.extend(o.get_properties())
+        return res
+
+
     # TODO: add a "convert_to_rdf()" method or something like this
 
 

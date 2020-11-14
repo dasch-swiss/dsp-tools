@@ -381,6 +381,7 @@ class PropertyRow():
         if prop.datatype == Datatype.STRING \
             or prop.datatype == Datatype.STRING_OR_URL \
             or prop.datatype == Datatype.URL \
+            or prop.datatype == Datatype.IRI \
             or prop.datatype == Datatype.PLACE:
             if prop.cardinality == Cardinality.ONE \
                 or prop.cardinality == Cardinality.ZERO_OR_ONE:  # String or similar, exactly 1 or 0-1
@@ -404,8 +405,24 @@ class PropertyRow():
                         textcontrol2.SetValue(prop.value[1])
                 sizer.Add(inner_sizer, pos=(index, 1))
                 self.data_widget = [textcontrol1, textcontrol2]
+            elif prop.cardinality == Cardinality.ZERO_TO_TWO:  # String or similar, 0-2
+                inner_sizer = wx.BoxSizer(wx.VERTICAL)
+                textcontrol1 = wx.TextCtrl(parent, size=(550, -1))
+                textcontrol1.SetHint('Optional')
+                inner_sizer.Add(textcontrol1)
+                inner_sizer.AddSpacer(5)
+                textcontrol2 = wx.TextCtrl(parent, size=(550, -1))
+                textcontrol2.SetHint('Optional')
+                inner_sizer.Add(textcontrol2)
+                if prop.value:
+                    if len(prop.value) > 0 and prop.value[0]:
+                        textcontrol1.SetValue(prop.value[0])
+                    if len(prop.value) > 1 and prop.value[1]:
+                        textcontrol2.SetValue(prop.value[1])
+                sizer.Add(inner_sizer, pos=(index, 1))
+                self.data_widget = [textcontrol1, textcontrol2]
             elif prop.cardinality == Cardinality.ONE_TO_UNBOUND \
-                or prop.cardinality == Cardinality.UNBOUND:  # String or similar, 1-n or 0-n
+                or prop.cardinality == Cardinality.UNBOUND:  # String or similar, 1-n, 0-2 or 0-n
                 inner_sizer = wx.BoxSizer()
                 textcontrol = wx.TextCtrl(parent, size=(200, -1))
                 inner_sizer.Add(textcontrol)
@@ -459,11 +476,13 @@ class PropertyRow():
         if datatype == Datatype.STRING \
             or datatype == Datatype.STRING_OR_URL \
             or datatype == Datatype.URL \
+            or datatype == Datatype.IRI \
             or datatype == Datatype.PLACE:
             if cardinality == Cardinality.ONE \
                 or cardinality == Cardinality.ZERO_OR_ONE:
                 return self.data_widget.GetValue()
-            if cardinality == Cardinality.ONE_TO_TWO:
+            if cardinality == Cardinality.ONE_TO_TWO \
+                or cardinality == Cardinality.ZERO_TO_TWO:
                 return [self.data_widget[0].GetValue(), self.data_widget[1].GetValue()]
             if cardinality == Cardinality.ONE_TO_UNBOUND \
                 or cardinality == Cardinality.UNBOUND:

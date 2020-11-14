@@ -372,7 +372,7 @@ class Ontology(Model):
                 tmp[rdfs + ':comment'] = self._comment
         return tmp
 
-    def create(self, dumpjson: Optional[str] = None) -> 'Ontology':
+    def create(self) -> 'Ontology':
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
         result = self._con.post('/v2/ontologies', jsondata)

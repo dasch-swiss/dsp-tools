@@ -22,7 +22,8 @@ def create_ontology(input_file: str,
                     server: str,
                     user: str,
                     password: str,
-                    verbose: bool) -> bool:
+                    verbose: bool,
+                    dump: bool) -> bool:
     current_dir = os.path.dirname(os.path.realpath(__file__))
 
     # let's read the schema for the data model definition
@@ -43,6 +44,8 @@ def create_ontology(input_file: str,
     #
     con = Connection(server)
     con.login(user, password)
+    if dump:
+        con.start_logging()
 
     # --------------------------------------------------------------------------
     # let's read the prefixes of external ontologies that may be used

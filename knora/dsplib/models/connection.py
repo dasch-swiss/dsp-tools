@@ -4,7 +4,6 @@ from pystrict import strict
 from typing import List, Set, Dict, Tuple, Optional, Any, Union
 
 from .helpers import Actions, BaseError
-from pprint import pprint
 
 @strict
 class Connection:
@@ -147,7 +146,6 @@ class Connection:
             }
             tmp = path.split('/')
             filename = "POST" + "_".join(tmp) + ".json"
-            pprint(logobj)
             with open(filename, 'w') as f:
                 json.dump(logobj, f, indent=3)
         self.on_api_error(req)

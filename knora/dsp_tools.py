@@ -16,7 +16,7 @@ def program(args):
     # parse the arguments of the command line
     #
     parser = argparse.ArgumentParser(
-        description="A program to create and manipulate ontologies based on the DaSCH Service Platform and Knora"
+        description="A program to create and manipulate ontologies based on the DaSCH Service Platform"
     )
     subparsers = parser.add_subparsers(title="Subcommands",
                                        description='Valid subcommands are',
@@ -36,18 +36,18 @@ def program(args):
 
     parser_get = subparsers.add_parser('get', help='Get project/ontology information from server')
     parser_get.set_defaults(action="get")
-    parser_get.add_argument("-u", "--user", default="root@example.com", help="Username for Knora")
+    parser_get.add_argument("-u", "--user", default="root@example.com", help="Username for DSP server")
     parser_get.add_argument("-p", "--password", default="test", help="The password for login")
-    parser_get.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the Knora server")
+    parser_get.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the DSP server")
     parser_get.add_argument("-P", "--project", type=str, help="Shortcode, shortname or iri of project", required=True)
     parser_get.add_argument("outfile", help="path to data model file", default="onto.json")
     parser_get.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
 
     parser_upload = subparsers.add_parser('xmlupload', help='Upload data from XML file to server')
     parser_upload.set_defaults(action="xmlupload")
-    parser_upload.add_argument("-u", "--user", type=str, default="root@example.com", help="Username for Knora")
+    parser_upload.add_argument("-u", "--user", type=str, default="root@example.com", help="Username for DSP server")
     parser_upload.add_argument("-p", "--password", type=str, default="test", help="The password for login")
-    parser_upload.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the Knora server")
+    parser_upload.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the DSP server")
     parser_upload.add_argument("-i", "--imgdir", type=str, default=".", help="Path to folder containing the images")
     parser_upload.add_argument("-S", "--sipi", type=str, default="http://0.0.0.0:1024", help="URL of SIPI server")
     parser_upload.add_argument("xmlfile", help="path to xml file containing the data", default="data.xml")

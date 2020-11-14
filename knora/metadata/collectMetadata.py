@@ -515,12 +515,20 @@ class DataTab(wx.ScrolledWindow):
                 data_handler.associate_container(prop, row)
         
         if multiple:
-            dataset_listbox = wx.ListBox(self, size=(800,-1))
+            dataset_sizer = wx.BoxSizer()
+            dataset_listbox = wx.ListBox(self, size=(700,-1))
             # TODO: add logic for selecting something in the listbox
             for ds in dataset:
                 dataset_listbox.Append(str(ds))
             # TODO: option to add new item
-            outer_sizer.Add(dataset_listbox)
+            dataset_listbox.Select(0)
+            dataset_sizer.Add(dataset_listbox)
+            button_sizer = wx.BoxSizer(wx.VERTICAL)
+            button_sizer.Add(wx.Button(self, label="Add New"))
+            button_sizer.Add(wx.Button(self, label="Remove Selected"))
+            # TODO: add functionality to buttons
+            dataset_sizer.Add(button_sizer)
+            outer_sizer.Add(dataset_sizer)
             outer_sizer.AddSpacer(20)
         outer_sizer.Add(sizer)
         self.SetSizer(outer_sizer)

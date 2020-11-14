@@ -523,8 +523,9 @@ class DataTab(wx.ScrolledWindow):
             # TODO: option to add new item
             dataset_listbox.Select(0)
             dataset_sizer.Add(dataset_listbox)
+            dataset_sizer.AddSpacer(5)
             button_sizer = wx.BoxSizer(wx.VERTICAL)
-            button_sizer.Add(wx.Button(self, label="Add New"))
+            button_sizer.Add(wx.Button(self, label="Add New"), flag=wx.EXPAND)
             button_sizer.Add(wx.Button(self, label="Remove Selected"))
             # TODO: add functionality to buttons
             dataset_sizer.Add(button_sizer)

@@ -350,7 +350,9 @@ class TabOne(wx.Panel):
         data_sizer.Add(file_list)
         button_sizer = wx.BoxSizer(wx.VERTICAL)
         btn_add = wx.Button(self, label="Add File(s)")
+        btn_add.Bind(wx.EVT_BUTTON, lambda event: self.add_file(dataset, file_list))
         btn_del = wx.Button(self, label="Remove Selected")
+        btn_del.Bind(wx.EVT_BUTTON, lambda event: self.remove_file(dataset, file_list))
         button_sizer.Add(btn_add, flag=wx.EXPAND)
         button_sizer.Add(btn_del, flag=wx.EXPAND)
         # TODO: Add functionality to buttons
@@ -372,6 +374,21 @@ class TabOne(wx.Panel):
         sz = btn.GetSize()
         win.Position(pos, (0, sz[1]))
         win.Popup()
+
+    def add_file(self, dataset, listbox):
+        with wx.FileDialog(self, "Choose file(s):",
+                           style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_MULTIPLE) as fd:
+            if fd.ShowModal() == wx.ID_OK:
+                for p in fd.GetPaths():
+                    if p not in dataset.files:
+                        # TODO: check if it's actually in project path
+                        # TODO: make this relative to project path
+                        dataset.files.append(p)
+                        listbox.Append(p)
+
+    def remove_file(self, dataset, listbox):
+        # TODO!
+        pass
 
 
 class PropertyRow():
@@ -706,11 +723,12 @@ class TabbedWindow(wx.Frame):
 
     def save(self):
         data_handler.update_all(self.dataset)
-        data_handler.validate_all(self.dataset)
+        data_handler.validate_graph(self.dataset)
         data_handler.save_data()
 
     def close(self):
         self.parent.Enable()
+        self.parent.load_view()
         self.Destroy()
 
 

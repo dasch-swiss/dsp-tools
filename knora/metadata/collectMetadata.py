@@ -121,9 +121,12 @@ class DataHandling:
         # Probably just calls processing on the selected data set
         print(f'Should be processing Dataset: {index}')
 
-    def validate_all(self, dataset):
+    def validate_graph(self, dataset):
         """
         Validates all properties in a specific `MetaDataSet.`
+
+        Does not validate each of the properties separately,
+        but rather generates the RDF graph, which then gets validated.
         """
         print("should be validating the data")
         # TODO: validate: call validation. and give indication, if there is a problem
@@ -200,7 +203,7 @@ class ProjectPanel(wx.Panel):
         title = wx.StaticText(self, label="DaSCH Service Platform - Metadata Collection", size=(400, -1))
         main_sizer.Add(title, 0, wx.ALL | wx.LEFT, 10)
 
-        # TODO: Here we might do some cosmetics (Title, info button and the like ...
+        # LATER: Here we might do some cosmetics (Title, info button and the like ...
         self.folder_path = ""
         self.row_obj_dict = {}
 
@@ -257,7 +260,7 @@ class ProjectPanel(wx.Panel):
             self.list_ctrl.InsertItem(project.index, project.path)
             self.list_ctrl.SetItem(project.index, 1, project.name)
             self.list_ctrl.SetItem(project.index, 2, str(project.files))
-            # TODO: make this look pretty? depends on what we do with files
+            # LATER: make this look pretty? depends on what we do with files
 
     def create_header(self):
         """ Here we create the header for once and always...

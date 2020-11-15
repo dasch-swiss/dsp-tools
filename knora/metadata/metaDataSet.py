@@ -12,6 +12,7 @@ The Classes defined here aim to represent a metadata-set, closely following the 
 #
 #####################
 
+
 class Cardinality(Enum):
     """
     A set of cardinalities that may be used for properties.
@@ -25,12 +26,12 @@ class Cardinality(Enum):
 
     def get_optionality_string(card):
         if card == Cardinality.ONE \
-            or card == Cardinality.ONE_TO_TWO \
-            or card == Cardinality.ONE_TO_UNBOUND:
+                or card == Cardinality.ONE_TO_TWO \
+                or card == Cardinality.ONE_TO_UNBOUND:
             return "Mandatory"
         if card == Cardinality.UNBOUND \
-            or card == Cardinality.ZERO_OR_ONE\
-            or card == Cardinality.ZERO_TO_TWO:
+                or card == Cardinality.ZERO_OR_ONE \
+                or card == Cardinality.ZERO_TO_TWO:
             return "Optional"
 
 
@@ -53,7 +54,6 @@ class Datatype(Enum):
     ADDRESS = 12
     PERSON = 13
     ORGANIZATION = 14
-
 
 
 class MetaDataSet:
@@ -139,7 +139,6 @@ class MetaDataSet:
             res.extend(o.get_properties())
         return res
 
-
     # TODO: add a "convert_to_rdf()" method or something like this
 
 
@@ -152,11 +151,11 @@ class Project():
 
     def __init__(self, name):
         self.name = Property("Name",
-                            "The name of the Project",
-                            "Test Project",
-                            Datatype.STRING,
-                            Cardinality.ONE,
-                            name)
+                             "The name of the Project",
+                             "Test Project",
+                             Datatype.STRING,
+                             Cardinality.ONE,
+                             name)
         self.description = Property("Description",
                                     "Description of the Project",
                                     "This is a test project. All properties have been used to test these. You will just describe your project briefly.",
@@ -187,27 +186,27 @@ class Project():
                                 Cardinality.ONE)
 
         self.temporalCoverage = Property("Temporal coverage",
-                            "Temporal coverage of the project from http://perio.do/en/ or https://chronontology.dainst.org/",
-                            "http://chronontology.dainst.org/period/Ef9SyESSafJ1",
-                            Datatype.STRING_OR_URL,
-                            Cardinality.ONE_TO_UNBOUND)
+                                         "Temporal coverage of the project from http://perio.do/en/ or https://chronontology.dainst.org/",
+                                         "http://chronontology.dainst.org/period/Ef9SyESSafJ1",
+                                         Datatype.STRING_OR_URL,
+                                         Cardinality.ONE_TO_UNBOUND)
 
         self.spacialCoverage = Property("Spacial coverage",
-                            "Spatial coverage of the project from Geonames URL: https://www.geonames.org/ or from Pleiades URL: https://pleiades.stoa.org/places",
-                            "https://www.geonames.org/6255148/europe.html",
-                            Datatype.PLACE,
-                            Cardinality.ONE_TO_UNBOUND)
+                                        "Spatial coverage of the project from Geonames URL: https://www.geonames.org/ or from Pleiades URL: https://pleiades.stoa.org/places",
+                                        "https://www.geonames.org/6255148/europe.html",
+                                        Datatype.PLACE,
+                                        Cardinality.ONE_TO_UNBOUND)
 
         self.funder = Property("Funder",
-                            "Funding person or institution of the project",
-                            "",
-                            Datatype.PERSON_OR_ORGANIZATION,
-                            Cardinality.ONE_TO_UNBOUND)
+                               "Funding person or institution of the project",
+                               "",
+                               Datatype.PERSON_OR_ORGANIZATION,
+                               Cardinality.ONE_TO_UNBOUND)
 
         self.grant = Property("Grant",
-                            "Grant of the project",
-                            "",
-                            Datatype.GRANT)
+                              "Grant of the project",
+                              "",
+                              Datatype.GRANT)
 
         self.url = Property("URL",
                             "Landing page or Website of the project. We recommend DSP Landing Page. Optionally, a second URL can be added too.",
@@ -216,32 +215,32 @@ class Project():
                             Cardinality.ONE_TO_TWO)
 
         self.shortcode = Property("Shortcode",
-                            "Internal shortcode of the project",
-                            "0000",
-                            Datatype.STRING,
-                            Cardinality.ONE)
+                                  "Internal shortcode of the project",
+                                  "0000",
+                                  Datatype.STRING,
+                                  Cardinality.ONE)
 
         self.alternateName = Property("Alternate Name",
-                            "Alternative name of the project, e.g. in case of an overly long official name",
-                            "Another Title",
-                            Datatype.STRING)
+                                      "Alternative name of the project, e.g. in case of an overly long official name",
+                                      "Another Title",
+                                      Datatype.STRING)
 
         self.dataManagementPlan = Property("Data Management Plan",
-                            "Data Management Plan of the project",
-                            "",
-                            Datatype.DATA_MANAGEMENT_PLAN,
-                            Cardinality.ZERO_OR_ONE)
+                                           "Data Management Plan of the project",
+                                           "",
+                                           Datatype.DATA_MANAGEMENT_PLAN,
+                                           Cardinality.ZERO_OR_ONE)
 
         self.publication = Property("Publications",
-                            "Publications produced during the lifetime of the project",
-                            "Doe, J. (2000). A Publication.",
-                            Datatype.STRING)
+                                    "Publications produced during the lifetime of the project",
+                                    "Doe, J. (2000). A Publication.",
+                                    Datatype.STRING)
 
         self.contactPoint = Property("Contact Point",
-                            "Contact information",
-                            "",
-                            Datatype.PERSON_OR_ORGANIZATION,
-                            Cardinality.ZERO_OR_ONE)
+                                     "Contact information",
+                                     "",
+                                     Datatype.PERSON_OR_ORGANIZATION,
+                                     Cardinality.ZERO_OR_ONE)
 
     def get_properties(self):
         return [
@@ -262,7 +261,7 @@ class Project():
             self.publication,
             self.contactPoint
         ]
-    
+
     def __str__(self):
         return f"dsp-repo:Project <{self.name}>"
 
@@ -273,96 +272,95 @@ class Dataset():
 
     Corresponds to `dsp-repo:Dataset` in the ontology.
     """
-    
+
     def __init__(self, name):
         self.title = Property("Title",
-                            "Title of the dataset",
-                            "Dataset-Title",
-                            Datatype.STRING,
-                            Cardinality.ONE,
-                            value=f"Dataset of {name}")
+                              "Title of the dataset",
+                              "Dataset-Title",
+                              Datatype.STRING,
+                              Cardinality.ONE,
+                              value=f"Dataset of {name}")
         self.alternativeTitle = Property("Alternative title",
-                                "Alternative title of the dataset",
-                                "Another Dataset-Title",
-                                Datatype.STRING,
-                                Cardinality.ONE)
+                                         "Alternative title of the dataset",
+                                         "Another Dataset-Title",
+                                         Datatype.STRING,
+                                         Cardinality.ONE)
         self.abstract = Property("Abstract",
-                                "Description of the dataset",
-                                "This is merely an exemplary dataset",
-                                Datatype.STRING_OR_URL,
-                                Cardinality.ONE_TO_UNBOUND)
+                                 "Description of the dataset",
+                                 "This is merely an exemplary dataset",
+                                 Datatype.STRING_OR_URL,
+                                 Cardinality.ONE_TO_UNBOUND)
         self.sameAs = Property("Alternative URL",
-                            "Alternative URL to the dataset, if applicable",
-                            "https://test.dasch.swiss/",
-                            Datatype.URL,
-                            Cardinality.UNBOUND)
+                               "Alternative URL to the dataset, if applicable",
+                               "https://test.dasch.swiss/",
+                               Datatype.URL,
+                               Cardinality.UNBOUND)
         self.typeOfData = Property("Type of data",
-                                "Type of data related to the dataset: xml, text, image, movie, audio",
-                                "xml",
-                                Datatype.CONTROLLED_VOCABULARY,
-                                Cardinality.ONE_TO_UNBOUND,
-                                value_options=["xml", "text", "image", "movie", "audio"])
+                                   "Type of data related to the dataset: xml, text, image, movie, audio",
+                                   "xml",
+                                   Datatype.CONTROLLED_VOCABULARY,
+                                   Cardinality.ONE_TO_UNBOUND,
+                                   value_options=["xml", "text", "image", "movie", "audio"])
         self.documentation = Property("Documentation",
-                                "Additional documentation",
-                                '"http://www.example.org/documentation.md" or "Work in Progress"',
-                                Datatype.STRING_OR_URL,
-                                Cardinality.UNBOUND)
+                                      "Additional documentation",
+                                      '"http://www.example.org/documentation.md" or "Work in Progress"',
+                                      Datatype.STRING_OR_URL,
+                                      Cardinality.UNBOUND)
         self.license = Property("License",
                                 "The license terms of the dataset",
                                 "https://creativecommons.org/licenses/by/3.0",
                                 Datatype.URL,
                                 Cardinality.ONE_TO_UNBOUND)
         self.accessConditions = Property("Conditions of Access",
-                                "Access conditions of the data",
-                                "Open Access",
-                                Datatype.STRING,
-                                Cardinality.ONE)
+                                         "Access conditions of the data",
+                                         "Open Access",
+                                         Datatype.STRING,
+                                         Cardinality.ONE)
         self.howToCite = Property("How to cite",
-                                "How to cite the data",
-                                "Testprojekt (test), 2002, https://test.dasch.swiss",
-                                Datatype.STRING,
-                                Cardinality.ONE)
+                                  "How to cite the data",
+                                  "Testprojekt (test), 2002, https://test.dasch.swiss",
+                                  Datatype.STRING,
+                                  Cardinality.ONE)
         self.status = Property("Dataset status",
-                                "Current status of a dataset (testing phase, ongoing, finished)",
-                                "The dataset is work in progress",
-                                Datatype.STRING,
-                                Cardinality.ONE)
+                               "Current status of a dataset (testing phase, ongoing, finished)",
+                               "The dataset is work in progress",
+                               Datatype.STRING,
+                               Cardinality.ONE)
         self.datePublished = Property("Date published",
-                                "Date of publication",
-                                "2000-08-01",
-                                Datatype.DATE,
-                                Cardinality.ZERO_OR_ONE)
+                                      "Date of publication",
+                                      "2000-08-01",
+                                      Datatype.DATE,
+                                      Cardinality.ZERO_OR_ONE)
         self.language = Property("Language",
-                                "Language(s) of the dataset",
-                                "Hetite",
-                                Datatype.STRING,
-                                Cardinality.ONE_TO_UNBOUND)
+                                 "Language(s) of the dataset",
+                                 "Hetite",
+                                 Datatype.STRING,
+                                 Cardinality.ONE_TO_UNBOUND)
         self.project = Property("is Part of",
                                 "The project to which the data set belongs",
                                 "",
                                 Datatype.PROJECT,
                                 Cardinality.ONE)
         self.attribution = Property("Qualified Attribution",
-                                "Persons/Organization involved in the creation of the dataset",
-                                '<person> + "editor"',
-                                Datatype.ATTRIBUTION,
-                                Cardinality.ONE_TO_UNBOUND)
+                                    "Persons/Organization involved in the creation of the dataset",
+                                    '<person> + "editor"',
+                                    Datatype.ATTRIBUTION,
+                                    Cardinality.ONE_TO_UNBOUND)
         self.dateCreated = Property("Date created",
-                                "Creation of the dataset",
-                                "2000-08-01",
-                                Datatype.DATE,
-                                Cardinality.ZERO_OR_ONE)
+                                    "Creation of the dataset",
+                                    "2000-08-01",
+                                    Datatype.DATE,
+                                    Cardinality.ZERO_OR_ONE)
         self.dateModified = Property("Date modified",
-                                "Last modification of the dataset",
-                                "2000-08-01",
-                                Datatype.DATE,
-                                Cardinality.ZERO_OR_ONE)
+                                     "Last modification of the dataset",
+                                     "2000-08-01",
+                                     Datatype.DATE,
+                                     Cardinality.ZERO_OR_ONE)
         self.distribution = Property("Distribution",
-                                "A downloadable form of this dataset, at a specific location, in a specific format",
-                                "https://test.dasch.swiss",
-                                Datatype.URL,
-                                Cardinality.ZERO_OR_ONE)
-
+                                     "A downloadable form of this dataset, at a specific location, in a specific format",
+                                     "https://test.dasch.swiss",
+                                     Datatype.URL,
+                                     Cardinality.ZERO_OR_ONE)
 
     def get_properties(self):
         return [
@@ -384,7 +382,7 @@ class Dataset():
             self.dateModified,
             self.distribution
         ]
-    
+
     def __str__(self):
         return f"dsp-repo:Dataset <{self.title}>"
 
@@ -395,56 +393,55 @@ class Person():
 
     Corresponds to `dsp-repo:Person` in the ontology.
     """
-    
+
     def __init__(self):
         self.sameAs = Property("Alternative URL",
-                            "Alternative URL, pointing to an authority file (ORCID, VIAF, GND, ...)",
-                            "https://orcid.org/000-000-000-000",
-                            Datatype.URL,
-                            Cardinality.UNBOUND)
-                            
-        self.givenName = Property("Given name",
-                            "Given name of the person",
-                            "John",
-                            Datatype.STRING,
-                            Cardinality.ONE_TO_UNBOUND)
-                            
-        self.familyName = Property("Family name",
-                            "Family name of the person",
-                            "Doe",
-                            Datatype.STRING,
-                            Cardinality.ONE_TO_UNBOUND)
-                            
-        self.email = Property("E-mail",
-                            "E-mail address of the person",
-                            "john.doe@dasch.swiss",
-                            Datatype.IRI,
-                            Cardinality.ZERO_TO_TWO)
-                            
-        self.address = Property("Address",
-                            "Postal address of the person",
-                            "",
-                            Datatype.ADDRESS,
-                            Cardinality.UNBOUND)
-                            
-        self.memberOf = Property("Member of",
-                            "Affiliation of the person",
-                            "",
-                            Datatype.ORGANIZATION,
-                            Cardinality.ONE_TO_UNBOUND)
-                            
-        self.jobTitle = Property("Job title",
-                            "Position/Job title of the person",
-                            "Dr.",
-                            Datatype.STRING,
-                            Cardinality.ONE_TO_UNBOUND)
-                            
-        self.role = Property("Role",
-                            "Role of the person within the project/dataset",
-                            "Editor",
-                            Datatype.STRING,
-                            Cardinality.ONE_TO_UNBOUND)
+                               "Alternative URL, pointing to an authority file (ORCID, VIAF, GND, ...)",
+                               "https://orcid.org/000-000-000-000",
+                               Datatype.URL,
+                               Cardinality.UNBOUND)
 
+        self.givenName = Property("Given name",
+                                  "Given name of the person",
+                                  "John",
+                                  Datatype.STRING,
+                                  Cardinality.ONE_TO_UNBOUND)
+
+        self.familyName = Property("Family name",
+                                   "Family name of the person",
+                                   "Doe",
+                                   Datatype.STRING,
+                                   Cardinality.ONE_TO_UNBOUND)
+
+        self.email = Property("E-mail",
+                              "E-mail address of the person",
+                              "john.doe@dasch.swiss",
+                              Datatype.IRI,
+                              Cardinality.ZERO_TO_TWO)
+
+        self.address = Property("Address",
+                                "Postal address of the person",
+                                "",
+                                Datatype.ADDRESS,
+                                Cardinality.UNBOUND)
+
+        self.memberOf = Property("Member of",
+                                 "Affiliation of the person",
+                                 "",
+                                 Datatype.ORGANIZATION,
+                                 Cardinality.ONE_TO_UNBOUND)
+
+        self.jobTitle = Property("Job title",
+                                 "Position/Job title of the person",
+                                 "Dr.",
+                                 Datatype.STRING,
+                                 Cardinality.ONE_TO_UNBOUND)
+
+        self.role = Property("Role",
+                             "Role of the person within the project/dataset",
+                             "Editor",
+                             Datatype.STRING,
+                             Cardinality.ONE_TO_UNBOUND)
 
     def get_properties(self):
         return [
@@ -457,7 +454,7 @@ class Person():
             self.jobTitle,
             self.role
         ]
-    
+
     def __str__(self):
         return f"dsp-repo:Person <{self.givenName} {self.familyName}>"
 
@@ -468,33 +465,32 @@ class Organization():
 
     Corresponds to `dsp-repo:Organization` in the ontology.
     """
-    
+
     def __init__(self):
-                            
+
         self.name = Property("Legal Name",
-                            "Legal name of the organization",
-                            "DaSCH",
-                            Datatype.STRING,
-                            Cardinality.ONE_TO_UNBOUND)
-                            
+                             "Legal name of the organization",
+                             "DaSCH",
+                             Datatype.STRING,
+                             Cardinality.ONE_TO_UNBOUND)
+
         self.email = Property("E-mail",
-                            "E-mail address of the organization",
-                            "info@dasch.swiss",
-                            Datatype.IRI,
-                            Cardinality.ZERO_OR_ONE)
-                            
+                              "E-mail address of the organization",
+                              "info@dasch.swiss",
+                              Datatype.IRI,
+                              Cardinality.ZERO_OR_ONE)
+
         self.address = Property("Address",
-                            "Postal address of the organization",
-                            "",
-                            Datatype.ADDRESS,
-                            Cardinality.UNBOUND)
-                            
+                                "Postal address of the organization",
+                                "",
+                                Datatype.ADDRESS,
+                                Cardinality.UNBOUND)
+
         self.url = Property("URL",
                             "URL of the organization",
                             "https://dasch.swiss",
                             Datatype.URL,
                             Cardinality.ZERO_OR_ONE)
-
 
     def get_properties(self):
         return [
@@ -503,7 +499,7 @@ class Organization():
             self.address,
             self.url
         ]
-    
+
     def __str__(self):
         return f"dsp-repo:Organization <{self.name}>"
 
@@ -534,7 +530,7 @@ class Property():
         self.cardinality = cardinality
         self.value = value
         self.value_options = value_options
-    
+
     def __str__(self):
         if self.value:
             return str(self.value)

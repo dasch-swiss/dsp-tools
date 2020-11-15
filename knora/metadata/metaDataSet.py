@@ -112,6 +112,7 @@ class MetaDataSet:
         self.files = []
         self.project = Project(name)
         self.dataset = Dataset(name)
+        self.dataset.project.value = self.project
         self.persons = [Person()]
         self.organizations = [Organization()]
 

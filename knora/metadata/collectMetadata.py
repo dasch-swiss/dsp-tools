@@ -2,10 +2,10 @@ import wx
 import os
 import pickle
 
-from typing import List, Any
-import xml.etree.ElementTree as ET
-from metaDataSet import MetaDataSet, Property, Cardinality, Datatype
-from metaDataHelpers import DateCtrl, CalendarDlg
+# from typing import List, Any
+# import xml.etree.ElementTree as ET
+from metaDataSet import MetaDataSet, Cardinality, Datatype
+from metaDataHelpers import DateCtrl
 
 
 ################# TODO List #################
@@ -33,7 +33,7 @@ def collectMetadata():
     data_handler = DataHandling()
     # open GUI
     app = wx.App()
-    frame = ProjectFrame()
+    ProjectFrame()
     app.MainLoop()
 
 
@@ -130,12 +130,17 @@ class DataHandling:
 
     def update_all(self, dataset):
         """
-        TODO: docstring
+        Update date from GUI.
+
+        Calling this function iterates over each Property in the dataset 
+        and updates it with the value found in its corresponding GUI component.
+
+        TODO: Ensure that this works even with multiple persons/organizations.
         """
         for prop in dataset.get_all_properties():
             container = self.containers[prop]
             prop.value = container.get_value()
-            print(prop.value)
+            print(f'{prop.name}:  + {prop.value}')
 
 
 ########## Here starts UI stuff ##############
@@ -379,12 +384,12 @@ class PropertyRow():
 
         # String or String/URL etc.
         if prop.datatype == Datatype.STRING \
-            or prop.datatype == Datatype.STRING_OR_URL \
-            or prop.datatype == Datatype.URL \
-            or prop.datatype == Datatype.IRI \
-            or prop.datatype == Datatype.PLACE:
+                or prop.datatype == Datatype.STRING_OR_URL \
+                or prop.datatype == Datatype.URL \
+                or prop.datatype == Datatype.IRI \
+                or prop.datatype == Datatype.PLACE:
             if prop.cardinality == Cardinality.ONE \
-                or prop.cardinality == Cardinality.ZERO_OR_ONE:  # String or similar, exactly 1 or 0-1
+                    or prop.cardinality == Cardinality.ZERO_OR_ONE:  # String or similar, exactly 1 or 0-1
                 textcontrol = wx.TextCtrl(parent, size=(550, -1))
                 if prop.value:
                     textcontrol.SetValue(prop.value)
@@ -422,7 +427,7 @@ class PropertyRow():
                 sizer.Add(inner_sizer, pos=(index, 1))
                 self.data_widget = [textcontrol1, textcontrol2]
             elif prop.cardinality == Cardinality.ONE_TO_UNBOUND \
-                or prop.cardinality == Cardinality.UNBOUND:  # String or similar, 1-n, 0-2 or 0-n
+                    or prop.cardinality == Cardinality.UNBOUND:  # String or similar, 1-n, 0-2 or 0-n
                 inner_sizer = wx.BoxSizer()
                 textcontrol = wx.TextCtrl(parent, size=(200, -1))
                 inner_sizer.Add(textcontrol)
@@ -445,7 +450,7 @@ class PropertyRow():
         # date
         elif prop.datatype == Datatype.DATE:
             if prop.cardinality == Cardinality.ONE \
-                or prop.cardinality == Cardinality.ZERO_OR_ONE:
+                    or prop.cardinality == Cardinality.ZERO_OR_ONE:
                 input_format = '%d-%m-%Y'
                 display_format = '%d-%m-%Y'
                 date = DateCtrl(parent, size=(130, -1), pos=(150, 80),
@@ -456,15 +461,14 @@ class PropertyRow():
                 parent.first_time = True  # don't validate date first time
                 parent.SetFocus()
                 self.data_widget = date
-                print("Datum: ")
-                print(date.date)
+                # print("Datum: ")
+                # print(date.date)
 
         btn = wx.Button(parent, label="?")
         btn.Bind(wx.EVT_BUTTON, lambda event: parent.show_help(event, prop.description, prop.example))
         sizer.Add(btn, pos=(index, 2))
         opt = wx.StaticText(parent, label=Cardinality.get_optionality_string(prop.cardinality))
         sizer.Add(opt, pos=(index, 3))
-
 
     def get_value(self):
         """
@@ -474,24 +478,33 @@ class PropertyRow():
         cardinality = self.prop.cardinality
         # String or String/URL etc.
         if datatype == Datatype.STRING \
-            or datatype == Datatype.STRING_OR_URL \
-            or datatype == Datatype.URL \
-            or datatype == Datatype.IRI \
-            or datatype == Datatype.PLACE:
+                or datatype == Datatype.STRING_OR_URL \
+                or datatype == Datatype.URL \
+                or datatype == Datatype.IRI \
+                or datatype == Datatype.PLACE:
             if cardinality == Cardinality.ONE \
-                or cardinality == Cardinality.ZERO_OR_ONE:
+                    or cardinality == Cardinality.ZERO_OR_ONE:
                 return self.data_widget.GetValue()
             if cardinality == Cardinality.ONE_TO_TWO \
-                or cardinality == Cardinality.ZERO_TO_TWO:
+                    or cardinality == Cardinality.ZERO_TO_TWO:
                 return [self.data_widget[0].GetValue(), self.data_widget[1].GetValue()]
             if cardinality == Cardinality.ONE_TO_UNBOUND \
-                or cardinality == Cardinality.UNBOUND:
+                    or cardinality == Cardinality.UNBOUND:
                 return self.data_widget.GetStrings()
         elif datatype == Datatype.DATE:
-            if cardinality == Cardinality.ONE:
+            if cardinality == Cardinality.ONE \
+                    or cardinality == Cardinality.ZERO_OR_ONE:
                 print(f'Date: {self.data_widget.GetValue()}')
                 return self.data_widget.GetValue()
-
+        # TODO: Funder
+        # TODO: Grant
+        # TODO: Address
+        # TODO: DMP
+        # TODO: Person
+        # TODO: Organization
+        # TODO: Person/Organization
+        # TODO: Type of Data
+        # TODO: partOf/project
         return "Couldn't find my value... sorry"
 
 
@@ -516,7 +529,7 @@ class DataTab(wx.ScrolledWindow):
         
         if multiple:
             dataset_sizer = wx.BoxSizer()
-            dataset_listbox = wx.ListBox(self, size=(700,-1))
+            dataset_listbox = wx.ListBox(self, size=(700, -1))
             # TODO: add logic for selecting something in the listbox
             for ds in dataset:
                 dataset_listbox.Append(str(ds))
@@ -662,14 +675,11 @@ class TabbedWindow(wx.Frame):
         sizer.AddSpacer(5)
         sizer.Add(button_sizer, 0, wx.ALL | wx.BOTTOM, 5)
         panel.SetSizer(sizer)
-        # sizer.Fit(self)
-
         sizer.Fit(self)
 
-        # self.Show()
-
     def on_tab_change(self, event):
-        self.save()
+        data_handler.update_all(self.dataset)
+        pass
 
     def on_save(self, event):
         self.save()
@@ -682,7 +692,6 @@ class TabbedWindow(wx.Frame):
         self.close()
 
     def save(self):
-        print("should save tabs content")
         data_handler.update_all(self.dataset)
         data_handler.validate_all(self.dataset)
         data_handler.save_data()

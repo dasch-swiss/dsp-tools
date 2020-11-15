@@ -332,7 +332,7 @@ class TabOne(wx.Panel):
         path_field = wx.TextCtrl(self, style=wx.TE_READONLY, size=(550, -1))
         path_field.SetValue(self.dataset.path)
         sizer.Add(path_field, pos=(1, 1))
-        # TODO: add button to change folder
+        # QUESTION: add button to change folder
         path_help = wx.Button(self, label="?")
         path_help.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event,
                                                                    "Path to the folder with the data",
@@ -342,10 +342,20 @@ class TabOne(wx.Panel):
         ##### Files
         files_label = wx.StaticText(self, label="Files: ")
         sizer.Add(files_label, pos=(2, 0))
+        data_sizer = wx.BoxSizer()
         file_list = wx.ListBox(self, size=(550, -1))
-        # TODO: Add Buttons to add and delete files
-        # TODO: add all files in data to listbox
-        sizer.Add(file_list, pos=(2, 1))
+        for f in dataset.files:
+            file_list.Append(f)
+            # TODO: Test if that works already (as soon as we can add files)
+        data_sizer.Add(file_list)
+        button_sizer = wx.BoxSizer(wx.VERTICAL)
+        btn_add = wx.Button(self, label="Add File(s)")
+        btn_del = wx.Button(self, label="Remove Selected")
+        button_sizer.Add(btn_add, flag=wx.EXPAND)
+        button_sizer.Add(btn_del, flag=wx.EXPAND)
+        # TODO: Add functionality to buttons
+        data_sizer.Add(button_sizer)
+        sizer.Add(data_sizer, pos=(2, 1))
         path_help = wx.Button(self, label="?")
         path_help.Bind(wx.EVT_BUTTON, lambda event: self.show_help(event,
                                                                    "Files associated with the project",

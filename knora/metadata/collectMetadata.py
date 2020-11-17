@@ -135,7 +135,7 @@ class DataHandling:
         """
         Update date from GUI.
 
-        Calling this function iterates over each Property in the dataset 
+        Calling this function iterates over each Property in the dataset
         and updates it with the value found in its corresponding GUI component.
 
         TODO: Ensure that this works even with multiple persons/organizations.
@@ -318,6 +318,7 @@ class TabOne(wx.Panel):
         wx.Panel.__init__(self, parent)
         self.dataset = dataset
 
+
         ##### Project name as caption
         sizer = wx.GridBagSizer(10, 10)
         project_label = wx.StaticText(self, label="Current Project:")
@@ -386,9 +387,13 @@ class TabOne(wx.Panel):
                         dataset.files.append(p)
                         listbox.Append(p)
 
-    def remove_file(self, dataset, listbox):
+    def remove_file(self, dataset, file_list):
         # TODO!
-        pass
+        selection = file_list.GetSelection()
+        if selection >= 0:
+            string_selected = file_list.GetString(selection)
+            dataset.files.remove(string_selected)
+            file_list.Delete(selection)
 
 
 class PropertyRow():
@@ -485,7 +490,7 @@ class PropertyRow():
                 display_format = '%d-%m-%Y'
                 date = DateCtrl(parent, size=(130, -1), pos=(150, 80),
                                 input_format=input_format, display_format=display_format,
-                                title=prop.name, default_to_today=False, allow_null=False, 
+                                title=prop.name, default_to_today=False, allow_null=False,
                                 initial_date=prop.value)
                 sizer.Add(date, pos=(index, 1))
                 parent.first_time = True  # don't validate date first time
@@ -556,7 +561,7 @@ class DataTab(wx.ScrolledWindow):
                 # self.add_widgets(dataset, prop, sizer, i)
                 row = PropertyRow(self, ds, prop, sizer, i)
                 data_handler.associate_container(prop, row)
-        
+
         if multiple:
             dataset_sizer = wx.BoxSizer()
             dataset_listbox = wx.ListBox(self, size=(700, -1))

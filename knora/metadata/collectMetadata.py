@@ -388,7 +388,6 @@ class TabOne(wx.Panel):
                         listbox.Append(p)
 
     def remove_file(self, dataset, file_list):
-        # TODO!
         selection = file_list.GetSelection()
         if selection >= 0:
             string_selected = file_list.GetString(selection)
@@ -467,12 +466,22 @@ class PropertyRow():
                 textcontrol = wx.TextCtrl(parent, size=(200, -1))
                 inner_sizer.Add(textcontrol)
                 inner_sizer.AddSpacer(5)
+                button_sizer = wx.BoxSizer(wx.VERTICAL)
                 plus_button = wx.Button(parent, label="+")
                 plus_button.Bind(wx.EVT_BUTTON,
                                  lambda e: parent.add_to_list(e,
                                                               content_list,
+                                                              textcontrol,
                                                               textcontrol.GetValue()))
-                inner_sizer.Add(plus_button)
+                button_sizer.Add(plus_button)
+
+                remove_button = wx.Button(parent, label="Del Selected")
+                remove_button.Bind(wx.EVT_BUTTON,
+                                lambda event: parent.remove_from_list(event,
+                                                                        content_list))
+                button_sizer.Add(remove_button)
+                inner_sizer.Add(button_sizer)
+
                 inner_sizer.AddSpacer(5)
                 content_list = wx.ListBox(parent, size=(250, -1))
                 if prop.value:
@@ -480,7 +489,6 @@ class PropertyRow():
                         content_list.Append(val)
                 inner_sizer.Add(content_list)
                 sizer.Add(inner_sizer, pos=(index, 1))
-                # print(content_list)
                 self.data_widget = content_list
         # date
         elif prop.datatype == Datatype.DATE:
@@ -531,6 +539,10 @@ class PropertyRow():
                     or cardinality == Cardinality.ZERO_OR_ONE:
                 print(f'Date: {self.data_widget.GetValue()}')
                 return self.data_widget.GetValue()
+
+    def remove_entry(self, textcontrol):
+        print("Do the remove")
+
         # TODO: Funder
         # TODO: Grant
         # TODO: Address
@@ -606,24 +618,24 @@ class DataTab(wx.ScrolledWindow):
             self.start_date.convert_to_wx_date()
         evt.Skip()
 
-    def add_to_list(self, event, content_list, addable):
+    def add_to_list(self, event, content_list, textcontrol, addable):
         """
         add an object to a listbox.
         """
         if not addable:
             return
         content_list.Append(str(addable))
+        textcontrol.Remove(0, len(textcontrol.GetLineText(0)))
 
-    def remove_from_list(self, event, content_list, removable):
+
+    def remove_from_list(self, event, content_list):
         """
         remove an object from a listbox.
 
         """
-        # ToDo: make it work...
-
-        if not removable:
-            return
-        content_list.Remove(str(removable))
+        selection = content_list.GetSelection()
+        if selection >= 0:
+            content_list.Delete(selection)
 
     def show_help(self, evt, message, sample):
         """

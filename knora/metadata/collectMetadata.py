@@ -318,7 +318,6 @@ class TabOne(wx.Panel):
         wx.Panel.__init__(self, parent)
         self.dataset = dataset
 
-
         ##### Project name as caption
         sizer = wx.GridBagSizer(10, 10)
         project_label = wx.StaticText(self, label="Current Project:")
@@ -473,12 +472,12 @@ class PropertyRow():
                                                               content_list,
                                                               textcontrol,
                                                               textcontrol.GetValue()))
-                button_sizer.Add(plus_button)
+                button_sizer.Add(plus_button, flag=wx.EXPAND)
 
                 remove_button = wx.Button(parent, label="Del Selected")
                 remove_button.Bind(wx.EVT_BUTTON,
-                                lambda event: parent.remove_from_list(event,
-                                                                        content_list))
+                                   lambda event: parent.remove_from_list(event,
+                                                                         content_list))
                 button_sizer.Add(remove_button)
                 inner_sizer.Add(button_sizer)
 
@@ -624,9 +623,10 @@ class DataTab(wx.ScrolledWindow):
         """
         if not addable:
             return
+        # TODO: don't add, if same is already in list
+        # TODO: don't add, if it's only whitespace
         content_list.Append(str(addable))
         textcontrol.Remove(0, len(textcontrol.GetLineText(0)))
-
 
     def remove_from_list(self, event, content_list):
         """

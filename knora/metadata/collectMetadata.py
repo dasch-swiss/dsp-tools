@@ -621,10 +621,12 @@ class DataTab(wx.ScrolledWindow):
         """
         add an object to a listbox.
         """
-        if not addable:
+        if not addable:  # is None
             return
-        # TODO: don't add, if same is already in list
-        # TODO: don't add, if it's only whitespace
+        if str(addable).isspace() or \
+                str(addable) in content_list.GetStrings():
+            textcontrol.Remove(0, len(textcontrol.GetLineText(0)))
+            return
         content_list.Append(str(addable))
         textcontrol.Remove(0, len(textcontrol.GetLineText(0)))
 

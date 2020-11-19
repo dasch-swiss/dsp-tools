@@ -308,15 +308,20 @@ class DateCtrl(wx.ComboCtrl):
         text_ctrl.InsertionPoint = text_ctrl.pos
 
 class CalendarDlg(wx.Dialog):
-    def __init__(self, parent):
+    # def __init__(self, parent):
+    def __init__(self, parent, title, date_str):
 
-        wx.Dialog.__init__(self, parent, title=parent.title)
+        # wx.Dialog.__init__(self, parent, title=parent.title)
+        wx.Dialog.__init__(self, parent, title=title)
         panel = wx.Panel(self, -1)
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         panel.SetSizer(sizer)
 
-        cal = wx.adv.GenericCalendarCtrl(panel, date=parent.date)
+        date = wx.DateTime()
+        date.ParseDate(date_str)
+        cal = wx.adv.GenericCalendarCtrl(panel, date=date)
+        # cal = wx.adv.GenericCalendarCtrl(panel, date=parent.date)
 
         if sys.platform != 'win32':
             # gtk truncates the year - this fixes it

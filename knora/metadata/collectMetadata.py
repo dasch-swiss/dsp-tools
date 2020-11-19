@@ -5,7 +5,7 @@ import pickle
 # from typing import List, Any
 # import xml.etree.ElementTree as ET
 from metaDataSet import MetaDataSet, Cardinality, Datatype
-from metaDataHelpers import DateCtrl
+from metaDataHelpers import CalendarDlg
 
 
 ################# TODO List #################
@@ -493,15 +493,22 @@ class PropertyRow():
         elif prop.datatype == Datatype.DATE:
             if prop.cardinality == Cardinality.ONE \
                     or prop.cardinality == Cardinality.ZERO_OR_ONE:
-                input_format = '%d-%m-%Y'
-                display_format = '%d-%m-%Y'
-                date = DateCtrl(parent, size=(130, -1), pos=(150, 80),
-                                input_format=input_format, display_format=display_format,
-                                title=prop.name, default_to_today=False, allow_null=False,
-                                initial_date=prop.value)
-                sizer.Add(date, pos=(index, 1))
-                parent.first_time = True  # don't validate date first time
-                parent.SetFocus()
+                # input_format = '%d-%m-%Y'
+                # display_format = '%d-%m-%Y'
+                # date = DateCtrl(parent, size=(130, -1), pos=(150, 80),
+                #                 input_format=input_format, display_format=display_format,
+                #                 title=prop.name, default_to_today=False, allow_null=False,
+                #                 initial_date=prop.value)
+                # sizer.Add(date, pos=(index, 1))
+                # parent.first_time = True  # don't validate date first time
+                # parent.SetFocus()
+                inner_sizer = wx.BoxSizer()
+                date = wx.StaticText(parent, label=prop.value, size=(100, -1))
+                pick_date_button = wx.Button(parent, label="Pick Date")
+                pick_date_button.Bind(wx.EVT_BUTTON, lambda event: parent.pick_date(event, date, self.prop))
+                inner_sizer.Add(date)
+                inner_sizer.Add(pick_date_button)
+                sizer.Add(inner_sizer, pos=(index, 1))
                 self.data_widget = date
                 # print("Datum: ")
                 # print(date.date)
@@ -536,8 +543,8 @@ class PropertyRow():
         elif datatype == Datatype.DATE:
             if cardinality == Cardinality.ONE \
                     or cardinality == Cardinality.ZERO_OR_ONE:
-                print(f'Date: {self.data_widget.GetValue()}')
-                return self.data_widget.GetValue()
+                print(f'Date: {self.data_widget.GetLabel()}')
+                return self.data_widget.GetLabel()
 
     def remove_entry(self, textcontrol):
         print("Do the remove")
@@ -650,6 +657,23 @@ class DataTab(wx.ScrolledWindow):
         win.Position(pos, (0, sz[1]))
         win.Popup()
 
+    def pick_date(self, evt, label: wx.StaticText, prop):
+        # date = "xxxx-xx-xx"
+        # TODO: open date picker dialog here, to assign actual value to date
+        # label.SetLabel(date)
+        with CalendarDlg(self, prop.name, label.GetLabel()) as dlg:
+            if dlg.ShowModal() == wx.ID_OK:
+                label.SetLabel(dlg.cal.Date.FormatISODate())
+
+        # dlg = CalendarDlg(self)
+        # dlg.CentreOnScreen()
+        # if dlg.ShowModal() == wx.ID_OK:
+        #     self.date = dlg.cal.Date
+        #     self.Value = self.date.Format(self.display_format)
+        #     self.current_format = self.DISPLAY_FORMAT
+        #     self.nav = True  # force navigation to next control
+        # dlg.Destroy()
+
 
 class HelpPopup(wx.PopupTransientWindow):
     def __init__(self, parent, message, sample):
@@ -657,7 +681,7 @@ class HelpPopup(wx.PopupTransientWindow):
         panel = wx.Panel(self)
 
         st = wx.StaticText(panel, -1,
-                           "Description:\n" +
+                           "Description:\n" + 
                            message + "\n\n" +
                            "Example:\n" +
                            sample)

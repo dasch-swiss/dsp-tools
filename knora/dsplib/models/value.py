@@ -835,7 +835,6 @@ class ListValue(Value):
 
         def find_listnode(nodes: List[ListNode], name: str) -> Union[str, None]:
             for node in nodes:
-                print('node.name=', node.name, '  name=', name)
                 if node.name == name:
                     return node.id
                 else:
@@ -863,7 +862,6 @@ class ListValue(Value):
             for list in lists:
                 if list.name == listname:
                     node_iri = find_listnode(list.children, nodename)
-                    print('=====>', node_iri)
             if node_iri is not None:
                 self._value = node_iri
             else:

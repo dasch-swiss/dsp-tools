@@ -213,14 +213,10 @@ class KnoraResource:
         self._properties = []
         for subnode in node:
             if subnode.tag == 'image':
-                print("image-tag: ", etree.tostring(subnode))
-                print(subnode.text)
                 self._image = subnode.text
             elif subnode.tag is etree.Comment:
                     continue
             else:
-                pprint(subnode)
-                print(etree.tostring(subnode))
                 ptype, dummy = subnode.tag.split('-')
                 self._properties.append(KnoraProperty(subnode, ptype, default_ontology))
 
@@ -502,7 +498,6 @@ def xml_upload(input_file: str,
         if child.tag == "permissions":
             permission = XmlPermission(child, proj_context)
             permissions[permission.id] = permission
-            permission.print()
         elif child.tag == "resource":
             resources.append(KnoraResource(child, default_ontology))
 

@@ -208,7 +208,7 @@ class ResourceInstance(Model):
     def create(self):
         jsonobj = self.toJsonLdObj(Actions.Create)
         jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
-        print(jsondata)
+        # print(jsondata)
         result = self._con.post('/v2/resources', jsondata)
         newinstance = self.clone()
         newinstance._iri = result['@id']

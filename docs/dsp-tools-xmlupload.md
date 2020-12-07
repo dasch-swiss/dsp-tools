@@ -273,7 +273,7 @@ calendar:epoch:yyyy-mm-dd:epoch:yyyy-mm-dd
 - _dd_: day eith two digits
 
 If two dates are given, the date is in between the two given limits. If the day is omitted,
-then the precision it _month_, if also the month is omited, the procision is _year_.
+then the precision it _month_, if also the month is omited, the precision is _year_.
 
 _Options_:
 - _permissions_: ID or a permission set. Optional, but if omitted very restricted default permissions apply!

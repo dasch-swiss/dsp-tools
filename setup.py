@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='dsp-tools',
-    version='0.9.4',
+    version='0.9.9',
     description='A Python library and tools for the DaSCH Service Platform',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -24,6 +24,7 @@ setuptools.setup(
     ],
     python_requires='>=3.9.0',
     install_requires=[
+        'argparse',
         'rdflib',
         'lxml',
         'validators',

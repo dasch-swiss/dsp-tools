@@ -18,6 +18,7 @@ def program(args):
     parser = argparse.ArgumentParser(
         description="A program to create and manipulate ontologies based on the DaSCH Service Platform"
     )
+
     subparsers = parser.add_subparsers(title="Subcommands",
                                        description='Valid subcommands are',
                                        help='sub-command help')
@@ -55,6 +56,10 @@ def program(args):
 
     args = parser.parse_args(args)
 
+    if not hasattr(args, 'action'):
+        parser.print_help(sys.stderr)
+        exit(0)
+
     if args.action == "create":
         if args.lists:
             if args.validate:
@@ -66,7 +71,7 @@ def program(args):
                 validate_ontology(args.datamodelfile)
             else:
                 create_ontology(args.datamodelfile, args.listfile, args.server, args.user, args.password, args.verbose,
-                                args.dump)
+                                args.dump if args.dump else False)
     elif args.action == "get":
         get_ontology(args.project, args.outfile, args.server, args.user, args.password, args.verbose)
     elif args.action == "xmlupload":

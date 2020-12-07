@@ -1,5 +1,5 @@
 include README.md
 include knora/dsplib/utils/knora-schema.json
 include knora/dsplib/utils/knora-schema-lists.json
-include knora/knora-data-schema.xsd
+include knora/dsplib/utils/knora-data-schema.xsd
 include knora/icons/knora-py-logo.png

@@ -497,9 +497,7 @@ def xml_upload(input_file: str,
     tree = etree.parse(input_file)
     knora = tree.getroot()
     default_ontology = knora.attrib['default-ontology']
-    print("default_ontology: ", default_ontology)
     shortcode = knora.attrib['shortcode']
-    print("shortcode: ", shortcode)
     for child in knora:
         if child.tag == "permissions":
             permission = XmlPermission(child, proj_context)
@@ -529,7 +527,6 @@ def xml_upload(input_file: str,
 
     for resource in resources:
         if resource.image:
-            print("resource.image: ", resource.image)
             img = sipi.upload_image(os.path.join(imgdir, resource.image))
             stillimage = img['uploadedFiles'][0]['internalFilename']
         else:
@@ -538,8 +535,6 @@ def xml_upload(input_file: str,
                                                 label=resource.label,
                                                 permissions=permissions_lookup.get(resource.permissions),
                                                 stillimage=stillimage,
-                                                values=resource.get_propvals(resiri_lookup, permissions_lookup))
-        instance.print()
-        instance.create()
+                                                values=resource.get_propvals(resiri_lookup, permissions_lookup)).create()
         resiri_lookup[resource.id] = instance.iri
         print("Created:", instance.iri)

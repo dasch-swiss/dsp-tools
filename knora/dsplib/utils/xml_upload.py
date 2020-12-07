@@ -213,8 +213,14 @@ class KnoraResource:
         self._properties = []
         for subnode in node:
             if subnode.tag == 'image':
-                self._image = node.text
+                print("image-tag: ", etree.tostring(subnode))
+                print(subnode.text)
+                self._image = subnode.text
+            elif subnode.tag is etree.Comment:
+                    continue
             else:
+                pprint(subnode)
+                print(etree.tostring(subnode))
                 ptype, dummy = subnode.tag.split('-')
                 self._properties.append(KnoraProperty(subnode, ptype, default_ontology))
 
@@ -523,6 +529,7 @@ def xml_upload(input_file: str,
 
     for resource in resources:
         if resource.image:
+            print("resource.image: ", resource.image)
             img = sipi.upload_image(os.path.join(imgdir, resource.image))
             stillimage = img['uploadedFiles'][0]['internalFilename']
         else:

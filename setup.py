@@ -13,10 +13,7 @@ setuptools.setup(
     author='Lukas Rosenthaler',
     author_email='lukas.rosenthaler@dasch.swiss',
     license='GPLv3',
-    packages=setuptools.find_packages('./knora'),
-    package_dir={
-        '': 'knora'
-    },
+    packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",

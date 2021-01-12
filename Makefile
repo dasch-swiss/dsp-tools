@@ -71,4 +71,11 @@ clean: ## cleans the project directory
 help: ## this help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort
 
+.PHONY: run
+run: ## create dist, inatall and run
+	$(MAKE) clean
+	$(MAKE) dist
+	$(MAKE) install
+	dsp-tools
+
 .DEFAULT_GOAL := help

@@ -26,6 +26,7 @@ from .value import KnoraStandoffXml, Value, TextValue, ColorValue, DateValue, De
 
 from pprint import pprint
 
+
 class KnoraStandoffXmlEncoder(json.JSONEncoder):
     """Classes used as wrapper for knora standoff-XML"""
     def default(self, obj) -> str:
@@ -45,13 +46,20 @@ class Propinfo:
 
 @strict
 class ResourceInstance(Model):
+    baseclasses_with_bitstream: Set[str] = {
+        'StillImageRepresentation',
+        'AudioRepresentation',
+        'DocumentRepresentation',
+        'MovingImageRepresentation',
+        'DDDRepresentation',
+        'TextRepresentation'}
     _iri: Union[str, None]
     _ark: Union[str, None]
     _vark: Union[str, None]
     _label: Union[str, None]
     _permissions: Union[Permissions, None]
     _upermission: Union[PermissionValue, None]
-    _stillimage: Union[str, None]
+    _bitstream: Union[str, None]
     _values: Union[Dict[Value, List[Value]], None]
 
     def __init__(self,
@@ -62,7 +70,7 @@ class ResourceInstance(Model):
                  label: Optional[str] = None,
                  permissions: Optional[Permissions] = None,
                  upermission: Optional[PermissionValue] = None,
-                 stillimage: Optional[str] = None,
+                 bitstream: Optional[str] = None,
                  values: Optional[Dict[str, Union[str, List[str], Dict[str, str], List[Dict[str,str]], Value, List[Value]]]] = None):
         super().__init__(con)
         self._iri = iri
@@ -71,14 +79,15 @@ class ResourceInstance(Model):
         self._vark = vark
         self._permissions = permissions
         self._upermission = upermission
-        if self.baseclass == 'StillImageRepresentation' and stillimage is None:
-            raise BaseError("The baseclass \"StillImageRepresentation\" requires a stillimage value!")
-        if self.baseclass != 'StillImageRepresentation' and stillimage is not None:
-            raise BaseError("The baseclass \"{}\" does not allow a stillimage value!".format(self.baseclass))
-        if self.baseclass == 'StillImageRepresentation' and stillimage is not None:
-            self._stillimage = stillimage
+
+        if self.baseclass in self.baseclasses_with_bitstream and bitstream is None:
+            raise BaseError("The baseclass \"{}\" requires a bitstream value!".format(self.baseclass))
+        if self.baseclass not in self.baseclasses_with_bitstream and bitstream is not None:
+            raise BaseError("The baseclass \"{}\" does not allow a bitstream value!".format(self.baseclass))
+        if self.baseclass in self.baseclasses_with_bitstream and bitstream is not None:
+            self._bitstream = bitstream
         else:
-            self._stillimage = None
+            self._bitstream = None
 
         self._values = {}
         if values:
@@ -183,10 +192,10 @@ class ResourceInstance(Model):
             tmp['rdfs:label'] = self._label
             if self._permissions:
                 tmp["knora-api:hasPermissions"] = self._permissions.toJsonLdObj()
-            if self._stillimage:
+            if self._bitstream:
                 tmp["knora-api:hasStillImageFileValue"] = {
                     "@type": "knora-api:StillImageFileValue",
-                    "knora-api:fileValueHasFilename": self._stillimage
+                    "knora-api:fileValueHasFilename": self._bitstream
                 }
             for propname, valtype in self._values.items():
                 if type(valtype) is list:

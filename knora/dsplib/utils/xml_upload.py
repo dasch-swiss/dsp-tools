@@ -460,7 +460,8 @@ def xml_upload(input_file: str,
                password: str,
                imgdir: str,
                sipi: str,
-               verbose: bool) -> bool:
+               verbose: bool,
+               validate: bool) -> bool:
     current_dir = os.path.dirname(os.path.realpath(__file__))
 
     xmlschema_doc = etree.parse(os.path.join(current_dir, 'knora-data-schema.xsd'))
@@ -471,6 +472,9 @@ def xml_upload(input_file: str,
     del xmlschema
     del doc
     del xmlschema_doc
+
+    if validate:
+        return
 
     print("The input data file is syntactically correct and passed validation!")
 
@@ -523,13 +527,13 @@ def xml_upload(input_file: str,
     for resource in resources:
         if resource.image:
             img = sipi.upload_image(os.path.join(imgdir, resource.image))
-            stillimage = img['uploadedFiles'][0]['internalFilename']
+            bitstream = img['uploadedFiles'][0]['internalFilename']
         else:
-            stillimage = None
+            bitstream = None
         instance = resclasses[resource.restype](con=con,
                                                 label=resource.label,
                                                 permissions=permissions_lookup.get(resource.permissions),
-                                                stillimage=stillimage,
+                                                bitstream=bitstream,
                                                 values=resource.get_propvals(resiri_lookup, permissions_lookup)).create()
         resiri_lookup[resource.id] = instance.iri
         print("Created:", instance.iri)

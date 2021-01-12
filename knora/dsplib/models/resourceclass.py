@@ -81,7 +81,7 @@ class HasProperty(Model):
 
     @property_id.setter
     def property_id(self, value: str) -> None:
-        raise BaseError('"property_id" cannot be modified!')
+        raise BaseError('property_id "{}" cannot be modified!'.format(self._property_id))
 
     @property
     def resclass_id(self) -> Optional[str]:
@@ -582,7 +582,7 @@ class ResourceClass(Model):
             self._has_properties[hp.property_id] = hp
             return latest_modification_date
         else:
-            raise BaseError("Property already has cardinality in this class!")
+            raise BaseError("Property already has cardinality in this class! " + property_id)
 
     def updateProperty(self,
                        last_modification_date: LastModificationDate,

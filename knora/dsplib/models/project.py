@@ -442,7 +442,7 @@ class Project(Model):
         if result is not None:
             return Project.fromJsonObj(self._con, result['project'])
         else:
-            return None
+            return None # Todo: throw exception
 
     def update(self) -> Union['Project', None]:
         """

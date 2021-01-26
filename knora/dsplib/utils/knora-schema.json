@@ -232,7 +232,8 @@
                 "TimeValue",
                 "UriValue",
                 "IntervalValue",
-                "ListValue"
+                "ListValue",
+                "Region"
               ]
             },
             {
@@ -325,7 +326,14 @@
       "properties": {
         "propname": {
           "type": "string",
-          "pattern": "^(([\\w-]*)?:([\\w ]+))$"
+          "oneOf": [
+            {
+              "enum": ["Region", "isPartOf", "seqnum"]
+            },
+            {
+              "pattern": "^(([\\w-]*)?:([\\w ]+))$"
+            }
+          ]
         },
         "cardinality": {
           "type": "string",

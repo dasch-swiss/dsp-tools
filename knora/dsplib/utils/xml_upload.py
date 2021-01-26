@@ -188,7 +188,7 @@ class KnoraResource:
     _label: str
     _restype: str
     _permissions: str
-    _image: str
+    _bitstream: str
     _properties: List[KnoraProperty]
 
     def __init__(self, node: etree.Element, default_ontology: Optional[str] = None) -> None:
@@ -209,11 +209,11 @@ class KnoraResource:
         else:
             self._restype = 'knora-admin:' + tmp[0]
         self._permissions = node.attrib['permissions']
-        self._image = None
+        self._bitstream = None
         self._properties = []
         for subnode in node:
-            if subnode.tag == 'image':
-                self._image = subnode.text
+            if subnode.tag == 'bitstream':
+                self._bitstream = subnode.text
             elif subnode.tag is etree.Comment:
                     continue
             else:
@@ -233,17 +233,17 @@ class KnoraResource:
         return self._restype
 
     @property
-    def image(self) -> str:
-        return self._image
+    def bitstream(self) -> str:
+        return self._bitstream
 
     @property
     def permissions(self):
         return self._permissions
 
     def print(self):
-        print('Resource: id={} restype: {} label: {}'.format(self._id, self._restype, self._label))
-        if self._image is not None:
-            print(' Image: ' + self._image)
+        print(f'Resource: id={self._id} restype: {self._restype} label: {self._label}')
+        if self._bitstream is not None:
+            print(' Bitstream: ' + self._bitstream)
         for property in self._properties:
             property.print()
 
@@ -525,8 +525,9 @@ def xml_upload(input_file: str,
     resiri_lookup: StrDict = {}
 
     for resource in resources:
-        if resource.image:
-            img = sipi.upload_image(os.path.join(imgdir, resource.image))
+        #resource.print()
+        if resource.bitstream:
+            img = sipi.upload_bitstream(os.path.join(imgdir, resource.bitstream))
             bitstream = img['uploadedFiles'][0]['internalFilename']
         else:
             bitstream = None

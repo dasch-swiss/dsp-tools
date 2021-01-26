@@ -56,6 +56,8 @@ class HasProperty(Model):
         self._context = context
         if ontology_id is not None:
             self._ontology_id = context.iri_from_prefix(ontology_id)
+        else:
+            self._ontology_id = None
         self._property_id = property_id
         self._resclass_id = resclass_id
         self._cardinality = cardinality
@@ -577,8 +579,8 @@ class ResourceClass(Model):
                                                              cardinality=cardinality,
                                                              gui_order=gui_order).create(last_modification_date)
             hp = resclass.getProperty(property_id)
-            hp.ontology_id = self._context.iri_from_prefix(self._ontology_id)
-            hp.resclass_id = self._id
+            hp._ontology_id = self._context.iri_from_prefix(self._ontology_id)
+            hp._resclass_id = self._id
             self._has_properties[hp.property_id] = hp
             return latest_modification_date
         else:
@@ -725,7 +727,7 @@ class ResourceClass(Model):
     def create(self, last_modification_date: LastModificationDate) -> Tuple[LastModificationDate, 'ResourceClass']:
         jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-        print(jsondata)
+        #print(jsondata)
         result = self._con.post('/v2/ontologies/classes', jsondata)
         last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result['@graph'])

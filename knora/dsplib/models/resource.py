@@ -53,6 +53,10 @@ class ResourceInstance(Model):
         'MovingImageRepresentation',
         'DDDRepresentation',
         'TextRepresentation'}
+    knora_properties: Set[str] = {
+        "knora-api:isPartOf",
+        "knora-api:seqnum",
+    }
     _iri: Union[str, None]
     _ark: Union[str, None]
     _vark: Union[str, None]
@@ -101,7 +105,7 @@ class ResourceInstance(Model):
                         self._values[propname] = []
                         for val in vals:
                             if valcnt > 0 and (propinfo.cardinality == Cardinality.C_0_1 or propinfo.cardinality == Cardinality.C_1):
-                                raise BaseError("Cardinality does not allow multiple values for \"{}\"!".format(propname))
+                                raise BaseError(f'Cardinality does not allow multiple values for "{propname}"!')
                             if type(val) is Value:
                                 self._values[propname].append(val)
                             elif type(val) is dict:
@@ -128,8 +132,8 @@ class ResourceInstance(Model):
                     if propinfo.cardinality == Cardinality.C_1 or propinfo.cardinality == Cardinality.C_1_n:
                         raise BaseError("Cardinality does require at least one value for \"{}\"!".format(propname))
             for propname in values:
-                if self.properties.get(propname) is None:
-                    raise BaseError("Property \"{}\" is not part of data model!".format(propname))
+                if propname not in self.knora_properties and self.properties.get(propname) is None:
+                    raise BaseError(f'Property "{propname}" is not part of data model!')
 
     @property
     def iri(self) -> str:
@@ -217,7 +221,7 @@ class ResourceInstance(Model):
     def create(self):
         jsonobj = self.toJsonLdObj(Actions.Create)
         jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
-        # print(jsondata)
+        #print(jsondata)
         result = self._con.post('/v2/resources', jsondata)
         newinstance = self.clone()
         newinstance._iri = result['@id']
@@ -251,6 +255,19 @@ class ResourceInstance(Model):
             else:
                 print(name, ':', str(val))
 
+
+# ToDo: special resourceclasses and properties of knora-api
+#
+# - knora-api:isPartOf -> Object: knora-api:Resource
+# - knora-api:author -> Object: knora-api:User
+# - knora-api:seqnum -> Object: knora-api:IntValue
+# - knora-api:hasComment -> Object: knora-api:TextValue
+#
+# knora-api:Region: IS a resource
+# - knora-api:hasGeometry
+# - knora-api:isRegionOf
+# - knora-api:hasColor
+# - knora-api:hasComment
 
 @strict
 class ResourceInstanceFactory:
@@ -342,7 +359,22 @@ class ResourceInstanceFactory:
             'knora-api:LinkValue': LinkValue,
         }
         for propname, has_property in resclass.has_properties.items():
-            if has_property.ptype == HasProperty.Ptype.other:
+            if propname == "knora-api:isPartOf":
+                valtype = LinkValue
+                props[propname] = Propinfo(valtype=valtype,
+                                           cardinality=has_property.cardinality,
+                                           gui_order=has_property.gui_order)
+            elif propname == "knora-api:seqnum":
+                valtype = IntValue
+                props[propname] = Propinfo(valtype=valtype,
+                                           cardinality=has_property.cardinality,
+                                           gui_order=has_property.gui_order)
+            elif propname == "knora-api:hasComment":
+                valtype = TextValue
+                props[propname] = Propinfo(valtype=valtype,
+                                           cardinality=has_property.cardinality,
+                                           gui_order=has_property.gui_order)
+            elif has_property.ptype == HasProperty.Ptype.other:
                 valtype = switcher.get(self._properties[propname].object)
                 if valtype == LinkValue:
                     continue  # we have the Link to the LinkValue which we do not use

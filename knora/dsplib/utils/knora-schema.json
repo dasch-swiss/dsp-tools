@@ -233,7 +233,9 @@
                 "UriValue",
                 "IntervalValue",
                 "ListValue",
-                "Region"
+                "Region",
+                "Resource",
+                "Annotation"
               ]
             },
             {

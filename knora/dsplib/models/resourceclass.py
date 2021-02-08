@@ -727,7 +727,6 @@ class ResourceClass(Model):
     def create(self, last_modification_date: LastModificationDate) -> Tuple[LastModificationDate, 'ResourceClass']:
         jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-        #print(jsondata)
         result = self._con.post('/v2/ontologies/classes', jsondata)
         last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result['@graph'])

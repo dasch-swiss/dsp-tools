@@ -197,10 +197,28 @@ class ResourceInstance(Model):
             if self._permissions:
                 tmp["knora-api:hasPermissions"] = self._permissions.toJsonLdObj()
             if self._bitstream:
-                tmp["knora-api:hasStillImageFileValue"] = {
-                    "@type": "knora-api:StillImageFileValue",
-                    "knora-api:fileValueHasFilename": self._bitstream
-                }
+                if self.baseclass == 'StillImageRepresentation':
+                    tmp["knora-api:hasStillImageFileValue"] = {
+                        "@type": "knora-api:StillImageFileValue",
+                        "knora-api:fileValueHasFilename": self._bitstream
+                    }
+                elif self.baseclass == 'DocumentRepresentation':
+                    tmp["knora-api:hasDocumentFileValue"] = {
+                        "@type": "knora-api:DocumentFileValue",
+                        "knora-api:fileValueHasFilename": self._bitstream
+                    }
+                elif self.baseclass == 'TextRepresentation':
+                    tmp["knora-api:hasTextFileValue"] = {
+                        "@type": "knora-api:TextFileValue",
+                        "knora-api:fileValueHasFilename": self._bitstream
+                    }
+                elif self.baseclass == 'AudioRepresentation':
+                    tmp["knora-api:hasAudioFileValue"] = {
+                        "@type": "knora-api:AudioFileValue",
+                        "knora-api:fileValueHasFilename": self._bitstream
+                    }
+                else:
+                    raise BaseError(f'Baseclass "{self.baseclass}" not yet supported!')
             for propname, valtype in self._values.items():
                 if type(valtype) is list:
                     if type(valtype[0]) is LinkValue:

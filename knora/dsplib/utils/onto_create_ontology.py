@@ -52,6 +52,7 @@ def create_ontology(input_file: str,
     #
     context = Context(datamodel["prefixes"])
 
+
     # --------------------------------------------------------------------------
     # Let's create the project...
     #
@@ -152,7 +153,7 @@ def create_ontology(input_file: str,
             if verbose:
                 print("Groups:")
                 new_group.print()
-
+            #project.set_default_permissions(new_group.id)
     # --------------------------------------------------------------------------
     # now let's add the users (if there are users defined...)
     #
@@ -304,6 +305,14 @@ def create_ontology(input_file: str,
         if verbose:
             print("Created empty ontology:")
             newontology.print()
+
+        #
+        # add prefixes defined in json file...
+        #
+        for prefix, iri in context:
+            if not prefix in newontology.context:
+                s = iri.iri + ("#" if iri.hashtag else "")
+                newontology.context.add_context(prefix, s)
 
         #
         # First we create the empty resource classes

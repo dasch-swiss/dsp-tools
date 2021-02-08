@@ -98,27 +98,3 @@ For local development:
 ```bash
 $ python3 setup.py develop
 ```
-
-## Testing
-
-```bash
-$ pip3 install pytest
-$ pip3 install --editable .
-$ pytest
-```
-
-## Requirements
-
-To install the requirements:
-
-```bash
-$ pip3 install -r requirements.txt
-```
-
-
-To generate a "requirements" file (usually requirements.txt), that you commit with your project, do:
-
-```bash
-$ pip3 freeze > requirements.txt
-```
-

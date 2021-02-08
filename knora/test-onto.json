@@ -420,6 +420,40 @@
             ]
           },
           {
+            "name":  "ZipThing",
+            "super": "DocumentRepresentation",
+            "labels": {
+              "en": "A ZIP Thing"
+            },
+            "comments": {
+              "en": "A  things for testing ZIPS."
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasText",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name":  "TextThing",
+            "super": "TextRepresentation",
+            "labels": {
+              "en": "A Text Thing"
+            },
+            "comments": {
+              "en": "A  things for testing TEXTS."
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasText",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
             "name":  "PartOfThing",
             "super": "StillImageRepresentation",
             "labels": {

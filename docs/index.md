@@ -51,6 +51,14 @@ To generate a "requirements" file (usually requirements.txt), that you commit wi
 $ pip3 freeze > requirements.txt
 ```
 
+## Testing
+
+```bash
+$ pip3 install pytest
+$ pip3 install --editable .
+$ pytest
+```
+
 ## Publishing
 
 Generate distribution package. Make sure you have the latest versions of `setuptools` and `wheel` installed:

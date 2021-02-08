@@ -15,7 +15,7 @@ The package consists of:
     - dump an existing ontology from a DSP server to a JSON file
     - Bulk-upload of data from a XML data file
 
-## Install
+# Install
 
 To install the latest version published on PyPI run:
 ```
@@ -26,6 +26,10 @@ To update to the latest version run:
 ```
 $ pip3 install --upgrade dsp-tools
 ```
+
+# Developer
+
+## Install from source
 
 To install from source, i.e. this repository run:
 ```

@@ -63,6 +63,10 @@ class Connection:
 
         return self._token
 
+    @property
+    def token(self) -> str:
+        return self._token
+
     def start_logging(self):
         self._log = True
 

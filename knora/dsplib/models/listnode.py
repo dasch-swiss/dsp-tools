@@ -448,7 +448,12 @@ class ListNode(Model):
         """
 
         result = self._con.get('/admin/lists/nodes/' + quote_plus(self._id))
-        return self.fromJsonObj(self._con, result['nodeinfo'])
+        if result.get('nodeinfo'):
+            return self.fromJsonObj(self._con, result['nodeinfo'])
+        elif result.get('listinfo'):
+            return self.fromJsonObj(self._con, result['listinfo'])
+        else:
+            return None
 
     def update(self) -> Union[Any, None]:
         """

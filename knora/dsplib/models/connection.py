@@ -5,7 +5,6 @@ from typing import List, Set, Dict, Tuple, Optional, Any, Union
 
 from .helpers import Actions, BaseError
 
-
 @strict
 class Connection:
     """
@@ -17,9 +16,10 @@ class Connection:
     none (internal use attributes should not be modified/set directly)
     """
 
-    server: str
-    prefixes: Union[Dict[str, str], None]
-    token: Union[str, None]
+    _server: str
+    _prefixes: Union[Dict[str, str], None]
+    _token: Union[str, None]
+    _log: bool
 
     def __init__(self, server: str, prefixes: Dict[str, str] = None):
         """
@@ -28,9 +28,10 @@ class Connection:
         :param prefixes: Ontology prefixes used
         """
 
-        self.server = server
-        self.prefixes = prefixes
-        self.token = None
+        self._server = server
+        self._prefixes = prefixes
+        self._token = None
+        self._log = False
 
     def login(self, email: str, password: str) -> None:
         """
@@ -46,13 +47,13 @@ class Connection:
         jsondata = json.dumps(credentials)
 
         req = requests.post(
-            self.server + '/v2/authentication',
+            self._server + '/v2/authentication',
             headers={'Content-Type': 'application/json; charset=UTF-8'},
             data=jsondata
         )
         self.on_api_error(req)
         result = req.json()
-        self.token = result["token"]
+        self._token = result["token"]
 
     def get_token(self) -> str:
         """
@@ -60,7 +61,17 @@ class Connection:
         :return: token string
         """
 
-        return self.token
+        return self._token
+
+    @property
+    def token(self) -> str:
+        return self._token
+
+    def start_logging(self):
+        self._log = True
+
+    def stop_logging(self):
+        self._log = False
 
     def logout(self) -> None:
         """
@@ -68,13 +79,13 @@ class Connection:
         :return: None
         """
 
-        if self.token is not None:
+        if self._token is not None:
             req = requests.delete(
-                self.server + '/v2/authentication',
-                headers={'Authorization': 'Bearer ' + self.token}
+                self._server + '/v2/authentication',
+                headers={'Authorization': 'Bearer ' + self._token}
             )
             self.on_api_error(req)
-            self.token = None
+            self._token = None
 
     def __del__(self):
         pass
@@ -103,22 +114,44 @@ class Connection:
 
         if path[0] != '/':
             path = '/' + path
+        headers = None
         if jsondata is None:
-            if self.token is not None:
-                req = requests.post(self.server + path,
-                                    headers={'Authorization': 'Bearer ' + self.token})
+            if self._token is not None:
+                headers = {'Authorization': 'Bearer ' + self._token}
+                req = requests.post(self._server + path,
+                                    headers=headers)
             else:
-                req = requests.post(self.server + path)
+                req = requests.post(self._server + path)
         else:
-            if self.token is not None:
-                req = requests.post(self.server + path,
-                                    headers={'Content-Type': 'application/json; charset=UTF-8',
-                                             'Authorization': 'Bearer ' + self.token},
+            if self._token is not None:
+                headers = {'Content-Type': 'application/json; charset=UTF-8',
+                           'Authorization': 'Bearer ' + self._token}
+                req = requests.post(self._server + path,
+                                    headers=headers,
                                     data=jsondata)
             else:
-                req = requests.post(self.server + path,
-                                    headers={'Content-Type': 'application/json; charset=UTF-8'},
+                headers = {'Content-Type': 'application/json; charset=UTF-8'}
+                req = requests.post(self._server + path,
+                                    headers=headers,
                                     data=jsondata)
+        if self._log:
+            if jsondata:
+                jsonobj = json.loads(jsondata)
+            else:
+                jsonobj = None
+            logobj = {
+                "method": "POST",
+                "headers": headers,
+                "route": path,
+                "body": jsonobj,
+                "return-headers": dict(req.headers),
+                "return": req.json() if req.status_code == 200 else {"status": str(req.status_code),
+                                                                     "message": req.text}
+            }
+            tmp = path.split('/')
+            filename = "POST" + "_".join(tmp) + ".json"
+            with open(filename, 'w') as f:
+                json.dump(logobj, f, indent=3)
         self.on_api_error(req)
         result = req.json()
         return result
@@ -133,18 +166,18 @@ class Connection:
 
         if path[0] != '/':
             path = '/' + path
-        if self.token is None:
+        if self._token is None:
             if headers is None:
-                req = requests.get(self.server + path)
+                req = requests.get(self._server + path)
             else:
-                req = requests.get(self.server + path, headers)
+                req = requests.get(self._server + path, headers)
         else:
             if headers is None:
-                req = requests.get(self.server + path,
-                                   headers={'Authorization': 'Bearer ' + self.token})
+                req = requests.get(self._server + path,
+                                   headers={'Authorization': 'Bearer ' + self._token})
             else:
-                headers['Authorization'] = 'Bearer ' + self.token
-                req = requests.get(self.server + path, headers)
+                headers['Authorization'] = 'Bearer ' + self._token
+                req = requests.get(self._server + path, headers)
 
         self.on_api_error(req)
         result = req.json()
@@ -162,12 +195,12 @@ class Connection:
         if path[0] != '/':
             path = '/' + path
         if jsondata is None:
-            req = requests.put(self.server + path,
-                               headers={'Authorization': 'Bearer ' + self.token})
+            req = requests.put(self._server + path,
+                               headers={'Authorization': 'Bearer ' + self._token})
         else:
-            req = requests.put(self.server + path,
+            req = requests.put(self._server + path,
                                headers={'Content-Type': content_type + '; charset=UTF-8',
-                                        'Authorization': 'Bearer ' + self.token},
+                                        'Authorization': 'Bearer ' + self._token},
                                data=jsondata)
         self.on_api_error(req)
         result = req.json()
@@ -183,13 +216,13 @@ class Connection:
         if path[0] != '/':
             path = '/' + path
         if params is not None:
-            req = requests.delete(self.server + path,
-                                  headers={'Authorization': 'Bearer ' + self.token},
+            req = requests.delete(self._server + path,
+                                  headers={'Authorization': 'Bearer ' + self._token},
                                   params=params)
 
         else:
-            req = requests.delete(self.server + path,
-                                  headers={'Authorization': 'Bearer ' + self.token})
+            req = requests.delete(self._server + path,
+                                  headers={'Authorization': 'Bearer ' + self._token})
         self.on_api_error(req)
         result = req.json()
         return result
@@ -230,7 +263,7 @@ class Connection:
             }
         ]
         jsondata = json.dumps(rdfdata)
-        url = self.server + '/admin/store/ResetTriplestoreContent?prependdefaults=false'
+        url = self._server + '/admin/store/ResetTriplestoreContent?prependdefaults=false'
 
         req = requests.post(url,
                             headers={'Content-Type': 'application/json; charset=UTF-8'},

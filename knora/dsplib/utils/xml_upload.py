@@ -86,8 +86,7 @@ class KnoraValue:
     is_richtext: bool
 
     def __init__(self,
-                 context: etree.iterparse,
-                 node: Tuple,
+                 node: etree.Element,
                  valtype: str,
                  listname: Optional[str] = None) -> None:
 
@@ -111,24 +110,6 @@ class KnoraValue:
                 self._value = listname + ':' + "".join(node.itertext())
             else:
                 self._value = "".join(node.itertext())
-        richtext_stack: List[str] = []
-        while True:
-            event, subnode = next(context)
-            if event == 'start':
-                if node.tag == 'text' and subnode.tag in richtext_tags:
-                    richtext_stack.append(subnode.tag)
-                    continue
-                raise XmlError(
-                    'Unexpected start tag: "{}" value-tags may contain no other tags!'.format(subnode.tag))
-            else:
-                if richtext_stack and subnode.tag == richtext_stack[-1]:
-                    richtext_stack.pop()
-                    continue
-                if subnode.tag == valtype:
-                    break
-                else:
-                    pprint(richtext_stack)
-                    raise XmlError('Unexpected end tag: "{}", but </{}> expected!'.format(subnode.tag, valtype))
 
     @property
     def value(self):
@@ -165,7 +146,7 @@ class KnoraProperty:
     _valtype: str
     _values: List[KnoraValue]
 
-    def __init__(self, context: etree.iterparse, node: Tuple, valtype: str, default_ontology: Optional[str] = None):
+    def __init__(self, node: etree.Element, valtype: str, default_ontology: Optional[str] = None):
         tmp = node.attrib['name'].split(':')
         if len(tmp) > 1:
             if tmp[0]:
@@ -178,25 +159,11 @@ class KnoraProperty:
         self._valtype = valtype
         self._values = []
 
-        while True:
-            event, subnode = next(context)
-            if event == 'start':
-                if subnode.tag == valtype:  # the subnode must correspond to the expected value type
-                    self._values.append(KnoraValue(context, subnode, valtype, listname))
-                else:
-                    raise XmlError('Unexpected start tag: "{}" <property> may contain only <value> tags!'.format(subnode.tag))
+        for subnode in node:
+            if subnode.tag == valtype:  # the subnode must correspond to the expected value type
+                self._values.append(KnoraValue(subnode, valtype, listname))
             else:
-                if subnode.tag == 'text-prop' or subnode.tag == 'color-prop' or \
-                    subnode.tag == 'date-prop' or subnode.tag == 'decimal-prop' or \
-                    subnode.tag == 'geometry-prop' or subnode.tag == 'geoname-prop' or \
-                    subnode.tag == 'list-prop' or subnode.tag == 'iconclass-prop' or \
-                    subnode.tag == 'integer-prop' or subnode.tag == 'interval-prop' or \
-                    subnode.tag == 'period-prop' or subnode.tag == 'resptr-prop' or \
-                    subnode.tag == 'resptr-prop' or subnode.tag == 'time-prop' or \
-                    subnode.tag == 'uri-prop' or subnode.tag == 'boolean-prop':
-                    break
-                else:
-                    raise XmlError('Unknown endtag for property: "{}"!'.format(subnode.tag))
+                raise XmlError('Unexpected tag: "{}" <property> may contain only <value> tags!'.format(subnode.tag))
 
     @property
     def name(self):
@@ -221,10 +188,10 @@ class KnoraResource:
     _label: str
     _restype: str
     _permissions: str
-    _image: str
+    _bitstream: str
     _properties: List[KnoraProperty]
 
-    def __init__(self, context: etree.iterparse, node: Tuple, default_ontology: Optional[str] = None) -> None:
+    def __init__(self, node: etree.Element, default_ontology: Optional[str] = None) -> None:
         """
         Constructor that parses a resource node from the XML DOM
 
@@ -242,52 +209,16 @@ class KnoraResource:
         else:
             self._restype = 'knora-admin:' + tmp[0]
         self._permissions = node.attrib['permissions']
-        self._image = None
+        self._bitstream = None
         self._properties = []
-        while True:
-            event, subnode = next(context)
-            if event == 'start':
-                if subnode.tag == 'image':
-                    self._image = node.text
-                elif subnode.tag == 'text-prop':
-                    self._properties.append(KnoraProperty(context, subnode, 'text', default_ontology))
-                elif subnode.tag == 'color-prop':
-                    self._properties.append(KnoraProperty(context, subnode, 'color', default_ontology))
-                elif subnode.tag == 'date-prop':
-                    self._properties.append(KnoraProperty(context, subnode, 'date', default_ontology))
-                elif subnode.tag == 'decimal-prop':
-                    self._properties.append(KnoraProperty(context, subnode, 'decimal', default_ontology))
-                elif subnode.tag == 'geometry-prop':
-                    self._properties.append(KnoraProperty(context, subnode, 'geometry', default_ontology))
-                elif subnode.tag == 'geoname-prop':
-                    self._properties.append(KnoraProperty(context, subnode, 'geoname', default_ontology))
-                elif subnode.tag == 'list-prop':
-                    self._properties.append(KnoraProperty(context, subnode, 'list', default_ontology))
-                elif subnode.tag == 'iconclass-prop':
-                    self._properties.append(KnoraProperty(context, subnode, 'iconclass', default_ontology))
-                elif subnode.tag == 'integer-prop':
-                    self._properties.append(KnoraProperty(context, subnode, 'integer', default_ontology))
-                elif subnode.tag == 'interval-prop':
-                    self._properties.append(KnoraProperty(context, subnode, 'interval', default_ontology))
-                elif subnode.tag == 'period-prop':
-                    self._properties.append(KnoraProperty(context, subnode, 'period', default_ontology))
-                elif subnode.tag == 'resptr-prop':
-                    self._properties.append(KnoraProperty(context, subnode, 'resptr', default_ontology))
-                elif subnode.tag == 'time-prop':
-                    self._properties.append(KnoraProperty(context, subnode, 'time', default_ontology))
-                elif subnode.tag == 'uri-prop':
-                    self._properties.append(KnoraProperty(context, subnode, 'uri', default_ontology))
-                elif subnode.tag == 'boolean-prop':
-                    self._properties.append(KnoraProperty(context, subnode, 'boolean', default_ontology))
-                else:
-                    raise XmlError('Unexpected start tag: "{}" <resource> may contain only <property> or <image> tags!'.format(subnode.tag))
+        for subnode in node:
+            if subnode.tag == 'bitstream':
+                self._bitstream = subnode.text
+            elif subnode.tag is etree.Comment:
+                    continue
             else:
-                if subnode.tag == 'resource':
-                    break
-                elif subnode.tag == 'image':
-                    self._image = "".join(subnode.itertext())
-                else:
-                    raise XmlError('Unexpected end tag: "{}" </resource> expected!'.format(subnode.tag))
+                ptype, dummy = subnode.tag.split('-')
+                self._properties.append(KnoraProperty(subnode, ptype, default_ontology))
 
     @property
     def id(self) -> str:
@@ -302,17 +233,17 @@ class KnoraResource:
         return self._restype
 
     @property
-    def image(self) -> str:
-        return self._image
+    def bitstream(self) -> str:
+        return self._bitstream
 
     @property
     def permissions(self):
         return self._permissions
 
     def print(self):
-        print('Resource: id={} restype: {} label: {}'.format(self._id, self._restype, self._label))
-        if self._image is not None:
-            print(' Image: ' + self._image)
+        print(f'Resource: id={self._id} restype: {self._restype} label: {self._label}')
+        if self._bitstream is not None:
+            print(' Bitstream: ' + self._bitstream)
         for property in self._properties:
             property.print()
 
@@ -384,7 +315,7 @@ class XmlAllow:
     _group: str
     _permission: str
 
-    def __init__(self, context: etree.iterparse, node: Tuple, project_context: ProjectContext) -> None:
+    def __init__(self, node: etree.Element, project_context: ProjectContext) -> None:
         """
         Constructor which parses the XML DOM allow element
 
@@ -410,7 +341,7 @@ class XmlAllow:
                 self._group = 'knora-admin:' + node.attrib['group']
             else:
                 raise XmlError("Group \"{}\" is not known: ".format(node.attrib['group']))
-        self._permission = "".join(node.itertext())
+        self._permission = node.text
 
     @property
     def group(self):
@@ -420,6 +351,9 @@ class XmlAllow:
     def permission(self):
         return self._permission
 
+    def print(self):
+        print("  group=", self._group, " permission=", self._permission)
+
 
 class XmlPermission:
     """
@@ -428,7 +362,7 @@ class XmlPermission:
     _id: str
     _allows: List[XmlAllow]
 
-    def __init__(self, context: etree.iterparse, node: Tuple, project_context: ProjectContext) -> None:
+    def __init__(self, node: etree.Element, project_context: ProjectContext) -> None:
         """
         Constructor which parses a XML DOM permissions element representing an named permission set
 
@@ -437,22 +371,8 @@ class XmlPermission:
         """
         self._allows = []
         self._id = node.attrib['id']
-        while True:
-            event, subnode = next(context)
-            if event == 'start':
-                if subnode.tag == 'allow':
-                    self._allows.append(XmlAllow(context, subnode, project_context))
-                else:
-                    raise XmlError('Unexpected tag: "{}" <allow> expected!'.format(subnode.tag))
-            else:
-                if subnode.tag == 'allow':
-                    pass
-                elif subnode.tag == 'resource':
-                    break
-                elif subnode.tag == 'permissions':
-                    break
-                else:
-                    raise XmlError('Unexpected end tag: "{}" </resource> expected!'.format(subnode.tag))
+        for allow_node in node:
+            self._allows.append(XmlAllow(allow_node, project_context))
 
     @property
     def id(self) -> str:
@@ -473,6 +393,11 @@ class XmlPermission:
         for allow in self._allows:
             allowstrs.append("{} {}".format(allow.permission, allow.group))
         return '|'.join(allowstrs)
+
+    def print(self):
+        print('Permission: ', self._id)
+        for a in self._allows:
+            a.print()
 
 
 def do_sortorder(resources: List[KnoraResource]) -> List[KnoraResource]:
@@ -535,7 +460,8 @@ def xml_upload(input_file: str,
                password: str,
                imgdir: str,
                sipi: str,
-               verbose: bool) -> bool:
+               verbose: bool,
+               validate: bool) -> bool:
     current_dir = os.path.dirname(os.path.realpath(__file__))
 
     xmlschema_doc = etree.parse(os.path.join(current_dir, 'knora-data-schema.xsd'))
@@ -547,6 +473,9 @@ def xml_upload(input_file: str,
     del doc
     del xmlschema_doc
 
+    if validate:
+        return
+
     print("The input data file is syntactically correct and passed validation!")
 
     #
@@ -557,29 +486,24 @@ def xml_upload(input_file: str,
 
     proj_context = ProjectContext(con=con)
 
-    #
-    # read the XML file containing the data, including project shortcode
-    #
-    context: etree.iterparse = etree.iterparse(input_file, events=("start", "end"))
     resources: List[KnoraResource] = []
     permissions: Dict[str, XmlPermission] = {}
     shortcode: Union[str, None] = None
     default_ontology = None
-    while True:
-        event, node = next(context)
-        if event == 'start':
-            if node.tag == 'knora':
-                default_ontology = node.attrib['default-ontology']
-                shortcode = node.attrib['shortcode']
-                proj_context.shortcode = shortcode
-            elif event == 'start' and node.tag == 'resource':
-                resources.append(KnoraResource(context, node, default_ontology))
-            elif event == 'start' and node.tag == 'permissions':
-                permission = XmlPermission(context, node, proj_context)
-                permissions[permission.id] = permission
-        elif event == 'end':
-            if node.tag == 'knora':
-                break
+
+    #
+    # read the XML file containing the data, including project shortcode
+    #
+    tree = etree.parse(input_file)
+    knora = tree.getroot()
+    default_ontology = knora.attrib['default-ontology']
+    shortcode = knora.attrib['shortcode']
+    for child in knora:
+        if child.tag == "permissions":
+            permission = XmlPermission(child, proj_context)
+            permissions[permission.id] = permission
+        elif child.tag == "resource":
+            resources.append(KnoraResource(child, default_ontology))
 
     #
     # sort the resources so that resources which do not link to others come first
@@ -601,15 +525,16 @@ def xml_upload(input_file: str,
     resiri_lookup: StrDict = {}
 
     for resource in resources:
-        if resource.image:
-            img = sipi.upload_image(os.path.join(imgdir, resource.image))
-            stillimage = img['uploadedFiles'][0]['internalFilename']
+        #resource.print()
+        if resource.bitstream:
+            img = sipi.upload_bitstream(os.path.join(imgdir, resource.bitstream))
+            bitstream = img['uploadedFiles'][0]['internalFilename']
         else:
-            stillimage = None
+            bitstream = None
         instance = resclasses[resource.restype](con=con,
                                                 label=resource.label,
                                                 permissions=permissions_lookup.get(resource.permissions),
-                                                stillimage=stillimage,
+                                                bitstream=bitstream,
                                                 values=resource.get_propvals(resiri_lookup, permissions_lookup)).create()
         resiri_lookup[resource.id] = instance.iri
         print("Created:", instance.iri)

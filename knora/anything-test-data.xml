@@ -214,7 +214,8 @@
               restype=":ThingPicture"
               id="obj_0004"
               permissions="res-default">
-        <image>gaga.tif</image>
+            <image>gaga.tif</image>
+            <!-- <sound>gaga.tif</sound> -->
         <text-prop name=":hasPictureTitle">
             <text permissions="prop-default" encoding="utf8">This is the famous Lena</text>
         </text-prop>

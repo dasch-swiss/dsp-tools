@@ -22,7 +22,8 @@ def create_ontology(input_file: str,
                     server: str,
                     user: str,
                     password: str,
-                    verbose: bool) -> bool:
+                    verbose: bool,
+                    dump: bool) -> bool:
     current_dir = os.path.dirname(os.path.realpath(__file__))
 
     # let's read the schema for the data model definition
@@ -43,11 +44,14 @@ def create_ontology(input_file: str,
     #
     con = Connection(server)
     con.login(user, password)
+    if dump:
+        con.start_logging()
 
     # --------------------------------------------------------------------------
     # let's read the prefixes of external ontologies that may be used
     #
     context = Context(datamodel["prefixes"])
+
 
     # --------------------------------------------------------------------------
     # Let's create the project...
@@ -149,7 +153,7 @@ def create_ontology(input_file: str,
             if verbose:
                 print("Groups:")
                 new_group.print()
-
+            #project.set_default_permissions(new_group.id)
     # --------------------------------------------------------------------------
     # now let's add the users (if there are users defined...)
     #
@@ -301,6 +305,14 @@ def create_ontology(input_file: str,
         if verbose:
             print("Created empty ontology:")
             newontology.print()
+
+        #
+        # add prefixes defined in json file...
+        #
+        for prefix, iri in context:
+            if not prefix in newontology.context:
+                s = iri.iri + ("#" if iri.hashtag else "")
+                newontology.context.add_context(prefix, s)
 
         #
         # First we create the empty resource classes

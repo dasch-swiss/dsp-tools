@@ -109,8 +109,14 @@ $ python3 setup.py develop
 The documentation is a collection of [markdown](https://en.wikipedia.org/wiki/Markdown) in the `docs` sub-folder.  
 After updates, it is possible to build and check the result with the commands:
 
-```
+```bash
 $ make build-docs
 $ make serve-docs 
+```
+
+To update the changes to the official documentation pages:
+
+```bash
+$ make publish-docs
 ```
 

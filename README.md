@@ -53,7 +53,9 @@ $ make test
 
 ## Publishing to PyPi
 
-Generate distribution package. Make sure you have the latest versions of `setuptools` and `wheel` installed:
+Generate distribution package. Make sure you have the latest versions of `setuptools` and `wheel` installed.
+Remove the `dist`and `buil`-directories: `rm -rf bild dist`
+
 
 ```bash
 $ make upgrade-dist-tools

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='dsp-tools',
-    version='0.9.4',
+    version='0.9.15',
     description='A Python library and tools for the DaSCH Service Platform',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -13,10 +13,7 @@ setuptools.setup(
     author='Lukas Rosenthaler',
     author_email='lukas.rosenthaler@dasch.swiss',
     license='GPLv3',
-    packages=setuptools.find_packages('./knora'),
-    package_dir={
-        '': 'knora'
-    },
+    packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
@@ -24,6 +21,7 @@ setuptools.setup(
     ],
     python_requires='>=3.9.0',
     install_requires=[
+        'argparse',
         'rdflib',
         'lxml',
         'validators',

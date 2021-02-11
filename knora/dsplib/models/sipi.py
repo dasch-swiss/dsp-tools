@@ -1,7 +1,11 @@
 import requests
 from .helpers import BaseError
 
+import os
+
 class Sipi:
+
+
     def __init__(self, sipiserver: str, token: str):
         self.sipiserver = sipiserver
         self.token = token
@@ -19,9 +23,10 @@ class Sipi:
         if 'error' in res:
             raise BaseError("SIPI-ERROR: API error: " + res.error)
 
-    def upload_image(self, filepath):
+    def upload_bitstream(self, filepath):
+        print(f"filepath=${os.path.basename(filepath)} (${filepath})")
         files = {
-            'file': (filepath, open(filepath, 'rb')),
+            'file': (os.path.basename(filepath), open(filepath, 'rb')),
         }
         req = requests.post(self.sipiserver + "/upload?token=" + self.token,
                             files=files)

@@ -335,6 +335,13 @@
         <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>
     
+    <!-- bitsteeam tag -->
+    <xs:complexType name="bitstream_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string"/>
+        </xs:simpleContent>
+    </xs:complexType>
+
     <!-- image tag -->
     <xs:complexType name="image_type">
         <xs:simpleContent>
@@ -342,10 +349,40 @@
         </xs:simpleContent>
     </xs:complexType>
 
+    <!-- sound tag -->
+    <xs:complexType name="sound_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string"/>
+        </xs:simpleContent>
+    </xs:complexType>
+
+     <!-- movie tag -->
+    <xs:complexType name="movie_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string"/>
+        </xs:simpleContent>
+    </xs:complexType>
+
+     <!-- movie tag -->
+    <xs:complexType name="document_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string"/>
+        </xs:simpleContent>
+    </xs:complexType>
+
     <!-- resource tag -->
     <xs:complexType name="resource_type">
-        <xs:choice maxOccurs="unbounded">
-            <xs:element name="image" type="image_type" maxOccurs="1" minOccurs="0"/>
+        <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="1">
+            <!--
+            <xs:element name="image" type="image_type" />
+            <xs:element name="sound" type="sound_type" />
+            <xs:element name="movie" type="sound_type" />
+            <xs:element name="document" type="sound_type" />
+            -->
+            <xs:element name="bitstream" type="sound_type" />
+        </xs:choice>
+         <xs:choice maxOccurs="unbounded">
             <xs:element name="text-prop" type="textprop_type" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="color-prop" type="colorprop_type" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="date-prop" type="dateprop_type" minOccurs="0" maxOccurs="unbounded"/>
@@ -362,6 +399,8 @@
             <xs:element name="uri-prop" type="uriprop_type" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="boolean-prop" type="booleanprop_type" minOccurs="0" maxOccurs="unbounded"/>
         </xs:choice>
+
+        </xs:sequence>
         <xs:attribute name="label" type="xs:string" use="required"/>
         <xs:attribute name="restype" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>

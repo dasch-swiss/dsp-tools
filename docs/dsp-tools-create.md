@@ -325,7 +325,11 @@ This object contains _user_-definitions. You can set user traits here. A user ha
 - _familyName_: Surname of the user.
 - _password_: Password of the user.
 - _lang_: The preferred language of the user: "en", "de", "fr", "it" [optional, default: "en"].
-- _projects_: List of projects the user belongs to.
+- _projects_: List of projects the user belongs to. The project name has to be followed by a ":" and
+  either "member" or "admin". This indicates if the new user has admin rights in the given project or
+  is a oridnary user. This `myproject:admin` would add the user as admin to the project "myproject".
+  The given project defined in the same ontology file has no name, so only ":admin" or ":member" is
+  required. A user must be member of at least one project.
 
 Example:
 ```json

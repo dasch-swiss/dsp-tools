@@ -26,6 +26,7 @@ from .value import KnoraStandoffXml, Value, TextValue, ColorValue, DateValue, De
 
 from pprint import pprint
 
+
 class KnoraStandoffXmlEncoder(json.JSONEncoder):
     """Classes used as wrapper for knora standoff-XML"""
     def default(self, obj) -> str:
@@ -45,13 +46,24 @@ class Propinfo:
 
 @strict
 class ResourceInstance(Model):
+    baseclasses_with_bitstream: Set[str] = {
+        'StillImageRepresentation',
+        'AudioRepresentation',
+        'DocumentRepresentation',
+        'MovingImageRepresentation',
+        'DDDRepresentation',
+        'TextRepresentation'}
+    knora_properties: Set[str] = {
+        "knora-api:isPartOf",
+        "knora-api:seqnum",
+    }
     _iri: Union[str, None]
     _ark: Union[str, None]
     _vark: Union[str, None]
     _label: Union[str, None]
     _permissions: Union[Permissions, None]
     _upermission: Union[PermissionValue, None]
-    _stillimage: Union[str, None]
+    _bitstream: Union[str, None]
     _values: Union[Dict[Value, List[Value]], None]
 
     def __init__(self,
@@ -62,7 +74,7 @@ class ResourceInstance(Model):
                  label: Optional[str] = None,
                  permissions: Optional[Permissions] = None,
                  upermission: Optional[PermissionValue] = None,
-                 stillimage: Optional[str] = None,
+                 bitstream: Optional[str] = None,
                  values: Optional[Dict[str, Union[str, List[str], Dict[str, str], List[Dict[str,str]], Value, List[Value]]]] = None):
         super().__init__(con)
         self._iri = iri
@@ -71,14 +83,15 @@ class ResourceInstance(Model):
         self._vark = vark
         self._permissions = permissions
         self._upermission = upermission
-        if self.baseclass == 'StillImageRepresentation' and stillimage is None:
-            raise BaseError("The baseclass \"StillImageRepresentation\" requires a stillimage value!")
-        if self.baseclass != 'StillImageRepresentation' and stillimage is not None:
-            raise BaseError("The baseclass \"{}\" does not allow a stillimage value!".format(self.baseclass))
-        if self.baseclass == 'StillImageRepresentation' and stillimage is not None:
-            self._stillimage = stillimage
+
+        if self.baseclass in self.baseclasses_with_bitstream and bitstream is None:
+            raise BaseError("The baseclass \"{}\" requires a bitstream value!".format(self.baseclass))
+        if self.baseclass not in self.baseclasses_with_bitstream and bitstream is not None:
+            raise BaseError("The baseclass \"{}\" does not allow a bitstream value!".format(self.baseclass))
+        if self.baseclass in self.baseclasses_with_bitstream and bitstream is not None:
+            self._bitstream = bitstream
         else:
-            self._stillimage = None
+            self._bitstream = None
 
         self._values = {}
         if values:
@@ -92,7 +105,7 @@ class ResourceInstance(Model):
                         self._values[propname] = []
                         for val in vals:
                             if valcnt > 0 and (propinfo.cardinality == Cardinality.C_0_1 or propinfo.cardinality == Cardinality.C_1):
-                                raise BaseError("Cardinality does not allow multiple values for \"{}\"!".format(propname))
+                                raise BaseError(f'Cardinality does not allow multiple values for "{propname}"!')
                             if type(val) is Value:
                                 self._values[propname].append(val)
                             elif type(val) is dict:
@@ -119,8 +132,8 @@ class ResourceInstance(Model):
                     if propinfo.cardinality == Cardinality.C_1 or propinfo.cardinality == Cardinality.C_1_n:
                         raise BaseError("Cardinality does require at least one value for \"{}\"!".format(propname))
             for propname in values:
-                if self.properties.get(propname) is None:
-                    raise BaseError("Property \"{}\" is not part of data model!".format(propname))
+                if propname not in self.knora_properties and self.properties.get(propname) is None:
+                    raise BaseError(f'Property "{propname}" is not part of data model!')
 
     @property
     def iri(self) -> str:
@@ -183,11 +196,29 @@ class ResourceInstance(Model):
             tmp['rdfs:label'] = self._label
             if self._permissions:
                 tmp["knora-api:hasPermissions"] = self._permissions.toJsonLdObj()
-            if self._stillimage:
-                tmp["knora-api:hasStillImageFileValue"] = {
-                    "@type": "knora-api:StillImageFileValue",
-                    "knora-api:fileValueHasFilename": self._stillimage
-                }
+            if self._bitstream:
+                if self.baseclass == 'StillImageRepresentation':
+                    tmp["knora-api:hasStillImageFileValue"] = {
+                        "@type": "knora-api:StillImageFileValue",
+                        "knora-api:fileValueHasFilename": self._bitstream
+                    }
+                elif self.baseclass == 'DocumentRepresentation':
+                    tmp["knora-api:hasDocumentFileValue"] = {
+                        "@type": "knora-api:DocumentFileValue",
+                        "knora-api:fileValueHasFilename": self._bitstream
+                    }
+                elif self.baseclass == 'TextRepresentation':
+                    tmp["knora-api:hasTextFileValue"] = {
+                        "@type": "knora-api:TextFileValue",
+                        "knora-api:fileValueHasFilename": self._bitstream
+                    }
+                elif self.baseclass == 'AudioRepresentation':
+                    tmp["knora-api:hasAudioFileValue"] = {
+                        "@type": "knora-api:AudioFileValue",
+                        "knora-api:fileValueHasFilename": self._bitstream
+                    }
+                else:
+                    raise BaseError(f'Baseclass "{self.baseclass}" not yet supported!')
             for propname, valtype in self._values.items():
                 if type(valtype) is list:
                     if type(valtype[0]) is LinkValue:
@@ -208,7 +239,7 @@ class ResourceInstance(Model):
     def create(self):
         jsonobj = self.toJsonLdObj(Actions.Create)
         jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
-        print(jsondata)
+        #print(jsondata)
         result = self._con.post('/v2/resources', jsondata)
         newinstance = self.clone()
         newinstance._iri = result['@id']
@@ -242,6 +273,19 @@ class ResourceInstance(Model):
             else:
                 print(name, ':', str(val))
 
+
+# ToDo: special resourceclasses and properties of knora-api
+#
+# - knora-api:isPartOf -> Object: knora-api:Resource
+# - knora-api:author -> Object: knora-api:User
+# - knora-api:seqnum -> Object: knora-api:IntValue
+# - knora-api:hasComment -> Object: knora-api:TextValue
+#
+# knora-api:Region: IS a resource
+# - knora-api:hasGeometry
+# - knora-api:isRegionOf
+# - knora-api:hasColor
+# - knora-api:hasComment
 
 @strict
 class ResourceInstanceFactory:
@@ -333,7 +377,22 @@ class ResourceInstanceFactory:
             'knora-api:LinkValue': LinkValue,
         }
         for propname, has_property in resclass.has_properties.items():
-            if has_property.ptype == HasProperty.Ptype.other:
+            if propname == "knora-api:isPartOf":
+                valtype = LinkValue
+                props[propname] = Propinfo(valtype=valtype,
+                                           cardinality=has_property.cardinality,
+                                           gui_order=has_property.gui_order)
+            elif propname == "knora-api:seqnum":
+                valtype = IntValue
+                props[propname] = Propinfo(valtype=valtype,
+                                           cardinality=has_property.cardinality,
+                                           gui_order=has_property.gui_order)
+            elif propname == "knora-api:hasComment":
+                valtype = TextValue
+                props[propname] = Propinfo(valtype=valtype,
+                                           cardinality=has_property.cardinality,
+                                           gui_order=has_property.gui_order)
+            elif has_property.ptype == HasProperty.Ptype.other:
                 valtype = switcher.get(self._properties[propname].object)
                 if valtype == LinkValue:
                     continue  # we have the Link to the LinkValue which we do not use

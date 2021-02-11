@@ -103,3 +103,14 @@ For local development:
 ```bash
 $ python3 setup.py develop
 ```
+
+## Contributing to the documentation
+
+The documentation is a collection of [markdown](https://en.wikipedia.org/wiki/Markdown) in the `docs` sub-folder.  
+After updates, it is possible to build and check the result with the commands:
+
+```
+$ make build-docs
+$ make serve-docs 
+```
+

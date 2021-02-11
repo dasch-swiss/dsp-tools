@@ -29,6 +29,11 @@ $ pip3 install --upgrade dsp-tools
 
 # Developer
 
+## Makefile
+
+There is a helping `Makefile` for all of the following tasks (and more).  
+It is self-explanatory and a simple `make` will print its available targets.
+
 ## Install from source
 
 To install from source, i.e. this repository run:

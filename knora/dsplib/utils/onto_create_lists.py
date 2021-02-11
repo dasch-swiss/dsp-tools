@@ -6,7 +6,7 @@ from ..models.helpers import Actions, BaseError, Context, Cardinality
 from ..models.connection import Connection
 from ..models.project import Project
 from ..models.listnode import ListNode
-from .onto_commons import list_creator
+from .onto_commons import list_creator, validate_list_from_excel, json_list_from_excel
 
 def create_lists (input_file: str, output_file: str, server: str, user: str, password: str, verbose: bool) -> bool:
     current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -20,6 +20,7 @@ def create_lists (input_file: str, output_file: str, server: str, user: str, pas
 
     # validate the data model definition in order to be sure that it is correct
     validate(datamodel, schema)
+
     if verbose:
         print("Data model is syntactically correct and passed validation!")
 

@@ -2,6 +2,9 @@ import os
 import json
 from jsonschema import validate
 
+from .onto_commons import validate_list_from_excel, json_list_from_excel
+
+from pprint import pprint
 
 def validate_list(input_file: str) -> None:
     current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -27,7 +30,37 @@ def validate_ontology(input_file: str) -> None:
     with open(input_file) as f:
         datamodel = json.load(f)
 
+    #
+    # now let's see if there are any lists defined as reference to excel files
+    #
+    lists = datamodel["project"].get('lists')
+    if lists is not None:
+        newlists: [] = []
+        for rootnode in lists:
+            if rootnode.get("nodes") is not None and isinstance(rootnode["nodes"], dict) and rootnode["nodes"].get("file") is not None:
+                newroot = {
+                    "name": rootnode.get("name"),
+                    "labels": rootnode.get("labels")
+                }
+                if rootnode.get("comments") is not None:
+                    newroot["comments"] = rootnode["comments"]
+                startrow = 1 if rootnode["nodes"].get("startrow") is None else rootnode["nodes"]["startrow"]
+                startcol = 1 if rootnode["nodes"].get("startcol") is None else rootnode["nodes"]["startcol"]
+                json_list_from_excel(rootnode=newroot,
+                                     filepath=rootnode["nodes"]["file"],
+                                     sheetname=rootnode["nodes"]["worksheet"],
+                                     startrow=startrow,
+                                     startcol=startcol)
+                newlists.append(newroot)
+            else:
+                newlists.append(rootnode)
+        datamodel["project"]["lists"] = newlists
+
+    json.dump(datamodel, open("gaga.json", "w"), indent=4)
+
     # validate the data model definition in order to be sure that it is correct
     validate(datamodel, schema)
+
     print("Data model is syntactically correct and passed validation!")
+
 

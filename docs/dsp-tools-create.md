@@ -147,56 +147,67 @@ as well e.i. "keywords": [].
 `"lists": [<list-definition>,<list-definition>,...]`  
 
 Often in order to characterize or classify a real world object, we use a sequential or hierarchical list of terms. For
-example a hypothetical classification of classical music genres could be as :
+example a classification of disciplines in the Humanities might look like follows:
 
-- Orchestral music
-  - Symphony
-  - Symphony poem
-  - Overture
-  - Concerto
-  - Ballet
-  - Incidential music
-  - Suite
-- Chamber music
-  - String trio
-  - Piano trio
-  - String quartet
-  - Piano quartet
-  - String quintet
-  - Piano quintet
-  - Other
-- Solo instrumental
-  - Organ
-  - Piano
-  - Harpsichord
-  - Spinet
-  - Guitar
-  - Lute
-  - Violin
-  - Flute
-  - Other
-- Vocal Music
-  - Choir
-    - Oratorios
-    - Passions
-    - Cantatas
-    - Masses
-    - Motets
-    - Madrigals
-    - Psalms
-  - Solo
-    - Songs
-    - Arias
-- Opera
-  - Comic opera
-  - Serious Opera
-  - Opera Semiseria
-  - Opera Conrnique
-  - Grand opera
-  - Opera verismo
+- Performing arts
+  - Music
+    - Chamber music
+    - Church music
+    - Conducting
+      - Choirs
+      - Orchestras
+    - Music history
+    - Musictheory
+    - Musicology
+    - Jazz
+    - Pop/Rock
+  - Dance
+    - Choreography
+  - Theatre
+    - Acting
+    - Directing
+    - Playwriting
+    - Scenography
+  - Movies/Television
+    - Animation
+    - Live action
+- Visual arts
+  - Fine arts
+    - Drawing
+    - Painting
+    - Photography
+  - Applied Arts
+    - Animation
+    - Architecture
+    - Decorative arts
+- History
+  - Ancient history
+  - Modern history
+- Languages and literature
+  - Linguistics
+    - Grammar
+    - Etymology
+    - Phonetics
+    - Semantics
+  - Literature
+    - Fiction
+    - Non-fiction
+    - Theory of literature
+- Philosophy
+  - Aesthetics
+  - Applied philosophy
+  - Epistemology
+    - Justification
+    - Reasoning
+  - Metaphysics
+    - Determinism and free will
+    - Ontology
+    - Philosophy of mind
+    - Teleology
+
   
 DSP allows to define such controlled vocabularies or thesauri. They can be arranged "flat" or in "hierarchies" (as the
-given example about music genres is). The definition of these entities are called "lists" in the DSP. Thus, the 
+given example about the disciplines in Humanities is). The definition of these entities are called "lists" in the DSP. Thus, the 
 list object is used to give the resources of the ontology a taxonomic quality. A taxonomy makes it possible to 
 categorize a resource. The big advantage of a taxonomic structure as it is implemented by the DSP 
 is that the user can subcategorize the objects. This allows the user to formulate his search requests more or less
@@ -230,7 +241,8 @@ therefore flat.
 A resource can be assigned to a taxonomic node within its properties. So a resource of type "musical work" with the
 title "La Traviata" would have the property/attribute "musical-genre" with the value "Grand opera". Within the DSP,
 each property or attribute has an assigned cardinality. Sometimes, a taxonomy allows that an object may belong to 
-different categories at the same time (e.g. an image which depicts several categories at the same time). In these cases, a cardinality &gt; 1 allows to add multiple attributes
+different categories at the same time (e.g. an image which depicts several categories at the same time). In these cases,
+a cardinality &gt; 1 allows to add multiple attributes
 of the same time. See further below the description of the [cardinalities](#cardinalities)
 
 A node of the Taxonomy may have the following elements:
@@ -243,50 +255,104 @@ It needs to specify at least one language.
   is _optional_.
 - _nodes_: Array of subnodes. If you have a non-hierarchical taxonomy (i.e. a taxonomy with only 2 levels, the root 
   level and another level), you don't have child nodes. Therefore the nodes element can be omitted in case of a flat
-  taxonomy. 
+  taxonomy.
+  
+Each list must have exactely one root node which has the same form bu denotes the list itself.
 
 Here is an example on how to build a taxonomic structure with the help of JSON:
 
 ```json
-    "lists": [
+"lists": [
+  {
+    "name": "my_list",
+    "labels": {"en": "Disciplines of the Humanities"},
+    "comments": {"en": "This ist is just a silly example", "fr": "un example un peu fou"},
+    "nodes": [
       {
-        "name": "classicalmusicgenres",
-        "labels": { "de": "Musikkategorien für klassische Musik", "en": "Genres of classical music" },
+        "name": "node_1_1",
+        "labels": {"en": "Performing arts"},
+        "comments": {"en": "Arts that are events", "de": "Künste mit performativem Character"},
         "nodes": [
-          {
-            "name": "orchestral",
-            "labels": { "en": "Orchestral music", "de": "Orchestermusik" },
-            "comments": { "en": "Multiple instruments together", "de": "Mehrere Instrumente zusammen" },
+            {
+            "name": "node_2_2",
+            "labels": {"en": "Music"},
             "nodes": [
               {
-                "name": "symphony",
-                "labels": { "en": "Symphony", "de": "Symphonie" }
+                "name": "node_3_3",
+                "labels": {"en": "Chamber music"}
               },
               {
-                "name": "symphonicpoem",
-                "labels": { "en": "Symphonic poem", "de": "Symphonische Dichtung" }
+                "name": "node_4_3",
+                "labels": {"en": "Church music"}
               },
               {
-                "name": "overture",
-                "labels": { "en": "Overture", "de": "Overtüre" }
+                "name": "node_5_3",
+                "labels": {"en": "Conducting"},
+                "nodes": [
+                  {
+                    "name": "node_6_4",
+                    "labels": {"en": "Choirs"}
+                  },
+                  {
+                    "name": "node_7_4",
+                    "labels": {"en": "Orchestras"}
+                  }
+                ]
               },
               {
-                "name": "concerto",
-                "labels": { "en": "Conerto", "de": "Konzert" }
+                "name": "node_8_3",
+                "labels": { "en": "Music history" }
               },
-              ...
+              {
+                "name": "node_9_3",
+                "labels": {"en": "Musictheory"}
+              },
+              {
+                "name": "node_10_3",
+                "labels": {"en": "Musicology"
+              },
+              {
+                "name": "node_11_3",
+                "labels": {"en": "Jazz"}
+              },
+              {
+                "name": "node_12_3",
+                "labels": {"en": "Pop/Rock/Blues"}
+              }
             ]
-          },
-          {
-            "name": "chambermusic",
-            "labels": { "en": "Chamber music", "de": "Kammermusik" },
-            "nodes": [...]
-          },
-          ...
+          }
         ]
-      }
+      },
+      {...},{...}
     ]
+  }
+]
 ```
+A list can also be imported from an excel sheet. The excel must have the following format (currently only a single
+language is supported):
+
+![img_1.png](img_1.png)
+
+In such a case, the excel-file can directly be referenced in the list definition by defining a special list node:
+```json
+      {
+        "name": "fromexcel",
+        "labels": {
+          "en": "Fromexcel"
+        },
+        "nodes": {
+          "file": "excel-list.xlsx",
+          "worksheet": "Tabelle1"
+        }
+      }
+
+```
+The nodes section then must contain the fields
+
+- _file_: Path to the excel file
+- _worksheet_: The name of the worksheet in the excel
+
+
 As already mentioned before, the _lists_ element is optional. If there are no lists, this element has to be omitted.
 
 ### Groups

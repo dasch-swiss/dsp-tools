@@ -9,6 +9,7 @@ from dsplib.utils.onto_create_lists import create_lists
 from dsplib.utils.onto_create_ontology import create_ontology
 from dsplib.utils.onto_get import get_ontology
 from dsplib.utils.xml_upload import xml_upload
+from dsplib.utils.onto_process_excel import list_excel2json
 
 
 def program(args):
@@ -55,6 +56,18 @@ def program(args):
     parser_upload.add_argument("xmlfile", help="path to xml file containing the data", default="data.xml")
     parser_upload.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
 
+    parser_excellists = subparsers.add_parser('excellists', help='Create lists from excel files')
+    parser_excellists.set_defaults(action="excellists")
+    parser_excellists.add_argument("-j", "--jsonfile", type=str, help="Filename of JSON file produced", default="list.json")
+    parser_excellists.add_argument("-S", "--sheet", type=str, help="Name of excel sheet to be used", default="Tabelle1")
+    parser_excellists.add_argument("-c", "--shortcode", type=str, help="Shortcode of project", default="4123")
+    parser_excellists.add_argument("-l", "--listname", type=str, help="Name of list to be created", default="my_list")
+    parser_excellists.add_argument("-L", "--label", type=str, help="Label of list to be created", default="MyList")
+    parser_excellists.add_argument("-x", "--lang", type=str, help="Language for label", default="en")
+    parser_excellists.add_argument("excelfile", help="Path to the excel file containing the list data", default="lists.xlsx")
+    parser_excellists.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
+    parser_excellists.add_argument("-V", "--validate", action='store_true', help="Do only validation of excel")
+
     args = parser.parse_args(args)
 
     if not hasattr(args, 'action'):
@@ -84,6 +97,15 @@ def program(args):
                    sipi=args.sipi,
                    verbose=args.verbose,
                    validate=args.validate)
+    elif args.action == "excellists":
+        list_excel2json(excelpath=args.excelfile,
+                        sheetname=args.sheet,
+                        shortcode=args.shortcode,
+                        listname=args.listname,
+                        label=args.label,
+                        lang=args.lang,
+                        outfile=args.jsonfile,
+                        verbose=args.verbose)
 
 
 

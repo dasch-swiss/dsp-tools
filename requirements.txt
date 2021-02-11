@@ -10,4 +10,5 @@ validators
 requests
 jsonschema
 rfc3987
+openpyxl
 pystrict

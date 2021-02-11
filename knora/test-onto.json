@@ -55,6 +55,16 @@
             }
           }
         ]
+      },
+      {
+        "name": "fromexcel",
+        "labels": {
+          "en": "Fromexcel"
+        },
+        "nodes": {
+          "file": "excel-list.xlsx",
+          "worksheet": "Tabelle1"
+        }
       }
     ],
     "groups": [

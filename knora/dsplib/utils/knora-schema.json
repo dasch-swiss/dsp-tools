@@ -75,6 +75,25 @@
       }
     },
 
+    "excelref": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "worksheet": {
+          "type": "string"
+        },
+        "startrow": {
+          "type": "integer"
+        },
+        "startcol": {
+          "type": "integer"
+        }
+      },
+      "required": ["file", "worksheet"]
+    },
+
     "user": {
       "type": "object",
       "properties": {
@@ -144,10 +163,18 @@
           "$ref": "#/definitions/comment"
         },
         "nodes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/node"
-          }
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/node"
+              }
+            },
+            {
+              "type": "object",
+              "$ref": "#/definitions/excelref"
+            }
+          ]
         }
       },
       "required": ["name", "labels"],

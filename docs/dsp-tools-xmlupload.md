@@ -27,7 +27,7 @@ Thus, the `<knora>`-eelment may b used as follows:
  xsi:schemaLocation="../knora-data-schema.xsd"
  shortcode="0806"
  ontology="webern">
-…
+ ...
 </knora>
 ```
 The `<knora>`-element can only contain
@@ -112,7 +112,33 @@ _Options_:
     - "SystemAdmin"
     
 _Subelements allowed_: None
- 
+
+Thus a complete _permission_ section may be as follows:
+```xml
+  <permissions id="res-default">
+    <allow group="UnknownUser">RV</allow>
+    <allow group="KnownUser">V</allow>
+    <allow group="Creator">CR</allow>
+    <allow group="ProjectAdmin">CR</allow>
+  </permissions>
+  <permissions id="res-restricted">
+    <allow group="KnownUser">V</allow>
+    <allow group="Creator">CR</allow>
+    <allow group="ProjectAdmin">CR</allow>
+  </permissions>
+  <permissions id="prop-default">
+    <allow group="UnknownUser">V</allow>
+    <allow group="KnownUser">V</allow>
+    <allow group="Creator">CR</allow>
+    <allow group="ProjectAdmin">CR</allow>
+  </permissions>
+  <permissions id="prop-restricted">
+    <allow group="KnownUser">V</allow>
+    <allow group="Creator">CR</allow>
+    <allow group="ProjectAdmin">CR</allow>
+  </permissions>
+```
+
 ### `<resource>`
 A `resource`-element contains all necessary information to create a resource. It
 has the following options:
@@ -127,14 +153,14 @@ _Options_:
 - _permissions_: a reference to a permission set. These permissions will be applied to the newly created resoource.
   [optional]
 
-````
+```xml
 <resource label="EURUS015a"
           restype="Postcard"
           unique_id="238807"
           permissions="res-def-perm">
-…
+   ...
 </resource>
-````
+```
 
 The `<resource>`-element contains for each property class a `property`-element which itself
 contains one or several `value`-elements. It _must_ also contain an `<image>`-element if the
@@ -148,6 +174,8 @@ _name_-option:
 Example:
 ```xml
 <text-prop name="hasTranslation">
+   <text encoding="utf8">Dies ist eine Übersetzung</text>
+</text-prop>
 ```
  
 The `<resource>`-element may contain the following tags describing properties (data fields):
@@ -171,16 +199,58 @@ The `<resource>`-element may contain the following tags describing properties (d
 
 #### `<image>`-element
 The `<image>`-element contains the path to an image file. It must only be used if the
-resource is a `StillImageResource`!
+resource is a `StillImageRepresentation` and must be the first element!
 
 _Options_:
 - none
 
-_Note_: There is only _one_ `<image>`-element allowed per StillImageResource!
+_Note_: There is only _one_ `<image>`-element allowed per StillImageRepresentation!
 
 Example:
 ```xml
 <image>postcards.dir/images/EURUS015a.jpg</image>
+```
+
+#### `<sound>`-element
+The `<sound>`-element contains the path to an sound file. It must only be used if the
+resource is a `AudioRepresentation` and must be the first element!
+
+_Options_:
+- none
+
+_Note_: There is only _one_ `<sound>`-element allowed per AudioRepresentation!
+
+Example:
+```xml
+<sound>concerts.dir/files/SOTW.wav</sound>
+```
+
+#### `<movie>`-element
+The `<movie>`-element contains the path to an movie file. It must only be used if the
+resource is a `MovingImageRepresentation` and must be the first element!
+
+_Options_:
+- none
+
+_Note_: There is only _one_ `<movie>`-element allowed per MovingImageRepresentation!
+
+Example:
+```xml
+<movie>movies.dir/files/the_general.mp4</movie>
+```
+
+#### `<document>`-element
+The `<document>`-element contains the path to an document file. It must only be used if the
+resource is a `DocumentRepresentation` and must be the first element!
+
+_Options_:
+- none
+
+_Note_: There is only _one_ `<document>`-element allowed per DocumentRepresentation!
+
+Example:
+```xml
+<document>facsimiles/files/we_the_people.pdf</document>
 ```
 
 
@@ -196,42 +266,33 @@ _Options_:
 The `<text>`-element has the following options:
 - _encoding_: either "utf8" or "hex64" [required]
   - _utf8_: The element describes a simple text without markup. The text is a simple utf-8 string
-  - _hex64_: The elemen describes a complex text containing markup. It must be a hex64 encoded string in the
-  XML-format as defined by Knora.
-- _resrefs_: A list of resource ID's that are referenced in the markup, separated by the "|"-character such as `"2569981|6618"` [optional]
+  - _xml_: The element describes a complex text containing markup. It must be follow the XML-format as defined by the
+  [DSP standard mapping](https://docs.knora.org/03-apis/api-v1/xml-to-standoff-mapping/) .
 - _permissions_: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
 - _comment_: A comment to this specific value.
 
-Knora-xml-import assumes that for markup-text (standoff-markup) standard mapping for Knora is being used (Custom mapping to
-customized standoff tags is not yet implemented!)
-
-E.g. a text containing a link to another resource must have the following form before being
-encoded as hex64-string:
-```xml
-'<?xml version="1.0" encoding="UTF-8"?>Brief: <a class="salsah-link" href="IRI:6618:IRI"><p>Webern an Willheim, 10.10.1928</p></a>'
-```
-Please note that the href-option withiin the anchor tag points to an internal resource of knora
-and this has to have the special format "`IRI:`res-id`:IRI`" where res-id is the resource
-id defined within the XML import file. A resource already existing in knora can be referenced by
-indicating its IRI directly has _href_-option.
-
-In case the string references one or more internal resources, the option `resrefs`_must_ be using to
-indicate there ID's! The ID's are separated by a "|"-character
-
+###### Simple Text
 A complete example for a simple text:
 ```xml
 <text-prop name="hasComment">
    <text encoding="utf8">Probe bei "Wimberger". Lokal in Wien?</text>
 </text-prop>
 ```
-A complete example of a complex text which encodes the text `<a class="salsah-link" href="IRI:6618:IRI"><p>Webern an Willheim, 10.10.1928</p></a><p></p>` containing
-a link to the internal resource with the ID="6618":
+
+###### Text with Markup
+Knora-xml-import assumes that for markup-text (standoff-markup) standard mapping for Knora is being used (Custom mapping to
+customized standoff tags is not yet implemented!)
+
+E.g. a text containing a link to another resource must have the following form:
 ```xml
-<text-prop name="hasComment">
-      <text resrefs="6618" encoding="hex64">PGEgY2xhc3M9InNhbHNhaC1saW5rIiBocmVmPSJJUkk6NjYxODpJUkkiPjxwPldlYmVybiBhbiBXaWxsaGVpbSwgMTAuMTAuMTkyODwvcD48L2E+PHA+PC9wPg==</text>
-</text-prop>
+<text permissions="prop-default" encoding="xml" >The <strong>third</strong> object and a <a class="salsah-link" href="IRI:obj_0003:IRI">link</a> to.</text>
 ```
-Within one text property, simple and complex text values may be mixed.
+Please note that the href-option within the anchor tag points to an internal resource of knora
+and this has to have the special format "`IRI:`res-id`:IRI`" where res-id is the resource
+id defined within the XML import file. A resource already existing in knora can be referenced by
+indicating its IRI directly has _href_-option.
+
+Within one text property, multiple simple and complex text values may be mixed.
 
 #### `<color-prop>`-element
 The color-prop eelement is used to define a color property.
@@ -273,7 +334,7 @@ calendar:epoch:yyyy-mm-dd:epoch:yyyy-mm-dd
 - _dd_: day eith two digits
 
 If two dates are given, the date is in between the two given limits. If the day is omitted,
-then the precision it _month_, if also the month is omited, the procision is _year_.
+then the precision it _month_, if also the month is omited, the precision is _year_.
 
 _Options_:
 - _permissions_: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
@@ -284,6 +345,7 @@ Examples:
 <date>GREGORIAN:CE:2014-01-31</date>
 <date>GREGORIAN:CE:1930-09-02:CE:1930-09-03</date>
 ```
+
 #### `<decimal-prop>`-element
 Properties with decimal values. Contains one or more `<dcimal>`-tags.
 
@@ -543,4 +605,231 @@ Example:
 <boolean>0</boolean>
 ```
 
+## Complete example
 
+```xml
+<?xml version='1.0' encoding='utf-8'?>
+<knora xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       shortcode="0001" default-ontology="anything">
+    <!-- permissions: see https://docs.knora.org/03-apis/api-v2/reading-user-permissions/ -->
+    <permissions id="res-default">
+        <allow group="UnknownUser">RV</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="anything:Thing searcher">D</allow>
+    </permissions>
+    <permissions id="res-restricted">
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>>
+        <allow group="ProjectAdmin">CR</allow>>
+        <allow group="anything:Thing searcher">M</allow>>
+    </permissions>
+    <permissions id="prop-default">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>>
+        <allow group="anything:Thing searcher">D</allow>>
+    </permissions>
+    <permissions id="prop-restricted">
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="anything:Thing searcher">M</allow>
+    </permissions>
+    <resource label="obj_inst1"
+              restype=":BlueThing"
+              id="obj_0001"
+              permissions="res-default">
+        <!-- -->
+        <list-prop list="treelistroot" name=":hasListItem">
+            <list permissions="prop-default">Tree list node 02</list>
+        </list-prop>
+        <list-prop list="treelistroot" name=":hasOtherListItem">
+            <list permissions="prop-default">Tree list node 03</list>
+        </list-prop>
+        <text-prop name=":hasRichtext">
+            <text permissions="prop-default" encoding="xml" >The <strong>third</strong> object and a <a class="salsah-link" href="IRI:obj_0003:IRI">link</a> to.</text>
+        </text-prop>
+        <!-- -->
+        <text-prop name=":hasRichtext">
+            <text permissions="prop-default" encoding="xml" >The <strong>third</strong> object and a <a class="salsah-link" href="IRI:obj_0003:IRI">link</a> to.</text>
+        </text-prop>
+        <!-- -->
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
+            <text permissions="prop-restricted" encoding="utf8">Nochmals ein einfacher Text</text>
+        </text-prop>
+        <date-prop name=":hasDate">
+            <date permissions="prop-default" >JULIAN:CE:1401-05-17:CE:1402-01</date>
+        </date-prop>
+        <integer-prop name=":hasInteger">
+            <integer permissions="prop-default">4711</integer>
+        </integer-prop>
+        <decimal-prop name=":hasDecimal">
+            <decimal permissions="prop-default" comment="Eulersche Zahl">2.718281828459</decimal>
+        </decimal-prop>
+        <boolean-prop name=":hasBoolean">
+            <boolean permissions="prop-default">true</boolean>
+        </boolean-prop>
+        <uri-prop name=":hasUri">
+            <uri permissions="prop-default">http://dasch.swiss/gaga</uri>
+        </uri-prop>
+        <interval-prop name=":hasInterval">
+            <interval permissions="prop-default">12.5:14.2</interval>
+        </interval-prop>
+        <color-prop name=":hasColor">
+            <color permissions="prop-default">#00ff00</color>
+        </color-prop>
+        <geometry-prop name=":hasGeometry">
+            <geometry permissions="prop-default">
+                {
+                    "status":"active",
+                    "lineColor":"#ff3333",
+                    "lineWidth":2,
+                    "points":[
+                        {"x":0.08098591549295775,"y":0.16741071428571427},
+                        {"x":0.7394366197183099,"y":0.7299107142857143}],
+                    "type":"rectangle",
+                    "original_index":0
+                }
+            </geometry>
+        </geometry-prop>
+        <geoname-prop name=":hasGeoname">
+            <geoname permissions="prop-default" comment="A sacred place for railroad fans">5416656</geoname>
+        </geoname-prop>
+        <resptr-prop name=":hasBlueThing">
+            <resptr permissions="prop-default">obj_0002</resptr>
+        </resptr-prop>
+         <!-- -->
+    </resource>
+
+    <resource label="obj_inst2"
+              restype=":BlueThing"
+              id="obj_0002"
+              permissions="res-default">
+        <list-prop list="treelistroot" name=":hasListItem">
+            <list permissions="prop-default">Tree list node 10</list>
+        </list-prop>
+        <list-prop list="treelistroot" name=":hasOtherListItem">
+            <list permissions="prop-default">Tree list node 11</list>
+        </list-prop>
+        <text-prop name=":hasRichtext">
+            <text permissions="prop-default" encoding="xml">What is this <em>bold</em> thing?</text>
+        </text-prop>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">aa bbb cccc ddddd</text>
+        </text-prop>
+        <date-prop name=":hasDate">
+            <date permissions="prop-default" >1888</date>
+        </date-prop>
+        <integer-prop name=":hasInteger">
+            <integer permissions="prop-default">42</integer>
+        </integer-prop>
+        <decimal-prop name=":hasDecimal">
+            <decimal permissions="prop-default" comment="Die Zahl PI">3.14159</decimal>
+        </decimal-prop>
+        <boolean-prop name=":hasBoolean">
+            <boolean permissions="prop-default">false</boolean>
+        </boolean-prop>
+        <uri-prop name=":hasUri">
+            <uri permissions="prop-default">http://unibas.ch/gugus</uri>
+        </uri-prop>
+        <interval-prop name=":hasInterval">
+            <interval permissions="prop-default">24:100.075</interval>
+        </interval-prop>
+        <color-prop name=":hasColor">
+            <color permissions="prop-default">#33ff77</color>
+        </color-prop>
+        <geometry-prop name=":hasGeometry">
+            <geometry permissions="prop-default">
+                {
+                    "status":"active",
+                    "lineColor":"#ff3333",
+                    "lineWidth":2,
+                    "points":[
+                        {"x":0.08098591549295775,"y":0.16741071428571427},
+                        {"x":0.7394366197183099,"y":0.7299107142857143}],
+                    "type":"rectangle",
+                    "original_index":0
+                }
+            </geometry>
+        </geometry-prop>
+        <geoname-prop name=":hasGeoname">
+            <geoname permissions="prop-default" comment="A sacred place for railroad fans">5416656</geoname>
+        </geoname-prop>
+        <resptr-prop name=":hasBlueThing">
+            <resptr permissions="prop-default">obj_0003</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="obj_inst3"
+              restype=":BlueThing"
+              id="obj_0003"
+              permissions="res-default">
+        <list-prop list="treelistroot" name=":hasListItem">
+            <list permissions="prop-default">Tree list node 01</list>
+        </list-prop>
+        <list-prop list="treelistroot" name=":hasOtherListItem">
+            <list permissions="prop-default">Tree list node 02</list>
+        </list-prop>
+        <text-prop name=":hasRichtext">
+            <text permissions="prop-default" encoding="xml">This is <em>bold and <strong>string</strong></em> text!</text>
+        </text-prop>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">aa bbb cccc ddddd</text>
+        </text-prop>
+        <date-prop name=":hasDate">
+            <date permissions="prop-default" >1888</date>
+        </date-prop>
+        <integer-prop name=":hasInteger">
+            <integer permissions="prop-default">42</integer>
+        </integer-prop>
+        <decimal-prop name=":hasDecimal">
+            <decimal permissions="prop-default" comment="Die Zahl PI">3.14159</decimal>
+        </decimal-prop>
+        <boolean-prop name=":hasBoolean">
+            <boolean permissions="prop-default">false</boolean>
+        </boolean-prop>
+        <uri-prop name=":hasUri">
+            <uri permissions="prop-default">http://unibas.ch/gugus</uri>
+        </uri-prop>
+        <interval-prop name=":hasInterval">
+            <interval permissions="prop-default">24:100.075</interval>
+        </interval-prop>
+        <color-prop name=":hasColor">
+            <color permissions="prop-default">#33ff77</color>
+        </color-prop>
+        <geometry-prop name=":hasGeometry">
+            <geometry permissions="prop-default">
+                {
+                    "status":"active",
+                    "lineColor":"#ff3333",
+                    "lineWidth":2,
+                    "points":[
+                        {"x":0.08098591549295775,"y":0.16741071428571427},
+                        {"x":0.7394366197183099,"y":0.7299107142857143}],
+                    "type":"rectangle",
+                    "original_index":0
+                }
+            </geometry>
+        </geometry-prop>
+        <geoname-prop name=":hasGeoname">
+            <geoname permissions="prop-default" comment="A sacred place for railroad fans">5416656</geoname>
+        </geoname-prop>
+    </resource>
+
+    <resource label="obj_inst4"
+              restype=":ThingPicture"
+              id="obj_0004"
+              permissions="res-default">
+        <image>gaga.tif</image>
+        <text-prop name=":hasPictureTitle">
+            <text permissions="prop-default" encoding="utf8">This is the famous Lena</text>
+        </text-prop>
+    </resource>
+
+</knora>
+
+```

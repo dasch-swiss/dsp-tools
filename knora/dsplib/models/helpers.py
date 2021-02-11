@@ -259,6 +259,7 @@ class Context:
                 self._context[prefix] = OntoInfo(iri, False)
         self._rcontext[iri] = prefix
 
+
     def iri_from_prefix(self, prefix: str) -> Optional[str]:
         """
         Returns the full IRI belonging to this prefix, without trailing "#"!

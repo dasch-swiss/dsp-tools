@@ -8,6 +8,7 @@ from .langstring import Languages, LangStringParam, LangString
 from .connection import Connection
 from .model import Model
 
+from pprint import pprint
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -442,7 +443,7 @@ class Project(Model):
         if result is not None:
             return Project.fromJsonObj(self._con, result['project'])
         else:
-            return None
+            return None # Todo: throw exception
 
     def update(self) -> Union['Project', None]:
         """
@@ -468,6 +469,41 @@ class Project(Model):
 
         result = self._con.delete('/admin/projects/iri/' + quote_plus(self._id))
         return Project.fromJsonObj(self._con, result['project'])
+
+    def set_default_permissions(self, group_id: str) -> None:
+        permobj = {
+            "forGroup": "http://www.knora.org/ontology/knora-admin#ProjectMember",
+            "forProject": self._id,
+            "hasPermissions": [
+                {
+                    "additionalInformation": None,
+                    "name": "ProjectResourceCreateAllPermission",
+                    "permissionCode": None
+                }
+            ]
+        }
+        jsondata = json.dumps(permobj, indent=4)
+        print(jsondata)
+        result = self._con.post("/admin/permissions/ap", jsondata)
+        pprint(result)
+
+        return
+        permobj = {
+            "forGroup": group_id,
+            "forProject": self._id,
+            "forProperty": None,
+            "forResourceClass": None,
+            "hasPermissions": [
+                {
+                    "additionalInformation": "http://www.knora.org/ontology/knora-admin#ProjectMember",
+                    "name": "D",
+                    "permissionCode": 7
+                }
+            ]
+        }
+        jsondata = json.dumps(permobj)
+        result = self._con.post("/admin/permissions/ap", jsondata)
+        pprint(result)
 
     @staticmethod
     def getAllProjects(con: Connection) -> List['Project']:

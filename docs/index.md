@@ -15,7 +15,7 @@ The package consists of:
     - dump an existing ontology from a DSP server to a JSON file
     - Bulk-upload of data from a XML data file
 
-## Install
+# Install
 
 To install the latest version published on PyPI run:
 ```
@@ -26,6 +26,15 @@ To update to the latest version run:
 ```
 $ pip3 install --upgrade dsp-tools
 ```
+
+# Developer
+
+## Makefile
+
+There is a helping `Makefile` for all of the following tasks (and more).  
+It is self-explanatory and a simple `make` will print its available targets.
+
+## Install from source
 
 To install from source, i.e. this repository run:
 ```
@@ -45,6 +54,14 @@ To generate a "requirements" file (usually requirements.txt), that you commit wi
 
 ```bash
 $ pip3 freeze > requirements.txt
+```
+
+## Testing
+
+```bash
+$ pip3 install pytest
+$ pip3 install --editable .
+$ pytest
 ```
 
 ## Publishing
@@ -87,26 +104,19 @@ For local development:
 $ python3 setup.py develop
 ```
 
-## Testing
+## Contributing to the documentation
+
+The documentation is a collection of [markdown](https://en.wikipedia.org/wiki/Markdown) in the `docs` sub-folder.  
+After updates, it is possible to build and check the result with the commands:
 
 ```bash
-$ pip3 install pytest
-$ pip3 install --editable .
-$ pytest
+$ make build-docs
+$ make serve-docs 
 ```
 
-## Requirements
-
-To install the requirements:
+To update the changes to the official documentation pages:
 
 ```bash
-$ pip3 install -r requirements.txt
-```
-
-
-To generate a "requirements" file (usually requirements.txt), that you commit with your project, do:
-
-```bash
-$ pip3 freeze > requirements.txt
+$ make publish-docs
 ```
 

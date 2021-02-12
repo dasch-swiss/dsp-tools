@@ -29,7 +29,8 @@ setuptools.setup(
         'jsonschema',
         'click',
         'rfc3987',
-        'pystrict'
+        'pystrict',
+        'openpyxl'
     ],
     entry_points={
           'console_scripts': [

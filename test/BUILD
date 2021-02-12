@@ -4,6 +4,8 @@ load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
 # make the dependencies from requirements.txt available
 load("@knora_py_deps//:requirements.bzl", "requirement")
 
+
+
 py_test(
     name = "test_connection",
     srcs = ["test_connection.py"],
@@ -111,10 +113,11 @@ py_test(
         "//knora/dsplib/utils:onto_get",
         "//knora/dsplib/utils:onto_validate",
         "//knora/dsplib/utils:onto_create_ontology",
-        ":testdata"
+        "//knora/dsplib/utils:xml_upload",
     ],
     data = [
-        "//:testdata",
+        "//testdata:testdata",
+        "//testdata/bitstreams:bitstream"
     ],
     imports = [".", "../knora"],
 )

@@ -77,3 +77,22 @@ py_library(
     imports = [".", ".."],
 )
 
+py_library(
+    name = "xml_upload",
+    visibility = ["//visibility:public"],
+    srcs = ["xml_upload.py"],
+    deps = [
+        "//knora/dsplib/models:connection",
+        "//knora/dsplib/models:group",
+        "//knora/dsplib/models:project",
+        "//knora/dsplib/models:resource",
+        "//knora/dsplib/models:value",
+        "//knora/dsplib/models:permission",
+        "//knora/dsplib/models:sipi",
+        "//knora/dsplib/models:listnode",
+        "//knora/dsplib/models:ontology",
+        requirement("jsonschema"),
+    ],
+    imports = [".", ".."],
+)
+

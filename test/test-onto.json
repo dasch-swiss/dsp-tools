@@ -4,214 +4,489 @@
     "dcterms": "http://purl.org/dc/terms/"
   },
   "project": {
-    "shortcode": "00FE",
-    "shortname": "knora-py-test",
-    "longname": "Test-ontology for knora-py",
+    "shortcode": "4123",
+    "shortname": "tp",
+    "longname": "test project",
     "descriptions": {
-      "en": "A ontology for testing knora-py"
+      "en": "A systematic test project",
+      "de": "Ein systematisches Testprojekt"
     },
-    "keywords": ["test", "knora-py"],
+    "keywords": [
+      "test",
+      "testing"
+    ],
     "lists": [
       {
-        "name": "options",
+        "name": "testlist",
         "labels": {
-          "en": "Options"
+          "en": "Testlist"
         },
         "nodes": [
           {
-            "name": "opt1",
+            "name": "a",
             "labels": {
-              "en": "Opt 1"
+              "en": "a_label"
             }
           },
           {
-            "name": "opt2",
+            "name": "b",
             "labels": {
-              "en": "Opt 2"
-            }
+              "en": "b_label"
+            },
+            "nodes": [
+              {
+                "name": "b1",
+                "labels": {
+                  "en": "b1_label"
+                }
+              },
+              {
+                "name": "b2",
+                "labels": {
+                  "en": "b2_label"
+                }
+              }
+            ]
           },
           {
-            "name": "opt3",
+            "name": "c",
             "labels": {
-              "en": "Opt 3"
-            }
-          },
-          {
-            "name": "opt4",
-            "labels": {
-              "en": "Opt 4"
+              "en": "c_label"
             }
           }
         ]
+      },
+      {
+        "name": "fromexcel",
+        "labels": {
+          "en": "Fromexcel"
+        },
+        "nodes": {
+          "file": "test/list-as-excel.xlsx",
+          "worksheet": "Tabelle1"
+        }
       }
     ],
     "groups": [
       {
-        "name": "MlsEditors",
-        "description": "MLS editorial team",
-        "selfjoin": false
+        "name": "testgroup",
+        "description": "Test group",
+        "selfjoin": false,
+        "status": true
       }
     ],
     "users": [
       {
-        "username": "testuser",
-        "email": "testuser@test.org",
-        "givenName": "test",
-        "familyName": "user",
-        "password": "test",
+        "username": "tester",
+        "email": "tester@test.org",
+        "givenName": "Testing",
+        "familyName": "tester",
+        "password": "test0815",
         "lang": "en",
-        "groups": ["ProjectAdmin", ":MlsEditors"]
+        "groups": [
+          ":testgroup"
+        ],
+        "projects": [
+          ":admin",
+          "anything:member"
+        ]
       }
     ],
-    "ontology": {
-      "name": "kpt",
-      "label": "Test ontology for knora-py",
-      "resources": [
-        {
-          "name": "MyObject",
-          "super": "Resource",
-          "labels": {
-            "en": "Object type 1"
-          },
-          "properties": [
-            {
-              "name": "mySimpleText",
-              "object": "TextValue",
-              "labels": {
-                "en": "Text-Property"
-              },
-              "gui_element": "SimpleText",
-              "gui_attributes": ["size=64", "maxlength=128"],
-              "cardinality": "1-n"
-            },
-            {
-              "name": "myRichText",
-              "object": "TextValue",
-              "labels": {
-                "en": "Richtext value"
-              },
-              "gui_element": "Richtext",
-              "cardinality": "0-1"
-            },
-            {
-              "name": "myColor",
-              "object": "ColorValue",
-              "labels": {
-                "en": "Color value"
-              },
-              "gui_element": "Colorpicker",
-              "cardinality": "0-1"
-            },
-            {
-              "name": "myDate",
-              "object": "DateValue",
-              "labels": {
-                "en": "Date value"
-              },
-              "gui_element": "Date",
-              "cardinality": "1-n"
-            },
-            {
-              "name": "myDecimal",
-              "object": "DecimalValue",
-              "labels": {
-                "en": "Decimal value"
-              },
-              "gui_element": "SimpleText",
-              "gui_attributes": ["size=16", "maxlength=16"],
-              "cardinality": "0-1"
-            },
-            {
-              "name": "myGeoname",
-              "object": "GeonameValue",
-              "labels": {
-                "en": "Geolocation"
-              },
-              "gui_element": "Geonames",
-              "cardinality": "0-1"
-            },
-            {
-              "name": "myList",
-              "object": "ListValue",
-              "labels": {
-                "en": "List value"
-              },
-              "gui_element": "Pulldown",
-              "gui_attributes": ["hlist=options"],
-              "cardinality": "0-1"
-            },
-            {
-              "name": "myInteger",
-              "object": "IntValue",
-              "labels": {
-                "en": "Integer value"
-              },
-              "gui_element": "Spinbox",
-              "gui_attributes": ["min=0", "max=9"],
-              "cardinality": "0-1"
-            },
-            {
-              "name": "myInterval",
-              "object": "IntervalValue",
-              "labels": {
-                "en": "Interval value"
-              },
-              "gui_element": "SimpleText",
-              "gui_attributes": ["size=32", "maxlength=32"],
-              "cardinality": "0-1"
-            },
-            {
-              "name": "myBoolean",
-              "object": "BooleanValue",
-              "labels": {
-                "en": "Boolean value"
-              },
-              "gui_element": "Checkbox",
-              "cardinality": "0-1"
+    "ontologies": [
+      {
+        "name": "testonto",
+        "label": "Test ontology",
+        "properties": [
+          {
+            "name": "hasText",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TextValue",
+            "labels": {"en": "Text"},
+            "gui_element": "SimpleText",
+            "gui_attributes": {
+              "maxlength": "255",
+              "size": 80
             }
-          ]
-        },
-        {
-          "name": "MyImage",
-          "super": "StillImageRepresentation",
-          "labels": {
-            "en": "Object type 2 (with image and link)"
           },
-          "properties": [
-            {
-              "name": "myTitle",
-              "object": "TextValue",
-              "labels": {
-                "en": "Title"
-              },
-              "gui_element": "SimpleText",
-              "gui_attributes": ["size=32", "maxlength=32"],
-              "cardinality": "1"
-            },
-            {
-              "name": "myDescription",
-              "object": "TextValue",
-              "labels": {
-                "en": "Description",
-                "de": "Beschreibung"
-              },
-              "gui_element": "Richtext",
-              "cardinality": "0-n"
-            },
-            {
-              "name": "myLink",
-              "super": ["hasLinkTo"],
-              "object": ":MyObject",
-              "labels": {
-                "en": "Link to"
-              },
-              "gui_element": "Searchbox",
-              "gui_attributes": ["numprops=1"],
-              "cardinality": "0-n"
+          {
+            "name": "hasRichtext",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TextValue",
+            "labels": {"en": "Text"},
+            "gui_element": "Richtext"
+          },
+          {
+            "name": "hasUri",
+            "super": [
+              "hasValue"
+            ],
+            "object": "UriValue",
+            "labels": {"en": "URI"},
+            "gui_element": "SimpleText",
+            "gui_attributes": {
+              "maxlength": "255",
+              "size": 80
             }
-          ]
-        }
-      ]
-    }
+          },
+          {
+            "name": "hasBoolean",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {"en": "Boolean value"},
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "hasDate",
+            "super": [
+              "hasValue"
+            ],
+            "object": "DateValue",
+            "labels": {"en": "Date"},
+            "gui_element": "Date"
+          },
+          {
+            "name": "hasInteger",
+            "super": [
+              "hasValue"
+            ],
+            "object": "IntValue",
+            "labels": {"en": "Integer"},
+            "gui_element": "Spinbox",
+            "gui_attributes": {
+              "max": -1.0,
+              "min": 0.0
+            }
+          },
+          {
+            "name": "hasDecimal",
+            "super": [
+              "hasValue"
+            ],
+            "object": "DecimalValue",
+            "labels": {"en": "Decimal number"},
+            "gui_element": "SimpleText",
+            "gui_attributes": {
+              "maxlength": "255",
+              "size": 80
+            }
+          },
+          {
+            "name": "hasGeometry",
+            "super": [
+              "hasValue"
+            ],
+            "object": "GeomValue",
+            "labels": { "en": "Geometry" },
+            "gui_element": "Geometry"
+          },
+          {
+            "name": "hasGeoname",
+            "super": [
+              "hasValue"
+            ],
+            "object": "GeonameValue",
+            "labels": {"en": "Geoname"},
+            "gui_element": "Geonames"
+          },
+          {
+            "name": "hasInterval",
+            "super": [
+              "hasValue"
+            ],
+            "object": "IntervalValue",
+            "labels": {"en": "Time interval"},
+            "gui_element": "Interval"
+          },
+          {
+            "name": "hasColor",
+            "super": [
+              "hasValue"
+            ],
+            "object": "ColorValue",
+            "labels": {"en": "Color"},
+            "gui_element": "Colorpicker"
+          },
+          {
+            "name": "hasListItem",
+            "super": [
+              "hasValue"
+            ],
+            "object": "ListValue",
+            "labels": {"en": "List element"},
+            "gui_element": "List",
+            "gui_attributes": {
+              "hlist": "testlist"
+            }
+          },
+          {
+            "name": "hasTestRegion",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": "Region",
+            "labels": {"en": "has region"},
+            "gui_element": "Searchbox"
+          },
+          {
+            "name": "hasTestThing2",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": ":TestThing2",
+            "labels": {"en": "Another thing"},
+            "gui_element": "Searchbox"
+          }
+        ],
+        "resources": [
+          {
+            "name": "TestThing",
+            "super": "Resource",
+            "labels": {
+              "en": "TestThing"
+            },
+            "comments": {
+              "en": "A thing to test things",
+              "de": "Ein Ding um allerlei Dinge zu testen."
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasText",
+                "gui_order": 1,
+                "cardinality": "1-n"
+              },
+              {
+                "propname": ":hasRichtext",
+                "gui_order": 2,
+                "cardinality": "0-n"
+              },
+              {
+                "propname": ":hasUri",
+                "gui_order": 3,
+                "cardinality": "0-n"
+              },
+              {
+                "propname": ":hasBoolean",
+                "gui_order": 4,
+                "cardinality": "1"
+              },
+              {
+                "propname": ":hasDate",
+                "gui_order": 5,
+                "cardinality": "0-n"
+              },
+              {
+                "propname": ":hasInteger",
+                "gui_order": 6,
+                "cardinality": "0-n"
+              },
+              {
+                "propname": ":hasDecimal",
+                "gui_order": 7,
+                "cardinality": "0-n"
+              },
+              {
+                "propname": ":hasGeometry",
+                "gui_order": 8,
+                "cardinality": "0-n"
+              },
+              {
+                "propname": ":hasGeoname",
+                "gui_order": 9,
+                "cardinality": "0-n"
+              },
+              {
+                "propname": ":hasInterval",
+                "gui_order": 10,
+                "cardinality": "0-n"
+              },
+              {
+                "propname": ":hasColor",
+                "gui_order": 11,
+                "cardinality": "0-n"
+              },
+              {
+                "propname": ":hasListItem",
+                "gui_order": 12,
+                "cardinality": "0-n"
+              },
+              {
+                "propname": ":hasTestRegion",
+                "gui_order": 13,
+                "cardinality": "0-n"
+              },
+              {
+                "propname": ":hasTestThing2",
+                "gui_order": 14,
+                "cardinality": "0-n"
+              }
+            ]
+          },
+          {
+            "name":  "TestThing2",
+            "super": "Resource",
+            "labels": {
+              "en": "Another Test Thing"
+            },
+            "comments": {
+              "en": "Another thing for testing  things."
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasText",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name":  "CompoundThing",
+            "super": "Resource",
+            "labels": {
+              "en": "A Compound Thing"
+            },
+            "comments": {
+              "en": "A thing for testing compound things."
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasText",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name":  "ImageThing",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "An Image Thing"
+            },
+            "comments": {
+              "en": "An image thing for testing image things."
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasText",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name":  "AudioThing",
+            "super": "AudioRepresentation",
+            "labels": {
+              "en": "An Audio Thing"
+            },
+            "comments": {
+              "en": "An audio thing for testing audio things."
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasText",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name":  "MovieThing",
+            "super": "MovingImageRepresentation",
+            "labels": {
+              "en": "An Movie Thing"
+            },
+            "comments": {
+              "en": "An movie thing for testing moving image things."
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasText",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name":  "DocumentThing",
+            "super": "DocumentRepresentation",
+            "labels": {
+              "en": "A Document Thing"
+            },
+            "comments": {
+              "en": "A second things for testing different things."
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasText",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name":  "ZipThing",
+            "super": "DocumentRepresentation",
+            "labels": {
+              "en": "A ZIP Thing"
+            },
+            "comments": {
+              "en": "A  things for testing ZIPS."
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasText",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name":  "TextThing",
+            "super": "TextRepresentation",
+            "labels": {
+              "en": "A Text Thing"
+            },
+            "comments": {
+              "en": "A  things for testing TEXTS."
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasText",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name":  "PartOfThing",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "A Thing having a partOf and seqnum property"
+            },
+            "comments": {
+              "en": "A thing for testing partOf and seqnum properties."
+            },
+            "cardinalities": [
+              {
+                "propname": "isPartOf",
+                "gui_order": 1,
+                "cardinality": "1"
+              },
+              {
+                "propname": "seqnum",
+                "gui_order": 2,
+                "cardinality": "1"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
 }

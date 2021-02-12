@@ -18,6 +18,31 @@ def create_lists (input_file: str, output_file: str, server: str, user: str, pas
     with open(input_file) as f:
         datamodel = json.load(f)
 
+    #
+    # now let's see if there are any lists defined as reference to excel files
+    #
+    lists = datamodel["project"].get('lists')
+    if lists is not None:
+        newlists: [] = []
+        for rootnode in lists:
+            if rootnode.get("nodes") is not None and isinstance(rootnode["nodes"], dict) and rootnode["nodes"].get("file") is not None:
+                newroot = {
+                    "name": rootnode.get("name"),
+                    "labels": rootnode.get("labels"),
+                    "comments": rootnode.get("comments")
+                }
+                startrow = 1 if rootnode["nodes"].get("startrow") is None else rootnode["nodes"]["startrow"]
+                startcol = 1 if rootnode["nodes"].get("startcol") is None else rootnode["nodes"]["startcol"]
+                json_list_from_excel(rootnode=newroot,
+                                     filepath=rootnode["nodes"]["file"],
+                                     sheetname=rootnode["nodes"]["worksheet"],
+                                     startrow=startrow,
+                                     startcol=startcol)
+                newlists.append(newroot)
+            else:
+                newlists.append(rootnode)
+        datamodel["project"]["lists"] = newlists
+
     # validate the data model definition in order to be sure that it is correct
     validate(datamodel, schema)
 

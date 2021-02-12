@@ -30,11 +30,11 @@ def program(args):
     parser_create.add_argument("-u", "--user", default="root@example.com", help="Username for DSP server")
     parser_create.add_argument("-p", "--password", default="test", help="The password for login")
     parser_create.add_argument("-V", "--validate", action='store_true', help="Do only validation of JSON, no upload of the ontology")
-    parser_create.add_argument("datamodelfile", help="path to data model file")
     parser_create.add_argument("-L", "--listfile", type=str, default="lists.json", help="Name of list node informationfile")
     parser_create.add_argument("-l", "--lists", action='store_true', help="Only create the lists")
     parser_create.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
     parser_create.add_argument("-d", "--dump", action="store_true", help="dump test files for DSP-API requests")
+    parser_create.add_argument("datamodelfile", help="path to data model file")
 
     parser_get = subparsers.add_parser('get', help='Get project/ontology information from server')
     parser_get.set_defaults(action="get")
@@ -42,8 +42,8 @@ def program(args):
     parser_get.add_argument("-p", "--password", default="test", help="The password for login")
     parser_get.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the DSP server")
     parser_get.add_argument("-P", "--project", type=str, help="Shortcode, shortname or iri of project", required=True)
-    parser_get.add_argument("outfile", help="path to data model file", default="onto.json")
     parser_get.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
+    parser_get.add_argument("datamodelfile", help="path to data model file", default="onto.json")
 
     parser_upload = subparsers.add_parser('xmlupload', help='Upload data from XML file to server')
     parser_upload.set_defaults(action="xmlupload")
@@ -53,12 +53,11 @@ def program(args):
     parser_upload.add_argument("-V", "--validate", action='store_true', help="Do only validation of JSON, no upload of the ontology")
     parser_upload.add_argument("-i", "--imgdir", type=str, default=".", help="Path to folder containing the images")
     parser_upload.add_argument("-S", "--sipi", type=str, default="http://0.0.0.0:1024", help="URL of SIPI server")
-    parser_upload.add_argument("xmlfile", help="path to xml file containing the data", default="data.xml")
     parser_upload.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
+    parser_upload.add_argument("xmlfile", help="path to xml file containing the data", default="data.xml")
 
     parser_excellists = subparsers.add_parser('excellists', help='Create lists from excel files')
     parser_excellists.set_defaults(action="excellists")
-    parser_excellists.add_argument("-j", "--jsonfile", type=str, help="Filename of JSON file produced", default="list.json")
     parser_excellists.add_argument("-S", "--sheet", type=str, help="Name of excel sheet to be used", default="Tabelle1")
     parser_excellists.add_argument("-c", "--shortcode", type=str, help="Shortcode of project", default="4123")
     parser_excellists.add_argument("-l", "--listname", type=str, help="Name of list to be created", default="my_list")
@@ -67,6 +66,7 @@ def program(args):
     parser_excellists.add_argument("excelfile", help="Path to the excel file containing the list data", default="lists.xlsx")
     parser_excellists.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
     parser_excellists.add_argument("-V", "--validate", action='store_true', help="Do only validation of excel")
+    parser_excellists.add_argument("outfile", help="Path to the output JSON file containing the list data", default="list.json")
 
     args = parser.parse_args(args)
 
@@ -84,10 +84,20 @@ def program(args):
             if args.validate:
                 validate_ontology(args.datamodelfile)
             else:
-                create_ontology(args.datamodelfile, args.listfile, args.server, args.user, args.password, args.verbose,
-                                args.dump if args.dump else False)
+                create_ontology(input_file=args.datamodelfile,
+                                lists_file=args.listfile,
+                                server=args.server,
+                                user=args.user,
+                                password=args.password,
+                                verbose=args.verbose,
+                                dump=args.dump if args.dump else False)
     elif args.action == "get":
-        get_ontology(args.project, args.outfile, args.server, args.user, args.password, args.verbose)
+        get_ontology(projident=args.project,
+                     outfile=args.datamodelfile,
+                     server=args.server,
+                     user=args.user,
+                     password=args.password,
+                     verbose=args.verbose)
     elif args.action == "xmlupload":
         xml_upload(input_file=args.xmlfile,
                    server=args.server,
@@ -104,7 +114,7 @@ def program(args):
                         listname=args.listname,
                         label=args.label,
                         lang=args.lang,
-                        outfile=args.jsonfile,
+                        outfile=args.outfile,
                         verbose=args.verbose)
 
 

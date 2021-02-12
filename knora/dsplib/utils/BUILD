@@ -9,9 +9,9 @@ py_library(
     visibility = ["//visibility:public"],
     srcs = ["onto_commons.py"],
     deps = [
-        ":helpers",
-        ":listnode",
-        ":project",
+        "//knora/dsplib/models:helpers",
+        "//knora/dsplib/models:listnode",
+        "//knora/dsplib/models:project",
     ],
     imports = [".."],
 )
@@ -21,31 +21,42 @@ py_library(
     visibility = ["//visibility:public"],
     srcs = ["onto_create_lists.py"],
     deps = [
-        ":helpers",
-        ":connection"
-        ":listnode",
-        ":project",
+        "//knora/dsplib/models:helpers",
+        "//knora/dsplib/models:connection",
+        "//knora/dsplib/models:listnode",
+        "//knora/dsplib/models:project",
         ":onto_commons",
         requirement("jsonschema"),
     ],
     imports = [".", ".."],
 )
+
+py_library(
+    name = "onto_validate",
+    visibility = ["//visibility:public"],
+    srcs = ["onto_validate.py"],
+    deps = [
+        ":onto_commons",
+    ],
+    imports = [".", ".."],
+)
+
 
 py_library(
     name = "onto_create_ontology",
     visibility = ["//visibility:public"],
     srcs = ["onto_create_ontology.py"],
     deps = [
-        ":helpers",
-        ":langstring",
-        ":group",
-        ":user",
-        ":ontology",
-        ":propertyclass",
-        ":resourceclass"
-        ":connection"
-        ":listnode",
-        ":project",
+        "//knora/dsplib/models:helpers",
+        "//knora/dsplib/models:langstring",
+        "//knora/dsplib/models:group",
+        "//knora/dsplib/models:user",
+        "//knora/dsplib/models:ontology",
+        "//knora/dsplib/models:propertyclass",
+        "//knora/dsplib/models:resourceclass",
+        "//knora/dsplib/models:connection",
+        "//knora/dsplib/models:listnode",
+        "//knora/dsplib/models:project",
         ":onto_commons",
         requirement("jsonschema"),
     ],
@@ -57,21 +68,12 @@ py_library(
     visibility = ["//visibility:public"],
     srcs = ["onto_get.py"],
     deps = [
-        ":connection",
-        ":project",
-        ":listnode",
-        ":ontology"
-    ],
-    imports = [".", ".."],
-)
-
-py_library(
-    name = "onto_get",
-    visibility = ["//visibility:public"],
-    srcs = ["onto_get.py"],
-    deps = [
+        "//knora/dsplib/models:connection",
+        "//knora/dsplib/models:project",
+        "//knora/dsplib/models:listnode",
+        "//knora/dsplib/models:ontology",
         requirement("jsonschema"),
     ],
-    imports = ["."],
+    imports = [".", ".."],
 )
 

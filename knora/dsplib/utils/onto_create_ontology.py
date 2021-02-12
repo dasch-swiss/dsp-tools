@@ -47,8 +47,10 @@ def create_ontology(input_file: str,
                 newroot = {
                     "name": rootnode.get("name"),
                     "labels": rootnode.get("labels"),
-                    "comments": rootnode.get("comments")
-                }
+               }
+                if rootnode.get("comments") is not None:
+                    newroot["comments"] = rootnode["comments"]
+
                 startrow = 1 if rootnode["nodes"].get("startrow") is None else rootnode["nodes"]["startrow"]
                 startcol = 1 if rootnode["nodes"].get("startcol") is None else rootnode["nodes"]["startcol"]
                 json_list_from_excel(rootnode=newroot,

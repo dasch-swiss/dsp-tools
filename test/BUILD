@@ -111,11 +111,10 @@ py_test(
         "//knora/dsplib/utils:onto_get",
         "//knora/dsplib/utils:onto_validate",
         "//knora/dsplib/utils:onto_create_ontology",
+        ":testdata"
     ],
     data = [
-        "//test:anything.json",
-        "//test:test-onto.json",
-        "//test:list-as-excel.xlsx",
+        "//:testdata",
     ],
     imports = [".", "../knora"],
 )

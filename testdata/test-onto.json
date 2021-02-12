@@ -62,7 +62,7 @@
           "en": "Fromexcel"
         },
         "nodes": {
-          "file": "test/list-as-excel.xlsx",
+          "file": "testdata/list-as-excel.xlsx",
           "worksheet": "Tabelle1"
         }
       }

@@ -29,16 +29,26 @@ class TestTools(unittest.TestCase):
         self.assertEqual(refobj["project"]["shortcode"], jsonobj["project"]["shortcode"])
 
     def test_validate_onto(self):
-        validate_ontology('test/test-onto.json')
+        validate_ontology('testdata/test-onto.json')
 
     def test_create_onto(self):
-        create_ontology(input_file='test/test-onto.json',
+        create_ontology(input_file='testdata/test-onto.json',
                         lists_file='lists-out.json',
                         server="http://0.0.0.0:3333",
                         user="root@example.com",
                         password="test",
                         verbose=True,
                         dump=True)
+
+    def test_xmlupload(self):
+        xml_upload(input_file="testdata/test-data.xml",
+                   server="http://0.0.0.0:3333",
+                   user="root@example.com",
+                   password="test",
+                   imgdir="testdata/bitmaps",
+                   sipi="http://0.0.0.0:1024",
+                   verbose=True,
+                   validate=True)
 
 
 

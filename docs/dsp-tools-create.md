@@ -354,6 +354,10 @@ The nodes section then must contain the fields
 - _file_: Path to the excel file
 - _worksheet_: The name of the worksheet in the excel
 
+The nodenames are composed from the label by concatenating the words in the label, with the first word starting wit a
+lower case character and the other words starting with an upper case character. So the label `Chamber music` would
+become the name `chamberMusic`
+
 
 As already mentioned before, the _lists_ element is optional. If there are no lists, this element has to be omitted.
 

@@ -84,8 +84,13 @@ def json_list_from_excel(rootnode: {}, filepath: str, sheetname: str, startrow: 
                     parentnode["nodes"] = nodes
                     return row
             else:
+                tmpstr = cell.value
+                tmpstr = tmpstr.split(" ")
+                tmpstr = [w.title() for w in tmpstr]
+                tmpstr = "".join(tmpstr)
+                tmpstr = tmpstr[0].lower() + tmpstr[1:]
                 currentnode = {
-                    "name": f"node_{row}_{col}",
+                    "name": tmpstr,
                     "labels": {"en": cell.value}
                 }
                 nodes.append(currentnode)

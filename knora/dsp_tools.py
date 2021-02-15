@@ -106,7 +106,7 @@ def program(args):
                    sipi=args.sipi,
                    verbose=args.verbose,
                    validate=args.validate)
-    elif args.action == "excellists":
+    elif args.action == "excel":
         list_excel2json(excelpath=args.excelfile,
                         sheetname=args.sheet,
                         shortcode=args.shortcode,

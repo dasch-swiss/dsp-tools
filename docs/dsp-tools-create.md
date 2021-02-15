@@ -1,9 +1,17 @@
-# JSON ontology definition format
+# JSON data model definition format
 
 ## Introduction
-This document contains all the information you need to create an ontology that's used by DSP.
+This document contains all the information you need to create an data model that's used by DSP. According to
+Wikipedia, da [data model](https://en.wikipedia.org/wiki/Data_model) is "_is an abstract model that organizes elements
+of data and standardizes how they relate to one another and to the properties of real-world entities._"  Further it
+states: "_A data model explicitly determines the structure of data. Data models are typically specified by a data
+specialist, data librarian, or a digital humanities scholar in a data modeling notation_". In this section we will 
+describe one of the notations that is used by the _dsp-tools_ to create a data model in the dsp repository. The dsp
+repository is loosely based on [Linked Open Data](https://en.wikipedia.org/wiki/Linked_data) where also the term
+_"ontology"_ is used for the data model. It should be noted that in this context an ontology is not used in the
+philosophical sense.
 
-In the first section you find a rough overview of the ontology definition, all the necessary components with a 
+In the first section you find a rough overview of the data model definition, all the necessary components with a 
 definition and a short example of the definition.
 
 ## A short overview
@@ -11,7 +19,7 @@ In the following section, you find all the mentioned parts with a detailed expla
 at the basic fields that belong to an ontology definition. This serves as an overview for you to which you can return 
 at any time while you read the description.
 
-A complete ontology definition looks like this:
+A complete data model definition looks like this:
 
 ```json
 {

@@ -65,6 +65,8 @@ def validate_list_from_excel(filepath: str,
 
 def json_list_from_excel(rootnode: {}, filepath: str, sheetname: str, startrow: int = 1, startcol: int = 1):
 
+    names: Set[str] = set()
+
     def analyse_level(ws: worksheet, parentnode: {}, row: int, col: int, preval: List[str]) ->int:
         nodes: [] = []
         currentnode: {}
@@ -89,6 +91,9 @@ def json_list_from_excel(rootnode: {}, filepath: str, sheetname: str, startrow: 
                 tmpstr = [w.title() for w in tmpstr]
                 tmpstr = "".join(tmpstr)
                 tmpstr = tmpstr[0].lower() + tmpstr[1:]
+                while tmpstr in names:
+                    tmpstr = tmpstr + "_"
+                names.add(tmpstr)
                 currentnode = {
                     "name": tmpstr,
                     "labels": {"en": cell.value}

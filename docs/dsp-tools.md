@@ -48,6 +48,8 @@ $ dsp-tools create -s https://api.dsl.server.org data_model_definition.json
 which would load the ontology defined in `data_model_definition.json` onto the server given
 by the `-s`-options.
 
+THe description about the JSON format can be found [here](./dsp-tools-create.ms). 
+
 ### Get an ontology from a server
 
 ```bash
@@ -70,14 +72,16 @@ $ dsp-tools xmlupload [options] xml-data-file
 
 This command line uploads all the data defined in the XML file. It supports the following options:
 
-- _"-s server" | "--server server"_: URL of the Knora server [default: localhost:3333].
+- _"-s server" | "--server server"_: URL of the Knora server [default: http://0.0.0.0:3333].
 - _"-u username" | "--user username"_: Username to log into Knora [default: root@example.com].
 - _"-p password" | "--password password"_: Password for login to the Knora server [default: test].
+- _"-i dirpath" | "--imgdir"dirpath"_: Path to the directory where the bitstream objects are stored [default: "."].
+- _"-s sipiserver" | "--sipi sipiserver"_: URL of the SIPI IIIF-server [default: http://0.0.0.0:1024]
+- _"xmlfile"_: Path to xml-File containing the data.
 
-    parser_upload.add_argument("-i", "--imgdir", type=str, default=".", help="Path to folder containing the images")
-    parser_upload.add_argument("-S", "--sipi", type=str, default="http://0.0.0.0:1024", help="URL of SIPI server")
+The description about the XML-format for the data is found [here](./dsp-tools-xmlupload.md).
     
-### Convert an Excel-file for use with dsptools
+### Convert an Excel file for use with dsp tools
 
 ```bash
 $ dsp-tools excel [options] excel-file output-file

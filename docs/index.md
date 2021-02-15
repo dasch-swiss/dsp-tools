@@ -11,10 +11,12 @@ The package consists of:
 
 - `dsplib` Python modules for accessing Knora using the API (ontology creation, data import/export etc.)
 - `dsp-tools` A command line program to perfrom several operations on a DSP server:
-    - create an ontology out of a simple JSON description
-    - dump an existing ontology from a DSP server to a JSON file
-    - Bulk-upload of data from a XML data file
-    - process Excel files and transfrom them to JSON/XML usable for dsp-tools.
+    - create an ontology out of a simple JSON description ([here](./dsp-tools.md#create-an-ontology-on-a-server)).
+    - dump an existing ontology from a DSP server to a JSON file ([here](./dsp-tools.md#get-an-ontology-from-a-server)).
+    - Bulk-upload of data from a XML data file ([here](./dsp-tools.md#upload-data-to-a-DSP-server)).
+    - Process Excel files and transfrom them to JSON/XML usable for dsp-tools ([here](./dsp-tools.md#convert-an-Excel-file-for-use-with-dsp-tools)).
+
+An overview of the usage can be found [here](./dsp-tools.md).
 
 # Install
 

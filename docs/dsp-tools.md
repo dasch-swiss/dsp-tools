@@ -19,6 +19,7 @@ a XML file
 - `dsp-tools get` reads an ontology from a server and creates a JSON file that can be used again by
   `dsp-tools create` to implement the data model on another server
 - `dsp-tools xmlupload` to upload data from a XML file (bulk data import)
+- `dsp-tools excel` to convert an Excel-file into a JSON and/or XML file for the `create` or `xmlupload` options.
 
 ## Usage
 
@@ -75,4 +76,23 @@ This command line uploads all the data defined in the XML file. It supports the 
 
     parser_upload.add_argument("-i", "--imgdir", type=str, default=".", help="Path to folder containing the images")
     parser_upload.add_argument("-S", "--sipi", type=str, default="http://0.0.0.0:1024", help="URL of SIPI server")
+    
+### Convert an Excel-file for use with dsptools
+
+```bash
+$ dsp-tools excel [options] excel-file output-file
+```
+
+The excel command supports the following options:
+
+- _"-S sheetname" | "--sheet sheetname"_: Name of the excel worksheet to use [default: Tabelle1].
+- _"-s shortcode" | "--shortcode shortcode"_: The 4 digit hexcode given to the project the list belongs to [required].
+- _"-l listname" | "--listname listname"_: Name to be used for the list and to be inserted into thge list definitionfile [required].
+- _"-L label" | "--label label"_: The label text to be used for the list [required].
+- _"-x lang" | "--lang lang"_: The language the list labels and commentary is given [default: en].
+- _"-v" | "--verbose"_: Print out some information about progress.
+- _"excel-file"_: Input file in the Excel "*.xlsx"-Format.
+- _"output-file"_: Output file containing the JSON-formatted definition of the list.
+
+A description of the required Excel format is found [here](./dsp-tools-create.md#lists-from-excel).
 

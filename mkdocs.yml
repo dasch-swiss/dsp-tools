@@ -5,6 +5,7 @@ nav:
     - dsp-tools: dsp-tools.md
     - JSON data model format: dsp-tools-create.md
     - Bulk data import: dsp-tools-xmlupload.md
+    - Excel file processing: dsp-tools-excel.md
 
 theme:
   name: material

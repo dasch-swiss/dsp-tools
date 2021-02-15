@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/knora.svg)](https://badge.fury.io/py/knora)
 
-# Knora XML-file format for importing data
+# DSP XML-file format for importing data
 The import file is a standard XML file as decribed below.
 
 ## Preamble

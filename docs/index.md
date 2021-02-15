@@ -14,6 +14,7 @@ The package consists of:
     - create an ontology out of a simple JSON description
     - dump an existing ontology from a DSP server to a JSON file
     - Bulk-upload of data from a XML data file
+    - process Excel files and transfrom them to JSON/XML usable for dsp-tools.
 
 # Install
 

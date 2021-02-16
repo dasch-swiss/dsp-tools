@@ -2,7 +2,7 @@
 
 # dsp-tools
 In order to work with a DaSCH Service Platform server (DSP-server), the user has to create a data
-models (aka `ontologies`) of her/his data. This data model is defined in a special JSON-file which
+model (aka `ontologies`) of her/his data. This data model is defined in a special JSON-file which
 then can be transmitted to the DSP-server. If the DSP-server is aware of the data model, conforming data
 can be uploaded to the server.
 

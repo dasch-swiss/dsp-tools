@@ -107,6 +107,24 @@ py_test(
 )
 
 py_test(
+    name = "test_resource",
+    srcs = ["test_resource.py"],
+    deps = [
+        "//knora/dsplib/models:connection",
+        "//knora/dsplib/models:resource",
+        "//knora/dsplib/models:group",
+        "//knora/dsplib/models:value",
+        "//knora/dsplib/models:permission",
+        "//knora/dsplib/models:sipi",
+    ],
+    data = [
+        "//testdata:testdata",
+        "//testdata/bitstreams:bitstream"
+    ],
+    imports = [".", "../knora"],
+)
+
+py_test(
     name = "test_tools",
     srcs = ["test_tools.py"],
     deps = [

@@ -5,19 +5,15 @@ from enum import Enum, unique
 from urllib.parse import quote_plus
 
 from pystrict import strict
-from rfc3987 import parse
 from typing import List, Set, Dict, Tuple, Optional, Any, Union, Type
 from copy import deepcopy
 
-from .group import Group
-from .langstring import LangString
 from .helpers import OntoInfo, Actions, BaseError, Cardinality, Context
 from .connection import Connection
 from .model import Model
 from .project import Project
 from .listnode import ListNode
 from .ontology import Ontology
-from .propertyclass import PropertyClass
 from .resourceclass import ResourceClass, HasProperty
 from .permission import PermissionValue, PermissionsIterator, Permissions
 from .value import KnoraStandoffXml, Value, TextValue, ColorValue, DateValue, DecimalValue, GeomValue, GeonameValue, \
@@ -134,6 +130,21 @@ class ResourceInstance(Model):
             for propname in values:
                 if propname not in self.knora_properties and self.properties.get(propname) is None:
                     raise BaseError(f'Property "{propname}" is not part of data model!')
+
+    def value(self, item):
+        if self._values.get(item):
+            val = self._values[item]
+            if isinstance(val, list):
+                tmp = [x.value for x in val]
+                return tmp
+            else:
+                return val.value
+        else:
+            return None
+
+    @property
+    def label(self) -> str:
+        return self._label
 
     @property
     def iri(self) -> str:

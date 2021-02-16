@@ -321,7 +321,26 @@ class DateValue(Value):
 
     @property
     def value(self) -> str:
-        return self._value
+        datestr = ''
+        if self._calendar:
+            datestr += self._calendar + ':'
+        if self._e1:
+            datestr += self._e1 + ':'
+        if self._y1:
+            datestr += str(self._y1) + '-'
+        if self._m1:
+            datestr += str(self._m1) + '-'
+        if self._d1:
+            datestr += str(self._d1)
+        if self._e2:
+            datestr += ':' + str(self._e2)
+        if self._y2:
+            datestr += ':' + str(self._y2)
+        if self._m2:
+            datestr += '-' + str(self._m2)
+        if self._d2:
+            datestr += '-' + str(self._d2)
+        return datestr
 
     @classmethod
     def fromJsonLdObj(cls, jsonld_obj: Any) -> Dict[str, Any]:

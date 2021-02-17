@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/knora.svg)](https://badge.fury.io/py/knora)
 
-# Knora XML-file format for importing data
+# DSP XML-file format for importing data
 The import file is a standard XML file as decribed below.
 
 ## Preamble
@@ -180,7 +180,7 @@ Example:
  
 The `<resource>`-element may contain the following tags describing properties (data fields):
 
-- _`<image>`_: In case of the StillImageResource contains the path to the image file.
+- _`<bitstream>`_: In case of the StillImageResource contains the path to the image file.
 - _`<text-prop>`_: Contains text values
 - _`<color-prop>`_: Contains color values
 - _`<date-prop>`_: Contains date values
@@ -197,61 +197,21 @@ The `<resource>`-element may contain the following tags describing properties (d
 - _`<uri-prop>`_: Contains URI values
 - _`<boolean-prop>`_: Contains boolean values
 
-#### `<image>`-element
-The `<image>`-element contains the path to an image file. It must only be used if the
-resource is a `StillImageRepresentation` and must be the first element!
+#### `<bitstream>`-element
+The `<bitstream>`-element contains the path to abitstream object like an image file, a ZIP-file, an audio-file etc.
+It must only be used if the resource is a `StillImageRepresentation`, an `AudioRepresentation`, a `DocumentRepresentation` etc.
+and must be the first element!
 
 _Options_:
 - none
 
-_Note_: There is only _one_ `<image>`-element allowed per StillImageRepresentation!
+_Note_: There is only _one_ `<bitstream>`-element allowed per Representation!
 
 Example:
 ```xml
-<image>postcards.dir/images/EURUS015a.jpg</image>
+<bitstream>postcards.dir/images/EURUS015a.jpg</bitstream>
 ```
 
-#### `<sound>`-element
-The `<sound>`-element contains the path to an sound file. It must only be used if the
-resource is a `AudioRepresentation` and must be the first element!
-
-_Options_:
-- none
-
-_Note_: There is only _one_ `<sound>`-element allowed per AudioRepresentation!
-
-Example:
-```xml
-<sound>concerts.dir/files/SOTW.wav</sound>
-```
-
-#### `<movie>`-element
-The `<movie>`-element contains the path to an movie file. It must only be used if the
-resource is a `MovingImageRepresentation` and must be the first element!
-
-_Options_:
-- none
-
-_Note_: There is only _one_ `<movie>`-element allowed per MovingImageRepresentation!
-
-Example:
-```xml
-<movie>movies.dir/files/the_general.mp4</movie>
-```
-
-#### `<document>`-element
-The `<document>`-element contains the path to an document file. It must only be used if the
-resource is a `DocumentRepresentation` and must be the first element!
-
-_Options_:
-- none
-
-_Note_: There is only _one_ `<document>`-element allowed per DocumentRepresentation!
-
-Example:
-```xml
-<document>facsimiles/files/we_the_people.pdf</document>
-```
 
 
 #### `<text-prop>`-element

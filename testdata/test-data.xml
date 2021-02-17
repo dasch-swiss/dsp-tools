@@ -186,6 +186,7 @@
         </text-prop>
     </resource>
 
+    <!--
     <resource label="Audiothing"
               restype=":AudioThing"
               id="obj_0010"
@@ -195,5 +196,6 @@
             <text permissions="prop-default" encoding="utf8">This is a Audiothing</text>
         </text-prop>
      </resource>
+     -->
 
 </knora>

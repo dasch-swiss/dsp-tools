@@ -7,7 +7,6 @@ from pprint import pprint
 
 from dsplib.models.connection import Connection
 from dsplib.models.group import Group
-from dsplib.models.helpers import IriTest
 from dsplib.models.project import Project
 from dsplib.models.resource import ResourceInstanceFactory
 from dsplib.models.value import BooleanValue, ColorValue, DateValue, DecimalValue, IntValue, IntervalValue, TextValue, \

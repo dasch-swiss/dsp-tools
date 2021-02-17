@@ -1,10 +1,10 @@
-site_name: Knora-Py Documentation
+site_name: dsp-tools Documentation
 
 nav:
-    - Introduction: index.md
-    - dsp-tools: dsp-tools.md
+    - dsp-tools: index.md
     - JSON data model format: dsp-tools-create.md
     - Bulk data import: dsp-tools-xmlupload.md
+    - Excel file processing: dsp-tools-excel.md
 
 theme:
   name: material

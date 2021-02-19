@@ -22,13 +22,22 @@ def validate_list(input_file: str) -> None:
 
 
 def validate_ontology(input_file: str) -> None:
+    with open(input_file) as f:
+        jsonstr = f.read()
+    validate_ontology_from_string(jsonstr)
+
+
+def validate_ontology_from_string(jsonstr: str) -> None:
     current_dir = os.path.dirname(os.path.realpath(__file__))
 
     with open(os.path.join(current_dir, 'knora-schema.json')) as s:
         schema = json.load(s)
     # read the data model definition
-    with open(input_file) as f:
-        datamodel = json.load(f)
+    #with open(input_file) as f:
+    #    datamodel = json.load(f)
+    #with open(input_file) as f:
+    #    jsonstr = f.read()
+    datamodel = json.loads(jsonstr)
 
     #
     # now let's see if there are any lists defined as reference to excel files

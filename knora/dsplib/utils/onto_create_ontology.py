@@ -146,7 +146,7 @@ def create_ontology(input_file: str,
                 con=con,
                 project=project,
                 label=rootnode['labels'],
-                comment=rootnode.get('comments'),
+                comments=rootnode.get('comments'),
                 name=rootnode['name']
             ).create()
             listnodes = list_creator(con, project, root_list_node, rootnode['nodes'])

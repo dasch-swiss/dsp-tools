@@ -118,7 +118,7 @@ class ListNode(Model):
     _id: Union[str, None]
     _project: Union[str, None]
     _label: LangString
-    _comment: LangString
+    _comments: LangString
     _name: Union[str, None]
     _parent: Union[str, None]
     _isRootNode: bool
@@ -130,7 +130,7 @@ class ListNode(Model):
                  id: Optional[str] = None,
                  project: Optional[Union[Project, str]] = None,
                  label: LangStringParam = None,
-                 comment: LangStringParam = None,
+                 comments: LangStringParam = None,
                  name: Optional[str] = None,
                  parent: Optional[Union['ListNode', str]] = None,
                  isRootNode: Optional[bool] = None,
@@ -144,7 +144,7 @@ class ListNode(Model):
         READ:
             * The "con" and "id" attributes are required
         UPDATE:
-            * Only "label", "comment" and "name" may be changed
+            * Only "label", "comments" and "name" may be changed
         DELETE:
             * Not yet implemented in the Knora-backend
 
@@ -152,7 +152,7 @@ class ListNode(Model):
         :param id: IRI of the project [readonly, cannot be modified after creation of instance]
         :param project: IRI of project. Only used for the creation of a new list (root node) [write].
         :param label: A LangString instance with language depenedent labels. Setting this attributes overwites all entries with the new ones. In order to add/remove a specific entry, use "addLabel" or "rmLabel". At least one label is required [read/write].
-        :param comment: A LangString instance with language depenedent comments. Setting this attributes overwites all entries with the new ones.In order to add/remove a specific entry, use "addComment" or "rmComment".
+        :param comments: A LangString instance with language depenedent comments. Setting this attributes overwites all entries with the new ones.In order to add/remove a specific entry, use "addComment" or "rmComment".
         :param name: A unique name for the ListNode (unique regarding the whole list) [read/write].
         :param parent: Is required and allowed only for the CREATE operation. Otherwise use the "children" attribute [write].
         :param isRootNode: Is True if the ListNode is a root node of a list Cannot be set [read].
@@ -165,7 +165,7 @@ class ListNode(Model):
         self._project = project.id if isinstance(project, Project) else str(project) if project is not None else None
         self._id = str(id) if id is not None else None
         self._label = LangString(label)
-        self._comment = LangString(comment)
+        self._comments = LangString(comments)
         self._name = str(name) if name is not None else None
         if parent and isinstance(parent, ListNode):
             self._parent = parent.id
@@ -237,35 +237,35 @@ class ListNode(Model):
         self._changed.add('label')
 
     @property
-    def comment(self) -> Optional[LangString]:
-        return self._comment
+    def comments(self) -> Optional[LangString]:
+        return self._comments
 
-    @comment.setter
-    def comment(self,  value: Optional[Union[LangString, str]]) -> None:
-        self._comment = LangString(value)
-        self._changed.add('comment')
+    @comments.setter
+    def comments(self,  value: Optional[Union[LangString, str]]) -> None:
+        self._comments = LangString(value)
+        self._changed.add('comments')
 
     def addComment(self, lang: Union[Languages, str], value: str) -> None:
         """
-        Add/replace a node comment with the given language (executed at next update)
+        Add/replace a node comments with the given language (executed at next update)
 
-        :param lang: The language the comment, either a string "EN", "DE", "FR", "IT" or a Language instance
-        :param value: The text of the comment
+        :param lang: The language the comments, either a string "EN", "DE", "FR", "IT" or a Language instance
+        :param value: The text of the comments
         :return: None
         """
 
-        self._comment[lang] = value
-        self._changed.add('comment')
+        self._comments[lang] = value
+        self._changed.add('comments')
 
     def rmComment(self, lang: Union[Languages, str]) -> None:
         """
-        Remove a comment from a list node (executed at next update)
+        Remove a comments from a list node (executed at next update)
 
         :param lang: The language the comment to be removed is in, either a string "EN", "DE", "FR", "IT" or a Language instance
         :return: None
         """
-        del self._comment[lang]
-        self._changed.add('comment')
+        del self._comments[lang]
+        self._changed.add('comments')
 
     @property
     def name(self) -> Optional[str]:
@@ -358,7 +358,7 @@ class ListNode(Model):
             raise BaseError('ListNode id is missing')
         project = json_obj.get('projectIri')
         label = LangString.fromJsonObj(json_obj.get('labels'))
-        comment = LangString.fromJsonObj(json_obj.get('comments'))
+        comments = LangString.fromJsonObj(json_obj.get('comments'))
         name = json_obj.get('name')
         parent = json_obj.get('parentNodeIri')
         isRootNode = json_obj.get('isRootNode')
@@ -376,7 +376,7 @@ class ListNode(Model):
                    id=id,
                    project=project,
                    label=label,
-                   comment=comment,
+                   comments=comments,
                    name=name,
                    parent=parent,
                    isRootNode=isRootNode,
@@ -401,8 +401,8 @@ class ListNode(Model):
             if self._label.isEmpty():
                 raise BaseError("There must be a valid ListNode label!")
             tmp['labels'] = self._label.toJsonObj()
-            if not self._comment.isEmpty():
-                tmp['comments'] = self._comment.toJsonObj()
+            if not self._comments.isEmpty():
+                tmp['comments'] = self._comments.toJsonObj()
             else:
                 tmp['comments'] = []
             if self._name is not None:
@@ -418,8 +418,8 @@ class ListNode(Model):
             tmp['projectIri'] = self._project
             if not self._label.isEmpty() and 'label' in self._changed:
                 tmp['labels'] = self._label.toJsonObj()
-            if not self._comment.isEmpty() and 'comment' in self._changed:
-                tmp['comments'] = self._comment.toJsonObj()
+            if not self._comments.isEmpty() and 'comments' in self._changed:
+                tmp['comments'] = self._comments.toJsonObj()
             if self._name is not None and 'name' in self._changed:
                 tmp['name'] = self._name
         return tmp
@@ -534,8 +534,8 @@ class ListNode(Model):
                 "name": listnode.name,
                 "labels": listnode.label.createDefinitionFileObj(),
             }
-            if not listnode.comment.isEmpty():
-                listnodeobj["comment"] = listnode.comment.createDefinitionFileObj()
+            if not listnode.comments.isEmpty():
+                listnodeobj["comments"] = listnode.comments.createDefinitionFileObj()
             if listnode.children:
                 listnodeobj["nodes"] = self._createDefinitionFileObj(listnode.children)
             listnodeobjs.append(listnodeobj)
@@ -550,8 +550,8 @@ class ListNode(Model):
             "name": self._name,
             "labels": self._label.createDefinitionFileObj(),
         }
-        if not self._comment.isEmpty():
-            listnode["comment"] = self._comment.createDefinitionFileObj()
+        if not self._comments.isEmpty():
+            listnode["comments"] = self._comments.createDefinitionFileObj()
         if self._children:
             listnode["nodes"] = self._createDefinitionFileObj(self._children)
         return listnode
@@ -573,9 +573,9 @@ class ListNode(Model):
                 print('             {}: {}'.format(lbl[0], lbl[1]))
         else:
             print('             None')
-        print('  Comment:   ')
-        if self._comment.isEmpty():
-            for lbl in self._comment.items():
+        print('  Comments:   ')
+        if self._comments.isEmpty():
+            for lbl in self._comments.items():
                 print('             {}: {}'.format(lbl[0], lbl[1]))
         else:
             print('             None')

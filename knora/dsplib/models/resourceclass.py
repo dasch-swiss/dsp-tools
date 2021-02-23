@@ -642,6 +642,17 @@ class ResourceClass(Model):
             superclasses: List[str] = list(map(lambda a: a['@id'], supercls))
             has_props: List[Any] = list(filter(lambda a: a.get('@type') == (owl + ':Restriction'), superclasses_obj))
             has_properties: Dict[HasProperty] = dict(map(lambda a: HasProperty.fromJsonObj(con, context, a), has_props))
+            #
+            # now remove the ...Value stuff from resource pointers: A resource pointer is returned as 2 properties:
+            # one a direct link, the other the pointer to a link value
+            #
+            tmp = dict(has_properties)
+            for key in tmp.keys():
+                key_with_value = key
+                if key.endswith("Value"):
+                    key = key.removesuffix("Value")
+                    if key in has_properties:
+                        del has_properties[key_with_value]
         else:
             superclasses = None
             has_properties = None

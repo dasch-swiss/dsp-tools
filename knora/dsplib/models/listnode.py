@@ -359,7 +359,10 @@ class ListNode(Model):
         project = json_obj.get('projectIri')
         label = LangString.fromJsonObj(json_obj.get('labels'))
         comments = LangString.fromJsonObj(json_obj.get('comments'))
-        name = json_obj.get('name')
+        if json_obj.get('name') is not None:
+            name = json_obj['name']
+        else:
+            name = id.rsplit('/', 1)[-1]
         parent = json_obj.get('parentNodeIri')
         isRootNode = json_obj.get('isRootNode')
 

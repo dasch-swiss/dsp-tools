@@ -10,12 +10,12 @@
       "longname": "Anything Project",
       "descriptions": "Anything Project",
       "keywords": [
-         "things",
-         "arbitrary test data"
+         "arbitrary test data",
+         "things"
       ],
       "lists": [
          {
-            "name": null,
+            "name": "otherTreeList",
             "labels": {
                "en": "Tree list root"
             },
@@ -60,7 +60,7 @@
                "de": "unbenutzte Liste",
                "en": "a list that is not used"
             },
-            "comment": {
+            "comments": {
                "en": "a list that is not in used in ontology or data"
             },
             "nodes": [
@@ -92,7 +92,21 @@
                         "name": "List014",
                         "labels": {
                            "en": "List014"
-                        }
+                        },
+                        "nodes": [
+                           {
+                              "name": "first child of node 014",
+                              "labels": {
+                                 "en": "first child of node 014"
+                              }
+                           },
+                           {
+                              "name": "second child of node 014",
+                              "labels": {
+                                 "en": "second child of node 014"
+                              }
+                           }
+                        ]
                      },
                      {
                         "name": "List015",
@@ -130,7 +144,7 @@
                "de": "Listenwurzel",
                "en": "Tree list root"
             },
-            "comment": {
+            "comments": {
                "en": "Anything Tree List"
             },
             "nodes": [
@@ -183,14 +197,6 @@
                   "object": ":BlueThing",
                   "labels": "A blue thing",
                   "gui_element": "Searchbox"
-               },
-               {
-                  "name": "hasBlueThingValue",
-                  "super": [
-                     ":hasOtherThingValue"
-                  ],
-                  "object": "LinkValue",
-                  "labels": "A blue thing"
                },
                {
                   "name": "hasBoolean",
@@ -306,7 +312,7 @@
                   "labels": "Other list element",
                   "gui_element": "List",
                   "gui_attributes": {
-                     "hlist": null
+                     "hlist": "otherTreeList"
                   }
                },
                {
@@ -363,29 +369,11 @@
                   "gui_element": "Searchbox"
                },
                {
-                  "name": "hasThingDocumentValue",
-                  "super": [
-                     "hasRepresentationValue"
-                  ],
-                  "object": "LinkValue",
-                  "labels": "document about a thing",
-                  "gui_element": "Searchbox"
-               },
-               {
                   "name": "hasThingPicture",
                   "super": [
                      "hasRepresentation"
                   ],
                   "object": ":ThingPicture",
-                  "labels": "Picture of a thing",
-                  "gui_element": "Searchbox"
-               },
-               {
-                  "name": "hasThingPictureValue",
-                  "super": [
-                     "hasRepresentationValue"
-                  ],
-                  "object": "LinkValue",
                   "labels": "Picture of a thing",
                   "gui_element": "Searchbox"
                },
@@ -417,15 +405,6 @@
                      "isPartOf"
                   ],
                   "object": ":Thing",
-                  "labels": "is part of",
-                  "gui_element": "Searchbox"
-               },
-               {
-                  "name": "isPartOfOtherThingValue",
-                  "super": [
-                     "isPartOfValue"
-                  ],
-                  "object": "LinkValue",
                   "labels": "is part of",
                   "gui_element": "Searchbox"
                },
@@ -580,6 +559,11 @@
                         "gui_order": 1
                      },
                      {
+                        "propname": ":hasOtherThingValue",
+                        "cardinality": "0-n",
+                        "gui_order": 1
+                     },
+                     {
                         "propname": ":hasRichtext",
                         "cardinality": "0-n",
                         "gui_order": 2
@@ -704,6 +688,10 @@
                      {
                         "propname": ":thingHasRegion",
                         "cardinality": "0-n"
+                     },
+                     {
+                        "propname": ":thingHasRegionValue",
+                        "cardinality": "0-n"
                      }
                   ]
                },
@@ -732,6 +720,11 @@
                      },
                      {
                         "propname": ":hasOtherThing",
+                        "cardinality": "0-n",
+                        "gui_order": 1
+                     },
+                     {
+                        "propname": ":hasOtherThingValue",
                         "cardinality": "0-n",
                         "gui_order": 1
                      },
@@ -866,15 +859,6 @@
                      "anything:hasOtherThing"
                   ],
                   "object": ":Something",
-                  "labels": "has other something",
-                  "gui_element": "Searchbox"
-               },
-               {
-                  "name": "hasOtherSomethingValue",
-                  "super": [
-                     "anything:hasOtherThingValue"
-                  ],
-                  "object": "LinkValue",
                   "labels": "has other something",
                   "gui_element": "Searchbox"
                }

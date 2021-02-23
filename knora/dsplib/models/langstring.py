@@ -191,7 +191,7 @@ class LangString:
         if self.isEmpty():
             return None
         if self._simplestring is not None:
-            return self._simplestring
+            return [self._simplestring]
         else:
             return list(map(lambda a: {'language': a[0].value, 'value': a[1]}, self._langstrs.items()))
 
@@ -199,7 +199,7 @@ class LangString:
         if self.isEmpty():
             return None
         if self._simplestring is not None:
-            return self._simplestring
+            return [self._simplestring]
         else:
             return list(map(lambda a: {'@language': a[0].value, '@value': a[1]}, self._langstrs.items()))
 

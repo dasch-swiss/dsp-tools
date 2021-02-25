@@ -1,6 +1,7 @@
 import argparse
 import sys
 import os
+import pkg_resources  # part of setuptools
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
@@ -13,11 +14,13 @@ from dsplib.utils.onto_process_excel import list_excel2json
 
 
 def program(args):
+    version = pkg_resources.require("dsp-tools")[0].version
+
     #
     # parse the arguments of the command line
     #
     parser = argparse.ArgumentParser(
-        description="A program to create and manipulate ontologies based on the DaSCH Service Platform"
+        description=f"dsp-tools (Version {version}) DaSCH Service Platform data modelling tools (© 2021 by DaSCH)."
     )
 
     subparsers = parser.add_subparsers(title="Subcommands",

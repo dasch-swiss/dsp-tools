@@ -18,13 +18,45 @@ from .onto_commons import list_creator, validate_list_from_excel, json_list_from
 
 from pprint import pprint
 
+def login(server: str, user: str, password: str) -> Connection:
+    """
+    Make a login and return the active Connection.
+
+    :param server: URl of the server to connect to
+    :param user: A valid username
+    :param password: The password
+    :return: Connection instance
+    """
+    con = Connection(server)
+    con.login(user, password)
+    return con
+
+
 def create_ontology(input_file: str,
-                    lists_file: str,
+                    lists_file: Optional[str],
                     server: str,
                     user: str,
                     password: str,
                     verbose: bool,
                     dump: bool) -> bool:
+    with open(input_file) as f:
+        jsonstr = f.read()
+
+    con = login(server=server, user=user, password=password)
+    datapath = os.path.dirname(input_file)
+    create_ontology_from_string(con=con,
+                                jsonstr=jsonstr,
+                                exceldir=datapath,
+                                lists_file=lists_file,
+                                verbose=verbose,
+                                dump=dump)
+
+def create_ontology_from_string(con: Connection,
+                                jsonstr: str,
+                                exceldir: Optional[str],
+                                lists_file: Optional[str],
+                                verbose: bool,
+                                dump: bool) -> bool:
     current_dir = os.path.dirname(os.path.realpath(__file__))
 
     # let's read the schema for the data model definition
@@ -33,8 +65,7 @@ def create_ontology(input_file: str,
 
 
     # read the data model definition
-    with open(input_file) as f:
-        datamodel = json.load(f)
+    datamodel = json.loads(jsonstr)
 
     #
     # now let's see if there are any lists defined as reference to excel files
@@ -53,8 +84,15 @@ def create_ontology(input_file: str,
 
                 startrow = 1 if rootnode["nodes"].get("startrow") is None else rootnode["nodes"]["startrow"]
                 startcol = 1 if rootnode["nodes"].get("startcol") is None else rootnode["nodes"]["startcol"]
+                #
+                # determine where to find the excel file...
+                #
+                excelpath = rootnode["nodes"]["file"]
+                if excelpath[0] != '/' and exceldir is not None:
+                    excelpath = os.path.join(exceldir, excelpath)
+
                 json_list_from_excel(rootnode=newroot,
-                                     filepath=rootnode["nodes"]["file"],
+                                     filepath=excelpath,
                                      sheetname=rootnode["nodes"]["worksheet"],
                                      startrow=startrow,
                                      startcol=startcol)
@@ -69,11 +107,6 @@ def create_ontology(input_file: str,
     if verbose:
         print("Data model is syntactically correct and passed validation!")
 
-    #
-    # Connect to the DaSCH Service Platform API
-    #
-    con = Connection(server)
-    con.login(user, password)
     if dump:
         con.start_logging()
 
@@ -81,7 +114,6 @@ def create_ontology(input_file: str,
     # let's read the prefixes of external ontologies that may be used
     #
     context = Context(datamodel["prefixes"])
-
 
     # --------------------------------------------------------------------------
     # Let's create the project...
@@ -155,9 +187,10 @@ def create_ontology(input_file: str,
                 "nodes": listnodes
             }
 
-    with open('lists.json', 'w', encoding="utf-8") as fp:
-        json.dump(listrootnodes, fp, indent=3, sort_keys=True)
-        print("The definitions of the node-id's can be found in \"{}\"!".format('lists.json'))
+    if lists_file is not None:
+        with open(lists_file, 'w', encoding="utf-8") as fp:
+            json.dump(listrootnodes, fp, indent=3, sort_keys=True)
+            print("The definitions of the node-id's can be found in \"{}\"!".format('lists.json'))
 
     # --------------------------------------------------------------------------
     # now let's add the groups (if there are groups defined...)

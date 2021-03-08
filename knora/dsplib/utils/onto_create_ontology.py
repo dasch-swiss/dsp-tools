@@ -25,23 +25,40 @@ def create_ontology(input_file: str,
                     password: str,
                     verbose: bool,
                     dump: bool) -> bool:
+
+    # read the data model definition
+    with open(input_file) as f:
+        datamodel = json.load(f)
+
+    return create_ontology_from_model(datamodel=datamodel,
+                                      lists_file=lists_file,
+                                      server=server,
+                                      user=user,
+                                      password=password,
+                                      verbose=verbose,
+                                      dump=dump)
+
+
+def create_ontology_from_model(datamodel: Dict,
+                               lists_file: str,
+                               server: str,
+                               user: str,
+                               password: str,
+                               verbose: bool,
+                               dump: bool):
+    # TODO: lists_file never used?
     current_dir = os.path.dirname(os.path.realpath(__file__))
 
     # let's read the schema for the data model definition
     with open(os.path.join(current_dir, 'knora-schema.json')) as s:
         schema = json.load(s)
 
-
-    # read the data model definition
-    with open(input_file) as f:
-        datamodel = json.load(f)
-
     #
     # now let's see if there are any lists defined as reference to excel files
     #
     lists = datamodel["project"].get('lists')
     if lists is not None:
-        newlists: [] = []
+        newlists: List = []
         for rootnode in lists:
             if rootnode.get("nodes") is not None and isinstance(rootnode["nodes"], dict) and rootnode["nodes"].get("file") is not None:
                 newroot = {

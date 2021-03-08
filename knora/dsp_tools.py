@@ -10,6 +10,7 @@ from dsplib.utils.onto_create_ontology import create_ontology
 from dsplib.utils.onto_get import get_ontology
 from dsplib.utils.xml_upload import xml_upload
 from dsplib.utils.onto_process_excel import list_excel2json
+from dsplib.utils.project_transfer import transfer_project
 
 
 def program(args):
@@ -67,6 +68,15 @@ def program(args):
     parser_excellists.add_argument("excelfile", help="Path to the excel file containing the list data", default="lists.xlsx")
     parser_excellists.add_argument("outfile", help="Path to the output JSON file containing the list data", default="list.json")
 
+    parser_transfer = subparsers.add_parser('transfer', help='Transfer an entire project from one server to another')
+    parser_transfer.set_defaults(action="transfer")
+    parser_transfer.add_argument("-s", "--shortcode", type=str, help="Shortcode of project", default="0001")
+    parser_transfer.add_argument("-u", "--user", default="root@example.com", help="Username for DSP server")
+    parser_transfer.add_argument("-p", "--password", default="test", help="The password for login")
+    parser_transfer.add_argument("-o", "--origin", type=str, default="http://0.0.0.0:3333", help="URL of the DSP server from which the data should be taken")
+    parser_transfer.add_argument("-t", "--target", type=str, default="http://0.0.0.0:3333", help="URL of the DSP server to which the data should be transferred")
+    parser_transfer.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
+
     args = parser.parse_args(args)
 
     if not hasattr(args, 'action'):
@@ -115,6 +125,13 @@ def program(args):
                         lang=args.lang,
                         outfile=args.outfile,
                         verbose=args.verbose)
+    elif args.action == "transfer":
+        transfer_project(shortcode=args.shortcode,
+                         user=args.user,
+                         password=args.password,
+                         origin=args.origin,
+                         target=args.target,
+                         verbose=args.verbose)
 
 
 

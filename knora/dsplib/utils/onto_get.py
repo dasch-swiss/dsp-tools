@@ -22,13 +22,17 @@ def get_ontology(projident: str, outfile: str, server: str, user: str, password:
         print("Invalid project identification!")
         return False
 
-    project = project.read()
+    umbrella = get_onto_data(project, con)
 
+    with open(outfile, 'w', encoding='utf8') as outfile:
+        json.dump(umbrella, outfile, indent=3, ensure_ascii=False)
+
+
+def get_onto_data(project: Project, con: Connection):
+    project = project.read()
     projectobj = project.createDefinitionFileObj()
 
-    #
     # now collect the lists
-    #
     listroots = ListNode.getAllLists(con=con, project_iri=project.id)
     listobj = []
     for listroot in listroots:
@@ -48,11 +52,7 @@ def get_ontology(projident: str, outfile: str, server: str, user: str, password:
         projectobj["ontologies"].append(ontology.createDefinitionFileObj())
         prefixes.update(ontology.context.get_externals_used())
 
-    umbrella = {
+    return {
         "prefixes": prefixes,
         "project": projectobj
     }
-
-    with open(outfile, 'w', encoding='utf8') as outfile:
-        json.dump(umbrella, outfile, indent=3, ensure_ascii=False)
-

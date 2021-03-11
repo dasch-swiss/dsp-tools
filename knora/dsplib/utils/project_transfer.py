@@ -1,5 +1,6 @@
 import pprint
 import json
+import requests
 
 from .onto_get import get_onto_data
 from .onto_create_ontology import create_ontology_from_model
@@ -25,6 +26,12 @@ def transfer_project(shortcode: str, user: str, password: str, origin: str, targ
         print('Successfully transferred the datamodel.')
 
     # Metadata
+    metadata_res = _transfer_metadata(shortcode=shortcode,
+                                      user=user,
+                                      password=password,
+                                      origin=origin,
+                                      target=target,
+                                      verbose=verbose)
 
     # Admin
 
@@ -35,7 +42,8 @@ def transfer_project(shortcode: str, user: str, password: str, origin: str, targ
     return True
 
 
-def _transfer_datamodel(shortcode: str, user: str, password: str, origin: str, target: str, verbose: bool):
+def _transfer_datamodel(shortcode: str, user: str, password: str, origin: str, target: str, verbose: bool) -> bool:
+    return True  # TODO: wipe project if it exists
     if verbose:
         print(f'Collecting Datamodel: {shortcode} @ {origin}\n\n')
 
@@ -58,4 +66,11 @@ def _transfer_datamodel(shortcode: str, user: str, password: str, origin: str, t
                                       password=password,
                                       verbose=verbose,
                                       dump=False)
-    
+
+
+def _transfer_metadata(shortcode: str, user: str, password: str, origin: str, target: str, verbose: bool) -> bool:
+    url = f'{origin}/v2/metadata/http%3A%2F%2Frdfh.ch%2Fprojects%2F{shortcode}'
+    print(url)
+    r = requests.get(url)
+    metadata = r.text
+    print(metadata)

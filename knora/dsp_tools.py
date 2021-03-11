@@ -76,7 +76,7 @@ def program(args):
     parser_transfer.add_argument("-p", "--password", default="test", help="The password for login")
     parser_transfer.add_argument("-o", "--origin", type=str, default="http://0.0.0.0:3333", help="URL of the DSP server from which the data should be taken")
     parser_transfer.add_argument("-t", "--target", type=str, default="http://0.0.0.0:3333", help="URL of the DSP server to which the data should be transferred")
-    parser_transfer.add_argument("-v", "--verbose", type=bool, default=True, action="store_true", help="Verbose feedback")
+    parser_transfer.add_argument("-v", "--verbose", default=True, action="store_true", help="Verbose feedback")
 
     args = parser.parse_args(args)
 

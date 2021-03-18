@@ -46,7 +46,7 @@ class TestTools(unittest.TestCase):
                    server="http://0.0.0.0:3333",
                    user="root@example.com",
                    password="test",
-                   imgdir="testdata/bitmaps",
+                   imgdir="testdata/bitstreams",
                    sipi="http://0.0.0.0:1024",
                    verbose=True,
                    validate=False)

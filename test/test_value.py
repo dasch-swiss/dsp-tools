@@ -1,5 +1,7 @@
 import unittest
-from dsplib.models.value import DateValue
+from pprint import pprint
+from knora.dsplib.models.value import DateValue
+from knora.dsplib.models.helpers import Actions
 
 class TestValue(unittest.TestCase):
 
@@ -17,7 +19,15 @@ class TestValue(unittest.TestCase):
         self.assertEqual(date._m2, None)
         self.assertEqual(date._d2, None)
 
+        jsonLD = date.toJsonLdObj(Actions.Create)
 
+        # pprint(jsonLD)
+
+        self.assertEqual(jsonLD['knora-api:dateValueHasCalendar'], 'JULIAN')
+        self.assertEqual(jsonLD['knora-api:dateValueHasStartEra'], 'BCE')
+        self.assertEqual(jsonLD['knora-api:dateValueHasStartYear'], 700)
+        self.assertEqual(jsonLD['knora-api:dateValueHasEndYear'], 600)
+        self.assertEqual(jsonLD['knora-api:dateValueHasEndEra'], 'BCE')
 
 
 if __name__ == '__main__':

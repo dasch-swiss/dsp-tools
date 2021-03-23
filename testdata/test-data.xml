@@ -58,7 +58,7 @@
             <boolean permissions="prop-default">true</boolean>
         </boolean-prop>
         <date-prop name=":hasDate">
-            <date permissions="prop-default" >JULIAN:CE:1401-05-17:CE:1402-01</date>
+            <date permissions="prop-default" >JULIAN:BCE:0700:BCE:0600</date>
         </date-prop>
         <integer-prop name=":hasInteger">
             <integer permissions="prop-default">4711</integer>

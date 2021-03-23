@@ -21,8 +21,6 @@ class TestValue(unittest.TestCase):
 
         jsonLD = date.toJsonLdObj(Actions.Create)
 
-        # pprint(jsonLD)
-
         self.assertEqual(jsonLD['knora-api:dateValueHasCalendar'], 'JULIAN')
         self.assertEqual(jsonLD['knora-api:dateValueHasStartEra'], 'BCE')
         self.assertEqual(jsonLD['knora-api:dateValueHasStartYear'], 700)

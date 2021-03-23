@@ -298,24 +298,6 @@ class DateValue(Value):
         if self._y1 is None:
             raise BaseError("Invalid date format! " + str(value))
 
-        '''
-        if self._y2 is not None:
-            date1 = self._y1 * 10000
-            if self._m1 is not None:
-                date1 += self._m1 * 100
-            if self._d1 is not None:
-                date1 += self._d1
-            date2 = self._y2 * 10000
-            if self._m2 is not None:
-                date2 += self._m2 * 100
-            if self._d2 is not None:
-                date2 += self._d2
-            if date1 > date2:
-                self._y1, self._y2 = self._y2, self._y1
-                self._m1, self._m2 = self._m2, self._m1
-                self._d1, self._d2 = self._d2, self._d1
-        '''
-        
         super().__init__(iri=iri,
                          comment=comment,
                          permissions=permissions,

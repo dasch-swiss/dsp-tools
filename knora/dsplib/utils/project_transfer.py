@@ -69,8 +69,10 @@ def _transfer_datamodel(shortcode: str, user: str, password: str, origin: str, t
 
 
 def _transfer_metadata(shortcode: str, user: str, password: str, origin: str, target: str, verbose: bool) -> bool:
-    url = f'{origin}/v2/metadata/http%3A%2F%2Frdfh.ch%2Fprojects%2F{shortcode}'
-    print(url)
-    r = requests.get(url)
+    orig_url = f'{origin}/v2/metadata/http%3A%2F%2Frdfh.ch%2Fprojects%2F{shortcode}'
+    print(orig_url)
+    target_url = f'{target}/v2/metadata/http%3A%2F%2Frdfh.ch%2Fprojects%2F{shortcode}'
+    print(target_url)
+    r = requests.get(orig_url)
     metadata = r.text
     print(metadata)

@@ -139,3 +139,16 @@ py_test(
     ],
     imports = [".", "../knora"],
 )
+
+
+py_test(
+    name = "test_value",
+    srcs = ["test_value.py"],
+    deps = [
+        "//knora/dsplib/models:value",
+        "//knora/dsplib/models:group",
+        "//knora/dsplib/models:helpers"
+    ],
+    data = [],
+    imports = [".", "../knora"],
+)

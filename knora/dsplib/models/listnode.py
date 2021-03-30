@@ -43,6 +43,22 @@ DELETE
 In addition there is a static methods ``getAllProjects`` which returns a list of all projects
 """
 
+def list_creator(con: Connection, project: Project, parent_node: 'ListNode', nodes: List[dict]):
+    nodelist: List['ListNode'] = []
+    for node in nodes:
+        newnode = ListNode(
+            con=con,
+            project=project,
+            label=node["labels"],
+            comments=node.get("comments"),
+            name=node["name"],
+            parent=parent_node
+        )
+        if node.get('nodes') is not None:
+            newnode.children = list_creator(con, project, newnode, node['nodes'])
+        nodelist.append(newnode)
+    return nodelist
+
 
 @strict
 class ListNode(Model):
@@ -299,6 +315,10 @@ class ListNode(Model):
     def children(self) -> Optional[List['ListNode']]:
         return self._children
 
+    @children.setter
+    def children(self, value: List['ListNode']) -> None:
+        self._children = value
+
     @staticmethod
     def __getChildren(con: Connection,
                       parent_iri: str,
@@ -543,6 +563,28 @@ class ListNode(Model):
                 listnodeobj["nodes"] = self._createDefinitionFileObj(listnode.children)
             listnodeobjs.append(listnodeobj)
         return listnodeobjs
+
+    @staticmethod
+    def readDefinitionFileObj(con: Connection, project: Project, rootnode: Any) -> 'ListNode':
+        """
+        Reads a JSON obj that corresponds to the syntax of the input to "create_onto".
+
+        :param self:
+        :param con: Connection object
+        :param project: Project instance
+        :param rootnode: root node of the list
+        :return: an instance of ListNode corresponding to the root node
+        """
+        root_list_node = ListNode(
+            con=con,
+            project=project,
+            label=rootnode['labels'],
+            comments=rootnode.get('comments'),
+            name=rootnode['name']
+        )
+        listnodes = list_creator(con, project, root_list_node, rootnode.get('nodes'))
+        root_list_node.children = listnodes
+        return root_list_node
 
     def createDefinitionFileObj(self):
         """

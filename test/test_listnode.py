@@ -48,13 +48,13 @@ class TestListNode(unittest.TestCase):
             con=con,
             project=self.project,
             label=LangString({Languages.DE: "root node 1"}),
-            comment=LangString({Languages.DE: "first root node"}),
+            comments=LangString({Languages.DE: "first root node"}),
             name="test_node_1"
         ).create()
         self.assertIsNotNone(node.id)
         self.assertEqual(node.project, self.project)
         self.assertEqual(node.label['de'], "root node 1")
-        self.assertEqual(node.comment['de'], "first root node")
+        self.assertEqual(node.comments['de'], "first root node")
         self.assertEqual(node.name, "test_node_1")
         self.assertTrue(node.isRootNode)
 
@@ -69,19 +69,19 @@ class TestListNode(unittest.TestCase):
             con=con,
             project=self.project,
             label=LangString({Languages.DE: "root node 2"}),
-            comment=LangString({Languages.DE: "second root node"}),
+            comments=LangString({Languages.DE: "second root node"}),
             name="test_node_2"
         ).create()
         node2 = ListNode(
             con=con,
             project=self.project,
             label=LangString({Languages.DE: 'Eine Knoten der Liste'}),
-            comment=LangString({Languages.DE: "So ein Kommentar"}),
+            comments=LangString({Languages.DE: "So ein Kommentar"}),
             name="NODE2",
             parent=node
         ).create()
         self.assertEqual(node2.label['de'], 'Eine Knoten der Liste')
-        self.assertEqual(node2.comment['de'], "So ein Kommentar")
+        self.assertEqual(node2.comments['de'], "So ein Kommentar")
         self.assertEqual(node2.name, "NODE2")
         self.assertFalse(node2.isRootNode)
 
@@ -96,7 +96,7 @@ class TestListNode(unittest.TestCase):
             con=con,
             project=self.project,
             label=LangString({Languages.DE: "root node 3"}),
-            comment=LangString({Languages.DE: "Third root node"}),
+            comments=LangString({Languages.DE: "Third root node"}),
             name="test_node_3"
         ).create()
         node.addLabel('fr', 'Une racine d\' une liste')
@@ -106,7 +106,7 @@ class TestListNode(unittest.TestCase):
         node.name = 'GAGAGA'
         node.update()
         self.assertEqual(node.label['fr'], 'Une racine d\' une liste')
-        self.assertEqual(node.comment['fr'], 'un commentaire en français')
+        self.assertEqual(node.comments['fr'], 'un commentaire en français')
         self.assertEqual(node.name, 'GAGAGA')
 
     def test_ListNode_getAllLists(self):

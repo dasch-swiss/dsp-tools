@@ -1,6 +1,7 @@
 import os
 import json
 from jsonschema import validate
+from typing import List, Set, Dict, Tuple, Optional, Any, Union, NewType
 
 from .onto_commons import validate_list_from_excel, json_list_from_excel
 
@@ -22,13 +23,18 @@ def validate_list(input_file: str) -> None:
 
 
 def validate_ontology(input_file: str) -> None:
+    with open(input_file) as f:
+        jsonstr = f.read()
+    datapath = os.path.dirname(input_file)
+    validate_ontology_from_string(jsonstr, datapath)
+
+
+def validate_ontology_from_string(jsonstr: str, exceldir: Optional[str] = None) -> None:
     current_dir = os.path.dirname(os.path.realpath(__file__))
 
     with open(os.path.join(current_dir, 'knora-schema.json')) as s:
         schema = json.load(s)
-    # read the data model definition
-    with open(input_file) as f:
-        datamodel = json.load(f)
+    datamodel = json.loads(jsonstr)
 
     #
     # now let's see if there are any lists defined as reference to excel files
@@ -46,8 +52,14 @@ def validate_ontology(input_file: str) -> None:
                     newroot["comments"] = rootnode["comments"]
                 startrow = 1 if rootnode["nodes"].get("startrow") is None else rootnode["nodes"]["startrow"]
                 startcol = 1 if rootnode["nodes"].get("startcol") is None else rootnode["nodes"]["startcol"]
+                #
+                # determine where to find the excel file...
+                #
+                excelpath = rootnode["nodes"]["file"]
+                if excelpath[0] != '/' and exceldir is not None:
+                    excelpath = os.path.join(exceldir, excelpath)
                 json_list_from_excel(rootnode=newroot,
-                                     filepath=rootnode["nodes"]["file"],
+                                     filepath=excelpath,
                                      sheetname=rootnode["nodes"]["worksheet"],
                                      startrow=startrow,
                                      startcol=startcol)

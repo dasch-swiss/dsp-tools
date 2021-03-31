@@ -139,7 +139,7 @@
             ],
             "object": "BooleanValue",
             "labels": {"en": "Boolean value"},
-            "gui_element": "Checkbox"
+            "gui_element": "**Checkbox**"
           },
           {
             "name": "hasDate",

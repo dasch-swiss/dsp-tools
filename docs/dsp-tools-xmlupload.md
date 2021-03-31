@@ -224,7 +224,7 @@ _Options_:
 
 ##### `<text>`-element
 The `<text>`-element has the following options:
-- _encoding_: either "utf8" or "hex64" [required]
+- _encoding_: either "utf8" or "xml" [required]
   - _utf8_: The element describes a simple text without markup. The text is a simple utf-8 string
   - _xml_: The element describes a complex text containing markup. It must be follow the XML-format as defined by the
   [DSP standard mapping](https://docs.knora.org/03-apis/api-v1/xml-to-standoff-mapping/) .

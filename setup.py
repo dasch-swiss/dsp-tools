@@ -5,11 +5,11 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='dsp-tools',
-    version='1.0.0',
+    version='1.0.7',
     description='A Python library and tools for the DaSCH Service Platform',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url='https://github.com/dasch-swiss/knora-py',
+    url='https://github.com/dasch-swiss/dsp-tools',
     author='Lukas Rosenthaler',
     author_email='lukas.rosenthaler@dasch.swiss',
     license='GPLv3',

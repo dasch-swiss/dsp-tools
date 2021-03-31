@@ -5,7 +5,7 @@ from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
 
 from .connection import Connection
-from .helpers import Actions, BaseError, Context, LastModificationDate, OntoInfo
+from .helpers import Actions, BaseError, Context, LastModificationDate, OntoInfo, WithId
 from .model import Model
 from .project import Project
 from .propertyclass import PropertyClass
@@ -259,9 +259,11 @@ class Ontology(Model):
             # ToDo: parse standoff classes
 
             properties_obj = list(filter(lambda a: a.get(knora_api + ':isResourceProperty') is not None, json_obj.get('@graph')))
-            property_classes = list(map(lambda a: PropertyClass.fromJsonObj(con=con,
-                                                                            context=context,
-                                                                            json_obj=a), properties_obj))
+            #property_classes = list(map(lambda a: PropertyClass.fromJsonObj(con=con,
+            #                                                                context=context,
+            #                                                                json_obj=a), properties_obj))
+            property_classes = [PropertyClass.fromJsonObj(con=con, context=context, json_obj=a) for a in properties_obj
+                                if WithId(a.get(knora_api + ':objectType')).str() != "knora-api:LinkValue"]
         return cls(con=con,
                    id=id,
                    label=label,

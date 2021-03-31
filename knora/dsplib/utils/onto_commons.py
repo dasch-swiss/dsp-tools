@@ -16,7 +16,7 @@ def list_creator(con: Connection, project: Project, parent_node: ListNode, nodes
             con=con,
             project=project,
             label=node["labels"],
-            comment=node.get("comments"),
+            comments=node.get("comments"),
             name=node["name"],
             parent=parent_node
         ).create()

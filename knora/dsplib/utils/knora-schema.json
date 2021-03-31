@@ -231,6 +231,7 @@
                   "isPartOf",
                   "isRegionOf",
                   "isAnnotationOf",
+                  "hasRepresentation",
                   "seqnum"
                 ]
               },
@@ -287,6 +288,7 @@
             "Geometry",
             "Geonames",
             "Interval",
+            "TimeStamp",
             "List",
             "Pulldown",
             "Radio",

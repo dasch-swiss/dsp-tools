@@ -51,7 +51,18 @@ $ make install
 $ make test
 ```
 
-## Publishing to PyPi
+## Publishing
+
+Publishing is automated with github actions and should _not_ be done manually.
+
+Ensure to have only one Pull Request per feature, and follow the [conventions for commit messages and PR title](https://docs.dasch.swiss/developers/dsp/contribution/#pull-request-guidelines).
+
+If this is done correctly, when merging a PR into `main`, the `release-please` action will create or update a release-PR.  
+This PR will follow semantic versioning and update the change log.  
+Once all desired features are merged, the release can be executed by merging the release-PR into `main`.  
+This will trigger actions that create a release on Github, on PyPI and the docs.
+
+### Publishing to PyPi
 
 Generate distribution package. Make sure you have the latest versions of `setuptools` and `wheel` installed.
 Remove the `dist`and `buil`-directories: `rm -rf bild dist`

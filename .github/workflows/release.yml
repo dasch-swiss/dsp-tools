@@ -7,8 +7,8 @@ on:
 # set environment variables
 env:
   TOKEN: ${{ secrets.GH_TOKEN }}
-  TWINE_USERNAME: ${{ secrets.TWINE_USER }}
-  TWINE_PASSWORD: ${{ secrets.TWINE_PW }}
+  TWINE_USERNAME: ${{ secrets.PYPI_USER }}
+  TWINE_PASSWORD: ${{ secrets.PYPI_PW }}
 
 jobs:
   release-integration:

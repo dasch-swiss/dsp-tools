@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    name: Do a fake test
+    name: Run Tests
     runs-on: ubuntu-latest
     steps:
       # run tests

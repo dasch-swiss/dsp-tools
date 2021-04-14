@@ -397,7 +397,6 @@ class Context:
         knora_api = self.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
         salsah_gui = self.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
 
-        #if self.__is_iri(iristr):
         if IriTest.test(iristr):
             iristr = self.get_prefixed_iri(iristr)
         tmp = iristr.split(':')

@@ -193,7 +193,7 @@ class LangString:
         if self._simplestring is not None:
             return self._simplestring
         else:
-            return list(map(lambda a: {'language': a[0].value, 'value': a[1]}, self._langstrs.items()))
+            return list(map(lambda a: {'language': a[0].value, 'value': a[1] if a[1] else "-"}, self._langstrs.items()))
 
     def toJsonLdObj(self):
         if self.isEmpty():
@@ -201,7 +201,8 @@ class LangString:
         if self._simplestring is not None:
             return self._simplestring
         else:
-            return list(map(lambda a: {'@language': a[0].value, '@value': a[1]}, self._langstrs.items()))
+            return [{'@language': a[0].value, '@value': a[1]} for a in self._langstrs.items()]
+            #return list(map(lambda a: {'@language': a[0].value, '@value': a[1]}, self._langstrs.items()))
 
     @classmethod
     def fromJsonLdObj(cls, obj: Optional[Union[List[Dict[str, str]], str]]) -> 'LangString':

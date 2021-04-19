@@ -112,7 +112,7 @@
               id="obj_0003"
               permissions="res-default">
         <text-prop name=":hasText">
-            <text permissions="prop-default" encoding="utf8">This is a Compoundthong</text>
+            <text permissions="prop-default" encoding="utf8">This is a Compoundthing</text>
         </text-prop>
     </resource>
 

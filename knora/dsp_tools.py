@@ -81,7 +81,13 @@ def program(args):
             if args.validate:
                 validate_list(args.datamodelfile)
             else:
-                create_lists(args.datamodelfile, args.dump)
+                create_lists(input_file=args.datamodelfile,
+                             lists_file=args.listfile,
+                             server=args.server,
+                             user=args.user,
+                             password=args.password,
+                             verbose=args.verbose,
+                             dump=args.dump)
         else:
             if args.validate:
                 validate_ontology(args.datamodelfile)

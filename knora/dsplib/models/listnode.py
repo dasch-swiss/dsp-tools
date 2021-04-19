@@ -445,6 +445,16 @@ class ListNode(Model):
                 tmp['comments'] = self._comments.toJsonObj()
             if self._name is not None and 'name' in self._changed:
                 tmp['name'] = self._name
+        #
+        # temporary fix for bug in dsp-api which prevents labels from having
+        # escaped double-quotes in the string, e.g. "this \"label\" not works"!
+        # The double quotes will be replaced by single quotes...
+        #
+        if tmp.get('labels'):
+            print(tmp['labels'])
+            tmp['labels'] = [{'language': ele['language'], 'value': ele['value'].replace('"', "'")} for ele in tmp['labels']]
+            #tmp['labels'] = {k: v.replace('"', "'") for k, v in tmp['labels'].items()}
+        # End of FIX
         return tmp
 
     def create(self) -> 'ListNode':

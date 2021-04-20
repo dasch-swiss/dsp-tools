@@ -30,6 +30,9 @@ class TestPropertyClass(unittest.TestCase):
         self.con = Connection('http://0.0.0.0:3333')
         self.con.login('root@example.com', 'test')
 
+        ontos = Ontology.getAllOntologies(self.con)
+        for onto in ontos:
+            onto.print(True)
         #
         # Create a test ontology
         #
@@ -46,9 +49,8 @@ class TestPropertyClass(unittest.TestCase):
         #
         # remove test ontology
         #
-        #result = self.onto.delete()
-        #self.assertIsNotNone(result)
-        pass
+        result = self.onto.delete()
+        self.assertIsNotNone(result)
 
 
     def test_PropertyClass_create(self):

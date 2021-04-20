@@ -432,19 +432,20 @@ class Ontology(Model):
 
         return ontology
 
-    def print(self) -> None:
+    def print(self, short: bool = True) -> None:
         print('Ontology Info:')
         print('  Id:                   {}'.format(self._id))
         print('  Label:                {}'.format(self._label))
         print('  Name:                 {}'.format(self._name))
         print('  Project:              {}'.format(self._project))
         print('  LastModificationDate: {}'.format(str(self._lastModificationDate)))
-        print('  Property Classes:')
-        if self._property_classes:
-            for pc in self._property_classes:
-                pc.print(4)
-        print('  Resource Classes:')
-        if self._resource_classes:
-            for rc in self._resource_classes:
-                rc.print(4)
+        if not short:
+            print('  Property Classes:')
+            if self._property_classes:
+                for pc in self._property_classes:
+                    pc.print(4)
+            print('  Resource Classes:')
+            if self._resource_classes:
+                for rc in self._resource_classes:
+                    rc.print(4)
 

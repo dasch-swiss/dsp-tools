@@ -46,8 +46,8 @@ class TestPropertyClass(unittest.TestCase):
         #
         # remove test ontology
         #
-        result = self.onto.delete()
-        self.assertIsNotNone(result)
+        #result = self.onto.delete()
+        #self.assertIsNotNone(result)
 
 
     def test_PropertyClass_create(self):

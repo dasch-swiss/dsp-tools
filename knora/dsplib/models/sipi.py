@@ -25,11 +25,12 @@ class Sipi:
 
     def upload_bitstream(self, filepath):
         print(f"filepath=${os.path.basename(filepath)} (${filepath})")
-        files = {
-            'file': (os.path.basename(filepath), open(filepath, 'rb')),
-        }
-        req = requests.post(self.sipiserver + "/upload?token=" + self.token,
-                            files=files)
+        with open(filepath, 'rb') as bitstreamfile:
+            files = {
+                'file': (os.path.basename(filepath), bitstreamfile),
+            }
+            req = requests.post(self.sipiserver + "/upload?token=" + self.token,
+                                files=files)
         self.on_api_error(req)
         res = req.json()
         return res

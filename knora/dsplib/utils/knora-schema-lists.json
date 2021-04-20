@@ -76,8 +76,15 @@
       },
       "required": ["shortcode", "lists"],
       "additionalProperties": false
+    },
+    "prefixes": {
+      "type": "object",
+      "patternProperties": {
+        "^[\\w-]+$": { "format" : "uri" }
+      },
+      "additionalProperties": false
     }
   },
-  "required": ["project"],
+  "required": ["prefixes", "project"],
   "additionalProperties": false
 }

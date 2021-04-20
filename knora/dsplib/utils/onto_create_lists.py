@@ -8,7 +8,8 @@ from ..models.project import Project
 from ..models.listnode import ListNode
 from .onto_commons import list_creator, validate_list_from_excel, json_list_from_excel
 
-def create_lists (input_file: str, output_file: str, server: str, user: str, password: str, verbose: bool) -> bool:
+
+def create_lists(input_file: str, lists_file: str, server: str, user: str, password: str, verbose: bool, dump: bool = False) -> bool:
     current_dir = os.path.dirname(os.path.realpath(__file__))
 
     # let's read the schema for the data model definition
@@ -55,6 +56,9 @@ def create_lists (input_file: str, output_file: str, server: str, user: str, pas
     con = Connection(server)
     con.login(user, password)
 
+    if dump:
+        con.start_logging()
+
     # --------------------------------------------------------------------------
     # let's read the prefixes of external ontologies that may be used
     #
@@ -84,16 +88,17 @@ def create_lists (input_file: str, output_file: str, server: str, user: str, pas
                 con=con,
                 project=project,
                 label=rootnode['labels'],
-                comment=rootnode.get('comments'),
+                #comment=rootnode.get('comments'),
                 name=rootnode['name']
             ).create()
-            listnodes = list_creator(con, project, root_list_node, rootnode['nodes'])
-            listrootnodes[rootnode['name']] = {
-                "id": root_list_node.id,
-                "nodes": listnodes
-            }
+            if rootnode.get('nodes') is not None:
+                listnodes = list_creator(con, project, root_list_node, rootnode['nodes'])
+                listrootnodes[rootnode['name']] = {
+                    "id": root_list_node.id,
+                    "nodes": listnodes
+                }
 
-    with open(output_file, 'w', encoding="utf-8") as fp:
+    with open(lists_file, 'w', encoding="utf-8") as fp:
         json.dump(listrootnodes, fp, indent=3, sort_keys=True)
-        print("The definitions of the node-id's can be found in \"{}}\"!".format(output_file))
+        print(f"The definitions of the node-id's can be found in \"{lists_file}\"!")
     return True

@@ -10,7 +10,7 @@ from dsplib.models.propertyclass import PropertyClass
 
 class TestPropertyClass(unittest.TestCase):
     project = "http://rdfh.ch/projects/0001"
-    onto_name = 'propclass-test'
+    onto_name = 'propclass-test-a'
     onto_label = 'propclass_test_ontology'
 
     onto: Ontology
@@ -30,6 +30,9 @@ class TestPropertyClass(unittest.TestCase):
         self.con = Connection('http://0.0.0.0:3333')
         self.con.login('root@example.com', 'test')
 
+        ontos = Ontology.getAllOntologies(self.con)
+        for onto in ontos:
+            onto.print(True)
         #
         # Create a test ontology
         #

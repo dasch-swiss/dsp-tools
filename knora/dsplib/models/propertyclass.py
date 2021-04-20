@@ -311,7 +311,8 @@ class PropertyClass(Model):
             tmp = resref.split(':')
             if len(tmp) > 1:
                 if tmp[0]:
-                    return {"@id": resref}  # fully qualified name in the form "prefix:name"
+#                    return {"@id": resref}  # fully qualified name in the form "prefix:name"
+                    return {"@id": self._context.get_qualified_iri(resref)}  # fully qualified name in the form "prefix:name"
                 else:
                     return {"@id": self._context.prefix_from_iri(self._ontology_id) + ':' + tmp[1]}  # ":name" in current ontology
             else:

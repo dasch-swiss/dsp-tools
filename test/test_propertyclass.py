@@ -10,7 +10,7 @@ from dsplib.models.propertyclass import PropertyClass
 
 class TestPropertyClass(unittest.TestCase):
     project = "http://rdfh.ch/projects/0001"
-    onto_name = 'propclass-test'
+    onto_name = 'propclass-test-a'
     onto_label = 'propclass_test_ontology'
 
     onto: Ontology

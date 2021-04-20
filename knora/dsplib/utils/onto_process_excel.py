@@ -40,4 +40,5 @@ def list_excel2json(excelpath: str,
     with open(os.path.join(current_dir, 'knora-schema-lists.json')) as s:
         schema = json.load(s)
     validate(jsonobj, schema)
-    json.dump(jsonobj, open(outfile, "w"), indent=4)
+    with open(outfile, "w") as outfile:
+        json.dump(jsonobj, outfile, indent=4)

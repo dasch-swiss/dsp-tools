@@ -68,7 +68,8 @@ def validate_ontology_from_string(jsonstr: str, exceldir: Optional[str] = None) 
                 newlists.append(rootnode)
         datamodel["project"]["lists"] = newlists
 
-    json.dump(datamodel, open("gaga.json", "w"), indent=4)
+    with open("gaga.json", "w") as outfile:
+        json.dump(datamodel, outfile, indent=4)
 
     # validate the data model definition in order to be sure that it is correct
     validate(datamodel, schema)

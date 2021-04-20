@@ -48,6 +48,7 @@ class TestPropertyClass(unittest.TestCase):
         #
         #result = self.onto.delete()
         #self.assertIsNotNone(result)
+        pass
 
 
     def test_PropertyClass_create(self):

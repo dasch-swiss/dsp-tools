@@ -460,7 +460,8 @@ def xml_upload(input_file: str,
                imgdir: str,
                sipi: str,
                verbose: bool,
-               validate: bool) -> bool:
+               validate: bool,
+               dump: bool) -> bool:
     current_dir = os.path.dirname(os.path.realpath(__file__))
 
     xmlschema_doc = etree.parse(os.path.join(current_dir, 'knora-data-schema.xsd'))
@@ -482,6 +483,9 @@ def xml_upload(input_file: str,
     #
     con = Connection(server)
     con.login(user, password)
+
+    if dump:
+        con.start_logging()
 
     proj_context = ProjectContext(con=con)
 

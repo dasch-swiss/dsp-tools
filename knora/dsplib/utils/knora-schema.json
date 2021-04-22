@@ -450,6 +450,22 @@
           }
         },
 
+        "admin-permissions": {
+          "type": "object",
+          "patternProperties": {
+            "^([\\w-]+)?:(\\w+)$": { "type" : "string" }
+          }
+        },
+
+        "doap": {
+        "type": "object",
+          "patternProperties": {
+            "^(([\\w-]*)?:([\\w ]+))|(UnknownUser)(KnownUser)(Creator)(ProjectMember)(ProjectAdmin)(SystemAdmin)$": {
+              "pattern": "^(RestrictedView|View|Modify|Delete|ChangeRights)"
+            }
+          }
+        },
+
         "lists": {
           "type": "array",
           "items": {
@@ -464,7 +480,7 @@
           }
         }
       },
-      "required": ["shortcode", "shortname", "longname", "ontologies", "keywords"],
+      "required": ["shortcode"],
       "additionalProperties": false
     }
   },

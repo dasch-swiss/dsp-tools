@@ -128,18 +128,18 @@ def create_ontology_from_string(con: Connection,
         #
         # we got it, update the project data if necessary...
         #
-        if project.shortname != datamodel["project"]["shortname"]:
-            project.shortname = datamodel["project"]["shortname"]
-        if project.longname != datamodel["project"]["longname"]:
-            project.longname == datamodel["project"]["longname"]
-        project.description = datamodel["project"].get("descriptions")
-        project.keywords = set(datamodel["project"].get("keywords"))
-        nproject = project.update()
-        if nproject is not None:
-            project = nproject
-        if verbose:
-            print("Modified project:")
-            project.print()
+        #if project.shortname != datamodel["project"]["shortname"]:
+        #    project.shortname = datamodel["project"]["shortname"]
+        #if project.longname != datamodel["project"]["longname"]:
+        #    project.longname == datamodel["project"]["longname"]
+        #project.description = datamodel["project"].get("descriptions")
+        #project.keywords = set(datamodel["project"].get("keywords"))
+        #nproject = project.update()
+        #if nproject is not None:
+        #    project = nproject
+        #if verbose:
+        #    print("Modified project:")
+        #    project.print()
     except:
         #
         # The project doesn't exist yet – let's create it

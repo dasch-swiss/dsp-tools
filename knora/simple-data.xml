@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
+<knora xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       shortcode="4123" default-ontology="gaga">
+    <!-- permissions: see https://docs.knora.org/03-apis/api-v2/reading-user-permissions/ -->
+    <permissions id="res-default">
+        <allow group="UnknownUser">RV</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">V</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="ProjectMember">D</allow>
+    </permissions>
+    <permissions id="res-restricted">
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">V</allow>>
+        <allow group="ProjectAdmin">CR</allow>>
+        <allow group="ProjectMember">D</allow>
+    </permissions>
+    <permissions id="prop-default">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">V</allow>
+        <allow group="ProjectAdmin">CR</allow>>
+        <allow group="ProjectMember">D</allow>
+    </permissions>
+    <permissions id="prop-restricted">
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">V</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="ProjectMember">D</allow>
+    </permissions>
+
+    <resource label="Imagething"
+              restype=":ImageThing"
+              id="obj_0002"
+              permissions="res-default">
+        <bitstream>TEMP11.TIF</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Imagething</text>
+        </text-prop>
+    </resource>
+</knora>

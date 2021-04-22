@@ -1,0 +1,92 @@
+{
+  "prefixes": {
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "dcterms": "http://purl.org/dc/terms/"
+  },
+  "project": {
+    "shortcode": "4123",
+    "groups": [
+      {
+        "name": "simplegroup",
+        "description": "Simple group",
+        "selfjoin": false,
+        "status": true
+      }
+    ],
+    "users": [
+      {
+        "username": "simple",
+        "email": "tester@test.org",
+        "givenName": "Simple",
+        "familyName": "Simple",
+        "password": "simple",
+        "lang": "en",
+        "groups": [
+          ":simplegroup"
+        ],
+        "projects": [
+          ":admin"
+        ]
+      }
+    ],
+    "admin-permissions": {
+      "ProjectMember": "ProjectResourceCreateAllPermission",
+      "ProjectAdmin": "ProjectResourceCreateAllPermission",
+      ":simplegroup": "ProjectResourceCreateRestrictedPermission :ImageThing"
+    },
+    "doap": {
+      "UnknownUser": "RestrictedView",
+      "KnownUser": "View",
+      "Creator": "ChangeRights",
+      "ProjectMember": "Modify",
+      "ProjectAdmin": "ChangeRights",
+      "SystemAdmin": "ChangeRights",
+      ":simplegroup": "Delete"
+    },
+    "ontologies": [
+      {
+        "name": "gaga",
+        "label": "Gaga Ontology",
+        "properties": [
+          {
+            "name": "hasText",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "en": "Text"
+            },
+            "gui_element": "SimpleText",
+            "gui_attributes": {
+              "maxlength": "255",
+              "size": 60
+            }
+          }
+        ],
+        "resources": [
+          {
+            "name":  "ImageThing",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "An Image Thing"
+            },
+            "comments": {
+              "en": "An image thing for testing image things."
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasText",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+
+

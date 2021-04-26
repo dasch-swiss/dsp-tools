@@ -1,0 +1,1782 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      <link rel="icon" href="../assets/images/dasch-favicon.ico">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.3">
+    
+    
+      
+        <title>Bulk data import - dsp-tools Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.e35208c4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ef6f36e2.min.css">
+        
+          
+          
+          <meta name="theme-color" content="">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../assets/style/theme.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="deep-blue" data-md-color-accent="deep-blue">
+  
+    
+    <script>function __prefix(e){return new URL("..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dsp-xml-file-format-for-importing-data" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="dsp-tools Documentation" class="md-header__button md-logo" aria-label="dsp-tools Documentation" data-md-component="logo">
+      
+  <img src="../assets/images/dasch-icon-white.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            dsp-tools Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Bulk data import
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="dsp-tools Documentation" class="md-nav__button md-logo" aria-label="dsp-tools Documentation" data-md-component="logo">
+      
+  <img src="../assets/images/dasch-icon-white.svg" alt="logo">
+
+    </a>
+    dsp-tools Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        dsp-tools
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dsp-tools-create/" class="md-nav__link">
+        JSON data model format
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Bulk data import
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Bulk data import
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#preamble" class="md-nav__link">
+    Preamble
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#knora" class="md-nav__link">
+    &lt;knora&gt;
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;knora&gt;">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#permissions" class="md-nav__link">
+    &lt;permissions&gt;
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;permissions&gt;">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#allow" class="md-nav__link">
+    &lt;allow&gt;
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource" class="md-nav__link">
+    &lt;resource&gt;
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;resource&gt;">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bitstream-element" class="md-nav__link">
+    &lt;bitstream&gt;-element
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#text-prop-element" class="md-nav__link">
+    &lt;text-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;text-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#text-element" class="md-nav__link">
+    &lt;text&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;text&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#simple-text" class="md-nav__link">
+    Simple Text
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#text-with-markup" class="md-nav__link">
+    Text with Markup
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#color-prop-element" class="md-nav__link">
+    &lt;color-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;color-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#color-element" class="md-nav__link">
+    &lt;color&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#date-prop-eleement" class="md-nav__link">
+    &lt;date-prop&gt;-eleement
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;date-prop&gt;-eleement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#date-element" class="md-nav__link">
+    &lt;date&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#decimal-prop-element" class="md-nav__link">
+    &lt;decimal-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;decimal-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#decimal-element" class="md-nav__link">
+    &lt;decimal&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geometry-prop-element" class="md-nav__link">
+    &lt;geometry-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;geometry-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#geometry-element" class="md-nav__link">
+    &lt;geometry&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geoname-prop-element" class="md-nav__link">
+    &lt;geoname-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;geoname-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#geoname-element" class="md-nav__link">
+    &lt;geoname&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-prop-element" class="md-nav__link">
+    &lt;list-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;list-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list-element" class="md-nav__link">
+    &lt;list&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#iconclass-prop-element-not-yet-implemented" class="md-nav__link">
+    &lt;iconclass-prop&gt;-element (NOT YET IMPLEMENTED)
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;iconclass-prop&gt;-element (NOT YET IMPLEMENTED)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#iconclass-element-not-yet-implemented" class="md-nav__link">
+    &lt;iconclass&gt;-element (NOT YET IMPLEMENTED)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integer-prop-element" class="md-nav__link">
+    &lt;integer-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;integer-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#integer-element" class="md-nav__link">
+    &lt;integer&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interval-prop-element" class="md-nav__link">
+    &lt;interval-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;interval-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#interval-element" class="md-nav__link">
+    &lt;interval&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resptr-prop-element" class="md-nav__link">
+    &lt;resptr-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;resptr-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resptr-element" class="md-nav__link">
+    &lt;resptr&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#time-prop-element" class="md-nav__link">
+    &lt;time-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;time-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#time-element" class="md-nav__link">
+    &lt;time&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uri-prop-element" class="md-nav__link">
+    &lt;uri-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;uri-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#uri-element" class="md-nav__link">
+    &lt;uri&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#boolean-prop-element" class="md-nav__link">
+    &lt;boolean-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;boolean-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#boolean-element" class="md-nav__link">
+    &lt;boolean&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-example" class="md-nav__link">
+    Complete example
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dsp-tools-excel/" class="md-nav__link">
+        Excel file processing
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#preamble" class="md-nav__link">
+    Preamble
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#knora" class="md-nav__link">
+    &lt;knora&gt;
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;knora&gt;">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#permissions" class="md-nav__link">
+    &lt;permissions&gt;
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;permissions&gt;">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#allow" class="md-nav__link">
+    &lt;allow&gt;
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource" class="md-nav__link">
+    &lt;resource&gt;
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;resource&gt;">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bitstream-element" class="md-nav__link">
+    &lt;bitstream&gt;-element
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#text-prop-element" class="md-nav__link">
+    &lt;text-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;text-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#text-element" class="md-nav__link">
+    &lt;text&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;text&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#simple-text" class="md-nav__link">
+    Simple Text
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#text-with-markup" class="md-nav__link">
+    Text with Markup
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#color-prop-element" class="md-nav__link">
+    &lt;color-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;color-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#color-element" class="md-nav__link">
+    &lt;color&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#date-prop-eleement" class="md-nav__link">
+    &lt;date-prop&gt;-eleement
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;date-prop&gt;-eleement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#date-element" class="md-nav__link">
+    &lt;date&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#decimal-prop-element" class="md-nav__link">
+    &lt;decimal-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;decimal-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#decimal-element" class="md-nav__link">
+    &lt;decimal&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geometry-prop-element" class="md-nav__link">
+    &lt;geometry-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;geometry-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#geometry-element" class="md-nav__link">
+    &lt;geometry&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geoname-prop-element" class="md-nav__link">
+    &lt;geoname-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;geoname-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#geoname-element" class="md-nav__link">
+    &lt;geoname&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-prop-element" class="md-nav__link">
+    &lt;list-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;list-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list-element" class="md-nav__link">
+    &lt;list&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#iconclass-prop-element-not-yet-implemented" class="md-nav__link">
+    &lt;iconclass-prop&gt;-element (NOT YET IMPLEMENTED)
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;iconclass-prop&gt;-element (NOT YET IMPLEMENTED)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#iconclass-element-not-yet-implemented" class="md-nav__link">
+    &lt;iconclass&gt;-element (NOT YET IMPLEMENTED)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integer-prop-element" class="md-nav__link">
+    &lt;integer-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;integer-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#integer-element" class="md-nav__link">
+    &lt;integer&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interval-prop-element" class="md-nav__link">
+    &lt;interval-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;interval-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#interval-element" class="md-nav__link">
+    &lt;interval&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resptr-prop-element" class="md-nav__link">
+    &lt;resptr-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;resptr-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resptr-element" class="md-nav__link">
+    &lt;resptr&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#time-prop-element" class="md-nav__link">
+    &lt;time-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;time-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#time-element" class="md-nav__link">
+    &lt;time&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uri-prop-element" class="md-nav__link">
+    &lt;uri-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;uri-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#uri-element" class="md-nav__link">
+    &lt;uri&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#boolean-prop-element" class="md-nav__link">
+    &lt;boolean-prop&gt;-element
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;boolean-prop&gt;-element">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#boolean-element" class="md-nav__link">
+    &lt;boolean&gt;-element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-example" class="md-nav__link">
+    Complete example
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                <p><a href="https://badge.fury.io/py/knora"><img alt="PyPI version" src="https://badge.fury.io/py/knora.svg" /></a></p>
+<h1 id="dsp-xml-file-format-for-importing-data">DSP XML-file format for importing data</h1>
+<p>The import file is a standard XML file as decribed below.</p>
+<h2 id="preamble">Preamble</h2>
+<p>The import file must start with the standard XML header:</p>
+<pre><code class="language-xml">&lt;?xml version='1.0' encoding='utf-8'?&gt;
+</code></pre>
+<h2 id="knora">&lt;knora&gt;</h2>
+<p>The <code>&lt;knora&gt;</code>-element describes a set of resources that are to be imported. It is the
+container for an arbitrary number of <code>resource</code> elements and may only
+contain resource tags.
+The <code>&lt;knora&gt;</code>-eelement defines has the following options:</p>
+<ul>
+<li><em>xmlns:xsi</em>: <code>"http://www.w3.org/2001/XMLSchema-instance"</code> [required]</li>
+<li><em>xsi:schemaLocation</em>: Path to knora XML schema file for validation [optional]</li>
+<li><em>shortcode</em>: Knora project shortcode, e.g. "0801" [required]</li>
+<li><em>ontology</em>: Name of the ontology [required]</li>
+</ul>
+<p>Thus, the <code>&lt;knora&gt;</code>-eelment may b used as follows:</p>
+<pre><code class="language-xml">&lt;knora
+ xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+ xsi:schemaLocation=&quot;../knora-data-schema.xsd&quot;
+ shortcode=&quot;0806&quot;
+ ontology=&quot;webern&quot;&gt;
+ ...
+&lt;/knora&gt;
+</code></pre>
+<p>The <code>&lt;knora&gt;</code>-element can only contain
+- <code>&lt;permissions&gt;</code>-elements
+- <code>&lt;resource&gt;</code>-elements</p>
+<p>The permissions are implemented for importing data using permission sets. A permission set is
+a named element that contains the permissions for selected resources or values.
+In order to give a resource a value the permission, the named permission set is referenced.</p>
+<h3 id="permissions">&lt;permissions&gt;</h3>
+<p>The DSP-server provides for each resource and each field of a resource access control. For a more thorough discussion
+of the permission and access system of the DSP platform, see
+<a href="https://docs.knora.org/02-knora-ontologies/knora-base/#permissions">DSP platform permissions</a>
+The following access rights are defined by the DSP platform which apply to either the resource or field:</p>
+<ul>
+<li><code>RV</code>: <em>Restricted View permission</em>: The user sees a somehow restricted view of the element. E.g. in case of a still image
+  resource, the image is displeyed at reduced resolution or with a watermark overlay.</li>
+<li><code>V</code>: <em>View permission</em>: The user has read access to the element</li>
+<li><code>M</code>: <em>Modifiy permission</em>: The user may alter/modify the element, but may not delete it</li>
+<li><code>D</code>: <em>Delete permission</em>: The user is allowed to delete the element</li>
+<li><code>CR</code>: <em>Change Right permission</em>: The user may change the permission of the element</li>
+</ul>
+<p>The user does not hold directly the permissions, but may belong to an arbitrary number of groups which hold the
+permissions. By default, the following groups always exist, and each user belongs to at least one of them</p>
+<ul>
+<li><code>UnkownUser</code>: The user is not known to the DSP platform (no login)</li>
+<li><code>KnownUser</code>: The user is known (performed login), but is not member of the project the element belongs to</li>
+<li><code>ProjectMember</code>: The user belongs to the same project as the data element retrieved</li>
+<li><code>ProjectAdmin</code>: The user is project administrator in the project the data element belongs to</li>
+<li><code>Creator</code>: The user is the "owner" of the element, that is the one that created the element</li>
+<li><code>SystemAdmin</code>: System administrator</li>
+</ul>
+<p>In addition, more groups with arbitrary names can be created by the project admins. For referencing such a group,
+the projectname has to be prepended before the group name separated by a colon, e.g. <code>knora-py-test:MlsEditors</code>.</p>
+<p>A <code>&lt;permissions&gt;</code>-element contains the permissions given to the selected groups and is called a <em>permission set</em>. It
+contains a mandatory option <code>id</code> and must contain at least one <code>&lt;allow&gt;</code>-element per user group indicating the group's 
+permission. It has the form:</p>
+<pre><code class="language-xml">     &lt;permissions id=&quot;res-default&quot;&gt;
+        &lt;allow group=&quot;UnknownUser&quot;&gt;RV&lt;/allow&gt;
+        &lt;allow group=&quot;KnownUser&quot;&gt;V&lt;/allow&gt;
+        &lt;allow group=&quot;Creator&quot;&gt;CR&lt;/allow&gt;
+        &lt;allow group=&quot;ProjectAdmin&quot;&gt;CR&lt;/allow&gt;
+        &lt;allow group=&quot;knora-py-test:MlsEditors&quot;&gt;D&lt;/allow&gt;
+    &lt;/permissions&gt;
+</code></pre>
+<p><em>Options</em>:
+- <em>id</em>: Unique id (an xs:ID) for the permission set. It is used to reference a permission set.</p>
+<p><em>Subelements allowed</em>:
+- <code>&lt;allow&gt;</code>: defines the permission for one group</p>
+<h4 id="allow">&lt;allow&gt;</h4>
+<p>The <code>&lt;allow&gt;</code>-element is used to defined the permission for one group. It has the form:</p>
+<pre><code class="language-xml">    &lt;allow group=&quot;ProjectAdmin&quot;&gt;CR&lt;/allow&gt;&gt;
+</code></pre>
+<p>The allowed values are
+(see <a href="https://docs.knora.org/paradox/02-knora-ontologies/knora-base.html#permissions">Knora-documentation</a>
+for a more detailed description of the Knora permission system):</p>
+<ul>
+<li><em>"RV"</em>: Restricted view: Th associated media is shown in reduced quality.</li>
+<li><em>"V"</em>: View: The user is able to view the data readonly</li>
+<li><em>"M"</em>: Modifiy: The user may modify of a value. The original value will be preserved using the history mchanism.</li>
+<li><em>"D"</em>: Delete: The user is able to mark a resource of a value as deleted.</li>
+<li><em>"CR"</em>: The user is able to change the right of a resource or value</li>
+</ul>
+<p>The <code>group</code> option is mandatory.</p>
+<p><em>Options</em>:</p>
+<ul>
+<li><em>group</em>: Defines the group for the permission. The knora systemgroups as well as project speccific groups are supported.
+           A project specific group name has the form <code>project-shortname:groupnam</code>. The system groups are:<ul>
+<li>"UnknownUser"</li>
+<li>"KnownUser"</li>
+<li>"ProjectMember"</li>
+<li>"Creator"</li>
+<li>"ProjectAdmin"</li>
+<li>"SystemAdmin"</li>
+</ul>
+</li>
+</ul>
+<p><em>Subelements allowed</em>: None</p>
+<p>Thus a complete <em>permission</em> section may be as follows:</p>
+<pre><code class="language-xml">  &lt;permissions id=&quot;res-default&quot;&gt;
+    &lt;allow group=&quot;UnknownUser&quot;&gt;RV&lt;/allow&gt;
+    &lt;allow group=&quot;KnownUser&quot;&gt;V&lt;/allow&gt;
+    &lt;allow group=&quot;Creator&quot;&gt;CR&lt;/allow&gt;
+    &lt;allow group=&quot;ProjectAdmin&quot;&gt;CR&lt;/allow&gt;
+  &lt;/permissions&gt;
+  &lt;permissions id=&quot;res-restricted&quot;&gt;
+    &lt;allow group=&quot;KnownUser&quot;&gt;V&lt;/allow&gt;
+    &lt;allow group=&quot;Creator&quot;&gt;CR&lt;/allow&gt;
+    &lt;allow group=&quot;ProjectAdmin&quot;&gt;CR&lt;/allow&gt;
+  &lt;/permissions&gt;
+  &lt;permissions id=&quot;prop-default&quot;&gt;
+    &lt;allow group=&quot;UnknownUser&quot;&gt;V&lt;/allow&gt;
+    &lt;allow group=&quot;KnownUser&quot;&gt;V&lt;/allow&gt;
+    &lt;allow group=&quot;Creator&quot;&gt;CR&lt;/allow&gt;
+    &lt;allow group=&quot;ProjectAdmin&quot;&gt;CR&lt;/allow&gt;
+  &lt;/permissions&gt;
+  &lt;permissions id=&quot;prop-restricted&quot;&gt;
+    &lt;allow group=&quot;KnownUser&quot;&gt;V&lt;/allow&gt;
+    &lt;allow group=&quot;Creator&quot;&gt;CR&lt;/allow&gt;
+    &lt;allow group=&quot;ProjectAdmin&quot;&gt;CR&lt;/allow&gt;
+  &lt;/permissions&gt;
+</code></pre>
+<h3 id="resource"><code>&lt;resource&gt;</code></h3>
+<p>A <code>resource</code>-element contains all necessary information to create a resource. It
+has the following options:</p>
+<p><em>Options</em>:</p>
+<ul>
+<li><em>label</em>: The label, a human readable, semantical meaningfull short name of the resource [required]</li>
+<li><em>restype</em>: The resource type as defined within the ontology [required]</li>
+<li><em>id</em>: A unique, arbitrary string giving a unique ID to the resource. This ID is only used during the
+  import process for referencing this resource from other resources. During the import process, it will be replaced by
+  the IRI used internally by Knora. [required]</li>
+<li><em>permissions</em>: a reference to a permission set. These permissions will be applied to the newly created resoource.
+  [optional]</li>
+</ul>
+<pre><code class="language-xml">&lt;resource label=&quot;EURUS015a&quot;
+          restype=&quot;Postcard&quot;
+          unique_id=&quot;238807&quot;
+          permissions=&quot;res-def-perm&quot;&gt;
+   ...
+&lt;/resource&gt;
+</code></pre>
+<p>The <code>&lt;resource&gt;</code>-element contains for each property class a <code>property</code>-element which itself
+contains one or several <code>value</code>-elements. It <em>must</em> also contain an <code>&lt;image&gt;</code>-element if the
+resource is a StillImage. The <code>property</code>-element must have the option <code>name</code> present which
+indicates the property class from the project specific ontology where the values belong to.</p>
+<p><em>name</em>-option:</p>
+<ul>
+<li><em>"name"</em>: Name of the property as given in the ontology</li>
+</ul>
+<p>Example:</p>
+<pre><code class="language-xml">&lt;text-prop name=&quot;hasTranslation&quot;&gt;
+   &lt;text encoding=&quot;utf8&quot;&gt;Dies ist eine Übersetzung&lt;/text&gt;
+&lt;/text-prop&gt;
+</code></pre>
+<p>The <code>&lt;resource&gt;</code>-element may contain the following tags describing properties (data fields):</p>
+<ul>
+<li><em><code>&lt;bitstream&gt;</code></em>: In case of the StillImageResource contains the path to the image file.</li>
+<li><em><code>&lt;text-prop&gt;</code></em>: Contains text values</li>
+<li><em><code>&lt;color-prop&gt;</code></em>: Contains color values</li>
+<li><em><code>&lt;date-prop&gt;</code></em>: Contains date values</li>
+<li><em><code>&lt;decimal-prop&gt;</code></em>: Contains decimal values</li>
+<li><em><code>&lt;geometry-prop&gt;</code></em>: Contains a JSON geometry definition for a region</li>
+<li><em><code>&lt;geoname-prop&gt;</code></em>: Contains a geoname.org location code</li>
+<li><em><code>&lt;list-prop&gt;</code></em>: Contains list elements labels</li>
+<li><em><code>&lt;iconclass-prop&gt;</code></em>: Contains iconclass.org codes</li>
+<li><em><code>&lt;integer-prop&gt;</code></em>: Contains integer values</li>
+<li><em><code>&lt;interval-prop&gt;</code></em>: Contains interval values</li>
+<li><em><code>&lt;period-prop&gt;</code></em>: Contains time period values</li>
+<li><em><code>&lt;resptr-prop&gt;</code></em>: Contains links othr resources</li>
+<li><em><code>&lt;time-prop&gt;</code></em>: Contains time values</li>
+<li><em><code>&lt;uri-prop&gt;</code></em>: Contains URI values</li>
+<li><em><code>&lt;boolean-prop&gt;</code></em>: Contains boolean values</li>
+</ul>
+<h4 id="bitstream-element"><code>&lt;bitstream&gt;</code>-element</h4>
+<p>The <code>&lt;bitstream&gt;</code>-element contains the path to abitstream object like an image file, a ZIP-file, an audio-file etc.
+It must only be used if the resource is a <code>StillImageRepresentation</code>, an <code>AudioRepresentation</code>, a <code>DocumentRepresentation</code> etc.
+and must be the first element!</p>
+<p><em>Options</em>:
+- none</p>
+<p><em>Note</em>: There is only <em>one</em> <code>&lt;bitstream&gt;</code>-element allowed per Representation!</p>
+<p>Example:</p>
+<pre><code class="language-xml">&lt;bitstream&gt;postcards.dir/images/EURUS015a.jpg&lt;/bitstream&gt;
+</code></pre>
+<h4 id="text-prop-element"><code>&lt;text-prop&gt;</code>-element</h4>
+<p>The text property element is used to list text values.</p>
+<p>The <code>&lt;text-prop&gt;</code>-element must contain at least one <code>&lt;text&gt;</code>-element. There are several variants of text tags:</p>
+<p><em>Options</em>:
+- <em>"name"</em>: Name of the property as given in the ontology  (required)</p>
+<h5 id="text-element"><code>&lt;text&gt;</code>-element</h5>
+<p>The <code>&lt;text&gt;</code>-element has the following options:
+- <em>encoding</em>: either "utf8" or "xml" [required]
+  - <em>utf8</em>: The element describes a simple text without markup. The text is a simple utf-8 string
+  - <em>xml</em>: The element describes a complex text containing markup. It must be follow the XML-format as defined by the
+  <a href="https://docs.knora.org/03-apis/api-v1/xml-to-standoff-mapping/">DSP standard mapping</a> .
+- <em>permissions</em>: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- <em>comment</em>: A comment to this specific value.</p>
+<h6 id="simple-text">Simple Text</h6>
+<p>A complete example for a simple text:</p>
+<pre><code class="language-xml">&lt;text-prop name=&quot;hasComment&quot;&gt;
+   &lt;text encoding=&quot;utf8&quot;&gt;Probe bei &quot;Wimberger&quot;. Lokal in Wien?&lt;/text&gt;
+&lt;/text-prop&gt;
+</code></pre>
+<h6 id="text-with-markup">Text with Markup</h6>
+<p>Knora-xml-import assumes that for markup-text (standoff-markup) standard mapping for Knora is being used (Custom mapping to
+customized standoff tags is not yet implemented!)</p>
+<p>E.g. a text containing a link to another resource must have the following form:</p>
+<pre><code class="language-xml">&lt;text permissions=&quot;prop-default&quot; encoding=&quot;xml&quot; &gt;The &lt;strong&gt;third&lt;/strong&gt; object and a &lt;a class=&quot;salsah-link&quot; href=&quot;IRI:obj_0003:IRI&quot;&gt;link&lt;/a&gt; to.&lt;/text&gt;
+</code></pre>
+<p>Please note that the href-option within the anchor tag points to an internal resource of knora
+and this has to have the special format "<code>IRI:</code>res-id<code>:IRI</code>" where res-id is the resource
+id defined within the XML import file. A resource already existing in knora can be referenced by
+indicating its IRI directly has <em>href</em>-option.</p>
+<p>Within one text property, multiple simple and complex text values may be mixed.</p>
+<h4 id="color-prop-element"><code>&lt;color-prop&gt;</code>-element</h4>
+<p>The color-prop eelement is used to define a color property.</p>
+<p><em>Options</em>:
+- <em>"name"</em>: Name of the property as given in the ontology (required)</p>
+<h5 id="color-element"><code>&lt;color&gt;</code>-element</h5>
+<p>The color-element is used to indicate a color value. The color has to be giiven in
+web-notation, that is a "#" followed by 3 or 6 hex numerals.</p>
+<p><em>Options</em>:
+- <em>permissions</em>: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- <em>comment</em>: A comment to this specific value.</p>
+<p>A propery with 2 color valus would be defined as follows:</p>
+<pre><code class="language-xml">&lt;color-prop name=&quot;hasColor&quot;&gt;
+    &lt;color&gt;#00ff66&lt;/color&gt;
+    &lt;color&gt;#ff00ff&lt;/color&gt;
+&lt;/color-prop&gt;
+</code></pre>
+<h4 id="date-prop-eleement"><code>&lt;date-prop&gt;</code>-eleement</h4>
+<p>Is used to define knora dates.</p>
+<p><em>Options</em>:
+- <em>"name"</em>: Name of the property as given in the ontology (required)</p>
+<h5 id="date-element"><code>&lt;date&gt;</code>-element</h5>
+<p>A Knora date value. It has the following format:</p>
+<pre><code>calendar:epoch:yyyy-mm-dd:epoch:yyyy-mm-dd
+</code></pre>
+<ul>
+<li><em>calendar</em>: either "JULIAN" or "GREGORIAN" [optional, default: GREGORIAN]</li>
+<li><em>epoch</em>: either "BCE" or "CE" [optional, default CE]</li>
+<li><em>yyyy</em>: year with four digits (at least one must be given)</li>
+<li><em>mm</em>: month with two digits 01, 02, .., 12</li>
+<li><em>dd</em>: day eith two digits</li>
+</ul>
+<p>If two dates are given, the date is in between the two given limits. If the day is omitted,
+then the precision it <em>month</em>, if also the month is omited, the precision is <em>year</em>.</p>
+<p><em>Options</em>:
+- <em>permissions</em>: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- <em>comment</em>: A comment to this specific value.</p>
+<p>Examples:</p>
+<pre><code>&lt;date&gt;GREGORIAN:CE:2014-01-31&lt;/date&gt;
+&lt;date&gt;GREGORIAN:CE:1930-09-02:CE:1930-09-03&lt;/date&gt;
+</code></pre>
+<h4 id="decimal-prop-element"><code>&lt;decimal-prop&gt;</code>-element</h4>
+<p>Properties with decimal values. Contains one or more <code>&lt;dcimal&gt;</code>-tags.</p>
+<p><em>Options</em>:
+- <em>"name"</em>: Name of the property as given in the ontology (required)</p>
+<h5 id="decimal-element"><code>&lt;decimal&gt;</code>-element</h5>
+<p>The float element contains a decimal number.</p>
+<p><em>Options</em>:
+- <em>permissions</em>: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- <em>comment</em>: A comment to this specific value.</p>
+<p>Example:</p>
+<pre><code>&lt;float&gt;3.14159&lt;/float&gt;
+</code></pre>
+<h4 id="geometry-prop-element"><code>&lt;geometry-prop&gt;</code>-element</h4>
+<p>Properties which contain a geometric definition for a 2-D region (e.g. on an image). Usually thes
+are not created by an import and should be used with caution!</p>
+<p><em>Options</em>:
+- <em>"name"</em>: Name of the property as given in the ontology (required)</p>
+<h5 id="geometry-element"><code>&lt;geometry&gt;</code>-element</h5>
+<p>A geometry is defined as a JSON object. It  contains the following data:
+- <em>status</em>: "active" or "deleted"
+- <em>type</em>: "circle", "rectangle" or "polygon"
+- <em>lineColor</em>: WEB-Color
+- <em>lineWidth</em>: integer number (in pixels)
+- <em>points</em>: Array of coordinate objects of the form <code>{"x": decimal, "y": decimal}</code>
+- <em>radius</em>: Coordinate object in the form <code>{"x": decimal, "y": decimal}</code>
+Please note that all coordinates are normalized coordinates (relative to the image size)  between 0.0 and 1.0 !
+The following example defines a poylgon:</p>
+<pre><code>{
+   &quot;status&quot;: &quot;active&quot;,
+   &quot;type&quot;: &quot;polygon&quot;,
+   &quot;lineColor&quot;: &quot;#ff3333&quot;,
+   &quot;lineWidth&quot;: 2,
+   &quot;points: [{&quot;x&quot;: 0.17252396166134185, &quot;y&quot;: 0.1597222222222222},
+             {&quot;x&quot;: 0.8242811501597445,  &quot;y&quot;: 0.14583333333333334},
+             {&quot;x&quot;: 0.8242811501597445,  &quot;y&quot;: 0.8310185185185185},
+             {&quot;x&quot;: 0.1757188498402556,  &quot;y&quot;: 0.8240740740740741},
+             {&quot;x&quot;: 0.1757188498402556,  &quot;y&quot;: 0.1597222222222222},
+             {&quot;x&quot;: 0.16932907348242812, &quot;y&quot;: 0.16435185185185186}],
+   &quot;original_index&quot;: 0
+}
+</code></pre>
+<p>Thus, a <geometry>-element may look like:</p>
+<pre><code>&lt;geometry&gt;{&quot;status&quot;:&quot;active&quot;,&quot;type&quot;=&quot;circle&quot;,&quot;lineColor&quot;=&quot;#ff0000&quot;,&quot;lineWidth&quot;=2,&quot;points&quot;:[{&quot;x&quot;:0.5,&quot;y&quot;:0.5}],&quot;radius&quot;:{&quot;x&quot;:0.1,&quot;y&quot;:0.0}}&lt;/geometry&gt;
+</code></pre>
+<p><em>Options</em>:
+- <em>permissions</em>: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- <em>comment</em>: A comment to this specific value.</p>
+<h4 id="geoname-prop-element"><code>&lt;geoname-prop&gt;</code>-element</h4>
+<p>Used for values that contain a <a href="http://geonames.org">geonames.org</a> location ID</p>
+<p><em>Options</em>:
+- <em>"name"</em>: Name of the property as given in the ontology (required)</p>
+<h5 id="geoname-element"><code>&lt;geoname&gt;</code>-element</h5>
+<p>Contains a valid geonames.org ID.</p>
+<p><em>Options</em>:
+- <em>permissions</em>: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- <em>comment</em>: A comment to this specific value.</p>
+<p>Example (City of Wien):</p>
+<pre><code>&lt;geoname&gt;2761369&lt;/geoname&gt;
+</code></pre>
+<h4 id="list-prop-element"><code>&lt;list-prop&gt;</code>-element</h4>
+<p>Entry into a list (list node). List nodes are identified by their <code>name</code>-property that was given when creating the list nodes (which must be unique within each list!).</p>
+<p><em>Options</em>:
+- <em>"name"</em>: Name of the property as given in the ontology (required)</p>
+<h5 id="list-element"><code>&lt;list&gt;</code>-element</h5>
+<p>References a node in a (pulldown- or hierarchical-) list</p>
+<p><em>Options</em>:
+- <em>permissions</em>: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- <em>comment</em>: A comment to this specific value.</p>
+<p>Example:</p>
+<pre><code>&lt;list&gt;H_4128&lt;/list&gt;
+</code></pre>
+<h4 id="iconclass-prop-element-not-yet-implemented"><code>&lt;iconclass-prop&gt;</code>-element (<em>NOT YET IMPLEMENTED</em>)</h4>
+<p>Contains the short code of an iconclass entry see <a href="http://iconclass.org">iconclass.org</a>.
+For example the code
+<code>92E112</code>stands for <code>(story of) Aurora (Eos); 'Aurora' (Ripa) - infancy, upbringing
+Aurora · Ripa · air · ancient history · child · classical antiquity · goddess · gods · heaven · history · infancy · mythology · sky · upbringing · youth</code></p>
+<p><em>Options</em>:
+- <em>"name"</em>: Name of the property as given in the ontology (required)</p>
+<h5 id="iconclass-element-not-yet-implemented"><code>&lt;iconclass&gt;</code>-element (<em>NOT YET IMPLEMENTED</em>)</h5>
+<p>References an <a href="https://iconclass.org">iconclass.org</a> </p>
+<p><em>Options</em>:
+- <em>permissions</em>: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- <em>comment</em>: A comment to this specific value.</p>
+<p>Usage:</p>
+<pre><code>&lt;iconclass&gt;92E112&lt;/iconclass&gt;
+</code></pre>
+<h4 id="integer-prop-element"><code>&lt;integer-prop&gt;</code>-element</h4>
+<p>Contains integer values</p>
+<p><em>Options</em>:
+- <em>"name"</em>: Name of the property as given in the ontology (required)</p>
+<h5 id="integer-element"><code>&lt;integer&gt;</code>-element</h5>
+<p><em>Options</em>:
+- <em>permissions</em>: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- <em>comment</em>: A comment to this specific value.</p>
+<p>Usage:</p>
+<pre><code>&lt;integer&gt;4711&lt;/integer&gt;
+</code></pre>
+<h4 id="interval-prop-element"><code>&lt;interval-prop&gt;</code>-element</h4>
+<p>An interval defined a time period with a start and an end</p>
+<p><em>Options</em>:
+- <em>"name"</em>: Name of the property as given in the ontology (required)</p>
+<h5 id="interval-element"><code>&lt;interval&gt;</code>-element</h5>
+<p>The interval-tag value has the following form or two decimals separated by a ":".</p>
+<p><em>Options</em>:
+- <em>permissions</em>: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- <em>comment</em>: A comment to this specific value.</p>
+<p>Example:</p>
+<pre><code>&lt;interval&gt;1.5:3.12&lt;/interval&gt;
+</code></pre>
+<h4 id="resptr-prop-element"><code>&lt;resptr-prop&gt;</code>-element</h4>
+<p>A link to another resource within Knora</p>
+<p><em>Options</em>:
+- <em>"name"</em>: Name of the property as given in the ontology (required)</p>
+<h5 id="resptr-element"><code>&lt;resptr&gt;</code>-element</h5>
+<p>A value containing the XML-internal ID of the resource.</p>
+<p><em>Options</em>:
+- <em>permissions</em>: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- <em>comment</em>: A comment to this specific value.</p>
+<p>Example:</p>
+<p>If there is a resource deefined as</p>
+<pre><code>&lt;resource label=&quot;EURUS015a&quot; restype=&quot;Postcard&quot; unique_id=&quot;238807&quot;&gt;
+…
+&lt;/resource
+</code></pre>
+<p>it can be referenced as</p>
+<pre><code>&lt;resptr&gt;238807&lt;/resptr&gt;
+</code></pre>
+<h4 id="time-prop-element"><code>&lt;time-prop&gt;</code>-element</h4>
+<p>A time property</p>
+<p><em>Options</em>:
+- <em>"name"</em>: Name of the property as given in the ontology (required)</p>
+<h5 id="time-element"><code>&lt;time&gt;</code>-element</h5>
+<p>This represents an exact date/time value in the form of <code>yyyy-mm-ddThh:mm:ss.sssssssssssszzzzzz</code>
+The following abbreviations describe this form:</p>
+<ul>
+<li><em>yyyy</em> A four-digit numeral that represents the year. The value cannot begin with a negative (-) sign or a plus (+) sign. 0001 is the lexical representation of the year 1 of the Common Era (also known as 1 AD).
+The value cannot be 0000.</li>
+<li><em>mm</em> A two-digit numeral that represents the month.</li>
+<li><em>dd</em> A two-digit numeral that represents the day.</li>
+<li>_hh_A two-digit numeral (with leading zeros as required) that represents the hours. The value must be between -14 and +14, inclusive.</li>
+<li><em>mm</em> A two-digit numeral that represents the minute.</li>
+<li><em>ss</em> A two-digit numeral that represents the whole seconds.</li>
+<li><em>ssssssssssss</em> Optional. If present, a 1-to-12 digit numeral that represents the fractional seconds.</li>
+<li><em>zzzzzz</em> Is required and represents the time zone. Each part of the datetime value that is expressed as a numeric value is constrained to the maximum value within the interval that is determined by the next-higher part of the datetime value. For example, the day value can never be 32 and cannot be 29 for month 02 and year 2002 (February 2002). </li>
+</ul>
+<p>The timezone is defined as follows:</p>
+<ul>
+<li>A positive (+) or negative (-) sign that is followed by hh:mm, where the following abbreviations are used:</li>
+<li><em>hh</em> A two-digit numeral (with leading zeros as required) that represents the hours. The value must be between -14 and +14, inclusive.</li>
+<li><em>mm</em>  two-digit numeral that represents the minutes. The value of the minutes property must be zero when the hours property is equal to 14.</li>
+<li><em>+</em> Indicates that the specified time instant is in a time zone that is ahead of the UTC time by hh hours and mm minutes.</li>
+<li><em>-</em> Indicates that the specified time instant is in a time zone that is behind UTC time by hh hours and mm minutes.</li>
+</ul>
+<p>or</p>
+<ul>
+<li><em>Z</em> The literal Z, which represents the time in UTC (Z represents Zulu time, which is equivalent to UTC). Specifying Z for the time zone is equivalent to specifying +00:00 or -00:00.</li>
+</ul>
+<p><em>Options</em>:
+- <em>permissions</em>: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- <em>comment</em>: A comment to this specific value.</p>
+<p>Example:</p>
+<p>The following form indicates noon on 10 October 2009, Eastern Standard Time in the United States:</p>
+<pre><code>&lt;time&gt;2009-10-10T12:00:00-05:00&lt;/time&gt;
+&lt;time&gt;2019-10-23T13.45:12Z&lt;/time&gt;
+</code></pre>
+<h4 id="uri-prop-element"><code>&lt;uri-prop&gt;</code>-element</h4>
+<p>A property containing an valid URI</p>
+<p><em>Options</em>:
+- <em>"name"</em>: Name of the property as given in the ontology (required)</p>
+<h5 id="uri-element"><code>&lt;uri&gt;</code>-element</h5>
+<p>Contains a syntactically valid URI.</p>
+<p><em>Options</em>:
+- <em>permissions</em>: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- <em>comment</em>: A comment to this specific value.</p>
+<p>Example:</p>
+<pre><code>&lt;uri&gt;http://www.groove-t-gang.ch&lt;/ur&gt;
+</code></pre>
+<h4 id="boolean-prop-element"><code>&lt;boolean-prop</code>&gt;-element</h4>
+<p>A property containing boolean values</p>
+<p><em>Options</em>:
+- <em>"name"</em>: Name of the property as given in the ontology (required)</p>
+<h5 id="boolean-element"><code>&lt;boolean&gt;</code>-element</h5>
+<p>Must contain the string "true" or "false", or the numeral "1" or "0"</p>
+<p><em>Options</em>:
+- <em>permissions</em>: ID or a permission set. Optional, but if omitted very restricted default permissions apply!
+- <em>comment</em>: A comment to this specific value.</p>
+<p>Example:</p>
+<pre><code>&lt;boolean&gt;true&lt;/boolean&gt;
+&lt;boolean&gt;0&lt;/boolean&gt;
+</code></pre>
+<h2 id="complete-example">Complete example</h2>
+<pre><code class="language-xml">&lt;?xml version='1.0' encoding='utf-8'?&gt;
+&lt;knora xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+       shortcode=&quot;0001&quot; default-ontology=&quot;anything&quot;&gt;
+    &lt;!-- permissions: see https://docs.knora.org/03-apis/api-v2/reading-user-permissions/ --&gt;
+    &lt;permissions id=&quot;res-default&quot;&gt;
+        &lt;allow group=&quot;UnknownUser&quot;&gt;RV&lt;/allow&gt;
+        &lt;allow group=&quot;KnownUser&quot;&gt;V&lt;/allow&gt;
+        &lt;allow group=&quot;Creator&quot;&gt;CR&lt;/allow&gt;
+        &lt;allow group=&quot;ProjectAdmin&quot;&gt;CR&lt;/allow&gt;
+        &lt;allow group=&quot;anything:Thing searcher&quot;&gt;D&lt;/allow&gt;
+    &lt;/permissions&gt;
+    &lt;permissions id=&quot;res-restricted&quot;&gt;
+        &lt;allow group=&quot;KnownUser&quot;&gt;V&lt;/allow&gt;
+        &lt;allow group=&quot;Creator&quot;&gt;CR&lt;/allow&gt;&gt;
+        &lt;allow group=&quot;ProjectAdmin&quot;&gt;CR&lt;/allow&gt;&gt;
+        &lt;allow group=&quot;anything:Thing searcher&quot;&gt;M&lt;/allow&gt;&gt;
+    &lt;/permissions&gt;
+    &lt;permissions id=&quot;prop-default&quot;&gt;
+        &lt;allow group=&quot;UnknownUser&quot;&gt;V&lt;/allow&gt;
+        &lt;allow group=&quot;KnownUser&quot;&gt;V&lt;/allow&gt;
+        &lt;allow group=&quot;Creator&quot;&gt;CR&lt;/allow&gt;
+        &lt;allow group=&quot;ProjectAdmin&quot;&gt;CR&lt;/allow&gt;&gt;
+        &lt;allow group=&quot;anything:Thing searcher&quot;&gt;D&lt;/allow&gt;&gt;
+    &lt;/permissions&gt;
+    &lt;permissions id=&quot;prop-restricted&quot;&gt;
+        &lt;allow group=&quot;KnownUser&quot;&gt;V&lt;/allow&gt;
+        &lt;allow group=&quot;Creator&quot;&gt;CR&lt;/allow&gt;
+        &lt;allow group=&quot;ProjectAdmin&quot;&gt;CR&lt;/allow&gt;
+        &lt;allow group=&quot;anything:Thing searcher&quot;&gt;M&lt;/allow&gt;
+    &lt;/permissions&gt;
+    &lt;resource label=&quot;obj_inst1&quot;
+              restype=&quot;:BlueThing&quot;
+              id=&quot;obj_0001&quot;
+              permissions=&quot;res-default&quot;&gt;
+        &lt;!-- --&gt;
+        &lt;list-prop list=&quot;treelistroot&quot; name=&quot;:hasListItem&quot;&gt;
+            &lt;list permissions=&quot;prop-default&quot;&gt;Tree list node 02&lt;/list&gt;
+        &lt;/list-prop&gt;
+        &lt;list-prop list=&quot;treelistroot&quot; name=&quot;:hasOtherListItem&quot;&gt;
+            &lt;list permissions=&quot;prop-default&quot;&gt;Tree list node 03&lt;/list&gt;
+        &lt;/list-prop&gt;
+        &lt;text-prop name=&quot;:hasRichtext&quot;&gt;
+            &lt;text permissions=&quot;prop-default&quot; encoding=&quot;xml&quot; &gt;The &lt;strong&gt;third&lt;/strong&gt; object and a &lt;a class=&quot;salsah-link&quot; href=&quot;IRI:obj_0003:IRI&quot;&gt;link&lt;/a&gt; to.&lt;/text&gt;
+        &lt;/text-prop&gt;
+        &lt;!-- --&gt;
+        &lt;text-prop name=&quot;:hasRichtext&quot;&gt;
+            &lt;text permissions=&quot;prop-default&quot; encoding=&quot;xml&quot; &gt;The &lt;strong&gt;third&lt;/strong&gt; object and a &lt;a class=&quot;salsah-link&quot; href=&quot;IRI:obj_0003:IRI&quot;&gt;link&lt;/a&gt; to.&lt;/text&gt;
+        &lt;/text-prop&gt;
+        &lt;!-- --&gt;
+        &lt;text-prop name=&quot;:hasText&quot;&gt;
+            &lt;text permissions=&quot;prop-default&quot; encoding=&quot;utf8&quot;&gt;Dies ist ein einfacher Text ohne Markup&lt;/text&gt;
+            &lt;text permissions=&quot;prop-restricted&quot; encoding=&quot;utf8&quot;&gt;Nochmals ein einfacher Text&lt;/text&gt;
+        &lt;/text-prop&gt;
+        &lt;date-prop name=&quot;:hasDate&quot;&gt;
+            &lt;date permissions=&quot;prop-default&quot; &gt;JULIAN:CE:1401-05-17:CE:1402-01&lt;/date&gt;
+        &lt;/date-prop&gt;
+        &lt;integer-prop name=&quot;:hasInteger&quot;&gt;
+            &lt;integer permissions=&quot;prop-default&quot;&gt;4711&lt;/integer&gt;
+        &lt;/integer-prop&gt;
+        &lt;decimal-prop name=&quot;:hasDecimal&quot;&gt;
+            &lt;decimal permissions=&quot;prop-default&quot; comment=&quot;Eulersche Zahl&quot;&gt;2.718281828459&lt;/decimal&gt;
+        &lt;/decimal-prop&gt;
+        &lt;boolean-prop name=&quot;:hasBoolean&quot;&gt;
+            &lt;boolean permissions=&quot;prop-default&quot;&gt;true&lt;/boolean&gt;
+        &lt;/boolean-prop&gt;
+        &lt;uri-prop name=&quot;:hasUri&quot;&gt;
+            &lt;uri permissions=&quot;prop-default&quot;&gt;http://dasch.swiss/gaga&lt;/uri&gt;
+        &lt;/uri-prop&gt;
+        &lt;interval-prop name=&quot;:hasInterval&quot;&gt;
+            &lt;interval permissions=&quot;prop-default&quot;&gt;12.5:14.2&lt;/interval&gt;
+        &lt;/interval-prop&gt;
+        &lt;color-prop name=&quot;:hasColor&quot;&gt;
+            &lt;color permissions=&quot;prop-default&quot;&gt;#00ff00&lt;/color&gt;
+        &lt;/color-prop&gt;
+        &lt;geometry-prop name=&quot;:hasGeometry&quot;&gt;
+            &lt;geometry permissions=&quot;prop-default&quot;&gt;
+                {
+                    &quot;status&quot;:&quot;active&quot;,
+                    &quot;lineColor&quot;:&quot;#ff3333&quot;,
+                    &quot;lineWidth&quot;:2,
+                    &quot;points&quot;:[
+                        {&quot;x&quot;:0.08098591549295775,&quot;y&quot;:0.16741071428571427},
+                        {&quot;x&quot;:0.7394366197183099,&quot;y&quot;:0.7299107142857143}],
+                    &quot;type&quot;:&quot;rectangle&quot;,
+                    &quot;original_index&quot;:0
+                }
+            &lt;/geometry&gt;
+        &lt;/geometry-prop&gt;
+        &lt;geoname-prop name=&quot;:hasGeoname&quot;&gt;
+            &lt;geoname permissions=&quot;prop-default&quot; comment=&quot;A sacred place for railroad fans&quot;&gt;5416656&lt;/geoname&gt;
+        &lt;/geoname-prop&gt;
+        &lt;resptr-prop name=&quot;:hasBlueThing&quot;&gt;
+            &lt;resptr permissions=&quot;prop-default&quot;&gt;obj_0002&lt;/resptr&gt;
+        &lt;/resptr-prop&gt;
+         &lt;!-- --&gt;
+    &lt;/resource&gt;
+
+    &lt;resource label=&quot;obj_inst2&quot;
+              restype=&quot;:BlueThing&quot;
+              id=&quot;obj_0002&quot;
+              permissions=&quot;res-default&quot;&gt;
+        &lt;list-prop list=&quot;treelistroot&quot; name=&quot;:hasListItem&quot;&gt;
+            &lt;list permissions=&quot;prop-default&quot;&gt;Tree list node 10&lt;/list&gt;
+        &lt;/list-prop&gt;
+        &lt;list-prop list=&quot;treelistroot&quot; name=&quot;:hasOtherListItem&quot;&gt;
+            &lt;list permissions=&quot;prop-default&quot;&gt;Tree list node 11&lt;/list&gt;
+        &lt;/list-prop&gt;
+        &lt;text-prop name=&quot;:hasRichtext&quot;&gt;
+            &lt;text permissions=&quot;prop-default&quot; encoding=&quot;xml&quot;&gt;What is this &lt;em&gt;bold&lt;/em&gt; thing?&lt;/text&gt;
+        &lt;/text-prop&gt;
+        &lt;text-prop name=&quot;:hasText&quot;&gt;
+            &lt;text permissions=&quot;prop-default&quot; encoding=&quot;utf8&quot;&gt;aa bbb cccc ddddd&lt;/text&gt;
+        &lt;/text-prop&gt;
+        &lt;date-prop name=&quot;:hasDate&quot;&gt;
+            &lt;date permissions=&quot;prop-default&quot; &gt;1888&lt;/date&gt;
+        &lt;/date-prop&gt;
+        &lt;integer-prop name=&quot;:hasInteger&quot;&gt;
+            &lt;integer permissions=&quot;prop-default&quot;&gt;42&lt;/integer&gt;
+        &lt;/integer-prop&gt;
+        &lt;decimal-prop name=&quot;:hasDecimal&quot;&gt;
+            &lt;decimal permissions=&quot;prop-default&quot; comment=&quot;Die Zahl PI&quot;&gt;3.14159&lt;/decimal&gt;
+        &lt;/decimal-prop&gt;
+        &lt;boolean-prop name=&quot;:hasBoolean&quot;&gt;
+            &lt;boolean permissions=&quot;prop-default&quot;&gt;false&lt;/boolean&gt;
+        &lt;/boolean-prop&gt;
+        &lt;uri-prop name=&quot;:hasUri&quot;&gt;
+            &lt;uri permissions=&quot;prop-default&quot;&gt;http://unibas.ch/gugus&lt;/uri&gt;
+        &lt;/uri-prop&gt;
+        &lt;interval-prop name=&quot;:hasInterval&quot;&gt;
+            &lt;interval permissions=&quot;prop-default&quot;&gt;24:100.075&lt;/interval&gt;
+        &lt;/interval-prop&gt;
+        &lt;color-prop name=&quot;:hasColor&quot;&gt;
+            &lt;color permissions=&quot;prop-default&quot;&gt;#33ff77&lt;/color&gt;
+        &lt;/color-prop&gt;
+        &lt;geometry-prop name=&quot;:hasGeometry&quot;&gt;
+            &lt;geometry permissions=&quot;prop-default&quot;&gt;
+                {
+                    &quot;status&quot;:&quot;active&quot;,
+                    &quot;lineColor&quot;:&quot;#ff3333&quot;,
+                    &quot;lineWidth&quot;:2,
+                    &quot;points&quot;:[
+                        {&quot;x&quot;:0.08098591549295775,&quot;y&quot;:0.16741071428571427},
+                        {&quot;x&quot;:0.7394366197183099,&quot;y&quot;:0.7299107142857143}],
+                    &quot;type&quot;:&quot;rectangle&quot;,
+                    &quot;original_index&quot;:0
+                }
+            &lt;/geometry&gt;
+        &lt;/geometry-prop&gt;
+        &lt;geoname-prop name=&quot;:hasGeoname&quot;&gt;
+            &lt;geoname permissions=&quot;prop-default&quot; comment=&quot;A sacred place for railroad fans&quot;&gt;5416656&lt;/geoname&gt;
+        &lt;/geoname-prop&gt;
+        &lt;resptr-prop name=&quot;:hasBlueThing&quot;&gt;
+            &lt;resptr permissions=&quot;prop-default&quot;&gt;obj_0003&lt;/resptr&gt;
+        &lt;/resptr-prop&gt;
+    &lt;/resource&gt;
+
+    &lt;resource label=&quot;obj_inst3&quot;
+              restype=&quot;:BlueThing&quot;
+              id=&quot;obj_0003&quot;
+              permissions=&quot;res-default&quot;&gt;
+        &lt;list-prop list=&quot;treelistroot&quot; name=&quot;:hasListItem&quot;&gt;
+            &lt;list permissions=&quot;prop-default&quot;&gt;Tree list node 01&lt;/list&gt;
+        &lt;/list-prop&gt;
+        &lt;list-prop list=&quot;treelistroot&quot; name=&quot;:hasOtherListItem&quot;&gt;
+            &lt;list permissions=&quot;prop-default&quot;&gt;Tree list node 02&lt;/list&gt;
+        &lt;/list-prop&gt;
+        &lt;text-prop name=&quot;:hasRichtext&quot;&gt;
+            &lt;text permissions=&quot;prop-default&quot; encoding=&quot;xml&quot;&gt;This is &lt;em&gt;bold and &lt;strong&gt;string&lt;/strong&gt;&lt;/em&gt; text!&lt;/text&gt;
+        &lt;/text-prop&gt;
+        &lt;text-prop name=&quot;:hasText&quot;&gt;
+            &lt;text permissions=&quot;prop-default&quot; encoding=&quot;utf8&quot;&gt;aa bbb cccc ddddd&lt;/text&gt;
+        &lt;/text-prop&gt;
+        &lt;date-prop name=&quot;:hasDate&quot;&gt;
+            &lt;date permissions=&quot;prop-default&quot; &gt;1888&lt;/date&gt;
+        &lt;/date-prop&gt;
+        &lt;integer-prop name=&quot;:hasInteger&quot;&gt;
+            &lt;integer permissions=&quot;prop-default&quot;&gt;42&lt;/integer&gt;
+        &lt;/integer-prop&gt;
+        &lt;decimal-prop name=&quot;:hasDecimal&quot;&gt;
+            &lt;decimal permissions=&quot;prop-default&quot; comment=&quot;Die Zahl PI&quot;&gt;3.14159&lt;/decimal&gt;
+        &lt;/decimal-prop&gt;
+        &lt;boolean-prop name=&quot;:hasBoolean&quot;&gt;
+            &lt;boolean permissions=&quot;prop-default&quot;&gt;false&lt;/boolean&gt;
+        &lt;/boolean-prop&gt;
+        &lt;uri-prop name=&quot;:hasUri&quot;&gt;
+            &lt;uri permissions=&quot;prop-default&quot;&gt;http://unibas.ch/gugus&lt;/uri&gt;
+        &lt;/uri-prop&gt;
+        &lt;interval-prop name=&quot;:hasInterval&quot;&gt;
+            &lt;interval permissions=&quot;prop-default&quot;&gt;24:100.075&lt;/interval&gt;
+        &lt;/interval-prop&gt;
+        &lt;color-prop name=&quot;:hasColor&quot;&gt;
+            &lt;color permissions=&quot;prop-default&quot;&gt;#33ff77&lt;/color&gt;
+        &lt;/color-prop&gt;
+        &lt;geometry-prop name=&quot;:hasGeometry&quot;&gt;
+            &lt;geometry permissions=&quot;prop-default&quot;&gt;
+                {
+                    &quot;status&quot;:&quot;active&quot;,
+                    &quot;lineColor&quot;:&quot;#ff3333&quot;,
+                    &quot;lineWidth&quot;:2,
+                    &quot;points&quot;:[
+                        {&quot;x&quot;:0.08098591549295775,&quot;y&quot;:0.16741071428571427},
+                        {&quot;x&quot;:0.7394366197183099,&quot;y&quot;:0.7299107142857143}],
+                    &quot;type&quot;:&quot;rectangle&quot;,
+                    &quot;original_index&quot;:0
+                }
+            &lt;/geometry&gt;
+        &lt;/geometry-prop&gt;
+        &lt;geoname-prop name=&quot;:hasGeoname&quot;&gt;
+            &lt;geoname permissions=&quot;prop-default&quot; comment=&quot;A sacred place for railroad fans&quot;&gt;5416656&lt;/geoname&gt;
+        &lt;/geoname-prop&gt;
+    &lt;/resource&gt;
+
+    &lt;resource label=&quot;obj_inst4&quot;
+              restype=&quot;:ThingPicture&quot;
+              id=&quot;obj_0004&quot;
+              permissions=&quot;res-default&quot;&gt;
+        &lt;image&gt;gaga.tif&lt;/image&gt;
+        &lt;text-prop name=&quot;:hasPictureTitle&quot;&gt;
+            &lt;text permissions=&quot;prop-default&quot; encoding=&quot;utf8&quot;&gt;This is the famous Lena&lt;/text&gt;
+        &lt;/text-prop&gt;
+    &lt;/resource&gt;
+
+&lt;/knora&gt;
+
+</code></pre>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        <a href="../dsp-tools-create/" class="md-footer__link md-footer__link--prev" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              JSON data model format
+            </div>
+          </div>
+        </a>
+      
+      
+        <a href="../dsp-tools-excel/" class="md-footer__link md-footer__link--next" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Excel file processing
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../assets/javascripts/workers/search.fe42c31b.min.js", "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.4ea5477f.min.js"></script>
+      
+    
+  </body>
+</html>

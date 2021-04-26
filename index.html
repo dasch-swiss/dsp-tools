@@ -1,0 +1,719 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      <link rel="icon" href="assets/images/dasch-favicon.ico">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.3">
+    
+    
+      
+        <title>dsp-tools Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.e35208c4.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.ef6f36e2.min.css">
+        
+          
+          
+          <meta name="theme-color" content="">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="assets/style/theme.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="deep-blue" data-md-color-accent="deep-blue">
+  
+    
+    <script>function __prefix(e){return new URL(".",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dsp-tools" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="dsp-tools Documentation" class="md-header__button md-logo" aria-label="dsp-tools Documentation" data-md-component="logo">
+      
+  <img src="assets/images/dasch-icon-white.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            dsp-tools Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              dsp-tools
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="dsp-tools Documentation" class="md-nav__button md-logo" aria-label="dsp-tools Documentation" data-md-component="logo">
+      
+  <img src="assets/images/dasch-icon-white.svg" alt="logo">
+
+    </a>
+    dsp-tools Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          dsp-tools
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        dsp-tools
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-an-data-model-on-a-server" class="md-nav__link">
+    Create an data model on a server
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-an-ontology-from-a-server" class="md-nav__link">
+    Get an ontology from a server
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upload-data-to-a-dsp-server" class="md-nav__link">
+    Upload data to a DSP server
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#convert-an-excel-file-for-use-with-dsp-tools" class="md-nav__link">
+    Convert an Excel file for use with dsp tools
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#information-for-developers" class="md-nav__link">
+    Information for Developers
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#makefile" class="md-nav__link">
+    Makefile
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-from-source" class="md-nav__link">
+    Install from source
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    Requirements
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    Testing
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#publishing" class="md-nav__link">
+    Publishing
+  </a>
+  
+    <nav class="md-nav" aria-label="Publishing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#publishing-manually" class="md-nav__link">
+    Publishing Manually
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing-to-the-documentation" class="md-nav__link">
+    Contributing to the documentation
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="dsp-tools-create/" class="md-nav__link">
+        JSON data model format
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="dsp-tools-xmlupload/" class="md-nav__link">
+        Bulk data import
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="dsp-tools-excel/" class="md-nav__link">
+        Excel file processing
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-an-data-model-on-a-server" class="md-nav__link">
+    Create an data model on a server
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-an-ontology-from-a-server" class="md-nav__link">
+    Get an ontology from a server
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upload-data-to-a-dsp-server" class="md-nav__link">
+    Upload data to a DSP server
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#convert-an-excel-file-for-use-with-dsp-tools" class="md-nav__link">
+    Convert an Excel file for use with dsp tools
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#information-for-developers" class="md-nav__link">
+    Information for Developers
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#makefile" class="md-nav__link">
+    Makefile
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-from-source" class="md-nav__link">
+    Install from source
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    Requirements
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    Testing
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#publishing" class="md-nav__link">
+    Publishing
+  </a>
+  
+    <nav class="md-nav" aria-label="Publishing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#publishing-manually" class="md-nav__link">
+    Publishing Manually
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing-to-the-documentation" class="md-nav__link">
+    Contributing to the documentation
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                <p><a href="https://badge.fury.io/py/dsp-tools"><img alt="PyPI version" src="https://badge.fury.io/py/dsp-tools.svg" /></a></p>
+<h1 id="dsp-tools">dsp-tools</h1>
+<p>In order to work with a DaSCH Service Platform server (DSP-server), the user has to create a data
+model (aka <code>ontologies</code>) of her/his data. This data model is defined in a special JSON-file which
+then can be transmitted to the DSP-server. If the DSP-server is aware of the data model, conforming data
+can be uploaded to the server.</p>
+<p>Often, data is initially added in large quantities. Such <code>bulk data imports</code> can also be performed using the
+dsp-tools. For this purpose, the data has first to be converted in a special XML-file that can be read by
+dsp-tools. The dsp-tools program will read this file and upload all data to the DSP-server.</p>
+<p>Thus, the command <code>dsp-tools</code> can be used to upload a data model (ontology) from a JSON file to a DaSCH Service Platform (DSP)
+server, to dump a data model from a DSP server to a JSON file, or to upload data to a DSP server from
+a XML file</p>
+<ul>
+<li><code>dsp-tools create</code> creates a data model. Furthermore, the script reads a JSON file containing the data model 
+  (ontology) definition, connects to the DSP server and creates the data model.</li>
+<li><code>dsp-tools get</code> reads a data model from a server and creates a JSON file that can be used again by
+  <code>dsp-tools create</code> to implement the data model on another server</li>
+<li><code>dsp-tools xmlupload</code> to upload data from a XML file (bulk data import)</li>
+<li><code>dsp-tools excel</code> to convert an Excel-file into a JSON and/or XML file for the <code>create</code> or <code>xmlupload</code> options.</li>
+</ul>
+<h2 id="usage">Usage</h2>
+<h3 id="installation">Installation</h3>
+<p>To install the latest version published on PyPI run:</p>
+<pre><code>$ pip3 install dsp-tools
+</code></pre>
+<p>To update to the latest version run:</p>
+<pre><code>$ pip3 install --upgrade dsp-tools
+</code></pre>
+<h3 id="create-an-data-model-on-a-server">Create an data model on a server</h3>
+<pre><code class="language-bash">$ dsp-tools create [options] data_model_definition.json
+</code></pre>
+<p>The above command line supports the following options:</p>
+<ul>
+<li><em>"-s server" | "--server server"</em>: URL of the DSP server [default: localhost:3333].</li>
+<li><em>"-u username" | "--user username"</em>: Username to log into DSP [default: root@example.com].</li>
+<li><em>"-p password" | "--password password"</em>: Password for login to the DSP server [default: test].</li>
+<li><em>"-V" | "--validate"</em>: If this flag is set, only the validation of the JSON runs.</li>
+<li><em>"-l" | "--lists"</em>: This only creates the lists using a <a href="#json-for-lists">simplified schema</a>. Please note
+  that in this case the project <strong>must</strong> exist.</li>
+<li><em>"-v" | "--verbose"</em>: Print out some information about progress</li>
+</ul>
+<p>This command is used to read a JSON-based definition of an ontology and create it on the
+given DSP-server. So for example you can have the command:</p>
+<pre><code>$ dsp-tools create -s https://api.dsl.server.org data_model_definition.json
+</code></pre>
+<p>which would load the ontology defined in <code>data_model_definition.json</code> onto the server given
+by the <code>-s</code>-options.</p>
+<p>The description about the JSON format can be found <a href="dsp-tools-create/">here</a>. </p>
+<h3 id="get-an-ontology-from-a-server">Get an ontology from a server</h3>
+<pre><code class="language-bash">$ dsp-tools get [options] output-file
+</code></pre>
+<p>The above command line supports the following options:</p>
+<ul>
+<li><em>"-s server" | "--server server"</em>: URL of the Knora server [default: localhost:3333].</li>
+<li><em>"-u username" | "--user username"</em>: Username to log into Knora [default: root@example.com].</li>
+<li><em>"-p password" | "--password password"</em>: Password for login to the Knora server [default: test].</li>
+<li><em>"-P project" | "--project shortcode|shortname|iri"</em>: Shortcode, shortname or iri of project</li>
+<li><em>"-v" | "--verbose"</em>: Print out some information about progress</li>
+</ul>
+<h3 id="upload-data-to-a-dsp-server">Upload data to a DSP server</h3>
+<pre><code class="language-bash">$ dsp-tools xmlupload [options] xml-data-file
+</code></pre>
+<p>This command line uploads all the data defined in the XML file. It supports the following options:</p>
+<ul>
+<li><em>"-s server" | "--server server"</em>: URL of the Knora server [default: http://0.0.0.0:3333].</li>
+<li><em>"-u username" | "--user username"</em>: Username to log into Knora [default: root@example.com].</li>
+<li><em>"-p password" | "--password password"</em>: Password for login to the Knora server [default: test].</li>
+<li><em>"-i dirpath" | "--imgdir"dirpath"</em>: Path to the directory where the bitstream objects are stored [default: "."].</li>
+<li><em>"-s sipiserver" | "--sipi sipiserver"</em>: URL of the SIPI IIIF-server [default: http://0.0.0.0:1024]</li>
+<li><em>"xmlfile"</em>: Path to xml-File containing the data.</li>
+</ul>
+<p>The description about the XML-format for the data is found <a href="dsp-tools-xmlupload/">here</a>.</p>
+<h3 id="convert-an-excel-file-for-use-with-dsp-tools">Convert an Excel file for use with dsp tools</h3>
+<pre><code class="language-bash">$ dsp-tools excel [options] excel-file output-file
+</code></pre>
+<p>The excel command supports the following options:</p>
+<ul>
+<li><em>"-S sheetname" | "--sheet sheetname"</em>: Name of the excel worksheet to use [default: Tabelle1].</li>
+<li><em>"-s shortcode" | "--shortcode shortcode"</em>: The 4 digit hexcode given to the project the list belongs to [required].</li>
+<li><em>"-l listname" | "--listname listname"</em>: Name to be used for the list and to be inserted into thge list definitionfile [required].</li>
+<li><em>"-L label" | "--label label"</em>: The label text to be used for the list [required].</li>
+<li><em>"-x lang" | "--lang lang"</em>: The language the list labels and commentary is given [default: en].</li>
+<li><em>"-v" | "--verbose"</em>: Print out some information about progress.</li>
+<li><em>"excel-file"</em>: Input file in the Excel "*.xlsx"-Format.</li>
+<li><em>"output-file"</em>: Output file containing the JSON-formatted definition of the list.</li>
+</ul>
+<p>A description of the required Excel format is found <a href="dsp-tools-create/#lists-from-excel">here</a>.</p>
+<h2 id="information-for-developers">Information for Developers</h2>
+<h2 id="makefile">Makefile</h2>
+<p>There is a helping <code>Makefile</code> for all of the following tasks (and more).<br />
+It is self-explanatory and a simple <code>make</code> will print its available targets.</p>
+<h2 id="install-from-source">Install from source</h2>
+<p>To install from source, i.e. this repository run:</p>
+<pre><code>$ python3 setup.py install
+</code></pre>
+<h2 id="requirements">Requirements</h2>
+<p>To install the requirements:</p>
+<pre><code class="language-bash">$ pip3 install -r requirements.txt
+</code></pre>
+<p>To generate a "requirements" file (usually requirements.txt), that you commit with your project, do:</p>
+<pre><code class="language-bash">$ pip3 freeze &gt; requirements.txt
+</code></pre>
+<h2 id="testing">Testing</h2>
+<p>Please note that testing requires launching the complete dsp-api stack which is based on docker images.
+Therefore You need to install the <a href="https://www.docker.com/products">docker desktop client</a>.
+Make test will run the complete test suite for dsp-tools.</p>
+<pre><code class="language-bash">make test
+</code></pre>
+<h2 id="publishing">Publishing</h2>
+<p>Publishing is automated with github actions and should <em>not</em> be done manually.</p>
+<p>Ensure to have only one Pull Request per feature, and follow the <a href="https://docs.dasch.swiss/developers/dsp/contribution/#pull-request-guidelines">conventions for commit messages and PR title</a>.</p>
+<p>If this is done correctly, when merging a PR into <code>main</code>, the <code>release-please</code> action will create or update a release-PR.<br />
+This PR will follow semantic versioning and update the change log.<br />
+Once all desired features are merged, the release can be executed by merging the release-PR into <code>main</code>.<br />
+This will trigger actions that create a release on Github, on PyPI and the docs.</p>
+<h3 id="publishing-manually">Publishing Manually</h3>
+<p>Generate distribution package. Make sure you have the latest versions of <code>setuptools</code> and <code>wheel</code> installed:</p>
+<pre><code class="language-bash">$ python3 -m pip install --upgrade pip setuptools wheel
+$ python3 setup.py sdist bdist_wheel
+</code></pre>
+<p>You can install the package locally from the dist:</p>
+<pre><code class="language-bash">$ python3 -m pip ./dist/some_name.whl
+</code></pre>
+<p>Upload package also with <code>make</code>:</p>
+<pre><code class="language-bash">$ make dist
+$ make upload
+</code></pre>
+<p>For local development:</p>
+<pre><code class="language-bash">$ python3 setup.py develop
+</code></pre>
+<h2 id="contributing-to-the-documentation">Contributing to the documentation</h2>
+<p>The documentation is a collection of <a href="https://en.wikipedia.org/wiki/Markdown">markdown</a> in the <code>docs</code> sub-folder.<br />
+After updates, it is possible to build and check the result with the commands:</p>
+<pre><code class="language-bash">$ make build-docs
+$ make serve-docs 
+</code></pre>
+<p>To update the changes to the official documentation pages:</p>
+<pre><code class="language-bash">$ make publish-docs
+</code></pre>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+      
+        <a href="dsp-tools-create/" class="md-footer__link md-footer__link--next" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              JSON data model format
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": ".", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "assets/javascripts/workers/search.fe42c31b.min.js", "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.4ea5477f.min.js"></script>
+      
+    
+  </body>
+</html>

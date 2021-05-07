@@ -12,9 +12,9 @@ jobs:
       # check PR title
       - uses: deepakputhraya/action-pr-title@master
         with:
-          regex: '([a-z])+(\(([a-z\-_])+\))?!?: ([a-zA-Z-\.\d ])+ (\([A-Z]+-\d+\)|\d(\.\d){2}$)' # Regex the title should match.
-          allowed_prefixes: 'fix,refactor,feat,docs,chore,style,test' # title should start with the given prefix
-          disallowed_prefixes: 'feature,hotfix,doc' # title should not start with the given prefix
+          regex: '([a-z])+(\(([a-z\-_ ])+\))?!?: [a-z]([a-zA-Z-\.\d \(\)\[\]#_])+$' # Regex the title should match.
+          allowed_prefixes: "fix,refactor,feat,docs,chore,style,test" # title should start with the given prefix
+          disallowed_prefixes: "feature,hotfix,doc" # title should not start with the given prefix
           prefix_case_sensitive: true # title prefix are case insensitive
           min_length: 7 # Min length of the title
-          max_length: 60 # Max length of the title
+          max_length: 120 # Max length of the title

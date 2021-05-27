@@ -90,7 +90,7 @@ This command line uploads all the data defined in the XML file. It supports the 
 - _"-u username" | "--user username"_: Username to log into Knora [default: root@example.com].
 - _"-p password" | "--password password"_: Password for login to the Knora server [default: test].
 - _"-i dirpath" | "--imgdir"dirpath"_: Path to the directory where the bitstream objects are stored [default: "."].
-- _"-s sipiserver" | "--sipi sipiserver"_: URL of the SIPI IIIF-server [default: http://0.0.0.0:1024]
+- _"-S sipiserver" | "--sipi sipiserver"_: URL of the SIPI IIIF-server [default: http://0.0.0.0:1024]
 - _"xmlfile"_: Path to xml-File containing the data.
 
 The description about the XML-format for the data is found [here](./dsp-tools-xmlupload.md).

@@ -1,15 +1,17 @@
+[![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
+
 # JSON data model definition format
 
 ## Introduction
-This document contains all the information you need to create an data model that's used by DSP. According to
-Wikipedia, da [data model](https://en.wikipedia.org/wiki/Data_model) is "_is an abstract model that organizes elements
+This document contains all the information you need to create a data model that can be used by DSP. According to
+Wikipedia, the [data model](https://en.wikipedia.org/wiki/Data_model) is "_an abstract model that organizes elements
 of data and standardizes how they relate to one another and to the properties of real-world entities._"  Further it
 states: "_A data model explicitly determines the structure of data. Data models are typically specified by a data
-specialist, data librarian, or a digital humanities scholar in a data modeling notation_". In this section we will 
-describe one of the notations that is used by the _dsp-tools_ to create a data model in the dsp repository. The dsp
-repository is loosely based on [Linked Open Data](https://en.wikipedia.org/wiki/Linked_data) where also the term
-_"ontology"_ is used for the data model. It should be noted that in this context an ontology is not used in the
-philosophical sense.
+specialist, data librarian, or a digital humanities scholar in a data modeling notation_".
+
+In this section, we will describe one of the notations that is used by dsp-tools to create a data model in the DSP
+repository. The DSP repository is loosely based on [Linked Data](https://en.wikipedia.org/wiki/Linked_data) where also
+the term _ontology_ is used.
 
 In the first section you find a rough overview of the data model definition, all the necessary components with a 
 definition and a short example of the definition.
@@ -41,9 +43,8 @@ A complete data model definition looks like this:
 }
 ```
 As you can see, only two umbrella terms define our ontology: the "prefixes" object and the "project" object. In the 
-following we take a deeper look into both of them since, as you can see in the example above, 
-both objects have further fine grained definition levels.
-
+following we take a deeper look into both of them since, as you can see in the example above, both objects have further
+fine-grained definition levels.
 
 ### "Prefixes" object
 `"prefixes": { "prefix": <iri>", ...}`  
@@ -54,7 +55,7 @@ a shortcut for later so that you don't always have to specify the full qualified
 keyword instead. That means that e.g. instead of addressing a property called "familyname" via 
 `http://xmlns.com/foaf/0.1/familyName` you can simply use foaf:familyName. 
 
-As you can see in the example below, you can have more then one prefix too. In the example we have "foaf" as well as 
+As you can see in the example below, you can have more than one prefix too. In the example we have "foaf" as well as 
 "dcterms" as our prefixes.
 
 ```json
@@ -92,19 +93,21 @@ used, it must be omitted):
 So a simple example definition of the "project" object could look like this:
   
 ```json
-"project": {
-   "shortcode": "0809",
-   "shortname": "test" ,
-   "longname": "Test Example",
-   "descriptions": {
-     "en": "This is a simple example project",
-     "de": "Dies ist ein einfaches Beispielprojekt"
-   }
-   "keywords": ["example", "simple"],
-   "lists": […],
-   "groups": […],
-   "users": […],
-   "ontology": […]
+{
+  "project": {
+     "shortcode": "0809",
+     "shortname": "test" ,
+     "longname": "Test Example",
+     "descriptions": {
+       "en": "This is a simple example project",
+       "de": "Dies ist ein einfaches Beispielprojekt"
+     },
+     "keywords": ["example", "simple"],
+     "lists": [],
+     "groups": [],
+     "users": [],
+     "ontology": []
+  }
 }
 ```
 
@@ -212,7 +215,6 @@ example a classification of disciplines in the Humanities might look like follow
     - Ontology
     - Philosophy of mind
     - Teleology
-
   
 DSP allows to define such controlled vocabularies or thesauri. They can be arranged "flat" or in "hierarchies" (as the
 given example about the disciplines in Humanities is). The definition of these entities are called "lists" in the DSP. Thus, the 
@@ -250,8 +252,8 @@ A resource can be assigned to a taxonomic node within its properties. So a resou
 title "La Traviata" would have the property/attribute "musical-genre" with the value "Grand opera". Within the DSP,
 each property or attribute has an assigned cardinality. Sometimes, a taxonomy allows that an object may belong to 
 different categories at the same time (e.g. an image which depicts several categories at the same time). In these cases,
-a cardinality &gt; 1 allows to add multiple attributes
-of the same time. See further below the description of the [cardinalities](#cardinalities)
+a cardinality &gt; 1 allows to add multiple attributes of the same time. See further below the description of the
+[cardinalities](#cardinalities).
 
 A node of the Taxonomy may have the following elements:
 
@@ -270,71 +272,73 @@ Each list must have exactely one root node which has the same form bu denotes th
 Here is an example on how to build a taxonomic structure with the help of JSON:
 
 ```json
-"lists": [
-  {
-    "name": "my_list",
-    "labels": {"en": "Disciplines of the Humanities"},
-    "comments": {"en": "This ist is just a silly example", "fr": "un example un peu fou"},
-    "nodes": [
-      {
-        "name": "node_1_1",
-        "labels": {"en": "Performing arts"},
-        "comments": {"en": "Arts that are events", "de": "Künste mit performativem Character"},
-        "nodes": [
-            {
-            "name": "node_2_2",
-            "labels": {"en": "Music"},
-            "nodes": [
+{
+  "lists": [
+    {
+      "name": "my_list",
+      "labels": {"en": "Disciplines of the Humanities"},
+      "comments": {"en": "This ist is just a silly example", "fr": "un example un peu fou"},
+      "nodes": [
+        {
+          "name": "node_1_1",
+          "labels": {"en": "Performing arts"},
+          "comments": {"en": "Arts that are events", "de": "Künste mit performativem Character"},
+          "nodes": [
               {
-                "name": "node_3_3",
-                "labels": {"en": "Chamber music"}
-              },
-              {
-                "name": "node_4_3",
-                "labels": {"en": "Church music"}
-              },
-              {
-                "name": "node_5_3",
-                "labels": {"en": "Conducting"},
-                "nodes": [
-                  {
-                    "name": "node_6_4",
-                    "labels": {"en": "Choirs"}
-                  },
-                  {
-                    "name": "node_7_4",
-                    "labels": {"en": "Orchestras"}
-                  }
-                ]
-              },
-              {
-                "name": "node_8_3",
-                "labels": { "en": "Music history" }
-              },
-              {
-                "name": "node_9_3",
-                "labels": {"en": "Musictheory"}
-              },
-              {
-                "name": "node_10_3",
-                "labels": {"en": "Musicology"
-              },
-              {
-                "name": "node_11_3",
-                "labels": {"en": "Jazz"}
-              },
-              {
-                "name": "node_12_3",
-                "labels": {"en": "Pop/Rock/Blues"}
-              }
-            ]
-          }
-        ]
-      },
-      {...},{...}
-    ]
-  }
-]
+              "name": "node_2_2",
+              "labels": {"en": "Music"},
+              "nodes": [
+                {
+                  "name": "node_3_3",
+                  "labels": {"en": "Chamber music"}
+                },
+                {
+                  "name": "node_4_3",
+                  "labels": {"en": "Church music"}
+                },
+                {
+                  "name": "node_5_3",
+                  "labels": {"en": "Conducting"},
+                  "nodes": [
+                    {
+                      "name": "node_6_4",
+                      "labels": {"en": "Choirs"}
+                    },
+                    {
+                      "name": "node_7_4",
+                      "labels": {"en": "Orchestras"}
+                    }
+                  ]
+                },
+                {
+                  "name": "node_8_3",
+                  "labels": { "en": "Music history" }
+                },
+                {
+                  "name": "node_9_3",
+                  "labels": {"en": "Musictheory"}
+                },
+                {
+                  "name": "node_10_3",
+                  "labels": {"en": "Musicology"}
+                },
+                {
+                  "name": "node_11_3",
+                  "labels": {"en": "Jazz"}
+                },
+                {
+                  "name": "node_12_3",
+                  "labels": {"en": "Pop/Rock/Blues"}
+                }
+              ]
+            }
+          ]
+        },
+        {},{}
+      ]
+    }
+  ]
+}
 ```
 #### Lists from Excel
 
@@ -345,17 +349,16 @@ language is supported):
 
 In such a case, the excel-file can directly be referenced in the list definition by defining a special list node:
 ```json
-      {
-        "name": "fromexcel",
-        "labels": {
-          "en": "Fromexcel"
-        },
-        "nodes": {
-          "file": "excel-list.xlsx",
-          "worksheet": "Tabelle1"
-        }
-      }
-
+{
+  "name": "fromexcel",
+  "labels": {
+    "en": "Fromexcel"
+  },
+  "nodes": {
+    "file": "excel-list.xlsx",
+    "worksheet": "Tabelle1"
+  }
+}
 ```
 The nodes section then must contain the fields
 
@@ -367,7 +370,6 @@ lower case character and the other words starting with an upper case character. 
 become the name `chamberMusic`. _Please note that the label must be unqiue for one list. If in a hierarchical list the
 same label is used several times, the nodename will be expanded by adding underlines "_" at the end until the name is
 unique_.
-
 
 As already mentioned before, the _lists_ element is optional. If there are no lists, this element has to be omitted.
 
@@ -385,15 +387,16 @@ A _group_-defintion has the following elements:
 
 Example:
 ```json
-    "groups": [
-      {
-        "name": "biz-editors",
-        "description": "Editors for the BiZ-project",
-        "selfjoin": false,
-        "status": true
-      }
-    ],
-
+{
+  "groups": [
+    {
+      "name": "biz-editors",
+      "description": "Editors for the BiZ-project",
+      "selfjoin": false,
+      "status": true
+    }
+  ]
+}
 ```
 The _groups_ element is optional and can therefore be left out.
 
@@ -415,19 +418,25 @@ This object contains _user_-definitions. You can set user traits here. A user ha
 
 Example:
 ```json
-    "users": [
-      {
-        "username": "bizedit",
-        "email": "bizedit@test.org",
-        "givenName": "biz-given",
-        "familyName": "biz-family",
-        "password": "biz1234",
-        "lang": "en",
-        "groups": [":biz-editors"],
-        "projects": [":admin","anything:member"]
-      }
-    ],
-
+{
+  "users": [
+    {
+      "username": "bizedit",
+      "email": "bizedit@test.org",
+      "givenName": "biz-given",
+      "familyName": "biz-family",
+      "password": "biz1234",
+      "lang": "en",
+      "groups": [
+        ":biz-editors"
+      ],
+      "projects": [
+        ":admin",
+        "anything:member"
+      ]
+    }
+  ]
+}
 ```
 The _users_ element is optional and can therefore be omitted.
 
@@ -474,16 +483,17 @@ well as the dependencies inside our ontology. They are:
 
 Example:
 ```json
-    "ontologies": [
-       {
-          "name": "seworon",
-          "label": "Secrets of the world ontology",
-          "properties": [...],
-          "resources": [...]
-       },
-       {...},
-       ...
-    ]
+{
+  "ontologies": [
+    {
+      "name": "seworon",
+      "label": "Secrets of the world ontology",
+      "properties": [],
+      "resources": []
+    },
+    {},{}
+  ]
+}
 ```
 Now lets see what each field does.
 
@@ -923,34 +933,35 @@ In this case the qualified name - including the prefix of the external or intern
     the pages in a bokk (independent of the page naming) 
 
 To sum the `Properties` section up, here we have an example for a complete properties definition:
-````json
-        "properties": [
-          {
-            "name": "schulcode",
-            "object": "TextValue",
-            "labels": {
-              "de": "Schulcode"
-            },
-            "gui_element": "SimpleText",
-            "gui_attributes": {
-              "size": 32,
-              "maxlength": 128
-            }
-          },
-          {
-            "name": "schulname",
-            "object": "TextValue",
-            "labels": {
-              "de": "Name der Schule"
-            },
-            "gui_element": "SimpleText",
-            "gui_attributes": {
-              "size": 32,
-              "maxlength": 128
-            }
-          }
-        ]
-
+```json
+{
+  "properties": [
+    {
+      "name": "schulcode",
+      "object": "TextValue",
+      "labels": {
+        "de": "Schulcode"
+      },
+      "gui_element": "SimpleText",
+      "gui_attributes": {
+        "size": 32,
+        "maxlength": 128
+      }
+    },
+    {
+      "name": "schulname",
+      "object": "TextValue",
+      "labels": {
+        "de": "Name der Schule"
+      },
+      "gui_element": "SimpleText",
+      "gui_attributes": {
+        "size": 32,
+        "maxlength": 128
+      }
+    }
+  ]
+}
 ````
 
 #### Resources
@@ -1023,37 +1034,39 @@ saved in this array
    
 Example for a resource definition:
 ```json
-"resources": [
-          {
-            "name": "Schule",
-            "super": "Resource",
-            "labels": {
-              "de": "Schule"
-            },
-            "cardinalities": [
-              {
-                "propname": ":schulcode",
-                "gui_order": 1,
-                "cardinality": "1"
-              },
-              {
-                "propname": ":schulname",
-                "gui_order": 2,
-                "cardinality": "1"
-              },
-              {
-                "propname": ":bildungsgang",
-                "gui_order": 3,
-                "cardinality": "1"
-              }
-            ]
-          }]
+{
+  "resources": [
+    {
+      "name": "Schule",
+      "super": "Resource",
+      "labels": {
+        "de": "Schule"
+      },
+      "cardinalities": [
+        {
+          "propname": ":schulcode",
+          "gui_order": 1,
+          "cardinality": "1"
+        },
+        {
+          "propname": ":schulname",
+          "gui_order": 2,
+          "cardinality": "1"
+        },
+        {
+          "propname": ":bildungsgang",
+          "gui_order": 3,
+          "cardinality": "1"
+        }
+      ]
+    }
+  ]
+}
 ```
 
-# Fully fleshed out example ontology
-
-Finally, we show a complete example of an ontology definition. 
-```
+## Fully fleshed out example ontology
+Finally, here is a complete example of an ontology definition:
+```json
 {
     "prefixes": {
         "foaf": "http://xmlns.com/foaf/0.1/",

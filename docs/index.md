@@ -1,210 +1,226 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
 # dsp-tools
-In order to work with a DaSCH Service Platform server (DSP-server), the user has to create a data
-model (aka `ontologies`) of her/his data. This data model is defined in a special JSON-file which
-then can be transmitted to the DSP-server. If the DSP-server is aware of the data model, conforming data
-can be uploaded to the server.
+dsp-tools is a command line tool that helps you interact with the DaSCH Service Platform server (DSP server).
 
-Often, data is initially added in large quantities. Such `bulk data imports` can also be performed using the
-dsp-tools. For this purpose, the data has first to be converted in a special XML-file that can be read by
-dsp-tools. The dsp-tools program will read this file and upload all data to the DSP-server.
+In order to archive your data on the DaSCH Service Platform, you need a data model (ontology) that describes your data.
+The data model is defined in a JSON file which has to be transmitted to the DSP server. If the DSP server is aware of
+the data model for your project, conforming data can be uploaded into the DSP repository.
 
-Thus, the command `dsp-tools` can be used to upload a data model (ontology) from a JSON file to a DaSCH Service Platform (DSP)
-server, to dump a data model from a DSP server to a JSON file, or to upload data to a DSP server from
-a XML file
+Often, data is initially added in large quantities. Therefore, dsp-tools allows you to perform bulk imports of your data.
+In order to do so, the data has to be described in an XML file. dsp-tools is able to read the XML file and upload all data
+to the DSP server.
 
-- `dsp-tools create` creates a data model. Furthermore, the script reads a JSON file containing the data model 
-  (ontology) definition, connects to the DSP server and creates the data model.
-- `dsp-tools get` reads a data model from a server and creates a JSON file that can be used again by
-  `dsp-tools create` to implement the data model on another server
-- `dsp-tools xmlupload` to upload data from a XML file (bulk data import)
-- `dsp-tools excel` to convert an Excel-file into a JSON and/or XML file for the `create` or `xmlupload` options.
+dsp-tools helps you with the following tasks:
+
+- `dsp-tools create` creates the data model (ontology) on a DSP server from a provided JSON file containing the data
+  model.
+- `dsp-tools get` reads a data model from a DSP server and writes it into a JSON file.
+- `dsp-tools xmlupload` uploads data from a provided XML file (bulk data import).
+- `dsp-tools excel` converts an Excel file into a JSON and/or XML file in order to use it with `dsp-tools create` or
+  `dsp-tools xmlupload` (not yet implemented) or converts a list from an Excel file into a JSON file which than can be
+  used in an ontology.
 
 ## Usage
 
 ### Installation
 
-To install the latest version published on PyPI run:
+To install the latest version run:
+
 ```
-$ pip3 install dsp-tools
+pip3 install dsp-tools
 ```
 
 To update to the latest version run:
+
 ```
-$ pip3 install --upgrade dsp-tools
+pip3 install --upgrade dsp-tools
 ```
 
-
-
-### Create an data model on a server
+### Create a data model on a DSP server
 
 ```bash
-$ dsp-tools create [options] data_model_definition.json
+dsp-tools create [options] data_model_definition.json
 ```
-The above command line supports the following options:
 
-- _"-s server" | "--server server"_: URL of the DSP server [default: localhost:3333].
-- _"-u username" | "--user username"_: Username to log into DSP [default: root@example.com].
-- _"-p password" | "--password password"_: Password for login to the DSP server [default: test].
-- _"-V" | "--validate"_: If this flag is set, only the validation of the JSON runs.
-- _"-l" | "--lists"_: This only creates the lists using a [simplified schema](#json-for-lists). Please note
-  that in this case the project __must__ exist.
-- _"-v" | "--verbose"_: Print out some information about progress
+The following options are available:
+
+- -s | --server _server_: URL of the DSP server (default: localhost:3333)
+- -u | --user _username_: username used for authentication with the DSP API (default: root@example.com)
+- -p | --password _password_: password used for authentication with the DSP API (default: test)
+- -V | --validate: If set, only the validation of the JSON file is performed.
+- -l | --lists: If set, only the lists are created using a [simplified schema](./dsp-tools-create.md#lists). Please note
+  that in this case the project must already exist.
+- -v | --verbose: If set, some information about the progress is printed to the console.
   
-This command is used to read a JSON-based definition of an ontology and create it on the
-given DSP-server. So for example you can have the command:
-
-```
-$ dsp-tools create -s https://api.dsl.server.org data_model_definition.json
-```
-
-which would load the ontology defined in `data_model_definition.json` onto the server given
-by the `-s`-options.
-
-The description about the JSON format can be found [here](./dsp-tools-create.md). 
-
-### Get an ontology from a server
+The command is used to read the definition of a data model (provided in a JSON file) and create it on the
+DSP server. The following example shows how to load the ontology defined in `data_model_definition.json` onto the DSP
+server `https://api.dsl.server.org` provided with the `-s` option. The username `root@example.com` and the password
+  `test` are used.
 
 ```bash
-$ dsp-tools get [options] output-file
+dsp-tools create -s https://api.dsl.server.org -u root@example.com -p test data_model_definition.json
 ```
 
-The above command line supports the following options:
+The description of the expected JSON format can be found [here](./dsp-tools-create.md). 
 
-- _"-s server" | "--server server"_: URL of the Knora server [default: localhost:3333].
-- _"-u username" | "--user username"_: Username to log into Knora [default: root@example.com].
-- _"-p password" | "--password password"_: Password for login to the Knora server [default: test].
-- _"-P project" | "--project shortcode|shortname|iri"_: Shortcode, shortname or iri of project
-- _"-v" | "--verbose"_: Print out some information about progress
+### Get a data model from a DSP server
+
+```bash
+dsp-tools get [options] output_file.json
+```
+
+The following options are available:
+
+- -s | --server _server_: URL of the DSP server (default: localhost:3333)
+- -u | --user _username_: username used for authentication with the DSP API (default: root@example.com)
+- -p | --password _password_: password used for authentication with the DSP API (default: test)
+- -P | --project _shortcode_ | _shortname_ | _iri_: shortcode, shortname or
+  [IRI](https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier) of the project
+- -v | --verbose: If set, some information about the progress is printed to the console.
+
+The command is used to get the definition of a data model from a DSP server and write it into a JSON file. This JSON file
+could then be used to upload the data model to another DSP server. The following example shows how to get the data model
+from a DSP server `https://api.dsl.server.org` provided with the `-s` option. The username `root@example.com` and the
+password `test` are used. The data model is saved into the output file `output_file.json`.
+
+```bash
+dsp-tools get -s https://api.dsl.server.org -u root@example.com -p test output_file.json
+```
 
 ### Upload data to a DSP server
 
 ```bash
-$ dsp-tools xmlupload [options] xml-data-file
+dsp-tools xmlupload [options] xml_data_file.xml
 ```
 
-This command line uploads all the data defined in the XML file. It supports the following options:
+The following options are available:
 
-- _"-s server" | "--server server"_: URL of the Knora server [default: http://0.0.0.0:3333].
-- _"-u username" | "--user username"_: Username to log into Knora [default: root@example.com].
-- _"-p password" | "--password password"_: Password for login to the Knora server [default: test].
-- _"-i dirpath" | "--imgdir"dirpath"_: Path to the directory where the bitstream objects are stored [default: "."].
-- _"-S sipiserver" | "--sipi sipiserver"_: URL of the SIPI IIIF-server [default: http://0.0.0.0:1024]
-- _"xmlfile"_: Path to xml-File containing the data.
+- -s | --server _server_: URL of the DSP server (default: localhost:3333)
+- -u | --user _username_: username used for authentication with the DSP API (default: root@example.com)
+- -p | --password _password_: password used for authentication with the DSP API (default: test)
+- -i | --imgdir _dirpath_: path to the directory where the bitstream objects are stored (default: .)
+- -S | --sipi _SIPIserver_: URL of the SIPI IIIF server (default: http://0.0.0.0:1024)
 
-The description about the XML-format for the data is found [here](./dsp-tools-xmlupload.md).
-    
-### Convert an Excel file for use with dsp tools
+The command is used to upload data defined in an XML file onto a DSP server. The following example shows how to upload
+data from an XML file `xml_data_file.xml` onto the DSP server `https://api.dsl.server.org` provided with the `-s` option.
+The username `root@example.com` and the password `test` are used. The interface for the SIPI IIIF server is provided
+with the `-S` option (`https://iiif.dsl.server.org`).
 
 ```bash
-$ dsp-tools excel [options] excel-file output-file
+dsp-tools xmlupload -s https://api.dsl.server.org -u root@example.com -p test -S https://iiif.dsl.server.org xml_data_file.xml
 ```
 
-The excel command supports the following options:
+The description of the expected XML format can be found [here](./dsp-tools-xmlupload.md). 
 
-- _"-S sheetname" | "--sheet sheetname"_: Name of the excel worksheet to use [default: Tabelle1].
-- _"-s shortcode" | "--shortcode shortcode"_: The 4 digit hexcode given to the project the list belongs to [required].
-- _"-l listname" | "--listname listname"_: Name to be used for the list and to be inserted into thge list definitionfile [required].
-- _"-L label" | "--label label"_: The label text to be used for the list [required].
-- _"-x lang" | "--lang lang"_: The language the list labels and commentary is given [default: en].
-- _"-v" | "--verbose"_: Print out some information about progress.
-- _"excel-file"_: Input file in the Excel "*.xlsx"-Format.
-- _"output-file"_: Output file containing the JSON-formatted definition of the list.
-
-A description of the required Excel format is found [here](./dsp-tools-create.md#lists-from-excel).
-
-## Information for Developers
-
-## Makefile
-
-There is a helping `Makefile` for all of the following tasks (and more).  
-It is self-explanatory and a simple `make` will print its available targets.
-
-## Install from source
-
-To install from source, i.e. this repository run:
-```
-$ python3 setup.py install
-```
-
-## Requirements
-
-To install the requirements:
+### Convert an Excel file into a JSON file that is compatible with dsp-tools
 
 ```bash
-$ pip3 install -r requirements.txt
+dsp-tools excel [options] excel_file.xlsx output_file.json
 ```
 
+The following options are available:
 
-To generate a "requirements" file (usually requirements.txt), that you commit with your project, do:
+- -S | --sheet _sheetname_: name of the Excel worksheet to use (default: Tabelle1)
+- -s | --shortcode _shortcode_: shortcode of the project (required)
+- -l | --listname _listname_: name to be used for the list and the list definition file (required)
+- -L | --label _label_: label to be used for the list (required)
+- -x | --lang _lang_: language used for the list labels and commentaries (default: en)
+- -v | --verbose: If set, some information about the progress is printed to the console.
+
+The description of the expected Excel format can be found [here](./dsp-tools-create.md#lists-from-excel).
+
+## Information for developers
+
+### Makefile
+
+There is a `Makefile` for all the following tasks (and more). Type `make` to print the available targets.
+
+### Install from source
+
+To install from source run:
+```bash
+python3 setup.py install
+```
+
+### Requirements
+
+To install the requirements run:
 
 ```bash
-$ pip3 freeze > requirements.txt
+pip3 install -r requirements.txt
 ```
 
-## Testing
-Please note that testing requires launching the complete dsp-api stack which is based on docker images.
-Therefore You need to install the [docker desktop client](https://www.docker.com/products).
-Make test will run the complete test suite for dsp-tools.
+To generate a requirements file (usually requirements.txt), that you commit with your project, run:
+
+```bash
+pip3 freeze > requirements.txt
+```
+
+### Testing
+Please note that testing requires launching the complete DSP API stack which is based on docker images. Therefore, we
+recommend installing the [docker desktop client](https://www.docker.com/products).
+
+To run the complete test suite:
 
 ```bash
 make test
 ```
 
-## Publishing
+### Publishing
 
-Publishing is automated with github actions and should _not_ be done manually.
+Publishing is automated with GitHub Actions and should _not_ be done manually. Please follow the
+[Pull Request Guidelines](https://docs.dasch.swiss/developers/dsp/contribution/#pull-request-guidelines). If done
+correctly, when merging a pull request into `main`, the `release-please` action will create or update a pull request for
+a release. This pull request will follow semantic versioning and update the change log. Once all desired features are
+merged, the release can be executed by merging this release pull request into `main`. This will trigger actions that
+create a release on GitHub, on PyPI and the docs.
 
-Ensure to have only one Pull Request per feature, and follow the [conventions for commit messages and PR title](https://docs.dasch.swiss/developers/dsp/contribution/#pull-request-guidelines).
+Please ensure you have only one pull request per feature.
 
-If this is done correctly, when merging a PR into `main`, the `release-please` action will create or update a release-PR.  
-This PR will follow semantic versioning and update the change log.  
-Once all desired features are merged, the release can be executed by merging the release-PR into `main`.  
-This will trigger actions that create a release on Github, on PyPI and the docs.
+### Publishing manually
 
+Publishing is automated with GitHub Actions and should _not_ be done manually. If you still need to do it, follow the
+steps below.
 
-### Publishing Manually
-
-Generate distribution package. Make sure you have the latest versions of `setuptools` and `wheel` installed:
+Generate the distribution package. Make sure you have the latest versions of `setuptools` and `wheel` installed:
 
 ```bash
-$ python3 -m pip install --upgrade pip setuptools wheel
-$ python3 setup.py sdist bdist_wheel
+python3 -m pip install --upgrade pip setuptools wheel
+python3 setup.py sdist bdist_wheel
 ```
 
 You can install the package locally from the dist:
 
 ```bash
-$ python3 -m pip ./dist/some_name.whl
+python3 -m pip ./dist/some_name.whl
 ```
 
-Upload package also with `make`:
+Upload package works also with `make`:
 
 ```bash
-$ make dist
-$ make upload
+make dist
+make upload
 ```
 
 For local development:
 
 ```bash
-$ python3 setup.py develop
+python3 setup.py develop
 ```
 
-## Contributing to the documentation
+### Contributing to the documentation
 
-The documentation is a collection of [markdown](https://en.wikipedia.org/wiki/Markdown) in the `docs` sub-folder.  
-After updates, it is possible to build and check the result with the commands:
+The documentation is a collection of [markdown](https://en.wikipedia.org/wiki/Markdown) files in the `docs` folder.  
+After updates of the files, build and check the result with the following commands:
 
 ```bash
-$ make build-docs
-$ make serve-docs 
+make build-docs
+make serve-docs 
 ```
 
-To update the changes to the official documentation pages:
+To update the changes to the official documentation pages run:
 
 ```bash
-$ make publish-docs
+make publish-docs
 ```
-

@@ -710,7 +710,7 @@ images or moving images.
   "maxlength=integer" and "size=integer" are optional.  
     - _gui_attributes_:
         - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer"` (optional): The size of the input field
+        - `size=integer` (optional): The size of the input field
 
 *Example*:
 ```json
@@ -756,14 +756,14 @@ Represents an integer value
 
 - `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
   "maxlength=integer" and "size=integer" are optional.  
-  - _gui_attributes_:
-      - `maxlength=integer` (optional): The maximum number of characters accepted
-      - `size=integer"` (optional): The size of the input field
+    - _gui_attributes_:
+        - `maxlength=integer` (optional): The maximum number of characters accepted
+        - `size=integer"` (optional): The size of the input field
 - `Spinbox`: A GUI element for _IntegerValue_. A text field with and "up"- and "down"-button for
   increment/decrement. The attributes "max=decimal" and "min=decimal" are optional.  
-  - _gui_attributes_:
-      - `max=integer` (optional): Maximal value
-      - `min=integer` (optional): Minimal value
+    - _gui_attributes_:
+        - `max=integer` (optional): Maximal value
+        - `min=integer` (optional): Minimal value
 
 *Example:*
 ```json
@@ -790,7 +790,7 @@ Represents a Boolean ("true" or "false)
 *gui-elements / gui_attributes*:
 
 - `Checkbox`: A GUI element for _BooleanValue_.  
-  - _gui_attributes_: No attributes
+    - _gui_attributes_: No attributes
 
 *Example:*
 ```json
@@ -814,9 +814,9 @@ Represents an URI
 
 - `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
   "maxlength=integer" and "size=integer" are optional.  
-  - _gui_attributes_:
-      - `maxlength=integer` (optional): The maximum number of characters accepted
-      - `size=integer"` (optional): The size of the input field
+    - _gui_attributes_:
+        - `maxlength=integer` (optional): The maximum number of characters accepted
+        - `size=integer"` (optional): The size of the input field
 
 *Example:*
 ```json
@@ -844,11 +844,11 @@ Represents a time-interval
 
 - `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
   "maxlength=integer" and "size=integer" are optional.  
-  - _gui_attributes_:
-      - `maxlength=integer` (optional): The maximum number of characters accepted
-      - `size=integer"` (optional): The size of the input field
+    - _gui_attributes_:
+        - `maxlength=integer` (optional): The maximum number of characters accepted
+        - `size=integer"` (optional): The size of the input field
 - `Interval`: not yet implemented.  
-  - _gui_attributes_: No attributes
+    - _gui_attributes_: No attributes
 
 *Example:*
 ```json
@@ -871,14 +871,14 @@ Represents a node of a (possibly hierarchical) list
 *gui-elements / gui_attributes*:
 
 - `Radio`: A GUI element for _ListValue_. A set of radio buttons. This works only with flat lists!  
-  - _gui_attributes_:
-      - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
+    - _gui_attributes_:
+        - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
 - `List`: A GUI element for _ListValue_. A list of values to select one from.  
-  - _gui_attributes_:
-      - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
+    - _gui_attributes_:
+        - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
 - `Pulldown`: A GUI element for _ListValue_. Pulldown for list values. Works also for hierarchical lists.  
-  - _gui_attributes_:
-      - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
+    - _gui_attributes_:
+        - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
 
 *Example:*
 ```json

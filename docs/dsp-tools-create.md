@@ -47,7 +47,7 @@ following we take a deeper look into both of them since, as you can see in the e
 fine-grained definition levels.
 
 ### "Prefixes" object
-`"prefixes": { "prefix": <iri>", ...}`  
+`"prefixes": { "prefix": "<iri>", ...}`  
 
 The "prefixes" object contains - as you may already have guessed by the name - the `prefixes` of *external* ontologies 
 that are also used in the current project. All prefixes are composed of a keyword, followed by its iri. This is used as 
@@ -68,13 +68,13 @@ As you can see in the example below, you can have more than one prefix too. In t
 ```
 
 ### "Project" object
-`"project": {"key": <value>", ...}`  
+`"project": {"key": "<value>", ...}`  
 
 Right after the "prefix" object the "project" object has to follow, which contains all resources and properties of the 
 ontology. The "project" object is the bread and butter of the ontology. All its important properties are specified therein. 
 
-As you saw in the complete ontology definition in the beginning, the project definitions `requires` ***exactly*** all 
-of the following datafields:
+As you saw in the complete ontology definition in the beginning, the project definitions requires all the following
+data fields:
 
 - shortcode
 - shortname
@@ -82,15 +82,14 @@ of the following datafields:
 - keywords
 - ontologies
 
-Whereas the following fields are `optional` (if one or more of these fields are not
-used, it must be omitted):
+Whereas the following fields are optional (if one or more of these fields are not used, it must be omitted):
 
 - descriptions
 - lists
 - groups
 - users
 
-So a simple example definition of the "project" object could look like this:
+So, a simple example definition of the "project" object could look like this:
   
 ```json
 {
@@ -116,15 +115,15 @@ At that point we will go through all of this step by step and take a more in dep
 "project" object. The first four fields of the "project" object are "key"/"value" pairs. Therefore they are quite simple. 
 
 ### Shortcode
-`"shortcode": "<4-hex-characters>`  
+`"shortcode": "<4-hex-characters>"`
 
-It's a hexadecimal string in the range between "0000" and "FFFF" that's used to uniquely identifying the project. The 
+It's a hexadecimal string in the range between "0000" and "FFFF" that's used to uniquely identify the project. The 
 shortcode has to be provided by the DaSCH.
 
 ### Shortname
-`"shortname": "<string>"`  
+`"shortname": "<string>"`
 
-This is a short name (string) for the project. It's ment to be like a nickname. If the name of the project is e.g. 
+This is a short name (string) for the project. It's meant to be like a nickname. If the name of the project is e.g. 
 "Albus Percival Wulfric Dumbledore", then the shortname for it could be "Albi". It should be in the form of a
 [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName), that is a name without blanks and special characters like
 ":", ";", "&", "%" etc., but "-" and "_" are allowed
@@ -221,10 +220,10 @@ given example about the disciplines in Humanities is). The definition of these e
 list object is used to give the resources of the ontology a taxonomic quality. A taxonomy makes it possible to 
 categorize a resource. The big advantage of a taxonomic structure as it is implemented by the DSP 
 is that the user can subcategorize the objects. This allows the user to formulate his search requests more or less
-specifically as desired. Thus, in the example above a search for "Vocal music" would result in all works that ate
+specifically as desired. Thus, in the example above a search for "Vocal music" would result in all works that are
 characterized by a subelement of "Vocal music". However a search for "Masses" would retrun only works that 
 have been characterized as such. The number of hierarchy levels is not limited, but for practical reasons
-should not exceed 3-4 levels 
+should not exceed 3-4 levels.
 
 Thus, a taxonomy is a hierarchical list of categories in a tree-like structure. The taxonomy must be complete. This means 
 that the entire set of resources must be mappable to the sub-categorization of the taxonomy. To come back to the previous 
@@ -257,17 +256,15 @@ a cardinality &gt; 1 allows to add multiple attributes of the same time. See fur
 
 A node of the Taxonomy may have the following elements:
 
-- _name_: Name of the node. This should be unique for the given list. The name-element is _optional_ but highly
-  recommended].
-- _labels_: Language dependent labels in the form ```{ "<lang>": "<label>, ... }```. The labels-element is _mandatory_. 
+- _name_: Name of the node. This should be unique for the given list. The name-element is optional but highly
+  recommended.
+- _labels_: Language dependent labels in the form `{ "<lang>": "<label>", ... }`. The labels element is mandatory. 
 It needs to specify at least one language.
-- _comments_: Language dependent comments (optional) in the form ```{ "<lang>": "<comment>, ... }```. The comments-element 
-  is _optional_.
-- _nodes_: Array of subnodes. If you have a non-hierarchical taxonomy (i.e. a taxonomy with only 2 levels, the root 
-  level and another level), you don't have child nodes. Therefore the nodes element can be omitted in case of a flat
+- _comments_: Language dependent comments in the form `{ "<lang>": "<comment>", ... }`. The comments element 
+  is optional.
+- _nodes_: Array of sub-nodes. If you have a non-hierarchical taxonomy (i.e. a taxonomy with only 2 levels, the root 
+  level and another level), you don't have child nodes. Therefore, the nodes element can be omitted in case of a flat
   taxonomy.
-  
-Each list must have exactely one root node which has the same form bu denotes the list itself.
 
 Here is an example on how to build a taxonomic structure with the help of JSON:
 
@@ -342,12 +339,12 @@ Here is an example on how to build a taxonomic structure with the help of JSON:
 ```
 #### Lists from Excel
 
-A list can also be imported from an excel sheet. The excel must have the following format (currently only a single
+A list can also be imported from an Excel sheet. The Excel sheet must have the following format (currently only a single
 language is supported):
 
 ![img_1.png](img_1.png)
 
-In such a case, the excel-file can directly be referenced in the list definition by defining a special list node:
+In such a case, the Excel file can directly be referenced in the list definition by defining a special list node:
 ```json
 {
   "name": "fromexcel",
@@ -360,30 +357,31 @@ In such a case, the excel-file can directly be referenced in the list definition
   }
 }
 ```
-The nodes section then must contain the fields
+The nodes section then must contain the fields:
 
-- _file_: Path to the excel file
-- _worksheet_: The name of the worksheet in the excel
+- _file_: Path to the Excel file
+- _worksheet_: The name of the worksheet in the Excel
 
-The nodenames are composed from the label by concatenating the words in the label, with the first word starting wit a
-lower case character and the other words starting with an upper case character. So the label `Chamber music` would
-become the name `chamberMusic`. _Please note that the label must be unqiue for one list. If in a hierarchical list the
-same label is used several times, the nodename will be expanded by adding underlines "_" at the end until the name is
-unique_.
+The node names are composed of the label by concatenating the words in the label, with the first word starting with a
+lower case character, and the other words starting with an upper case character. So the label `Chamber music` would
+become the name `chamberMusic`. Please note that the label must be unique for a list. If in a hierarchical list the
+same label is used several times, the node name will be expanded by adding underlines "_" at the end until the name is
+unique.
 
-As already mentioned before, the _lists_ element is optional. If there are no lists, this element has to be omitted.
+As already mentioned before, the lists element is optional. If there are no lists, this element has to be omitted.
 
 ### Groups
 `"groups": [<group-definition>, <group-definition>,...]`  
 
-This object contains _groups_-definitions. This is (only) used to specify the permissions a user gets. A project may 
+This object contains groups definitions. This is (only) used to specify the permissions a user gets. A project may 
 define user groups such as "project-admins", "students" etc. and give the members of each group individual permissions.
 
-A _group_-defintion has the following elements:
-- _name_: The name of the group.
-- _description_: Description of the purpose of the group.
-- _selfjoin_: True, if users are able to join the group; false, if an administrator must add the users.
-- _status_: Has the value true if the group is active and false if the group is not active.
+A group definition has the following elements:
+
+- _name_: name of the group
+- _description_: description of the purpose of the group
+- _selfjoin_: true if users are able to join the group; false if an administrator must add the users
+- _status_: true if the group is active; false if the group is inactive
 
 Example:
 ```json
@@ -398,21 +396,22 @@ Example:
   ]
 }
 ```
-The _groups_ element is optional and can therefore be left out.
+The groups element is optional.
 
 ### Users
 `"users": [<user-definition>, <user-definition>,...]`  
 
-This object contains _user_-definitions. You can set user traits here. A user has the following elements:
-- _username_: The short username for the login. Similar to a nickname. 
-- _email_: Unique email that identifies the user.
-- _givenName_: Firstname of the user.
-- _familyName_: Surname of the user.
-- _password_: Password of the user.
-- _lang_: The preferred language of the user: "en", "de", "fr", "it" [optional, default: "en"].
+This object contains user definitions. You can set user traits here. A user has the following elements:
+
+- _username_: short username used for the login, similar to a nickname
+- _email_: unique email that identifies the user
+- _givenName_: firstname of the user
+- _familyName_: surname of the user
+- _password_: password of the user
+- _lang_: the preferred language of the user: "en", "de", "fr", "it" (optional, default: "en")
 - _projects_: List of projects the user belongs to. The project name has to be followed by a ":" and
   either "member" or "admin". This indicates if the new user has admin rights in the given project or
-  is a oridnary user. This `myproject:admin` would add the user as admin to the project "myproject".
+  is an ordinary user. `myproject:admin` would add the user as admin to the project "myproject".
   The given project defined in the same ontology file has no name, so only ":admin" or ":member" is
   required. A user must be member of at least one project.
 
@@ -438,15 +437,15 @@ Example:
   ]
 }
 ```
-The _users_ element is optional and can therefore be omitted.
+The users element is optional and can therefore be omitted.
 
 ### Ontologies
 `"ontologies": [<ontology-definition>, <ontology-definition>, ...]`  
 
 Most of the definitions for our ontology will be done under the category `"ontologies": [{...}, {...}]` inside of the
 curly brackets. A project may have multiple ontologies, where the second may depend on the first, the third on the
-second and first, etc. The core of the ontology definition is within the {}-brsckets. We know, you've already read a
-whole lot of text so far, but this section is probably the most important one.
+second and first, etc. The core of the ontology definition is within the {} brackets. We know, you've already read a
+lot of text so far, but this section is probably the most important one.
 
 First, lets talk about what an ontology actually is. This will make it much easier to 
 understand the different fields of the ontology definition. 
@@ -500,7 +499,7 @@ Now lets see what each field does.
 #### Name
 `"name": "<string>"`  
 
-First of all, our overall ontology needs a name. After all, we want to create a ontology about a specific subject or
+First of all, our overall ontology needs a name. After all, we want to create an ontology about a specific subject or
 set of terms. 
 
 As a "speciality", the *name of the ontology* has to be a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName)
@@ -511,7 +510,7 @@ without any blanks.
 #### Label
 `"label": "<string>"`  
 
-Since the "name" of your ontology needs to be in this special format, we like to have a human readable and 
+Since the "name" of your ontology needs to be in this special format, we like to have a human-readable and 
 understandable name of the ontology. This is done in the "label".
 
 #### Properties
@@ -528,19 +527,21 @@ A properties-array describes all the properties that are used for our terminolog
 describe all the possible connections and dependencies between our entire set of terms.
 
 The following should also be mentioned: We are restricted to a given list of *data types* we can choose from for our
-properties, . We can't create our own "new" data types. However, the list of value types should cover all the needs.
+properties. We can't create our own "new" data types. However, the list of value types should cover all the needs.
 
 A property has mandatory and optional fields. The following fields are mandatory:
+
 - _name_
 - _labels_
 - _object_
 - _gui_element_
 
-Please note that *object" is used to define the data type. The reason is that internally each data type is again
+Please note that _object_ is used to define the data type. The reason is that internally each data type is again
 represented by a resource that holds a lot of additional information, notable a complete change history. The
-_gui_element_ depends on the object
+_gui_element_ depends on the object.
 
 The following fields are optional (can be omitted):
+
 - _super_
 - _gui_attributes_
 
@@ -552,15 +553,15 @@ The _gui_attributes_ depends on the _gui_element_ chosen!
 A name for the property e.g. "pageOf", "hasBirthdate", "createdBy".
 
 ##### Labels
-`"labels": {"<language>": "<string>", ...}`  
+`"labels": {"<language>": "<string>", ...}`
 
 Similar to the name property, the label describes the property. In contrast to the name, which serves as a pure 
-abbreviation, the label is human readable. Thus, use language dependent, human readable names e.g. "is descendent of".
-The labels-field has the following form: `{ "<lang>": "<value>", ...}`
-where `<lang>` is either "en", "de", "fr" or "it", and `<value>` is a string.
+abbreviation, the label is human-readable. Thus, use language dependent, human-readable names e.g. "is descendant of".
+The labels field has the following form: `{ "<lang>": "<value>", ...}` where `<lang>` is either "en", "de", "fr" or
+"it", and `<value>` is a string.
     
 ##### Object / gui_element / gui_attribute
-`"object": "<data-type-object>"`  
+`"object": "<data-type-object>"`
 
 The "object" defines the data type of the value that the property will store.
 The following object types are allowed:
@@ -568,21 +569,22 @@ The following object types are allowed:
 ###### TextValue
 `"object": "TextValue"`  
 
-Represents a text that may contain standoff markup  
+Represents a text that may contain standoff markup.
+
 *gui\_elements / gui\_attributes*:  
 
 - `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes are:
-  _gui_attributes_:
-  - `maxlength=integer` (optional): Maximal length (number of character accepted)
-  - `size=integer` (optional):  Size (width) of widget
-- `Textarea`: A GUI element for _TextValue_. Presents a multiline textentry box. The optional attributes are:  
-  _gui_attributes_:
-  - `cols=integer` (optional): Number of cols of the textarea
-  - `rows=integer` (optional): Number of rows of the textarea
-  - `width=percent` (optional): Width of the field on screen
-  - `wrap=soft|hard` (optional): Wrapping of text
+    - _gui_attributes_:
+        - `maxlength=integer` (optional): maximal length (number of characters accepted)
+        - `size=integer` (optional): size (width) of widget
+- `Textarea`: A GUI element for _TextValue_. Presents a multiline text entry box. The optional attributes are:  
+    - _gui_attributes_:
+        - `cols=integer` (optional): number of columns of the textarea
+        - `rows=integer` (optional): number of rows of the textarea
+        - `width=percent` (optional): width of the textarea on screen
+        - `wrap=soft|hard` (optional): wrapping of text
 - `Richtext`: A GUI element for _TextValue_. Provides a richtext editor.
-  - _gui_attributes_: No attributes
+    - _gui_attributes_: No attributes
   
 *Example:*
 ```json
@@ -601,14 +603,15 @@ Represents a text that may contain standoff markup
 }
 ```
 ###### ColorValue
-`"object": "ColorValue`  
+`"object": "ColorValue"`
 
-A string in the form "#rrggbb" (standard web color format)  
+A string in the form "#rrggbb" (standard web color format).
+
 *gui-elements / gui_attributes*:
-    
+
 - `Colorpicker`: The only GUI element for _ColorValue_. It's used to choose a color.
-  _gui_attributes_:
-  - `ncolors=integer` (mandatory): Number of colors the color picker should present.
+  - _gui_attributes_:
+      - `ncolors=integer` (mandatory): Number of colors the color picker should present.
 
 *Example:*
 ```json
@@ -622,6 +625,7 @@ A string in the form "#rrggbb" (standard web color format)
   "gui_element": "Colorpicker"
 }
 ```
+
 ###### DateValue
 `object": "DateValue"`  
 Represents a date. It's a string with the format `calendar:start:end`
@@ -638,10 +642,12 @@ January 1st 1893 to December 31st 1893.
 - _end_ is optional if the date represents a clearly defined period or uncertainty.  
   
 In total, a DateValue has the following form: "GREGORIAN:1925:1927-03-22"
-which means anytime in between 1925 and the 22nd March 1927.  
+which means anytime in between 1925 and the 22nd March 1927.
+
 *gui-elements / gui_attributes*:
-- `Date`: The only GUI element for _DateValue_. A date picker gui.  
-  _gui_attributes_: No attributes
+
+- `Date`: The only GUI element for _DateValue_. A date picker gui.
+- _gui_attributes_: No attributes
 
 *Example:*
 ```json
@@ -659,17 +665,19 @@ which means anytime in between 1925 and the 22nd March 1927.
 ###### DecimalValue
 `"object": "DecimalValue"`  
 
-A number with decimal point  
+A number with decimal point.
+
 *gui-elements / gui_attributes*:
+
 - `Slider`: A GUI element for _DecimalValue_. Provides a slider to select a decimal value.  
-  _gui_attributes_:
-  - `max=decimal` (mandatory): Maximal value
-  - `min=decimal` (mandatory): Minimal value
+  - _gui_attributes_:
+      - `max=decimal` (mandatory): maximal value
+      - `min=decimal` (mandatory): minimal value
 - `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
   "maxlength=integer" and "size=integer" are optional.  
-  _gui_attributes_:
-  - `maxlength=integer` (optional): The maximum number of characters accepted
-  - `size=integer"` (optional): The size of the input field
+  - _gui_attributes_:
+      - `maxlength=integer` (optional): maximum number of characters accepted
+      - `size=integer"` (optional): size of the input field
 
 *Example:*
 ```json
@@ -691,16 +699,18 @@ A number with decimal point
 ###### GeomValue
 `"object": "GeomValue"`  
 
-Represents a geometrical shape as JSON. Geometrical shapes are used to define regions of interest (ROI's) on still
-images or moving images. 
+Represents a geometrical shape as JSON. Geometrical shapes are used to define regions of interest (ROI) on still
+images or moving images.
+
 *gui-elements / gui_attributes*:
+
 - `Geometry`: Not Yet Implemented.  
-  _gui_attributes_: No attributes
+    - _gui_attributes_: No attributes
 - `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
   "maxlength=integer" and "size=integer" are optional.  
-  _gui_attributes_:
-  - `maxlength=integer` (optional): The maximum number of characters accepted
-  - `size=integer"` (optional): The size of the input field
+    - _gui_attributes_:
+        - `maxlength=integer` (optional): The maximum number of characters accepted
+        - `size=integer"` (optional): The size of the input field
 
 *Example*:
 ```json
@@ -716,11 +726,13 @@ images or moving images.
 ```
 ###### GeonameValue
 Represents a location ID in geonames.org. The DSP platform uses identifiers provided by
-[geonames.org](https://geonames.orgs) to identify geographical locations.  
+[geonames.org](https://geonames.orgs) to identify geographical locations.
+
 *gui-elements / gui_attributes*:
+
 - `Geonames`: The only valid GUI element for _GeonameValue_. It interfaces are with geonames.org and it allows to select a 
   location.  
-  _gui_attributes_: No attributes
+    - _gui_attributes_: No attributes
 
 *Example:*
 ```json
@@ -962,7 +974,7 @@ To sum the `Properties` section up, here we have an example for a complete prope
     }
   ]
 }
-````
+```
 
 #### Resources
 `"resources": [<resource-definition>, <resource-definition>, ...]`  
@@ -987,7 +999,7 @@ The string displayed of the resource is being accessed.
 
 A resource  is always derived from at least one other resource. The most generic resource class DSP offers
 is _"Resource"_. A resource may additionally also be derived from resources defined in external ontologies.
-The following parent predefined resources are provided by Knora:  
+The following parent predefined resources are provided by DSP:  
 
   - `Resource` A generic "thing" that represents an item from the real world
   - `StillImageRepresentation`: An object that is connected to a still image

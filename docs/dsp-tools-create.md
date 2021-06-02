@@ -704,7 +704,7 @@ images or moving images.
 
 *gui-elements / gui_attributes*:
 
-- `Geometry`: Not Yet Implemented.  
+- `Geometry`: not yet implemented.  
     - _gui_attributes_: No attributes
 - `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
   "maxlength=integer" and "size=integer" are optional.  
@@ -750,18 +750,20 @@ Represents a location ID in geonames.org. The DSP platform uses identifiers prov
 ###### IntValue
 `"object": "IntValue"`  
 
-Represents an integer value  
+Represents an integer value
+
 *gui-elements / gui_attributes*:
+
 - `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
   "maxlength=integer" and "size=integer" are optional.  
-  _gui_attributes_:
-  - `maxlength=integer` (optional): The maximum number of characters accepted
-  - `size=integer"` (optional): The size of the input field
+  - _gui_attributes_:
+      - `maxlength=integer` (optional): The maximum number of characters accepted
+      - `size=integer"` (optional): The size of the input field
 - `Spinbox`: A GUI element for _IntegerValue_. A text field with and "up"- and "down"-button for
   increment/decrement. The attributes "max=decimal" and "min=decimal" are optional.  
-  _gui_attributes_:
-  - `max=integer` (optional): Maximal value
-  - `min=integer` (optional): Minimal value
+  - _gui_attributes_:
+      - `max=integer` (optional): Maximal value
+      - `min=integer` (optional): Minimal value
 
 *Example:*
 ```json
@@ -784,9 +786,11 @@ Represents an integer value
 `"object": "BooleanValue"`  
 
 Represents a Boolean ("true" or "false)  
+
 *gui-elements / gui_attributes*:
+
 - `Checkbox`: A GUI element for _BooleanValue_.  
-  _gui_attributes_: No attributes
+  - _gui_attributes_: No attributes
 
 *Example:*
 ```json
@@ -804,13 +808,15 @@ Represents a Boolean ("true" or "false)
 ###### UriValue
 `"object": "UriValue"`  
 
-Represents an URI  
+Represents an URI
+
 *gui-elements / gui_attributes*:
+
 - `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
   "maxlength=integer" and "size=integer" are optional.  
-  _gui_attributes_:
-  - `maxlength=integer` (optional): The maximum number of characters accepted
-  - `size=integer"` (optional): The size of the input field
+  - _gui_attributes_:
+      - `maxlength=integer` (optional): The maximum number of characters accepted
+      - `size=integer"` (optional): The size of the input field
 
 *Example:*
 ```json
@@ -832,15 +838,17 @@ Represents an URI
 ###### IntervalValue
 `"object": "IntervalValue"`  
 
-Represents a time-interval  
+Represents a time-interval
+
 *gui-elements / gui_attributes*:
+
 - `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
   "maxlength=integer" and "size=integer" are optional.  
-  _gui_attributes_:
-  - `maxlength=integer` (optional): The maximum number of characters accepted
-  - `size=integer"` (optional): The size of the input field
-- `Interval`: Not Yet Implemented.  
-  _gui_attributes_: No attributes
+  - _gui_attributes_:
+      - `maxlength=integer` (optional): The maximum number of characters accepted
+      - `size=integer"` (optional): The size of the input field
+- `Interval`: not yet implemented.  
+  - _gui_attributes_: No attributes
 
 *Example:*
 ```json
@@ -858,17 +866,19 @@ Represents a time-interval
 ###### ListValue
 `"object": "ListValue"`  
 
-Represents a node of a (possibly hierarchical) list  
+Represents a node of a (possibly hierarchical) list
+
 *gui-elements / gui_attributes*:
+
 - `Radio`: A GUI element for _ListValue_. A set of radio buttons. This works only with flat lists!  
-  _gui_attributes_:
-  - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
+  - _gui_attributes_:
+      - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
 - `List`: A GUI element for _ListValue_. A list of values to select one from.  
-  _gui_attributes_:
-  - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
+  - _gui_attributes_:
+      - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
 - `Pulldown`: A GUI element for _ListValue_. Pulldown for list values. Works also for hierarchical lists.  
-  _gui_attributes_:
-  - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
+  - _gui_attributes_:
+      - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
 
 *Example:*
 ```json
@@ -897,12 +907,13 @@ another (previously defined) ontology, the ontology name has to be prepended sep
 a resource or property from another one is not part of this documentation).
   
 *gui-elements/gui_attributes*:
+
 - `Searchbox`: Must be used with _hasLinkTo_ properties. Allows to search and enter a resource that the
   given resource should link to. It has one gui_attribute that indicates how many properties of the found resources
   should be indicated. It's mandatory!  
-  _gui_attributes_:
-  - `numprops=integer` (mandatory): While dynamically displaying the search result, the number of properties that
-    should be displayed.
+  - _gui_attributes_:
+      - `numprops=integer` (mandatory): While dynamically displaying the search result, the number of properties that
+        should be displayed.
 
 *Example:*
 ```json
@@ -923,11 +934,13 @@ of the "super" clause in case of LinkValues where the super clause is mandatory:
 `"super": ["<super-property>", "<super-property>, ...]`  
 
 A property ***must*** be derived from at least one base property. The most generic base property that the DSP offers is 
-_hasValue_. In addition the property may be a subproperty of properties defined in external or other ontologies.
-External ontologies like `dcterms` or `foaf`must be defined in the "prefix"-section.
+_hasValue_. In addition, the property may be a subproperty of properties defined in external or other ontologies.
+External ontologies like `dcterms` or `foaf` must be defined in the "prefix" section.
 
-In this case the qualified name - including the prefix of the external or internal ontology- has to be given.
-  The following base properties are defined by DSP:
+In this case the qualified name - including the prefix of the external or internal ontology - has to be given.
+
+The following base properties are defined by DSP:
+
   - `hasValue`: This is the most generic base.
   - `hasLinkTo`: This value represents a link to another resource. You have to indicate the "_object_" as a prefixed 
   name that identifies the resource class this link points to (a ":" prepended to the name is sufficient if the
@@ -944,7 +957,7 @@ In this case the qualified name - including the prefix of the external or intern
   - `seqnum`: An integer that is used to define a sequence number in an ordered set of instances, e.g. the ordering of
     the pages in a bokk (independent of the page naming) 
 
-To sum the `Properties` section up, here we have an example for a complete properties definition:
+To sum the `properties` section up, here we have an example for a complete properties definition:
 ```json
 {
   "properties": [
@@ -978,6 +991,7 @@ To sum the `Properties` section up, here we have an example for a complete prope
 
 #### Resources
 `"resources": [<resource-definition>, <resource-definition>, ...]`  
+
 The resource classes are the primary entities of the data model. They are the actual objects/terms inside our 
 terminology space. A resource class is a template for the representation of a real object that is represented in the 
 DaSCH database. A resource class defines properties (aka _data fields_). For each of these properties a data type as 
@@ -986,7 +1000,8 @@ well as the cardinality have to defined.
 A resource needs to have the following fields:
 
 ##### Name
-`"name": "<NCNAME>"`  
+`"name": "<NCNAME>"`
+
 A name for the resource.
 
 ##### Labels
@@ -999,50 +1014,49 @@ The string displayed of the resource is being accessed.
 
 A resource  is always derived from at least one other resource. The most generic resource class DSP offers
 is _"Resource"_. A resource may additionally also be derived from resources defined in external ontologies.
+
 The following parent predefined resources are provided by DSP:  
 
   - `Resource` A generic "thing" that represents an item from the real world
   - `StillImageRepresentation`: An object that is connected to a still image
-  - `TextRepresentation`: An object that is connected to an (external) text (Not Yet Implemented)
-  - `AudioRepresentation`: An object representing audio data (Not Yet Implemented)
-  - `DDDRepresentation`: An object representing a 3-D representation (Not Yet Implemented)
+  - `TextRepresentation`: An object that is connected to an (external) text (not yet implemented)
+  - `AudioRepresentation`: An object representing audio data (not yet implemented)
+  - `DDDRepresentation`: An object representing a 3-D representation (not yet implemented)
   - `DocumentRepresentation`: An object representing an opaque document (e.g. a PDF)
   - `MovingImageRepresentation`: An object representing a moving image (video, film)
-  - `Annotation`: A predefined annotation object. It has automaticalle the following predefined properties
-    defined:
-    - `hasComment` (1-n)
-    - `isAnnotationOf` (1)
-  - `LinkObj`: A resource class linking together several other, generic, resource classes. The class
-  has the following properties:
+  - `Annotation`: A predefined annotation object. It has automaticalle the following predefined properties defined:
+      - `hasComment` (1-n)
+      - `isAnnotationOf` (1)
+  - `LinkObj`: A resource class linking together several other, generic, resource classes. The class has the following
+    properties:
   - `hasComment` (1-n)
   - `hasLinkTo` (1-n)
   - `Region`: Represents a simple region. The class has the following properties:
-     - `hasColor` (1)
-     - `isRegionOf` (1)
-     - `hasGeometry` (1)
-     - `isRegionOf` (1)
-     - `hasComment` (0-n)
+       - `hasColor` (1)
+       - `isRegionOf` (1)
+       - `hasGeometry` (1)
+       - `isRegionOf` (1)
+       - `hasComment` (0-n)
 
 ##### Cardinalities
-`"cardinalities": [...]`  
+`"cardinalities": [...]`
 
-<a name="cardinalities"></a>
-Cardinalities is an array that contains the information about the connections between resources. It tells what type 
+Cardinalities is an array that contains the information about the connections between resources. It tells what type of
 connections a single resource has as well as how many times the connection is established. Thus, the actual "network" is 
-saved in this array
+saved in this array.
 
 - `cardinalities`: Array of references to the properties that the resource may hold including the
   cardinality. A cardinality has the following properties:
-  - `propname`: The name of the property. If it's used in the form ":"propname, the current ontology is referenced. If 
+    - `propname`: The name of the property. If it's used in the form ":"propname, the current ontology is referenced. If 
     the ":" is omitted, a DSP standard ontology is referenced, otherwise the full prefix of the ontology has to be used.
-  - `gui_order`: An integer number which will help the GUI to display the properties in the desired
+    - `gui_order`: An integer number which will help the GUI to display the properties in the desired
     order
-  - `cardinality`: Indicates how often a given property may occur. The possible values
+    - `cardinality`: Indicates how often a given property may occur. The possible values
     are:  
-    - `"1"`: Exactly once (mandatory one value and only one)
-    - `"0-1"`: The value may be omitted, but can occur only once
-    - `"1-n"`: At least one value must be present. But multiple values may be present
-    - `"0-n"`: The value may be omitted, but may also occur multiple times
+        - `"1"`: exactly once (mandatory one value and only one)
+        - `"0-1"`: The value may be omitted, but can occur only once.
+        - `"1-n"`: At least one value must be present, but multiple values may be present.
+        - `"0-n"`: The value may be omitted, but may also occur multiple times.
    
 Example for a resource definition:
 ```json
@@ -1078,6 +1092,7 @@ Example for a resource definition:
 
 ## Fully fleshed out example ontology
 Finally, here is a complete example of an ontology definition:
+
 ```json
 {
     "prefixes": {

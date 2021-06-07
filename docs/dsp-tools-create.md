@@ -223,7 +223,7 @@ is that the user can subcategorize the objects. This allows the user to formulat
 specifically as desired. Thus, in the example above a search for "Vocal music" would result in all works that are
 characterized by a subelement of "Vocal music". However a search for "Masses" would retrun only works that 
 have been characterized as such. The number of hierarchy levels is not limited, but for practical reasons
-should not exceed 3-4 levels.
+it should not exceed 3-4 levels.
 
 Thus, a taxonomy is a hierarchical list of categories in a tree-like structure. The taxonomy must be complete. This means 
 that the entire set of resources must be mappable to the sub-categorization of the taxonomy. To come back to the previous 

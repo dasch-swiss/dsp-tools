@@ -33,12 +33,12 @@ A complete data model definition looks like this:
     "shortcode": "0123",
     "shortname": "BiZ",
     "longname": "Bildung in Zahlen",
-    "descriptions": {},
-    "keywords": [],
-    "lists": [],
-    "groups": [],
-    "users": [],
-    "ontologies": []
+    "descriptions": {...},
+    "keywords": [...],
+    "lists": [...],
+    "groups": [...],
+    "users": [...],
+    "ontologies": [...]
   }
 }
 ```
@@ -102,10 +102,10 @@ So, a simple example definition of the "project" object could look like this:
        "de": "Dies ist ein einfaches Beispielprojekt"
      },
      "keywords": ["example", "simple"],
-     "lists": [],
-     "groups": [],
-     "users": [],
-     "ontology": []
+     "lists": [...],
+     "groups": [...],
+     "users": [...],
+     "ontology": [...]
   }
 }
 ```
@@ -126,7 +126,7 @@ shortcode has to be provided by the DaSCH.
 This is a short name (string) for the project. It's meant to be like a nickname. If the name of the project is e.g. 
 "Albus Percival Wulfric Dumbledore", then the shortname for it could be "Albi". It should be in the form of a
 [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName), that is a name without blanks and special characters like
-":", ";", "&", "%" etc., but "-" and "_" are allowed
+`:`, `;`, `&`, `%` etc., but `-` and `_` are allowed.
 
 ### Longname
 `"longname": "<string>"`  
@@ -251,7 +251,7 @@ A resource can be assigned to a taxonomic node within its properties. So a resou
 title "La Traviata" would have the property/attribute "musical-genre" with the value "Grand opera". Within the DSP,
 each property or attribute has an assigned cardinality. Sometimes, a taxonomy allows that an object may belong to 
 different categories at the same time (e.g. an image which depicts several categories at the same time). In these cases,
-a cardinality &gt; 1 allows to add multiple attributes of the same time. See further below the description of the
+a cardinality greater than 1 allows adding multiple attributes of the same time. See further below the description of the
 [cardinalities](#cardinalities).
 
 A node of the Taxonomy may have the following elements:
@@ -266,7 +266,7 @@ It needs to specify at least one language.
   level and another level), you don't have child nodes. Therefore, the nodes element can be omitted in case of a flat
   taxonomy.
 
-Here is an example on how to build a taxonomic structure with the help of JSON:
+Here is an example on how to build a taxonomic structure in JSON:
 
 ```json
 {
@@ -331,7 +331,7 @@ Here is an example on how to build a taxonomic structure with the help of JSON:
             }
           ]
         },
-        {},{}
+        {...},{...}
       ]
     }
   ]
@@ -487,10 +487,10 @@ Example:
     {
       "name": "seworon",
       "label": "Secrets of the world ontology",
-      "properties": [],
-      "resources": []
+      "properties": [...],
+      "resources": [...]
     },
-    {},{}
+    {...},{...}
   ]
 }
 ```

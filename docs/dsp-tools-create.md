@@ -343,7 +343,7 @@ Here is an example on how to build a taxonomic structure in JSON:
 A list can also be imported from an Excel sheet. The Excel sheet must have the following format (currently only a single
 language is supported):
 
-![img-list-example.png](img-list-example.png)
+![img-list-example.png](assets/images/img-list-example.png)
 
 In such a case, the Excel file can directly be referenced in the list definition by defining a special list node:
 ```json

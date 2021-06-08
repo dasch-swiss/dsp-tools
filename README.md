@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# dsp-tools
+# DSP-TOOLS - DaSCH Service Platform Tools
 
 dsp-tools is a command line tool that helps you interact with the DaSCH Service Platform server (DSP server).
 

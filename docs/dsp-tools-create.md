@@ -112,7 +112,8 @@ So, a simple example definition of the "project" object could look like this:
 
 ## Simple key/value pairs
 At that point we will go through all of this step by step and take a more in depth view on the individual fields of the 
-"project" object. The first four fields of the "project" object are "key"/"value" pairs. Therefore they are quite simple. 
+"project" object. The first four fields of the "project" object are "key"/"value" pairs. Therefore, they are quite
+simple. 
 
 ### Shortcode
 `"shortcode": "<4-hex-characters>"`
@@ -139,7 +140,7 @@ Wulfric Dumbledore".
 
 The descriptions specify the content of the project in *exactly* one or more strings. These descriptions can be 
 supplied in several languages (currently _"en"_, _"de"_, _"fr"_ and _"it"_ are supported). The descriptions have to be 
-given as a JSON object with the language as "key" and the description as "value".  See the example above inside the 
+given as a JSON object with the language as "key", and the description as "value".  See the example above inside the 
 curly brackets after "descriptions" to see what that means.
 
 ## Key/object pairs
@@ -167,7 +168,7 @@ example a classification of disciplines in the Humanities might look like follow
       - Choirs
       - Orchestras
     - Music history
-    - Musictheory
+    - Music theory
     - Musicology
     - Jazz
     - Pop/Rock
@@ -219,15 +220,15 @@ DSP allows to define such controlled vocabularies or thesauri. They can be arran
 given example about the disciplines in Humanities is). The definition of these entities are called "lists" in the DSP. Thus, the 
 list object is used to give the resources of the ontology a taxonomic quality. A taxonomy makes it possible to 
 categorize a resource. The big advantage of a taxonomic structure as it is implemented by the DSP 
-is that the user can subcategorize the objects. This allows the user to formulate his search requests more or less
+is that the user can sub-categorize the objects. This allows the user to formulate his search requests more or less
 specifically as desired. Thus, in the example above a search for "Vocal music" would result in all works that are
-characterized by a subelement of "Vocal music". However a search for "Masses" would retrun only works that 
+characterized by a sub-element of "Vocal music". However, a search for "Masses" would return only works that 
 have been characterized as such. The number of hierarchy levels is not limited, but for practical reasons
 it should not exceed 3-4 levels.
 
 Thus, a taxonomy is a hierarchical list of categories in a tree-like structure. The taxonomy must be complete. This means 
 that the entire set of resources must be mappable to the sub-categorization of the taxonomy. To come back to the previous 
-example: It must not occur that an musical work within our resource set cannot be mapped to a subcategory of our
+example: It must not occur that a musical work within our resource set cannot be mapped to a subcategory of our
 taxonomy about classical music.  The taxonomic-hierarchical structure is mapped using JSON. This is because JSON
 inherently implements a tree structure as well. The root of the taxonomy tree is always the name of the taxonomy. The
 root always stands alone at the top of the tree. It is followed by any number of levels, on which any number of
@@ -256,7 +257,7 @@ a cardinality greater than 1 allows adding multiple attributes of the same time.
 
 A node of the Taxonomy may have the following elements:
 
-- _name_: Name of the node. This should be unique for the given list. The name-element is optional but highly
+- _name_: Name of the node. This should be unique within the given list. The name-element is optional but highly
   recommended.
 - _labels_: Language dependent labels in the form `{ "<lang>": "<label>", ... }`. The labels element is mandatory. 
 It needs to specify at least one language.
@@ -342,7 +343,7 @@ Here is an example on how to build a taxonomic structure in JSON:
 A list can also be imported from an Excel sheet. The Excel sheet must have the following format (currently only a single
 language is supported):
 
-![img_1.png](img_1.png)
+![img-list-example.png](assets/images/img-list-example.png)
 
 In such a case, the Excel file can directly be referenced in the list definition by defining a special list node:
 ```json
@@ -364,7 +365,7 @@ The nodes section then must contain the fields:
 
 The node names are composed of the label by concatenating the words in the label, with the first word starting with a
 lower case character, and the other words starting with an upper case character. So the label `Chamber music` would
-become the name `chamberMusic`. Please note that the label must be unique for a list. If in a hierarchical list the
+become the name `chamberMusic`. Please note that the label must be unique inside a list. If in a hierarchical list the
 same label is used several times, the node name will be expanded by adding underlines "_" at the end until the name is
 unique.
 
@@ -465,12 +466,12 @@ resource called "Person" and two properties called "hasBirthday" and "hasParent"
 "hasParent" will link to another instance of a Person.
 
 Within DSP, properties may be re-used for different resources. E.g. a property "description" may be used for a resource
-called "image" as well as "movie". Therefore the list of properties is separated from the list of resources. The
+called "image" as well as "movie". Therefore, the list of properties is separated from the list of resources. The
 properties are assigned to the resources by defining "_cardinalities_". A cardinality indicates, if a property is
 mandatory or can be omitted (e.g. if unknown), and if a property may be used several times on the same instance of a
 resource. The latter may make sense for resources that are known under several names. In such a case, a
 "hasName"-property would have a cardinality that allows multiple use on the same instance of a resource. The cardinality
-definitiones are explained [further below](#cardinality).
+definitions are explained [further below](#cardinalities).
 
 To fully capture everything an ontology has to provide, we use *four* different elements that describe the resources as 
 well as the dependencies inside our ontology. They are: 
@@ -995,7 +996,7 @@ To sum the `properties` section up, here we have an example for a complete prope
 The resource classes are the primary entities of the data model. They are the actual objects/terms inside our 
 terminology space. A resource class is a template for the representation of a real object that is represented in the 
 DaSCH database. A resource class defines properties (aka _data fields_). For each of these properties a data type as 
-well as the cardinality have to defined.
+well as the cardinality have to be defined.
 
 A resource needs to have the following fields:
 
@@ -1024,7 +1025,7 @@ The following parent predefined resources are provided by DSP:
   - `DDDRepresentation`: An object representing a 3-D representation (not yet implemented)
   - `DocumentRepresentation`: An object representing an opaque document (e.g. a PDF)
   - `MovingImageRepresentation`: An object representing a moving image (video, film)
-  - `Annotation`: A predefined annotation object. It has automaticalle the following predefined properties defined:
+  - `Annotation`: A predefined annotation object. It has automatically the following predefined properties defined:
       - `hasComment` (1-n)
       - `isAnnotationOf` (1)
   - `LinkObj`: A resource class linking together several other, generic, resource classes. The class has the following

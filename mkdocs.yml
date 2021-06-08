@@ -1,8 +1,8 @@
-site_name: Documentation dsp-tools
+site_name: DSP-TOOLS
 
 nav:
     - Overview: index.md
-    - Usage: dsp-tools-usage.md
+    - Installation and usage: dsp-tools-usage.md
     - JSON data model format: dsp-tools-create.md
     - Bulk data import: dsp-tools-xmlupload.md
     - Excel file processing: dsp-tools-excel.md

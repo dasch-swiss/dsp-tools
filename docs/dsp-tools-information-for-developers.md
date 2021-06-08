@@ -1,5 +1,7 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
+# Information for developers
+
 There is a `Makefile` for all the following tasks (and more). Type `make` to print the available targets.
 
 ## Install from source

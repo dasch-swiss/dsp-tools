@@ -257,7 +257,7 @@ a cardinality greater than 1 allows adding multiple attributes of the same time.
 
 A node of the Taxonomy may have the following elements:
 
-- _name_: Name of the node. This should be unique for the given list. The name-element is optional but highly
+- _name_: Name of the node. This should be unique withing the given list. The name-element is optional but highly
   recommended.
 - _labels_: Language dependent labels in the form `{ "<lang>": "<label>", ... }`. The labels element is mandatory. 
 It needs to specify at least one language.

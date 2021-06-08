@@ -1,4 +1,4 @@
-site_name: Documentation dsp-tools
+site_name: DSP-TOOLS
 
 nav:
     - Overview: index.md

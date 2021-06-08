@@ -222,7 +222,7 @@ list object is used to give the resources of the ontology a taxonomic quality. A
 categorize a resource. The big advantage of a taxonomic structure as it is implemented by the DSP 
 is that the user can sub-categorize the objects. This allows the user to formulate his search requests more or less
 specifically as desired. Thus, in the example above a search for "Vocal music" would result in all works that are
-characterized by a sub-element of "Vocal music". However, a search for "Masses" would retun only works that 
+characterized by a sub-element of "Vocal music". However, a search for "Masses" would return only works that 
 have been characterized as such. The number of hierarchy levels is not limited, but for practical reasons
 it should not exceed 3-4 levels.
 
@@ -257,7 +257,7 @@ a cardinality greater than 1 allows adding multiple attributes of the same time.
 
 A node of the Taxonomy may have the following elements:
 
-- _name_: Name of the node. This should be unique withing the given list. The name-element is optional but highly
+- _name_: Name of the node. This should be unique within the given list. The name-element is optional but highly
   recommended.
 - _labels_: Language dependent labels in the form `{ "<lang>": "<label>", ... }`. The labels element is mandatory. 
 It needs to specify at least one language.

@@ -7,13 +7,13 @@ The following paragraphs gives you an overview of how to install and use dsp-too
 
 To install the latest version run:
 
-```
+```bash
 pip3 install dsp-tools
 ```
 
 To update to the latest version run:
 
-```
+```bash
 pip3 install --upgrade dsp-tools
 ```
 

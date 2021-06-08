@@ -1,5 +1,8 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
+# Usage
+The following paragraphs gives you an overview of how to install and use dsp-tools. 
+
 ## Installation
 
 To install the latest version run:

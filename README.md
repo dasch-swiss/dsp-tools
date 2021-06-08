@@ -1,131 +1,100 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# DSP-TOOLS - The DaSCH Service Platform Tools Repository
-dsp-tools is a python package containing a command line tool for data model (ontology) creation, a library allowing
-creation of single resources and mass upload using the bulk import of data into the Knora framework.
+# dsp-tools
 
-The package consists of:
-- `dsplib` Python modules for accessing Knora using the API (ontology creation, data import/export etc.)
-- `dsp-tools` A command line program to perfrom several operations on a DSP server:
-    - create an ontology out of a simple JSON description
-    - dump an existing ontology from a DSP server to a JSON file
-    - Bulk-upload of data from a XML data file
+dsp-tools is a command line tool that helps you interact with the DaSCH Service Platform server (DSP server).
 
 Go to [Full Documentation](https://dasch-swiss.github.io/dsp-tools/)
 
-## Install
+## Information for developers
 
-_Please note that dsp-tools require Python 3.9 for working properly!_
+There is a `Makefile` for all the following tasks (and more). Type `make` to print the available targets.
 
-To install the latest published version from PyPI, run:
-```
-$ pip3 install dsp-tools
-```
+## Install from source
 
-To upgrade to the latest published version, run:
-```
-$ pip3 install --upgrade dsp-tools
+To install from source run:
+```bash
+python3 setup.py install
 ```
 
-## Local Development Environment
+## Install the requirements
 
-- Python3
-- [Bazel](https://bazel.build)
+To install the requirements run:
 
-Please consult the [https://docs.dasch.swiss/developers](https://docs.dasch.swiss/developers)
-documentation on how to install these prerequisites.
-
-## Makefile for repository management tasks
-
-The project contains a Makefile defining management tasks. Please use
-`make help` to see what is available.
-
-To install from source, i.e., this repository, run:
+```bash
+pip3 install -r requirements.txt
 ```
-$ make install
+
+To generate a requirements file (usually requirements.txt), that you commit with your project, run:
+
+```bash
+pip3 freeze > requirements.txt
 ```
 
 ## Testing
+Please note that testing requires launching the complete DSP API stack which is based on docker images. Therefore, we
+recommend installing the [docker desktop client](https://www.docker.com/products).
+
+To run the complete test suite:
 
 ```bash
-$ make test
+make test
 ```
 
 ## Publishing
 
-Publishing is automated with github actions and should _not_ be done manually.
+Publishing is automated with GitHub Actions and should _not_ be done manually. Please follow the
+[Pull Request Guidelines](https://docs.dasch.swiss/developers/dsp/contribution/#pull-request-guidelines). If done
+correctly, when merging a pull request into `main`, the `release-please` action will create or update a pull request for
+a release. This pull request will follow semantic versioning and update the change log. Once all desired features are
+merged, the release can be executed by merging this release pull request into `main`. This will trigger actions that
+create a release on GitHub, on PyPI and the docs.
 
-Ensure to have only one Pull Request per feature, and follow the [conventions for commit messages and PR title](https://docs.dasch.swiss/developers/dsp/contribution/#pull-request-guidelines).
+Please ensure you have only one pull request per feature.
 
-If this is done correctly, when merging a PR into `main`, the `release-please` action will create or update a release-PR.  
-This PR will follow semantic versioning and update the change log.  
-Once all desired features are merged, the release can be executed by merging the release-PR into `main`.  
-This will trigger actions that create a release on Github, on PyPI and the docs.
+## Publishing manually
 
-### Publishing to PyPi
+Publishing is automated with GitHub Actions and should _not_ be done manually. If you still need to do it, follow the
+steps below.
 
-Generate distribution package. Make sure you have the latest versions of `setuptools` and `wheel` installed.
-Remove the `dist`and `buil`-directories: `rm -rf bild dist`
-
+Generate the distribution package. Make sure you have the latest versions of `setuptools` and `wheel` installed:
 
 ```bash
-$ make upgrade-dist-tools
-$ make dist
+python3 -m pip install --upgrade pip setuptools wheel
+python3 setup.py sdist bdist_wheel
 ```
 
 You can install the package locally from the dist:
 
 ```bash
-$ python3 -m pip install ./dist/some_name.whl
+python3 -m pip ./dist/some_name.whl
 ```
 
-Upload package with `twine`,
-
-first create `~/.pypirc` in your home folder:
+Upload package works also with `make`:
 
 ```bash
-[distutils] 
-index-servers=pypi
-[pypi] 
-repository = https://upload.pypi.org/legacy/ 
-username =your_username_on_pypi
-```
-
-then upload:
-
-```bash
-$ make upload
+make dist
+make upload
 ```
 
 For local development:
 
 ```bash
-$ python3 setup.py --editable .
+python3 setup.py develop
 ```
 
-## Requirements
+## Contributing to the documentation
 
-To install the requirements:
+The documentation is a collection of [markdown](https://en.wikipedia.org/wiki/Markdown) files in the `docs` folder.  
+After updates of the files, build and check the result with the following commands:
 
 ```bash
-$ pip3 install -r requirements.txt
+make build-docs
+make serve-docs 
 ```
 
-To generate a "requirements" file (usually requirements.txt), that you commit with your project, do:
+To update the changes to the official documentation pages run:
 
 ```bash
-$ pip3 freeze > requirements.txt
+make publish-docs
 ```
-
-### Running tests with Bazel
-
-Run all tests:
-```bash
-$ bazel test //...
-```
-
-Run single test:
-```bash
-$ bazel test //test:test_user
-```
-

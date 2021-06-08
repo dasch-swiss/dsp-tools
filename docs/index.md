@@ -1,5 +1,7 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
+# dsp-tools documentation
+
 dsp-tools is a command line tool that helps you interact with the DaSCH Service Platform server (DSP server).
 
 In order to archive your data on the DaSCH Service Platform, you need a data model (ontology) that describes your data.

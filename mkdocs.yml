@@ -3,7 +3,7 @@ site_url: https://dasch-swiss.github.io/dsp-tools/
 repo_url: https://github.com/dasch-swiss/dsp-tools
 repo_name: dasch-swiss/dsp-tools
 edit_uri: blob/main/docs/
-copyright: "&copy; 2017 - 2021 <a href='https://dasch.swiss' target='_blank'>Data and Service Center for the Humanities (DaSCH)</a>"
+copyright: "&copy; 2017 - <script>document.write(new Date().getFullYear())</script> <a href='https://dasch.swiss' target='_blank'>Data and Service Center for the Humanities (DaSCH)</a>"
 
 
 nav:

@@ -434,6 +434,7 @@ least one `<list>` element.
 Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
+- `list`: name of the list as defined in the ontology (required)
 
 #### `<list>`
 The `<list>` element references a node in a (pull-down or hierarchical) list.

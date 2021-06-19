@@ -159,7 +159,7 @@ A complete `<resource>` element may look as follows:
 ```xml
 <resource label="EURUS015a"
           restype=":Postcard"
-          unique_id="238807"
+          id="238807"
           permissions="res-def-perm">
    ...
 </resource>

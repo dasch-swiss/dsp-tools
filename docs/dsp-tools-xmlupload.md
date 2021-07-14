@@ -169,13 +169,18 @@ The `<resource>` element contains a property element (e.g. `<text-prop>`) for ea
 describing the resource. The property element itself contains one or several value elements (e.g. `<text>`) and must
 have an attribute `name` with the name of the property as defined in the project specific ontology.
 
-Example for a property element of type text (`<text-prop>`) with the value element `<text>`:
+Example for a property element of type text (`<text-prop>`) with two value elements `<text>`:
 
 ```xml
 <text-prop name=":hasTranslation">
    <text encoding="utf8">Dies ist eine Übersetzung</text>
+   <text encoding="utf8">Und eine andere Übersetzung</text>
 </text-prop>
 ```
+
+| ⚠ Look out  |
+|:----------|
+| In case of a cardinality 1-n, you must **NOT** create multiple `<text-prop>` tags, but multiple `<text>` tags in one single `<text-prop>`! |
  
 The following property elements exist:
 

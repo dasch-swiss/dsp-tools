@@ -1,24 +1,35 @@
+"""
+The code in this file handles the arguments passed by the user from the command line and calls the requested actions.
+"""
 import argparse
-import sys
 import os
+import sys
+
 import pkg_resources  # part of setuptools
 
-sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-
-from dsplib.utils.onto_validate import validate_list, validate_ontology
 from dsplib.utils.onto_create_lists import create_lists
 from dsplib.utils.onto_create_ontology import create_ontology
 from dsplib.utils.onto_get import get_ontology
-from dsplib.utils.xml_upload import xml_upload
 from dsplib.utils.onto_process_excel import list_excel2json
+from dsplib.utils.onto_validate import validate_list, validate_ontology
+from dsplib.utils.xml_upload import xml_upload
+
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 
-def program(args):
+def program(args: list) -> None:
+    """
+    The program parses the command line arguments and calls the actions
+
+    Args:
+        args: list of arguments passed by the user from the command line
+
+    Returns:
+        None
+    """
     version = pkg_resources.require("dsp-tools")[0].version
 
-    #
     # parse the arguments of the command line
-    #
     parser = argparse.ArgumentParser(
         description=f"dsp-tools (Version {version}) DaSCH Service Platform data modelling tools (© 2021 by DaSCH)."
     )
@@ -32,8 +43,10 @@ def program(args):
     parser_create.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the DSP server")
     parser_create.add_argument("-u", "--user", default="root@example.com", help="Username for DSP server")
     parser_create.add_argument("-p", "--password", default="test", help="The password for login")
-    parser_create.add_argument("-V", "--validate", action='store_true', help="Do only validation of JSON, no upload of the ontology")
-    parser_create.add_argument("-L", "--listfile", type=str, default="lists.json", help="Name of list node informationfile")
+    parser_create.add_argument("-V", "--validate", action='store_true',
+                               help="Do only validation of JSON, no upload of the ontology")
+    parser_create.add_argument("-L", "--listfile", type=str, default="lists.json",
+                               help="Name of list node informationfile")
     parser_create.add_argument("-l", "--lists", action='store_true', help="Only create the lists")
     parser_create.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
     parser_create.add_argument("-d", "--dump", action="store_true", help="dump test files for DSP-API requests")
@@ -53,22 +66,26 @@ def program(args):
     parser_upload.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the DSP server")
     parser_upload.add_argument("-u", "--user", type=str, default="root@example.com", help="Username for DSP server")
     parser_upload.add_argument("-p", "--password", type=str, default="test", help="The password for login")
-    parser_upload.add_argument("-V", "--validate", action='store_true', help="Do only validation of JSON, no upload of the ontology")
+    parser_upload.add_argument("-V", "--validate", action='store_true',
+                               help="Do only validation of JSON, no upload of the ontology")
     parser_upload.add_argument("-i", "--imgdir", type=str, default=".", help="Path to folder containing the images")
     parser_upload.add_argument("-S", "--sipi", type=str, default="http://0.0.0.0:1024", help="URL of SIPI server")
     parser_upload.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
     parser_upload.add_argument("xmlfile", help="path to xml file containing the data", default="data.xml")
 
-    parser_excellists = subparsers.add_parser('excel', help='Create lists JSON from excel files')
-    parser_excellists.set_defaults(action="excel")
-    parser_excellists.add_argument("-S", "--sheet", type=str, help="Name of excel sheet to be used", default="Tabelle1")
-    parser_excellists.add_argument("-s", "--shortcode", type=str, help="Shortcode of project", default="4123")
-    parser_excellists.add_argument("-l", "--listname", type=str, help="Name of list to be created", default="my_list")
-    parser_excellists.add_argument("-L", "--label", type=str, help="Label of list to be created", default="MyList")
-    parser_excellists.add_argument("-x", "--lang", type=str, help="Language for label", default="en")
-    parser_excellists.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
-    parser_excellists.add_argument("excelfile", help="Path to the excel file containing the list data", default="lists.xlsx")
-    parser_excellists.add_argument("outfile", help="Path to the output JSON file containing the list data", default="list.json")
+    parser_excel_lists = subparsers.add_parser('excel', help='Create lists JSON from excel files')
+    parser_excel_lists.set_defaults(action="excel")
+    parser_excel_lists.add_argument("-S", "--sheet", type=str, help="Name of excel sheet to be used",
+                                    default="Tabelle1")
+    parser_excel_lists.add_argument("-s", "--shortcode", type=str, help="Shortcode of project", default="4123")
+    parser_excel_lists.add_argument("-l", "--listname", type=str, help="Name of list to be created", default="my_list")
+    parser_excel_lists.add_argument("-L", "--label", type=str, help="Label of list to be created", default="MyList")
+    parser_excel_lists.add_argument("-x", "--lang", type=str, help="Language for label", default="en")
+    parser_excel_lists.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
+    parser_excel_lists.add_argument("excelfile", help="Path to the excel file containing the list data",
+                                    default="lists.xlsx")
+    parser_excel_lists.add_argument("outfile", help="Path to the output JSON file containing the list data",
+                                    default="list.json")
 
     args = parser.parse_args(args)
 
@@ -126,11 +143,5 @@ def program(args):
                         verbose=args.verbose)
 
 
-
-def main():
-    program(sys.argv[1:])
-
-
 if __name__ == '__main__':
     program(sys.argv[1:])
-

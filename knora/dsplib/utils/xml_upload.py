@@ -524,7 +524,8 @@ def xml_upload(input_file: str,
     resiri_lookup: StrDict = {}
 
     for resource in resources:
-        #resource.print()
+        if verbose:
+            resource.print()
         if resource.bitstream:
             img = sipi.upload_bitstream(os.path.join(imgdir, resource.bitstream))
             bitstream = img['uploadedFiles'][0]['internalFilename']

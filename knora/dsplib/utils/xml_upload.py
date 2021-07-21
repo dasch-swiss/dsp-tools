@@ -108,9 +108,19 @@ class KnoraValue:
         return self._value
 
     @property
+    def resrefs(self):
+        """List of resource references"""
+        return self._resrefs
+
+    @property
     def comment(self) -> str:
         """Comment for this value"""
         return self._comment
+
+    @property
+    def permissions(self):
+        """Reference to the set of permissions"""
+        return self._permissions
 
     def print(self) -> None:
         """Prints the value and its attributes."""
@@ -277,7 +287,7 @@ class KnoraResource:
 
     def get_propvals(self,
                      resiri_lookup: StrDict,
-                     permissions_lookup: StrDict) -> Dict[str, VarStrObj]:
+                     permissions_lookup: StrDict) -> Dict[str, Permissions]:
         """
         Get a dictionary of the property names and their values belonging to a resource
 
@@ -565,19 +575,18 @@ def xml_upload(input_file: str,
 
     sipi = Sipi(sipi, con.get_token())
 
-    # create the project on the server
+    # get the project information and ontology from the server
     factory = ResourceInstanceFactory(con, shortcode)
 
     permissions_lookup: Dict[str, Permissions] = {}
     for key, perm in permissions.items():
         permissions_lookup[key] = perm.get_permission_instance()
 
-    resclassnames = factory.get_resclass_names()
-    print(resclassnames)
-    resclasses: Dict[str, type] = {}
-    for resclassname in resclassnames:
-        resclasses[resclassname] = factory.get_resclass(resclassname)
-    resiri_lookup: StrDict = {}
+    res_class_names = factory.get_resclass_names()
+    res_classes: Dict[str, type] = {}
+    for res_class_name in res_class_names:
+        res_classes[res_class_name] = factory.get_resclass(res_class_name)
+    res_iri_lookup: StrDict = {}
 
     for resource in resources:
         if verbose:
@@ -587,11 +596,13 @@ def xml_upload(input_file: str,
             bitstream = img['uploadedFiles'][0]['internalFilename']
         else:
             bitstream = None
-        instance = resclasses[resource.restype](con=con,
-                                                label=resource.label,
-                                                permissions=permissions_lookup.get(resource.permissions),
-                                                bitstream=bitstream,
-                                                values=resource.get_propvals(resiri_lookup,
-                                                                             permissions_lookup)).create()
-        resiri_lookup[resource.id] = instance.iri
+
+        # create the resource on the server
+        instance = res_classes[resource.restype](con=con,
+                                                 label=resource.label,
+                                                 permissions=permissions_lookup.get(resource.permissions),
+                                                 bitstream=bitstream,
+                                                 values=resource.get_propvals(res_iri_lookup,
+                                                                              permissions_lookup)).create()
+        res_iri_lookup[resource.id] = instance.iri
         print("Created resource: ", instance.label, " with IRI ", instance.iri)

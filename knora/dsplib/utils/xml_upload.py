@@ -13,20 +13,15 @@ from dsplib.models.sipi import Sipi
 from dsplib.models.value import KnoraStandoffXml
 from lxml import etree
 
+# custom types
 StrDict = Dict[str, str]
-
 StrObj = Union[str, StrDict]
-
 VarStrObj = Union[StrObj, List[StrObj]]
-
-richtext_tags = [
-    'p', 'em', 'strong', 'u', 'sub', 'strike', 'a', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ol', 'ul', 'li', 'tbody',
-    'table', 'tr', 'td', 'br', 'hr', 'pre', 'cite', 'blockquote', 'code'
-]
 
 
 class XmlError(BaseException):
-    """Represents an error raised in the context of the XML import."""
+    """Represents an error raised in the context of the XML import"""
+    _message: str
 
     def __init__(self, msg: str):
         self._message = msg
@@ -36,23 +31,25 @@ class XmlError(BaseException):
 
 
 class ProjectContext:
-    """Represents the project context."""
+    """Represents the project context"""
+
     _projects: list[Project]
+    _project_map: Dict[str, str]  # dictionary of (project name:project IRI) pairs
+    _inv_project_map: Dict[str, str]  # dictionary of (project IRI:project name) pairs
     _groups: list[Group]
-    _project_map: Dict[str, str]
-    _inv_project_map: Dict[str, str]
     _group_map: Dict[str, str]
-    _shortcode: Union[str, None]
-    _project_name: Union[str, None]
+    _shortcode: Optional[str]
+    _project_name: Optional[str]
 
     def __init__(self, con: Connection, shortcode: Optional[str] = None):
         self._shortcode = shortcode
         self._projects = Project.getAllProjects(con=con)
         self._project_map: Dict[str, str] = {x.shortname: x.id for x in self._projects}
-        inv_project_map: Dict[str, str] = {x.id: x.shortname for x in self._projects}
+        self._inv_project_map: Dict[str, str] = {x.id: x.shortname for x in self._projects}
         self._groups = Group.getAllGroups(con=con)
-        self._group_map: Dict[str, str] = {inv_project_map[x.project] + ':' + x.name: x.id for x in self._groups}
+        self._group_map: Dict[str, str] = {self._inv_project_map[x.project] + ':' + x.name: x.id for x in self._groups}
         self._project_name = None
+        # get the project name from the shortcode
         if self._shortcode:
             for p in self._projects:
                 if p.shortcode == self._shortcode:
@@ -61,32 +58,20 @@ class ProjectContext:
 
     @property
     def group_map(self) -> Dict[str, str]:
-        """Dictionary of (project:group name) and (group id) of all groups in project, p.ex. {'rosetta:rosetta
-        -editors': 'http://rdfh.ch/groups/082E/7IdVjy0WTVyYe21Z1GnsKQ'}"""
+        """Dictionary of (project:group name) and (group id) pairs of all groups in project"""
         return self._group_map
 
     @property
-    def shortcode(self) -> Union[str, None]:
-        """Shortcode of the project"""
-        return self._shortcode
-
-    @shortcode.setter
-    def shortcode(self, value) -> None:
-        for p in self._projects:
-            if p.shortcode == self._shortcode:
-                self._project_name = p.shortname
-                break
-
-    @property
-    def project_name(self) -> Union[str, None]:
+    def project_name(self) -> Optional[str]:
         """Name of the project"""
         return self._project_name
 
 
 class KnoraValue:
     """Represents a value of a resource in the Knora ontology"""
+
     _value: Union[str, KnoraStandoffXml]
-    _resrefs: Union[List[str], None]
+    _resrefs: Optional[List[str]]
     _comment: str
     _permissions: str
     is_richtext: bool
@@ -123,19 +108,9 @@ class KnoraValue:
         return self._value
 
     @property
-    def resrefs(self) -> Union[List[str], None]:
-        """List of resource references ???"""
-        return self._resrefs
-
-    @property
     def comment(self) -> str:
         """Comment for this value"""
         return self._comment
-
-    @property
-    def permissions(self) -> str:
-        """Reference to a set of permissions"""
-        return self._permissions
 
     def print(self) -> None:
         """Prints the value and its attributes."""
@@ -148,29 +123,41 @@ class KnoraValue:
 
 
 class KnoraProperty:
-    """Represents a property of a resource in the Knora ontology"""
+    """Represents a property of a resource in the XML"""
+
     _name: str
-    _val_type: str
+    _valtype: str
     _values: List[KnoraValue]
 
-    def __init__(self, node: etree.Element, val_type: str, default_ontology: Optional[str] = None):
-        tmp = node.attrib['name'].split(':')
-        if len(tmp) > 1:
-            if tmp[0]:
+    def __init__(self, node: etree.Element, valtype: str, default_ontology: Optional[str] = None):
+        """
+        The constructor for the knora property
+
+        Args:
+            node: the property node, p.ex. <decimal-prop></decimal-prop>
+            valtype: the type of value given by the name of the property node, p.ex. decimal in <decimal-prop>
+            default_ontology: the name of the ontology
+        """
+        # get the property name which is in format namespace:propertyname, p.ex. rosetta:hasName
+        tmp_prop_name = node.attrib['name'].split(':')
+        if len(tmp_prop_name) > 1:
+            if tmp_prop_name[0]:
                 self._name = node.attrib['name']
             else:
-                self._name = default_ontology + ':' + tmp[1]
+                # replace an empty namespace with the default ontology name
+                self._name = default_ontology + ':' + tmp_prop_name[1]
         else:
-            self._name = 'knora-admin:' + tmp[0]
+            self._name = 'knora-admin:' + tmp_prop_name[0]
         listname = node.attrib.get('list')  # safe the list name if given (only for lists)
-        self._val_type = val_type
+        self._valtype = valtype
         self._values = []
 
+        # parse the subnodes of the property nodes which contain the actual values of the property
         for subnode in node:
-            if subnode.tag == val_type:  # the subnode must correspond to the expected value type
-                self._values.append(KnoraValue(subnode, val_type, listname))
+            if subnode.tag == valtype:  # the subnode must correspond to the expected value type
+                self._values.append(KnoraValue(subnode, valtype, listname))
             else:
-                raise XmlError('Unexpected tag: "{}" <property> may contain only <value> tags!'.format(subnode.tag))
+                raise XmlError('Unexpected tag: "{}". Property may contain only value tags!'.format(subnode.tag))
 
     @property
     def name(self) -> str:
@@ -180,7 +167,7 @@ class KnoraProperty:
     @property
     def valtype(self) -> str:
         """The value type of the property"""
-        return self._val_type
+        return self._valtype
 
     @property
     def values(self) -> List[KnoraValue]:
@@ -189,13 +176,14 @@ class KnoraProperty:
 
     def print(self) -> None:
         """Prints the property."""
-        print('  Property: {} Type: {}'.format(self._name, self._val_type))
+        print('  Property: {} Type: {}'.format(self._name, self._valtype))
         for value in self._values:
             value.print()
 
 
 class KnoraResource:
     """Represents a resource in the Knora ontology"""
+
     _id: str
     _label: str
     _restype: str
@@ -208,30 +196,33 @@ class KnoraResource:
         Constructor that parses a resource node from the XML DOM
 
         Args:
-            node: The DOM node to be processed (representing a resource, is a child of the knora element)
-            default_ontology: The default ontology (given with the attribute default-ontology of the knora element)
+            node: The DOM node to be processed representing a resource (which is a child of the knora element)
+            default_ontology: The default ontology (given in the attribute default-ontology of the knora element)
         """
-        self._id = node.attrib['id']  # safe the unique id
+        self._id = node.attrib['id']
         self._label = node.attrib['label']
-        tmp = node.attrib['restype'].split(':')
-        if len(tmp) > 1:
-            if tmp[0]:
+        # get the resource type which is in format namespace:resourcetype, p.ex. rosetta:Image
+        tmp_res_type = node.attrib['restype'].split(':')
+        if len(tmp_res_type) > 1:
+            if tmp_res_type[0]:
                 self._restype = node.attrib['restype']
             else:
-                self._restype = default_ontology + ':' + tmp[1]
+                # replace an empty namespace with the default ontology name
+                self._restype = default_ontology + ':' + tmp_res_type[1]
         else:
-            self._restype = 'knora-admin:' + tmp[0]
+            self._restype = 'knora-admin:' + tmp_res_type[0]
         self._permissions = node.attrib['permissions']
         self._bitstream = None
         self._properties = []
         for subnode in node:
             if subnode.tag == 'bitstream':
-                self._bitstream = subnode.text
+                self._bitstream = subnode.text  # path to the file
             elif subnode.tag is etree.Comment:
                 continue
             else:
-                ptype, dummy = subnode.tag.split('-')
-                self._properties.append(KnoraProperty(subnode, ptype, default_ontology))
+                # get the property type which is in format type-prop, p.ex. <decimal-prop>
+                prop_type, _ = subnode.tag.split('-')
+                self._properties.append(KnoraProperty(subnode, prop_type, default_ontology))
 
     @property
     def id(self) -> str:
@@ -337,6 +328,7 @@ class KnoraResource:
 
 class XmlAllow:
     """Represents the allow element of the XML"""
+
     _group: str
     _permission: str
 
@@ -491,6 +483,26 @@ def do_sort_order(resources: List[KnoraResource]) -> List[KnoraResource]:
     return ok_resources
 
 
+def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
+    """
+    Validates an XML file against an XSD schema
+
+    Args:
+        input_file: the XML file to be validated
+        schema_file: the schema against which the XML file should be validated
+
+    Returns:
+        True if the XML file is valid, False otherwise
+    """
+    xmlschema = etree.XMLSchema(schema_file)
+    doc = etree.parse(input_file)
+
+    if xmlschema.assertValid(doc):
+        return True
+    else:
+        return False
+
+
 def xml_upload(input_file: str,
                server: str,
                user: str,
@@ -510,22 +522,19 @@ def xml_upload(input_file: str,
         imgdir : the image directory
         sipi : the sipi instance to be used
         verbose : verbose option for the command, if used more output is given to the user
-        validate : validation option to validate the XML data only without the actual import of the data
+        validate : validation option to validate the XML data without the actual import of the data
 
     Returns:
         None
     """
+
     current_dir = os.path.dirname(os.path.realpath(__file__))
+    schema_file = etree.parse(os.path.join(current_dir, 'knora-data-schema.xsd'))
 
-    xmlschema_doc = etree.parse(os.path.join(current_dir, 'knora-data-schema.xsd'))
-    xmlschema = etree.XMLSchema(xmlschema_doc)
-    doc = etree.parse(input_file)
-    xmlschema.assertValid(doc)
-
-    print("The input data file is syntactically correct and passed validation!")
-
-    if validate:
-        return True
+    if validate_xml_against_schema(input_file, schema_file):
+        print("The input data file is syntactically correct and passed validation!")
+        if validate:
+            return True
 
     # Connect to the DaSCH Service Platform API
     con = Connection(server)
@@ -541,10 +550,13 @@ def xml_upload(input_file: str,
     knora = tree.getroot()
     default_ontology = knora.attrib['default-ontology']
     shortcode = knora.attrib['shortcode']
+
     for child in knora:
+        # get all permissions
         if child.tag == "permissions":
             permission = XmlPermission(child, proj_context)
             permissions[permission.id] = permission
+        # get all resources
         elif child.tag == "resource":
             resources.append(KnoraResource(child, default_ontology))
 
@@ -553,6 +565,7 @@ def xml_upload(input_file: str,
 
     sipi = Sipi(sipi, con.get_token())
 
+    # create the project on the server
     factory = ResourceInstanceFactory(con, shortcode)
 
     permissions_lookup: Dict[str, Permissions] = {}
@@ -560,6 +573,7 @@ def xml_upload(input_file: str,
         permissions_lookup[key] = perm.get_permission_instance()
 
     resclassnames = factory.get_resclass_names()
+    print(resclassnames)
     resclasses: Dict[str, type] = {}
     for resclassname in resclassnames:
         resclasses[resclassname] = factory.get_resclass(resclassname)

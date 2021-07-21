@@ -27,6 +27,7 @@ richtext_tags = [
 
 class XmlError(BaseException):
     """Represents an error raised in the context of the XML import."""
+
     def __init__(self, msg: str):
         self._message = msg
 
@@ -117,22 +118,22 @@ class KnoraValue:
                 self._value = "".join(node.itertext())
 
     @property
-    def value(self):
+    def value(self) -> Union[str, KnoraStandoffXml]:
         """The actual value of the value instance"""
         return self._value
 
     @property
-    def resrefs(self):
+    def resrefs(self) -> Union[List[str], None]:
         """List of resource references ???"""
         return self._resrefs
 
     @property
-    def comment(self):
+    def comment(self) -> str:
         """Comment for this value"""
         return self._comment
 
     @property
-    def permissions(self):
+    def permissions(self) -> str:
         """Reference to a set of permissions"""
         return self._permissions
 
@@ -172,17 +173,17 @@ class KnoraProperty:
                 raise XmlError('Unexpected tag: "{}" <property> may contain only <value> tags!'.format(subnode.tag))
 
     @property
-    def name(self):
+    def name(self) -> str:
         """The name of the property"""
         return self._name
 
     @property
-    def valtype(self):
+    def valtype(self) -> str:
         """The value type of the property"""
         return self._val_type
 
     @property
-    def values(self):
+    def values(self) -> List[KnoraValue]:
         """List of values of this property"""
         return self._values
 
@@ -199,15 +200,16 @@ class KnoraResource:
     _label: str
     _restype: str
     _permissions: str
-    _bitstream: str
+    _bitstream: Optional[str]
     _properties: List[KnoraProperty]
 
     def __init__(self, node: etree.Element, default_ontology: Optional[str] = None) -> None:
         """
         Constructor that parses a resource node from the XML DOM
 
-        :param context: Context for DOM node traversal
-        :param node: The DOM node to be processed (representing a resource)
+        Args:
+            node: The DOM node to be processed (representing a resource, is a child of the knora element)
+            default_ontology: The default ontology (given with the attribute default-ontology of the knora element)
         """
         self._id = node.attrib['id']  # safe the unique id
         self._label = node.attrib['label']
@@ -233,25 +235,30 @@ class KnoraResource:
 
     @property
     def id(self) -> str:
+        """The unique id of the resource"""
         return self._id
 
     @property
     def label(self) -> str:
+        """The label of the resource"""
         return self._label
 
     @property
     def restype(self) -> str:
+        """The type of the resource"""
         return self._restype
 
     @property
-    def bitstream(self) -> str:
+    def bitstream(self) -> Optional[str]:
+        """The path to the bitstream object (file) belonging to the resource"""
         return self._bitstream
 
     @property
-    def permissions(self):
+    def permissions(self) -> str:
+        """The reference to the permissions set for this resource"""
         return self._permissions
 
-    def print(self):
+    def print(self) -> None:
         """Prints the resource and its attributes."""
         print(f'Resource: id={self._id}, restype: {self._restype}, label: {self._label}')
         if self._bitstream is not None:
@@ -261,16 +268,18 @@ class KnoraResource:
 
     def get_resptrs(self) -> List[str]:
         """
-        Return a list of all reesource id's  that a referenced by this resource
-        :return: List of resources identified by their unique id's
+        Get a list of all resource id's that are referenced by this resource
+
+        Returns:
+            List of resources identified by their unique id's (as given in the XML)
         """
         resptrs: List[str] = []
-        for property in self._properties:
-            if property.valtype == 'resptr':
-                for value in property.values:
+        for prop in self._properties:
+            if prop.valtype == 'resptr':
+                for value in prop.values:
                     resptrs.append(value.value)
-            elif property.valtype == 'text':
-                for value in property.values:
+            elif prop.valtype == 'text':
+                for value in prop.values:
                     if value.resrefs is not None:
                         resptrs.extend(value.resrefs)
         return resptrs
@@ -279,31 +288,34 @@ class KnoraResource:
                      resiri_lookup: StrDict,
                      permissions_lookup: StrDict) -> Dict[str, VarStrObj]:
         """
-        A function which retrieves...
+        Get a dictionary of the property names and their values belonging to a resource
 
-        :param resiri_lookup: Is used to solve internal unique_id's of resourcs to real IRI's
-        :param permissions_lookup: Is usd to resolve thee permission ID's to permission sets
-        :return: A dict of values with the property name as key and a single value. This dict represents
-                 the JSON structure that Knora.create_resource() expects.
+        Args:
+            resiri_lookup: Is used to solve internal unique id's of resources to real IRI's
+            permissions_lookup: Is used to resolve the permission id's to permission sets
+
+        Returns:
+            A dict of values with the property name as key and a single value. This dict represents the JSON structure
+            that Knora.create_resource() expects.
         """
-        propdata = {}
-        for property in self._properties:
+        prop_data = {}
+        for prop in self._properties:
             vals: List[StrObj] = []  # == List[Union[str,StrDict]
-            for value in property.values:
+            for value in prop.values:
                 v: str
-                if property.valtype == 'resptr':  # we have a resptr, therefore simple lookup or IRI
+                if prop.valtype == 'resptr':  # we have a resptr, therefore simple lookup or IRI
                     iri = resiri_lookup.get(value.value)
                     if iri is not None:
                         v = iri
                     else:
                         v = value.value  # if we do not find the unique_id, we assume it's a valid knora IRI
-                elif property.valtype == 'text':
+                elif prop.valtype == 'text':
                     if isinstance(value.value, KnoraStandoffXml):
-                        irirefs = value.value.findall()  # The IRI's must be embedded  as "...IRI:unique_id:IRI..."
-                        for iriref in irirefs:
-                            resid = iriref.split(':')[1]
-                            iri = resiri_lookup.get(resid)
-                            value.value.replace(iriref, iri)
+                        iri_refs = value.value.findall()  # The IRI's must be embedded  as "...IRI:unique_id:IRI..."
+                        for iri_ref in iri_refs:
+                            res_id = iri_ref.split(':')[1]
+                            iri = resiri_lookup.get(res_id)
+                            value.value.replace(iri_ref, iri)
                     v = value.value
                 else:
                     v = value.value
@@ -319,8 +331,8 @@ class KnoraResource:
                     if value.permissions is not None:
                         tmp['permissions'] = permissions_lookup.get(value.permissions)
                     vals.append(tmp)
-            propdata[property.name] = vals if len(vals) > 1 else vals[0]  # append a Union[StrObj,List[StrObj]]
-        return propdata
+            prop_data[prop.name] = vals if len(vals) > 1 else vals[0]  # append a Union[StrObj,List[StrObj]]
+        return prop_data
 
 
 class XmlAllow:
@@ -361,16 +373,16 @@ class XmlAllow:
         self._permission = node.text
 
     @property
-    def group(self):
+    def group(self) -> str:
         """The group specified in the allow element"""
         return self._group
 
     @property
-    def permission(self):
-        """The permission """
+    def permission(self) -> str:
+        """The reference to a set of permissions"""
         return self._permission
 
-    def print(self):
+    def print(self) -> None:
         """Prints the attributes of the XmlAllow instance"""
         print("  group=", self._group, " permission=", self._permission)
 
@@ -384,8 +396,9 @@ class XmlPermission:
         """
         Constructor which parses a XML DOM permissions element representing an named permission set
 
-        :param context: Context for DOM node traversal
-        :param node: The DOM node to be processed (representing an a permission set)
+        Args:
+            node: The DOM node to be processed (representing an a permission set)
+            project_context: Context for DOM node traversal
         """
         self._allows = []
         self._id = node.attrib['id']
@@ -403,6 +416,7 @@ class XmlPermission:
         return self._allows
 
     def get_permission_instance(self) -> Permissions:
+        """Returns a list of allow elements of this permission instance"""
         permissions = Permissions()
         for allow in self._allows:
             permissions.add(allow.permission, allow.group)
@@ -423,19 +437,18 @@ class XmlPermission:
 
 def do_sort_order(resources: List[KnoraResource]) -> List[KnoraResource]:
     """
-    Sorts the list of resources.
+    Sorts a list of resources.
 
-    The sorting is such that resources that reference other resources are
-    added after the referenced resources. It will fail with an error if there are circular
-    references.
+    The sorting is such that resources that reference other resources are added after the referenced resources. It
+    will fail with an error if there are circular references.
 
     Args:
         resources: List of resources before sorting
 
     Returns:
-        sorted list of Knora resources
+        sorted list of resources
     """
-    # here we sort the resources according to outgoing resptrs
+    # sort the resources according to outgoing resptrs
     ok_resources: [KnoraResource] = []
     notok_resources: [KnoraResource] = []
     ok_res_ids: [str] = []
@@ -453,7 +466,7 @@ def do_sort_order(resources: List[KnoraResource]) -> List[KnoraResource]:
                     if resptr in ok_res_ids:
                         pass
                     else:
-                        ok = False;
+                        ok = False
                 if ok:
                     ok_resources.append(resource)
                     ok_res_ids.append(resource.id)
@@ -522,8 +535,6 @@ def xml_upload(input_file: str,
 
     resources: List[KnoraResource] = []
     permissions: Dict[str, XmlPermission] = {}
-    shortcode: Union[str, None] = None
-    default_ontology = None
 
     # read the XML file containing the data, including project shortcode
     tree = etree.parse(input_file)
@@ -569,4 +580,4 @@ def xml_upload(input_file: str,
                                                 values=resource.get_propvals(resiri_lookup,
                                                                              permissions_lookup)).create()
         resiri_lookup[resource.id] = instance.iri
-        print("Created:", instance.iri)
+        print("Created resource: ", instance.label, " with IRI ", instance.iri)

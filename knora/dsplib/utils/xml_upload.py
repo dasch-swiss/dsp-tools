@@ -4,6 +4,8 @@ The code in this file handles the import of XML data into the DSP platform.
 import os
 from typing import List, Dict, Optional, Union
 
+from lxml import etree
+
 from dsplib.models.connection import Connection
 from dsplib.models.group import Group
 from dsplib.models.permission import Permissions
@@ -11,7 +13,6 @@ from dsplib.models.project import Project
 from dsplib.models.resource import ResourceInstanceFactory
 from dsplib.models.sipi import Sipi
 from dsplib.models.value import KnoraStandoffXml
-from lxml import etree
 
 # custom types
 StrDict = Dict[str, str]
@@ -489,7 +490,7 @@ def do_sort_order(resources: List[KnoraResource]) -> List[KnoraResource]:
         notok_resources = []
         cnt += 1
         print('{}. Ordering pass Finished!'.format(cnt))
-    print('Remaining: {}'.format(len(resources)))
+    # print('Remaining: {}'.format(len(resources)))
     return ok_resources
 
 

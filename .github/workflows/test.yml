@@ -42,3 +42,6 @@ jobs:
           make install-requirements
           make install
           make test
+      - name: build docs
+        run: |
+          make build-docs

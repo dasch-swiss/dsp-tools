@@ -19,7 +19,7 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 def program(args: list) -> None:
     """
-    The program parses the command line arguments and calls the actions
+    The program parses the command line arguments and calls the requested action
 
     Args:
         args: list of arguments passed by the user from the command line
@@ -67,7 +67,7 @@ def program(args: list) -> None:
     parser_upload.add_argument("-u", "--user", type=str, default="root@example.com", help="Username for DSP server")
     parser_upload.add_argument("-p", "--password", type=str, default="test", help="The password for login")
     parser_upload.add_argument("-V", "--validate", action='store_true',
-                               help="Do only validation of JSON, no upload of the ontology")
+                               help="Do only validation of XML, no upload of the data")
     parser_upload.add_argument("-i", "--imgdir", type=str, default=".", help="Path to folder containing the images")
     parser_upload.add_argument("-S", "--sipi", type=str, default="http://0.0.0.0:1024", help="URL of SIPI server")
     parser_upload.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
@@ -131,7 +131,7 @@ def program(args: list) -> None:
                    imgdir=args.imgdir,
                    sipi=args.sipi,
                    verbose=args.verbose,
-                   validate=args.validate)
+                   validate_only=args.validate)
     elif args.action == "excel":
         list_excel2json(excelpath=args.excelfile,
                         sheetname=args.sheet,

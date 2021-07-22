@@ -49,7 +49,7 @@ class TestTools(unittest.TestCase):
                    imgdir="testdata/bitstreams",
                    sipi="http://0.0.0.0:1024",
                    verbose=True,
-                   validate=False)
+                   validate_only=False)
 
 
 

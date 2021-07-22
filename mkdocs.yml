@@ -27,10 +27,6 @@ theme:
 extra_css:
   - 'assets/style/theme.css'
 
-markdown_extensions:
-  - markdown_include.include
-  - pymdownx.tasklist
-  - pymdownx.critic
-
 plugins:
   - search
+  - include-markdown

@@ -3,5 +3,4 @@ mkdocs
 mkdocstrings
 mkdocs-material
 mkdocs-material-extensions
-pymdown-extensions
-markdown-include
+mkdocs-include-markdown-plugin

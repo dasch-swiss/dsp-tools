@@ -72,10 +72,7 @@ class KnoraValue:
     _permissions: str
     _is_richtext: bool
 
-    def __init__(self,
-                 node: etree.Element,
-                 val_type: str,
-                 listname: Optional[str] = None) -> None:
+    def __init__(self, node: etree.Element, val_type: str, listname: Optional[str] = None) -> None:
 
         self._resrefs = None
         self._comment = node.get('comment')
@@ -286,9 +283,7 @@ class KnoraResource:
                         resptrs.extend(value.resrefs)
         return resptrs
 
-    def get_propvals(self,
-                     resiri_lookup: Dict[str, str],
-                     permissions_lookup: Dict[str, Permissions]) -> Dict[str, Permissions]:
+    def get_propvals(self, resiri_lookup: Dict[str, str], permissions_lookup: Dict[str, Permissions]) -> Dict[str, Permissions]:
         """
         Get a dictionary of the property names and their values belonging to a resource
 
@@ -518,13 +513,7 @@ def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
     return is_valid
 
 
-def xml_upload(input_file: str,
-               server: str,
-               user: str,
-               password: str,
-               imgdir: str,
-               sipi: str,
-               verbose: bool,
+def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
                validate_only: bool) -> bool:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
@@ -605,11 +594,8 @@ def xml_upload(input_file: str,
             bitstream = None
 
         # create the resource on the server
-        instance = res_classes[resource.restype](con=con,
-                                                 label=resource.label,
-                                                 permissions=permissions_lookup.get(resource.permissions),
-                                                 bitstream=bitstream,
-                                                 values=resource.get_propvals(res_iri_lookup,
-                                                                              permissions_lookup)).create()
+        instance = res_classes[resource.restype](con=con, label=resource.label,
+                                                 permissions=permissions_lookup.get(resource.permissions), bitstream=bitstream,
+                                                 values=resource.get_propvals(res_iri_lookup, permissions_lookup)).create()
         res_iri_lookup[resource.id] = instance.iri
         print("Created resource: ", instance.label, " (", resource.id, ") with IRI ", instance.iri)

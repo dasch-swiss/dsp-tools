@@ -1,17 +1,15 @@
-import unittest
 import json
+import unittest
 
-from dsplib.utils.onto_get import get_ontology
+from dsplib.utils.onto_create_ontology import create_ontology
 from dsplib.utils.onto_get import get_ontology
 from dsplib.utils.onto_validate import validate_ontology
-from dsplib.utils.onto_create_ontology import create_ontology
 from knora.dsplib.utils.xml_upload import xml_upload
 
 
 class TestTools(unittest.TestCase):
 
     def test_get(self):
-
         with open('testdata/anything.json') as f:
             jsonstr = f.read()
         refobj = json.loads(jsonstr)
@@ -50,7 +48,6 @@ class TestTools(unittest.TestCase):
                    sipi="http://0.0.0.0:1024",
                    verbose=True,
                    validate_only=False)
-
 
 
 if __name__ == '__main__':

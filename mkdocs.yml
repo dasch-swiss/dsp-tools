@@ -13,6 +13,7 @@ nav:
     - Bulk data import: dsp-tools-xmlupload.md
     - Excel file processing: dsp-tools-excel.md
     - Information for developers: dsp-tools-information-for-developers.md
+    - Changelog: changelog.md
 
 theme:
   name: material
@@ -25,3 +26,7 @@ theme:
     tabs: false
 extra_css:
   - 'assets/style/theme.css'
+
+plugins:
+  - search
+  - include-markdown

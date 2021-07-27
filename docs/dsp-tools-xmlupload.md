@@ -180,7 +180,7 @@ Example for a property element of type text (`<text-prop>`) with two value eleme
 
 | ⚠ Look out  |
 |:----------|
-| In case of a cardinality 1-n, you must **NOT** create multiple `<text-prop>` tags, but multiple `<text>` tags in one single `<text-prop>`! |
+| In case of a cardinality 1-n, multiple `<text>` tags have to be created inside the `<text-prop>` tag (do not use multiple `<text-prop>` tags). |
  
 The following property elements exist:
 

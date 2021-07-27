@@ -173,8 +173,8 @@ Example for a property element of type text (`<text-prop>`) with two value eleme
 
 ```xml
 <text-prop name=":hasTranslation">
-   <text encoding="utf8">Dies ist eine Übersetzung</text>
-   <text encoding="utf8">Und eine andere Übersetzung</text>
+   <text encoding="utf8">Dies ist eine Übersetzung.</text>
+   <text encoding="utf8">Dies ist eine weitere Übersetzung.</text>
 </text-prop>
 ```
 

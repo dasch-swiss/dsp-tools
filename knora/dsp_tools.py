@@ -110,6 +110,7 @@ def program(args: list) -> None:
 
 
 def main():
+    """Main entry point of the program as referenced in setup.py"""
     program(sys.argv[1:])
 
 

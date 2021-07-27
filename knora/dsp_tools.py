@@ -35,7 +35,7 @@ def program(args: list) -> None:
 
     subparsers = parser.add_subparsers(title="Subcommands", description='Valid subcommands are', help='sub-command help')
 
-    parser_create = subparsers.add_parser('create', help='Create ontologies, lists etc.')
+    parser_create = subparsers.add_parser('create', help='Upload an ontology to the DaSCH Service Platform from a JSON file.')
     parser_create.set_defaults(action="create")
     parser_create.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the DSP server")
     parser_create.add_argument("-u", "--user", default="root@example.com", help="Username for DSP server")
@@ -48,16 +48,16 @@ def program(args: list) -> None:
     parser_create.add_argument("-d", "--dump", action="store_true", help="dump test files for DSP-API requests")
     parser_create.add_argument("datamodelfile", help="path to data model file")
 
-    parser_get = subparsers.add_parser('get', help='Get project/ontology information from server')
+    parser_get = subparsers.add_parser('get', help='Get the ontology (data model) of a project from the DaSCH Service Platform.')
     parser_get.set_defaults(action="get")
     parser_get.add_argument("-u", "--user", default="root@example.com", help="Username for DSP server")
     parser_get.add_argument("-p", "--password", default="test", help="The password for login")
     parser_get.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the DSP server")
     parser_get.add_argument("-P", "--project", type=str, help="Shortcode, shortname or iri of project", required=True)
     parser_get.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
-    parser_get.add_argument("datamodelfile", help="path to data model file", default="onto.json")
+    parser_get.add_argument("datamodelfile", help="Path to the file the ontology should be written to", default="onto.json")
 
-    parser_upload = subparsers.add_parser('xmlupload', help='Upload data from XML file to server')
+    parser_upload = subparsers.add_parser('xmlupload', help='Upload data from an XML file to the DaSCH Service Platform.')
     parser_upload.set_defaults(action="xmlupload")
     parser_upload.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the DSP server")
     parser_upload.add_argument("-u", "--user", type=str, default="root@example.com", help="Username for DSP server")
@@ -68,16 +68,18 @@ def program(args: list) -> None:
     parser_upload.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
     parser_upload.add_argument("xmlfile", help="path to xml file containing the data", default="data.xml")
 
-    parser_excel_lists = subparsers.add_parser('excel', help='Create lists JSON from excel files')
-    parser_excel_lists.set_defaults(action="excel")
-    parser_excel_lists.add_argument("-S", "--sheet", type=str, help="Name of excel sheet to be used", default="Tabelle1")
-    parser_excel_lists.add_argument("-s", "--shortcode", type=str, help="Shortcode of project", default="4123")
-    parser_excel_lists.add_argument("-l", "--listname", type=str, help="Name of list to be created", default="my_list")
-    parser_excel_lists.add_argument("-L", "--label", type=str, help="Label of list to be created", default="MyList")
-    parser_excel_lists.add_argument("-x", "--lang", type=str, help="Language for label", default="en")
-    parser_excel_lists.add_argument("-v", "--verbose", action="store_true", help="Verbose feedback")
-    parser_excel_lists.add_argument("excelfile", help="Path to the excel file containing the list data", default="lists.xlsx")
-    parser_excel_lists.add_argument("outfile", help="Path to the output JSON file containing the list data", default="list.json")
+    parser_excel_lists = subparsers.add_parser('excel', help='Create a JSON list from one or multiple Excel files. The JSON '
+                                                             'list can be integrated into a JSON ontology. If the list should '
+                                                             'contain multiple languages, an Excel file has to be used for '
+                                                             'each language. The filenames should contain the language as '
+                                                             'label, p.ex. liste_de.xlsx, list_en.xlsx. The language is then '
+                                                             'taken from the filename. Only files with extension .xlsx are '
+                                                             'considered.')
+    parser_excel_lists.set_defaults(action='excel')
+    parser_excel_lists.add_argument('-l', '--listname', type=str, help='Name of the list to be created (filename is taken if '
+                                                                       'omitted)', default=None)
+    parser_excel_lists.add_argument('excelfolder', help='Path to the folder containing the Excel file(s)', default='lists')
+    parser_excel_lists.add_argument('outfile', help='Path to the output JSON file containing the list data', default='list.json')
 
     args = parser.parse_args(args)
 
@@ -105,8 +107,7 @@ def program(args: list) -> None:
         xml_upload(input_file=args.xmlfile, server=args.server, user=args.user, password=args.password, imgdir=args.imgdir,
                    sipi=args.sipi, verbose=args.verbose, validate_only=args.validate)
     elif args.action == "excel":
-        list_excel2json(excelpath=args.excelfile, sheetname=args.sheet, shortcode=args.shortcode, listname=args.listname,
-                        label=args.label, lang=args.lang, outfile=args.outfile, verbose=args.verbose)
+        list_excel2json(listname=args.listname, excelfolder=args.excelfolder, outfile=args.outfile)
 
 
 def main():

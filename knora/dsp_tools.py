@@ -7,14 +7,14 @@ import sys
 
 import pkg_resources  # part of setuptools
 
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+
 from dsplib.utils.onto_create_lists import create_lists
 from dsplib.utils.onto_create_ontology import create_ontology
 from dsplib.utils.onto_get import get_ontology
 from dsplib.utils.onto_process_excel import list_excel2json
 from dsplib.utils.onto_validate import validate_list, validate_ontology
 from dsplib.utils.xml_upload import xml_upload
-
-sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 
 def program(args: list) -> None:
@@ -107,6 +107,10 @@ def program(args: list) -> None:
     elif args.action == "excel":
         list_excel2json(excelpath=args.excelfile, sheetname=args.sheet, shortcode=args.shortcode, listname=args.listname,
                         label=args.label, lang=args.lang, outfile=args.outfile, verbose=args.verbose)
+
+
+def main():
+    program(sys.argv[1:])
 
 
 if __name__ == '__main__':

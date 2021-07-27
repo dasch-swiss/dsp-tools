@@ -340,8 +340,7 @@ Here is an example on how to build a taxonomic structure in JSON:
 ```
 #### Lists from Excel
 
-A list can also be imported from an Excel sheet. The Excel sheet must have the following format (currently only a single
-language is supported):
+A list can be created from an Excel sheet. The Excel sheet must have the following format:
 
 ![img-list-example.png](assets/images/img-list-example.png)
 

@@ -12,7 +12,7 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 from dsplib.utils.onto_create_lists import create_lists
 from dsplib.utils.onto_create_ontology import create_ontology
 from dsplib.utils.onto_get import get_ontology
-from dsplib.utils.onto_process_excel import list_excel2json
+from dsplib.utils.excel_to_json_lists import list_excel2json
 from dsplib.utils.onto_validate import validate_list, validate_ontology
 from dsplib.utils.xml_upload import xml_upload
 

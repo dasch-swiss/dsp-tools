@@ -1,5 +1,4 @@
-from typing import List, Set, Dict, Tuple, Optional
-import argparse
+"""This file handles all the operations which are used for the creation of JSON lists form Excel files."""
 import csv
 import glob
 import json
@@ -109,8 +108,8 @@ def get_values_from_excel(excelfiles: List[str], worksheet: openpyxl.worksheet._
 
 def make_json_list_from_excel(rootnode: {}, excelfiles: List[str]) -> None:
     """
-    This function reads an Excel file and makes a JSON list file from it. The JSON can then be used in a dsp
-    ontology.
+    Reads an Excel file and makes a JSON list file from it. The JSON can then be used in an ontology that is uploaded to the
+    DaSCH Service Platform.
 
     Args:
         rootnode: The root node of the JSON list
@@ -124,8 +123,8 @@ def make_json_list_from_excel(rootnode: {}, excelfiles: List[str]) -> None:
     startrow = 1
     startcol = 1
 
-    # Check if english file is available, take last one from list of Excel files. The node names are derived from the
-    # labels of the base file.
+    # Check if english file is available, take last one from list of Excel files. The node names are derived from the labels of
+    # the base file.
     base_file = ""
 
     for filename in excelfiles:
@@ -244,8 +243,6 @@ def make_root_node_from_args(excelfiles: List[str], listname_from_args: str) -> 
     # if the user provided a listname use it
     if listname_from_args:
         listname = listname_from_args
-
-        # {"project": {"shortcode": shortcode, "lists": [rootnode]}}
 
     rootnode = {"name": listname, "labels": rootnode_labels_dict}
 

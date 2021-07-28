@@ -12,28 +12,38 @@ create a list from an Excel file.
 [not yet implemented]
 
 ## Create a list from one or several Excel files
-With dsp-tools a list can be created from one or several Excel files. The expected format of the Excel files is described 
-[here](./dsp-tools-create.md#lists-from-excel). It is possible to create multilingual lists. Therefore, an Excel file for each 
-language has to be created. The data has to be in the first worksheet of the Excel file and all Excel files have to be in the 
-same directory. When calling the `excel` command, this folder has to be provided as an argument to the call. 
+With dsp-tools a JSON list can be created from one or several Excel files. The list can then be inserted into a JSON ontology 
+and uploaded to a DSP server. The expected format of the Excel files is described [here](./dsp-tools-create.md#lists-from-excel). 
+It is possible to create multilingual lists. Therefore, an Excel file for each language has to be created. The data has to be in 
+the first worksheet of the Excel file and all the Excel lists have to have the same structure.
+
+Only Excel files with file extension `.xlsx` are considered. All Excel files have to be located in the same directory. When 
+calling the `excel` command, this folder is provided as an argument to the call. The language of the labels has to be provided in 
+the Excel file's file name after an underline and before the file extension, p.ex. `liste_de.xlsx` would be considered a list with 
+German (`de`) labels, `list_en.xlsx` a list with English (`en`) labels. The language has to be a valid ISO 639-1 or ISO
+639-2 language code.
 
 The following example shows how to create a JSON list from two Excel files which are in a directory called `lists`. The output is
 written to the file `list.json`.
+
 ```bash
 dsp-tools excel lists list.json
 ```
 
-The two Excel files `liste_de.xlsx` and `list_en.xlsx` are in the folder called `lists`:
+The two Excel files `liste_de.xlsx` and `list_en.xlsx` are located in a folder called `lists`. `liste_de.xlsx` contains German 
+labels for the list, `list_en.xlsx` contains the English labels.
+
 ```
 lists
     |__ liste_de.xlsx
     |__ list_en.xlsx
 ```
 
-For each list node, the `label`s are read from the Excel files. The language attribute is taken from the filename(s) after the 
-last underline `_`. So, in case of `liste_de.xlsx` the language attribute `de` is taken for all the node labels in the Excel 
-file. The language attribute has to be a valid ISO 639-1 or ISO 639-2 code. The language code is then used for the labels like 
-this:
+For each list node, the `label`s are read from the Excel files. The language code, provided in the file name, is then used for 
+the labels. As node `name`, a simplified version of the English label is taken, if English is one of the available languages. If
+English is not available, one of the other languages is chosen (which one depends on the representation of the file order). If
+there are two node names with the same name, an incrementing number is appended to the name.
+
 ```JSON
 {
   "name": "sand",
@@ -67,10 +77,5 @@ this:
 }, ...
 ```
 
-As node `name`, a simplified version of the English label is taken, if English is one of the available languages. If English 
-is not available, one of the other languages is chosen (which one depends on the representation of the file order). If there are 
-two node names with the same name, an incrementing number is appended to the name.
-
-After the creation of the list, a validation against the XSD schema for lists is performed. An error message ist printed out 
-if the list is not valid. Furthermore, it is checked that no two nodes are the same.
-
+After the creation of the list, a validation against the XSD schema for lists is performed. An error message ist printed out if 
+the list is not valid. Furthermore, it is checked that no two nodes are the same.

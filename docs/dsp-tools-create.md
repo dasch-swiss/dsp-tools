@@ -275,7 +275,7 @@ Here is an example on how to build a taxonomic structure in JSON:
     {
       "name": "my_list",
       "labels": {"en": "Disciplines of the Humanities"},
-      "comments": {"en": "This ist is just a silly example", "fr": "un example un peu fou"},
+      "comments": {"en": "This is just an example.", "fr": "C'est un example."},
       "nodes": [
         {
           "name": "node_1_1",
@@ -347,9 +347,10 @@ A list can be directly imported from an Excel sheet. The Excel sheet must have t
 In such a case, the Excel file can directly be referenced in the list definition by defining a special list node:
 ```json
 {
-  "name": "fromexcel",
+  "name": "List-from-excel",
   "labels": {
-    "en": "Fromexcel"
+    "en": "List from an Excel file",
+    "de": "Liste von einer Excel-Datei"
   },
   "nodes": {
     "file": "excel-list.xlsx",

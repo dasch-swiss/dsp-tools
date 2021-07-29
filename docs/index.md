@@ -21,5 +21,5 @@ dsp-tools helps you with the following tasks:
 - [`dsp-tools xmlupload`](./dsp-tools-usage.md#upload-data-to-a-dsp-server) uploads data from a provided XML file (bulk
   data import).
 - [`dsp-tools excel`](./dsp-tools-usage.md#create-a-json-list-file-from-one-or-several-excel-files)
-  creates a JSON file from one or several Excel files. The JSON can then be used in an ontology and uploaded to a DSP server with 
+  creates a JSON or XML file from one or several Excel files. The created data can then be uploaded to a DSP server with 
   `dsp-tools create`.

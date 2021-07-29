@@ -35,7 +35,7 @@ def program(args: list) -> None:
 
     subparsers = parser.add_subparsers(title="Subcommands", description='Valid subcommands are', help='sub-command help')
 
-    parser_create = subparsers.add_parser('create', help='Upload an ontology to the DaSCH Service Platform from a JSON file.')
+    parser_create = subparsers.add_parser('create', help='Upload an ontology from a JSON file to the DaSCH Service Platform')
     parser_create.set_defaults(action="create")
     parser_create.add_argument("-s", "--server", type=str, default="http://0.0.0.0:3333", help="URL of the DSP server")
     parser_create.add_argument("-u", "--user", default="root@example.com", help="Username for DSP server")

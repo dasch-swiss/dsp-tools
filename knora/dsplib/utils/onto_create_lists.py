@@ -1,7 +1,9 @@
+import glob
 import os
 import json
 from jsonschema import validate
 
+from .excel_to_json_lists import make_root_node_from_args, make_json_list_from_excel
 from ..models.helpers import Actions, BaseError, Context, Cardinality
 from ..models.connection import Connection
 from ..models.project import Project
@@ -10,42 +12,53 @@ from .onto_commons import list_creator, validate_list_from_excel, json_list_from
 
 
 def create_lists(input_file: str, lists_file: str, server: str, user: str, password: str, verbose: bool, dump: bool = False) -> bool:
+    print("hello")
     current_dir = os.path.dirname(os.path.realpath(__file__))
 
     # let's read the schema for the data model definition
     with open(os.path.join(current_dir, 'knora-schema-lists.json')) as s:
         schema = json.load(s)
+
     # read the data model definition
     with open(input_file) as f:
         datamodel = json.load(f)
 
-    #
-    # now let's see if there are any lists defined as reference to excel files
-    #
+    # check if the folder parameter is used
     lists = datamodel["project"].get('lists')
     if lists is not None:
         newlists: [] = []
         for rootnode in lists:
-            if rootnode.get("nodes") is not None and isinstance(rootnode["nodes"], dict) and rootnode["nodes"].get("file") is not None:
-                newroot = {
-                    "name": rootnode.get("name"),
-                    "labels": rootnode.get("labels"),
-                    "comments": rootnode.get("comments")
-                }
-                startrow = 1 if rootnode["nodes"].get("startrow") is None else rootnode["nodes"]["startrow"]
-                startcol = 1 if rootnode["nodes"].get("startcol") is None else rootnode["nodes"]["startcol"]
-                json_list_from_excel(rootnode=newroot,
-                                     filepath=rootnode["nodes"]["file"],
-                                     sheetname=rootnode["nodes"]["worksheet"],
-                                     startrow=startrow,
-                                     startcol=startcol)
-                newlists.append(newroot)
+            if rootnode.get("nodes") is not None and isinstance(rootnode["nodes"], dict) and rootnode["nodes"].get("folder") is not None:
+                #newroot = {
+                #    "name": rootnode.get("name"),
+                #    "labels": rootnode.get("labels"),
+                #    "comments": rootnode.get("comments")
+                #}
+                #startrow = 1 if rootnode["nodes"].get("startrow") is None else rootnode["nodes"]["startrow"]
+                #startcol = 1 if rootnode["nodes"].get("startcol") is None else rootnode["nodes"]["startcol"]
+                #json_list_from_excel(rootnode=newroot,
+                #                     filepath=rootnode["nodes"]["file"],
+                #                     sheetname=rootnode["nodes"]["worksheet"],
+                #                     startrow=startrow,
+                #                     startcol=startcol)
+
+                # crate a list with all excel files from the path provided by the user
+                excel_files = [filename for filename in glob.iglob(f'{rootnode["nodes"]["folder"]}/*.xlsx') if
+                               not os.path.basename(filename).startswith("~$")]
+
+                # create root node of list
+                rootnode = make_root_node_from_args(excel_files, rootnode.get("name"))
+
+                # create rest of the list from Excel worksheet
+                make_json_list_from_excel(rootnode, excel_files)
+
+                newlists.append(rootnode)
             else:
                 newlists.append(rootnode)
         datamodel["project"]["lists"] = newlists
 
     # validate the data model definition in order to be sure that it is correct
-    validate(datamodel, schema)
+    #validate(datamodel, schema)
 
     if verbose:
         print("Data model is syntactically correct and passed validation!")

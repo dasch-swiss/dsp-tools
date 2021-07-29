@@ -5,6 +5,16 @@ load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 load("@knora_py_deps//:requirements.bzl", "requirement")
 
 py_library(
+    name = "excel_to_json_lists",
+    visibility = ["//visibility:public"],
+    srcs = ["excel_to_json_lists.py"],
+    deps = [
+        requirement("jsonschema"),
+    ],
+    imports = [".", ".."],
+)
+
+py_library(
     name = "onto_commons",
     visibility = ["//visibility:public"],
     srcs = ["onto_commons.py"],

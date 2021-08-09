@@ -36,7 +36,6 @@ class TestTools(unittest.TestCase):
         self.assertEqual(anything_onto['project']['shortcode'], anything_onto_out['project']['shortcode'])
         self.assertEqual(anything_onto['project']['shortname'], anything_onto_out['project']['shortname'])
         self.assertEqual(anything_onto['project']['longname'], anything_onto_out['project']['longname'])
-        self.assertEqual(anything_onto['project']['lists'], anything_onto_out['project']['lists'])
 
         # TODO fix this test
         # self.assertEqual(anything_onto['project']['ontologies'], anything_onto_out['project']['ontologies'])

@@ -37,6 +37,37 @@ class TestTools(unittest.TestCase):
         self.assertEqual(anything_onto['project']['shortname'], anything_onto_out['project']['shortname'])
         self.assertEqual(anything_onto['project']['longname'], anything_onto_out['project']['longname'])
 
+        for list in anything_onto['project']['lists']:
+            list_name = list.get('name')
+            if list_name == 'otherTreeList':
+                other_tree_list = list
+            elif list_name == 'notUsedList':
+                not_used_list = list
+            elif list_name == 'treelistroot':
+                tree_list_root = list
+
+        for list in anything_onto_out['project']['lists']:
+            list_name = list.get('name')
+            print(list.get('name'))
+            if list_name == 'otherTreeList':
+                other_tree_list_out = list
+            elif list_name == 'notUsedList':
+                not_used_list_out = list
+            elif list_name == 'treelistroot':
+                tree_list_root_out = list
+
+        self.assertEqual(other_tree_list.get('labels'), other_tree_list_out.get('labels'))
+        self.assertEqual(other_tree_list.get('comments'), other_tree_list_out.get('comments'))
+        self.assertEqual(other_tree_list.get('nodes'), other_tree_list_out.get('nodes'))
+
+        self.assertEqual(not_used_list.get('labels'), not_used_list_out.get('labels'))
+        self.assertEqual(not_used_list.get('comments'), not_used_list_out.get('comments'))
+        self.assertEqual(not_used_list.get('nodes'), not_used_list_out.get('nodes'))
+
+        self.assertEqual(tree_list_root.get('labels'), tree_list_root_out.get('labels'))
+        self.assertEqual(tree_list_root.get('comments'), tree_list_root_out.get('comments'))
+        self.assertEqual(tree_list_root.get('nodes'), tree_list_root_out.get('nodes'))
+
         # TODO fix this test
         # self.assertEqual(anything_onto['project']['ontologies'], anything_onto_out['project']['ontologies'])
 

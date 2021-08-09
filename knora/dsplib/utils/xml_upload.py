@@ -6,13 +6,13 @@ from typing import List, Dict, Optional, Union
 
 from lxml import etree
 
-from dsplib.models.connection import Connection
-from dsplib.models.group import Group
-from dsplib.models.permission import Permissions
-from dsplib.models.project import Project
-from dsplib.models.resource import ResourceInstanceFactory
-from dsplib.models.sipi import Sipi
-from dsplib.models.value import KnoraStandoffXml
+from ..models.connection import Connection
+from ..models.group import Group
+from ..models.permission import Permissions
+from ..models.project import Project
+from ..models.resource import ResourceInstanceFactory
+from ..models.sipi import Sipi
+from ..models.value import KnoraStandoffXml
 
 
 class XmlError(BaseException):

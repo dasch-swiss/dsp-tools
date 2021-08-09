@@ -5,15 +5,24 @@ load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 load("@knora_py_deps//:requirements.bzl", "requirement")
 
 py_library(
-    name = "onto_commons",
+    name = "excel_to_json_lists",
     visibility = ["//visibility:public"],
-    srcs = ["onto_commons.py"],
+    srcs = ["excel_to_json_lists.py"],
     deps = [
-        "//knora/dsplib/models:helpers",
-        "//knora/dsplib/models:listnode",
-        "//knora/dsplib/models:project",
+        requirement("jsonschema"),
+        requirement("openpyxl")
     ],
-    imports = [".."],
+    imports = [".", ".."],
+)
+
+py_library(
+    name = "expand_all_lists",
+    visibility = ["//visibility:public"],
+    srcs = ["expand_all_lists.py"],
+    deps = [
+        "//knora/dsplib/utils:excel_to_json_lists"
+    ],
+    imports = [".", ".."],
 )
 
 py_library(
@@ -21,45 +30,32 @@ py_library(
     visibility = ["//visibility:public"],
     srcs = ["onto_create_lists.py"],
     deps = [
-        "//knora/dsplib/models:helpers",
         "//knora/dsplib/models:connection",
         "//knora/dsplib/models:listnode",
         "//knora/dsplib/models:project",
-        ":excel_to_json_lists",
-        ":onto_commons",
-        requirement("jsonschema"),
+        ":expand_all_lists",
+        ":onto_validate"
     ],
     imports = [".", ".."],
 )
-
-py_library(
-    name = "onto_validate",
-    visibility = ["//visibility:public"],
-    srcs = ["onto_validate.py"],
-    deps = [
-        ":onto_commons",
-    ],
-    imports = [".", ".."],
-)
-
 
 py_library(
     name = "onto_create_ontology",
     visibility = ["//visibility:public"],
     srcs = ["onto_create_ontology.py"],
     deps = [
+        "//knora/dsplib/models:connection",
+        "//knora/dsplib/models:group",
         "//knora/dsplib/models:helpers",
         "//knora/dsplib/models:langstring",
-        "//knora/dsplib/models:group",
-        "//knora/dsplib/models:user",
         "//knora/dsplib/models:ontology",
+        "//knora/dsplib/models:project",
         "//knora/dsplib/models:propertyclass",
         "//knora/dsplib/models:resourceclass",
-        "//knora/dsplib/models:connection",
-        "//knora/dsplib/models:listnode",
-        "//knora/dsplib/models:project",
-        ":onto_commons",
-        requirement("jsonschema"),
+        "//knora/dsplib/models:user",
+        ":expand_all_lists",
+        ":onto_create_lists",
+        ":onto_validate"
     ],
     imports = [".", ".."],
 )
@@ -70,10 +66,20 @@ py_library(
     srcs = ["onto_get.py"],
     deps = [
         "//knora/dsplib/models:connection",
-        "//knora/dsplib/models:project",
         "//knora/dsplib/models:listnode",
         "//knora/dsplib/models:ontology",
-        requirement("jsonschema"),
+        "//knora/dsplib/models:project"
+    ],
+    imports = [".", ".."],
+)
+
+py_library(
+    name = "onto_validate",
+    visibility = ["//visibility:public"],
+    srcs = ["onto_validate.py"],
+    deps = [
+        ":expand_all_lists",
+        requirement("jsonschema")
     ],
     imports = [".", ".."],
 )
@@ -85,14 +91,11 @@ py_library(
     deps = [
         "//knora/dsplib/models:connection",
         "//knora/dsplib/models:group",
+        "//knora/dsplib/models:permission",
         "//knora/dsplib/models:project",
         "//knora/dsplib/models:resource",
-        "//knora/dsplib/models:value",
-        "//knora/dsplib/models:permission",
         "//knora/dsplib/models:sipi",
-        "//knora/dsplib/models:listnode",
-        "//knora/dsplib/models:ontology",
-        requirement("jsonschema"),
+        requirement("lxml")
     ],
     imports = [".", ".."],
 )

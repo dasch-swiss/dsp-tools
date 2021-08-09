@@ -1,117 +1,101 @@
-import glob
-import os
 import json
-from jsonschema import validate
+from typing import List
 
-from .excel_to_json_lists import make_root_node_from_args, make_json_list_from_excel
-from ..models.helpers import Actions, BaseError, Context, Cardinality
+from .expand_all_lists import expand_lists_from_excel
+from .onto_validate import validate_ontology
 from ..models.connection import Connection
-from ..models.project import Project
 from ..models.listnode import ListNode
-from .onto_commons import list_creator, validate_list_from_excel, json_list_from_excel
+from ..models.project import Project
 
 
-def create_lists(input_file: str, lists_file: str, server: str, user: str, password: str, verbose: bool, dump: bool = False) -> bool:
-    print("hello")
-    current_dir = os.path.dirname(os.path.realpath(__file__))
+def list_creator(con: Connection, project: Project, parent_node: ListNode, nodes: List[dict]):
+    """
+    Creates the list on the DSP server
 
-    # let's read the schema for the data model definition
-    with open(os.path.join(current_dir, 'knora-schema-lists.json')) as s:
-        schema = json.load(s)
+    Args:
+        con: The connection to the DSP server
+        project: The project which the lists should be added
+        parent_node: The root node of the list
+        nodes: List of nodes the list is made of
 
-    # read the data model definition
+    Returns:
+        The list of all nodes with their names and respective IDs
+    """
+    nodelist = []
+    for node in nodes:
+        new_node = ListNode(con=con, project=project, label=node["labels"], comments=node.get("comments"), name=node["name"],
+                            parent=parent_node).create()
+        if node.get('nodes') is not None:
+            subnode_list = list_creator(con, project, new_node, node['nodes'])
+            nodelist.append({new_node.name: {"id": new_node.id, 'nodes': subnode_list}})
+        else:
+            nodelist.append({new_node.name: {"id": new_node.id}})
+    return nodelist
+
+
+def create_lists(input_file: str, lists_file: str, server: str, user: str, password: str, verbose: bool, dump: bool = False):
+    """
+    Creates the lists on the DSP server
+
+    Args:
+        input_file: Path to the json data model file
+        lists_file: Output file for the list node names and their respective IRI
+        server: URL of the DSP server
+        user: Username (e-mail) for the DSP server, has to have the permissions to create an ontology
+        password: Password of the user
+        verbose: Verbose output if True
+        dump: ???
+
+    Returns:
+        list_root_nodes: Dictionary of node names and their respective IRI
+    """
+    # read the ontology from the input file
     with open(input_file) as f:
-        datamodel = json.load(f)
+        onto_json_str = f.read()
 
-    # check if the folder parameter is used
-    lists = datamodel["project"].get('lists')
-    if lists is not None:
-        newlists: [] = []
-        for rootnode in lists:
-            if rootnode.get("nodes") is not None and isinstance(rootnode["nodes"], dict) and rootnode["nodes"].get("folder") is not None:
-                #newroot = {
-                #    "name": rootnode.get("name"),
-                #    "labels": rootnode.get("labels"),
-                #    "comments": rootnode.get("comments")
-                #}
-                #startrow = 1 if rootnode["nodes"].get("startrow") is None else rootnode["nodes"]["startrow"]
-                #startcol = 1 if rootnode["nodes"].get("startcol") is None else rootnode["nodes"]["startcol"]
-                #json_list_from_excel(rootnode=newroot,
-                #                     filepath=rootnode["nodes"]["file"],
-                #                     sheetname=rootnode["nodes"]["worksheet"],
-                #                     startrow=startrow,
-                #                     startcol=startcol)
+    data_model = json.loads(onto_json_str)
 
-                # crate a list with all excel files from the path provided by the user
-                excel_files = [filename for filename in glob.iglob(f'{rootnode["nodes"]["folder"]}/*.xlsx') if
-                               not os.path.basename(filename).startswith("~$")]
+    # expand all lists referenced in the list section of the data model
+    new_lists = expand_lists_from_excel(data_model)
 
-                # create root node of list
-                rootnode = make_root_node_from_args(excel_files, rootnode.get("name"))
+    # add the newly created lists from Excel to the ontology
+    data_model['project']['lists'] = new_lists
 
-                # create rest of the list from Excel worksheet
-                make_json_list_from_excel(rootnode, excel_files)
+    # validate the ontology
+    if validate_ontology(data_model):
+        pass
+    else:
+        quit()
 
-                newlists.append(rootnode)
-            else:
-                newlists.append(rootnode)
-        datamodel["project"]["lists"] = newlists
-
-    # validate the data model definition in order to be sure that it is correct
-    #validate(datamodel, schema)
-
-    if verbose:
-        print("Data model is syntactically correct and passed validation!")
-
-    #
     # Connect to the DaSCH Service Platform API
-    #
     con = Connection(server)
     con.login(user, password)
 
     if dump:
         con.start_logging()
 
-    # --------------------------------------------------------------------------
-    # let's read the prefixes of external ontologies that may be used
-    #
-    context = Context(datamodel["prefixes"])
-
-    # --------------------------------------------------------------------------
-    # Let's get the project which must exist
-    #
-    project = Project(
-        con=con,
-        shortcode=datamodel["project"]["shortcode"],
-    ).read()
+    # get the project which must exist
+    project = Project(con=con, shortcode=data_model['project']['shortcode'], ).read()
     assert project is not None
 
-    # --------------------------------------------------------------------------
-    # now let's create the lists
-    #
+    # create the lists
     if verbose:
-        print("Creating lists...")
-    lists = datamodel["project"].get('lists')
-    listrootnodes = {}
+        print('Create lists...')
+
+    lists = data_model['project'].get('lists')
+    list_root_nodes = {}
     if lists is not None:
         for rootnode in lists:
-            if verbose is not None:
-                print("  Creating list:" + rootnode['name'])
-            root_list_node = ListNode(
-                con=con,
-                project=project,
-                label=rootnode['labels'],
-                #comment=rootnode.get('comments'),
-                name=rootnode['name']
-            ).create()
+            if verbose:
+                print('  Create list:' + rootnode['name'])
+            root_list_node = ListNode(con=con, project=project, label=rootnode['labels'],  # comment=rootnode.get('comments'),
+                                      name=rootnode['name']).create()
             if rootnode.get('nodes') is not None:
-                listnodes = list_creator(con, project, root_list_node, rootnode['nodes'])
-                listrootnodes[rootnode['name']] = {
-                    "id": root_list_node.id,
-                    "nodes": listnodes
-                }
+                list_nodes = list_creator(con, project, root_list_node, rootnode['nodes'])
+                list_root_nodes[rootnode['name']] = {'id': root_list_node.id, 'nodes': list_nodes}
 
-    with open(lists_file, 'w', encoding="utf-8") as fp:
-        json.dump(listrootnodes, fp, indent=3, sort_keys=True)
-        print(f"The definitions of the node-id's can be found in \"{lists_file}\"!")
-    return True
+    with open(lists_file, 'w', encoding='utf-8') as fp:
+        json.dump(list_root_nodes, fp, indent=3, sort_keys=True)
+        print(f'The IRI for the created nodes can be found in {lists_file}.')
+
+    return list_root_nodes

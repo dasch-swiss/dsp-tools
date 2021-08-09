@@ -2,10 +2,11 @@
 import json
 import unittest
 
-from dsplib.utils import excel_to_json_lists
-from dsplib.utils.onto_create_ontology import create_ontology
-from dsplib.utils.onto_get import get_ontology
-from dsplib.utils.onto_validate import validate_ontology
+from knora.dsplib.utils import excel_to_json_lists
+from knora.dsplib.utils.excel_to_json_lists import list_excel2json
+from knora.dsplib.utils.onto_create_ontology import create_ontology
+from knora.dsplib.utils.onto_get import get_ontology
+from knora.dsplib.utils.onto_validate import validate_ontology
 from knora.dsplib.utils.xml_upload import xml_upload
 
 
@@ -21,47 +22,38 @@ class TestTools(unittest.TestCase):
         excel_to_json_lists.cell_names = []
 
     def test_get(self):
-        with open('testdata/anything.json') as f:
-            jsonstr = f.read()
-        refobj = json.loads(jsonstr)
+        with open('testdata/anything-onto.json') as f:
+            onto_json_str = f.read()
+        anything_onto = json.loads(onto_json_str)
 
-        get_ontology(projident="anything",
-                     outfile="_anything.json",
-                     server="http://0.0.0.0:3333",
-                     user="root@example.com",
-                     password="test",
-                     verbose=True)
+        get_ontology(projident='anything', outfile='_anything-onto.json', server='http://0.0.0.0:3333', user='root@example.com',
+                     password='test', verbose=True)
 
-        with open('_anything.json') as f:
-            jsonstr = f.read()
-        jsonobj = json.loads(jsonstr)
+        with open('_anything-onto.json') as f:
+            onto_json_str = f.read()
+        anything_onto_out = json.loads(onto_json_str)
 
-        self.assertEqual(refobj["project"]["shortcode"], jsonobj["project"]["shortcode"])
+        self.assertEqual(anything_onto['project']['shortcode'], anything_onto_out['project']['shortcode'])
+        self.assertEqual(anything_onto['project']['shortname'], anything_onto_out['project']['shortname'])
+        self.assertEqual(anything_onto['project']['longname'], anything_onto_out['project']['longname'])
+        self.assertEqual(anything_onto['project']['lists'], anything_onto_out['project']['lists'])
+
+        # TODO fix this test
+        # self.assertEqual(anything_onto['project']['ontologies'], anything_onto_out['project']['ontologies'])
 
     def test_excel(self):
-        pass
+        list_excel2json(listname='my_test_list', excelfolder='testdata/lists', outfile='_lists-out.json')
 
-    def test_validate_onto(self):
+    def test_validate_ontology(self):
         validate_ontology('testdata/test-onto.json')
 
-    def test_create_onto(self):
-        create_ontology(input_file='testdata/test-onto.json',
-                        lists_file='lists-out.json',
-                        server="http://0.0.0.0:3333",
-                        user="root@example.com",
-                        password="test",
-                        verbose=True,
-                        dump=True)
+    def test_create_ontology(self):
+        create_ontology(input_file='testdata/test-onto.json', lists_file='lists-out.json', server='http://0.0.0.0:3333',
+                        user='root@example.com', password='test', verbose=True, dump=True)
 
-    def test_xmlupload(self):
-        xml_upload(input_file="testdata/test-data.xml",
-                   server="http://0.0.0.0:3333",
-                   user="root@example.com",
-                   password="test",
-                   imgdir="testdata/bitstreams",
-                   sipi="http://0.0.0.0:1024",
-                   verbose=True,
-                   validate_only=False)
+    def test_xml_upload(self):
+        xml_upload(input_file='testdata/test-data.xml', server='http://0.0.0.0:3333', user='root@example.com', password='test',
+                   imgdir='testdata/bitstreams', sipi='http://0.0.0.0:1024', verbose=True, validate_only=False)
 
 
 if __name__ == '__main__':

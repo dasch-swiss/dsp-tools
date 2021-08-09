@@ -1,6 +1,8 @@
+"""Tests the basic functionalities of dsp-tools"""
 import json
 import unittest
 
+from dsplib.utils import excel_to_json_lists
 from dsplib.utils.onto_create_ontology import create_ontology
 from dsplib.utils.onto_get import get_ontology
 from dsplib.utils.onto_validate import validate_ontology
@@ -8,6 +10,15 @@ from knora.dsplib.utils.xml_upload import xml_upload
 
 
 class TestTools(unittest.TestCase):
+    def setUp(self) -> None:
+        """Is executed before each test"""
+        excel_to_json_lists.list_of_lists = []
+        excel_to_json_lists.cell_names = []
+
+    def tearDown(self) -> None:
+        """Is executed after each test"""
+        excel_to_json_lists.list_of_lists = []
+        excel_to_json_lists.cell_names = []
 
     def test_get(self):
         with open('testdata/anything.json') as f:
@@ -26,6 +37,9 @@ class TestTools(unittest.TestCase):
         jsonobj = json.loads(jsonstr)
 
         self.assertEqual(refobj["project"]["shortcode"], jsonobj["project"]["shortcode"])
+
+    def test_excel(self):
+        pass
 
     def test_validate_onto(self):
         validate_ontology('testdata/test-onto.json')

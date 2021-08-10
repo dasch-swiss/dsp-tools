@@ -1,18 +1,18 @@
 """
-The code in this file handles the import of XML data into the DSP platform.
+This module handles the import of XML data into the DSP platform.
 """
 import os
-from typing import List, Dict, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from lxml import etree
 
-from ..models.connection import Connection
-from ..models.group import Group
-from ..models.permission import Permissions
-from ..models.project import Project
-from ..models.resource import ResourceInstanceFactory
-from ..models.sipi import Sipi
-from ..models.value import KnoraStandoffXml
+from dsplib.models.connection import Connection
+from dsplib.models.group import Group
+from dsplib.models.permission import Permissions
+from dsplib.models.project import Project
+from dsplib.models.resource import ResourceInstanceFactory
+from dsplib.models.sipi import Sipi
+from dsplib.models.value import KnoraStandoffXml
 
 
 class XmlError(BaseException):

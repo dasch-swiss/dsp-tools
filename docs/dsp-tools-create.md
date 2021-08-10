@@ -275,12 +275,18 @@ Here is an example on how to build a taxonomic structure in JSON:
     {
       "name": "my_list",
       "labels": {"en": "Disciplines of the Humanities"},
-      "comments": {"en": "This is just an example.", "fr": "C'est un example."},
+      "comments": {
+        "en": "This is just an example.", 
+        "fr": "C'est un example."
+      },
       "nodes": [
         {
           "name": "node_1_1",
           "labels": {"en": "Performing arts"},
-          "comments": {"en": "Arts that are events", "de": "Künste mit performativem Character"},
+          "comments": {
+            "en": "Arts that are events", 
+            "de": "Künste mit performativem Character"
+          },
           "nodes": [
               {
               "name": "node_2_2",
@@ -1066,9 +1072,7 @@ Example for a resource definition:
     {
       "name": "Schule",
       "super": "Resource",
-      "labels": {
-        "de": "Schule"
-      },
+      "labels": {"de": "Schule"},
       "cardinalities": [
         {
           "propname": ":schulcode",

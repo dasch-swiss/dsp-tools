@@ -1,12 +1,13 @@
+"""This module handles the ontology creation and upload to a DSP server. This includes the creation and upload of lists."""
 import json
-from typing import List, Set, Dict, Optional
+from typing import Dict, List, Optional, Set
 
 from .expand_all_lists import expand_lists_from_excel
 from .onto_create_lists import create_lists
 from .onto_validate import validate_ontology
 from ..models.connection import Connection
 from ..models.group import Group
-from ..models.helpers import BaseError, Context, Cardinality
+from ..models.helpers import BaseError, Cardinality, Context
 from ..models.langstring import LangString
 from ..models.ontology import Ontology
 from ..models.project import Project
@@ -32,7 +33,12 @@ def login(server: str, user: str, password: str) -> Connection:
     return con
 
 
-def create_ontology(input_file: str, lists_file: Optional[str], server: str, user: str, password: str, verbose: bool,
+def create_ontology(input_file: str,
+                    lists_file: Optional[str],
+                    server: str,
+                    user: str,
+                    password: str,
+                    verbose: bool,
                     dump: bool) -> bool:
     """
     Creates the ontology from a json input file on a DSP server
@@ -44,7 +50,7 @@ def create_ontology(input_file: str, lists_file: Optional[str], server: str, use
         user: The user which the ontology should be created with
         password: The password for the user
         verbose: Prints some more information
-        dump: ???
+        dump: Dumps test files (json) for DSP API requests if True
 
     Returns:
         True if successful
@@ -68,7 +74,9 @@ def create_ontology(input_file: str, lists_file: Optional[str], server: str, use
         quit()
 
     # make the connection to the server
-    con = login(server=server, user=user, password=password)
+    con = login(server=server,
+                user=user,
+                password=password)
 
     if dump:
         con.start_logging()
@@ -98,10 +106,14 @@ def create_ontology(input_file: str, lists_file: Optional[str], server: str, use
     except:
         # create the project if it does not exist
         try:
-            project = Project(con=con, shortcode=data_model["project"]["shortcode"], shortname=data_model["project"]["shortname"],
+            project = Project(con=con,
+                              shortcode=data_model["project"]["shortcode"],
+                              shortname=data_model["project"]["shortname"],
                               longname=data_model["project"]["longname"],
                               description=LangString(data_model["project"].get("descriptions")),
-                              keywords=set(data_model["project"].get("keywords")), selfjoin=False, status=True).create()
+                              keywords=set(data_model["project"].get("keywords")),
+                              selfjoin=False,
+                              status=True).create()
         except BaseError as err:
             print("Creating project failed: ", err.message)
             return False
@@ -122,7 +134,10 @@ def create_ontology(input_file: str, lists_file: Optional[str], server: str, use
     if groups is not None:
         for group in groups:
             try:
-                new_group = Group(con=con, name=group["name"], description=group["description"], project=project,
+                new_group = Group(con=con,
+                                  name=group["name"],
+                                  description=group["description"],
+                                  project=project,
                                   status=group["status"] if group.get("status") is not None else True,
                                   selfjoin=group["selfjoin"] if group.get("selfjoin") is not None else False).create()
             except BaseError as err:
@@ -188,15 +203,17 @@ def create_ontology(input_file: str, lists_file: Optional[str], server: str, use
                     project_infos[in_project.id] = True
                 else:
                     project_infos[in_project.id] = False
-            user_existing = False;
+            user_existing = False
             tmp_user = None
             try:
-                tmp_user = User(con, username=user["username"]).read()
+                tmp_user = User(con,
+                                username=user["username"]).read()
             except BaseError as err:
                 pass
             if tmp_user is None:
                 try:
-                    tmp_user = User(con, email=user["email"]).read()
+                    tmp_user = User(con,
+                                    email=user["email"]).read()
                 except BaseError as err:
                     pass
             if tmp_user:
@@ -240,11 +257,17 @@ def create_ontology(input_file: str, lists_file: Optional[str], server: str, use
             else:
                 # if the user does not exist yet, create him
                 try:
-                    new_user = User(con=con, username=user["username"], email=user["email"], givenName=user["givenName"],
-                                    familyName=user["familyName"], password=user["password"],
+                    new_user = User(con=con,
+                                    username=user["username"],
+                                    email=user["email"],
+                                    givenName=user["givenName"],
+                                    familyName=user["familyName"],
+                                    password=user["password"],
                                     status=user["status"] if user.get("status") is not None else True,
-                                    lang=user["lang"] if user.get("lang") is not None else "en", sysadmin=sysadmin,
-                                    in_projects=project_infos, in_groups=group_ids).create()
+                                    lang=user["lang"] if user.get("lang") is not None else "en",
+                                    sysadmin=sysadmin,
+                                    in_projects=project_infos,
+                                    in_groups=group_ids).create()
                 except BaseError as err:
                     print("Creating user failed:", err.message)
                     return False
@@ -257,7 +280,10 @@ def create_ontology(input_file: str, lists_file: Optional[str], server: str, use
         print("Create ontologies...")
     ontologies = data_model["project"]["ontologies"]
     for ontology in ontologies:
-        newontology = Ontology(con=con, project=project, label=ontology["label"], name=ontology["name"]).create()
+        newontology = Ontology(con=con,
+                               project=project,
+                               label=ontology["label"],
+                               name=ontology["name"]).create()
         last_modification_date = newontology.lastModificationDate
         if verbose:
             print("Created empty ontology:")
@@ -282,9 +308,12 @@ def create_ontology(input_file: str, lists_file: Optional[str], server: str, use
             if rescomment is not None:
                 rescomment = LangString(rescomment)
             try:
-                last_modification_date, newresclass = ResourceClass(con=con, context=newontology.context,
-                                                                    ontology_id=newontology.id, name=resname,
-                                                                    superclasses=super_classes, label=reslabel,
+                last_modification_date, newresclass = ResourceClass(con=con,
+                                                                    context=newontology.context,
+                                                                    ontology_id=newontology.id,
+                                                                    name=resname,
+                                                                    superclasses=super_classes,
+                                                                    label=reslabel,
                                                                     comment=rescomment).create(last_modification_date)
                 newontology.lastModificationDate = last_modification_date
             except BaseError as err:
@@ -341,12 +370,17 @@ def create_ontology(input_file: str, lists_file: Optional[str], server: str, use
             else:
                 propcomment = "no comment given"
             try:
-                last_modification_date, newpropclass = PropertyClass(con=con, context=newontology.context, label=proplabel,
-                                                                     name=propname, ontology_id=newontology.id,
-                                                                     superproperties=super_props, object=object, subject=subject,
+                last_modification_date, newpropclass = PropertyClass(con=con,
+                                                                     context=newontology.context,
+                                                                     label=proplabel,
+                                                                     name=propname,
+                                                                     ontology_id=newontology.id,
+                                                                     superproperties=super_props,
+                                                                     object=object,
+                                                                     subject=subject,
                                                                      gui_element="salsah-gui:" + gui_element,
-                                                                     gui_attributes=gui_attributes, comment=propcomment).create(
-                    last_modification_date)
+                                                                     gui_attributes=gui_attributes,
+                                                                     comment=propcomment).create(last_modification_date)
                 newontology.lastModificationDate = last_modification_date
             except BaseError as err:
                 print("Creating property class failed:", err.message)
@@ -357,7 +391,12 @@ def create_ontology(input_file: str, lists_file: Optional[str], server: str, use
                 newpropclass.print()
 
         # Add cardinalities
-        switcher = {"1": Cardinality.C_1, "0-1": Cardinality.C_0_1, "0-n": Cardinality.C_0_n, "1-n": Cardinality.C_1_n}
+        switcher = {
+            "1": Cardinality.C_1,
+            "0-1": Cardinality.C_0_1,
+            "0-n": Cardinality.C_0_n,
+            "1-n": Cardinality.C_1_n
+        }
         for resclass in resclasses:
             for cardinfo in resclass["cardinalities"]:
                 rc = newresclasses.get(newontology.id + '#' + resclass["name"])
@@ -371,7 +410,10 @@ def create_ontology(input_file: str, lists_file: Optional[str], server: str, use
                 else:
                     propid = "knora-api:" + cardinfo["propname"]
                 gui_order = cardinfo.get('gui_order')
-                last_modification_date = rc.addProperty(property_id=propid, cardinality=cardinality, gui_order=gui_order,
-                                                        last_modification_date=last_modification_date)
+                last_modification_date = rc.addProperty(
+                        property_id=propid,
+                        cardinality=cardinality,
+                        gui_order=gui_order,
+                        last_modification_date=last_modification_date)
                 newontology.lastModificationDate = last_modification_date
     return True

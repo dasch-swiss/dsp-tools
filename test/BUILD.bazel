@@ -138,6 +138,7 @@ py_test(
         "//testdata:testdata",
         "//testdata/bitstreams:bitstream"
     ],
+    imports = [".", "../knora"],
 )
 
 

@@ -1,15 +1,15 @@
-"""This file handles all the operations which are used for the creation of JSON lists form Excel files."""
+"""This module handles all the operations which are used for the creation of JSON lists form Excel files."""
 import csv
 import glob
 import json
 import os
 import re
 import unicodedata
+from typing import List
 
 import jsonschema
 from jsonschema import validate
 from openpyxl import load_workbook
-from typing import List
 
 list_of_lists = []
 cell_names = []
@@ -30,7 +30,6 @@ def get_values_from_excel(excelfiles: List[str], base_file: str, parentnode: {},
 
     Returns:
         int: Row index for the next loop (actual row index minus 1)
-
     """
     nodes = []
     currentnode = {}

@@ -11,8 +11,7 @@ py_library(
     deps = [
         requirement("jsonschema"),
         requirement("openpyxl")
-    ],
-    imports = [".", ".."],
+    ]
 )
 
 py_library(
@@ -21,8 +20,7 @@ py_library(
     srcs = ["expand_all_lists.py"],
     deps = [
         "//knora/dsplib/utils:excel_to_json_lists"
-    ],
-    imports = [".", ".."],
+    ]
 )
 
 py_library(

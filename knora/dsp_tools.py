@@ -33,7 +33,7 @@ def program(args: list) -> None:
 
     # parse the arguments of the command line
     parser = argparse.ArgumentParser(
-        description=f'dsp-tools (Version {version}) DaSCH Service Platform data modelling tools (© {now.year} by DaSCH).')
+            description=f'dsp-tools (Version {version}) DaSCH Service Platform data modelling tools (© {now.year} by DaSCH).')
 
     subparsers = parser.add_subparsers(title='Subcommands', description='Valid subcommands are', help='sub-command help')
 
@@ -43,8 +43,8 @@ def program(args: list) -> None:
     parser_create.add_argument('-s', '--server', type=str, default='http://0.0.0.0:3333', help='URL of the DSP server')
     parser_create.add_argument('-u', '--user', default='root@example.com', help='Username for DSP server')
     parser_create.add_argument('-p', '--password', default='test', help='The password for login')
-    parser_create.add_argument('-V', '--validate', action='store_true',
-                               help='Do only validation of JSON, no upload of the ontology')
+    parser_create.add_argument('-V', '--validate', action='store_true', help='Do only validation of JSON, no upload of the '
+                                                                             'ontology')
     parser_create.add_argument('-L', '--listfile', type=str, default='lists.json', help='Name of list node informationfile')
     parser_create.add_argument('-l', '--lists', action='store_true', help='Upload only the list(s)')
     parser_create.add_argument('-v', '--verbose', action='store_true', help='Verbose feedback')
@@ -79,8 +79,8 @@ def program(args: list) -> None:
                                                              'taken from the filename. Only files with extension .xlsx are '
                                                              'considered.')
     parser_excel_lists.set_defaults(action='excel')
-    parser_excel_lists.add_argument('-l', '--listname', type=str,
-                                    help='Name of the list to be created (filename is taken if omitted)', default=None)
+    parser_excel_lists.add_argument('-l', '--listname', type=str, help='Name of the list to be created (filename is taken if '
+                                                                       'omitted)', default=None)
     parser_excel_lists.add_argument('excelfolder', help='Path to the folder containing the Excel file(s)', default='lists')
     parser_excel_lists.add_argument('outfile', help='Path to the output JSON file containing the list data', default='list.json')
 
@@ -95,22 +95,44 @@ def program(args: list) -> None:
             if args.validate:
                 validate_list_with_schema(args.datamodelfile)
             else:
-                create_lists(input_file=args.datamodelfile, lists_file=args.listfile, server=args.server, user=args.user,
-                             password=args.password, verbose=args.verbose, dump=args.dump)
+                create_lists(input_file=args.datamodelfile,
+                             lists_file=args.listfile,
+                             server=args.server,
+                             user=args.user,
+                             password=args.password,
+                             verbose=args.verbose,
+                             dump=args.dump)
         else:
             if args.validate:
                 validate_ontology(args.datamodelfile)
             else:
-                create_ontology(input_file=args.datamodelfile, lists_file=args.listfile, server=args.server, user=args.user,
-                                password=args.password, verbose=args.verbose, dump=args.dump if args.dump else False)
+                create_ontology(input_file=args.datamodelfile,
+                                lists_file=args.listfile,
+                                server=args.server,
+                                user=args.user,
+                                password=args.password,
+                                verbose=args.verbose,
+                                dump=args.dump if args.dump else False)
     elif args.action == 'get':
-        get_ontology(projident=args.project, outfile=args.datamodelfile, server=args.server, user=args.user,
-                     password=args.password, verbose=args.verbose)
+        get_ontology(projident=args.project,
+                     outfile=args.datamodelfile,
+                     server=args.server,
+                     user=args.user,
+                     password=args.password,
+                     verbose=args.verbose)
     elif args.action == 'xmlupload':
-        xml_upload(input_file=args.xmlfile, server=args.server, user=args.user, password=args.password, imgdir=args.imgdir,
-                   sipi=args.sipi, verbose=args.verbose, validate_only=args.validate)
+        xml_upload(input_file=args.xmlfile,
+                   server=args.server,
+                   user=args.user,
+                   password=args.password,
+                   imgdir=args.imgdir,
+                   sipi=args.sipi,
+                   verbose=args.verbose,
+                   validate_only=args.validate)
     elif args.action == 'excel':
-        list_excel2json(listname=args.listname, excelfolder=args.excelfolder, outfile=args.outfile)
+        list_excel2json(listname=args.listname,
+                        excelfolder=args.excelfolder,
+                        outfile=args.outfile)
 
 
 def main():

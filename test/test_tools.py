@@ -1,4 +1,4 @@
-"""Tests the basic functionalities of dsp-tools"""
+"""This test class tests the basic functionalities of dsp-tools"""
 import json
 import unittest
 
@@ -26,8 +26,12 @@ class TestTools(unittest.TestCase):
             onto_json_str = f.read()
         anything_onto = json.loads(onto_json_str)
 
-        get_ontology(projident='anything', outfile='_anything-onto.json', server='http://0.0.0.0:3333', user='root@example.com',
-                     password='test', verbose=True)
+        get_ontology(projident='anything',
+                     outfile='_anything-onto.json',
+                     server='http://0.0.0.0:3333',
+                     user='root@example.com',
+                     password='test',
+                     verbose=True)
 
         with open('_anything-onto.json') as f:
             onto_json_str = f.read()
@@ -72,18 +76,31 @@ class TestTools(unittest.TestCase):
         # self.assertEqual(anything_onto['project']['ontologies'], anything_onto_out['project']['ontologies'])
 
     def test_excel(self):
-        list_excel2json(listname='my_test_list', excelfolder='testdata/lists', outfile='_lists-out.json')
+        list_excel2json(listname='my_test_list',
+                        excelfolder='testdata/lists',
+                        outfile='_lists-out.json')
 
     def test_validate_ontology(self):
         validate_ontology('testdata/test-onto.json')
 
     def test_create_ontology(self):
-        create_ontology(input_file='testdata/test-onto.json', lists_file='lists-out.json', server='http://0.0.0.0:3333',
-                        user='root@example.com', password='test', verbose=True, dump=True)
+        create_ontology(input_file='testdata/test-onto.json',
+                        lists_file='lists-out.json',
+                        server='http://0.0.0.0:3333',
+                        user='root@example.com',
+                        password='test',
+                        verbose=True,
+                        dump=True)
 
     def test_xml_upload(self):
-        xml_upload(input_file='testdata/test-data.xml', server='http://0.0.0.0:3333', user='root@example.com', password='test',
-                   imgdir='testdata/bitstreams', sipi='http://0.0.0.0:1024', verbose=True, validate_only=False)
+        xml_upload(input_file='testdata/test-data.xml',
+                   server='http://0.0.0.0:3333',
+                   user='root@example.com',
+                   password='test',
+                   imgdir='testdata/bitstreams',
+                   sipi='http://0.0.0.0:1024',
+                   verbose=True,
+                   validate_only=False)
 
 
 if __name__ == '__main__':

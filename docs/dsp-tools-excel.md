@@ -15,7 +15,7 @@ create a list from an Excel file.
 With dsp-tools a JSON list can be created from one or several Excel files. The list can then be inserted into a JSON ontology 
 and uploaded to a DSP server. The expected format of the Excel files is described [here](./dsp-tools-create.md#lists-from-excel). 
 It is possible to create multilingual lists. In this case, a separate Excel file has to be created for each language. The data 
-has to be in the first worksheet of the Excel file(s). It is important, that all the Excel lists have the same structure. So, 
+has to be in the first worksheet of the Excel file(s). It is important that all the Excel lists have the same structure. So, 
 the translation(s) of a label in one Excel sheet has to be in the exact same cell (i.e. with the same cell index) in its own 
 Excel sheet.
 
@@ -79,5 +79,5 @@ there are two node names with the same name, an incrementing number is appended 
 }, ...
 ```
 
-After the creation of the list, a validation against the XSD schema for lists is performed. An error message ist printed out if 
+After the creation of the list, a validation against the JSON schema for lists is performed. An error message ist printed out if 
 the list is not valid. Furthermore, it is checked that no two nodes are the same.

@@ -1,8 +1,8 @@
 """
-The code in this file handles the import of XML data into the DSP platform.
+This module handles the import of XML data into the DSP platform.
 """
 import os
-from typing import List, Dict, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from lxml import etree
 

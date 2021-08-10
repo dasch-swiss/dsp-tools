@@ -1,31 +1,32 @@
-import os
-from typing import List, Set, Dict, Tuple, Optional
+"""This module handles the ontology creation and upload to a DSP server. This includes the creation and upload of lists."""
 import json
-from jsonschema import validate
+from typing import Dict, List, Optional, Set
 
-from ..models.helpers import Actions, BaseError, Context, Cardinality
-from ..models.langstring import Languages, LangStringParam, LangString
+from .expand_all_lists import expand_lists_from_excel
+from .onto_create_lists import create_lists
+from .onto_validate import validate_ontology
 from ..models.connection import Connection
-from ..models.project import Project
-from ..models.listnode import ListNode
 from ..models.group import Group
-from ..models.user import User
+from ..models.helpers import BaseError, Cardinality, Context
+from ..models.langstring import LangString
 from ..models.ontology import Ontology
+from ..models.project import Project
 from ..models.propertyclass import PropertyClass
 from ..models.resourceclass import ResourceClass
+from ..models.user import User
 
-from .onto_commons import list_creator, validate_list_from_excel, json_list_from_excel
-
-from pprint import pprint
 
 def login(server: str, user: str, password: str) -> Connection:
     """
-    Make a login and return the active Connection.
+    Logs in and returns the active connection
 
-    :param server: URl of the server to connect to
-    :param user: A valid username
-    :param password: The password
-    :return: Connection instance
+    Args:
+        server: URL of the DSP server to connect to
+        user: Username (e-mail)
+        password: Password of the user
+
+    Return:
+        Connection instance
     """
     con = Connection(server)
     con.login(user, password)
@@ -39,167 +40,97 @@ def create_ontology(input_file: str,
                     password: str,
                     verbose: bool,
                     dump: bool) -> bool:
+    """
+    Creates the ontology from a json input file on a DSP server
+
+    Args:
+        input_file: The input json file from which the ontology should be created
+        lists_file: The file which the output (list node ID) is written to
+        server: The DSP server which the ontology should be created on
+        user: The user which the ontology should be created with
+        password: The password for the user
+        verbose: Prints some more information
+        dump: Dumps test files (json) for DSP API requests if True
+
+    Returns:
+        True if successful
+    """
+    # read the ontology from the input file
     with open(input_file) as f:
-        jsonstr = f.read()
+        onto_json_str = f.read()
 
-    con = login(server=server, user=user, password=password)
-    datapath = os.path.dirname(input_file)
-    create_ontology_from_string(con=con,
-                                jsonstr=jsonstr,
-                                exceldir=datapath,
-                                lists_file=lists_file,
-                                verbose=verbose,
-                                dump=dump)
+    data_model = json.loads(onto_json_str)
 
-def create_ontology_from_string(con: Connection,
-                                jsonstr: str,
-                                exceldir: Optional[str],
-                                lists_file: Optional[str],
-                                verbose: bool,
-                                dump: bool) -> bool:
-    current_dir = os.path.dirname(os.path.realpath(__file__))
+    # expand all lists referenced in the list section of the data model
+    new_lists = expand_lists_from_excel(data_model)
 
-    # let's read the schema for the data model definition
-    with open(os.path.join(current_dir, 'knora-schema.json')) as s:
-        schema = json.load(s)
+    # add the newly created lists from Excel to the ontology
+    data_model['project']['lists'] = new_lists
 
+    # validate the ontology
+    if validate_ontology(data_model):
+        pass
+    else:
+        quit()
 
-    # read the data model definition
-    datamodel = json.loads(jsonstr)
-
-    #
-    # now let's see if there are any lists defined as reference to excel files
-    #
-    lists = datamodel["project"].get('lists')
-    if lists is not None:
-        newlists: [] = []
-        for rootnode in lists:
-            if rootnode.get("nodes") is not None and isinstance(rootnode["nodes"], dict) and rootnode["nodes"].get("file") is not None:
-                newroot = {
-                    "name": rootnode.get("name"),
-                    "labels": rootnode.get("labels"),
-               }
-                if rootnode.get("comments") is not None:
-                    newroot["comments"] = rootnode["comments"]
-
-                startrow = 1 if rootnode["nodes"].get("startrow") is None else rootnode["nodes"]["startrow"]
-                startcol = 1 if rootnode["nodes"].get("startcol") is None else rootnode["nodes"]["startcol"]
-                #
-                # determine where to find the excel file...
-                #
-                excelpath = rootnode["nodes"]["file"]
-                if excelpath[0] != '/' and exceldir is not None:
-                    excelpath = os.path.join(exceldir, excelpath)
-
-                json_list_from_excel(rootnode=newroot,
-                                     filepath=excelpath,
-                                     sheetname=rootnode["nodes"]["worksheet"],
-                                     startrow=startrow,
-                                     startcol=startcol)
-                newlists.append(newroot)
-            else:
-                newlists.append(rootnode)
-        datamodel["project"]["lists"] = newlists
-
-    # validate the data model definition in order to be sure that it is correct
-    validate(datamodel, schema)
-
-    if verbose:
-        print("Data model is syntactically correct and passed validation!")
+    # make the connection to the server
+    con = login(server=server,
+                user=user,
+                password=password)
 
     if dump:
         con.start_logging()
 
-    # --------------------------------------------------------------------------
-    # let's read the prefixes of external ontologies that may be used
-    #
-    context = Context(datamodel["prefixes"])
+    # read the prefixes of external ontologies that may be used
+    context = Context(data_model["prefixes"])
 
-    # --------------------------------------------------------------------------
-    # Let's create the project...
-    #
+    # create or update the project
     project = None
     try:
-        # we try to read the project to see if it's existing....
-        project = Project(
-            con=con,
-            shortcode=datamodel["project"]["shortcode"],
-        ).read()
-        #
-        # we got it, update the project data if necessary...
-        #
-        if project.shortname != datamodel["project"]["shortname"]:
-            project.shortname = datamodel["project"]["shortname"]
-        if project.longname != datamodel["project"]["longname"]:
-            project.longname == datamodel["project"]["longname"]
-        project.description = datamodel["project"].get("descriptions")
-        project.keywords = set(datamodel["project"].get("keywords"))
-        nproject = project.update()
-        if nproject is not None:
-            project = nproject
+        # try to read the project to check if it exists
+        project = Project(con=con, shortcode=data_model["project"]["shortcode"]).read()
+
+        # update the project with data from data_model
+        if project.shortname != data_model["project"]["shortname"]:
+            project.shortname = data_model["project"]["shortname"]
+        if project.longname != data_model["project"]["longname"]:
+            project.longname == data_model["project"]["longname"]
+        project.description = data_model["project"].get("descriptions")
+        project.keywords = set(data_model["project"].get("keywords"))
+        updated_project = project.update()
+        if updated_project is not None:
+            project = updated_project
         if verbose:
             print("Modified project:")
             project.print()
     except:
-        #
-        # The project doesn't exist yet – let's create it
-        #
+        # create the project if it does not exist
         try:
-            project = Project(
-                con=con,
-                shortcode=datamodel["project"]["shortcode"],
-                shortname=datamodel["project"]["shortname"],
-                longname=datamodel["project"]["longname"],
-                description=LangString(datamodel["project"].get("descriptions")),
-                keywords=set(datamodel["project"].get("keywords")),
-                selfjoin=False,
-                status=True
-            ).create()
+            project = Project(con=con,
+                              shortcode=data_model["project"]["shortcode"],
+                              shortname=data_model["project"]["shortname"],
+                              longname=data_model["project"]["longname"],
+                              description=LangString(data_model["project"].get("descriptions")),
+                              keywords=set(data_model["project"].get("keywords")),
+                              selfjoin=False,
+                              status=True).create()
         except BaseError as err:
-            print("Creating project failed: " + err.message)
+            print("Creating project failed: ", err.message)
             return False
         if verbose:
             print("Created project:")
             project.print()
     assert project is not None
 
-    # --------------------------------------------------------------------------
-    # now let's create the lists
-    #
-    if verbose:
-        print("Creating lists...")
-    lists = datamodel["project"].get('lists')
-    listrootnodes = {}
-    if lists is not None:
-        for rootnode in lists:
-            if verbose is not None:
-                print("  Creating list:" + rootnode['name'])
-            root_list_node = ListNode(
-                con=con,
-                project=project,
-                label=rootnode['labels'],
-                comments=rootnode.get('comments'),
-                name=rootnode['name']
-            ).create()
-            listnodes = list_creator(con, project, root_list_node, rootnode['nodes'])
-            listrootnodes[rootnode['name']] = {
-                "id": root_list_node.id,
-                "nodes": listnodes
-            }
+    # create the lists
+    list_root_nodes = create_lists(input_file, lists_file, server, user, password, verbose)
 
-    if lists_file is not None:
-        with open(lists_file, 'w', encoding="utf-8") as fp:
-            json.dump(listrootnodes, fp, indent=3, sort_keys=True)
-            print("The definitions of the node-id's can be found in \"{}\"!".format('lists.json'))
-
-    # --------------------------------------------------------------------------
-    # now let's add the groups (if there are groups defined...)
-    #
+    # create the groups
     if verbose:
-        print("Adding groups...")
+        print("Create groups...")
 
     new_groups = {}
-    groups = datamodel["project"].get('groups')
+    groups = data_model["project"].get('groups')
     if groups is not None:
         for group in groups:
             try:
@@ -210,21 +141,19 @@ def create_ontology_from_string(con: Connection,
                                   status=group["status"] if group.get("status") is not None else True,
                                   selfjoin=group["selfjoin"] if group.get("selfjoin") is not None else False).create()
             except BaseError as err:
-                print("Creating group failed: " + err.message)
+                print("Creating group has failed: ", err.message)
                 return False
             new_groups[new_group.name] = new_group
             if verbose:
                 print("Groups:")
-                new_group.print()
-            #project.set_default_permissions(new_group.id)
-    # --------------------------------------------------------------------------
-    # now let's add the users (if there are users defined...)
-    #
+                new_group.print()  # project.set_default_permissions(new_group.id)
+
+    # create the users
     if verbose:
-        print("Adding users...")
+        print("Create users...")
     all_groups: List[Group] = []
     all_projects: List[Project] = []
-    users = datamodel["project"].get('users')
+    users = data_model["project"].get('users')
     if users is not None:
         for user in users:
             sysadmin = False
@@ -256,10 +185,8 @@ def create_ontology_from_string(con: Connection,
 
             project_infos: Dict[str, bool] = {}
             for projectname in user["projects"]:
-                #
-                # now we determine the project memberships of the user
+                # determine the project memberships of the user
                 # projectname has the form [projectname]:"member"|"admin" (projectname omitted = current project)
-                #
                 tmp = projectname.split(':')
                 assert len(tmp) == 2
                 if tmp[0]:
@@ -276,21 +203,21 @@ def create_ontology_from_string(con: Connection,
                     project_infos[in_project.id] = True
                 else:
                     project_infos[in_project.id] = False
-            user_existing = False;
+            user_existing = False
             tmp_user = None
             try:
-                tmp_user = User(con, username=user["username"]).read()
+                tmp_user = User(con,
+                                username=user["username"]).read()
             except BaseError as err:
                 pass
             if tmp_user is None:
                 try:
-                    tmp_user = User(con, email=user["email"]).read()
+                    tmp_user = User(con,
+                                    email=user["email"]).read()
                 except BaseError as err:
                     pass
             if tmp_user:
-                #
-                # The user is already in the database – let's update its settings
-                #
+                # if the user exists already, update his settings
                 if tmp_user.username != user["username"]:
                     tmp_user.username = user["username"]
                 if tmp_user.email != user["email"]:
@@ -311,12 +238,11 @@ def create_ontology_from_string(con: Connection,
                     tmp_user.update()
                 except BaseError as err:
                     tmp_user.print()
-                    print("Updating user failed: " + err.message)
+                    print("Updating user failed:", err.message)
                     return False
-                #
-                # now we update group and project membership
-                # Note: we do NOT remove any mambership here, we just add!
-                #
+
+                # update group and project membership
+                # Note: memberships are NOT removed here, just added
                 tmp_in_groups = tmp_user.in_groups
                 add_groups = group_ids - tmp_in_groups
                 for g in add_groups:
@@ -329,57 +255,47 @@ def create_ontology_from_string(con: Connection,
                         continue
                     User.addToProject(p[0], p[1])
             else:
-                #
-                # The user does not exist yet, let's create a new one
-                #
+                # if the user does not exist yet, create him
                 try:
-                    new_user = User(
-                        con=con,
-                        username=user["username"],
-                        email=user["email"],
-                        givenName=user["givenName"],
-                        familyName=user["familyName"],
-                        password=user["password"],
-                        status=user["status"] if user.get("status") is not None else True,
-                        lang=user["lang"] if user.get("lang") is not None else "en",
-                        sysadmin=sysadmin,
-                        in_projects=project_infos,
-                        in_groups=group_ids
-                    ).create()
+                    new_user = User(con=con,
+                                    username=user["username"],
+                                    email=user["email"],
+                                    givenName=user["givenName"],
+                                    familyName=user["familyName"],
+                                    password=user["password"],
+                                    status=user["status"] if user.get("status") is not None else True,
+                                    lang=user["lang"] if user.get("lang") is not None else "en",
+                                    sysadmin=sysadmin,
+                                    in_projects=project_infos,
+                                    in_groups=group_ids).create()
                 except BaseError as err:
-                    print("Creating user failed: " + err.message)
+                    print("Creating user failed:", err.message)
                     return False
             if verbose:
                 print("New user:")
                 new_user.print()
 
-    # --------------------------------------------------------------------------
-    # now let's create the ontologies
-    #
-    ontologies = datamodel["project"]["ontologies"]
+    # create the ontologies
+    if verbose:
+        print("Create ontologies...")
+    ontologies = data_model["project"]["ontologies"]
     for ontology in ontologies:
-        newontology = Ontology(
-            con=con,
-            project=project,
-            label=ontology["label"],
-            name=ontology["name"]
-        ).create()
+        newontology = Ontology(con=con,
+                               project=project,
+                               label=ontology["label"],
+                               name=ontology["name"]).create()
         last_modification_date = newontology.lastModificationDate
         if verbose:
             print("Created empty ontology:")
             newontology.print()
 
-        #
-        # add prefixes defined in json file...
-        #
+        # add the prefixes defined in the json file
         for prefix, iri in context:
             if not prefix in newontology.context:
                 s = iri.iri + ("#" if iri.hashtag else "")
                 newontology.context.add_context(prefix, s)
 
-        #
-        # First we create the empty resource classes
-        #
+        # create the empty resource classes
         resclasses = ontology["resources"]
         newresclasses: Dict[str, ResourceClass] = {}
         for resclass in resclasses:
@@ -392,54 +308,46 @@ def create_ontology_from_string(con: Connection,
             if rescomment is not None:
                 rescomment = LangString(rescomment)
             try:
-                last_modification_date, newresclass = ResourceClass(
-                    con=con,
-                    context=newontology.context,
-                    ontology_id=newontology.id,
-                    name=resname,
-                    superclasses=super_classes,
-                    label=reslabel,
-                    comment=rescomment
-                ).create(last_modification_date)
+                last_modification_date, newresclass = ResourceClass(con=con,
+                                                                    context=newontology.context,
+                                                                    ontology_id=newontology.id,
+                                                                    name=resname,
+                                                                    superclasses=super_classes,
+                                                                    label=reslabel,
+                                                                    comment=rescomment).create(last_modification_date)
                 newontology.lastModificationDate = last_modification_date
             except BaseError as err:
-                print("Creating resource class failed: " + err.message)
+                print("Creating resource class failed:", err.message)
                 exit(105)
             newresclasses[newresclass.id] = newresclass
             if verbose is not None:
                 print("New resource class:")
                 newresclass.print()
 
-        #
-        # Then we create the property classes
-        #
+        # create the property classes
         propclasses = ontology["properties"]
         newpropclasses: Dict[str, ResourceClass] = {}
         for propclass in propclasses:
             propname = propclass.get("name")
             proplabel = LangString(propclass.get("labels"))
-            #
             # get the super-property/ies if defined. Valid forms are:
             #   - "prefix:superproperty" : fully qualified name of property in another ontology. The prefix has to
             #     be defined in the prefixes part.
             #   - "superproperty" : Use of super-property defined in the knora-api ontology
-            #  if omitted, automatically "knora-api:hasValue" is assumed
-            #
+            #  if omitted, "knora-api:hasValue" is assumed
             if propclass.get("super") is not None:
                 super_props = list(map(lambda a: a if ':' in a else "knora-api:" + a, propclass["super"]))
             else:
                 super_props = ["knora-api:hasValue"]
-            #
-            # now we get the "object" if defined. Valid forms are:
+            # get the "object" if defined. Valid forms are:
             #  - "prefix:object_name" : fully qualified object. The prefix has to be defined in the prefixes part.
             #  - ":object_name" : The object is defined in the current ontology.
             #  - "object_name" : The object is defined in "knora-api"
-            #
             if propclass.get("object") is not None:
                 tmp = propclass["object"].split(':')
                 if len(tmp) > 1:
                     if tmp[0]:
-                        object = propclass["object"] # fully qualified name
+                        object = propclass["object"]  # fully qualified name
                     else:
                         newontology.print()
                         object = newontology.name + ':' + tmp[1]
@@ -455,38 +363,34 @@ def create_ontology_from_string(con: Connection,
             gui_element = propclass.get("gui_element")
             gui_attributes = propclass.get("gui_attributes")
             if gui_attributes is not None and gui_attributes.get("hlist") is not None:
-                gui_attributes['hlist'] = "<" + listrootnodes[gui_attributes['hlist']]["id"] + ">"
+                gui_attributes['hlist'] = "<" + list_root_nodes[gui_attributes['hlist']]["id"] + ">"
             propcomment = propclass.get("comment")
             if propcomment is not None:
                 propcomment = LangString(propcomment)
             else:
                 propcomment = "no comment given"
             try:
-                last_modification_date, newpropclass = PropertyClass(
-                    con=con,
-                    context=newontology.context,
-                    label=proplabel,
-                    name=propname,
-                    ontology_id=newontology.id,
-                    superproperties=super_props,
-                    object=object,
-                    subject=subject,
-                    gui_element="salsah-gui:" + gui_element,
-                    gui_attributes=gui_attributes,
-                    comment=propcomment
-                ).create(last_modification_date)
+                last_modification_date, newpropclass = PropertyClass(con=con,
+                                                                     context=newontology.context,
+                                                                     label=proplabel,
+                                                                     name=propname,
+                                                                     ontology_id=newontology.id,
+                                                                     superproperties=super_props,
+                                                                     object=object,
+                                                                     subject=subject,
+                                                                     gui_element="salsah-gui:" + gui_element,
+                                                                     gui_attributes=gui_attributes,
+                                                                     comment=propcomment).create(last_modification_date)
                 newontology.lastModificationDate = last_modification_date
             except BaseError as err:
-                print("Creating property class failed: " + err.message)
+                print("Creating property class failed:", err.message)
                 return False
             newpropclasses[newpropclass.id] = newpropclass
             if verbose:
                 print("New property class:")
                 newpropclass.print()
 
-        #
         # Add cardinalities
-        #
         switcher = {
             "1": Cardinality.C_1,
             "0-1": Cardinality.C_0_1,
@@ -506,9 +410,10 @@ def create_ontology_from_string(con: Connection,
                 else:
                     propid = "knora-api:" + cardinfo["propname"]
                 gui_order = cardinfo.get('gui_order')
-                last_modification_date = rc.addProperty(property_id=propid,
-                                                        cardinality=cardinality,
-                                                        gui_order=gui_order,
-                                                        last_modification_date=last_modification_date)
+                last_modification_date = rc.addProperty(
+                        property_id=propid,
+                        cardinality=cardinality,
+                        gui_order=gui_order,
+                        last_modification_date=last_modification_date)
                 newontology.lastModificationDate = last_modification_date
     return True

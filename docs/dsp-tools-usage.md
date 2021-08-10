@@ -94,19 +94,26 @@ dsp-tools xmlupload -s https://api.dsl.server.org -u root@example.com -p test -S
 
 The description of the expected XML format can be found [here](./dsp-tools-xmlupload.md). 
 
-## Convert an Excel file into a JSON file that is compatible with dsp-tools
+## Create a JSON list file from one or several Excel files
 
 ```bash
-dsp-tools excel [options] excel_file.xlsx output_file.json
+dsp-tools excel [option] folder_with_excel_files output_file.json
 ```
 
-The following options are available:
+The following option is available:
 
-- `-S` | `--sheet` _sheetname_: name of the Excel worksheet to use (default: Tabelle1)
-- `-s` | `--shortcode` _shortcode_: shortcode of the project (required)
-- `-l` | `--listname` _listname_: name to be used for the list and the list definition file (required)
-- `-L` | `--label` _label_: label to be used for the list (required)
-- `-x` | `--lang` _lang_: language used for the list labels and commentaries (default: en)
-- `-v` | `--verbose`: If set, some information about the progress is printed to the console.
+- `-l` | `--listname` _listname_: name to be used for the list (filename before last occurrence of `_` is used if omitted)
 
-The description of the expected Excel format can be found [here](./dsp-tools-create.md#lists-from-excel).
+The command is used to create a JSON list file from one or several Excel files. It is possible to create multilingual lists.
+Therefore, an Excel file for each language has to be provided. The data has to be in the first worksheet of the Excel 
+file and all Excel files have to be in the same directory. When calling the `excel` command, this directory has to be provided 
+as an argument to the call.
+
+The following example shows how to create a JSON list from Excel files in a directory called `lists`.
+
+```bash
+dsp-tools excel lists list.json
+```
+
+The description of the expected Excel format can be found [here](./dsp-tools-create.md#lists-from-excel). More information 
+about the usage of this command can be found [here](./dsp-tools-excel.md#create-a-list-from-one-or-several-excel-files).

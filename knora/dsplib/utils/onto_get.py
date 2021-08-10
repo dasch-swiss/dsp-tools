@@ -1,12 +1,11 @@
-from typing import List, Set, Dict, Tuple, Optional, Any, Union
-
 import json
 import re
+from typing import Dict
 
 from ..models.connection import Connection
-from ..models.project import Project
 from ..models.listnode import ListNode
 from ..models.ontology import Ontology
+from ..models.project import Project
 
 
 def get_ontology(projident: str, outfile: str, server: str, user: str, password: str, verbose: bool) -> bool:
@@ -48,11 +47,7 @@ def get_ontology(projident: str, outfile: str, server: str, user: str, password:
         projectobj["ontologies"].append(ontology.createDefinitionFileObj())
         prefixes.update(ontology.context.get_externals_used())
 
-    umbrella = {
-        "prefixes": prefixes,
-        "project": projectobj
-    }
+    umbrella = {"prefixes": prefixes, "project": projectobj}
 
     with open(outfile, 'w', encoding='utf8') as outfile:
         json.dump(umbrella, outfile, indent=3, ensure_ascii=False)
-

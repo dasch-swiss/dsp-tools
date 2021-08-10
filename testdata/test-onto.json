@@ -57,13 +57,12 @@
         ]
       },
       {
-        "name": "fromexcel",
+        "name": "my-list-from-excel",
         "labels": {
-          "en": "Fromexcel"
+          "en": "My list from Excel"
         },
         "nodes": {
-          "file": "list-as-excel.xlsx",
-          "worksheet": "Tabelle1"
+          "folder": "testdata/lists"
         }
       }
     ],

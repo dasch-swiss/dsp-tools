@@ -275,12 +275,18 @@ Here is an example on how to build a taxonomic structure in JSON:
     {
       "name": "my_list",
       "labels": {"en": "Disciplines of the Humanities"},
-      "comments": {"en": "This ist is just a silly example", "fr": "un example un peu fou"},
+      "comments": {
+        "en": "This is just an example.", 
+        "fr": "C'est un example."
+      },
       "nodes": [
         {
           "name": "node_1_1",
           "labels": {"en": "Performing arts"},
-          "comments": {"en": "Arts that are events", "de": "Künste mit performativem Character"},
+          "comments": {
+            "en": "Arts that are events", 
+            "de": "Künste mit performativem Character"
+          },
           "nodes": [
               {
               "name": "node_2_2",
@@ -340,17 +346,17 @@ Here is an example on how to build a taxonomic structure in JSON:
 ```
 #### Lists from Excel
 
-A list can also be imported from an Excel sheet. The Excel sheet must have the following format (currently only a single
-language is supported):
+A list can be directly imported from an Excel sheet. The Excel sheet must have the following format:
 
 ![img-list-example.png](assets/images/img-list-example.png)
 
 In such a case, the Excel file can directly be referenced in the list definition by defining a special list node:
 ```json
 {
-  "name": "fromexcel",
+  "name": "List-from-excel",
   "labels": {
-    "en": "Fromexcel"
+    "en": "List from an Excel file",
+    "de": "Liste von einer Excel-Datei"
   },
   "nodes": {
     "file": "excel-list.xlsx",
@@ -1066,9 +1072,7 @@ Example for a resource definition:
     {
       "name": "Schule",
       "super": "Resource",
-      "labels": {
-        "de": "Schule"
-      },
+      "labels": {"de": "Schule"},
       "cardinalities": [
         {
           "propname": ":schulcode",

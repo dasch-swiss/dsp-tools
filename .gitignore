@@ -37,10 +37,6 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
-
-
-
-
 # Environments
 .env
 .venv
@@ -64,7 +60,10 @@ venv.bak/
 .mypy_cache/
 .idea
 .vscode
-/knora/lists.json
+
+# created files
+lists.json
+out.json
 
 # bazel
 /bazel-*

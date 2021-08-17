@@ -1,6 +1,6 @@
-from typing import List, Dict
+from typing import Dict, List
 
-from knora.dsplib.utils.excel_to_json_lists import prepare_list_creation, make_json_list_from_excel
+from dsplib.utils.excel_to_json_lists import make_json_list_from_excel, prepare_list_creation
 
 
 def expand_lists_from_excel(data_model: Dict) -> List[str]:
@@ -20,7 +20,7 @@ def expand_lists_from_excel(data_model: Dict) -> List[str]:
         for rootnode in lists:
             # check if the folder parameter is used
             if rootnode.get('nodes') is not None and isinstance(rootnode['nodes'], dict) and rootnode['nodes'].get(
-                'folder') is not None:
+                    'folder') is not None:
                 # get the Excel files from the folder and crate the rootnode of the list
                 excel_folder = rootnode['nodes']['folder']
                 rootnode, excel_files = prepare_list_creation(excel_folder, rootnode.get('name'))

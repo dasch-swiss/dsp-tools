@@ -586,7 +586,7 @@ First of all, our overall ontology needs a name. After all, we want to create an
 terms.
 
 As a "speciality", the *name of the ontology* has to be a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName)
-conformant name that can be used as prefix. [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName)
+compliant name that can be used as prefix. [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName)
 means that it has to be a single word without any special characters (like e.g. " . : ! ? # + (...) ") and without any blanks.
 
 #### Label
@@ -696,13 +696,13 @@ Represents a text that may contain standoff markup.
 
 `"object": "ColorValue"`
 
-A string in the form "#rrggbb" (standard web color format).
+A string representation of the color in the hexadecimal form e.g. "#ff8000".
 
 *gui-elements / gui_attributes*:
 
 - `Colorpicker`: The only GUI element for _ColorValue_. It's used to choose a color.
     - _gui_attributes_:
-        - `ncolors=integer` (mandatory): Number of colors the color picker should present.
+        - `ncolors=integer` (optional): Number of colors the color picker should present.
 
 *Example:*
 
@@ -728,11 +728,9 @@ Represents a date. It's a string with the format `calendar:start:end`
 Please note that the DateValue is an extremely flexible data type. It can represent an exact date or a date with a given
 uncertainty, and the date can be given in several calendars (currently the Gregorian and the Julian calendars are supported, with
 the Jewish and Islamic coming soon). Internally, a date is always represented as a start and end date. If start and end date
-match, it's an exact date. A value like "1893" will automatically be expanded to a range from January 1st 1893 to December 31st
+match, it's an exact date. A value like "1893" will automatically be expanded to a range from January 1st 1893 to December 31st 1893.
 
-1893.
-
-- _calender_ is either _GREGORIAN_ or _JULIAN_
+- _calendar_ is either _GREGORIAN_ or _JULIAN_
 - _start_ has the form _yyyy_-_mm_-_dd_. If only the year is given, the precision is to the year. If only the year and month is
   given, the precision is to the month.
 - _end_ is optional if the date represents a clearly defined period or uncertainty.
@@ -861,7 +859,7 @@ Represents a location ID in geonames.org. The DSP platform uses identifiers prov
 
 `"object": "IntValue"`
 
-Represents an integer value
+Represents an integer value.
 
 *gui-elements / gui_attributes*:
 
@@ -900,7 +898,7 @@ Represents an integer value
 
 `"object": "BooleanValue"`
 
-Represents a Boolean ("true" or "false)
+Represents a Boolean ("true" or "false).
 
 *gui-elements / gui_attributes*:
 
@@ -1033,7 +1031,7 @@ Represents a node of a (possibly hierarchical) list
 LinkValues do not follow the pattern of the previous data types, because they do not connect to a final value but to another
 resource which has to be defined. Thus, the "object" denomiates the resource class the link will point to. If the resource is
 defined in the same ontology, the name has to be prepended by a ":", if the resource is defined in another (previously defined)
-ontology, the ontology name has to be prepended separated by a color ":", e.g.
+ontology, the ontology name has to be prepended separated by a colon ":", e.g.
 "other-onto:MyResource". The "super"-element has to be "hasLinkTo" or at least derived from "hasLinkTo" (how to derive a resource
 or property from another one is not part of this documentation).
 
@@ -1042,7 +1040,7 @@ or property from another one is not part of this documentation).
 - `Searchbox`: Must be used with _hasLinkTo_ properties. Allows to search and enter a resource that the given resource should link
   to. It has one gui_attribute that indicates how many properties of the found resources should be indicated. It's mandatory!
     - _gui_attributes_:
-        - `numprops=integer` (mandatory): While dynamically displaying the search result, the number of properties that should be
+        - `numprops=integer` (optional): While dynamically displaying the search result, the number of properties that should be
           displayed.
 
 *Example:*

@@ -1163,8 +1163,8 @@ The following parent predefined resources are provided by DSP:
     - `hasComment` (1-n)
     - `isAnnotationOf` (1)
 - `LinkObj`: A resource class linking together several other, generic, resource classes. The class has the following properties:
-- `hasComment` (1-n)
-- `hasLinkTo` (1-n)
+    - `hasComment` (1-n)
+    - `hasLinkTo` (1-n)
 - `Region`: Represents a simple region. The class has the following properties:
     - `hasColor` (1)
     - `isRegionOf` (1)

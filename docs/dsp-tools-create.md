@@ -130,7 +130,7 @@ So, a simple example definition of the "project" object could look like this:
     "users": [
       ...
     ],
-    "ontology": [
+    "ontologies": [
       ...
     ]
   }
@@ -888,8 +888,8 @@ Represents an integer value.
   },
   "gui_element": "Spinbox",
   "gui_attributes": {
-    "max": 0.0,
-    "min": 10.0
+    "max": 10.0,
+    "min": 0.0
   }
 }
 ```

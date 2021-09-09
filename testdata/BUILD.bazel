@@ -9,6 +9,7 @@ filegroup(
     visibility = ["//visibility:public"],
     srcs = [
         "anything-onto.json",
+        "Resources.xlsx",
         "lists/description_en.xlsx",
         "lists/Beschreibung_de.xlsx",
         "test-data.xml",

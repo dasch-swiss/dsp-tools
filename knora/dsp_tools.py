@@ -129,6 +129,7 @@ def program(args: list) -> None:
                    sipi=args.sipi,
                    verbose=args.verbose,
                    validate_only=args.validate)
+        # TODO: implement option for incremental xmluplaod, p,ex. --incremental
     elif args.action == 'excel':
         list_excel2json(listname=args.listname,
                         excelfolder=args.excelfolder,

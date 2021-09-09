@@ -1,7 +1,9 @@
 """
 This module handles the import of XML data into the DSP platform.
 """
+import json
 import os
+from datetime import datetime
 from typing import Dict, List, Optional, Union
 
 from lxml import etree
@@ -516,7 +518,7 @@ def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
                validate_only: bool) -> bool:
     """
-    This function reads an XML file and imports the data described in it onto the DSP server.
+    Reads an XML file and imports the data described in it onto the DSP server.
 
     Args:
         input_file : the XML with the data to be imported onto the DSP server
@@ -565,6 +567,8 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             resources.append(KnoraResource(child, default_ontology))
 
     # sort the resources (resources which do not link to others come first)
+    # if not incremental_upload: TODO: implement option for incremental xmlupload
+    #    resources = do_sort_order(resources)
     resources = do_sort_order(resources)
 
     sipi = Sipi(sipi, con.get_token())
@@ -599,3 +603,8 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
                                                  values=resource.get_propvals(res_iri_lookup, permissions_lookup)).create()
         res_iri_lookup[resource.id] = instance.iri
         print("Created resource: ", instance.label, " (", resource.id, ") with IRI ", instance.iri)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = 'id_iri_' + timestamp + '.json'
+    with open(filename, 'w') as file:
+        file.write(json.dumps(res_iri_lookup))

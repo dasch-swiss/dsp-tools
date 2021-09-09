@@ -1,6 +1,32 @@
 import json
+import os
 
+import jsonschema
 from openpyxl import load_workbook
+
+
+def validate_resources_with_schema(json_file: str) -> bool:
+    """
+        This function checks if the json resources are valid according to the schema.
+
+        Args:
+            json_file: the json with the resources to be validated
+
+        Returns:
+            True if the data passed validation, False otherwise
+
+        """
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(current_dir, 'knora-schema-resources-only.json')) as schema:
+        resources_schema = json.load(schema)
+
+    try:
+        jsonschema.validate(instance=json_file, schema=resources_schema)
+    except jsonschema.exceptions.ValidationError as err:
+        print(err)
+        return False
+    print('Resource data passed schema validation.')
+    return True
 
 
 def resources_excel2json(excelfile: str, outfile: str):
@@ -21,6 +47,7 @@ def resources_excel2json(excelfile: str, outfile: str):
     sheet = wb['classes']
     resource_list = [c for c in sheet.iter_rows(min_row=2, values_only=True)]
 
+    prefix = '"resources":'
     resources = []
     # for each resource in resources overview
     for res in resource_list:
@@ -65,5 +92,11 @@ def resources_excel2json(excelfile: str, outfile: str):
         # append to resources list
         resources.append(resource)
 
-    with open(file=outfile, mode='w+', encoding='utf-8') as file:
-        json.dump(resources, file, indent=4)
+    if validate_resources_with_schema(json.loads(json.dumps(resources, indent=4))):
+        # write final list to JSON file if list passed validation
+        with open(file=outfile, mode='w+', encoding='utf-8') as file:
+            file.write(prefix)
+            json.dump(resources, file, indent=4)
+            print('Resource file was created successfully and written to file:', outfile)
+    else:
+        print('Resource data is not valid according to schema.')

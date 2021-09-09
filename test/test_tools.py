@@ -2,9 +2,9 @@
 import json
 import unittest
 
-from knora.dsplib.utils.excel_to_json_resources import resources_excel2json
 from knora.dsplib.utils import excel_to_json_lists
 from knora.dsplib.utils.excel_to_json_lists import list_excel2json
+from knora.dsplib.utils.excel_to_json_resources import resources_excel2json
 from knora.dsplib.utils.onto_create_ontology import create_ontology
 from knora.dsplib.utils.onto_get import get_ontology
 from knora.dsplib.utils.onto_validate import validate_ontology

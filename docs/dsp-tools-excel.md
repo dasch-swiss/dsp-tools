@@ -19,7 +19,7 @@ The expected columns are:
 
 - `name` : The name of the resource
 - `super` : The base resource of the resource
-- `en`, `de` etc. : The labels of the resource in different languages
+- `en`, `de`, `fr`, `it` : The labels of the resource in different languages, at least one language has to be provided
 
 For further information about resources, see [here](./dsp-tools-create.md#resources).
 

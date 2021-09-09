@@ -431,7 +431,8 @@ The nodes section must contain the field:
 
 - _folder_: Path to the folder where the Excel files are stored
 
-Further details to this functionality can be read [here](dsp-tools-excel.md).
+Further details to this functionality can be read
+[here](dsp-tools-excel#create-a-json-list-file-from-one-or-several-excel-files.md).
 
 The lists element is optional. If there are no lists, this element has to be omitted.
 
@@ -728,7 +729,9 @@ Represents a date. It's a string with the format `calendar:start:end`
 Please note that the DateValue is an extremely flexible data type. It can represent an exact date or a date with a given
 uncertainty, and the date can be given in several calendars (currently the Gregorian and the Julian calendars are supported, with
 the Jewish and Islamic coming soon). Internally, a date is always represented as a start and end date. If start and end date
-match, it's an exact date. A value like "1893" will automatically be expanded to a range from January 1st 1893 to December 31st 1893.
+match, it's an exact date. A value like "1893" will automatically be expanded to a range from January 1st 1893 to December 31st
+
+1893.
 
 - _calendar_ is either _GREGORIAN_ or _JULIAN_
 - _start_ has the form _yyyy_-_mm_-_dd_. If only the year is given, the precision is to the year. If only the year and month is
@@ -1222,6 +1225,12 @@ Example for a resource definition:
   ]
 }
 ```
+
+#### Resources from Excel
+
+The resources section can be created from an Excel file. Only the first worksheet of the Excel file is considered and only XLSX
+files are allowed. The Excel sheet must have the following format:
+![img-resources-example.png](assets/images/img-resources-example.png)
 
 ## Fully fleshed out example ontology
 

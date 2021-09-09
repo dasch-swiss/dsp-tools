@@ -31,14 +31,14 @@ def validate_resources_with_schema(json_file: str) -> bool:
 
 def resources_excel2json(excelfile: str, outfile: str):
     """
-    Takes the arguments from the command line, checks file and starts the process of the output creation.
+        Converts properties described in an Excel file into a properties section which can be integrated into a DSP ontology
 
-    Args:
-        excelfile: path to the Excel file containing the resource data
-        outfile: path to the JSON output file
+        Args:
+            excelfile: path to the Excel file containing the properties
+            outfile: path to the output JSON file containing the properties section for the ontology
 
-    Returns:
-        None
+        Returns:
+            None
     """
     # load file
     wb = load_workbook(excelfile, read_only=True)

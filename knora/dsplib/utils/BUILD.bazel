@@ -25,6 +25,16 @@ py_library(
 )
 
 py_library(
+    name = "excel_to_json_properties",
+    visibility = ["//visibility:public"],
+    srcs = ["excel_to_json_properties.py"],
+    deps = [
+        requirement("jsonschema"),
+        requirement("openpyxl")
+    ]
+)
+
+py_library(
     name = "expand_all_lists",
     visibility = ["//visibility:public"],
     srcs = ["expand_all_lists.py"],

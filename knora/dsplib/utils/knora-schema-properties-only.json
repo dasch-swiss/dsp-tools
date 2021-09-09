@@ -1,0 +1,179 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema-properties-only#",
+  "$id": "http://knora.org/pyknora/ontology/knora-schema-properties-only.json",
+  "title": "Knora JSON schema for properties only",
+  "description": "JSON schema for properties used in Knora ontologies",
+  "definitions": {
+    "langstring": {
+      "anyOf": [
+        {
+          "type": "object",
+          "patternProperties": {
+            "^(en|de|fr|it)": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "label": {
+      "$ref": "#/definitions/langstring"
+    },
+    "comment": {
+      "$ref": "#/definitions/langstring"
+    },
+    "property": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "super": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "oneOf": [
+              {
+                "enum": [
+                  "hasValue",
+                  "hasLinkTo",
+                  "hasColor",
+                  "hasComment",
+                  "hasGeometry",
+                  "isPartOf",
+                  "isRegionOf",
+                  "isAnnotationOf",
+                  "hasRepresentation",
+                  "seqnum"
+                ]
+              },
+              {
+                "pattern": "^([\\w-]+)?:(\\w+)$"
+              },
+              {
+                "pattern": "^(http)(s)?://.*"
+              }
+            ]
+          }
+        },
+        "object": {
+          "type": "string",
+          "oneOf": [
+            {
+              "enum": [
+                "TextValue",
+                "ColorValue",
+                "DateValue",
+                "DecimalValue",
+                "GeomValue",
+                "GeonameValue",
+                "IntValue",
+                "BooleanValue",
+                "TimeValue",
+                "UriValue",
+                "IntervalValue",
+                "ListValue",
+                "Region",
+                "Resource",
+                "Annotation"
+              ]
+            },
+            {
+              "pattern": "^([\\w-]+)?:(\\w+)$"
+            }
+          ]
+        },
+        "subject": {
+          "type": "string",
+          "pattern": "^([\\w-]+)?:(\\w+)$"
+        },
+        "labels": {
+          "$ref": "#/definitions/label"
+        },
+        "gui_element": {
+          "type": "string",
+          "enum": [
+            "Colorpicker",
+            "Date",
+            "Geometry",
+            "Geonames",
+            "Interval",
+            "TimeStamp",
+            "List",
+            "Pulldown",
+            "Radio",
+            "Richtext",
+            "Searchbox",
+            "SimpleText",
+            "Slider",
+            "Spinbox",
+            "Textarea",
+            "Checkbox",
+            "Fileupload"
+          ]
+        },
+        "gui_attributes": {
+          "type": "object",
+          "properties": {
+            "size": {
+              "type": "integer"
+            },
+            "maxsize": {
+              "type": "integer"
+            },
+            "hlist": {
+              "type": "string"
+            },
+            "numprops": {
+              "type": "integer"
+            },
+            "ncolors": {
+              "type": "integer"
+            },
+            "cols": {
+              "type": "integer"
+            },
+            "rows": {
+              "type": "integer"
+            },
+            "width": {
+              "type": "string",
+              "pattern": "^[0-9]*%?$"
+            },
+            "wrap": {
+              "type": "string",
+              "enum": [
+                "soft",
+                "hard"
+              ]
+            },
+            "max": {
+              "type": "number"
+            },
+            "min": {
+              "type": "number"
+            }
+          }
+        },
+        "comments": {
+          "$ref": "#/definitions/comment"
+        }
+      },
+      "required": [
+        "name",
+        "object",
+        "labels",
+        "gui_element"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/property"
+  }
+}

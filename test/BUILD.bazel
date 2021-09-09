@@ -132,7 +132,8 @@ py_test(
         "//knora/dsplib/utils:onto_validate",
         "//knora/dsplib/utils:onto_create_ontology",
         "//knora/dsplib/utils:xml_upload",
-        "//knora/dsplib/utils:excel_to_json_lists"
+        "//knora/dsplib/utils:excel_to_json_lists",
+        "//knora/dsplib/utils:excel_to_json_resources"
     ],
     data = [
         "//testdata:testdata",

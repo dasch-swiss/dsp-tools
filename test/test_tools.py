@@ -4,6 +4,7 @@ import unittest
 
 from knora.dsplib.utils import excel_to_json_lists
 from knora.dsplib.utils.excel_to_json_lists import list_excel2json
+from knora.dsplib.utils.excel_to_json_resources import resources_excel2json
 from knora.dsplib.utils.onto_create_ontology import create_ontology
 from knora.dsplib.utils.onto_get import get_ontology
 from knora.dsplib.utils.onto_validate import validate_ontology
@@ -22,6 +23,8 @@ class TestTools(unittest.TestCase):
         excel_to_json_lists.cell_names = []
 
     def test_get(self):
+        global other_tree_list, other_tree_list_out, not_used_list, not_used_list_out, tree_list_root, tree_list_root_out
+
         with open('testdata/anything-onto.json') as f:
             onto_json_str = f.read()
         anything_onto = json.loads(onto_json_str)
@@ -75,10 +78,15 @@ class TestTools(unittest.TestCase):
         # TODO fix this test
         # self.assertEqual(anything_onto['project']['ontologies'], anything_onto_out['project']['ontologies'])
 
-    def test_excel(self):
+    def test_excel_to_json_list(self):
+        print("HHHHHHH")
         list_excel2json(listname='my_test_list',
                         excelfolder='testdata/lists',
                         outfile='_lists-out.json')
+
+    def test_excel_to_json_resources(self):
+        resources_excel2json(excelfile='testdata/Resources.xlsx',
+                             outfile='_resources-out.json')
 
     def test_validate_ontology(self):
         validate_ontology('testdata/test-onto.json')

@@ -128,11 +128,12 @@ dsp-tools excel2resources excel_file.xlsx output_file.json
 The command is used to create the resource section of an ontology from an Excel file. Therefore, an Excel file has to be provided
 with the data in the first worksheet of the Excel file.
 
-The following example shows how to create the resources section from Excel file called `Resources.xlsx`.
+The following example shows how to create the resources section from an Excel file called `Resources.xlsx`.
 
 ```bash
 dsp-tools excel2resources Resources.xlsx resources.json
 ```
 
-The description of the expected Excel format can be found [here](./dsp-tools-create.md#lists-from-excel). More information about
-the usage of this command can be found [here](./dsp-tools-excel.md#create-the-resources-for-a-data-model-from-an-excel-file).
+The description of the expected Excel format can be found [here](./dsp-tools-create.md#resources-from-excel). More information
+about the usage of this command can be found [here](./dsp-tools-excel.md#create-the-resources-for-a-data-model-from-an-excel-file)
+.

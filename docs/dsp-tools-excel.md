@@ -19,7 +19,7 @@ The expected columns are:
 
 - `name` : The name of the resource
 - `super` : The base resource of the resource
-- `en`, `de` etc. : The labels of the resource in different languages
+- `en`, `de`, `fr`, `it` : The labels of the resource in different languages, at least one language has to be provided
 
 For further information about resources, see [here](./dsp-tools-create.md#resources).
 
@@ -37,7 +37,7 @@ The expected columns are:
 - `name` : The name of the property
 - `super` : The base property of the property
 - `object` : The resource the property refers to if it is a link property (property derived from `hasLinkTo`)
-- `en`, `de` etc. : The labels of the property in different languages
+- `en`, `de`, `fr`, `it` : The labels of the property in different languages, at least one language has to be provided
 - `gui_element` : The GUI element for the property
 - `hlist` : In case of list values the according list
 

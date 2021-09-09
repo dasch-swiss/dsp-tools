@@ -8,13 +8,40 @@ file.
 
 ## Create the resources for a data model from an Excel file
 
-With dsp-tools the resources section used in a data model (JSON) can be created from an Excel file. The section can be inserted
-into the ontology file and then be uploaded onto a DSP server. The expected format of the Excel file is
-described [here](./dsp-tools-create.md#resources-from-excel).
+With dsp-tools the `resources` section used in a data model (JSON) can be created from an Excel file. Only the first worksheet of
+the Excel file is considered and only `XLSX` files are allowed. The `resources` section can be inserted into the ontology file and
+then be uploaded onto a DSP server.
+
+The Excel sheet must have the following format:
+![img-resources-example.png](assets/images/img-resources-example.png)
+
+The expected columns are:
+
+- `name` : The name of the resource
+- `super` : The base resource of the resource
+- `en`, `de` etc. : The labels of the resource in different languages
+
+For further information about resources, see [here](./dsp-tools-create.md#resources).
 
 ## Create the properties for a data model from an Excel file
 
-[not yet implemented]
+With dsp-tools the `properties` section used in a data model (JSON) can be created from an Excel file. Only the first worksheet of
+the Excel file is considered and only XLSX files are allowed. The `properties` section can be inserted into the ontology file and
+then be uploaded onto a DSP server.
+
+The Excel sheet must have the following format:
+![img-properties-example.png](assets/images/img-properties-example.png)
+
+The expected columns are:
+
+- `name` : The name of the property
+- `super` : The base property of the property
+- `object` : The resource the property refers to if it is a link property (property derived from `hasLinkTo`)
+- `en`, `de` etc. : The labels of the property in different languages
+- `gui_element` : The GUI element for the property
+- `hlist` : In case of list values the according list
+
+For further information about properties, see [here](./dsp-tools-create.md#properties).
 
 ## Create a DSP-conform XML file from an Excel file
 

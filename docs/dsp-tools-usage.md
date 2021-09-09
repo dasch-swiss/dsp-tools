@@ -135,8 +135,8 @@ to a file called `resources.json`.
 dsp-tools excel2resources Resources.xlsx resources.json
 ```
 
-The description of the expected Excel format can be found [here](./dsp-tools-create.md#resources-from-excel). More information
-about the usage of this command can be found [here](./dsp-tools-excel.md#create-the-resources-for-a-data-model-from-an-excel-file)
+More information about the usage of this command can be
+found [here](./dsp-tools-excel.md#create-the-resources-for-a-data-model-from-an-excel-file)
 .
 
 ## Create properties from an Excel file
@@ -155,7 +155,6 @@ written to a file called `properties.json`.
 dsp-tools excel2properties Properties.xlsx properties.json
 ```
 
-The description of the expected Excel format can be found [here](./dsp-tools-create.md#properties-from-excel). More information
-about the usage of this command can be found
+More information about the usage of this command can be found
 [here](./dsp-tools-excel.md#create-the-properties-for-a-data-model-from-an-excel-file)
 .

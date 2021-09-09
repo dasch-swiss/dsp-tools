@@ -79,7 +79,6 @@ class TestTools(unittest.TestCase):
         # self.assertEqual(anything_onto['project']['ontologies'], anything_onto_out['project']['ontologies'])
 
     def test_excel_to_json_list(self):
-        print("HHHHHHH")
         list_excel2json(listname='my_test_list',
                         excelfolder='testdata/lists',
                         outfile='_lists-out.json')

@@ -14,6 +14,7 @@ from dsplib.utils.onto_create_lists import create_lists
 from dsplib.utils.onto_create_ontology import create_ontology
 from dsplib.utils.onto_get import get_ontology
 from dsplib.utils.excel_to_json_lists import list_excel2json, validate_list_with_schema
+from dsplib.utils.excel_to_json_resources import resources_excel2json
 from dsplib.utils.onto_validate import validate_ontology
 from dsplib.utils.xml_upload import xml_upload
 
@@ -84,6 +85,14 @@ def program(args: list) -> None:
     parser_excel_lists.add_argument('excelfolder', help='Path to the folder containing the Excel file(s)', default='lists')
     parser_excel_lists.add_argument('outfile', help='Path to the output JSON file containing the list data', default='list.json')
 
+    parser_excel_resources = subparsers.add_parser('excel2resources', help='Create a JSON file from an Excel file containing '
+                                                                           'resources for a DSP ontology. ')
+    parser_excel_resources.set_defaults(action='excel2resources')
+    parser_excel_resources.add_argument('excelfile', help='Path to the Excel file containing the resources',
+                                        default='resources.xlsx')
+    parser_excel_resources.add_argument('outfile', help='Path to the output JSON file containing the resource data',
+                                        default='resources.json')
+
     args = parser.parse_args(args)
 
     if not hasattr(args, 'action'):
@@ -133,6 +142,9 @@ def program(args: list) -> None:
         list_excel2json(listname=args.listname,
                         excelfolder=args.excelfolder,
                         outfile=args.outfile)
+    elif args.action == 'excel2resources':
+        resources_excel2json(excelfile=args.excelfile,
+                             outfile=args.outfile)
 
 
 def main():

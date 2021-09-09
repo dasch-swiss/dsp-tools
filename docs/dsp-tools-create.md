@@ -1226,12 +1226,6 @@ Example for a resource definition:
 }
 ```
 
-#### Resources from Excel
-
-The resources section can be created from an Excel file. Only the first worksheet of the Excel file is considered and only XLSX
-files are allowed. The Excel sheet must have the following format:
-![img-resources-example.png](assets/images/img-resources-example.png)
-
 ## Fully fleshed out example ontology
 
 Finally, here is a complete example of an ontology definition:

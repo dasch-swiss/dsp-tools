@@ -8,9 +8,20 @@ file.
 
 ## Create the resources for a data model from an Excel file
 
-With dsp-tools the resources section used in a data model (JSON) can be created from an Excel file. The section can be inserted
-into the ontology file and then be uploaded onto a DSP server. The expected format of the Excel file is
-described [here](./dsp-tools-create.md#resources-from-excel).
+With dsp-tools the `resources` section used in a data model (JSON) can be created from an Excel file. Only the first worksheet of
+the Excel file is considered and only `XLSX` files are allowed. The `resources` section can be inserted into the ontology file and
+then be uploaded onto a DSP server.
+
+The Excel sheet must have the following format:
+![img-resources-example.png](assets/images/img-resources-example.png)
+
+The expected columns are:
+
+- `name` : The name of the resource
+- `super` : The base resource of the resource
+- `en`, `de` etc. : The labels of the resource in different languages
+
+For further information about resources, see [here](./dsp-tools-create.md#resources).
 
 ## Create the properties for a data model from an Excel file
 

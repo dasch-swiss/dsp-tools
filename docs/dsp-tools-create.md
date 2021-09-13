@@ -686,7 +686,7 @@ Represents a text that may contain standoff markup.
   },
   "gui_element": "SimpleText",
   "gui_attributes": {
-    "maxlength": "255",
+    "maxlength": 255,
     "size": 80
   }
 }
@@ -729,6 +729,7 @@ Please note that the DateValue is an extremely flexible data type. It can repres
 uncertainty, and the date can be given in several calendars (currently the Gregorian and the Julian calendars are supported, with
 the Jewish and Islamic coming soon). Internally, a date is always represented as a start and end date. If start and end date
 match, it's an exact date. A value like "1893" will automatically be expanded to a range from January 1st 1893 to December 31st
+
 1893.
 
 - _calendar_ is either _GREGORIAN_ or _JULIAN_
@@ -792,7 +793,7 @@ A number with decimal point.
   },
   "gui_element": "SimpleText",
   "gui_attributes": {
-    "maxlength": "255",
+    "maxlength": 255,
     "size": 80
   }
 }
@@ -872,8 +873,8 @@ Represents an integer value.
 - `Spinbox`: A GUI element for _IntegerValue_. A text field with and "up"- and "down"-button for increment/decrement. The
   attributes "max=decimal" and "min=decimal" are optional.
     - _gui_attributes_:
-        - `max=integer` (optional): Maximal value
-        - `min=integer` (optional): Minimal value
+        - `max=decimal` (optional): Maximal value
+        - `min=decimal` (optional): Minimal value
 
 *Example:*
 
@@ -950,7 +951,7 @@ Represents an URI
   },
   "gui_element": "SimpleText",
   "gui_attributes": {
-    "maxlength": "255",
+    "maxlength": 255,
     "size": 80
   }
 }

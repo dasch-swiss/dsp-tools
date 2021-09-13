@@ -728,7 +728,8 @@ Represents a date. It's a string with the format `calendar:start:end`
 Please note that the DateValue is an extremely flexible data type. It can represent an exact date or a date with a given
 uncertainty, and the date can be given in several calendars (currently the Gregorian and the Julian calendars are supported, with
 the Jewish and Islamic coming soon). Internally, a date is always represented as a start and end date. If start and end date
-match, it's an exact date. A value like "1893" will automatically be expanded to a range from January 1st 1893 to December 31st 1893.
+match, it's an exact date. A value like "1893" will automatically be expanded to a range from January 1st 1893 to December 31st
+1893.
 
 - _calendar_ is either _GREGORIAN_ or _JULIAN_
 - _start_ has the form _yyyy_-_mm_-_dd_. If only the year is given, the precision is to the year. If only the year and month is
@@ -775,7 +776,7 @@ A number with decimal point.
   "maxlength=integer" and "size=integer" are optional.
     - _gui_attributes_:
         - `maxlength=integer` (optional): maximum number of characters accepted
-        - `size=integer"` (optional): size of the input field
+        - `size=integer` (optional): size of the input field
 
 *Example:*
 
@@ -867,7 +868,7 @@ Represents an integer value.
   "maxlength=integer" and "size=integer" are optional.
     - _gui_attributes_:
         - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer"` (optional): The size of the input field
+        - `size=integer` (optional): The size of the input field
 - `Spinbox`: A GUI element for _IntegerValue_. A text field with and "up"- and "down"-button for increment/decrement. The
   attributes "max=decimal" and "min=decimal" are optional.
     - _gui_attributes_:
@@ -933,7 +934,7 @@ Represents an URI
   "maxlength=integer" and "size=integer" are optional.
     - _gui_attributes_:
         - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer"` (optional): The size of the input field
+        - `size=integer` (optional): The size of the input field
 
 *Example:*
 
@@ -967,7 +968,7 @@ Represents a time-interval
   "maxlength=integer" and "size=integer" are optional.
     - _gui_attributes_:
         - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer"` (optional): The size of the input field
+        - `size=integer` (optional): The size of the input field
 - `Interval`: not yet implemented.
     - _gui_attributes_: No attributes
 

@@ -431,7 +431,8 @@ The nodes section must contain the field:
 
 - _folder_: Path to the folder where the Excel files are stored
 
-Further details to this functionality can be read [here](dsp-tools-excel.md).
+Further details to this functionality can be read
+[here](dsp-tools-excel#create-a-json-list-file-from-one-or-several-excel-files.md).
 
 The lists element is optional. If there are no lists, this element has to be omitted.
 

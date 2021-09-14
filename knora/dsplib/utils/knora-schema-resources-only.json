@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://knora.org/pyknora/ontology/knora-schema-resources-only.json",
+  "title": "Knora JSON schema for resources only",
+  "description": "JSON schema for resources used in Knora ontologies",
+  "definitions": {
+    "langstring": {
+      "anyOf": [
+        {
+          "type": "object",
+          "patternProperties": {
+            "^(en|de|fr|it)": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "label": {
+      "$ref": "#/definitions/langstring"
+    },
+    "comment": {
+      "$ref": "#/definitions/langstring"
+    },
+    "resourcedef": {
+      "type": [
+        "string",
+        "array"
+      ],
+      "oneOf": [
+        {
+          "enum": [
+            "Resource",
+            "StillImageRepresentation",
+            "TextRepresentation",
+            "AudioRepresentation",
+            "DDDRepresentation",
+            "DocumentRepresentation",
+            "MovingImageRepresentation",
+            "Annotation",
+            "LinkObj",
+            "Region"
+          ]
+        },
+        {
+          "pattern": "^([\\w-]*)?:(\\w+)$"
+        },
+        {
+          "pattern": "^(http)(s)?://.*"
+        }
+      ],
+      "items": {
+        "$ref": "#/definitions/resourcedef"
+      }
+    },
+    "resource": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "super": {
+          "$ref": "#/definitions/resourcedef"
+        },
+        "labels": {
+          "$ref": "#/definitions/label"
+        },
+        "comments": {
+          "$ref": "#/definitions/comment"
+        },
+        "cardinalities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/cardinality"
+          }
+        }
+      },
+      "required": [
+        "name",
+        "super",
+        "labels",
+        "cardinalities"
+      ],
+      "additionalProperties": false
+    },
+    "cardinality": {
+      "type": "object",
+      "properties": {
+        "propname": {
+          "type": "string",
+          "oneOf": [
+            {
+              "enum": [
+                "Region",
+                "isPartOf",
+                "seqnum"
+              ]
+            },
+            {
+              "pattern": "^(([\\w-]*)?:([\\w ]+))$"
+            }
+          ]
+        },
+        "cardinality": {
+          "type": "string",
+          "enum": [
+            "1",
+            "0-1",
+            "1-n",
+            "0-n"
+          ]
+        },
+        "gui_order": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "propname",
+        "cardinality"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/resource"
+  }
+}

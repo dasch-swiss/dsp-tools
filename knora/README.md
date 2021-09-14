@@ -50,8 +50,8 @@ providing methods to create new ontologies and resources.
 
 ## Knora
 
-Knora is the base class which handles all the communication with the Knora backend. In order to use Knora, the user has to submit
-his/her credentials to the Knora backend
+Knora is the base class which handles all the communication with the DSP API. In order to use Knora, the user has to submit
+his/her credentials to the DSP API
 
 ### Basic methods
 

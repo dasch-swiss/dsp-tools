@@ -3,7 +3,6 @@
   "$id": "http://knora.org/pyknora/ontology/knora-schema.json",
   "title": "Knora JSON schema",
   "description": "JSON Schema for Knora ontologies",
-
   "definitions": {
     "label": {
       "type": "object",
@@ -74,17 +73,25 @@
           }
         }
       },
-      "required": ["shortcode", "lists"],
+      "required": [
+        "shortcode",
+        "lists"
+      ],
       "additionalProperties": false
     },
     "prefixes": {
       "type": "object",
       "patternProperties": {
-        "^[\\w-]+$": { "format" : "uri" }
+        "^[\\w-]+$": {
+          "format": "uri"
+        }
       },
       "additionalProperties": false
     }
   },
-  "required": ["prefixes", "project"],
+  "required": [
+    "prefixes",
+    "project"
+  ],
   "additionalProperties": false
 }

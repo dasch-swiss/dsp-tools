@@ -29,3 +29,4 @@ dsp-tools helps you with the following tasks:
 - [`dsp-tools excel2properties`](./dsp-tools-usage.md#create-properties-from-an-excel-file)
   creates the ontology's properties section from an Excel file. The resulting section can be integrated into an ontology and then
   be uploaded to a DSP server with `dsp-tools create`.
+

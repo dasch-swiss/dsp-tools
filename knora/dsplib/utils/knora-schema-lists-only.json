@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema-list-only#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "http://knora.org/pyknora/ontology/knora-schema-list-only.json",
   "title": "Knora JSON schema for lists only",
   "description": "JSON schema for lists used in Knora ontologies",
@@ -48,7 +48,6 @@
       "additionalProperties": false
     }
   },
-
   "type": "object",
   "properties": {
     "name": {

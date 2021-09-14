@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.3.4](https://www.github.com/dasch-swiss/dsp-tools/compare/v1.3.3...v1.3.4) (2021-09-14)
+
+
+### Documentation
+
+* **typo:** correct typo in documentation ([#85](https://www.github.com/dasch-swiss/dsp-tools/issues/85)) ([c689d7f](https://www.github.com/dasch-swiss/dsp-tools/commit/c689d7fb213b334fe53c4e9b02c935a5da333f6d))
+
 ### [1.3.3](https://www.github.com/dasch-swiss/dsp-tools/compare/v1.3.2...v1.3.3) (2021-09-07)
 
 

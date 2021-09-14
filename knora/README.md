@@ -1,7 +1,7 @@
 # Knora Library
 
-This library offers classes and methods to manipulate a Knora based repository. Most importantly, it allows importing data by
-providing methods to create new ontologies and resources.
+This library offers classes and methods to manipulate a Knora based repository (DSP). Most importantly, it allows importing data
+by providing methods to create new ontologies and resources.
 
 ## Contents
 
@@ -50,14 +50,14 @@ providing methods to create new ontologies and resources.
 
 ## Knora
 
-Knora is the base class which handles all the communication with the DSP API. In order to use Knora, the user has to submit
-his/her credentials to the DSP API
+Knora is the base class which handles all the communication with the DSP API. In order to successfully use the API, credentials to
+the DSP API have to be submitted.
 
 ### Basic methods
 
 #### Knora()
 
-Creates an access object for Knora.
+Creates an access object for the DSP API.
 
 ```python
 Knora(
@@ -65,7 +65,7 @@ Knora(
     prefixes: Dict[str, str] = None)
 ```
 
-- server: URL of the Knora API server
+- server: URL of the DSP server
 - prefixes: List of extra RDF prefixes that are being used
 
 Example:
@@ -76,7 +76,7 @@ con = Knora(args.server)
 
 #### login()
 
-This method performs a login and stored the access token.
+Logs in the user and stores the access token.
 
 ```python
 login(email: str, password: str)
@@ -93,7 +93,7 @@ con.login(args.user, args.password)
 
 #### logout()
 
-This method is used to log out from Knora and remove the access token.
+Logs out the user and removes the access token.
 
 ```python
 logout()
@@ -107,17 +107,17 @@ con.logout()
 
 ### Project specific methods
 
-The following methods are used to add and modify projects and users
+The following methods are used to add and modify projects and users.
 
 #### get_existing_projects()
 
-Returns a list of all projects. Usually returns only the IRI's. If full ist true, returns all information.
+Returns a list of all projects. By default, only the project's IRI are returned.
 
 ```python
 get_existing_projects(full: bool = False)
 ``` 
 
-- full: if True, returns not only ontology IRI's
+- full: if False (default), only the project's IRI are returned, if True, more information about the projects are returned
 
 #### get_project()
 
@@ -129,7 +129,7 @@ get_project(shortcode: str) -> dict
 
 #### project_exists()
 
-Returns true if a project given by the IRI is existing in the repository.
+Returns `True` if a project, given by its IRI, exists in the repository, `False` otherwise.
 
 ```python
 project_exists(proj_iri: str) -> bool
@@ -151,17 +151,16 @@ create_project(
         logo: Optional[str] = None) -> str
 ```
 
-- shortcode: The Knora short code of the project
+- shortcode: The shortcode of the project
 - shortname: The short name of the project
-- longname: The long name of the project
-- descriptions: [optional] Dict with the language code (e.g. "en", "de"...) as key
-- keywords: [optional] List of keywords
-- logo: [optional] Path to logo file (the logo must be already on the server)
+- longname: The full name of the project
+- descriptions: [optional] Dict with the language code (e.g. "en", "de") as key and the actual description as value
+- keywords: [optional] List of keywords describing the project
+- logo: [optional] Path to logo file (the logo has to be uploaded before it can be referenced)
 
 #### update_project()
 
-This method is used to modify existing project data. All parameters except the shortcode (which cannot be changed)
-are optional.
+Modifies existing project data. All parameters except the shortcode (which cannot be changed) are optional.
 
 ```python
 update_project(
@@ -173,16 +172,16 @@ update_project(
         logo: Optional[str] = None) -> str
 ```
 
-- shortcode: The Knora short code of the project
+- shortcode: The shortcode of the project
 - shortname: The short name of the project
-- longname: The long name of the project
-- descriptions: [optional] Dict with the language code (e.g. "en", "de"...) as key
-- keywords: [optional] List of keywords
-- logo: [optional] Path to logo file
+- longname: The full name of the project
+- descriptions: [optional] Dict with the language code (e.g. "en", "de") as key and the actual description as value
+- keywords: [optional] List of keywords describing the project
+- logo: [optional] Path to logo file (the logo has to be uploaded before it can be referenced)
 
 #### get_users()
 
-Get all users
+Returns a list of all users.
 
 ```
 get_users()
@@ -190,13 +189,13 @@ get_users()
 
 #### get_user()
 
-Get information about a specific user
+Returns information about a specific user given its IRI.
 
 ```python
 get_user(user_iri: str)
 ```
 
-- user_iri: Knora IRI identifying the user
+- user_iri: The IRI of the user
 
 #### create_user()
 
@@ -212,7 +211,7 @@ create_user(
         lang: str = "en")
 ```
 
-- username: Username (short name)
+- username: Username
 - email: Email address of user – is used to identify the user
 - givenName: First name of the user
 - familyName: Family name of the user
@@ -221,7 +220,7 @@ create_user(
 
 #### add_user_to_project()
 
-Add an existing user to a project.
+Adds an existing user to a project.
 
 ```python
 add_user_to_project(
@@ -230,22 +229,22 @@ add_user_to_project(
 ```
 
 - user_iri: IRI of the user
-- project_iri: IRI of the project
+- project_iri: IRI of the project the user should have access to
 
 ### Ontology methods
 
 Since several instances could modify an ontology at the same time, a simple mechanism has been implemented to avoid race
 conditions:
-Each modification of an ontology requires the timestamp of its last modification time. Each manipulation of an ontology returns
-its new modification time. If the ontology has been modified before an update is submitted, the submitted modification time will
-not fit and the modification is rejected.
+A modification of an ontology requires the timestamp of its last modification. If the ontology has been modified before an update
+is submitted, the submitted modification timestamp will not fit and the modification is rejected. Every manipulation of an
+ontology returns its new last modification timestamp.
 
-Many methods need the ontology IRI and the ontology name – the reason for this are performance issues which eliminate a round trip
-to the Knora backend.
+Many ontology methods need the ontology IRI *and* the ontology name. The reason for this is better performance. With the IRI and
+the name, round trips to the DSP backend are avoided.
 
 #### get_existing_ontologies()
 
-Get short information about all ontologies existing.
+Returns information about all existing ontologies.
 
 ```python
 get_existing_ontologies()
@@ -253,17 +252,17 @@ get_existing_ontologies()
 
 #### get_project_ontologies()
 
-Returns the ontologies of a given project.
+Returns the ontologies of a project given the project's IRI.
 
 ```python
 get_project_ontologies(project_code: str) -> Optional[dict]
 ```
 
-- project_code: Short code of project
+- project_code: Shortcode of project
 
 #### ontology_exists()
 
-Tests if an ontology exists.
+Returns `True` if the ontology, given by its IRI, exists on the DSP.
 
 ```python
 ontology_exists(onto_iri: str)
@@ -273,7 +272,7 @@ ontology_exists(onto_iri: str)
 
 #### get_ontology_lastmoddate()
 
-Get the last modification date of a given ontology.
+Returns the last modification date of a given ontology.
 
 ```python
 get_ontology_lastmoddate(self, onto_iri: str)
@@ -283,7 +282,7 @@ get_ontology_lastmoddate(self, onto_iri: str)
 
 #### create_ontology()
 
-Create a new ontology.
+Creates a new ontology.
 
 ```python
 create_ontology(
@@ -295,7 +294,7 @@ create_ontology(
 
 - onto_name: Name of the ontology
 - project_iri: IRI of the project the ontology belongs to
-- returns: Dict with "onto_iri" and "last_onto_date"
+- returns: Dict with the ontologies IRI and a timestamp of its last modification
 
 #### delete_ontology()
 
@@ -312,7 +311,7 @@ delete_ontology(
 
 #### get_ontology_graph()
 
-Get the whole ontology as RDF (text/turtle).
+Returns a given ontology as RDF (text/turtle).
 
 ```python
 get_ontology_graph(
@@ -320,12 +319,12 @@ get_ontology_graph(
         name: str)
 ```
 
-- shortcode: Short code of the project
+- shortcode: Shortcode of the project
 - name: Name of the ontology
 
 #### create_res_class()
 
-Create a new resource class in the ontology.
+Creates a new resource class in the ontology.
 
 ```python
 create_res_class(
@@ -341,12 +340,12 @@ create_res_class(
 
 - onto_iri: IRI of the ontology the new resource class should be added to
 - onto_name: Name of the ontology
-- last_onto_date: Last modification time of ontology
+- last_onto_date: Timestamp of the ontology's last modification
 - class_name: Name of the new class
-- super_class: A list of super classes this class is derived from. Usually this is just "Resource" for "knora-api:Resource" or
+- super_class: A list of super classes this class is derived from. Usually, this is just "Resource" for "knora-api:Resource" or
   another resource class including the prefix.
-- labels: Dict with the language specific labels, e.g. ```{"en": "English label", "de": "German label"}```.
-- comments: [optional] Dict with language specifics comments to the resource class.
+- labels: Dict with the language specific labels, e.g. `{"en": "English label", "de": "German label"}`
+- comments: [optional] Dict with language specific comments about the resource class
 
 #### create_property()
 
@@ -368,16 +367,15 @@ create_property(
 ) -> Dict[str, str]
 ```
 
-- onto_iri: IRI of the ontology.
-- onto_name: Name of the ontology.
-- last_onto_date: Last modification time of ontology.
+- onto_iri: IRI of the ontology the new resource class should be added to
+- onto_name: Name of the ontology
+- last_onto_date: Timestamp of the ontology's last modification
 - prop_name: Name of the property to be created
-- super_props: List of super-properties, must be at least ```[knora-api:hasValue]```. But it is possible to declare a property to
-  be a descendant from another property from another ontology or from an external ontology (e.g. foaf:familyName). Please note
-  that all the prefixes used have to be declared at the construction of the Knora instance.
-- labels: Dict of language dependent labels (```{"en": "English label", "de": "Deutsches Label"```).
-- gui_element: GUI element dependent on object (data type). They are a hint for a (generic) graphical user interface (e.g. SALSAH)
-  on how to display the field. Available GUI elements are:
+- super_props: List of super-properties, must be at least `[knora-api:hasValue]`. But it is possible to declare a property to be a
+  descendant from another property from another ontology or from an external ontology (e.g. `foaf:familyName`). Please note that
+  all used prefixes have to be declared at the construction of the Knora instance.
+- labels: Dict with the language specific labels, e.g. `{"en": "English label", "de": "German label"}`
+- gui_element: GUI element that should be used. Supported GUI elements are:
     - salsah-gui:Colorpicker (attributes: ncolors='integer')
     - salsah-gui:Date
     - salsah-gui:Geometry
@@ -394,23 +392,22 @@ create_property(
     - salsah-gui:Textarea (attributes: cols='integer', rows='integer', width='percent'%, wrap="soft"|"hard")
     - salsah-gui:Checkbox
     - salsah-gui:Fileupload
-- gui_attributes: see above
-- subject: [optional] The resource the property belongs to. If a resource is used by several resourced, this field can b left
+- gui_attributes: List of Gui attributes
+- subject: [optional] The resource the property belongs to. If a resource is used by several resources, this field can be left
   empty.
-- object: The value type the property points to, e.g. "TextValue", "IntValue" etc. (all value types supportted by Knora). The
-  following object types are supported by Knora:
+- object: The value type the property points to. The following object types are supported by DSP:
     - salsah-gui:TextValue (gui_element: salsah-gui:SimpleText, salsah-gui:TextArea) A simple text value
-    - salsah-gui:ColorValue (gui_element: salsah-gui:Colorpicker) A web-color.
-    - salsah-gui:DateValue (gui_elment: Date): A Knora calendar date.
-    - salsah_gui:DecimalValue (gui_element: salsah-gui:SimpleText) A Decimal value.
-    - salsah_gui:GeomValue (gui_element: salsah-gui:Geometry) A geometry (region in an image)
-    - salsah_gui:GeonameValue (gui_element: salsah-gui:Geonames) A geographical locatiuoin identified by a geonames.org code.
-    - salsah_gui:IntValue (gui_element: salsah-gui:SimpleText, salsah-gui:Slider, salsah-gui:Spinbox) An integer value.
-    - salsah_gui:BooleanValue (gui_element: salsah-gui:Checkbox) A boolean value.
-    - salsah_gui:UriValue (gui_element: salsah-gui:SimpleText) An URI.
-    - salsah_gui:IntervalValue (gui_element: No Yet Implemented) An interval or time span.
-    - salsah_gui:ListValue (gui_element: salsah-gui:Pulldown, salsah-gui:Radio, salsah-gui:List) An entry from a list.
-- comments: [optional] Dict with language specifics comments to the resource class.
+    - salsah-gui:ColorValue (gui_element: salsah-gui:Colorpicker) A web color
+    - salsah-gui:DateValue (gui_elment: Date) A Knora calendar date
+    - salsah_gui:DecimalValue (gui_element: salsah-gui:SimpleText) A Decimal value
+    - salsah_gui:GeomValue (gui_element: salsah-gui:Geometry) A geometry object (region in an image)
+    - salsah_gui:GeonameValue (gui_element: salsah-gui:Geonames) A geographical location identified by a geonames.org code
+    - salsah_gui:IntValue (gui_element: salsah-gui:SimpleText, salsah-gui:Slider, salsah-gui:Spinbox) An integer value
+    - salsah_gui:BooleanValue (gui_element: salsah-gui:Checkbox) A boolean value
+    - salsah_gui:UriValue (gui_element: salsah-gui:SimpleText) A URI
+    - salsah_gui:IntervalValue (gui_element: No Yet Implemented) An interval or time span
+    - salsah_gui:ListValue (gui_element: salsah-gui:Pulldown, salsah-gui:Radio, salsah-gui:List) An entry from a list
+- comments: [optional] Dict with language specifics comments about the resource class
 
 #### create_cardinality()
 
@@ -427,19 +424,18 @@ create_cardinality(
 ) -> Dict[str, str]
 ```
 
-- onto_iri: IRI of the ontology.
-- onto_name: Name of the ontology.
-- last_onto_date: Last modification time of ontology.
-- class_iri: IRI of the resource class the property should be associated with.
-- prop_iri: IRI of the property to be associated with the resource class.
-- occurrence: must be one of: "1", "0-1", "0-n" or "1-n" (as string).
+- onto_iri: IRI of the ontology the new resource class should be added to
+- onto_name: Name of the ontology
+- last_onto_date: Timestamp of the ontology's last modification
+- class_iri: IRI of the resource class the property should be associated with
+- prop_iri: IRI of the property to be associated with the resource class
+- occurrence: must be one of: "1", "0-1", "0-n" or "1-n" (as string)
 
 ### Lists
 
-Lists (flat or hierarchical) are ordered named nodes that can be used to describe controlled vocabularies, selections or
-hierarchical thesauri. A list has a root node which gives the list a name. Subnodes define the list elements. In case of
-hierarchical lists a subnode may hold further subnodes (recursively).  
-Lists are associated with a project.
+Lists (flat or hierarchical) are ordered named nodes that can be used as controlled vocabularies, selections or hierarchical
+thesauri. A list has a root node where the list's name is defined. Subnodes represent the list elements. In case of hierarchical
+lists, a subnode may hold further subnodes (recursively). Lists are always associated with a project.
 
 #### create_list_node()
 
@@ -456,13 +452,14 @@ create_list_node(
 ```
 
 - project_iri: The IRI of the project the list is associated with
-- labels: Language dependent labels, e.g. ```{"en": "yes", "de": "nein"}```.
+- labels: Language dependent labels, e.g. `{"en": "yes", "de": "nein"}`
 - comments: Language dependent comments to the node
-- parent_iri: If None, it is a root note, otherwise the IRI of the parent list node (possibly the root note of the list).
+- parent_iri: If `None`, it is a root node, otherwise the IRI of the parent node has to be provided (this could also be the root
+  node)
 
 #### get_lists()
 
-Get information about the lists of a given project
+Returns information about the lists of a given project.
 
 ```python
 get_lists(
@@ -470,11 +467,11 @@ get_lists(
 ) -> Dict
 ```
 
-- shortcode: Short code of the project.
+- shortcode: Shortcode of the project.
 
 #### get_complete_list()
 
-Get all the data (nodes) of a specific list
+Returns all nodes of a specific list.
 
 ```python
 get_complete_list(
@@ -482,7 +479,7 @@ get_complete_list(
 ) -> Dict
 ```
 
-- list_iri: IRI of the list.
+- list_iri: IRI of the list
 
 ### Creating instances
 
@@ -490,7 +487,7 @@ In order to fill the repository with data, resource instances have to be created
 
 #### create_resource()
 
-This Method is used to create a new instance of a given resource. All the data has to be passed to this function.
+Creates a new instance of a given resource. All parameters are required.
 
 ```python
 create_resource(
@@ -502,14 +499,14 @@ create_resource(
 ) -> Dict
 ```
 
-- schema: The schema is a Dict that contains information about the ontology. It will by created by a call to "create_schema()",
-  e.g. ```schema = con.create_schema(args.projectcode, args.ontoname)```. It is used to validate the data supplied to
-  create_resource for consistency with the ontology.
-- res_class: IRI of the resource class that should be instanciated
+- schema: The schema is a Dict that contains information about the ontology. It will be created by calling the method
+  `create_schema()`, e.g. `schema = con.create_schema(args.projectcode, args.ontoname)`. It is used to validate the data supplied
+  to `create_resource()` for consistency with the ontology.
+- res_class: IRI of the resource class that should be instantiated
 - label: A string describing the instance
-- values: a Dict describing all the values. See description below.
-- stillimage: In case the Resource is a descendant of StillImagerepresentation, this parameter is indicating where the uploaded
-  file is to be found. See below
+- values: A Dict describing all the values. See [example of values parameter](#values-parameter).
+- stillimage: In case the resource is a descendant of `StillImageRepresentation`, this parameter contains the file path. See
+  [example of still image parameter](#still-image-parameter).
 
 ##### Values parameter
 
@@ -533,7 +530,7 @@ Dict of the following form:
 }
 ```
 
-_Note_: If the value is text with markup (standard mapping only allowed), then the value must be an instance of KnoraStandoffXml,
+_Note_: If the value is text with markup (only standard mapping allowed), the value must be an instance of `KnoraStandoffXml`,
 e.g.:
 
 ```python
@@ -548,7 +545,7 @@ e.g.:
 
 ##### Still image parameter:
 
-A still image has to be uploaded to Knora before its SillImageRepresentation instance can be created:
+A still image has to be uploaded to DSP before its `StillImageRepresentation` instance can be created:
 
 ```python
 sipi = Sipi(args.sipi, con.get_token())
@@ -568,9 +565,8 @@ an_image = con.create_resource(schema,
 
 #### create_schema()
 
-This method extracts the ontology from the ontology information it gets from Knora. It gets the ontology information as n3-data
-using the Knora API and concerts into a convenient python dict that can be used for further processing. It is required by the bulk
-import processing routines and be create_resource().
+Gets the ontology information from DSP API and converts it into a python Dict that can be used for further processing. It is used
+by the bulk import and the `create_resource()` method.
 
 ```python
 create_schema(
@@ -580,12 +576,11 @@ create_schema(
 ```
 
 - shortcode: Shortcode of the ontology
-- shortname: Shortname of the ontology
+- shortname: Short name of the ontology
 
 #### reset_triplestore_content()
 
-Empty the triple store. _Use with uttermost caution_  
-Used on local test servers to clean up the local backend.
+Empties the triple store. _Use with uttermost caution._ Used on (local) test instances to clean up the (local) backend.
 
 ## SIPI
 
@@ -595,7 +590,7 @@ Sipi is the IIIF conformant image backend.
 
 #### Sipi()
 
-Constructor for Sipi
+Creates a SIPI instance.
 
 ```python
 Sipi(
@@ -605,7 +600,7 @@ Sipi(
 ```
 
 - sipiserver: URL of the SIPI server/endpoint
-- token: Access token from Knora
+- token: Access token from DSP API
 
 Example:
 
@@ -623,19 +618,19 @@ upload_image(
 ) -> Dict
 ```
 
-- filepath: Path to file on local filesystem. J2K, TIF, JPEG and PNG images are supported.
+- filepath: Path to the file on the local filesystem. J2K, TIF, JPEG and PNG images are supported.
 
 ## Bulk import
 
-The bulk import is used to import multiple resources at once.
+The bulk import functionality is used to import multiple resources at once.
 
 ### BulkImport
 
-The BulkImport class handles the bulk import
+Handles the bulk import.
 
 #### Bulkimport()
 
-Constructor of a BulkImport instance
+Creates a Bulkimport instance
 
 ```python
 Bulkimport(
@@ -643,11 +638,11 @@ Bulkimport(
 ) -> Bulkimport
 ```
 
-- schema: see create_schema()
+- schema: See `create_schema()`
 
 #### add_resource()
 
-Add an instance to the bulk import.
+Adds an instance to the bulk import.
 
 ```python
 add_resource(
@@ -658,14 +653,14 @@ add_resource(
 )
 ```
 
-- resclass: Name of resource class (prefix may be omitted)
-- id: a user defined ID that can be used to reference this resource by later resources.
-- label: String desribing the instance
-- properties: Dict of property name/value pairs.
+- resclass: Name of the resource class (prefix may be omitted)
+- id: A user defined (internal) ID that can be used to reference this resource later during the bulk import
+- label: String describing the instance
+- properties: Dict of property name/value pairs
 
 #### upload()
 
-Upload the data using the bulk import route.
+Uploads the data using the bulk import route of the DSP API.
 
 ```python
 upload(
@@ -676,7 +671,7 @@ upload(
 )
 ```
 
-- user: username
+- user: Username
 - password: Password
-- hostname: Hostname of Knora backend
-- port: Port number the Knora backend uses
+- hostname: Hostname of the DSP backend
+- port: Port number the DSP backend uses

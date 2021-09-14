@@ -1,6 +1,6 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://knora.org/pyknora/ontology/knora-schema-resources-only.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://dasch.swiss/schema/knora-schema-resources-only.json",
   "title": "Knora JSON schema for resources only",
   "description": "JSON schema for resources used in Knora ontologies",
   "definitions": {

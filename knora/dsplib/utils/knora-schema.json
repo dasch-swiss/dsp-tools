@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://dasch.swiss/schema/knora-schema.json",
-  "title": "knora-py JSON schema",
-  "description": "JSON Schema for Knora ontologies",
+  "title": "JSON schema for DSP ontologies",
+  "description": "JSON schema for DSP ontologies",
   "definitions": {
     "langstring": {
       "anyOf": [

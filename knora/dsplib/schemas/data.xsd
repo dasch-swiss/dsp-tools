@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns="https://dasch.swiss/schema"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="https://dasch.swiss/schema"
-           elementFormDefault="qualified">
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <!-- data type for resrefs "ID|ID|..." -->
     <xs:simpleType name="resrefs_type">
@@ -460,7 +458,7 @@
             <xs:field xpath="@id"/>
         </xs:key>
         <xs:keyref name="permissionsIdref" refer="permissionsId">
-            <xs:selector xpath="resource/*"/>
+            <xs:selector xpath="resource"/>
             <xs:field xpath="@permissions"/>
         </xs:keyref>
     </xs:element>

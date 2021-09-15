@@ -1,8 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 
-<knora xmlns="https://dasch.swiss/schema"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="https://dasch.swiss/schema /knora/dsplib/schemas/data.xsd"
+<knora xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/dasch-swiss/dsp-tools/wip/dsp-1902-update-schemas/knora/dsplib/schemas/data.xsd"
        shortcode="4123"
        default-ontology="testonto">
 

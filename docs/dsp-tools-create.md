@@ -130,7 +130,7 @@ So, a simple example definition of the "project" object could look like this:
     "users": [
       ...
     ],
-    "ontology": [
+    "ontologies": [
       ...
     ]
   }
@@ -431,7 +431,8 @@ The nodes section must contain the field:
 
 - _folder_: Path to the folder where the Excel files are stored
 
-Further details to this functionality can be read [here](dsp-tools-excel.md).
+Further details to this functionality can be read
+[here](dsp-tools-excel#create-a-json-list-file-from-one-or-several-excel-files.md).
 
 The lists element is optional. If there are no lists, this element has to be omitted.
 
@@ -586,7 +587,7 @@ First of all, our overall ontology needs a name. After all, we want to create an
 terms.
 
 As a "speciality", the *name of the ontology* has to be a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName)
-conformant name that can be used as prefix. [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName)
+compliant name that can be used as prefix. [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName)
 means that it has to be a single word without any special characters (like e.g. " . : ! ? # + (...) ") and without any blanks.
 
 #### Label
@@ -686,7 +687,7 @@ Represents a text that may contain standoff markup.
   },
   "gui_element": "SimpleText",
   "gui_attributes": {
-    "maxlength": "255",
+    "maxlength": 255,
     "size": 80
   }
 }
@@ -696,13 +697,13 @@ Represents a text that may contain standoff markup.
 
 `"object": "ColorValue"`
 
-A string in the form "#rrggbb" (standard web color format).
+A string representation of the color in the hexadecimal form e.g. "#ff8000".
 
 *gui-elements / gui_attributes*:
 
 - `Colorpicker`: The only GUI element for _ColorValue_. It's used to choose a color.
     - _gui_attributes_:
-        - `ncolors=integer` (mandatory): Number of colors the color picker should present.
+        - `ncolors=integer` (optional): Number of colors the color picker should present.
 
 *Example:*
 
@@ -729,10 +730,9 @@ Please note that the DateValue is an extremely flexible data type. It can repres
 uncertainty, and the date can be given in several calendars (currently the Gregorian and the Julian calendars are supported, with
 the Jewish and Islamic coming soon). Internally, a date is always represented as a start and end date. If start and end date
 match, it's an exact date. A value like "1893" will automatically be expanded to a range from January 1st 1893 to December 31st
-
 1893.
 
-- _calender_ is either _GREGORIAN_ or _JULIAN_
+- _calendar_ is either _GREGORIAN_ or _JULIAN_
 - _start_ has the form _yyyy_-_mm_-_dd_. If only the year is given, the precision is to the year. If only the year and month is
   given, the precision is to the month.
 - _end_ is optional if the date represents a clearly defined period or uncertainty.
@@ -777,7 +777,7 @@ A number with decimal point.
   "maxlength=integer" and "size=integer" are optional.
     - _gui_attributes_:
         - `maxlength=integer` (optional): maximum number of characters accepted
-        - `size=integer"` (optional): size of the input field
+        - `size=integer` (optional): size of the input field
 
 *Example:*
 
@@ -793,7 +793,7 @@ A number with decimal point.
   },
   "gui_element": "SimpleText",
   "gui_attributes": {
-    "maxlength": "255",
+    "maxlength": 255,
     "size": 80
   }
 }
@@ -861,7 +861,7 @@ Represents a location ID in geonames.org. The DSP platform uses identifiers prov
 
 `"object": "IntValue"`
 
-Represents an integer value
+Represents an integer value.
 
 *gui-elements / gui_attributes*:
 
@@ -869,12 +869,12 @@ Represents an integer value
   "maxlength=integer" and "size=integer" are optional.
     - _gui_attributes_:
         - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer"` (optional): The size of the input field
+        - `size=integer` (optional): The size of the input field
 - `Spinbox`: A GUI element for _IntegerValue_. A text field with and "up"- and "down"-button for increment/decrement. The
   attributes "max=decimal" and "min=decimal" are optional.
     - _gui_attributes_:
-        - `max=integer` (optional): Maximal value
-        - `min=integer` (optional): Minimal value
+        - `max=decimal` (optional): Maximal value
+        - `min=decimal` (optional): Minimal value
 
 *Example:*
 
@@ -890,8 +890,8 @@ Represents an integer value
   },
   "gui_element": "Spinbox",
   "gui_attributes": {
-    "max": 0.0,
-    "min": 10.0
+    "max": 10.0,
+    "min": 0.0
   }
 }
 ```
@@ -900,7 +900,7 @@ Represents an integer value
 
 `"object": "BooleanValue"`
 
-Represents a Boolean ("true" or "false)
+Represents a Boolean ("true" or "false).
 
 *gui-elements / gui_attributes*:
 
@@ -935,7 +935,7 @@ Represents an URI
   "maxlength=integer" and "size=integer" are optional.
     - _gui_attributes_:
         - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer"` (optional): The size of the input field
+        - `size=integer` (optional): The size of the input field
 
 *Example:*
 
@@ -951,7 +951,7 @@ Represents an URI
   },
   "gui_element": "SimpleText",
   "gui_attributes": {
-    "maxlength": "255",
+    "maxlength": 255,
     "size": 80
   }
 }
@@ -969,7 +969,7 @@ Represents a time-interval
   "maxlength=integer" and "size=integer" are optional.
     - _gui_attributes_:
         - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer"` (optional): The size of the input field
+        - `size=integer` (optional): The size of the input field
 - `Interval`: not yet implemented.
     - _gui_attributes_: No attributes
 
@@ -1033,7 +1033,7 @@ Represents a node of a (possibly hierarchical) list
 LinkValues do not follow the pattern of the previous data types, because they do not connect to a final value but to another
 resource which has to be defined. Thus, the "object" denomiates the resource class the link will point to. If the resource is
 defined in the same ontology, the name has to be prepended by a ":", if the resource is defined in another (previously defined)
-ontology, the ontology name has to be prepended separated by a color ":", e.g.
+ontology, the ontology name has to be prepended separated by a colon ":", e.g.
 "other-onto:MyResource". The "super"-element has to be "hasLinkTo" or at least derived from "hasLinkTo" (how to derive a resource
 or property from another one is not part of this documentation).
 
@@ -1042,7 +1042,7 @@ or property from another one is not part of this documentation).
 - `Searchbox`: Must be used with _hasLinkTo_ properties. Allows to search and enter a resource that the given resource should link
   to. It has one gui_attribute that indicates how many properties of the found resources should be indicated. It's mandatory!
     - _gui_attributes_:
-        - `numprops=integer` (mandatory): While dynamically displaying the search result, the number of properties that should be
+        - `numprops=integer` (optional): While dynamically displaying the search result, the number of properties that should be
           displayed.
 
 *Example:*
@@ -1165,8 +1165,8 @@ The following parent predefined resources are provided by DSP:
     - `hasComment` (1-n)
     - `isAnnotationOf` (1)
 - `LinkObj`: A resource class linking together several other, generic, resource classes. The class has the following properties:
-- `hasComment` (1-n)
-- `hasLinkTo` (1-n)
+    - `hasComment` (1-n)
+    - `hasLinkTo` (1-n)
 - `Region`: Represents a simple region. The class has the following properties:
     - `hasColor` (1)
     - `isRegionOf` (1)

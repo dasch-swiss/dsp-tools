@@ -1,6 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
-<knora xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       shortcode="4123" default-ontology="testonto">
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema /knora/dsplib/schemas/data.xsd"
+       shortcode="4123"
+       default-ontology="testonto">
+
     <!-- permissions: see https://docs.knora.org/03-apis/api-v2/reading-user-permissions/ -->
     <permissions id="res-default">
         <allow group="UnknownUser">RV</allow>
@@ -47,7 +52,12 @@
             <text permissions="prop-restricted" encoding="utf8">Nochmals einen einfachen Text</text>
         </text-prop>
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">This is <em>bold and <strong>string</strong></em> text!</text>
+            <text permissions="prop-default" encoding="xml">This is
+                <em>bold and
+                    <strong>string</strong>
+                </em>
+                text!
+            </text>
         </text-prop>
         <!--
         <uri-prop name="hasUri">
@@ -58,7 +68,7 @@
             <boolean permissions="prop-default">true</boolean>
         </boolean-prop>
         <date-prop name=":hasDate">
-            <date permissions="prop-default" >JULIAN:BCE:0700:BCE:0600</date>
+            <date permissions="prop-default">JULIAN:BCE:0700:BCE:0600</date>
         </date-prop>
         <integer-prop name=":hasInteger">
             <integer permissions="prop-default">4711</integer>
@@ -69,14 +79,14 @@
         <geometry-prop name=":hasGeometry">
             <geometry permissions="prop-default">
                 {
-                    "status":"active",
-                    "lineColor":"#ff3333",
-                    "lineWidth":2,
-                    "points":[
-                        {"x":0.08098591549295775,"y":0.16741071428571427},
-                        {"x":0.7394366197183099,"y":0.7299107142857143}],
-                    "type":"rectangle",
-                    "original_index":0
+                "status":"active",
+                "lineColor":"#ff3333",
+                "lineWidth":2,
+                "points":[
+                {"x":0.08098591549295775,"y":0.16741071428571427},
+                {"x":0.7394366197183099,"y":0.7299107142857143}],
+                "type":"rectangle",
+                "original_index":0
                 }
             </geometry>
         </geometry-prop>
@@ -87,10 +97,10 @@
             <interval permissions="prop-default">12.5:14.2</interval>
         </interval-prop>
         <color-prop name=":hasColor">
-            <color permissions="prop-default" >#00ff00</color>
+            <color permissions="prop-default">#00ff00</color>
         </color-prop>
         <list-prop list="testlist" name=":hasListItem">
-            <list permissions="prop-default" >b2</list>
+            <list permissions="prop-default">b2</list>
         </list-prop>
         <resptr-prop name=":hasTestThing2">
             <resptr permissions="prop-default">obj_0000</resptr>
@@ -186,7 +196,6 @@
         </text-prop>
     </resource>
 
-    <!--
     <resource label="Audiothing"
               restype=":AudioThing"
               id="obj_0010"
@@ -195,7 +204,6 @@
         <text-prop name=":hasText">
             <text permissions="prop-default" encoding="utf8">This is a Audiothing</text>
         </text-prop>
-     </resource>
-     -->
+    </resource>
 
 </knora>

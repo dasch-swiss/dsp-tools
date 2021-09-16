@@ -64,6 +64,8 @@ If you are using PyCharm we recommend installing autopep8 as external tool. You 
 file > `External Tools` > `autopep8` to reformat files in-place. mypy is available as
 [plugin](https://plugins.jetbrains.com/plugin/11086-mypy).
 
+For formatting Markdown files (*.md) we use the default styling configuration provided by PyCharm.
+
 ## Publishing
 
 Publishing is automated with GitHub Actions and should _not_ be done manually. Please follow the

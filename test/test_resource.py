@@ -9,6 +9,7 @@ from dsplib.models.sipi import Sipi
 
 from pprint import pprint
 
+
 class TestResource(unittest.TestCase):
 
     def test_Resource_create(self):
@@ -48,7 +49,6 @@ class TestResource(unittest.TestCase):
                                      'anything:hasUri': 'http://gaga.com:65500/gugus'
                                  }).create()
 
-
         new_blue_thing = a_blue_thing.read()
         self.assertEqual(a_blue_thing.label, "BlueThing")
         self.assertEqual(a_blue_thing.value("anything:hasColor"), ['#ff0033', '#0077FF'])
@@ -62,7 +62,7 @@ class TestResource(unittest.TestCase):
         img = sipi.upload_bitstream('testdata/bitstreams/TEMP11.TIF')
         fileref = img['uploadedFiles'][0]['internalFilename']
         resperm = Permissions({PermissionValue.M: ["knora-admin:UnknownUser", "knora-admin:KnownUser"],
-                       PermissionValue.CR: ["knora-admin:Creator", "knora-admin:ProjectAdmin"]})
+                               PermissionValue.CR: ["knora-admin:Creator", "knora-admin:ProjectAdmin"]})
         a_thing_picture = ThingPicture(
             con=con,
             label='ThingPicture',

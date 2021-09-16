@@ -3,6 +3,7 @@ from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from .helpers import Actions, BaseError
 from .connection import Connection
 
+
 class Model:
     _con: Connection
     _changed: Set[str]

@@ -167,7 +167,8 @@ class TestUser(unittest.TestCase):
         self.assertIsNotNone(nuser)
 
     def test_User_addToGroup(self):
-        return #  TODO: Check why this test failes with error: Message:{"error":"org.knora.webapi.UpdateNotPerformedException: User's 'group' memberships where not updated. Please report this as a possible bug."}
+        # TODO: Check why this test failes with error: Message:{"error":"org.knora.webapi.UpdateNotPerformedException: User's 'group' memberships where not updated. Please report this as a possible bug."}
+        return
         user = self.createTestUser()
         user.addToGroup('http://rdfh.ch/groups/0001/thing-searcher')
         nuser = user.update()
@@ -277,6 +278,7 @@ class TestUser(unittest.TestCase):
         all_users = User.getAllUsers(con)
         for u in all_users:
             self.assertIsNotNone(u.id)
+
 
 if __name__ == '__main__':
     unittest.main()

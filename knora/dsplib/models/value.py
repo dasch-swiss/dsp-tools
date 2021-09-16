@@ -74,7 +74,6 @@ class Value:
         tmpstr += ")"
         return tmpstr
 
-
     @property
     def iri(self) -> str:
         return self.iri
@@ -501,6 +500,7 @@ class GeomValue(Value):
     def __str__(self) -> str:
         return self._value + ' ' + super().__str__()
 
+
 @strict
 class GeonameValue(Value):
     _value: str
@@ -592,6 +592,7 @@ class IntValue(Value):
 
     def __str__(self) -> str:
         return str(self._value) + ' ' + super().__str__()
+
 
 @strict
 class BooleanValue(Value):

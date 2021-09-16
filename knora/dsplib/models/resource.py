@@ -25,12 +25,14 @@ from pprint import pprint
 
 class KnoraStandoffXmlEncoder(json.JSONEncoder):
     """Classes used as wrapper for knora standoff-XML"""
+
     def default(self, obj) -> str:
         if isinstance(obj, KnoraStandoffXml):
             return '<?xml version="1.0" encoding="UTF-8"?>\n<text>' + obj.getXml() + '</text>'
         elif isinstance(obj, OntoInfo):
             return obj.iri + "#" if obj.hashtag else ""
         return json.JSONEncoder.default(self, obj)
+
 
 @dataclass
 class Propinfo:
@@ -71,7 +73,7 @@ class ResourceInstance(Model):
                  permissions: Optional[Permissions] = None,
                  upermission: Optional[PermissionValue] = None,
                  bitstream: Optional[str] = None,
-                 values: Optional[Dict[str, Union[str, List[str], Dict[str, str], List[Dict[str,str]], Value, List[Value]]]] = None):
+                 values: Optional[Dict[str, Union[str, List[str], Dict[str, str], List[Dict[str, str]], Value, List[Value]]]] = None):
         super().__init__(con)
         self._iri = iri
         self._label = label
@@ -250,7 +252,7 @@ class ResourceInstance(Model):
     def create(self):
         jsonobj = self.toJsonLdObj(Actions.Create)
         jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
-        #print(jsondata)
+        # print(jsondata)
         result = self._con.post('/v2/resources', jsondata)
         newinstance = self.clone()
         newinstance._iri = result['@id']
@@ -261,7 +263,6 @@ class ResourceInstance(Model):
     def read(self) -> 'ResourceInstance':
         result = self._con.get('/v2/resources/' + quote_plus(self._iri))
         return self.fromJsonLdObj(con=self._con, jsonld_obj=result)
-
 
     def update(self):
         pass
@@ -423,5 +424,3 @@ class ResourceInstanceFactory:
                                                          'context': self._context,
                                                          'properties': props,
                                                          'lists': self._lists})
-
-

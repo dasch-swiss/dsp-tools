@@ -12,11 +12,13 @@ from .connection import Connection
 from .model import Model
 from .langstring import Languages, LangString
 
+
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, set):
             return list(obj)
         return json.JSONEncoder.default(self, obj)
+
 
 """
 This model implements the handling of resource classes. It contains two classes that work closely together:
@@ -24,6 +26,8 @@ This model implements the handling of resource classes. It contains two classes 
       is done using the "cardinality"-clause
     * "ResourceClass" is the main class representing a knora resource class.
 """
+
+
 @strict
 class HasProperty(Model):
     class Ptype(Enum):
@@ -508,7 +512,6 @@ class ResourceClass(Model):
                 raise BaseError('Not a valid LangString')
         self._changed.add('label')
 
-
     def addLabel(self, lang: Union[Languages, str], value: str) -> None:
         self._label[lang] = value
         self._changed.add('label')
@@ -595,8 +598,8 @@ class ResourceClass(Model):
         property_id = self._context.get_prefixed_iri(property_id)
         if self._has_properties.get(property_id) is not None:
             has_properties = self._has_properties[property_id]
-            #onto_id = has_properties.ontology_id  # save for later user
-            #rescl_id = has_properties.resclass_id  # save for later user
+            # onto_id = has_properties.ontology_id  # save for later user
+            # rescl_id = has_properties.resclass_id  # save for later user
             has_properties.ontology_id = self._ontology_id
             has_properties.resclass_id = self._id
             if cardinality:
@@ -815,8 +818,3 @@ class ResourceClass(Model):
             if self._has_properties is not None:
                 for pid, hp in self._has_properties.items():
                     hp.print(offset + 4)
-
-
-
-
-

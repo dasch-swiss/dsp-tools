@@ -134,5 +134,6 @@ class TestProject(unittest.TestCase):
         self.assertEqual(nproject.status, False)
         self.assertEqual(nproject.keywords, {'test', 'testing', 'gaga'})
 
+
 if __name__ == '__main__':
     unittest.main()

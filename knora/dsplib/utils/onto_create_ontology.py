@@ -411,9 +411,9 @@ def create_ontology(input_file: str,
                     propid = "knora-api:" + cardinfo["propname"]
                 gui_order = cardinfo.get('gui_order')
                 last_modification_date = rc.addProperty(
-                        property_id=propid,
-                        cardinality=cardinality,
-                        gui_order=gui_order,
-                        last_modification_date=last_modification_date)
+                    property_id=propid,
+                    cardinality=cardinality,
+                    gui_order=gui_order,
+                    last_modification_date=last_modification_date)
                 newontology.lastModificationDate = last_modification_date
     return True

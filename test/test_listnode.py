@@ -158,7 +158,7 @@ class TestListNode(unittest.TestCase):
         self.assertEqual(root.children[2].children[1].name, 'Other Tree list node 11')
         self.assertEqual(root.children[2].children[1].label['en'], 'Other Tree list node 11')
 
-        #self.assertTrue(False)
+        # self.assertTrue(False)
 
 
 if __name__ == '__main__':

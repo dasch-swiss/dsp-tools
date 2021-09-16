@@ -11,11 +11,13 @@ from .project import Project
 
 from pprint import pprint
 
+
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, set):
             return list(obj)
         return json.JSONEncoder.default(self, obj)
+
 
 """
 This module implements the handling (CRUD) of Knora ListNodes and adds some function to read whole lists.
@@ -42,6 +44,7 @@ DELETE
 
 In addition there is a static methods ``getAllProjects`` which returns a list of all projects
 """
+
 
 def list_creator(con: Connection, project: Project, parent_node: 'ListNode', nodes: List[dict]):
     nodelist: List['ListNode'] = []
@@ -513,7 +516,7 @@ class ListNode(Model):
         raise BaseError("NOT YET IMPLEMENTED BY KNORA BACKEND!")
         result = self._con.delete('/admin/lists/' + quote_plus(self._id))
         return result
-        #return Project.fromJsonObj(self.con, result['project'])
+        # return Project.fromJsonObj(self.con, result['project'])
 
     def getAllNodes(self) -> 'ListNode':
         """

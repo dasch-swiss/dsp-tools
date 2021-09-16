@@ -11,6 +11,7 @@ from .project import Project
 from .propertyclass import PropertyClass
 from .resourceclass import ResourceClass
 
+
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, set):
@@ -51,6 +52,8 @@ DELETE
     * Call the ``delete``-method on the instance
 
 """
+
+
 @strict
 class Ontology(Model):
     _id: str
@@ -174,7 +177,6 @@ class Ontology(Model):
             self._lastModificationDate = lmd
         del self._resource_classes[index]
 
-
     @property
     def property_classes(self) -> List[PropertyClass]:
         return self._property_classes
@@ -259,7 +261,7 @@ class Ontology(Model):
             # ToDo: parse standoff classes
 
             properties_obj = list(filter(lambda a: a.get(knora_api + ':isResourceProperty') is not None, json_obj.get('@graph')))
-            #property_classes = list(map(lambda a: PropertyClass.fromJsonObj(con=con,
+            # property_classes = list(map(lambda a: PropertyClass.fromJsonObj(con=con,
             #                                                                context=context,
             #                                                                json_obj=a), properties_obj))
             property_classes = [PropertyClass.fromJsonObj(con=con, context=context, json_obj=a) for a in properties_obj
@@ -392,7 +394,7 @@ class Ontology(Model):
 
     def delete(self) -> Optional[str]:
         result = self._con.delete('/v2/ontologies/' + quote_plus(self._id),
-                                   params={'lastModificationDate': str(self._lastModificationDate)})
+                                  params={'lastModificationDate': str(self._lastModificationDate)})
         return result.get('knora-api:result')
 
     @staticmethod
@@ -448,4 +450,3 @@ class Ontology(Model):
             if self._resource_classes:
                 for rc in self._resource_classes:
                     rc.print(4)
-

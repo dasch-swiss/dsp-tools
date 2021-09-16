@@ -22,7 +22,6 @@ class TestPropertyClass(unittest.TestCase):
     label = LangString({Languages.DE: 'MyPropClassLabel'})
     comment = LangString({Languages.DE: 'This is a property class for testing'})
 
-
     def setUp(self) -> None:
         #
         # Connect to Knora
@@ -51,7 +50,6 @@ class TestPropertyClass(unittest.TestCase):
         #
         result = self.onto.delete()
         self.assertIsNotNone(result)
-
 
     def test_PropertyClass_create(self):
         #

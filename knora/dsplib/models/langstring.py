@@ -11,6 +11,7 @@ class Languages(Enum):
     FR = 'fr'
     IT = 'it'
 
+
 LangStringParam = Optional[Union[Dict[Union[Languages, str], str], str]]
 
 
@@ -21,7 +22,7 @@ class LangStringIterator:
     _index: int
 
     def __init__(self, langstring: 'LangString'):
-        self._langstring = langstring;
+        self._langstring = langstring
         self._langlist = list(map(lambda a: a[0], self._langstring.items()))
         self._index = 0
 
@@ -132,7 +133,7 @@ class LangString:
         else:
             lmap = dict(map(lambda a: (a.value, a), Languages))
             if lmap.get(key.lower()) is None:
-                raise BaseError('Invalid language string "' + key  + '"!')
+                raise BaseError('Invalid language string "' + key + '"!')
             self._langstrs[lmap[key.lower()]] = value
 
     def __delitem__(self, key: Union[Languages, str]):
@@ -141,7 +142,7 @@ class LangString:
         else:
             lmap = dict(map(lambda a: (a.value, a), Languages))
             if lmap.get(key.lower()) is None:
-                raise BaseError('Invalid language string "' + key  + '"!')
+                raise BaseError('Invalid language string "' + key + '"!')
             del self._langstrs[lmap[key.lower()]]
 
     def __str__(self):
@@ -162,7 +163,6 @@ class LangString:
                 if not equal:
                     break
         return equal
-
 
     def get_by_lang(self, key: Optional[Union[Languages, str]] = None) -> Optional[str]:
         if key is None:
@@ -186,7 +186,6 @@ class LangString:
         self._simplestring = None
         self._langstrs = {}
 
-
     def toJsonObj(self):
         if self.isEmpty():
             return None
@@ -202,7 +201,7 @@ class LangString:
             return self._simplestring
         else:
             return [{'@language': a[0].value, '@value': a[1]} for a in self._langstrs.items()]
-            #return list(map(lambda a: {'@language': a[0].value, '@value': a[1]}, self._langstrs.items()))
+            # return list(map(lambda a: {'@language': a[0].value, '@value': a[1]}, self._langstrs.items()))
 
     @classmethod
     def fromJsonLdObj(cls, obj: Optional[Union[List[Dict[str, str]], str]]) -> 'LangString':
@@ -258,7 +257,7 @@ class LangString:
 
     def print(self, offset: Optional[int] = None):
         blank = ' '
-        #print(f'{blank:>{offset}}LangString:')
+        # print(f'{blank:>{offset}}LangString:')
         if self._simplestring is not None:
             print(f'{blank:>{offset + 2}}{self._simplestring}')
         else:

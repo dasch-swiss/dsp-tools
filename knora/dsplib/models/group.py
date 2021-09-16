@@ -30,6 +30,8 @@ DELETE
     * Call the ``delete``-method on the instance
 
 """
+
+
 @strict
 class Group(Model):
     """
@@ -238,7 +240,6 @@ class Group(Model):
             raise BaseError("Request got no groups!")
         return list(map(lambda a: Group.fromJsonObj(con, a), result['groups']))
 
-
     def print(self):
         print('Group Info:')
         print('  Id:          {}'.format(self._id))
@@ -247,7 +248,6 @@ class Group(Model):
         print('  Project:     {}'.format(self._project))
         print('  Selfjoin:    {}'.format(self._selfjoin))
         print('  Status:      {}'.format(self._status))
-
 
 
 if __name__ == '__main__':
@@ -259,27 +259,27 @@ if __name__ == '__main__':
         group.print()
 
     new_group = Group(con=con,
-                           name="KNORA-PY TEST",
-                           description="Test project for knora-py",
-                           project="http://rdfh.ch/projects/00FF",
-                           status=True,
-                           selfjoin=False).create()
+                      name="KNORA-PY TEST",
+                      description="Test project for knora-py",
+                      project="http://rdfh.ch/projects/00FF",
+                      status=True,
+                      selfjoin=False).create()
     new_group.print()
 
-    new_group.name="KNORA-PY TEST - modified"
-    new_group = new_group.update();
+    new_group.name = "KNORA-PY TEST - modified"
+    new_group = new_group.update()
     new_group.print()
 
-    new_group.description="gaga gaga gaga gaga gaga gaga gaga"
-    new_group = new_group.update();
+    new_group.description = "gaga gaga gaga gaga gaga gaga gaga"
+    new_group = new_group.update()
     new_group.print()
 
     new_group.selfjoin = True
-    new_group = new_group.update();
+    new_group = new_group.update()
     new_group.print()
 
     new_group.status = False
-    new_group = new_group.update();
+    new_group = new_group.update()
     new_group.print()
 
     new_group.name = '-- KNORA-PY TEST --'

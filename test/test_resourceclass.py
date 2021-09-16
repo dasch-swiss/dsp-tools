@@ -14,7 +14,6 @@ class TestResourceClass(unittest.TestCase):
     comment = LangString({Languages.DE: 'This is a resource class for testing'})
     name = 'MyResClassName'
 
-
     def test_ResourceClass_create(self):
         #
         # Connect to Knora
@@ -56,7 +55,6 @@ class TestResourceClass(unittest.TestCase):
         #
         last_modification_date = resclass.delete(last_modification_date)
         onto.lastModificationDate = last_modification_date
-
 
     def test_ResourceClass_update(self):
         #

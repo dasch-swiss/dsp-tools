@@ -11,6 +11,7 @@ from .model import Model
 from .langstring import Languages, LangStringParam, LangString
 from .listnode import ListNode
 
+
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, set):
@@ -311,7 +312,7 @@ class PropertyClass(Model):
             tmp = resref.split(':')
             if len(tmp) > 1:
                 if tmp[0]:
-#                    return {"@id": resref}  # fully qualified name in the form "prefix:name"
+                    #                    return {"@id": resref}  # fully qualified name in the form "prefix:name"
                     return {"@id": self._context.get_qualified_iri(resref)}  # fully qualified name in the form "prefix:name"
                 else:
                     return {"@id": self._context.prefix_from_iri(self._ontology_id) + ':' + tmp[1]}  # ":name" in current ontology
@@ -502,5 +503,3 @@ class PropertyClass(Model):
             print(f'{blank:>{offset + 4}}Editable: {self._editable}')
         if self._linkvalue is not None:
             print(f'{blank:>{offset + 4}}Editable: {self._linkvalue}')
-
-

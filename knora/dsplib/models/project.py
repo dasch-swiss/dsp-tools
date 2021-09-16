@@ -10,11 +10,13 @@ from .model import Model
 
 from pprint import pprint
 
+
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, set):
             return list(obj)
         return json.JSONEncoder.default(self, obj)
+
 
 """
 This module implements the handling (CRUD) of Knora projects.
@@ -39,6 +41,7 @@ DELETE
 
 In addition there is a static methods ``getAllProjects`` which returns a list of all projects
 """
+
 
 @strict
 class Project(Model):
@@ -267,7 +270,7 @@ class Project(Model):
         try:
             self._keywords.remove(value)
         except KeyError as ke:
-            raise BaseError('Keyword "'  + value + '" is not in keyword set')
+            raise BaseError('Keyword "' + value + '" is not in keyword set')
         self._changed.add('keywords')
 
     @property
@@ -392,7 +395,7 @@ class Project(Model):
         elif action == Actions.Update:
             if self._shortcode is not None and 'shortcode' in self._changed:
                 tmp['shortcode'] = self._shortcode
-            if self._shortname is not None  and 'shortname' in self._changed:
+            if self._shortname is not None and 'shortname' in self._changed:
                 tmp['shortname'] = self._shortname
             if self._longname is not None and 'longname' in self._changed:
                 tmp['longname'] = self._longname
@@ -443,7 +446,7 @@ class Project(Model):
         if result is not None:
             return Project.fromJsonObj(self._con, result['project'])
         else:
-            return None # Todo: throw exception
+            return None  # Todo: throw exception
 
     def update(self) -> Union['Project', None]:
         """
@@ -547,6 +550,7 @@ class Project(Model):
         print('  Selfjoin:   {}'.format(self._selfjoin))
         print('  Status:     {}'.format(self._status))
 
+
 if __name__ == '__main__':
     con = Connection('http://0.0.0.0:3333')
     con.login('root@example.com', 'test')
@@ -557,13 +561,13 @@ if __name__ == '__main__':
         project.print()
 
     new_project = Project(con=con,
-                               shortcode='F11F',
-                               shortname='mytest3',
-                               longname='A Test beloning to me',
-                               description=LangString({Languages.EN: 'My Tests description'}),
-                               keywords={'AAA', 'BBB'},
-                               selfjoin=False,
-                               status=True).create()
+                          shortcode='F11F',
+                          shortname='mytest3',
+                          longname='A Test beloning to me',
+                          description=LangString({Languages.EN: 'My Tests description'}),
+                          keywords={'AAA', 'BBB'},
+                          selfjoin=False,
+                          status=True).create()
 
     new_project.print()
 

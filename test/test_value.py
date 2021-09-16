@@ -3,6 +3,7 @@ from pprint import pprint
 from knora.dsplib.models.value import DateValue
 from knora.dsplib.models.helpers import Actions
 
+
 class TestValue(unittest.TestCase):
 
     def test_date_value(self):

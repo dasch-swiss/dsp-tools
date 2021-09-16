@@ -67,11 +67,11 @@ class TestGroup(unittest.TestCase):
         con.login('root@example.com', 'test')
 
         group = Group(con=con,
-                           name="KNORA-PY CREATE",
-                           description="Test project for knora-py",
-                           project="http://rdfh.ch/projects/0001",
-                           status=True,
-                           selfjoin=False).create()
+                      name="KNORA-PY CREATE",
+                      description="Test project for knora-py",
+                      project="http://rdfh.ch/projects/0001",
+                      status=True,
+                      selfjoin=False).create()
         self.iri = group.id
 
         self.assertEqual(group.name, 'KNORA-PY CREATE')
@@ -95,7 +95,7 @@ class TestGroup(unittest.TestCase):
                       status=True,
                       selfjoin=False).create()
         self.iri = group.id
-        group.name="KNORA-PY UPDATE - modified"
+        group.name = "KNORA-PY UPDATE - modified"
         group.description = "gaga gaga gaga gaga gaga gaga gaga"
         group.selfjoin = True
         group.status = False
@@ -116,11 +116,11 @@ class TestGroup(unittest.TestCase):
         con.login('root@example.com', 'test')
 
         group = Group(con=con,
-                           name="KNORA-PY DELETE",
-                           description="Test project for knora-py",
-                           project="http://rdfh.ch/projects/0001",
-                           status=True,
-                           selfjoin=False).create()
+                      name="KNORA-PY DELETE",
+                      description="Test project for knora-py",
+                      project="http://rdfh.ch/projects/0001",
+                      status=True,
+                      selfjoin=False).create()
         self.iri = group.id
         ngroup = group.delete()
         self.assertEqual(ngroup.name, 'KNORA-PY DELETE')

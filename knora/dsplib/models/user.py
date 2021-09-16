@@ -1,3 +1,9 @@
+from .project import Project
+from .group import Group
+from .model import Model
+from .connection import Connection
+from .langstring import Languages
+from .helpers import Actions, BaseError
 import os
 import sys
 import json
@@ -12,12 +18,6 @@ if not head in sys.path:
 if not path in sys.path:
     sys.path.insert(0, path)
 
-from .helpers import Actions, BaseError
-from .langstring import Languages
-from .connection import Connection
-from .model import Model
-from .group import Group
-from .project import Project
 
 """
 This module implements the handling (CRUD) of Knora users.
@@ -42,6 +42,7 @@ DELETE
 
 In addition there is a static methods ``getAllProjects`` which returns a list of all projects
 """
+
 
 @strict
 class User(Model):
@@ -154,7 +155,7 @@ class User(Model):
                  givenName: Optional[str] = None,
                  familyName: Optional[str] = None,
                  password: Optional[str] = None,
-                 lang: Optional[Union[str,Languages]] = None,
+                 lang: Optional[Union[str, Languages]] = None,
                  status: Optional[bool] = None,
                  sysadmin: Optional[bool] = None,
                  in_projects: Optional[Dict[str, bool]] = None,
@@ -190,8 +191,8 @@ class User(Model):
             else:
                 lmap = dict(map(lambda a: (a.value, a), Languages))
                 if lmap.get(lang) is None:
-                    raise BaseError('Invalid language string "' + lang  + '"!')
-                self._lang =  lmap[lang]
+                    raise BaseError('Invalid language string "' + lang + '"!')
+                self._lang = lmap[lang]
         else:
             self._lang = None
         self._status = None if status is None else bool(status)
@@ -223,7 +224,7 @@ class User(Model):
 
     @property
     def username(self) -> Optional[str]:
-        return  self._username
+        return self._username
 
     @username.setter
     def username(self, value: Optional[str]):
@@ -683,7 +684,6 @@ class User(Model):
                 print('    {}'.format(g))
 
 
-
 if __name__ == '__main__':
     con = Connection('http://0.0.0.0:3333')
     con.login('root@example.com', 'test')
@@ -705,7 +705,7 @@ if __name__ == '__main__':
         status=True,
         lang=Languages.DE,
         sysadmin=True,
-        in_projects= {
+        in_projects={
             "http://rdfh.ch/projects/0001": True,
             "http://rdfh.ch/projects/yTerZGyxjZVqFMNNKXCDPF": False
         },

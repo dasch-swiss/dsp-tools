@@ -1,6 +1,13 @@
 """
 The code in this file handles the arguments passed by the user from the command line and calls the requested actions.
 """
+from dsplib.utils.xml_upload import xml_upload
+from dsplib.utils.onto_validate import validate_ontology
+from dsplib.utils.excel_to_json_resources import resources_excel2json
+from dsplib.utils.excel_to_json_lists import list_excel2json, validate_list_with_schema
+from dsplib.utils.onto_get import get_ontology
+from dsplib.utils.onto_create_ontology import create_ontology
+from dsplib.utils.onto_create_lists import create_lists
 import argparse
 import datetime
 import os
@@ -9,14 +16,6 @@ import sys
 import pkg_resources  # part of setuptools
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-
-from dsplib.utils.onto_create_lists import create_lists
-from dsplib.utils.onto_create_ontology import create_ontology
-from dsplib.utils.onto_get import get_ontology
-from dsplib.utils.excel_to_json_lists import list_excel2json, validate_list_with_schema
-from dsplib.utils.excel_to_json_resources import resources_excel2json
-from dsplib.utils.onto_validate import validate_ontology
-from dsplib.utils.xml_upload import xml_upload
 
 
 def program(args: list) -> None:
@@ -34,7 +33,7 @@ def program(args: list) -> None:
 
     # parse the arguments of the command line
     parser = argparse.ArgumentParser(
-            description=f'dsp-tools (Version {version}) DaSCH Service Platform data modelling tools (© {now.year} by DaSCH).')
+        description=f'dsp-tools (Version {version}) DaSCH Service Platform data modelling tools (© {now.year} by DaSCH).')
 
     subparsers = parser.add_subparsers(title='Subcommands', description='Valid subcommands are', help='sub-command help')
 

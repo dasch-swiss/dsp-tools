@@ -5,6 +5,7 @@ from typing import List, Set, Dict, Tuple, Optional, Any, Union
 
 from .helpers import Actions, BaseError
 
+
 @strict
 class Connection:
     """
@@ -89,7 +90,7 @@ class Connection:
 
     def __del__(self):
         pass
-        #self.logout()
+        # self.logout()
 
     def on_api_error(self, res) -> None:
         """
@@ -272,5 +273,3 @@ class Connection:
         res = req.json()
         #  pprint(res)
         return res
-
-

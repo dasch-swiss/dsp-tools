@@ -4,6 +4,7 @@ import unittest
 
 from knora.dsplib.utils import excel_to_json_lists
 from knora.dsplib.utils.excel_to_json_lists import list_excel2json
+from knora.dsplib.utils.excel_to_json_properties import properties_excel2json
 from knora.dsplib.utils.excel_to_json_resources import resources_excel2json
 from knora.dsplib.utils.onto_create_ontology import create_ontology
 from knora.dsplib.utils.onto_get import get_ontology
@@ -86,6 +87,10 @@ class TestTools(unittest.TestCase):
     def test_excel_to_json_resources(self):
         resources_excel2json(excelfile='testdata/Resources.xlsx',
                              outfile='_resources-out.json')
+
+    def test_excel_to_json_properties(self):
+        properties_excel2json(excelfile='testdata/Properties.xlsx',
+                              outfile='_properties-out.json')
 
     def test_validate_ontology(self):
         validate_ontology('testdata/test-onto.json')

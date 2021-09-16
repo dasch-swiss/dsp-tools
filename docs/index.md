@@ -24,5 +24,9 @@ dsp-tools helps you with the following tasks:
   creates a JSON or XML file from one or several Excel files. The created data can either be integrated into an ontology or be
   uploaded directly to a DSP server with `dsp-tools create`.
 - [`dsp-tools excel2resources`](./dsp-tools-usage.md#create-resources-from-an-excel-file)
-  creates the ontology's resource section from an Excel file. The resources can be integrated into an ontology and then be
+  creates the ontology's resource section from an Excel file. The resulting section can be integrated into an ontology and then be
   uploaded to a DSP server with `dsp-tools create`.
+- [`dsp-tools excel2properties`](./dsp-tools-usage.md#create-properties-from-an-excel-file)
+  creates the ontology's properties section from an Excel file. The resulting section can be integrated into an ontology and then
+  be uploaded to a DSP server with `dsp-tools create`.
+

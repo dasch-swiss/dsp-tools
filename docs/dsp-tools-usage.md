@@ -125,10 +125,11 @@ the usage of this command can be found [here](./dsp-tools-excel.md#create-a-list
 dsp-tools excel2resources excel_file.xlsx output_file.json
 ```
 
-The command is used to create the resource section of an ontology from an Excel file. Therefore, an Excel file has to be provided
+The command is used to create the resources section of an ontology from an Excel file. Therefore, an Excel file has to be provided
 with the data in the first worksheet of the Excel file.
 
-The following example shows how to create the resources section from an Excel file called `Resources.xlsx`.
+The following example shows how to create the resources section from an Excel file called `Resources.xlsx`. The output is written
+to a file called `resources.json`.
 
 ```bash
 dsp-tools excel2resources Resources.xlsx resources.json
@@ -136,4 +137,24 @@ dsp-tools excel2resources Resources.xlsx resources.json
 
 More information about the usage of this command can be
 found [here](./dsp-tools-excel.md#create-the-resources-for-a-data-model-from-an-excel-file)
+.
+
+## Create properties from an Excel file
+
+```bash
+dsp-tools excel2properties excel_file.xlsx output_file.json
+```
+
+The command is used to create the properties section of an ontology from an Excel file. Therefore, an Excel file has to be
+provided with the data in the first worksheet of the Excel file.
+
+The following example shows how to create the properties section from an Excel file called `Properties.xlsx`. The output is
+written to a file called `properties.json`.
+
+```bash
+dsp-tools excel2properties Properties.xlsx properties.json
+```
+
+More information about the usage of this command can be found
+[here](./dsp-tools-excel.md#create-the-properties-for-a-data-model-from-an-excel-file)
 .

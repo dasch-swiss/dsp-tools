@@ -7,6 +7,7 @@ There is a `Makefile` for all the following tasks (and more). Type `make` to pri
 ## Install from source
 
 To install from source run:
+
 ```bash
 python3 setup.py install
 ```
@@ -26,6 +27,7 @@ pip3 freeze > requirements.txt
 ```
 
 ## Testing
+
 Please note that testing requires launching the complete DSP API stack which is based on docker images. Therefore, we
 recommend installing the [docker desktop client](https://www.docker.com/products).
 
@@ -34,6 +36,35 @@ To run the complete test suite:
 ```bash
 make test
 ```
+
+## Code style
+
+When contributing to the project please make sure you use the same code style rules as we do. We use
+[autopep8](https://pypi.org/project/autopep8/) and [mypy](https://pypi.org/project/mypy/). The configuration is defined
+in `pyproject.toml` in the root directory of the project.
+
+```toml
+[tool.autopep8]
+max_line_length = 180
+in-place = true
+experimental = true
+
+[tool.mypy]
+ignore_missing_imports = true
+follow_imports = "silent"
+show_column_numbers = true
+strict = true
+```
+
+You can use the configuration with `autopep8 --global-config pyproject.toml [file path]`
+and `mypy --config-file pyproject.toml
+[file path]`.
+
+If you are using PyCharm we recommend installing autopep8 as external tool. You can then use it with right-click on the
+file > `External Tools` > `autopep8` to reformat files in-place. mypy is available as
+[plugin](https://plugins.jetbrains.com/plugin/11086-mypy).
+
+For formatting Markdown files (*.md) we use the default styling configuration provided by PyCharm.
 
 ## Publishing
 

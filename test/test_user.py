@@ -1,7 +1,7 @@
 import unittest
 
 from dsplib.models.connection import Connection
-from dsplib.models.langstring import Languages, LangStringParam, LangString
+from dsplib.models.langstring import Languages
 from dsplib.models.user import User
 
 
@@ -173,7 +173,8 @@ class TestUser(unittest.TestCase):
         user.addToGroup('http://rdfh.ch/groups/0001/thing-searcher')
         nuser = user.update()
         self.assertIsNotNone(nuser)
-        self.assertEqual(nuser.in_groups, {"http://rdfh.ch/groups/0001/thing-searcher", 'http://rdfh.ch/groups/0001/thing-searcher'})
+        self.assertEqual(nuser.in_groups,
+                         {"http://rdfh.ch/groups/0001/thing-searcher", 'http://rdfh.ch/groups/0001/thing-searcher'})
 
     def test_User_rmFromGroup(self):
         user = User(
@@ -210,7 +211,8 @@ class TestUser(unittest.TestCase):
         user.addToProject('http://rdfh.ch/projects/00FF', False)
         nuser = user.update()
         self.assertIsNotNone(nuser)
-        self.assertEqual(nuser.in_projects, {"http://rdfh.ch/projects/0001": True, 'http://rdfh.ch/projects/00FF': False})
+        self.assertEqual(nuser.in_projects,
+                         {"http://rdfh.ch/projects/0001": True, 'http://rdfh.ch/projects/00FF': False})
 
     def test_User_rmFromProject(self):
         user = User(

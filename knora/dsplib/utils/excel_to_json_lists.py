@@ -15,7 +15,8 @@ list_of_lists = []
 cell_names = []
 
 
-def get_values_from_excel(excelfiles: List[str], base_file: str, parentnode: {}, row: int, col: int, preval: List[str]) -> int:
+def get_values_from_excel(excelfiles: List[str], base_file: str, parentnode: {}, row: int, col: int,
+                          preval: List[str]) -> int:
     """
     This function calls itself recursively to go through the Excel files. It extracts the cell values and creates the JSON list
     file.
@@ -46,12 +47,14 @@ def get_values_from_excel(excelfiles: List[str], base_file: str, parentnode: {},
         # check if all predecessors in row (values to the left) are consistent with the values in preval list
         for idx, val in enumerate(preval[:-1]):
             if val != worksheet.cell(column=idx + 1, row=row).value:
-                print(f'Inconsistency in Excel list: {val} not equal to {worksheet.cell(column=idx + 1, row=row).value}')
+                print(
+                    f'Inconsistency in Excel list: {val} not equal to {worksheet.cell(column=idx + 1, row=row).value}')
                 quit()
 
         # loop through the row until the last (furthest right) value is found
         if worksheet.cell(column=col + 1, row=row).value:
-            row = get_values_from_excel(excelfiles=excelfiles, base_file=base_file, parentnode=currentnode, col=col + 1, row=row,
+            row = get_values_from_excel(excelfiles=excelfiles, base_file=base_file, parentnode=currentnode, col=col + 1,
+                                        row=row,
                                         preval=preval)
 
         # if value was last in row (no further values to the right), it's a node, continue here
@@ -133,7 +136,8 @@ def make_json_list_from_excel(rootnode: {}, excelfiles: List[str]) -> None:
             base_file = filename
             break
 
-    get_values_from_excel(excelfiles=excelfiles, base_file=base_file, parentnode=rootnode, row=startrow, col=startcol, preval=[])
+    get_values_from_excel(excelfiles=excelfiles, base_file=base_file, parentnode=rootnode, row=startrow, col=startcol,
+                          preval=[])
 
 
 def check_list_for_duplicates(list_to_check: list) -> bool:

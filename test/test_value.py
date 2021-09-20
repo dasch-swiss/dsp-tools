@@ -1,7 +1,7 @@
 import unittest
-from pprint import pprint
-from knora.dsplib.models.value import DateValue
+
 from knora.dsplib.models.helpers import Actions
+from knora.dsplib.models.value import DateValue
 
 
 class TestValue(unittest.TestCase):

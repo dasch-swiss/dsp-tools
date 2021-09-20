@@ -1,7 +1,7 @@
 import unittest
 
 from dsplib.models.connection import Connection
-from dsplib.models.langstring import Languages, LangStringParam, LangString
+from dsplib.models.langstring import Languages, LangString
 from dsplib.models.project import Project
 
 

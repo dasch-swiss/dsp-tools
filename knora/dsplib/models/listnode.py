@@ -1,15 +1,15 @@
 import json
-from pystrict import strict
-from typing import List, Set, Dict, Tuple, Optional, Any, Union, NewType
+from pprint import pprint
+from typing import List, Optional, Any, Union
 from urllib.parse import quote_plus
 
+from pystrict import strict
+
+from .connection import Connection
 from .helpers import Actions, BaseError
 from .langstring import Languages, LangStringParam, LangString
-from .connection import Connection
 from .model import Model
 from .project import Project
-
-from pprint import pprint
 
 
 class SetEncoder(json.JSONEncoder):
@@ -260,7 +260,7 @@ class ListNode(Model):
         return self._comments
 
     @comments.setter
-    def comments(self,  value: Optional[Union[LangString, str]]) -> None:
+    def comments(self, value: Optional[Union[LangString, str]]) -> None:
         self._comments = LangString(value)
         self._changed.add('comments')
 
@@ -455,8 +455,9 @@ class ListNode(Model):
         #
         if tmp.get('labels'):
             print(tmp['labels'])
-            tmp['labels'] = [{'language': ele['language'], 'value': ele['value'].replace('"', "'")} for ele in tmp['labels']]
-            #tmp['labels'] = {k: v.replace('"', "'") for k, v in tmp['labels'].items()}
+            tmp['labels'] = [{'language': ele['language'], 'value': ele['value'].replace('"', "'")} for ele in
+                             tmp['labels']]
+            # tmp['labels'] = {k: v.replace('"', "'") for k, v in tmp['labels'].items()}
         # End of FIX
         return tmp
 

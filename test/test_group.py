@@ -5,7 +5,6 @@ from dsplib.models.group import Group
 
 
 class TestGroup(unittest.TestCase):
-
     iri = None
 
     def test_getAllGroups(self):
@@ -19,7 +18,7 @@ class TestGroup(unittest.TestCase):
         self.assertIsNotNone(groups)
         for group in groups:
             group.print()
-        #self.assertEqual(len(groups), 2)
+        # self.assertEqual(len(groups), 2)
 
     def test_Group(self):
         """

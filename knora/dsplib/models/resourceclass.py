@@ -1,16 +1,15 @@
 import json
 import re
-from pystrict import strict
-from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from enum import Enum
+from typing import List, Dict, Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
 
-from pprint import pprint
+from pystrict import strict
 
-from .helpers import Actions, BaseError, Context, Cardinality, LastModificationDate
 from .connection import Connection
-from .model import Model
+from .helpers import Actions, BaseError, Context, Cardinality, LastModificationDate
 from .langstring import Languages, LangString
+from .model import Model
 
 
 class SetEncoder(json.JSONEncoder):
@@ -681,7 +680,8 @@ class ResourceClass(Model):
                     self._context.add_context(tmp[0])
                     return {"@id": resref}  # fully qualified name in the form "prefix:name"
                 else:
-                    return {"@id": self._context.prefix_from_iri(self._ontology_id) + ':' + tmp[1]}  # ":name" in current ontology
+                    return {"@id": self._context.prefix_from_iri(self._ontology_id) + ':' + tmp[
+                        1]}  # ":name" in current ontology
             else:
                 return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
 
@@ -769,7 +769,8 @@ class ResourceClass(Model):
             return last_modification_date, self
 
     def delete(self, last_modification_date: LastModificationDate) -> LastModificationDate:
-        result = self._con.delete('v2/ontologies/classes/' + quote_plus(self._id) + '?lastModificationDate=' + str(last_modification_date))
+        result = self._con.delete(
+            'v2/ontologies/classes/' + quote_plus(self._id) + '?lastModificationDate=' + str(last_modification_date))
         return LastModificationDate(result['knora-api:lastModificationDate'])
 
     def createDefinitionFileObj(self, context: Context, shortname: str, skiplist: List[str]):
@@ -801,9 +802,9 @@ class ResourceClass(Model):
     def print(self, offset: int = 0):
         blank = ' '
         print(f'{blank:>{offset}}Resource Class Info')
-        print(f'{blank:>{offset+2}}Name:            {self._name}')
-        print(f'{blank:>{offset+2}}Ontology prefix: {self._ontology_id}')
-        print(f'{blank:>{offset+2}}Superclasses:')
+        print(f'{blank:>{offset + 2}}Name:            {self._name}')
+        print(f'{blank:>{offset + 2}}Ontology prefix: {self._ontology_id}')
+        print(f'{blank:>{offset + 2}}Superclasses:')
         if self._superclasses is not None:
             for sc in self._superclasses:
                 print(f'{blank:>{offset + 4}}{sc}')

@@ -1,8 +1,9 @@
-import json
 import copy
-from pystrict import strict
-from typing import List, Set, Dict, Tuple, Optional, Any, Union
+import json
+from typing import List, Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
+
+from pystrict import strict
 
 from .connection import Connection
 from .helpers import Actions, BaseError, Context, LastModificationDate, OntoInfo, WithId
@@ -68,7 +69,7 @@ class Ontology(Model):
     _skiplist: List[str]
 
     def __init__(self,
-                 con:  Connection,
+                 con: Connection,
                  id: Optional[str] = None,
                  project: Optional[Union[str, Project]] = None,
                  name: Optional[str] = None,
@@ -253,14 +254,17 @@ class Ontology(Model):
         resource_classes = None
         property_classes = None
         if json_obj.get('@graph') is not None:
-            resclasses_obj = list(filter(lambda a: a.get(knora_api + ':isResourceClass') is not None, json_obj.get('@graph')))
+            resclasses_obj = list(
+                filter(lambda a: a.get(knora_api + ':isResourceClass') is not None, json_obj.get('@graph')))
             resource_classes = list(map(lambda a: ResourceClass.fromJsonObj(con=con,
                                                                             context=context,
                                                                             json_obj=a), resclasses_obj))
-            standoffclasses_obj = list(filter(lambda a: a.get(knora_api + ':isStandoffClass') is not None, json_obj.get('@graph')))
+            standoffclasses_obj = list(
+                filter(lambda a: a.get(knora_api + ':isStandoffClass') is not None, json_obj.get('@graph')))
             # ToDo: parse standoff classes
 
-            properties_obj = list(filter(lambda a: a.get(knora_api + ':isResourceProperty') is not None, json_obj.get('@graph')))
+            properties_obj = list(
+                filter(lambda a: a.get(knora_api + ':isResourceProperty') is not None, json_obj.get('@graph')))
             # property_classes = list(map(lambda a: PropertyClass.fromJsonObj(con=con,
             #                                                                context=context,
             #                                                                json_obj=a), properties_obj))

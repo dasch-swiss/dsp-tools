@@ -1,15 +1,17 @@
-from .project import Project
-from .group import Group
-from .model import Model
-from .connection import Connection
-from .langstring import Languages
-from .helpers import Actions, BaseError
+import json
 import os
 import sys
-import json
-from pystrict import strict
-from typing import List, Set, Dict, Tuple, Optional, Any, Union, NewType
+from typing import List, Set, Dict, Optional, Any, Union
 from urllib.parse import quote_plus
+
+from pystrict import strict
+
+from .connection import Connection
+from .group import Group
+from .helpers import Actions, BaseError
+from .langstring import Languages
+from .model import Model
+from .project import Project
 
 path = os.path.abspath(os.path.dirname(__file__))
 (head, tail) = os.path.split(path)
@@ -17,7 +19,6 @@ if not head in sys.path:
     sys.path.insert(0, head)
 if not path in sys.path:
     sys.path.insert(0, path)
-
 
 """
 This module implements the handling (CRUD) of Knora users.
@@ -148,7 +149,7 @@ class User(Model):
     _change_admin: Set[str]
 
     def __init__(self,
-                 con:  Connection,
+                 con: Connection,
                  id: Optional[str] = None,
                  username: Optional[str] = None,
                  email: Optional[str] = None,
@@ -361,7 +362,8 @@ class User(Model):
 
     @in_projects.setter
     def in_project(self, value: Any):
-        raise BaseError('Project membership cannot be modified directly! Use methods "addToProject" and "rmFromProject"')
+        raise BaseError(
+            'Project membership cannot be modified directly! Use methods "addToProject" and "rmFromProject"')
 
     def addToProject(self, value: str, padmin: bool = False):
         """
@@ -558,12 +560,15 @@ class User(Model):
         id = result['user']['id']
         if self._in_projects is not None:
             for project in self._in_projects:
-                result = self._con.post('/admin/users/iri/' + quote_plus(id) + '/project-memberships/' + quote_plus(project))
+                result = self._con.post(
+                    '/admin/users/iri/' + quote_plus(id) + '/project-memberships/' + quote_plus(project))
                 if self._in_projects[project]:
-                    result = self._con.post('/admin/users/iri/' + quote_plus(id) + '/project-admin-memberships/' + quote_plus(project))
+                    result = self._con.post(
+                        '/admin/users/iri/' + quote_plus(id) + '/project-admin-memberships/' + quote_plus(project))
         if self._in_groups is not None:
             for group in self._in_groups:
-                result = self._con.post('/admin/users/iri/' + quote_plus(id) + '/group-memberships/' + quote_plus(group))
+                result = self._con.post(
+                    '/admin/users/iri/' + quote_plus(id) + '/group-memberships/' + quote_plus(group))
         return User.fromJsonObj(self._con, result['user'])
 
     def read(self) -> Any:
@@ -612,28 +617,35 @@ class User(Model):
             jsondata = json.dumps(jsonobj)
             result = self._con.put('/admin/users/iri/' + quote_plus(self.id) + '/SystemAdmin', jsondata)
         for p in self._add_to_project.items():
-            result = self._con.post('/admin/users/iri/' + quote_plus(self._id) + '/project-memberships/' + quote_plus(p[0]))
+            result = self._con.post(
+                '/admin/users/iri/' + quote_plus(self._id) + '/project-memberships/' + quote_plus(p[0]))
             if p[1]:
-                result = self._con.post('/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
+                result = self._con.post(
+                    '/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
 
         for p in self._rm_from_project:
             if self._in_projects.get(p) is not None and self._in_projects[p]:
-                result = self._con.delete('/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p))
-            result = self._con.delete('/admin/users/iri/' + quote_plus(self._id) + '/project-memberships/' + quote_plus(p))
+                result = self._con.delete(
+                    '/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p))
+            result = self._con.delete(
+                '/admin/users/iri/' + quote_plus(self._id) + '/project-memberships/' + quote_plus(p))
 
         for p in self._change_admin.items():
             if not p[0] in self._in_projects:
                 raise BaseError('user must be member of project!')
             if p[1]:
-                result = self._con.post('/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
+                result = self._con.post(
+                    '/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
             else:
-                result = self._con.delete('/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
+                result = self._con.delete(
+                    '/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
 
         for p in self._add_to_group:
             print('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
             result = self._con.post('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
         for p in self._rm_from_group:
-            result = self._con.delete('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
+            result = self._con.delete(
+                '/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
         user = User(con=self._con, id=self._id).read()
         return user
 
@@ -718,7 +730,7 @@ if __name__ == '__main__':
     new_user.print()
 
     new_user.status = True
-    #new_user.givenName = '--Lukas--'
+    # new_user.givenName = '--Lukas--'
     new_user.familyName = '--Rosenthaler--'
     new_user.password = 'gaga'
     new_user = new_user.update("test")

@@ -1,14 +1,14 @@
 import json
-from pystrict import strict
-from typing import List, Set, Dict, Tuple, Optional, Any, Union
+from pprint import pprint
+from typing import List, Set, Optional, Any, Union
 from urllib.parse import quote_plus
 
+from pystrict import strict
+
+from .connection import Connection
 from .helpers import Actions, BaseError
 from .langstring import Languages, LangStringParam, LangString
-from .connection import Connection
 from .model import Model
-
-from pprint import pprint
 
 
 class SetEncoder(json.JSONEncoder):
@@ -117,7 +117,7 @@ class Project(Model):
     SYSTEM_PROJECT: str = "http://www.knora.org/ontology/knora-admin#SystemProject"
 
     def __init__(self,
-                 con:  Connection,
+                 con: Connection,
                  id: Optional[str] = None,
                  shortcode: Optional[str] = None,
                  shortname: Optional[str] = None,

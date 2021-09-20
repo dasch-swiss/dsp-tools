@@ -3,9 +3,7 @@
   "$id": "http://knora.org/pyknora/ontology/knora-schema.json",
   "title": "knora-py JSON schema",
   "description": "JSON Schema for Knora ontologies",
-
   "definitions": {
-
     "langstring": {
       "anyOf": [
         {
@@ -22,32 +20,29 @@
         }
       ]
     },
-
     "label": {
       "$ref": "#/definitions/langstring"
     },
-
     "description": {
       "$ref": "#/definitions/langstring"
     },
-
     "comment": {
       "$ref": "#/definitions/langstring"
     },
-
     "groupdef": {
       "type": "string",
       "pattern": "^(([\\w-]*)?:([\\w ]+))|(SystemAdmin)$",
       "additionalProperties": false
     },
-
     "projectdef": {
       "type": "string",
       "pattern": "^([\\w-]*)?:(member|admin)$"
     },
-
     "resourcedef": {
-      "type": ["string", "array"],
+      "type": [
+        "string",
+        "array"
+      ],
       "oneOf": [
         {
           "enum": [
@@ -74,7 +69,6 @@
         "$ref": "#/definitions/resourcedef"
       }
     },
-
     "excelref": {
       "type": "object",
       "properties": {
@@ -91,9 +85,11 @@
           "type": "integer"
         }
       },
-      "required": ["file", "worksheet"]
+      "required": [
+        "file",
+        "worksheet"
+      ]
     },
-
     "user": {
       "type": "object",
       "properties": {
@@ -128,9 +124,14 @@
           }
         }
       },
-      "required": ["username", "email", "givenName", "familyName", "password"]
+      "required": [
+        "username",
+        "email",
+        "givenName",
+        "familyName",
+        "password"
+      ]
     },
-
     "group": {
       "type": "object",
       "properties": {
@@ -147,9 +148,11 @@
           "type": "boolean"
         }
       },
-      "required": ["name", "description"]
+      "required": [
+        "name",
+        "description"
+      ]
     },
-
     "node": {
       "type": "object",
       "properties": {
@@ -177,10 +180,12 @@
           ]
         }
       },
-      "required": ["name", "labels"],
+      "required": [
+        "name",
+        "labels"
+      ],
       "additionalProperties": false
     },
-
     "ontology": {
       "type": "object",
       "properties": {
@@ -199,17 +204,21 @@
             "$ref": "#/definitions/property"
           }
         },
-       "resources": {
+        "resources": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/resource"
           }
         }
       },
-      "required": ["name", "label", "properties", "resources"],
+      "required": [
+        "name",
+        "label",
+        "properties",
+        "resources"
+      ],
       "additionalProperties": false
     },
-
     "property": {
       "type": "object",
       "properties": {
@@ -275,11 +284,9 @@
           "type": "string",
           "pattern": "^([\\w-]+)?:(\\w+)$"
         },
-
         "labels": {
           "$ref": "#/definitions/label"
         },
-
         "gui_element": {
           "type": "string",
           "enum": [
@@ -302,7 +309,6 @@
             "Fileupload"
           ]
         },
-
         "gui_attributes": {
           "type": "object",
           "properties": {
@@ -333,7 +339,10 @@
             },
             "wrap": {
               "type": "string",
-              "enum": ["soft", "hard"]
+              "enum": [
+                "soft",
+                "hard"
+              ]
             },
             "max": {
               "type": "number"
@@ -343,23 +352,30 @@
             }
           }
         },
-
         "comments": {
           "$ref": "#/definitions/comment"
         }
       },
-      "required": ["name", "object", "labels", "gui_element"],
+      "required": [
+        "name",
+        "object",
+        "labels",
+        "gui_element"
+      ],
       "additionalProperties": false
     },
-
-    "cardinality":{
+    "cardinality": {
       "type": "object",
       "properties": {
         "propname": {
           "type": "string",
           "oneOf": [
             {
-              "enum": ["Region", "isPartOf", "seqnum"]
+              "enum": [
+                "Region",
+                "isPartOf",
+                "seqnum"
+              ]
             },
             {
               "pattern": "^(([\\w-]*)?:([\\w ]+))$"
@@ -368,16 +384,23 @@
         },
         "cardinality": {
           "type": "string",
-          "enum": ["1", "0-1", "1-n", "0-n"]
+          "enum": [
+            "1",
+            "0-1",
+            "1-n",
+            "0-n"
+          ]
         },
         "gui_order": {
           "type": "integer"
         }
       },
-      "required": ["propname", "cardinality"],
+      "required": [
+        "propname",
+        "cardinality"
+      ],
       "additionalProperties": false
     },
-
     "resource": {
       "type": "object",
       "properties": {
@@ -400,21 +423,26 @@
           }
         }
       },
-      "required": ["name", "super", "labels", "cardinalities"],
+      "required": [
+        "name",
+        "super",
+        "labels",
+        "cardinalities"
+      ],
       "additionalProperties": false
     }
   },
-
   "type": "object",
   "properties": {
     "prefixes": {
       "type": "object",
       "patternProperties": {
-        "^[\\w-]+$": { "format" : "uri" }
+        "^[\\w-]+$": {
+          "format": "uri"
+        }
       },
       "additionalProperties": false
     },
-
     "project": {
       "type": "object",
       "properties": {
@@ -449,14 +477,12 @@
             "$ref": "#/definitions/user"
           }
         },
-
         "lists": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/node"
           }
         },
-
         "ontologies": {
           "type": "array",
           "items": {
@@ -464,10 +490,18 @@
           }
         }
       },
-      "required": ["shortcode", "shortname", "longname", "ontologies", "keywords"],
+      "required": [
+        "shortcode",
+        "shortname",
+        "longname",
+        "ontologies",
+        "keywords"
+      ],
       "additionalProperties": false
     }
   },
-  "required": ["project"],
+  "required": [
+    "project"
+  ],
   "additionalProperties": false
 }

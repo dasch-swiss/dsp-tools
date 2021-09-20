@@ -1,26 +1,22 @@
 import json
 import re
+from copy import deepcopy
 from dataclasses import dataclass
-from enum import Enum, unique
+from typing import List, Set, Dict, Optional, Any, Union, Type
 from urllib.parse import quote_plus
 
 from pystrict import strict
-from typing import List, Set, Dict, Tuple, Optional, Any, Union, Type
-from copy import deepcopy
 
-from .helpers import OntoInfo, Actions, BaseError, Cardinality, Context
 from .connection import Connection
-from .model import Model
-from .project import Project
+from .helpers import OntoInfo, Actions, BaseError, Cardinality, Context
 from .listnode import ListNode
+from .model import Model
 from .ontology import Ontology
-from .resourceclass import ResourceClass, HasProperty
-from .permission import PermissionValue, PermissionsIterator, Permissions
+from .permission import PermissionValue, Permissions
+from .project import Project
+from .resourceclass import HasProperty
 from .value import KnoraStandoffXml, Value, TextValue, ColorValue, DateValue, DecimalValue, GeomValue, GeonameValue, \
     IntValue, BooleanValue, UriValue, TimeValue, IntervalValue, ListValue, LinkValue, fromJsonLdObj
-
-
-from pprint import pprint
 
 
 class KnoraStandoffXmlEncoder(json.JSONEncoder):
@@ -73,7 +69,8 @@ class ResourceInstance(Model):
                  permissions: Optional[Permissions] = None,
                  upermission: Optional[PermissionValue] = None,
                  bitstream: Optional[str] = None,
-                 values: Optional[Dict[str, Union[str, List[str], Dict[str, str], List[Dict[str, str]], Value, List[Value]]]] = None):
+                 values: Optional[Dict[
+                     str, Union[str, List[str], Dict[str, str], List[Dict[str, str]], Value, List[Value]]]] = None):
         super().__init__(con)
         self._iri = iri
         self._label = label
@@ -102,7 +99,8 @@ class ResourceInstance(Model):
                     if type(vals) is list:  # we do have several values for this properties
                         self._values[propname] = []
                         for val in vals:
-                            if valcnt > 0 and (propinfo.cardinality == Cardinality.C_0_1 or propinfo.cardinality == Cardinality.C_1):
+                            if valcnt > 0 and (
+                                    propinfo.cardinality == Cardinality.C_0_1 or propinfo.cardinality == Cardinality.C_1):
                                 raise BaseError(f'Cardinality does not allow multiple values for "{propname}"!')
                             if type(val) is Value:
                                 self._values[propname].append(val)

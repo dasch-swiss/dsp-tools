@@ -1,13 +1,10 @@
 import unittest
 
 from dsplib.models.connection import Connection
+from dsplib.models.permission import PermissionValue, Permissions
 from dsplib.models.resource import ResourceInstanceFactory
-from dsplib.models.value import BooleanValue, ColorValue, DateValue, DecimalValue, IntValue, IntervalValue, TextValue, \
-    UriValue, KnoraStandoffXml, make_value
-from dsplib.models.permission import PermissionValue, Permissions, PermissionsIterator
 from dsplib.models.sipi import Sipi
-
-from pprint import pprint
+from dsplib.models.value import KnoraStandoffXml, make_value
 
 
 class TestResource(unittest.TestCase):

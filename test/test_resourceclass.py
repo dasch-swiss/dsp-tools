@@ -1,10 +1,9 @@
 import unittest
 
 from dsplib.models.connection import Connection
-from dsplib.models.helpers import BaseError, Actions, LastModificationDate
-from dsplib.models.langstring import Languages, LangStringParam, LangString
+from dsplib.models.langstring import Languages, LangString
 from dsplib.models.ontology import Ontology
-from dsplib.models.resourceclass import ResourceClass, HasProperty
+from dsplib.models.resourceclass import ResourceClass
 
 
 class TestResourceClass(unittest.TestCase):

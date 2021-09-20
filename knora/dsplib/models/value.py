@@ -1,18 +1,13 @@
-import json
 import re
+from typing import List, Dict, Optional, Any, Union
 
 from pystrict import strict
-from typing import List, Set, Dict, Tuple, Optional, Any, Union, Type
-from rfc3987 import parse
-from pprint import pprint
 
 from .group import Group
-from .helpers import IriTest, Actions, BaseError, Cardinality
+from .helpers import IriTest, Actions, BaseError
 from .langstring import LangString
-from .connection import Connection
-from .permission import PermissionValue, PermissionsIterator, Permissions
-
 from .listnode import ListNode
+from .permission import PermissionValue, Permissions
 
 
 @strict

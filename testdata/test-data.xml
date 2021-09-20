@@ -1,5 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
-<knora shortcode="4123" default-ontology="testonto">
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/data.xsd"
+       shortcode="4123"
+       default-ontology="testonto">
+
     <!-- permissions: see https://docs.knora.org/03-apis/api-v2/reading-user-permissions/ -->
     <permissions id="res-default">
         <allow group="UnknownUser">RV</allow>
@@ -46,11 +52,18 @@
             <text permissions="prop-restricted" encoding="utf8">Nochmals einen einfachen Text</text>
         </text-prop>
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">This is <em>bold and <strong>string</strong></em> text!</text>
+            <text permissions="prop-default" encoding="xml">This is
+                <em>bold and
+                    <strong>string</strong>
+                </em>
+                text!
+            </text>
         </text-prop>
-        <uri-prop name="hasUri">
-            <uri permission="prop-default">https://dasch.swiss</uri>
+
+        <uri-prop name=":hasUri">
+            <uri permissions="prop-default">https://dasch.swiss</uri>
         </uri-prop>
+
         <boolean-prop name=":hasBoolean">
             <boolean permissions="prop-default">true</boolean>
         </boolean-prop>

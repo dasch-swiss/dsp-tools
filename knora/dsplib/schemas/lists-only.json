@@ -1,8 +1,8 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://knora.org/pyknora/ontology/knora-schema-list-only.json",
-  "title": "Knora JSON schema for lists only",
-  "description": "JSON schema for lists used in Knora ontologies",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dasch.swiss/schema/knora-schema-list-only.json",
+  "title": "JSON schema for DSP lists",
+  "description": "JSON schema for the lists section used in DSP ontologies",
   "definitions": {
     "label": {
       "type": "object",

@@ -103,6 +103,15 @@ def program(user_args: list[str]) -> None:
     parser_excel_resources.add_argument('outfile', help='Path to the output JSON file containing the resource data',
                                         default='resources.json')
 
+    parser_excel_properties = subparsers.add_parser('excel2properties',
+                                                    help='Create a JSON file from an Excel file containing '
+                                                         'properties for a DSP ontology. ')
+    parser_excel_properties.set_defaults(action='excel2properties')
+    parser_excel_properties.add_argument('excelfile', help='Path to the Excel file containing the properties',
+                                         default='properties.xlsx')
+    parser_excel_properties.add_argument('outfile', help='Path to the output JSON file containing the properties data',
+                                         default='properties.json')
+
     args = parser.parse_args(user_args)
 
     if not hasattr(args, 'action'):
@@ -155,6 +164,9 @@ def program(user_args: list[str]) -> None:
     elif args.action == 'excel2resources':
         resources_excel2json(excelfile=args.excelfile,
                              outfile=args.outfile)
+    elif args.action == 'excel2properties':
+        properties_excel2json(excelfile=args.excelfile,
+                              outfile=args.outfile)
 
 
 def main() -> None:

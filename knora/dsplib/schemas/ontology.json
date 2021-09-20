@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://dasch.swiss/schema/knora-schema.json",
+    "$id": "https://dasch.swiss/schema/ontology.json",
     "title": "JSON schema for DSP ontologies",
     "description": "JSON schema for DSP ontologies",
     "definitions": {

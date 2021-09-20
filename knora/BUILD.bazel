@@ -31,8 +31,8 @@ py_binary(
 #        requirement("pprint"),
     ],
     data = [
-        "knora-schema.json",
-        "knora-schema-lists.json",
+        "ontology.json",
+        "lists.json",
     ],
     python_version = "PY3",
 )

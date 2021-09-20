@@ -59,11 +59,11 @@
                 text!
             </text>
         </text-prop>
-        <!--
-        <uri-prop name="hasUri">
-            <uri permission="prop-default">https://dasch.swiss</uri>
+
+        <uri-prop name=":hasUri">
+            <uri permissions="prop-default">https://dasch.swiss</uri>
         </uri-prop>
-        -->
+
         <boolean-prop name=":hasBoolean">
             <boolean permissions="prop-default">true</boolean>
         </boolean-prop>

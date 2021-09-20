@@ -1,8 +1,8 @@
 include README.md
-include knora/dsplib/utils/ontology.json
-include knora/dsplib/utils/lists.json
-include knora/dsplib/utils/lists-only.json
-include knora/dsplib/utils/resources-only.json
-include knora/dsplib/utils/properties-only.json
-include knora/dsplib/utils/data.xsd
+include knora/dsplib/schemas/ontology.json
+include knora/dsplib/schemas/lists.json
+include knora/dsplib/schemas/lists-only.json
+include knora/dsplib/schemas/resources-only.json
+include knora/dsplib/schemas/properties-only.json
+include knora/dsplib/schemas/data.xsd
 include knora/dsplib/utils/language-codes-3b2_csv.csv

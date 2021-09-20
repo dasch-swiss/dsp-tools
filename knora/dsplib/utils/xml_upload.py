@@ -534,7 +534,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
     # Validate the input XML file
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    schema_file = etree.parse(os.path.join(current_dir, 'knora-data-schema.xsd'))
+    schema_file = etree.parse(os.path.join(current_dir, '../schemas/data.xsd'))
 
     if validate_xml_against_schema(input_file, schema_file):
         print("The input data file is syntactically correct and passed validation!")

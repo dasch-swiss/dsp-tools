@@ -3,6 +3,7 @@
     "foaf": "http://xmlns.com/foaf/0.1/",
     "dcterms": "http://purl.org/dc/terms/"
   },
+  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/utils/knora-schema.json",
   "project": {
     "shortcode": "4123",
     "shortname": "tp",
@@ -102,7 +103,9 @@
               "hasValue"
             ],
             "object": "TextValue",
-            "labels": {"en": "Text"},
+            "labels": {
+              "en": "Text"
+            },
             "gui_element": "SimpleText",
             "gui_attributes": {
               "maxlength": "255",
@@ -115,7 +118,9 @@
               "hasValue"
             ],
             "object": "TextValue",
-            "labels": {"en": "Text"},
+            "labels": {
+              "en": "Text"
+            },
             "gui_element": "Richtext"
           },
           {
@@ -124,7 +129,9 @@
               "hasValue"
             ],
             "object": "UriValue",
-            "labels": {"en": "URI"},
+            "labels": {
+              "en": "URI"
+            },
             "gui_element": "SimpleText",
             "gui_attributes": {
               "maxlength": "255",
@@ -137,7 +144,9 @@
               "hasValue"
             ],
             "object": "BooleanValue",
-            "labels": {"en": "Boolean value"},
+            "labels": {
+              "en": "Boolean value"
+            },
             "gui_element": "Checkbox"
           },
           {
@@ -146,7 +155,9 @@
               "hasValue"
             ],
             "object": "DateValue",
-            "labels": {"en": "Date"},
+            "labels": {
+              "en": "Date"
+            },
             "gui_element": "Date"
           },
           {
@@ -155,7 +166,9 @@
               "hasValue"
             ],
             "object": "IntValue",
-            "labels": {"en": "Integer"},
+            "labels": {
+              "en": "Integer"
+            },
             "gui_element": "Spinbox",
             "gui_attributes": {
               "max": -1.0,
@@ -168,7 +181,9 @@
               "hasValue"
             ],
             "object": "DecimalValue",
-            "labels": {"en": "Decimal number"},
+            "labels": {
+              "en": "Decimal number"
+            },
             "gui_element": "SimpleText",
             "gui_attributes": {
               "maxlength": "255",
@@ -181,7 +196,9 @@
               "hasValue"
             ],
             "object": "GeomValue",
-            "labels": { "en": "Geometry" },
+            "labels": {
+              "en": "Geometry"
+            },
             "gui_element": "Geometry"
           },
           {
@@ -190,7 +207,9 @@
               "hasValue"
             ],
             "object": "GeonameValue",
-            "labels": {"en": "Geoname"},
+            "labels": {
+              "en": "Geoname"
+            },
             "gui_element": "Geonames"
           },
           {
@@ -199,7 +218,9 @@
               "hasValue"
             ],
             "object": "IntervalValue",
-            "labels": {"en": "Time interval"},
+            "labels": {
+              "en": "Time interval"
+            },
             "gui_element": "Interval"
           },
           {
@@ -208,7 +229,9 @@
               "hasValue"
             ],
             "object": "ColorValue",
-            "labels": {"en": "Color"},
+            "labels": {
+              "en": "Color"
+            },
             "gui_element": "Colorpicker"
           },
           {
@@ -217,7 +240,9 @@
               "hasValue"
             ],
             "object": "ListValue",
-            "labels": {"en": "List element"},
+            "labels": {
+              "en": "List element"
+            },
             "gui_element": "List",
             "gui_attributes": {
               "hlist": "testlist"
@@ -229,7 +254,9 @@
               "hasLinkTo"
             ],
             "object": "Region",
-            "labels": {"en": "has region"},
+            "labels": {
+              "en": "has region"
+            },
             "gui_element": "Searchbox"
           },
           {
@@ -238,7 +265,9 @@
               "hasLinkTo"
             ],
             "object": ":TestThing2",
-            "labels": {"en": "Another thing"},
+            "labels": {
+              "en": "Another thing"
+            },
             "gui_element": "Searchbox"
           }
         ],
@@ -327,7 +356,7 @@
             ]
           },
           {
-            "name":  "TestThing2",
+            "name": "TestThing2",
             "super": "Resource",
             "labels": {
               "en": "Another Test Thing"
@@ -344,7 +373,7 @@
             ]
           },
           {
-            "name":  "CompoundThing",
+            "name": "CompoundThing",
             "super": "Resource",
             "labels": {
               "en": "A Compound Thing"
@@ -361,7 +390,7 @@
             ]
           },
           {
-            "name":  "ImageThing",
+            "name": "ImageThing",
             "super": "StillImageRepresentation",
             "labels": {
               "en": "An Image Thing"
@@ -378,7 +407,7 @@
             ]
           },
           {
-            "name":  "AudioThing",
+            "name": "AudioThing",
             "super": "AudioRepresentation",
             "labels": {
               "en": "An Audio Thing"
@@ -395,7 +424,7 @@
             ]
           },
           {
-            "name":  "MovieThing",
+            "name": "MovieThing",
             "super": "MovingImageRepresentation",
             "labels": {
               "en": "An Movie Thing"
@@ -412,7 +441,7 @@
             ]
           },
           {
-            "name":  "DocumentThing",
+            "name": "DocumentThing",
             "super": "DocumentRepresentation",
             "labels": {
               "en": "A Document Thing"
@@ -429,7 +458,7 @@
             ]
           },
           {
-            "name":  "ZipThing",
+            "name": "ZipThing",
             "super": "DocumentRepresentation",
             "labels": {
               "en": "A ZIP Thing"
@@ -446,7 +475,7 @@
             ]
           },
           {
-            "name":  "TextThing",
+            "name": "TextThing",
             "super": "TextRepresentation",
             "labels": {
               "en": "A Text Thing"
@@ -463,7 +492,7 @@
             ]
           },
           {
-            "name":  "PartOfThing",
+            "name": "PartOfThing",
             "super": "StillImageRepresentation",
             "labels": {
               "en": "A Thing having a partOf and seqnum property"

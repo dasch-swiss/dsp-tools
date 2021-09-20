@@ -1,9 +1,8 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://knora.org/pyknora/ontology/knora-schema.json",
-  "title": "Knora JSON schema",
-  "description": "JSON Schema for Knora ontologies",
-
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dasch.swiss/schema/knora-schema.json",
+  "title": "JSON schema for DSP lists",
+  "description": "JSON schema for lists used in DSP ontologies",
   "definitions": {
     "label": {
       "type": "object",
@@ -74,17 +73,25 @@
           }
         }
       },
-      "required": ["shortcode", "lists"],
+      "required": [
+        "shortcode",
+        "lists"
+      ],
       "additionalProperties": false
     },
     "prefixes": {
       "type": "object",
       "patternProperties": {
-        "^[\\w-]+$": { "format" : "uri" }
+        "^[\\w-]+$": {
+          "format": "uri"
+        }
       },
       "additionalProperties": false
     }
   },
-  "required": ["prefixes", "project"],
+  "required": [
+    "prefixes",
+    "project"
+  ],
   "additionalProperties": false
 }

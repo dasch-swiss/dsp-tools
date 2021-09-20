@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Union, Dict
+from typing import Dict, Union
 
 import jsonschema
 from jsonschema import validate
@@ -39,7 +39,7 @@ def validate_ontology(input_file_or_json: Union[str, Dict, os.PathLike]) -> bool
     # validate the data model against the schema
     current_dir = os.path.dirname(os.path.realpath(__file__))
 
-    with open(os.path.join(current_dir, 'knora-schema.json')) as s:
+    with open(os.path.join(current_dir, '../schemas/ontology.json')) as s:
         schema = json.load(s)
 
     try:

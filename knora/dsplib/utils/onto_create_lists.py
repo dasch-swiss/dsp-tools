@@ -23,7 +23,8 @@ def list_creator(con: Connection, project: Project, parent_node: ListNode, nodes
     """
     nodelist = []
     for node in nodes:
-        new_node = ListNode(con=con, project=project, label=node["labels"], comments=node.get("comments"), name=node["name"],
+        new_node = ListNode(con=con, project=project, label=node["labels"], comments=node.get("comments"),
+                            name=node["name"],
                             parent=parent_node).create()
         if node.get('nodes') is not None:
             subnode_list = list_creator(con, project, new_node, node['nodes'])
@@ -33,7 +34,8 @@ def list_creator(con: Connection, project: Project, parent_node: ListNode, nodes
     return nodelist
 
 
-def create_lists(input_file: str, lists_file: str, server: str, user: str, password: str, verbose: bool, dump: bool = False):
+def create_lists(input_file: str, lists_file: str, server: str, user: str, password: str, verbose: bool,
+                 dump: bool = False):
     """
     Creates the lists on the DSP server
 
@@ -88,7 +90,8 @@ def create_lists(input_file: str, lists_file: str, server: str, user: str, passw
         for rootnode in lists:
             if verbose:
                 print('  Create list:' + rootnode['name'])
-            root_list_node = ListNode(con=con, project=project, label=rootnode['labels'],  # comment=rootnode.get('comments'),
+            root_list_node = ListNode(con=con, project=project, label=rootnode['labels'],
+                                      # comment=rootnode.get('comments'),
                                       name=rootnode['name']).create()
             if rootnode.get('nodes') is not None:
                 list_nodes = list_creator(con, project, root_list_node, rootnode['nodes'])

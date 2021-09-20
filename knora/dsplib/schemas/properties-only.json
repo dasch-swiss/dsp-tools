@@ -1,8 +1,8 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema-properties-only#",
-    "$id": "http://knora.org/pyknora/ontology/properties-only.json",
-    "title": "Knora JSON schema for properties only",
-    "description": "JSON schema for properties used in Knora ontologies",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://dasch.swiss/schema/properties-only.json",
+    "title": "JSON schema for properties used in DSP ontologies",
+    "description": "JSON schema for the properties section used in DSP ontologies",
     "definitions": {
         "langstring": {
             "anyOf": [

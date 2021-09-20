@@ -1,10 +1,9 @@
 import unittest
 
 from dsplib.models.connection import Connection
-from dsplib.models.helpers import BaseError, Actions, LastModificationDate
-from dsplib.models.langstring import Languages, LangStringParam, LangString
+from dsplib.models.langstring import Languages, LangString
 from dsplib.models.ontology import Ontology
-from dsplib.models.resourceclass import ResourceClass, HasProperty
+from dsplib.models.resourceclass import ResourceClass
 
 
 class TestResourceClass(unittest.TestCase):
@@ -13,7 +12,6 @@ class TestResourceClass(unittest.TestCase):
     label = LangString({Languages.DE: 'MyResClassLabel'})
     comment = LangString({Languages.DE: 'This is a resource class for testing'})
     name = 'MyResClassName'
-
 
     def test_ResourceClass_create(self):
         #
@@ -56,7 +54,6 @@ class TestResourceClass(unittest.TestCase):
         #
         last_modification_date = resclass.delete(last_modification_date)
         onto.lastModificationDate = last_modification_date
-
 
     def test_ResourceClass_update(self):
         #

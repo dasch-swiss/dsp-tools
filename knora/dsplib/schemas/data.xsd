@@ -14,7 +14,8 @@
     <!-- group type for allow..." -->
     <xs:simpleType name="group_types">
         <xs:restriction base="xs:token">
-            <xs:pattern value="(UnknownUser|KnownUser|ProjectMember|Creator|ProjectAdmin|SystemAdmin|([\w-]+):([\w ]+))"/>
+            <xs:pattern
+                value="(UnknownUser|KnownUser|ProjectMember|Creator|ProjectAdmin|SystemAdmin|([\w-]+):([\w ]+))"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -22,7 +23,7 @@
     <xs:simpleType name="knoradate_type">
         <xs:restriction base="xs:token">
             <xs:pattern
-                    value="(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})?(-\d{1,2})?(-\d{1,2})?(:CE|:BCE)?(:\d{4})?(-\d{1,2})?(-\d{1,2})?"/>
+                value="(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})?(-\d{1,2})?(-\d{1,2})?(:CE|:BCE)?(:\d{4})?(-\d{1,2})?(-\d{1,2})?"/>
         </xs:restriction>
     </xs:simpleType>
 

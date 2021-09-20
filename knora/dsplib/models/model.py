@@ -1,7 +1,8 @@
-from typing import List, Set, Dict, Tuple, Optional, Any, Union
+from typing import Set
 
-from .helpers import Actions, BaseError
 from .connection import Connection
+from .helpers import BaseError
+
 
 class Model:
     _con: Connection

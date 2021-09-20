@@ -1,15 +1,18 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
 # DSP XML file format for importing data
+
 With dsp-tools data can be imported into a DSP repository (on a DSP server) from an XML file. The import file is a
 standard XML file as described on this page.
 
 The import file must start with the standard XML header:
+
 ```xml
 <?xml version='1.0' encoding='utf-8'?>
 ```
 
 ## The root element &lt;knora&gt;
+
 The `<knora>` element describes a set of resources that are to be imported. It is the container for an arbitrary number
 of `<resource>` elements and may only contain resource and permissions tags.
 
@@ -38,6 +41,7 @@ The `<knora>` element can only contain the following sub-elements:
 - `<resource>`
 
 ## Describing permissions with &lt;permissions&gt; elements
+
 The DSP server provides access control for each resource and each field of a resource through permissions. For a
 thorough explanation of the permission and access system of the DSP platform, see
 [DSP platform permissions](https://docs.knora.org/02-knora-ontologies/knora-base/#permissions).
@@ -61,12 +65,12 @@ permissions. By default, the following groups always exist, and each user belong
 - `Creator`: The user is the owner of the element (created the element).
 - `SystemAdmin`: The user is a system administrator.
 
-In addition, more groups with arbitrary names can be created by a project admin. For referencing a group,
-the project name has to be prepended before the group name, separated by a colon, e.g. `dsp-test:MlsEditors`.
+In addition, more groups with arbitrary names can be created by a project admin. For referencing a group, the project
+name has to be prepended before the group name, separated by a colon, e.g. `dsp-test:MlsEditors`.
 
-A `<permissions>` element contains the permissions given to the selected groups and is called a _permission set_. It
-has a mandatory attribute `id` and must contain at least one `<allow>` element per group indicating the group's
-permission. It is of the following form:
+A `<permissions>` element contains the permissions given to the selected groups and is called a _permission set_. It has
+a mandatory attribute `id` and must contain at least one `<allow>` element per group indicating the group's permission.
+It is of the following form:
 
 ```xml
 <permissions id="res-default">
@@ -79,6 +83,7 @@ permission. It is of the following form:
 ```
 
 ### The &lt;allow&gt; sub-element
+
 The `<allow>` element is used to define the permission for a specific group. It is of the following form:
 
 ```xml
@@ -89,8 +94,8 @@ The allowed values are:
 
 - `RV` _restricted view_: The associated media is shown in reduced quality.
 - `V` _view_: The user has read access to the data.
-- `M` _modify_: The user may modify a value, but may not delete it. The original value will be preserved
-  using the history mechanism.
+- `M` _modify_: The user may modify a value, but may not delete it. The original value will be preserved using the
+  history mechanism.
 - `D` _delete_: The user is able to mark a resource as deleted.
 - `CR` _change right_: The user is able to change the right of a resource or value.
 
@@ -108,6 +113,7 @@ The available system groups are:
 There are no sub-elements allowed for the `<allow>` element.
 
 ### Example for a permissions section
+
 A complete `<permissions>` section may look as follows:
 
 ```xml
@@ -146,6 +152,7 @@ A complete `<permissions>` section may look as follows:
 ```
 
 ## Describing resources with the &lt;resource&gt; element
+
 A `<resource>` element contains all necessary information to create a resource. It has the following attributes:
 
 - `label`: a human-readable, preferably meaningful short name of the resource (required)
@@ -181,7 +188,7 @@ Example for a property element of type text (`<text-prop>`) with two value eleme
 | ⚠ Look out  |
 |:----------|
 | In case of a cardinality 1-n, multiple `<text>` tags have to be created inside the `<text-prop>` tag (do not use multiple `<text-prop>` tags). |
- 
+
 The following property elements exist:
 
 - `<bitstream>`: contains the path to the file
@@ -202,6 +209,7 @@ The following property elements exist:
 - `<boolean-prop>`: contains boolean values
 
 ### `<bitstream>`
+
 The `<bitstream>` element is used for bitstream data. It contains the path to a bitstream object like an image file, a
 ZIP container, an audio file etc. It must only be used if the resource is a `StillImageRepresentation`, an
 `AudioRepresentation`, a `DocumentRepresentation` etc.
@@ -211,7 +219,7 @@ Note:
 - There is only _one_ `<bitstream>` element allowed per representation!
 - The `<bitstream>` element must be the first element!
 
-Attributes: 
+Attributes:
 
 - none
 
@@ -222,6 +230,7 @@ Example:
 ```
 
 ### `<text-prop>`
+
 The `<text-prop>` element is used for text values. It must contain at least one `<text>` element.
 
 Attributes:
@@ -229,19 +238,22 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 #### `<text>`
+
 The `<text>` element has the following attributes:
 
 - `encoding`: either "utf8" or "xml" (required)
     - `utf8`: The element describes a simple text without markup. The text is a simple UTF-8 string.
     - `xml`: The element describes a complex text containing markup. It must follow the XML format as defined by the
-  [DSP standard mapping](https://docs.knora.org/03-apis/api-v1/xml-to-standoff-mapping/).
+      [DSP standard mapping](https://docs.knora.org/03-apis/api-v1/xml-to-standoff-mapping/).
 - `permissions`: ID or a permission set (optional, but if omitted very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 There are two variants of text:
 
 #### Simple text (UTF-8)
+
 An example for simple text:
+
 ```xml
 <text-prop name=":hasComment">
   <text encoding="utf8">Probe bei "Wimberger". Lokal in Wien?</text>
@@ -249,11 +261,13 @@ An example for simple text:
 ```
 
 #### Text with markup (XML)
+
 dsp-tools assumes that for markup (standoff markup) the
 [DSP standard mapping](https://docs.knora.org/03-apis/api-v1/xml-to-standoff-mapping/) used (custom mapping is not yet
 implemented).
 
 Example of a text containing a link to another resource:
+
 ```xml
 <text-prop name=":hasComment">
   <text encoding="xml" >The <strong>third</strong> object and a <a class="salsah-link" href="IRI:obj_0003:IRI">link</a>.</text>
@@ -266,6 +280,7 @@ conform to the special format `IRI:[res-id]:IRI` where [res-id] is the resource 
 Within a text property, multiple simple and complex text values may be mixed.
 
 ### `<color-prop>`
+
 The `<color-prop>` element is used for color values. It must contain at least one `<color>` element.
 
 Attributes:
@@ -273,6 +288,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 #### `<color>`
+
 The `<color>` element is used to indicate a color value. The color has to be given in web-notation, that is a `#`
 followed by 3 or 6 hex numerals.
 
@@ -291,6 +307,7 @@ A property with two color values would be defined as follows:
 ```
 
 ### `<date-prop>`
+
 The `<date-prop>` element is used for date values. It must contain a `<date>` element.
 
 Attributes:
@@ -298,6 +315,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 #### `<date>`
+
 the `<date>` element contains a DSP-specific date value. It has the following format:
 
 ```
@@ -310,8 +328,8 @@ calendar:epoch:yyyy-mm-dd:epoch:yyyy-mm-dd
 - `mm`: month with two digits (optional, e.g. 01, 02, ..., 12)
 - `dd`: day with two digits (optional, e.g. 01, 02, ..., 31)
 
-If two dates are provided, the date is defined as range between the two dates. If the day is omitted, then the
-precision it _month_, if also the month is omitted, the precision is _year_.
+If two dates are provided, the date is defined as range between the two dates. If the day is omitted, then the precision
+it _month_, if also the month is omitted, the precision is _year_.
 
 Attributes:
 
@@ -319,11 +337,13 @@ Attributes:
 - `comment`: a comment for this specific value (optional)
 
 Example:
+
 ```xml
 <date-prop name=":hasDate">
   <date>GREGORIAN:CE:2014-01-31</date>
 </date-prop>
 ```
+
 ```xml
 <date-prop name=":hasDate">
   <date>GREGORIAN:CE:1930-09-02:CE:1930-09-03</date>
@@ -331,6 +351,7 @@ Example:
 ```
 
 ### `<decimal-prop>`
+
 The `<decimal-prop>` element is used for decimal values. It must contain at least one `<decimal>` element.
 
 Attributes:
@@ -338,6 +359,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 #### `<decimal>`
+
 The `<decimal>` element contains a decimal number.
 
 Attributes:
@@ -346,6 +368,7 @@ Attributes:
 - `comment`: a comment for this specific value (optional)
 
 Example:
+
 ```xml
 <decimal-prop name=":hasDecimal">
   <decimal>3.14159</decimal>
@@ -353,6 +376,7 @@ Example:
 ```
 
 ### `<geometry-prop>`
+
 The `<geometry-prop>` element is used for a geometric definition of a 2-D region (e.g. a region on an image). It must
 contain at least one `<geometry>` element.
 
@@ -365,6 +389,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 #### `<geometry>`
+
 A geometry value is defined as a JSON object. It contains the following data:
 
 - `status`: "active" or "deleted"
@@ -408,14 +433,16 @@ Attributes:
 - `comment`: a comment for this specific value (optional)
 
 ### `<geoname-prop>`
-The `<geoname-prop>` element is used for values that contain a [geonames.org](http://geonames.org) ID. It must
-contain at least one `<geoname>` element.
+
+The `<geoname-prop>` element is used for values that contain a [geonames.org](http://geonames.org) ID. It must contain
+at least one `<geoname>` element.
 
 Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
 #### `<geoname>`
+
 Contains a valid [geonames.org](http://geonames.org) ID.
 
 Attributes:
@@ -432,9 +459,10 @@ Example (city of Vienna):
 ```
 
 ### `<list-prop>`
+
 The `<list-prop>` element is used as entry point into a list (list node). List nodes are identified by their `name`
-attribute that was given when creating the list nodes (which must be unique within each list!). It must contain at
-least one `<list>` element.
+attribute that was given when creating the list nodes (which must be unique within each list!). It must contain at least
+one `<list>` element.
 
 Attributes:
 
@@ -442,6 +470,7 @@ Attributes:
 - `list`: name of the list as defined in the ontology (required)
 
 #### `<list>`
+
 The `<list>` element references a node in a (pull-down or hierarchical) list.
 
 Attributes:
@@ -450,6 +479,7 @@ Attributes:
 - `comment`: a comment for this specific value (optional)
 
 Example:
+
 ```xml
 <list-prop list="category" name=":hasCategory">
   <list>physics</list>
@@ -457,17 +487,19 @@ Example:
 ```
 
 ### `<iconclass-prop>` (_not yet implemented_)
+
 The `<iconclass-prop>` element is used for [iconclass.org](http://iconclass.org) ID. It must contain at least one
 `<iconclass>` element.
 
-For example: `92E112` stands for `(story of) Aurora (Eos); 'Aurora' (Ripa) - infancy, upbringing
-Aurora · Ripa · air · ancient history · child · classical antiquity · goddess · gods · heaven · history · infancy · mythology · sky · upbringing · youth`
+For example: `92E112` stands
+for `(story of) Aurora (Eos); 'Aurora' (Ripa) - infancy, upbringing Aurora · Ripa · air · ancient history · child · classical antiquity · goddess · gods · heaven · history · infancy · mythology · sky · upbringing · youth`
 
 Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
 #### `<iconclass>` (_not yet implemented_)
+
 References an [iconclass.org](https://iconclass.org) ID.
 
 Attributes:
@@ -476,6 +508,7 @@ Attributes:
 - `comment`: a comment for this specific value (optional)
 
 Usage:
+
 ```xml
 <iconclass-prop name=":hasIcon">
   <iconclass>92E112</iconclass>
@@ -483,6 +516,7 @@ Usage:
 ```
 
 ### `<integer-prop>`
+
 The `<integer-prop>` element is used for integer values. It must contain at least one `<integer>` element.
 
 Attributes:
@@ -490,6 +524,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 #### `<integer>`
+
 The `<integer>` element contains an integer value.
 
 Attributes:
@@ -506,6 +541,7 @@ Example:
 ```
 
 ### `<interval-prop>`
+
 The `<interval-prop>` element is used for time periods with start and end dates. It must contain at least one
 `<interval>` element.
 
@@ -514,6 +550,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 #### `<interval>`
+
 The `<interval>` element contains two decimals separated by a colon (`:`).
 
 Attributes:
@@ -530,6 +567,7 @@ Example:
 ```
 
 ### `<resptr-prop>`
+
 The `<resptr-prop>` element is used to link other resources within DSP. It must contain a `<resptr>` element.
 
 Attributes:
@@ -537,6 +575,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 #### `<resptr>`
+
 The `<resptr>` element contains the internal ID of another resource.
 
 Attributes:
@@ -548,6 +587,7 @@ Example:
 
 If there is a resource defined as `<resource label="EURUS015a" restype=":Postcard" unique_id="238807">...</resource>`,
 it can be referenced as:
+
 ```xml
 <resptr-prop name=":hasReferenceTo">
   <resptr>238807</resptr>
@@ -555,6 +595,7 @@ it can be referenced as:
 ```
 
 ### `<time-prop>`
+
 The `<time-prop>` element is used for time values. It must contain at least one `<time>` element.
 
 Attributes:
@@ -562,8 +603,9 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 #### `<time>`
-The `<time>` element represents an exact datetime value in the form of `yyyy-mm-ddThh:mm:ss.sssssssssssszzzzzz`.
-The following abbreviations describe this form:
+
+The `<time>` element represents an exact datetime value in the form of `yyyy-mm-ddThh:mm:ss.sssssssssssszzzzzz`. The
+following abbreviations describe this form:
 
 - `yyyy`: a four-digit numeral that represents the year. The value cannot start with a minus (-) or a plus (+) sign.
   0001 is the lexical representation of the year 1 of the Common Era (also known as 1 AD). The value cannot be 0000.
@@ -583,9 +625,10 @@ The timezone is defined as follows:
 - A plus (+) or minus (-) sign that is followed by hh:mm:
     - `+`: Indicates that the specified time instant is in a time zone that is ahead of the UTC time by hh hours and mm
       minutes.
-    - `-`: Indicates that the specified time instant is in a time zone that is behind UTC time by hh hours and mm minutes.
-    - `hh`: a two-digit numeral (with leading zeros as required) that represents the hours. The value must be between -14
-      and +14, inclusive.
+    - `-`: Indicates that the specified time instant is in a time zone that is behind UTC time by hh hours and mm
+      minutes.
+    - `hh`: a two-digit numeral (with leading zeros as required) that represents the hours. The value must be between
+      -14 and +14, inclusive.
     - `mm`: a two-digit numeral that represents the minutes. The value must be zero when hh is equal to 14.
 - Z: The literal Z, which represents the time in UTC (Z represents Zulu time, which is equivalent to UTC). Specifying Z
   for the time zone is equivalent to specifying +00:00 or -00:00.
@@ -604,6 +647,7 @@ Example:
 ```
 
 The following value indicates noon on October 10, 2009, Eastern Standard Time in the United States:
+
 ```xml
 <time-prop name=":hasTime">
   <time>2009-10-10T12:00:00-05:00</time>
@@ -611,6 +655,7 @@ The following value indicates noon on October 10, 2009, Eastern Standard Time in
 ```
 
 ### `<uri-prop>`
+
 The `<uri-prop>` element is used for referencing resources with a URI. It must contain at least one `<uri>` element.
 
 Attributes:
@@ -618,6 +663,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 #### `<uri>`
+
 The `<uri>` element contains a syntactically valid URI.
 
 Attributes:
@@ -634,6 +680,7 @@ Example:
 ```
 
 ### `<boolean-prop>`
+
 The `<boolean-prop>` element is used for boolean values. It must contain a `<boolean>` element.
 
 Attributes:
@@ -641,6 +688,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 #### `<boolean>`
+
 The `<boolean>` element must contain the string "true" or "false", or the numeral 1 or 0.
 
 Attributes:

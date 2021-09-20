@@ -5,7 +5,6 @@ from dsplib.models.group import Group
 
 
 class TestGroup(unittest.TestCase):
-
     iri = None
 
     def test_getAllGroups(self):
@@ -19,7 +18,7 @@ class TestGroup(unittest.TestCase):
         self.assertIsNotNone(groups)
         for group in groups:
             group.print()
-        #self.assertEqual(len(groups), 2)
+        # self.assertEqual(len(groups), 2)
 
     def test_Group(self):
         """
@@ -67,11 +66,11 @@ class TestGroup(unittest.TestCase):
         con.login('root@example.com', 'test')
 
         group = Group(con=con,
-                           name="KNORA-PY CREATE",
-                           description="Test project for knora-py",
-                           project="http://rdfh.ch/projects/0001",
-                           status=True,
-                           selfjoin=False).create()
+                      name="KNORA-PY CREATE",
+                      description="Test project for knora-py",
+                      project="http://rdfh.ch/projects/0001",
+                      status=True,
+                      selfjoin=False).create()
         self.iri = group.id
 
         self.assertEqual(group.name, 'KNORA-PY CREATE')
@@ -95,7 +94,7 @@ class TestGroup(unittest.TestCase):
                       status=True,
                       selfjoin=False).create()
         self.iri = group.id
-        group.name="KNORA-PY UPDATE - modified"
+        group.name = "KNORA-PY UPDATE - modified"
         group.description = "gaga gaga gaga gaga gaga gaga gaga"
         group.selfjoin = True
         group.status = False
@@ -116,11 +115,11 @@ class TestGroup(unittest.TestCase):
         con.login('root@example.com', 'test')
 
         group = Group(con=con,
-                           name="KNORA-PY DELETE",
-                           description="Test project for knora-py",
-                           project="http://rdfh.ch/projects/0001",
-                           status=True,
-                           selfjoin=False).create()
+                      name="KNORA-PY DELETE",
+                      description="Test project for knora-py",
+                      project="http://rdfh.ch/projects/0001",
+                      status=True,
+                      selfjoin=False).create()
         self.iri = group.id
         ngroup = group.delete()
         self.assertEqual(ngroup.name, 'KNORA-PY DELETE')

@@ -1,21 +1,23 @@
 import json
-from pystrict import strict
-from typing import List, Set, Dict, Tuple, Optional, Any, Union, NewType
+from pprint import pprint
+from typing import List, Optional, Any, Union
 from urllib.parse import quote_plus
 
+from pystrict import strict
+
+from .connection import Connection
 from .helpers import Actions, BaseError
 from .langstring import Languages, LangStringParam, LangString
-from .connection import Connection
 from .model import Model
 from .project import Project
 
-from pprint import pprint
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, set):
             return list(obj)
         return json.JSONEncoder.default(self, obj)
+
 
 """
 This module implements the handling (CRUD) of Knora ListNodes and adds some function to read whole lists.
@@ -42,6 +44,7 @@ DELETE
 
 In addition there is a static methods ``getAllProjects`` which returns a list of all projects
 """
+
 
 def list_creator(con: Connection, project: Project, parent_node: 'ListNode', nodes: List[dict]):
     nodelist: List['ListNode'] = []
@@ -257,7 +260,7 @@ class ListNode(Model):
         return self._comments
 
     @comments.setter
-    def comments(self,  value: Optional[Union[LangString, str]]) -> None:
+    def comments(self, value: Optional[Union[LangString, str]]) -> None:
         self._comments = LangString(value)
         self._changed.add('comments')
 
@@ -452,8 +455,9 @@ class ListNode(Model):
         #
         if tmp.get('labels'):
             print(tmp['labels'])
-            tmp['labels'] = [{'language': ele['language'], 'value': ele['value'].replace('"', "'")} for ele in tmp['labels']]
-            #tmp['labels'] = {k: v.replace('"', "'") for k, v in tmp['labels'].items()}
+            tmp['labels'] = [{'language': ele['language'], 'value': ele['value'].replace('"', "'")} for ele in
+                             tmp['labels']]
+            # tmp['labels'] = {k: v.replace('"', "'") for k, v in tmp['labels'].items()}
         # End of FIX
         return tmp
 
@@ -513,7 +517,7 @@ class ListNode(Model):
         raise BaseError("NOT YET IMPLEMENTED BY KNORA BACKEND!")
         result = self._con.delete('/admin/lists/' + quote_plus(self._id))
         return result
-        #return Project.fromJsonObj(self.con, result['project'])
+        # return Project.fromJsonObj(self.con, result['project'])
 
     def getAllNodes(self) -> 'ListNode':
         """

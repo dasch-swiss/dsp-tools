@@ -1,18 +1,13 @@
-import json
 import re
+from typing import List, Dict, Optional, Any, Union
 
 from pystrict import strict
-from typing import List, Set, Dict, Tuple, Optional, Any, Union, Type
-from rfc3987 import parse
-from pprint import pprint
 
 from .group import Group
-from .helpers import IriTest, Actions, BaseError, Cardinality
+from .helpers import IriTest, Actions, BaseError
 from .langstring import LangString
-from .connection import Connection
-from .permission import PermissionValue, PermissionsIterator, Permissions
-
 from .listnode import ListNode
+from .permission import PermissionValue, Permissions
 
 
 @strict
@@ -73,7 +68,6 @@ class Value:
             tmpstr += ", comment: " + self._comment
         tmpstr += ")"
         return tmpstr
-
 
     @property
     def iri(self) -> str:
@@ -501,6 +495,7 @@ class GeomValue(Value):
     def __str__(self) -> str:
         return self._value + ' ' + super().__str__()
 
+
 @strict
 class GeonameValue(Value):
     _value: str
@@ -592,6 +587,7 @@ class IntValue(Value):
 
     def __str__(self) -> str:
         return str(self._value) + ' ' + super().__str__()
+
 
 @strict
 class BooleanValue(Value):

@@ -171,7 +171,8 @@ def create_ontology(input_file: str,
                         # we have 'proj_shortname:groupname
                         if not all_groups:
                             all_groups = Group.getAllGroups(con)
-                        tmp_group = list(filter(lambda g: g.project.shortname == tmp[0] and g.name == tmp[1], all_groups))
+                        tmp_group = list(
+                            filter(lambda g: g.project.shortname == tmp[0] and g.name == tmp[1], all_groups))
                         assert len(tmp_group) == 1
                         group = tmp_group[0]
                     else:
@@ -411,9 +412,9 @@ def create_ontology(input_file: str,
                     propid = "knora-api:" + cardinfo["propname"]
                 gui_order = cardinfo.get('gui_order')
                 last_modification_date = rc.addProperty(
-                        property_id=propid,
-                        cardinality=cardinality,
-                        gui_order=gui_order,
-                        last_modification_date=last_modification_date)
+                    property_id=propid,
+                    cardinality=cardinality,
+                    gui_order=gui_order,
+                    last_modification_date=last_modification_date)
                 newontology.lastModificationDate = last_modification_date
     return True

@@ -4,7 +4,7 @@
     "minimal": "http://0.0.0.0:3333/ontology/0001/minimal/v2",
     "something": "http://0.0.0.0:3333/ontology/0001/something/v2"
   },
-  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/utils/knora-schema.json",
+  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/ontology.json",
   "project": {
     "shortcode": "0001",
     "shortname": "anything",

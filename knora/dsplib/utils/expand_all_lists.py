@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from dsplib.utils.excel_to_json_lists import make_json_list_from_excel, prepare_list_creation
+from knora.dsplib.utils.excel_to_json_lists import make_json_list_from_excel, prepare_list_creation
 
 
 def expand_lists_from_excel(data_model: Dict) -> List[str]:

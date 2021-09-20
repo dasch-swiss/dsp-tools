@@ -1,7 +1,7 @@
 import unittest
 
 from dsplib.models.connection import Connection
-from dsplib.models.langstring import Languages, LangStringParam, LangString
+from dsplib.models.langstring import Languages, LangString
 from dsplib.models.project import Project
 
 
@@ -133,6 +133,7 @@ class TestProject(unittest.TestCase):
         self.assertEqual(nproject.selfjoin, False)
         self.assertEqual(nproject.status, False)
         self.assertEqual(nproject.keywords, {'test', 'testing', 'gaga'})
+
 
 if __name__ == '__main__':
     unittest.main()

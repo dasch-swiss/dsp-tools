@@ -1,14 +1,18 @@
-from dataclasses import dataclass
-from typing import NewType, List, Set, Dict, Tuple, Optional, Any, Union, Pattern
-from enum import Enum, unique
-from traceback import format_exc
-from pystrict import strict
 import re
 import sys
+from dataclasses import dataclass
+from enum import Enum, unique
+from traceback import format_exc
+from typing import NewType, List, Dict, Optional, Any, Union, Pattern
+
+from pystrict import strict
+
 
 #
 # here we do some data typing that should help
 #
+
+
 @dataclass
 class OntoInfo:
     """
@@ -77,6 +81,7 @@ class Cardinality(Enum):
     C_0_1 = "0-1"
     C_1_n = "1-n"
     C_0_n = "0-n"
+
 
 @strict
 class ContextIterator:
@@ -156,7 +161,9 @@ class Context:
         self._exp = re.compile("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?")
 
         if context:
-            cleaned_input: Dict[str, str] = {prefix: onto for (prefix, onto) in context.items() if self.base_ontologies.get(prefix) is None and self.knora_ontologies.get(prefix) is None}
+            cleaned_input: Dict[str, str] = {prefix: onto for (prefix, onto) in context.items()
+                                             if self.base_ontologies.get(prefix) is None and self.knora_ontologies.get(
+                    prefix) is None}
             self._context = {}
             for prefix, onto in cleaned_input.items():
                 self._context[prefix] = OntoInfo(onto[:-1], True) if onto.endswith('#') else OntoInfo(onto, False)
@@ -259,7 +266,6 @@ class Context:
                 self._context[prefix] = OntoInfo(iri, False)
         self._rcontext[iri] = prefix
 
-
     def iri_from_prefix(self, prefix: str) -> Optional[str]:
         """
         Returns the full IRI belonging to this prefix, without trailing "#"!
@@ -267,7 +273,7 @@ class Context:
         :param prefix: Prefix of the context entry
         :return: The full IRI without trailing "#"
         """
-        #if self.__is_iri(prefix):
+        # if self.__is_iri(prefix):
         if IriTest.test(prefix):
             return prefix
         if self._context.get(prefix) is not None:
@@ -285,7 +291,7 @@ class Context:
         :param iri: The full IRI with or without trailing "#", or
         :return: the prefix of this context element, or None, if not found
         """
-        #if not self.__is_iri(iri):
+        # if not self.__is_iri(iri):
         if not IriTest.test(iri):
             raise BaseError("String does not conform to IRI patter: " + iri)
         if iri.endswith("#"):
@@ -319,7 +325,7 @@ class Context:
         """
         if val is None:
             return None
-        #if self.__is_iri(val):
+        # if self.__is_iri(val):
         if IriTest.test(val):
             return val
         tmp = val.split(':')
@@ -356,7 +362,7 @@ class Context:
         m = re.match("([\\w-]+):([\\w-]+)", iri)
         if m and m.span()[1] == len(iri):
             return iri
-        #if not self.__is_iri(iri):
+        # if not self.__is_iri(iri):
         if not IriTest.test(iri):
             raise BaseError("String does not conform to IRI patter: " + iri)
 
@@ -377,7 +383,8 @@ class Context:
                 self._rcontext[entry[1].iri] = entry[0]
                 prefix = entry[0]
             else:
-                raise BaseError("Ontology {} not known! Cannot generate full qualified IRI: prefix={}".format(iri, prefix))
+                raise BaseError(
+                    "Ontology {} not known! Cannot generate full qualified IRI: prefix={}".format(iri, prefix))
         return prefix + ':' + element
 
     def reduce_iri(self, iristr: str, ontoname: Optional[str] = None) -> str:
@@ -428,7 +435,7 @@ class LastModificationDate:
     """
     Class to hold and process the last modification date of a ontology
     """
-    _last_modification_date: str;
+    _last_modification_date: str
 
     def __init__(self, val: Any):
         """
@@ -439,7 +446,7 @@ class LastModificationDate:
         :param val: datetimestamp as string, instance of "LastModificationDate" or json-ld construct
         """
         if isinstance(val, str):
-            self._last_modification_date = val;
+            self._last_modification_date = val
         elif isinstance(val, LastModificationDate):
             self._last_modification_date = str(val)
         else:
@@ -501,5 +508,3 @@ class WithId:
 
     def str(self) -> Optional[str]:
         return self._tmp
-
-

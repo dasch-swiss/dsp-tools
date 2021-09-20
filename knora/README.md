@@ -1,7 +1,7 @@
 # Knora Library
 
-This library offers classes and methods to manipulate a Knora based repository (DSP). Most importantly, it allows importing data
-by providing methods to create new ontologies and resources.
+This library offers classes and methods to manipulate a Knora based repository (DSP). Most importantly, it allows
+importing data by providing methods to create new ontologies and resources.
 
 ## Contents
 
@@ -50,8 +50,8 @@ by providing methods to create new ontologies and resources.
 
 ## Knora
 
-Knora is the base class which handles all the communication with the DSP API. In order to successfully use the API, credentials to
-the DSP API have to be submitted.
+Knora is the base class which handles all the communication with the DSP API. In order to successfully use the API,
+credentials to the DSP API have to be submitted.
 
 ### Basic methods
 
@@ -117,7 +117,8 @@ Returns a list of all projects. By default, only the project's IRI are returned.
 get_existing_projects(full: bool = False)
 ``` 
 
-- full: if False (default), only the project's IRI are returned, if True, more information about the projects are returned
+- full: if False (default), only the project's IRI are returned, if True, more information about the projects are
+  returned
 
 #### get_project()
 
@@ -235,12 +236,12 @@ add_user_to_project(
 
 Since several instances could modify an ontology at the same time, a simple mechanism has been implemented to avoid race
 conditions:
-A modification of an ontology requires the timestamp of its last modification. If the ontology has been modified before an update
-is submitted, the submitted modification timestamp will not fit and the modification is rejected. Every manipulation of an
-ontology returns its new last modification timestamp.
+A modification of an ontology requires the timestamp of its last modification. If the ontology has been modified before
+an update is submitted, the submitted modification timestamp will not fit and the modification is rejected. Every
+manipulation of an ontology returns its new last modification timestamp.
 
-Many ontology methods need the ontology IRI *and* the ontology name. The reason for this is better performance. With the IRI and
-the name, round trips to the DSP backend are avoided.
+Many ontology methods need the ontology IRI *and* the ontology name. The reason for this is better performance. With the
+IRI and the name, round trips to the DSP backend are avoided.
 
 #### get_existing_ontologies()
 
@@ -307,7 +308,8 @@ delete_ontology(
 ```
 
 - onto_iri: IRI of the ontology
-- last_onto_date: Timestamp of the last modification of the ontology. It cannot be deleted if the given timestamp doesn't fit.
+- last_onto_date: Timestamp of the last modification of the ontology. It cannot be deleted if the given timestamp
+  doesn't fit.
 
 #### get_ontology_graph()
 
@@ -342,8 +344,8 @@ create_res_class(
 - onto_name: Name of the ontology
 - last_onto_date: Timestamp of the ontology's last modification
 - class_name: Name of the new class
-- super_class: A list of super classes this class is derived from. Usually, this is just "Resource" for "knora-api:Resource" or
-  another resource class including the prefix.
+- super_class: A list of super classes this class is derived from. Usually, this is just "Resource" for "knora-api:
+  Resource" or another resource class including the prefix.
 - labels: Dict with the language specific labels, e.g. `{"en": "English label", "de": "German label"}`
 - comments: [optional] Dict with language specific comments about the resource class
 
@@ -371,9 +373,10 @@ create_property(
 - onto_name: Name of the ontology
 - last_onto_date: Timestamp of the ontology's last modification
 - prop_name: Name of the property to be created
-- super_props: List of super-properties, must be at least `[knora-api:hasValue]`. But it is possible to declare a property to be a
-  descendant from another property from another ontology or from an external ontology (e.g. `foaf:familyName`). Please note that
-  all used prefixes have to be declared at the construction of the Knora instance.
+- super_props: List of super-properties, must be at least `[knora-api:hasValue]`. But it is possible to declare a
+  property to be a descendant from another property from another ontology or from an external ontology (
+  e.g. `foaf:familyName`). Please note that all used prefixes have to be declared at the construction of the Knora
+  instance.
 - labels: Dict with the language specific labels, e.g. `{"en": "English label", "de": "German label"}`
 - gui_element: GUI element that should be used. Supported GUI elements are:
     - salsah-gui:Colorpicker (attributes: ncolors='integer')
@@ -393,15 +396,16 @@ create_property(
     - salsah-gui:Checkbox
     - salsah-gui:Fileupload
 - gui_attributes: List of Gui attributes
-- subject: [optional] The resource the property belongs to. If a resource is used by several resources, this field can be left
-  empty.
+- subject: [optional] The resource the property belongs to. If a resource is used by several resources, this field can
+  be left empty.
 - object: The value type the property points to. The following object types are supported by DSP:
     - salsah-gui:TextValue (gui_element: salsah-gui:SimpleText, salsah-gui:TextArea) A simple text value
     - salsah-gui:ColorValue (gui_element: salsah-gui:Colorpicker) A web color
     - salsah-gui:DateValue (gui_elment: Date) A Knora calendar date
     - salsah_gui:DecimalValue (gui_element: salsah-gui:SimpleText) A Decimal value
     - salsah_gui:GeomValue (gui_element: salsah-gui:Geometry) A geometry object (region in an image)
-    - salsah_gui:GeonameValue (gui_element: salsah-gui:Geonames) A geographical location identified by a geonames.org code
+    - salsah_gui:GeonameValue (gui_element: salsah-gui:Geonames) A geographical location identified by a geonames.org
+      code
     - salsah_gui:IntValue (gui_element: salsah-gui:SimpleText, salsah-gui:Slider, salsah-gui:Spinbox) An integer value
     - salsah_gui:BooleanValue (gui_element: salsah-gui:Checkbox) A boolean value
     - salsah_gui:UriValue (gui_element: salsah-gui:SimpleText) A URI
@@ -433,9 +437,10 @@ create_cardinality(
 
 ### Lists
 
-Lists (flat or hierarchical) are ordered named nodes that can be used as controlled vocabularies, selections or hierarchical
-thesauri. A list has a root node where the list's name is defined. Subnodes represent the list elements. In case of hierarchical
-lists, a subnode may hold further subnodes (recursively). Lists are always associated with a project.
+Lists (flat or hierarchical) are ordered named nodes that can be used as controlled vocabularies, selections or
+hierarchical thesauri. A list has a root node where the list's name is defined. Subnodes represent the list elements. In
+case of hierarchical lists, a subnode may hold further subnodes (recursively). Lists are always associated with a
+project.
 
 #### create_list_node()
 
@@ -454,8 +459,8 @@ create_list_node(
 - project_iri: The IRI of the project the list is associated with
 - labels: Language dependent labels, e.g. `{"en": "yes", "de": "nein"}`
 - comments: Language dependent comments to the node
-- parent_iri: If `None`, it is a root node, otherwise the IRI of the parent node has to be provided (this could also be the root
-  node)
+- parent_iri: If `None`, it is a root node, otherwise the IRI of the parent node has to be provided (this could also be
+  the root node)
 
 #### get_lists()
 
@@ -500,12 +505,13 @@ create_resource(
 ```
 
 - schema: The schema is a Dict that contains information about the ontology. It will be created by calling the method
-  `create_schema()`, e.g. `schema = con.create_schema(args.projectcode, args.ontoname)`. It is used to validate the data supplied
-  to `create_resource()` for consistency with the ontology.
+  `create_schema()`, e.g. `schema = con.create_schema(args.projectcode, args.ontoname)`. It is used to validate the data
+  supplied to `create_resource()` for consistency with the ontology.
 - res_class: IRI of the resource class that should be instantiated
 - label: A string describing the instance
 - values: A Dict describing all the values. See [example of values parameter](#values-parameter).
-- stillimage: In case the resource is a descendant of `StillImageRepresentation`, this parameter contains the file path. See
+- stillimage: In case the resource is a descendant of `StillImageRepresentation`, this parameter contains the file path.
+  See
   [example of still image parameter](#still-image-parameter).
 
 ##### Values parameter
@@ -520,8 +526,8 @@ The values are a Dict in the form:
 }
 ```
 
-If the property belongs to the same ontology as the resource, the prefix should be omitted. The value can either be a string or a
-Dict of the following form:
+If the property belongs to the same ontology as the resource, the prefix should be omitted. The value can either be a
+string or a Dict of the following form:
 
 ```python
 {
@@ -530,8 +536,8 @@ Dict of the following form:
 }
 ```
 
-_Note_: If the value is text with markup (only standard mapping allowed), the value must be an instance of `KnoraStandoffXml`,
-e.g.:
+_Note_: If the value is text with markup (only standard mapping allowed), the value must be an instance
+of `KnoraStandoffXml`, e.g.:
 
 ```python
    ...
@@ -565,8 +571,8 @@ an_image = con.create_resource(schema,
 
 #### create_schema()
 
-Gets the ontology information from DSP API and converts it into a python Dict that can be used for further processing. It is used
-by the bulk import and the `create_resource()` method.
+Gets the ontology information from DSP API and converts it into a python Dict that can be used for further processing.
+It is used by the bulk import and the `create_resource()` method.
 
 ```python
 create_schema(

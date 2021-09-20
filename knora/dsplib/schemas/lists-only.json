@@ -1,74 +1,74 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://dasch.swiss/schema/knora-schema-list-only.json",
-  "title": "JSON schema for DSP lists",
-  "description": "JSON schema for the lists section used in DSP ontologies",
-  "definitions": {
-    "label": {
-      "type": "object",
-      "patternProperties": {
-        "^(en|de|fr|it)": {
-          "type": "string"
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://dasch.swiss/schema/list-only.json",
+    "title": "JSON schema for DSP lists",
+    "description": "JSON schema for the lists section used in DSP ontologies",
+    "definitions": {
+        "label": {
+            "type": "object",
+            "patternProperties": {
+                "^(en|de|fr|it)": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "comment": {
+            "type": "object",
+            "patternProperties": {
+                "^(en|de|fr|it)": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "node": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "labels": {
+                    "$ref": "#/definitions/label"
+                },
+                "comments": {
+                    "$ref": "#/definitions/comment"
+                },
+                "nodes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/node"
+                    }
+                }
+            },
+            "required": [
+                "name",
+                "labels"
+            ],
+            "additionalProperties": false
         }
-      },
-      "additionalProperties": false
     },
-    "comment": {
-      "type": "object",
-      "patternProperties": {
-        "^(en|de|fr|it)": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false
-    },
-    "node": {
-      "type": "object",
-      "properties": {
+    "type": "object",
+    "properties": {
         "name": {
-          "type": "string"
+            "type": "string"
         },
         "labels": {
-          "$ref": "#/definitions/label"
+            "$ref": "#/definitions/label"
         },
         "comments": {
-          "$ref": "#/definitions/comment"
+            "$ref": "#/definitions/comment"
         },
         "nodes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/node"
-          }
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/node"
+            }
         }
-      },
-      "required": [
+    },
+    "required": [
         "name",
-        "labels"
-      ],
-      "additionalProperties": false
-    }
-  },
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": "string"
-    },
-    "labels": {
-      "$ref": "#/definitions/label"
-    },
-    "comments": {
-      "$ref": "#/definitions/comment"
-    },
-    "nodes": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/node"
-      }
-    }
-  },
-  "required": [
-    "name",
-    "nodes"
-  ],
-  "additionalProperties": false
+        "nodes"
+    ],
+    "additionalProperties": false
 }

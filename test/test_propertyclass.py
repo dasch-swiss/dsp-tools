@@ -1,9 +1,8 @@
 import unittest
-import pprint
 
 from dsplib.models.connection import Connection
-from dsplib.models.helpers import BaseError, Actions, LastModificationDate
-from dsplib.models.langstring import Languages, LangStringParam, LangString
+from dsplib.models.helpers import LastModificationDate
+from dsplib.models.langstring import Languages, LangString
 from dsplib.models.ontology import Ontology
 from dsplib.models.propertyclass import PropertyClass
 
@@ -21,7 +20,6 @@ class TestPropertyClass(unittest.TestCase):
     object = 'TextValue'
     label = LangString({Languages.DE: 'MyPropClassLabel'})
     comment = LangString({Languages.DE: 'This is a property class for testing'})
-
 
     def setUp(self) -> None:
         #
@@ -51,7 +49,6 @@ class TestPropertyClass(unittest.TestCase):
         #
         result = self.onto.delete()
         self.assertIsNotNone(result)
-
 
     def test_PropertyClass_create(self):
         #

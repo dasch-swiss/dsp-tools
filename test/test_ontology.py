@@ -1,7 +1,7 @@
 import unittest
 
 from dsplib.models.connection import Connection
-from dsplib.models.helpers import BaseError, Actions, LastModificationDate
+from dsplib.models.helpers import LastModificationDate
 from dsplib.models.ontology import Ontology
 
 

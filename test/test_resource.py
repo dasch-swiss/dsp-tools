@@ -1,13 +1,11 @@
 import unittest
 
 from dsplib.models.connection import Connection
+from dsplib.models.permission import PermissionValue, Permissions
 from dsplib.models.resource import ResourceInstanceFactory
-from dsplib.models.value import BooleanValue, ColorValue, DateValue, DecimalValue, IntValue, IntervalValue, TextValue, \
-    UriValue, KnoraStandoffXml, make_value
-from dsplib.models.permission import PermissionValue, Permissions, PermissionsIterator
 from dsplib.models.sipi import Sipi
+from dsplib.models.value import KnoraStandoffXml, make_value
 
-from pprint import pprint
 
 class TestResource(unittest.TestCase):
 
@@ -48,7 +46,6 @@ class TestResource(unittest.TestCase):
                                      'anything:hasUri': 'http://gaga.com:65500/gugus'
                                  }).create()
 
-
         new_blue_thing = a_blue_thing.read()
         self.assertEqual(a_blue_thing.label, "BlueThing")
         self.assertEqual(a_blue_thing.value("anything:hasColor"), ['#ff0033', '#0077FF'])
@@ -62,7 +59,7 @@ class TestResource(unittest.TestCase):
         img = sipi.upload_bitstream('testdata/bitstreams/TEMP11.TIF')
         fileref = img['uploadedFiles'][0]['internalFilename']
         resperm = Permissions({PermissionValue.M: ["knora-admin:UnknownUser", "knora-admin:KnownUser"],
-                       PermissionValue.CR: ["knora-admin:Creator", "knora-admin:ProjectAdmin"]})
+                               PermissionValue.CR: ["knora-admin:Creator", "knora-admin:ProjectAdmin"]})
         a_thing_picture = ThingPicture(
             con=con,
             label='ThingPicture',

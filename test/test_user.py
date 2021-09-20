@@ -1,7 +1,7 @@
 import unittest
 
 from dsplib.models.connection import Connection
-from dsplib.models.langstring import Languages, LangStringParam, LangString
+from dsplib.models.langstring import Languages
 from dsplib.models.user import User
 
 
@@ -167,12 +167,14 @@ class TestUser(unittest.TestCase):
         self.assertIsNotNone(nuser)
 
     def test_User_addToGroup(self):
-        return #  TODO: Check why this test failes with error: Message:{"error":"org.knora.webapi.UpdateNotPerformedException: User's 'group' memberships where not updated. Please report this as a possible bug."}
+        # TODO: Check why this test failes with error: Message:{"error":"org.knora.webapi.UpdateNotPerformedException: User's 'group' memberships where not updated. Please report this as a possible bug."}
+        return
         user = self.createTestUser()
         user.addToGroup('http://rdfh.ch/groups/0001/thing-searcher')
         nuser = user.update()
         self.assertIsNotNone(nuser)
-        self.assertEqual(nuser.in_groups, {"http://rdfh.ch/groups/0001/thing-searcher", 'http://rdfh.ch/groups/0001/thing-searcher'})
+        self.assertEqual(nuser.in_groups,
+                         {"http://rdfh.ch/groups/0001/thing-searcher", 'http://rdfh.ch/groups/0001/thing-searcher'})
 
     def test_User_rmFromGroup(self):
         user = User(
@@ -209,7 +211,8 @@ class TestUser(unittest.TestCase):
         user.addToProject('http://rdfh.ch/projects/00FF', False)
         nuser = user.update()
         self.assertIsNotNone(nuser)
-        self.assertEqual(nuser.in_projects, {"http://rdfh.ch/projects/0001": True, 'http://rdfh.ch/projects/00FF': False})
+        self.assertEqual(nuser.in_projects,
+                         {"http://rdfh.ch/projects/0001": True, 'http://rdfh.ch/projects/00FF': False})
 
     def test_User_rmFromProject(self):
         user = User(
@@ -277,6 +280,7 @@ class TestUser(unittest.TestCase):
         all_users = User.getAllUsers(con)
         for u in all_users:
             self.assertIsNotNone(u.id)
+
 
 if __name__ == '__main__':
     unittest.main()

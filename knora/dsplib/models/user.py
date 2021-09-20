@@ -1,9 +1,17 @@
+import json
 import os
 import sys
-import json
-from pystrict import strict
-from typing import List, Set, Dict, Tuple, Optional, Any, Union, NewType
+from typing import List, Set, Dict, Optional, Any, Union
 from urllib.parse import quote_plus
+
+from pystrict import strict
+
+from .connection import Connection
+from .group import Group
+from .helpers import Actions, BaseError
+from .langstring import Languages
+from .model import Model
+from .project import Project
 
 path = os.path.abspath(os.path.dirname(__file__))
 (head, tail) = os.path.split(path)
@@ -11,13 +19,6 @@ if not head in sys.path:
     sys.path.insert(0, head)
 if not path in sys.path:
     sys.path.insert(0, path)
-
-from .helpers import Actions, BaseError
-from .langstring import Languages
-from .connection import Connection
-from .model import Model
-from .group import Group
-from .project import Project
 
 """
 This module implements the handling (CRUD) of Knora users.
@@ -42,6 +43,7 @@ DELETE
 
 In addition there is a static methods ``getAllProjects`` which returns a list of all projects
 """
+
 
 @strict
 class User(Model):
@@ -147,14 +149,14 @@ class User(Model):
     _change_admin: Set[str]
 
     def __init__(self,
-                 con:  Connection,
+                 con: Connection,
                  id: Optional[str] = None,
                  username: Optional[str] = None,
                  email: Optional[str] = None,
                  givenName: Optional[str] = None,
                  familyName: Optional[str] = None,
                  password: Optional[str] = None,
-                 lang: Optional[Union[str,Languages]] = None,
+                 lang: Optional[Union[str, Languages]] = None,
                  status: Optional[bool] = None,
                  sysadmin: Optional[bool] = None,
                  in_projects: Optional[Dict[str, bool]] = None,
@@ -190,8 +192,8 @@ class User(Model):
             else:
                 lmap = dict(map(lambda a: (a.value, a), Languages))
                 if lmap.get(lang) is None:
-                    raise BaseError('Invalid language string "' + lang  + '"!')
-                self._lang =  lmap[lang]
+                    raise BaseError('Invalid language string "' + lang + '"!')
+                self._lang = lmap[lang]
         else:
             self._lang = None
         self._status = None if status is None else bool(status)
@@ -223,7 +225,7 @@ class User(Model):
 
     @property
     def username(self) -> Optional[str]:
-        return  self._username
+        return self._username
 
     @username.setter
     def username(self, value: Optional[str]):
@@ -360,7 +362,8 @@ class User(Model):
 
     @in_projects.setter
     def in_project(self, value: Any):
-        raise BaseError('Project membership cannot be modified directly! Use methods "addToProject" and "rmFromProject"')
+        raise BaseError(
+            'Project membership cannot be modified directly! Use methods "addToProject" and "rmFromProject"')
 
     def addToProject(self, value: str, padmin: bool = False):
         """
@@ -557,12 +560,15 @@ class User(Model):
         id = result['user']['id']
         if self._in_projects is not None:
             for project in self._in_projects:
-                result = self._con.post('/admin/users/iri/' + quote_plus(id) + '/project-memberships/' + quote_plus(project))
+                result = self._con.post(
+                    '/admin/users/iri/' + quote_plus(id) + '/project-memberships/' + quote_plus(project))
                 if self._in_projects[project]:
-                    result = self._con.post('/admin/users/iri/' + quote_plus(id) + '/project-admin-memberships/' + quote_plus(project))
+                    result = self._con.post(
+                        '/admin/users/iri/' + quote_plus(id) + '/project-admin-memberships/' + quote_plus(project))
         if self._in_groups is not None:
             for group in self._in_groups:
-                result = self._con.post('/admin/users/iri/' + quote_plus(id) + '/group-memberships/' + quote_plus(group))
+                result = self._con.post(
+                    '/admin/users/iri/' + quote_plus(id) + '/group-memberships/' + quote_plus(group))
         return User.fromJsonObj(self._con, result['user'])
 
     def read(self) -> Any:
@@ -611,28 +617,35 @@ class User(Model):
             jsondata = json.dumps(jsonobj)
             result = self._con.put('/admin/users/iri/' + quote_plus(self.id) + '/SystemAdmin', jsondata)
         for p in self._add_to_project.items():
-            result = self._con.post('/admin/users/iri/' + quote_plus(self._id) + '/project-memberships/' + quote_plus(p[0]))
+            result = self._con.post(
+                '/admin/users/iri/' + quote_plus(self._id) + '/project-memberships/' + quote_plus(p[0]))
             if p[1]:
-                result = self._con.post('/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
+                result = self._con.post(
+                    '/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
 
         for p in self._rm_from_project:
             if self._in_projects.get(p) is not None and self._in_projects[p]:
-                result = self._con.delete('/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p))
-            result = self._con.delete('/admin/users/iri/' + quote_plus(self._id) + '/project-memberships/' + quote_plus(p))
+                result = self._con.delete(
+                    '/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p))
+            result = self._con.delete(
+                '/admin/users/iri/' + quote_plus(self._id) + '/project-memberships/' + quote_plus(p))
 
         for p in self._change_admin.items():
             if not p[0] in self._in_projects:
                 raise BaseError('user must be member of project!')
             if p[1]:
-                result = self._con.post('/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
+                result = self._con.post(
+                    '/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
             else:
-                result = self._con.delete('/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
+                result = self._con.delete(
+                    '/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
 
         for p in self._add_to_group:
             print('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
             result = self._con.post('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
         for p in self._rm_from_group:
-            result = self._con.delete('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
+            result = self._con.delete(
+                '/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
         user = User(con=self._con, id=self._id).read()
         return user
 
@@ -683,7 +696,6 @@ class User(Model):
                 print('    {}'.format(g))
 
 
-
 if __name__ == '__main__':
     con = Connection('http://0.0.0.0:3333')
     con.login('root@example.com', 'test')
@@ -705,7 +717,7 @@ if __name__ == '__main__':
         status=True,
         lang=Languages.DE,
         sysadmin=True,
-        in_projects= {
+        in_projects={
             "http://rdfh.ch/projects/0001": True,
             "http://rdfh.ch/projects/yTerZGyxjZVqFMNNKXCDPF": False
         },
@@ -718,7 +730,7 @@ if __name__ == '__main__':
     new_user.print()
 
     new_user.status = True
-    #new_user.givenName = '--Lukas--'
+    # new_user.givenName = '--Lukas--'
     new_user.familyName = '--Rosenthaler--'
     new_user.password = 'gaga'
     new_user = new_user.update("test")

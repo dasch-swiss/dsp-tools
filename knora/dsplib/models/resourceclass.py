@@ -1,16 +1,16 @@
 import json
 import re
-from pystrict import strict
-from typing import List, Set, Dict, Tuple, Optional, Any, Union
 from enum import Enum
+from typing import List, Dict, Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
 
-from pprint import pprint
+from pystrict import strict
 
-from .helpers import Actions, BaseError, Context, Cardinality, LastModificationDate
 from .connection import Connection
-from .model import Model
+from .helpers import Actions, BaseError, Context, Cardinality, LastModificationDate
 from .langstring import Languages, LangString
+from .model import Model
+
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -18,12 +18,15 @@ class SetEncoder(json.JSONEncoder):
             return list(obj)
         return json.JSONEncoder.default(self, obj)
 
+
 """
 This model implements the handling of resource classes. It contains two classes that work closely together:
     * "HasProperty" deals with the association of Property-instances with the Resource-instances. This association
       is done using the "cardinality"-clause
     * "ResourceClass" is the main class representing a knora resource class.
 """
+
+
 @strict
 class HasProperty(Model):
     class Ptype(Enum):
@@ -508,7 +511,6 @@ class ResourceClass(Model):
                 raise BaseError('Not a valid LangString')
         self._changed.add('label')
 
-
     def addLabel(self, lang: Union[Languages, str], value: str) -> None:
         self._label[lang] = value
         self._changed.add('label')
@@ -595,8 +597,8 @@ class ResourceClass(Model):
         property_id = self._context.get_prefixed_iri(property_id)
         if self._has_properties.get(property_id) is not None:
             has_properties = self._has_properties[property_id]
-            #onto_id = has_properties.ontology_id  # save for later user
-            #rescl_id = has_properties.resclass_id  # save for later user
+            # onto_id = has_properties.ontology_id  # save for later user
+            # rescl_id = has_properties.resclass_id  # save for later user
             has_properties.ontology_id = self._ontology_id
             has_properties.resclass_id = self._id
             if cardinality:
@@ -678,7 +680,8 @@ class ResourceClass(Model):
                     self._context.add_context(tmp[0])
                     return {"@id": resref}  # fully qualified name in the form "prefix:name"
                 else:
-                    return {"@id": self._context.prefix_from_iri(self._ontology_id) + ':' + tmp[1]}  # ":name" in current ontology
+                    return {"@id": self._context.prefix_from_iri(self._ontology_id) + ':' + tmp[
+                        1]}  # ":name" in current ontology
             else:
                 return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
 
@@ -766,7 +769,8 @@ class ResourceClass(Model):
             return last_modification_date, self
 
     def delete(self, last_modification_date: LastModificationDate) -> LastModificationDate:
-        result = self._con.delete('v2/ontologies/classes/' + quote_plus(self._id) + '?lastModificationDate=' + str(last_modification_date))
+        result = self._con.delete(
+            'v2/ontologies/classes/' + quote_plus(self._id) + '?lastModificationDate=' + str(last_modification_date))
         return LastModificationDate(result['knora-api:lastModificationDate'])
 
     def createDefinitionFileObj(self, context: Context, shortname: str, skiplist: List[str]):
@@ -798,9 +802,9 @@ class ResourceClass(Model):
     def print(self, offset: int = 0):
         blank = ' '
         print(f'{blank:>{offset}}Resource Class Info')
-        print(f'{blank:>{offset+2}}Name:            {self._name}')
-        print(f'{blank:>{offset+2}}Ontology prefix: {self._ontology_id}')
-        print(f'{blank:>{offset+2}}Superclasses:')
+        print(f'{blank:>{offset + 2}}Name:            {self._name}')
+        print(f'{blank:>{offset + 2}}Ontology prefix: {self._ontology_id}')
+        print(f'{blank:>{offset + 2}}Superclasses:')
         if self._superclasses is not None:
             for sc in self._superclasses:
                 print(f'{blank:>{offset + 4}}{sc}')
@@ -815,8 +819,3 @@ class ResourceClass(Model):
             if self._has_properties is not None:
                 for pid, hp in self._has_properties.items():
                     hp.print(offset + 4)
-
-
-
-
-

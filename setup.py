@@ -33,9 +33,9 @@ setuptools.setup(
         'openpyxl'
     ],
     entry_points={
-          'console_scripts': [
-              'dsp-tools=knora.dsp_tools:main'
-          ],
+        'console_scripts': [
+            'dsp-tools=knora.dsp_tools:main'
+        ],
     },
     include_package_data=True,
     zip_safe=False,

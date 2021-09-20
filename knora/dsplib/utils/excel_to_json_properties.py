@@ -17,7 +17,7 @@ def validate_properties_with_schema(json_file: str) -> bool:
 
         """
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(current_dir, 'knora-schema-properties-only.json')) as schema:
+    with open(os.path.join(current_dir, '../schemas/properties-only.json')) as schema:
         properties_schema = json.load(schema)
 
     try:

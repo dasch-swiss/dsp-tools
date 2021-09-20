@@ -1,9 +1,11 @@
-import requests
 import json
-from pystrict import strict
-from typing import List, Set, Dict, Tuple, Optional, Any, Union
+from typing import Dict, Optional, Union
 
-from .helpers import Actions, BaseError
+import requests
+from pystrict import strict
+
+from .helpers import BaseError
+
 
 @strict
 class Connection:
@@ -89,7 +91,7 @@ class Connection:
 
     def __del__(self):
         pass
-        #self.logout()
+        # self.logout()
 
     def on_api_error(self, res) -> None:
         """
@@ -272,5 +274,3 @@ class Connection:
         res = req.json()
         #  pprint(res)
         return res
-
-

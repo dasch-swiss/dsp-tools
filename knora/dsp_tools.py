@@ -7,6 +7,7 @@ import sys
 from importlib.metadata import version
 
 from knora.dsplib.utils.excel_to_json_lists import list_excel2json, validate_list_with_schema
+from knora.dsplib.utils.excel_to_json_properties import properties_excel2json
 from knora.dsplib.utils.excel_to_json_resources import resources_excel2json
 from knora.dsplib.utils.onto_create_lists import create_lists
 from knora.dsplib.utils.onto_create_ontology import create_ontology

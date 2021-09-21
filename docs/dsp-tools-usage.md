@@ -56,7 +56,7 @@ The following options are available:
 - `-s` | `--server` _server_: URL of the DSP server (default: localhost:3333)
 - `-u` | `--user` _username_: username used for authentication with the DSP API (default: root@example.com)
 - `-p` | `--password` _password_: password used for authentication with the DSP API (default: test)
-- `-P` | `--project` _shortcode_ | _shortname_ | _iri_: shortcode, shortname or
+- `-P` | `--project` _shortcode_ | _shortname_ | _iri_: shortcode, shortname or (mandatory)
   [IRI](https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier) of the project
 - `-v` | `--verbose`: If set, some information about the progress is printed to the console.
 
@@ -66,7 +66,7 @@ model from a DSP server `https://api.dsl.server.org` provided with the `-s` opti
 the password `test` are used. The data model is saved into the output file `output_file.json`.
 
 ```bash
-dsp-tools get -s https://api.dsl.server.org -u root@example.com -p test output_file.json
+dsp-tools get -s https://api.dsl.server.org -u root@example.com -p test -P my_project output_file.json
 ```
 
 ## Upload data to a DSP server
@@ -128,11 +128,11 @@ found [here](./dsp-tools-excel.md#create-a-list-from-one-or-several-excel-files)
 dsp-tools excel2resources excel_file.xlsx output_file.json
 ```
 
-The command is used to create the resources section of an ontology from an Excel file. Therefore, an Excel file has to be provided
-with the data in the first worksheet of the Excel file.
+The command is used to create the resources section of an ontology from an Excel file. Therefore, an Excel file has to
+be provided with the data in the first worksheet of the Excel file.
 
-The following example shows how to create the resources section from an Excel file called `Resources.xlsx`. The output is written
-to a file called `resources.json`.
+The following example shows how to create the resources section from an Excel file called `Resources.xlsx`. The output
+is written to a file called `resources.json`.
 
 ```bash
 dsp-tools excel2resources Resources.xlsx resources.json
@@ -148,11 +148,11 @@ found [here](./dsp-tools-excel.md#create-the-resources-for-a-data-model-from-an-
 dsp-tools excel2properties excel_file.xlsx output_file.json
 ```
 
-The command is used to create the properties section of an ontology from an Excel file. Therefore, an Excel file has to be
-provided with the data in the first worksheet of the Excel file.
+The command is used to create the properties section of an ontology from an Excel file. Therefore, an Excel file has to
+be provided with the data in the first worksheet of the Excel file.
 
-The following example shows how to create the properties section from an Excel file called `Properties.xlsx`. The output is
-written to a file called `properties.json`.
+The following example shows how to create the properties section from an Excel file called `Properties.xlsx`. The output
+is written to a file called `properties.json`.
 
 ```bash
 dsp-tools excel2properties Properties.xlsx properties.json

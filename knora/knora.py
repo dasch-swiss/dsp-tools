@@ -1,16 +1,16 @@
-from typing import List, Set, Dict, Tuple, Optional, Any, Union
-from urllib.parse import quote_plus
-from rdflib import Graph
-from lxml import etree
-import requests
 import json
-import urllib
 import pprint
-import validators
 import re
-from rfc3987 import parse
+import urllib
 from pprint import pprint
-import sys
+from typing import List, Dict, Optional, Any, Union
+from urllib.parse import quote_plus
+
+import requests
+import validators
+from lxml import etree
+from rdflib import Graph
+from rfc3987 import parse
 
 # TODO: recheck all the documentation of this file
 """
@@ -225,13 +225,13 @@ class Knora:
         return proj_iri in projects
 
     def create_project(
-            self,
-            shortcode: str,
-            shortname: str,
-            longname: str,
-            descriptions: Optional[Dict[str, str]] = None,
-            keywords: Optional[List[str]] = None,
-            logo: Optional[str] = None) -> str:
+        self,
+        shortcode: str,
+        shortname: str,
+        longname: str,
+        descriptions: Optional[Dict[str, str]] = None,
+        keywords: Optional[List[str]] = None,
+        logo: Optional[str] = None) -> str:
         """
         Create a new project
 
@@ -273,13 +273,13 @@ class Knora:
         return res["project"]["id"]
 
     def update_project(
-            self,
-            shortcode: str,
-            shortname: Optional[str] = None,
-            longname: Optional[str] = None,
-            descriptions: Optional[Dict[str, str]] = None,
-            keywords: Optional[List[str]] = None,
-            logo: Optional[str] = None) -> str:
+        self,
+        shortcode: str,
+        shortname: Optional[str] = None,
+        longname: Optional[str] = None,
+        descriptions: Optional[Dict[str, str]] = None,
+        keywords: Optional[List[str]] = None,
+        logo: Optional[str] = None) -> str:
         """
         Update project information
 
@@ -416,7 +416,8 @@ class Knora:
 
         groupinfo = {
             "name": name,
-            "description": description if isinstance(description, str) else list(map(lambda p: {"@language": p[0], "@value": p[1]}, description.items())),
+            "description": description if isinstance(description, str) else list(
+                map(lambda p: {"@language": p[0], "@value": p[1]}, description.items())),
             "project": project_iri,
             "status": status,
             "selfjoin": selfjoin
@@ -454,7 +455,8 @@ class Knora:
             groupinfo['name'] = name
             done = True
         if description is not None:
-            groupinfo['description'] = description if isinstance(description, str) else list(map(lambda p: {"@language": p[0], "@value": p[1]}, description.items()))
+            groupinfo['description'] = description if isinstance(description, str) else list(
+                map(lambda p: {"@language": p[0], "@value": p[1]}, description.items()))
             done = True
         if selfjoin is not None:
             groupinfo['selfjoin'] = selfjoin
@@ -609,7 +611,7 @@ class Knora:
     def update_user(self,
                     user_iri: str,
                     username: Optional[str] = None,
-                    email:  Optional[str] = None,
+                    email: Optional[str] = None,
                     given_name: Optional[str] = None,
                     family_name: Optional[str] = None,
                     password: Optional[str] = None,
@@ -662,8 +664,8 @@ class Knora:
         :param project_iri: IRI of the project
         :return: None
         """
-        url = self.server + '/admin/users/iri/' + quote_plus(user_iri) + '/project-memberships/'\
-            + quote_plus(project_iri)
+        url = self.server + '/admin/users/iri/' + quote_plus(user_iri) + '/project-memberships/' \
+              + quote_plus(project_iri)
         req = requests.post(url, headers={'Authorization': 'Bearer ' + self.token})
         self.on_api_error(req)
 
@@ -1990,22 +1992,22 @@ class BulkImport:
             # first we check if the cardinality allows to add this property
             if properties.get(prop_info["propname"]) is None:  # this property-value is missing
                 if prop_info["card"] == 'cardinality' \
-                        and prop_info["cardval"] == 1:
+                    and prop_info["cardval"] == 1:
                     raise KnoraError(
                         resclass + " requires exactly one " + prop_info["propname"] + "-value: none supplied!")
                 if prop_info["card"] == 'minCardinality' \
-                        and prop_info["cardval"] == 1:
+                    and prop_info["cardval"] == 1:
                     raise KnoraError(
                         resclass + " requires at least one " + prop_info["propname"] + "-value: none supplied!")
                 continue
             if type(properties[prop_info["propname"]]) is list:
                 if len(properties[prop_info["propname"]]) > 1:
                     if prop_info["card"] == 'maxCardinality' \
-                            and prop_info["cardval"] == 1:
+                        and prop_info["cardval"] == 1:
                         raise KnoraError(
                             resclass + " allows maximal one " + prop_info["propname"] + "-value: several supplied!")
                     if prop_info["card"] == 'cardinality' \
-                            and prop_info["cardval"] == 1:
+                        and prop_info["cardval"] == 1:
                         raise KnoraError(
                             resclass + " requires exactly one " + prop_info["propname"] + "-value: several supplied!")
                 for p in properties[prop_info["propname"]]:

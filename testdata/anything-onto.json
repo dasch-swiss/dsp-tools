@@ -1,990 +1,990 @@
 {
-  "prefixes": {
-    "anything": "http://0.0.0.0:3333/ontology/0001/anything/v2",
-    "minimal": "http://0.0.0.0:3333/ontology/0001/minimal/v2",
-    "something": "http://0.0.0.0:3333/ontology/0001/something/v2"
-  },
-  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/ontology.json",
-  "project": {
-    "shortcode": "0001",
-    "shortname": "anything",
-    "longname": "Anything Project",
-    "descriptions": "Anything Project",
-    "keywords": [
-      "arbitrary test data",
-      "things"
-    ],
-    "lists": [
-      {
-        "name": "otherTreeList",
-        "labels": {
-          "en": "Tree list root"
-        },
-        "nodes": [
-          {
-            "name": "Other Tree list node 01",
-            "labels": {
-              "en": "Other Tree list node 01"
-            }
-          },
-          {
-            "name": "Other Tree list node 02",
-            "labels": {
-              "en": "Other Tree list node 02"
-            }
-          },
-          {
-            "name": "Other Tree list node 03",
-            "labels": {
-              "en": "Other Tree list node 03"
-            },
-            "nodes": [
-              {
-                "name": "Other Tree list node 10",
+    "prefixes": {
+        "anything": "http://0.0.0.0:3333/ontology/0001/anything/v2",
+        "minimal": "http://0.0.0.0:3333/ontology/0001/minimal/v2",
+        "something": "http://0.0.0.0:3333/ontology/0001/something/v2"
+    },
+    "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/ontology.json",
+    "project": {
+        "shortcode": "0001",
+        "shortname": "anything",
+        "longname": "Anything Project",
+        "descriptions": "Anything Project",
+        "keywords": [
+            "arbitrary test data",
+            "things"
+        ],
+        "lists": [
+            {
+                "name": "otherTreeList",
                 "labels": {
-                  "en": "Other Tree list node 10"
-                }
-              },
-              {
-                "name": "Other Tree list node 11",
-                "labels": {
-                  "en": "Other Tree list node 11"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "name": "notUsedList",
-        "labels": {
-          "de": "unbenutzte Liste",
-          "en": "a list that is not used"
-        },
-        "comments": {
-          "en": "a list that is not in used in ontology or data"
-        },
-        "nodes": [
-          {
-            "name": "node 1",
-            "labels": {
-              "en": "node 1"
-            },
-            "nodes": [
-              {
-                "name": "child of node 1",
-                "labels": {
-                  "en": "child of node 1"
-                }
-              },
-              {
-                "name": "List012",
-                "labels": {
-                  "en": "List012"
-                }
-              },
-              {
-                "name": "List013",
-                "labels": {
-                  "en": "List013"
-                }
-              },
-              {
-                "name": "List014",
-                "labels": {
-                  "en": "List014"
+                    "en": "Tree list root"
                 },
                 "nodes": [
-                  {
-                    "name": "first child of node 014",
-                    "labels": {
-                      "en": "first child of node 014"
+                    {
+                        "name": "Other Tree list node 01",
+                        "labels": {
+                            "en": "Other Tree list node 01"
+                        }
+                    },
+                    {
+                        "name": "Other Tree list node 02",
+                        "labels": {
+                            "en": "Other Tree list node 02"
+                        }
+                    },
+                    {
+                        "name": "Other Tree list node 03",
+                        "labels": {
+                            "en": "Other Tree list node 03"
+                        },
+                        "nodes": [
+                            {
+                                "name": "Other Tree list node 10",
+                                "labels": {
+                                    "en": "Other Tree list node 10"
+                                }
+                            },
+                            {
+                                "name": "Other Tree list node 11",
+                                "labels": {
+                                    "en": "Other Tree list node 11"
+                                }
+                            }
+                        ]
                     }
-                  },
-                  {
-                    "name": "second child of node 014",
-                    "labels": {
-                      "en": "second child of node 014"
-                    }
-                  }
                 ]
-              },
-              {
-                "name": "List015",
-                "labels": {
-                  "en": "List015"
-                }
-              }
-            ]
-          },
-          {
-            "name": "node 2",
-            "labels": {
-              "en": "node 2"
-            }
-          },
-          {
-            "name": "node 3",
-            "labels": {
-              "en": "node 3"
             },
-            "nodes": [
-              {
-                "name": "child of node 3",
+            {
+                "name": "notUsedList",
                 "labels": {
-                  "en": "child of node 3"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "name": "treelistroot",
-        "labels": {
-          "de": "Listenwurzel",
-          "en": "Tree list root"
-        },
-        "comments": {
-          "en": "Anything Tree List"
-        },
-        "nodes": [
-          {
-            "name": "Tree list node 01",
-            "labels": {
-              "en": "Tree list node 01"
-            }
-          },
-          {
-            "name": "Tree list node 02",
-            "labels": {
-              "de": "Baumlistenknoten 02",
-              "en": "Tree list node 02"
-            }
-          },
-          {
-            "name": "Tree list node 03",
-            "labels": {
-              "en": "Tree list node 03"
+                    "de": "unbenutzte Liste",
+                    "en": "a list that is not used"
+                },
+                "comments": {
+                    "en": "a list that is not in used in ontology or data"
+                },
+                "nodes": [
+                    {
+                        "name": "node 1",
+                        "labels": {
+                            "en": "node 1"
+                        },
+                        "nodes": [
+                            {
+                                "name": "child of node 1",
+                                "labels": {
+                                    "en": "child of node 1"
+                                }
+                            },
+                            {
+                                "name": "List012",
+                                "labels": {
+                                    "en": "List012"
+                                }
+                            },
+                            {
+                                "name": "List013",
+                                "labels": {
+                                    "en": "List013"
+                                }
+                            },
+                            {
+                                "name": "List014",
+                                "labels": {
+                                    "en": "List014"
+                                },
+                                "nodes": [
+                                    {
+                                        "name": "first child of node 014",
+                                        "labels": {
+                                            "en": "first child of node 014"
+                                        }
+                                    },
+                                    {
+                                        "name": "second child of node 014",
+                                        "labels": {
+                                            "en": "second child of node 014"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "List015",
+                                "labels": {
+                                    "en": "List015"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "node 2",
+                        "labels": {
+                            "en": "node 2"
+                        }
+                    },
+                    {
+                        "name": "node 3",
+                        "labels": {
+                            "en": "node 3"
+                        },
+                        "nodes": [
+                            {
+                                "name": "child of node 3",
+                                "labels": {
+                                    "en": "child of node 3"
+                                }
+                            }
+                        ]
+                    }
+                ]
             },
-            "nodes": [
-              {
-                "name": "Tree list node 10",
+            {
+                "name": "treelistroot",
                 "labels": {
-                  "en": "Tree list node 10"
-                }
-              },
-              {
-                "name": "Tree list node 11",
-                "labels": {
-                  "en": "Tree list node 11"
-                }
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "ontologies": [
-      {
-        "name": "anything",
-        "label": "The anything ontology",
-        "properties": [
-          {
-            "name": "hasBlueThing",
-            "super": [
-              ":hasOtherThing"
-            ],
-            "object": ":BlueThing",
-            "labels": "A blue thing",
-            "gui_element": "Searchbox"
-          },
-          {
-            "name": "hasBoolean",
-            "super": [
-              "hasValue"
-            ],
-            "object": "BooleanValue",
-            "labels": "Boolean value",
-            "gui_element": "Checkbox"
-          },
-          {
-            "name": "hasColor",
-            "super": [
-              "hasValue"
-            ],
-            "object": "ColorValue",
-            "labels": "Color",
-            "gui_element": "Colorpicker"
-          },
-          {
-            "name": "hasDate",
-            "super": [
-              "hasValue"
-            ],
-            "object": "DateValue",
-            "labels": "Date",
-            "gui_element": "Date"
-          },
-          {
-            "name": "hasDecimal",
-            "super": [
-              "hasValue"
-            ],
-            "object": "DecimalValue",
-            "labels": "Decimal number",
-            "gui_element": "SimpleText",
-            "gui_attributes": {
-              "maxlength": "255",
-              "size": 80
+                    "de": "Listenwurzel",
+                    "en": "Tree list root"
+                },
+                "comments": {
+                    "en": "Anything Tree List"
+                },
+                "nodes": [
+                    {
+                        "name": "Tree list node 01",
+                        "labels": {
+                            "en": "Tree list node 01"
+                        }
+                    },
+                    {
+                        "name": "Tree list node 02",
+                        "labels": {
+                            "de": "Baumlistenknoten 02",
+                            "en": "Tree list node 02"
+                        }
+                    },
+                    {
+                        "name": "Tree list node 03",
+                        "labels": {
+                            "en": "Tree list node 03"
+                        },
+                        "nodes": [
+                            {
+                                "name": "Tree list node 10",
+                                "labels": {
+                                    "en": "Tree list node 10"
+                                }
+                            },
+                            {
+                                "name": "Tree list node 11",
+                                "labels": {
+                                    "en": "Tree list node 11"
+                                }
+                            }
+                        ]
+                    }
+                ]
             }
-          },
-          {
-            "name": "hasDocumentTitle",
-            "super": [
-              "hasValue"
-            ],
-            "object": "TextValue",
-            "labels": "document title",
-            "gui_element": "SimpleText",
-            "gui_attributes": {
-              "maxlength": "255",
-              "size": 80
-            }
-          },
-          {
-            "name": "hasGeometry",
-            "super": [
-              "hasValue"
-            ],
-            "object": "GeomValue",
-            "labels": "Geometry",
-            "gui_element": "Geometry"
-          },
-          {
-            "name": "hasGeoname",
-            "super": [
-              "hasValue"
-            ],
-            "object": "GeonameValue",
-            "labels": "Geoname",
-            "gui_element": "Geonames"
-          },
-          {
-            "name": "hasInteger",
-            "super": [
-              "hasValue"
-            ],
-            "object": "IntValue",
-            "labels": "Integer",
-            "gui_element": "Spinbox",
-            "gui_attributes": {
-              "max": -1.0,
-              "min": 0.0
-            }
-          },
-          {
-            "name": "hasInterval",
-            "super": [
-              "hasValue"
-            ],
-            "object": "IntervalValue",
-            "labels": "Time interval",
-            "gui_element": "Interval"
-          },
-          {
-            "name": "hasListItem",
-            "super": [
-              "hasValue"
-            ],
-            "object": "ListValue",
-            "labels": "List element",
-            "gui_element": "List",
-            "gui_attributes": {
-              "hlist": "treelistroot"
-            }
-          },
-          {
-            "name": "hasOtherListItem",
-            "super": [
-              "hasValue"
-            ],
-            "object": "ListValue",
-            "labels": "Other list element",
-            "gui_element": "List",
-            "gui_attributes": {
-              "hlist": "otherTreeList"
-            }
-          },
-          {
-            "name": "hasOtherThing",
-            "super": [
-              "hasLinkTo"
-            ],
-            "object": ":Thing",
-            "labels": "Another thing",
-            "gui_element": "Searchbox"
-          },
-          {
-            "name": "hasPictureTitle",
-            "super": [
-              "hasValue"
-            ],
-            "object": "TextValue",
-            "labels": "Title",
-            "gui_element": "SimpleText",
-            "gui_attributes": {
-              "maxlength": "255",
-              "size": 80
-            }
-          },
-          {
-            "name": "hasRichtext",
-            "super": [
-              "hasValue"
-            ],
-            "object": "TextValue",
-            "labels": "Text",
-            "gui_element": "Richtext"
-          },
-          {
-            "name": "hasText",
-            "super": [
-              "hasValue"
-            ],
-            "object": "TextValue",
-            "labels": "Text",
-            "gui_element": "SimpleText",
-            "gui_attributes": {
-              "maxlength": "255",
-              "size": 80
-            }
-          },
-          {
-            "name": "hasThingDocument",
-            "super": [
-              "hasRepresentation"
-            ],
-            "object": ":ThingDocument",
-            "labels": "document about a thing",
-            "gui_element": "Searchbox"
-          },
-          {
-            "name": "hasThingPicture",
-            "super": [
-              "hasRepresentation"
-            ],
-            "object": ":ThingPicture",
-            "labels": "Picture of a thing",
-            "gui_element": "Searchbox"
-          },
-          {
-            "name": "hasTimeStamp",
-            "super": [
-              "hasValue"
-            ],
-            "object": "TimeValue",
-            "labels": "Timestamp",
-            "gui_element": "TimeStamp"
-          },
-          {
-            "name": "hasUri",
-            "super": [
-              "hasValue"
-            ],
-            "object": "UriValue",
-            "labels": "URI",
-            "gui_element": "SimpleText",
-            "gui_attributes": {
-              "maxlength": "255",
-              "size": 80
-            }
-          },
-          {
-            "name": "isPartOfOtherThing",
-            "super": [
-              "isPartOf"
-            ],
-            "object": ":Thing",
-            "labels": "is part of",
-            "gui_element": "Searchbox"
-          },
-          {
-            "name": "thingHasRegion",
-            "super": [
-              "hasLinkTo"
-            ],
-            "object": "Region",
-            "labels": "has region",
-            "gui_element": "Searchbox"
-          }
         ],
-        "resources": [
-          {
-            "name": "BlueThing",
-            "labels": "Blue thing",
-            "comments": "Diese Resource-Klasse beschreibt ein blaues Ding",
-            "super": ":Thing",
-            "cardinalities": [
-              {
-                "propname": ":hasListItem",
-                "cardinality": "0-n",
-                "gui_order": 0
-              },
-              {
-                "propname": ":hasOtherListItem",
-                "cardinality": "0-n",
-                "gui_order": 0
-              },
-              {
-                "propname": ":hasRichtext",
-                "cardinality": "0-n",
-                "gui_order": 2
-              },
-              {
-                "propname": ":hasText",
-                "cardinality": "0-n",
-                "gui_order": 2
-              },
-              {
-                "propname": ":hasDate",
-                "cardinality": "0-n",
-                "gui_order": 3
-              },
-              {
-                "propname": ":hasInteger",
-                "cardinality": "0-n",
-                "gui_order": 4
-              },
-              {
-                "propname": ":hasDecimal",
-                "cardinality": "0-n",
-                "gui_order": 5
-              },
-              {
-                "propname": ":hasBoolean",
-                "cardinality": "0-1",
-                "gui_order": 6
-              },
-              {
-                "propname": ":hasUri",
-                "cardinality": "0-n",
-                "gui_order": 7
-              },
-              {
-                "propname": ":hasInterval",
-                "cardinality": "0-n",
-                "gui_order": 9
-              },
-              {
-                "propname": ":hasColor",
-                "cardinality": "0-n",
-                "gui_order": 10
-              },
-              {
-                "propname": ":hasGeometry",
-                "cardinality": "0-n",
-                "gui_order": 11
-              },
-              {
-                "propname": ":hasGeoname",
-                "cardinality": "0-n",
-                "gui_order": 12
-              },
-              {
-                "propname": ":hasThingDocument",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": ":hasThingDocumentValue",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": ":hasThingPicture",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": ":hasThingPictureValue",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": ":hasTimeStamp",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": ":isPartOfOtherThing",
-                "cardinality": "0-n",
-                "gui_order": 15
-              },
-              {
-                "propname": ":isPartOfOtherThingValue",
-                "cardinality": "0-n",
-                "gui_order": 15
-              },
-              {
-                "propname": ":hasBlueThingValue",
-                "cardinality": "0-n",
-                "gui_order": 16
-              },
-              {
-                "propname": ":hasBlueThing",
-                "cardinality": "0-n",
-                "gui_order": 63
-              }
-            ]
-          },
-          {
-            "name": "Thing",
-            "labels": "Thing",
-            "comments": "'The whole world is full of things, which means there's a real need for someone to go searching for them. And that's exactly what a thing-searcher does.' --Pippi Longstocking",
-            "super": "Resource",
-            "cardinalities": [
-              {
-                "propname": ":hasListItem",
-                "cardinality": "0-n",
-                "gui_order": 0
-              },
-              {
-                "propname": ":hasOtherListItem",
-                "cardinality": "0-n",
-                "gui_order": 0
-              },
-              {
-                "propname": ":hasOtherThing",
-                "cardinality": "0-n",
-                "gui_order": 1
-              },
-              {
-                "propname": ":hasOtherThingValue",
-                "cardinality": "0-n",
-                "gui_order": 1
-              },
-              {
-                "propname": ":hasRichtext",
-                "cardinality": "0-n",
-                "gui_order": 2
-              },
-              {
-                "propname": ":hasText",
-                "cardinality": "0-n",
-                "gui_order": 2
-              },
-              {
-                "propname": ":hasDate",
-                "cardinality": "0-n",
-                "gui_order": 3
-              },
-              {
-                "propname": ":hasInteger",
-                "cardinality": "0-n",
-                "gui_order": 4
-              },
-              {
-                "propname": ":hasDecimal",
-                "cardinality": "0-n",
-                "gui_order": 5
-              },
-              {
-                "propname": ":hasBoolean",
-                "cardinality": "0-1",
-                "gui_order": 6
-              },
-              {
-                "propname": ":hasUri",
-                "cardinality": "0-n",
-                "gui_order": 7
-              },
-              {
-                "propname": ":hasInterval",
-                "cardinality": "0-n",
-                "gui_order": 9
-              },
-              {
-                "propname": ":hasColor",
-                "cardinality": "0-n",
-                "gui_order": 10
-              },
-              {
-                "propname": ":hasGeometry",
-                "cardinality": "0-n",
-                "gui_order": 11
-              },
-              {
-                "propname": ":hasGeoname",
-                "cardinality": "0-n",
-                "gui_order": 12
-              },
-              {
-                "propname": ":hasThingDocument",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": ":hasThingDocumentValue",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": ":hasThingPicture",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": ":hasThingPictureValue",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": ":hasTimeStamp",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": ":isPartOfOtherThing",
-                "cardinality": "0-n",
-                "gui_order": 15
-              },
-              {
-                "propname": ":isPartOfOtherThingValue",
-                "cardinality": "0-n",
-                "gui_order": 15
-              }
-            ]
-          },
-          {
-            "name": "ThingDocument",
-            "labels": "Document",
-            "comments": "A document about a thing",
-            "super": "DocumentRepresentation",
-            "cardinalities": [
-              {
-                "propname": ":hasDocumentTitle",
-                "cardinality": "0-n"
-              }
-            ]
-          },
-          {
-            "name": "ThingPicture",
-            "labels": "Picture of a thing",
-            "comments": "Diese Resource-Klasse beschreibt ein Bild eines Dinges",
-            "super": "StillImageRepresentation",
-            "cardinalities": [
-              {
-                "propname": ":hasPictureTitle",
-                "cardinality": "0-n"
-              }
-            ]
-          },
-          {
-            "name": "ThingWithRegion",
-            "labels": "Thing with region",
-            "comments": "A thing with a region",
-            "super": "Resource",
-            "cardinalities": [
-              {
-                "propname": ":thingHasRegion",
-                "cardinality": "0-n"
-              },
-              {
-                "propname": ":thingHasRegionValue",
-                "cardinality": "0-n"
-              }
-            ]
-          },
-          {
-            "name": "ThingWithRepresentation",
-            "labels": "Thing with representation",
-            "comments": "A thing with a representation",
-            "super": "Resource",
-            "cardinalities": []
-          },
-          {
-            "name": "ThingWithSeqnum",
-            "labels": "Thing with sequence number",
-            "comments": "Diese Resource-Klasse beschreibt ein Ding mit einer Sequenznummer",
-            "super": ":Thing",
-            "cardinalities": [
-              {
-                "propname": ":hasListItem",
-                "cardinality": "0-n",
-                "gui_order": 0
-              },
-              {
-                "propname": ":hasOtherListItem",
-                "cardinality": "0-n",
-                "gui_order": 0
-              },
-              {
-                "propname": ":hasOtherThing",
-                "cardinality": "0-n",
-                "gui_order": 1
-              },
-              {
-                "propname": ":hasOtherThingValue",
-                "cardinality": "0-n",
-                "gui_order": 1
-              },
-              {
-                "propname": ":hasRichtext",
-                "cardinality": "0-n",
-                "gui_order": 2
-              },
-              {
-                "propname": ":hasText",
-                "cardinality": "0-n",
-                "gui_order": 2
-              },
-              {
-                "propname": ":hasDate",
-                "cardinality": "0-n",
-                "gui_order": 3
-              },
-              {
-                "propname": ":hasInteger",
-                "cardinality": "0-n",
-                "gui_order": 4
-              },
-              {
-                "propname": ":hasDecimal",
-                "cardinality": "0-n",
-                "gui_order": 5
-              },
-              {
-                "propname": ":hasBoolean",
-                "cardinality": "0-1",
-                "gui_order": 6
-              },
-              {
-                "propname": ":hasUri",
-                "cardinality": "0-n",
-                "gui_order": 7
-              },
-              {
-                "propname": ":hasInterval",
-                "cardinality": "0-n",
-                "gui_order": 9
-              },
-              {
-                "propname": ":hasColor",
-                "cardinality": "0-n",
-                "gui_order": 10
-              },
-              {
-                "propname": ":hasGeometry",
-                "cardinality": "0-n",
-                "gui_order": 11
-              },
-              {
-                "propname": ":hasGeoname",
-                "cardinality": "0-n",
-                "gui_order": 12
-              },
-              {
-                "propname": ":hasThingDocument",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": ":hasThingDocumentValue",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": ":hasThingPicture",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": ":hasThingPictureValue",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": ":hasTimeStamp",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": ":isPartOfOtherThing",
-                "cardinality": "0-n",
-                "gui_order": 15
-              },
-              {
-                "propname": ":isPartOfOtherThingValue",
-                "cardinality": "0-n",
-                "gui_order": 15
-              }
-            ]
-          },
-          {
-            "name": "TrivialThing",
-            "labels": "Trivial thing",
-            "comments": "Diese Resource-Klasse beschreibt ein unbedeutendes Ding",
-            "super": "Resource",
-            "cardinalities": []
-          }
-        ]
-      },
-      {
-        "name": "minimal",
-        "label": "A minimal ontology",
-        "properties": [
-          {
-            "name": "hasName",
-            "super": [
-              "hasValue"
-            ],
-            "object": "TextValue",
-            "labels": "has name",
-            "gui_element": "SimpleText",
-            "gui_attributes": {
-              "maxlength": "255",
-              "size": 80
+        "ontologies": [
+            {
+                "name": "anything",
+                "label": "The anything ontology",
+                "properties": [
+                    {
+                        "name": "hasBlueThing",
+                        "super": [
+                            ":hasOtherThing"
+                        ],
+                        "object": ":BlueThing",
+                        "labels": "A blue thing",
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasBoolean",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "BooleanValue",
+                        "labels": "Boolean value",
+                        "gui_element": "Checkbox"
+                    },
+                    {
+                        "name": "hasColor",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "ColorValue",
+                        "labels": "Color",
+                        "gui_element": "Colorpicker"
+                    },
+                    {
+                        "name": "hasDate",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "DateValue",
+                        "labels": "Date",
+                        "gui_element": "Date"
+                    },
+                    {
+                        "name": "hasDecimal",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "DecimalValue",
+                        "labels": "Decimal number",
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": "255",
+                            "size": 80
+                        }
+                    },
+                    {
+                        "name": "hasDocumentTitle",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": "document title",
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": "255",
+                            "size": 80
+                        }
+                    },
+                    {
+                        "name": "hasGeometry",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "GeomValue",
+                        "labels": "Geometry",
+                        "gui_element": "Geometry"
+                    },
+                    {
+                        "name": "hasGeoname",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "GeonameValue",
+                        "labels": "Geoname",
+                        "gui_element": "Geonames"
+                    },
+                    {
+                        "name": "hasInteger",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "IntValue",
+                        "labels": "Integer",
+                        "gui_element": "Spinbox",
+                        "gui_attributes": {
+                            "max": -1.0,
+                            "min": 0.0
+                        }
+                    },
+                    {
+                        "name": "hasInterval",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "IntervalValue",
+                        "labels": "Time interval",
+                        "gui_element": "Interval"
+                    },
+                    {
+                        "name": "hasListItem",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "ListValue",
+                        "labels": "List element",
+                        "gui_element": "List",
+                        "gui_attributes": {
+                            "hlist": "treelistroot"
+                        }
+                    },
+                    {
+                        "name": "hasOtherListItem",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "ListValue",
+                        "labels": "Other list element",
+                        "gui_element": "List",
+                        "gui_attributes": {
+                            "hlist": "otherTreeList"
+                        }
+                    },
+                    {
+                        "name": "hasOtherThing",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": ":Thing",
+                        "labels": "Another thing",
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasPictureTitle",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": "Title",
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": "255",
+                            "size": 80
+                        }
+                    },
+                    {
+                        "name": "hasRichtext",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": "Text",
+                        "gui_element": "Richtext"
+                    },
+                    {
+                        "name": "hasText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": "Text",
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": "255",
+                            "size": 80
+                        }
+                    },
+                    {
+                        "name": "hasThingDocument",
+                        "super": [
+                            "hasRepresentation"
+                        ],
+                        "object": ":ThingDocument",
+                        "labels": "document about a thing",
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasThingPicture",
+                        "super": [
+                            "hasRepresentation"
+                        ],
+                        "object": ":ThingPicture",
+                        "labels": "Picture of a thing",
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasTimeStamp",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TimeValue",
+                        "labels": "Timestamp",
+                        "gui_element": "TimeStamp"
+                    },
+                    {
+                        "name": "hasUri",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "UriValue",
+                        "labels": "URI",
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": "255",
+                            "size": 80
+                        }
+                    },
+                    {
+                        "name": "isPartOfOtherThing",
+                        "super": [
+                            "isPartOf"
+                        ],
+                        "object": ":Thing",
+                        "labels": "is part of",
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "thingHasRegion",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Region",
+                        "labels": "has region",
+                        "gui_element": "Searchbox"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "BlueThing",
+                        "labels": "Blue thing",
+                        "comments": "Diese Resource-Klasse beschreibt ein blaues Ding",
+                        "super": ":Thing",
+                        "cardinalities": [
+                            {
+                                "propname": ":hasListItem",
+                                "cardinality": "0-n",
+                                "gui_order": 0
+                            },
+                            {
+                                "propname": ":hasOtherListItem",
+                                "cardinality": "0-n",
+                                "gui_order": 0
+                            },
+                            {
+                                "propname": ":hasRichtext",
+                                "cardinality": "0-n",
+                                "gui_order": 2
+                            },
+                            {
+                                "propname": ":hasText",
+                                "cardinality": "0-n",
+                                "gui_order": 2
+                            },
+                            {
+                                "propname": ":hasDate",
+                                "cardinality": "0-n",
+                                "gui_order": 3
+                            },
+                            {
+                                "propname": ":hasInteger",
+                                "cardinality": "0-n",
+                                "gui_order": 4
+                            },
+                            {
+                                "propname": ":hasDecimal",
+                                "cardinality": "0-n",
+                                "gui_order": 5
+                            },
+                            {
+                                "propname": ":hasBoolean",
+                                "cardinality": "0-1",
+                                "gui_order": 6
+                            },
+                            {
+                                "propname": ":hasUri",
+                                "cardinality": "0-n",
+                                "gui_order": 7
+                            },
+                            {
+                                "propname": ":hasInterval",
+                                "cardinality": "0-n",
+                                "gui_order": 9
+                            },
+                            {
+                                "propname": ":hasColor",
+                                "cardinality": "0-n",
+                                "gui_order": 10
+                            },
+                            {
+                                "propname": ":hasGeometry",
+                                "cardinality": "0-n",
+                                "gui_order": 11
+                            },
+                            {
+                                "propname": ":hasGeoname",
+                                "cardinality": "0-n",
+                                "gui_order": 12
+                            },
+                            {
+                                "propname": ":hasThingDocument",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": ":hasThingDocumentValue",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": ":hasThingPicture",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": ":hasThingPictureValue",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": ":hasTimeStamp",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": ":isPartOfOtherThing",
+                                "cardinality": "0-n",
+                                "gui_order": 15
+                            },
+                            {
+                                "propname": ":isPartOfOtherThingValue",
+                                "cardinality": "0-n",
+                                "gui_order": 15
+                            },
+                            {
+                                "propname": ":hasBlueThingValue",
+                                "cardinality": "0-n",
+                                "gui_order": 16
+                            },
+                            {
+                                "propname": ":hasBlueThing",
+                                "cardinality": "0-n",
+                                "gui_order": 63
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Thing",
+                        "labels": "Thing",
+                        "comments": "'The whole world is full of things, which means there's a real need for someone to go searching for them. And that's exactly what a thing-searcher does.' --Pippi Longstocking",
+                        "super": "Resource",
+                        "cardinalities": [
+                            {
+                                "propname": ":hasListItem",
+                                "cardinality": "0-n",
+                                "gui_order": 0
+                            },
+                            {
+                                "propname": ":hasOtherListItem",
+                                "cardinality": "0-n",
+                                "gui_order": 0
+                            },
+                            {
+                                "propname": ":hasOtherThing",
+                                "cardinality": "0-n",
+                                "gui_order": 1
+                            },
+                            {
+                                "propname": ":hasOtherThingValue",
+                                "cardinality": "0-n",
+                                "gui_order": 1
+                            },
+                            {
+                                "propname": ":hasRichtext",
+                                "cardinality": "0-n",
+                                "gui_order": 2
+                            },
+                            {
+                                "propname": ":hasText",
+                                "cardinality": "0-n",
+                                "gui_order": 2
+                            },
+                            {
+                                "propname": ":hasDate",
+                                "cardinality": "0-n",
+                                "gui_order": 3
+                            },
+                            {
+                                "propname": ":hasInteger",
+                                "cardinality": "0-n",
+                                "gui_order": 4
+                            },
+                            {
+                                "propname": ":hasDecimal",
+                                "cardinality": "0-n",
+                                "gui_order": 5
+                            },
+                            {
+                                "propname": ":hasBoolean",
+                                "cardinality": "0-1",
+                                "gui_order": 6
+                            },
+                            {
+                                "propname": ":hasUri",
+                                "cardinality": "0-n",
+                                "gui_order": 7
+                            },
+                            {
+                                "propname": ":hasInterval",
+                                "cardinality": "0-n",
+                                "gui_order": 9
+                            },
+                            {
+                                "propname": ":hasColor",
+                                "cardinality": "0-n",
+                                "gui_order": 10
+                            },
+                            {
+                                "propname": ":hasGeometry",
+                                "cardinality": "0-n",
+                                "gui_order": 11
+                            },
+                            {
+                                "propname": ":hasGeoname",
+                                "cardinality": "0-n",
+                                "gui_order": 12
+                            },
+                            {
+                                "propname": ":hasThingDocument",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": ":hasThingDocumentValue",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": ":hasThingPicture",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": ":hasThingPictureValue",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": ":hasTimeStamp",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": ":isPartOfOtherThing",
+                                "cardinality": "0-n",
+                                "gui_order": 15
+                            },
+                            {
+                                "propname": ":isPartOfOtherThingValue",
+                                "cardinality": "0-n",
+                                "gui_order": 15
+                            }
+                        ]
+                    },
+                    {
+                        "name": "ThingDocument",
+                        "labels": "Document",
+                        "comments": "A document about a thing",
+                        "super": "DocumentRepresentation",
+                        "cardinalities": [
+                            {
+                                "propname": ":hasDocumentTitle",
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "ThingPicture",
+                        "labels": "Picture of a thing",
+                        "comments": "Diese Resource-Klasse beschreibt ein Bild eines Dinges",
+                        "super": "StillImageRepresentation",
+                        "cardinalities": [
+                            {
+                                "propname": ":hasPictureTitle",
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "ThingWithRegion",
+                        "labels": "Thing with region",
+                        "comments": "A thing with a region",
+                        "super": "Resource",
+                        "cardinalities": [
+                            {
+                                "propname": ":thingHasRegion",
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":thingHasRegionValue",
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "ThingWithRepresentation",
+                        "labels": "Thing with representation",
+                        "comments": "A thing with a representation",
+                        "super": "Resource",
+                        "cardinalities": []
+                    },
+                    {
+                        "name": "ThingWithSeqnum",
+                        "labels": "Thing with sequence number",
+                        "comments": "Diese Resource-Klasse beschreibt ein Ding mit einer Sequenznummer",
+                        "super": ":Thing",
+                        "cardinalities": [
+                            {
+                                "propname": ":hasListItem",
+                                "cardinality": "0-n",
+                                "gui_order": 0
+                            },
+                            {
+                                "propname": ":hasOtherListItem",
+                                "cardinality": "0-n",
+                                "gui_order": 0
+                            },
+                            {
+                                "propname": ":hasOtherThing",
+                                "cardinality": "0-n",
+                                "gui_order": 1
+                            },
+                            {
+                                "propname": ":hasOtherThingValue",
+                                "cardinality": "0-n",
+                                "gui_order": 1
+                            },
+                            {
+                                "propname": ":hasRichtext",
+                                "cardinality": "0-n",
+                                "gui_order": 2
+                            },
+                            {
+                                "propname": ":hasText",
+                                "cardinality": "0-n",
+                                "gui_order": 2
+                            },
+                            {
+                                "propname": ":hasDate",
+                                "cardinality": "0-n",
+                                "gui_order": 3
+                            },
+                            {
+                                "propname": ":hasInteger",
+                                "cardinality": "0-n",
+                                "gui_order": 4
+                            },
+                            {
+                                "propname": ":hasDecimal",
+                                "cardinality": "0-n",
+                                "gui_order": 5
+                            },
+                            {
+                                "propname": ":hasBoolean",
+                                "cardinality": "0-1",
+                                "gui_order": 6
+                            },
+                            {
+                                "propname": ":hasUri",
+                                "cardinality": "0-n",
+                                "gui_order": 7
+                            },
+                            {
+                                "propname": ":hasInterval",
+                                "cardinality": "0-n",
+                                "gui_order": 9
+                            },
+                            {
+                                "propname": ":hasColor",
+                                "cardinality": "0-n",
+                                "gui_order": 10
+                            },
+                            {
+                                "propname": ":hasGeometry",
+                                "cardinality": "0-n",
+                                "gui_order": 11
+                            },
+                            {
+                                "propname": ":hasGeoname",
+                                "cardinality": "0-n",
+                                "gui_order": 12
+                            },
+                            {
+                                "propname": ":hasThingDocument",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": ":hasThingDocumentValue",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": ":hasThingPicture",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": ":hasThingPictureValue",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": ":hasTimeStamp",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": ":isPartOfOtherThing",
+                                "cardinality": "0-n",
+                                "gui_order": 15
+                            },
+                            {
+                                "propname": ":isPartOfOtherThingValue",
+                                "cardinality": "0-n",
+                                "gui_order": 15
+                            }
+                        ]
+                    },
+                    {
+                        "name": "TrivialThing",
+                        "labels": "Trivial thing",
+                        "comments": "Diese Resource-Klasse beschreibt ein unbedeutendes Ding",
+                        "super": "Resource",
+                        "cardinalities": []
+                    }
+                ]
+            },
+            {
+                "name": "minimal",
+                "label": "A minimal ontology",
+                "properties": [
+                    {
+                        "name": "hasName",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": "has name",
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": "255",
+                            "size": 80
+                        }
+                    }
+                ],
+                "resources": []
+            },
+            {
+                "name": "something",
+                "label": "The something ontology",
+                "properties": [
+                    {
+                        "name": "hasOtherSomething",
+                        "super": [
+                            "anything:hasOtherThing"
+                        ],
+                        "object": ":Something",
+                        "labels": "has other something",
+                        "gui_element": "Searchbox"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "Something",
+                        "labels": "Something",
+                        "comments": "A something is a thing.",
+                        "super": "anything:Thing",
+                        "cardinalities": [
+                            {
+                                "propname": "anything:hasListItem",
+                                "cardinality": "0-n",
+                                "gui_order": 0
+                            },
+                            {
+                                "propname": "anything:hasOtherListItem",
+                                "cardinality": "0-n",
+                                "gui_order": 0
+                            },
+                            {
+                                "propname": ":hasOtherSomething",
+                                "cardinality": "0-n",
+                                "gui_order": 0
+                            },
+                            {
+                                "propname": ":hasOtherSomethingValue",
+                                "cardinality": "0-n",
+                                "gui_order": 0
+                            },
+                            {
+                                "propname": "anything:hasRichtext",
+                                "cardinality": "0-n",
+                                "gui_order": 2
+                            },
+                            {
+                                "propname": "anything:hasText",
+                                "cardinality": "0-n",
+                                "gui_order": 2
+                            },
+                            {
+                                "propname": "anything:hasDate",
+                                "cardinality": "0-n",
+                                "gui_order": 3
+                            },
+                            {
+                                "propname": "anything:hasInteger",
+                                "cardinality": "0-n",
+                                "gui_order": 4
+                            },
+                            {
+                                "propname": "anything:hasDecimal",
+                                "cardinality": "0-n",
+                                "gui_order": 5
+                            },
+                            {
+                                "propname": "anything:hasBoolean",
+                                "cardinality": "0-1",
+                                "gui_order": 6
+                            },
+                            {
+                                "propname": "anything:hasUri",
+                                "cardinality": "0-n",
+                                "gui_order": 7
+                            },
+                            {
+                                "propname": "anything:hasInterval",
+                                "cardinality": "0-n",
+                                "gui_order": 9
+                            },
+                            {
+                                "propname": "anything:hasColor",
+                                "cardinality": "0-n",
+                                "gui_order": 10
+                            },
+                            {
+                                "propname": "anything:hasGeometry",
+                                "cardinality": "0-n",
+                                "gui_order": 11
+                            },
+                            {
+                                "propname": "anything:hasGeoname",
+                                "cardinality": "0-n",
+                                "gui_order": 12
+                            },
+                            {
+                                "propname": "anything:hasThingDocument",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": "anything:hasThingDocumentValue",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": "anything:hasThingPicture",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": "anything:hasThingPictureValue",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": "anything:hasTimeStamp",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": "anything:isPartOfOtherThing",
+                                "cardinality": "0-n",
+                                "gui_order": 15
+                            },
+                            {
+                                "propname": "anything:isPartOfOtherThingValue",
+                                "cardinality": "0-n",
+                                "gui_order": 15
+                            }
+                        ]
+                    }
+                ]
             }
-          }
-        ],
-        "resources": []
-      },
-      {
-        "name": "something",
-        "label": "The something ontology",
-        "properties": [
-          {
-            "name": "hasOtherSomething",
-            "super": [
-              "anything:hasOtherThing"
-            ],
-            "object": ":Something",
-            "labels": "has other something",
-            "gui_element": "Searchbox"
-          }
-        ],
-        "resources": [
-          {
-            "name": "Something",
-            "labels": "Something",
-            "comments": "A something is a thing.",
-            "super": "anything:Thing",
-            "cardinalities": [
-              {
-                "propname": "anything:hasListItem",
-                "cardinality": "0-n",
-                "gui_order": 0
-              },
-              {
-                "propname": "anything:hasOtherListItem",
-                "cardinality": "0-n",
-                "gui_order": 0
-              },
-              {
-                "propname": ":hasOtherSomething",
-                "cardinality": "0-n",
-                "gui_order": 0
-              },
-              {
-                "propname": ":hasOtherSomethingValue",
-                "cardinality": "0-n",
-                "gui_order": 0
-              },
-              {
-                "propname": "anything:hasRichtext",
-                "cardinality": "0-n",
-                "gui_order": 2
-              },
-              {
-                "propname": "anything:hasText",
-                "cardinality": "0-n",
-                "gui_order": 2
-              },
-              {
-                "propname": "anything:hasDate",
-                "cardinality": "0-n",
-                "gui_order": 3
-              },
-              {
-                "propname": "anything:hasInteger",
-                "cardinality": "0-n",
-                "gui_order": 4
-              },
-              {
-                "propname": "anything:hasDecimal",
-                "cardinality": "0-n",
-                "gui_order": 5
-              },
-              {
-                "propname": "anything:hasBoolean",
-                "cardinality": "0-1",
-                "gui_order": 6
-              },
-              {
-                "propname": "anything:hasUri",
-                "cardinality": "0-n",
-                "gui_order": 7
-              },
-              {
-                "propname": "anything:hasInterval",
-                "cardinality": "0-n",
-                "gui_order": 9
-              },
-              {
-                "propname": "anything:hasColor",
-                "cardinality": "0-n",
-                "gui_order": 10
-              },
-              {
-                "propname": "anything:hasGeometry",
-                "cardinality": "0-n",
-                "gui_order": 11
-              },
-              {
-                "propname": "anything:hasGeoname",
-                "cardinality": "0-n",
-                "gui_order": 12
-              },
-              {
-                "propname": "anything:hasThingDocument",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": "anything:hasThingDocumentValue",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": "anything:hasThingPicture",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": "anything:hasThingPictureValue",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": "anything:hasTimeStamp",
-                "cardinality": "0-n",
-                "gui_order": 13
-              },
-              {
-                "propname": "anything:isPartOfOtherThing",
-                "cardinality": "0-n",
-                "gui_order": 15
-              },
-              {
-                "propname": "anything:isPartOfOtherThingValue",
-                "cardinality": "0-n",
-                "gui_order": 15
-              }
-            ]
-          }
         ]
-      }
-    ]
-  }
+    }
 }

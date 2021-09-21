@@ -1,60 +1,60 @@
 name: Release
 
 on:
-    release:
-        types: [ released ]
+  release:
+    types: [released]
 
 # set environment variables
 env:
-    TOKEN: ${{ secrets.GH_TOKEN }}
-    TWINE_USERNAME: ${{ secrets.PYPI_USER }}
-    TWINE_PASSWORD: ${{ secrets.PYPI_PW }}
+  TOKEN: ${{ secrets.GH_TOKEN }}
+  TWINE_USERNAME: ${{ secrets.PYPI_USER }}
+  TWINE_PASSWORD: ${{ secrets.PYPI_PW }}
 
 jobs:
-    # release to PyPI
-    release-pypi:
-        name: Release to PyPI
-        runs-on: ubuntu-latest
-        steps:
-            # check out repo
-            -   uses: actions/checkout@v2
-                with:
-                    fetch-depth: 1
-            # install python
-            -   name: Set up Python
-                uses: actions/setup-python@v2
-                with:
-                    python-version: '3.9'
-            # install pythonn dependencies
-            -   name: Install dependencies
-                run: |
-                    python -m pip install --upgrade pip
-                    pip install -r requirements.txt
-            # release new version to PyPI
-            -   run: |
-                    make upgrade-dist-tools
-                    make dist
-                    make upload
+  # release to PyPI
+  release-pypi:
+    name: Release to PyPI
+    runs-on: ubuntu-latest
+    steps:
+      # check out repo
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      # install python
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      # install pythonn dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      # release new version to PyPI
+      - run: |
+          make upgrade-dist-tools
+          make dist
+          make upload
 
-    release-docs:
-        name: Release Docs
-        runs-on: ubuntu-latest
-        steps:
-            # check out repo
-            -   uses: actions/checkout@v2
-            # install python
-            -   name: Deploy docs
-                uses: mhausenblas/mkdocs-deploy-gh-pages@master
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-                    REQUIREMENTS: docs/requirements.txt
+  release-docs:
+    name: Release Docs
+    runs-on: ubuntu-latest
+    steps:
+      # check out repo
+      - uses: actions/checkout@v2
+      # install python
+      - name: Deploy docs
+        uses: mhausenblas/mkdocs-deploy-gh-pages@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          REQUIREMENTS: docs/requirements.txt
 
-    notification:
-        name: Google chat notification about release and published version
-        needs: [ release-pypi, release-docs ]
-        runs-on: ubuntu-latest
-        steps:
-            -   name: Send notification to google chat room "DSP releases"
-                uses: lakto/google-chat-action@main
-                with:
-                    url: ${{ secrets.GOOGLE_CHAT_DSP_RELEASES_WEBHOOK_URL }}
+  notification:
+    name: Google chat notification about release and published version
+    needs: [release-pypi, release-docs]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send notification to google chat room "DSP releases"
+        uses: lakto/google-chat-action@main
+        with:
+          url: ${{ secrets.GOOGLE_CHAT_DSP_RELEASES_WEBHOOK_URL }}

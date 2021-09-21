@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns="https://dasch.swiss/schema"
+<xs:schema xmlns="https://dasch.swiss/schema"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
            targetNamespace="https://dasch.swiss/schema"
            elementFormDefault="qualified">
 

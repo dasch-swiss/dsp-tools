@@ -1,48 +1,48 @@
 name: Test
 
 on:
-    push:
-    pull_request:
-        types: [ opened ]
+  push:
+  pull_request:
+    types: [opened]
 
 jobs:
-    test-integration:
-        name: Integration Tests
-        runs-on: ubuntu-latest
-        steps:
-            # run tests
-            -   name: Checkout source
-                uses: actions/checkout@v2
-                with:
-                    fetch-depth: 1
-            -   name: Set up JDK
-                uses: joschi/setup-jdk@v2
-                with:
-                    java-version: '11' # The OpenJDK version to make available on the path
-                    architecture: 'x64' # defaults to 'x64'
-            -   name: Set up Node
-                uses: actions/setup-node@v1
-                with:
-                    node-version: '12'
-            -   name: Install dependencies
-                run: |
-                    sudo apt-get install ca-certificates-java expect
-                    npm install --global @bazel/bazelisk
-            -   name: Set up Python 3.9
-                uses: actions/setup-python@v2
-                with:
-                    python-version: 3.9
-            -   name: Install dependencies
-                run: |
-                    python -m pip install --upgrade pip
-                    pip install -r requirements.txt
-            -   name: run test-integration
-                run: |
-                    make upgrade-dist-tools
-                    make install-requirements
-                    make install
-                    make test
-            -   name: build docs
-                run: |
-                    make install-requirements
-                    make build-docs
+  test-integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      # run tests
+      - name: Checkout source
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: Set up JDK
+        uses: joschi/setup-jdk@v2
+        with:
+          java-version: '11' # The OpenJDK version to make available on the path
+          architecture: 'x64' # defaults to 'x64'
+      - name: Set up Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+      - name: Install dependencies
+        run: |
+          sudo apt-get install ca-certificates-java expect
+          npm install --global @bazel/bazelisk
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: run test-integration
+        run: |
+          make upgrade-dist-tools
+          make install-requirements
+          make install
+          make test
+      - name: build docs
+        run: |
+          make install-requirements
+          make build-docs

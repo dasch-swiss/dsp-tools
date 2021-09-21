@@ -100,7 +100,7 @@ class ResourceInstance(Model):
                         self._values[propname] = []
                         for val in vals:
                             if valcnt > 0 and (
-                                propinfo.cardinality == Cardinality.C_0_1 or propinfo.cardinality == Cardinality.C_1):
+                                    propinfo.cardinality == Cardinality.C_0_1 or propinfo.cardinality == Cardinality.C_1):
                                 raise BaseError(f'Cardinality does not allow multiple values for "{propname}"!')
                             if type(val) is Value:
                                 self._values[propname].append(val)

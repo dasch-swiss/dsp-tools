@@ -25,9 +25,9 @@ For further information about resources, see [here](./dsp-tools-create.md#resour
 
 ## Create the properties for a data model from an Excel file
 
-With dsp-tools the `properties` section used in a data model (JSON) can be created from an Excel file. Only the first worksheet of
-the Excel file is considered and only XLSX files are allowed. The `properties` section can be inserted into the ontology file and
-then be uploaded onto a DSP server.
+With dsp-tools the `properties` section used in a data model (JSON) can be created from an Excel file. Only the first
+worksheet of the Excel file is considered and only XLSX files are allowed. The `properties` section can be inserted into
+the ontology file and then be uploaded onto a DSP server.
 
 The Excel sheet must have the following format:
 ![img-properties-example.png](assets/images/img-properties-example.png)

@@ -503,12 +503,11 @@ def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
     Returns:
         True if the XML file is valid, False otherwise
     """
-    xmlschema = etree.XMLSchema(schema_file)
+    xmlschema = etree.XMLSchema(etree.parse(schema_file))
     doc = etree.parse(input_file)
 
     is_valid = False
-
-    if xmlschema.assertValid(doc):
+    if xmlschema.validate(doc):
         is_valid = True
 
     return is_valid
@@ -535,7 +534,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
     # Validate the input XML file
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    schema_file = etree.parse(os.path.join(current_dir, '../schemas/data.xsd'))
+    schema_file = os.path.join(current_dir, '../schemas/data.xsd')
 
     if validate_xml_against_schema(input_file, schema_file):
         print("The input data file is syntactically correct and passed validation!")

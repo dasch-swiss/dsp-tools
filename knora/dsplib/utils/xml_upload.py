@@ -551,6 +551,21 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
     # parse the XML file containing the data
     tree = etree.parse(input_file)
+
+    # Iterate through all XML elements
+    for elem in tree.getiterator():
+        # Skip comments and processing instructions,
+        # because they do not have names
+        if not (
+            isinstance(elem, etree._Comment)
+            or isinstance(elem, etree._ProcessingInstruction)
+        ):
+            # Remove a namespace URI in the element's name
+            elem.tag = etree.QName(elem).localname
+
+    # Remove unused namespace declarations
+    etree.cleanup_namespaces(tree)
+
     knora = tree.getroot()
     default_ontology = knora.attrib['default-ontology']
     shortcode = knora.attrib['shortcode']

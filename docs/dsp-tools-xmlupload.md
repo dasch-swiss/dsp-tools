@@ -118,9 +118,11 @@ A complete `<permissions>` section may look as follows:
 
 ```xml
 <knora
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- shortcode="0806"
- default-ontology="webern">
+    xmlns="https://dasch.swiss/schema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/data.xsd"
+    shortcode="0806"
+    default-ontology="webern">
   
   <permissions id="res-default">
     <allow group="UnknownUser">RV</allow>

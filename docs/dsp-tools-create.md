@@ -1250,6 +1250,7 @@ Finally, here is a complete example of an ontology definition:
     "foaf": "http://xmlns.com/foaf/0.1/",
     "dcterms": "http://purl.org/dc/terms/"
   },
+  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/ontology.json",
   "project": {
     "shortcode": "0170",
     "shortname": "teimp",

@@ -19,10 +19,6 @@ definition and a short example of the definition.
 
 ## A short overview
 
-In the following section, you find all the mentioned parts with a detailed explanation. Right at the beginning we look
-at the basic fields that belong to an ontology definition. This serves as an overview for you to which you can return at
-any time while you read the description.
-
 A complete data model definition looks like this:
 
 ```json
@@ -31,6 +27,7 @@ A complete data model definition looks like this:
     "foaf": "http://xmlns.com/foaf/0.1/",
     "dcterms": "http://purl.org/dc/terms/"
   },
+  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/ontology.json",
   "project": {
     "shortcode": "0123",
     "shortname": "BiZ",
@@ -57,22 +54,14 @@ A complete data model definition looks like this:
 }
 ```
 
-As you can see, only two umbrella terms define our ontology: the "prefixes" object and the "project" object. In the
-following we take a deeper look into both of them since, as you can see in the example above, both objects have further
-fine-grained definition levels.
-
-### "Prefixes" object
+### "prefixes" object
 
 `"prefixes": { "prefix": "<iri>", ...}`
 
-The "prefixes" object contains - as you may already have guessed by the name - the `prefixes` of *external* ontologies
-that are also used in the current project. All prefixes are composed of a keyword, followed by its iri. This is used as
-a shortcut for later so that you don't always have to specify the full qualified iri but can use the much shorter
-keyword instead. That means that e.g. instead of addressing a property called "familyname" via
-`http://xmlns.com/foaf/0.1/familyName` you can simply use foaf:familyName.
-
-As you can see in the example below, you can have more than one prefix too. In the example we have "foaf" as well as
-"dcterms" as our prefixes.
+The `prefixes` object contains the prefixes of external ontologies that are used in the current project. All prefixes
+are composed of the actual prefix and an IRI. The prefix is used as an abbreviation so one does not have to write the
+full qualified IRI each time it is used. So, instead of writing a property called "familyname" as
+`http://xmlns.com/foaf/0.1/familyName` one can simply use `foaf:familyName`.
 
 ```json
 {
@@ -83,7 +72,13 @@ As you can see in the example below, you can have more than one prefix too. In t
 }
 ```
 
-### "Project" object
+### "$schema" object
+
+The `$schema` object refers to the JSON schema for DSP data model definitions and is mandatory.
+
+`"$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/ontology.json"`
+
+### "project" object
 
 `"project": {"key": "<value>", ...}`
 

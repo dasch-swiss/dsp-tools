@@ -82,12 +82,7 @@ The `$schema` object refers to the JSON schema for DSP data model definitions an
 
 `"project": {"key": "<value>", ...}`
 
-Right after the "prefix" object the "project" object has to follow, which contains all resources and properties of the
-ontology. The "project" object is the bread and butter of the ontology. All its important properties are specified
-therein.
-
-As you saw in the complete ontology definition in the beginning, the project definitions requires all the following data
-fields:
+The `project` object contains all resources and properties of the ontology. It requires all the following data fields:
 
 - shortcode
 - shortname
@@ -95,14 +90,14 @@ fields:
 - keywords
 - ontologies
 
-Whereas the following fields are optional (if one or more of these fields are not used, it must be omitted):
+The following fields are optional (if one or more of these fields are not used, they should be omitted):
 
 - descriptions
 - lists
 - groups
 - users
 
-So, a simple example definition of the "project" object could look like this:
+A simple example definition of the "project" object looks like this:
 
 ```json
 {

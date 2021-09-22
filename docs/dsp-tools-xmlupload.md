@@ -13,24 +13,24 @@ The import file must start with the standard XML header:
 
 ## The root element &lt;knora&gt;
 
-The `<knora>` element describes a set of resources that are to be imported. It is the container for an arbitrary number
-of `<resource>` elements and may only contain resource and permissions tags.
+The `<knora>` element describes all resources that should be imported. It has the following attributes:
 
-The `<knora>` element has the following attributes:
-
+- `xmlns`: `"https://dasch.swiss/schema"` (required)
 - `xmlns:xsi`: `"http://www.w3.org/2001/XMLSchema-instance"` (required)
-- `xsi:schemaLocation`: path to the XML schema file for validation (optional)
+- `xsi:schemaLocation`: `"https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/data.xsd"` (
+  required)
 - `shortcode`: project shortcode, e.g. "0801" (required)
 - `default-ontology`: name of the ontology (required)
 
-Thus, the `<knora>` element may look as follows:
+The `<knora>` element may look as follows:
 
 ```xml
 <knora
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="../data-schema.xsd"
- shortcode="0806"
- default-ontology="webern">
+    xmlns="https://dasch.swiss/schema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/data.xsd"
+    shortcode="0806"
+    default-ontology="webern">
  ...
 </knora>
 ```

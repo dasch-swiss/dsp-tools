@@ -133,7 +133,10 @@ def program(user_args: list[str]) -> None:
                              dump=args.dump)
         else:
             if args.validate:
-                validate_ontology(args.datamodelfile)
+                if validate_ontology(args.datamodelfile):
+                    exit(0)
+                else:
+                    exit(1)
             else:
                 create_ontology(input_file=args.datamodelfile,
                                 lists_file=args.listfile,

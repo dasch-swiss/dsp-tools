@@ -507,6 +507,7 @@ def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
     doc = etree.parse(input_file)
 
     is_valid = False
+
     if xmlschema.validate(doc):
         is_valid = True
 
@@ -539,7 +540,10 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     if validate_xml_against_schema(input_file, schema_file):
         print("The input data file is syntactically correct and passed validation!")
         if validate_only:
-            return True
+            exit(0)
+    else:
+        print("The input data file did not pass validation!")
+        exit(1)
 
     # Connect to the DaSCH Service Platform API and get the project context
     con = Connection(server)

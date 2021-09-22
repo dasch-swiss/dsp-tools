@@ -28,7 +28,7 @@ def validate_ontology(input_file_or_json: Union[str, Dict, os.PathLike]) -> bool
         data_model = json.loads(onto_json_str)
     else:
         print('Input is not valid.')
-        quit()
+        exit(1)
 
     # expand all lists referenced in the list section of the data model
     new_lists = expand_lists_from_excel(data_model)
@@ -45,7 +45,7 @@ def validate_ontology(input_file_or_json: Union[str, Dict, os.PathLike]) -> bool
     try:
         validate(instance=data_model, schema=schema)
     except jsonschema.exceptions.ValidationError as err:
-        print(err)
+        print('Data model did not pass validation. The error message is:', err.message)
         return False
     print('Data model is syntactically correct and passed validation.')
     return True

@@ -2,12 +2,13 @@ import json
 import os
 from typing import Dict, Union
 
+import jsonschema
 from jsonschema import validate
 
 from ..utils.expand_all_lists import expand_lists_from_excel
 
 
-def validate_ontology(input_file_or_json: Union[str, Dict, os.PathLike]) -> None:
+def validate_ontology(input_file_or_json: Union[str, Dict, os.PathLike]) -> bool:
     """
     Validates an ontology against the knora schema
 
@@ -41,5 +42,10 @@ def validate_ontology(input_file_or_json: Union[str, Dict, os.PathLike]) -> None
     with open(os.path.join(current_dir, '../schemas/ontology.json')) as s:
         schema = json.load(s)
 
-    validate(instance=data_model, schema=schema)
+    try:
+        validate(instance=data_model, schema=schema)
+    except jsonschema.exceptions.ValidationError as err:
+        print('Data model did not pass validation. The error message is:', err.message)
+        return False
     print('Data model is syntactically correct and passed validation.')
+    return True

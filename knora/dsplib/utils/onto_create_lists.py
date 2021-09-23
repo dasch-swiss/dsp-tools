@@ -64,7 +64,10 @@ def create_lists(input_file: str, lists_file: str, server: str, user: str, passw
     data_model['project']['lists'] = new_lists
 
     # validate the ontology
-    validate_ontology(data_model)
+    if validate_ontology(data_model):
+        pass
+    else:
+        exit(1)
 
     # Connect to the DaSCH Service Platform API
     con = Connection(server)

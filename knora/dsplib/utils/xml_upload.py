@@ -538,11 +538,11 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     schema_file = os.path.join(current_dir, '../schemas/data.xsd')
 
     if validate_xml_against_schema(input_file, schema_file):
-        print("The input data file is syntactically correct and passed validation.")
+        print("The input data file is syntactically correct and passed validation!")
         if validate_only:
             exit(0)
     else:
-        print("The input data file did not pass validation.")
+        print("The input data file did not pass validation!")
         exit(1)
 
     # Connect to the DaSCH Service Platform API and get the project context
@@ -619,4 +619,4 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
                                                  values=resource.get_propvals(res_iri_lookup,
                                                                               permissions_lookup)).create()
         res_iri_lookup[resource.id] = instance.iri
-        print("Created resource:", instance.label, "(", resource.id, ") with IRI", instance.iri)
+        print("Created resource: ", instance.label, " (", resource.id, ") with IRI ", instance.iri)

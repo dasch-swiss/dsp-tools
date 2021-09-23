@@ -68,10 +68,7 @@ def create_ontology(input_file: str,
     data_model['project']['lists'] = new_lists
 
     # validate the ontology
-    if validate_ontology(data_model):
-        pass
-    else:
-        exit(1)
+    validate_ontology(data_model)
 
     # make the connection to the server
     con = login(server=server,

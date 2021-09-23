@@ -117,12 +117,15 @@ def program(user_args: list[str]) -> None:
 
     if not hasattr(args, 'action'):
         parser.print_help(sys.stderr)
-        exit(0)
+        exit(1)
 
     if args.action == 'create':
         if args.lists:
             if args.validate:
-                validate_list_with_schema(args.datamodelfile)
+                if validate_list_with_schema(args.datamodelfile):
+                    exit(0)
+                else:
+                    exit(1)
             else:
                 create_lists(input_file=args.datamodelfile,
                              lists_file=args.listfile,
@@ -133,10 +136,7 @@ def program(user_args: list[str]) -> None:
                              dump=args.dump)
         else:
             if args.validate:
-                if validate_ontology(args.datamodelfile):
-                    exit(0)
-                else:
-                    exit(1)
+                validate_ontology(args.datamodelfile)
             else:
                 create_ontology(input_file=args.datamodelfile,
                                 lists_file=args.listfile,

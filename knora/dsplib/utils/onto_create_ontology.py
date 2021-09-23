@@ -71,7 +71,7 @@ def create_ontology(input_file: str,
     if validate_ontology(data_model):
         pass
     else:
-        quit()
+        exit(1)
 
     # make the connection to the server
     con = login(server=server,

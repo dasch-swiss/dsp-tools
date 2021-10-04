@@ -369,12 +369,13 @@ This object contains user definitions. A user has the following elements:
 - _familyName_: surname of the user
 - _password_: password of the user
 - _lang_: the default language of the user: "en", "de", "fr", "it" (optional, default: "en")
-- _groups_: List of groups the user belongs to. The name of the group has to be provided with the ontology's namespace, p.ex. "onto:editors". The
-  given ontology defined in the same ontology file has no name, so only ":editors" is required if the user belongs to the group "editors". (optional)
+- _groups_: List of groups the user belongs to. The name of the group has to be provided with the ontology's namespace,
+  p.ex. "onto:editors". The given ontology defined in the same ontology file has no name, so only ":editors" is required
+  if the user belongs to the group "editors". (optional)
 - _projects_: List of projects the user belongs to. The project name has to be followed by a ":" and either "member"
   or "admin". This indicates if the new user has admin rights in the given project or is an ordinary
   user. `myproject:admin` would add the user as admin to the project "myproject". The given project defined in the same
-  ontology file has no name, so only ":admin"or ":member" is required.
+  ontology file has no name, so only ":admin"or ":member" is required. (optional)
 
 Example:
 
@@ -1008,12 +1009,14 @@ has to be provided.
 `"resources": [<resource-definition>, <resource-definition>, ...]`
 
 A resource object needs to have the following fields:
+
 - name
 - labels
 - super
 - cardinalities
 
 The following field is optional:
+
 - comments
 
 ##### Name
@@ -1023,7 +1026,6 @@ The following field is optional:
 A name for the resource, e.g. "Book", "Manuscript", "Person". It should be in the form of
 a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). This means a string without blanks or special characters
 but `-` and `_` are allowed (although not as first character).
-
 
 ##### Labels
 
@@ -1036,8 +1038,8 @@ and "it" are supported).
 
 `"super": ["<super-resource>", "<super-resource>", ...]`
 
-A resource is always derived from at least one other resource. The most generic resource class for DSP is `Resource`. 
-A resource may be derived from resources defined in external ontologies.
+A resource is always derived from at least one other resource. The most generic resource class for DSP is `Resource`. A
+resource may be derived from resources defined in external ontologies.
 
 The following predefined resources are provided by DSP:
 
@@ -1066,13 +1068,13 @@ The following predefined resources are provided by DSP:
 
 `"cardinalities": [...]`
 
-An array that contains information about the relation between resources and properties. It tells what
-properties a resource can have as well as how many times the relation is established.
+An array that contains information about the relation between resources and properties. It tells what properties a
+resource can have as well as how many times the relation is established.
 
 - `cardinalities`: Array of references to the properties that the resource may hold including the cardinality. A
   cardinality has the following properties:
-    - `propname`: The name of the property. If it's used in the form `:my_propname`, the current ontology is referenced. 
-  Otherwise, the prefix of the ontology the property is part of has to be used.
+    - `propname`: The name of the property. If it's used in the form `:my_propname`, the current ontology is referenced.
+      Otherwise, the prefix of the ontology the property is part of has to be used.
     - `gui_order`: An integer number which will help the GUI to display the properties in the desired order (optional)
     - `cardinality`: Indicates how often a given property may occur. The possible values are:
         - `"1"`: exactly once (mandatory one value and only one)

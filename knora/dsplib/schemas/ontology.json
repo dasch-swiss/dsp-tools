@@ -67,7 +67,7 @@
                 "$ref": "#/definitions/resourcedef"
             }
         },
-        "excelref": {
+        "excelfileref": {
             "type": "object",
             "properties": {
                 "file": {
@@ -86,6 +86,17 @@
             "required": [
                 "file",
                 "worksheet"
+            ]
+        },
+        "excelfolderref": {
+            "type": "object",
+            "properties": {
+                "folder": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "folder"
             ]
         },
         "user": {
@@ -175,7 +186,11 @@
                         },
                         {
                             "type": "object",
-                            "$ref": "#/definitions/excelref"
+                            "$ref": "#/definitions/excelfileref"
+                        },
+                        {
+                            "type": "object",
+                            "$ref": "#/definitions/excelfolderref"
                         }
                     ]
                 }

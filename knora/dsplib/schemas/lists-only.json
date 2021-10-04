@@ -44,7 +44,11 @@
                         },
                         {
                             "type": "object",
-                            "$ref": "#/definitions/excelref"
+                            "$ref": "#/definitions/excelfileref"
+                        },
+                        {
+                            "type": "object",
+                            "$ref": "#/definitions/excelfolderref"
                         }
                     ]
                 }
@@ -55,7 +59,7 @@
             ],
             "additionalProperties": false
         },
-        "excelref": {
+        "excelfileref": {
             "type": "object",
             "properties": {
                 "file": {
@@ -74,6 +78,17 @@
             "required": [
                 "file",
                 "worksheet"
+            ]
+        },
+        "excelfolderref": {
+            "type": "object",
+            "properties": {
+                "folder": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "folder"
             ]
         }
     },
@@ -98,7 +113,11 @@
                 },
                 {
                     "type": "object",
-                    "$ref": "#/definitions/excelref"
+                    "$ref": "#/definitions/excelfileref"
+                },
+                {
+                    "type": "object",
+                    "$ref": "#/definitions/excelfolderref"
                 }
             ]
         }

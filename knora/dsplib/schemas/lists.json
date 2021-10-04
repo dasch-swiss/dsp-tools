@@ -22,7 +22,7 @@
         "comment": {
             "$ref": "#/definitions/langstring"
         },
-        "excelref": {
+        "excelfileref": {
             "type": "object",
             "properties": {
                 "file": {
@@ -41,6 +41,17 @@
             "required": [
                 "file",
                 "worksheet"
+            ]
+        },
+        "excelfolderref": {
+            "type": "object",
+            "properties": {
+                "folder": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "folder"
             ]
         },
         "node": {
@@ -65,7 +76,11 @@
                         },
                         {
                             "type": "object",
-                            "$ref": "#/definitions/excelref"
+                            "$ref": "#/definitions/excelfileref"
+                        },
+                        {
+                            "type": "object",
+                            "$ref": "#/definitions/excelfolderref"
                         }
                     ]
                 }

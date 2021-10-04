@@ -384,7 +384,17 @@
             "properties": {
                 "propname": {
                     "type": "string",
-                    "pattern": "^(([-\\w]*)?:([\\w ]+))$"
+                    "oneOf": [
+                        {
+                            "enum": [
+                                "isPartOf",
+                                "seqnum"
+                            ]
+                        },
+                        {
+                            "pattern": "^(([-\\w]*)?:([\\w ]+))$"
+                        }
+                    ]
                 },
                 "cardinality": {
                     "type": "string",

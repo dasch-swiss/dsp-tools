@@ -106,7 +106,7 @@
             },
             "gui_element": "SimpleText",
             "gui_attributes": {
-              "maxlength": "255",
+              "maxlength": 255,
               "size": 80
             }
           },
@@ -132,7 +132,7 @@
             },
             "gui_element": "SimpleText",
             "gui_attributes": {
-              "maxlength": "255",
+              "maxlength": 255,
               "size": 80
             }
           },
@@ -184,7 +184,7 @@
             },
             "gui_element": "SimpleText",
             "gui_attributes": {
-              "maxlength": "255",
+              "maxlength": 255,
               "size": 80
             }
           },

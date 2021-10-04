@@ -5,20 +5,18 @@
     "description": "JSON schema for DSP ontologies",
     "definitions": {
         "langstring": {
-            "anyOf": [
-                {
-                    "type": "object",
-                    "patternProperties": {
-                        "^(en|de|fr|it)": {
-                            "type": "string"
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                {
+            "type": "object",
+            "patternProperties": {
+                "^(en|de|fr|it)": {
                     "type": "string"
                 }
-            ]
+            },
+            "additionalProperties": false
+        },
+        "ncname": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$",
+            "additionalProperties": false
         },
         "label": {
             "$ref": "#/definitions/langstring"
@@ -31,12 +29,12 @@
         },
         "groupdef": {
             "type": "string",
-            "pattern": "^(([\\w-]*)?:([\\w ]+))|(SystemAdmin)$",
+            "pattern": "^(([-\\w]*)?:([-\\w ]+))|(SystemAdmin)$",
             "additionalProperties": false
         },
         "projectdef": {
             "type": "string",
-            "pattern": "^([\\w-]*)?:(member|admin)$"
+            "pattern": "^([-\\w]*)?:(member|admin)$"
         },
         "resourcedef": {
             "type": [
@@ -59,7 +57,7 @@
                     ]
                 },
                 {
-                    "pattern": "^([\\w-]*)?:(\\w+)$"
+                    "pattern": "^([-\\w]*)?:(\\w+)$"
                 },
                 {
                     "pattern": "^(http)(s)?://.*"
@@ -97,7 +95,8 @@
                     "type": "string"
                 },
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
                 },
                 "givenName": {
                     "type": "string"
@@ -109,6 +108,7 @@
                     "type": "string"
                 },
                 "lang": {
+                    "type": "string",
                     "pattern": "^(en|de|fr|it)"
                 },
                 "groups": {
@@ -190,7 +190,7 @@
             "type": "object",
             "properties": {
                 "name": {
-                    "type": "string"
+                    "$ref": "#/definitions/ncname"
                 },
                 "label": {
                     "type": "string"
@@ -223,7 +223,7 @@
             "type": "object",
             "properties": {
                 "name": {
-                    "type": "string"
+                    "$ref": "#/definitions/ncname"
                 },
                 "super": {
                     "type": "array",
@@ -245,7 +245,7 @@
                                 ]
                             },
                             {
-                                "pattern": "^([\\w-]+)?:(\\w+)$"
+                                "pattern": "^([-\\w]+)?:(\\w+)$"
                             },
                             {
                                 "pattern": "^(http)(s)?://.*"
@@ -276,13 +276,13 @@
                             ]
                         },
                         {
-                            "pattern": "^([\\w-]+)?:(\\w+)$"
+                            "pattern": "^([-\\w]+)?:(\\w+)$"
                         }
                     ]
                 },
                 "subject": {
                     "type": "string",
-                    "pattern": "^([\\w-]+)?:(\\w+)$"
+                    "pattern": "^([-\\w]+)?:(\\w+)$"
                 },
                 "labels": {
                     "$ref": "#/definitions/label"
@@ -315,7 +315,7 @@
                         "size": {
                             "type": "integer"
                         },
-                        "maxsize": {
+                        "maxlength": {
                             "type": "integer"
                         },
                         "hlist": {
@@ -369,18 +369,7 @@
             "properties": {
                 "propname": {
                     "type": "string",
-                    "oneOf": [
-                        {
-                            "enum": [
-                                "Region",
-                                "isPartOf",
-                                "seqnum"
-                            ]
-                        },
-                        {
-                            "pattern": "^(([\\w-]*)?:([\\w ]+))$"
-                        }
-                    ]
+                    "pattern": "^(([-\\w]*)?:([\\w ]+))$"
                 },
                 "cardinality": {
                     "type": "string",
@@ -405,7 +394,7 @@
             "type": "object",
             "properties": {
                 "name": {
-                    "type": "string"
+                    "$ref": "#/definitions/ncname"
                 },
                 "super": {
                     "$ref": "#/definitions/resourcedef"
@@ -437,7 +426,7 @@
         "prefixes": {
             "type": "object",
             "patternProperties": {
-                "^[\\w-]+$": {
+                "^[-\\w]+$": {
                     "format": "uri"
                 }
             },
@@ -454,7 +443,7 @@
                     "pattern": "^[0-9A-F]{4}$"
                 },
                 "shortname": {
-                    "type": "string"
+                    "$ref": "#/definitions/ncname"
                 },
                 "longname": {
                     "type": "string"

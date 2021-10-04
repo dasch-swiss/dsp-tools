@@ -35,10 +35,18 @@
                     "$ref": "#/definitions/comment"
                 },
                 "nodes": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/node"
-                    }
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/node"
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "$ref": "#/definitions/excelref"
+                        }
+                    ]
                 }
             },
             "required": [
@@ -46,6 +54,27 @@
                 "labels"
             ],
             "additionalProperties": false
+        },
+        "excelref": {
+            "type": "object",
+            "properties": {
+                "file": {
+                    "type": "string"
+                },
+                "worksheet": {
+                    "type": "string"
+                },
+                "startrow": {
+                    "type": "integer"
+                },
+                "startcol": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "file",
+                "worksheet"
+            ]
         }
     },
     "type": "object",
@@ -60,10 +89,18 @@
             "$ref": "#/definitions/comment"
         },
         "nodes": {
-            "type": "array",
-            "items": {
-                "$ref": "#/definitions/node"
-            }
+            "oneOf": [
+                {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/node"
+                    }
+                },
+                {
+                    "type": "object",
+                    "$ref": "#/definitions/excelref"
+                }
+            ]
         }
     },
     "required": [

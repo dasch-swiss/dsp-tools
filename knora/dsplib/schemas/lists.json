@@ -4,7 +4,7 @@
     "title": "JSON schema for DSP lists",
     "description": "JSON schema for lists used in DSP ontologies",
     "definitions": {
-        "label": {
+        "langstring": {
             "type": "object",
             "patternProperties": {
                 "^(en|de|fr|it)": {
@@ -12,24 +12,36 @@
                 }
             },
             "additionalProperties": false
+        },
+        "label": {
+            "$ref": "#/definitions/langstring"
         },
         "description": {
-            "type": "object",
-            "patternProperties": {
-                "^(en|de|fr|it)": {
-                    "type": "string"
-                }
-            },
-            "additionalProperties": false
+            "$ref": "#/definitions/langstring"
         },
         "comment": {
+            "$ref": "#/definitions/langstring"
+        },
+        "excelref": {
             "type": "object",
-            "patternProperties": {
-                "^(en|de|fr|it)": {
+            "properties": {
+                "file": {
                     "type": "string"
+                },
+                "worksheet": {
+                    "type": "string"
+                },
+                "startrow": {
+                    "type": "integer"
+                },
+                "startcol": {
+                    "type": "integer"
                 }
             },
-            "additionalProperties": false
+            "required": [
+                "file",
+                "worksheet"
+            ]
         },
         "node": {
             "type": "object",
@@ -44,10 +56,18 @@
                     "$ref": "#/definitions/comment"
                 },
                 "nodes": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/node"
-                    }
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/node"
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "$ref": "#/definitions/excelref"
+                        }
+                    ]
                 }
             },
             "required": [

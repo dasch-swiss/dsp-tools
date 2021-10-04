@@ -5,20 +5,18 @@
     "description": "JSON schema for the properties section used in DSP ontologies",
     "definitions": {
         "langstring": {
-            "anyOf": [
-                {
-                    "type": "object",
-                    "patternProperties": {
-                        "^(en|de|fr|it)": {
-                            "type": "string"
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                {
+            "type": "object",
+            "patternProperties": {
+                "^(en|de|fr|it)": {
                     "type": "string"
                 }
-            ]
+            },
+            "additionalProperties": false
+        },
+        "ncname": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$",
+            "additionalProperties": false
         },
         "label": {
             "$ref": "#/definitions/langstring"
@@ -30,7 +28,7 @@
             "type": "object",
             "properties": {
                 "name": {
-                    "type": "string"
+                    "$ref": "#/definitions/ncname"
                 },
                 "super": {
                     "type": "array",
@@ -52,7 +50,7 @@
                                 ]
                             },
                             {
-                                "pattern": "^([\\w-]+)?:(\\w+)$"
+                                "pattern": "^([-\\w]+)?:(\\w+)$"
                             },
                             {
                                 "pattern": "^(http)(s)?://.*"
@@ -83,13 +81,13 @@
                             ]
                         },
                         {
-                            "pattern": "^([\\w-]+)?:(\\w+)$"
+                            "pattern": "^([-\\w]+)?:(\\w+)$"
                         }
                     ]
                 },
                 "subject": {
                     "type": "string",
-                    "pattern": "^([\\w-]+)?:(\\w+)$"
+                    "pattern": "^([-\\w]+)?:(\\w+)$"
                 },
                 "labels": {
                     "$ref": "#/definitions/label"
@@ -122,7 +120,7 @@
                         "size": {
                             "type": "integer"
                         },
-                        "maxsize": {
+                        "maxlength": {
                             "type": "integer"
                         },
                         "hlist": {

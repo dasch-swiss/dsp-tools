@@ -312,7 +312,6 @@
                         "Interval",
                         "TimeStamp",
                         "List",
-                        "Pulldown",
                         "Radio",
                         "Richtext",
                         "Searchbox",

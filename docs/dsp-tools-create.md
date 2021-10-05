@@ -864,13 +864,11 @@ Represents a node of a (possibly hierarchical) list
 
 *gui-elements / gui_attributes*:
 
-- `Radio`: A GUI element for _ListValue_. A set of radio buttons. This works only with flat lists!
+- `Radio`: A GUI element for _ListValue_. A set of radio buttons. This works only with flat lists.
     - _gui_attributes_:
         - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
-- `List`: A GUI element for _ListValue_. A list of values to select one from.
-    - _gui_attributes_:
-        - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
-- `Pulldown`: A GUI element for _ListValue_. Pulldown for list values. Works also for hierarchical lists.
+- `List`: A GUI element for _ListValue_. A list of values to select one from. This GUI element should be chosen for
+  hierarchical lists or flat lists that could be expanded to hierarchical lists in the future.
     - _gui_attributes_:
         - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
 

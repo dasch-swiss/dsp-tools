@@ -130,34 +130,33 @@ In the following section all fields of the `project` object are explained in det
 
 `"shortcode": "<4-hex-characters>"`
 
-Has to be unique and is represented by a 4 digit hexadecimal string. The shortcode has to be provided by the DaSCH.
+The shortcode has to be unique and is represented by a 4 digit hexadecimal string. The shortcode has to be provided by the DaSCH.
 
 ### Shortname
 
 `"shortname": "<string>"`
 
-Has to be unique. It should be in the form of a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). This means a
+The shortname has to be unique. It should be in the form of a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). This means a
 string without blanks or special characters but `-` and `_` are allowed (although not as first character).
 
 ### Longname
 
 `"longname": "<string>"`
 
-A string that provides the full name of the project.
+The longname is a string that provides the full name of the project.
 
 ### Descriptions
 
 `"descriptions": {"<lang>": "<string>", ...}`
 
-Collection of descriptions of the project as strings with language tag (currently "en", "de", "fr" and "it" are
-supported). The descriptions have to be provided as a JSON object with the language as key, and the actual description
-as value.
+The description is represented as a collection of strings with language tags (currently "en", "de", "fr" and "it" are
+supported). It is the description of the project.
 
 ### Keywords
 
 `"keywords": ["<string>", "<string>", ...]`
 
-An array of keywords is used to describe and/or tag the project.
+Keywords are represented as an array of strings and are used to describe and/or tag the project.
 
 ### Lists
 
@@ -1041,7 +1040,7 @@ resource may be derived from resources defined in external ontologies.
 
 The following predefined resources are provided by DSP:
 
-- `Resource` : A generic resource that represents an item from the real world
+- `Resource`: A generic resource that represents an item from the real world
 - `StillImageRepresentation`: An object that is connected to a still image
 - `TextRepresentation`: An object that is connected to an (external) text (not yet implemented)
 - `AudioRepresentation`: An object representing audio data (not yet implemented)
@@ -1096,13 +1095,15 @@ Example for a resource definition:
       "labels": {
         "de": "Schule",
         "en": "School",
-        "fr": "Ecole"
+        "fr": "Ecole",
+        "it": "Scuola"
       },
       "super": "Resource",
       "comments": {
         "de": "Ein Kommentar",
         "en": "A comment",
-        "fr": "Une commentaire"
+        "fr": "Une commentaire",
+        "it": "Un commento"
       },
       "cardinalities": [
         {

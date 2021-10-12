@@ -94,7 +94,7 @@ def create_ontology(input_file: str,
         if project.shortname != data_model["project"]["shortname"]:
             project.shortname = data_model["project"]["shortname"]
         if project.longname != data_model["project"]["longname"]:
-            project.longname == data_model["project"]["longname"]
+            project.longname = data_model["project"]["longname"]
         project.description = data_model["project"].get("descriptions")
         project.keywords = set(data_model["project"].get("keywords"))
         updated_project = project.update()

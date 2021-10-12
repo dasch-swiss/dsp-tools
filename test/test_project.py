@@ -1,8 +1,8 @@
 import unittest
 
-from dsplib.models.connection import Connection
-from dsplib.models.langstring import Languages, LangString
-from dsplib.models.project import Project
+from knora.dsplib.models.connection import Connection
+from knora.dsplib.models.langstring import Languages, LangString
+from knora.dsplib.models.project import Project
 
 
 class TestProject(unittest.TestCase):

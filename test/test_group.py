@@ -2,6 +2,7 @@ import unittest
 
 from knora.dsplib.models.connection import Connection
 from knora.dsplib.models.group import Group
+from knora.dsplib.models.langstring import LangString, Languages
 
 
 class TestGroup(unittest.TestCase):
@@ -29,7 +30,7 @@ class TestGroup(unittest.TestCase):
 
         group = Group(con=con,
                       name="TEST GROUP",
-                      descriptions={"en": "Test group"},
+                      descriptions=LangString({Languages.EN: 'Test group'}),
                       project="http://rdfh.ch/projects/0001",
                       status=True,
                       selfjoin=False)
@@ -59,13 +60,12 @@ class TestGroup(unittest.TestCase):
         Test if we can create a new group in the triple store
         :return: None
         """
-        global __iri
         con = Connection('http://0.0.0.0:3333')
         con.login('root@example.com', 'test')
 
         group = Group(con=con,
                       name="GROUP CREATE",
-                      descriptions={"en": "Test group"},
+                      descriptions=LangString({Languages.EN: 'Test group'}),
                       project="http://rdfh.ch/projects/0001",
                       status=True,
                       selfjoin=False).create()
@@ -87,7 +87,7 @@ class TestGroup(unittest.TestCase):
 
         group = Group(con=con,
                       name="GROUP UPDATE",
-                      descriptions={"en": "Test group"},
+                      descriptions=LangString({Languages.EN: 'Test group'}),
                       project="http://rdfh.ch/projects/0001",
                       status=True,
                       selfjoin=False).create()
@@ -96,7 +96,7 @@ class TestGroup(unittest.TestCase):
         group.descriptions = {"en": "Test group updated"}
         group.selfjoin = True
         group.status = False
-        ngroup = group.update()
+        group.update()
         self.assertEqual(group.name, 'GROUP UPDATE - modified')
         self.assertCountEqual(group.descriptions.toJsonObj(), [{'language': 'en', 'value': 'Test group updated'}])
         self.assertEqual(group.project, 'http://rdfh.ch/projects/0001')
@@ -114,7 +114,7 @@ class TestGroup(unittest.TestCase):
 
         group = Group(con=con,
                       name="GROUP DELETE",
-                      descriptions={"en": "Test group"},
+                      descriptions=LangString({Languages.EN: 'Test group'}),
                       project="http://rdfh.ch/projects/0001",
                       status=True,
                       selfjoin=False).create()

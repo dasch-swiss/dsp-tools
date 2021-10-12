@@ -1,8 +1,8 @@
 import unittest
 
-from dsplib.models.connection import Connection
-from dsplib.models.langstring import Languages
-from dsplib.models.user import User
+from knora.dsplib.models.connection import Connection
+from knora.dsplib.models.langstring import Languages
+from knora.dsplib.models.user import User
 
 
 class TestUser(unittest.TestCase):

@@ -81,7 +81,7 @@ class Group(Model):
                  con: Connection,
                  id: Optional[str] = None,
                  name: Optional[str] = None,
-                 descriptions: LangStringParam = None,
+                 descriptions: LangString = None,
                  project: Optional[Union[str, Project]] = None,
                  selfjoin: Optional[bool] = None,
                  status: Optional[bool] = None):
@@ -122,29 +122,6 @@ class Group(Model):
         self._descriptions = LangString(value)
         self._changed.add('descriptions')
 
-    def addDescriptions(self, lang: Union[Languages, str], value: str) -> None:
-        """
-        Add/replace group descriptions with the given language (executed at next update)
-
-        :param lang: The language the description is in, either a string "EN", "DE", "FR", "IT" or a Language instance
-        :param value: The text of the description
-        :return: None
-        """
-
-        self._descriptions[lang] = value
-        self._changed.add('descriptions')
-
-    def rmDescriptions(self, lang: Union[Languages, str]) -> None:
-        """
-        Remove descriptions from a group (executed at next update)
-
-        :param lang: The language the description to be removed is in, either a string "EN", "DE", "FR", "IT" or a Language instance
-        :return: None
-        """
-
-        del self._descriptions[lang]
-        self._changed.add('descriptions')
-
     @property
     def project(self):
         return self._project
@@ -181,23 +158,23 @@ class Group(Model):
     def fromJsonObj(cls, con: Connection, json_obj: Any):
         id = json_obj.get('id')
         if id is None:
-            raise BaseError('Group "id" is missing in JSON from knora')
+            raise BaseError('Group "id" is missing')
         name = json_obj.get('name')
         if name is None:
-            raise BaseError('Group "name" is missing in JSON from knora')
+            raise BaseError('Group "name" is missing')
         descriptions = LangString.fromJsonObj(json_obj.get('descriptions'))
         tmp = json_obj.get('project')
         if tmp is None:
-            raise BaseError('Group "project" is missing in JSON from knora')
+            raise BaseError('Group "project" is missing')
         project = tmp.get('id')
         if project is None:
-            raise BaseError('Group "project" has no "id" in JSON from knora')
+            raise BaseError('Group "project" has no "id"')
         selfjoin = json_obj.get('selfjoin')
         if selfjoin is None:
-            raise BaseError("selfjoin is missing in JSON from knora")
+            raise BaseError("selfjoin is missing")
         status = json_obj.get('status')
         if status is None:
-            raise BaseError("Status is missing in JSON from knora")
+            raise BaseError("Status is missing")
         return cls(con=con,
                    name=name,
                    id=id,
@@ -289,14 +266,15 @@ if __name__ == '__main__':
         group.print()
 
     new_group = Group(con=con,
-                      name="KNORA-PY TEST",
+                      name="GROUP TEST",
                       descriptions=LangString({Languages.EN: 'Test group description'}),
                       project="http://rdfh.ch/projects/00FF",
                       status=True,
                       selfjoin=False).create()
     new_group.print()
+    print("iiiii")
 
-    new_group.name = "KNORA-PY TEST - modified"
+    new_group.name = "GROUP TEST - modified"
     new_group = new_group.update()
     new_group.print()
     new_group.descriptions = LangString({Languages.DE: 'Beschreibung einer Gruppe'})
@@ -311,7 +289,7 @@ if __name__ == '__main__':
     new_group = new_group.update()
     new_group.print()
 
-    new_group.name = '-- DSP-TOOLS TEST --'
+    new_group.name = '-- GROUP TEST --'
     new_group.descriptions = LangString({Languages.DE: 'Neue Beschreibung einer Gruppe'})
     new_group.status = True
     new_group = new_group.update()

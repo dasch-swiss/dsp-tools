@@ -334,7 +334,8 @@ define several groups such as "project-admins", "editors" etc. in order to provi
 A group definition has the following elements:
 
 - _name_: name of the group, mandatory
-- _description_: description of the group, mandatory
+- _descriptions_: description of the group with language tags in the form `"descriptions": {"<lang>": "<string>", ...}` (
+  currently "en", "de", "fr" and "it" are supported), mandatory
 - _selfjoin_: true if users are allowed to join the group themselves, false if an administrator has to add the users,
   optional
 - _status_: true if the group is active, false if the group is inactive, optional
@@ -346,7 +347,7 @@ Example:
   "groups": [
     {
       "name": "biz-editors",
-      "description": "Editors for the BiZ project",
+      "descriptions": {"en" : "Editors for the BiZ project"},
       "selfjoin": false,
       "status": true
     }

@@ -15,7 +15,12 @@
         },
         "ncname": {
             "type": "string",
-            "pattern": "^[a-zA-Z_][a-zA-Z0-9_.-]*$",
+            "pattern": "^[a-zA-Z_][\\w.-]*$",
+            "additionalProperties": false
+        },
+        "prefixedname": {
+            "type": "string",
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:([-\\w]+)$",
             "additionalProperties": false
         },
         "label": {
@@ -29,12 +34,12 @@
         },
         "groupdef": {
             "type": "string",
-            "pattern": "^(([-\\w]*)?:([-\\w ]+))|(SystemAdmin)$",
+            "pattern": "^(([a-zA-Z_][\\w.-]*)?:([-\\w .]+))|(SystemAdmin)$",
             "additionalProperties": false
         },
         "projectdef": {
             "type": "string",
-            "pattern": "^([-\\w]*)?:(member|admin)$"
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:(member|admin)$"
         },
         "resourcedef": {
             "type": [
@@ -57,7 +62,7 @@
                     ]
                 },
                 {
-                    "pattern": "^([-\\w]*)?:(\\w+)$"
+                    "$ref": "#/definitions/prefixedname"
                 },
                 {
                     "pattern": "^(http)(s)?://.*"
@@ -260,7 +265,7 @@
                                 ]
                             },
                             {
-                                "pattern": "^([-\\w]+)?:(\\w+)$"
+                                "$ref": "#/definitions/prefixedname"
                             },
                             {
                                 "pattern": "^(http)(s)?://.*"
@@ -291,13 +296,12 @@
                             ]
                         },
                         {
-                            "pattern": "^([-\\w]+)?:(\\w+)$"
+                            "$ref": "#/definitions/prefixedname"
                         }
                     ]
                 },
                 "subject": {
-                    "type": "string",
-                    "pattern": "^([-\\w]+)?:(\\w+)$"
+                    "$ref": "#/definitions/prefixedname"
                 },
                 "labels": {
                     "$ref": "#/definitions/label"
@@ -391,7 +395,7 @@
                             ]
                         },
                         {
-                            "pattern": "^(([-\\w]*)?:([\\w ]+))$"
+                            "$ref": "#/definitions/prefixedname"
                         }
                     ]
                 },

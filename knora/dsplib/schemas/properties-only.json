@@ -18,6 +18,11 @@
             "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$",
             "additionalProperties": false
         },
+        "prefixedname": {
+            "type": "string",
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:([-\\w]+)$",
+            "additionalProperties": false
+        },
         "label": {
             "$ref": "#/definitions/langstring"
         },
@@ -50,7 +55,7 @@
                                 ]
                             },
                             {
-                                "pattern": "^([-\\w]+)?:(\\w+)$"
+                                "$ref": "#/definitions/prefixedname"
                             },
                             {
                                 "pattern": "^(http)(s)?://.*"
@@ -81,13 +86,12 @@
                             ]
                         },
                         {
-                            "pattern": "^([-\\w]+)?:(\\w+)$"
+                            "$ref": "#/definitions/prefixedname"
                         }
                     ]
                 },
                 "subject": {
-                    "type": "string",
-                    "pattern": "^([-\\w]+)?:(\\w+)$"
+                    "$ref": "#/definitions/prefixedname"
                 },
                 "labels": {
                     "$ref": "#/definitions/label"
@@ -102,7 +106,6 @@
                         "Interval",
                         "TimeStamp",
                         "List",
-                        "Pulldown",
                         "Radio",
                         "Richtext",
                         "Searchbox",

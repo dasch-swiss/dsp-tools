@@ -18,6 +18,11 @@
             "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$",
             "additionalProperties": false
         },
+        "prefixedname": {
+            "type": "string",
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:([-\\w]+)$",
+            "additionalProperties": false
+        },
         "label": {
             "$ref": "#/definitions/langstring"
         },
@@ -45,7 +50,7 @@
                     ]
                 },
                 {
-                    "pattern": "^([-\\w]*)?:(\\w+)$"
+                    "$ref": "#/definitions/prefixedname"
                 },
                 {
                     "pattern": "^(http)(s)?://.*"
@@ -90,7 +95,17 @@
             "properties": {
                 "propname": {
                     "type": "string",
-                    "pattern": "^(([-\\w]*)?:([\\w ]+))$"
+                    "oneOf": [
+                        {
+                            "enum": [
+                                "isPartOf",
+                                "seqnum"
+                            ]
+                        },
+                        {
+                            "$ref": "#/definitions/prefixedname"
+                        }
+                    ]
                 },
                 "cardinality": {
                     "type": "string",

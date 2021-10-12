@@ -1,8 +1,8 @@
 import unittest
 
-from dsplib.models.connection import Connection
-from dsplib.models.helpers import LastModificationDate
-from dsplib.models.ontology import Ontology
+from knora.dsplib.models.connection import Connection
+from knora.dsplib.models.helpers import LastModificationDate
+from knora.dsplib.models.ontology import Ontology
 
 
 class TestOntology(unittest.TestCase):

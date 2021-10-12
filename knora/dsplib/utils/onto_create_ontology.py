@@ -136,7 +136,7 @@ def create_ontology(input_file: str,
             try:
                 new_group = Group(con=con,
                                   name=group["name"],
-                                  description=group["description"],
+                                  descriptions=LangString(group["descriptions"]),
                                   project=project,
                                   status=group["status"] if group.get("status") is not None else True,
                                   selfjoin=group["selfjoin"] if group.get("selfjoin") is not None else False).create()

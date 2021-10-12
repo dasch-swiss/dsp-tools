@@ -70,7 +70,9 @@
     "groups": [
       {
         "name": "testgroup",
-        "description": "Test group",
+        "descriptions": {
+            "en": "Test group",
+            "de": "Testgruppe"},
         "selfjoin": false,
         "status": true
       }

@@ -4,6 +4,7 @@ from urllib.parse import quote_plus
 
 from pystrict import strict
 
+from knora.dsplib.models.langstring import LangString, LangStringParam, Languages
 from .connection import Connection
 from .helpers import Actions, BaseError
 from .model import Model
@@ -50,8 +51,8 @@ class Group(Model):
     name : str
         Name of the group
 
-    description : str
-        A description of the group
+    descriptions : LangString
+        Group descriptions in a given language (Languages.EN, Languages.DE, Languages.FR, Languages.IT).
 
     project : str | project
         either the IRI of a project [get only, cannot be modified after creation of instance]
@@ -71,7 +72,7 @@ class Group(Model):
 
     _id: str
     _name: str
-    _description: str
+    _descriptions: LangString
     _project: str
     _selfjoin: bool
     _status: bool
@@ -80,14 +81,14 @@ class Group(Model):
                  con: Connection,
                  id: Optional[str] = None,
                  name: Optional[str] = None,
-                 description: Optional[str] = None,
+                 descriptions: LangStringParam = None,
                  project: Optional[Union[str, Project]] = None,
                  selfjoin: Optional[bool] = None,
                  status: Optional[bool] = None):
         super().__init__(con)
         self._id = str(id) if id is not None else None
         self._name = str(name) if name is not None else None
-        self._description = description
+        self._descriptions = LangString(descriptions)
         if project is not None and isinstance(project, Project):
             self._project = project.id
         else:
@@ -113,13 +114,36 @@ class Group(Model):
         self._changed.add('name')
 
     @property
-    def description(self):
-        return self._description
+    def descriptions(self) -> Optional[LangString]:
+        return self._descriptions
 
-    @description.setter
-    def description(self, value: Optional[str]):
-        self._description = value
-        self._changed.add('description')
+    @descriptions.setter
+    def descriptions(self, value: Optional[LangString]) -> None:
+        self._descriptions = LangString(value)
+        self._changed.add('descriptions')
+
+    def addDescriptions(self, lang: Union[Languages, str], value: str) -> None:
+        """
+        Add/replace group descriptions with the given language (executed at next update)
+
+        :param lang: The language the description is in, either a string "EN", "DE", "FR", "IT" or a Language instance
+        :param value: The text of the description
+        :return: None
+        """
+
+        self._descriptions[lang] = value
+        self._changed.add('descriptions')
+
+    def rmDescriptions(self, lang: Union[Languages, str]) -> None:
+        """
+        Remove descriptions from a group (executed at next update)
+
+        :param lang: The language the description to be removed is in, either a string "EN", "DE", "FR", "IT" or a Language instance
+        :return: None
+        """
+
+        del self._descriptions[lang]
+        self._changed.add('descriptions')
 
     @property
     def project(self):
@@ -161,7 +185,7 @@ class Group(Model):
         name = json_obj.get('name')
         if name is None:
             raise BaseError('Group "name" is missing in JSON from knora')
-        description = json_obj.get('description')
+        descriptions = LangString.fromJsonObj(json_obj.get('descriptions'))
         tmp = json_obj.get('project')
         if tmp is None:
             raise BaseError('Group "project" is missing in JSON from knora')
@@ -177,7 +201,7 @@ class Group(Model):
         return cls(con=con,
                    name=name,
                    id=id,
-                   description=description,
+                   descriptions=descriptions,
                    project=project,
                    selfjoin=selfjoin,
                    status=status)
@@ -188,8 +212,8 @@ class Group(Model):
             if self._name is None:
                 raise BaseError("There must be a valid name!")
             tmp['name'] = self._name
-            if self._description is not None:
-                tmp['description'] = self._description
+            if not self._descriptions.isEmpty():
+                tmp['descriptions'] = self._descriptions.toJsonObj()
             if self._project is None:
                 raise BaseError("There must be a valid project!")
             tmp['project'] = self._project
@@ -202,8 +226,8 @@ class Group(Model):
         else:
             if self._name is not None and 'name' in self._changed:
                 tmp['name'] = self._name
-            if self._description is not None and 'description' in self._changed:
-                tmp['description'] = self._description
+            if not self._descriptions.isEmpty() and 'descriptions' in self._changed:
+                tmp['descriptions'] = self._descriptions.toJsonObj()
             if self._selfjoin is not None and 'selfjoin' in self._changed:
                 tmp['selfjoin'] = self._selfjoin
         return tmp
@@ -245,7 +269,12 @@ class Group(Model):
         print('Group Info:')
         print('  Id:          {}'.format(self._id))
         print('  Name:        {}'.format(self._name))
-        print('  Description: {}'.format(self._description))
+        if self._descriptions is not None:
+            print('  Descriptions:')
+            for descr in self._descriptions.items():
+                print('    {}: {}'.format(descr[0], descr[1]))
+        else:
+            print('  Descriptions: None')
         print('  Project:     {}'.format(self._project))
         print('  Selfjoin:    {}'.format(self._selfjoin))
         print('  Status:      {}'.format(self._status))
@@ -261,7 +290,7 @@ if __name__ == '__main__':
 
     new_group = Group(con=con,
                       name="KNORA-PY TEST",
-                      description="Test project for knora-py",
+                      descriptions=LangString({Languages.EN: 'Test group description'}),
                       project="http://rdfh.ch/projects/00FF",
                       status=True,
                       selfjoin=False).create()
@@ -270,8 +299,7 @@ if __name__ == '__main__':
     new_group.name = "KNORA-PY TEST - modified"
     new_group = new_group.update()
     new_group.print()
-
-    new_group.description = "gaga gaga gaga gaga gaga gaga gaga"
+    new_group.descriptions = LangString({Languages.DE: 'Beschreibung einer Gruppe'})
     new_group = new_group.update()
     new_group.print()
 
@@ -283,8 +311,8 @@ if __name__ == '__main__':
     new_group = new_group.update()
     new_group.print()
 
-    new_group.name = '-- KNORA-PY TEST --'
-    new_group.description = 'Final Test'
+    new_group.name = '-- DSP-TOOLS TEST --'
+    new_group.descriptions = LangString({Languages.DE: 'Neue Beschreibung einer Gruppe'})
     new_group.status = True
     new_group = new_group.update()
     new_group.print()

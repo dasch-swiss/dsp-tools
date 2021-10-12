@@ -103,8 +103,7 @@ py_test(
         "//knora/dsplib/models:langstring",
         "//knora/dsplib/models:user",
     ],
-    imports = [".", "../knora"],
-    size = "medium"
+    imports = [".", "../knora"]
 )
 
 py_test(

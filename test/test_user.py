@@ -267,9 +267,9 @@ class TestUser(unittest.TestCase):
             in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
         ).create()
         user.addToProject('http://rdfh.ch/projects/00FF', False)
-        user = user.update()
-        user.makeProjectAdmin('http://rdfh.ch/projects/00FF')
-        nuser = user.update()
+        updated_user = user.update()
+        updated_user.makeProjectAdmin('http://rdfh.ch/projects/00FF')
+        nuser = updated_user.update()
         self.assertIsNotNone(nuser)
         self.assertEqual(nuser.in_projects, {'http://rdfh.ch/projects/0001': True,
                                              'http://rdfh.ch/projects/00FF': True})

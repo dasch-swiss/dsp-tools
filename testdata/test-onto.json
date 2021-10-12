@@ -3,7 +3,7 @@
     "foaf": "http://xmlns.com/foaf/0.1/",
     "dcterms": "http://purl.org/dc/terms/"
   },
-  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/ontology.json",
+  "$schema": "../knora/dsplib/schemas/ontology.json",
   "project": {
     "shortcode": "4123",
     "shortname": "tp",
@@ -70,7 +70,9 @@
     "groups": [
       {
         "name": "testgroup",
-        "description": "Test group",
+        "descriptions": {
+            "en": "Test group",
+            "de": "Testgruppe"},
         "selfjoin": false,
         "status": true
       }
@@ -106,7 +108,7 @@
             },
             "gui_element": "SimpleText",
             "gui_attributes": {
-              "maxlength": "255",
+              "maxlength": 255,
               "size": 80
             }
           },
@@ -132,7 +134,7 @@
             },
             "gui_element": "SimpleText",
             "gui_attributes": {
-              "maxlength": "255",
+              "maxlength": 255,
               "size": 80
             }
           },
@@ -184,7 +186,7 @@
             },
             "gui_element": "SimpleText",
             "gui_attributes": {
-              "maxlength": "255",
+              "maxlength": 255,
               "size": 80
             }
           },

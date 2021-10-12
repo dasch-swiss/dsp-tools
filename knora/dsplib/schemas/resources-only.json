@@ -5,20 +5,23 @@
     "description": "JSON schema for the resources section used in DSP ontologies",
     "definitions": {
         "langstring": {
-            "anyOf": [
-                {
-                    "type": "object",
-                    "patternProperties": {
-                        "^(en|de|fr|it)": {
-                            "type": "string"
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                {
+            "type": "object",
+            "patternProperties": {
+                "^(en|de|fr|it)": {
                     "type": "string"
                 }
-            ]
+            },
+            "additionalProperties": false
+        },
+        "ncname": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$",
+            "additionalProperties": false
+        },
+        "prefixedname": {
+            "type": "string",
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:([-\\w]+)$",
+            "additionalProperties": false
         },
         "label": {
             "$ref": "#/definitions/langstring"
@@ -47,7 +50,7 @@
                     ]
                 },
                 {
-                    "pattern": "^([\\w-]*)?:(\\w+)$"
+                    "$ref": "#/definitions/prefixedname"
                 },
                 {
                     "pattern": "^(http)(s)?://.*"
@@ -61,7 +64,7 @@
             "type": "object",
             "properties": {
                 "name": {
-                    "type": "string"
+                    "$ref": "#/definitions/ncname"
                 },
                 "super": {
                     "$ref": "#/definitions/resourcedef"
@@ -95,13 +98,12 @@
                     "oneOf": [
                         {
                             "enum": [
-                                "Region",
                                 "isPartOf",
                                 "seqnum"
                             ]
                         },
                         {
-                            "pattern": "^(([\\w-]*)?:([\\w ]+))$"
+                            "$ref": "#/definitions/prefixedname"
                         }
                     ]
                 },

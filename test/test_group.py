@@ -1,7 +1,8 @@
 import unittest
 
-from dsplib.models.connection import Connection
-from dsplib.models.group import Group
+from knora.dsplib.models.connection import Connection
+from knora.dsplib.models.group import Group
+from knora.dsplib.models.langstring import LangString, Languages
 
 
 class TestGroup(unittest.TestCase):
@@ -18,7 +19,6 @@ class TestGroup(unittest.TestCase):
         self.assertIsNotNone(groups)
         for group in groups:
             group.print()
-        # self.assertEqual(len(groups), 2)
 
     def test_Group(self):
         """
@@ -29,13 +29,13 @@ class TestGroup(unittest.TestCase):
         con.login('root@example.com', 'test')
 
         group = Group(con=con,
-                      name="KNORA-PY-TEST",
-                      description="Test project for knora-py",
+                      name="TEST GROUP",
+                      descriptions=LangString({Languages.EN: 'Test group'}),
                       project="http://rdfh.ch/projects/0001",
                       status=True,
                       selfjoin=False)
-        self.assertEqual(group.name, 'KNORA-PY-TEST')
-        self.assertEqual(group.description, 'Test project for knora-py')
+        self.assertEqual(group.name, 'TEST GROUP')
+        self.assertCountEqual(group.descriptions.toJsonObj(), [{'language': 'en', 'value': 'Test group'}])
         self.assertEqual(group.project, 'http://rdfh.ch/projects/0001')
         self.assertTrue(group.status)
         self.assertFalse(group.selfjoin)
@@ -51,7 +51,6 @@ class TestGroup(unittest.TestCase):
         group = Group(con=con,
                       id='http://rdfh.ch/groups/0001/thing-searcher').read()
         self.assertEqual(group.name, 'Thing searcher')
-        self.assertEqual(group.description, 'A group for thing searchers.')
         self.assertEqual(group.project, 'http://rdfh.ch/projects/0001')
         self.assertTrue(group.status)
         self.assertTrue(group.selfjoin)
@@ -61,20 +60,19 @@ class TestGroup(unittest.TestCase):
         Test if we can create a new group in the triple store
         :return: None
         """
-        global __iri
         con = Connection('http://0.0.0.0:3333')
         con.login('root@example.com', 'test')
 
         group = Group(con=con,
-                      name="KNORA-PY CREATE",
-                      description="Test project for knora-py",
+                      name="GROUP CREATE",
+                      descriptions=LangString({Languages.EN: 'Test group'}),
                       project="http://rdfh.ch/projects/0001",
                       status=True,
                       selfjoin=False).create()
         self.iri = group.id
 
-        self.assertEqual(group.name, 'KNORA-PY CREATE')
-        self.assertEqual(group.description, 'Test project for knora-py')
+        self.assertEqual(group.name, 'GROUP CREATE')
+        self.assertCountEqual(group.descriptions.toJsonObj(), [{'language': 'en', 'value': 'Test group'}])
         self.assertEqual(group.project, 'http://rdfh.ch/projects/0001')
         self.assertTrue(group.status)
         self.assertFalse(group.selfjoin)
@@ -88,19 +86,19 @@ class TestGroup(unittest.TestCase):
         con.login('root@example.com', 'test')
 
         group = Group(con=con,
-                      name="KNORA-PY UPDATE",
-                      description="Test project for knora-py",
+                      name="GROUP UPDATE",
+                      descriptions=LangString({Languages.EN: 'Test group'}),
                       project="http://rdfh.ch/projects/0001",
                       status=True,
                       selfjoin=False).create()
         self.iri = group.id
-        group.name = "KNORA-PY UPDATE - modified"
-        group.description = "gaga gaga gaga gaga gaga gaga gaga"
+        group.name = "GROUP UPDATE - modified"
+        group.descriptions = {"en": "Test group updated"}
         group.selfjoin = True
         group.status = False
-        ngroup = group.update()
-        self.assertEqual(group.name, 'KNORA-PY UPDATE - modified')
-        self.assertEqual(group.description, 'gaga gaga gaga gaga gaga gaga gaga')
+        group.update()
+        self.assertEqual(group.name, 'GROUP UPDATE - modified')
+        self.assertCountEqual(group.descriptions.toJsonObj(), [{'language': 'en', 'value': 'Test group updated'}])
         self.assertEqual(group.project, 'http://rdfh.ch/projects/0001')
         self.assertFalse(group.status)
         self.assertTrue(group.selfjoin)
@@ -115,15 +113,15 @@ class TestGroup(unittest.TestCase):
         con.login('root@example.com', 'test')
 
         group = Group(con=con,
-                      name="KNORA-PY DELETE",
-                      description="Test project for knora-py",
+                      name="GROUP DELETE",
+                      descriptions=LangString({Languages.EN: 'Test group'}),
                       project="http://rdfh.ch/projects/0001",
                       status=True,
                       selfjoin=False).create()
         self.iri = group.id
         ngroup = group.delete()
-        self.assertEqual(ngroup.name, 'KNORA-PY DELETE')
-        self.assertEqual(ngroup.description, 'Test project for knora-py')
+        self.assertEqual(ngroup.name, 'GROUP DELETE')
+        self.assertCountEqual(ngroup.descriptions.toJsonObj(), [{'language': 'en', 'value': 'Test group'}])
         self.assertEqual(ngroup.project, 'http://rdfh.ch/projects/0001')
         self.assertFalse(ngroup.status)
         self.assertFalse(ngroup.selfjoin)

@@ -4,7 +4,7 @@
     "title": "JSON schema for DSP lists",
     "description": "JSON schema for lists used in DSP ontologies",
     "definitions": {
-        "label": {
+        "langstring": {
             "type": "object",
             "patternProperties": {
                 "^(en|de|fr|it)": {
@@ -12,24 +12,47 @@
                 }
             },
             "additionalProperties": false
+        },
+        "label": {
+            "$ref": "#/definitions/langstring"
         },
         "description": {
-            "type": "object",
-            "patternProperties": {
-                "^(en|de|fr|it)": {
-                    "type": "string"
-                }
-            },
-            "additionalProperties": false
+            "$ref": "#/definitions/langstring"
         },
         "comment": {
+            "$ref": "#/definitions/langstring"
+        },
+        "excelfileref": {
             "type": "object",
-            "patternProperties": {
-                "^(en|de|fr|it)": {
+            "properties": {
+                "file": {
+                    "type": "string"
+                },
+                "worksheet": {
+                    "type": "string"
+                },
+                "startrow": {
+                    "type": "integer"
+                },
+                "startcol": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "file",
+                "worksheet"
+            ]
+        },
+        "excelfolderref": {
+            "type": "object",
+            "properties": {
+                "folder": {
                     "type": "string"
                 }
             },
-            "additionalProperties": false
+            "required": [
+                "folder"
+            ]
         },
         "node": {
             "type": "object",
@@ -44,10 +67,22 @@
                     "$ref": "#/definitions/comment"
                 },
                 "nodes": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/node"
-                    }
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/node"
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "$ref": "#/definitions/excelfileref"
+                        },
+                        {
+                            "type": "object",
+                            "$ref": "#/definitions/excelfolderref"
+                        }
+                    ]
                 }
             },
             "required": [
@@ -82,7 +117,7 @@
         "prefixes": {
             "type": "object",
             "patternProperties": {
-                "^[\\w-]+$": {
+                "^[-\\w]+$": {
                     "format": "uri"
                 }
             },

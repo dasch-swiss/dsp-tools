@@ -5,20 +5,23 @@
     "description": "JSON schema for DSP ontologies",
     "definitions": {
         "langstring": {
-            "anyOf": [
-                {
-                    "type": "object",
-                    "patternProperties": {
-                        "^(en|de|fr|it)": {
-                            "type": "string"
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                {
+            "type": "object",
+            "patternProperties": {
+                "^(en|de|fr|it)": {
                     "type": "string"
                 }
-            ]
+            },
+            "additionalProperties": false
+        },
+        "ncname": {
+            "type": "string",
+            "pattern": "^[a-zA-Z_][\\w.-]*$",
+            "additionalProperties": false
+        },
+        "prefixedname": {
+            "type": "string",
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:([-\\w]+)$",
+            "additionalProperties": false
         },
         "label": {
             "$ref": "#/definitions/langstring"
@@ -31,12 +34,12 @@
         },
         "groupdef": {
             "type": "string",
-            "pattern": "^(([\\w-]*)?:([\\w ]+))|(SystemAdmin)$",
+            "pattern": "^(([a-zA-Z_][\\w.-]*)?:([-\\w .]+))|(SystemAdmin)$",
             "additionalProperties": false
         },
         "projectdef": {
             "type": "string",
-            "pattern": "^([\\w-]*)?:(member|admin)$"
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:(member|admin)$"
         },
         "resourcedef": {
             "type": [
@@ -59,7 +62,7 @@
                     ]
                 },
                 {
-                    "pattern": "^([\\w-]*)?:(\\w+)$"
+                    "$ref": "#/definitions/prefixedname"
                 },
                 {
                     "pattern": "^(http)(s)?://.*"
@@ -69,7 +72,7 @@
                 "$ref": "#/definitions/resourcedef"
             }
         },
-        "excelref": {
+        "excelfileref": {
             "type": "object",
             "properties": {
                 "file": {
@@ -90,6 +93,17 @@
                 "worksheet"
             ]
         },
+        "excelfolderref": {
+            "type": "object",
+            "properties": {
+                "folder": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "folder"
+            ]
+        },
         "user": {
             "type": "object",
             "properties": {
@@ -97,7 +111,8 @@
                     "type": "string"
                 },
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
                 },
                 "givenName": {
                     "type": "string"
@@ -109,6 +124,7 @@
                     "type": "string"
                 },
                 "lang": {
+                    "type": "string",
                     "pattern": "^(en|de|fr|it)"
                 },
                 "groups": {
@@ -138,8 +154,8 @@
                 "name": {
                     "type": "string"
                 },
-                "description": {
-                    "type": "string"
+                "descriptions": {
+                    "$ref": "#/definitions/description"
                 },
                 "status": {
                     "type": "boolean"
@@ -150,7 +166,7 @@
             },
             "required": [
                 "name",
-                "description"
+                "descriptions"
             ]
         },
         "node": {
@@ -175,7 +191,11 @@
                         },
                         {
                             "type": "object",
-                            "$ref": "#/definitions/excelref"
+                            "$ref": "#/definitions/excelfileref"
+                        },
+                        {
+                            "type": "object",
+                            "$ref": "#/definitions/excelfolderref"
                         }
                     ]
                 }
@@ -190,7 +210,7 @@
             "type": "object",
             "properties": {
                 "name": {
-                    "type": "string"
+                    "$ref": "#/definitions/ncname"
                 },
                 "label": {
                     "type": "string"
@@ -223,7 +243,7 @@
             "type": "object",
             "properties": {
                 "name": {
-                    "type": "string"
+                    "$ref": "#/definitions/ncname"
                 },
                 "super": {
                     "type": "array",
@@ -245,7 +265,7 @@
                                 ]
                             },
                             {
-                                "pattern": "^([\\w-]+)?:(\\w+)$"
+                                "$ref": "#/definitions/prefixedname"
                             },
                             {
                                 "pattern": "^(http)(s)?://.*"
@@ -276,13 +296,12 @@
                             ]
                         },
                         {
-                            "pattern": "^([\\w-]+)?:(\\w+)$"
+                            "$ref": "#/definitions/prefixedname"
                         }
                     ]
                 },
                 "subject": {
-                    "type": "string",
-                    "pattern": "^([\\w-]+)?:(\\w+)$"
+                    "$ref": "#/definitions/prefixedname"
                 },
                 "labels": {
                     "$ref": "#/definitions/label"
@@ -297,7 +316,6 @@
                         "Interval",
                         "TimeStamp",
                         "List",
-                        "Pulldown",
                         "Radio",
                         "Richtext",
                         "Searchbox",
@@ -315,7 +333,7 @@
                         "size": {
                             "type": "integer"
                         },
-                        "maxsize": {
+                        "maxlength": {
                             "type": "integer"
                         },
                         "hlist": {
@@ -372,13 +390,12 @@
                     "oneOf": [
                         {
                             "enum": [
-                                "Region",
                                 "isPartOf",
                                 "seqnum"
                             ]
                         },
                         {
-                            "pattern": "^(([\\w-]*)?:([\\w ]+))$"
+                            "$ref": "#/definitions/prefixedname"
                         }
                     ]
                 },
@@ -405,7 +422,7 @@
             "type": "object",
             "properties": {
                 "name": {
-                    "type": "string"
+                    "$ref": "#/definitions/ncname"
                 },
                 "super": {
                     "$ref": "#/definitions/resourcedef"
@@ -437,7 +454,7 @@
         "prefixes": {
             "type": "object",
             "patternProperties": {
-                "^[\\w-]+$": {
+                "^[-\\w]+$": {
                     "format": "uri"
                 }
             },
@@ -454,7 +471,7 @@
                     "pattern": "^[0-9A-F]{4}$"
                 },
                 "shortname": {
-                    "type": "string"
+                    "$ref": "#/definitions/ncname"
                 },
                 "longname": {
                     "type": "string"

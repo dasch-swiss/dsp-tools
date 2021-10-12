@@ -94,7 +94,7 @@ def create_ontology(input_file: str,
         if project.shortname != data_model["project"]["shortname"]:
             project.shortname = data_model["project"]["shortname"]
         if project.longname != data_model["project"]["longname"]:
-            project.longname == data_model["project"]["longname"]
+            project.longname = data_model["project"]["longname"]
         project.description = data_model["project"].get("descriptions")
         project.keywords = set(data_model["project"].get("keywords"))
         updated_project = project.update()
@@ -136,7 +136,7 @@ def create_ontology(input_file: str,
             try:
                 new_group = Group(con=con,
                                   name=group["name"],
-                                  description=group["description"],
+                                  descriptions=LangString(group["descriptions"]),
                                   project=project,
                                   status=group["status"] if group.get("status") is not None else True,
                                   selfjoin=group["selfjoin"] if group.get("selfjoin") is not None else False).create()

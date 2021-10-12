@@ -2,24 +2,16 @@
 
 # JSON data model definition format
 
-## Introduction
-
-This document contains all the information you need to create a data model that can be used by DSP. According to
-Wikipedia, the [data model](https://en.wikipedia.org/wiki/Data_model) is "_an abstract model that organizes elements of
-data and standardizes how they relate to one another and to the properties of real-world entities._"  Further it
-states: "_A data model explicitly determines the structure of data. Data models are typically specified by a data
-specialist, data librarian, or a digital humanities scholar in a data modeling notation_".
-
-In this section, we will describe one of the notations that is used by dsp-tools to create a data model in the DSP
-repository. The DSP repository is loosely based on [Linked Data](https://en.wikipedia.org/wiki/Linked_data) where also
-the term _ontology_ is used.
-
-In the first section you find a rough overview of the data model definition, all the necessary components with a
-definition and a short example of the definition.
+This document describes the structure of a data model (ontology) used by DSP. According to Wikipedia,
+the [data model](https://en.wikipedia.org/wiki/Data_model) is "an abstract model that organizes elements of data and
+standardizes how they relate to one another and to the properties of real-world entities. [...] A data model explicitly
+determines the structure of data. Data models are typically specified by a data specialist, data librarian, or a digital
+humanities scholar in a data modeling notation". The following sections describe the notation for ontologies in the
+context of DSP.
 
 ## A short overview
 
-A complete data model definition looks like this:
+A complete data model definition for DSP looks like this:
 
 ```json
 {
@@ -82,7 +74,8 @@ The `$schema` object refers to the JSON schema for DSP data model definitions an
 
 `"project": {"key": "<value>", ...}`
 
-The `project` object contains all resources and properties of the ontology. It requires all the following data fields:
+The `project` object contains all resources and properties of the ontology as well as some information about the
+project. It requires all the following data fields:
 
 - shortcode
 - shortname
@@ -97,7 +90,7 @@ The following fields are optional (if one or more of these fields are not used, 
 - groups
 - users
 
-A simple example definition of the "project" object looks like this:
+A simple example definition of the `project` object looks like this:
 
 ```json
 {
@@ -129,175 +122,69 @@ A simple example definition of the "project" object looks like this:
 }
 ```
 
-## Simple key/value pairs
+## "project" object in detail
 
-At that point we will go through all of this step by step and take a more in depth view on the individual fields of the
-"project" object. The first four fields of the "project" object are "key"/"value" pairs. Therefore, they are quite
-simple.
+In the following section all fields of the `project` object are explained in detail.
 
 ### Shortcode
 
 `"shortcode": "<4-hex-characters>"`
 
-It's a hexadecimal string in the range between "0000" and "FFFF" that's used to uniquely identify the project. The
-shortcode has to be provided by the DaSCH.
+The shortcode has to be unique and is represented by a 4 digit hexadecimal string. The shortcode has to be provided by the DaSCH.
 
 ### Shortname
 
 `"shortname": "<string>"`
 
-This is a short name (string) for the project. It's meant to be like a nickname. If the name of the project is e.g.
-"Albus Percival Wulfric Dumbledore", then the shortname for it could be "Albi". It should be in the form of a
-[xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName), that is a name without blanks and special characters like
-`:`, `;`, `&`, `%` etc., but `-` and `_` are allowed.
+The shortname has to be unique. It should be in the form of a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). This means a
+string without blanks or special characters but `-` and `_` are allowed (although not as first character).
 
 ### Longname
 
 `"longname": "<string>"`
 
-A longer string that provides the full name of the project. In our example, the longname would be "Albus Percival
-Wulfric Dumbledore".
+The longname is a string that provides the full name of the project.
 
 ### Descriptions
 
 `"descriptions": {"<lang>": "<string>", ...}`
 
-The descriptions specify the content of the project in *exactly* one or more strings. These descriptions can be supplied
-in several languages (currently _"en"_, _"de"_, _"fr"_ and _"it"_ are supported). The descriptions have to be given as a
-JSON object with the language as "key", and the description as "value". See the example above inside the curly brackets
-after "descriptions"to see what that means.
-
-## Key/object pairs
-
-The following fields are **not** simple "key"/"value" pairs. They do have a key, the value however is another object and
-therefore has an internal structure. Due to the increased complexity of these objects, they are looked at in more
-detail.
+The description is represented as a collection of strings with language tags (currently "en", "de", "fr" and "it" are
+supported). It is the description of the project.
 
 ### Keywords
 
 `"keywords": ["<string>", "<string>", ...]`
 
-An array of keywords is used to roughly describe the project in single words. A project that deals e.g. with old
-monastery manuscripts could possess the keywords "monastery", "manuscripts", "medieval", (...). The array can be empty
-as well e.i. "
-keywords": [].
+Keywords are represented as an array of strings and are used to describe and/or tag the project.
 
 ### Lists
 
 `"lists": [<list-definition>,<list-definition>,...]`
 
-Often in order to characterize or classify a real world object, we use a sequential or hierarchical list of terms. For
-example a classification of disciplines in the Humanities might look like follows:
+Lists can be used to provide controlled vocabularies and can be "flat" or "hierarchical". One advantage of the use of
+hierarchical lists is that it allows a user to sub-categorize objects. This helps in the formulation of specific search
+requests. If there is a list node "Vocal music" and sub-nodes "Song" and "Opera", a search for "Vocal Music" would
+return objects classified as "Song" and "Opera". But a search for "Song" would only return objects classified as "Song".
 
-- Performing arts
-    - Music
-        - Chamber music
-        - Church music
-        - Conducting
-            - Choirs
-            - Orchestras
-        - Music history
-        - Music theory
-        - Musicology
-        - Jazz
-        - Pop/Rock
-    - Dance
-        - Choreography
-    - Theatre
-        - Acting
-        - Directing
-        - Playwriting
-        - Scenography
-    - Movies/Television
-        - Animation
-        - Live action
-- Visual arts
-    - Fine arts
-        - Drawing
-        - Painting
-        - Photography
-    - Applied Arts
-        - Animation
-        - Architecture
-        - Decorative arts
-- History
-    - Ancient history
-    - Modern history
-- Languages and literature
-    - Linguistics
-        - Grammar
-        - Etymology
-        - Phonetics
-        - Semantics
-    - Literature
-        - Fiction
-        - Non-fiction
-        - Theory of literature
-- Philosophy
-    - Aesthetics
-    - Applied philosophy
-    - Epistemology
-        - Justification
-        - Reasoning
-    - Metaphysics
-        - Determinism and free will
-        - Ontology
-        - Philosophy of mind
-        - Teleology
+In dsp-tools the structure of a list is mapped using JSON. Only a single root node is allowed which also contains the
+name of the list. Inside the root node any number of child nodes and sub-nodes of child nodes are allowed.
 
-DSP allows to define such controlled vocabularies or thesauri. They can be arranged "flat" or in "hierarchies" (as the
-given example about the disciplines in Humanities is). The definition of these entities are called "lists" in the DSP.
-Thus, the list object is used to give the resources of the ontology a taxonomic quality. A taxonomy makes it possible to
-categorize a resource. The big advantage of a taxonomic structure as it is implemented by the DSP is that the user can
-sub-categorize the objects. This allows the user to formulate his search requests more or less specifically as desired.
-Thus, in the example above a search for "
-Vocal music" would result in all works that are characterized by a sub-element of "Vocal music". However, a search for "
-Masses"
-would return only works that have been characterized as such. The number of hierarchy levels is not limited, but for
-practical reasons it should not exceed 3-4 levels.
+A resource can be assigned to a list node within its properties. For example, a resource of type "Musical work" with the
+title "La Traviata" would have a property like "hasMusicGenre" with the value "Grand opera". Within DSP, each property
+has a cardinality. Sometimes, a taxonomy allows an object to belong to multiple categories. In these cases, a
+cardinality greater than 1 has to be used.
 
-Thus, a taxonomy is a hierarchical list of categories in a tree-like structure. The taxonomy must be complete. This
-means that the entire set of resources must be mappable to the sub-categorization of the taxonomy. To come back to the
-previous example: It must not occur that a musical work within our resource set cannot be mapped to a subcategory of our
-taxonomy about classical music. The taxonomic-hierarchical structure is mapped using JSON. This is because JSON
-inherently implements a tree structure as well. The root of the taxonomy tree is always the name of the taxonomy. The
-root always stands alone at the top of the tree. It is followed by any number of levels, on which any number of
-subcategories can be placed.
+A node of a list may have the following elements:
 
-Suppose you want to build a taxonomy of the classical musical genres as above. The root level would be the name of the
-taxonomy e.g. "classicalmusicgenres". The next level on the hierarchy would be the basic genres, in our example
-"Orchestral music", "Chamber music", "Solo instrumental", "Vocal Music" and "Opera". Each if these categories may have
-subcategories. In our example "Opera" would have the subcategories "Comic opera", "Serious Opera",
-"Opera Semiseria", "Opera Cornique", "Grand opera" and "Opera verismo". Each of these could again have subcategories,
-and so forth.
+- _name_: Name of the node as string. It is mandatory and has to be unique within the list.
+- _labels_: Label with language tags in the form `{ "<lang>": "<label>", "<lang>": "<label>", ... }`. The `labels`
+  element is mandatory. It needs to specify at least one language. Currently, "de", "en", "fr" and "it" are supported.
+- _comments_: Comment with language tags in the form `{ "<lang>": "<comment>", "<lang>": "<comment>", ... }`.
+  The `comments` element is optional. Currently, "de", "en", "fr" and "it" are supported.
+- _nodes_: Array of sub-nodes. The `nodes` element is optional and can be omitted in case of a flat list.
 
-It is important to note that a flat taxonomy is also allowed. This means that a taxonomy from exactly two levels is
-allowed. We have a root level, with the name of the taxonomy, followed by a single level. Within this second level, any
-number of categories can coexist equally, but since they are on the same level, they are not hierarchically dependent on
-each other. For example, you could define a taxonomy "soccer clubs", which have the categories "FCB",
-"FCZ", (...) in the second level. FC Basel has no hierarchical connection to FC Zürich. Their taxonomic structure is
-therefore flat.
-
-A resource can be assigned to a taxonomic node within its properties. So a resource of type "musical work" with the
-title "La Traviata" would have the property/attribute "musical-genre" with the value "Grand opera". Within the DSP, each
-property or attribute has an assigned cardinality. Sometimes, a taxonomy allows that an object may belong to different
-categories at the same time (e.g. an image which depicts several categories at the same time). In these cases, a
-cardinality greater than 1 allows adding multiple attributes of the same time. See further below the description of the
-[cardinalities](#cardinalities).
-
-A node of the Taxonomy may have the following elements:
-
-- _name_: Name of the node. This should be unique within the given list. The name-element is optional but highly
-  recommended.
-- _labels_: Language dependent labels in the form `{ "<lang>": "<label>", ... }`. The labels element is mandatory. It
-  needs to specify at least one language.
-- _comments_: Language dependent comments in the form `{ "<lang>": "<comment>", ... }`. The comments element is
-  optional.
-- _nodes_: Array of sub-nodes. If you have a non-hierarchical taxonomy (i.e. a taxonomy with only 2 levels, the root
-  level and another level), you don't have child nodes. Therefore, the nodes element can be omitted in case of a flat
-  taxonomy.
-
-Here is an example on how to build a taxonomic structure in JSON:
+Example of a list:
 
 ```json
 {
@@ -413,7 +300,7 @@ A list can be directly imported from one or several Excel files. The Excel sheet
 ![img-list-example.png](assets/images/img-list-example.png)
 
 If there are several languages, a separate Excel file for each language has to be provided. The folder with the Excel
-file(s) can directly be referenced inside the list definition by defining it as new list node:
+file(s) can be directly referenced inside the list definition by defining it as new list node:
 
 ```json
 {
@@ -433,23 +320,25 @@ The nodes section must contain the field:
 - _folder_: Path to the folder where the Excel files are stored
 
 Further details to this functionality can be read
-[here](dsp-tools-excel#create-a-json-list-file-from-one-or-several-excel-files.md).
+[here](dsp-tools-excel#create-a-list-from-one-or-several-excel-files).
 
-The lists element is optional. If there are no lists, this element has to be omitted.
+The `lists` element is optional. If not used, it should be omitted.
 
 ### Groups
 
 `"groups": [<group-definition>, <group-definition>,...]`
 
-This object contains groups definitions. This is (only) used to specify the permissions a user gets. A project may
-define user groups such as "project-admins", "students" etc. and give the members of each group individual permissions.
+The `groups` object contains groups definitions. This is used to specify the permissions a user gets. A project may
+define several groups such as "project-admins", "editors" etc. in order to provide their members specific permissions.
 
 A group definition has the following elements:
 
-- _name_: name of the group
-- _description_: description of the purpose of the group
-- _selfjoin_: true if users are able to join the group; false if an administrator must add the users
-- _status_: true if the group is active; false if the group is inactive
+- _name_: name of the group, mandatory
+- _descriptions_: description of the group with language tags in the form `"descriptions": {"<lang>": "<string>", ...}` (
+  currently "en", "de", "fr" and "it" are supported), mandatory
+- _selfjoin_: true if users are allowed to join the group themselves, false if an administrator has to add the users,
+  optional
+- _status_: true if the group is active, false if the group is inactive, optional
 
 Example:
 
@@ -458,7 +347,7 @@ Example:
   "groups": [
     {
       "name": "biz-editors",
-      "description": "Editors for the BiZ-project",
+      "descriptions": {"en" : "Editors for the BiZ project"},
       "selfjoin": false,
       "status": true
     }
@@ -466,25 +355,27 @@ Example:
 }
 ```
 
-The groups element is optional.
+The `groups` element is optional. It is currently not recommended using it.
 
 ### Users
 
 `"users": [<user-definition>, <user-definition>,...]`
 
-This object contains user definitions. You can set user traits here. A user has the following elements:
+This object contains user definitions. A user has the following elements:
 
-- _username_: short username used for the login, similar to a nickname
-- _email_: unique email that identifies the user
+- _username_: username used for login
+- _email_: email that identifies the user, has to be unique within DSP
 - _givenName_: firstname of the user
 - _familyName_: surname of the user
 - _password_: password of the user
-- _lang_: the preferred language of the user: "en", "de", "fr", "it" (optional, default: "en")
+- _lang_: the default language of the user: "en", "de", "fr", "it" (optional, default: "en")
+- _groups_: List of groups the user belongs to. The name of the group has to be provided with the ontology's namespace,
+  p.ex. "onto:editors". The given ontology defined in the same ontology file has no name, so only ":editors" is required
+  if the user belongs to the group "editors". (optional)
 - _projects_: List of projects the user belongs to. The project name has to be followed by a ":" and either "member"
   or "admin". This indicates if the new user has admin rights in the given project or is an ordinary
   user. `myproject:admin` would add the user as admin to the project "myproject". The given project defined in the same
-  ontology file has no name, so only ":admin"or ":
-  member" is required. A user must be member of at least one project.
+  ontology file has no name, so only ":admin"or ":member" is required. (optional)
 
 Example:
 
@@ -503,26 +394,16 @@ Example:
       ],
       "projects": [
         ":admin",
-        "anything:member"
+        "otherProject:member"
       ]
     }
   ]
 }
 ```
 
-The users element is optional and can therefore be omitted.
+The `users` element is optional. It is currently not recommended using it.
 
 ### Ontologies
-
-`"ontologies": [<ontology-definition>, <ontology-definition>, ...]`
-
-Most of the definitions for our ontology will be done under the category `"ontologies": [{...}, {...}]` inside of the
-curly brackets. A project may have multiple ontologies, where the second may depend on the first, the third on the
-second and first, etc. The core of the ontology definition is within the {} brackets. We know, you've already read a lot
-of text so far, but this section is probably the most important one.
-
-First, lets talk about what an ontology actually is. This will make it much easier to understand the different fields of
-the ontology definition.
 
 An ontology is a formal representation of a set of terminologies which finally represent real world objects.
 Dependencies, attributes and relations of and between the individual components of the set are recorded in a logical,
@@ -531,39 +412,37 @@ ontology is much more a network of information of logical dependencies of term e
 defines a strict, formal "data model" for real world _concepts_ such as "Person", "Work", "Artist" etc.
 
 A full-fledged ontology thus has to offer at least *two* things: a set of _concepts_ or terms (called _resources_,
-actually "
-resource classes", but we use somehow inconsistently the term resource inhere) - that represent _concepts_
-of real world objects - as well as attributes or _properties_ describing these resources. These properties are linked
-either to a final value or may define a relationship to another resource (-class). Let's assume that we define a
-resource called "Person" and two properties called "hasBirthday" and "hasParent". For a specific incarnation of a
+actually "resource classes") that represent _concepts_ of real world objects, as well as attributes or _properties_
+describing these resources. These properties are linked either to a final value or may define a relationship to another
+resource. Let's assume that we define a resource called "Person" and two properties called "hasBirthday" and "hasParent"
+. For a specific incarnation of a
 "Person" (we call this an _instance_), "hasBirthday" will have a final value such as "1960-05-21", whereas
-"hasParent" will link to another instance of a Person.
+"hasParent" will link to another instance of a "Person".
 
 Within DSP, properties may be re-used for different resources. E.g. a property "description" may be used for a resource
-called "
-image" as well as "movie". Therefore, the list of properties is separated from the list of resources. The properties are
-assigned to the resources by defining "_cardinalities_". A cardinality indicates, if a property is mandatory or can be
-omitted (e.g. if unknown), and if a property may be used several times on the same instance of a resource. The latter
-may make sense for resources that are known under several names. In such a case, a
-"hasName"-property would have a cardinality that allows multiple use on the same instance of a resource. The cardinality
-definitions are explained [further below](#cardinalities).
+called "image" as well as "movie". Therefore, the list of properties is separated from the list of resources. The
+properties are assigned to the resources by defining "_cardinalities_". A cardinality indicates if a property is
+mandatory or can be omitted (e.g. if unknown), and if a property may be used several times on the same instance of a
+resource or not. The cardinality definitions are explained [further below](#cardinalities).
 
-To fully capture everything an ontology has to provide, we use *four* different elements that describe the resources as
-well as the dependencies inside our ontology. They are:
+`"ontologies": [<ontology-definition>, <ontology-definition>, ...]`
 
-- _name_
-- _label_
-- _properties_
-- _resources_
+Inside the `ontologies` section all resources and properties are described. A project may have multiple ontologies. It
+requires the following data fields:
 
-Example:
+- name
+- label
+- properties
+- resources
+
+Example of an `ontologies` object:
 
 ```json
 {
   "ontologies": [
     {
       "name": "seworon",
-      "label": "Secrets of the world ontology",
+      "label": "Secrets of the World Ontology",
       "properties": [
         ...
       ],
@@ -581,82 +460,62 @@ Example:
 }
 ```
 
-Now lets see what each field does.
-
 #### Name
 
 `"name": "<string>"`
 
-First of all, our overall ontology needs a name. After all, we want to create an ontology about a specific subject or
-set of terms.
-
-As a "speciality", the *name of the ontology* has to be a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName)
-compliant name that can be used as prefix. [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName)
-means that it has to be a single word without any special characters (like e.g. " . : ! ? # + (...) ") and without any
-blanks.
+The ontology's (short) name should be in the form of a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). This
+means a string without blanks or special characters but `-` and `_` are allowed (although not as first character).
 
 #### Label
 
 `"label": "<string>"`
 
-Since the "name" of your ontology needs to be in this special format, we like to have a human-readable and
-understandable name of the ontology. This is done in the "label".
+A string that provides the full name of the ontology.
 
 #### Properties
 
 `"properties": [<property-definition>, <property-definition>, ...]`
 
-At first, it seems a bit illogical to have to define the properties *before* the resources. After all, a property always
-describes the characteristics of a *resource*. However, it is necessary to define the properties *before* the resources.
-The reason for that is that a property - a dependency between resources - can be used in our ontology not only for a
-single resource but for several. If we would e.g. have a property that describes "is descendent of", we can use this
-property not only to describe the family relations of a human family but at the same time use the same property to
-describe the relations of e.g. an animal family.
+A `properties` array contains all properties used to describe resources in the ontology. A property has to be of a
+certain data type. It is not possible to create a custom data type.
 
-A properties-array describes all the properties that are used for our terminology space. It's all the properties that
-describe all the possible connections and dependencies between our entire set of terms.
+The following fields are mandatory:
 
-The following should also be mentioned: We are restricted to a given list of *data types* we can choose from for our
-properties. We can't create our own "new" data types. However, the list of value types should cover all the needs.
+- name
+- labels
+- object
+- gui_element
 
-A property has mandatory and optional fields. The following fields are mandatory:
+Please note that `object` is used to define the data type. The `gui_element` depends on the value of the `object`.
 
-- _name_
-- _labels_
-- _object_
-- _gui_element_
+The following fields are optional (they can be omitted):
 
-Please note that _object_ is used to define the data type. The reason is that internally each data type is again
-represented by a resource that holds a lot of additional information, notable a complete change history. The
-_gui_element_ depends on the object.
+- super
+- gui_attributes
 
-The following fields are optional (can be omitted):
-
-- _super_
-- _gui_attributes_
-
-The _gui_attributes_ depends on the _gui_element_ chosen!
+The `gui_attributes` depends on the value of the `gui_element`.
 
 ##### Name
 
-`"name": "<NCNAME>"`
+`"name": "<string>"`
 
-A name for the property e.g. "pageOf", "hasBirthdate", "createdBy".
+A name for the property, e.g. "pageOf", "hasBirthdate", "createdBy". It should be in the form of
+a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). This means a string without blanks or special characters
+but `-` and `_` are allowed (although not as first character).
 
 ##### Labels
 
 `"labels": {"<language>": "<string>", ...}`
 
-Similar to the name property, the label describes the property. In contrast to the name, which serves as a pure
-abbreviation, the label is human-readable. Thus, use language dependent, human-readable names e.g. "is descendant of".
-The labels field has the following form: `{ "<lang>": "<value>", ...}` where `<lang>` is either "en", "de", "fr" or
-"it", and `<value>` is a string.
+Collection of `labels` for the property as strings with language tag (currently "en", "de", "fr"
+and "it" are supported).
 
 ##### Object / gui_element / gui_attribute
 
-`"object": "<data-type-object>"`
+`"object": "<data-type>"`
 
-The "object" defines the data type of the value that the property will store. The following object types are allowed:
+The `object` defines the data type of the value that the property will store. The following data types are allowed:
 
 ###### TextValue
 
@@ -1005,13 +864,11 @@ Represents a node of a (possibly hierarchical) list
 
 *gui-elements / gui_attributes*:
 
-- `Radio`: A GUI element for _ListValue_. A set of radio buttons. This works only with flat lists!
+- `Radio`: A GUI element for _ListValue_. A set of radio buttons. This works only with flat lists.
     - _gui_attributes_:
         - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
-- `List`: A GUI element for _ListValue_. A list of values to select one from.
-    - _gui_attributes_:
-        - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
-- `Pulldown`: A GUI element for _ListValue_. Pulldown for list values. Works also for hierarchical lists.
+- `List`: A GUI element for _ListValue_. A list of values to select one from. This GUI element should be chosen for
+  hierarchical lists or flat lists that could be expanded to hierarchical lists in the future.
     - _gui_attributes_:
         - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
 
@@ -1077,8 +934,8 @@ clause in case of LinkValues where the super clause is mandatory:
 
 `"super": ["<super-property>", "<super-property>, ...]`
 
-A property ***must*** be derived from at least one base property. The most generic base property that the DSP offers is
-_hasValue_. In addition, the property may be a subproperty of properties defined in external or other ontologies.
+A property has to be derived from at least one base property. The most generic base property that the DSP offers is
+_hasValue_. In addition, the property may be a sub-property of properties defined in external or other ontologies.
 External ontologies like `dcterms` or `foaf` must be defined in the "prefix" section.
 
 In this case the qualified name - including the prefix of the external or internal ontology - has to be given.
@@ -1099,9 +956,9 @@ The following base properties are defined by DSP:
 - `isAnnotationOf`: A special variant of _hasLinkTo_. It denotes the given resource class as an annotation to another
   resource class.
 - `seqnum`: An integer that is used to define a sequence number in an ordered set of instances, e.g. the ordering of the
-  pages in a bokk (independent of the page naming)
+  pages in a book (independent of the page naming)
 
-To sum the `properties` section up, here we have an example for a complete properties definition:
+Example of a `properties` object:
 
 ```json
 {
@@ -1109,6 +966,9 @@ To sum the `properties` section up, here we have an example for a complete prope
     {
       "name": "schulcode",
       "object": "TextValue",
+      "super": [
+          "hasValue"
+      ],
       "labels": {
         "de": "Schulcode"
       },
@@ -1121,6 +981,9 @@ To sum the `properties` section up, here we have an example for a complete prope
     {
       "name": "schulname",
       "object": "TextValue",
+      "super": [
+          "hasValue"
+      ],
       "labels": {
         "de": "Name der Schule"
       },
@@ -1136,37 +999,49 @@ To sum the `properties` section up, here we have an example for a complete prope
 
 #### Resources
 
+The resource classes are the primary entities of the data model. They are the actual objects inside a terminology space.
+A resource class can be seen as a template for the representation of a real object that is represented in the DSP. A
+resource class defines properties (_data fields_). For each of these properties a data type as well as the cardinality
+has to be provided.
+
 `"resources": [<resource-definition>, <resource-definition>, ...]`
 
-The resource classes are the primary entities of the data model. They are the actual objects/terms inside our
-terminology space. A resource class is a template for the representation of a real object that is represented in the
-DaSCH database. A resource class defines properties (aka _data fields_). For each of these properties a data type as
-well as the cardinality have to be defined.
+A resource object needs to have the following fields:
 
-A resource needs to have the following fields:
+- name
+- labels
+- super
+- cardinalities
+
+The following field is optional:
+
+- comments
 
 ##### Name
 
-`"name": "<NCNAME>"`
+`"name": "<string>"`
 
-A name for the resource.
+A name for the resource, e.g. "Book", "Manuscript", "Person". It should be in the form of
+a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). This means a string without blanks or special characters
+but `-` and `_` are allowed (although not as first character).
 
 ##### Labels
 
-`"labels": {"<lang>": "<string>", ...}`
+`"labels": {"<language>": "<string>", ...}`
 
-The string displayed of the resource is being accessed.
+Collection of `labels` for the resource as strings with language tag (currently "en", "de", "fr"
+and "it" are supported).
 
 ##### Super
 
 `"super": ["<super-resource>", "<super-resource>", ...]`
 
-A resource is always derived from at least one other resource. The most generic resource class DSP offers is _"
-Resource"_. A resource may additionally also be derived from resources defined in external ontologies.
+A resource is always derived from at least one other resource. The most generic resource class for DSP is `Resource`. A
+resource may be derived from resources defined in external ontologies.
 
-The following parent predefined resources are provided by DSP:
+The following predefined resources are provided by DSP:
 
-- `Resource` A generic "thing" that represents an item from the real world
+- `Resource`: A generic resource that represents an item from the real world
 - `StillImageRepresentation`: An object that is connected to a still image
 - `TextRepresentation`: An object that is connected to an (external) text (not yet implemented)
 - `AudioRepresentation`: An object representing audio data (not yet implemented)
@@ -1191,21 +1066,25 @@ The following parent predefined resources are provided by DSP:
 
 `"cardinalities": [...]`
 
-Cardinalities is an array that contains the information about the connections between resources. It tells what type of
-connections a single resource has as well as how many times the connection is established. Thus, the actual "network" is
-saved in this array.
+An array that contains information about the relation between resources and properties. It tells what properties a
+resource can have as well as how many times the relation is established.
 
 - `cardinalities`: Array of references to the properties that the resource may hold including the cardinality. A
   cardinality has the following properties:
-    - `propname`: The name of the property. If it's used in the form ":"propname, the current ontology is referenced. If
-      the ":"is omitted, a DSP standard ontology is referenced, otherwise the full prefix of the ontology has to be
-      used.
-    - `gui_order`: An integer number which will help the GUI to display the properties in the desired order
+    - `propname`: The name of the property. If it's used in the form `:my_propname`, the current ontology is referenced.
+      Otherwise, the prefix of the ontology the property is part of has to be used.
+    - `gui_order`: An integer number which will help the GUI to display the properties in the desired order (optional)
     - `cardinality`: Indicates how often a given property may occur. The possible values are:
         - `"1"`: exactly once (mandatory one value and only one)
         - `"0-1"`: The value may be omitted, but can occur only once.
         - `"1-n"`: At least one value must be present, but multiple values may be present.
         - `"0-n"`: The value may be omitted, but may also occur multiple times.
+
+##### Comments
+
+`"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
+
+Comments with language tags. The `comments` element is optional. Currently, "de", "en", "fr" and "it" are supported.
 
 Example for a resource definition:
 
@@ -1214,9 +1093,18 @@ Example for a resource definition:
   "resources": [
     {
       "name": "Schule",
-      "super": "Resource",
       "labels": {
-        "de": "Schule"
+        "de": "Schule",
+        "en": "School",
+        "fr": "Ecole",
+        "it": "Scuola"
+      },
+      "super": "Resource",
+      "comments": {
+        "de": "Ein Kommentar",
+        "en": "A comment",
+        "fr": "Une commentaire",
+        "it": "Un commento"
       },
       "cardinalities": [
         {

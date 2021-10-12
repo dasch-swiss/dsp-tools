@@ -35,10 +35,22 @@
                     "$ref": "#/definitions/comment"
                 },
                 "nodes": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/node"
-                    }
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/node"
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "$ref": "#/definitions/excelfileref"
+                        },
+                        {
+                            "type": "object",
+                            "$ref": "#/definitions/excelfolderref"
+                        }
+                    ]
                 }
             },
             "required": [
@@ -46,6 +58,38 @@
                 "labels"
             ],
             "additionalProperties": false
+        },
+        "excelfileref": {
+            "type": "object",
+            "properties": {
+                "file": {
+                    "type": "string"
+                },
+                "worksheet": {
+                    "type": "string"
+                },
+                "startrow": {
+                    "type": "integer"
+                },
+                "startcol": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "file",
+                "worksheet"
+            ]
+        },
+        "excelfolderref": {
+            "type": "object",
+            "properties": {
+                "folder": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "folder"
+            ]
         }
     },
     "type": "object",
@@ -60,10 +104,22 @@
             "$ref": "#/definitions/comment"
         },
         "nodes": {
-            "type": "array",
-            "items": {
-                "$ref": "#/definitions/node"
-            }
+            "oneOf": [
+                {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/node"
+                    }
+                },
+                {
+                    "type": "object",
+                    "$ref": "#/definitions/excelfileref"
+                },
+                {
+                    "type": "object",
+                    "$ref": "#/definitions/excelfolderref"
+                }
+            ]
         }
     },
     "required": [

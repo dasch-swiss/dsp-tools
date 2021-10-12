@@ -5,20 +5,23 @@
     "description": "JSON schema for the properties section used in DSP ontologies",
     "definitions": {
         "langstring": {
-            "anyOf": [
-                {
-                    "type": "object",
-                    "patternProperties": {
-                        "^(en|de|fr|it)": {
-                            "type": "string"
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                {
+            "type": "object",
+            "patternProperties": {
+                "^(en|de|fr|it)": {
                     "type": "string"
                 }
-            ]
+            },
+            "additionalProperties": false
+        },
+        "ncname": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$",
+            "additionalProperties": false
+        },
+        "prefixedname": {
+            "type": "string",
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:([-\\w]+)$",
+            "additionalProperties": false
         },
         "label": {
             "$ref": "#/definitions/langstring"
@@ -30,7 +33,7 @@
             "type": "object",
             "properties": {
                 "name": {
-                    "type": "string"
+                    "$ref": "#/definitions/ncname"
                 },
                 "super": {
                     "type": "array",
@@ -52,7 +55,7 @@
                                 ]
                             },
                             {
-                                "pattern": "^([\\w-]+)?:(\\w+)$"
+                                "$ref": "#/definitions/prefixedname"
                             },
                             {
                                 "pattern": "^(http)(s)?://.*"
@@ -83,13 +86,12 @@
                             ]
                         },
                         {
-                            "pattern": "^([\\w-]+)?:(\\w+)$"
+                            "$ref": "#/definitions/prefixedname"
                         }
                     ]
                 },
                 "subject": {
-                    "type": "string",
-                    "pattern": "^([\\w-]+)?:(\\w+)$"
+                    "$ref": "#/definitions/prefixedname"
                 },
                 "labels": {
                     "$ref": "#/definitions/label"
@@ -104,7 +106,6 @@
                         "Interval",
                         "TimeStamp",
                         "List",
-                        "Pulldown",
                         "Radio",
                         "Richtext",
                         "Searchbox",
@@ -122,7 +123,7 @@
                         "size": {
                             "type": "integer"
                         },
-                        "maxsize": {
+                        "maxlength": {
                             "type": "integer"
                         },
                         "hlist": {

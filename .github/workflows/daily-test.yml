@@ -1,9 +1,8 @@
-name: Test
+name: Daily test
 
 on:
-  push:
-  pull_request:
-    types: [opened]
+  schedule:
+    -  cron: '0 7 * * *'
 
 jobs:
   test-integration:
@@ -24,7 +23,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '12'
-      - name: Install dependencies
+      - name: Install bazel
         run: |
           sudo apt-get install ca-certificates-java expect
           npm install --global @bazel/bazelisk
@@ -32,17 +31,15 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.9
-      - name: Install dependencies
+      - name: Upgrade pip and install requirements
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: run test-integration
-        run: |
+          python3 -m pip install --upgrade pip
           make upgrade-dist-tools
           make install-requirements
+      - name: run test-integration
+        run: |
           make install
           make test
       - name: build docs
         run: |
-          make install-requirements
           make build-docs

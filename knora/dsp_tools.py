@@ -120,6 +120,7 @@ def program(user_args: list[str]) -> None:
     parser_excel_properties.set_defaults(action='id2iri')
     parser_excel_properties.add_argument('xmlfile', help='Path to the XML file containing the data to be replaced')
     parser_excel_properties.add_argument('jsonfile', help='Path to the JSON file containing the mapping of internal IDs and their respective IRIs')
+    parser_excel_properties.add_argument('--outfile', default=None, help='Path to the XML output file containing the replaced IDs (optional)')
 
     args = parser.parse_args(user_args)
 
@@ -181,7 +182,9 @@ def program(user_args: list[str]) -> None:
         properties_excel2json(excelfile=args.excelfile,
                               outfile=args.outfile)
     elif args.action == 'id2iri':
-        id_to_iri(xml_file=args.xmlfile, json_file=args.jsonfile)
+        id_to_iri(xml_file=args.xmlfile,
+                  json_file=args.jsonfile,
+                  out_file=args.outfile)
 
 
 def main() -> None:

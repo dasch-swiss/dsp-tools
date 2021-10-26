@@ -8,7 +8,7 @@ from datetime import datetime
 from lxml import etree
 
 
-def id_to_iri(xml_file: str, json_file: str) -> None:
+def id_to_iri(xml_file: str, json_file: str, out_file: str) -> None:
     """
     This function replaces all occurrences of internal IDs with their respective IRIs inside an XML file. It gets the
     mapping from the JSON file provided as parameter for this function.
@@ -16,6 +16,7 @@ def id_to_iri(xml_file: str, json_file: str) -> None:
     Args:
         xml_file : the XML file with the data to be replaced
         json_file : the JSON file with the mapping (dict) of internal IDs to IRIs
+        out_file: path to the output XML file with replaced IDs (optional), default: "id2iri_replaced_" + timestamp + ".xml"
 
     Returns:
         None
@@ -50,15 +51,15 @@ def id_to_iri(xml_file: str, json_file: str) -> None:
         try:
             resptr_prop.text = mapping[resptr_prop.text]
         except KeyError:
-            print(f"Could not find internal ID '{resptr_prop.text}' in mapping file {json_file}.")
-            pass
+            print(f"WARNING: Could not find internal ID '{resptr_prop.text}' in mapping file {json_file}.")
 
     # write xml with replaced IDs to file with timestamp
-    timestamp_now = datetime.now()
-    timestamp_str = timestamp_now.strftime("%Y%m%d_%H%M%S%f")
+    if not out_file:
+        timestamp_now = datetime.now()
+        timestamp_str = timestamp_now.strftime("%Y%m%d_%H%M%S%f")
 
-    replaced_id_file = "id2iri_replaced_" + timestamp_str + ".xml"
+        out_file = "id2iri_replaced_" + timestamp_str + ".xml"
 
     et = etree.ElementTree(tree.getroot())
-    et.write(replaced_id_file, pretty_print=True)
-    print(f"Created new XML file {replaced_id_file} with replaced IDs.")
+    et.write(out_file, pretty_print=True)
+    print(f"Created new XML file {out_file} with replaced IDs.")

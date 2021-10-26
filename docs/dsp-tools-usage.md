@@ -82,6 +82,7 @@ The following options are available:
 - `-p` | `--password` _password_: password used for authentication with the DSP API (default: test)
 - `-i` | `--imgdir` _dirpath_: path to the directory where the bitstream objects are stored (default: .)
 - `-S` | `--sipi` _SIPIserver_: URL of the SIPI IIIF server (default: http://0.0.0.0:1024)
+- `--incremental` : If set, IRIs instead of internal IDs are expected as reference to already existing resources on DSP
 - `-v` | `--verbose`: If set, more information about the uploaded resources is printed to the console.
 
 The command is used to upload data defined in an XML file onto a DSP server. The following example shows how to upload

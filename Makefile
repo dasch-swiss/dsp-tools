@@ -54,6 +54,7 @@ install-requirements: ## install requirements
 
 .PHONY: install
 install: ## install from source
+	python3 -m pip install --upgrade pip
 	pip3 install .
 
 .PHONY: test

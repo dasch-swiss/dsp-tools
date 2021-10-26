@@ -578,7 +578,9 @@ Attributes:
 
 #### `<resptr>`
 
-The `<resptr>` element contains the internal ID of another resource.
+The `<resptr>` element contains either the internal ID of another resource inside the XML or the IRI of an already
+existing resource on DSP. Inside the same XML file a mixture of the two is not possible. If referencing existing
+resources, `xmlupload --incremental` has to be used.
 
 Attributes:
 
@@ -587,7 +589,7 @@ Attributes:
 
 Example:
 
-If there is a resource defined as `<resource label="EURUS015a" restype=":Postcard" unique_id="238807">...</resource>`,
+If there is a resource defined as `<resource label="EURUS015a" restype=":Postcard" id="238807">...</resource>`,
 it can be referenced as:
 
 ```xml

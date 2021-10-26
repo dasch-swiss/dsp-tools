@@ -517,7 +517,7 @@ def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
 
 
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
-               validate_only: bool, incremental: bool) -> bool:
+               validate_only: bool, incremental: bool) -> None:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
 
@@ -530,6 +530,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         sipi : the sipi instance to be used
         verbose : verbose option for the command, if used more output is given to the user
         validate_only : validation option to validate the XML data without the actual import of the data
+        incremental: if set, IRIs instead of internal IDs are expected as resource pointers
 
     Returns:
         None
@@ -624,10 +625,11 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         res_iri_lookup[resource.id] = instance.iri
         print("Created resource: ", instance.label, " (", resource.id, ") with IRI ", instance.iri)
 
+    # write mapping of internal IDs to IRIs to file with timestamp
     timestamp_now = datetime.now()
     timestamp_str = timestamp_now.strftime("%Y%m%d_%H%M%S%f")
 
-    res_iri_lookup_file = "id2iri_" + timestamp_str + ".json"
+    res_iri_lookup_file = "id2iri_mapping_" + timestamp_str + ".json"
     with open(res_iri_lookup_file, "w") as outfile:
         print("Write internal ID to IRI mapping to file ", res_iri_lookup_file)
         outfile.write(json.dumps(res_iri_lookup))

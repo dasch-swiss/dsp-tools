@@ -115,12 +115,13 @@ def program(user_args: list[str]) -> None:
     parser_excel_properties.add_argument('outfile', help='Path to the output JSON file containing the properties data',
                                          default='properties.json')
 
-    parser_excel_properties = subparsers.add_parser('id2iri',
+    parser_id2iri = subparsers.add_parser('id2iri',
                                                     help='Replace internal IDs in an XML with their corresponding IRIs from a provided JSON file.')
-    parser_excel_properties.set_defaults(action='id2iri')
-    parser_excel_properties.add_argument('xmlfile', help='Path to the XML file containing the data to be replaced')
-    parser_excel_properties.add_argument('jsonfile', help='Path to the JSON file containing the mapping of internal IDs and their respective IRIs')
-    parser_excel_properties.add_argument('--outfile', default=None, help='Path to the XML output file containing the replaced IDs (optional)')
+    parser_id2iri.set_defaults(action='id2iri')
+    parser_id2iri.add_argument('xmlfile', help='Path to the XML file containing the data to be replaced')
+    parser_id2iri.add_argument('jsonfile', help='Path to the JSON file containing the mapping of internal IDs and their respective IRIs')
+    parser_id2iri.add_argument('--outfile', default=None, help='Path to the XML output file containing the replaced IDs (optional)')
+    parser_id2iri.add_argument('-v', '--verbose', action='store_true', help='Verbose feedback')
 
     args = parser.parse_args(user_args)
 
@@ -184,7 +185,8 @@ def program(user_args: list[str]) -> None:
     elif args.action == 'id2iri':
         id_to_iri(xml_file=args.xmlfile,
                   json_file=args.jsonfile,
-                  out_file=args.outfile)
+                  out_file=args.outfile,
+                  verbose=args.verbose)
 
 
 def main() -> None:

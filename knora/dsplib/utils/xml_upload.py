@@ -1,7 +1,9 @@
 """
 This module handles the import of XML data into the DSP platform.
 """
+import json
 import os
+from datetime import datetime
 from typing import Dict, List, Optional, Union
 
 from lxml import etree
@@ -475,7 +477,7 @@ def do_sort_order(resources: List[KnoraResource]) -> List[KnoraResource]:
                     notok_resources.append(resource)
         resources = notok_resources
         if not len(notok_resources) < notok_len:
-            print('Cannot resolve resptr dependencies. Giving up....')
+            print('Cannot resolve resptr dependencies. Giving up...')
             print(len(notok_resources))
             for r in notok_resources:
                 print('Resource {} has unresolvable resptrs to: '.format(r.id), end=' ')
@@ -515,7 +517,7 @@ def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
 
 
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
-               validate_only: bool) -> bool:
+               validate_only: bool, incremental: bool) -> bool:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
 
@@ -583,8 +585,9 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         elif child.tag == "resource":
             resources.append(KnoraResource(child, default_ontology))
 
-    # sort the resources (resources which do not link to others come first)
-    resources = do_sort_order(resources)
+    # sort the resources (resources which do not link to others come first) but only if not an incremental upload
+    if not incremental:
+        resources = do_sort_order(resources)
 
     sipi = Sipi(sipi, con.get_token())
 
@@ -620,3 +623,11 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
                                                                               permissions_lookup)).create()
         res_iri_lookup[resource.id] = instance.iri
         print("Created resource: ", instance.label, " (", resource.id, ") with IRI ", instance.iri)
+
+    timestamp_now = datetime.now()
+    timestamp_str = timestamp_now.strftime("%Y%m%d_%H%M%S%f")
+
+    res_iri_lookup_file = "id2iri_" + timestamp_str + ".json"
+    with open(res_iri_lookup_file, "w") as outfile:
+        print("Write internal ID to IRI mapping to file ", res_iri_lookup_file)
+        outfile.write(json.dumps(res_iri_lookup))

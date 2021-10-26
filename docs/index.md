@@ -19,7 +19,7 @@ dsp-tools helps you with the following tasks:
 - [`dsp-tools get`](./dsp-tools-usage.md#get-a-data-model-from-a-dsp-server) reads a data model from a DSP server and
   writes it into a JSON file.
 - [`dsp-tools xmlupload`](./dsp-tools-usage.md#upload-data-to-a-dsp-server) uploads data from a provided XML file (bulk
-  data import).
+  data import) and writes the mapping from internal IDs to IRIs into a local file.
 - [`dsp-tools excel`](./dsp-tools-usage.md#create-a-json-list-file-from-one-or-several-excel-files)
   creates a JSON or XML file from one or several Excel files. The created data can either be integrated into an ontology
   or be uploaded directly to a DSP server with `dsp-tools create`.
@@ -29,4 +29,7 @@ dsp-tools helps you with the following tasks:
 - [`dsp-tools excel2properties`](./dsp-tools-usage.md#create-properties-from-an-excel-file)
   creates the ontology's properties section from an Excel file. The resulting section can be integrated into an ontology
   and then be uploaded to a DSP server with `dsp-tools create`.
+- [`dsp-tools id2iri`](./dsp-tools-usage.md#replace-internal-ids-with-iris-in-xml-file)
+  takes an XML file for bulk data import and replaces referenced internal IDs with IRIs. The mapping has to be provided
+  with a JSON file.
 

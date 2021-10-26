@@ -3,7 +3,9 @@
 # DSP XML file format for importing data
 
 With dsp-tools data can be imported into a DSP repository (on a DSP server) from an XML file. The import file is a
-standard XML file as described on this page.
+standard XML file as described on this page. After a successful upload of the data, an output file is written (called 
+`id2iri_[timstamp].json`) with the mapping of internal IDs used inside the XML and their corresponding IRIs which
+uniquely identify them inside DSP. This file should be kept if data is later added with the `--incremental` option.
 
 The import file must start with the standard XML header:
 
@@ -589,8 +591,8 @@ Attributes:
 
 Example:
 
-If there is a resource defined as `<resource label="EURUS015a" restype=":Postcard" id="238807">...</resource>`,
-it can be referenced as:
+If there is a resource defined as `<resource label="EURUS015a" restype=":Postcard" id="238807">...</resource>`, it can
+be referenced as:
 
 ```xml
 <resptr-prop name=":hasReferenceTo">

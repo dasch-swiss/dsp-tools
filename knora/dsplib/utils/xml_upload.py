@@ -308,10 +308,10 @@ class KnoraResource:
                     if iri is not None:
                         v = iri
                     else:
-                        v = value.value  # if we do not find the unique_id, we assume it's a valid knora IRI
+                        v = value.value  # if we do not find the id, we assume it's a valid knora IRI
                 elif prop.valtype == 'text':
                     if isinstance(value.value, KnoraStandoffXml):
-                        iri_refs = value.value.findall()  # The IRI's must be embedded  as "...IRI:unique_id:IRI..."
+                        iri_refs = value.value.findall()
                         for iri_ref in iri_refs:
                             res_id = iri_ref.split(':')[1]
                             iri = resiri_lookup.get(res_id)

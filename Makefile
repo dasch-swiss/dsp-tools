@@ -48,6 +48,7 @@ publish-docs: ## build and publish docs to Github Pages
 
 .PHONY: install-requirements
 install-requirements: ## install requirements
+	python3 -m pip install --upgrade pip
 	pip3 install -r requirements.txt
 	pip3 install -r docs/requirements.txt
 

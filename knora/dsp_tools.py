@@ -9,6 +9,7 @@ from importlib.metadata import version
 from knora.dsplib.utils.excel_to_json_lists import list_excel2json, validate_list_with_schema
 from knora.dsplib.utils.excel_to_json_properties import properties_excel2json
 from knora.dsplib.utils.excel_to_json_resources import resources_excel2json
+from knora.dsplib.utils.id_to_iri import id_to_iri
 from knora.dsplib.utils.onto_create_lists import create_lists
 from knora.dsplib.utils.onto_create_ontology import create_ontology
 from knora.dsplib.utils.onto_get import get_ontology
@@ -114,6 +115,12 @@ def program(user_args: list[str]) -> None:
     parser_excel_properties.add_argument('outfile', help='Path to the output JSON file containing the properties data',
                                          default='properties.json')
 
+    parser_excel_properties = subparsers.add_parser('id2iri',
+                                                    help='Replace internal IDs in an XML with their corresponding IRIs from a provided JSON file.')
+    parser_excel_properties.set_defaults(action='id2iri')
+    parser_excel_properties.add_argument('xmlfile', help='Path to the XML file containing the data to be replaced')
+    parser_excel_properties.add_argument('jsonfile', help='Path to the JSON file containing the mapping of internal IDs and their respective IRIs')
+
     args = parser.parse_args(user_args)
 
     if not hasattr(args, 'action'):
@@ -173,6 +180,8 @@ def program(user_args: list[str]) -> None:
     elif args.action == 'excel2properties':
         properties_excel2json(excelfile=args.excelfile,
                               outfile=args.outfile)
+    elif args.action == 'id2iri':
+        id_to_iri(xml_file=args.xmlfile, json_file=args.jsonfile)
 
 
 def main() -> None:

@@ -896,7 +896,7 @@ Represents a node of a (possibly hierarchical) list
 `"object": ":<resource-name>"`
 
 LinkValues do not follow the pattern of the previous data types, because they do not connect to a final value but to
-another resource which has to be defined. Thus, the "object" denomiates the resource class the link will point to. If
+another resource which has to be defined. Thus, the "object" denominates the resource class the link will point to. If
 the resource is defined in the same ontology, the name has to be prepended by a ":", if the resource is defined in
 another (previously defined)
 ontology, the ontology name has to be prepended separated by a colon ":", e.g.
@@ -905,7 +905,7 @@ resource or property from another one is not part of this documentation).
 
 *gui-elements/gui_attributes*:
 
-- `Searchbox`: Must be used with _hasLinkTo_ properties. Allows to search and enter a resource that the given resource
+- `Searchbox`: Must be used with _hasLinkTo_ properties. Allows searching and enter a resource that the given resource
   should link to. It has one gui_attribute that indicates how many properties of the found resources should be
   indicated. It's mandatory!
     - _gui_attributes_:

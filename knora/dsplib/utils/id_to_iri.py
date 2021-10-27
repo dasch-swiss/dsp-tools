@@ -33,17 +33,10 @@ def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> No
         exit(1)
 
     # load JSON from provided json file to dict
-    with open(json_file) as f:
-        try:
-            mapping = json.load(f)
-        except Exception as e:
-            print(f"JSON file {json_file} could not be loaded. Failed with error {e}.")
+    mapping = json.load(open(json_file))
 
     # parse XML from provided xml file
-    try:
-        tree = etree.parse(xml_file)
-    except Exception as e:
-        print(f"XML file {xml_file} could not be parsed. Failed with error {e}.")
+    tree = etree.parse(xml_file)
 
     # iterate through all XML elements and remove namespace declarations
     for elem in tree.getiterator():

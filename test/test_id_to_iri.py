@@ -11,7 +11,7 @@ class TestTools(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             id_to_iri(xml_file='test.xml',
                       json_file='../testdata/test-id2iri-mapping.json',
-                      out_file='_test-id2iri-replaced.xml',
+                      out_file='../testdata/tmp/_test-id2iri-replaced.xml',
                       verbose=True)
 
         self.assertEqual(cm.exception.code, 1)
@@ -20,13 +20,13 @@ class TestTools(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             id_to_iri(xml_file='../testdata/test-id2iri-data.xml',
                       json_file='test.json',
-                      out_file='_test-id2iri-replaced.xml',
+                      out_file='../testdata/tmp/_test-id2iri-replaced.xml',
                       verbose=True)
 
         self.assertEqual(cm.exception.code, 1)
 
     def test_replace_id_with_iri(self):
-        out_file = '_test-id2iri-replaced.xml'
+        out_file = '../testdata/tmp/_test-id2iri-replaced.xml'
         id_to_iri(xml_file='../testdata/test-id2iri-data.xml',
                   json_file='../testdata/test-id2iri-mapping.json',
                   out_file=out_file,

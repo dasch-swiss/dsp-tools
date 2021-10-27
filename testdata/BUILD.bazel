@@ -18,7 +18,7 @@ filegroup(
         "test-id2iri-data.xml",
         "test-id2iri-mapping.json",
         "test-id2iri-replaced.xml",
-        "broken-xml.xml"
+        "tmp/_test-id2iri-replaced.xml"
     ],
 )
 

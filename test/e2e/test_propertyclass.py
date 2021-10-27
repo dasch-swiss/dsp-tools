@@ -1,10 +1,11 @@
+"""end to end tests for property class"""
 import unittest
 
-from dsplib.models.connection import Connection
-from dsplib.models.helpers import LastModificationDate
-from dsplib.models.langstring import Languages, LangString
-from dsplib.models.ontology import Ontology
-from dsplib.models.propertyclass import PropertyClass
+from knora.dsplib.models.connection import Connection
+from knora.dsplib.models.helpers import LastModificationDate
+from knora.dsplib.models.langstring import Languages, LangString
+from knora.dsplib.models.ontology import Ontology
+from knora.dsplib.models.propertyclass import PropertyClass
 
 
 class TestPropertyClass(unittest.TestCase):

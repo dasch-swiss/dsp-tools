@@ -1,10 +1,8 @@
-import sys
+"""end to end tests for connection class"""
 import unittest
 
-from dsplib.models.connection import Connection
-from dsplib.models.helpers import BaseError
-
-sys.path.append("../knora")
+from knora.dsplib.models.connection import Connection
+from knora.dsplib.models.helpers import BaseError
 
 
 class TestConnection(unittest.TestCase):

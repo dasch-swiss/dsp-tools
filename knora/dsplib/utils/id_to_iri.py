@@ -38,14 +38,12 @@ def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> No
             mapping = json.load(f)
         except Exception as e:
             print(f"JSON file {json_file} could not be loaded. Failed with error {e}.")
-            exit(1)
 
     # parse XML from provided xml file
     try:
         tree = etree.parse(xml_file)
     except Exception as e:
         print(f"XML file {xml_file} could not be parsed. Failed with error {e}.")
-        exit(1)
 
     # iterate through all XML elements and remove namespace declarations
     for elem in tree.getiterator():

@@ -100,7 +100,7 @@ The description of the expected XML format can be found [here](./dsp-tools-xmlup
 An internal ID is used in the `<resptr>` tag of an XML file used for `xmlupload` to reference resources inside the same
 XML file. Once data is uploaded to DSP it cannot be referenced by this internal ID anymore. Instead, the resource's IRI
 has to be used. The mapping of internal IDs to their respective IRIs is written to a file
-called `id2iri_[timstamp].json` after a successful `xmlupload`.
+called `id2iri_mapping_[timstamp].json` after a successful `xmlupload`.
 See [`dsp-tools id2iri`](./dsp-tools-usage.md#replace-internal-ids-with-iris-in-xml-file) for more information about how
 to use this file to replace internal IDs in an existing XML file to reference existing resources.
 

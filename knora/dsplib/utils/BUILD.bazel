@@ -118,3 +118,12 @@ py_library(
     imports = [".", ".."],
 )
 
+py_library(
+    name = "id_to_iri",
+    visibility = ["//visibility:public"],
+    srcs = ["id_to_iri.py"],
+    deps = [
+        requirement("lxml")
+    ]
+)
+

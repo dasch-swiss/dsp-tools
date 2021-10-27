@@ -7,6 +7,7 @@ from knora.dsplib.utils import excel_to_json_lists
 from knora.dsplib.utils.excel_to_json_lists import list_excel2json
 from knora.dsplib.utils.excel_to_json_properties import properties_excel2json
 from knora.dsplib.utils.excel_to_json_resources import resources_excel2json
+from knora.dsplib.utils.id_to_iri import id_to_iri
 from knora.dsplib.utils.onto_create_ontology import create_ontology
 from knora.dsplib.utils.onto_get import get_ontology
 from knora.dsplib.utils.onto_validate import validate_ontology
@@ -119,7 +120,13 @@ class TestTools(unittest.TestCase):
                    sipi='http://0.0.0.0:1024',
                    verbose=True,
                    validate_only=False,
-                   incremental=None)
+                   incremental=False)
+
+    def test_id_to_iri(self):
+        id_to_iri(xml_file='testdata/test-id2iri-data.xml',
+                  json_file='testdata/test-id2iri-mapping.json',
+                  out_file='_test-id2iri-replaced.xml',
+                  verbose=True)
 
 
 if __name__ == '__main__':

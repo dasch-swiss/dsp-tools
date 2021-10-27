@@ -592,7 +592,7 @@ class User(Model):
         Udate the user info in Knora with the modified data in this user instance
 
         :param requesterPassword: Old password if a user wants to change it's own password
-        :return: JSON-object from Knora
+        :return: updated user object
         """
 
         jsonobj = self.toJsonObj(Actions.Update)

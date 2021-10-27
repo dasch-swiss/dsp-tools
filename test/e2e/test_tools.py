@@ -118,7 +118,8 @@ class TestTools(unittest.TestCase):
                    imgdir='testdata/bitstreams',
                    sipi='http://0.0.0.0:1024',
                    verbose=True,
-                   validate_only=False)
+                   validate_only=False,
+                   incremental=None)
 
 
 if __name__ == '__main__':

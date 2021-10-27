@@ -1,3 +1,4 @@
+"""end to end tests for project class"""
 import unittest
 
 from knora.dsplib.models.connection import Connection

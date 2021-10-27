@@ -1,8 +1,8 @@
 import unittest
 
-from dsplib.models.connection import Connection
-from dsplib.models.langstring import Languages, LangString
-from dsplib.models.listnode import ListNode
+from knora.dsplib.models.connection import Connection
+from knora.dsplib.models.langstring import Languages, LangString
+from knora.dsplib.models.listnode import ListNode
 
 
 class TestListNode(unittest.TestCase):

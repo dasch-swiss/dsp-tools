@@ -1,9 +1,10 @@
+"""end to end tests for resourceClass class"""
 import unittest
 
-from dsplib.models.connection import Connection
-from dsplib.models.langstring import Languages, LangString
-from dsplib.models.ontology import Ontology
-from dsplib.models.resourceclass import ResourceClass
+from knora.dsplib.models.connection import Connection
+from knora.dsplib.models.langstring import Languages, LangString
+from knora.dsplib.models.ontology import Ontology
+from knora.dsplib.models.resourceclass import ResourceClass
 
 
 class TestResourceClass(unittest.TestCase):

@@ -134,7 +134,8 @@ py_test(
         "//knora/dsplib/utils:xml_upload",
         "//knora/dsplib/utils:excel_to_json_lists",
         "//knora/dsplib/utils:excel_to_json_resources",
-        "//knora/dsplib/utils:excel_to_json_properties"
+        "//knora/dsplib/utils:excel_to_json_properties",
+        "//knora/dsplib/utils:id_to_iri"
     ],
     data = [
         "//testdata:testdata",

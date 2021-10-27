@@ -34,10 +34,18 @@ def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> No
 
     # load JSON from provided json file to dict
     with open(json_file) as f:
-        mapping = json.load(f)
+        try:
+            mapping = json.load(f)
+        except Exception as e:
+            print(f"JSON file {json_file} could not be loaded. Failed with error {e}.")
+            exit(1)
 
     # parse XML from provided xml file
-    tree = etree.parse(xml_file)
+    try:
+        tree = etree.parse(xml_file)
+    except Exception as e:
+        print(f"XML file {xml_file} could not be parsed. Failed with error {e}.")
+        exit(1)
 
     # iterate through all XML elements and remove namespace declarations
     for elem in tree.getiterator():
@@ -58,7 +66,7 @@ def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> No
             if verbose:
                 print(f"Replaced internal ID '{value_before}' with IRI '{value_after}'")
         except KeyError:
-            print(f"WARNING: Could not find internal ID '{value_before}' in mapping file {json_file}. Skipping...")
+            print(f"WARNING: Could not find internal ID '{resptr_prop.text}' in mapping file {json_file}. Skipping...")
 
     # write xml with replaced IDs to file with timestamp
     if not out_file:

@@ -5,6 +5,12 @@ from knora.dsplib.models.connection import Connection
 from knora.dsplib.models.langstring import Languages
 from knora.dsplib.models.user import User
 
+# define variables for testing
+iri_project_0001 = "http://rdfh.ch/projects/0001"
+iri_project_0FFF = "http://rdfh.ch/projects/00FF"
+iri_group_thing_searcher = "http://rdfh.ch/groups/0001/thing-searcher"
+iri_group_images_reviewer = "http://rdfh.ch/groups/00FF/images-reviewer"
+
 
 class TestUser(unittest.TestCase):
 
@@ -26,8 +32,8 @@ class TestUser(unittest.TestCase):
             lang=Languages.EN,
             status=True,
             sysadmin=True,
-            in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
+            in_projects={iri_project_0001: True},
+            in_groups={iri_group_thing_searcher}
         ).create()
         self.assertEqual(user.username, 'wilee1')
         self.assertEqual(user.email, 'wilee.coyote1@canyon.com')
@@ -36,8 +42,8 @@ class TestUser(unittest.TestCase):
         self.assertTrue(user.status)
         self.assertEqual(user.lang, Languages.EN)
         self.assertTrue(user.sysadmin)
-        self.assertEqual(user.in_projects, {"http://rdfh.ch/projects/0001": True})
-        self.assertEqual(user.in_groups, {"http://rdfh.ch/groups/0001/thing-searcher"})
+        self.assertEqual(user.in_projects, {iri_project_0001: True})
+        self.assertEqual(user.in_groups, {iri_group_thing_searcher})
 
     def test_user_read_by_iri(self) -> None:
         user = User(
@@ -64,8 +70,8 @@ class TestUser(unittest.TestCase):
             lang=Languages.EN,
             status=True,
             sysadmin=True,
-            in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
+            in_projects={iri_project_0001: True},
+            in_groups={iri_group_thing_searcher}
         ).create()
         user = User(
             con=self.con,
@@ -77,10 +83,10 @@ class TestUser(unittest.TestCase):
         self.assertEqual(user.lang, Languages.EN)
         self.assertTrue(user.status)
         self.assertTrue(user.sysadmin)
-        self.assertEqual(user.in_projects, {"http://rdfh.ch/projects/0001": True})
-        self.assertEqual(user.in_groups, {"http://rdfh.ch/groups/0001/thing-searcher"})
+        self.assertEqual(user.in_projects, {iri_project_0001: True})
+        self.assertEqual(user.in_groups, {iri_group_thing_searcher})
 
-    def tesu_User_delete(self) -> None:
+    def test_user_delete(self) -> None:
         user = User(
             con=self.con,
             username='wilee3',
@@ -91,8 +97,8 @@ class TestUser(unittest.TestCase):
             lang=Languages.EN,
             status=True,
             sysadmin=True,
-            in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
+            in_projects={iri_project_0001: True},
+            in_groups={iri_group_thing_searcher}
         ).create()
         self.assertTrue(user.status)
         nuser = user.delete()
@@ -110,8 +116,8 @@ class TestUser(unittest.TestCase):
             lang=Languages.EN,
             status=True,
             sysadmin=True,
-            in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
+            in_projects={iri_project_0001: True},
+            in_groups={iri_group_thing_searcher}
         ).create()
         user.email = 'roadrunner.geococcyx@canyon.com'
         user.username = 'roadrunner'
@@ -130,36 +136,39 @@ class TestUser(unittest.TestCase):
         self.assertFalse(nuser.sysadmin)
 
     def test_user_update_password(self) -> None:
+        user_email = 'wilee.coyote5@canyon.com'
+        user_new_pw = 'BeepBeep5.2'
         user = User(
             con=self.con,
             username='wilee5',
-            email='wilee.coyote5@canyon.com',
+            email=user_email,
             givenName='Wile E.5',
             familyName='Coyote5',
             password='BeepBeep5.1',
             lang=Languages.EN,
             status=True,
             sysadmin=True,
-            in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
+            in_projects={iri_project_0001: True},
+            in_groups={iri_group_thing_searcher}
         ).create()
 
         # change user's password as user root
-        user.password = 'BeepBeep5.2'
+        user.password = user_new_pw
         user.update('test')
 
         # login as user wilee5 with new password (this would fail if password update wasn't successful)
         con = Connection('http://0.0.0.0:3333')
-        con.login('wilee.coyote5@canyon.com', 'BeepBeep5.2')
+        con.login(user_email, user_new_pw)
 
         updated_user = User(
             con=con,
-            email='wilee.coyote5@canyon.com'
+            email=user_email
         ).read()
 
         # update password as user wilee5 (this would fail if password update wasn't successful)
         updated_user.password = 'BeepBeep5.3'
-        nuser = updated_user.update('BeepBeep5.2')
+        nuser = updated_user.update(user_new_pw)
+        con.logout()
         self.assertIsNotNone(nuser)
 
     def test_user_add_to_group(self) -> None:
@@ -173,16 +182,16 @@ class TestUser(unittest.TestCase):
             lang=Languages.EN,
             status=True,
             sysadmin=True,
-            in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/00FF/images-reviewer"}
+            in_projects={iri_project_0001: True},
+            in_groups={iri_group_images_reviewer}
         ).create()
 
-        self.assertEqual(user.in_groups, {"http://rdfh.ch/groups/00FF/images-reviewer"})
+        self.assertEqual(user.in_groups, {iri_group_images_reviewer})
 
-        user.addToGroup('http://rdfh.ch/groups/0001/thing-searcher')
+        user.addToGroup(iri_group_thing_searcher)
         nuser = user.update()
         self.assertEqual(nuser.in_groups,
-                         {"http://rdfh.ch/groups/0001/thing-searcher", 'http://rdfh.ch/groups/00FF/images-reviewer'})
+                         {iri_group_thing_searcher, iri_group_images_reviewer})
 
     def test_user_remove_from_group(self) -> None:
         user = User(
@@ -195,11 +204,11 @@ class TestUser(unittest.TestCase):
             lang=Languages.EN,
             status=True,
             sysadmin=True,
-            in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/00FF/images-reviewer"}
+            in_projects={iri_project_0001: True},
+            in_groups={iri_group_images_reviewer}
         ).create()
-        self.assertEqual(user.in_groups, {"http://rdfh.ch/groups/00FF/images-reviewer"})
-        user.rmFromGroup('http://rdfh.ch/groups/00FF/images-reviewer')
+        self.assertEqual(user.in_groups, {iri_group_images_reviewer})
+        user.rmFromGroup(iri_group_images_reviewer)
         nuser = user.update()
         self.assertEqual(nuser.in_groups, set())
 
@@ -214,13 +223,13 @@ class TestUser(unittest.TestCase):
             lang=Languages.EN,
             status=True,
             sysadmin=True,
-            in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
+            in_projects={iri_project_0001: True},
+            in_groups={iri_group_thing_searcher}
         ).create()
-        user.addToProject('http://rdfh.ch/projects/00FF', False)
+        user.addToProject(iri_project_0FFF, False)
         nuser = user.update()
         self.assertEqual(nuser.in_projects,
-                         {"http://rdfh.ch/projects/0001": True, 'http://rdfh.ch/projects/00FF': False})
+                         {iri_project_0001: True, iri_project_0FFF: False})
 
     def test_user_remove_from_project(self) -> None:
         user = User(
@@ -233,12 +242,12 @@ class TestUser(unittest.TestCase):
             lang=Languages.EN,
             status=True,
             sysadmin=True,
-            in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
+            in_projects={iri_project_0001: True},
+            in_groups={iri_group_thing_searcher}
         ).create()
         self.assertEqual(user.in_projects,
-                         {"http://rdfh.ch/projects/0001": True})
-        user.rmFromProject('http://rdfh.ch/projects/0001')
+                         {iri_project_0001: True})
+        user.rmFromProject(iri_project_0001)
         nuser = user.update()
         self.assertEqual(nuser.in_projects, {})
 
@@ -253,12 +262,12 @@ class TestUser(unittest.TestCase):
             lang=Languages.EN,
             status=True,
             sysadmin=True,
-            in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
+            in_projects={iri_project_0001: True},
+            in_groups={iri_group_thing_searcher}
         ).create()
-        user.unmakeProjectAdmin('http://rdfh.ch/projects/0001')
+        user.unmakeProjectAdmin(iri_project_0001)
         nuser = user.update()
-        self.assertEqual(nuser.in_projects, {'http://rdfh.ch/projects/0001': False})
+        self.assertEqual(nuser.in_projects, {iri_project_0001: False})
 
     def test_user_add_as_project_admin(self) -> None:
         user = User(
@@ -271,12 +280,12 @@ class TestUser(unittest.TestCase):
             lang=Languages.EN,
             status=True,
             sysadmin=True,
-            in_projects={"http://rdfh.ch/projects/0001": False},
-            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
+            in_projects={iri_project_0001: False},
+            in_groups={iri_group_thing_searcher}
         ).create()
-        user.makeProjectAdmin('http://rdfh.ch/projects/0001')
+        user.makeProjectAdmin(iri_project_0001)
         nuser = user.update()
-        self.assertEqual(nuser.in_projects, {'http://rdfh.ch/projects/0001': True})
+        self.assertEqual(nuser.in_projects, {iri_project_0001: True})
 
     def test_user_get_all_users(self) -> None:
         all_users = User.getAllUsers(self.con)

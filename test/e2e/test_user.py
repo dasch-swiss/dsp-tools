@@ -48,16 +48,16 @@ class TestUser(unittest.TestCase):
     def test_user_read_by_iri(self) -> None:
         user = User(
             con=self.con,
-            id='http://rdfh.ch/users/91e19f1e01'
+            id='http://rdfh.ch/users/normaluser'
         ).read()
-        self.assertEqual(user.id, 'http://rdfh.ch/users/91e19f1e01')
-        self.assertEqual(user.username, 'root-alt')
-        self.assertEqual(user.familyName, 'Admin-alt')
-        self.assertEqual(user.givenName, 'Administrator-alt')
+        self.assertEqual(user.id, 'http://rdfh.ch/users/normaluser')
+        self.assertEqual(user.username, 'normaluser')
+        self.assertEqual(user.familyName, 'User')
+        self.assertEqual(user.givenName, 'Normal')
         self.assertEqual(user.lang, Languages.DE)
         self.assertTrue(user.status)
         self.assertFalse(user.sysadmin)
-        self.assertEqual(user.in_projects, {"http://rdfh.ch/projects/0803": False})
+        self.assertEqual(user.in_projects, {})
 
     def test_user_create_and_read_by_email(self) -> None:
         User(

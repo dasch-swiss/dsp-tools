@@ -9,48 +9,13 @@ from knora.dsplib.models.user import User
 class TestUser(unittest.TestCase):
 
     def setUp(self) -> None:
+        """
+        is executed before all tests; sets up a connection and logs in as user root
+        """
         self.con = Connection('http://0.0.0.0:3333')
         self.con.login('root@example.com', 'test')
 
-    def test_user(self):
-        user = User(
-            con=self.con,
-            username='wilee',
-            email='wilee.coyote@canyon.com',
-            givenName='Wile E.',
-            familyName='Coyote',
-            password='BeepBeep',
-            lang=Languages.EN,
-            status=True,
-            sysadmin=True,
-            in_projects={"http://rdfh.ch/projects/0001": True},
-            in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
-        )
-        self.assertEqual(user.username, 'wilee')
-        self.assertEqual(user.email, 'wilee.coyote@canyon.com')
-        self.assertEqual(user.givenName, 'Wile E.')
-        self.assertEqual(user.familyName, 'Coyote')
-        self.assertTrue(user.status)
-        self.assertEqual(user.lang, Languages.EN)
-        self.assertTrue(user.sysadmin)
-        self.assertEqual(user.in_projects, {"http://rdfh.ch/projects/0001": True})
-        self.assertEqual(user.in_groups, {"http://rdfh.ch/groups/0001/thing-searcher"})
-
-    def test_User_read_by_iri(self):
-        user = User(
-            con=self.con,
-            id='http://rdfh.ch/users/91e19f1e01'
-        ).read()
-        self.assertEqual(user.id, 'http://rdfh.ch/users/91e19f1e01')
-        self.assertEqual(user.username, 'root-alt')
-        self.assertEqual(user.familyName, 'Admin-alt')
-        self.assertEqual(user.givenName, 'Administrator-alt')
-        self.assertEqual(user.lang, Languages.DE)
-        self.assertTrue(user.status)
-        self.assertFalse(user.sysadmin)
-        self.assertEqual(user.in_projects, {"http://rdfh.ch/projects/0803": False})
-
-    def test_User_create(self):
+    def test_user_create(self) -> None:
         user = User(
             con=self.con,
             username='wilee1',
@@ -74,7 +39,21 @@ class TestUser(unittest.TestCase):
         self.assertEqual(user.in_projects, {"http://rdfh.ch/projects/0001": True})
         self.assertEqual(user.in_groups, {"http://rdfh.ch/groups/0001/thing-searcher"})
 
-    def test_User_create_and_read_by_email(self):
+    def test_user_read_by_iri(self) -> None:
+        user = User(
+            con=self.con,
+            id='http://rdfh.ch/users/91e19f1e01'
+        ).read()
+        self.assertEqual(user.id, 'http://rdfh.ch/users/91e19f1e01')
+        self.assertEqual(user.username, 'root-alt')
+        self.assertEqual(user.familyName, 'Admin-alt')
+        self.assertEqual(user.givenName, 'Administrator-alt')
+        self.assertEqual(user.lang, Languages.DE)
+        self.assertTrue(user.status)
+        self.assertFalse(user.sysadmin)
+        self.assertEqual(user.in_projects, {"http://rdfh.ch/projects/0803": False})
+
+    def test_user_create_and_read_by_email(self) -> None:
         User(
             con=self.con,
             username='wilee2',
@@ -101,7 +80,7 @@ class TestUser(unittest.TestCase):
         self.assertEqual(user.in_projects, {"http://rdfh.ch/projects/0001": True})
         self.assertEqual(user.in_groups, {"http://rdfh.ch/groups/0001/thing-searcher"})
 
-    def test_User_delete(self):
+    def tesu_User_delete(self) -> None:
         user = User(
             con=self.con,
             username='wilee3',
@@ -115,11 +94,12 @@ class TestUser(unittest.TestCase):
             in_projects={"http://rdfh.ch/projects/0001": True},
             in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
         ).create()
+        self.assertTrue(user.status)
         nuser = user.delete()
-        self.assertIsNotNone(nuser)
+        # user still exists only status is set to false
         self.assertFalse(nuser.status)
 
-    def test_User_update_basic_information(self):
+    def test_user_update_basic_information(self) -> None:
         user = User(
             con=self.con,
             username='wilee4',
@@ -149,7 +129,7 @@ class TestUser(unittest.TestCase):
         self.assertFalse(nuser.status)
         self.assertFalse(nuser.sysadmin)
 
-    def test_User_update_password(self):
+    def test_user_update_password(self) -> None:
         user = User(
             con=self.con,
             username='wilee5',
@@ -182,17 +162,29 @@ class TestUser(unittest.TestCase):
         nuser = updated_user.update('BeepBeep5.2')
         self.assertIsNotNone(nuser)
 
-    def test_User_addToGroup(self):
-        # TODO: Check why this test failes with error: Message:{"error":"org.knora.webapi.UpdateNotPerformedException: User's 'group' memberships where not updated. Please report this as a possible bug."}
-        return
-        user = self.createTestUser()
+    def test_user_add_to_group(self) -> None:
+        user = User(
+            con=self.con,
+            username='wilee10',
+            email='wilee.coyote10@canyon.com',
+            givenName='Wile E.10',
+            familyName='Coyote10',
+            password='BeepBeep10',
+            lang=Languages.EN,
+            status=True,
+            sysadmin=True,
+            in_projects={"http://rdfh.ch/projects/0001": True},
+            in_groups={"http://rdfh.ch/groups/00FF/images-reviewer"}
+        ).create()
+
+        self.assertEqual(user.in_groups, {"http://rdfh.ch/groups/00FF/images-reviewer"})
+
         user.addToGroup('http://rdfh.ch/groups/0001/thing-searcher')
         nuser = user.update()
-        self.assertIsNotNone(nuser)
         self.assertEqual(nuser.in_groups,
-                         {"http://rdfh.ch/groups/0001/thing-searcher", 'http://rdfh.ch/groups/0001/thing-searcher'})
+                         {"http://rdfh.ch/groups/0001/thing-searcher", 'http://rdfh.ch/groups/00FF/images-reviewer'})
 
-    def test_User_rmFromGroup(self):
+    def test_user_remove_from_group(self) -> None:
         user = User(
             con=self.con,
             username='wilee6',
@@ -206,12 +198,12 @@ class TestUser(unittest.TestCase):
             in_projects={"http://rdfh.ch/projects/0001": True},
             in_groups={"http://rdfh.ch/groups/00FF/images-reviewer"}
         ).create()
+        self.assertEqual(user.in_groups, {"http://rdfh.ch/groups/00FF/images-reviewer"})
         user.rmFromGroup('http://rdfh.ch/groups/00FF/images-reviewer')
         nuser = user.update()
-        self.assertIsNotNone(nuser)
+        self.assertEqual(nuser.in_groups, set())
 
-    def test_User_addToProject(self):
-        return
+    def test_user_add_to_project(self) -> None:
         user = User(
             con=self.con,
             username='wilee7',
@@ -227,11 +219,10 @@ class TestUser(unittest.TestCase):
         ).create()
         user.addToProject('http://rdfh.ch/projects/00FF', False)
         nuser = user.update()
-        self.assertIsNotNone(nuser)
         self.assertEqual(nuser.in_projects,
                          {"http://rdfh.ch/projects/0001": True, 'http://rdfh.ch/projects/00FF': False})
 
-    def test_User_rmFromProject(self):
+    def test_user_remove_from_project(self) -> None:
         user = User(
             con=self.con,
             username='wilee8',
@@ -245,12 +236,13 @@ class TestUser(unittest.TestCase):
             in_projects={"http://rdfh.ch/projects/0001": True},
             in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
         ).create()
+        self.assertEqual(user.in_projects,
+                         {"http://rdfh.ch/projects/0001": True})
         user.rmFromProject('http://rdfh.ch/projects/0001')
         nuser = user.update()
-        self.assertIsNotNone(nuser)
         self.assertEqual(nuser.in_projects, {})
 
-    def test_User_unmakeProjectAdmin(self):
+    def test_user_remove_as_project_admin(self) -> None:
         user = User(
             con=self.con,
             username='wilee9',
@@ -266,11 +258,9 @@ class TestUser(unittest.TestCase):
         ).create()
         user.unmakeProjectAdmin('http://rdfh.ch/projects/0001')
         nuser = user.update()
-        self.assertIsNotNone(nuser)
         self.assertEqual(nuser.in_projects, {'http://rdfh.ch/projects/0001': False})
 
-    def test_User_makeProjectAdmin(self):
-        return
+    def test_user_add_as_project_admin(self) -> None:
         user = User(
             con=self.con,
             username='wileeA',
@@ -281,23 +271,23 @@ class TestUser(unittest.TestCase):
             lang=Languages.EN,
             status=True,
             sysadmin=True,
-            in_projects={"http://rdfh.ch/projects/0001": True},
+            in_projects={"http://rdfh.ch/projects/0001": False},
             in_groups={"http://rdfh.ch/groups/0001/thing-searcher"}
         ).create()
-        user.addToProject('http://rdfh.ch/projects/00FF', False)
-        updated_user = user.update()
-        updated_user.makeProjectAdmin('http://rdfh.ch/projects/00FF')
-        nuser = updated_user.update()
-        self.assertIsNotNone(nuser)
-        self.assertEqual(nuser.in_projects, {'http://rdfh.ch/projects/0001': True,
-                                             'http://rdfh.ch/projects/00FF': True})
+        user.makeProjectAdmin('http://rdfh.ch/projects/0001')
+        nuser = user.update()
+        self.assertEqual(nuser.in_projects, {'http://rdfh.ch/projects/0001': True})
 
-    def test_getAllUsers(self):
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
-        all_users = User.getAllUsers(con)
-        for u in all_users:
-            self.assertIsNotNone(u.id)
+    def test_user_get_all_users(self) -> None:
+        all_users = User.getAllUsers(self.con)
+        for user in all_users:
+            self.assertIsNotNone(user.id)
+
+    def tearDown(self) -> None:
+        """
+        is executed after all tests are run through; performs a log out
+        """
+        self.con.logout()
 
 
 if __name__ == '__main__':

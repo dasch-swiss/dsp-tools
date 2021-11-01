@@ -101,9 +101,9 @@ class TestUser(unittest.TestCase):
             in_groups={iri_group_thing_searcher}
         ).create()
         self.assertTrue(user.status)
-        nuser = user.delete()
+        updated_user = user.delete()
         # user still exists only status is set to false
-        self.assertFalse(nuser.status)
+        self.assertFalse(updated_user.status)
 
     def test_user_update_basic_information(self) -> None:
         user = User(
@@ -126,14 +126,14 @@ class TestUser(unittest.TestCase):
         user.lang = 'fr'
         user.status = False
         user.sysadmin = False
-        nuser = user.update()
-        self.assertEqual(nuser.email, 'roadrunner.geococcyx@canyon.com')
-        self.assertEqual(nuser.username, 'roadrunner')
-        self.assertEqual(nuser.givenName, 'roadrunner')
-        self.assertEqual(nuser.familyName, 'Geococcyx')
-        self.assertEqual(nuser.lang, Languages.FR)
-        self.assertFalse(nuser.status)
-        self.assertFalse(nuser.sysadmin)
+        updated_user = user.update()
+        self.assertEqual(updated_user.email, 'roadrunner.geococcyx@canyon.com')
+        self.assertEqual(updated_user.username, 'roadrunner')
+        self.assertEqual(updated_user.givenName, 'roadrunner')
+        self.assertEqual(updated_user.familyName, 'Geococcyx')
+        self.assertEqual(updated_user.lang, Languages.FR)
+        self.assertFalse(updated_user.status)
+        self.assertFalse(updated_user.sysadmin)
 
     def test_user_update_password(self) -> None:
         user_email = 'wilee.coyote5@canyon.com'
@@ -167,9 +167,9 @@ class TestUser(unittest.TestCase):
 
         # update password as user wilee5 (this would fail if password update wasn't successful)
         updated_user.password = 'BeepBeep5.3'
-        nuser = updated_user.update(user_new_pw)
+        newly_updated_user = updated_user.update(user_new_pw)
         con.logout()
-        self.assertIsNotNone(nuser)
+        self.assertIsNotNone(newly_updated_user)
 
     def test_user_add_to_group(self) -> None:
         user = User(
@@ -189,8 +189,8 @@ class TestUser(unittest.TestCase):
         self.assertEqual(user.in_groups, {iri_group_images_reviewer})
 
         user.addToGroup(iri_group_thing_searcher)
-        nuser = user.update()
-        self.assertEqual(nuser.in_groups,
+        updated_user = user.update()
+        self.assertEqual(updated_user.in_groups,
                          {iri_group_thing_searcher, iri_group_images_reviewer})
 
     def test_user_remove_from_group(self) -> None:
@@ -209,8 +209,8 @@ class TestUser(unittest.TestCase):
         ).create()
         self.assertEqual(user.in_groups, {iri_group_images_reviewer})
         user.rmFromGroup(iri_group_images_reviewer)
-        nuser = user.update()
-        self.assertEqual(nuser.in_groups, set())
+        update_user = user.update()
+        self.assertEqual(update_user.in_groups, set())
 
     def test_user_add_to_project(self) -> None:
         user = User(
@@ -227,8 +227,8 @@ class TestUser(unittest.TestCase):
             in_groups={iri_group_thing_searcher}
         ).create()
         user.addToProject(iri_project_0FFF, False)
-        nuser = user.update()
-        self.assertEqual(nuser.in_projects,
+        updated_user = user.update()
+        self.assertEqual(updated_user.in_projects,
                          {iri_project_0001: True, iri_project_0FFF: False})
 
     def test_user_remove_from_project(self) -> None:
@@ -248,8 +248,8 @@ class TestUser(unittest.TestCase):
         self.assertEqual(user.in_projects,
                          {iri_project_0001: True})
         user.rmFromProject(iri_project_0001)
-        nuser = user.update()
-        self.assertEqual(nuser.in_projects, {})
+        updated_user = user.update()
+        self.assertEqual(updated_user.in_projects, {})
 
     def test_user_remove_as_project_admin(self) -> None:
         user = User(
@@ -266,8 +266,8 @@ class TestUser(unittest.TestCase):
             in_groups={iri_group_thing_searcher}
         ).create()
         user.unmakeProjectAdmin(iri_project_0001)
-        nuser = user.update()
-        self.assertEqual(nuser.in_projects, {iri_project_0001: False})
+        updated_user = user.update()
+        self.assertEqual(updated_user.in_projects, {iri_project_0001: False})
 
     def test_user_add_as_project_admin(self) -> None:
         user = User(
@@ -284,8 +284,8 @@ class TestUser(unittest.TestCase):
             in_groups={iri_group_thing_searcher}
         ).create()
         user.makeProjectAdmin(iri_project_0001)
-        nuser = user.update()
-        self.assertEqual(nuser.in_projects, {iri_project_0001: True})
+        updated_user = user.update()
+        self.assertEqual(updated_user.in_projects, {iri_project_0001: True})
 
     def test_user_get_all_users(self) -> None:
         all_users = User.getAllUsers(self.con)

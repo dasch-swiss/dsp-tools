@@ -63,8 +63,18 @@ def resources_excel2json(excelfile: str, outfile: str):
             labels['fr'] = res[3]
         if res[4]:
             labels['it'] = res[4]
+        # get comments
+        comments = {}    
+        if res[5]:
+            comments['en'] = res[5]
+        if res[6]:
+            comments['de'] = res[6]
+        if res[7]:
+            comments['fr'] = res[7]
+        if res[8]:
+            comments['it'] = res[8]
         # get super
-        sup = res[5]
+        sup = res[9]
 
         # load details for this resource
         sh = wb[name]
@@ -86,6 +96,7 @@ def resources_excel2json(excelfile: str, outfile: str):
         resource = {
             "name": name,
             "labels": labels,
+            "comments": comments,
             "super": sup,
             "cardinalities": cards
         }

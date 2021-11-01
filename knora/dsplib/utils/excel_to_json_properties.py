@@ -43,7 +43,7 @@ def properties_excel2json(excelfile: str, outfile: str):
     # load file
     wb = load_workbook(filename=excelfile, read_only=True)
     sheet = wb.worksheets[0]
-    props = [row_to_prop(row) for row in sheet.iter_rows(min_row=2, values_only=True, max_col=9)]
+    props = [row_to_prop(row) for row in sheet.iter_rows(min_row=2, values_only=True, max_col=13)]
 
     prefix = '"properties":'
 
@@ -69,7 +69,7 @@ def row_to_prop(row):
     Returns:
         prop (JSON): the property in JSON format
     """
-    name, super_, object_, en, de, fr, it, gui_element, hlist = row
+    name, super_, object_, en, de, fr, it, comment_en, comment_de, comment_fr, comment_it, gui_element, hlist = row
     labels = {}
     if en:
         labels['en'] = en
@@ -81,11 +81,21 @@ def row_to_prop(row):
         labels['it'] = it
     if not labels:
         raise Exception(f"No label given in any of the four languages: {name}")
+    comments = {}
+    if comment_en:
+        comments['en'] = comment_en
+    if comment_de:
+        comments['de'] = comment_de
+    if comment_fr:
+        comments['fr'] = comment_fr      
+    if comment_it:
+        comments['it'] = comment_it  
     prop = {
         'name': name,
         'super': [super_],
         'object': object_,
         'labels': labels,
+        'comments': comments,
         'gui_element': gui_element
     }
     if hlist:

@@ -21,7 +21,7 @@ def expand_lists_from_excel(data_model: Dict) -> List[str]:
             # check if the folder parameter is used
             if rootnode.get('nodes') is not None and isinstance(rootnode['nodes'], dict) \
                     and rootnode['nodes'].get('folder') is not None:
-                # get the Excel files from the folder and crate the rootnode of the list
+                # get the Excel files from the folder and create the rootnode of the list
                 excel_folder = rootnode['nodes']['folder']
                 rootnode, excel_files = prepare_list_creation(excel_folder, rootnode.get('name'),
                                                               rootnode.get('comments'))

@@ -64,7 +64,9 @@
           "en": "My list from Excel"
         },
         "comments": {
-            "en": "no comment"
+            "en": "no comment",
+            "de": "ein Kommentar",
+            "fr": "un commentaire"
         },
         "nodes": {
           "folder": "testdata/lists"

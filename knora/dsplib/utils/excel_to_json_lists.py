@@ -314,7 +314,6 @@ def prepare_list_creation(excelfolder: str, listname: str, comments: dict):
 
     # create root node of list
     rootnode = make_root_node_from_args(excel_files, listname, comments)
-    print("rootnode", rootnode)
 
     return rootnode, excel_files
 

@@ -57,6 +57,7 @@ install: ## install from source
 
 .PHONY: test
 test: clean local-tmp clone-knora-stack knora-stack ## runs all tests
+	# to run only one test, replace //test/... with p.ex. //test/e2e:test_tools
 	bazel test --test_summary=detailed --test_output=all //test/...
 
 .PHONY: local-tmp

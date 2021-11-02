@@ -22,6 +22,7 @@
         "labels": {
           "en": "Testlist"
         },
+        "comments": {"en": "no comment"},
         "nodes": [
           {
             "name": "a",
@@ -61,6 +62,9 @@
         "name": "my-list-from-excel",
         "labels": {
           "en": "My list from Excel"
+        },
+        "comments": {
+            "en": "no comment"
         },
         "nodes": {
           "folder": "testdata/lists"

@@ -19,11 +19,12 @@ def expand_lists_from_excel(data_model: Dict) -> List[str]:
     if lists is not None:
         for rootnode in lists:
             # check if the folder parameter is used
-            if rootnode.get('nodes') is not None and isinstance(rootnode['nodes'], dict) and rootnode['nodes'].get(
-                'folder') is not None:
+            if rootnode.get('nodes') is not None and isinstance(rootnode['nodes'], dict) \
+                    and rootnode['nodes'].get('folder') is not None:
                 # get the Excel files from the folder and crate the rootnode of the list
                 excel_folder = rootnode['nodes']['folder']
-                rootnode, excel_files = prepare_list_creation(excel_folder, rootnode.get('name'))
+                rootnode, excel_files = prepare_list_creation(excel_folder, rootnode.get('name'),
+                                                              rootnode.get('comments'))
 
                 # create the list from the Excel files
                 make_json_list_from_excel(rootnode, excel_files)

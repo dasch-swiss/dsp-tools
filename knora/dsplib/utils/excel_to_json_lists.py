@@ -206,13 +206,14 @@ def check_language_code(lang_code: str) -> bool:
     return False
 
 
-def make_root_node_from_args(excelfiles: List[str], listname_from_args: str) -> dict:
+def make_root_node_from_args(excelfiles: List[str], listname_from_args: str, comments: dict) -> dict:
     """
     Creates the root node for the JSON list
 
     Args:
         excelfiles: List of Excel files (names) to be checked
         listname_from_args: Listname from arguments provided by the user via the command line
+        comments: Comments provided by the ontology
 
     Returns:
         dict: The root node of the list as dictionary (JSON)
@@ -245,7 +246,7 @@ def make_root_node_from_args(excelfiles: List[str], listname_from_args: str) -> 
     if listname_from_args:
         listname = listname_from_args
 
-    rootnode = {'name': listname, 'labels': rootnode_labels_dict}
+    rootnode = {'name': listname, 'labels': rootnode_labels_dict, 'comments': comments}
 
     return rootnode
 
@@ -274,13 +275,14 @@ def validate_list_with_schema(json_list: str) -> bool:
     return True
 
 
-def prepare_list_creation(excelfolder: str, listname: str):
+def prepare_list_creation(excelfolder: str, listname: str, comments: dict):
     """
     Gets the excelfolder parameter and checks the validity of the files. It then makes the root node for the list.
 
     Args:
         excelfolder: path to the folder containing the Excel file(s)
         listname: name of the list to be created
+        comments: comments for the list to be created
 
     Returns:
         rootnode (dict): The rootnode of the list as a dictionary
@@ -296,7 +298,7 @@ def prepare_list_creation(excelfolder: str, listname: str):
     # check if the given folder parameter is actually a folder
     if not os.path.isdir(excelfolder):
         print(excelfolder, 'is not a directory.')
-        exit()
+        exit(1)
 
     # create a list with all excel files from the path provided by the user
     excel_files = [filename for filename in glob.iglob(f'{excelfolder}/*.xlsx') if
@@ -308,10 +310,11 @@ def prepare_list_creation(excelfolder: str, listname: str):
         print(file)
         if not os.path.isfile(file):
             print(file, 'is not a valid file.')
-            exit()
+            exit(1)
 
     # create root node of list
-    rootnode = make_root_node_from_args(excel_files, listname)
+    rootnode = make_root_node_from_args(excel_files, listname, comments)
+    print("rootnode", rootnode)
 
     return rootnode, excel_files
 
@@ -328,8 +331,8 @@ def list_excel2json(listname: str, excelfolder: str, outfile: str):
     Return:
         None
     """
-    # get the Excel files from the folder and crate the rootnode of the list
-    rootnode, excel_files = prepare_list_creation(excelfolder, listname)
+    # get the Excel files from the folder and create the rootnode of the list
+    rootnode, excel_files = prepare_list_creation(excelfolder, listname, comments={})
 
     # create the list from the Excel files
     make_json_list_from_excel(rootnode, excel_files)

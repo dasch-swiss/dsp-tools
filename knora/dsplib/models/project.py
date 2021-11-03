@@ -122,7 +122,7 @@ class Project(Model):
                  shortcode: Optional[str] = None,
                  shortname: Optional[str] = None,
                  longname: Optional[str] = None,
-                 description: LangStringParam = None,
+                 description: LangString = None,
                  keywords: Optional[Set[str]] = None,
                  ontologies: Optional[Set[str]] = None,
                  selfjoin: Optional[bool] = None,

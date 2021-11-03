@@ -8,39 +8,44 @@ from knora.dsplib.models.project import Project
 
 class TestProject(unittest.TestCase):
 
-    def test_project(self):
-        con = Connection('http://0.0.0.0:3333')
+    def setUp(self) -> None:
+        """
+        is executed before all tests; sets up a connection and logs in as user root
+        """
+        self.con = Connection('http://0.0.0.0:3333')
+        self.con.login('root@example.com', 'test')
+
+    def test_Project(self) -> None:
         project = Project(
-            con=con,
-            id='http://rdfh.ch/gaga',
+            con=self.con,
+            id='http://rdfh.ch/test',
             shortcode='0FF0',
-            shortname="pytest",
-            longname="Python testing",
-            description=LangString({Languages.EN: 'knora-py testing', Languages.DE: 'Tests für knora-py'}),
-            keywords={'test', 'testing', 'gaga'},
+            shortname="test_project",
+            longname="Test Project",
+            description=LangString({Languages.EN: 'This is a test project', Languages.DE: 'Das ist ein Testprojekt'}),
+            keywords={'test', 'project'},
             selfjoin=False,
             status=True,
-            logo='gaga.gif'
+            logo='logo.gif'
         )
+
         self.assertIsNotNone(project)
-        self.assertEqual(project.id, 'http://rdfh.ch/gaga')
+        self.assertEqual(project.id, 'http://rdfh.ch/test')
         self.assertEqual(project.shortcode, '0FF0')
-        self.assertEqual(project.shortname, 'pytest')
-        self.assertEqual(project.longname, 'Python testing')
-        self.assertEqual(project.description['en'], 'knora-py testing')
-        self.assertEqual(project.description['de'], 'Tests für knora-py')
+        self.assertEqual(project.shortname, 'test_project')
+        self.assertEqual(project.longname, 'Test Project')
+        self.assertEqual(project.description['en'], 'This is a test project')
+        self.assertEqual(project.description['de'], 'Das ist ein Testprojekt')
         self.assertEqual(project.selfjoin, False)
         self.assertEqual(project.status, True)
-        self.assertEqual(project.keywords, {'test', 'testing', 'gaga'})
-        self.assertEqual(project.logo, 'gaga.gif')
+        self.assertEqual(project.keywords, {'test', 'project'})
 
-    def test_read(self):
-        con = Connection('http://0.0.0.0:3333')
+    def test_project_read(self) -> None:
         project = Project(
-            con=con,
+            con=self.con,
             id='http://rdfh.ch/projects/0001'
         ).read()
-        self.assertIsNotNone(project)
+
         self.assertEqual(project.id, 'http://rdfh.ch/projects/0001')
         self.assertEqual(project.shortcode, '0001')
         self.assertEqual(project.shortname, 'anything')
@@ -49,91 +54,91 @@ class TestProject(unittest.TestCase):
         self.assertEqual(project.selfjoin, False)
         self.assertEqual(project.status, True)
 
-    def test_create(self):
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
+    def test_project_create(self) -> None:
         project = Project(
-            con=con,
+            con=self.con,
             shortcode='0FF0',
-            shortname="pytest0",
-            longname="Python testing 0",
-            description=LangString({Languages.EN: 'knora-py testing', Languages.DE: 'Tests für knora-py'}),
-            keywords={'test', 'testing', 'gaga'},
+            shortname="new_project",
+            longname="New test project",
+            description=LangString({Languages.EN: 'New test project', Languages.DE: 'Neues Testprojekt'}),
+            keywords={'test', 'project', 'new'},
             selfjoin=False,
             status=True,
-            logo='gaga.gif'
+            logo='logo.gif'
         )
-        nproject = project.create()
-        self.assertIsNotNone(nproject)
-        self.assertEqual(nproject.shortcode, '0FF0')
-        self.assertEqual(nproject.shortname, 'pytest0')
-        self.assertEqual(nproject.longname, 'Python testing 0')
-        self.assertEqual(nproject.description['en'], 'knora-py testing')
-        self.assertEqual(nproject.description['de'], 'Tests für knora-py')
-        self.assertEqual(nproject.selfjoin, False)
-        self.assertEqual(nproject.status, True)
-        self.assertEqual(nproject.keywords, {'test', 'testing', 'gaga'})
+        new_project = project.create()
+        self.assertIsNotNone(new_project)
+        self.assertEqual(new_project.shortcode, '0FF0')
+        self.assertEqual(new_project.shortname, 'new_project')
+        self.assertEqual(new_project.longname, 'New test project')
+        self.assertEqual(new_project.description['en'], 'New test project')
+        self.assertEqual(new_project.description['de'], 'Neues Testprojekt')
+        self.assertEqual(new_project.keywords, {'test', 'project', 'new'})
+        self.assertEqual(new_project.selfjoin, False)
+        self.assertEqual(new_project.status, True)
+        self.assertEqual(new_project.keywords, {'test', 'project', 'new'})
 
-    def test_update(self):
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
+    def test_project_update(self) -> None:
         project = Project(
-            con=con,
+            con=self.con,
             shortcode='0FF1',
-            shortname="pytest1",
-            longname="Python testing 1",
-            description=LangString({Languages.EN: 'knora-py testing', Languages.DE: 'Tests für knora-py'}),
-            keywords={'test', 'testing', 'gaga'},
+            shortname="update_project",
+            longname="Update Project",
+            description=LangString({Languages.EN: 'Project to be updated', Languages.DE: 'Update-Projekt'}),
+            keywords={'test', 'project'},
             selfjoin=False,
             status=True,
-            logo='gaga.gif'
+            logo='logo.gif'
         ).create()
 
-        project.shortname = "pytest1a"
-        project.longname = "Python testing 1a"
-        project.addDescription('fr', 'Les testes pour python')
+        project.shortname = "update_project"
+        project.longname = "Update Project"
+        project.addDescription('fr', 'Projet modifié')
         project.rmDescription('de')
         project.selfjoin = True
         project.status = False
-        project.rmKeyword('gaga')
-        project.addKeyword('Guguseli')
-        nproject = project.update()
+        project.rmKeyword('project')
+        project.addKeyword('updated')
+        updated_project = project.update()
 
-        self.assertIsNotNone(nproject)
-        self.assertEqual(nproject.shortcode, '0FF1')
-        # self.assertEqual(nnproject.shortname, 'pytest2') # Does not work....? Knora-API problem
-        self.assertEqual(nproject.longname, 'Python testing 1a')
-        self.assertEqual(nproject.description['en'], 'knora-py testing')
-        self.assertEqual(nproject.description['fr'], 'Les testes pour python')
-        self.assertEqual(nproject.selfjoin, True)
-        self.assertEqual(nproject.status, False)
-        self.assertEqual(nproject.keywords, {'test', 'testing', 'Guguseli'})
+        self.assertEqual(updated_project.shortcode, '0FF1')
+        self.assertEqual(updated_project.shortname, 'update_project')
+        self.assertEqual(updated_project.longname, 'Update Project')
+        self.assertEqual(updated_project.description['en'], 'Project to be updated')
+        self.assertEqual(updated_project.description['fr'], 'Projet modifié')
+        self.assertEqual(updated_project.selfjoin, True)
+        self.assertEqual(updated_project.status, False)
+        self.assertEqual(updated_project.keywords, {'test', 'updated'})
 
-    def test_delete(self):
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
+    def test_project_delete(self) -> None:
         project = Project(
-            con=con,
+            con=self.con,
             shortcode='0FF2',
-            shortname="pytest2",
-            longname="Python testing 2",
-            description=LangString({Languages.EN: 'knora-py testing', Languages.DE: 'Tests für knora-py'}),
-            keywords={'test', 'testing', 'gaga'},
+            shortname="delete_project",
+            longname="Delete Project",
+            description=LangString({Languages.EN: 'Project to be deleted', Languages.DE: 'Lösch-Projekt'}),
+            keywords={'test', 'project', 'delete'},
             selfjoin=False,
             status=True,
-            logo='gaga.gif'
+            logo='logo.gif'
         ).create()
 
-        nproject = project.delete()
-        self.assertIsNotNone(nproject)
-        self.assertEqual(nproject.shortcode, '0FF2')
-        self.assertEqual(nproject.shortname, 'pytest2')
-        self.assertEqual(nproject.longname, 'Python testing 2')
-        self.assertEqual(nproject.description['en'], 'knora-py testing')
-        self.assertEqual(nproject.description['de'], 'Tests für knora-py')
-        self.assertEqual(nproject.selfjoin, False)
-        self.assertEqual(nproject.status, False)
-        self.assertEqual(nproject.keywords, {'test', 'testing', 'gaga'})
+        deleted_project = project.delete()
+
+        self.assertEqual(deleted_project.shortcode, '0FF2')
+        self.assertEqual(deleted_project.shortname, 'delete_project')
+        self.assertEqual(deleted_project.longname, 'Delete Project')
+        self.assertEqual(deleted_project.description['en'], 'Project to be deleted')
+        self.assertEqual(deleted_project.description['de'], 'Lösch-Projekt')
+        self.assertEqual(deleted_project.selfjoin, False)
+        self.assertEqual(deleted_project.status, False)
+        self.assertEqual(deleted_project.keywords, {'test', 'project', 'delete'})
+
+    def tearDown(self) -> None:
+        """
+        is executed after all tests are run through; performs a log out
+        """
+        self.con.logout()
 
 
 if __name__ == '__main__':

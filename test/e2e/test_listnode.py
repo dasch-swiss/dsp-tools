@@ -95,17 +95,17 @@ class TestListNode(unittest.TestCase):
         node = ListNode(
             con=con,
             project=self.project,
-            label=LangString({Languages.DE: "root node 3"}),
-            comments=LangString({Languages.DE: "Third root node"}),
+            label=LangString({Languages.EN: "root node 3"}),
+            comments=LangString({Languages.EN: "Third root node"}),
             name="test_node_3"
         ).create()
-        node.addLabel('fr', 'Une racine d\' une liste')
-        node.rmLabel('de')
+        node.addLabel('de', "Neues Label")
+        node.rmLabel('en')
         node.addComment('fr', 'un commentaire en français')
-        node.rmComment('de')
+        node.rmComment('en')
         node.name = 'GAGAGA'
         node.update()
-        self.assertEqual(node.label['fr'], 'Une racine d\' une liste')
+        self.assertEqual(node.label['de'], "Neues Label")
         self.assertEqual(node.comments['fr'], 'un commentaire en français')
         self.assertEqual(node.name, 'GAGAGA')
 

@@ -1,3 +1,4 @@
+"""end to end tests for group class"""
 import unittest
 
 from knora.dsplib.models.connection import Connection
@@ -6,125 +7,113 @@ from knora.dsplib.models.langstring import LangString, Languages
 
 
 class TestGroup(unittest.TestCase):
-    iri = None
+    test_project = "http://rdfh.ch/projects/0001"
 
-    def test_getAllGroups(self):
+    def setUp(self) -> None:
         """
-        Test if we can retrieve all groups
+        is executed before all tests; sets up a connection and logs in as user root
+        """
+        self.con = Connection('http://0.0.0.0:3333')
+        self.con.login('root@example.com', 'test')
+
+    def test_group_getAllGroups(self) -> None:
+        """
+        Retrieve all groups
         :return: None
         """
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
-        groups = Group.getAllGroups(con)
-        self.assertIsNotNone(groups)
+        groups = Group.getAllGroups(self.con)
+        group_ids = []
         for group in groups:
-            group.print()
+            group_ids.append(group.id)
 
-    def test_Group(self):
+        group_ids_expected = [
+            "http://rdfh.ch/groups/00FF/images-reviewer",
+            "http://rdfh.ch/groups/0001/thing-searcher"
+        ]
+        self.assertTrue(set(group_ids).issuperset(set(group_ids_expected)))
+
+    def test_group_create(self) -> None:
         """
-        Test the creation of the group instance (without interaction with the triple store...)
+        Create a group
         :return: None
         """
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
-
-        group = Group(con=con,
-                      name="TEST GROUP",
-                      descriptions=LangString({Languages.EN: 'Test group'}),
-                      project="http://rdfh.ch/projects/0001",
+        group = Group(con=self.con,
+                      name="Group create",
+                      descriptions=LangString({Languages.EN: 'This is group create'}),
+                      project=self.test_project,
                       status=True,
                       selfjoin=False)
-        self.assertEqual(group.name, 'TEST GROUP')
-        self.assertCountEqual(group.descriptions.toJsonObj(), [{'language': 'en', 'value': 'Test group'}])
-        self.assertEqual(group.project, 'http://rdfh.ch/projects/0001')
+
+        self.assertEqual(group.name, 'Group create')
+        self.assertCountEqual(group.descriptions.toJsonObj(), [{'language': 'en', 'value': 'This is group create'}])
+        self.assertEqual(group.project, self.test_project)
         self.assertTrue(group.status)
         self.assertFalse(group.selfjoin)
 
-    def test_Group_read(self):
+    def test_group_read(self) -> None:
         """
-        Test if we can read an existing group and retrieve information about it
+        Read an existing group
         :return: None
         """
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
-
-        group = Group(con=con,
+        group = Group(con=self.con,
                       id='http://rdfh.ch/groups/0001/thing-searcher').read()
         self.assertEqual(group.name, 'Thing searcher')
-        self.assertEqual(group.project, 'http://rdfh.ch/projects/0001')
+        self.assertEqual(group.project, self.test_project)
         self.assertTrue(group.status)
         self.assertTrue(group.selfjoin)
 
-    def test_Group_create(self):
+    def test_Group_update(self) -> None:
         """
-        Test if we can create a new group in the triple store
+        Update an existing group
         :return: None
         """
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
-
-        group = Group(con=con,
-                      name="GROUP CREATE",
-                      descriptions=LangString({Languages.EN: 'Test group'}),
-                      project="http://rdfh.ch/projects/0001",
+        group = Group(con=self.con,
+                      name="Group update",
+                      descriptions=LangString({Languages.EN: 'This is group update'}),
+                      project=self.test_project,
                       status=True,
                       selfjoin=False).create()
-        self.iri = group.id
 
-        self.assertEqual(group.name, 'GROUP CREATE')
-        self.assertCountEqual(group.descriptions.toJsonObj(), [{'language': 'en', 'value': 'Test group'}])
-        self.assertEqual(group.project, 'http://rdfh.ch/projects/0001')
-        self.assertTrue(group.status)
-        self.assertFalse(group.selfjoin)
-
-    def test_Group_update(self):
-        """
-        Here we test if we can update an existing group
-        :return: None
-        """
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
-
-        group = Group(con=con,
-                      name="GROUP UPDATE",
-                      descriptions=LangString({Languages.EN: 'Test group'}),
-                      project="http://rdfh.ch/projects/0001",
-                      status=True,
-                      selfjoin=False).create()
-        self.iri = group.id
-        group.name = "GROUP UPDATE - modified"
-        group.descriptions = {"en": "Test group updated"}
+        group.name = "Group update - modified"
+        group.descriptions = {"en": "This is group update - modified"}
         group.selfjoin = True
         group.status = False
-        group.update()
-        self.assertEqual(group.name, 'GROUP UPDATE - modified')
-        self.assertCountEqual(group.descriptions.toJsonObj(), [{'language': 'en', 'value': 'Test group updated'}])
-        self.assertEqual(group.project, 'http://rdfh.ch/projects/0001')
-        self.assertFalse(group.status)
-        self.assertTrue(group.selfjoin)
+        updated_group = group.update()
 
-    def test_Group_delete(self):
+        self.assertEqual(updated_group.name, 'Group update - modified')
+        self.assertCountEqual(updated_group.descriptions.toJsonObj(), [{'language': 'en', 'value': 'This is group '
+                                                                                                   'update - '
+                                                                                                   'modified'}])
+        self.assertEqual(updated_group.project, self.test_project)
+        self.assertFalse(updated_group.status)
+        self.assertTrue(updated_group.selfjoin)
+
+    def test_Group_delete(self) -> None:
         """
-        Here we test if we can mark an existing group as deleted (it will not be deleted completely
-        from the triplestore, but marked!!)
+        Mark an existing group as deleted (it will not be deleted completely from the triplestore, but status set to
+        False)
         :return: None
         """
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
-
-        group = Group(con=con,
-                      name="GROUP DELETE",
-                      descriptions=LangString({Languages.EN: 'Test group'}),
-                      project="http://rdfh.ch/projects/0001",
+        group = Group(con=self.con,
+                      name="Group delete",
+                      descriptions=LangString({Languages.EN: 'This is group delete'}),
+                      project=self.test_project,
                       status=True,
                       selfjoin=False).create()
-        self.iri = group.id
-        ngroup = group.delete()
-        self.assertEqual(ngroup.name, 'GROUP DELETE')
-        self.assertCountEqual(ngroup.descriptions.toJsonObj(), [{'language': 'en', 'value': 'Test group'}])
-        self.assertEqual(ngroup.project, 'http://rdfh.ch/projects/0001')
-        self.assertFalse(ngroup.status)
-        self.assertFalse(ngroup.selfjoin)
+
+        deleted_group = group.delete()
+        self.assertEqual(deleted_group.name, 'Group delete')
+        self.assertCountEqual(deleted_group.descriptions.toJsonObj(),
+                              [{'language': 'en', 'value': 'This is group delete'}])
+        self.assertEqual(deleted_group.project, self.test_project)
+        self.assertFalse(deleted_group.status)
+        self.assertFalse(deleted_group.selfjoin)
+
+    def tearDown(self) -> None:
+        """
+        is executed after all tests are run through; performs a log out
+        """
+        self.con.logout()
 
 
 if __name__ == '__main__':

@@ -84,7 +84,6 @@ class TestOntology(unittest.TestCase):
     def test_ontology_getProjectOntologies(self) -> None:
         onto_list = Ontology.getProjectOntologies(self.con, self.test_project)
         onto_list_ids = [l.id for l in onto_list]
-        self.assertEqual(len(onto_list), 5)
         self.assertIn('http://0.0.0.0:3333/ontology/0001/anything/v2', onto_list_ids)
         self.assertIn('http://0.0.0.0:3333/ontology/0001/minimal/v2', onto_list_ids)
         self.assertIn('http://0.0.0.0:3333/ontology/0001/something/v2', onto_list_ids)

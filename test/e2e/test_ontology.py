@@ -7,77 +7,93 @@ from knora.dsplib.models.ontology import Ontology
 
 
 class TestOntology(unittest.TestCase):
-    project = "http://rdfh.ch/projects/0001"
-    label = 'test_ontology'
-    last_modification_date: LastModificationDate
+    test_project = "http://rdfh.ch/projects/0001"
+    test_ontology = "http://0.0.0.0:3333/ontology/0001/anything/v2"
 
     def setUp(self) -> None:
+        """
+        is executed before all tests; sets up a connection and logs in as user root
+        """
         self.con = Connection('http://0.0.0.0:3333')
         self.con.login('root@example.com', 'test')
 
-    def test_ontology(self):
+    def test_Ontology(self) -> None:
+        last_mod_date_str = "2017-12-19T15:23:42.166Z"
         onto = Ontology(
             con=self.con,
-            project=self.project,
-            name="test_ontology_0",
-            label="test ontology 0",
-            lastModificationDate="2017-12-19T15:23:42.166Z"
+            project=self.test_project,
+            name="test_onto_name",
+            label="Test ontology label",
+            lastModificationDate=last_mod_date_str
         )
-        self.assertEqual(onto.project, self.project)
-        self.assertEqual(onto.label, "test ontology 0")
-        self.assertEqual(onto.lastModificationDate, LastModificationDate("2017-12-19T15:23:42.166Z"))
+        self.assertEqual(onto.project, self.test_project)
+        self.assertEqual(onto.name, "test_onto_name")
+        self.assertEqual(onto.label, "Test ontology label")
+        self.assertEqual(onto.lastModificationDate, LastModificationDate(last_mod_date_str))
 
-    def test_read(self):
+    def test_ontology_read(self) -> None:
         onto = Ontology(
             con=self.con,
-            id='http://0.0.0.0:3333/ontology/0001/anything/v2'
+            id=self.test_ontology
         ).read()
-        self.assertEqual(onto.id, "http://0.0.0.0:3333/ontology/0001/anything/v2")
-        self.assertEqual(onto.project, "http://rdfh.ch/projects/0001")
+
+        self.assertEqual(onto.id, self.test_ontology)
+        self.assertEqual(onto.project, self.test_project)
+        self.assertEqual(onto.name, "anything")
         self.assertEqual(onto.label, "The anything ontology")
         self.assertIsNotNone(onto.lastModificationDate)
 
-    def test_create(self):
+    def test_ontology_create(self) -> None:
         onto = Ontology(
             con=self.con,
-            project=self.project,
-            name="testonto_1",
-            label="test ontology 1",
+            project=self.test_project,
+            name="test_onto_create",
+            label="Test ontology create label",
         ).create()
-        self.assertIsNotNone(onto.id)
-        self.assertEqual(onto.id, 'http://0.0.0.0:3333/ontology/0001/' + "testonto_1" + '/v2')
-        self.assertEqual(onto.label, "test ontology 1")
-        self.assertEqual(onto.project, self.project)
 
-    def test_update(self):
+        self.assertIsNotNone(onto.id)
+        self.assertEqual(onto.id, "http://0.0.0.0:3333/ontology/0001/" + "test_onto_create" + "/v2")
+        self.assertEqual(onto.project, self.test_project)
+        self.assertEqual(onto.name, "test_onto_create")
+        self.assertEqual(onto.label, "Test ontology create label")
+        self.assertIsNotNone(onto.lastModificationDate)
+
+    def test_ontology_update_label(self) -> None:
         onto = Ontology(
             con=self.con,
-            project=self.project,
-            name="testonto_2",
-            label="test ontology 2",
+            project=self.test_project,
+            name="test_onto_update",
+            label="Test ontology update label",
         ).create()
-        self.assertIsNotNone(onto.id)
-        onto.label = 'This is a modified label!'
+
+        onto.label = 'Test ontology update label - modified'
         onto = onto.update()
-        self.assertEqual(onto.label, 'This is a modified label!')
+        self.assertEqual(onto.label, 'Test ontology update label - modified')
 
-    def test_delete(self):
+    def test_ontology_delete(self) -> None:
         onto = Ontology(
             con=self.con,
-            project=self.project,
-            name="testonto_3",
-            label="test ontology 3",
+            project=self.test_project,
+            name="test_onto_delete",
+            label="Test ontology delete label",
         ).create()
-        self.assertIsNotNone(onto.id)
-        res = onto.delete()
-        self.assertIsNotNone(res)
 
-    def test_get_ontologies_of_project(self):
-        ontolist = Ontology.getProjectOntologies(self.con, self.project)
-        ontolist_ids = [x.id for x in ontolist]
-        self.assertIn('http://0.0.0.0:3333/ontology/0001/anything/v2', ontolist_ids)
-        self.assertIn('http://0.0.0.0:3333/ontology/0001/minimal/v2', ontolist_ids)
-        self.assertIn('http://0.0.0.0:3333/ontology/0001/something/v2', ontolist_ids)
+        res = onto.delete()
+        self.assertEqual(res, "Ontology http://0.0.0.0:3333/ontology/0001/test_onto_delete/v2 has been deleted")
+
+    def test_ontology_getProjectOntologies(self) -> None:
+        onto_list = Ontology.getProjectOntologies(self.con, self.test_project)
+        onto_list_ids = [l.id for l in onto_list]
+        self.assertEqual(len(onto_list), 5)
+        self.assertIn('http://0.0.0.0:3333/ontology/0001/anything/v2', onto_list_ids)
+        self.assertIn('http://0.0.0.0:3333/ontology/0001/minimal/v2', onto_list_ids)
+        self.assertIn('http://0.0.0.0:3333/ontology/0001/something/v2', onto_list_ids)
+
+    def tearDown(self) -> None:
+        """
+        is executed after all tests are run through; performs a log out
+        """
+        self.con.logout()
 
 
 if __name__ == '__main__':

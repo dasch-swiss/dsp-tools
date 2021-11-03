@@ -1,4 +1,4 @@
-"""end to end tests for user class"""
+"""end to end tests for listnode class"""
 import unittest
 
 from knora.dsplib.models.connection import Connection

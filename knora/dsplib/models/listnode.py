@@ -7,7 +7,7 @@ from pystrict import strict
 
 from .connection import Connection
 from .helpers import Actions, BaseError
-from .langstring import Languages, LangStringParam, LangString
+from .langstring import Languages, LangString
 from .model import Model
 from .project import Project
 
@@ -148,8 +148,8 @@ class ListNode(Model):
                  con: Connection,
                  id: Optional[str] = None,
                  project: Optional[Union[Project, str]] = None,
-                 label: LangStringParam = None,
-                 comments: LangStringParam = None,
+                 label: LangString = None,
+                 comments: LangString = None,
                  name: Optional[str] = None,
                  parent: Optional[Union['ListNode', str]] = None,
                  isRootNode: Optional[bool] = None,

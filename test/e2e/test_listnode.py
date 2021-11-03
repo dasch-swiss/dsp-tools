@@ -1,3 +1,4 @@
+"""end to end tests for user class"""
 import unittest
 
 from knora.dsplib.models.connection import Connection
@@ -6,46 +7,38 @@ from knora.dsplib.models.listnode import ListNode
 
 
 class TestListNode(unittest.TestCase):
-    project = 'http://rdfh.ch/projects/0001'
+    project = "http://rdfh.ch/projects/0001"
+    otherTreeList = "http://rdfh.ch/lists/0001/otherTreeList"
 
-    def test_ListNode_read(self):
+    def setUp(self) -> None:
+        """
+        is executed before all tests; sets up a connection and logs in as user root
+        """
+        self.con = Connection('http://0.0.0.0:3333')
+        self.con.login('root@example.com', 'test')
+
+    def test_ListNode_read(self) -> None:
         """
         Read an existing node
         :return: None
         """
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
         node = ListNode(
-            con=con,
-            id='http://rdfh.ch/lists/0001/otherTreeList'
+            con=self.con,
+            id=self.otherTreeList
         ).read()
-        self.assertEqual(node.id, 'http://rdfh.ch/lists/0001/otherTreeList')
-        self.assertEqual(node.project, 'http://rdfh.ch/projects/0001')
+        self.assertEqual(node.id, self.otherTreeList)
+        self.assertEqual(node.project, self.project)
         self.assertEqual(node.label['en'], 'Tree list root')
         self.assertTrue(node.isRootNode)
-
-    def test_ListNode_read2(self):
-        """
-        read another existing node
-        :return:
-        """
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
-        node = ListNode(
-            con=con,
-            id='http://rdfh.ch/lists/0001/otherTreeList03'
-        ).read()
-        self.assertEqual(node.id, 'http://rdfh.ch/lists/0001/otherTreeList03')
-        self.assertEqual(node.label['en'], 'Other Tree list node 03')
-        self.assertFalse(node.isRootNode)
-        self.assertEqual(node.rootNodeIri, 'http://rdfh.ch/lists/0001/otherTreeList')
         self.assertIsNone(node.children)
 
-    def test_ListNode_create(self):
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
+    def test_ListNode_create(self) -> None:
+        """
+        Create a list node
+        :return: None
+        """
         node = ListNode(
-            con=con,
+            con=self.con,
             project=self.project,
             label=LangString({Languages.DE: "root node 1"}),
             comments=LangString({Languages.DE: "first root node"}),
@@ -58,107 +51,102 @@ class TestListNode(unittest.TestCase):
         self.assertEqual(node.name, "test_node_1")
         self.assertTrue(node.isRootNode)
 
-    def test_ListNode_hierarchy(self):
+    def test_ListNode_hierarchy(self) -> None:
         """
         Create a node and a sub-node
         :return: None
         """
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
         node = ListNode(
-            con=con,
+            con=self.con,
             project=self.project,
-            label=LangString({Languages.DE: "root node 2"}),
-            comments=LangString({Languages.DE: "second root node"}),
-            name="test_node_2"
+            label=LangString({Languages.EN: "root node"}),
+            comments=LangString({Languages.EN: "This is a root node"}),
+            name="root_node"
         ).create()
-        node2 = ListNode(
-            con=con,
+        subnode = ListNode(
+            con=self.con,
             project=self.project,
-            label=LangString({Languages.DE: 'Eine Knoten der Liste'}),
-            comments=LangString({Languages.DE: "So ein Kommentar"}),
-            name="NODE2",
+            label=LangString({Languages.DE: 'Ein Knoten der Liste'}),
+            comments=LangString({Languages.DE: "Ein Kommentar"}),
+            name="sub_node",
             parent=node
         ).create()
-        self.assertEqual(node2.label['de'], 'Eine Knoten der Liste')
-        self.assertEqual(node2.comments['de'], "So ein Kommentar")
-        self.assertEqual(node2.name, "NODE2")
-        self.assertFalse(node2.isRootNode)
+        self.assertTrue(node.isRootNode)
+        self.assertFalse(subnode.isRootNode)
 
-    def test_ListNode_update(self):
+    def test_ListNode_update(self) -> None:
         """
-        Update the data of a node...
-        :return:
+        Update the data of a node
+        :return: None
         """
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
         node = ListNode(
-            con=con,
+            con=self.con,
             project=self.project,
             label=LangString({Languages.EN: "root node 3"}),
             comments=LangString({Languages.EN: "Third root node"}),
-            name="test_node_3"
+            name="test_node"
         ).create()
         node.addLabel('de', "Neues Label")
         node.rmLabel('en')
         node.addComment('fr', 'un commentaire en français')
         node.rmComment('en')
-        node.name = 'GAGAGA'
+        node.name = 'test_node_update'
         node.update()
         self.assertEqual(node.label['de'], "Neues Label")
         self.assertEqual(node.comments['fr'], 'un commentaire en français')
-        self.assertEqual(node.name, 'GAGAGA')
+        self.assertEqual(node.name, 'test_node_update')
 
-    def test_ListNode_getAllLists(self):
+    def test_ListNode_getAllLists(self) -> None:
         """
-        gett all root nodes, that is all lists
+        Get all lists
         :return: None
         """
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
-        lists = ListNode.getAllLists(con, 'http://rdfh.ch/projects/0001')
-        tmp = list(map(lambda a: a.id, lists))
-        self.assertIn('http://rdfh.ch/lists/0001/otherTreeList', tmp)
-        self.assertIn('http://rdfh.ch/lists/0001/treeList', tmp)
+        lists = ListNode.getAllLists(self.con, self.project)
+        list_ids = list(map(lambda l: l.id, lists))
+        self.assertIn(self.otherTreeList, list_ids)
+        self.assertIn('http://rdfh.ch/lists/0001/treeList', list_ids)
 
-    def test_ListNode_getAllNodes(self):
+    def test_ListNode_getAllNodes(self) -> None:
         """
-        Get all node of a list
+        Get all nodes of a list
         :return: None
         """
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
-        root = ListNode(
-            con=con,
-            id='http://rdfh.ch/lists/0001/otherTreeList'
+        root_node = ListNode(
+            con=self.con,
+            id=self.otherTreeList
         ).getAllNodes()
-        self.assertTrue(root.isRootNode)
-        self.assertEqual(root.project, 'http://rdfh.ch/projects/0001')
-        self.assertEqual(root.label['en'], 'Tree list root')
-        self.assertIsNotNone(root.children)
 
-        self.assertEqual(root.children[0].id, 'http://rdfh.ch/lists/0001/otherTreeList01')
-        self.assertEqual(root.children[0].name, 'Other Tree list node 01')
-        self.assertEqual(root.children[0].label['en'], 'Other Tree list node 01')
+        self.assertTrue(root_node.isRootNode)
+        self.assertEqual(root_node.project, self.project)
+        self.assertEqual(root_node.label['en'], 'Tree list root')
+        self.assertIsNotNone(root_node.children)
 
-        self.assertEqual(root.children[1].id, 'http://rdfh.ch/lists/0001/otherTreeList02')
-        self.assertEqual(root.children[1].name, 'Other Tree list node 02')
-        self.assertEqual(root.children[1].label['en'], 'Other Tree list node 02')
+        self.assertEqual(root_node.children[0].id, 'http://rdfh.ch/lists/0001/otherTreeList01')
+        self.assertEqual(root_node.children[0].name, 'Other Tree list node 01')
+        self.assertEqual(root_node.children[0].label['en'], 'Other Tree list node 01')
 
-        self.assertEqual(root.children[2].id, 'http://rdfh.ch/lists/0001/otherTreeList03')
-        self.assertEqual(root.children[2].name, 'Other Tree list node 03')
-        self.assertEqual(root.children[2].label['en'], 'Other Tree list node 03')
+        self.assertEqual(root_node.children[1].id, 'http://rdfh.ch/lists/0001/otherTreeList02')
+        self.assertEqual(root_node.children[1].name, 'Other Tree list node 02')
+        self.assertEqual(root_node.children[1].label['en'], 'Other Tree list node 02')
 
-        self.assertIsNotNone(root.children[2].children)
-        self.assertEqual(root.children[2].children[0].id, 'http://rdfh.ch/lists/0001/otherTreeList10')
-        self.assertEqual(root.children[2].children[0].name, 'Other Tree list node 10')
-        self.assertEqual(root.children[2].children[0].label['en'], 'Other Tree list node 10')
+        self.assertEqual(root_node.children[2].id, "http://rdfh.ch/lists/0001/otherTreeList03")
+        self.assertEqual(root_node.children[2].name, 'Other Tree list node 03')
+        self.assertEqual(root_node.children[2].label['en'], 'Other Tree list node 03')
 
-        self.assertEqual(root.children[2].children[1].id, 'http://rdfh.ch/lists/0001/otherTreeList11')
-        self.assertEqual(root.children[2].children[1].name, 'Other Tree list node 11')
-        self.assertEqual(root.children[2].children[1].label['en'], 'Other Tree list node 11')
+        self.assertIsNotNone(root_node.children[2].children)
+        self.assertEqual(root_node.children[2].children[0].id, 'http://rdfh.ch/lists/0001/otherTreeList10')
+        self.assertEqual(root_node.children[2].children[0].name, 'Other Tree list node 10')
+        self.assertEqual(root_node.children[2].children[0].label['en'], 'Other Tree list node 10')
 
-        # self.assertTrue(False)
+        self.assertEqual(root_node.children[2].children[1].id, 'http://rdfh.ch/lists/0001/otherTreeList11')
+        self.assertEqual(root_node.children[2].children[1].name, 'Other Tree list node 11')
+        self.assertEqual(root_node.children[2].children[1].label['en'], 'Other Tree list node 11')
+
+    def tearDown(self) -> None:
+        """
+        is executed after all tests are run through; performs a log out
+        """
+        self.con.logout()
 
 
 if __name__ == '__main__':

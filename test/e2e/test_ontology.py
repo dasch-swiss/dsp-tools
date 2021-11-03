@@ -8,7 +8,7 @@ from knora.dsplib.models.ontology import Ontology
 
 class TestOntology(unittest.TestCase):
     test_project = "http://rdfh.ch/projects/0001"
-    test_ontology = "http://0.0.0.0:3333/ontology/0001/anything/v2"
+    test_onto = "http://0.0.0.0:3333/ontology/0001/anything/v2"
 
     def setUp(self) -> None:
         """
@@ -34,10 +34,10 @@ class TestOntology(unittest.TestCase):
     def test_ontology_read(self) -> None:
         onto = Ontology(
             con=self.con,
-            id=self.test_ontology
+            id=self.test_onto
         ).read()
 
-        self.assertEqual(onto.id, self.test_ontology)
+        self.assertEqual(onto.id, self.test_onto)
         self.assertEqual(onto.project, self.test_project)
         self.assertEqual(onto.name, "anything")
         self.assertEqual(onto.label, "The anything ontology")

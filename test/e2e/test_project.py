@@ -7,6 +7,7 @@ from knora.dsplib.models.project import Project
 
 
 class TestProject(unittest.TestCase):
+    logo_file = "logo.gif"
 
     def setUp(self) -> None:
         """
@@ -26,7 +27,7 @@ class TestProject(unittest.TestCase):
             keywords={'test', 'project'},
             selfjoin=False,
             status=True,
-            logo='logo.gif'
+            logo=self.logo_file
         )
 
         self.assertIsNotNone(project)
@@ -60,19 +61,19 @@ class TestProject(unittest.TestCase):
             shortcode='0FF0',
             shortname="new_project",
             longname="New test project",
-            description=LangString({Languages.EN: 'New test project', Languages.DE: 'Neues Testprojekt'}),
+            description=LangString({Languages.EN: 'New project', Languages.DE: 'Neues Projekt'}),
             keywords={'test', 'project', 'new'},
             selfjoin=False,
             status=True,
-            logo='logo.gif'
+            logo=self.logo_file
         )
         new_project = project.create()
         self.assertIsNotNone(new_project)
         self.assertEqual(new_project.shortcode, '0FF0')
         self.assertEqual(new_project.shortname, 'new_project')
         self.assertEqual(new_project.longname, 'New test project')
-        self.assertEqual(new_project.description['en'], 'New test project')
-        self.assertEqual(new_project.description['de'], 'Neues Testprojekt')
+        self.assertEqual(new_project.description['en'], 'New project')
+        self.assertEqual(new_project.description['de'], 'Neues Projekt')
         self.assertEqual(new_project.keywords, {'test', 'project', 'new'})
         self.assertEqual(new_project.selfjoin, False)
         self.assertEqual(new_project.status, True)
@@ -88,7 +89,7 @@ class TestProject(unittest.TestCase):
             keywords={'test', 'project'},
             selfjoin=False,
             status=True,
-            logo='logo.gif'
+            logo=self.logo_file
         ).create()
 
         project.shortname = "update_project"
@@ -120,7 +121,7 @@ class TestProject(unittest.TestCase):
             keywords={'test', 'project', 'delete'},
             selfjoin=False,
             status=True,
-            logo='logo.gif'
+            logo=self.logo_file
         ).create()
 
         deleted_project = project.delete()

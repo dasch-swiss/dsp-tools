@@ -7,11 +7,13 @@ from knora.dsplib.utils.id_to_iri import id_to_iri
 
 
 class TestTools(unittest.TestCase):
+    out_file = '../testdata/tmp/_test-id2iri-replaced.xml'
+
     def test_invalid_xml_file_name(self):
         with self.assertRaises(SystemExit) as cm:
             id_to_iri(xml_file='test.xml',
                       json_file='../testdata/test-id2iri-mapping.json',
-                      out_file='../testdata/tmp/_test-id2iri-replaced.xml',
+                      out_file=self.out_file,
                       verbose=True)
 
         self.assertEqual(cm.exception.code, 1)
@@ -20,19 +22,18 @@ class TestTools(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             id_to_iri(xml_file='../testdata/test-id2iri-data.xml',
                       json_file='test.json',
-                      out_file='../testdata/tmp/_test-id2iri-replaced.xml',
+                      out_file=self.out_file,
                       verbose=True)
 
         self.assertEqual(cm.exception.code, 1)
 
     def test_replace_id_with_iri(self):
-        out_file = '../testdata/tmp/_test-id2iri-replaced.xml'
         id_to_iri(xml_file='../testdata/test-id2iri-data.xml',
                   json_file='../testdata/test-id2iri-mapping.json',
-                  out_file=out_file,
+                  out_file=self.out_file,
                   verbose=True)
 
-        tree = etree.parse(out_file)
+        tree = etree.parse(self.out_file)
 
         for elem in tree.getiterator():
             # skip comments and processing instructions as they do not have namespaces

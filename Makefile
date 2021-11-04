@@ -52,7 +52,7 @@ install-requirements: ## install requirements
 	pip3 install -r docs/requirements.txt
 
 .PHONY: install
-install: ## install from source
+install: ## install from source (runs setup.py)
 	pip3 install .
 
 .PHONY: test

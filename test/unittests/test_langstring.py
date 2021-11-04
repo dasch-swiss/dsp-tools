@@ -6,31 +6,31 @@ from knora.dsplib.models.langstring import Languages, LangString
 
 class TestLangString(unittest.TestCase):
 
-    def test_langstring_instantiation1(self):
+    def test_langstring_instantiation1(self) -> None:
         """Test a LangString without language."""
         ls = LangString('Ein simpler String')
         self.assertEqual(ls[None], 'Ein simpler String')
 
-    def test_langstring_instantiation2(self):
+    def test_langstring_instantiation2(self) -> None:
         """Test a LangString using string and Languages-enums as index."""
         ls = LangString({'de': 'Ein simpler String', 'fr': 'Quelque chose en français'})
         self.assertEqual(ls['de'], 'Ein simpler String')
         self.assertEqual(ls[Languages.FR], 'Quelque chose en français')
 
-    def test_langstring_instantiation3(self):
+    def test_langstring_instantiation3(self) -> None:
         """Test a LangString using string and Languages-enums as index."""
         ls = LangString({Languages.DE: 'Ein simpler String', Languages.FR: 'Quelque chose en français'})
         self.assertEqual(ls[Languages.DE], 'Ein simpler String')
         self.assertEqual(ls['fr'], 'Quelque chose en français')
 
-    def test_langstring_change(self):
+    def test_langstring_change(self) -> None:
         """test if changing a LangString item works."""
         ls = LangString({Languages.DE: 'Ein simpler String', Languages.FR: 'Quelque chose en français'})
         ls['de'] = 'gagaga'
         self.assertEqual(ls[Languages.DE], 'gagaga')
         self.assertEqual(ls['fr'], 'Quelque chose en français')
 
-    def test_langstring_fromjson(self):
+    def test_langstring_fromjson(self) -> None:
         """Test reading a LangString from JSON as used in Knora Admin."""
         test = [{
             'language': 'en',
@@ -43,7 +43,7 @@ class TestLangString(unittest.TestCase):
         self.assertEqual(ls['de'], 'Das ist ein Test')
         self.assertEqual(ls[Languages.EN], 'This is a test')
 
-    def test_langstring_fromjsonld(self):
+    def test_langstring_fromjsonld(self) -> None:
         """Test reading a LangString from JSON-LD as used in Knora data/ontologies"""
         test = [{
             '@language': 'en',
@@ -56,7 +56,7 @@ class TestLangString(unittest.TestCase):
         self.assertEqual(ls['de'], 'Das ist ein Test')
         self.assertEqual(ls[Languages.EN], 'This is a test')
 
-    def test_langstring_tojson(self):
+    def test_langstring_tojson(self) -> None:
         """Test converting a LangString to JSON and JSON-LD"""
         ls = LangString('Ein simpler String')
         json = ls.toJsonObj()
@@ -78,7 +78,7 @@ class TestLangString(unittest.TestCase):
                      '@value': 'Quelque chose en français'}]
         self.assertEqual(jsonld, expected)
 
-    def test_langstring_emptyness(self):
+    def test_langstring_emptyness(self) -> None:
         """Test if a LanGstring can be emptied and if the emptyness is detected."""
         ls = LangString()
         self.assertTrue(ls.isEmpty())
@@ -89,7 +89,7 @@ class TestLangString(unittest.TestCase):
         ls.empty()
         self.assertTrue(ls.isEmpty())
 
-    def test_langstring_iterator(self):
+    def test_langstring_iterator(self) -> None:
         """Test iterating over a LangString."""
         ls = LangString({Languages.DE: 'Ein simpler String', Languages.FR: 'Quelque chose en français'})
         for tmp in ls:

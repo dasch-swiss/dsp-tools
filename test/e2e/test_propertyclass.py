@@ -1,10 +1,11 @@
+"""end to end tests for property class"""
 import unittest
 
-from dsplib.models.connection import Connection
-from dsplib.models.helpers import LastModificationDate
-from dsplib.models.langstring import Languages, LangString
-from dsplib.models.ontology import Ontology
-from dsplib.models.propertyclass import PropertyClass
+from knora.dsplib.models.connection import Connection
+from knora.dsplib.models.helpers import LastModificationDate
+from knora.dsplib.models.langstring import Languages, LangString
+from knora.dsplib.models.ontology import Ontology
+from knora.dsplib.models.propertyclass import PropertyClass
 
 
 class TestPropertyClass(unittest.TestCase):
@@ -22,39 +23,35 @@ class TestPropertyClass(unittest.TestCase):
     comment = LangString({Languages.DE: 'This is a property class for testing'})
 
     def setUp(self) -> None:
-        #
-        # Connect to Knora
-        #
+        """
+        is executed before all tests; sets up a connection and logs in as user root; creates a new ontology
+        """
         self.con = Connection('http://0.0.0.0:3333')
         self.con.login('root@example.com', 'test')
 
-        ontos = Ontology.getAllOntologies(self.con)
-        for onto in ontos:
-            onto.print(True)
-        #
         # Create a test ontology
-        #
         self.onto = Ontology(
             con=self.con,
             project=self.project,
             name=self.onto_name,
             label=self.onto_label,
         ).create()
+
         self.assertIsNotNone(self.onto.id)
         self.last_modification_date = self.onto.lastModificationDate
 
-    def tearDown(self):
-        #
-        # remove test ontology
-        #
+    def tearDown(self) -> None:
+        """
+        is executed after all tests are run through; removes test ontology
+        """
         result = self.onto.delete()
         self.assertIsNotNone(result)
 
-    def test_PropertyClass_create(self):
-        #
-        # Create new property class
-        #
-        self.last_modification_date, propclass = PropertyClass(
+    def test_PropertyClass_create(self) -> None:
+        """
+        create new property class
+        """
+        self.last_modification_date, property_class = PropertyClass(
             con=self.con,
             context=self.onto.context,
             name=self.name,
@@ -63,32 +60,27 @@ class TestPropertyClass(unittest.TestCase):
             label=self.label,
             comment=self.comment
         ).create(self.last_modification_date)
+
         self.onto.lastModificationDate = self.last_modification_date
-        self.assertIsNotNone(propclass.id)
 
-        self.assertEqual(propclass.name, self.name)
-        self.assertEqual(propclass.label['de'], self.label['de'])
-        self.assertEqual(propclass.comment['de'], self.comment['de'])
+        self.assertIsNotNone(property_class.id)
+        self.assertEqual(property_class.name, self.name)
+        self.assertEqual(property_class.label['de'], self.label['de'])
+        self.assertEqual(property_class.comment['de'], self.comment['de'])
 
-        #
-        # Again get ontology data
-        #
+        # get ontology data
         self.onto = self.onto.read()
         self.last_modification_date = self.onto.lastModificationDate
-        self.last_modification_date = propclass.delete(self.last_modification_date)
+        self.last_modification_date = property_class.delete(self.last_modification_date)
 
-        #
-        # Again get ontology data
-        #
+        # get ontology data
         self.onto = self.onto.read()
 
-    def test_PropertyClass_update(self):
+    def test_PropertyClass_update(self) -> None:
         self.onto = self.onto.read()
 
-        #
         # create test resource class
-        #
-        self.last_modification_date, propclass = PropertyClass(
+        self.last_modification_date, property_class = PropertyClass(
             con=self.con,
             context=self.onto.context,
             name=self.name,
@@ -98,23 +90,19 @@ class TestPropertyClass(unittest.TestCase):
             comment=self.comment
         ).create(self.last_modification_date)
         self.onto.lastModificationDate = self.last_modification_date
-        self.assertIsNotNone(propclass.id)
+        self.assertIsNotNone(property_class.id)
 
-        #
-        # Modify the property class
-        #
-        propclass.addLabel('en', "This is english gaga")
-        propclass.rmLabel('de')
-        propclass.addComment('it', "Commentario italiano")
-        self.last_modification_date, propclass = propclass.update(self.last_modification_date)
+        # modify the property class
+        property_class.addLabel('en', "This is english comment")
+        property_class.rmLabel('de')
+        property_class.addComment('it', "Commentario italiano")
+        self.last_modification_date, property_class_updated = property_class.update(self.last_modification_date)
         self.onto.lastModificationDate = self.last_modification_date
-        self.assertEqual(propclass.label['en'], "This is english gaga")
-        self.assertEqual(propclass.comment['it'], "Commentario italiano")
+        self.assertEqual(property_class_updated.label['en'], "This is english comment")
+        self.assertEqual(property_class_updated.comment['it'], "Commentario italiano")
 
-        #
-        # Now delete the resource class to clean up
-        #
-        self.last_modification_date = propclass.delete(self.last_modification_date)
+        # delete the resource class to clean up
+        self.last_modification_date = property_class_updated.delete(self.last_modification_date)
         self.onto.lastModificationDate = self.last_modification_date
 
 

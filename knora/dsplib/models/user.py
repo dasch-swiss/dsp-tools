@@ -146,7 +146,7 @@ class User(Model):
     _rm_from_project: Dict[str, bool]
     _add_to_group: Set[str]
     _rm_from_group: Set[str]
-    _change_admin: Set[str]
+    _change_admin: Dict[str, bool]
 
     def __init__(self,
                  con: Connection,
@@ -641,7 +641,6 @@ class User(Model):
                     '/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
 
         for p in self._add_to_group:
-            print('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
             result = self._con.post('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
         for p in self._rm_from_group:
             result = self._con.delete(

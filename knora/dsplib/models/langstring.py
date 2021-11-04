@@ -65,7 +65,7 @@ class LangString:
             elif isinstance(p[0], Languages):
                 lang = p[0]
             else:
-                raise BaseError("No a valid language definition!")
+                raise BaseError("Not a valid language definition!")
             return lang, p[1]
 
         if initvalue is None:
@@ -81,7 +81,7 @@ class LangString:
             self._simplestring = initvalue._simplestring
             self._langstrs = initvalue._langstrs
         else:
-            raise BaseError("No a valid language definition!")
+            raise BaseError("Not a valid language definition!")
 
     def __getitem__(self, key: Optional[Union[Languages, str]] = None) -> str:
         #

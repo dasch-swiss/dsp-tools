@@ -12,8 +12,7 @@ py_test(
     deps = [
         "//knora/dsplib/models:connection",
         "//knora/dsplib/models:helpers"
-    ],
-    imports = [".", "../knora"],
+    ]
 )
 
 py_test(
@@ -23,18 +22,9 @@ py_test(
         "//knora/dsplib/models:connection",
         "//knora/dsplib/models:group",
         "//knora/dsplib/models:model",
-    ],
-    imports = [".", "../knora"],
+    ]
 )
 
-py_test(
-    name = "test_langstring",
-    srcs = ["test_langstring.py"],
-    deps = [
-        "//knora/dsplib/models:langstring",
-    ],
-    imports = [".", "../knora"],
-)
 
 py_test(
     name = "test_listnode",
@@ -43,8 +33,7 @@ py_test(
         "//knora/dsplib/models:connection",
         "//knora/dsplib/models:langstring",
         "//knora/dsplib/models:listnode",
-    ],
-    imports = [".", "../knora"],
+    ]
 )
 
 py_test(
@@ -54,8 +43,7 @@ py_test(
         "//knora/dsplib/models:connection",
         "//knora/dsplib/models:helpers",
         "//knora/dsplib/models:ontology",
-    ],
-    imports = [".", "../knora"],
+    ]
 )
 
 py_test(
@@ -65,8 +53,7 @@ py_test(
         "//knora/dsplib/models:connection",
         "//knora/dsplib/models:langstring",
         "//knora/dsplib/models:project",
-    ],
-    imports = [".", "../knora"],
+    ]
 )
 
 py_test(
@@ -78,8 +65,7 @@ py_test(
         "//knora/dsplib/models:helpers",
         "//knora/dsplib/models:ontology",
         "//knora/dsplib/models:propertyclass",
-    ],
-    imports = [".", "../knora"],
+    ]
 )
 
 py_test(
@@ -91,8 +77,7 @@ py_test(
         "//knora/dsplib/models:helpers",
         "//knora/dsplib/models:ontology",
         "//knora/dsplib/models:resourceclass",
-    ],
-    imports = [".", "../knora"],
+    ]
 )
 
 py_test(
@@ -102,8 +87,7 @@ py_test(
         "//knora/dsplib/models:connection",
         "//knora/dsplib/models:langstring",
         "//knora/dsplib/models:user",
-    ],
-    imports = [".", "../knora"]
+    ]
 )
 
 py_test(
@@ -120,8 +104,7 @@ py_test(
     data = [
         "//testdata:testdata",
         "//testdata/bitstreams:bitstream"
-    ],
-    imports = [".", "../knora"],
+    ]
 )
 
 py_test(
@@ -134,24 +117,13 @@ py_test(
         "//knora/dsplib/utils:xml_upload",
         "//knora/dsplib/utils:excel_to_json_lists",
         "//knora/dsplib/utils:excel_to_json_resources",
-        "//knora/dsplib/utils:excel_to_json_properties"
+        "//knora/dsplib/utils:excel_to_json_properties",
     ],
     data = [
         "//testdata:testdata",
         "//testdata/bitstreams:bitstream"
-    ],
-    imports = [".", "../knora"],
+    ]
 )
 
 
-py_test(
-    name = "test_value",
-    srcs = ["test_value.py"],
-    deps = [
-        "//knora/dsplib/models:value",
-        "//knora/dsplib/models:group",
-        "//knora/dsplib/models:helpers"
-    ],
-    data = [],
-    imports = [".", "../knora"],
-)
+

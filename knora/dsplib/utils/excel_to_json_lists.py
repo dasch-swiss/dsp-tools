@@ -5,7 +5,7 @@ import json
 import os
 import re
 import unicodedata
-from typing import List
+from typing import List, Dict
 
 import jsonschema
 from jsonschema import validate
@@ -39,8 +39,8 @@ def get_values_from_excel(excelfiles: List[str], base_file: str, parentnode: {},
     cell = worksheet.cell(column=col, row=row)
 
     if col > 1:
-        # append the cell value of the parent node (which is one value to the left of the actual cell) to the list of previous
-        # values
+        # append the cell value of the parent node (which is one value to the left of the actual cell) to the list of
+        # previous values
         preval.append(worksheet.cell(column=col - 1, row=row).value)
 
     while cell.value:
@@ -126,8 +126,8 @@ def make_json_list_from_excel(rootnode: {}, excelfiles: List[str]) -> None:
     startrow = 1
     startcol = 1
 
-    # Check if English file is available and take it as base file, take last one from list of Excel files if English is not
-    # available. The node names are later  derived from the labels of the base file.
+    # Check if English file is available and take it as base file, take last one from list of Excel files if English
+    # is not available. The node names are later  derived from the labels of the base file.
     base_file = ''
 
     for filename in excelfiles:
@@ -206,7 +206,7 @@ def check_language_code(lang_code: str) -> bool:
     return False
 
 
-def make_root_node_from_args(excelfiles: List[str], listname_from_args: str, comments: dict) -> dict:
+def make_root_node_from_args(excelfiles: List[str], listname_from_args: str, comments: Dict[str, str]) -> dict:
     """
     Creates the root node for the JSON list
 
@@ -219,6 +219,8 @@ def make_root_node_from_args(excelfiles: List[str], listname_from_args: str, com
         dict: The root node of the list as dictionary (JSON)
 
     """
+    print("xxxxx", comments)
+    print("xxxxxy", type(comments))
     rootnode_labels_dict = {}
     listname = listname_from_args
     listname_en = ''

@@ -66,18 +66,18 @@ class TestConnection(unittest.TestCase):
 
         res_id = res['@id']
 
-        erase_info = """{
-            "@id" : "%s",
+        erase_info = f"""{{
+            "@id" : "{res_id}",
             "@type" : "anything:Thing",
-            "@context" : {
+            "@context" : {{
                 "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
                 "knora-api" : "http://api.knora.org/ontology/knora-api/v2#",
                 "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
                 "xsd" : "http://www.w3.org/2001/XMLSchema#",
                 "anything" : "http://0.0.0.0:3333/ontology/0001/anything/v2#"
-            }
-        }
-        """ % res_id
+            }}
+        }}
+        """
 
         res = self.con.post('/v2/resources/erase', erase_info)
         self.assertIsNotNone(res['knora-api:result'])

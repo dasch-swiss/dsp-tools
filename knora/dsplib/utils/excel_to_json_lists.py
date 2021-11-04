@@ -219,8 +219,6 @@ def make_root_node_from_args(excelfiles: List[str], listname_from_args: str, com
         dict: The root node of the list as dictionary (JSON)
 
     """
-    print("xxxxx", comments)
-    print("xxxxxy", type(comments))
     rootnode_labels_dict = {}
     listname = listname_from_args
     listname_en = ''

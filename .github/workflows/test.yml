@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target: [ 'test-end-to-end', 'test-unittest', 'build-docs' ]
+        target: [ 'test-end-to-end', 'test-unittest', 'docs-build' ]
     steps:
       - name: Checkout source
         uses: actions/checkout@v2

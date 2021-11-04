@@ -6,48 +6,48 @@ CURRENT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 include vars.mk
 
 #################################
-# Integration test targets
+# Make targets for dsp-tools
 #################################
 
-# Clones the knora-api git repository
-.PHONY: clone-knora-stack
-clone-knora-stack:
-	@git clone --branch main --single-branch --depth 1 https://github.com/dasch-swiss/knora-api.git $(CURRENT_DIR)/.tmp/knora-stack
+.PHONY: clone-dsp-repo
+clone-dsp-repo: ## clone the dsp-api git repository
+	@git clone --branch main --single-branch --depth 1 https://github.com/dasch-swiss/dsp-api.git $(CURRENT_DIR)/.tmp/dsp-stack
 
-.PHONY: knora-stack
-knora-stack: ## runs the knora-stack
-	$(MAKE) -C $(CURRENT_DIR)/.tmp/knora-stack env-file
-	$(MAKE) -C $(CURRENT_DIR)/.tmp/knora-stack stack-down-delete-volumes
-	$(MAKE) -C $(CURRENT_DIR)/.tmp/knora-stack init-db-test
-	$(MAKE) -C $(CURRENT_DIR)/.tmp/knora-stack stack-up
-	$(MAKE) -C $(CURRENT_DIR)/.tmp/knora-stack stack-logs-api-no-follow
+.PHONY: dsp-stack
+dsp-stack: ## run the dsp-stack (deletes existing volumes first)
+	$(MAKE) -C $(CURRENT_DIR)/.tmp/dsp-stack env-file
+	$(MAKE) -C $(CURRENT_DIR)/.tmp/dsp-stack stack-down-delete-volumes
+	$(MAKE) -C $(CURRENT_DIR)/.tmp/dsp-stack init-db-test
+	$(MAKE) -C $(CURRENT_DIR)/.tmp/dsp-stack stack-up
+	$(MAKE) -C $(CURRENT_DIR)/.tmp/dsp-stack stack-logs-api-no-follow
 
 .PHONY: dist
 dist: ## generate distribution package
 	python3 setup.py sdist bdist_wheel
 
 .PHONY: upload
-upload: ## upload distribution package to PyPi
+upload: ## upload distribution package to PyPI
 	python3 -m twine upload dist/*
 
 .PHONY: upgrade-dist-tools
-upgrade-dist-tool: ## upgrade packages necessary for testing, building, packaging and uploading to PyPi
+upgrade-dist-tool: ## upgrade packages necessary for testing, building, packaging and uploading to PyPI
 	python3 -m pip install --upgrade pip setuptools wheel tqdm twine pytest mkdocs
 
-.PHONY: build-docs
-build-docs: ## build docs into the local 'site' folder
+.PHONY: docs-build
+docs-build: ## build docs into the local 'site' folder
 	mkdocs build
 
-.PHONY: serve-docs
-serve-docs: ## serve docs for local viewing
+.PHONY: docs-serve
+docs-serve: ## serve docs for local viewing
 	mkdocs serve
 
-.PHONY: publish-docs
-publish-docs: ## build and publish docs to Github Pages
+.PHONY: docs-publish
+docs-publish: ## build and publish docs to GitHub Pages
 	mkdocs gh-deploy
 
 .PHONY: install-requirements
 install-requirements: ## install requirements
+	python3 -m pip install --upgrade pip
 	pip3 install -r requirements.txt
 	pip3 install -r docs/requirements.txt
 
@@ -56,21 +56,29 @@ install: ## install from source
 	pip3 install .
 
 .PHONY: test
-test: clean local-tmp clone-knora-stack knora-stack ## runs all tests
+test: clean local-tmp clone-dsp-repo dsp-stack ## run all tests
 	# to run only one test, replace //test/... with p.ex. //test/e2e:test_tools
 	bazel test --test_summary=detailed --test_output=all //test/...
 
+.PHONY: test-end-to-end
+test-end-to-end: clean local-tmp clone-dsp-repo dsp-stack ## run e2e tests
+	bazel test --test_summary=detailed --test_output=all //test/e2e/...
+
+.PHONY: test-unittests
+test-unittests: ## run unit tests
+	bazel test --test_summary=detailed --test_output=all //test/unittests/...
+
 .PHONY: local-tmp
-local-tmp:
+local-tmp: ## create local .tmp folder
 	@mkdir -p $(CURRENT_DIR)/.tmp
 
 .PHONY: clean
-clean: ## cleans the project directory
+clean: ## clean local project directories
 	@rm -rf $(CURRENT_DIR)/.tmp
 	@rm -rf dist/ build/ site/ knora.egg-info/
 
 .PHONY: help
-help: ## this help
+help: ## show this help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort
 
 .PHONY: run

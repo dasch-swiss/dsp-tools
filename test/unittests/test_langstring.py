@@ -5,98 +5,102 @@ from knora.dsplib.models.langstring import Languages, LangString
 
 
 class TestLangString(unittest.TestCase):
+    simple_string_de = 'Ein simpler String'
+    simple_string_fr = 'Quelque chose en français'
+    test_string_en = 'This is a test'
+    test_string_de = 'Das ist ein Test'
 
     def test_langstring_instantiation1(self) -> None:
         """Test a LangString without language."""
-        ls = LangString('Ein simpler String')
-        self.assertEqual(ls[None], 'Ein simpler String')
+        ls = LangString(self.simple_string_de)
+        self.assertEqual(ls[None], self.simple_string_de)
 
     def test_langstring_instantiation2(self) -> None:
         """Test a LangString using string and Languages-enums as index."""
-        ls = LangString({'de': 'Ein simpler String', 'fr': 'Quelque chose en français'})
-        self.assertEqual(ls['de'], 'Ein simpler String')
-        self.assertEqual(ls[Languages.FR], 'Quelque chose en français')
+        ls = LangString({'de': self.simple_string_de, 'fr': self.simple_string_fr})
+        self.assertEqual(ls['de'], self.simple_string_de)
+        self.assertEqual(ls[Languages.FR], self.simple_string_fr)
 
     def test_langstring_instantiation3(self) -> None:
         """Test a LangString using string and Languages-enums as index."""
-        ls = LangString({Languages.DE: 'Ein simpler String', Languages.FR: 'Quelque chose en français'})
-        self.assertEqual(ls[Languages.DE], 'Ein simpler String')
-        self.assertEqual(ls['fr'], 'Quelque chose en français')
+        ls = LangString({Languages.DE: self.simple_string_de, Languages.FR: self.simple_string_fr})
+        self.assertEqual(ls[Languages.DE], self.simple_string_de)
+        self.assertEqual(ls['fr'], self.simple_string_fr)
 
     def test_langstring_change(self) -> None:
         """test if changing a LangString item works."""
-        ls = LangString({Languages.DE: 'Ein simpler String', Languages.FR: 'Quelque chose en français'})
+        ls = LangString({Languages.DE: self.simple_string_de, Languages.FR: self.simple_string_fr})
         ls['de'] = 'gagaga'
         self.assertEqual(ls[Languages.DE], 'gagaga')
-        self.assertEqual(ls['fr'], 'Quelque chose en français')
+        self.assertEqual(ls['fr'], self.simple_string_fr)
 
     def test_langstring_fromjson(self) -> None:
         """Test reading a LangString from JSON as used in Knora Admin."""
         test = [{
             'language': 'en',
-            'value': 'This is a test'
+            'value': self.test_string_en
         }, {
             'language': 'de',
-            'value': 'Das ist ein Test'
+            'value': self.test_string_de
         }]
         ls = LangString.fromJsonObj(test)
-        self.assertEqual(ls['de'], 'Das ist ein Test')
-        self.assertEqual(ls[Languages.EN], 'This is a test')
+        self.assertEqual(ls['de'], self.test_string_de)
+        self.assertEqual(ls[Languages.EN], self.test_string_en)
 
     def test_langstring_fromjsonld(self) -> None:
         """Test reading a LangString from JSON-LD as used in Knora data/ontologies"""
         test = [{
             '@language': 'en',
-            '@value': 'This is a test'
+            '@value': self.test_string_en
         }, {
             '@language': 'de',
-            '@value': 'Das ist ein Test'
+            '@value': self.test_string_de
         }]
         ls = LangString.fromJsonLdObj(test)
-        self.assertEqual(ls['de'], 'Das ist ein Test')
-        self.assertEqual(ls[Languages.EN], 'This is a test')
+        self.assertEqual(ls['de'], self.test_string_de)
+        self.assertEqual(ls[Languages.EN], self.test_string_en)
 
     def test_langstring_tojson(self) -> None:
         """Test converting a LangString to JSON and JSON-LD"""
-        ls = LangString('Ein simpler String')
+        ls = LangString(self.simple_string_de)
         json = ls.toJsonObj()
-        self.assertEqual(json, 'Ein simpler String')
+        self.assertEqual(json, self.simple_string_de)
         json = ls.toJsonLdObj()
-        self.assertEqual(json, 'Ein simpler String')
+        self.assertEqual(json, self.simple_string_de)
 
-        ls = LangString({Languages.DE: 'Ein simpler String', Languages.FR: 'Quelque chose en français'})
+        ls = LangString({Languages.DE: self.simple_string_de, Languages.FR: self.simple_string_fr})
         json = ls.toJsonObj()
         expected = [{'language': 'de',
-                     'value': 'Ein simpler String'},
+                     'value': self.simple_string_de},
                     {'language': 'fr',
-                     'value': 'Quelque chose en français'}]
+                     'value': self.simple_string_fr}]
         self.assertEqual(json, expected)
         jsonld = ls.toJsonLdObj()
         expected = [{'@language': 'de',
-                     '@value': 'Ein simpler String'},
+                     '@value': self.simple_string_de},
                     {'@language': 'fr',
-                     '@value': 'Quelque chose en français'}]
+                     '@value': self.simple_string_fr}]
         self.assertEqual(jsonld, expected)
 
     def test_langstring_emptyness(self) -> None:
         """Test if a LanGstring can be emptied and if the emptyness is detected."""
         ls = LangString()
         self.assertTrue(ls.isEmpty())
-        ls = LangString('Ein simpler String')
+        ls = LangString(self.simple_string_de)
         ls.empty()
         self.assertTrue(ls.isEmpty())
-        ls = LangString({Languages.DE: 'Ein simpler String', Languages.FR: 'Quelque chose en français'})
+        ls = LangString({Languages.DE: self.simple_string_de, Languages.FR: self.simple_string_fr})
         ls.empty()
         self.assertTrue(ls.isEmpty())
 
     def test_langstring_iterator(self) -> None:
         """Test iterating over a LangString."""
-        ls = LangString({Languages.DE: 'Ein simpler String', Languages.FR: 'Quelque chose en français'})
+        ls = LangString({Languages.DE: self.simple_string_de, Languages.FR: self.simple_string_fr})
         for tmp in ls:
             if tmp[0] == Languages.DE:
-                self.assertEqual(tmp[1], 'Ein simpler String')
+                self.assertEqual(tmp[1], self.simple_string_de)
             elif tmp[0] == Languages.FR:
-                self.assertEqual(tmp[1], 'Quelque chose en français')
+                self.assertEqual(tmp[1], self.simple_string_fr)
 
 
 if __name__ == '__main__':

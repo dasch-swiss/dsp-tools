@@ -57,7 +57,11 @@ def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> No
             if verbose:
                 print(f"Replaced internal ID '{value_before}' with IRI '{value_after}'")
         except KeyError:
-            print(f"WARNING: Could not find internal ID '{resptr_prop.text}' in mapping file {json_file}. Skipping...")
+            if resptr_prop.text.startswith("http://rdfh.ch/"):
+                print(f"WARNING: Skipping '{resptr_prop.text}' as it seems to be an IRI.")
+            else:
+                print(f"WARNING: Could not find internal ID '{resptr_prop.text}' in mapping file {json_file}. "
+                      f"Skipping...")
 
     # write xml with replaced IDs to file with timestamp
     if not out_file:

@@ -10,6 +10,7 @@ from lxml import etree
 
 from knora.dsplib.models.connection import Connection
 from knora.dsplib.models.group import Group
+from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.models.permission import Permissions
 from knora.dsplib.models.project import Project
 from knora.dsplib.models.resource import ResourceInstanceFactory
@@ -437,7 +438,7 @@ class XmlPermission:
             a.print()
 
 
-def do_sort_order(resources: List[KnoraResource]) -> List[KnoraResource]:
+def do_sort_order(resources: List[KnoraResource], verbose) -> List[KnoraResource]:
     """
     Sorts a list of resources.
 
@@ -446,6 +447,7 @@ def do_sort_order(resources: List[KnoraResource]) -> List[KnoraResource]:
 
     Args:
         resources: List of resources before sorting
+        verbose: verbose output if True
 
     Returns:
         sorted list of resources
@@ -489,7 +491,8 @@ def do_sort_order(resources: List[KnoraResource]) -> List[KnoraResource]:
         notok_len = len(notok_resources)
         notok_resources = []
         cnt += 1
-        print('{}. Ordering pass Finished!'.format(cnt))
+        if verbose:
+            print('{}. Ordering pass Finished!'.format(cnt))
     # print('Remaining: {}'.format(len(resources)))
     return ok_resources
 
@@ -588,7 +591,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
     # sort the resources (resources which do not link to others come first) but only if not an incremental upload
     if not incremental:
-        resources = do_sort_order(resources)
+        resources = do_sort_order(resources, verbose)
 
     sipi = Sipi(sipi, con.get_token())
 
@@ -607,23 +610,33 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
     res_iri_lookup: Dict[str, str] = {}
 
+    failed_uploads = []
     for resource in resources:
-        if verbose:
-            resource.print()
-        if resource.bitstream:
-            img = sipi.upload_bitstream(os.path.join(imgdir, resource.bitstream))
-            bitstream = img['uploadedFiles'][0]['internalFilename']
-        else:
-            bitstream = None
+        try:
+            if verbose:
+                resource.print()
+            if resource.bitstream:
+                img = sipi.upload_bitstream(os.path.join(imgdir, resource.bitstream))
+                bitstream = img['uploadedFiles'][0]['internalFilename']
+            else:
+                bitstream = None
 
-        # create the resource on the server
-        instance = res_classes[resource.restype](con=con, label=resource.label,
-                                                 permissions=permissions_lookup.get(resource.permissions),
-                                                 bitstream=bitstream,
-                                                 values=resource.get_propvals(res_iri_lookup,
-                                                                              permissions_lookup)).create()
-        res_iri_lookup[resource.id] = instance.iri
-        print("Created resource: ", instance.label, " (", resource.id, ") with IRI ", instance.iri)
+            # create the resource on the server
+            instance = res_classes[resource.restype](con=con, label=resource.label,
+                                                     permissions=permissions_lookup.get(resource.permissions),
+                                                     bitstream=bitstream,
+                                                     values=resource.get_propvals(res_iri_lookup,
+                                                                                  permissions_lookup)).create()
+            res_iri_lookup[resource.id] = instance.iri
+            print("Created resource: ", instance.label, " (", resource.id, ") with IRI ", instance.iri)
+
+        except BaseError as err:
+            failed_uploads.append(resource.id)
+            print("ERROR while trying to upload ", resource.id, ". The error message was:", err.message)
+
+        except Exception as exception:
+            failed_uploads.append(resource.id)
+            print("ERROR while trying to upload ", resource.id, ". The error message was:", str(exception))
 
     # write mapping of internal IDs to IRIs to file with timestamp
     timestamp_now = datetime.now()
@@ -631,5 +644,10 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
     res_iri_lookup_file = "id2iri_mapping_" + timestamp_str + ".json"
     with open(res_iri_lookup_file, "w") as outfile:
-        print("Write internal ID to IRI mapping to file ", res_iri_lookup_file)
+        print("============\nThe mapping of internal IDs to IRIs was written to ", res_iri_lookup_file)
         outfile.write(json.dumps(res_iri_lookup))
+
+    if failed_uploads:
+        print("Could not upload the following resources: ", failed_uploads)
+
+

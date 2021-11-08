@@ -4,6 +4,7 @@ This module handles the import of XML data into the DSP platform.
 import json
 import os
 from datetime import datetime
+from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 from lxml import etree
@@ -640,9 +641,10 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
     # write mapping of internal IDs to IRIs to file with timestamp
     timestamp_now = datetime.now()
-    timestamp_str = timestamp_now.strftime("%Y%m%d_%H%M%S%f")
+    timestamp_str = timestamp_now.strftime("%Y%m%d-%H%M%S")
 
-    res_iri_lookup_file = "id2iri_mapping_" + timestamp_str + ".json"
+    xml_file_name = Path(input_file).stem
+    res_iri_lookup_file = "id2iri_" + xml_file_name + "_mapping_" + timestamp_str + ".json"
     with open(res_iri_lookup_file, "w") as outfile:
         print("============\nThe mapping of internal IDs to IRIs was written to ", res_iri_lookup_file)
         outfile.write(json.dumps(res_iri_lookup))

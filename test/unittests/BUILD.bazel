@@ -1,3 +1,5 @@
+package(default_visibility = ["//visibility:public"])
+
 # make the python rules available
 load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
 
@@ -6,10 +8,7 @@ load("@knora_py_deps//:requirements.bzl", "requirement")
 
 py_test(
     name = "test_langstring",
-    srcs = ["test_langstring.py"],
-    deps = [
-        "//knora/dsplib/models:langstring",
-    ]
+    srcs = ["test_langstring.py"]
 )
 
 py_test(
@@ -20,4 +19,12 @@ py_test(
         "//knora/dsplib/models:group",
         "//knora/dsplib/models:helpers"
     ]
+)
+
+py_test(
+    name = "test_id_to_iri",
+    srcs = ["test_id_to_iri.py"],
+    data = [
+            "//testdata:testdata"
+        ]
 )

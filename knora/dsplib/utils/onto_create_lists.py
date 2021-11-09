@@ -91,7 +91,7 @@ def create_lists(input_file: str, lists_file: str, server: str, user: str, passw
             if verbose:
                 print('  Create list:' + rootnode['name'])
             root_list_node = ListNode(con=con, project=project, label=rootnode['labels'],
-                                      # comment=rootnode.get('comments'),
+                                      comments=rootnode.get('comments'),
                                       name=rootnode['name']).create()
             if rootnode.get('nodes') is not None:
                 list_nodes = list_creator(con, project, root_list_node, rootnode['nodes'])

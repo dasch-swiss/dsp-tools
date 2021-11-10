@@ -907,7 +907,7 @@ resource or property from another one is not part of this documentation).
 
 - `Searchbox`: Has to be used with _hasLinkTo_ property. Allows searching resources by entering a resource that the given resource
   should link to. It has one gui_attribute that indicates how many properties of the found resources should be
-  indicated. It's mandatory!
+  indicated. This is mandatory.
     - _gui_attributes_:
         - `numprops=integer` (optional): While dynamically displaying the search result, the number of properties that
           should be displayed.

@@ -905,7 +905,7 @@ resource or property from another one is not part of this documentation).
 
 *gui-elements/gui_attributes*:
 
-- `Searchbox`: Must be used with _hasLinkTo_ properties. Allows searching and enter a resource that the given resource
+- `Searchbox`: Has to be used with _hasLinkTo_ property. Allows searching resources by entering a resource that the given resource
   should link to. It has one gui_attribute that indicates how many properties of the found resources should be
   indicated. It's mandatory!
     - _gui_attributes_:

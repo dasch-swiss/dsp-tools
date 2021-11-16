@@ -595,9 +595,7 @@ Please note that the DateValue is an extremely flexible data type. It can repres
 uncertainty, and the date can be given in several calendars (currently the Gregorian and the Julian calendars are
 supported, with the Jewish and Islamic coming soon). Internally, a date is always represented as a start and end date.
 If start and end date match, it's an exact date. A value like "1893" will automatically be expanded to a range from
-January 1st 1893 to December 31st
-
-1893.
+January 1st 1893 to December 31st 1893.
 
 - _calendar_ is either _GREGORIAN_ or _JULIAN_
 - _start_ has the form _yyyy_-_mm_-_dd_. If only the year is given, the precision is to the year. If only the year and

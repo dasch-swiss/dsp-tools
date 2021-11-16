@@ -8,18 +8,32 @@ list from an Excel file.
 
 ## Create the resources for a data model from an Excel file
 
-With dsp-tools the `resources` section used in a data model (JSON) can be created from an Excel file. Only the first
-worksheet of the Excel file is considered and only `XLSX` files are allowed. The `resources` section can be inserted
-into the ontology file and then be uploaded onto a DSP server.
+With dsp-tools the `resources` section used in a data model (JSON) can be created from an Excel file. Only `XLSX` files
+are allowed. The `resources` section can be inserted into the ontology file and then be uploaded onto a DSP server.
 
-The Excel sheet must have the following format:
-![img-resources-example.png](assets/images/img-resources-example.png)
+The expected worksheets of the Excel file are:
+
+- `classes`: a table with all resource classes intended to be used in the resulting JSON
+- `class1`, `class2`,...: a table for each resource class named after its name
+
+The Excel sheet must have the following format.
+
+The worksheet called `classes` has the following form: 
+![img-resources-example-1.png](assets/images/img-resources-example-1.png)
 
 The expected columns are:
 
 - `name` : The name of the resource
 - `super` : The base resource of the resource
 - `en`, `de`, `fr`, `it` : The labels of the resource in different languages, at least one language has to be provided
+
+All other worksheets, one for each resource class, have the following form:
+![img-resources-example-2.png](assets/images/img-resources-example-2.png){ width=50% }
+
+The expected columns are:
+
+- `Property` : The name of the property
+- `Cardinality` : The cardinality, one of: `1`, `0-1`, `1-n`, `0-n`
 
 For further information about resources, see [here](./dsp-tools-create.md#resources).
 

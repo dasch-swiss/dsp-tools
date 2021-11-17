@@ -613,14 +613,13 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
     failed_uploads = []
     for resource in resources:
+        bitstream = None
         try:
             if verbose:
                 resource.print()
             if resource.bitstream:
                 img = sipi.upload_bitstream(os.path.join(imgdir, resource.bitstream))
                 bitstream = img['uploadedFiles'][0]['internalFilename']
-            else:
-                bitstream = None
 
             # create the resource on the server
             instance = res_classes[resource.restype](con=con, label=resource.label,
@@ -629,15 +628,15 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
                                                      values=resource.get_propvals(res_iri_lookup,
                                                                                   permissions_lookup)).create()
             res_iri_lookup[resource.id] = instance.iri
-            print("Created resource: ", instance.label, " (", resource.id, ") with IRI ", instance.iri)
+            print("Created resource:", instance.label, "(", resource.id, ") with IRI", instance.iri)
 
         except BaseError as err:
             failed_uploads.append(resource.id)
-            print("ERROR while trying to upload ", resource.id, ". The error message was:", err.message)
+            print("ERROR while trying to upload", resource.label, "(", resource.id, "). The error message was:", err.message)
 
         except Exception as exception:
             failed_uploads.append(resource.id)
-            print("ERROR while trying to upload ", resource.id, ". The error message was:", str(exception))
+            print("ERROR while trying to upload", resource.label, "(", resource.id, "). The error message was:", str(exception))
 
     # write mapping of internal IDs to IRIs to file with timestamp
     timestamp_now = datetime.now()

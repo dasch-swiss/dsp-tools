@@ -24,8 +24,12 @@ theme:
     accent: 'deep blue'
   feature:
     tabs: false
+
 extra_css:
   - 'assets/style/theme.css'
+
+markdown_extensions:
+    - attr_list
 
 plugins:
   - search

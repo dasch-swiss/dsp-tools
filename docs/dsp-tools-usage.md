@@ -187,3 +187,5 @@ with `dsp-tools xmlupload --incremental id2iri_replaced_20211026_120247263754.xm
 
 Note that internal IDs and IRIs cannot be mixed. The input XML file has to be provided as well as the JSON file which
 contains the mapping from internal IDs to IRIs. This JSON file is generated after each successful `xmlupload`.
+
+In order to upload data incrementally the procedure described [here](dsp-tools-xmlupload.md#incremental-xml-upload) is recommended.

@@ -37,7 +37,7 @@ class TestTools(unittest.TestCase):
                      server=self.server,
                      user=self.user,
                      password='test',
-                     verbose=True)
+                     verbose=False)
 
         with open('_anything-onto.json') as f:
             onto_json_str = f.read()
@@ -107,7 +107,7 @@ class TestTools(unittest.TestCase):
                         server=self.server,
                         user=self.user,
                         password='test',
-                        verbose=True,
+                        verbose=False,
                         dump=True)
 
     def test_xml_upload(self) -> None:
@@ -117,7 +117,7 @@ class TestTools(unittest.TestCase):
                    password='test',
                    imgdir='testdata/bitstreams',
                    sipi='http://0.0.0.0:1024',
-                   verbose=True,
+                   verbose=False,
                    validate_only=False)
 
 

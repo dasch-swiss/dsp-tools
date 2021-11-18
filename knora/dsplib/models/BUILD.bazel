@@ -54,12 +54,13 @@ py_library(
     visibility = ["//visibility:public"],
     srcs = ["listnode.py"],
     deps = [
+        "//knora/dsplib/utils:set_encoder",
         ":connection",
         ":helpers",
         ":langstring",
         ":project",
     ],
-    imports = ["."],
+    imports = [".", ".."],
 )
 
 py_library(
@@ -101,6 +102,7 @@ py_library(
     visibility = ["//visibility:public"],
     srcs = ["project.py"],
     deps = [
+        "//knora/dsplib/utils:set_encoder",
         ":helpers",
         ":langstring",
         ":connection",
@@ -114,12 +116,13 @@ py_library(
     visibility = ["//visibility:public"],
     srcs = ["propertyclass.py"],
     deps = [
+        "//knora/dsplib/utils:set_encoder",
         ":connection",
         ":helpers",
         ":langstring",
         ":listnode"
     ],
-    imports = ["."],
+    imports = [".", ".."],
 )
 
 py_library(
@@ -146,11 +149,12 @@ py_library(
     visibility = ["//visibility:public"],
     srcs = ["resourceclass.py"],
     deps = [
+        "//knora/dsplib/utils:set_encoder",
         ":connection",
         ":helpers",
         ":langstring",
     ],
-    imports = ["."],
+    imports = [".", ".."],
 )
 
 py_library(

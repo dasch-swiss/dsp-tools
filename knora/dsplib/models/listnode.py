@@ -416,10 +416,13 @@ class ListNode(Model):
         Creates a JSON-object from the ListNode instance that can be used to call Knora
 
         :param action: Action the object is used for (Action.CREATE or Action.UPDATE)
+        :param listIri: The IRI of the list node, only used for update action
         :return: JSON-object
+
         """
 
         tmp = {}
+
         if action == Actions.Create:
             if self._project is None:
                 raise BaseError("There must be a project id given!")
@@ -447,17 +450,7 @@ class ListNode(Model):
                 tmp['comments'] = self._comments.toJsonObj()
             if self._name and 'name' in self._changed:
                 tmp['name'] = self._name
-        #
-        # temporary fix for bug in dsp-api which prevents labels from having
-        # escaped double-quotes in the string, e.g. "this \"label\" not works"!
-        # The double quotes will be replaced by single quotes...
-        #
-        if tmp.get('labels'):
-            print(tmp['labels'])
-            tmp['labels'] = [{'language': ele['language'], 'value': ele['value'].replace('"', "'")} for ele in
-                             tmp['labels']]
-            # tmp['labels'] = {k: v.replace('"', "'") for k, v in tmp['labels'].items()}
-        # End of FIX
+
         return tmp
 
     def create(self) -> 'ListNode':

@@ -30,7 +30,7 @@
                     {
                         "name": "a",
                         "labels": {
-                            "en": "a_label"
+                            "en": "a_label with a\"post'rophes"
                         },
                         "comments": {
                             "en": "no comment"

@@ -37,7 +37,7 @@ class TestTools(unittest.TestCase):
                      server=self.server,
                      user=self.user,
                      password='test',
-                     verbose=True)
+                     verbose=False)
 
         with open('_anything-onto.json') as f:
             onto_json_str = f.read()

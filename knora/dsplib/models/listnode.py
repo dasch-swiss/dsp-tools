@@ -184,7 +184,7 @@ class ListNode(Model):
         self._project = project.id if isinstance(project, Project) else str(project) if project is not None else None
         self._id = str(id) if id is not None else None
         self._label = LangString(label)
-        self._comments = LangString(comments) if comments is not None else LangString({"en": ""})
+        self._comments = LangString(comments) if comments is not None else None
         self._name = str(name) if name is not None else None
         if parent and isinstance(parent, ListNode):
             self._parent = parent.id
@@ -427,14 +427,13 @@ class ListNode(Model):
             if self._label.isEmpty():
                 raise BaseError("There must be a valid ListNode label!")
             tmp['labels'] = self._label.toJsonObj()
-            if not self._comments.isEmpty():
+            if self._comments:
                 tmp['comments'] = self._comments.toJsonObj()
-            else:
-                tmp['comments'] = []
             if self._name is not None:
                 tmp['name'] = self._name
-            if self._parent is not None:
+            if self._parent:
                 tmp['parentNodeIri'] = self._parent
+
         elif action == Actions.Update:
             if self.id is None:
                 raise BaseError("There must be a node id given!")
@@ -446,7 +445,7 @@ class ListNode(Model):
                 tmp['labels'] = self._label.toJsonObj()
             if not self._comments.isEmpty() and 'comments' in self._changed:
                 tmp['comments'] = self._comments.toJsonObj()
-            if self._name is not None and 'name' in self._changed:
+            if self._name and 'name' in self._changed:
                 tmp['name'] = self._name
         #
         # temporary fix for bug in dsp-api which prevents labels from having

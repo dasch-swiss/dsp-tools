@@ -49,18 +49,12 @@
                                 "name": "b1",
                                 "labels": {
                                     "en": "b1_label"
-                                },
-                                "comments": {
-                                    "en": "no comment"
                                 }
                             },
                             {
                                 "name": "b2",
                                 "labels": {
                                     "en": "b2_label"
-                                },
-                                "comments": {
-                                    "en": "no comment"
                                 }
                             }
                         ]
@@ -82,15 +76,12 @@
                     "en": "My list from Excel"
                 },
                 "comments": {
-                    "en": "no comment",
+                    "en": "a comment",
                     "de": "ein Kommentar",
                     "fr": "un commentaire"
                 },
                 "nodes": {
-                    "folder": "testdata/lists",
-                    "comments": {
-                        "en": ""
-                    }
+                    "folder": "testdata/lists"
                 }
             }
         ],

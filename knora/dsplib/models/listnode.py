@@ -57,7 +57,7 @@ def list_creator(con: Connection, project: Project, parent_node: 'ListNode', nod
             name=node["name"],
             parent=parent_node
         )
-        if node.get('nodes') is not None:
+        if node.get('nodes'):
             newnode.children = list_creator(con, project, newnode, node['nodes'])
         nodelist.append(newnode)
     return nodelist
@@ -181,24 +181,24 @@ class ListNode(Model):
 
         super().__init__(con)
 
-        self._project = project.id if isinstance(project, Project) else str(project) if project is not None else None
-        self._id = str(id) if id is not None else None
+        self._project = project.id if isinstance(project, Project) else str(project) if project else None
+        self._id = str(id) if id else None
         self._label = LangString(label)
-        self._comments = LangString(comments) if comments is not None else None
-        self._name = str(name) if name is not None else None
+        self._comments = LangString(comments) if comments else None
+        self._name = str(name) if name else None
         if parent and isinstance(parent, ListNode):
             self._parent = parent.id
         else:
             self._parent = str(parent) if parent else None
         self._isRootNode = isRootNode
-        if children is not None:
+        if children:
             if isinstance(children, List) and len(children) > 0 and isinstance(children[0], ListNode):
                 self._children = children
             else:
                 raise BaseError('Children must be list of ListNodes!')
         else:
             self._children = None
-        if not isinstance(rootNodeIri, str) and rootNodeIri is not None:
+        if not isinstance(rootNodeIri, str) and rootNodeIri:
             raise BaseError('rootNodeIri must be a str!')
         self._rootNodeIri = rootNodeIri
 
@@ -382,7 +382,7 @@ class ListNode(Model):
         project = json_obj.get('projectIri')
         label = LangString.fromJsonObj(json_obj.get('labels'))
         comments = LangString.fromJsonObj(json_obj.get('comments'))
-        if json_obj.get('name') is not None:
+        if json_obj.get('name'):
             name = json_obj['name']
         else:
             name = id.rsplit('/', 1)[-1]
@@ -391,7 +391,7 @@ class ListNode(Model):
 
         child_info = json_obj.get('children')
         children = None
-        if child_info is not None:
+        if child_info:
             children = ListNode.__getChildren(con=con,
                                               parent_iri=id,
                                               project_iri=project,
@@ -432,7 +432,7 @@ class ListNode(Model):
             tmp['labels'] = self._label.toJsonObj()
             if self._comments:
                 tmp['comments'] = self._comments.toJsonObj()
-            if self._name is not None:
+            if self._name:
                 tmp['name'] = self._name
             if self._parent:
                 tmp['parentNodeIri'] = self._parent
@@ -462,7 +462,7 @@ class ListNode(Model):
 
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder)
-        if self._parent is not None:
+        if self._parent:
             result = self._con.post('/admin/lists/' + quote_plus(self._parent), jsondata)
             return ListNode.fromJsonObj(self._con, result['nodeinfo'])
         else:

@@ -120,12 +120,12 @@ The documentation is a collection of [markdown](https://en.wikipedia.org/wiki/Ma
 After updates of the files, build and check the result with the following commands:
 
 ```bash
-make build-docs
-make serve-docs 
+make docs-build
+make docs-serve 
 ```
 
 To update the changes to the official documentation pages run:
 
 ```bash
-make publish-docs
+make docs-publish
 ```

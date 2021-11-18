@@ -626,6 +626,33 @@ which means anytime in between 1925 and the 22nd March 1927.
 }
 ```
 
+###### TimeValue
+
+`"object": "TimeValue"`
+
+A time value represents a precise moment in time in the Gregorian calendar. Since nanosecond precision can be included, it is suitable for use as a timestamp.
+
+*gui-elements / gui_attributes*:
+
+- `TimeStamp`: A GUI element for _TimeValue_ which contains a date picker and a time picker.
+  - _gui_attributes_: No attributes
+
+*Example:*
+
+```json
+{
+  "name": "hasTime",
+  "super": [
+    "hasValue"
+  ],
+  "object": "TimeValue",
+  "labels": {
+    "en": "Time"
+  },
+  "gui_element": "TimeStamp"
+}
+```
+
 ###### DecimalValue
 
 `"object": "DecimalValue"`

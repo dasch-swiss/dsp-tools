@@ -10,7 +10,7 @@ from knora.dsplib.models.connection import Connection
 from knora.dsplib.models.group import Group
 from knora.dsplib.models.permission import Permissions
 from knora.dsplib.models.project import Project
-from knora.dsplib.models.resource import ResourceInstanceFactory
+from knora.dsplib.models.resource import ResourceInstanceFactory, ResourceInstance
 from knora.dsplib.models.sipi import Sipi
 from knora.dsplib.models.value import KnoraStandoffXml
 
@@ -613,10 +613,11 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             bitstream = None
 
         # create the resource on the server
-        instance = res_classes[resource.restype](con=con, label=resource.label,
-                                                 permissions=permissions_lookup.get(resource.permissions),
-                                                 bitstream=bitstream,
-                                                 values=resource.get_propvals(res_iri_lookup,
-                                                                              permissions_lookup)).create()
+        instance: ResourceInstance = res_classes[resource.restype](con=con, label=resource.label,
+                                                                   permissions=permissions_lookup.get(
+                                                                       resource.permissions),
+                                                                   bitstream=bitstream,
+                                                                   values=resource.get_propvals(res_iri_lookup,
+                                                                                                permissions_lookup)).create()
         res_iri_lookup[resource.id] = instance.iri
-        print("Created resource: ", instance.label, " (", resource.id, ") with IRI ", instance.iri)
+        print("Created resource:", instance.label, "(", resource.id, ") with IRI", instance.iri)

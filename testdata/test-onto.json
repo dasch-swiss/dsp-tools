@@ -1,526 +1,548 @@
 {
-  "prefixes": {
-    "foaf": "http://xmlns.com/foaf/0.1/",
-    "dcterms": "http://purl.org/dc/terms/"
-  },
-  "$schema": "../knora/dsplib/schemas/ontology.json",
-  "project": {
-    "shortcode": "4123",
-    "shortname": "tp",
-    "longname": "test project",
-    "descriptions": {
-      "en": "A systematic test project",
-      "de": "Ein systematisches Testprojekt"
+    "prefixes": {
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "dcterms": "http://purl.org/dc/terms/"
     },
-    "keywords": [
-      "test",
-      "testing"
-    ],
-    "lists": [
-      {
-        "name": "testlist",
-        "labels": {
-          "en": "Testlist"
-        },
-        "comments": {"en": "no comment"},
-        "nodes": [
-          {
-            "name": "a",
-            "labels": {
-              "en": "a_label"
-            }
-          },
-          {
-            "name": "b",
-            "labels": {
-              "en": "b_label"
-            },
-            "nodes": [
-              {
-                "name": "b1",
-                "labels": {
-                  "en": "b1_label"
-                }
-              },
-              {
-                "name": "b2",
-                "labels": {
-                  "en": "b2_label"
-                }
-              }
-            ]
-          },
-          {
-            "name": "c",
-            "labels": {
-              "en": "c_label"
-            }
-          }
-        ]
-      },
-      {
-        "name": "my-list-from-excel",
-        "labels": {
-          "en": "My list from Excel"
-        },
-        "comments": {
-            "en": "no comment",
-            "de": "ein Kommentar",
-            "fr": "un commentaire"
-        },
-        "nodes": {
-          "folder": "testdata/lists"
-        }
-      }
-    ],
-    "groups": [
-      {
-        "name": "testgroup",
+    "$schema": "../knora/dsplib/schemas/ontology.json",
+    "project": {
+        "shortcode": "4123",
+        "shortname": "tp",
+        "longname": "test project",
         "descriptions": {
-            "en": "Test group",
-            "de": "Testgruppe"},
-        "selfjoin": false,
-        "status": true
-      }
-    ],
-    "users": [
-      {
-        "username": "tester",
-        "email": "tester@test.org",
-        "givenName": "Testing",
-        "familyName": "tester",
-        "password": "test0815",
-        "lang": "en",
+            "en": "A systematic test project",
+            "de": "Ein systematisches Testprojekt"
+        },
+        "keywords": [
+            "test",
+            "testing"
+        ],
+        "lists": [
+            {
+                "name": "testlist",
+                "labels": {
+                    "en": "Testlist"
+                },
+                "comments": {
+                    "en": "no comment",
+                    "de": "kein Kommentar"
+                },
+                "nodes": [
+                    {
+                        "name": "a",
+                        "labels": {
+                            "en": "a_label"
+                        },
+                        "comments": {
+                            "en": "no comment"
+                        }
+                    },
+                    {
+                        "name": "b",
+                        "labels": {
+                            "en": "b_label"
+                        },
+                        "comments": {
+                            "en": "no comment"
+                        },
+                        "nodes": [
+                            {
+                                "name": "b1",
+                                "labels": {
+                                    "en": "b1_label"
+                                },
+                                "comments": {
+                                    "en": "no comment"
+                                }
+                            },
+                            {
+                                "name": "b2",
+                                "labels": {
+                                    "en": "b2_label"
+                                },
+                                "comments": {
+                                    "en": "no comment"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "c",
+                        "labels": {
+                            "en": "c_label"
+                        },
+                        "comments": {
+                            "en": "no comment"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "my-list-from-excel",
+                "labels": {
+                    "en": "My list from Excel"
+                },
+                "comments": {
+                    "en": "no comment",
+                    "de": "ein Kommentar",
+                    "fr": "un commentaire"
+                },
+                "nodes": {
+                    "folder": "testdata/lists",
+                    "comments": {
+                        "en": ""
+                    }
+                }
+            }
+        ],
         "groups": [
-          ":testgroup"
+            {
+                "name": "testgroup",
+                "descriptions": {
+                    "en": "Test group",
+                    "de": "Testgruppe"
+                },
+                "selfjoin": false,
+                "status": true
+            }
         ],
-        "projects": [
-        ]
-      }
-    ],
-    "ontologies": [
-      {
-        "name": "testonto",
-        "label": "Test ontology",
-        "properties": [
-          {
-            "name": "hasText",
-            "super": [
-              "hasValue"
-            ],
-            "object": "TextValue",
-            "labels": {
-              "en": "Text"
-            },
-            "gui_element": "SimpleText",
-            "gui_attributes": {
-              "maxlength": 255,
-              "size": 80
+        "users": [
+            {
+                "username": "tester",
+                "email": "tester@test.org",
+                "givenName": "Testing",
+                "familyName": "tester",
+                "password": "test0815",
+                "lang": "en",
+                "groups": [
+                    ":testgroup"
+                ],
+                "projects": [
+                ]
             }
-          },
-          {
-            "name": "hasRichtext",
-            "super": [
-              "hasValue"
-            ],
-            "object": "TextValue",
-            "labels": {
-              "en": "Text"
-            },
-            "gui_element": "Richtext"
-          },
-          {
-            "name": "hasUri",
-            "super": [
-              "hasValue"
-            ],
-            "object": "UriValue",
-            "labels": {
-              "en": "URI"
-            },
-            "gui_element": "SimpleText",
-            "gui_attributes": {
-              "maxlength": 255,
-              "size": 80
-            }
-          },
-          {
-            "name": "hasBoolean",
-            "super": [
-              "hasValue"
-            ],
-            "object": "BooleanValue",
-            "labels": {
-              "en": "Boolean value"
-            },
-            "gui_element": "Checkbox"
-          },
-          {
-            "name": "hasDate",
-            "super": [
-              "hasValue"
-            ],
-            "object": "DateValue",
-            "labels": {
-              "en": "Date"
-            },
-            "gui_element": "Date"
-          },
-          {
-            "name": "hasInteger",
-            "super": [
-              "hasValue"
-            ],
-            "object": "IntValue",
-            "labels": {
-              "en": "Integer"
-            },
-            "gui_element": "Spinbox",
-            "gui_attributes": {
-              "max": -1.0,
-              "min": 0.0
-            }
-          },
-          {
-            "name": "hasDecimal",
-            "super": [
-              "hasValue"
-            ],
-            "object": "DecimalValue",
-            "labels": {
-              "en": "Decimal number"
-            },
-            "gui_element": "SimpleText",
-            "gui_attributes": {
-              "maxlength": 255,
-              "size": 80
-            }
-          },
-          {
-            "name": "hasGeometry",
-            "super": [
-              "hasValue"
-            ],
-            "object": "GeomValue",
-            "labels": {
-              "en": "Geometry"
-            },
-            "gui_element": "Geometry"
-          },
-          {
-            "name": "hasGeoname",
-            "super": [
-              "hasValue"
-            ],
-            "object": "GeonameValue",
-            "labels": {
-              "en": "Geoname"
-            },
-            "gui_element": "Geonames"
-          },
-          {
-            "name": "hasInterval",
-            "super": [
-              "hasValue"
-            ],
-            "object": "IntervalValue",
-            "labels": {
-              "en": "Time interval"
-            },
-            "gui_element": "Interval"
-          },
-          {
-            "name": "hasColor",
-            "super": [
-              "hasValue"
-            ],
-            "object": "ColorValue",
-            "labels": {
-              "en": "Color"
-            },
-            "gui_element": "Colorpicker"
-          },
-          {
-            "name": "hasListItem",
-            "super": [
-              "hasValue"
-            ],
-            "object": "ListValue",
-            "labels": {
-              "en": "List element"
-            },
-            "gui_element": "List",
-            "gui_attributes": {
-              "hlist": "testlist"
-            }
-          },
-          {
-            "name": "hasTestRegion",
-            "super": [
-              "hasLinkTo"
-            ],
-            "object": "Region",
-            "labels": {
-              "en": "has region"
-            },
-            "gui_element": "Searchbox"
-          },
-          {
-            "name": "hasTestThing2",
-            "super": [
-              "hasLinkTo"
-            ],
-            "object": ":TestThing2",
-            "labels": {
-              "en": "Another thing"
-            },
-            "gui_element": "Searchbox"
-          }
         ],
-        "resources": [
-          {
-            "name": "TestThing",
-            "super": "Resource",
-            "labels": {
-              "en": "TestThing"
-            },
-            "comments": {
-              "en": "A thing to test things",
-              "de": "Ein Ding um allerlei Dinge zu testen."
-            },
-            "cardinalities": [
-              {
-                "propname": ":hasText",
-                "gui_order": 1,
-                "cardinality": "1-n"
-              },
-              {
-                "propname": ":hasRichtext",
-                "gui_order": 2,
-                "cardinality": "0-n"
-              },
-              {
-                "propname": ":hasUri",
-                "gui_order": 3,
-                "cardinality": "0-n"
-              },
-              {
-                "propname": ":hasBoolean",
-                "gui_order": 4,
-                "cardinality": "1"
-              },
-              {
-                "propname": ":hasDate",
-                "gui_order": 5,
-                "cardinality": "0-n"
-              },
-              {
-                "propname": ":hasInteger",
-                "gui_order": 6,
-                "cardinality": "0-n"
-              },
-              {
-                "propname": ":hasDecimal",
-                "gui_order": 7,
-                "cardinality": "0-n"
-              },
-              {
-                "propname": ":hasGeometry",
-                "gui_order": 8,
-                "cardinality": "0-n"
-              },
-              {
-                "propname": ":hasGeoname",
-                "gui_order": 9,
-                "cardinality": "0-n"
-              },
-              {
-                "propname": ":hasInterval",
-                "gui_order": 10,
-                "cardinality": "0-n"
-              },
-              {
-                "propname": ":hasColor",
-                "gui_order": 11,
-                "cardinality": "0-n"
-              },
-              {
-                "propname": ":hasListItem",
-                "gui_order": 12,
-                "cardinality": "0-n"
-              },
-              {
-                "propname": ":hasTestRegion",
-                "gui_order": 13,
-                "cardinality": "0-n"
-              },
-              {
-                "propname": ":hasTestThing2",
-                "gui_order": 14,
-                "cardinality": "0-n"
-              }
-            ]
-          },
-          {
-            "name": "TestThing2",
-            "super": "Resource",
-            "labels": {
-              "en": "Another Test Thing"
-            },
-            "comments": {
-              "en": "Another thing for testing  things."
-            },
-            "cardinalities": [
-              {
-                "propname": ":hasText",
-                "gui_order": 1,
-                "cardinality": "1"
-              }
-            ]
-          },
-          {
-            "name": "CompoundThing",
-            "super": "Resource",
-            "labels": {
-              "en": "A Compound Thing"
-            },
-            "comments": {
-              "en": "A thing for testing compound things."
-            },
-            "cardinalities": [
-              {
-                "propname": ":hasText",
-                "gui_order": 1,
-                "cardinality": "1"
-              }
-            ]
-          },
-          {
-            "name": "ImageThing",
-            "super": "StillImageRepresentation",
-            "labels": {
-              "en": "An Image Thing"
-            },
-            "comments": {
-              "en": "An image thing for testing image things."
-            },
-            "cardinalities": [
-              {
-                "propname": ":hasText",
-                "gui_order": 1,
-                "cardinality": "1"
-              }
-            ]
-          },
-          {
-            "name": "AudioThing",
-            "super": "AudioRepresentation",
-            "labels": {
-              "en": "An Audio Thing"
-            },
-            "comments": {
-              "en": "An audio thing for testing audio things."
-            },
-            "cardinalities": [
-              {
-                "propname": ":hasText",
-                "gui_order": 1,
-                "cardinality": "1"
-              }
-            ]
-          },
-          {
-            "name": "MovieThing",
-            "super": "MovingImageRepresentation",
-            "labels": {
-              "en": "An Movie Thing"
-            },
-            "comments": {
-              "en": "An movie thing for testing moving image things."
-            },
-            "cardinalities": [
-              {
-                "propname": ":hasText",
-                "gui_order": 1,
-                "cardinality": "1"
-              }
-            ]
-          },
-          {
-            "name": "DocumentThing",
-            "super": "DocumentRepresentation",
-            "labels": {
-              "en": "A Document Thing"
-            },
-            "comments": {
-              "en": "A second things for testing different things."
-            },
-            "cardinalities": [
-              {
-                "propname": ":hasText",
-                "gui_order": 1,
-                "cardinality": "1"
-              }
-            ]
-          },
-          {
-            "name": "ZipThing",
-            "super": "DocumentRepresentation",
-            "labels": {
-              "en": "A ZIP Thing"
-            },
-            "comments": {
-              "en": "A  things for testing ZIPS."
-            },
-            "cardinalities": [
-              {
-                "propname": ":hasText",
-                "gui_order": 1,
-                "cardinality": "1"
-              }
-            ]
-          },
-          {
-            "name": "TextThing",
-            "super": "TextRepresentation",
-            "labels": {
-              "en": "A Text Thing"
-            },
-            "comments": {
-              "en": "A  things for testing TEXTS."
-            },
-            "cardinalities": [
-              {
-                "propname": ":hasText",
-                "gui_order": 1,
-                "cardinality": "1"
-              }
-            ]
-          },
-          {
-            "name": "PartOfThing",
-            "super": "StillImageRepresentation",
-            "labels": {
-              "en": "A Thing having a partOf and seqnum property"
-            },
-            "comments": {
-              "en": "A thing for testing partOf and seqnum properties."
-            },
-            "cardinalities": [
-              {
-                "propname": "isPartOf",
-                "gui_order": 1,
-                "cardinality": "1"
-              },
-              {
-                "propname": "seqnum",
-                "gui_order": 2,
-                "cardinality": "1"
-              }
-            ]
-          }
+        "ontologies": [
+            {
+                "name": "testonto",
+                "label": "Test ontology",
+                "properties": [
+                    {
+                        "name": "hasText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": 255,
+                            "size": 80
+                        }
+                    },
+                    {
+                        "name": "hasRichtext",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "Richtext"
+                    },
+                    {
+                        "name": "hasUri",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "UriValue",
+                        "labels": {
+                            "en": "URI"
+                        },
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": 255,
+                            "size": 80
+                        }
+                    },
+                    {
+                        "name": "hasBoolean",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "BooleanValue",
+                        "labels": {
+                            "en": "Boolean value"
+                        },
+                        "gui_element": "Checkbox"
+                    },
+                    {
+                        "name": "hasDate",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "DateValue",
+                        "labels": {
+                            "en": "Date"
+                        },
+                        "gui_element": "Date"
+                    },
+                    {
+                        "name": "hasInteger",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "IntValue",
+                        "labels": {
+                            "en": "Integer"
+                        },
+                        "gui_element": "Spinbox",
+                        "gui_attributes": {
+                            "max": -1.0,
+                            "min": 0.0
+                        }
+                    },
+                    {
+                        "name": "hasDecimal",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "DecimalValue",
+                        "labels": {
+                            "en": "Decimal number"
+                        },
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": 255,
+                            "size": 80
+                        }
+                    },
+                    {
+                        "name": "hasGeometry",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "GeomValue",
+                        "labels": {
+                            "en": "Geometry"
+                        },
+                        "gui_element": "Geometry"
+                    },
+                    {
+                        "name": "hasGeoname",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "GeonameValue",
+                        "labels": {
+                            "en": "Geoname"
+                        },
+                        "gui_element": "Geonames"
+                    },
+                    {
+                        "name": "hasInterval",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "IntervalValue",
+                        "labels": {
+                            "en": "Time interval"
+                        },
+                        "gui_element": "Interval"
+                    },
+                    {
+                        "name": "hasColor",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "ColorValue",
+                        "labels": {
+                            "en": "Color"
+                        },
+                        "gui_element": "Colorpicker"
+                    },
+                    {
+                        "name": "hasListItem",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "ListValue",
+                        "labels": {
+                            "en": "List element"
+                        },
+                        "gui_element": "List",
+                        "gui_attributes": {
+                            "hlist": "testlist"
+                        }
+                    },
+                    {
+                        "name": "hasTestRegion",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Region",
+                        "labels": {
+                            "en": "has region"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasTestThing2",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": ":TestThing2",
+                        "labels": {
+                            "en": "Another thing"
+                        },
+                        "gui_element": "Searchbox"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "TestThing",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "TestThing"
+                        },
+                        "comments": {
+                            "en": "A thing to test things",
+                            "de": "Ein Ding um allerlei Dinge zu testen."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "gui_order": 1,
+                                "cardinality": "1-n"
+                            },
+                            {
+                                "propname": ":hasRichtext",
+                                "gui_order": 2,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasUri",
+                                "gui_order": 3,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasBoolean",
+                                "gui_order": 4,
+                                "cardinality": "1"
+                            },
+                            {
+                                "propname": ":hasDate",
+                                "gui_order": 5,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasInteger",
+                                "gui_order": 6,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasDecimal",
+                                "gui_order": 7,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasGeometry",
+                                "gui_order": 8,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasGeoname",
+                                "gui_order": 9,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasInterval",
+                                "gui_order": 10,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasColor",
+                                "gui_order": 11,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasListItem",
+                                "gui_order": 12,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasTestRegion",
+                                "gui_order": 13,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasTestThing2",
+                                "gui_order": 14,
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "TestThing2",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Another Test Thing"
+                        },
+                        "comments": {
+                            "en": "Another thing for testing  things."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "CompoundThing",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "A Compound Thing"
+                        },
+                        "comments": {
+                            "en": "A thing for testing compound things."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "ImageThing",
+                        "super": "StillImageRepresentation",
+                        "labels": {
+                            "en": "An Image Thing"
+                        },
+                        "comments": {
+                            "en": "An image thing for testing image things."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "AudioThing",
+                        "super": "AudioRepresentation",
+                        "labels": {
+                            "en": "An Audio Thing"
+                        },
+                        "comments": {
+                            "en": "An audio thing for testing audio things."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "MovieThing",
+                        "super": "MovingImageRepresentation",
+                        "labels": {
+                            "en": "An Movie Thing"
+                        },
+                        "comments": {
+                            "en": "An movie thing for testing moving image things."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "DocumentThing",
+                        "super": "DocumentRepresentation",
+                        "labels": {
+                            "en": "A Document Thing"
+                        },
+                        "comments": {
+                            "en": "A second things for testing different things."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "ZipThing",
+                        "super": "DocumentRepresentation",
+                        "labels": {
+                            "en": "A ZIP Thing"
+                        },
+                        "comments": {
+                            "en": "A  things for testing ZIPS."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "TextThing",
+                        "super": "TextRepresentation",
+                        "labels": {
+                            "en": "A Text Thing"
+                        },
+                        "comments": {
+                            "en": "A  things for testing TEXTS."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "PartOfThing",
+                        "super": "StillImageRepresentation",
+                        "labels": {
+                            "en": "A Thing having a partOf and seqnum property"
+                        },
+                        "comments": {
+                            "en": "A thing for testing partOf and seqnum properties."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": "isPartOf",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            },
+                            {
+                                "propname": "seqnum",
+                                "gui_order": 2,
+                                "cardinality": "1"
+                            }
+                        ]
+                    }
+                ]
+            }
         ]
-      }
-    ]
-  }
+    }
 }

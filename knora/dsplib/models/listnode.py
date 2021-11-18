@@ -184,7 +184,7 @@ class ListNode(Model):
         self._project = project.id if isinstance(project, Project) else str(project) if project is not None else None
         self._id = str(id) if id is not None else None
         self._label = LangString(label)
-        self._comments = LangString(comments)
+        self._comments = LangString(comments) if comments is not None else LangString({"en": ""})
         self._name = str(name) if name is not None else None
         if parent and isinstance(parent, ListNode):
             self._parent = parent.id

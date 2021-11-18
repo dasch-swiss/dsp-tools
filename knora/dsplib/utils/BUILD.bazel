@@ -103,6 +103,12 @@ py_library(
 )
 
 py_library(
+    name = "set_encoder",
+    visibility = ["//visibility:public"],
+    srcs = ["set_encoder.py"]
+)
+
+py_library(
     name = "xml_upload",
     visibility = ["//visibility:public"],
     srcs = ["xml_upload.py"],

@@ -321,7 +321,7 @@ def create_ontology(input_file: str,
                 print("Creating resource class failed:", err.message)
                 exit(105)
             newresclasses[newresclass.id] = newresclass
-            if verbose is not None:
+            if verbose:
                 print("New resource class:")
                 newresclass.print()
 

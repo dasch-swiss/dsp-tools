@@ -14,7 +14,11 @@ filegroup(
         "lists/description_en.xlsx",
         "lists/Beschreibung_de.xlsx",
         "test-data.xml",
-        "test-onto.json"
+        "test-onto.json",
+        "test-id2iri-data.xml",
+        "test-id2iri-mapping.json",
+        "test-id2iri-replaced.xml",
+        "tmp/_test-id2iri-replaced.xml"
     ],
 )
 

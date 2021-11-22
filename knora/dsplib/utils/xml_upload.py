@@ -1,13 +1,17 @@
 """
 This module handles the import of XML data into the DSP platform.
 """
+import json
 import os
+from datetime import datetime
+from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 from lxml import etree
 
 from knora.dsplib.models.connection import Connection
 from knora.dsplib.models.group import Group
+from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.models.permission import Permissions
 from knora.dsplib.models.project import Project
 from knora.dsplib.models.resource import ResourceInstanceFactory, ResourceInstance
@@ -306,10 +310,10 @@ class KnoraResource:
                     if iri is not None:
                         v = iri
                     else:
-                        v = value.value  # if we do not find the unique_id, we assume it's a valid knora IRI
+                        v = value.value  # if we do not find the id, we assume it's a valid knora IRI
                 elif prop.valtype == 'text':
                     if isinstance(value.value, KnoraStandoffXml):
-                        iri_refs = value.value.findall()  # The IRI's must be embedded  as "...IRI:unique_id:IRI..."
+                        iri_refs = value.value.findall()
                         for iri_ref in iri_refs:
                             res_id = iri_ref.split(':')[1]
                             iri = resiri_lookup.get(res_id)
@@ -435,7 +439,7 @@ class XmlPermission:
             a.print()
 
 
-def do_sort_order(resources: List[KnoraResource]) -> List[KnoraResource]:
+def do_sort_order(resources: List[KnoraResource], verbose) -> List[KnoraResource]:
     """
     Sorts a list of resources.
 
@@ -444,6 +448,7 @@ def do_sort_order(resources: List[KnoraResource]) -> List[KnoraResource]:
 
     Args:
         resources: List of resources before sorting
+        verbose: verbose output if True
 
     Returns:
         sorted list of resources
@@ -475,7 +480,7 @@ def do_sort_order(resources: List[KnoraResource]) -> List[KnoraResource]:
                     notok_resources.append(resource)
         resources = notok_resources
         if not len(notok_resources) < notok_len:
-            print('Cannot resolve resptr dependencies. Giving up....')
+            print('Cannot resolve resptr dependencies. Giving up...')
             print(len(notok_resources))
             for r in notok_resources:
                 print('Resource {} has unresolvable resptrs to: '.format(r.id), end=' ')
@@ -487,7 +492,8 @@ def do_sort_order(resources: List[KnoraResource]) -> List[KnoraResource]:
         notok_len = len(notok_resources)
         notok_resources = []
         cnt += 1
-        print('{}. Ordering pass Finished!'.format(cnt))
+        if verbose:
+            print('{}. Ordering pass Finished!'.format(cnt))
     # print('Remaining: {}'.format(len(resources)))
     return ok_resources
 
@@ -515,7 +521,7 @@ def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
 
 
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
-               validate_only: bool) -> bool:
+               validate_only: bool, incremental: bool) -> None:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
 
@@ -528,6 +534,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         sipi : the sipi instance to be used
         verbose : verbose option for the command, if used more output is given to the user
         validate_only : validation option to validate the XML data without the actual import of the data
+        incremental: if set, IRIs instead of internal IDs are expected as resource pointers
 
     Returns:
         None
@@ -538,11 +545,11 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     schema_file = os.path.join(current_dir, '../schemas/data.xsd')
 
     if validate_xml_against_schema(input_file, schema_file):
-        print("The input data file is syntactically correct and passed validation!")
+        print("The input data file is syntactically correct and passed validation.")
         if validate_only:
             exit(0)
     else:
-        print("The input data file did not pass validation!")
+        print("ERROR The input data file did not pass validation.")
         exit(1)
 
     # Connect to the DaSCH Service Platform API and get the project context
@@ -583,8 +590,9 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         elif child.tag == "resource":
             resources.append(KnoraResource(child, default_ontology))
 
-    # sort the resources (resources which do not link to others come first)
-    resources = do_sort_order(resources)
+    # sort the resources (resources which do not link to others come first) but only if not an incremental upload
+    if not incremental:
+        resources = do_sort_order(resources, verbose)
 
     sipi = Sipi(sipi, con.get_token())
 
@@ -603,21 +611,42 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
     res_iri_lookup: Dict[str, str] = {}
 
+    failed_uploads = []
     for resource in resources:
-        if verbose:
-            resource.print()
-        if resource.bitstream:
-            img = sipi.upload_bitstream(os.path.join(imgdir, resource.bitstream))
-            bitstream = img['uploadedFiles'][0]['internalFilename']
-        else:
-            bitstream = None
+        bitstream = None
+        try:
+            if verbose:
+                resource.print()
+            if resource.bitstream:
+                img = sipi.upload_bitstream(os.path.join(imgdir, resource.bitstream))
+                bitstream = img['uploadedFiles'][0]['internalFilename']
 
-        # create the resource on the server
-        instance: ResourceInstance = res_classes[resource.restype](con=con, label=resource.label,
-                                                                   permissions=permissions_lookup.get(
-                                                                       resource.permissions),
-                                                                   bitstream=bitstream,
-                                                                   values=resource.get_propvals(res_iri_lookup,
-                                                                                                permissions_lookup)).create()
-        res_iri_lookup[resource.id] = instance.iri
-        print("Created resource:", instance.label, "(", resource.id, ") with IRI", instance.iri)
+            # create the resource on the server
+            instance = res_classes[resource.restype](con=con, label=resource.label,
+                                                     permissions=permissions_lookup.get(resource.permissions),
+                                                     bitstream=bitstream,
+                                                     values=resource.get_propvals(res_iri_lookup,
+                                                                                  permissions_lookup)).create()
+            res_iri_lookup[resource.id] = instance.iri
+            print(f"Created resource '{instance.label}' ({resource.id}) with IRI '{instance.iri}'")
+
+        except BaseError as err:
+            failed_uploads.append(resource.id)
+            print(f"ERROR while trying to upload '{resource.label}' ({resource.id}). The error message was: {err.message}")
+
+        except Exception as exception:
+            failed_uploads.append(resource.id)
+            print(f"ERROR while trying to upload '{resource.label}' ({resource.id}). The error message was: {exception}")
+
+    # write mapping of internal IDs to IRIs to file with timestamp
+    timestamp_now = datetime.now()
+    timestamp_str = timestamp_now.strftime("%Y%m%d-%H%M%S")
+
+    xml_file_name = Path(input_file).stem
+    res_iri_lookup_file = "id2iri_" + xml_file_name + "_mapping_" + timestamp_str + ".json"
+    with open(res_iri_lookup_file, "w") as outfile:
+        print(f"============\nThe mapping of internal IDs to IRIs was written to {res_iri_lookup_file}")
+        outfile.write(json.dumps(res_iri_lookup))
+
+    if failed_uploads:
+        print(f"Could not upload the following resources: {failed_uploads}")

@@ -34,7 +34,8 @@ def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> No
         exit(1)
 
     # load JSON from provided json file to dict
-    mapping = json.load(open(json_file))
+    with open(json_file, encoding="utf-8", mode='r') as file:
+        mapping = json.load(file)
 
     # parse XML from provided xml file
     tree = etree.parse(xml_file)
@@ -51,18 +52,19 @@ def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> No
 
     resource_elements = tree.xpath("/knora/resource/resptr-prop/resptr")
     for resptr_prop in resource_elements:
-        try:
-            value_before = resptr_prop.text
-            value_after = mapping[resptr_prop.text]
+        value_before = resptr_prop.text
+        value_after = mapping.get(resptr_prop.text)
+        if value_after:
             resptr_prop.text = value_after
             if verbose:
                 print(f"Replaced internal ID '{value_before}' with IRI '{value_after}'")
-        except KeyError:
-            if resptr_prop.text.startswith("http://rdfh.ch/"):
+
+        else:  # if value couldn't be found in mapping file
+            if value_before.startswith("http://rdfh.ch/"):
                 if verbose:
-                    print(f"Skipping '{resptr_prop.text}'")
+                    print(f"Skipping '{value_before}'")
             else:
-                print(f"WARNING: Could not find internal ID '{resptr_prop.text}' in mapping file {json_file}. "
+                print(f"WARNING Could not find internal ID '{value_before}' in mapping file {json_file}. "
                       f"Skipping...")
 
     # write xml with replaced IDs to file with timestamp

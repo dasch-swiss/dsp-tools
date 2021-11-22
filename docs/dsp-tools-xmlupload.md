@@ -724,15 +724,15 @@ file should be kept if data is later added with the `--incremental` option.
 
 To do an incremental XML upload, one of the following procedures is recommended.
 
-Incremental XML upload with use of internal IDs:
+- Incremental XML upload with use of internal IDs:
 
 1. Initial XML upload with internal IDs.
 2. The file `id2iri_mapping_[timestamp].json` is created.
-3. Create new XML file(s) with the same pattern of internal IDs.
+3. Create new XML file(s) with resources referencing other resources by their internal IDs in `<resptr>` (using the same IDs as in the initial XML upload).
 4. Run `dsp-tools id2iri new_data.xml id2iri_mapping_[timestamp].json` to replace the internal IDs in `new_data.xml` with IRIs. Only internal IDs inside the `<resptr>` tag are replaced.
 5. Run `dsp-tools xmlupload --incremental new_data.xml` to upload the data to DSP.
 
-Incremental XML Upload with the use of IRIs: Use IRIs in the XML to reference existing data on the DSP server.
+- Incremental XML Upload with the use of IRIs: Use IRIs in the XML to reference existing data on the DSP server.
 
 ## Complete example
 

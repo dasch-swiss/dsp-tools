@@ -77,7 +77,7 @@ def program(user_args: list[str]) -> None:
     parser_upload.add_argument('-i', '--imgdir', type=str, default='.', help='Path to folder containing the images')
     parser_upload.add_argument('-S', '--sipi', type=str, default='http://0.0.0.0:1024', help='URL of SIPI server')
     parser_upload.add_argument('-v', '--verbose', action='store_true', help='Verbose feedback')
-    parser_upload.add_argument('--incremental', action='store_true', help='Incremental XML upload')
+    parser_upload.add_argument('-I', '--incremental', action='store_true', help='Incremental XML upload')
     parser_upload.add_argument('xmlfile', help='path to xml file containing the data', default='data.xml')
 
     parser_excel_lists = subparsers.add_parser('excel',

@@ -545,11 +545,11 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     schema_file = os.path.join(current_dir, '../schemas/data.xsd')
 
     if validate_xml_against_schema(input_file, schema_file):
-        print("The input data file is syntactically correct and passed validation!")
+        print("The input data file is syntactically correct and passed validation.")
         if validate_only:
             exit(0)
     else:
-        print("The input data file did not pass validation!")
+        print("ERROR The input data file did not pass validation.")
         exit(1)
 
     # Connect to the DaSCH Service Platform API and get the project context
@@ -628,15 +628,15 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
                                                      values=resource.get_propvals(res_iri_lookup,
                                                                                   permissions_lookup)).create()
             res_iri_lookup[resource.id] = instance.iri
-            print("Created resource:", instance.label, "(", resource.id, ") with IRI", instance.iri)
+            print(f"Created resource '{instance.label}' ({resource.id}) with IRI '{instance.iri}'")
 
         except BaseError as err:
             failed_uploads.append(resource.id)
-            print("ERROR while trying to upload", resource.label, "(", resource.id, "). The error message was:", err.message)
+            print(f"ERROR while trying to upload '{resource.label}' ({resource.id}). The error message was: {err.message}")
 
         except Exception as exception:
             failed_uploads.append(resource.id)
-            print("ERROR while trying to upload", resource.label, "(", resource.id, "). The error message was:", str(exception))
+            print(f"ERROR while trying to upload '{resource.label}' ({resource.id}). The error message was: {str(exception)}")
 
     # write mapping of internal IDs to IRIs to file with timestamp
     timestamp_now = datetime.now()
@@ -645,8 +645,8 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     xml_file_name = Path(input_file).stem
     res_iri_lookup_file = "id2iri_" + xml_file_name + "_mapping_" + timestamp_str + ".json"
     with open(res_iri_lookup_file, "w") as outfile:
-        print("============\nThe mapping of internal IDs to IRIs was written to ", res_iri_lookup_file)
+        print(f"============\nThe mapping of internal IDs to IRIs was written to {res_iri_lookup_file}")
         outfile.write(json.dumps(res_iri_lookup))
 
     if failed_uploads:
-        print("Could not upload the following resources: ", failed_uploads)
+        print(f"Could not upload the following resources: {failed_uploads}")

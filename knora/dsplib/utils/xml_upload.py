@@ -636,7 +636,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
         except Exception as exception:
             failed_uploads.append(resource.id)
-            print(f"ERROR while trying to upload '{resource.label}' ({resource.id}). The error message was: {str(exception)}")
+            print(f"ERROR while trying to upload '{resource.label}' ({resource.id}). The error message was: {exception}")
 
     # write mapping of internal IDs to IRIs to file with timestamp
     timestamp_now = datetime.now()

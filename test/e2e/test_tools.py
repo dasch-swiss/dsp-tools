@@ -118,15 +118,15 @@ class TestTools(unittest.TestCase):
                    password='test',
                    imgdir='testdata/bitstreams',
                    sipi='http://0.0.0.0:1024',
-                   verbose=True,
+                   verbose=False,
                    validate_only=False,
                    incremental=False)
 
-    def test_id_to_iri(self):
+    def test_id_to_iri(self) -> None:
         id_to_iri(xml_file='testdata/test-id2iri-data.xml',
                   json_file='testdata/test-id2iri-mapping.json',
                   out_file='_test-id2iri-replaced.xml',
-                  verbose=True)
+                  verbose=False)
 
 
 if __name__ == '__main__':

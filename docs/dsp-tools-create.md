@@ -595,9 +595,7 @@ Please note that the DateValue is an extremely flexible data type. It can repres
 uncertainty, and the date can be given in several calendars (currently the Gregorian and the Julian calendars are
 supported, with the Jewish and Islamic coming soon). Internally, a date is always represented as a start and end date.
 If start and end date match, it's an exact date. A value like "1893" will automatically be expanded to a range from
-January 1st 1893 to December 31st
-
-1893.
+January 1st 1893 to December 31st 1893.
 
 - _calendar_ is either _GREGORIAN_ or _JULIAN_
 - _start_ has the form _yyyy_-_mm_-_dd_. If only the year is given, the precision is to the year. If only the year and
@@ -923,7 +921,7 @@ Represents a node of a (possibly hierarchical) list
 `"object": ":<resource-name>"`
 
 LinkValues do not follow the pattern of the previous data types, because they do not connect to a final value but to
-another resource which has to be defined. Thus, the "object" denomiates the resource class the link will point to. If
+another resource which has to be defined. Thus, the "object" denominates the resource class the link will point to. If
 the resource is defined in the same ontology, the name has to be prepended by a ":", if the resource is defined in
 another (previously defined)
 ontology, the ontology name has to be prepended separated by a colon ":", e.g.
@@ -932,9 +930,9 @@ resource or property from another one is not part of this documentation).
 
 *gui-elements/gui_attributes*:
 
-- `Searchbox`: Must be used with _hasLinkTo_ properties. Allows to search and enter a resource that the given resource
+- `Searchbox`: Has to be used with _hasLinkTo_ property. Allows searching resources by entering a resource that the given resource
   should link to. It has one gui_attribute that indicates how many properties of the found resources should be
-  indicated. It's mandatory!
+  indicated. This is mandatory.
     - _gui_attributes_:
         - `numprops=integer` (optional): While dynamically displaying the search result, the number of properties that
           should be displayed.

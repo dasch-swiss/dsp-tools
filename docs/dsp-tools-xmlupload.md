@@ -644,7 +644,7 @@ Example:
 
 ```xml
 <time-prop name=":hasTime">
-  <time>2019-10-23T13.45:12Z</time>
+  <time>2019-10-23T13:45:12Z</time>
 </time-prop>
 ```
 

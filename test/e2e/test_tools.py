@@ -38,7 +38,7 @@ class TestTools(unittest.TestCase):
                      server=self.server,
                      user=self.user,
                      password='test',
-                     verbose=True)
+                     verbose=False)
 
         with open('_anything-onto.json') as f:
             onto_json_str = f.read()
@@ -108,7 +108,7 @@ class TestTools(unittest.TestCase):
                         server=self.server,
                         user=self.user,
                         password='test',
-                        verbose=True,
+                        verbose=False,
                         dump=True)
 
     def test_xml_upload(self) -> None:
@@ -127,7 +127,6 @@ class TestTools(unittest.TestCase):
                   json_file='testdata/test-id2iri-mapping.json',
                   out_file='_test-id2iri-replaced.xml',
                   verbose=True)
-
 
 
 if __name__ == '__main__':

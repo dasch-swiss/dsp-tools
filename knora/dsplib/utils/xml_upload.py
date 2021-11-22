@@ -14,7 +14,7 @@ from knora.dsplib.models.group import Group
 from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.models.permission import Permissions
 from knora.dsplib.models.project import Project
-from knora.dsplib.models.resource import ResourceInstanceFactory
+from knora.dsplib.models.resource import ResourceInstanceFactory, ResourceInstance
 from knora.dsplib.models.sipi import Sipi
 from knora.dsplib.models.value import KnoraStandoffXml
 
@@ -650,5 +650,3 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
     if failed_uploads:
         print("Could not upload the following resources: ", failed_uploads)
-
-

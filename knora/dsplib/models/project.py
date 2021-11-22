@@ -5,17 +5,11 @@ from urllib.parse import quote_plus
 
 from pystrict import strict
 
+from knora.dsplib.utils.set_encoder import SetEncoder
 from .connection import Connection
 from .helpers import Actions, BaseError
 from .langstring import Languages, LangStringParam, LangString
 from .model import Model
-
-
-class SetEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, set):
-            return list(obj)
-        return json.JSONEncoder.default(self, obj)
 
 
 """

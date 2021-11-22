@@ -305,7 +305,7 @@ def create_ontology(input_file: str,
             if isinstance(super_classes, str):
                 super_classes = [super_classes]
             reslabel = LangString(resclass.get("labels"))
-            rescomment = resclass.get("comment")
+            rescomment = resclass.get("comments")
             if rescomment is not None:
                 rescomment = LangString(rescomment)
             try:

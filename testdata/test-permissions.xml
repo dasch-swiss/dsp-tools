@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../knora/dsplib/schemas/data.xsd"
+       shortcode="4124"
+       default-ontology="testPermissionOnto">
+
+    <!-- permissions: see https://docs.knora.org/03-apis/api-v2/reading-user-permissions/ -->
+    <permissions id="res-default">
+        <allow group="UnknownUser">RV</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="tp:testgroup">D</allow>
+    </permissions>
+    <permissions id="res-restricted">
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>>
+        <allow group="ProjectAdmin">CR</allow>>
+        <allow group="tp:testgroup">M</allow>>
+    </permissions>
+    <permissions id="prop-default">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>>
+        <allow group="tp:testgroup">D</allow>>
+    </permissions>
+    <permissions id="prop-restricted">
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="tp:testgroup">M</allow>
+    </permissions>
+
+    <resource label="Testthing-default"
+              restype=":TestThing"
+              id="obj_0000"
+              permissions="res-default">
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">Dies ist ein Textfeld (prop-default)</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Testthing-restricted"
+              restype=":TestThing"
+              id="obj_0001"
+              permissions="res-restricted">
+        <text-prop name=":hasText">
+            <text permissions="prop-restricted" encoding="utf8">Dies ist ein Textfeld (prop-restricted)</text>
+
+        </text-prop>
+    </resource>
+
+    <resource label="Testthing-partly-restricted-1"
+          restype=":TestThing"
+          id="obj_0002"
+          permissions="res-restricted">
+        <text-prop name=":hasText">
+            <text permissions="prop-restricted" encoding="utf8">Dies ist ein Textfeld (prop-restricted)</text>
+            <text permissions="prop-default" encoding="utf8">Dies ist ein Textfeld (prop-default)</text>
+        </text-prop>
+        <text-prop name=":hasText">
+            <text permissions="prop-restricted" encoding="utf8">Dies ist ein Textfeld (prop-restricted)</text>
+        </text-prop>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">Dies ist ein Textfeld (prop-default)</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Testthing-partly-restricted-2"
+              restype=":TestThing"
+              id="obj_0003"
+              permissions="res-default">
+        <text-prop name=":hasText">
+            <text permissions="prop-restricted" encoding="utf8">Dies ist ein Textfeld (prop-restricted)</text>
+            <text permissions="prop-default" encoding="utf8">Dies ist ein Textfeld (prop-default)</text>
+        </text-prop>
+        <text-prop name=":hasText">
+            <text permissions="prop-restricted" encoding="utf8">Dies ist ein Textfeld (prop-restricted)</text>
+        </text-prop>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">Dies ist ein Textfeld (prop-default)</text>
+        </text-prop>
+    </resource>
+
+</knora>

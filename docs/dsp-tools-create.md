@@ -401,7 +401,7 @@ Example:
 }
 ```
 
-The `users` element is optional. It is currently not recommended using it.
+The `users` element is optional.
 
 ### Ontologies
 

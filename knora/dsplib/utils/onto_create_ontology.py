@@ -161,14 +161,16 @@ def create_ontology(input_file: str,
             group_ids: Set[str] = set()
 
             user_groups = user.get("groups")
+            # if "groups" is provided, add user to the group(s)
             if user_groups:
-                # if "groups" is provided, add user to the group(s)
                 for group_name in user_groups:
                     if verbose:
                         print(f"Add user to group: {group_name}")
-                    # group_name has the form [proj_shortname]:group_name or "SystemAdmin"
+                    # group_name has the form [project_shortname]:group_name or "SystemAdmin"
+                    # if project_shortname is omitted, the group belongs to the current project
                     tmp = group_name.split(':')
-                    if len(tmp) > 1:
+                    assert len(tmp) <= 2
+                    if len(tmp) == 2:
                         group = None
                         if tmp[0]:  # group_name refers to an already existing group on DSP
                             # get all groups vom DSP
@@ -194,25 +196,38 @@ def create_ontology(input_file: str,
 
             project_infos: Dict[str, bool] = {}
 
-            for projectname in user["projects"]:
-                # determine the project memberships of the user
-                # projectname has the form [projectname]:"member"|"admin" (projectname omitted = current project)
-                tmp = projectname.split(':')
-                assert len(tmp) == 2
-                if tmp[0]:
-                    # we have 'proj_shortname:"member"|"admin"'
-                    if not all_projects:
-                        all_projects = project.getAllProjects(con)
-                    tmp_project = list(filter(lambda g: g.shortname == tmp[0], all_projects))
-                    assert len(tmp_project) == 1
-                    in_project = tmp_project[0]
-                else:
-                    # we have ':"member"|"admin"'
-                    in_project = project
-                if tmp[1] == "admin":
-                    project_infos[in_project.id] = True
-                else:
-                    project_infos[in_project.id] = False
+            user_projects = user.get("projects")
+            # if "groups" is provided, add user to the group(s)
+            if user_projects:
+                for project_name in user["projects"]:
+                    if verbose:
+                        print(f"Add user to project: {project_name}")
+                    # project_name has the form [project_name]:"member" or [project_name]:"admin"
+                    # if project_name is omitted, the user is added to the current project
+                    tmp = project_name.split(':')
+                    assert len(tmp) == 2
+                    if tmp[0]:  # project_name is provided
+                        # get all projects vom DSP
+                        if not all_projects:
+                            all_projects = project.getAllProjects(con)
+
+                        # check that project exists
+                        tmp_project = list(
+                            filter(
+                                lambda p: p.shortname == tmp[0],
+                                all_projects
+                            )
+                        )
+                        assert len(tmp_project) == 1
+                        in_project = tmp_project[0]
+                    else:  # no project_name provided
+                        in_project = project
+
+                    if tmp[1] == "admin":
+                        project_infos[in_project.id] = True
+                    else:
+                        project_infos[in_project.id] = False
+
             user_existing = False
             tmp_user = None
             try:

@@ -181,14 +181,10 @@ def create_ontology(input_file: str,
                                 all_groups = Group.getAllGroups(con)
 
                             # check that group exists
-                            tmp_group = list(
-                                filter(
-                                    lambda g: g.project.shortname == project_shortname and g.name == group_name,
-                                    all_groups
-                                )
-                            )
-                            assert len(tmp_group) == 1
-                            group = tmp_group[0]
+                            for g in all_groups:
+                                if g.project.shortname == project_shortname and g.name == group_name:
+                                    group = g
+
                         else:  # full_group_name refers to a group inside the same ontology
                             group = new_groups.get(group_name)
                             assert group is not None
@@ -202,7 +198,7 @@ def create_ontology(input_file: str,
             user_projects = user.get("projects")
             # if "groups" is provided, add user to the group(s)
             if user_projects:
-                for full_project_name in user["projects"]:
+                for full_project_name in user_projects:
                     if verbose:
                         print(f"Add user to project: {full_project_name}")
                     # full_project_name has the form [project_name]:"member" or [project_name]:"admin"
@@ -212,20 +208,18 @@ def create_ontology(input_file: str,
                     project_name = tmp[0]
                     project_role = tmp[1]
 
+                    in_project = None
+
                     if project_name:  # project_name is provided
                         # get all projects vom DSP
                         if not all_projects:
                             all_projects = project.getAllProjects(con)
 
                         # check that project exists
-                        tmp_project = list(
-                            filter(
-                                lambda p: p.shortname == project_name,
-                                all_projects
-                            )
-                        )
-                        assert len(tmp_project) == 1
-                        in_project = tmp_project[0]
+                        for p in all_projects:
+                            if p.shortname == project_name:
+                                in_project = p
+
                     else:  # no project_name provided
                         in_project = project
 

@@ -163,16 +163,19 @@ def create_ontology(input_file: str,
             user_groups = user.get("groups")
             # if "groups" is provided, add user to the group(s)
             if user_groups:
-                for group_name in user_groups:
+                for full_group_name in user_groups:
                     if verbose:
-                        print(f"Add user to group: {group_name}")
-                    # group_name has the form [project_shortname]:group_name or "SystemAdmin"
+                        print(f"Add user to group: {full_group_name}")
+                    # full_group_name has the form [project_shortname]:group_name or "SystemAdmin"
                     # if project_shortname is omitted, the group belongs to the current project
-                    tmp = group_name.split(':')
+                    tmp = full_group_name.split(':')
                     assert len(tmp) <= 2
                     if len(tmp) == 2:
+                        project_shortname = tmp[0]
+                        group_name = tmp[1]
+
                         group = None
-                        if tmp[0]:  # group_name refers to an already existing group on DSP
+                        if project_shortname:  # full_group_name refers to an already existing group on DSP
                             # get all groups vom DSP
                             if not all_groups:
                                 all_groups = Group.getAllGroups(con)
@@ -180,14 +183,14 @@ def create_ontology(input_file: str,
                             # check that group exists
                             tmp_group = list(
                                 filter(
-                                    lambda g: g.project.shortname == tmp[0] and g.name == tmp[1],
+                                    lambda g: g.project.shortname == project_shortname and g.name == group_name,
                                     all_groups
                                 )
                             )
                             assert len(tmp_group) == 1
                             group = tmp_group[0]
-                        else:  # group_name refers to a group inside the same ontology
-                            group = new_groups.get(tmp[1])
+                        else:  # full_group_name refers to a group inside the same ontology
+                            group = new_groups.get(group_name)
                             assert group is not None
                         group_ids.add(group.id)
                     else:
@@ -199,14 +202,17 @@ def create_ontology(input_file: str,
             user_projects = user.get("projects")
             # if "groups" is provided, add user to the group(s)
             if user_projects:
-                for project_name in user["projects"]:
+                for full_project_name in user["projects"]:
                     if verbose:
-                        print(f"Add user to project: {project_name}")
-                    # project_name has the form [project_name]:"member" or [project_name]:"admin"
+                        print(f"Add user to project: {full_project_name}")
+                    # full_project_name has the form [project_name]:"member" or [project_name]:"admin"
                     # if project_name is omitted, the user is added to the current project
-                    tmp = project_name.split(':')
+                    tmp = full_project_name.split(':')
                     assert len(tmp) == 2
-                    if tmp[0]:  # project_name is provided
+                    project_name = tmp[0]
+                    project_role = tmp[1]
+
+                    if project_name:  # project_name is provided
                         # get all projects vom DSP
                         if not all_projects:
                             all_projects = project.getAllProjects(con)
@@ -214,7 +220,7 @@ def create_ontology(input_file: str,
                         # check that project exists
                         tmp_project = list(
                             filter(
-                                lambda p: p.shortname == tmp[0],
+                                lambda p: p.shortname == project_name,
                                 all_projects
                             )
                         )
@@ -223,7 +229,7 @@ def create_ontology(input_file: str,
                     else:  # no project_name provided
                         in_project = project
 
-                    if tmp[1] == "admin":
+                    if project_role == "admin":
                         project_infos[in_project.id] = True
                     else:
                         project_infos[in_project.id] = False

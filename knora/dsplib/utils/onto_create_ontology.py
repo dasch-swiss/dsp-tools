@@ -166,10 +166,10 @@ def create_ontology(input_file: str,
                 for full_group_name in user_groups:
                     if verbose:
                         print(f"Add user to group: {full_group_name}")
-                    # full_group_name has the form [project_shortname]:group_name or "SystemAdmin"
+                    # full_group_name has the form [project_shortname]:group_name or SystemAdmin
                     # if project_shortname is omitted, the group belongs to the current project
                     tmp = full_group_name.split(':')
-                    assert len(tmp) <= 2
+
                     if len(tmp) == 2:
                         project_shortname = tmp[0]
                         group_name = tmp[1]
@@ -189,9 +189,11 @@ def create_ontology(input_file: str,
                             group = new_groups.get(group_name)
                             assert group is not None
                         group_ids.add(group.id)
-                    else:
+                    elif len(tmp) == 1:
                         if tmp[0] == "SystemAdmin":
                             sysadmin = True
+                    else:
+                        print(f"ERROR Provided group name {full_group_name} for user {user.username} is not valid.")
 
             project_infos: Dict[str, bool] = {}
 
@@ -201,10 +203,13 @@ def create_ontology(input_file: str,
                 for full_project_name in user_projects:
                     if verbose:
                         print(f"Add user to project: {full_project_name}")
-                    # full_project_name has the form [project_name]:"member" or [project_name]:"admin"
+                    # full_project_name has the form [project_name]:member or [project_name]:admin
                     # if project_name is omitted, the user is added to the current project
                     tmp = full_project_name.split(':')
-                    assert len(tmp) == 2
+
+                    if not len(tmp) == 2:
+                        print(f"ERROR Provided project name {full_project_name} for user {user.username} is not valid.")
+
                     project_name = tmp[0]
                     project_role = tmp[1]
 
@@ -231,14 +236,12 @@ def create_ontology(input_file: str,
             user_existing = False
             tmp_user = None
             try:
-                tmp_user = User(con,
-                                username=user["username"]).read()
+                tmp_user = User(con, username=user["username"]).read()
             except BaseError as err:
                 pass
             if tmp_user is None:
                 try:
-                    tmp_user = User(con,
-                                    email=user["email"]).read()
+                    tmp_user = User(con, email=user["email"]).read()
                 except BaseError as err:
                     pass
             if tmp_user:

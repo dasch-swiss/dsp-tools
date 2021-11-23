@@ -125,7 +125,7 @@ def create_ontology(input_file: str,
     # create the lists
     list_root_nodes = create_lists(input_file, lists_file, server, user, password, verbose)
 
-    # create the groups
+    # create the group(s)
     if verbose:
         print("Create groups...")
 
@@ -148,7 +148,7 @@ def create_ontology(input_file: str,
                 print("Groups:")
                 new_group.print()  # project.set_default_permissions(new_group.id)
 
-    # create the users
+    # create the user(s)
     if verbose:
         print("Create users...")
     all_groups: List[Group] = []
@@ -156,35 +156,44 @@ def create_ontology(input_file: str,
     users = data_model["project"].get('users')
     if users is not None:
         for user in users:
+
             sysadmin = False
             group_ids: Set[str] = set()
-            for groupname in user["groups"]:
-                #
-                # First we determine the groups the user is in because we can do this in one call
-                # groupname has the form [proj_shortname]:groupname|"SystemAdmin"
-                # (projectname omitted = current project)
-                #
-                tmp = groupname.split(':')
-                if len(tmp) > 1:
-                    group = None
-                    if tmp[0] and tmp[0] != '':
-                        # we have 'proj_shortname:groupname
-                        if not all_groups:
-                            all_groups = Group.getAllGroups(con)
-                        tmp_group = list(
-                            filter(lambda g: g.project.shortname == tmp[0] and g.name == tmp[1], all_groups))
-                        assert len(tmp_group) == 1
-                        group = tmp_group[0]
+
+            user_groups = user.get("groups")
+            if user_groups:
+                # if "groups" is provided, add user to the group(s)
+                for group_name in user_groups:
+                    if verbose:
+                        print(f"Add user to group: {group_name}")
+                    # group_name has the form [proj_shortname]:group_name or "SystemAdmin"
+                    tmp = group_name.split(':')
+                    if len(tmp) > 1:
+                        group = None
+                        if tmp[0]:  # group_name refers to an already existing group on DSP
+                            # get all groups vom DSP
+                            if not all_groups:
+                                all_groups = Group.getAllGroups(con)
+
+                            # check that group exists
+                            tmp_group = list(
+                                filter(
+                                    lambda g: g.project.shortname == tmp[0] and g.name == tmp[1],
+                                    all_groups
+                                )
+                            )
+                            assert len(tmp_group) == 1
+                            group = tmp_group[0]
+                        else:  # group_name refers to a group inside the same ontology
+                            group = new_groups.get(tmp[1])
+                            assert group is not None
+                        group_ids.add(group.id)
                     else:
-                        # we have ':groupname' and add to current project
-                        group = new_groups.get(tmp[1])
-                        assert group is not None
-                    group_ids.add(group.id)
-                else:
-                    if tmp[0] == "SystemAdmin":
-                        sysadmin = True
+                        if tmp[0] == "SystemAdmin":
+                            sysadmin = True
 
             project_infos: Dict[str, bool] = {}
+
             for projectname in user["projects"]:
                 # determine the project memberships of the user
                 # projectname has the form [projectname]:"member"|"admin" (projectname omitted = current project)

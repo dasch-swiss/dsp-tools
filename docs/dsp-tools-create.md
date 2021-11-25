@@ -181,7 +181,8 @@ A node of a list may have the following elements:
 - _labels_: Label with language tags in the form `{ "<lang>": "<label>", "<lang>": "<label>", ... }`. The `labels`
   element is mandatory. It needs to specify at least one language. Currently, "de", "en", "fr" and "it" are supported.
 - _comments_: Comment with language tags in the form `{ "<lang>": "<comment>", "<lang>": "<comment>", ... }`.
-  The `comments` element is optional. Currently, "de", "en", "fr" and "it" are supported.
+  Currently, "de", "en", "fr" and "it" are supported. The `comments` element is mandatory for the root node of the list.
+  For all other nodes, it is optional. If not used, the element should be omitted.
 - _nodes_: Array of sub-nodes. The `nodes` element is optional and can be omitted in case of a flat list.
 
 Example of a list:
@@ -309,6 +310,10 @@ file(s) can be directly referenced inside the list definition by defining it as 
     "en": "List from an Excel file",
     "de": "Liste von einer Excel-Datei"
   },
+  "comments": {
+    "en": "This is just an example.",
+    "fr": "C'est un example."
+  },
   "nodes": {
     "folder": "excel-lists"
   }
@@ -319,7 +324,7 @@ The nodes section must contain the field:
 
 - _folder_: Path to the folder where the Excel files are stored
 
-Further details to this functionality can be read
+Further details to this functionality can be found
 [here](dsp-tools-excel#create-a-list-from-one-or-several-excel-files).
 
 The `lists` element is optional. If not used, it should be omitted.
@@ -355,7 +360,7 @@ Example:
 }
 ```
 
-The `groups` element is optional. It is currently not recommended using it.
+The `groups` element is optional. If not used, it should be omitted. It is currently not recommended using it.
 
 ### Users
 
@@ -401,7 +406,7 @@ Example:
 }
 ```
 
-The `users` element is optional.
+The `users` element is optional. If not used, it should be omitted.
 
 ### Ontologies
 

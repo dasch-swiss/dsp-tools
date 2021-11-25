@@ -39,10 +39,7 @@
                     {
                         "name": "b",
                         "labels": {
-                            "en": "b_label"
-                        },
-                        "comments": {
-                            "en": "no comment"
+                            "en": "b_label with no comment"
                         },
                         "nodes": [
                             {

@@ -209,6 +209,7 @@ def create_ontology(input_file: str,
 
                     if not len(tmp) == 2:
                         print(f"ERROR Provided project name {full_project_name} for user {user.username} is not valid.")
+                        continue
 
                     project_name = tmp[0]
                     project_role = tmp[1]

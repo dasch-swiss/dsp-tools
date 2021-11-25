@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.6.2](https://www.github.com/dasch-swiss/dsp-tools/compare/v1.6.1...v1.6.2) (2021-11-25)
+
+
+### Documentation
+
+* update out-of-date example in docs (DEV-265) ([#125](https://www.github.com/dasch-swiss/dsp-tools/issues/125)) ([0dc724c](https://www.github.com/dasch-swiss/dsp-tools/commit/0dc724c620d0d12cd792390dcc50289b7f6feb76))
+
 ### [1.6.1](https://www.github.com/dasch-swiss/dsp-tools/compare/v1.6.0...v1.6.1) (2021-11-25)
 
 

@@ -1183,10 +1183,10 @@ Finally, here is a complete example of an ontology definition:
     ],
     "lists": [
       {
-        "name": "orgtpye",
+        "name": "orgtype",
         "labels": {
           "en": "Organization Type",
-          "de": "Organisationsart",
+          "de": "Organisationsart"
         },
         "comments": {
           "en": "List of different organization types",
@@ -1307,7 +1307,7 @@ Finally, here is a complete example of an ontology definition:
               "en": "Type of organization",
               "de": "Art der Organisation"
             },
-            "gui_element": "Pulldown",
+            "gui_element": "List",
             "gui_attributes": {
               "hlist": "orgtype"
             }

@@ -39,7 +39,7 @@ The `<knora>` element may look as follows:
 
 The `<knora>` element can only contain the following sub-elements:
 
-- `<permissions>`
+- `<permissions>` (optional)
 - `<resource>`
 
 ## Describing permissions with &lt;permissions&gt; elements
@@ -47,6 +47,9 @@ The `<knora>` element can only contain the following sub-elements:
 The DSP server provides access control for each resource and each field of a resource through permissions. For a
 thorough explanation of the permission and access system of the DSP platform, see
 [DSP platform permissions](https://docs.knora.org/02-knora-ontologies/knora-base/#permissions).
+
+It is optional to define permissions in the XML. If not defined, default permissions are applied (only project and 
+system administrators can view and edit resources).
 
 The following access rights are defined by the DSP platform which apply to either a resource or a field:
 
@@ -222,6 +225,7 @@ Note:
 
 - There is only _one_ `<bitstream>` element allowed per representation!
 - The `<bitstream>` element must be the first element!
+- The `<bitstream>` element has the same permissions then its parent resource element.
 
 Attributes:
 

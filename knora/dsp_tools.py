@@ -43,7 +43,7 @@ def program(user_args: list[str]) -> None:
                                                'Service Platform')
     parser_create.set_defaults(action='create')
     parser_create.add_argument('-s', '--server', type=str, default='http://0.0.0.0:3333', help='URL of the DSP server')
-    parser_create.add_argument('-u', '--user', default='root@example.com', help='Username for DSP server')
+    parser_create.add_argument('-u', '--user', default='root@example.com', help='Username (e-mail) for DSP server')
     parser_create.add_argument('-p', '--password', default='test', help='The password for login')
     parser_create.add_argument('-V', '--validate', action='store_true',
                                help='Do only validation of JSON, no upload of the '
@@ -58,7 +58,7 @@ def program(user_args: list[str]) -> None:
     parser_get = subparsers.add_parser('get',
                                        help='Get the ontology (data model) of a project from the DaSCH Service Platform.')
     parser_get.set_defaults(action='get')
-    parser_get.add_argument('-u', '--user', default='root@example.com', help='Username for DSP server')
+    parser_get.add_argument('-u', '--user', default='root@example.com', help='Username (e-mail) for DSP server')
     parser_get.add_argument('-p', '--password', default='test', help='The password for login')
     parser_get.add_argument('-s', '--server', type=str, default='http://0.0.0.0:3333', help='URL of the DSP server')
     parser_get.add_argument('-P', '--project', type=str, help='Shortcode, shortname or iri of project', required=True)
@@ -70,7 +70,7 @@ def program(user_args: list[str]) -> None:
                                           help='Upload data from an XML file to the DaSCH Service Platform.')
     parser_upload.set_defaults(action='xmlupload')
     parser_upload.add_argument('-s', '--server', type=str, default='http://0.0.0.0:3333', help='URL of the DSP server')
-    parser_upload.add_argument('-u', '--user', type=str, default='root@example.com', help='Username for DSP server')
+    parser_upload.add_argument('-u', '--user', type=str, default='root@example.com', help='Username (e-mail) for DSP server')
     parser_upload.add_argument('-p', '--password', type=str, default='test', help='The password for login')
     parser_upload.add_argument('-V', '--validate', action='store_true',
                                help='Do only validation of XML, no upload of the data')

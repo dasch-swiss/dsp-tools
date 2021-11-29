@@ -500,7 +500,13 @@
                 "lists": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/node"
+                        "$ref": "#/definitions/node",
+                        "comments": {
+                            "$ref": "#/definitions/comment"
+                        },
+                        "required": [
+                            "comments"
+                        ]
                     }
                 },
                 "ontologies": {

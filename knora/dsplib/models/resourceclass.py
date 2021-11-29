@@ -10,14 +10,7 @@ from .connection import Connection
 from .helpers import Actions, BaseError, Context, Cardinality, LastModificationDate
 from .langstring import Languages, LangString
 from .model import Model
-
-
-class SetEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, set):
-            return list(obj)
-        return json.JSONEncoder.default(self, obj)
-
+from ..utils.set_encoder import SetEncoder
 
 """
 This model implements the handling of resource classes. It contains two classes that work closely together:

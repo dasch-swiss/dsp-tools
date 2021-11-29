@@ -181,7 +181,8 @@ A node of a list may have the following elements:
 - _labels_: Label with language tags in the form `{ "<lang>": "<label>", "<lang>": "<label>", ... }`. The `labels`
   element is mandatory. It needs to specify at least one language. Currently, "de", "en", "fr" and "it" are supported.
 - _comments_: Comment with language tags in the form `{ "<lang>": "<comment>", "<lang>": "<comment>", ... }`.
-  The `comments` element is optional. Currently, "de", "en", "fr" and "it" are supported.
+  Currently, "de", "en", "fr" and "it" are supported. The `comments` element is mandatory for the root node of the list.
+  For all other nodes, it is optional. If not used, the element should be omitted.
 - _nodes_: Array of sub-nodes. The `nodes` element is optional and can be omitted in case of a flat list.
 
 Example of a list:
@@ -309,6 +310,10 @@ file(s) can be directly referenced inside the list definition by defining it as 
     "en": "List from an Excel file",
     "de": "Liste von einer Excel-Datei"
   },
+  "comments": {
+    "en": "This is just an example.",
+    "fr": "C'est un example."
+  },
   "nodes": {
     "folder": "excel-lists"
   }
@@ -319,7 +324,7 @@ The nodes section must contain the field:
 
 - _folder_: Path to the folder where the Excel files are stored
 
-Further details to this functionality can be read
+Further details to this functionality can be found
 [here](dsp-tools-excel#create-a-list-from-one-or-several-excel-files).
 
 The `lists` element is optional. If not used, it should be omitted.
@@ -355,7 +360,7 @@ Example:
 }
 ```
 
-The `groups` element is optional. It is currently not recommended using it.
+The `groups` element is optional. If not used, it should be omitted. It is currently not recommended using it.
 
 ### Users
 
@@ -401,7 +406,7 @@ Example:
 }
 ```
 
-The `users` element is optional. It is currently not recommended using it.
+The `users` element is optional. If not used, it should be omitted.
 
 ### Ontologies
 
@@ -595,9 +600,7 @@ Please note that the DateValue is an extremely flexible data type. It can repres
 uncertainty, and the date can be given in several calendars (currently the Gregorian and the Julian calendars are
 supported, with the Jewish and Islamic coming soon). Internally, a date is always represented as a start and end date.
 If start and end date match, it's an exact date. A value like "1893" will automatically be expanded to a range from
-January 1st 1893 to December 31st
-
-1893.
+January 1st 1893 to December 31st 1893.
 
 - _calendar_ is either _GREGORIAN_ or _JULIAN_
 - _start_ has the form _yyyy_-_mm_-_dd_. If only the year is given, the precision is to the year. If only the year and
@@ -625,6 +628,33 @@ which means anytime in between 1925 and the 22nd March 1927.
     "en": "Date"
   },
   "gui_element": "Date"
+}
+```
+
+###### TimeValue
+
+`"object": "TimeValue"`
+
+A time value represents a precise moment in time in the Gregorian calendar. Since nanosecond precision can be included, it is suitable for use as a timestamp.
+
+*gui-elements / gui_attributes*:
+
+- `TimeStamp`: A GUI element for _TimeValue_ which contains a date picker and a time picker.
+  - _gui_attributes_: No attributes
+
+*Example:*
+
+```json
+{
+  "name": "hasTime",
+  "super": [
+    "hasValue"
+  ],
+  "object": "TimeValue",
+  "labels": {
+    "en": "Time"
+  },
+  "gui_element": "TimeStamp"
 }
 ```
 
@@ -896,7 +926,7 @@ Represents a node of a (possibly hierarchical) list
 `"object": ":<resource-name>"`
 
 LinkValues do not follow the pattern of the previous data types, because they do not connect to a final value but to
-another resource which has to be defined. Thus, the "object" denomiates the resource class the link will point to. If
+another resource which has to be defined. Thus, the "object" denominates the resource class the link will point to. If
 the resource is defined in the same ontology, the name has to be prepended by a ":", if the resource is defined in
 another (previously defined)
 ontology, the ontology name has to be prepended separated by a colon ":", e.g.
@@ -905,9 +935,9 @@ resource or property from another one is not part of this documentation).
 
 *gui-elements/gui_attributes*:
 
-- `Searchbox`: Must be used with _hasLinkTo_ properties. Allows to search and enter a resource that the given resource
+- `Searchbox`: Has to be used with _hasLinkTo_ property. Allows searching resources by entering a resource that the given resource
   should link to. It has one gui_attribute that indicates how many properties of the found resources should be
-  indicated. It's mandatory!
+  indicated. This is mandatory.
     - _gui_attributes_:
         - `numprops=integer` (optional): While dynamically displaying the search result, the number of properties that
           should be displayed.
@@ -1153,10 +1183,14 @@ Finally, here is a complete example of an ontology definition:
     ],
     "lists": [
       {
-        "name": "orgtpye",
+        "name": "orgtype",
         "labels": {
-          "de": "Roganisationsart",
-          "en": "Organization Type"
+          "en": "Organization Type",
+          "de": "Organisationsart"
+        },
+        "comments": {
+          "en": "List of different organization types",
+          "de": "Liste unterschiedlicher Organisationstypen"
         },
         "nodes": [
           {
@@ -1164,10 +1198,6 @@ Finally, here is a complete example of an ontology definition:
             "labels": {
               "en": "Commerce",
               "de": "Handel"
-            },
-            "comments": {
-              "en": "no comment",
-              "de": "kein Kommentar"
             },
             "nodes": [
               {
@@ -1277,7 +1307,7 @@ Finally, here is a complete example of an ontology definition:
               "en": "Type of organization",
               "de": "Art der Organisation"
             },
-            "gui_element": "Pulldown",
+            "gui_element": "List",
             "gui_attributes": {
               "hlist": "orgtype"
             }

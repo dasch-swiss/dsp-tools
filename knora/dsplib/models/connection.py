@@ -69,7 +69,7 @@ class Connection:
     def token(self) -> str:
         return self._token
 
-    def start_logging(self):
+    def start_logging(self) -> None:
         self._log = True
 
     def stop_logging(self):

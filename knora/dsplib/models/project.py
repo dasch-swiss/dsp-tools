@@ -515,7 +515,7 @@ class Project(Model):
             raise BaseError("Request got no projects!")
         return list(map(lambda a: Project.fromJsonObj(con, a), result['projects']))
 
-    def print(self):
+    def print(self) -> None:
         """
         print info to stdout
 

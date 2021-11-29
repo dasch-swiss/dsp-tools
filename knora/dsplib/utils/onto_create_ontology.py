@@ -378,7 +378,8 @@ def create_ontology(input_file: str,
                     if tmp[0]:
                         object = propclass["object"]  # fully qualified name
                     else:
-                        newontology.print()
+                        if verbose:
+                            newontology.print()
                         object = newontology.name + ':' + tmp[1]
                 else:
                     object = "knora-api:" + propclass["object"]

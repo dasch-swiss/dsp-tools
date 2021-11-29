@@ -33,6 +33,11 @@ def program(user_args: list[str]) -> None:
     url_text = 'URL of the DSP server'
     verbose_text = 'Verbose feedback'
 
+    # default values
+    default_localhost = 'http://0.0.0.0:3333'
+    default_user = 'root@example.com'
+    default_pw = 'test'
+
     dsp_tools_version = version('dsp-tools')
     now = datetime.datetime.now()
 
@@ -47,9 +52,9 @@ def program(user_args: list[str]) -> None:
                                           help='Upload an ontology and/or list(s) from a JSON file to the DaSCH '
                                                'Service Platform')
     parser_create.set_defaults(action='create')
-    parser_create.add_argument('-s', '--server', type=str, default='http://0.0.0.0:3333', help=url_text)
-    parser_create.add_argument('-u', '--user', default='root@example.com', help=username_text)
-    parser_create.add_argument('-p', '--password', default='test', help=password_text)
+    parser_create.add_argument('-s', '--server', type=str, default=default_localhost, help=url_text)
+    parser_create.add_argument('-u', '--user', default=default_user, help=username_text)
+    parser_create.add_argument('-p', '--password', default=default_pw, help=password_text)
     parser_create.add_argument('-V', '--validate', action='store_true',
                                help='Do only validation of JSON, no upload of the '
                                     'ontology')
@@ -63,9 +68,9 @@ def program(user_args: list[str]) -> None:
     parser_get = subparsers.add_parser('get',
                                        help='Get the ontology (data model) of a project from the DaSCH Service Platform.')
     parser_get.set_defaults(action='get')
-    parser_get.add_argument('-u', '--user', default='root@example.com', help=username_text)
-    parser_get.add_argument('-p', '--password', default='test', help=password_text)
-    parser_get.add_argument('-s', '--server', type=str, default='http://0.0.0.0:3333', help=url_text)
+    parser_get.add_argument('-u', '--user', default=default_user, help=username_text)
+    parser_get.add_argument('-p', '--password', default=default_pw, help=password_text)
+    parser_get.add_argument('-s', '--server', type=str, default=default_localhost, help=url_text)
     parser_get.add_argument('-P', '--project', type=str, help='Shortcode, shortname or iri of project', required=True)
     parser_get.add_argument('-v', '--verbose', action='store_true', help=verbose_text)
     parser_get.add_argument('datamodelfile', help='Path to the file the ontology should be written to',
@@ -74,9 +79,9 @@ def program(user_args: list[str]) -> None:
     parser_upload = subparsers.add_parser('xmlupload',
                                           help='Upload data from an XML file to the DaSCH Service Platform.')
     parser_upload.set_defaults(action='xmlupload')
-    parser_upload.add_argument('-s', '--server', type=str, default='http://0.0.0.0:3333', help=url_text)
-    parser_upload.add_argument('-u', '--user', type=str, default='root@example.com', help=username_text)
-    parser_upload.add_argument('-p', '--password', type=str, default='test', help=password_text)
+    parser_upload.add_argument('-s', '--server', type=str, default=default_localhost, help=url_text)
+    parser_upload.add_argument('-u', '--user', type=str, default=default_user, help=username_text)
+    parser_upload.add_argument('-p', '--password', type=str, default=default_pw, help=password_text)
     parser_upload.add_argument('-V', '--validate', action='store_true',
                                help='Do only validation of XML, no upload of the data')
     parser_upload.add_argument('-i', '--imgdir', type=str, default='.', help='Path to folder containing the images')
@@ -121,11 +126,13 @@ def program(user_args: list[str]) -> None:
                                          default='properties.json')
 
     parser_id2iri = subparsers.add_parser('id2iri',
-                                                    help='Replace internal IDs in an XML with their corresponding IRIs from a provided JSON file.')
+                                          help='Replace internal IDs in an XML with their corresponding IRIs from a provided JSON file.')
     parser_id2iri.set_defaults(action='id2iri')
     parser_id2iri.add_argument('xmlfile', help='Path to the XML file containing the data to be replaced')
-    parser_id2iri.add_argument('jsonfile', help='Path to the JSON file containing the mapping of internal IDs and their respective IRIs')
-    parser_id2iri.add_argument('--outfile', default=None, help='Path to the XML output file containing the replaced IDs (optional)')
+    parser_id2iri.add_argument('jsonfile',
+                               help='Path to the JSON file containing the mapping of internal IDs and their respective IRIs')
+    parser_id2iri.add_argument('--outfile', default=None,
+                               help='Path to the XML output file containing the replaced IDs (optional)')
     parser_id2iri.add_argument('-v', '--verbose', action='store_true', help=verbose_text)
 
     args = parser.parse_args(user_args)

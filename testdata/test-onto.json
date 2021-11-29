@@ -596,10 +596,10 @@
                 ],
                 "resources": [
                     {
-                        "name": "TestThing",
+                        "name": "TestThingPermissions",
                         "super": "Resource",
                         "labels": {
-                            "en": "TestThingPermissions"
+                            "en": "Test thing for permissions without object"
                         },
                         "comments": {
                             "en": "A thing to test permission related things",
@@ -609,7 +609,25 @@
                             {
                                 "propname": ":hasText",
                                 "gui_order": 1,
-                                "cardinality": "1-n"
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "DocumentThingPermissions",
+                        "super": "DocumentRepresentation",
+                        "labels": {
+                            "en": "Test thing for permissions with object"
+                        },
+                        "comments": {
+                            "en": "A thing to test permission related things",
+                            "de": "Ein Ding um Permissionsdinge zu testen."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "gui_order": 1,
+                                "cardinality": "0-n"
                             }
                         ]
                     }

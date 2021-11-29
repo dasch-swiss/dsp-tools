@@ -40,7 +40,7 @@
     </permissions>
 
     <resource label="Testthing-without-explicit-permissions"
-              restype=":TestThing"
+              restype=":TestThingPermissions"
               id="obj_0000"
               permissions="res-default">
         <text-prop name=":hasText">
@@ -49,7 +49,7 @@
     </resource>
 
     <resource label="Testthing-res-restricted"
-              restype=":TestThing"
+              restype=":TestThingPermissions"
               id="obj_0001"
               permissions="res-restricted">
         <text-prop name=":hasText">
@@ -58,7 +58,7 @@
     </resource>
 
     <resource label="Testthing-res-restriced-prop-mixed"
-          restype=":TestThing"
+          restype=":TestThingPermissions"
           id="obj_0002"
           permissions="res-restricted">
         <text-prop name=":hasText">
@@ -68,7 +68,7 @@
     </resource>
 
     <resource label="Testthing-res-default-prop-mixed"
-              restype=":TestThing"
+              restype=":TestThingPermissions"
               id="obj_0003"
               permissions="res-default">
         <text-prop name=":hasText">
@@ -78,10 +78,39 @@
     </resource>
 
     <resource label="Testthing-no-permissions"
-              restype=":TestThing"
+              restype=":TestThingPermissions"
               id="obj_0004">
         <text-prop name=":hasText">
             <text encoding="utf8">Dies ist ein einzelnes Textfeld (no permissions)</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Documentthing-res-default"
+              restype=":DocumentThingPermissions"
+              id="obj_0005"
+              permissions="res-default">
+        <bitstream>test.pdf</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Documentthing (prop-default)</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Documentthing-res-restricted"
+              restype=":DocumentThingPermissions"
+              id="obj_0006"
+              permissions="res-restricted">
+        <bitstream>test.pdf</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Documentthing (prop-default)</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Documentthing-no-permission"
+              restype=":DocumentThingPermissions"
+              id="obj_0007">
+        <bitstream>test.pdf</bitstream>
+        <text-prop name=":hasText">
+            <text encoding="utf8">This is a Documentthing (no permissions)</text>
         </text-prop>
     </resource>
 

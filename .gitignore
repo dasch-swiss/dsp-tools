@@ -64,6 +64,7 @@ venv.bak/
 # created files
 lists.json
 out.json
+id2iri_*
 
 # bazel
 /bazel-*

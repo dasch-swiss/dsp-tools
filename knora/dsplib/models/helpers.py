@@ -3,7 +3,7 @@ import sys
 from dataclasses import dataclass
 from enum import Enum, unique
 from traceback import format_exc
-from typing import NewType, List, Dict, Optional, Any, Union, Pattern
+from typing import NewType, List, Dict, Optional, Any, Tuple, Union, Pattern
 
 from pystrict import strict
 
@@ -26,7 +26,7 @@ class OntoInfo:
 ContextType = NewType("ContextType", Dict[str, OntoInfo])
 
 
-def LINE():
+def LINE() -> int:
     return sys._getframe(1).f_lineno
 
 
@@ -94,7 +94,7 @@ class ContextIterator:
         self._prefixes = [x for x in self._context.context]
         self._index = 0
 
-    def __next__(self):
+    def __next__(self) -> Tuple[Optional[str], Optional[OntoInfo]]:
         if len(self._context.context) == 0 and self._index == 0:
             return None, None
         elif self._index < len(self._context.context):
@@ -112,9 +112,9 @@ class Context:
     """
     _context: ContextType
     _rcontext: Dict[str, str]
-    _exp: Pattern
+    _exp: Pattern[str]
 
-    common_ontologies: ContextType = {
+    common_ontologies  = ContextType({
         "foaf": OntoInfo("http://xmlns.com/foaf/0.1/", False),
         "dc": OntoInfo("http://purl.org/dc/elements/1.1/", False),
         "dcterms": OntoInfo("http://purl.org/dc/terms/", False),
@@ -123,19 +123,19 @@ class Context:
         "bibtex": OntoInfo("http://purl.org/net/nknouf/ns/bibtex", True),
         "bibo": OntoInfo("http://purl.org/ontology/bibo/", False),
         "cidoc": OntoInfo("http://purl.org/NET/cidoc-crm/core", True)
-    }
+    })
 
-    knora_ontologies: ContextType = {
+    knora_ontologies = ContextType({
         "knora-api": OntoInfo("http://api.knora.org/ontology/knora-api/v2", True),
         "salsah-gui": OntoInfo("http://api.knora.org/ontology/salsah-gui/v2", True)
-    }
+    })
 
-    base_ontologies: ContextType = {
+    base_ontologies = ContextType({
         "rdf": OntoInfo("http://www.w3.org/1999/02/22-rdf-syntax-ns", True),
         "rdfs": OntoInfo("http://www.w3.org/2000/01/rdf-schema", True),
         "owl": OntoInfo("http://www.w3.org/2002/07/owl", True),
         "xsd": OntoInfo("http://www.w3.org/2001/XMLSchema", True)
-    }
+    })
 
     def __is_iri(self, val: str) -> bool:
         """
@@ -164,7 +164,7 @@ class Context:
             cleaned_input: Dict[str, str] = {prefix: onto for (prefix, onto) in context.items()
                                              if self.base_ontologies.get(prefix) is None and self.knora_ontologies.get(
                     prefix) is None}
-            self._context = {}
+            self._context = ContextType({})
             for prefix, onto in cleaned_input.items():
                 self._context[prefix] = OntoInfo(onto[:-1], True) if onto.endswith('#') else OntoInfo(onto, False)
             #
@@ -180,14 +180,14 @@ class Context:
                 if self._context.get(cc[0]) is None:
                     self._context[cc[0]] = cc[1]
         else:
-            self._context = {
+            self._context = ContextType({
                 "rdf": OntoInfo("http://www.w3.org/1999/02/22-rdf-syntax-ns", True),
                 "rdfs": OntoInfo("http://www.w3.org/2000/01/rdf-schema", True),
                 "owl": OntoInfo("http://www.w3.org/2002/07/owl", True),
                 "xsd": OntoInfo("http://www.w3.org/2001/XMLSchema", True),
                 "knora-api": OntoInfo("http://api.knora.org/ontology/knora-api/v2", True),
                 "salsah-gui": OntoInfo("http://api.knora.org/ontology/salsah-gui/v2", True)
-            }
+            })
         self._rcontext = dict(map(lambda x: (x[1].iri, x[0]), self._context.items()))
 
     def __len__(self) -> int:
@@ -196,7 +196,7 @@ class Context:
     def __getitem__(self, key: str) -> OntoInfo:
         return self._context[key]
 
-    def __setitem__(self, key: str, value: OntoInfo):
+    def __setitem__(self, key: str, value: OntoInfo) -> None:
         self._context[key] = value
         self._rcontext[value.iri] = key
 

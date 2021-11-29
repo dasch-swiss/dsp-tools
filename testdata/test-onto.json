@@ -104,8 +104,7 @@
                 "groups": [
                     ":testgroup"
                 ],
-                "projects": [
-                ]
+                "projects": []
             }
         ],
         "ontologies": [
@@ -475,7 +474,7 @@
                     },
                     {
                         "name": "ZipThing",
-                        "super": "DocumentRepresentation",
+                        "super": "ArchiveRepresentation",
                         "labels": {
                             "en": "A ZIP Thing"
                         },

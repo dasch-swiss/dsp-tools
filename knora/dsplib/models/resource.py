@@ -45,6 +45,7 @@ class ResourceInstance(Model):
         'AudioRepresentation',
         'DocumentRepresentation',
         'MovingImageRepresentation',
+        'ArchiveRepresentation',
         'DDDRepresentation',
         'TextRepresentation'}
     knora_properties: Set[str] = {
@@ -226,6 +227,11 @@ class ResourceInstance(Model):
                 elif self.baseclass == 'AudioRepresentation':
                     tmp["knora-api:hasAudioFileValue"] = {
                         "@type": "knora-api:AudioFileValue",
+                        "knora-api:fileValueHasFilename": self._bitstream
+                    }
+                elif self.baseclass == 'ArchiveRepresentation':
+                    tmp["knora-api:hasArchiveFileValue"] = {
+                        "@type": "knora-api:ArchiveFileValue",
                         "knora-api:fileValueHasFilename": self._bitstream
                     }
                 else:

@@ -34,6 +34,7 @@ from rfc3987 import parse
  - :DDDRepresentation
  - :DocumentRepresentation
  - :MovingImageRepresentation
+ - :ArchiveRepresentation
  - :Annotation -> :hasComment, :isAnnotationOf, :isAnnotationOfValue
  - :LinkObj -> :hasComment, :hasLinkTo, :hasLinkToValue
  - :LinkValue [reification node]

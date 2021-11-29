@@ -213,36 +213,25 @@ class ResourceInstance(Model):
                 tmp["knora-api:hasPermissions"] = permissions_tmp
 
             if self._bitstream:
+                bitstream_attributes = {
+                    "knora-api:fileValueHasFilename": self._bitstream,
+                    "knora-api:hasPermissions": permissions_tmp
+                }
                 if self.baseclass == 'StillImageRepresentation':
-                    tmp["knora-api:hasStillImageFileValue"] = {
-                        "@type": "knora-api:StillImageFileValue",
-                        "knora-api:fileValueHasFilename": self._bitstream,
-                        "knora-api:hasPermissions": permissions_tmp
-                    }
+                    bitstream_attributes["@type"] = "knora-api:StillImageFileValue"
+                    tmp["knora-api:hasStillImageFileValue"] = bitstream_attributes
                 elif self.baseclass == 'DocumentRepresentation':
-                    tmp["knora-api:hasDocumentFileValue"] = {
-                        "@type": "knora-api:DocumentFileValue",
-                        "knora-api:fileValueHasFilename": self._bitstream,
-                        "knora-api:hasPermissions": permissions_tmp
-                    }
+                    bitstream_attributes["@type"] = "knora-api:DocumentFileValue"
+                    tmp["knora-api:hasDocumentFileValue"] = bitstream_attributes
                 elif self.baseclass == 'TextRepresentation':
-                    tmp["knora-api:hasTextFileValue"] = {
-                        "@type": "knora-api:TextFileValue",
-                        "knora-api:fileValueHasFilename": self._bitstream,
-                        "knora-api:hasPermissions": permissions_tmp
-                    }
+                    bitstream_attributes["@type"] = "knora-api:TextFileValue"
+                    tmp["knora-api:hasTextFileValue"] = bitstream_attributes
                 elif self.baseclass == 'AudioRepresentation':
-                    tmp["knora-api:hasAudioFileValue"] = {
-                        "@type": "knora-api:AudioFileValue",
-                        "knora-api:fileValueHasFilename": self._bitstream,
-                        "knora-api:hasPermissions": permissions_tmp
-                    }
+                    bitstream_attributes["@type"] = "knora-api:AudioFileValue"
+                    tmp["knora-api:hasAudioFileValue"] = bitstream_attributes
                 elif self.baseclass == 'ArchiveRepresentation':
-                    tmp["knora-api:hasArchiveFileValue"] = {
-                        "@type": "knora-api:ArchiveFileValue",
-                        "knora-api:fileValueHasFilename": self._bitstream,
-                        "knora-api:hasPermissions": permissions_tmp
-                    }
+                    bitstream_attributes["@type"] = "knora-api:ArchiveFileValue"
+                    tmp["knora-api:hasArchiveFileValue"] = bitstream_attributes
                 else:
                     raise BaseError(f'Baseclass "{self.baseclass}" not yet supported!')
             for propname, valtype in self._values.items():

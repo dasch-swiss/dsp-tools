@@ -195,7 +195,7 @@ class KnoraResource:
     _id: str
     _label: str
     _restype: str
-    _permissions: str
+    _permissions: Optional[str]
     _bitstream: Optional[str]
     _properties: List[KnoraProperty]
 
@@ -219,7 +219,11 @@ class KnoraResource:
                 self._restype = default_ontology + ':' + tmp_res_type[1]
         else:
             self._restype = 'knora-admin:' + tmp_res_type[0]
-        self._permissions = node.attrib['permissions']
+        permissions_tmp = node.attrib.get("permissions")
+        if permissions_tmp:
+            self._permissions = node.attrib['permissions']
+        else:
+            self._permissions = None
         self._bitstream = None
         self._properties = []
         for subnode in node:
@@ -515,7 +519,7 @@ def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
 
 
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
-               validate_only: bool) -> bool:
+               validate_only: bool) -> None:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
 
@@ -612,11 +616,19 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         else:
             bitstream = None
 
+        permissions_tmp = None
+        try:
+            permissions_tmp = permissions_lookup.get(resource.permissions)
+            print(permissions_tmp)
+        except KeyError:
+            print("here")
+            permissions_tmp = None
+
         # create the resource on the server
         instance = res_classes[resource.restype](con=con, label=resource.label,
-                                                 permissions=permissions_lookup.get(resource.permissions),
+                                                 permissions=permissions_tmp,
                                                  bitstream=bitstream,
                                                  values=resource.get_propvals(res_iri_lookup,
                                                                               permissions_lookup)).create()
         res_iri_lookup[resource.id] = instance.iri
-        print("Created resource: ", instance.label, " (", resource.id, ") with IRI ", instance.iri)
+        print(f"Created resource: {instance.label} ({resource.id}) with IRI {instance.iri}.")

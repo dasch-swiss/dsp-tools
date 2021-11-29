@@ -36,10 +36,9 @@
 
     <resource label="Testthing2"
               restype=":TestThing2"
-              id="obj_0000"
-              permissions="res-default">
+              id="obj_0000">
         <text-prop name=":hasText">
-            <text permissions="prop-default" encoding="utf8">Dies ist anderes TestThing</text>
+            <text encoding="utf8">Dies ist anderes TestThing</text>
         </text-prop>
     </resource>
 

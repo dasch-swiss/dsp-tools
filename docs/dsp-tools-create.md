@@ -1078,6 +1078,7 @@ The following predefined resources are provided by DSP:
 - `DDDRepresentation`: An object representing a 3-D representation (not yet implemented)
 - `DocumentRepresentation`: An object representing an opaque document (e.g. a PDF)
 - `MovingImageRepresentation`: An object representing a moving image (video, film)
+- `ArchiveRepresentation`: An object representing a archive file (e.g. Zip)
 - `Annotation`: A predefined annotation object. It has automatically the following predefined properties defined:
     - `hasComment` (1-n)
     - `isAnnotationOf` (1)

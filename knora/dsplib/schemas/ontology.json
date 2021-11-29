@@ -56,6 +56,7 @@
                         "DDDRepresentation",
                         "DocumentRepresentation",
                         "MovingImageRepresentation",
+                        "ArchiveRepresentation",
                         "Annotation",
                         "LinkObj",
                         "Region"

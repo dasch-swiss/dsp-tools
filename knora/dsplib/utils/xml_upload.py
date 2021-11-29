@@ -617,17 +617,19 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
     failed_uploads = []
     for resource in resources:
-        bitstream = None
-        try:
-            if verbose:
-                resource.print()
-            if resource.bitstream:
-                img = sipi.upload_bitstream(os.path.join(imgdir, resource.bitstream))
-                bitstream = img['uploadedFiles'][0]['internalFilename']
+        if verbose:
+            resource.print()
 
-            # create the resource on the server
+        bitstream = None
+        if resource.bitstream:
+            img = sipi.upload_bitstream(os.path.join(imgdir, resource.bitstream))
+            bitstream = img['uploadedFiles'][0]['internalFilename']
+
+        permissions_tmp = permissions_lookup.get(resource.permissions)
+
+        try:
             instance = res_classes[resource.restype](con=con, label=resource.label,
-                                                     permissions=permissions_lookup.get(resource.permissions),
+                                                     permissions=permissions_tmp,
                                                      bitstream=bitstream,
                                                      values=resource.get_propvals(res_iri_lookup,
                                                                                   permissions_lookup)).create()
@@ -635,12 +637,14 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             print(f"Created resource '{instance.label}' ({resource.id}) with IRI '{instance.iri}'")
 
         except BaseError as err:
-            failed_uploads.append(resource.id)
             print(f"ERROR while trying to upload '{resource.label}' ({resource.id}). The error message was: {err.message}")
+            failed_uploads.append(resource.id)
+            continue
 
         except Exception as exception:
-            failed_uploads.append(resource.id)
             print(f"ERROR while trying to upload '{resource.label}' ({resource.id}). The error message was: {exception}")
+            failed_uploads.append(resource.id)
+            continue
 
     # write mapping of internal IDs to IRIs to file with timestamp
     timestamp_now = datetime.now()

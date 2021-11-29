@@ -6,32 +6,28 @@
        shortcode="4123"
        default-ontology="testonto">
 
-    <!-- permissions: see https://docs.knora.org/03-apis/api-v2/reading-user-permissions/ -->
+    <!-- permissions: see https://docs-api.dasch.swiss/02-knora-ontologies/knora-base/#permissions -->
     <permissions id="res-default">
         <allow group="UnknownUser">RV</allow>
         <allow group="KnownUser">V</allow>
         <allow group="Creator">CR</allow>
         <allow group="ProjectAdmin">CR</allow>
-        <allow group="tp:testgroup">D</allow>
     </permissions>
     <permissions id="res-restricted">
         <allow group="KnownUser">V</allow>
-        <allow group="Creator">CR</allow>>
-        <allow group="ProjectAdmin">CR</allow>>
-        <allow group="tp:testgroup">M</allow>>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
     </permissions>
     <permissions id="prop-default">
         <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
         <allow group="Creator">CR</allow>
-        <allow group="ProjectAdmin">CR</allow>>
-        <allow group="tp:testgroup">D</allow>>
+        <allow group="ProjectAdmin">CR</allow>
     </permissions>
     <permissions id="prop-restricted">
         <allow group="KnownUser">V</allow>
         <allow group="Creator">CR</allow>
         <allow group="ProjectAdmin">CR</allow>
-        <allow group="tp:testgroup">M</allow>
     </permissions>
 
     <resource label="Testthing2"
@@ -48,7 +44,7 @@
               permissions="res-default">
         <text-prop name=":hasText">
             <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
-            <text permissions="prop-restricted" encoding="utf8">Nochmals einen einfachen Text</text>
+            <text permissions="prop-restricted" encoding="utf8">Nochmals ein einfacher Text</text>
         </text-prop>
         <text-prop name=":hasRichtext">
             <text permissions="prop-default" encoding="xml">This is

@@ -628,23 +628,25 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         permissions_tmp = permissions_lookup.get(resource.permissions)
 
         try:
-            instance = res_classes[resource.restype](con=con, label=resource.label,
-                                                     permissions=permissions_tmp,
-                                                     bitstream=bitstream,
-                                                     values=resource.get_propvals(res_iri_lookup,
-                                                                                  permissions_lookup)).create()
-            res_iri_lookup[resource.id] = instance.iri
-            print(f"Created resource '{instance.label}' ({resource.id}) with IRI '{instance.iri}'")
-
+            instance: ResourceInstance = res_classes[resource.restype](con=con, label=resource.label,
+                                                                       permissions=permissions_tmp,
+                                                                       bitstream=bitstream,
+                                                                       values=resource.get_propvals(res_iri_lookup,
+                                                                                                    permissions_lookup)).create()
         except BaseError as err:
-            print(f"ERROR while trying to upload '{resource.label}' ({resource.id}). The error message was: {err.message}")
+            print(
+                f"ERROR while trying to create resource '{resource.label}' ({resource.id}). The error message was: {err.message}")
             failed_uploads.append(resource.id)
             continue
 
         except Exception as exception:
-            print(f"ERROR while trying to upload '{resource.label}' ({resource.id}). The error message was: {exception}")
+            print(
+                f"ERROR while trying to create resource '{resource.label}' ({resource.id}). The error message was: {exception}")
             failed_uploads.append(resource.id)
             continue
+
+        res_iri_lookup[resource.id] = instance.iri
+        print(f"Created resource '{instance.label}' ({resource.id}) with IRI '{instance.iri}'")
 
     # write mapping of internal IDs to IRIs to file with timestamp
     timestamp_now = datetime.now()

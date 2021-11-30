@@ -54,7 +54,7 @@ install-requirements: ## install requirements
 .PHONY: install
 install: ## install from source (runs setup.py)
 	python3 -m pip install --upgrade pip
-	pip3 install .
+	pip3 install -e .
 
 .PHONY: test
 test: clean local-tmp clone-dsp-repo dsp-stack ## run all tests

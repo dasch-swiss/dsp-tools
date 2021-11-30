@@ -160,34 +160,22 @@ class Context:
         #
         self._exp = re.compile("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?")
 
+        self._context = ContextType({})
+        
         if context:
-            cleaned_input: Dict[str, str] = {prefix: onto for (prefix, onto) in context.items()
-                                             if self.base_ontologies.get(prefix) is None and self.knora_ontologies.get(
-                    prefix) is None}
-            self._context = ContextType({})
-            for prefix, onto in cleaned_input.items():
-                self._context[prefix] = OntoInfo(onto[:-1], True) if onto.endswith('#') else OntoInfo(onto, False)
-            #
-            # we always want the base ontologies/prefixes included in the context
-            #
-            for cc in self.base_ontologies.items():
-                if self._context.get(cc[0]) is None:
-                    self._context[cc[0]] = cc[1]
-            #
-            # we always want the knora ontologies/prefixes included in the context
-            #
-            for cc in self.knora_ontologies.items():
-                if self._context.get(cc[0]) is None:
-                    self._context[cc[0]] = cc[1]
-        else:
-            self._context = ContextType({
-                "rdf": OntoInfo("http://www.w3.org/1999/02/22-rdf-syntax-ns", True),
-                "rdfs": OntoInfo("http://www.w3.org/2000/01/rdf-schema", True),
-                "owl": OntoInfo("http://www.w3.org/2002/07/owl", True),
-                "xsd": OntoInfo("http://www.w3.org/2001/XMLSchema", True),
-                "knora-api": OntoInfo("http://api.knora.org/ontology/knora-api/v2", True),
-                "salsah-gui": OntoInfo("http://api.knora.org/ontology/salsah-gui/v2", True)
-            })
+            for prefix, onto in context.items():
+                self._context[prefix] = OntoInfo(onto.removesuffix('#'), onto.endswith('#'))
+        
+        # we always want the base ontologies/prefixes included in the context
+        for k, v in self.base_ontologies.items():
+            if not self._context.get(k):
+                self._context[k] = v
+        
+        # we always want the DSP-API ontologies/prefixes included in the context
+        for k, v in self.knora_ontologies.items():
+            if not self._context.get(k):
+                self._context[k] = v
+
         self._rcontext = dict(map(lambda x: (x[1].iri, x[0]), self._context.items()))
 
     def __len__(self) -> int:

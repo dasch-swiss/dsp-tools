@@ -4,23 +4,6 @@ load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 # make the dependencies from requirements.txt available
 load("@knora_py_deps//:requirements.bzl", "requirement")
 
-py_library(
-    name = "knora",
-    visibility = ["//visibility:public"],
-    srcs = ["knora.py"],
-    deps = [
-        requirement("rdflib"),
-        requirement("lxml"),
-        requirement("validators"),
-        requirement("requests"),
-        requirement("jsonschema"),
-        requirement("click"),
-        requirement("rfc3987"),
-        requirement("pprint"),
-    ],
-    imports = ["."],
-)
-
 py_binary(
     name = "create_ontology",
     visibility = ["//visibility:public"],

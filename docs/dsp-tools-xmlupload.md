@@ -75,7 +75,7 @@ name has to be prepended before the group name, separated by a colon, e.g. `dsp-
 
 A `<permissions>` element contains the permissions given to the selected groups and is called a _permission set_. It has
 a mandatory attribute `id` and must contain at least one `<allow>` element per group indicating the group's permission.
-It is of the following form:
+The permission is referenced inside the resource or property tag by its `id`. It is of the following form:
 
 ```xml
 <permissions id="res-default">
@@ -86,6 +86,16 @@ It is of the following form:
   <allow group="dsp-test:MlsEditors">D</allow>
 </permissions>
 ```
+
+If you don't want a group to have access at all, leave it out. In the following example, only `ProjectAdmin`s will see
+the resource or property with permission `special-permission`:
+
+```xml
+<permissions id="special-permission">
+  <allow group="ProjectAdmin">CR</allow>
+</permissions>
+```
+
 
 ### The &lt;allow&gt; sub-element
 

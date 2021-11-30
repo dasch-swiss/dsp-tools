@@ -85,32 +85,32 @@
         </text-prop>
     </resource>
 
-    <resource label="Documentthing-res-default"
-              restype=":DocumentThingPermissions"
+    <resource label="ImageThing-res-default-props-restricted"
+              restype=":ImageThingPermissions"
               id="obj_0005"
               permissions="res-default">
-        <bitstream>test.pdf</bitstream>
+        <bitstream permissions="prop-restricted">TEMP11.TIF</bitstream>
         <text-prop name=":hasText">
-            <text permissions="prop-default" encoding="utf8">This is a Documentthing (prop-default)</text>
+            <text permissions="prop-restricted" encoding="utf8">This is an ImageThing (prop-restricted)</text>
         </text-prop>
     </resource>
 
-    <resource label="Documentthing-res-restricted"
-              restype=":DocumentThingPermissions"
+    <resource label="ImageThing-res-restricted-props-default"
+              restype=":ImageThingPermissions"
               id="obj_0006"
               permissions="res-restricted">
-        <bitstream>test.pdf</bitstream>
+        <bitstream permissions="prop-default">TEMP11.TIF</bitstream>
         <text-prop name=":hasText">
-            <text permissions="prop-default" encoding="utf8">This is a Documentthing (prop-default)</text>
+            <text permissions="prop-default" encoding="utf8">This is an ImageThing (prop-default)</text>
         </text-prop>
     </resource>
 
-    <resource label="Documentthing-no-permission"
-              restype=":DocumentThingPermissions"
+    <resource label="ImageThing-no-permission"
+              restype=":ImageThingPermissions"
               id="obj_0007">
-        <bitstream>test.pdf</bitstream>
+        <bitstream>TEMP11.TIF</bitstream>
         <text-prop name=":hasText">
-            <text encoding="utf8">This is a Documentthing (no permissions)</text>
+            <text encoding="utf8">This is an ImageThing (no permissions)</text>
         </text-prop>
     </resource>
 

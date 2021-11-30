@@ -342,7 +342,9 @@
     <!-- bitstream tag -->
     <xs:complexType name="bitstream_type">
         <xs:simpleContent>
-            <xs:extension base="xs:string"/>
+            <xs:extension base="xs:string">
+                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+            </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
 
@@ -367,7 +369,7 @@
         </xs:simpleContent>
     </xs:complexType>
 
-    <!-- movie tag -->
+    <!-- document tag -->
     <xs:complexType name="document_type">
         <xs:simpleContent>
             <xs:extension base="xs:string"/>

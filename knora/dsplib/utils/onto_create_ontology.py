@@ -82,7 +82,7 @@ def create_ontology(input_file: str,
         con.start_logging()
 
     # read the prefixes of external ontologies that may be used
-    context = Context(data_model["prefixes"])
+    context = Context(data_model.get("prefixes") or {})
 
     # create or update the project
     project = None

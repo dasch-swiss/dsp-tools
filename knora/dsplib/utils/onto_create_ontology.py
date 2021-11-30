@@ -347,7 +347,7 @@ def create_ontology(input_file: str,
                 newontology.lastModificationDate = last_modification_date
             except BaseError as err:
                 print("Creating resource class failed:", err.message)
-                exit(105)
+                exit(1)
             newresclasses[newresclass.id] = newresclass
             if verbose:
                 print("New resource class:")

@@ -283,7 +283,7 @@ class Context:
 
     def prefix_from_iri(self, iri: str) -> Optional[str]:
         """
-        Get the IRI from a full context that has or has not a a trailing "#". It first searches in the normal list
+        Get the IRI from a full context that has or has not a trailing "#". It first searches in the normal list
         of contexted. If the iri is not found there, it looks in the list common (external) ontologies. If the
         ontology is found there, this ontology is added to the list of known ontology and it's prefix is returned.
         If nothing is found, None is returns

@@ -48,6 +48,8 @@ A complete data model definition for DSP looks like this:
 
 ### "prefixes" object
 
+(optional)
+
 `"prefixes": { "prefix": "<iri>", ...}`
 
 The `prefixes` object contains the prefixes of external ontologies that are used in the current project. All prefixes
@@ -64,13 +66,20 @@ full qualified IRI each time it is used. So, instead of writing a property calle
 }
 ```
 
+Note that prefixes can be defined for the ontologies defined in this file, but this is only necessary if the ontology
+needs to be referred to explicitly by another ontology within the same file.
+
 ### "$schema" object
+
+(required)
 
 The `$schema` object refers to the JSON schema for DSP data model definitions and is mandatory.
 
 `"$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/ontology.json"`
 
 ### "project" object
+
+(required)
 
 `"project": {"key": "<value>", ...}`
 
@@ -128,11 +137,15 @@ In the following section all fields of the `project` object are explained in det
 
 ### Shortcode
 
+(required)
+
 `"shortcode": "<4-hex-characters>"`
 
 The shortcode has to be unique and is represented by a 4 digit hexadecimal string. The shortcode has to be provided by the DaSCH.
 
 ### Shortname
+
+(required)
 
 `"shortname": "<string>"`
 
@@ -141,11 +154,15 @@ string without blanks or special characters but `-` and `_` are allowed (althoug
 
 ### Longname
 
+(required)
+
 `"longname": "<string>"`
 
 The longname is a string that provides the full name of the project.
 
 ### Descriptions
+
+(required)
 
 `"descriptions": {"<lang>": "<string>", ...}`
 
@@ -154,11 +171,15 @@ supported). It is the description of the project.
 
 ### Keywords
 
+(required)
+
 `"keywords": ["<string>", "<string>", ...]`
 
 Keywords are represented as an array of strings and are used to describe and/or tag the project.
 
 ### Lists
+
+(optional)
 
 `"lists": [<list-definition>,<list-definition>,...]`
 
@@ -331,6 +352,8 @@ The `lists` element is optional. If not used, it should be omitted.
 
 ### Groups
 
+(optional)
+
 `"groups": [<group-definition>, <group-definition>,...]`
 
 The `groups` object contains groups definitions. This is used to specify the permissions a user gets. A project may
@@ -363,6 +386,8 @@ Example:
 The `groups` element is optional. If not used, it should be omitted. It is currently not recommended using it.
 
 ### Users
+
+(optional)
 
 `"users": [<user-definition>, <user-definition>,...]`
 
@@ -409,6 +434,8 @@ Example:
 The `users` element is optional. If not used, it should be omitted.
 
 ### Ontologies
+
+(required)
 
 An ontology is a formal representation of a set of terminologies which finally represent real world objects.
 Dependencies, attributes and relations of and between the individual components of the set are recorded in a logical,
@@ -467,6 +494,8 @@ Example of an `ontologies` object:
 
 #### Name
 
+(required)
+
 `"name": "<string>"`
 
 The ontology's (short) name should be in the form of a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). This
@@ -474,11 +503,15 @@ means a string without blanks or special characters but `-` and `_` are allowed 
 
 #### Label
 
+(required)
+
 `"label": "<string>"`
 
 A string that provides the full name of the ontology.
 
 #### Properties
+
+(required)
 
 `"properties": [<property-definition>, <property-definition>, ...]`
 
@@ -896,11 +929,11 @@ Represents a node of a (possibly hierarchical) list
 
 - `Radio`: A GUI element for _ListValue_. A set of radio buttons. This works only with flat lists.
     - _gui_attributes_:
-        - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
+        - `hlist=<list-name>` (required): The reference of a [list](#lists) root node
 - `List`: A GUI element for _ListValue_. A list of values to select one from. This GUI element should be chosen for
   hierarchical lists or flat lists that could be expanded to hierarchical lists in the future.
     - _gui_attributes_:
-        - `hlist=<list-name>` (mandatory): The reference of a [list](#lists) root node
+        - `hlist=<list-name>` (required): The reference of a [list](#lists) root node
 
 *Example:*
 
@@ -1028,6 +1061,8 @@ Example of a `properties` object:
 ```
 
 #### Resources
+
+(required)
 
 The resource classes are the primary entities of the data model. They are the actual objects inside a terminology space.
 A resource class can be seen as a template for the representation of a real object that is represented in the DSP. A

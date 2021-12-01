@@ -67,8 +67,8 @@ class ProjectContext:
         return self._project_name
 
 
-class KnoraValue:
-    """Represents a value of a resource in the Knora ontology"""
+class XMLValue:
+    """Represents a value of a resource property in the XML used for data import"""
 
     _value: Union[str, KnoraStandoffXml]
     _resrefs: Optional[List[str]]
@@ -134,12 +134,12 @@ class KnoraValue:
                 print('   res_ref: ' + i)
 
 
-class KnoraProperty:
-    """Represents a property of a resource in the XML"""
+class XMLProperty:
+    """Represents a property of a resource in the XML used for data import"""
 
     _name: str
     _valtype: str
-    _values: List[KnoraValue]
+    _values: List[XMLValue]
 
     def __init__(self, node: etree.Element, valtype: str, default_ontology: Optional[str] = None):
         """
@@ -167,7 +167,7 @@ class KnoraProperty:
         # parse the subnodes of the property nodes which contain the actual values of the property
         for subnode in node:
             if subnode.tag == valtype:  # the subnode must correspond to the expected value type
-                self._values.append(KnoraValue(subnode, valtype, listname))
+                self._values.append(XMLValue(subnode, valtype, listname))
             else:
                 raise XmlError('Unexpected tag: "{}". Property may contain only value tags!'.format(subnode.tag))
 
@@ -182,7 +182,7 @@ class KnoraProperty:
         return self._valtype
 
     @property
-    def values(self) -> List[KnoraValue]:
+    def values(self) -> List[XMLValue]:
         """List of values of this property"""
         return self._values
 
@@ -193,15 +193,15 @@ class KnoraProperty:
             value.print()
 
 
-class KnoraResource:
-    """Represents a resource in the Knora ontology"""
+class XMLResource:
+    """Represents a resource in the XML used for data import"""
 
     _id: str
     _label: str
     _restype: str
     _permissions: Optional[str]
     _bitstream: Optional[str]
-    _properties: List[KnoraProperty]
+    _properties: List[XMLProperty]
 
     def __init__(self, node: etree.Element, default_ontology: Optional[str] = None) -> None:
         """
@@ -238,7 +238,7 @@ class KnoraResource:
             else:
                 # get the property type which is in format type-prop, p.ex. <decimal-prop>
                 prop_type, _ = subnode.tag.split('-')
-                self._properties.append(KnoraProperty(subnode, prop_type, default_ontology))
+                self._properties.append(XMLProperty(subnode, prop_type, default_ontology))
 
     @property
     def id(self) -> str:
@@ -342,7 +342,7 @@ class KnoraResource:
 
 
 class XmlAllow:
-    """Represents the allow element of the XML"""
+    """Represents the allow element of the XML used for data import"""
 
     _group: str
     _permission: str
@@ -395,7 +395,7 @@ class XmlAllow:
 
 
 class XmlPermission:
-    """Represents the permission set containing several XmlAllow elements"""
+    """Represents the permission set containing several XmlAllow elements in the XML used for data import"""
 
     _id: str
     _allows: List[XmlAllow]
@@ -443,7 +443,7 @@ class XmlPermission:
             a.print()
 
 
-def do_sort_order(resources: List[KnoraResource], verbose) -> List[KnoraResource]:
+def do_sort_order(resources: List[XMLResource], verbose) -> List[XMLResource]:
     """
     Sorts a list of resources.
 
@@ -459,8 +459,8 @@ def do_sort_order(resources: List[KnoraResource], verbose) -> List[KnoraResource
     """
 
     # sort the resources according to outgoing resptrs
-    ok_resources: [KnoraResource] = []
-    notok_resources: [KnoraResource] = []
+    ok_resources: [XMLResource] = []
+    notok_resources: [XMLResource] = []
     ok_res_ids: [str] = []
     cnt = 0
     notok_len = 9999999
@@ -561,7 +561,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     con.login(user, password)
     proj_context = ProjectContext(con=con)
 
-    resources: List[KnoraResource] = []
+    resources: List[XMLResource] = []
     permissions: Dict[str, XmlPermission] = {}
 
     # parse the XML file containing the data
@@ -592,7 +592,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             permissions[permission.id] = permission
         # get all resources
         elif child.tag == "resource":
-            resources.append(KnoraResource(child, default_ontology))
+            resources.append(XMLResource(child, default_ontology))
 
     # sort the resources (resources which do not link to others come first) but only if not an incremental upload
     if not incremental:
@@ -628,7 +628,9 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         permissions_tmp = permissions_lookup.get(resource.permissions)
 
         try:
-            instance: ResourceInstance = res_classes[resource.restype](con=con, label=resource.label,
+            # create a resource instance (ResourceInstance) from the given resource in the XML (XMLResource)
+            instance: ResourceInstance = res_classes[resource.restype](con=con,
+                                                                       label=resource.label,
                                                                        permissions=permissions_tmp,
                                                                        bitstream=bitstream,
                                                                        values=resource.get_propvals(res_iri_lookup,

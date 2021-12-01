@@ -69,3 +69,6 @@ id2iri_*
 # bazel
 /bazel-*
 /.ijwb/
+
+# for testing in development
+tmp/

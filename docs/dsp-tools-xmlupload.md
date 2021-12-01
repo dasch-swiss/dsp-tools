@@ -202,8 +202,8 @@ Example for a property element of type text (`<text-prop>`) with two value eleme
 </text-prop>
 ```
 
-| ⚠ Look out  |
-|:----------|
+| ⚠ Look out                                                                                                                                     |
+| :--------------------------------------------------------------------------------------------------------------------------------------------- |
 | In case of a cardinality 1-n, multiple `<text>` tags have to be created inside the `<text-prop>` tag (do not use multiple `<text-prop>` tags). |
 
 The following property elements exist:
@@ -630,14 +630,15 @@ following abbreviations describe this form:
   0001 is the lexical representation of the year 1 of the Common Era (also known as 1 AD). The value cannot be 0000.
 - `mm`: a two-digit numeral that represents the month
 - `dd`: a two-digit numeral that represents the day
-- `hh`: a two-digit numeral (with leading zeros as required) that represents the hours. The value must be between -14
-  and +14, inclusive.
+- `hh`: a two-digit numeral representing the hours. Must be between 0 and 23
 - `mm`: a two-digit numeral that represents the minutes
 - `ss`: a two-digit numeral that represents the seconds
 - `ssssssssssss`: If present, a 1-to-12-digit numeral that represents the fractional seconds (optional)
-- `zzzzzz`: represents the time zone (required). Each part of the datetime value that is expressed as a numeric value is
-  constrained to the maximum value within the interval that is determined by the next higher part of the datetime value.
-  For example, the day value can never be 32 and cannot be 29 for month 02 and year 2002 (February 2002).
+- `zzzzzz`: represents the time zone (required).
+
+Each part of the datetime value that is expressed as a numeric value is constrained to the maximum value within the 
+interval that is determined by the next higher part of the datetime value.
+For example, the day value can never be 32 and cannot be 29 for month 02 and year 2002 (February 2002).
 
 The timezone is defined as follows:
 

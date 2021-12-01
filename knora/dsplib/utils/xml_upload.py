@@ -67,6 +67,31 @@ class ProjectContext:
         return self._project_name
 
 
+class XMLBitstream:
+    """Represents a bitstream object (file) of a resource in the XML used for data import"""
+
+    _value: str
+    _permissions: str
+
+    def __init__(self, node: etree.Element) -> None:
+        self._value = node.text
+        self._permissions = node.get('permissions')
+
+    @property
+    def value(self) -> str:
+        """The file path of the bitstream object"""
+        return self._value
+
+    @property
+    def permissions(self) -> str:
+        """Reference to the set of permissions for the bitstream object"""
+        return self._permissions
+
+    def print(self) -> None:
+        """Prints the bitstream object and its attributes."""
+        print('   Bitstream file path: ' + str(self._value))
+
+
 class XMLValue:
     """Represents a value of a resource property in the XML used for data import"""
 
@@ -169,7 +194,7 @@ class XMLProperty:
             if subnode.tag == valtype:  # the subnode must correspond to the expected value type
                 self._values.append(XMLValue(subnode, valtype, listname))
             else:
-                raise XmlError('Unexpected tag: "{}". Property may contain only value tags!'.format(subnode.tag))
+                raise XmlError(f"ERROR Unexpected tag: '{subnode.tag}'. Property may contain only value tags!")
 
     @property
     def name(self) -> str:
@@ -200,7 +225,7 @@ class XMLResource:
     _label: str
     _restype: str
     _permissions: Optional[str]
-    _bitstream: Optional[str]
+    _bitstream: Optional[XMLBitstream]
     _properties: List[XMLProperty]
 
     def __init__(self, node: etree.Element, default_ontology: Optional[str] = None) -> None:
@@ -231,10 +256,10 @@ class XMLResource:
         self._bitstream = None
         self._properties = []
         for subnode in node:
-            if subnode.tag == 'bitstream':
-                self._bitstream = subnode.text  # path to the file
-            elif subnode.tag is etree.Comment:
+            if subnode.tag is etree.Comment:
                 continue
+            elif subnode.tag == 'bitstream':
+                self._bitstream = XMLBitstream(subnode)
             else:
                 # get the property type which is in format type-prop, p.ex. <decimal-prop>
                 prop_type, _ = subnode.tag.split('-')
@@ -261,15 +286,15 @@ class XMLResource:
         return self._permissions
 
     @property
-    def bitstream(self) -> Optional[str]:
-        """The path to the bitstream object (file) belonging to the resource"""
+    def bitstream(self) -> Optional[XMLBitstream]:
+        """The bitstream object belonging to the resource"""
         return self._bitstream
 
     def print(self) -> None:
         """Prints the resource and its attributes."""
         print(f'Resource: id={self._id}, restype: {self._restype}, label: {self._label}')
-        if self._bitstream is not None:
-            print('  Bitstream: ' + self._bitstream)
+        if self._bitstream:
+            print('  Bitstream: ' + self._bitstream.value)
         for prop in self._properties:
             prop.print()
 
@@ -308,10 +333,9 @@ class XMLResource:
         for prop in self._properties:
             vals: List[Union[str, Dict[str, str]]] = []
             for value in prop.values:
-                v: str
                 if prop.valtype == 'resptr':  # we have a resptr, therefore simple lookup or IRI
                     iri = resiri_lookup.get(value.value)
-                    if iri is not None:
+                    if iri:
                         v = iri
                     else:
                         v = value.value  # if we do not find the id, we assume it's a valid knora IRI
@@ -332,13 +356,32 @@ class XMLResource:
                 else:
                     # we have comment or permissions
                     tmp = {'value': v}
-                    if value.comment is not None:
+                    if value.comment:
                         tmp['comment'] = value.comment
-                    if value.permissions is not None:
+                    if value.permissions:
                         tmp['permissions'] = permissions_lookup.get(value.permissions)
                     vals.append(tmp)
             prop_data[prop.name] = vals if len(vals) > 1 else vals[0]
         return prop_data
+
+    def get_bitstream(self, internal_file_name_bitstream: str, permissions_lookup: Dict[str, Permissions]) -> Optional[Dict[str, Union[str, Permissions]]]:
+        """
+        Get the bitstream object belonging to the resource
+
+        Args:
+            internal_file_name_bitstream: Internal file name of bitstream object as returned from Sipi
+            permissions_lookup: Is used to resolve the permission id's to permission sets
+
+        Returns:
+            A dict of the bitstream object
+        """
+        tmp = None
+        if self._bitstream:
+            bitstream = self._bitstream
+            tmp = {'value': bitstream.value, 'internal_file_name': internal_file_name_bitstream}
+            if bitstream.permissions:
+                tmp['permissions'] = permissions_lookup.get(bitstream.permissions)
+        return tmp
 
 
 class XmlAllow:
@@ -620,10 +663,11 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         if verbose:
             resource.print()
 
-        bitstream = None
+        resource_bitstream = None
         if resource.bitstream:
-            img = sipi.upload_bitstream(os.path.join(imgdir, resource.bitstream))
-            bitstream = img['uploadedFiles'][0]['internalFilename']
+            img = sipi.upload_bitstream(os.path.join(imgdir, resource.bitstream.value))
+            internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']
+            resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 
         permissions_tmp = permissions_lookup.get(resource.permissions)
 
@@ -632,7 +676,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             instance: ResourceInstance = res_classes[resource.restype](con=con,
                                                                        label=resource.label,
                                                                        permissions=permissions_tmp,
-                                                                       bitstream=bitstream,
+                                                                       bitstream=resource_bitstream,
                                                                        values=resource.get_propvals(res_iri_lookup,
                                                                                                     permissions_lookup)).create()
         except BaseError as err:

@@ -63,7 +63,7 @@ class ResourceInstance(Model):
     _label: Optional[str]
     _permissions: Optional[Permissions]
     _user_permission: Optional[PermissionValue]
-    _bitstream: Optional[str]
+    _bitstream: Optional[Bitstream]
     _values: Optional[Dict[Value, List[Value]]]
 
     def __init__(self,
@@ -74,7 +74,7 @@ class ResourceInstance(Model):
                  label: Optional[str] = None,
                  permissions: Optional[Permissions] = None,
                  user_permission: Optional[PermissionValue] = None,
-                 bitstream: Optional[Bitstream] = None,
+                 bitstream: Optional[str] = None,
                  values: Optional[Dict[
                      str, Union[str, List[str], Dict[str, str], List[Dict[str, str]], Value, List[Value]]]] = None):
 
@@ -88,9 +88,9 @@ class ResourceInstance(Model):
 
         if self.baseclass in self.baseclasses_with_bitstream and bitstream is None:
             raise BaseError(f"ERROR Baseclass '{self.baseclass}' requires a bitstream value!")
-        if self.baseclass not in self.baseclasses_with_bitstream and bitstream is not None:
+        if self.baseclass not in self.baseclasses_with_bitstream and bitstream:
             raise BaseError(f"ERROR Baseclass '{self.baseclass}' does not allow a bitstream value!")
-        if self.baseclass in self.baseclasses_with_bitstream and bitstream is not None:
+        if self.baseclass in self.baseclasses_with_bitstream and bitstream:
             self._bitstream = bitstream
         else:
             self._bitstream = None
@@ -224,11 +224,14 @@ class ResourceInstance(Model):
                 tmp["knora-api:hasPermissions"] = self._permissions.toJsonLdObj()
 
             if self._bitstream:
-                print(self._bitstream)
                 bitstream_attributes = {
-                    "knora-api:fileValueHasFilename": self._bitstream
-                    # "knora-api:hasPermissions": self._bitstream._permissions.toJsonLdObj()
+                    "knora-api:fileValueHasFilename": self._bitstream["internal_file_name"]
                 }
+
+                permissions = self._bitstream.get("permissions")
+                if permissions:
+                    bitstream_attributes["knora-api:hasPermissions"] = permissions.toJsonLdObj()
+
                 if self.baseclass == 'StillImageRepresentation':
                     bitstream_attributes["@type"] = "knora-api:StillImageFileValue"
                     tmp["knora-api:hasStillImageFileValue"] = bitstream_attributes
@@ -269,7 +272,7 @@ class ResourceInstance(Model):
     def create(self):
         jsonobj = self.toJsonLdObj(Actions.Create)
         jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
-        # print(jsondata)
+        # print("jsondata", jsondata)
         result = self._con.post('/v2/resources', jsondata)
         newinstance = self.clone()
         newinstance._iri = result['@id']

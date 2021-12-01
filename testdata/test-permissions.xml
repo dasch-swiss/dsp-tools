@@ -39,16 +39,7 @@
         <allow group="tp:testgroupViewers">V</allow>
     </permissions>
 
-    <resource label="Testthing-without-explicit-permissions"
-              restype=":TestThingPermissions"
-              id="obj_0000"
-              permissions="res-default">
-        <text-prop name=":hasText">
-            <text permissions="prop-default" encoding="utf8">Dies ist ein einzelnes Textfeld (prop-default)</text>
-        </text-prop>
-    </resource>
-
-    <resource label="Testthing-res-restricted"
+    <resource label="Testthing-res-restricted-prop-restricted"
               restype=":TestThingPermissions"
               id="obj_0001"
               permissions="res-restricted">
@@ -57,7 +48,7 @@
         </text-prop>
     </resource>
 
-    <resource label="Testthing-res-restriced-prop-mixed"
+    <resource label="Testthing-res-restriced-props-mixed"
           restype=":TestThingPermissions"
           id="obj_0002"
           permissions="res-restricted">
@@ -67,7 +58,7 @@
         </text-prop>
     </resource>
 
-    <resource label="Testthing-res-default-prop-mixed"
+    <resource label="Testthing-res-default-props-mixed"
               restype=":TestThingPermissions"
               id="obj_0003"
               permissions="res-default">
@@ -77,7 +68,7 @@
         </text-prop>
     </resource>
 
-    <resource label="Testthing-no-permissions"
+    <resource label="Testthing-without-explicit-permissions"
               restype=":TestThingPermissions"
               id="obj_0004">
         <text-prop name=":hasText">
@@ -85,7 +76,7 @@
         </text-prop>
     </resource>
 
-    <resource label="ImageThing-res-default-props-restricted"
+    <resource label="ImageThing-res-default-img-restricted-prop-restricted"
               restype=":ImageThingPermissions"
               id="obj_0005"
               permissions="res-default">
@@ -95,20 +86,41 @@
         </text-prop>
     </resource>
 
-    <resource label="ImageThing-res-restricted-props-default"
+    <resource label="ImageThing-res-restricted-img-default-prop-default"
               restype=":ImageThingPermissions"
               id="obj_0006"
               permissions="res-restricted">
         <bitstream permissions="prop-default">TEMP11.TIF</bitstream>
         <text-prop name=":hasText">
-            <text encoding="utf8">This is an ImageThing (no permission)</text>
             <text permissions="prop-default" encoding="utf8">This is an ImageThing (prop-default)</text>
         </text-prop>
     </resource>
 
-    <resource label="ImageThing-no-permission"
+    <resource label="ImageThing-res-default-img-default-props-mixed"
               restype=":ImageThingPermissions"
-              id="obj_0007">
+              id="obj_0007"
+              permissions="res-default">
+        <bitstream permissions="prop-default">TEMP11.TIF</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is an ImageThing (prop-default)</text>
+            <text permissions="prop-restricted" encoding="utf8">This is an ImageThing (prop-restricted)</text>
+        </text-prop>
+    </resource>
+
+    <resource label="ImageThing-res-restricted-img-default-props-mixed"
+              restype=":ImageThingPermissions"
+              id="obj_0008"
+              permissions="res-restricted">
+        <bitstream permissions="prop-default">TEMP11.TIF</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is an ImageThing (prop-default)</text>
+            <text permissions="prop-restricted" encoding="utf8">This is an ImageThing (prop-restricted)</text>
+        </text-prop>
+    </resource>
+
+    <resource label="ImageThing-without-explicit-permissions"
+              restype=":ImageThingPermissions"
+              id="obj_0009">
         <bitstream>TEMP11.TIF</bitstream>
         <text-prop name=":hasText">
             <text encoding="utf8">This is an ImageThing (no permissions)</text>

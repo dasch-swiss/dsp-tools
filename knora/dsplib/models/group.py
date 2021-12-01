@@ -272,7 +272,6 @@ if __name__ == '__main__':
                       status=True,
                       selfjoin=False).create()
     new_group.print()
-    print("iiiii")
 
     new_group.name = "GROUP TEST - modified"
     new_group = new_group.update()

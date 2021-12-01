@@ -70,13 +70,11 @@ class Bitstream:
     def toJsonLdObj(self, action: Actions) -> Dict[str, Any]:
         tmp = {}
         if action == Actions.Create:
-            if self._permissions is not None:
+            if self._permissions:
                 tmp["knora-api:hasPermissions"] = self.permissions.toJsonLdObj()
 
-            if self._comment is not None:
+            if self._comment:
                 tmp["knora-api:valueHasComment"] = str(self._comment)
-        else:
-            pass
         return tmp
 
     @staticmethod

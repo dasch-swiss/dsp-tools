@@ -1,12 +1,9 @@
-import re
-from typing import List, Dict, Optional, Any, Union
+from typing import Dict, Optional, Any, Union
 
 from pystrict import strict
 
-from .group import Group
-from .helpers import IriTest, Actions, BaseError
+from .helpers import Actions
 from .langstring import LangString
-from .listnode import ListNode
 from .permission import PermissionValue, Permissions
 
 
@@ -90,5 +87,5 @@ class Bitstream:
             'ark_url': jsonld_obj.get("knora-api:arkUrl"),
             'vark_url': jsonld_obj.get("knora-api:versionArkUrl"),
             'permissions': Permissions.fromString(jsonld_obj.get("knora-api:hasPermissions")),
-            'user_permission': PermissionValue[jsonld_obj.get("knora-api:userHasPermission", jsonld_obj)]
+            'upermission': PermissionValue[jsonld_obj.get("knora-api:userHasPermission", jsonld_obj)]
         }

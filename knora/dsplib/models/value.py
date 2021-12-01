@@ -134,9 +134,9 @@ class Value:
             'iri': jsonld_obj.get("@id"),
             'comment': jsonld_obj.get("knora-api:valueHasComment"),
             'ark_url': Value.get_typed_value("knora-api:arkUrl", jsonld_obj),
-            'version_ark_url': Value.get_typed_value("knora-api:versionArkUrl", jsonld_obj),
+            'vark_url': Value.get_typed_value("knora-api:versionArkUrl", jsonld_obj),
             'permissions': Permissions.fromString(jsonld_obj.get("knora-api:hasPermissions")),
-            'user_permission': PermissionValue[jsonld_obj.get("knora-api:userHasPermission", jsonld_obj)]
+            'upermission': PermissionValue[jsonld_obj.get("knora-api:userHasPermission", jsonld_obj)]
         }
 
 

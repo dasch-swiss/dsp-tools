@@ -696,7 +696,7 @@ Attributes:
 
 #### `<boolean>`
 
-The `<boolean>` element must contain the string "true" or "false", or the numeral 1 or 0.
+The `<boolean>` element must contain the string "true" or "false", or the numeral 1 (true) or 0 (false).
 
 Attributes:
 

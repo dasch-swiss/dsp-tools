@@ -30,15 +30,15 @@
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
 
-    <resource label="Testthing2"
+    <resource label="TestthingOhnePermissions"
               restype=":TestThing2"
               id="obj_0000">
         <text-prop name=":hasText">
-            <text encoding="utf8">Dies ist anderes TestThing</text>
+            <text encoding="utf8">Dies ist ein TestThing ohne Angabe von permissions</text>
         </text-prop>
     </resource>
 
-    <resource label="Iestthing"
+    <resource label="Testthing"
               restype=":TestThing"
               id="obj_0001"
               permissions="res-default">
@@ -95,6 +95,7 @@
             <color permissions="prop-default">#00ff00</color>
         </color-prop>
         <list-prop list="testlist" name=":hasListItem">
+            <list permissions="prop-default">b2</list>
             <list permissions="prop-default">b2</list>
         </list-prop>
         <resptr-prop name=":hasTestThing2">

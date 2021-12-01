@@ -101,6 +101,7 @@
               permissions="res-restricted">
         <bitstream permissions="prop-default">TEMP11.TIF</bitstream>
         <text-prop name=":hasText">
+            <text encoding="utf8">This is an ImageThing (no permission)</text>
             <text permissions="prop-default" encoding="utf8">This is an ImageThing (prop-default)</text>
         </text-prop>
     </resource>

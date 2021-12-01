@@ -5,6 +5,19 @@ load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 load("@knora_py_deps//:requirements.bzl", "requirement")
 
 py_library(
+    name = "bitstream",
+    visibility = ["//visibility:public"],
+    srcs = ["bitstream.py"],
+    deps = [
+        ":helpers",
+        ":langstring",
+        ":permission",
+        requirement("pystrict"),
+    ],
+    imports = ["."],
+)
+
+py_library(
     name = "connection",
     visibility = ["//visibility:public"],
     srcs = ["connection.py"],
@@ -130,6 +143,7 @@ py_library(
     visibility = ["//visibility:public"],
     srcs = ["resource.py"],
     deps = [
+        ":bitstream",
         ":connection",
         ":helpers",
         ":langstring",

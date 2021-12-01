@@ -94,6 +94,7 @@ py_test(
     name = "test_resource",
     srcs = ["test_resource.py"],
     deps = [
+        "//knora/dsplib/models:bitstream",
         "//knora/dsplib/models:connection",
         "//knora/dsplib/models:resource",
         "//knora/dsplib/models:group",

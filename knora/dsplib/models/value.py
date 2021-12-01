@@ -604,10 +604,18 @@ class BooleanValue(Value):
         if type(value) is bool:
             self._value = value
 
-        elif type(value) is str:
-            if value.upper() == 'TRUE':
+        if type(value) is int:
+            if value == 1:
                 self._value = True
-            elif value.upper() == 'FALSE':
+            elif value == 0:
+                self._value = False
+            else:
+                raise BaseError("Invalid boolean format! " + str(value))
+
+        elif type(value) is str:
+            if value.upper() == 'TRUE' or value == '1':
+                self._value = True
+            elif value.upper() == 'FALSE' or value == '0':
                 self._value = False
             else:
                 raise BaseError("Invalid boolean format! " + str(value))

@@ -39,6 +39,23 @@
         <allow group="tp:testgroupViewers">V</allow>
     </permissions>
 
+    <permissions id="img-default">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="tp:testgroupEditors">M</allow>
+        <allow group="tp:testgroupViewers">V</allow>
+    </permissions>
+    <permissions id="img-restricted">
+        <allow group="UnknownUser">RV</allow>
+        <allow group="KnownUser">RV</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="tp:testgroupEditors">M</allow>
+        <allow group="tp:testgroupViewers">V</allow>
+    </permissions>
+
     <resource label="Testthing-res-restricted-prop-restricted"
               restype=":TestThingPermissions"
               id="obj_0001"
@@ -80,7 +97,7 @@
               restype=":ImageThingPermissions"
               id="obj_0005"
               permissions="res-default">
-        <bitstream permissions="prop-restricted">TEMP11.TIF</bitstream>
+        <bitstream permissions="img-restricted">TEMP11.TIF</bitstream>
         <text-prop name=":hasText">
             <text permissions="prop-restricted" encoding="utf8">This is an ImageThing (prop-restricted)</text>
         </text-prop>
@@ -90,7 +107,7 @@
               restype=":ImageThingPermissions"
               id="obj_0006"
               permissions="res-restricted">
-        <bitstream permissions="prop-default">TEMP11.TIF</bitstream>
+        <bitstream permissions="img-default">TEMP11.TIF</bitstream>
         <text-prop name=":hasText">
             <text permissions="prop-default" encoding="utf8">This is an ImageThing (prop-default)</text>
         </text-prop>
@@ -100,7 +117,7 @@
               restype=":ImageThingPermissions"
               id="obj_0007"
               permissions="res-default">
-        <bitstream permissions="prop-default">TEMP11.TIF</bitstream>
+        <bitstream permissions="img-default">TEMP11.TIF</bitstream>
         <text-prop name=":hasText">
             <text permissions="prop-default" encoding="utf8">This is an ImageThing (prop-default)</text>
             <text permissions="prop-restricted" encoding="utf8">This is an ImageThing (prop-restricted)</text>
@@ -111,7 +128,18 @@
               restype=":ImageThingPermissions"
               id="obj_0008"
               permissions="res-restricted">
-        <bitstream permissions="prop-default">TEMP11.TIF</bitstream>
+        <bitstream permissions="img-default">TEMP11.TIF</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is an ImageThing (prop-default)</text>
+            <text permissions="prop-restricted" encoding="utf8">This is an ImageThing (prop-restricted)</text>
+        </text-prop>
+    </resource>
+
+    <resource label="ImageThing-res-restricted-img-restricted-props-mixed"
+              restype=":ImageThingPermissions"
+              id="obj_0009"
+              permissions="res-restricted">
+        <bitstream permissions="img-restricted">TEMP11.TIF</bitstream>
         <text-prop name=":hasText">
             <text permissions="prop-default" encoding="utf8">This is an ImageThing (prop-default)</text>
             <text permissions="prop-restricted" encoding="utf8">This is an ImageThing (prop-restricted)</text>
@@ -120,7 +148,7 @@
 
     <resource label="ImageThing-without-explicit-permissions"
               restype=":ImageThingPermissions"
-              id="obj_0009">
+              id="obj_0010">
         <bitstream>TEMP11.TIF</bitstream>
         <text-prop name=":hasText">
             <text encoding="utf8">This is an ImageThing (no permissions)</text>

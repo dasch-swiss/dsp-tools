@@ -162,21 +162,22 @@ class Context:
 
         self._context = ContextType({})
         
+        # add ontologies from context, if any
         if context:
             for prefix, onto in context.items():
                 self._context[prefix] = OntoInfo(onto.removesuffix('#'), onto.endswith('#'))
         
-        # we always want the base ontologies/prefixes included in the context
+        # add standard ontologies (rdf, rdfs, owl, xsl)
         for k, v in self.base_ontologies.items():
             if not self._context.get(k):
                 self._context[k] = v
         
-        # we always want the DSP-API ontologies/prefixes included in the context
+        # add DSP-API internal ontologies (knora-api, salsah-gui)
         for k, v in self.knora_ontologies.items():
             if not self._context.get(k):
                 self._context[k] = v
 
-        self._rcontext = dict(map(lambda x: (x[1].iri, x[0]), self._context.items()))
+        self._rcontext = {v.iri: k for k, v in self._context.items()}
 
     def __len__(self) -> int:
         return len(self._context)

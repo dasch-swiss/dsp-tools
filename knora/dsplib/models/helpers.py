@@ -155,11 +155,8 @@ class Context:
         ontology-iri *must* end with "#"!
         :param context: A dict of prefix - ontology-iri pairs
         """
-        #
         # regexp to test for a complete IRI (including fragment identifier)
-        #
         self._exp = re.compile("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?")
-
         self._context = ContextType({})
         
         # add ontologies from context, if any

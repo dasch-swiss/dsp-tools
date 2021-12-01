@@ -107,23 +107,23 @@ The `<allow>` element is used to define the permission for a specific group. It 
 
 The allowed values are:
 
-- `RV` _restricted view_: The associated media is shown in reduced quality.
-- `V` _view_: The user has read access to the data.
-- `M` _modify_: The user may modify a value, but may not delete it. The original value will be preserved using the
-  history mechanism.
-- `D` _delete_: The user is able to mark a resource as deleted.
-- `CR` _change right_: The user is able to change the right of a resource or value.
+- `RV` _restricted view_: Same as `V` but if it is applied to an image, the image is shown blurred.
+- `V` _view_: The user can view a resource or a value, but can not modify it.
+- `M` _modify_: The user can modify a resource or value, but can not delete it. The original resource or value will be preserved.
+- `D` _delete_: The user can mark a resource or value as deleted. The original resource or value will be preserved.
+- `CR` _change right_: The user can change the permission of a resource or value. The user is also allowed to 
+  permanently delete (erase) a resource.
 
-The `group` attribute is mandatory. It defines the group which the permission is applied to. The DSP system groups as
+The `group` attribute is mandatory. It defines the group which the permission is applied to. DSP system groups as
 well as project specific groups are supported. A project specific group name has the form `project-shortname:groupname`.
 The available system groups are:
 
-- UnknownUser
-- KnownUser
-- ProjectMember
-- Creator
-- ProjectAdmin
-- SystemAdmin
+- UnknownUser (not logged in user)
+- KnownUser (logged in user)
+- ProjectMember (user with project membership)
+- Creator (creator of the resource or value)
+- ProjectAdmin (user with project admin membership)
+- SystemAdmin (system administrator)
 
 There are no sub-elements allowed for the `<allow>` element.
 
@@ -235,16 +235,15 @@ Note:
 
 - There is only _one_ `<bitstream>` element allowed per representation!
 - The `<bitstream>` element must be the first element!
-- The `<bitstream>` element has the same permissions then its parent resource element.
 
 Attributes:
 
-- none
+- `permissions` : ID or a permission set (optional, but if omitted very restricted default permissions apply)
 
 Example:
 
 ```xml
-<bitstream>postcards/images/EURUS015a.jpg</bitstream>
+<bitstream permissions="prop-restricted">postcards/images/EURUS015a.jpg</bitstream>
 ```
 
 ### `<text-prop>`

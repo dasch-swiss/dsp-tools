@@ -12,10 +12,13 @@ from .permission import PermissionValue, Permissions
 
 @strict
 class Bitstream:
-    _permissions: Union[Permissions, None]
-    _upermission: Union[PermissionValue, None]
-    _ark_url: Union[str, None]
-    _vark_url: Union[str, None]
+    """
+    Represents a bitstream object (file) which is attached to a resource
+    """
+    _permissions: Optional[Permissions]
+    _upermission: Optional[PermissionValue]
+    _ark_url: Optional[str]
+    _vark_url: Optional[str]
 
     def __init__(self,
                  iri: Optional[str] = None,
@@ -87,5 +90,5 @@ class Bitstream:
             'ark_url': jsonld_obj.get("knora-api:arkUrl"),
             'vark_url': jsonld_obj.get("knora-api:versionArkUrl"),
             'permissions': Permissions.fromString(jsonld_obj.get("knora-api:hasPermissions")),
-            'upermission': PermissionValue[jsonld_obj.get("knora-api:userHasPermission", jsonld_obj)]
+            'user_permission': PermissionValue[jsonld_obj.get("knora-api:userHasPermission", jsonld_obj)]
         }

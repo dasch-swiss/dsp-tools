@@ -82,7 +82,7 @@ def create_ontology(input_file: str,
         con.start_logging()
 
     # read the prefixes of external ontologies that may be used
-    context = Context(data_model["prefixes"])
+    context = Context(data_model.get("prefixes") or {})
 
     # create or update the project
     project = None
@@ -347,7 +347,7 @@ def create_ontology(input_file: str,
                 newontology.lastModificationDate = last_modification_date
             except BaseError as err:
                 print("Creating resource class failed:", err.message)
-                exit(105)
+                exit(1)
             newresclasses[newresclass.id] = newresclass
             if verbose:
                 print("New resource class:")
@@ -378,7 +378,8 @@ def create_ontology(input_file: str,
                     if tmp[0]:
                         object = propclass["object"]  # fully qualified name
                     else:
-                        newontology.print()
+                        if verbose:
+                            newontology.print()
                         object = newontology.name + ':' + tmp[1]
                 else:
                     object = "knora-api:" + propclass["object"]

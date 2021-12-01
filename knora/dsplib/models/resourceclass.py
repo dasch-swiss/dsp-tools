@@ -669,12 +669,11 @@ class ResourceClass(Model):
         def resolve_resref(resref: str):
             tmp = resref.split(':')
             if len(tmp) > 1:
-                if tmp[0]:
+                if tmp[0] and self._context.iri_from_prefix(tmp[0]) != self._ontology_id:
                     self._context.add_context(tmp[0])
                     return {"@id": resref}  # fully qualified name in the form "prefix:name"
                 else:
-                    return {"@id": self._context.prefix_from_iri(self._ontology_id) + ':' + tmp[
-                        1]}  # ":name" in current ontology
+                    return {"@id": self._context.prefix_from_iri(self._ontology_id) + ':' + tmp[1]}  # ":name" in current ontology
             else:
                 return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
 

@@ -68,3 +68,6 @@ out.json
 # bazel
 /bazel-*
 /.ijwb/
+
+# for testing in development
+tmp/

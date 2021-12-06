@@ -26,7 +26,7 @@ dsp-tools create [options] data_model_definition.json
 
 The following options are available:
 
-- `-s` | `--server` _server_: URL of the DSP server (default: localhost:3333)
+- `-s` | `--server` _server_: URL of the DSP server (default: 0.0.0.0:3333)
 - `-u` | `--user` _username_: username used for authentication with the DSP API (default: root@example.com)
 - `-p` | `--password` _password_: password used for authentication with the DSP API (default: test)
 - `-V` | `--validate`: If set, only the validation of the JSON file is performed.
@@ -53,7 +53,7 @@ dsp-tools get [options] output_file.json
 
 The following options are available:
 
-- `-s` | `--server` _server_: URL of the DSP server (default: localhost:3333)
+- `-s` | `--server` _server_: URL of the DSP server (default: 0.0.0.0:3333)
 - `-u` | `--user` _username_: username used for authentication with the DSP API (default: root@example.com)
 - `-p` | `--password` _password_: password used for authentication with the DSP API (default: test)
 - `-P` | `--project` _shortcode_ | _shortname_ | _iri_: shortcode, shortname or (mandatory)
@@ -77,7 +77,7 @@ dsp-tools xmlupload [options] xml_data_file.xml
 
 The following options are available:
 
-- `-s` | `--server` _server_: URL of the DSP server (default: localhost:3333)
+- `-s` | `--server` _server_: URL of the DSP server (default: 0.0.0.0:3333)
 - `-u` | `--user` _username_: username used for authentication with the DSP API (default: root@example.com)
 - `-p` | `--password` _password_: password used for authentication with the DSP API (default: test)
 - `-i` | `--imgdir` _dirpath_: path to the directory where the bitstream objects are stored (default: .)

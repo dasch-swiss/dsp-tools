@@ -96,6 +96,8 @@ the resource or property with permission `special-permission`:
 </permissions>
 ```
 
+Note: The permissions defined in the XML are applied to resources that are created. But only project or system administrators
+do have the permission to create resources via the XML upload.
 
 ### The &lt;allow&gt; sub-element
 

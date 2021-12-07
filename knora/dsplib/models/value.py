@@ -586,18 +586,17 @@ class BooleanValue(Value):
                  iri: Optional[str] = None,
                  ark_url: Optional[str] = None,
                  vark_url: Optional[str] = None):
+
         if type(value) is bool:
             self._value = value
-
-        elif type(value) is str:
-            if value.upper() == 'TRUE':
+        else:
+            if value == 1 or value.upper() == 'TRUE' or value == '1':
                 self._value = True
-            elif value.upper() == 'FALSE':
+            elif value == 0 or value.upper() == 'FALSE' or value == '0':
                 self._value = False
             else:
-                raise BaseError("Invalid boolean format! " + str(value))
-        elif type(value) is int:
-            self._value = False if value == 0 else True
+                raise BaseError(f"ERROR Invalid boolean format {value}!")
+
         super().__init__(iri=iri,
                          comment=comment,
                          permissions=permissions,

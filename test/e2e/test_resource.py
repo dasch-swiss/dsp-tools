@@ -56,10 +56,17 @@ class TestResource(unittest.TestCase):
         file_ref = img['uploadedFiles'][0]['internalFilename']
         res_perm = Permissions({PermissionValue.M: ["knora-admin:UnknownUser", "knora-admin:KnownUser"],
                                 PermissionValue.CR: ["knora-admin:Creator", "knora-admin:ProjectAdmin"]})
+
+        resource_bitstream = {
+            'value': 'testdata/bitstreams/TEMP11.TIF',
+            'internal_file_name': file_ref,
+            'permissions': res_perm
+        }
+
         thing_picture(
             con=self.con,
             label='ThingPicture',
-            bitstream=file_ref,
+            bitstream=resource_bitstream,
             permissions=res_perm,
             values={
                 'anything:hasPictureTitle': make_value(value="A Thing Picture named Lena", permissions=res_perm)

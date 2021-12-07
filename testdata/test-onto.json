@@ -84,10 +84,19 @@
         ],
         "groups": [
             {
-                "name": "testgroup",
+                "name": "testgroupEditors",
                 "descriptions": {
-                    "en": "Test group",
-                    "de": "Testgruppe"
+                    "en": "Test group editors",
+                    "de": "Testgruppe Editors"
+                },
+                "selfjoin": false,
+                "status": true
+            },
+            {
+                "name": "testgroupViewers",
+                "descriptions": {
+                    "en": "Test group viewers",
+                    "de": "Testgruppe Viewers"
                 },
                 "selfjoin": false,
                 "status": true
@@ -95,16 +104,51 @@
         ],
         "users": [
             {
-                "username": "tester",
-                "email": "tester@test.org",
-                "givenName": "Testing",
-                "familyName": "tester",
+                "username": "testerKnownUser",
+                "email": "tester.known@test.org",
+                "givenName": "Tester",
+                "familyName": "Known",
+                "password": "test0815",
+                "lang": "en"
+            },
+            {
+                "username": "testerProjectEditor",
+                "email": "tester.projecteditor@test.org",
+                "givenName": "Tester",
+                "familyName": "Editor",
                 "password": "test0815",
                 "lang": "en",
                 "groups": [
-                    ":testgroup"
+                    ":testgroupEditors"
                 ],
-                "projects": []
+                "projects": [
+                    ":member"
+                ]
+            },
+            {
+                "username": "testerProjectViewer",
+                "email": "tester.projectviewer@test.org",
+                "givenName": "Tester",
+                "familyName": "Viewer",
+                "password": "test0815",
+                "lang": "en",
+                "groups": [
+                    ":testgroupViewers"
+                ],
+                "projects": [
+                    ":member"
+                ]
+            },
+            {
+                "username": "testerProjectAdmin",
+                "email": "tester.projectadmin@test.org",
+                "givenName": "Tester",
+                "familyName": "Project Admin",
+                "password": "test0815",
+                "lang": "en",
+                "projects": [
+                    ":admin"
+                ]
             }
         ],
         "ontologies": [
@@ -525,6 +569,65 @@
                                 "propname": "seqnum",
                                 "gui_order": 2,
                                 "cardinality": "1"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "testontoPermissions",
+                "label": "Test ontology permissions",
+                "properties": [
+                    {
+                        "name": "hasText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": 255,
+                            "size": 80
+                        }
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "TestThingPermissions",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Test thing for permissions without object"
+                        },
+                        "comments": {
+                            "en": "A thing to test permission related things",
+                            "de": "Ein Ding um Permissionsdinge zu testen."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "gui_order": 1,
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "ImageThingPermissions",
+                        "super": "StillImageRepresentation",
+                        "labels": {
+                            "en": "Test thing for permissions with object"
+                        },
+                        "comments": {
+                            "en": "A thing to test permission related things",
+                            "de": "Ein Ding um Permissionsdinge zu testen."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "gui_order": 1,
+                                "cardinality": "0-n"
                             }
                         ]
                     }

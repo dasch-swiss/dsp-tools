@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../knora/dsplib/schemas/data.xsd"
+       shortcode="4123"
+       default-ontology="testontoPermissions">
+
+    <!-- permissions: see https://docs-api.dasch.swiss/02-knora-ontologies/knora-base/#permissions -->
+    <permissions id="res-default">
+        <allow group="UnknownUser">RV</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="tp:testgroupEditors">M</allow>
+        <allow group="tp:testgroupViewers">V</allow>
+    </permissions>
+    <permissions id="res-restricted">
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="tp:testgroupEditors">M</allow>
+        <allow group="tp:testgroupViewers">V</allow>
+    </permissions>
+
+    <permissions id="prop-default">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="tp:testgroupEditors">M</allow>
+        <allow group="tp:testgroupViewers">V</allow>
+    </permissions>
+    <permissions id="prop-restricted">
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="tp:testgroupEditors">M</allow>
+        <allow group="tp:testgroupViewers">V</allow>
+    </permissions>
+
+    <permissions id="img-default">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="tp:testgroupEditors">M</allow>
+        <allow group="tp:testgroupViewers">V</allow>
+    </permissions>
+    <permissions id="img-restricted">
+        <allow group="UnknownUser">RV</allow>
+        <allow group="KnownUser">RV</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="tp:testgroupEditors">M</allow>
+        <allow group="tp:testgroupViewers">V</allow>
+    </permissions>
+
+    <resource label="Testthing-res-restricted-prop-restricted"
+              restype=":TestThingPermissions"
+              id="obj_0001"
+              permissions="res-restricted">
+        <text-prop name=":hasText">
+            <text permissions="prop-restricted" encoding="utf8">Dies ist ein einzelnes Textfeld (prop-restricted)</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Testthing-res-restriced-props-mixed"
+          restype=":TestThingPermissions"
+          id="obj_0002"
+          permissions="res-restricted">
+        <text-prop name=":hasText">
+            <text permissions="prop-restricted" encoding="utf8">Dies ist ein Textfeld (prop-restricted)</text>
+            <text permissions="prop-default" encoding="utf8">Dies ist ein Textfeld (prop-default)</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Testthing-res-default-props-mixed"
+              restype=":TestThingPermissions"
+              id="obj_0003"
+              permissions="res-default">
+        <text-prop name=":hasText">
+            <text permissions="prop-restricted" encoding="utf8">Dies ist ein Textfeld (prop-restricted)</text>
+            <text permissions="prop-default" encoding="utf8">Dies ist ein Textfeld (prop-default)</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Testthing-without-explicit-permissions"
+              restype=":TestThingPermissions"
+              id="obj_0004">
+        <text-prop name=":hasText">
+            <text encoding="utf8">Dies ist ein einzelnes Textfeld (no permissions)</text>
+        </text-prop>
+    </resource>
+
+    <resource label="ImageThing-res-default-img-restricted-prop-restricted"
+              restype=":ImageThingPermissions"
+              id="obj_0005"
+              permissions="res-default">
+        <bitstream permissions="img-restricted">TEMP11.TIF</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-restricted" encoding="utf8">This is an ImageThing (prop-restricted)</text>
+        </text-prop>
+    </resource>
+
+    <resource label="ImageThing-res-restricted-img-default-prop-default"
+              restype=":ImageThingPermissions"
+              id="obj_0006"
+              permissions="res-restricted">
+        <bitstream permissions="img-default">TEMP11.TIF</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is an ImageThing (prop-default)</text>
+        </text-prop>
+    </resource>
+
+    <resource label="ImageThing-res-default-img-default-props-mixed"
+              restype=":ImageThingPermissions"
+              id="obj_0007"
+              permissions="res-default">
+        <bitstream permissions="img-default">TEMP11.TIF</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is an ImageThing (prop-default)</text>
+            <text permissions="prop-restricted" encoding="utf8">This is an ImageThing (prop-restricted)</text>
+        </text-prop>
+    </resource>
+
+    <resource label="ImageThing-res-restricted-img-default-props-mixed"
+              restype=":ImageThingPermissions"
+              id="obj_0008"
+              permissions="res-restricted">
+        <bitstream permissions="img-default">TEMP11.TIF</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is an ImageThing (prop-default)</text>
+            <text permissions="prop-restricted" encoding="utf8">This is an ImageThing (prop-restricted)</text>
+        </text-prop>
+    </resource>
+
+    <resource label="ImageThing-res-restricted-img-restricted-props-mixed"
+              restype=":ImageThingPermissions"
+              id="obj_0009"
+              permissions="res-restricted">
+        <bitstream permissions="img-restricted">TEMP11.TIF</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is an ImageThing (prop-default)</text>
+            <text permissions="prop-restricted" encoding="utf8">This is an ImageThing (prop-restricted)</text>
+        </text-prop>
+    </resource>
+
+    <resource label="ImageThing-without-explicit-permissions"
+              restype=":ImageThingPermissions"
+              id="obj_0010">
+        <bitstream>TEMP11.TIF</bitstream>
+        <text-prop name=":hasText">
+            <text encoding="utf8">This is an ImageThing (no permissions)</text>
+        </text-prop>
+    </resource>
+
+</knora>

@@ -1,6 +1,6 @@
 <knora xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://dasch.swiss/schema" xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/data.xsd" shortcode="082E" default-ontology="rosetta">
 
-    <!-- :permissions see https://docs.knora.org/03-apis/api-v2/reading-user-permissions/ -->
+    <!-- :permissions see https://docs.dasch.swiss/DSP-API/05-internals/design/api-admin/administration/#permissions -->
     <permissions id="res-default">
         <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>

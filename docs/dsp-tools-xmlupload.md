@@ -39,7 +39,7 @@ The `<knora>` element may look as follows:
 
 The `<knora>` element can only contain the following sub-elements:
 
-- `<permissions>`
+- `<permissions>` (optional)
 - `<resource>`
 
 ## Describing permissions with &lt;permissions&gt; elements
@@ -47,6 +47,9 @@ The `<knora>` element can only contain the following sub-elements:
 The DSP server provides access control for each resource and each field of a resource through permissions. For a
 thorough explanation of the permission and access system of the DSP platform, see
 [DSP platform permissions](https://docs.knora.org/02-knora-ontologies/knora-base/#permissions).
+
+It is optional to define permissions in the XML. If not defined, default permissions are applied (only project and 
+system administrators can view and edit resources).
 
 The following access rights are defined by the DSP platform which apply to either a resource or a field:
 
@@ -72,7 +75,7 @@ name has to be prepended before the group name, separated by a colon, e.g. `dsp-
 
 A `<permissions>` element contains the permissions given to the selected groups and is called a _permission set_. It has
 a mandatory attribute `id` and must contain at least one `<allow>` element per group indicating the group's permission.
-It is of the following form:
+The permission is referenced inside the resource or property tag by its `id`. It is of the following form:
 
 ```xml
 <permissions id="res-default">
@@ -84,6 +87,18 @@ It is of the following form:
 </permissions>
 ```
 
+If you don't want a group to have access at all, leave it out. In the following example, only `ProjectAdmin`s will see
+the resource or property with permission `special-permission`:
+
+```xml
+<permissions id="special-permission">
+  <allow group="ProjectAdmin">CR</allow>
+</permissions>
+```
+
+Note: The permissions defined in the XML are applied to resources that are created. But only project or system administrators
+do have the permission to create resources via the XML upload.
+
 ### The &lt;allow&gt; sub-element
 
 The `<allow>` element is used to define the permission for a specific group. It is of the following form:
@@ -94,23 +109,23 @@ The `<allow>` element is used to define the permission for a specific group. It 
 
 The allowed values are:
 
-- `RV` _restricted view_: The associated media is shown in reduced quality.
-- `V` _view_: The user has read access to the data.
-- `M` _modify_: The user may modify a value, but may not delete it. The original value will be preserved using the
-  history mechanism.
-- `D` _delete_: The user is able to mark a resource as deleted.
-- `CR` _change right_: The user is able to change the right of a resource or value.
+- `RV` _restricted view_: Same as `V` but if it is applied to an image, the image is shown blurred.
+- `V` _view_: The user can view a resource or a value, but can not modify it.
+- `M` _modify_: The user can modify a resource or value, but can not delete it. The original resource or value will be preserved.
+- `D` _delete_: The user can mark a resource or value as deleted. The original resource or value will be preserved.
+- `CR` _change right_: The user can change the permission of a resource or value. The user is also allowed to 
+  permanently delete (erase) a resource.
 
-The `group` attribute is mandatory. It defines the group which the permission is applied to. The DSP system groups as
+The `group` attribute is mandatory. It defines the group which the permission is applied to. DSP system groups as
 well as project specific groups are supported. A project specific group name has the form `project-shortname:groupname`.
 The available system groups are:
 
-- UnknownUser
-- KnownUser
-- ProjectMember
-- Creator
-- ProjectAdmin
-- SystemAdmin
+- UnknownUser (not logged in user)
+- KnownUser (logged in user)
+- ProjectMember (user with project membership)
+- Creator (creator of the resource or value)
+- ProjectAdmin (user with project admin membership)
+- SystemAdmin (system administrator)
 
 There are no sub-elements allowed for the `<allow>` element.
 
@@ -225,12 +240,12 @@ Note:
 
 Attributes:
 
-- none
+- `permissions` : ID or a permission set (optional, but if omitted very restricted default permissions apply)
 
 Example:
 
 ```xml
-<bitstream>postcards/images/EURUS015a.jpg</bitstream>
+<bitstream permissions="prop-restricted">postcards/images/EURUS015a.jpg</bitstream>
 ```
 
 ### `<text-prop>`

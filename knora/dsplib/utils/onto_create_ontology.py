@@ -131,22 +131,24 @@ def create_ontology(input_file: str,
 
     new_groups = {}
     groups = data_model["project"].get('groups')
-    if groups is not None:
+    if groups:
         for group in groups:
             try:
                 new_group = Group(con=con,
                                   name=group["name"],
                                   descriptions=LangString(group["descriptions"]),
                                   project=project,
-                                  status=group["status"] if group.get("status") is not None else True,
-                                  selfjoin=group["selfjoin"] if group.get("selfjoin") is not None else False).create()
+                                  status=group["status"] if group.get("status") else True,
+                                  selfjoin=group["selfjoin"] if group.get("selfjoin") else False).create()
+                new_groups[new_group.name] = new_group
+                if verbose:
+                    print("Created group:")
+                    new_group.print()  # project.set_default_permissions(new_group.id)
+
             except BaseError as err:
-                print("Creating group has failed: ", err.message)
-                return False
-            new_groups[new_group.name] = new_group
-            if verbose:
-                print("Groups:")
-                new_group.print()  # project.set_default_permissions(new_group.id)
+                print(f"ERROR while trying to create group '{group.name}'. The error message was: {err.message}")
+            except Exception as exception:
+                print(f"ERROR while trying to create group '{group.name}'. The error message was: {exception}")
 
     # create the user(s)
     if verbose:

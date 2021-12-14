@@ -383,8 +383,6 @@ Example:
 }
 ```
 
-The `groups` element is optional. If not used, it should be omitted. It is currently not recommended using it.
-
 ### Users
 
 (optional)

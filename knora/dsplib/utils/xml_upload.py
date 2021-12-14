@@ -36,8 +36,8 @@ class ProjectContext:
     _projects: list[Project]
     _project_map: Dict[str, str]  # dictionary of (project name:project IRI) pairs
     _inv_project_map: Dict[str, str]  # dictionary of (project IRI:project name) pairs
-    _groups: list[Group]
-    _group_map: Dict[str, str]
+    _groups: Optional[list[Group]]
+    _group_map: Optional[Dict[str, str]]
     _shortcode: Optional[str]
     _project_name: Optional[str]
 
@@ -46,8 +46,14 @@ class ProjectContext:
         self._projects = Project.getAllProjects(con=con)
         self._project_map: Dict[str, str] = {x.shortname: x.id for x in self._projects}
         self._inv_project_map: Dict[str, str] = {x.id: x.shortname for x in self._projects}
-        self._groups = Group.getAllGroups(con=con)
-        self._group_map: Dict[str, str] = {self._inv_project_map[x.project] + ':' + x.name: x.id for x in self._groups}
+        try:
+            self._groups = Group.getAllGroups(con=con)
+        except BaseError:
+            self._groups = None
+        if self._groups:
+            self._group_map: Dict[str, str] = {self._inv_project_map[x.project] + ':' + x.name: x.id for x in self._groups}
+        else:
+            self._group_map = None
         self._project_name = None
         # get the project name from the shortcode
         if self._shortcode:

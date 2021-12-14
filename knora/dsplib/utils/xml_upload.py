@@ -48,10 +48,11 @@ class ProjectContext:
         self._inv_project_map: Dict[str, str] = {x.id: x.shortname for x in self._projects}
         try:
             self._groups = Group.getAllGroups(con=con)
-            self._group_map: Dict[str, str] = {self._inv_project_map[x.project] + ':' + x.name: x.id for x in
-                                               self._groups}
         except BaseError:
             self._groups = None
+        if self._groups:
+            self._group_map: Dict[str, str] = {self._inv_project_map[x.project] + ':' + x.name: x.id for x in self._groups}
+        else:
             self._group_map = None
         self._project_name = None
         # get the project name from the shortcode

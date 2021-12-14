@@ -96,7 +96,6 @@
         </color-prop>
         <list-prop list="testlist" name=":hasListItem">
             <list permissions="prop-default">b2</list>
-            <list permissions="prop-default">b2</list>
         </list-prop>
         <resptr-prop name=":hasTestThing2">
             <resptr permissions="prop-default">obj_0000</resptr>

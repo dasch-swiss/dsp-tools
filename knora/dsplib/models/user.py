@@ -3,6 +3,7 @@ import os
 import sys
 from typing import List, Set, Dict, Optional, Any, Union
 from urllib.parse import quote_plus
+import urllib.parse
 
 from pystrict import strict
 
@@ -669,6 +670,40 @@ class User(Model):
         if 'users' not in result:
             raise BaseError("Request got no users!")
         return list(map(lambda a: User.fromJsonObj(con, a), result['users']))
+
+    @staticmethod
+    def getAllUsersForProject(con: Connection, proj_shortcode: str) -> List[Any]:
+        """
+        Get a list of all users that belong to a project(static method)
+
+        :param con: Connection instance
+        :project_shortcode: Shortcode of the project
+        :return: List of users belonging to that project
+        """
+
+        result = con.get('/admin/users')
+        if 'users' not in result:
+            raise BaseError("Request got no users!")
+        all_users = result["users"]
+        project_users = []
+        for user in all_users:
+            project_list = con.get('/admin/users/iri/' + urllib.parse.quote_plus(user["id"], safe='') + '/project-memberships')
+            project = project_list["projects"]
+            for proj in project:
+                if proj["id"] == "http://rdfh.ch/projects/" + proj_shortcode:
+                    project_users.append(user)
+        return list(map(lambda a: User.fromJsonObj(con, a), project_users))
+
+    def createDefinitionFileObj(self):
+        user = {
+            "username": self.username,
+            "email": self.email,
+            "givenName": self.givenName,
+            "familyName": self.familyName,
+            "password": "",
+            "lang": self.lang.value
+        }
+        return user
 
     def print(self) -> None:
         """

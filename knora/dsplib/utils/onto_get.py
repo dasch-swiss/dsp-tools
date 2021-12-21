@@ -7,6 +7,7 @@ from ..models.group import Group
 from ..models.listnode import ListNode
 from ..models.ontology import Ontology
 from ..models.project import Project
+from ..models.user import User
 
 
 def get_ontology(project_identifier: str, outfile: str, server: str, user: str, password: str, verbose: bool) -> None:
@@ -46,16 +47,24 @@ def get_ontology(project_identifier: str, outfile: str, server: str, user: str, 
     # get groups
     if verbose:
         print("Getting groups...")
-    group_obj = []
+    groups_obj = []
     groups = Group.getAllGroupsForProject(con=con, proj_shortcode=project.shortcode)
     for group in groups:
-        group_obj.append(group.createDefinitionFileObj())
-    print(group_obj)
-    project_obj["groups"] = group_obj
+        groups_obj.append(group.createDefinitionFileObj())
+        if verbose:
+            print(f"\tGot group '{group.name}'")
+    project_obj["groups"] = groups_obj
 
-    # get users # TODO continue here
+    # get users
     if verbose:
         print("Getting users...")
+    users_obj = []
+    users = User.getAllUsersForProject(con=con, proj_shortcode=project.shortcode)
+    for user in users:
+        users_obj.append(user.createDefinitionFileObj())
+        if verbose:
+            print(f"\tGot user '{user.username}'")
+    project_obj["users"] = users_obj
 
     # get the lists
     if verbose:

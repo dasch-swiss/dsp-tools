@@ -443,6 +443,8 @@ class PropertyClass(Model):
             for (attname, attvalue) in self.gui_attributes.items():
                 if attname == "size":
                     gui_elements[attname] = int(attvalue)
+                elif attname == "maxlength":
+                    gui_elements[attname] = int(attvalue)
                 elif attname == "maxsize":
                     gui_elements[attname] = int(attvalue)
                 elif attname == "hlist":

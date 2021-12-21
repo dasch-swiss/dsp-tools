@@ -4,7 +4,7 @@ from urllib.parse import quote_plus
 
 from pystrict import strict
 
-from knora.dsplib.models.langstring import LangString, LangStringParam, Languages
+from knora.dsplib.models.langstring import LangString, Languages
 from .connection import Connection
 from .helpers import Actions, BaseError
 from .model import Model

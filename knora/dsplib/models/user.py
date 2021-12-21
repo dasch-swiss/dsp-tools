@@ -1,9 +1,9 @@
 import json
 import os
 import sys
+import urllib.parse
 from typing import List, Set, Dict, Optional, Any, Union
 from urllib.parse import quote_plus
-import urllib.parse
 
 from pystrict import strict
 
@@ -687,7 +687,8 @@ class User(Model):
         all_users = result["users"]
         project_users = []
         for user in all_users:
-            project_list = con.get('/admin/users/iri/' + urllib.parse.quote_plus(user["id"], safe='') + '/project-memberships')
+            project_list = con.get(
+                '/admin/users/iri/' + urllib.parse.quote_plus(user["id"], safe='') + '/project-memberships')
             project = project_list["projects"]
             for proj in project:
                 if proj["id"] == "http://rdfh.ch/projects/" + proj_shortcode:

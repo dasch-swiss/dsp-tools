@@ -37,7 +37,8 @@ def get_ontology(project_identifier: str, outfile: str, server: str, user: str, 
     elif re.match("^(http)s?://([\\w\\.\\-~]+:?\\d{,4})(/[\\w\\-~]+)+$", project_identifier):  # iri
         project = Project(con=con, shortname=project_identifier)
     else:
-        print(f"ERROR Invalid project identifier '{project_identifier}'. Use the project's shortcode, shortname or IRI.")
+        print(
+            f"ERROR Invalid project identifier '{project_identifier}'. Use the project's shortcode, shortname or IRI.")
         exit(1)
 
     project = project.read()

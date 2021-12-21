@@ -397,7 +397,11 @@ def create_ontology(input_file: str,
                         last_modification_date)
                 except BaseError as err:
                     print(
-                        f"ERROR while trying to create property class {prop_label}. The error message was: {err.message}")
+                        f"ERROR while trying to create property class {prop_name}. The error message was: {err.message}"
+                    )
+                except Exception as exception:
+                    print(
+                        f"ERROR while trying to create property class {prop_name}. The error message was: {exception}")
 
                 new_ontology.lastModificationDate = last_modification_date
                 if verbose:

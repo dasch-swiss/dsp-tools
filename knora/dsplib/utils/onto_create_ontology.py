@@ -349,6 +349,11 @@ def create_ontology(input_file: str,
                 res_comment = res_class.get("comments")
                 if res_comment:
                     res_comment = LangString(res_comment)
+                # if no cardinalities are submitted, don't create the class
+                if not res_class.get("cardinalities"):
+                    print(f"ERROR while trying to add cardinalities to class '{res_name}'. No cardinalities submitted. At"
+                          f"least one direct cardinality is required to create a class with dsp-tools.")
+                    continue
 
                 new_res_class = None
                 try:

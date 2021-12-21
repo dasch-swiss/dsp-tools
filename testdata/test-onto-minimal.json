@@ -1,0 +1,153 @@
+{
+    "prefixes": {
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "dcterms": "http://purl.org/dc/terms/"
+    },
+    "$schema": "../knora/dsplib/schemas/ontology.json",
+    "project": {
+        "shortcode": "4124",
+        "shortname": "tpmin",
+        "longname": "test project",
+        "descriptions": {
+            "en": "A systematic test project",
+            "de": "Ein systematisches Testprojekt"
+        },
+        "keywords": [
+            "test",
+            "testing"
+        ],
+        "groups": [
+            {
+                "name": "testgroupEditors",
+                "descriptions": {
+                    "en": "Test group editors",
+                    "de": "Testgruppe Editors"
+                },
+                "selfjoin": false,
+                "status": true
+            }
+        ],
+        "ontologies": [
+            {
+                "name": "testonto",
+                "label": "Test ontology",
+                "properties": [
+                    {
+                        "name": "hasText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": 255,
+                            "size": 80
+                        }
+                    },
+                    {
+                        "name": "hasRichtext",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "Richtext"
+                    },
+                    {
+                        "name": "hasUri",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "UriValue",
+                        "labels": {
+                            "en": "URI"
+                        },
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": 255,
+                            "size": 80
+                        }
+                    },
+                    {
+                        "name": "hasInteger",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "IntValue",
+                        "labels": {
+                            "en": "Integer"
+                        },
+                        "gui_element": "Spinbox",
+                        "gui_attributes": {
+                            "max": -1.0,
+                            "min": 0.0
+                        }
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "Agent",
+                        "labels": {
+                            "de": "Agent",
+                            "en": "Agent",
+                            "fr": "Agent"
+                        },
+                        "comments": {"en": "no comment"},
+                        "super": "Resource",
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "cardinality": "0-n",
+                                "gui_order": 1
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Person",
+                        "labels": {
+                            "de": "Person",
+                            "en": "Person",
+                            "fr": "Personne"
+                        },
+                        "comments": {
+                            "en": "no comment"
+                        },
+                        "super": ":Agent",
+                        "cardinalities": [
+                            {
+                                "propname": ":hasRichtext",
+                                "gui_order": 2,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasUri",
+                                "gui_order": 3,
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "SubPerson",
+                        "labels": {
+                            "de": "SubPerson",
+                            "en": "SubPerson",
+                            "fr": "SubPersonne"
+                        },
+                        "comments": {
+                            "en": "no comment"
+                        },
+                        "super": ":Person",
+                        "cardinalities": [
+                            
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

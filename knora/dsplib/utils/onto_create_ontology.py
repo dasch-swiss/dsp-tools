@@ -1,4 +1,5 @@
-"""This module handles the ontology creation and upload to a DSP server. This includes the creation and upload of lists."""
+"""This module handles the ontology creation and upload to a DSP server. This includes the creation of the project,
+groups, users, lists, resource classes, properties and cardinalities. """
 import json
 from typing import Dict, List, Optional, Set
 
@@ -90,7 +91,7 @@ def create_ontology(input_file: str,
         # try to read the project to check if it exists
         project = Project(con=con, shortcode=data_model["project"]["shortcode"]).read()
 
-        # update the project with data from data_model
+        # update the project with data from the ontology (data_model)
         if project.shortname != data_model["project"]["shortname"]:
             project.shortname = data_model["project"]["shortname"]
         if project.longname != data_model["project"]["longname"]:
@@ -143,7 +144,7 @@ def create_ontology(input_file: str,
                 new_groups[new_group.name] = new_group
                 if verbose:
                     print("Created group:")
-                    new_group.print()  # project.set_default_permissions(new_group.id)
+                    new_group.print()
 
             except BaseError as err:
                 print(f"ERROR while trying to create group '{group.name}'. The error message was: {err.message}")
@@ -309,143 +310,168 @@ def create_ontology(input_file: str,
     # create the ontologies
     if verbose:
         print("Create ontologies...")
-    ontologies = data_model["project"]["ontologies"]
+    ontologies = data_model.get("project").get("ontologies")
     for ontology in ontologies:
-        newontology = Ontology(con=con,
-                               project=project,
-                               label=ontology["label"],
-                               name=ontology["name"]).create()
-        last_modification_date = newontology.lastModificationDate
-        if verbose:
-            print("Created empty ontology:")
-            newontology.print()
+        new_ontology = None
+        last_modification_date = None
+        try:
+            new_ontology = Ontology(con=con,
+                                    project=project,
+                                    label=ontology.get("label"),
+                                    name=ontology.get("name")).create()
+            last_modification_date = new_ontology.lastModificationDate
+            if verbose:
+                print("Created ontology:")
+                new_ontology.print()
+        except BaseError as err:
+            print(f"ERROR while trying to create ontology. The error message was {err.message}")
+            exit(1)
+        except Exception as exception:
+            print(f"ERROR while trying to create ontology. The error message was {exception}")
+            exit(1)
 
         # add the prefixes defined in the json file
         for prefix, iri in context:
-            if not prefix in newontology.context:
+            if prefix not in new_ontology.context:
                 s = iri.iri + ("#" if iri.hashtag else "")
-                newontology.context.add_context(prefix, s)
-
-        # create the empty resource classes
-        resclasses = ontology["resources"]
-        newresclasses: Dict[str, ResourceClass] = {}
-        for resclass in resclasses:
-            resname = resclass.get("name")
-            super_classes = resclass.get("super")
-            if isinstance(super_classes, str):
-                super_classes = [super_classes]
-            reslabel = LangString(resclass.get("labels"))
-            rescomment = resclass.get("comments")
-            if rescomment is not None:
-                rescomment = LangString(rescomment)
-            try:
-                last_modification_date, newresclass = ResourceClass(con=con,
-                                                                    context=newontology.context,
-                                                                    ontology_id=newontology.id,
-                                                                    name=resname,
-                                                                    superclasses=super_classes,
-                                                                    label=reslabel,
-                                                                    comment=rescomment).create(last_modification_date)
-                newontology.lastModificationDate = last_modification_date
-            except BaseError as err:
-                print("Creating resource class failed:", err.message)
-                exit(1)
-            newresclasses[newresclass.id] = newresclass
-            if verbose:
-                print("New resource class:")
-                newresclass.print()
+                new_ontology.context.add_context(prefix, s)
 
         # create the property classes
-        propclasses = ontology["properties"]
-        newpropclasses: Dict[str, ResourceClass] = {}
-        for propclass in propclasses:
-            propname = propclass.get("name")
-            proplabel = LangString(propclass.get("labels"))
-            # get the super-property/ies if defined. Valid forms are:
-            #   - "prefix:superproperty" : fully qualified name of property in another ontology. The prefix has to
-            #     be defined in the prefixes part.
-            #   - "superproperty" : Use of super-property defined in the knora-api ontology
-            #  if omitted, "knora-api:hasValue" is assumed
-            if propclass.get("super") is not None:
-                super_props = list(map(lambda a: a if ':' in a else "knora-api:" + a, propclass["super"]))
-            else:
-                super_props = ["knora-api:hasValue"]
-            # get the "object" if defined. Valid forms are:
-            #  - "prefix:object_name" : fully qualified object. The prefix has to be defined in the prefixes part.
-            #  - ":object_name" : The object is defined in the current ontology.
-            #  - "object_name" : The object is defined in "knora-api"
-            if propclass.get("object") is not None:
-                tmp = propclass["object"].split(':')
-                if len(tmp) > 1:
-                    if tmp[0]:
-                        object = propclass["object"]  # fully qualified name
-                    else:
-                        if verbose:
-                            newontology.print()
-                        object = newontology.name + ':' + tmp[1]
+        prop_classes = ontology.get("properties")
+        if prop_classes:
+            for prop_class in prop_classes:
+                prop_name = prop_class.get("name")
+                prop_label = LangString(prop_class.get("labels"))
+                '''
+                get the super-property/ies if defined, valid forms are:
+                  - "prefix:super-property" : fully qualified name of property in another ontology. The prefix has to be 
+                    defined in the prefixes part.
+                  - "super-property" : super-property defined in the knora-api ontology
+                  - if omitted, "knora-api:hasValue" is assumed
+                '''
+                if prop_class.get("super"):
+                    super_props = list(map(lambda a: a if ':' in a else "knora-api:" + a, prop_class.get("super")))
                 else:
-                    object = "knora-api:" + propclass["object"]
-            else:
-                object = None
+                    super_props = ["knora-api:hasValue"]
+                '''
+                get the "object" if defined, valid forms are:
+                  - "prefix:object_name" : fully qualified object. The prefix has to be defined in the prefixes part.
+                  - ":object_name" : The object is defined in the current ontology.
+                  - "object_name" : The object is defined in "knora-api"
+                '''
+                if prop_class.get("object"):
+                    tmp = prop_class.get("object").split(':')
+                    if len(tmp) > 1:
+                        if tmp[0]:
+                            prop_object = prop_class.get("object")  # fully qualified name
+                        else:
+                            prop_object = new_ontology.name + ':' + tmp[1]  # object refers to actual ontology
+                    else:
+                        prop_object = "knora-api:" + prop_class.get("object")  # object refers to knora-api
+                else:
+                    prop_object = None
+                prop_subject = prop_class.get("subject")
+                gui_element = prop_class.get("gui_element")
+                gui_attributes = prop_class.get("gui_attributes")
+                if gui_attributes and gui_attributes.get("hlist"):
+                    gui_attributes["hlist"] = "<" + list_root_nodes[gui_attributes["hlist"]]["id"] + ">"
+                prop_comment = prop_class.get("comment")
+                if prop_comment:
+                    prop_comment = LangString(prop_comment)
+                else:
+                    prop_comment = "no comment given"
 
-            if propclass.get("subject") is not None:
-                subject = propclass["subject"]
-            else:
-                subject = None
-            gui_element = propclass.get("gui_element")
-            gui_attributes = propclass.get("gui_attributes")
-            if gui_attributes is not None and gui_attributes.get("hlist") is not None:
-                gui_attributes['hlist'] = "<" + list_root_nodes[gui_attributes['hlist']]["id"] + ">"
-            propcomment = propclass.get("comment")
-            if propcomment is not None:
-                propcomment = LangString(propcomment)
-            else:
-                propcomment = "no comment given"
-            try:
-                last_modification_date, newpropclass = PropertyClass(con=con,
-                                                                     context=newontology.context,
-                                                                     label=proplabel,
-                                                                     name=propname,
-                                                                     ontology_id=newontology.id,
-                                                                     superproperties=super_props,
-                                                                     object=object,
-                                                                     subject=subject,
-                                                                     gui_element="salsah-gui:" + gui_element,
-                                                                     gui_attributes=gui_attributes,
-                                                                     comment=propcomment).create(last_modification_date)
-                newontology.lastModificationDate = last_modification_date
-            except BaseError as err:
-                print("Creating property class failed:", err.message)
-                return False
-            newpropclasses[newpropclass.id] = newpropclass
-            if verbose:
-                print("New property class:")
-                newpropclass.print()
+                new_prop_class = None
+                new_last_modification_date = None
+                try:
+                    new_last_modification_date, new_prop_class = PropertyClass(con=con,
+                                                                               context=new_ontology.context,
+                                                                               label=prop_label,
+                                                                               name=prop_name,
+                                                                               ontology_id=new_ontology.id,
+                                                                               superproperties=super_props,
+                                                                               object=prop_object,
+                                                                               subject=prop_subject,
+                                                                               gui_element="salsah-gui:" + gui_element,
+                                                                               gui_attributes=gui_attributes,
+                                                                               comment=prop_comment).create(
+                        last_modification_date)
+                except BaseError as err:
+                    print(
+                        f"ERROR while trying to create property class {prop_label}. The error message was: {err.message}")
 
-        # Add cardinalities
+                new_ontology.lastModificationDate = new_last_modification_date
+                if verbose:
+                    print("Created property:")
+                    new_prop_class.print()
+
+        # create the resource classes with cardinalities
         switcher = {
             "1": Cardinality.C_1,
             "0-1": Cardinality.C_0_1,
             "0-n": Cardinality.C_0_n,
             "1-n": Cardinality.C_1_n
         }
-        for resclass in resclasses:
-            for cardinfo in resclass["cardinalities"]:
-                rc = newresclasses.get(newontology.id + '#' + resclass["name"])
-                cardinality = switcher[cardinfo["cardinality"]]
-                tmp = cardinfo["propname"].split(':')
-                if len(tmp) > 1:
-                    if tmp[0]:
-                        propid = cardinfo["propname"]  # fully qualified name
-                    else:
-                        propid = newontology.name + ':' + tmp[1]
-                else:
-                    propid = "knora-api:" + cardinfo["propname"]
-                gui_order = cardinfo.get('gui_order')
-                last_modification_date = rc.addProperty(
-                    property_id=propid,
-                    cardinality=cardinality,
-                    gui_order=gui_order,
-                    last_modification_date=last_modification_date)
-                newontology.lastModificationDate = last_modification_date
-    return True
+
+        if ontology.get("resources"):
+            for res_class in ontology.get("resources"):
+                res_name = res_class.get("name")
+                super_classes = res_class.get("super")
+                if isinstance(super_classes, str):
+                    super_classes = [super_classes]
+                res_label = LangString(res_class.get("labels"))
+                res_comment = res_class.get("comments")
+                if res_comment:
+                    res_comment = LangString(res_comment)
+
+                new_res_class = None
+                new_last_modification_date = None
+                try:
+                    new_last_modification_date, new_res_class = ResourceClass(con=con,
+                                                                              context=new_ontology.context,
+                                                                              ontology_id=new_ontology.id,
+                                                                              name=res_name,
+                                                                              superclasses=super_classes,
+                                                                              label=res_label,
+                                                                              comment=res_comment).create(
+                        last_modification_date)
+                except BaseError as err:
+                    print(
+                        f"ERROR while trying to create resource class {res_name}. The error message was {err.message}")
+                except Exception as exception:
+                    print(
+                        f"ERROR while trying to create resource class {res_name}. The error message was {exception}")
+                new_ontology.lastModificationDate = new_last_modification_date
+
+                # Add cardinality/ies to class
+                if res_class.get("cardinalities"):
+                    for card_info in res_class.get("cardinalities"):
+                        cardinality = switcher[card_info.get("cardinality")]
+                        prop_name_for_card = card_info.get("prop_name")
+                        tmp = prop_name_for_card.split(":")
+                        if len(tmp) > 1:
+                            if tmp[0]:
+                                prop_id = prop_name_for_card  # fully qualified name
+                            else:
+                                prop_id = new_ontology.name + ":" + tmp[1]  # prop name refers to actual ontology
+                        else:
+                            prop_id = "knora-api:" + prop_name_for_card  # prop name refers to knora-api
+
+                        try:
+                            new_last_modification_date = new_res_class.addProperty(
+                                property_id=prop_id,
+                                cardinality=cardinality,
+                                gui_order=card_info.get("gui_order"),
+                                last_modification_date=last_modification_date)
+                        except BaseError as err:
+                            print(
+                                f"ERROR while trying to add cardinality {prop_id} to resource class {res_name}. The error message was {err.message}")
+                        except Exception as exception:
+                            print(
+                                f"ERROR while trying to add cardinality {prop_id} to resource class {res_name}. The error message was {exception}")
+
+                        new_ontology.lastModificationDate = new_last_modification_date
+
+                if verbose:
+                    print("Created resource class:")
+                    new_res_class.print()

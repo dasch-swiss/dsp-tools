@@ -336,6 +336,43 @@ def create_ontology(input_file: str,
                 s = iri.iri + ("#" if iri.hashtag else "")
                 new_ontology.context.add_context(prefix, s)
 
+        # create the empty resource classes
+        new_res_classes: Dict[str, ResourceClass] = {}
+
+        if ontology.get("resources"):
+            for res_class in ontology.get("resources"):
+                res_name = res_class.get("name")
+                super_classes = res_class.get("super")
+                if isinstance(super_classes, str):
+                    super_classes = [super_classes]
+                res_label = LangString(res_class.get("labels"))
+                res_comment = res_class.get("comments")
+                if res_comment:
+                    res_comment = LangString(res_comment)
+
+                new_res_class = None
+                try:
+                    last_modification_date, new_res_class = ResourceClass(con=con,
+                                                                          context=new_ontology.context,
+                                                                          ontology_id=new_ontology.id,
+                                                                          name=res_name,
+                                                                          superclasses=super_classes,
+                                                                          label=res_label,
+                                                                          comment=res_comment).create(
+                        last_modification_date)
+                except BaseError as err:
+                    print(
+                        f"ERROR while trying to create resource class {res_name}. The error message was {err.message}")
+                except Exception as exception:
+                    print(
+                        f"ERROR while trying to create resource class {res_name}. The error message was {exception}")
+                new_res_classes[new_res_class.id] = new_res_class
+                new_ontology.lastModificationDate = last_modification_date
+
+                if verbose:
+                    print("Created resource class:")
+                    new_res_class.print()
+
         # create the property classes
         prop_classes = ontology.get("properties")
         if prop_classes:
@@ -408,7 +445,7 @@ def create_ontology(input_file: str,
                     print("Created property:")
                     new_prop_class.print()
 
-        # create the resource classes with cardinalities
+        # Add cardinality/ies to class
         switcher = {
             "1": Cardinality.C_1,
             "0-1": Cardinality.C_0_1,
@@ -416,64 +453,34 @@ def create_ontology(input_file: str,
             "1-n": Cardinality.C_1_n
         }
 
-        if ontology.get("resources"):
-            for res_class in ontology.get("resources"):
-                res_name = res_class.get("name")
-                super_classes = res_class.get("super")
-                if isinstance(super_classes, str):
-                    super_classes = [super_classes]
-                res_label = LangString(res_class.get("labels"))
-                res_comment = res_class.get("comments")
-                if res_comment:
-                    res_comment = LangString(res_comment)
-
-                new_res_class = None
-                try:
-                    last_modification_date, new_res_class = ResourceClass(con=con,
-                                                                          context=new_ontology.context,
-                                                                          ontology_id=new_ontology.id,
-                                                                          name=res_name,
-                                                                          superclasses=super_classes,
-                                                                          label=res_label,
-                                                                          comment=res_comment).create(
-                        last_modification_date)
-                except BaseError as err:
-                    print(
-                        f"ERROR while trying to create resource class {res_name}. The error message was {err.message}")
-                except Exception as exception:
-                    print(
-                        f"ERROR while trying to create resource class {res_name}. The error message was {exception}")
-                new_ontology.lastModificationDate = last_modification_date
-
-                # Add cardinality/ies to class
-                if res_class.get("cardinalities"):
-                    for card_info in res_class.get("cardinalities"):
-                        cardinality = switcher[card_info.get("cardinality")]
-                        prop_name_for_card = card_info.get("propname")
-                        tmp = prop_name_for_card.split(":")
-                        if len(tmp) > 1:
-                            if tmp[0]:
-                                prop_id = prop_name_for_card  # fully qualified name
-                            else:
-                                prop_id = new_ontology.name + ":" + tmp[1]  # prop name refers to actual ontology
+        for res_class in ontology.get("resources"):
+            if res_class.get("cardinalities"):
+                for card_info in res_class.get("cardinalities"):
+                    rc = new_res_classes.get(new_ontology.id + '#' + res_class.get("name"))
+                    cardinality = switcher[card_info.get("cardinality")]
+                    prop_name_for_card = card_info.get("propname")
+                    tmp = prop_name_for_card.split(":")
+                    if len(tmp) > 1:
+                        if tmp[0]:
+                            prop_id = prop_name_for_card  # fully qualified name
                         else:
-                            prop_id = knora_api_prefix + prop_name_for_card  # prop name refers to knora-api
+                            prop_id = new_ontology.name + ":" + tmp[1]  # prop name refers to actual ontology
+                    else:
+                        prop_id = knora_api_prefix + prop_name_for_card  # prop name refers to knora-api
 
-                        try:
-                            last_modification_date = new_res_class.addProperty(
-                                property_id=prop_id,
-                                cardinality=cardinality,
-                                gui_order=card_info.get("gui_order"),
-                                last_modification_date=last_modification_date)
-                        except BaseError as err:
-                            print(
-                                f"ERROR while trying to add cardinality {prop_id} to resource class {res_name}. The error message was {err.message}")
-                        except Exception as exception:
-                            print(
-                                f"ERROR while trying to add cardinality {prop_id} to resource class {res_name}. The error message was {exception}")
+                    try:
+                        last_modification_date = rc.addProperty(
+                            property_id=prop_id,
+                            cardinality=cardinality,
+                            gui_order=card_info.get("gui_order"),
+                            last_modification_date=last_modification_date)
+                    except BaseError as err:
+                        print(
+                            f"ERROR while trying to add cardinality {prop_id} to resource class {res_class.get('name')}."
+                            f"The error message was {err.message}")
+                    except Exception as exception:
+                        print(
+                            f"ERROR while trying to add cardinality {prop_id} to resource class {res_class.get('name')}."
+                            f"The error message was {exception}")
 
-                        new_ontology.lastModificationDate = last_modification_date
-
-                if verbose:
-                    print("Created resource class:")
-                    new_res_class.print()
+                    new_ontology.lastModificationDate = last_modification_date

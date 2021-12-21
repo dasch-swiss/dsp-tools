@@ -27,10 +27,8 @@ class SetEncoder(json.JSONEncoder):
 """
 This model implements the handling of ontologies. It is to note that ResourceClasses, PropertyClasses
 as well as the assignment of PropertyCLasses to the ResourceClasses (with a given cardinality)
-is handeld in "cooperation" with the propertyclass.py (PropertyClass) and resourceclass.py (ResourceClass
+is handled in "cooperation" with the propertyclass.py (PropertyClass) and resourceclass.py (ResourceClass
 and HasProperty) modules.
-
-_Note_: All modifications to an ontology
 
 CREATE:
     * Instantiate a new object of the Ontology class with all required parameters
@@ -51,7 +49,6 @@ DELETE
     * Instantiate a new objects with ``id``(IRI of group) given, or use any instance that has the id set,
       that is, that You've read before
     * Call the ``delete``-method on the instance
-
 """
 
 
@@ -415,26 +412,26 @@ class Ontology(Model):
 
     @staticmethod
     def getOntologyFromServer(con: Connection, shortcode: str, name: str) -> 'Ontology':
-        result = con.get("/ontology/" + shortcode + "/" + name + "/v2")
+        result = con.get("/ontology/" + shortcode + "/" + name + "/v2?allLanguages=true")
         return Ontology.fromJsonObj(con, result)
 
     def createDefinitionFileObj(self):
         ontology = {
-            "name": self._name,
-            "label": self._label,
+            "name": self.name,
+            "label": self.label,
             "properties": [],
             "resources": []
         }
-        if self._comment is not None:
-            ontology["comment"] = self._comment
-        for prop in self._property_classes:
+        if self.comment:
+            ontology["comment"] = self.comment
+        for prop in self.property_classes:
             if "knora-api:hasLinkToValue" in prop.superproperties:
-                self._skiplist.append(self._name + ":" + prop.name)
+                self.skiplist.append(self.name + ":" + prop.name)
                 continue
-            ontology["properties"].append(prop.createDefinitionFileObj(self.context, self._name))
+            ontology["properties"].append(prop.createDefinitionFileObj(self.context, self.name))
 
-        for res in self._resource_classes:
-            ontology["resources"].append(res.createDefinitionFileObj(self.context, self._name, self._skiplist))
+        for res in self.resource_classes:
+            ontology["resources"].append(res.createDefinitionFileObj(self.context, self.name, self._skiplist))
 
         return ontology
 

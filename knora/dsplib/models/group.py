@@ -242,6 +242,27 @@ class Group(Model):
             raise BaseError("Request got no groups!")
         return list(map(lambda a: Group.fromJsonObj(con, a), result['groups']))
 
+    @staticmethod
+    def getAllGroupsForProject(con: Connection, proj_shortcode: str) -> List['Group']:
+        result = con.get('/admin/groups')
+        if 'groups' not in result:
+            raise BaseError("Request got no groups!")
+        all_groups = result["groups"]
+        project_groups = []
+        for group in all_groups:
+            if group["project"]["id"] == "http://rdfh.ch/projects/" + proj_shortcode:
+                project_groups.append(group)
+        return list(map(lambda a: Group.fromJsonObj(con, a), project_groups))
+
+    def createDefinitionFileObj(self):
+        group = {
+            "name": self.name,
+            "descriptions": self.descriptions.createDefinitionFileObj(),
+            "selfjoin": self.selfjoin,
+            "status": self.status
+        }
+        return group
+
     def print(self):
         print('Group Info:')
         print('  Id:          {}'.format(self._id))

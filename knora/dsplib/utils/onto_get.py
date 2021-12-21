@@ -3,6 +3,7 @@ import re
 from typing import Dict
 
 from ..models.connection import Connection
+from ..models.group import Group
 from ..models.listnode import ListNode
 from ..models.ontology import Ontology
 from ..models.project import Project
@@ -41,6 +42,20 @@ def get_ontology(project_identifier: str, outfile: str, server: str, user: str, 
     project = project.read()
 
     project_obj = project.createDefinitionFileObj()
+
+    # get groups
+    if verbose:
+        print("Getting groups...")
+    group_obj = []
+    groups = Group.getAllGroupsForProject(con=con, proj_shortcode=project.shortcode)
+    for group in groups:
+        group_obj.append(group.createDefinitionFileObj())
+    print(group_obj)
+    project_obj["groups"] = group_obj
+
+    # get users # TODO continue here
+    if verbose:
+        print("Getting users...")
 
     # get the lists
     if verbose:

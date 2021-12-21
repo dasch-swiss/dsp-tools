@@ -423,24 +423,24 @@ class PropertyClass(Model):
         :return: Python object to be jsonfied
         """
         property = {
-            "name": self._name
+            "name": self.name
         }
-        if self._object is not None:
-            property["name"] = self._name
-        if self._superproperties is not None:
+        if self.object:
+            property["name"] = self.name
+        if self.superproperties:
             superprops = []
-            for sc in self._superproperties:
+            for sc in self.superproperties:
                 superprops.append(context.reduce_iri(sc, shortname))
             property["super"] = superprops
-        if self._object is not None:
-            property["object"] = context.reduce_iri(self._object, shortname)
-        if self._label is not None:
-            property["labels"] = self._label.createDefinitionFileObj()
-        if self._gui_element is not None:
-            property["gui_element"] = context.reduce_iri(self._gui_element, shortname)
-        if self._gui_attributes:
+        if self.object:
+            property["object"] = context.reduce_iri(self.object, shortname)
+        if self.label:
+            property["labels"] = self.label.createDefinitionFileObj()
+        if self.gui_element:
+            property["gui_element"] = context.reduce_iri(self.gui_element, shortname)
+        if self.gui_attributes:
             gui_elements = {}
-            for (attname, attvalue) in self._gui_attributes.items():
+            for (attname, attvalue) in self.gui_attributes.items():
                 if attname == "size":
                     gui_elements[attname] = int(attvalue)
                 elif attname == "maxsize":

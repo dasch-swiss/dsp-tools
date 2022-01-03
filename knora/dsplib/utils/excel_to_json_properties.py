@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Any
 
 import jsonschema
 from openpyxl import load_workbook
@@ -7,15 +8,15 @@ from openpyxl import load_workbook
 
 def validate_properties_with_schema(json_file: str) -> bool:
     """
-        This function checks if the json properties are valid according to the schema.
+    This function checks if the json properties are valid according to the schema.
 
-        Args:
-            json_file: the json with the properties to be validated
+    Args:
+        json_file: the json with the properties to be validated
 
-        Returns:
-            True if the data passed validation, False otherwise
+    Returns:
+        True if the data passed validation, False otherwise
 
-        """
+    """
     current_dir = os.path.dirname(os.path.realpath(__file__))
     with open(os.path.join(current_dir, '../schemas/properties-only.json')) as schema:
         properties_schema = json.load(schema)
@@ -29,16 +30,16 @@ def validate_properties_with_schema(json_file: str) -> bool:
     return True
 
 
-def properties_excel2json(excelfile: str, outfile: str):
+def properties_excel2json(excelfile: str, outfile: str) -> list[dict[str, Any]]:
     """
-        Converts properties described in an Excel file into a properties section which can be integrated into a DSP ontology
+    Converts properties described in an Excel file into a properties section which can be integrated into a DSP ontology
 
-        Args:
-            excelfile: path to the Excel file containing the properties
-            outfile: path to the output JSON file containing the properties section for the ontology
+    Args:
+        excelfile: path to the Excel file containing the properties
+        outfile: path to the output JSON file containing the properties section for the ontology
 
-        Returns:
-            None
+    Returns:
+        List(JSON): a list with a dict (JSON) for each row in the Excel file
     """
     # load file
     wb = load_workbook(filename=excelfile, read_only=True)
@@ -59,7 +60,7 @@ def properties_excel2json(excelfile: str, outfile: str):
     return props
 
 
-def row_to_prop(row):
+def row_to_prop(row: tuple[str, str, str, str, str, str, str, str, str, str, str, str, str]) -> dict[str, Any]:
     """
     Parses the row of an Excel sheet and makes a property from it
 
@@ -87,9 +88,9 @@ def row_to_prop(row):
     if comment_de:
         comments['de'] = comment_de
     if comment_fr:
-        comments['fr'] = comment_fr      
+        comments['fr'] = comment_fr
     if comment_it:
-        comments['it'] = comment_it  
+        comments['it'] = comment_it
     prop = {
         'name': name,
         'super': [super_],

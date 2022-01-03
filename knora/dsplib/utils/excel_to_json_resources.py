@@ -7,15 +7,15 @@ from openpyxl import load_workbook
 
 def validate_resources_with_schema(json_file: str) -> bool:
     """
-        This function checks if the json resources are valid according to the schema.
+    This function checks if the json resources are valid according to the schema.
 
-        Args:
-            json_file: the json with the resources to be validated
+    Args:
+        json_file: the json with the resources to be validated
 
-        Returns:
-            True if the data passed validation, False otherwise
+    Returns:
+        True if the data passed validation, False otherwise
 
-        """
+    """
     current_dir = os.path.dirname(os.path.realpath(__file__))
     with open(os.path.join(current_dir, '../schemas/resources-only.json')) as schema:
         resources_schema = json.load(schema)
@@ -29,16 +29,16 @@ def validate_resources_with_schema(json_file: str) -> bool:
     return True
 
 
-def resources_excel2json(excelfile: str, outfile: str):
+def resources_excel2json(excelfile: str, outfile: str) -> None:
     """
-        Converts properties described in an Excel file into a properties section which can be integrated into a DSP ontology
+    Converts properties described in an Excel file into a properties section which can be integrated into a DSP ontology
 
-        Args:
-            excelfile: path to the Excel file containing the properties
-            outfile: path to the output JSON file containing the properties section for the ontology
+    Args:
+        excelfile: path to the Excel file containing the properties
+        outfile: path to the output JSON file containing the properties section for the ontology
 
-        Returns:
-            None
+    Returns:
+        None
     """
     # load file
     wb = load_workbook(excelfile, read_only=True)
@@ -64,7 +64,7 @@ def resources_excel2json(excelfile: str, outfile: str):
         if res[4]:
             labels['it'] = res[4]
         # get comments
-        comments = {}    
+        comments = {}
         if res[5]:
             comments['en'] = res[5]
         if res[6]:

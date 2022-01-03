@@ -413,7 +413,7 @@ class PropertyClass(Model):
             return last_modification_date, self
 
     def delete(self, last_modification_date: LastModificationDate) -> LastModificationDate:
-        result = self._con.delete(PropertyClass.ROUTE + '/properties/' + quote_plus(self._id) + '?lastModificationDate=' + str(
+        result = self._con.delete(PropertyClass.ROUTE + '/' + quote_plus(self._id) + '?lastModificationDate=' + str(
             last_modification_date))
         return LastModificationDate(result['knora-api:lastModificationDate'])
 

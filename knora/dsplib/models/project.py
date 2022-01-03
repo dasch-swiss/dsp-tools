@@ -547,39 +547,3 @@ class Project(Model):
             print('  Ontologies: None')
         print('  Selfjoin:   {}'.format(self._selfjoin))
         print('  Status:     {}'.format(self._status))
-
-
-if __name__ == '__main__':
-    con = Connection('http://0.0.0.0:3333')
-    con.login('root@example.com', 'test')
-
-    projects = Project.getAllProjects(con)
-
-    for project in projects:
-        project.print()
-
-    new_project = Project(con=con,
-                          shortcode='F11F',
-                          shortname='mytest3',
-                          longname='A Test beloning to me',
-                          description=LangString({Languages.EN: 'My Tests description'}),
-                          keywords={'AAA', 'BBB'},
-                          selfjoin=False,
-                          status=True).create()
-
-    new_project.print()
-
-    new_project.longname = 'A long name fore a short project'
-    new_project.status = False
-    new_project.description = LangString({Languages.DE: 'Beschreibung meines Tests'})
-    new_project.add_keyword('CCC')
-    new_project = new_project.update()
-    new_project.print()
-
-    new_project = new_project.delete()
-
-    print('**************************************************************')
-    projects = Project.getAllProjects(con)
-
-    for project in projects:
-        project.print()

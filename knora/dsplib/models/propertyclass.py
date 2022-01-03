@@ -10,13 +10,7 @@ from .helpers import Actions, BaseError, Context, LastModificationDate, WithId
 from .langstring import Languages, LangString
 from .listnode import ListNode
 from .model import Model
-
-
-class SetEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, set):
-            return list(obj)
-        return json.JSONEncoder.default(self, obj)
+from ..utils.set_encoder import SetEncoder
 
 
 @strict

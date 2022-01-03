@@ -26,7 +26,7 @@ dsp-tools create [options] data_model_definition.json
 
 The following options are available:
 
-- `-s` | `--server` _server_: URL of the DSP server (default: localhost:3333)
+- `-s` | `--server` _server_: URL of the DSP server (default: 0.0.0.0:3333)
 - `-u` | `--user` _username_: username used for authentication with the DSP API (default: root@example.com)
 - `-p` | `--password` _password_: password used for authentication with the DSP API (default: test)
 - `-V` | `--validate`: If set, only the validation of the JSON file is performed.
@@ -53,7 +53,7 @@ dsp-tools get [options] output_file.json
 
 The following options are available:
 
-- `-s` | `--server` _server_: URL of the DSP server (default: localhost:3333)
+- `-s` | `--server` _server_: URL of the DSP server (default: 0.0.0.0:3333)
 - `-u` | `--user` _username_: username used for authentication with the DSP API (default: root@example.com)
 - `-p` | `--password` _password_: password used for authentication with the DSP API (default: test)
 - `-P` | `--project` _shortcode_ | _shortname_ | _iri_: shortcode, shortname or (mandatory)
@@ -77,11 +77,12 @@ dsp-tools xmlupload [options] xml_data_file.xml
 
 The following options are available:
 
-- `-s` | `--server` _server_: URL of the DSP server (default: localhost:3333)
+- `-s` | `--server` _server_: URL of the DSP server (default: 0.0.0.0:3333)
 - `-u` | `--user` _username_: username used for authentication with the DSP API (default: root@example.com)
 - `-p` | `--password` _password_: password used for authentication with the DSP API (default: test)
 - `-i` | `--imgdir` _dirpath_: path to the directory where the bitstream objects are stored (default: .)
 - `-S` | `--sipi` _SIPIserver_: URL of the SIPI IIIF server (default: http://0.0.0.0:1024)
+- `-I` | `--incremental` : If set, IRIs instead of internal IDs are expected as reference to already existing resources on DSP
 - `-v` | `--verbose`: If set, more information about the uploaded resources is printed to the console.
 
 The command is used to upload data defined in an XML file onto a DSP server. The following example shows how to upload
@@ -95,6 +96,13 @@ dsp-tools xmlupload -s https://api.dsl.server.org -u root@example.com -p test -S
 ```
 
 The description of the expected XML format can be found [here](./dsp-tools-xmlupload.md).
+
+An internal ID is used in the `<resptr>` tag of an XML file used for `xmlupload` to reference resources inside the same
+XML file. Once data is uploaded to DSP it cannot be referenced by this internal ID anymore. Instead, the resource's IRI
+has to be used. The mapping of internal IDs to their respective IRIs is written to a file
+called `id2iri_mapping_[timstamp].json` after a successful `xmlupload`.
+See [`dsp-tools id2iri`](./dsp-tools-usage.md#replace-internal-ids-with-iris-in-xml-file) for more information about how
+to use this file to replace internal IDs in an existing XML file to reference existing resources.
 
 ## Create a JSON list file from one or several Excel files
 
@@ -161,3 +169,23 @@ dsp-tools excel2properties Properties.xlsx properties.json
 More information about the usage of this command can be found
 [here](./dsp-tools-excel.md#create-the-properties-for-a-data-model-from-an-excel-file)
 .
+
+## Replace internal IDs with IRIs in XML file
+
+```bash
+dsp-tools id2iri xml_file.xml mapping_file.json --outfile xml_out_file.xml
+```
+
+When uploading data with `dsp-tools xmlupload` an internal ID is used in the `<resptr>` tag of the XML file to reference
+resources inside the same XML file. Once data is uploaded to DSP it cannot be referenced by this internal ID anymore.
+Instead, the resource's IRI has to be used.
+
+With `dsp-tools id2iri` internal IDs can be replaced with their corresponding IRIs within a provided XML. The output is
+written to a new XML file called `id2iri_replaced_[timestamp].xml` (the file path and name can be overwritten with
+option `--outfile`). If all internal IDs were replaced, the newly created XML can be used
+with `dsp-tools xmlupload --incremental id2iri_replaced_20211026_120247263754.xml` to upload the data.
+
+Note that internal IDs and IRIs cannot be mixed. The input XML file has to be provided as well as the JSON file which
+contains the mapping from internal IDs to IRIs. This JSON file is generated after each successful `xmlupload`.
+
+In order to upload data incrementally the procedure described [here](dsp-tools-xmlupload.md#incremental-xml-upload) is recommended.

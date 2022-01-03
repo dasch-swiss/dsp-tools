@@ -5,17 +5,11 @@ from urllib.parse import quote_plus
 
 from pystrict import strict
 
+from knora.dsplib.utils.set_encoder import SetEncoder
 from .connection import Connection
 from .helpers import Actions, BaseError
 from .langstring import Languages, LangStringParam, LangString
 from .model import Model
-
-
-class SetEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, set):
-            return list(obj)
-        return json.JSONEncoder.default(self, obj)
 
 
 """
@@ -122,7 +116,7 @@ class Project(Model):
                  shortcode: Optional[str] = None,
                  shortname: Optional[str] = None,
                  longname: Optional[str] = None,
-                 description: LangStringParam = None,
+                 description: LangString = None,
                  keywords: Optional[Set[str]] = None,
                  ontologies: Optional[Set[str]] = None,
                  selfjoin: Optional[bool] = None,
@@ -521,7 +515,7 @@ class Project(Model):
             raise BaseError("Request got no projects!")
         return list(map(lambda a: Project.fromJsonObj(con, a), result['projects']))
 
-    def print(self):
+    def print(self) -> None:
         """
         print info to stdout
 

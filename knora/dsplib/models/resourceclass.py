@@ -10,14 +10,7 @@ from .connection import Connection
 from .helpers import Actions, BaseError, Context, Cardinality, LastModificationDate
 from .langstring import Languages, LangString
 from .model import Model
-
-
-class SetEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, set):
-            return list(obj)
-        return json.JSONEncoder.default(self, obj)
-
+from ..utils.set_encoder import SetEncoder
 
 """
 This model implements the handling of resource classes. It contains two classes that work closely together:
@@ -676,12 +669,11 @@ class ResourceClass(Model):
         def resolve_resref(resref: str):
             tmp = resref.split(':')
             if len(tmp) > 1:
-                if tmp[0]:
+                if tmp[0] and self._context.iri_from_prefix(tmp[0]) != self._ontology_id:
                     self._context.add_context(tmp[0])
                     return {"@id": resref}  # fully qualified name in the form "prefix:name"
                 else:
-                    return {"@id": self._context.prefix_from_iri(self._ontology_id) + ':' + tmp[
-                        1]}  # ":name" in current ontology
+                    return {"@id": self._context.prefix_from_iri(self._ontology_id) + ':' + tmp[1]}  # ":name" in current ontology
             else:
                 return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
 

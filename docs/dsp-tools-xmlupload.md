@@ -3,7 +3,9 @@
 # DSP XML file format for importing data
 
 With dsp-tools data can be imported into a DSP repository (on a DSP server) from an XML file. The import file is a
-standard XML file as described on this page.
+standard XML file as described on this page. After a successful upload of the data, an output file is written (called 
+`id2iri_mapping_[timstamp].json`) with the mapping of internal IDs used inside the XML and their corresponding IRIs which
+uniquely identify them inside DSP. This file should be kept if data is later added with the `--incremental` [option](#incremental-xml-upload).
 
 The import file must start with the standard XML header:
 
@@ -37,7 +39,7 @@ The `<knora>` element may look as follows:
 
 The `<knora>` element can only contain the following sub-elements:
 
-- `<permissions>`
+- `<permissions>` (optional)
 - `<resource>`
 
 ## Describing permissions with &lt;permissions&gt; elements
@@ -45,6 +47,9 @@ The `<knora>` element can only contain the following sub-elements:
 The DSP server provides access control for each resource and each field of a resource through permissions. For a
 thorough explanation of the permission and access system of the DSP platform, see
 [DSP platform permissions](https://docs.knora.org/02-knora-ontologies/knora-base/#permissions).
+
+It is optional to define permissions in the XML. If not defined, default permissions are applied (only project and 
+system administrators can view and edit resources).
 
 The following access rights are defined by the DSP platform which apply to either a resource or a field:
 
@@ -70,7 +75,7 @@ name has to be prepended before the group name, separated by a colon, e.g. `dsp-
 
 A `<permissions>` element contains the permissions given to the selected groups and is called a _permission set_. It has
 a mandatory attribute `id` and must contain at least one `<allow>` element per group indicating the group's permission.
-It is of the following form:
+The permission is referenced inside the resource or property tag by its `id`. It is of the following form:
 
 ```xml
 <permissions id="res-default">
@@ -82,6 +87,18 @@ It is of the following form:
 </permissions>
 ```
 
+If you don't want a group to have access at all, leave it out. In the following example, only `ProjectAdmin`s will see
+the resource or property with permission `special-permission`:
+
+```xml
+<permissions id="special-permission">
+  <allow group="ProjectAdmin">CR</allow>
+</permissions>
+```
+
+Note: The permissions defined in the XML are applied to resources that are created. But only project or system administrators
+do have the permission to create resources via the XML upload.
+
 ### The &lt;allow&gt; sub-element
 
 The `<allow>` element is used to define the permission for a specific group. It is of the following form:
@@ -92,23 +109,23 @@ The `<allow>` element is used to define the permission for a specific group. It 
 
 The allowed values are:
 
-- `RV` _restricted view_: The associated media is shown in reduced quality.
-- `V` _view_: The user has read access to the data.
-- `M` _modify_: The user may modify a value, but may not delete it. The original value will be preserved using the
-  history mechanism.
-- `D` _delete_: The user is able to mark a resource as deleted.
-- `CR` _change right_: The user is able to change the right of a resource or value.
+- `RV` _restricted view_: Same as `V` but if it is applied to an image, the image is shown blurred.
+- `V` _view_: The user can view a resource or a value, but can not modify it.
+- `M` _modify_: The user can modify a resource or value, but can not delete it. The original resource or value will be preserved.
+- `D` _delete_: The user can mark a resource or value as deleted. The original resource or value will be preserved.
+- `CR` _change right_: The user can change the permission of a resource or value. The user is also allowed to 
+  permanently delete (erase) a resource.
 
-The `group` attribute is mandatory. It defines the group which the permission is applied to. The DSP system groups as
+The `group` attribute is mandatory. It defines the group which the permission is applied to. DSP system groups as
 well as project specific groups are supported. A project specific group name has the form `project-shortname:groupname`.
 The available system groups are:
 
-- UnknownUser
-- KnownUser
-- ProjectMember
-- Creator
-- ProjectAdmin
-- SystemAdmin
+- UnknownUser (not logged in user)
+- KnownUser (logged in user)
+- ProjectMember (user with project membership)
+- Creator (creator of the resource or value)
+- ProjectAdmin (user with project admin membership)
+- SystemAdmin (system administrator)
 
 There are no sub-elements allowed for the `<allow>` element.
 
@@ -187,8 +204,8 @@ Example for a property element of type text (`<text-prop>`) with two value eleme
 </text-prop>
 ```
 
-| ⚠ Look out  |
-|:----------|
+| ⚠ Look out                                                                                                                                     |
+| :--------------------------------------------------------------------------------------------------------------------------------------------- |
 | In case of a cardinality 1-n, multiple `<text>` tags have to be created inside the `<text-prop>` tag (do not use multiple `<text-prop>` tags). |
 
 The following property elements exist:
@@ -223,12 +240,12 @@ Note:
 
 Attributes:
 
-- none
+- `permissions` : ID or a permission set (optional, but if omitted very restricted default permissions apply)
 
 Example:
 
 ```xml
-<bitstream>postcards/images/EURUS015a.jpg</bitstream>
+<bitstream permissions="prop-restricted">postcards/images/EURUS015a.jpg</bitstream>
 ```
 
 ### `<text-prop>`
@@ -578,7 +595,9 @@ Attributes:
 
 #### `<resptr>`
 
-The `<resptr>` element contains the internal ID of another resource.
+The `<resptr>` element contains either the internal ID of another resource inside the XML or the IRI of an already
+existing resource on DSP. Inside the same XML file a mixture of the two is not possible. If referencing existing
+resources, `xmlupload --incremental` has to be used.
 
 Attributes:
 
@@ -587,8 +606,8 @@ Attributes:
 
 Example:
 
-If there is a resource defined as `<resource label="EURUS015a" restype=":Postcard" unique_id="238807">...</resource>`,
-it can be referenced as:
+If there is a resource defined as `<resource label="EURUS015a" restype=":Postcard" id="238807">...</resource>`, it can
+be referenced as:
 
 ```xml
 <resptr-prop name=":hasReferenceTo">
@@ -613,14 +632,15 @@ following abbreviations describe this form:
   0001 is the lexical representation of the year 1 of the Common Era (also known as 1 AD). The value cannot be 0000.
 - `mm`: a two-digit numeral that represents the month
 - `dd`: a two-digit numeral that represents the day
-- `hh`: a two-digit numeral (with leading zeros as required) that represents the hours. The value must be between -14
-  and +14, inclusive.
+- `hh`: a two-digit numeral representing the hours. Must be between 0 and 23
 - `mm`: a two-digit numeral that represents the minutes
 - `ss`: a two-digit numeral that represents the seconds
 - `ssssssssssss`: If present, a 1-to-12-digit numeral that represents the fractional seconds (optional)
-- `zzzzzz`: represents the time zone (required). Each part of the datetime value that is expressed as a numeric value is
-  constrained to the maximum value within the interval that is determined by the next higher part of the datetime value.
-  For example, the day value can never be 32 and cannot be 29 for month 02 and year 2002 (February 2002).
+- `zzzzzz`: represents the time zone (required).
+
+Each part of the datetime value that is expressed as a numeric value is constrained to the maximum value within the 
+interval that is determined by the next higher part of the datetime value.
+For example, the day value can never be 32 and cannot be 29 for month 02 and year 2002 (February 2002).
 
 The timezone is defined as follows:
 
@@ -644,7 +664,7 @@ Example:
 
 ```xml
 <time-prop name=":hasTime">
-  <time>2019-10-23T13.45:12Z</time>
+  <time>2019-10-23T13:45:12Z</time>
 </time-prop>
 ```
 
@@ -691,7 +711,7 @@ Attributes:
 
 #### `<boolean>`
 
-The `<boolean>` element must contain the string "true" or "false", or the numeral 1 or 0.
+The `<boolean>` element must contain the string "true" or "false", or the numeral 1 (true) or 0 (false).
 
 Attributes:
 
@@ -711,6 +731,24 @@ Example:
   <boolean>0</boolean>
 </boolean-prop>
 ```
+
+## Incremental XML Upload
+
+After a successful upload of the data, an output file is written (called `id2iri_mapping_[timstamp].json`) with the 
+mapping of internal IDs used inside the XML and their corresponding IRIs which uniquely identify them inside DSP. This 
+file should be kept if data is later added with the `--incremental` option. 
+
+To do an incremental XML upload, one of the following procedures is recommended.
+
+- Incremental XML upload with use of internal IDs:
+
+1. Initial XML upload with internal IDs.
+2. The file `id2iri_mapping_[timestamp].json` is created.
+3. Create new XML file(s) with resources referencing other resources by their internal IDs in `<resptr>` (using the same IDs as in the initial XML upload).
+4. Run `dsp-tools id2iri new_data.xml id2iri_mapping_[timestamp].json` to replace the internal IDs in `new_data.xml` with IRIs. Only internal IDs inside the `<resptr>` tag are replaced.
+5. Run `dsp-tools xmlupload --incremental new_data.xml` to upload the data to DSP.
+
+- Incremental XML Upload with the use of IRIs: Use IRIs in the XML to reference existing data on the DSP server.
 
 ## Complete example
 

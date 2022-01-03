@@ -35,16 +35,18 @@ class KnoraStandoffXml:
 
 @strict
 class Value:
-    _iri: Union[str, None]
-    _comment: Union[str, None]
-    _permissions: Union[Permissions, None]
-    _upermission: Union[PermissionValue, None]
-    _ark_url: Union[str, None]
-    _vark_url: Union[str, None]
+    """
+    Represents a value
+    """
+    _iri: Optional[str]
+    _comment: Optional[str]
+    _permissions: Optional[Permissions]
+    _upermission: Optional[PermissionValue]
+    _ark_url: Optional[str]
+    _vark_url: Optional[str]
 
     def __init__(self,
                  iri: Optional[str] = None,
-                 groups: Optional[Group] = None,
                  comment: Optional[LangString] = None,
                  permissions: Optional[Permissions] = None,
                  upermission: Optional[PermissionValue] = None,
@@ -96,13 +98,10 @@ class Value:
     def toJsonLdObj(self, action: Actions) -> Dict[str, Any]:
         tmp = {}
         if action == Actions.Create:
-            if self._permissions is not None:
+            if self._permissions:
                 tmp["knora-api:hasPermissions"] = self.permissions.toJsonLdObj()
-
-            if self._comment is not None:
+            if self._comment:
                 tmp["knora-api:valueHasComment"] = str(self._comment)
-        else:
-            pass
         return tmp
 
     @staticmethod
@@ -119,7 +118,7 @@ class Value:
                 result = str(tmp["@value"])
             elif tmp.get("@type") == "xsd:dateTimeStamp":
                 result = str(tmp["@value"])
-            elif tmp.get("@id") is not None:
+            elif tmp.get("@id"):
                 result = tmp["@id"]
             else:
                 raise BaseError("Invalid data type in JSON-LD: \"{}\"!".format(tmp["@type"]))
@@ -194,8 +193,6 @@ class TextValue(Value):
                 }
             else:
                 tmp['knora-api:valueAsString'] = str(self._value)
-        else:
-            pass
         return tmp
 
     def __str__(self) -> str:
@@ -243,8 +240,6 @@ class ColorValue(Value):
         if action == Actions.Create:
             tmp['@type'] = "knora-api:ColorValue"
             tmp['knora-api:colorValueAsColor'] = self._value
-        else:
-            pass
         return tmp
 
     def __str__(self) -> str:
@@ -355,21 +350,19 @@ class DateValue(Value):
             tmp["knora-api:dateValueHasCalendar"] = self._calendar
             tmp["knora-api:dateValueHasStartEra"] = self._e1
             tmp["knora-api:dateValueHasStartYear"] = self._y1
-            if self._m1 is not None:
+            if self._m1:
                 tmp["knora-api:dateValueHasStartMonth"] = self._m1
-            if self._d1 is not None:
+            if self._d1:
                 tmp["knora-api:dateValueHasStartDay"] = self._d1
             tmp["knora-api:dateValueHasEndEra"] = self._e2
-            if self._y2 is not None:
+            if self._y2:
                 tmp["knora-api:dateValueHasEndYear"] = self._y2
             else:
                 tmp["knora-api:dateValueHasEndYear"] = self._y1
-            if self._m2 is not None:
+            if self._m2:
                 tmp["knora-api:dateValueHasEndMonth"] = self._m2
-            if self._d2 is not None:
+            if self._d2:
                 tmp["knora-api:dateValueHasEndDay"] = self._d2
-        else:
-            pass
         return tmp
 
     def __str__(self):
@@ -445,8 +438,6 @@ class DecimalValue(Value):
                 '@type': 'xsd:decimal',
                 '@value': str(self._value)
             }
-        else:
-            pass
         return tmp
 
     def __str__(self) -> str:
@@ -488,8 +479,6 @@ class GeomValue(Value):
         if action == Actions.Create:
             tmp['@type'] = "knora-api:GeomValue"
             tmp['knora-api:geometryValueAsGeometry'] = self._value
-        else:
-            pass
         return tmp
 
     def __str__(self) -> str:
@@ -531,8 +520,6 @@ class GeonameValue(Value):
         if action == Actions.Create:
             tmp['@type'] = "knora-api:GeonameValue"
             tmp['knora-api:geonameValueAsGeonameCode'] = self._value
-        else:
-            pass
         return tmp
 
     def __str__(self) -> str:
@@ -581,8 +568,6 @@ class IntValue(Value):
         if action == Actions.Create:
             tmp['@type'] = "knora-api:IntValue"
             tmp['knora-api:intValueAsInt'] = self._value
-        else:
-            pass
         return tmp
 
     def __str__(self) -> str:
@@ -601,18 +586,17 @@ class BooleanValue(Value):
                  iri: Optional[str] = None,
                  ark_url: Optional[str] = None,
                  vark_url: Optional[str] = None):
+
         if type(value) is bool:
             self._value = value
-
-        elif type(value) is str:
-            if value.upper() == 'TRUE':
+        else:
+            if value == 1 or value.upper() == 'TRUE' or value == '1':
                 self._value = True
-            elif value.upper() == 'FALSE':
+            elif value == 0 or value.upper() == 'FALSE' or value == '0':
                 self._value = False
             else:
-                raise BaseError("Invalid boolean format! " + str(value))
-        elif type(value) is int:
-            self._value = False if value == 0 else True
+                raise BaseError(f"ERROR Invalid boolean format {value}!")
+
         super().__init__(iri=iri,
                          comment=comment,
                          permissions=permissions,
@@ -635,8 +619,6 @@ class BooleanValue(Value):
         if action == Actions.Create:
             tmp['@type'] = "knora-api:BooleanValue"
             tmp['knora-api:booleanValueAsBoolean'] = self._value
-        else:
-            pass
         return tmp
 
     def __str__(self) -> str:
@@ -685,8 +667,6 @@ class UriValue(Value):
                 "@type": "xsd:anyURI",
                 "@value": self._value
             }
-        else:
-            pass
         return tmp
 
     def __str__(self) -> str:
@@ -740,8 +720,6 @@ class TimeValue(Value):
                 "@type": "xsd:dateTimeStamp",
                 "@value": self._value
             }
-        else:
-            pass
         return tmp
 
     def __str__(self) -> str:
@@ -811,8 +789,6 @@ class IntervalValue(Value):
                 "@type": "xsd:decimal",
                 "@value": str(self._iv_end)
             }
-        else:
-            pass
         return tmp
 
     def __str__(self) -> str:
@@ -834,7 +810,7 @@ class ListValue(Value):
                  ark_url: Optional[str] = None,
                  vark_url: Optional[str] = None):
 
-        def find_listnode(nodes: List[ListNode], name: str) -> Union[str, None]:
+        def find_listnode(nodes: List[ListNode], name: str) -> Optional[str]:
             for node in nodes:
                 if node.name == name:
                     return node.id
@@ -895,8 +871,6 @@ class ListValue(Value):
             tmp['knora-api:listValueAsListNode'] = {
                 '@id': self._value
             }
-        else:
-            pass
         return tmp
 
     def __str__(self) -> str:
@@ -962,8 +936,6 @@ class LinkValue(Value):
             tmp['knora-api:linkValueHasTargetIri'] = {
                 '@id': self._value
             }
-        else:
-            pass
         return tmp
 
     def __str__(self) -> str:

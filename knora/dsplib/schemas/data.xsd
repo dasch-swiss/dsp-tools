@@ -27,7 +27,6 @@
         </xs:restriction>
     </xs:simpleType>
 
-
     <!-- data type for knora color -->
     <xs:simpleType name="knoracolor_type">
         <xs:restriction base="xs:token">
@@ -58,7 +57,7 @@
         <xs:attribute name="encoding" type="encoding_types" use="required"/>
         <xs:attribute name="resrefs" type="resrefs_type"/>
         <xs:attribute name="comment" type="xs:string"/>
-        <xs:attribute name="permissions" type="xs:NCName" use="required"/>
+        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
     </xs:complexType>
 
     <!-- color value type -->
@@ -161,6 +160,7 @@
         </xs:simpleContent>
     </xs:complexType>
 
+    <!-- resptr_type (link to other resource) value type -->
     <xs:complexType name="resptr_type">
         <xs:simpleContent>
             <xs:extension base="xs:string">
@@ -339,10 +339,12 @@
         <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>
 
-    <!-- bitsteeam tag -->
+    <!-- bitstream tag -->
     <xs:complexType name="bitstream_type">
         <xs:simpleContent>
-            <xs:extension base="xs:string"/>
+            <xs:extension base="xs:string">
+                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+            </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
 
@@ -367,7 +369,7 @@
         </xs:simpleContent>
     </xs:complexType>
 
-    <!-- movie tag -->
+    <!-- document tag -->
     <xs:complexType name="document_type">
         <xs:simpleContent>
             <xs:extension base="xs:string"/>
@@ -381,10 +383,10 @@
                 <!--
                 <xs:element name="image" type="image_type" />
                 <xs:element name="sound" type="sound_type" />
-                <xs:element name="movie" type="sound_type" />
-                <xs:element name="document" type="sound_type" />
+                <xs:element name="movie" type="movie_type" />
+                <xs:element name="document" type="document_type" />
                 -->
-                <xs:element name="bitstream" type="sound_type"/>
+                <xs:element name="bitstream" type="bitstream_type"/>
             </xs:choice>
             <xs:choice maxOccurs="unbounded">
                 <xs:element name="text-prop" type="textprop_type" minOccurs="0" maxOccurs="unbounded"/>
@@ -403,12 +405,11 @@
                 <xs:element name="uri-prop" type="uriprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="boolean-prop" type="booleanprop_type" minOccurs="0" maxOccurs="unbounded"/>
             </xs:choice>
-
         </xs:sequence>
         <xs:attribute name="label" type="xs:string" use="required"/>
         <xs:attribute name="restype" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
-        <xs:attribute name="permissions" type="xs:NCName" use="required"/>
+        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
     </xs:complexType>
 
     <!-- data type for knora shortcode -->

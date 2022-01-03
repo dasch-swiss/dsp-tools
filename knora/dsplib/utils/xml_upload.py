@@ -1,16 +1,20 @@
 """
 This module handles the import of XML data into the DSP platform.
 """
+import json
 import os
+from datetime import datetime
+from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 from lxml import etree
 
 from knora.dsplib.models.connection import Connection
 from knora.dsplib.models.group import Group
+from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.models.permission import Permissions
 from knora.dsplib.models.project import Project
-from knora.dsplib.models.resource import ResourceInstanceFactory
+from knora.dsplib.models.resource import ResourceInstanceFactory, ResourceInstance
 from knora.dsplib.models.sipi import Sipi
 from knora.dsplib.models.value import KnoraStandoffXml
 
@@ -32,8 +36,8 @@ class ProjectContext:
     _projects: list[Project]
     _project_map: Dict[str, str]  # dictionary of (project name:project IRI) pairs
     _inv_project_map: Dict[str, str]  # dictionary of (project IRI:project name) pairs
-    _groups: list[Group]
-    _group_map: Dict[str, str]
+    _groups: Optional[list[Group]]
+    _group_map: Optional[Dict[str, str]]
     _shortcode: Optional[str]
     _project_name: Optional[str]
 
@@ -42,8 +46,14 @@ class ProjectContext:
         self._projects = Project.getAllProjects(con=con)
         self._project_map: Dict[str, str] = {x.shortname: x.id for x in self._projects}
         self._inv_project_map: Dict[str, str] = {x.id: x.shortname for x in self._projects}
-        self._groups = Group.getAllGroups(con=con)
-        self._group_map: Dict[str, str] = {self._inv_project_map[x.project] + ':' + x.name: x.id for x in self._groups}
+        try:
+            self._groups = Group.getAllGroups(con=con)
+        except BaseError:
+            self._groups = None
+        if self._groups:
+            self._group_map: Dict[str, str] = {self._inv_project_map[x.project] + ':' + x.name: x.id for x in self._groups}
+        else:
+            self._group_map = None
         self._project_name = None
         # get the project name from the shortcode
         if self._shortcode:
@@ -63,8 +73,33 @@ class ProjectContext:
         return self._project_name
 
 
-class KnoraValue:
-    """Represents a value of a resource in the Knora ontology"""
+class XMLBitstream:
+    """Represents a bitstream object (file) of a resource in the XML used for data import"""
+
+    _value: str
+    _permissions: str
+
+    def __init__(self, node: etree.Element) -> None:
+        self._value = node.text
+        self._permissions = node.get('permissions')
+
+    @property
+    def value(self) -> str:
+        """The file path of the bitstream object"""
+        return self._value
+
+    @property
+    def permissions(self) -> str:
+        """Reference to the set of permissions for the bitstream object"""
+        return self._permissions
+
+    def print(self) -> None:
+        """Prints the bitstream object and its attributes."""
+        print('   Bitstream file path: ' + str(self._value))
+
+
+class XMLValue:
+    """Represents a value of a resource property in the XML used for data import"""
 
     _value: Union[str, KnoraStandoffXml]
     _resrefs: Optional[List[str]]
@@ -130,12 +165,12 @@ class KnoraValue:
                 print('   res_ref: ' + i)
 
 
-class KnoraProperty:
-    """Represents a property of a resource in the XML"""
+class XMLProperty:
+    """Represents a property of a resource in the XML used for data import"""
 
     _name: str
     _valtype: str
-    _values: List[KnoraValue]
+    _values: List[XMLValue]
 
     def __init__(self, node: etree.Element, valtype: str, default_ontology: Optional[str] = None):
         """
@@ -163,9 +198,9 @@ class KnoraProperty:
         # parse the subnodes of the property nodes which contain the actual values of the property
         for subnode in node:
             if subnode.tag == valtype:  # the subnode must correspond to the expected value type
-                self._values.append(KnoraValue(subnode, valtype, listname))
+                self._values.append(XMLValue(subnode, valtype, listname))
             else:
-                raise XmlError('Unexpected tag: "{}". Property may contain only value tags!'.format(subnode.tag))
+                raise XmlError(f"ERROR Unexpected tag: '{subnode.tag}'. Property may contain only value tags!")
 
     @property
     def name(self) -> str:
@@ -178,7 +213,7 @@ class KnoraProperty:
         return self._valtype
 
     @property
-    def values(self) -> List[KnoraValue]:
+    def values(self) -> List[XMLValue]:
         """List of values of this property"""
         return self._values
 
@@ -189,15 +224,15 @@ class KnoraProperty:
             value.print()
 
 
-class KnoraResource:
-    """Represents a resource in the Knora ontology"""
+class XMLResource:
+    """Represents a resource in the XML used for data import"""
 
     _id: str
     _label: str
     _restype: str
-    _permissions: str
-    _bitstream: Optional[str]
-    _properties: List[KnoraProperty]
+    _permissions: Optional[str]
+    _bitstream: Optional[XMLBitstream]
+    _properties: List[XMLProperty]
 
     def __init__(self, node: etree.Element, default_ontology: Optional[str] = None) -> None:
         """
@@ -219,18 +254,22 @@ class KnoraResource:
                 self._restype = default_ontology + ':' + tmp_res_type[1]
         else:
             self._restype = 'knora-admin:' + tmp_res_type[0]
-        self._permissions = node.attrib['permissions']
+        permissions_tmp = node.attrib.get("permissions")
+        if permissions_tmp:
+            self._permissions = node.attrib['permissions']
+        else:
+            self._permissions = None
         self._bitstream = None
         self._properties = []
         for subnode in node:
-            if subnode.tag == 'bitstream':
-                self._bitstream = subnode.text  # path to the file
-            elif subnode.tag is etree.Comment:
+            if subnode.tag is etree.Comment:
                 continue
+            elif subnode.tag == 'bitstream':
+                self._bitstream = XMLBitstream(subnode)
             else:
                 # get the property type which is in format type-prop, p.ex. <decimal-prop>
                 prop_type, _ = subnode.tag.split('-')
-                self._properties.append(KnoraProperty(subnode, prop_type, default_ontology))
+                self._properties.append(XMLProperty(subnode, prop_type, default_ontology))
 
     @property
     def id(self) -> str:
@@ -253,15 +292,15 @@ class KnoraResource:
         return self._permissions
 
     @property
-    def bitstream(self) -> Optional[str]:
-        """The path to the bitstream object (file) belonging to the resource"""
+    def bitstream(self) -> Optional[XMLBitstream]:
+        """The bitstream object belonging to the resource"""
         return self._bitstream
 
     def print(self) -> None:
         """Prints the resource and its attributes."""
         print(f'Resource: id={self._id}, restype: {self._restype}, label: {self._label}')
-        if self._bitstream is not None:
-            print('  Bitstream: ' + self._bitstream)
+        if self._bitstream:
+            print('  Bitstream: ' + self._bitstream.value)
         for prop in self._properties:
             prop.print()
 
@@ -300,16 +339,15 @@ class KnoraResource:
         for prop in self._properties:
             vals: List[Union[str, Dict[str, str]]] = []
             for value in prop.values:
-                v: str
                 if prop.valtype == 'resptr':  # we have a resptr, therefore simple lookup or IRI
                     iri = resiri_lookup.get(value.value)
-                    if iri is not None:
+                    if iri:
                         v = iri
                     else:
-                        v = value.value  # if we do not find the unique_id, we assume it's a valid knora IRI
+                        v = value.value  # if we do not find the id, we assume it's a valid knora IRI
                 elif prop.valtype == 'text':
                     if isinstance(value.value, KnoraStandoffXml):
-                        iri_refs = value.value.findall()  # The IRI's must be embedded  as "...IRI:unique_id:IRI..."
+                        iri_refs = value.value.findall()
                         for iri_ref in iri_refs:
                             res_id = iri_ref.split(':')[1]
                             iri = resiri_lookup.get(res_id)
@@ -324,17 +362,36 @@ class KnoraResource:
                 else:
                     # we have comment or permissions
                     tmp = {'value': v}
-                    if value.comment is not None:
+                    if value.comment:
                         tmp['comment'] = value.comment
-                    if value.permissions is not None:
+                    if value.permissions:
                         tmp['permissions'] = permissions_lookup.get(value.permissions)
                     vals.append(tmp)
             prop_data[prop.name] = vals if len(vals) > 1 else vals[0]
         return prop_data
 
+    def get_bitstream(self, internal_file_name_bitstream: str, permissions_lookup: Dict[str, Permissions]) -> Optional[Dict[str, Union[str, Permissions]]]:
+        """
+        Get the bitstream object belonging to the resource
+
+        Args:
+            internal_file_name_bitstream: Internal file name of bitstream object as returned from Sipi
+            permissions_lookup: Is used to resolve the permission id's to permission sets
+
+        Returns:
+            A dict of the bitstream object
+        """
+        tmp = None
+        if self._bitstream:
+            bitstream = self._bitstream
+            tmp = {'value': bitstream.value, 'internal_file_name': internal_file_name_bitstream}
+            if bitstream.permissions:
+                tmp['permissions'] = permissions_lookup.get(bitstream.permissions)
+        return tmp
+
 
 class XmlAllow:
-    """Represents the allow element of the XML"""
+    """Represents the allow element of the XML used for data import"""
 
     _group: str
     _permission: str
@@ -387,7 +444,7 @@ class XmlAllow:
 
 
 class XmlPermission:
-    """Represents the permission set containing several XmlAllow elements"""
+    """Represents the permission set containing several XmlAllow elements in the XML used for data import"""
 
     _id: str
     _allows: List[XmlAllow]
@@ -435,7 +492,7 @@ class XmlPermission:
             a.print()
 
 
-def do_sort_order(resources: List[KnoraResource]) -> List[KnoraResource]:
+def do_sort_order(resources: List[XMLResource], verbose) -> List[XMLResource]:
     """
     Sorts a list of resources.
 
@@ -444,14 +501,15 @@ def do_sort_order(resources: List[KnoraResource]) -> List[KnoraResource]:
 
     Args:
         resources: List of resources before sorting
+        verbose: verbose output if True
 
     Returns:
         sorted list of resources
     """
 
     # sort the resources according to outgoing resptrs
-    ok_resources: [KnoraResource] = []
-    notok_resources: [KnoraResource] = []
+    ok_resources: [XMLResource] = []
+    notok_resources: [XMLResource] = []
     ok_res_ids: [str] = []
     cnt = 0
     notok_len = 9999999
@@ -475,7 +533,7 @@ def do_sort_order(resources: List[KnoraResource]) -> List[KnoraResource]:
                     notok_resources.append(resource)
         resources = notok_resources
         if not len(notok_resources) < notok_len:
-            print('Cannot resolve resptr dependencies. Giving up....')
+            print('Cannot resolve resptr dependencies. Giving up...')
             print(len(notok_resources))
             for r in notok_resources:
                 print('Resource {} has unresolvable resptrs to: '.format(r.id), end=' ')
@@ -487,7 +545,8 @@ def do_sort_order(resources: List[KnoraResource]) -> List[KnoraResource]:
         notok_len = len(notok_resources)
         notok_resources = []
         cnt += 1
-        print('{}. Ordering pass Finished!'.format(cnt))
+        if verbose:
+            print('{}. Ordering pass Finished!'.format(cnt))
     # print('Remaining: {}'.format(len(resources)))
     return ok_resources
 
@@ -515,7 +574,7 @@ def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
 
 
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
-               validate_only: bool) -> bool:
+               validate_only: bool, incremental: bool) -> None:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
 
@@ -528,6 +587,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         sipi : the sipi instance to be used
         verbose : verbose option for the command, if used more output is given to the user
         validate_only : validation option to validate the XML data without the actual import of the data
+        incremental: if set, IRIs instead of internal IDs are expected as resource pointers
 
     Returns:
         None
@@ -538,11 +598,11 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     schema_file = os.path.join(current_dir, '../schemas/data.xsd')
 
     if validate_xml_against_schema(input_file, schema_file):
-        print("The input data file is syntactically correct and passed validation!")
+        print("The input data file is syntactically correct and passed validation.")
         if validate_only:
             exit(0)
     else:
-        print("The input data file did not pass validation!")
+        print("ERROR The input data file did not pass validation.")
         exit(1)
 
     # Connect to the DaSCH Service Platform API and get the project context
@@ -550,7 +610,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     con.login(user, password)
     proj_context = ProjectContext(con=con)
 
-    resources: List[KnoraResource] = []
+    resources: List[XMLResource] = []
     permissions: Dict[str, XmlPermission] = {}
 
     # parse the XML file containing the data
@@ -581,10 +641,11 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             permissions[permission.id] = permission
         # get all resources
         elif child.tag == "resource":
-            resources.append(KnoraResource(child, default_ontology))
+            resources.append(XMLResource(child, default_ontology))
 
-    # sort the resources (resources which do not link to others come first)
-    resources = do_sort_order(resources)
+    # sort the resources (resources which do not link to others come first) but only if not an incremental upload
+    if not incremental:
+        resources = do_sort_order(resources, verbose)
 
     sipi = Sipi(sipi, con.get_token())
 
@@ -603,20 +664,51 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
     res_iri_lookup: Dict[str, str] = {}
 
+    failed_uploads = []
     for resource in resources:
         if verbose:
             resource.print()
-        if resource.bitstream:
-            img = sipi.upload_bitstream(os.path.join(imgdir, resource.bitstream))
-            bitstream = img['uploadedFiles'][0]['internalFilename']
-        else:
-            bitstream = None
 
-        # create the resource on the server
-        instance = res_classes[resource.restype](con=con, label=resource.label,
-                                                 permissions=permissions_lookup.get(resource.permissions),
-                                                 bitstream=bitstream,
-                                                 values=resource.get_propvals(res_iri_lookup,
-                                                                              permissions_lookup)).create()
+        resource_bitstream = None
+        if resource.bitstream:
+            img = sipi.upload_bitstream(os.path.join(imgdir, resource.bitstream.value))
+            internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']
+            resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
+
+        permissions_tmp = permissions_lookup.get(resource.permissions)
+
+        try:
+            # create a resource instance (ResourceInstance) from the given resource in the XML (XMLResource)
+            instance: ResourceInstance = res_classes[resource.restype](con=con,
+                                                                       label=resource.label,
+                                                                       permissions=permissions_tmp,
+                                                                       bitstream=resource_bitstream,
+                                                                       values=resource.get_propvals(res_iri_lookup,
+                                                                                                    permissions_lookup)).create()
+        except BaseError as err:
+            print(
+                f"ERROR while trying to create resource '{resource.label}' ({resource.id}). The error message was: {err.message}")
+            failed_uploads.append(resource.id)
+            continue
+
+        except Exception as exception:
+            print(
+                f"ERROR while trying to create resource '{resource.label}' ({resource.id}). The error message was: {exception}")
+            failed_uploads.append(resource.id)
+            continue
+
         res_iri_lookup[resource.id] = instance.iri
-        print("Created resource: ", instance.label, " (", resource.id, ") with IRI ", instance.iri)
+        print(f"Created resource '{instance.label}' ({resource.id}) with IRI '{instance.iri}'")
+
+    # write mapping of internal IDs to IRIs to file with timestamp
+    timestamp_now = datetime.now()
+    timestamp_str = timestamp_now.strftime("%Y%m%d-%H%M%S")
+
+    xml_file_name = Path(input_file).stem
+    res_iri_lookup_file = "id2iri_" + xml_file_name + "_mapping_" + timestamp_str + ".json"
+    with open(res_iri_lookup_file, "w") as outfile:
+        print(f"============\nThe mapping of internal IDs to IRIs was written to {res_iri_lookup_file}")
+        outfile.write(json.dumps(res_iri_lookup))
+
+    if failed_uploads:
+        print(f"Could not upload the following resources: {failed_uploads}")

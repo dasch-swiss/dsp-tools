@@ -7,6 +7,7 @@ from urllib.parse import quote_plus
 
 from pystrict import strict
 
+from .bitstream import Bitstream
 from .connection import Connection
 from .helpers import OntoInfo, Actions, BaseError, Cardinality, Context
 from .listnode import ListNode
@@ -40,105 +41,118 @@ class Propinfo:
 
 @strict
 class ResourceInstance(Model):
+    """
+    Represents a resource instance
+    """
     baseclasses_with_bitstream: Set[str] = {
         'StillImageRepresentation',
         'AudioRepresentation',
         'DocumentRepresentation',
         'MovingImageRepresentation',
+        'ArchiveRepresentation',
         'DDDRepresentation',
-        'TextRepresentation'}
+        'TextRepresentation'
+    }
     knora_properties: Set[str] = {
         "knora-api:isPartOf",
         "knora-api:seqnum",
     }
-    _iri: Union[str, None]
-    _ark: Union[str, None]
-    _vark: Union[str, None]
-    _label: Union[str, None]
-    _permissions: Union[Permissions, None]
-    _upermission: Union[PermissionValue, None]
-    _bitstream: Union[str, None]
-    _values: Union[Dict[Value, List[Value]], None]
+    _iri: Optional[str]
+    _ark: Optional[str]
+    _version_ark: Optional[str]
+    _label: Optional[str]
+    _permissions: Optional[Permissions]
+    _user_permission: Optional[PermissionValue]
+    _bitstream: Optional[Bitstream]
+    _values: Optional[Dict[Value, List[Value]]]
 
     def __init__(self,
                  con: Connection,
                  iri: Optional[str] = None,
                  ark: Optional[str] = None,
-                 vark: Optional[str] = None,
+                 version_ark: Optional[str] = None,
                  label: Optional[str] = None,
                  permissions: Optional[Permissions] = None,
-                 upermission: Optional[PermissionValue] = None,
+                 user_permission: Optional[PermissionValue] = None,
                  bitstream: Optional[str] = None,
                  values: Optional[Dict[
                      str, Union[str, List[str], Dict[str, str], List[Dict[str, str]], Value, List[Value]]]] = None):
+
         super().__init__(con)
         self._iri = iri
-        self._label = label
         self._ark = ark
-        self._vark = vark
+        self._version_ark = version_ark
+        self._label = label
         self._permissions = permissions
-        self._upermission = upermission
+        self._user_permission = user_permission
 
         if self.baseclass in self.baseclasses_with_bitstream and bitstream is None:
-            raise BaseError("The baseclass \"{}\" requires a bitstream value!".format(self.baseclass))
-        if self.baseclass not in self.baseclasses_with_bitstream and bitstream is not None:
-            raise BaseError("The baseclass \"{}\" does not allow a bitstream value!".format(self.baseclass))
-        if self.baseclass in self.baseclasses_with_bitstream and bitstream is not None:
+            raise BaseError(f"ERROR Baseclass '{self.baseclass}' requires a bitstream value!")
+        if self.baseclass not in self.baseclasses_with_bitstream and bitstream:
+            raise BaseError(f"ERROR Baseclass '{self.baseclass}' does not allow a bitstream value!")
+        if self.baseclass in self.baseclasses_with_bitstream and bitstream:
             self._bitstream = bitstream
         else:
             self._bitstream = None
 
         self._values = {}
         if values:
-            self._values = {}
-            for propname, propinfo in self.properties.items():
-                # if propinfo.valtype is LinkValue:
-                vals = values.get(propname)
-                if vals is not None:
-                    valcnt: int = 0
-                    if type(vals) is list:  # we do have several values for this properties
-                        self._values[propname] = []
-                        for val in vals:
-                            if valcnt > 0 and (
-                                propinfo.cardinality == Cardinality.C_0_1 or propinfo.cardinality == Cardinality.C_1):
-                                raise BaseError(f'Cardinality does not allow multiple values for "{propname}"!')
-                            if type(val) is Value:
-                                self._values[propname].append(val)
-                            elif type(val) is dict:
-                                if propinfo.valtype is ListValue:
-                                    val['lists'] = self.lists
-                                self._values[propname].append(propinfo.valtype(**val))
-                            else:
-                                if propinfo.valtype is ListValue:
-                                    val = {'value': val, 'lists': self.list}
-                                self._values[propname].append(propinfo.valtype(val))
-                            valcnt = valcnt + 1
-                    else:  # we do have only one value for this property
-                        if type(vals) is Value:
-                            self._values[propname] = vals
-                        elif type(vals) is dict:
-                            if propinfo.valtype is ListValue:
-                                vals['lists'] = self.lists
-                            self._values[propname] = propinfo.valtype(**vals)
-                        else:
-                            if propinfo.valtype is ListValue:
-                                vals = {'value': val, 'lists': self.list}
-                            self._values[propname] = propinfo.valtype(vals)
-                else:
-                    if propinfo.cardinality == Cardinality.C_1 or propinfo.cardinality == Cardinality.C_1_n:
-                        raise BaseError("Cardinality does require at least one value for \"{}\"!".format(propname))
-            for propname in values:
-                if propname not in self.knora_properties and self.properties.get(propname) is None:
-                    raise BaseError(f'Property "{propname}" is not part of data model!')
+            for property_name, property_info in self.properties.items():
+                cardinality = property_info.cardinality
+                value_type = property_info.valtype
+                value = values.get(property_name)
+                if value:
+                    # property has multiple values
+                    if type(value) is list:
+                        self._values[property_name] = []
+                        for val in value:
+                            # check if cardinality allows multiple values for a property
+                            if cardinality == Cardinality.C_0_1 or cardinality == Cardinality.C_1:
+                                raise BaseError(f"ERROR Ontology does not allow multiple values for '{property_name}'!")
 
-    def value(self, item):
+                            if type(val) is Value:
+                                self._values[property_name].append(val)
+
+                            elif type(val) is dict:
+                                if value_type is ListValue:
+                                    val['lists'] = self.lists
+                                self._values[property_name].append(value_type(**val))
+
+                            else:
+                                if value_type is ListValue:
+                                    val = {'value': val, 'lists': self.list}
+                                self._values[property_name].append(value_type(val))
+                    # property has one value
+                    else:
+                        if type(value) is Value:
+                            self._values[property_name] = value
+
+                        elif type(value) is dict:
+                            if value_type is ListValue:
+                                value['lists'] = self.lists
+                            self._values[property_name] = value_type(**value)
+
+                        else:
+                            if value_type is ListValue:
+                                value = {'value': value, 'lists': self.list}
+                            self._values[property_name] = value_type(value)
+                else:
+                    if cardinality == Cardinality.C_1 or cardinality == Cardinality.C_1_n:
+                        raise BaseError(f"ERROR The ontology does require at least one value for '{property_name}'!")
+
+            for property_name in values:
+                if property_name not in self.knora_properties and not self.properties.get(property_name):
+                    raise BaseError(f"ERROR Property '{property_name}' is not part of ontology!")
+
+    def value(self, item) -> Optional[list[Value]]:
         if self._values.get(item):
-            val = self._values[item]
-            if isinstance(val, list):
-                tmp = [x.value for x in val]
-                return tmp
+            value = self._values[item]
+
+            # value has multiple values
+            if isinstance(value, list):
+                return [x.value for x in value]
             else:
-                return val.value
+                return value.value
         else:
             return None
 
@@ -156,7 +170,7 @@ class ResourceInstance(Model):
 
     @property
     def vark(self) -> str:
-        return self._vark
+        return self._version_ark
 
     def clone(self) -> 'ResourceInstance':
         return deepcopy(self)
@@ -168,9 +182,9 @@ class ResourceInstance(Model):
         context = Context(jsonld_obj.get('@context'))
         newinstance._label = jsonld_obj.get("rdfs:label")
         newinstance._ark = Value.get_typed_value("knora-api:arkUrl", jsonld_obj)
-        newinstance._vark = Value.get_typed_value("knora-api:versionArkUrl", jsonld_obj)
+        newinstance._version_ark = Value.get_typed_value("knora-api:versionArkUrl", jsonld_obj)
         newinstance._permissions = Permissions.fromString(jsonld_obj.get("knora-api:hasPermissions"))
-        newinstance._upermission = PermissionValue[jsonld_obj.get("knora-api:userHasPermission", jsonld_obj)]
+        newinstance._user_permission = PermissionValue[jsonld_obj.get("knora-api:userHasPermission", jsonld_obj)]
         creation_date = Value.get_typed_value("knora-api:creationDate", jsonld_obj)
         user = Value.get_typed_value("knora-api:attachedToUser", jsonld_obj)
         project = Value.get_typed_value("knora-api:attachedToProject", jsonld_obj)
@@ -205,57 +219,65 @@ class ResourceInstance(Model):
                 "@id": self.project
             }
             tmp['rdfs:label'] = self._label
+
             if self._permissions:
                 tmp["knora-api:hasPermissions"] = self._permissions.toJsonLdObj()
+
             if self._bitstream:
+                bitstream_attributes = {
+                    "knora-api:fileValueHasFilename": self._bitstream["internal_file_name"]
+                }
+
+                permissions = self._bitstream.get("permissions")
+                if permissions:
+                    bitstream_attributes["knora-api:hasPermissions"] = permissions.toJsonLdObj()
+
                 if self.baseclass == 'StillImageRepresentation':
-                    tmp["knora-api:hasStillImageFileValue"] = {
-                        "@type": "knora-api:StillImageFileValue",
-                        "knora-api:fileValueHasFilename": self._bitstream
-                    }
+                    bitstream_attributes["@type"] = "knora-api:StillImageFileValue"
+                    tmp["knora-api:hasStillImageFileValue"] = bitstream_attributes
                 elif self.baseclass == 'DocumentRepresentation':
-                    tmp["knora-api:hasDocumentFileValue"] = {
-                        "@type": "knora-api:DocumentFileValue",
-                        "knora-api:fileValueHasFilename": self._bitstream
-                    }
+                    bitstream_attributes["@type"] = "knora-api:DocumentFileValue"
+                    tmp["knora-api:hasDocumentFileValue"] = bitstream_attributes
                 elif self.baseclass == 'TextRepresentation':
-                    tmp["knora-api:hasTextFileValue"] = {
-                        "@type": "knora-api:TextFileValue",
-                        "knora-api:fileValueHasFilename": self._bitstream
-                    }
+                    bitstream_attributes["@type"] = "knora-api:TextFileValue"
+                    tmp["knora-api:hasTextFileValue"] = bitstream_attributes
                 elif self.baseclass == 'AudioRepresentation':
-                    tmp["knora-api:hasAudioFileValue"] = {
-                        "@type": "knora-api:AudioFileValue",
-                        "knora-api:fileValueHasFilename": self._bitstream
-                    }
+                    bitstream_attributes["@type"] = "knora-api:AudioFileValue"
+                    tmp["knora-api:hasAudioFileValue"] = bitstream_attributes
+                elif self.baseclass == 'ArchiveRepresentation':
+                    bitstream_attributes["@type"] = "knora-api:ArchiveFileValue"
+                    tmp["knora-api:hasArchiveFileValue"] = bitstream_attributes
                 else:
-                    raise BaseError(f'Baseclass "{self.baseclass}" not yet supported!')
-            for propname, valtype in self._values.items():
-                if type(valtype) is list:
-                    if type(valtype[0]) is LinkValue:
-                        propname += 'Value'
-                    tmp[propname] = []
-                    for vt in valtype:
-                        tmp[propname].append(vt.toJsonLdObj(action))
-                    pass
+                    raise BaseError(f"Baseclass '{self.baseclass}' not yet supported!")
+
+            for property_name, value in self._values.items():
+                # if the property has several values
+                if type(value) is list:
+                    if type(value[0]) is LinkValue:
+                        property_name += 'Value'
+                    # append all values to that property
+                    tmp[property_name] = []
+                    for vt in value:
+                        tmp[property_name].append(vt.toJsonLdObj(action))
+                # if property is a link
+                elif type(value) is LinkValue:
+                    property_name += 'Value'
+                    tmp[property_name] = value.toJsonLdObj(action)
                 else:
-                    if type(valtype) is LinkValue:
-                        propname += 'Value'
-                    tmp[propname] = valtype.toJsonLdObj(action)
+                    tmp[property_name] = value.toJsonLdObj(action)
+
             tmp['@context'] = self.context
-        else:
-            pass
         return tmp
 
     def create(self):
         jsonobj = self.toJsonLdObj(Actions.Create)
         jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
-        # print(jsondata)
+        # print("jsondata", jsondata)
         result = self._con.post('/v2/resources', jsondata)
         newinstance = self.clone()
         newinstance._iri = result['@id']
         newinstance._ark = result['knora-api:arkUrl']['@value']
-        newinstance._vark = result['knora-api:versionArkUrl']['@value']
+        newinstance._version_ark = result['knora-api:versionArkUrl']['@value']
         return newinstance
 
     def read(self) -> 'ResourceInstance':
@@ -269,12 +291,12 @@ class ResourceInstance(Model):
         pass
 
     def print(self):
-        print('Iri:', self._iri)
-        print('Ark:', self._ark)
-        print('Vark:', self._vark)
+        print('IRI:', self._iri)
+        print('ARK:', self._ark)
+        print('Version ARK:', self._version_ark)
         print('Label:', self._label)
         print('Permissions:', str(self._permissions))
-        print('Userpermission:', str(self._upermission))
+        print('User permission:', str(self._user_permission))
         for name, val in self._values.items():
             if isinstance(val, list):
                 tmp = [str(x) for x in val]

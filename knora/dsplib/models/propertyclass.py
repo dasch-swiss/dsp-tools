@@ -439,6 +439,8 @@ class PropertyClass(Model):
             property["object"] = context.reduce_iri(self.object, shortname)
         if self.label:
             property["labels"] = self.label.createDefinitionFileObj()
+        if self.comment:
+            property["comments"] = self.comment.createDefinitionFileObj()
         if self.gui_element:
             property["gui_element"] = context.reduce_iri(self.gui_element, shortname)
         if self.gui_attributes:

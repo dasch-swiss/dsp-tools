@@ -54,6 +54,11 @@ DELETE
 
 @strict
 class Ontology(Model):
+
+    ROUTE: str = '/v2/ontologies'
+    METADATA: str = '/metadata/'
+    ALL_LANGUAGES: str = '?allLanguages=true'
+
     _id: str
     _project: str
     _name: str
@@ -380,39 +385,39 @@ class Ontology(Model):
     def create(self, dumpjson: Optional[str] = None) -> 'Ontology':
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-        result = self._con.post('/v2/ontologies', jsondata)
+        result = self._con.post(Ontology.ROUTE, jsondata)
         return Ontology.fromJsonObj(self._con, result)
 
     def update(self) -> 'Ontology':
         jsonobj = self.toJsonObj(Actions.Update)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-        result = self._con.put('/v2/ontologies/metadata', jsondata, 'application/ld+json')
+        result = self._con.put(Ontology.ROUTE + '/metadata', jsondata, 'application/ld+json')
         return Ontology.fromJsonObj(self._con, result)
 
     def read(self) -> 'Ontology':
-        result = self._con.get('/v2/ontologies/allentities/' + quote_plus(self._id) + '?allLanguages=true')
+        result = self._con.get(Ontology.ROUTE + '/allentities/' + quote_plus(self._id) + Ontology.ALL_LANGUAGES)
         return Ontology.fromJsonObj(self._con, result)
 
     def delete(self) -> Optional[str]:
-        result = self._con.delete('/v2/ontologies/' + quote_plus(self._id),
+        result = self._con.delete(Ontology.ROUTE + '/' + quote_plus(self._id),
                                   params={'lastModificationDate': str(self._lastModificationDate)})
         return result.get('knora-api:result')
 
     @staticmethod
     def getAllOntologies(con: Connection) -> List['Ontology']:
-        result = con.get('/v2/ontologies/metadata/')
+        result = con.get(Ontology.ROUTE + Ontology.METADATA)
         return Ontology.allOntologiesFromJsonObj(con, result)
 
     @staticmethod
     def getProjectOntologies(con: Connection, project_id: str) -> List['Ontology']:
         if project_id is None:
             raise BaseError('Project ID must be defined!')
-        result = con.get('/v2/ontologies/metadata/' + quote_plus(project_id) + '?allLanguages=true')
+        result = con.get(Ontology.ROUTE + Ontology.METADATA + quote_plus(project_id) + Ontology.ALL_LANGUAGES)
         return Ontology.allOntologiesFromJsonObj(con, result)
 
     @staticmethod
     def getOntologyFromServer(con: Connection, shortcode: str, name: str) -> 'Ontology':
-        result = con.get("/ontology/" + shortcode + "/" + name + "/v2?allLanguages=true")
+        result = con.get("/ontology/" + shortcode + "/" + name + "/v2" + Ontology.ALL_LANGUAGES)
         return Ontology.fromJsonObj(con, result)
 
     def createDefinitionFileObj(self):

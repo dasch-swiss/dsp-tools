@@ -132,6 +132,12 @@ class User(Model):
 
     """
 
+    ROUTE: str = "/admin/users"
+    IRI: str = ROUTE + "/iri/"
+    PROJECT_MEMBERSHIPS: str = "/project-memberships/"
+    PROJECT_ADMIN_MEMBERSHIPS: str = "/project-admin-memberships/"
+    GROUP_MEMBERSHIPS: str = "/group-memberships/"
+
     _id: str
     _username: str
     _email: str
@@ -557,19 +563,19 @@ class User(Model):
 
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj)
-        result = self._con.post('/admin/users', jsondata)
+        result = self._con.post(User.ROUTE, jsondata)
         id = result['user']['id']
         if self._in_projects is not None:
             for project in self._in_projects:
                 result = self._con.post(
-                    '/admin/users/iri/' + quote_plus(id) + '/project-memberships/' + quote_plus(project))
+                    User.IRI + quote_plus(id) + User.PROJECT_MEMBERSHIPS + quote_plus(project))
                 if self._in_projects[project]:
                     result = self._con.post(
-                        '/admin/users/iri/' + quote_plus(id) + '/project-admin-memberships/' + quote_plus(project))
+                        User.IRI + quote_plus(id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(project))
         if self._in_groups is not None:
             for group in self._in_groups:
                 result = self._con.post(
-                    '/admin/users/iri/' + quote_plus(id) + '/group-memberships/' + quote_plus(group))
+                    User.IRI + quote_plus(id) + User.GROUP_MEMBERSHIPS + quote_plus(group))
         return User.fromJsonObj(self._con, result['user'])
 
     def read(self) -> Any:
@@ -579,11 +585,11 @@ class User(Model):
         :return: JSON-object from Knora
         """
         if self._id is not None:
-            result = self._con.get('/admin/users/iri/' + quote_plus(self._id))
+            result = self._con.get(User.IRI + quote_plus(self._id))
         elif self._email is not None:
-            result = self._con.get('/admin/users/email/' + quote_plus(self._email))
+            result = self._con.get(User.ROUTE + '/email/' + quote_plus(self._email))
         elif self._username is not None:
-            result = self._con.get('/admin/users/username/' + quote_plus(self._username))
+            result = self._con.get(User.ROUTE + '/username/' + quote_plus(self._username))
         else:
             raise BaseError('Either user-id or email is required!')
         return User.fromJsonObj(self._con, result['user'])
@@ -599,11 +605,11 @@ class User(Model):
         jsonobj = self.toJsonObj(Actions.Update)
         if jsonobj:
             jsondata = json.dumps(jsonobj)
-            result = self._con.put('/admin/users/iri/' + quote_plus(self.id) + '/BasicUserInformation', jsondata)
+            result = self._con.put(User.IRI + quote_plus(self.id) + '/BasicUserInformation', jsondata)
         if 'status' in self._changed:
             jsonobj = {'status': self._status}
             jsondata = json.dumps(jsonobj)
-            result = self._con.put('/admin/users/iri/' + quote_plus(self.id) + '/Status', jsondata)
+            result = self._con.put(User.IRI + quote_plus(self.id) + '/Status', jsondata)
         if 'password' in self._changed:
             if requesterPassword is None:
                 raise BaseError("Requester's password is missing!")
@@ -612,40 +618,40 @@ class User(Model):
                 "newPassword": self._password
             }
             jsondata = json.dumps(jsonobj)
-            result = self._con.put('/admin/users/iri/' + quote_plus(self.id) + '/Password', jsondata)
+            result = self._con.put(User.IRI + quote_plus(self.id) + '/Password', jsondata)
         if 'sysadmin' in self._changed:
             jsonobj = {'systemAdmin': self._sysadmin}
             jsondata = json.dumps(jsonobj)
-            result = self._con.put('/admin/users/iri/' + quote_plus(self.id) + '/SystemAdmin', jsondata)
+            result = self._con.put(User.IRI + quote_plus(self.id) + '/SystemAdmin', jsondata)
         for p in self._add_to_project.items():
             result = self._con.post(
-                '/admin/users/iri/' + quote_plus(self._id) + '/project-memberships/' + quote_plus(p[0]))
+                User.IRI + quote_plus(self._id) + User.PROJECT_MEMBERSHIPS + quote_plus(p[0]))
             if p[1]:
                 result = self._con.post(
-                    '/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
+                    User.IRI + quote_plus(self._id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
 
         for p in self._rm_from_project:
             if self._in_projects.get(p) is not None and self._in_projects[p]:
                 result = self._con.delete(
-                    '/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p))
+                    User.IRI + quote_plus(self._id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p))
             result = self._con.delete(
-                '/admin/users/iri/' + quote_plus(self._id) + '/project-memberships/' + quote_plus(p))
+                User.IRI + quote_plus(self._id) + User.PROJECT_MEMBERSHIPS + quote_plus(p))
 
         for p in self._change_admin.items():
             if not p[0] in self._in_projects:
                 raise BaseError('user must be member of project!')
             if p[1]:
                 result = self._con.post(
-                    '/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
+                    User.IRI + quote_plus(self._id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
             else:
                 result = self._con.delete(
-                    '/admin/users/iri/' + quote_plus(self._id) + '/project-admin-memberships/' + quote_plus(p[0]))
+                    User.IRI + quote_plus(self._id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
 
         for p in self._add_to_group:
-            result = self._con.post('/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
+            result = self._con.post(User.IRI + quote_plus(self._id) + User.GROUP_MEMBERSHIPS + quote_plus(p))
         for p in self._rm_from_group:
             result = self._con.delete(
-                '/admin/users/iri/' + quote_plus(self._id) + '/group-memberships/' + quote_plus(p))
+                User.IRI + quote_plus(self._id) + User.GROUP_MEMBERSHIPS + quote_plus(p))
         user = User(con=self._con, id=self._id).read()
         return user
 
@@ -654,7 +660,7 @@ class User(Model):
         Delete the user in nore (NOT YET IMPLEMENTED)
         :return: None
         """
-        result = self._con.delete('/admin/users/iri/' + quote_plus(self._id))
+        result = self._con.delete(User.IRI + quote_plus(self._id))
         return User.fromJsonObj(self._con, result['user'])
 
     @staticmethod
@@ -666,7 +672,7 @@ class User(Model):
         :return: List of users
         """
 
-        result = con.get('/admin/users')
+        result = con.get(User.ROUTE)
         if 'users' not in result:
             raise BaseError("Request got no users!")
         return list(map(lambda a: User.fromJsonObj(con, a), result['users']))
@@ -681,14 +687,14 @@ class User(Model):
         :return: List of users belonging to that project
         """
 
-        result = con.get('/admin/users')
+        result = con.get(User.ROUTE)
         if 'users' not in result:
             raise BaseError("Request got no users!")
         all_users = result["users"]
         project_users = []
         for user in all_users:
             project_list = con.get(
-                '/admin/users/iri/' + urllib.parse.quote_plus(user["id"], safe='') + '/project-memberships')
+                User.IRI + urllib.parse.quote_plus(user["id"], safe='') + '/project-memberships')
             project = project_list["projects"]
             for proj in project:
                 if proj["id"] == "http://rdfh.ch/projects/" + proj_shortcode:

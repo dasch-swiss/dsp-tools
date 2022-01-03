@@ -69,6 +69,8 @@ class Group(Model):
     PROJECT_MEMBER_GROUP: str = "http://www.knora.org/ontology/knora-admin#ProjectMember"
     PROJECT_ADMIN_GROUP: str = "http://www.knora.org/ontology/knora-admin#ProjectAdmin"
     PROJECT_SYSTEMADMIN_GROUP: str = "http://www.knora.org/ontology/knora-admin#SystemAdmin"
+    ROUTE: str = "/admin/groups"
+    ROUTE_SLASH: str = ROUTE + "/"
 
     _id: str
     _name: str
@@ -212,39 +214,39 @@ class Group(Model):
     def create(self):
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj)
-        result = self._con.post('/admin/groups', jsondata)
+        result = self._con.post(Group.ROUTE, jsondata)
         return Group.fromJsonObj(self._con, result['group'])
 
     def read(self):
-        result = self._con.get('/admin/groups/' + quote_plus(self._id))
+        result = self._con.get(Group.ROUTE_SLASH + quote_plus(self._id))
         return Group.fromJsonObj(self._con, result['group'])
 
     def update(self):
         jsonobj = self.toJsonObj(Actions.Update)
         if jsonobj:
             jsondata = json.dumps(jsonobj)
-            result = self._con.put('/admin/groups/' + quote_plus(self._id), jsondata)
+            result = self._con.put(Group.ROUTE_SLASH + quote_plus(self._id), jsondata)
             updated_group = Group.fromJsonObj(self._con, result['group'])
         if self._status is not None and 'status' in self._changed:
             jsondata = json.dumps({'status': self._status})
-            result = self._con.put('/admin/groups/' + quote_plus(self._id) + '/status', jsondata)
+            result = self._con.put(Group.ROUTE_SLASH + quote_plus(self._id) + '/status', jsondata)
             updated_group = Group.fromJsonObj(self._con, result['group'])
         return updated_group
 
     def delete(self):
-        result = self._con.delete('/admin/groups/' + quote_plus(self._id))
+        result = self._con.delete(Group.ROUTE_SLASH + quote_plus(self._id))
         return Group.fromJsonObj(self._con, result['group'])
 
     @staticmethod
     def getAllGroups(con: Connection) -> List['Group']:
-        result = con.get('/admin/groups')
+        result = con.get(Group.ROUTE)
         if 'groups' not in result:
             raise BaseError("Request got no groups!")
         return list(map(lambda a: Group.fromJsonObj(con, a), result['groups']))
 
     @staticmethod
     def getAllGroupsForProject(con: Connection, proj_shortcode: str) -> List['Group']:
-        result = con.get('/admin/groups')
+        result = con.get(Group.ROUTE)
         if 'groups' not in result:
             raise BaseError("Request got no groups!")
         all_groups = result["groups"]

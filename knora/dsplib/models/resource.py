@@ -44,6 +44,9 @@ class ResourceInstance(Model):
     """
     Represents a resource instance
     """
+
+    ROUTE: str = "/v2/resources"
+
     baseclasses_with_bitstream: Set[str] = {
         'StillImageRepresentation',
         'AudioRepresentation',
@@ -273,7 +276,7 @@ class ResourceInstance(Model):
         jsonobj = self.toJsonLdObj(Actions.Create)
         jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
         # print("jsondata", jsondata)
-        result = self._con.post('/v2/resources', jsondata)
+        result = self._con.post(ResourceInstance.ROUTE, jsondata)
         newinstance = self.clone()
         newinstance._iri = result['@id']
         newinstance._ark = result['knora-api:arkUrl']['@value']
@@ -281,7 +284,7 @@ class ResourceInstance(Model):
         return newinstance
 
     def read(self) -> 'ResourceInstance':
-        result = self._con.get('/v2/resources/' + quote_plus(self._iri))
+        result = self._con.get(ResourceInstance.ROUTE + '/' + quote_plus(self._iri))
         return self.fromJsonLdObj(con=self._con, jsonld_obj=result)
 
     def update(self):

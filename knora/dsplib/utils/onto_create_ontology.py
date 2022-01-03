@@ -394,7 +394,6 @@ def create_ontology(input_file: str,
                         super_props.append(super_class)
                     else:
                         super_props.append(knora_api_prefix + super_class)
-                # super_props = list(map(lambda a: a if ':' in a else knora_api_prefix + a, prop_class.get("super")))
             else:
                 super_props = ["knora-api:hasValue"]
 

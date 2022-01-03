@@ -97,6 +97,10 @@ class Project(Model):
         Prints the project information to stdout
 
     """
+
+    ROUTE: str = "/admin/projects"
+    IRI: str = ROUTE + "/iri/"
+
     _id: str
     _shortcode: str
     _shortname: str
@@ -421,7 +425,7 @@ class Project(Model):
 
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder)
-        result = self._con.post('/admin/projects', jsondata)
+        result = self._con.post(Project.ROUTE, jsondata)
         return Project.fromJsonObj(self._con, result['project'])
 
     def read(self) -> 'Project':
@@ -432,11 +436,11 @@ class Project(Model):
         """
         result = None
         if self._id is not None:
-            result = self._con.get('/admin/projects/iri/' + quote_plus(self._id))
+            result = self._con.get(Project.IRI + quote_plus(self._id))
         elif self._shortcode is not None:
-            result = self._con.get('/admin/projects/shortcode/' + quote_plus(self._shortcode))
+            result = self._con.get(Project.ROUTE + '/shortcode/' + quote_plus(self._shortcode))
         elif self._shortname is not None:
-            result = self._con.get('/admin/projects/shortname/' + quote_plus(self._shortname))
+            result = self._con.get(Project.ROUTE + '/shortname/' + quote_plus(self._shortname))
         if result is not None:
             return Project.fromJsonObj(self._con, result['project'])
         else:
@@ -452,7 +456,7 @@ class Project(Model):
         jsonobj = self.toJsonObj(Actions.Update)
         if jsonobj:
             jsondata = json.dumps(jsonobj, cls=SetEncoder)
-            result = self._con.put('/admin/projects/iri/' + quote_plus(self.id), jsondata)
+            result = self._con.put(Project.IRI + quote_plus(self.id), jsondata)
             return Project.fromJsonObj(self._con, result['project'])
         else:
             return None
@@ -464,7 +468,7 @@ class Project(Model):
         :return: Knora response
         """
 
-        result = self._con.delete('/admin/projects/iri/' + quote_plus(self._id))
+        result = self._con.delete(Project.IRI + quote_plus(self._id))
         return Project.fromJsonObj(self._con, result['project'])
 
     def set_default_permissions(self, group_id: str) -> None:
@@ -510,7 +514,7 @@ class Project(Model):
         :param con: Connection instance
         :return:
         """
-        result = con.get('/admin/projects')
+        result = con.get(Project.ROUTE)
         if 'projects' not in result:
             raise BaseError("Request got no projects!")
         return list(map(lambda a: Project.fromJsonObj(con, a), result['projects']))
@@ -543,39 +547,3 @@ class Project(Model):
             print('  Ontologies: None')
         print('  Selfjoin:   {}'.format(self._selfjoin))
         print('  Status:     {}'.format(self._status))
-
-
-if __name__ == '__main__':
-    con = Connection('http://0.0.0.0:3333')
-    con.login('root@example.com', 'test')
-
-    projects = Project.getAllProjects(con)
-
-    for project in projects:
-        project.print()
-
-    new_project = Project(con=con,
-                          shortcode='F11F',
-                          shortname='mytest3',
-                          longname='A Test beloning to me',
-                          description=LangString({Languages.EN: 'My Tests description'}),
-                          keywords={'AAA', 'BBB'},
-                          selfjoin=False,
-                          status=True).create()
-
-    new_project.print()
-
-    new_project.longname = 'A long name fore a short project'
-    new_project.status = False
-    new_project.description = LangString({Languages.DE: 'Beschreibung meines Tests'})
-    new_project.add_keyword('CCC')
-    new_project = new_project.update()
-    new_project.print()
-
-    new_project = new_project.delete()
-
-    print('**************************************************************')
-    projects = Project.getAllProjects(con)
-
-    for project in projects:
-        project.print()

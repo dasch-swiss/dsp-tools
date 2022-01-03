@@ -469,7 +469,8 @@
                         "name": "AudioThing",
                         "super": "AudioRepresentation",
                         "labels": {
-                            "en": "An Audio Thing"
+                            "en": "An Audio Thing",
+                            "de": "Ein Audioding"
                         },
                         "comments": {
                             "en": "An audio thing for testing audio things."

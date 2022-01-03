@@ -4,7 +4,7 @@ from urllib.parse import quote_plus
 
 from pystrict import strict
 
-from knora.dsplib.models.langstring import LangString, LangStringParam, Languages
+from knora.dsplib.models.langstring import LangString, Languages
 from .connection import Connection
 from .helpers import Actions, BaseError
 from .model import Model
@@ -69,6 +69,8 @@ class Group(Model):
     PROJECT_MEMBER_GROUP: str = "http://www.knora.org/ontology/knora-admin#ProjectMember"
     PROJECT_ADMIN_GROUP: str = "http://www.knora.org/ontology/knora-admin#ProjectAdmin"
     PROJECT_SYSTEMADMIN_GROUP: str = "http://www.knora.org/ontology/knora-admin#SystemAdmin"
+    ROUTE: str = "/admin/groups"
+    ROUTE_SLASH: str = ROUTE + "/"
 
     _id: str
     _name: str
@@ -212,35 +214,56 @@ class Group(Model):
     def create(self):
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj)
-        result = self._con.post('/admin/groups', jsondata)
+        result = self._con.post(Group.ROUTE, jsondata)
         return Group.fromJsonObj(self._con, result['group'])
 
     def read(self):
-        result = self._con.get('/admin/groups/' + quote_plus(self._id))
+        result = self._con.get(Group.ROUTE_SLASH + quote_plus(self._id))
         return Group.fromJsonObj(self._con, result['group'])
 
     def update(self):
         jsonobj = self.toJsonObj(Actions.Update)
         if jsonobj:
             jsondata = json.dumps(jsonobj)
-            result = self._con.put('/admin/groups/' + quote_plus(self._id), jsondata)
+            result = self._con.put(Group.ROUTE_SLASH + quote_plus(self._id), jsondata)
             updated_group = Group.fromJsonObj(self._con, result['group'])
         if self._status is not None and 'status' in self._changed:
             jsondata = json.dumps({'status': self._status})
-            result = self._con.put('/admin/groups/' + quote_plus(self._id) + '/status', jsondata)
+            result = self._con.put(Group.ROUTE_SLASH + quote_plus(self._id) + '/status', jsondata)
             updated_group = Group.fromJsonObj(self._con, result['group'])
         return updated_group
 
     def delete(self):
-        result = self._con.delete('/admin/groups/' + quote_plus(self._id))
+        result = self._con.delete(Group.ROUTE_SLASH + quote_plus(self._id))
         return Group.fromJsonObj(self._con, result['group'])
 
     @staticmethod
     def getAllGroups(con: Connection) -> List['Group']:
-        result = con.get('/admin/groups')
+        result = con.get(Group.ROUTE)
         if 'groups' not in result:
             raise BaseError("Request got no groups!")
         return list(map(lambda a: Group.fromJsonObj(con, a), result['groups']))
+
+    @staticmethod
+    def getAllGroupsForProject(con: Connection, proj_shortcode: str) -> List['Group']:
+        result = con.get(Group.ROUTE)
+        if 'groups' not in result:
+            raise BaseError("Request got no groups!")
+        all_groups = result["groups"]
+        project_groups = []
+        for group in all_groups:
+            if group["project"]["id"] == "http://rdfh.ch/projects/" + proj_shortcode:
+                project_groups.append(group)
+        return list(map(lambda a: Group.fromJsonObj(con, a), project_groups))
+
+    def createDefinitionFileObj(self):
+        group = {
+            "name": self.name,
+            "descriptions": self.descriptions.createDefinitionFileObj(),
+            "selfjoin": self.selfjoin,
+            "status": self.status
+        }
+        return group
 
     def print(self):
         print('Group Info:')
@@ -255,48 +278,3 @@ class Group(Model):
         print('  Project:     {}'.format(self._project))
         print('  Selfjoin:    {}'.format(self._selfjoin))
         print('  Status:      {}'.format(self._status))
-
-
-if __name__ == '__main__':
-    con = Connection('http://0.0.0.0:3333')
-    con.login('root@example.com', 'test')
-
-    groups = Group.getAllGroups(con)
-    for group in groups:
-        group.print()
-
-    new_group = Group(con=con,
-                      name="GROUP TEST",
-                      descriptions=LangString({Languages.EN: 'Test group description'}),
-                      project="http://rdfh.ch/projects/00FF",
-                      status=True,
-                      selfjoin=False).create()
-    new_group.print()
-
-    new_group.name = "GROUP TEST - modified"
-    new_group = new_group.update()
-    new_group.print()
-    new_group.descriptions = LangString({Languages.DE: 'Beschreibung einer Gruppe'})
-    new_group = new_group.update()
-    new_group.print()
-
-    new_group.selfjoin = True
-    new_group = new_group.update()
-    new_group.print()
-
-    new_group.status = False
-    new_group = new_group.update()
-    new_group.print()
-
-    new_group.name = '-- GROUP TEST --'
-    new_group.descriptions = LangString({Languages.DE: 'Neue Beschreibung einer Gruppe'})
-    new_group.status = True
-    new_group = new_group.update()
-    new_group.print()
-
-    new_group.delete()
-
-    print('=========================')
-    groups = Group.getAllGroups(con)
-    for group in groups:
-        group.print()

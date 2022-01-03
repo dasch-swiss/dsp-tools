@@ -33,7 +33,7 @@ class TestTools(unittest.TestCase):
             onto_json_str = f.read()
         anything_onto = json.loads(onto_json_str)
 
-        get_ontology(projident='anything',
+        get_ontology(project_identifier='anything',
                      outfile='_anything-onto.json',
                      server=self.server,
                      user=self.user,

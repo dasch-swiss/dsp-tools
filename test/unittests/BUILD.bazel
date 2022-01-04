@@ -1,30 +1,38 @@
-package(default_visibility = ["//visibility:public"])
-
 # make the python rules available
-load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
+load("@rules_python//python:defs.bzl", "py_test")
 
 # make the dependencies from requirements.txt available
 load("@knora_py_deps//:requirements.bzl", "requirement")
 
+package(default_visibility = ["//visibility:public"])
+
 py_test(
     name = "test_langstring",
-    srcs = ["test_langstring.py"]
+    srcs = ["test_langstring.py"],
 )
 
 py_test(
     name = "test_value",
     srcs = ["test_value.py"],
     deps = [
-        "//knora/dsplib/models:value",
         "//knora/dsplib/models:group",
-        "//knora/dsplib/models:helpers"
-    ]
+        "//knora/dsplib/models:helpers",
+        "//knora/dsplib/models:value",
+    ],
 )
 
 py_test(
     name = "test_id_to_iri",
     srcs = ["test_id_to_iri.py"],
     data = [
-            "//testdata:testdata"
-        ]
+        "//testdata",
+    ],
+)
+
+py_test(
+    name = "test_excel_to_resource",
+    srcs = ["test_excel_to_resource.py"],
+    data = [
+        "//testdata",
+    ],
 )

@@ -51,7 +51,7 @@ def resources_excel2json(excelfile: str, outfile: str) -> None:
     resource_list = [c for c in sheet.iter_rows(min_row=2, values_only=True)]
 
     prefix = '"resources":'
-    resources = [__extract_row(res, wb) for res in resource_list]
+    resources = [_extract_row(res, wb) for res in resource_list]
 
     if validate_resources_with_schema(json.loads(json.dumps(resources, indent=4))):
         # write final list to JSON file if list passed validation
@@ -63,7 +63,7 @@ def resources_excel2json(excelfile: str, outfile: str) -> None:
         print('Resource data is not valid according to schema.')
 
 
-def __extract_row(row: tuple[str, str, str, str, str, str, str, str, str, str], wb: Workbook) -> dict[str, Any]:
+def _extract_row(row: tuple[str, str, str, str, str, str, str, str, str, str], wb: Workbook) -> dict[str, Any]:
     """build a property dict from a row of the excel file"""
     # get name
     name = row[0]

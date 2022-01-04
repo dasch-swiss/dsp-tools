@@ -22,6 +22,9 @@ This model implements the handling of resource classes. It contains two classes 
 
 @strict
 class HasProperty(Model):
+
+    ROUTE: str = "/v2/ontologies/cardinalities"
+
     class Ptype(Enum):
         system = 1
         knora = 2
@@ -248,7 +251,7 @@ class HasProperty(Model):
 
         jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=2)
-        result = self._con.post('/v2/ontologies/cardinalities', jsondata)
+        result = self._con.post(HasProperty.ROUTE, jsondata)
         last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result['@graph'])
 
@@ -261,7 +264,7 @@ class HasProperty(Model):
             raise BaseError("Cardinality id required")
         jsonobj = self.toJsonObj(last_modification_date, Actions.Update)
         jsondata = json.dumps(jsonobj, indent=3, cls=SetEncoder)
-        result = self._con.put('/v2/ontologies/cardinalities', jsondata)
+        result = self._con.put(HasProperty.ROUTE, jsondata)
         last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
         # TODO: self._changed = str()
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result['@graph'])
@@ -375,6 +378,9 @@ class ResourceClass(Model):
     print: Print the content of this class to the console
 
     """
+
+    ROUTE: str = "/v2/ontologies/classes"
+
     _context: Context
     _id: str
     _name: str
@@ -733,7 +739,7 @@ class ResourceClass(Model):
     def create(self, last_modification_date: LastModificationDate) -> Tuple[LastModificationDate, 'ResourceClass']:
         jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-        result = self._con.post('/v2/ontologies/classes', jsondata)
+        result = self._con.post(ResourceClass.ROUTE, jsondata)
         last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result['@graph'])
 
@@ -746,13 +752,13 @@ class ResourceClass(Model):
         if 'label' in self._changed:
             jsonobj = self.toJsonObj(last_modification_date, Actions.Update, 'label')
             jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-            result = self._con.put('v2/ontologies/classes', jsondata)
+            result = self._con.put(ResourceClass.ROUTE, jsondata)
             last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
             something_changed = True
         if 'comment' in self._changed:
             jsonobj = self.toJsonObj(last_modification_date, Actions.Update, 'comment')
             jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-            result = self._con.put('v2/ontologies/classes', jsondata)
+            result = self._con.put(ResourceClass.ROUTE, jsondata)
             last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
             something_changed = True
         if something_changed:
@@ -762,7 +768,7 @@ class ResourceClass(Model):
 
     def delete(self, last_modification_date: LastModificationDate) -> LastModificationDate:
         result = self._con.delete(
-            'v2/ontologies/classes/' + quote_plus(self._id) + '?lastModificationDate=' + str(last_modification_date))
+            ResourceClass.ROUTE + '/' + quote_plus(self._id) + '?lastModificationDate=' + str(last_modification_date))
         return LastModificationDate(result['knora-api:lastModificationDate'])
 
     def createDefinitionFileObj(self, context: Context, shortname: str, skiplist: List[str]):

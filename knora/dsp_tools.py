@@ -168,7 +168,7 @@ def program(user_args: list[str]) -> None:
                                 verbose=args.verbose,
                                 dump=args.dump if args.dump else False)
     elif args.action == 'get':
-        get_ontology(projident=args.project,
+        get_ontology(project_identifier=args.project,
                      outfile=args.datamodelfile,
                      server=args.server,
                      user=args.user,

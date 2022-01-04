@@ -31,11 +31,13 @@ def visualize(file: str) -> None:
                 p = propertiesMap.get(tmp[1])
                 if p:
                     oneres["props"].append({"propname": prop["propname"], "proptype": p})
+                else:
+                    print(tmp)
+                    # TODO: handle this case
             else:
-                pass  # ToDo: treat here properties from external ontolopgies
+                print(tmp)
+                # TODO: handle this case
         reslist.append(oneres)
-        
-    print(reslist)
 
     # Creates the graph using pygraphviz
     G = pgv.AGraph(strict=False, directed=True, ranksep='2', page="8.3,11.7", size="8.0,11.0", margin=0.3,
@@ -44,19 +46,26 @@ def visualize(file: str) -> None:
         G.add_node(resProps["resname"], style='filled', fillcolor='#03dffc')
 
         # creates the edges
-
         for propType in resProps["props"]:
-
             # Cleansing the string from the ':' character at the beginning
             if propType["proptype"].startswith(':'):  # In this case nodes are being connected. (Nodes start with ':')
                 temp = propType["proptype"][1:]
                 G.add_edge(resProps["resname"], temp, label=propType["propname"])
-
-
+            # TODO: not always correct (green boxes!)
             else:  # Here Nodes are connected with literals
                 temp = propType["proptype"]
 
                 G.add_node(temp, shape='box', style='filled', fillcolor='#95f0b0')
                 G.add_edge(resProps["resname"], temp, label=propType["propname"])
 
-    G.draw('OntologyGraph.pdf', prog='dot')  # Differente layouts: prog=neato|dot|twopi|circo|fdp|nop
+    # G.layout()
+    # G.draw("graph.dot")
+    # TODO: pass out file as argument
+    # TODO: find good way of handling different layouts
+    # TODO: fix rotation of output
+    G.draw('OntologyGraph1.pdf', prog='neato')  # Differente layouts: prog=neato|dot|twopi|circo|fdp|nop
+    G.draw('OntologyGraph2.pdf', prog='dot')  # Differente layouts: prog=neato|dot|twopi|circo|fdp|nop
+    G.draw('OntologyGraph3.pdf', prog='twopi')  # Differente layouts: prog=neato|dot|twopi|circo|fdp|nop
+    G.draw('OntologyGraph4.pdf', prog='circo')  # Differente layouts: prog=neato|dot|twopi|circo|fdp|nop
+    G.draw('OntologyGraph5.pdf', prog='fdp')  # Differente layouts: prog=neato|dot|twopi|circo|fdp|nop
+    # G.draw('OntologyGraph6.pdf', prog='nop')  # Differente layouts: prog=neato|dot|twopi|circo|fdp|nop

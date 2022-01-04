@@ -11,6 +11,8 @@ list from an Excel file.
 With dsp-tools the `resources` section used in a data model (JSON) can be created from an Excel file. Only `XLSX` files
 are allowed. The `resources` section can be inserted into the ontology file and then be uploaded onto a DSP server.
 
+**An Excel file template can be found [here](assets/templates/resources_template.xlsx). It is recommended to work from the template.**
+
 The expected worksheets of the Excel file are:
 
 - `classes`: a table with all resource classes intended to be used in the resulting JSON
@@ -26,6 +28,7 @@ The expected columns are:
 - `name` : The name of the resource
 - `super` : The base resource of the resource
 - `en`, `de`, `fr`, `it` : The labels of the resource in different languages, at least one language has to be provided
+- `comment_en`, `comment_de`, `comment_fr`, `comment_it`: optional comments in the respective language 
 
 All other worksheets, one for each resource class, have the following form:
 ![img-resources-example-2.png](assets/images/img-resources-example-2.png){ width=50% }
@@ -43,6 +46,8 @@ With dsp-tools the `properties` section used in a data model (JSON) can be creat
 worksheet of the Excel file is considered and only XLSX files are allowed. The `properties` section can be inserted into
 the ontology file and then be uploaded onto a DSP server.
 
+**An Excel file template can be found [here](assets/templates/properties_template.xlsx). It is recommended to work from the template.**
+
 The Excel sheet must have the following format:
 ![img-properties-example.png](assets/images/img-properties-example.png)
 
@@ -52,6 +57,7 @@ The expected columns are:
 - `super` : The base property of the property
 - `object` : The resource the property refers to if it is a link property (property derived from `hasLinkTo`)
 - `en`, `de`, `fr`, `it` : The labels of the property in different languages, at least one language has to be provided
+- `comment_en`, `comment_de`, `comment_fr`, `comment_it`: optional comments in the respective language 
 - `gui_element` : The GUI element for the property
 - `hlist` : In case of list values the according list
 

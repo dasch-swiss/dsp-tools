@@ -1,38 +1,41 @@
-import pygraphviz as pgv
+import importlib.util
 import json
-from pprint import pprint
-from typing import List, Set, Dict, Tuple, Optional
+import sys
+
+# from pprint import pprint
+# from typing import Dict, List, Optional, Set, Tuple
+
+# import pygraphviz as pgv
 
 
-class Graph:
-
-    def __init__(self, filename: str):
-        # read the data model definition
-        with open(filename) as f:
-            self.datamodel = json.load(f)
-            #pprint(self.datamodel)
-
-        self.resources = self.datamodel["project"]["ontologies"][0]["resources"]
-        self.properties = self.datamodel["project"]["ontologies"][0]["properties"]
-        self.propertiesMap = dict(
-            map(lambda x: (x["name"], x["object"]), self.datamodel["project"]["ontologies"][0]["properties"]))
-
-
-if __name__ == '__main__':
-
-    graph = Graph("BiZ-onto.json")
+def visualize(file: str) -> None:
+    # ensure that pygraphviz is installed
+    spec = importlib.util.find_spec("pygraphviz")
+    if not spec:
+        print("ERROR: To visualize ontologies, you need to have 'pygraphviz' installed. Please consult the documentation.")
+        sys.exit(1)
+    import pygraphviz as pgv
+    # get data from file
+    with open(file) as f:
+        datamodel = json.load(f)
+    resources = datamodel["project"]["ontologies"][0]["resources"]
+    properties = datamodel["project"]["ontologies"][0]["properties"]
+    propertiesMap = dict(map(lambda x: (x["name"], x["object"]), datamodel["project"]["ontologies"][0]["properties"]))
 
     reslist = []
-    for res in graph.resources:
+    for res in resources:
         oneres = {"resname": res["name"], "props": []}
         for prop in res["cardinalities"]:
             tmp = prop["propname"].split(":")
             if tmp[0] == '':
-                proptype = graph.propertiesMap[tmp[1]]
+                p = propertiesMap.get(tmp[1])
+                if p:
+                    oneres["props"].append({"propname": prop["propname"], "proptype": p})
             else:
                 pass  # ToDo: treat here properties from external ontolopgies
-            oneres["props"].append({"propname": prop["propname"], "proptype": proptype})
         reslist.append(oneres)
+        
+    print(reslist)
 
     # Creates the graph using pygraphviz
     G = pgv.AGraph(strict=False, directed=True, ranksep='2', page="8.3,11.7", size="8.0,11.0", margin=0.3,

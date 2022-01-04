@@ -14,6 +14,7 @@ from knora.dsplib.utils.onto_create_lists import create_lists
 from knora.dsplib.utils.onto_create_ontology import create_ontology
 from knora.dsplib.utils.onto_get import get_ontology
 from knora.dsplib.utils.onto_validate import validate_ontology
+from knora.dsplib.utils.onto_visualize import visualize
 from knora.dsplib.utils.xml_upload import xml_upload
 
 
@@ -134,6 +135,11 @@ def program(user_args: list[str]) -> None:
     parser_id2iri.add_argument('--outfile', default=None,
                                help='Path to the XML output file containing the replaced IDs (optional)')
     parser_id2iri.add_argument('-v', '--verbose', action='store_true', help=verbose_text)
+    
+    parser_visualize = subparsers.add_parser("visualize", help="Visualize a data model (ontology)")
+    parser_visualize.set_defaults(action="visualize")
+    parser_visualize.add_argument('file', help='path to data model file')
+    # TODO: more
 
     args = parser.parse_args(user_args)
 
@@ -199,6 +205,8 @@ def program(user_args: list[str]) -> None:
                   json_file=args.jsonfile,
                   out_file=args.outfile,
                   verbose=args.verbose)
+    elif args.action == "visualize":
+        visualize(file= args.file)
 
 
 def main() -> None:

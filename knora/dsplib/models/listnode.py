@@ -131,6 +131,9 @@ class ListNode(Model):
 
     """
 
+    ROUTE = "/admin/lists"
+    ROUTE_SLASH = ROUTE + "/"
+
     _id: Optional[str]
     _project: Optional[str]
     _label: Optional[LangString]
@@ -457,10 +460,10 @@ class ListNode(Model):
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder)
         if self._parent:
-            result = self._con.post('/admin/lists/' + quote_plus(self._parent), jsondata)
+            result = self._con.post(ListNode.ROUTE_SLASH + quote_plus(self._parent), jsondata)
             return ListNode.fromJsonObj(self._con, result['nodeinfo'])
         else:
-            result = self._con.post('/admin/lists', jsondata)
+            result = self._con.post(ListNode.ROUTE, jsondata)
             return ListNode.fromJsonObj(self._con, result['list']['listinfo'])
 
     def read(self) -> Any:
@@ -470,7 +473,7 @@ class ListNode(Model):
         :return: JSON-object from DSP-API
         """
 
-        result = self._con.get('/admin/lists/nodes/' + quote_plus(self._id))
+        result = self._con.get(ListNode.ROUTE_SLASH + 'nodes/' + quote_plus(self._id))
         if result.get('nodeinfo'):
             return self.fromJsonObj(self._con, result['nodeinfo'])
         elif result.get('listinfo'):
@@ -488,7 +491,7 @@ class ListNode(Model):
         jsonobj = self.toJsonObj(Actions.Update, self.id)
         if jsonobj:
             jsondata = json.dumps(jsonobj, cls=SetEncoder)
-            result = self._con.put('/admin/lists/' + quote_plus(self.id), jsondata)
+            result = self._con.put(ListNode.ROUTE_SLASH + quote_plus(self.id), jsondata)
             pprint(result)
             return ListNode.fromJsonObj(self._con, result['listinfo'])
         else:
@@ -501,7 +504,7 @@ class ListNode(Model):
         :return: DSP-API response
         """
         raise BaseError("NOT YET IMPLEMENTED")
-        result = self._con.delete('/admin/lists/' + quote_plus(self._id))
+        result = self._con.delete(ListNode.ROUTE_SLASH + quote_plus(self._id))
         return result
         # return Project.fromJsonObj(self.con, result['project'])
 
@@ -513,7 +516,7 @@ class ListNode(Model):
         :return: Root node of list with recursive ListNodes ("children"-attributes)
         """
 
-        result = self._con.get('/admin/lists/' + quote_plus(self._id))
+        result = self._con.get(ListNode.ROUTE_SLASH + quote_plus(self._id))
         if 'list' not in result:
             raise BaseError("Request got no list!")
         if 'listinfo' not in result['list']:
@@ -536,9 +539,9 @@ class ListNode(Model):
         :return: list of ListNodes
         """
         if project_iri is None:
-            result = con.get('/admin/lists')
+            result = con.get(ListNode.ROUTE)
         else:
-            result = con.get('/admin/lists?projectIri=' + quote_plus(project_iri))
+            result = con.get(ListNode.ROUTE + '?projectIri=' + quote_plus(project_iri))
         if 'lists' not in result:
             raise BaseError("Request got no lists!")
         return list(map(lambda a: ListNode.fromJsonObj(con, a), result['lists']))

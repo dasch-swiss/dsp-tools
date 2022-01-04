@@ -15,6 +15,9 @@ from ..utils.set_encoder import SetEncoder
 
 @strict
 class PropertyClass(Model):
+
+    ROUTE: str = "/v2/ontologies/properties"
+
     _context: Context
     _id: str
     _name: str
@@ -382,7 +385,7 @@ class PropertyClass(Model):
     def create(self, last_modification_date: LastModificationDate) -> Tuple[LastModificationDate, 'PropertyClass']:
         jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=2)
-        result = self._con.post('/v2/ontologies/properties', jsondata)
+        result = self._con.post(PropertyClass.ROUTE, jsondata)
         last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
         return last_modification_date, PropertyClass.fromJsonObj(self._con, self._context, result['@graph'])
 
@@ -395,13 +398,13 @@ class PropertyClass(Model):
         if 'label' in self._changed:
             jsonobj = self.toJsonObj(last_modification_date, Actions.Update, 'label')
             jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-            result = self._con.put('/v2/ontologies/properties', jsondata)
+            result = self._con.put(PropertyClass.ROUTE, jsondata)
             last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
             something_changed = True
         if 'comment' in self._changed:
             jsonobj = self.toJsonObj(last_modification_date, Actions.Update, 'comment')
             jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-            result = self._con.put('/v2/ontologies/properties', jsondata)
+            result = self._con.put(PropertyClass.ROUTE, jsondata)
             last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
             something_changed = True
         if something_changed:
@@ -410,7 +413,7 @@ class PropertyClass(Model):
             return last_modification_date, self
 
     def delete(self, last_modification_date: LastModificationDate) -> LastModificationDate:
-        result = self._con.delete('/v2/ontologies/properties/' + quote_plus(self._id) + '?lastModificationDate=' + str(
+        result = self._con.delete(PropertyClass.ROUTE + '/' + quote_plus(self._id) + '?lastModificationDate=' + str(
             last_modification_date))
         return LastModificationDate(result['knora-api:lastModificationDate'])
 
@@ -423,25 +426,29 @@ class PropertyClass(Model):
         :return: Python object to be jsonfied
         """
         property = {
-            "name": self._name
+            "name": self.name
         }
-        if self._object is not None:
-            property["name"] = self._name
-        if self._superproperties is not None:
+        if self.object:
+            property["name"] = self.name
+        if self.superproperties:
             superprops = []
-            for sc in self._superproperties:
+            for sc in self.superproperties:
                 superprops.append(context.reduce_iri(sc, shortname))
             property["super"] = superprops
-        if self._object is not None:
-            property["object"] = context.reduce_iri(self._object, shortname)
-        if self._label is not None:
-            property["labels"] = self._label.createDefinitionFileObj()
-        if self._gui_element is not None:
-            property["gui_element"] = context.reduce_iri(self._gui_element, shortname)
-        if self._gui_attributes:
+        if self.object:
+            property["object"] = context.reduce_iri(self.object, shortname)
+        if self.label:
+            property["labels"] = self.label.createDefinitionFileObj()
+        if self.comment:
+            property["comments"] = self.comment.createDefinitionFileObj()
+        if self.gui_element:
+            property["gui_element"] = context.reduce_iri(self.gui_element, shortname)
+        if self.gui_attributes:
             gui_elements = {}
-            for (attname, attvalue) in self._gui_attributes.items():
+            for (attname, attvalue) in self.gui_attributes.items():
                 if attname == "size":
+                    gui_elements[attname] = int(attvalue)
+                elif attname == "maxlength":
                     gui_elements[attname] = int(attvalue)
                 elif attname == "maxsize":
                     gui_elements[attname] = int(attvalue)

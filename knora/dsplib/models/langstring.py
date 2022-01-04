@@ -269,7 +269,7 @@ class LangString:
         return self._langstrs
 
     def createDefinitionFileObj(self) -> Union[str, Dict[str, str]]:
-        if self._simplestring is not None:
+        if self._simplestring:
             return self._simplestring
         langstring = {}
         for p in self.items():

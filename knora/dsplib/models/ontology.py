@@ -27,10 +27,8 @@ class SetEncoder(json.JSONEncoder):
 """
 This model implements the handling of ontologies. It is to note that ResourceClasses, PropertyClasses
 as well as the assignment of PropertyCLasses to the ResourceClasses (with a given cardinality)
-is handeld in "cooperation" with the propertyclass.py (PropertyClass) and resourceclass.py (ResourceClass
+is handled in "cooperation" with the propertyclass.py (PropertyClass) and resourceclass.py (ResourceClass
 and HasProperty) modules.
-
-_Note_: All modifications to an ontology
 
 CREATE:
     * Instantiate a new object of the Ontology class with all required parameters
@@ -51,12 +49,16 @@ DELETE
     * Instantiate a new objects with ``id``(IRI of group) given, or use any instance that has the id set,
       that is, that You've read before
     * Call the ``delete``-method on the instance
-
 """
 
 
 @strict
 class Ontology(Model):
+
+    ROUTE: str = '/v2/ontologies'
+    METADATA: str = '/metadata/'
+    ALL_LANGUAGES: str = '?allLanguages=true'
+
     _id: str
     _project: str
     _name: str
@@ -383,58 +385,58 @@ class Ontology(Model):
     def create(self, dumpjson: Optional[str] = None) -> 'Ontology':
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-        result = self._con.post('/v2/ontologies', jsondata)
+        result = self._con.post(Ontology.ROUTE, jsondata)
         return Ontology.fromJsonObj(self._con, result)
 
     def update(self) -> 'Ontology':
         jsonobj = self.toJsonObj(Actions.Update)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-        result = self._con.put('/v2/ontologies/metadata', jsondata, 'application/ld+json')
+        result = self._con.put(Ontology.ROUTE + '/metadata', jsondata, 'application/ld+json')
         return Ontology.fromJsonObj(self._con, result)
 
     def read(self) -> 'Ontology':
-        result = self._con.get('/v2/ontologies/allentities/' + quote_plus(self._id) + '?allLanguages=true')
+        result = self._con.get(Ontology.ROUTE + '/allentities/' + quote_plus(self._id) + Ontology.ALL_LANGUAGES)
         return Ontology.fromJsonObj(self._con, result)
 
     def delete(self) -> Optional[str]:
-        result = self._con.delete('/v2/ontologies/' + quote_plus(self._id),
+        result = self._con.delete(Ontology.ROUTE + '/' + quote_plus(self._id),
                                   params={'lastModificationDate': str(self._lastModificationDate)})
         return result.get('knora-api:result')
 
     @staticmethod
     def getAllOntologies(con: Connection) -> List['Ontology']:
-        result = con.get('/v2/ontologies/metadata/')
+        result = con.get(Ontology.ROUTE + Ontology.METADATA)
         return Ontology.allOntologiesFromJsonObj(con, result)
 
     @staticmethod
     def getProjectOntologies(con: Connection, project_id: str) -> List['Ontology']:
         if project_id is None:
             raise BaseError('Project ID must be defined!')
-        result = con.get('/v2/ontologies/metadata/' + quote_plus(project_id) + '?allLanguages=true')
+        result = con.get(Ontology.ROUTE + Ontology.METADATA + quote_plus(project_id) + Ontology.ALL_LANGUAGES)
         return Ontology.allOntologiesFromJsonObj(con, result)
 
     @staticmethod
     def getOntologyFromServer(con: Connection, shortcode: str, name: str) -> 'Ontology':
-        result = con.get("/ontology/" + shortcode + "/" + name + "/v2")
+        result = con.get("/ontology/" + shortcode + "/" + name + "/v2" + Ontology.ALL_LANGUAGES)
         return Ontology.fromJsonObj(con, result)
 
     def createDefinitionFileObj(self):
         ontology = {
-            "name": self._name,
-            "label": self._label,
+            "name": self.name,
+            "label": self.label,
             "properties": [],
             "resources": []
         }
-        if self._comment is not None:
-            ontology["comment"] = self._comment
-        for prop in self._property_classes:
+        if self.comment:
+            ontology["comment"] = self.comment
+        for prop in self.property_classes:
             if "knora-api:hasLinkToValue" in prop.superproperties:
-                self._skiplist.append(self._name + ":" + prop.name)
+                self.skiplist.append(self.name + ":" + prop.name)
                 continue
-            ontology["properties"].append(prop.createDefinitionFileObj(self.context, self._name))
+            ontology["properties"].append(prop.createDefinitionFileObj(self.context, self.name))
 
-        for res in self._resource_classes:
-            ontology["resources"].append(res.createDefinitionFileObj(self.context, self._name, self._skiplist))
+        for res in self.resource_classes:
+            ontology["resources"].append(res.createDefinitionFileObj(self.context, self.name, self._skiplist))
 
         return ontology
 

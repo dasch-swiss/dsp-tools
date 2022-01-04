@@ -3,8 +3,6 @@
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 CURRENT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
-include vars.mk
-
 #################################
 # Make targets for dsp-tools
 #################################

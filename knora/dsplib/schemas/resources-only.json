@@ -1,0 +1,135 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://dasch.swiss/schema/resources-only.json",
+    "title": "JSON schema for resources used in DSP ontologies",
+    "description": "JSON schema for the resources section used in DSP ontologies",
+    "definitions": {
+        "langstring": {
+            "type": "object",
+            "patternProperties": {
+                "^(en|de|fr|it)": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "ncname": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$",
+            "additionalProperties": false
+        },
+        "prefixedname": {
+            "type": "string",
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:([-\\w]+)$",
+            "additionalProperties": false
+        },
+        "label": {
+            "$ref": "#/definitions/langstring"
+        },
+        "comment": {
+            "$ref": "#/definitions/langstring"
+        },
+        "resourcedef": {
+            "type": [
+                "string",
+                "array"
+            ],
+            "oneOf": [
+                {
+                    "enum": [
+                        "Resource",
+                        "StillImageRepresentation",
+                        "TextRepresentation",
+                        "AudioRepresentation",
+                        "DDDRepresentation",
+                        "DocumentRepresentation",
+                        "MovingImageRepresentation",
+                        "ArchiveRepresentation",
+                        "Annotation",
+                        "LinkObj",
+                        "Region"
+                    ]
+                },
+                {
+                    "$ref": "#/definitions/prefixedname"
+                },
+                {
+                    "pattern": "^(http)(s)?://.*"
+                }
+            ],
+            "items": {
+                "$ref": "#/definitions/resourcedef"
+            }
+        },
+        "resource": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "$ref": "#/definitions/ncname"
+                },
+                "super": {
+                    "$ref": "#/definitions/resourcedef"
+                },
+                "labels": {
+                    "$ref": "#/definitions/label"
+                },
+                "comments": {
+                    "$ref": "#/definitions/comment"
+                },
+                "cardinalities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cardinality"
+                    }
+                }
+            },
+            "required": [
+                "name",
+                "super",
+                "labels",
+                "cardinalities"
+            ],
+            "additionalProperties": false
+        },
+        "cardinality": {
+            "type": "object",
+            "properties": {
+                "propname": {
+                    "type": "string",
+                    "oneOf": [
+                        {
+                            "enum": [
+                                "isPartOf",
+                                "seqnum"
+                            ]
+                        },
+                        {
+                            "$ref": "#/definitions/prefixedname"
+                        }
+                    ]
+                },
+                "cardinality": {
+                    "type": "string",
+                    "enum": [
+                        "1",
+                        "0-1",
+                        "1-n",
+                        "0-n"
+                    ]
+                },
+                "gui_order": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "propname",
+                "cardinality"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "type": "array",
+    "items": {
+        "$ref": "#/definitions/resource"
+    }
+}

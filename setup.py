@@ -4,14 +4,14 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name='knora',
-    version='1.2.3',
-    description='A Python library and tools for the Knora-API',
+    name='dsp-tools',
+    version='1.7.1',
+    description='A Python library and tools for the DaSCH Service Platform',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url='https://github.com/dasch-swiss/knora-py',
+    url='https://github.com/dasch-swiss/dsp-tools',
     author='Lukas Rosenthaler',
-    author_email='lukas.rosenthaler@unibas.ch',
+    author_email='lukas.rosenthaler@dasch.swiss',
     license='GPLv3',
     packages=setuptools.find_packages(),
     classifiers=[
@@ -19,7 +19,9 @@ setuptools.setup(
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
     ],
+    python_requires='>=3.9.0',
     install_requires=[
+        'argparse',
         'rdflib',
         'lxml',
         'validators',
@@ -27,16 +29,13 @@ setuptools.setup(
         'jsonschema',
         'click',
         'rfc3987',
-        'pprint',
         'pystrict',
+        'openpyxl'
     ],
     entry_points={
-          'console_scripts': [
-              'knora-create-ontology=knora.create_ontology:main',
-              'knora-xml-import=knora.xml2knora:main',
-              'knora-reset-triplestore=knora.reset_triplestore:main',
-              'knoractl=knoractl:main',
-          ],
+        'console_scripts': [
+            'dsp-tools=knora.dsp_tools:main'
+        ],
     },
     include_package_data=True,
     zip_safe=False,

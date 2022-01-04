@@ -1,19 +1,37 @@
-site_name: Knora-Py Documentation
+site_name: DSP-TOOLS
+site_url: https://dasch-swiss.github.io/dsp-tools/
+repo_url: https://github.com/dasch-swiss/dsp-tools
+repo_name: dasch-swiss/dsp-tools
+edit_uri: blob/main/docs/
+copyright: "&copy; 2017 - <script>document.write(new Date().getFullYear())</script> <a href='https://dasch.swiss' target='_blank'>Data and Service Center for the Humanities (DaSCH)</a>"
 
 nav:
-    - Introduction: index.md
-    - knora-create_ontology: create_ontology.md
-    - knora-xml-import: xml2knora.md
-    - Knoractl: knoractl.md
+  - Overview: index.md
+  - Installation and usage: dsp-tools-usage.md
+  - JSON data model format:
+      - Overview: dsp-tools-create.md
+      - Ontologies: dsp-tools-create-ontologies.md
+  - Bulk data import: dsp-tools-xmlupload.md
+  - Excel file processing: dsp-tools-excel.md
+  - Information for developers: dsp-tools-information-for-developers.md
+  - Changelog: changelog.md
 
 theme:
   name: material
-  logo: 'assets/images/dasch-icon-white.svg'
-  favicon: 'assets/images/dasch-favicon.ico'
+  logo: "assets/images/dasch-icon-white.svg"
+  favicon: "assets/images/dasch-favicon.ico"
   palette:
-    primary: 'deep blue'
-    accent: 'deep blue'
+    primary: "deep blue"
+    accent: "deep blue"
   feature:
     tabs: false
+
 extra_css:
-  - 'assets/style/theme.css'
+  - "assets/style/theme.css"
+
+markdown_extensions:
+  - attr_list
+
+plugins:
+  - search
+  - include-markdown

@@ -1,0 +1,39 @@
+name: Daily test
+
+on:
+  schedule:
+    -  cron: '0 7 * * *'
+
+jobs:
+    tests:
+        name: daily-tests
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout source
+                uses: actions/checkout@v2
+                with:
+                    fetch-depth: 1
+            -   name: Set up JDK
+                uses: joschi/setup-jdk@v2
+                with:
+                    java-version: '11' # The OpenJDK version to make available on the path
+                    architecture: 'x64' # defaults to 'x64'
+            -   name: Set up Node
+                uses: actions/setup-node@v1
+                with:
+                    node-version: '12'
+            -   name: Install dependencies
+                run: |
+                    sudo apt-get install ca-certificates-java expect
+                    npm install --global @bazel/bazelisk
+            -   name: Set up Python 3.9
+                uses: actions/setup-python@v2
+                with:
+                    python-version: 3.9
+            -   name: Install dependencies
+                run: |
+                    make upgrade-dist-tools
+                    make install-requirements
+                    make install
+            -   name: Run e2e tests
+                run: make test-end-to-end

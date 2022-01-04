@@ -1,0 +1,217 @@
+# make the python rules available
+load("@rules_python//python:defs.bzl", "py_binary", "py_library")
+
+# make the dependencies from requirements.txt available
+load("@knora_py_deps//:requirements.bzl", "requirement")
+
+py_library(
+    name = "bitstream",
+    visibility = ["//visibility:public"],
+    srcs = ["bitstream.py"],
+    deps = [
+        ":helpers",
+        ":langstring",
+        ":permission",
+        requirement("pystrict"),
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "connection",
+    visibility = ["//visibility:public"],
+    srcs = ["connection.py"],
+    deps = [
+        ":helpers",
+        requirement("requests"),
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "group",
+    visibility = ["//visibility:public"],
+    srcs = ["group.py"],
+    deps = [
+        ":helpers",
+        ":connection",
+        ":project",
+        requirement("requests"),
+        requirement("pystrict"),
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "helpers",
+    visibility = ["//visibility:public"],
+    srcs = ["helpers.py"],
+    deps = [
+        requirement("pystrict"),
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "langstring",
+    visibility = ["//visibility:public"],
+    srcs = ["langstring.py"],
+    deps = [
+        ":helpers",
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "listnode",
+    visibility = ["//visibility:public"],
+    srcs = ["listnode.py"],
+    deps = [
+        "//knora/dsplib/utils:set_encoder",
+        ":connection",
+        ":helpers",
+        ":langstring",
+        ":project",
+    ],
+    imports = [".", ".."],
+)
+
+py_library(
+    name = "model",
+    visibility = ["//visibility:public"],
+    srcs = ["model.py"],
+    deps = [
+        ":connection",
+        ":helpers",
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "ontology",
+    visibility = ["//visibility:public"],
+    srcs = ["ontology.py"],
+    deps = [
+        ":connection",
+        ":helpers",
+        ":project",
+        ":propertyclass",
+        ":resourceclass",
+        requirement("pystrict"),
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "permission",
+    visibility = ["//visibility:public"],
+    srcs = ["permission.py"],
+    deps = [],
+    imports = ["."],
+)
+
+py_library(
+    name = "project",
+    visibility = ["//visibility:public"],
+    srcs = ["project.py"],
+    deps = [
+        "//knora/dsplib/utils:set_encoder",
+        ":helpers",
+        ":langstring",
+        ":connection",
+        ":model",
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "propertyclass",
+    visibility = ["//visibility:public"],
+    srcs = ["propertyclass.py"],
+    deps = [
+        "//knora/dsplib/utils:set_encoder",
+        ":connection",
+        ":helpers",
+        ":langstring",
+        ":listnode"
+    ],
+    imports = [".", ".."],
+)
+
+py_library(
+    name = "resource",
+    visibility = ["//visibility:public"],
+    srcs = ["resource.py"],
+    deps = [
+        ":bitstream",
+        ":connection",
+        ":helpers",
+        ":langstring",
+        ":model",
+        ":ontology",
+        ":permission",
+        ":project",
+        ":propertyclass",
+        ":resourceclass",
+        ":value",
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "resourceclass",
+    visibility = ["//visibility:public"],
+    srcs = ["resourceclass.py"],
+    deps = [
+        "//knora/dsplib/utils:set_encoder",
+        ":connection",
+        ":helpers",
+        ":langstring",
+    ],
+    imports = [".", ".."],
+)
+
+py_library(
+    name = "sipi",
+    visibility = ["//visibility:public"],
+    srcs = ["sipi.py"],
+    deps = [
+        ":helpers",
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "user",
+    visibility = ["//visibility:public"],
+    srcs = ["user.py"],
+    deps = [
+        ":connection",
+        ":helpers",
+        ":group",
+        ":project",
+        ":langstring"
+    ],
+    imports = ["."],
+)
+
+py_library(
+    name = "value",
+    visibility = ["//visibility:public"],
+    srcs = ["value.py"],
+    deps = [
+        ":connection",
+        ":helpers",
+        ":langstring",
+        ":listnode",
+        ":permission",
+        requirement("pystrict"),
+    ],
+    imports = ["."],
+)
+
+
+
+
+
+

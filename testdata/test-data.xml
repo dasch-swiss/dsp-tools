@@ -1,0 +1,204 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../knora/dsplib/schemas/data.xsd"
+       shortcode="4123"
+       default-ontology="testonto">
+
+    <!-- permissions: see https://docs.dasch.swiss/DSP-API/05-internals/design/api-admin/administration/#permissions -->
+    <permissions id="res-default">
+        <allow group="UnknownUser">RV</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+    <permissions id="res-restricted">
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+    <permissions id="prop-default">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+    <permissions id="prop-restricted">
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+
+    <resource label="TestthingOhnePermissions"
+              restype=":TestThing2"
+              id="obj_0000">
+        <text-prop name=":hasText">
+            <text encoding="utf8">Dies ist ein TestThing ohne Angabe von permissions</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Testthing"
+              restype=":TestThing"
+              id="obj_0001"
+              permissions="res-default">
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
+            <text permissions="prop-restricted" encoding="utf8">Nochmals ein einfacher Text</text>
+        </text-prop>
+        <text-prop name=":hasRichtext">
+            <text permissions="prop-default" encoding="xml">This is
+                <em>bold and
+                    <strong>string</strong>
+                </em>
+                text!
+            </text>
+        </text-prop>
+
+        <uri-prop name=":hasUri">
+            <uri permissions="prop-default">https://dasch.swiss</uri>
+        </uri-prop>
+
+        <boolean-prop name=":hasBoolean">
+            <boolean permissions="prop-default">true</boolean>
+        </boolean-prop>
+        <date-prop name=":hasDate">
+            <date permissions="prop-default">JULIAN:BCE:0700:BCE:0600</date>
+        </date-prop>
+        <integer-prop name=":hasInteger">
+            <integer permissions="prop-default">4711</integer>
+        </integer-prop>
+        <decimal-prop name=":hasDecimal">
+            <decimal permissions="prop-default" comment="Eulersche Zahl">2.718281828459</decimal>
+        </decimal-prop>
+        <geometry-prop name=":hasGeometry">
+            <geometry permissions="prop-default">
+                {
+                "status":"active",
+                "lineColor":"#ff3333",
+                "lineWidth":2,
+                "points":[
+                {"x":0.08098591549295775,"y":0.16741071428571427},
+                {"x":0.7394366197183099,"y":0.7299107142857143}],
+                "type":"rectangle",
+                "original_index":0
+                }
+            </geometry>
+        </geometry-prop>
+        <geoname-prop name=":hasGeoname">
+            <geoname permissions="prop-default" comment="A sacred place for railroad fans">5416656</geoname>
+        </geoname-prop>
+        <interval-prop name=":hasInterval">
+            <interval permissions="prop-default">12.5:14.2</interval>
+        </interval-prop>
+        <color-prop name=":hasColor">
+            <color permissions="prop-default">#00ff00</color>
+        </color-prop>
+        <list-prop list="testlist" name=":hasListItem">
+            <list permissions="prop-default">b2</list>
+        </list-prop>
+        <resptr-prop name=":hasTestThing2">
+            <resptr permissions="prop-default">obj_0000</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Imagething"
+              restype=":ImageThing"
+              id="obj_0002"
+              permissions="res-default">
+        <bitstream>TEMP11.TIF</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Imagething</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Compoundthing"
+              restype=":CompoundThing"
+              id="obj_0003"
+              permissions="res-default">
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Compoundthing</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Partofthing-1"
+              restype=":PartOfThing"
+              id="obj_0004"
+              permissions="res-default">
+        <bitstream>TEMP12.TIF</bitstream>
+        <resptr-prop name="knora-api:isPartOf">
+            <resptr permissions="prop-default">obj_0003</resptr>
+        </resptr-prop>
+        <integer-prop name="knora-api:seqnum">
+            <integer permissions="prop-default">1</integer>
+        </integer-prop>
+    </resource>
+
+    <resource label="Partofthing-2"
+              restype=":PartOfThing"
+              id="obj_0005"
+              permissions="res-default">
+        <bitstream>TEMP13.TIF</bitstream>
+        <resptr-prop name="knora-api:isPartOf">
+            <resptr permissions="prop-default">obj_0003</resptr>
+        </resptr-prop>
+        <integer-prop name="knora-api:seqnum">
+            <integer permissions="prop-default">2</integer>
+        </integer-prop>
+    </resource>
+
+
+    <resource label="Partofthing-3"
+              restype=":PartOfThing"
+              id="obj_0006"
+              permissions="res-default">
+        <bitstream>TEMP14.TIF</bitstream>
+        <resptr-prop name="knora-api:isPartOf">
+            <resptr permissions="prop-default">obj_0003</resptr>
+        </resptr-prop>
+        <integer-prop name="knora-api:seqnum">
+            <integer permissions="prop-default">3</integer>
+        </integer-prop>
+    </resource>
+
+    <resource label="Documentthing"
+              restype=":DocumentThing"
+              id="obj_0007"
+              permissions="res-default">
+        <bitstream>test.pdf</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Documentthing</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Textthing-csv"
+              restype=":TextThing"
+              id="obj_0008"
+              permissions="res-default">
+        <bitstream>test.csv</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Textthing as CSV</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Zipthing"
+              restype=":ZipThing"
+              id="obj_0009"
+              permissions="res-default">
+        <bitstream>test.zip</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Zipthing</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Audiothing"
+              restype=":AudioThing"
+              id="obj_0010"
+              permissions="res-default">
+        <bitstream>clara.wav</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Audiothing</text>
+        </text-prop>
+    </resource>
+
+</knora>

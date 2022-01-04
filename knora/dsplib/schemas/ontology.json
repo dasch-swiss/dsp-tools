@@ -1,0 +1,540 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://dasch.swiss/schema/ontology.json",
+    "title": "JSON schema for DSP ontologies",
+    "description": "JSON schema for DSP ontologies",
+    "definitions": {
+        "langstring": {
+            "type": "object",
+            "patternProperties": {
+                "^(en|de|fr|it)": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "ncname": {
+            "type": "string",
+            "pattern": "^[a-zA-Z_][\\w.-]*$",
+            "additionalProperties": false
+        },
+        "prefixedname": {
+            "type": "string",
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:([-\\w]+)$",
+            "additionalProperties": false
+        },
+        "label": {
+            "$ref": "#/definitions/langstring"
+        },
+        "description": {
+            "$ref": "#/definitions/langstring"
+        },
+        "comment": {
+            "$ref": "#/definitions/langstring"
+        },
+        "groupdef": {
+            "type": "string",
+            "pattern": "^(([a-zA-Z_][\\w.-]*)?:([-\\w .]+))|(SystemAdmin)$",
+            "additionalProperties": false
+        },
+        "projectdef": {
+            "type": "string",
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:(member|admin)$"
+        },
+        "resourcedef": {
+            "type": [
+                "string",
+                "array"
+            ],
+            "oneOf": [
+                {
+                    "enum": [
+                        "Resource",
+                        "StillImageRepresentation",
+                        "TextRepresentation",
+                        "AudioRepresentation",
+                        "DDDRepresentation",
+                        "DocumentRepresentation",
+                        "MovingImageRepresentation",
+                        "ArchiveRepresentation",
+                        "Annotation",
+                        "LinkObj",
+                        "Region"
+                    ]
+                },
+                {
+                    "$ref": "#/definitions/prefixedname"
+                },
+                {
+                    "pattern": "^(http)(s)?://.*"
+                }
+            ],
+            "items": {
+                "$ref": "#/definitions/resourcedef"
+            }
+        },
+        "excelfileref": {
+            "type": "object",
+            "properties": {
+                "file": {
+                    "type": "string"
+                },
+                "worksheet": {
+                    "type": "string"
+                },
+                "startrow": {
+                    "type": "integer"
+                },
+                "startcol": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "file",
+                "worksheet"
+            ]
+        },
+        "excelfolderref": {
+            "type": "object",
+            "properties": {
+                "folder": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "folder"
+            ]
+        },
+        "user": {
+            "type": "object",
+            "properties": {
+                "username": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
+                },
+                "givenName": {
+                    "type": "string"
+                },
+                "familyName": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "lang": {
+                    "type": "string",
+                    "pattern": "^(en|de|fr|it)"
+                },
+                "groups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/groupdef"
+                    }
+                },
+                "projects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/projectdef"
+                    }
+                }
+            },
+            "required": [
+                "username",
+                "email",
+                "givenName",
+                "familyName",
+                "password"
+            ]
+        },
+        "group": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "descriptions": {
+                    "$ref": "#/definitions/description"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "selfjoin": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "name",
+                "descriptions"
+            ]
+        },
+        "node": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "labels": {
+                    "$ref": "#/definitions/label"
+                },
+                "comments": {
+                    "$ref": "#/definitions/comment"
+                },
+                "nodes": {
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/node"
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "$ref": "#/definitions/excelfileref"
+                        },
+                        {
+                            "type": "object",
+                            "$ref": "#/definitions/excelfolderref"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "name",
+                "labels"
+            ],
+            "additionalProperties": false
+        },
+        "ontology": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "$ref": "#/definitions/ncname"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "comments": {
+                    "$ref": "#/definitions/comment"
+                },
+                "properties": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/property"
+                    }
+                },
+                "resources": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/resource"
+                    }
+                }
+            },
+            "required": [
+                "name",
+                "label",
+                "properties",
+                "resources"
+            ],
+            "additionalProperties": false
+        },
+        "property": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "$ref": "#/definitions/ncname"
+                },
+                "super": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "oneOf": [
+                            {
+                                "enum": [
+                                    "hasValue",
+                                    "hasLinkTo",
+                                    "hasColor",
+                                    "hasComment",
+                                    "hasGeometry",
+                                    "isPartOf",
+                                    "isRegionOf",
+                                    "isAnnotationOf",
+                                    "hasRepresentation",
+                                    "seqnum"
+                                ]
+                            },
+                            {
+                                "$ref": "#/definitions/prefixedname"
+                            },
+                            {
+                                "pattern": "^(http)(s)?://.*"
+                            }
+                        ]
+                    }
+                },
+                "object": {
+                    "type": "string",
+                    "oneOf": [
+                        {
+                            "enum": [
+                                "TextValue",
+                                "ColorValue",
+                                "DateValue",
+                                "DecimalValue",
+                                "GeomValue",
+                                "GeonameValue",
+                                "IntValue",
+                                "BooleanValue",
+                                "TimeValue",
+                                "UriValue",
+                                "IntervalValue",
+                                "ListValue",
+                                "Region",
+                                "Resource",
+                                "Annotation"
+                            ]
+                        },
+                        {
+                            "$ref": "#/definitions/prefixedname"
+                        }
+                    ]
+                },
+                "subject": {
+                    "$ref": "#/definitions/prefixedname"
+                },
+                "labels": {
+                    "$ref": "#/definitions/label"
+                },
+                "gui_element": {
+                    "type": "string",
+                    "enum": [
+                        "Colorpicker",
+                        "Date",
+                        "Geometry",
+                        "Geonames",
+                        "Interval",
+                        "TimeStamp",
+                        "List",
+                        "Radio",
+                        "Richtext",
+                        "Searchbox",
+                        "SimpleText",
+                        "Slider",
+                        "Spinbox",
+                        "Textarea",
+                        "Checkbox",
+                        "Fileupload"
+                    ]
+                },
+                "gui_attributes": {
+                    "type": "object",
+                    "properties": {
+                        "size": {
+                            "type": "integer"
+                        },
+                        "maxlength": {
+                            "type": "integer"
+                        },
+                        "hlist": {
+                            "type": "string"
+                        },
+                        "numprops": {
+                            "type": "integer"
+                        },
+                        "ncolors": {
+                            "type": "integer"
+                        },
+                        "cols": {
+                            "type": "integer"
+                        },
+                        "rows": {
+                            "type": "integer"
+                        },
+                        "width": {
+                            "type": "string",
+                            "pattern": "^[0-9]*%?$"
+                        },
+                        "wrap": {
+                            "type": "string",
+                            "enum": [
+                                "soft",
+                                "hard"
+                            ]
+                        },
+                        "max": {
+                            "type": "number"
+                        },
+                        "min": {
+                            "type": "number"
+                        }
+                    }
+                },
+                "comments": {
+                    "$ref": "#/definitions/comment"
+                }
+            },
+            "required": [
+                "name",
+                "object",
+                "labels",
+                "gui_element"
+            ],
+            "additionalProperties": false
+        },
+        "cardinality": {
+            "type": "object",
+            "properties": {
+                "propname": {
+                    "type": "string",
+                    "oneOf": [
+                        {
+                            "enum": [
+                                "isPartOf",
+                                "seqnum"
+                            ]
+                        },
+                        {
+                            "$ref": "#/definitions/prefixedname"
+                        }
+                    ]
+                },
+                "cardinality": {
+                    "type": "string",
+                    "enum": [
+                        "1",
+                        "0-1",
+                        "1-n",
+                        "0-n"
+                    ]
+                },
+                "gui_order": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "propname",
+                "cardinality"
+            ],
+            "additionalProperties": false
+        },
+        "resource": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "$ref": "#/definitions/ncname"
+                },
+                "super": {
+                    "$ref": "#/definitions/resourcedef"
+                },
+                "labels": {
+                    "$ref": "#/definitions/label"
+                },
+                "comments": {
+                    "$ref": "#/definitions/comment"
+                },
+                "cardinalities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cardinality"
+                    }
+                }
+            },
+            "required": [
+                "name",
+                "super",
+                "labels",
+                "cardinalities"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "type": "object",
+    "properties": {
+        "prefixes": {
+            "type": "object",
+            "patternProperties": {
+                "^[-\\w]+$": {
+                    "format": "uri"
+                }
+            },
+            "additionalProperties": false
+        },
+        "$schema": {
+            "type": "string"
+        },
+        "project": {
+            "type": "object",
+            "properties": {
+                "shortcode": {
+                    "type": "string",
+                    "pattern": "^[0-9A-F]{4}$"
+                },
+                "shortname": {
+                    "$ref": "#/definitions/ncname"
+                },
+                "longname": {
+                    "type": "string"
+                },
+                "descriptions": {
+                    "$ref": "#/definitions/description"
+                },
+                "keywords": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "groups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/group"
+                    }
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user"
+                    }
+                },
+                "lists": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/node",
+                        "comments": {
+                            "$ref": "#/definitions/comment"
+                        },
+                        "required": [
+                            "comments"
+                        ]
+                    }
+                },
+                "ontologies": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/ontology"
+                    }
+                }
+            },
+            "required": [
+                "shortcode",
+                "shortname",
+                "longname",
+                "descriptions",
+                "ontologies",
+                "keywords"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "required": [
+        "$schema",
+        "project"
+    ],
+    "additionalProperties": false
+}

@@ -1,0 +1,132 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://dasch.swiss/schema/lists.json",
+    "title": "JSON schema for DSP lists",
+    "description": "JSON schema for lists used in DSP ontologies",
+    "definitions": {
+        "langstring": {
+            "type": "object",
+            "patternProperties": {
+                "^(en|de|fr|it)": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "label": {
+            "$ref": "#/definitions/langstring"
+        },
+        "description": {
+            "$ref": "#/definitions/langstring"
+        },
+        "comment": {
+            "$ref": "#/definitions/langstring"
+        },
+        "excelfileref": {
+            "type": "object",
+            "properties": {
+                "file": {
+                    "type": "string"
+                },
+                "worksheet": {
+                    "type": "string"
+                },
+                "startrow": {
+                    "type": "integer"
+                },
+                "startcol": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "file",
+                "worksheet"
+            ]
+        },
+        "excelfolderref": {
+            "type": "object",
+            "properties": {
+                "folder": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "folder"
+            ]
+        },
+        "node": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "labels": {
+                    "$ref": "#/definitions/label"
+                },
+                "comments": {
+                    "$ref": "#/definitions/comment"
+                },
+                "nodes": {
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/node"
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "$ref": "#/definitions/excelfileref"
+                        },
+                        {
+                            "type": "object",
+                            "$ref": "#/definitions/excelfolderref"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "name",
+                "labels"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "type": "object",
+    "properties": {
+        "project": {
+            "type": "object",
+            "properties": {
+                "shortcode": {
+                    "type": "string",
+                    "pattern": "^[0-9A-F]{4}$"
+                },
+                "lists": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/node"
+                    }
+                }
+            },
+            "required": [
+                "shortcode",
+                "lists"
+            ],
+            "additionalProperties": false
+        },
+        "prefixes": {
+            "type": "object",
+            "patternProperties": {
+                "^[-\\w]+$": {
+                    "format": "uri"
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "required": [
+        "prefixes",
+        "project"
+    ],
+    "additionalProperties": false
+}

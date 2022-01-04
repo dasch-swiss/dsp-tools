@@ -1,0 +1,24 @@
+# make the python rules available
+#load("@rules_python//python:defs.bzl", "py_binary", "py_library")
+
+# make the dependencies from requirements.txt available
+#load("@knora_py_deps//:requirements.bzl", "requirement")
+
+filegroup(
+    name = "testdata",
+    visibility = ["//visibility:public"],
+    srcs = [
+        "anything-onto.json",
+        "Resources.xlsx",
+        "Properties.xlsx",
+        "lists/description_en.xlsx",
+        "lists/Beschreibung_de.xlsx",
+        "test-data.xml",
+        "test-onto.json",
+        "test-id2iri-data.xml",
+        "test-id2iri-mapping.json",
+        "test-id2iri-replaced.xml",
+        "tmp/_test-id2iri-replaced.xml"
+    ],
+)
+

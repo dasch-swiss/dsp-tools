@@ -1,0 +1,180 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://dasch.swiss/schema/properties-only.json",
+    "title": "JSON schema for properties used in DSP ontologies",
+    "description": "JSON schema for the properties section used in DSP ontologies",
+    "definitions": {
+        "langstring": {
+            "type": "object",
+            "patternProperties": {
+                "^(en|de|fr|it)": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "ncname": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$",
+            "additionalProperties": false
+        },
+        "prefixedname": {
+            "type": "string",
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:([-\\w]+)$",
+            "additionalProperties": false
+        },
+        "label": {
+            "$ref": "#/definitions/langstring"
+        },
+        "comment": {
+            "$ref": "#/definitions/langstring"
+        },
+        "property": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "$ref": "#/definitions/ncname"
+                },
+                "super": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "oneOf": [
+                            {
+                                "enum": [
+                                    "hasValue",
+                                    "hasLinkTo",
+                                    "hasColor",
+                                    "hasComment",
+                                    "hasGeometry",
+                                    "isPartOf",
+                                    "isRegionOf",
+                                    "isAnnotationOf",
+                                    "hasRepresentation",
+                                    "seqnum"
+                                ]
+                            },
+                            {
+                                "$ref": "#/definitions/prefixedname"
+                            },
+                            {
+                                "pattern": "^(http)(s)?://.*"
+                            }
+                        ]
+                    }
+                },
+                "object": {
+                    "type": "string",
+                    "oneOf": [
+                        {
+                            "enum": [
+                                "TextValue",
+                                "ColorValue",
+                                "DateValue",
+                                "DecimalValue",
+                                "GeomValue",
+                                "GeonameValue",
+                                "IntValue",
+                                "BooleanValue",
+                                "TimeValue",
+                                "UriValue",
+                                "IntervalValue",
+                                "ListValue",
+                                "Region",
+                                "Resource",
+                                "Annotation"
+                            ]
+                        },
+                        {
+                            "$ref": "#/definitions/prefixedname"
+                        }
+                    ]
+                },
+                "subject": {
+                    "$ref": "#/definitions/prefixedname"
+                },
+                "labels": {
+                    "$ref": "#/definitions/label"
+                },
+                "gui_element": {
+                    "type": "string",
+                    "enum": [
+                        "Colorpicker",
+                        "Date",
+                        "Geometry",
+                        "Geonames",
+                        "Interval",
+                        "TimeStamp",
+                        "List",
+                        "Radio",
+                        "Richtext",
+                        "Searchbox",
+                        "SimpleText",
+                        "Slider",
+                        "Spinbox",
+                        "Textarea",
+                        "Checkbox",
+                        "Fileupload"
+                    ]
+                },
+                "gui_attributes": {
+                    "type": "object",
+                    "properties": {
+                        "size": {
+                            "type": "integer"
+                        },
+                        "maxlength": {
+                            "type": "integer"
+                        },
+                        "hlist": {
+                            "type": "string"
+                        },
+                        "numprops": {
+                            "type": "integer"
+                        },
+                        "ncolors": {
+                            "type": "integer"
+                        },
+                        "cols": {
+                            "type": "integer"
+                        },
+                        "rows": {
+                            "type": "integer"
+                        },
+                        "width": {
+                            "type": "string",
+                            "pattern": "^[0-9]*%?$"
+                        },
+                        "wrap": {
+                            "type": "string",
+                            "enum": [
+                                "soft",
+                                "hard"
+                            ]
+                        },
+                        "max": {
+                            "type": "number"
+                        },
+                        "min": {
+                            "type": "number"
+                        }
+                    }
+                },
+                "comments": {
+                    "$ref": "#/definitions/comment"
+                }
+            },
+            "required": [
+                "name",
+                "object",
+                "labels",
+                "gui_element"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "type": "array",
+    "items": {
+        "$ref": "#/definitions/property"
+    }
+}

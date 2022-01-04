@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Any
 
 import jsonschema
 from openpyxl import load_workbook
@@ -40,41 +41,31 @@ def resources_excel2json(excelfile: str, outfile: str) -> None:
     Returns:
         None
     """
-    # load file
-    wb = load_workbook(excelfile, read_only=True)
-
-    # get overview
-    sheet = wb['classes']
-    resource_list = [c for c in sheet.iter_rows(min_row=2, values_only=True)]
-
-    prefix = '"resources":'
-    resources = []
-    # for each resource in resources overview
-    for res in resource_list:
+    def __extract_row(row: tuple[str, str, str, str, str, str, str, str, str, str]) -> dict[str, Any]:
         # get name
-        name = res[0]
+        name = row[0]
         # get labels
         labels = {}
-        if res[1]:
-            labels['en'] = res[1]
-        if res[2]:
-            labels['de'] = res[2]
-        if res[3]:
-            labels['fr'] = res[3]
-        if res[4]:
-            labels['it'] = res[4]
+        if row[1]:
+            labels['en'] = row[1]
+        if row[2]:
+            labels['de'] = row[2]
+        if row[3]:
+            labels['fr'] = row[3]
+        if row[4]:
+            labels['it'] = row[4]
         # get comments
         comments = {}
-        if res[5]:
-            comments['en'] = res[5]
-        if res[6]:
-            comments['de'] = res[6]
-        if res[7]:
-            comments['fr'] = res[7]
-        if res[8]:
-            comments['it'] = res[8]
+        if row[5]:
+            comments['en'] = row[5]
+        if row[6]:
+            comments['de'] = row[6]
+        if row[7]:
+            comments['fr'] = row[7]
+        if row[8]:
+            comments['it'] = row[8]
         # get super
-        sup = res[9]
+        sup = row[9]
 
         # load details for this resource
         sh = wb[name]
@@ -92,16 +83,24 @@ def resources_excel2json(excelfile: str, outfile: str) -> None:
             }
             cards.append(property_)
 
-        # build resource dict
-        resource = {
+        # return resource dict
+        return {
             "name": name,
             "labels": labels,
             "comments": comments,
             "super": sup,
             "cardinalities": cards
         }
-        # append to resources list
-        resources.append(resource)
+
+    # load file
+    wb = load_workbook(excelfile, read_only=True)
+
+    # get overview
+    sheet = wb['classes']
+    resource_list = [c for c in sheet.iter_rows(min_row=2, values_only=True)]
+
+    prefix = '"resources":'
+    resources = [__extract_row(res) for res in resource_list]
 
     if validate_resources_with_schema(json.loads(json.dumps(resources, indent=4))):
         # write final list to JSON file if list passed validation

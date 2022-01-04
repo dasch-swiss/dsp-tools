@@ -52,7 +52,6 @@ in `pyproject.toml` in the root directory of the project.
 ```toml
 [tool.autopep8]
 max_line_length = 180
-in-place = true
 experimental = true
 
 [tool.mypy]
@@ -67,8 +66,11 @@ and `mypy --config-file pyproject.toml
 [file path]`.
 
 If you are using PyCharm we recommend installing autopep8 as external tool. You can then use it with right-click on the
-file > `External Tools` > `autopep8` to reformat files in-place. mypy is available as
-[plugin](https://plugins.jetbrains.com/plugin/11086-mypy).
+file > `External Tools` > `autopep8` to reformat files in-place. Due to compatibility issues with VSCode, the argument 
+`--in-place=true` can not be declared in the `pyproject.toml` and needs to be passed to the external tool in the PyCharm settings.  
+mypy is available as [plugin](https://plugins.jetbrains.com/plugin/11086-mypy).
+
+In VSCode, both mypy and autopep8 can be set up as default linter and formatter through the python extension.
 
 For formatting Markdown files (*.md) we use the default styling configuration provided by PyCharm.
 

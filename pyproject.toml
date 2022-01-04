@@ -1,6 +1,5 @@
 [tool.autopep8]
 max_line_length = 180
-in-place = true
 experimental = true
 
 [tool.mypy]

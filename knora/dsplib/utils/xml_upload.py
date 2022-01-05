@@ -51,7 +51,8 @@ class ProjectContext:
         except BaseError:
             self._groups = None
         if self._groups:
-            self._group_map: Dict[str, str] = {self._inv_project_map[x.project] + ':' + x.name: x.id for x in self._groups}
+            self._group_map: Dict[str, str] = {self._inv_project_map[x.project] + ':' + x.name: x.id for x in
+                                               self._groups}
         else:
             self._group_map = None
         self._project_name = None
@@ -370,7 +371,8 @@ class XMLResource:
             prop_data[prop.name] = vals if len(vals) > 1 else vals[0]
         return prop_data
 
-    def get_bitstream(self, internal_file_name_bitstream: str, permissions_lookup: Dict[str, Permissions]) -> Optional[Dict[str, Union[str, Permissions]]]:
+    def get_bitstream(self, internal_file_name_bitstream: str, permissions_lookup: Dict[str, Permissions]) -> Optional[
+        Dict[str, Union[str, Permissions]]]:
         """
         Get the bitstream object belonging to the resource
 
@@ -496,23 +498,26 @@ def do_sort_order(resources: List[XMLResource], verbose) -> List[XMLResource]:
     """
     Sorts a list of resources.
 
-    The sorting is such that resources that reference other resources are added after the referenced resources. It
-    will fail with an error if there are circular references.
+    Resources that reference other resources are added after the referenced resources. The method will report circular
+    references and exit with an error if there are any unresolvable references.
 
     Args:
-        resources: List of resources before sorting
+        resources: list of resources to sort
         verbose: verbose output if True
 
     Returns:
         sorted list of resources
     """
 
+    if verbose:
+        print("Checking resources for unresolvable references...")
+        
     # sort the resources according to outgoing resptrs
-    ok_resources: [XMLResource] = []
-    notok_resources: [XMLResource] = []
-    ok_res_ids: [str] = []
+    ok_resources: List[XMLResource] = []
+    nok_resources: List[XMLResource] = []
+    ok_res_ids: List[str] = []
     cnt = 0
-    notok_len = 9999999
+    nok_len = 9999999
     while len(resources) > 0 and cnt < 10000:
         for resource in resources:
             resptrs = resource.get_resptrs()
@@ -522,32 +527,28 @@ def do_sort_order(resources: List[XMLResource], verbose) -> List[XMLResource]:
             else:
                 ok = True
                 for resptr in resptrs:
-                    if resptr in ok_res_ids:
-                        pass
-                    else:
+                    if resptr not in ok_res_ids:
                         ok = False
                 if ok:
                     ok_resources.append(resource)
                     ok_res_ids.append(resource.id)
                 else:
-                    notok_resources.append(resource)
-        resources = notok_resources
-        if not len(notok_resources) < notok_len:
-            print('Cannot resolve resptr dependencies. Giving up...')
-            print(len(notok_resources))
-            for r in notok_resources:
-                print('Resource {} has unresolvable resptrs to: '.format(r.id), end=' ')
-                for x in r.get_resptrs():
-                    print(x, end=' ')
-                print('')
-                print('=============')
-            exit(5)
-        notok_len = len(notok_resources)
-        notok_resources = []
+                    nok_resources.append(resource)
+        resources = nok_resources
+        if len(nok_resources) == nok_len:
+            print("ERROR Unable to resolve all resptr dependencies.")
+            for res in nok_resources:
+                unresolvable_resptrs = []
+                for resptr_id in res.get_resptrs():
+                    if resptr_id not in ok_res_ids:
+                        unresolvable_resptrs.append(resptr_id)
+                print(f"\tResource '{res.id}' has unresolvable resptrs to {unresolvable_resptrs}")
+            exit(1)
+        nok_len = len(nok_resources)
+        nok_resources = []
         cnt += 1
         if verbose:
-            print('{}. Ordering pass Finished!'.format(cnt))
-    # print('Remaining: {}'.format(len(resources)))
+            print(f'{cnt}. ordering finished.')
     return ok_resources
 
 

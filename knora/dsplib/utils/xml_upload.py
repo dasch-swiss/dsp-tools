@@ -499,16 +499,19 @@ def do_sort_order(resources: List[XMLResource], verbose) -> List[XMLResource]:
     Sorts a list of resources.
 
     Resources that reference other resources are added after the referenced resources. The method will report circular
-    references and exit with an error.
+    references and exit with an error if there are any unresolvable references.
 
     Args:
-        resources: List of resources to sort
+        resources: list of resources to sort
         verbose: verbose output if True
 
     Returns:
         sorted list of resources
     """
 
+    if verbose:
+        print("Checking resources for unresolvable references...")
+        
     # sort the resources according to outgoing resptrs
     ok_resources: List[XMLResource] = []
     nok_resources: List[XMLResource] = []

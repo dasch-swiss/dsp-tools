@@ -650,7 +650,8 @@
                                         "type": "integer"
                                     },
                                     "width": {
-                                        "type": "percent"
+                                        "type": "string",
+                                        "pattern": "^[0-9]*%?$"
                                     },
                                     "wrap": {
                                         "enum": [
@@ -700,10 +701,10 @@
                                 "type": "object",
                                 "properties": {
                                     "max": {
-                                        "type": "decimal"
+                                        "type": "number"
                                     },
                                     "min": {
-                                        "type": "decimal"
+                                        "type": "number"
                                     }
                                 },
                                 "additionalProperties": false
@@ -728,10 +729,10 @@
                                 "type": "object",
                                 "properties": {
                                     "max": {
-                                        "type": "decimal"
+                                        "type": "number"
                                     },
                                     "min": {
-                                        "type": "decimal"
+                                        "type": "number"
                                     }
                                 },
                                 "additionalProperties": false

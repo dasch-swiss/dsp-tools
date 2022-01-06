@@ -326,8 +326,7 @@
                         "Slider",
                         "Spinbox",
                         "Textarea",
-                        "Checkbox",
-                        "Fileupload"
+                        "Checkbox"
                     ]
                 },
                 "gui_attributes": {
@@ -386,8 +385,20 @@
             "additionalProperties": false,
             "allOf": [
                 {
-                    "if": { "properties": { "object": { "const": "TextValue" } } },
-                    "then": { "properties": { "gui_element": { "enum": [ "SimpleText", "Textarea", "Richtext" ] } } }
+                    "if": {
+                        "properties": {
+                            "object": {
+                                "const": "TextValue"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_element": {
+                                "enum": [ "SimpleText", "Textarea", "Richtext" ]
+                            }
+                        }
+                    }
                 },
                 {
                     "if": {
@@ -591,6 +602,204 @@
                             "gui_element": {
                                 "const": "Searchbox"
                             }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "SimpleText"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_attributes": {
+                                "type": "object",
+                                "properties": {
+                                    "maxlength": {
+                                        "type": "integer"
+                                    },
+                                    "size": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "Textarea"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_attributes": {
+                                "type": "object",
+                                "properties": {
+                                    "cols": {
+                                        "type": "integer"
+                                    },
+                                    "rows": {
+                                        "type": "integer"
+                                    },
+                                    "width": {
+                                        "type": "percent"
+                                    },
+                                    "wrap": {
+                                        "enum": [
+                                            "soft",
+                                            "hard"
+                                        ]
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "Colorpicker"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_attributes": {
+                                "type": "object",
+                                "properties": {
+                                    "ncolors": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "Slider"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_attributes": {
+                                "type": "object",
+                                "properties": {
+                                    "max": {
+                                        "type": "decimal"
+                                    },
+                                    "min": {
+                                        "type": "decimal"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        },
+                        "required": [
+                            "gui_attributes"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "Spinbox"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_attributes": {
+                                "type": "object",
+                                "properties": {
+                                    "max": {
+                                        "type": "decimal"
+                                    },
+                                    "min": {
+                                        "type": "decimal"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "gui_element": {
+                                "enum": ["Radio", "List"]
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_attributes": {
+                                "type": "object",
+                                "properties": {
+                                    "hlist": {
+                                        "type": "string"
+                                    }
+                                },
+                                "additionalProperties": false
+
+                            }
+                        },
+                        "required": [
+                            "gui_attributes"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "Searchbox"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_attributes": {
+                                "type": "object",
+                                "properties": {
+                                    "numprops": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "gui_element": {
+                                "enum": ["Richtext", "Date", "TimeStamp", "Geometry", "Geonames", "Checkbox", "Interval"]
+                            }
+                        }
+                    },
+                    "then": {
+                        "not": {
+                            "required": [
+                                "gui_attributes"
+                            ]
                         }
                     }
                 }

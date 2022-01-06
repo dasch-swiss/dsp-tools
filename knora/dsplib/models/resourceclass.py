@@ -701,7 +701,7 @@ class ResourceClass(Model):
             else:
                 superclasses = list(map(resolve_resref, self._superclasses))
             if self._comment is None or self._comment.isEmpty():
-                self._comment = LangString("no comment available")
+                self._comment = LangString({"en": "[no comment provided]"})
             if self._label is None or self._label.isEmpty():
                 self._label = LangString("no label available")
             tmp = {

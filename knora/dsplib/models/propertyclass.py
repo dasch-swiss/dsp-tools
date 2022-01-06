@@ -348,14 +348,13 @@ class PropertyClass(Model):
                 }],
                 "@context": self._context.toJsonObj()
             }
-            if self._comment is not None:
-                if not self._comment.isEmpty():
-                    tmp['@graph'][0]["rdfs:comment"] = self._comment.toJsonLdObj()
-            if self._subject is not None:
+            if self._comment:
+                tmp['@graph'][0]["rdfs:comment"] = self._comment.toJsonLdObj()
+            if self._subject:
                 tmp['@graph'][0]["knora-api:subjectType"] = resolve_propref(self._subject)
-            if self._object is not None:
+            if self._object:
                 tmp['@graph'][0]["knora-api:objectType"] = resolve_propref(self._object)
-            if self._gui_element is not None:
+            if self._gui_element:
                 tmp['@graph'][0]["salsah-gui:guiElement"] = {
                     "@id": self._gui_element
                 }

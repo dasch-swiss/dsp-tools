@@ -17,6 +17,7 @@ from knora.dsplib.utils.xml_upload import xml_upload
 class TestTools(unittest.TestCase):
     server = 'http://0.0.0.0:3333'
     user = 'root@example.com'
+    test_onto_file = 'testdata/test-onto.json'
 
     def setUp(self) -> None:
         """Is executed before each test"""
@@ -29,7 +30,7 @@ class TestTools(unittest.TestCase):
         excel_to_json_lists.cell_names = []
 
     def test_get(self) -> None:
-        with open('testdata/test-onto.json') as f:
+        with open(self.test_onto_file) as f:
             onto_json_str = f.read()
         test_onto = json.loads(onto_json_str)
 
@@ -171,10 +172,10 @@ class TestTools(unittest.TestCase):
                               outfile='_properties-out.json')
 
     def test_validate_ontology(self) -> None:
-        validate_ontology('testdata/test-onto.json')
+        validate_ontology(self.test_onto_file)
 
     def test_create_ontology(self) -> None:
-        create_ontology(input_file='testdata/test-onto.json',
+        create_ontology(input_file=self.test_onto_file,
                         lists_file='lists-out.json',
                         server=self.server,
                         user=self.user,

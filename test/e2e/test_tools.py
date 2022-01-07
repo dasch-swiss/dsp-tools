@@ -1,7 +1,6 @@
 """This test class tests the basic functionalities of dsp-tools"""
 import json
 import unittest
-from typing import Any
 
 from knora.dsplib.utils import excel_to_json_lists
 from knora.dsplib.utils.excel_to_json_lists import list_excel2json
@@ -111,7 +110,7 @@ class TestTools(unittest.TestCase):
         ontos_expected = test_onto['project']['ontologies']
         ontos_received = test_onto_out['project']['ontologies']
         onto_names_expected = []
-        onto_labels_expected =[]
+        onto_labels_expected = []
         onto_names_received = []
         onto_labels_received = []
         for onto in ontos_expected:
@@ -123,30 +122,15 @@ class TestTools(unittest.TestCase):
         self.assertEqual(sorted(onto_names_expected), sorted(onto_names_received))
         self.assertEqual(sorted(onto_labels_expected), sorted(onto_labels_received))
 
-        test_list: Any = None
-        test_list_out: Any = None
-        not_used_list: Any = None
-        not_used_list_out: Any = None
-        excel_list: Any = None
-        excel_list_out: Any = None
+        lists = test_onto['project']['lists']
+        test_list: dict[str, str] = next((l for l in lists if l['name'] == 'testlist'), {})
+        not_used_list: dict[str, str] = next((l for l in lists if l['name'] == 'notUsedList'), {})
+        excel_list: dict[str, str] = next((l for l in lists if l['name'] == 'my-list-from-excel'), {})
 
-        for test_onto_list in test_onto['project']['lists']:
-            list_name = test_onto_list.get('name')
-            if list_name == 'testlist':
-                test_list = test_onto_list
-            elif list_name == 'notUsedList':
-                not_used_list = test_onto_list
-            elif list_name == 'my-list-from-excel':
-                excel_list = test_onto_list
-
-        for test_onto_list in test_onto_out['project']['lists']:
-            list_name = test_onto_list.get('name')
-            if list_name == 'testlist':
-                test_list_out = test_onto_list
-            elif list_name == 'notUsedList':
-                not_used_list_out = test_onto_list
-            elif list_name == 'my-list-from-excel':
-                excel_list_out = test_onto_list
+        lists_out = test_onto_out['project']['lists']
+        test_list_out: dict[str, str] = next((l for l in lists_out if l['name'] == 'testlist'), {})
+        not_used_list_out: dict[str, str] = next((l for l in lists_out if l['name'] == 'notUsedList'), {})
+        excel_list_out: dict[str, str] = next((l for l in lists_out if l['name'] == 'my-list-from-excel'), {})
 
         self.assertEqual(test_list.get('labels'), test_list_out.get('labels'))
         self.assertEqual(test_list.get('comments'), test_list_out.get('comments'))

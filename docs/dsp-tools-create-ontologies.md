@@ -83,6 +83,10 @@ The following fields are mandatory:
 - `object`
 - `gui_element`
 
+The following fields are optional:
+
+- `subject`
+
 A detailed description of `properties` can be found [below](#properties-object-in-detail).
 
 
@@ -139,6 +143,15 @@ By convention, property names start with a lower case letter.
 
 Collection of `labels` for the property as strings with language tag (currently "en", "de", "fr"
 and "it" are supported).
+
+### Subject
+
+(optional)
+
+`"subject": "<resource-class>"`
+
+The `subject` defines the resource class the property can be used on. It has to be provided as prefixed name of the 
+resource class (see [below](#referencing-ontologies) on how prefixed names are used).
 
 ### Object / gui_element / gui_attributes
 
@@ -636,13 +649,16 @@ Example of a `properties` object:
 {
   "properties": [
     {
-      "name": "schulcode",
+      "name": "id",
+      "subject": ":School",
       "object": "TextValue",
       "super": [
           "hasValue"
       ],
       "labels": {
-        "de": "Schulcode"
+        "en": "School ID",
+        "de": "ID der Schule"
+        "fr": "ID de l'école"
       },
       "gui_element": "SimpleText",
       "gui_attributes": {
@@ -651,13 +667,16 @@ Example of a `properties` object:
       }
     },
     {
-      "name": "schulname",
+      "name": "name",
+      "subject": ":School",
       "object": "TextValue",
       "super": [
           "hasValue"
       ],
       "labels": {
-        "de": "Name der Schule"
+        "en": "Name of the school",
+        "de": "Name der Schule",
+        "fr": "Nom de l'école"
       },
       "gui_element": "SimpleText",
       "gui_attributes": {

@@ -8,7 +8,6 @@ filegroup(
     name = "testdata",
     visibility = ["//visibility:public"],
     srcs = [
-        "anything-onto.json",
         "Resources.xlsx",
         "Properties.xlsx",
         "lists/description_en.xlsx",

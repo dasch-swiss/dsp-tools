@@ -153,7 +153,7 @@ class Connection:
             tmp = path.split('/')
             filename = "POST" + "_".join(tmp) + ".json"
             with open(filename, 'w') as f:
-                json.dump(logobj, f, indent=3)
+                json.dump(logobj, f, indent=4)
         self.on_api_error(req)
         result = req.json()
         return result

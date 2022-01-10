@@ -262,7 +262,7 @@ class HasProperty(Model):
         if self._cardinality is None:
             raise BaseError("Cardinality id required")
         jsonobj = self.toJsonObj(last_modification_date, Actions.Update)
-        jsondata = json.dumps(jsonobj, indent=3, cls=SetEncoder)
+        jsondata = json.dumps(jsonobj, indent=4, cls=SetEncoder)
         result = self._con.put(HasProperty.ROUTE, jsondata)
         last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
         # TODO: self._changed = str()

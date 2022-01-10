@@ -135,7 +135,7 @@ def create_lists(input_file: str, lists_file: str, server: str, user: str, passw
                 list_root_nodes[rootnode["name"]] = {"id": root_list_node.id, "nodes": list_nodes}
 
     with open(lists_file, "w", encoding="utf-8") as fp:
-        json.dump(list_root_nodes, fp, indent=3, sort_keys=True)
+        json.dump(list_root_nodes, fp, indent=4, sort_keys=True)
         print(f"The IRI for the created nodes can be found in '{lists_file}'.")
 
     return list_root_nodes

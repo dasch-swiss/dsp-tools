@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Any
+from typing import Optional, Any
 
 from pystrict import strict
 
@@ -28,7 +28,7 @@ class Bitstream:
     def permissions(self) -> Optional[Permissions]:
         return self._permissions
 
-    def toJsonLdObj(self, action: Actions) -> Dict[str, Any]:
+    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
         tmp = {}
         if action == Actions.Create:
             tmp["knora-api:fileValueHasFilename"] = self._value

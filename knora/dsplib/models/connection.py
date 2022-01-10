@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Optional, Union
+from typing import Optional, Union
 
 import requests
 from pystrict import strict
@@ -19,11 +19,11 @@ class Connection:
     """
 
     _server: str
-    _prefixes: Union[Dict[str, str], None]
+    _prefixes: Union[dict[str, str], None]
     _token: Union[str, None]
     _log: bool
 
-    def __init__(self, server: str, prefixes: Dict[str, str] = None):
+    def __init__(self, server: str, prefixes: dict[str, str] = None):
         """
         Constructor requiring the server address, the user and password of KNORA
         :param server: Address of the server, e.g https://api.dasch.swiss
@@ -158,7 +158,7 @@ class Connection:
         result = req.json()
         return result
 
-    def get(self, path: str, headers: Optional[Dict[str, str]] = None):
+    def get(self, path: str, headers: Optional[dict[str, str]] = None):
         """
         Get data from a server using a HTTP GET request
         :param path: Path of RESTful route

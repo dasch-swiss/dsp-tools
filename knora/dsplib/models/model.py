@@ -1,12 +1,10 @@
-from typing import Set
-
 from .connection import Connection
 from .helpers import BaseError
 
 
 class Model:
     _con: Connection
-    _changed: Set[str]
+    _changed: set[str]
 
     def __init__(self, con: Connection):
         if not isinstance(con, Connection):

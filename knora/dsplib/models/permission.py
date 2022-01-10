@@ -1,6 +1,6 @@
 import re
 from enum import Enum, unique
-from typing import List, Dict, Optional, Union
+from typing import Optional, Union
 
 from pystrict import strict
 
@@ -27,7 +27,7 @@ class PermissionValue(Enum):
 @strict
 class PermissionsIterator:
     _permissions: 'Permissions'
-    _group: List[str]
+    _group: list[str]
     _index: int
 
     def __init__(self, permissions: 'Permissions'):
@@ -47,19 +47,19 @@ class PermissionsIterator:
 
 @strict
 class Permissions:
-    _permissions: Union[Dict[PermissionValue, List[str]], None]
+    _permissions: Union[dict[PermissionValue, list[str]], None]
 
     def __init__(self,
-                 permissions: Optional[Dict[PermissionValue, List[str]]] = None):
+                 permissions: Optional[dict[PermissionValue, list[str]]] = None):
         if permissions is None:
             self._permissions = {}
         else:
             self._permissions = permissions
 
-    def __getitem__(self, key: PermissionValue) -> Union[List[str], None]:
+    def __getitem__(self, key: PermissionValue) -> Union[list[str], None]:
         return self._permissions.get(key)
 
-    def __setitem__(self, key: PermissionValue, value: List[str]) -> None:
+    def __setitem__(self, key: PermissionValue, value: list[str]) -> None:
         self._permissions[key] = value
 
     def __delitem__(self, key: PermissionValue) -> None:
@@ -99,12 +99,12 @@ class Permissions:
     @classmethod
     def fromString(cls, permstr: str):
         tmpstr = permstr.split('|')
-        permissions: Dict[PermissionValue, List[str]] = {}
+        permissions: dict[PermissionValue, list[str]] = {}
         for s in tmpstr:
             key, *vals = re.split("[\\s,]+", s)
             permissions[PermissionValue[key]] = vals
         return cls(permissions)
 
     @property
-    def permissions(self) -> Union[Dict[PermissionValue, List[str]], None]:
+    def permissions(self) -> Union[dict[PermissionValue, list[str]], None]:
         return self._permissions

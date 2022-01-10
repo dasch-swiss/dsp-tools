@@ -38,9 +38,8 @@ DELETE
 def list_creator(con: Connection,
                  project: Project,
                  parent_node: 'ListNode',
-                 nodes: List[dict]) -> List['ListNode']:
-
-    nodelist: List[ListNode] = []
+                 nodes: list[dict]) -> list['ListNode']:
+    nodelist: list[ListNode] = []
 
     for node in nodes:
         new_node = ListNode(
@@ -96,7 +95,7 @@ class ListNode(Model):
     isRootNode : bool
         Is True if the ListNode is the root node of a list. Cannot be set [read].
 
-    children : List[ListNode]
+    children : list[ListNode]
         Contains a list of child nodes. This attribute is only available for nodes that have been read by the
         method "getAllNodes()" [read].
 
@@ -141,7 +140,7 @@ class ListNode(Model):
     _name: Optional[str]
     _parent: Optional[str]
     _isRootNode: bool
-    _children: Optional[List['ListNode']]
+    _children: Optional[list['ListNode']]
     _rootNodeIri: Optional[str]
 
     def __init__(self,
@@ -153,7 +152,7 @@ class ListNode(Model):
                  name: Optional[str] = None,
                  parent: Optional[Union['ListNode', str]] = None,
                  isRootNode: bool = False,
-                 children: Optional[List['ListNode']] = None,
+                 children: Optional[list['ListNode']] = None,
                  rootNodeIri: Optional[str] = None):
         """
         This is the constructor for the ListNode object. For
@@ -312,18 +311,18 @@ class ListNode(Model):
         raise BaseError('Property isRootNode cannot be set!')
 
     @property
-    def children(self) -> Optional[List['ListNode']]:
+    def children(self) -> Optional[list['ListNode']]:
         return self._children
 
     @children.setter
-    def children(self, value: List['ListNode']) -> None:
+    def children(self, value: list['ListNode']) -> None:
         self._children = value
 
     @staticmethod
     def __getChildren(con: Connection,
                       parent_iri: str,
                       project_iri: str,
-                      children: List[Any]) -> Optional[List['ListNode']]:
+                      children: list[Any]) -> Optional[list['ListNode']]:
         """
         Internal method! Should not be used directly!
 
@@ -334,7 +333,7 @@ class ListNode(Model):
         :return: List of ListNode instances
         """
         if children:
-            child_nodes: List[Any] = []
+            child_nodes: list[Any] = []
             for child in children:
 
                 if 'parentNodeIri' not in child:
@@ -530,7 +529,7 @@ class ListNode(Model):
         return root
 
     @staticmethod
-    def getAllLists(con: Connection, project_iri: Optional[str] = None) -> List['ListNode']:
+    def getAllLists(con: Connection, project_iri: Optional[str] = None) -> list['ListNode']:
         """
         Get all lists. If a project IRI is given, it returns the lists of the specified project
 
@@ -546,7 +545,7 @@ class ListNode(Model):
             raise BaseError("Request got no lists!")
         return list(map(lambda a: ListNode.fromJsonObj(con, a), result['lists']))
 
-    def _createDefinitionFileObj(self, children: List["ListNode"]):
+    def _createDefinitionFileObj(self, children: list["ListNode"]):
         """
         Create an object that corresponds to the syntax of the input to "create_onto".
         Node: This method must be used only internally (for recursion)!!

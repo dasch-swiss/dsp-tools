@@ -1,6 +1,6 @@
 import json
 import re
-from typing import List, Dict, Tuple, Optional, Any, Union
+from typing import Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
 
 from pystrict import strict
@@ -15,18 +15,17 @@ from ..utils.set_encoder import SetEncoder
 
 @strict
 class PropertyClass(Model):
-
     ROUTE: str = "/v2/ontologies/properties"
 
     _context: Context
     _id: str
     _name: str
     _ontology_id: str
-    _superproperties: List[str]
+    _superproperties: list[str]
     _object: str
     _subject: str
     _gui_element: str
-    _gui_attributes: Dict[str, str]
+    _gui_attributes: dict[str, str]
     _label: LangString
     _comment: LangString
     _editable: bool
@@ -38,11 +37,11 @@ class PropertyClass(Model):
                  id: Optional[str] = None,
                  name: Optional[str] = None,
                  ontology_id: Optional[str] = None,
-                 superproperties: Optional[List[Union['PropertyClass', str]]] = None,
+                 superproperties: Optional[list[Union['PropertyClass', str]]] = None,
                  object: Optional[str] = None,
                  subject: Optional[str] = None,
                  gui_element: Optional[str] = None,
-                 gui_attributes: Optional[Dict[str, str]] = None,
+                 gui_attributes: Optional[dict[str, str]] = None,
                  label: Optional[Union[LangString, str]] = None,
                  comment: Optional[Union[LangString, str]] = None,
                  editable: Optional[bool] = None,
@@ -118,7 +117,7 @@ class PropertyClass(Model):
         raise BaseError('"ontology_id" cannot be modified!')
 
     @property
-    def superproperties(self) -> Optional[List[str]]:
+    def superproperties(self) -> Optional[list[str]]:
         return self._superproperties
 
     @superproperties.setter
@@ -151,11 +150,11 @@ class PropertyClass(Model):
         self._changed.append('gui_element')
 
     @property
-    def gui_attributes(self) -> Optional[Dict[str, str]]:
+    def gui_attributes(self) -> Optional[dict[str, str]]:
         return self._gui_attributes
 
     @gui_attributes.setter
-    def gui_attributes(self, value: List[Dict[str, str]]) -> None:
+    def gui_attributes(self, value: list[dict[str, str]]) -> None:
         self._gui_attributes = value
         self._changed.append('gui_attributes')
 
@@ -258,11 +257,11 @@ class PropertyClass(Model):
         ontology_id = tmp_id[0]
         name = tmp_id[1]
         superproperties_obj = json_obj.get(rdfs + ':subPropertyOf')
-        superproperties: List[Union[None, str]]
+        superproperties: list[Union[None, str]]
         if not isinstance(superproperties_obj, list):
             superproperties_obj = [superproperties_obj]  # make a list out of it
         if superproperties_obj is not None:
-            superprops: List[Any] = list(filter(lambda a: a.get('@id') is not None, superproperties_obj))
+            superprops: list[Any] = list(filter(lambda a: a.get('@id') is not None, superproperties_obj))
             superproperties = list(map(lambda a: a['@id'], superprops))
         else:
             superproperties = None
@@ -274,7 +273,7 @@ class PropertyClass(Model):
         if json_obj.get(salsah_gui + ':guiElement') is not None:
             gui_element = WithId(json_obj.get(salsah_gui + ':guiElement')).str()
         gui_attributes_list = json_obj.get(salsah_gui + ':guiAttribute')
-        gui_attributes: Union[None, Dict[str, str]] = None
+        gui_attributes: Union[None, dict[str, str]] = None
         if gui_attributes_list is not None:
             gui_attributes = {}
             if not isinstance(gui_attributes_list, list):

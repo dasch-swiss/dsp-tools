@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from .expand_all_lists import expand_lists_from_excel
 from .onto_validate import validate_ontology
@@ -9,8 +9,8 @@ from ..models.listnode import ListNode
 from ..models.project import Project
 
 
-def create_list_node(con: Connection, project: Project, parent_node: ListNode, nodes: List[Dict[Any, Any]]) -> List[
-    Dict[Any, Any]]:
+def create_list_node(con: Connection, project: Project, parent_node: ListNode, nodes: list[dict[str, Any]]) -> list[
+    dict[str, Any]]:
     """
     Creates the list on the DSP server
 
@@ -44,7 +44,7 @@ def create_list_node(con: Connection, project: Project, parent_node: ListNode, n
 
 
 def create_lists(input_file: str, lists_file: str, server: str, user: str, password: str, verbose: bool,
-                 dump: bool = False) -> Dict[str, Any]:
+                 dump: bool = False) -> dict[str, Any]:
     """
     Handles the list creation
 
@@ -98,7 +98,7 @@ def create_lists(input_file: str, lists_file: str, server: str, user: str, passw
     if verbose:
         print("Create lists...")
 
-    all_lists: Optional[List[ListNode]] = ListNode.getAllLists(con, project.id)
+    all_lists: Optional[list[ListNode]] = ListNode.getAllLists(con, project.id)
     lists = data_model["project"].get("lists")
     list_root_nodes = {}
     if lists:

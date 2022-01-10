@@ -1,9 +1,8 @@
 import re
-from typing import List, Dict, Optional, Any, Union
+from typing import Optional, Any, Union
 
 from pystrict import strict
 
-from .group import Group
 from .helpers import IriTest, Actions, BaseError
 from .langstring import LangString
 from .listnode import ListNode
@@ -26,7 +25,7 @@ class KnoraStandoffXml:
     def getXml(self) -> str:
         return self.__xmlstr
 
-    def findall(self) -> Union[List[str], None]:
+    def findall(self) -> Union[list[str], None]:
         return self.__iriregexp.findall(self.__xmlstr)
 
     def replace(self, fromStr: str, toStr: str) -> None:
@@ -95,7 +94,7 @@ class Value:
     def comment(self):
         return self._comment
 
-    def toJsonLdObj(self, action: Actions) -> Dict[str, Any]:
+    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
         tmp = {}
         if action == Actions.Create:
             if self._permissions:
@@ -127,7 +126,7 @@ class Value:
             raise BaseError("Error in JSON-LD returned!")
 
     @staticmethod
-    def getFromJsonLd(jsonld_obj) -> Dict[str, Union[str, float]]:
+    def getFromJsonLd(jsonld_obj) -> dict[str, Union[str, float]]:
 
         return {
             'iri': jsonld_obj.get("@id"),
@@ -171,7 +170,7 @@ class TextValue(Value):
         return self._mapping
 
     @classmethod
-    def fromJsonLdObj(cls, jsonld_obj: Any) -> Dict[str, Any]:
+    def fromJsonLdObj(cls, jsonld_obj: Any) -> dict[str, Any]:
         tmp = Value.getFromJsonLd(jsonld_obj)
 
         if jsonld_obj.get("knora-api:textValueAsXml") is not None:
@@ -182,7 +181,7 @@ class TextValue(Value):
             tmp['value'] = jsonld_obj.get("knora-api:valueAsString")
         return cls(**tmp)
 
-    def toJsonLdObj(self, action: Actions) -> Dict[str, Any]:
+    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
         tmp = super().toJsonLdObj(action)
         if action == Actions.Create:
             tmp['@type'] = 'knora-api:TextValue'
@@ -230,12 +229,12 @@ class ColorValue(Value):
         return self._value
 
     @classmethod
-    def fromJsonLdObj(cls, jsonld_obj: Any) -> Dict[str, Any]:
+    def fromJsonLdObj(cls, jsonld_obj: Any) -> dict[str, Any]:
         tmp = Value.getFromJsonLd(jsonld_obj)
         tmp['value'] = jsonld_obj.get("knora-api:colorValueAsColor")
         return cls(**tmp)
 
-    def toJsonLdObj(self, action: Actions) -> Dict[str, Any]:
+    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
         tmp = super().toJsonLdObj(action)
         if action == Actions.Create:
             tmp['@type'] = "knora-api:ColorValue"
@@ -318,7 +317,7 @@ class DateValue(Value):
         return datestr
 
     @classmethod
-    def fromJsonLdObj(cls, jsonld_obj: Any) -> Dict[str, Any]:
+    def fromJsonLdObj(cls, jsonld_obj: Any) -> dict[str, Any]:
         tmp = Value.getFromJsonLd(jsonld_obj)
 
         datestr = ""
@@ -343,7 +342,7 @@ class DateValue(Value):
         tmp['value'] = datestr
         return cls(**tmp)
 
-    def toJsonLdObj(self, action: Actions) -> Dict[str, Any]:
+    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
         tmp = super().toJsonLdObj(action)
         if action == Actions.Create:
             tmp['@type'] = "knora-api:DateValue"
@@ -425,12 +424,12 @@ class DecimalValue(Value):
         return self._value
 
     @classmethod
-    def fromJsonLdObj(cls, jsonld_obj: Any) -> Dict[str, Any]:
+    def fromJsonLdObj(cls, jsonld_obj: Any) -> dict[str, Any]:
         tmp = Value.getFromJsonLd(jsonld_obj)
         tmp['value'] = Value.get_typed_value("knora-api:decimalValueAsDecimal", jsonld_obj)
         return cls(**tmp)
 
-    def toJsonLdObj(self, action: Actions) -> Dict[str, Any]:
+    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
         tmp = super().toJsonLdObj(action)
         if action == Actions.Create:
             tmp['@type'] = "knora-api:DecimalValue"
@@ -469,12 +468,12 @@ class GeomValue(Value):
         return self._value
 
     @classmethod
-    def fromJsonLdObj(cls, jsonld_obj: Any) -> Dict[str, Any]:
+    def fromJsonLdObj(cls, jsonld_obj: Any) -> dict[str, Any]:
         tmp = Value.getFromJsonLd(jsonld_obj)
         tmp['value'] = jsonld_obj.get('knora-api:geometryValueAsGeometry')
         return cls(**tmp)
 
-    def toJsonLdObj(self, action: Actions) -> Dict[str, Any]:
+    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
         tmp = super().toJsonLdObj(action)
         if action == Actions.Create:
             tmp['@type'] = "knora-api:GeomValue"
@@ -510,12 +509,12 @@ class GeonameValue(Value):
         return self._value
 
     @classmethod
-    def fromJsonLdObj(cls, jsonld_obj: Any) -> Dict[str, Any]:
+    def fromJsonLdObj(cls, jsonld_obj: Any) -> dict[str, Any]:
         tmp = Value.getFromJsonLd(jsonld_obj)
         tmp['value'] = jsonld_obj.get('knora-api:geonameValueAsGeonameCode')
         return cls(**tmp)
 
-    def toJsonLdObj(self, action: Actions) -> Dict[str, Any]:
+    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
         tmp = super().toJsonLdObj(action)
         if action == Actions.Create:
             tmp['@type'] = "knora-api:GeonameValue"
@@ -558,12 +557,12 @@ class IntValue(Value):
         return self._value
 
     @classmethod
-    def fromJsonLdObj(cls, jsonld_obj: Any) -> Dict[str, Any]:
+    def fromJsonLdObj(cls, jsonld_obj: Any) -> dict[str, Any]:
         tmp = Value.getFromJsonLd(jsonld_obj)
         tmp['value'] = jsonld_obj.get("knora-api:intValueAsInt")
         return cls(**tmp)
 
-    def toJsonLdObj(self, action: Actions) -> Dict[str, Any]:
+    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
         tmp = super().toJsonLdObj(action)
         if action == Actions.Create:
             tmp['@type'] = "knora-api:IntValue"
@@ -609,12 +608,12 @@ class BooleanValue(Value):
         return self._value
 
     @classmethod
-    def fromJsonLdObj(cls, jsonld_obj: Any) -> Dict[str, Any]:
+    def fromJsonLdObj(cls, jsonld_obj: Any) -> dict[str, Any]:
         tmp = Value.getFromJsonLd(jsonld_obj)
         tmp['value'] = jsonld_obj.get("knora-api:booleanValueAsBoolean")
         return cls(**tmp)
 
-    def toJsonLdObj(self, action: Actions) -> Dict[str, Any]:
+    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
         tmp = super().toJsonLdObj(action)
         if action == Actions.Create:
             tmp['@type'] = "knora-api:BooleanValue"
@@ -654,12 +653,12 @@ class UriValue(Value):
         return self._value
 
     @classmethod
-    def fromJsonLdObj(cls, jsonld_obj: Any) -> Dict[str, Any]:
+    def fromJsonLdObj(cls, jsonld_obj: Any) -> dict[str, Any]:
         tmp = Value.getFromJsonLd(jsonld_obj)
         tmp['value'] = Value.get_typed_value("knora-api:uriValueAsUri", jsonld_obj)
         return cls(**tmp)
 
-    def toJsonLdObj(self, action: Actions) -> Dict[str, Any]:
+    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
         tmp = super().toJsonLdObj(action)
         if action == Actions.Create:
             tmp['@type'] = "knora-api:UriValue"
@@ -707,12 +706,12 @@ class TimeValue(Value):
         return self._value
 
     @classmethod
-    def fromJsonLdObj(cls, jsonld_obj: Any) -> Dict[str, Any]:
+    def fromJsonLdObj(cls, jsonld_obj: Any) -> dict[str, Any]:
         tmp = Value.getFromJsonLd(jsonld_obj)
         tmp['value'] = Value.get_typed_value("knora-api:timeValueAsTimeStamp", jsonld_obj)
         return cls(**tmp)
 
-    def toJsonLdObj(self, action: Actions) -> Dict[str, Any]:
+    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
         tmp = super().toJsonLdObj(action)
         if action == Actions.Create:
             tmp['@type'] = "knora-api:TimeValue"
@@ -770,14 +769,14 @@ class IntervalValue(Value):
         return self._iv_end
 
     @classmethod
-    def fromJsonLdObj(cls, jsonld_obj: Any) -> Dict[str, Any]:
+    def fromJsonLdObj(cls, jsonld_obj: Any) -> dict[str, Any]:
         tmp = Value.getFromJsonLd(jsonld_obj)
         start = Value.get_typed_value("knora-api:intervalValueHasStart", jsonld_obj)
         end = Value.get_typed_value("knora-api:intervalValueHasEnd", jsonld_obj)
         tmp['value'] = str(start) + ":" + str(end)
         return cls(**tmp)
 
-    def toJsonLdObj(self, action: Actions) -> Dict[str, Any]:
+    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
         tmp = super().toJsonLdObj(action)
         if action == Actions.Create:
             tmp['@type'] = "knora-api:IntervalValue"
@@ -802,7 +801,7 @@ class ListValue(Value):
 
     def __init__(self,
                  value: str,
-                 lists: List[ListNode] = None,
+                 lists: list[ListNode] = None,
                  comment: Optional[LangString] = None,
                  permissions: Optional[Permissions] = None,
                  upermission: Optional[PermissionValue] = None,
@@ -810,7 +809,7 @@ class ListValue(Value):
                  ark_url: Optional[str] = None,
                  vark_url: Optional[str] = None):
 
-        def find_listnode(nodes: List[ListNode], name: str) -> Optional[str]:
+        def find_listnode(nodes: list[ListNode], name: str) -> Optional[str]:
             for node in nodes:
                 if node.name == name:
                     return node.id
@@ -859,12 +858,12 @@ class ListValue(Value):
         return self._value
 
     @classmethod
-    def fromJsonLdObj(cls, jsonld_obj: Any) -> Dict[str, Any]:
+    def fromJsonLdObj(cls, jsonld_obj: Any) -> dict[str, Any]:
         tmp = Value.getFromJsonLd(jsonld_obj)
         tmp['value'] = Value.get_typed_value("knora-api:listValueAsListNode", jsonld_obj)
         return cls(**tmp)
 
-    def toJsonLdObj(self, action: Actions) -> Dict[str, Any]:
+    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
         tmp = super().toJsonLdObj(action)
         if action == Actions.Create:
             tmp['@type'] = "knora-api:ListValue"
@@ -920,7 +919,7 @@ class LinkValue(Value):
         return self._reslabel
 
     @classmethod
-    def fromJsonLdObj(cls, jsonld_obj: Any) -> Dict[str, Any]:
+    def fromJsonLdObj(cls, jsonld_obj: Any) -> dict[str, Any]:
         tmp = Value.getFromJsonLd(jsonld_obj)
         linked_resource = jsonld_obj.get("knora-api:linkValueHasTarget")
         if linked_resource is not None:
@@ -929,7 +928,7 @@ class LinkValue(Value):
             tmp['reslabel'] = linked_resource["rdfs:label"]
         return cls(**tmp)
 
-    def toJsonLdObj(self, action: Actions) -> Dict[str, Any]:
+    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
         tmp = super().toJsonLdObj(action)
         if action == Actions.Create:
             tmp['@type'] = "knora-api:LinkValue"

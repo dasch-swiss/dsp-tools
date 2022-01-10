@@ -3,7 +3,7 @@ import sys
 from dataclasses import dataclass
 from enum import Enum, unique
 from traceback import format_exc
-from typing import NewType, List, Dict, Optional, Any, Tuple, Union, Pattern
+from typing import NewType, Optional, Any, Tuple, Union, Pattern
 
 from pystrict import strict
 
@@ -23,7 +23,7 @@ class OntoInfo:
     hashtag: bool
 
 
-ContextType = NewType("ContextType", Dict[str, OntoInfo])
+ContextType = NewType("ContextType", dict[str, OntoInfo])
 
 
 def LINE() -> int:
@@ -86,7 +86,7 @@ class Cardinality(Enum):
 @strict
 class ContextIterator:
     _context: 'Context'
-    _prefixes: List[str]
+    _prefixes: list[str]
     _index: int
 
     def __init__(self, context: 'Context'):
@@ -111,10 +111,10 @@ class Context:
     This class holds a JSON-LD context with the ontology IRI's and the associated prefixes
     """
     _context: ContextType
-    _rcontext: Dict[str, str]
+    _rcontext: dict[str, str]
     _exp: Pattern[str]
 
-    common_ontologies  = ContextType({
+    common_ontologies = ContextType({
         "foaf": OntoInfo("http://xmlns.com/foaf/0.1/", False),
         "dc": OntoInfo("http://purl.org/dc/elements/1.1/", False),
         "dcterms": OntoInfo("http://purl.org/dc/terms/", False),
@@ -148,7 +148,7 @@ class Context:
         m = self._exp.match(val)
         return m.span()[1] == len(val) if m else False
 
-    def __init__(self, context: Optional[Dict[str, str]] = None):
+    def __init__(self, context: Optional[dict[str, str]] = None):
         """
         THe Constructor of the Context. It takes one optional parameter which as a dict of
         prefix - ontology-iri pairs. If the hashtag "#" is used to append element name, the
@@ -158,17 +158,17 @@ class Context:
         # regexp to test for a complete IRI (including fragment identifier)
         self._exp = re.compile("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?")
         self._context = ContextType({})
-        
+
         # add ontologies from context, if any
         if context:
             for prefix, onto in context.items():
                 self._context[prefix] = OntoInfo(onto.removesuffix('#'), onto.endswith('#'))
-        
+
         # add standard ontologies (rdf, rdfs, owl, xsl)
         for k, v in self.base_ontologies.items():
             if not self._context.get(k):
                 self._context[k] = v
-        
+
         # add DSP-API internal ontologies (knora-api, salsah-gui)
         for k, v in self.knora_ontologies.items():
             if not self._context.get(k):
@@ -224,7 +224,7 @@ class Context:
             raise BaseError("Error in parameter to context setter")
 
     @property
-    def rcontext(self) -> Dict[str, str]:
+    def rcontext(self) -> dict[str, str]:
         return self._rcontext
 
     def add_context(self, prefix: str, iri: Optional[str] = None) -> None:
@@ -400,7 +400,7 @@ class Context:
         else:
             return iristr
 
-    def toJsonObj(self) -> Dict[str, str]:
+    def toJsonObj(self) -> dict[str, str]:
         """
         Return a python object that can be jsonfied...
         :return: Object to be jsonfied
@@ -408,7 +408,7 @@ class Context:
         return {prefix: oinfo.iri + '#' if oinfo.hashtag else oinfo.iri
                 for prefix, oinfo in self._context.items()}
 
-    def get_externals_used(self) -> Dict[str, str]:
+    def get_externals_used(self) -> dict[str, str]:
         exclude = ["rdf", "rdfs", "owl", "xsd", "knora-api", "salsah-gui"]
         return {prefix: onto.iri for prefix, onto in self._context.items() if prefix not in exclude}
 
@@ -487,7 +487,7 @@ class WithId:
     """
     _tmp: str = None
 
-    def __init__(self, obj: Optional[Dict[str, str]]):
+    def __init__(self, obj: Optional[dict[str, str]]):
         if obj is None:
             return
         self._tmp = obj.get('@id')

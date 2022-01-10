@@ -1,9 +1,9 @@
-from typing import Dict, List, Any
+from typing import Any
 
 from knora.dsplib.utils.excel_to_json_lists import make_json_list_from_excel, prepare_list_creation
 
 
-def expand_lists_from_excel(data_model: Dict[Any, Any]) -> List[str]:
+def expand_lists_from_excel(data_model: dict[str, Any]) -> list[str]:
     """
     Gets all list definitions from a data model and expands them to JSON if they are only referenced via an Excel file
 

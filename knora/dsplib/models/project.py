@@ -8,9 +8,8 @@ from pystrict import strict
 from knora.dsplib.utils.set_encoder import SetEncoder
 from .connection import Connection
 from .helpers import Actions, BaseError
-from .langstring import Languages, LangStringParam, LangString
+from .langstring import Languages, LangString
 from .model import Model
-
 
 """
 This module implements the handling (CRUD) of Knora projects.
@@ -310,7 +309,7 @@ class Project(Model):
             self._changed.add('logo')
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: Any) -> Any:
+    def fromJsonObj(cls, con: Connection, json_obj: Any) -> 'Project':
         """
         Internal method! Should not be used directly!
 
@@ -358,7 +357,7 @@ class Project(Model):
                    status=status,
                    logo=logo)
 
-    def toJsonObj(self, action: Actions) -> Any:
+    def toJsonObj(self, action: Actions) -> dict[str, str]:
         """
         Internal method! Should not be used directly!
 
@@ -390,6 +389,7 @@ class Project(Model):
             if self._status is None:
                 raise BaseError("status must be defined (True or False!")
             tmp['status'] = self._status
+
         elif action == Actions.Update:
             if self._shortcode is not None and 'shortcode' in self._changed:
                 tmp['shortcode'] = self._shortcode
@@ -446,20 +446,17 @@ class Project(Model):
         else:
             return None  # Todo: throw exception
 
-    def update(self) -> Union['Project', None]:
+    def update(self) -> 'Project':
         """
-        Udate the project info in Knora with the modified data in this project instance
+        Update the project information on the DSP with the modified data in this project instance
 
-        :return: JSON-object from Knora refecting the update
+        Returns: JSON object returned as response from DSP reflecting the update
         """
 
         jsonobj = self.toJsonObj(Actions.Update)
-        if jsonobj:
-            jsondata = json.dumps(jsonobj, cls=SetEncoder)
-            result = self._con.put(Project.IRI + quote_plus(self.id), jsondata)
-            return Project.fromJsonObj(self._con, result['project'])
-        else:
-            return None
+        jsondata = json.dumps(jsonobj, cls=SetEncoder)
+        result = self._con.put(Project.IRI + quote_plus(self.id), jsondata)
+        return Project.fromJsonObj(self._con, result['project'])
 
     def delete(self) -> 'Project':
         """

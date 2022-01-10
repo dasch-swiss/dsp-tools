@@ -162,7 +162,7 @@ class TestTools(unittest.TestCase):
         create_ontology(input_file=self.test_onto_file,
                         lists_file='lists-out.json',
                         server=self.server,
-                        user=self.user,
+                        user_mail=self.user,
                         password='test',
                         verbose=False,
                         dump=True)

@@ -570,7 +570,7 @@ class ResourceClass(Model):
                     property_id: str,
                     cardinality: Cardinality,
                     gui_order: Optional[int] = None,
-                    ) -> Optional[LastModificationDate]:
+                    ) -> LastModificationDate:
         if self._has_properties.get(property_id) is None:
             latest_modification_date, resclass = HasProperty(con=self._con,
                                                              context=self._context,

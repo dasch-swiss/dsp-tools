@@ -211,7 +211,7 @@ class Group(Model):
                 tmp['selfjoin'] = self._selfjoin
         return tmp
 
-    def create(self):
+    def create(self) -> 'Group':
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj)
         result = self._con.post(Group.ROUTE, jsondata)
@@ -238,11 +238,17 @@ class Group(Model):
         return Group.fromJsonObj(self._con, result['group'])
 
     @staticmethod
-    def getAllGroups(con: Connection) -> List['Group']:
-        result = con.get(Group.ROUTE)
-        if 'groups' not in result:
-            raise BaseError("Request got no groups!")
-        return list(map(lambda a: Group.fromJsonObj(con, a), result['groups']))
+    def getAllGroups(con: Connection) -> Optional[List['Group']]:
+        try:
+            result = con.get(Group.ROUTE)
+            groups = []
+            for group_item in result['groups']:
+                group = Group.fromJsonObj(con, group_item)
+                groups.append(group)
+            return groups
+        except BaseError:
+            # return None if no groups are found or an error happened
+            return None
 
     @staticmethod
     def getAllGroupsForProject(con: Connection, proj_shortcode: str) -> List['Group']:
@@ -265,7 +271,7 @@ class Group(Model):
         }
         return group
 
-    def print(self):
+    def print(self) -> None:
         print('Group Info:')
         print('  Id:          {}'.format(self._id))
         print('  Name:        {}'.format(self._name))

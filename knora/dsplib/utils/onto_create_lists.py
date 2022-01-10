@@ -1,21 +1,23 @@
 import json
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from .expand_all_lists import expand_lists_from_excel
 from .onto_validate import validate_ontology
 from ..models.connection import Connection
+from ..models.helpers import BaseError
 from ..models.listnode import ListNode
 from ..models.project import Project
 
 
-def list_creator(con: Connection, project: Project, parent_node: ListNode, nodes: List[Dict[Any, Any]]) -> List[Dict[Any, Any]]:
+def create_list_node(con: Connection, project: Project, parent_node: ListNode, nodes: List[Dict[Any, Any]]) -> List[
+    Dict[Any, Any]]:
     """
     Creates the list on the DSP server
 
     Args:
-        con: The connection to the DSP server
-        project: The project which the lists should be added
-        parent_node: The root node of the list
+        con: Connection to the DSP server
+        project: Project which the lists should be added to
+        parent_node: Root node of the list
         nodes: List of nodes the list is made of
 
     Returns:
@@ -23,21 +25,28 @@ def list_creator(con: Connection, project: Project, parent_node: ListNode, nodes
     """
     nodelist = []
     for node in nodes:
-        new_node = ListNode(con=con, project=project, label=node["labels"], comments=node.get("comments"),
-                            name=node["name"],
-                            parent=parent_node).create()
-        if node.get('nodes') is not None:
-            subnode_list = list_creator(con, project, new_node, node['nodes'])
-            nodelist.append({new_node.name: {"id": new_node.id, 'nodes': subnode_list}})
-        else:
-            nodelist.append({new_node.name: {"id": new_node.id}})
+        new_node = None
+        try:
+            new_node = ListNode(con=con, project=project, label=node["labels"], comments=node.get("comments"),
+                                name=node["name"],
+                                parent=parent_node).create()
+        except BaseError as err:
+            print(f"ERROR while trying to create list node '{node['name']}'. The error message was {err.message}")
+            exit(1)
+        if new_node:
+            # if node has child nodes, call the method recursively
+            if node.get("nodes"):
+                subnode_list = create_list_node(con, project, new_node, node["nodes"])
+                nodelist.append({new_node.name: {"id": new_node.id, "nodes": subnode_list}})
+            else:
+                nodelist.append({new_node.name: {"id": new_node.id}})
     return nodelist
 
 
 def create_lists(input_file: str, lists_file: str, server: str, user: str, password: str, verbose: bool,
                  dump: bool = False) -> Dict[str, Any]:
     """
-    Creates the lists on the DSP server
+    Handles the list creation
 
     Args:
         input_file: Path to the json data model file
@@ -61,7 +70,7 @@ def create_lists(input_file: str, lists_file: str, server: str, user: str, passw
     new_lists = expand_lists_from_excel(data_model)
 
     # add the newly created lists from Excel to the ontology
-    data_model['project']['lists'] = new_lists
+    data_model["project"]["lists"] = new_lists
 
     # validate the ontology
     if validate_ontology(data_model):
@@ -77,28 +86,56 @@ def create_lists(input_file: str, lists_file: str, server: str, user: str, passw
         con.start_logging()
 
     # get the project which must exist
-    project = Project(con=con, shortcode=data_model['project']['shortcode'], ).read()
-    assert project is not None
+    project: Optional[Project] = None
+    try:
+        project = Project(con=con, shortcode=data_model["project"]["shortcode"]).read()
+    except BaseError as err:
+        print(
+            f"ERROR while trying to create the lists. Referenced project couldn't be read from the server. The error message was: {err.message}")
+        exit(1)
 
     # create the lists
     if verbose:
-        print('Create lists...')
+        print("Create lists...")
 
-    lists = data_model['project'].get('lists')
+    all_lists: Optional[List[ListNode]] = ListNode.getAllLists(con, project.id)
+    lists = data_model["project"].get("lists")
     list_root_nodes = {}
-    if lists is not None:
+    if lists:
         for rootnode in lists:
-            if verbose:
-                print('  Create list:' + rootnode['name'])
-            root_list_node = ListNode(con=con, project=project, label=rootnode['labels'],
-                                      comments=rootnode.get('comments'),
-                                      name=rootnode['name']).create()
-            if rootnode.get('nodes') is not None:
-                list_nodes = list_creator(con, project, root_list_node, rootnode['nodes'])
-                list_root_nodes[rootnode['name']] = {'id': root_list_node.id, 'nodes': list_nodes}
+            rootnode_name = rootnode["name"]
+            # check if list already exists
+            list_exists: bool = False
+            if all_lists:
+                for list_item in all_lists:
+                    if list_item.project == project.id and list_item.name == rootnode_name:
+                        list_root_nodes[list_item.name] = {"id": list_item.id, "nodes": rootnode["nodes"]}
+                        list_exists = True
+            if list_exists:
+                print(f"WARN List '{rootnode_name}' already exists. Skipping...")
+                continue
 
-    with open(lists_file, 'w', encoding='utf-8') as fp:
+            if verbose:
+                print(f"Creating list '{rootnode_name}'.")
+
+            root_list_node = None
+            try:
+                root_list_node = ListNode(con=con, project=project, label=rootnode["labels"],
+                                          comments=rootnode.get("comments"),
+                                          name=rootnode_name).create()
+            except BaseError as err:
+                print(f"ERROR while trying to create the list '{rootnode_name}'. The error message was: {err.message}")
+                exit(1)
+            except Exception as exception:
+                print(
+                    f"ERROR while trying to create the list '{rootnode_name}'. The error message was: {exception}")
+                exit(1)
+            if rootnode.get("nodes") and root_list_node and project:
+                list_nodes = create_list_node(con, project, root_list_node, rootnode["nodes"])
+                list_root_nodes[rootnode["name"]] = {"id": root_list_node.id, "nodes": list_nodes}
+
+    with open(lists_file, "w", encoding="utf-8") as fp:
         json.dump(list_root_nodes, fp, indent=3, sort_keys=True)
-        print(f'The IRI for the created nodes can be found in {lists_file}.')
+        print(f"The IRI for the created nodes can be found in '{lists_file}'.")
 
     return list_root_nodes

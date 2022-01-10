@@ -1,20 +1,20 @@
-"""This module handles the ontology creation and upload to a DSP server. This includes the creation of the project,
-groups, users, lists, resource classes, properties and cardinalities. """
+"""This module handles the ontology creation, update and upload to a DSP server. This includes the creation and update
+of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
 import json
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Set, Union, Optional, Any
 
-from .expand_all_lists import expand_lists_from_excel
-from .onto_create_lists import create_lists
-from .onto_validate import validate_ontology
-from ..models.connection import Connection
-from ..models.group import Group
-from ..models.helpers import BaseError, Cardinality, Context
-from ..models.langstring import LangString
-from ..models.ontology import Ontology
-from ..models.project import Project
-from ..models.propertyclass import PropertyClass
-from ..models.resourceclass import ResourceClass
-from ..models.user import User
+from knora.dsplib.models.connection import Connection
+from knora.dsplib.models.group import Group
+from knora.dsplib.models.helpers import BaseError, Cardinality, Context
+from knora.dsplib.models.langstring import LangString
+from knora.dsplib.models.ontology import Ontology
+from knora.dsplib.models.project import Project
+from knora.dsplib.models.propertyclass import PropertyClass
+from knora.dsplib.models.resourceclass import ResourceClass
+from knora.dsplib.models.user import User
+from knora.dsplib.utils.expand_all_lists import expand_lists_from_excel
+from knora.dsplib.utils.onto_create_lists import create_lists
+from knora.dsplib.utils.onto_validate import validate_ontology
 
 
 def login(server: str, user: str, password: str) -> Connection:
@@ -34,27 +34,291 @@ def login(server: str, user: str, password: str) -> Connection:
     return con
 
 
+def create_project(con: Connection, data_model: Dict[Any, Any], verbose: bool) -> Project:
+    """
+    Creates a project on a DSP server with information provided in the data_model
+
+    Args:
+        con: connection instance to connect to the DSP server
+        data_model: The data model as JSON
+        verbose: Prints out more information if set to True
+
+    Returns:
+        created project
+    """
+    project_shortcode = data_model["project"]["shortcode"]
+    project_shortname = data_model["project"]["shortname"]
+
+    try:
+        project = Project(con=con,
+                          shortcode=data_model["project"]["shortcode"],
+                          shortname=data_model["project"]["shortname"],
+                          longname=data_model["project"]["longname"],
+                          description=LangString(data_model["project"].get("descriptions")),
+                          keywords=set(data_model["project"].get("keywords")),
+                          selfjoin=False,
+                          status=True).create()
+        if verbose:
+            print(f"Created project '{project_shortname}' ({project_shortcode}).")
+        return project
+    except BaseError as err:
+        print(
+            f"ERROR while trying to create project '{project_shortname}' ({project_shortcode}). The error message was: {err.message}")
+        exit(1)
+    except Exception as exception:
+        print(
+            f"ERROR while trying to create project '{project_shortname}' ({project_shortcode}). The error message was: {exception}")
+        exit(1)
+
+
+def update_project(project: Project, data_model: Dict[Any, Any], verbose: bool) -> Project:
+    """
+    Updates a project on a DSP server with information provided in the data_model
+
+    Args:
+        project: The project to be updated
+        data_model: The data model as JSON
+        verbose: Prints out more information if set to True
+
+    Returns:
+        updated project
+    """
+    project_shortcode = data_model["project"]["shortcode"]
+    project_shortname = data_model["project"]["shortname"]
+    project.longname = data_model["project"]["longname"]
+    project.description = data_model["project"].get("descriptions")
+    project.keywords = data_model["project"].get("keywords")
+    try:
+        updated_project = project.update()
+        if verbose:
+            print(f"Updated project '{project_shortname}' ({project_shortcode}).")
+        return updated_project
+    except BaseError as err:
+        print(
+            f"ERROR while trying to update project '{project_shortname}' ({project_shortcode}). The error message was: {err.message}")
+        exit(1)
+    except Exception as exception:
+        print(
+            f"ERROR while trying to update project '{project_shortname}' ({project_shortcode}). The error message was: {exception}")
+        exit(1)
+
+
+def create_groups(con: Connection, groups: List[Dict[str, str]], project: Project, verbose: bool) -> Dict[
+    Optional[str], Group]:
+    """
+    Creates group(s) on a DSP server from a list of group definitions
+
+    Args:
+        con: connection instance to connect to the DSP server
+        groups: List of definitions of the groups (JSON) to be created
+        project: Project the group(s) should be added to
+        verbose: Prints out more information if set to True
+
+    Returns:
+        Dict with group names and groups
+    """
+    new_groups = {}
+    for group in groups:
+        group_name = group["name"]
+
+        # check if the group already exists, skip if so
+        all_groups: Optional[List[Group]] = Group.getAllGroups(con)
+        group_exists: bool = False
+        if all_groups:
+            for group_item in all_groups:
+                if group_item.project == project.id and group_item.name == group_name:
+                    group_exists = True
+        if group_exists:
+            print(f"WARN Group '{group_name}' already exists. Skipping...")
+            continue
+
+        # check if status is defined, set default value if not
+        group_status: Optional[str] = group.get("status")
+        group_status_bool = True
+        if isinstance(group_status, str):
+            group_status_bool = json.loads(group_status.lower())  # lower() converts string to boolean
+
+        # check if selfjoin is defined, set default value if not
+        group_selfjoin: Optional[str] = group.get("selfjoin")
+        group_selfjoin_bool = False
+        if isinstance(group_selfjoin, str):
+            group_selfjoin_bool = json.loads(group_selfjoin.lower())  # lower() converts string to boolean
+
+        # create the group
+        try:
+            new_group: Group = Group(con=con,
+                                     name=group_name,
+                                     descriptions=LangString(group["descriptions"]),
+                                     project=project,
+                                     status=group_status_bool,
+                                     selfjoin=group_selfjoin_bool).create()
+            if verbose:
+                print(f"Created group '{group_name}'.")
+            new_groups[new_group.name] = new_group
+
+        except BaseError as err:
+            print(f"ERROR while trying to create group '{group_name}'. The error message was: {err.message}")
+            exit(1)
+        except Exception as exception:
+            print(f"ERROR while trying to create group '{group_name}'. The error message was: {exception}")
+            exit(1)
+    return new_groups
+
+
+def create_users(con: Connection, users: List[Dict[str, str]], groups: Dict[Optional[str], Group], project: Project,
+                 verbose: bool) -> None:
+    """
+    Creates user(s) on a DSP server from a list of user definitions
+
+    Args:
+        con: connection instance to connect to the DSP server
+        users: List of definitions of the users (JSON) to be created
+        groups: Dict with group definitions defined inside the actual ontology
+        project: Project the user(s) should be added to
+        verbose: Prints more information if set to True
+
+    Returns:
+        None
+    """
+    for user in users:
+        username = user["username"]
+
+        # check if the user already exists, skip if so
+        maybe_user: Optional[User] = None
+        try:
+            maybe_user = User(con, email=user["email"]).read()
+        except BaseError:
+            pass
+        if maybe_user:
+            print(f"WARN User '{username}' already exists. Skipping...")
+            continue
+
+        sysadmin = False
+        group_ids: Set[str] = set()
+        project_info: Dict[str, bool] = {}
+
+        # if "groups" is provided add user to the group(s)
+        user_groups = user.get("groups")
+        if user_groups:
+            all_groups: Optional[List[Group]] = Group.getAllGroups(con)
+            for full_group_name in user_groups:
+                if verbose:
+                    print(f"Add user '{username}' to group '{full_group_name}'.")
+                # full_group_name has the form '[project_shortname]:group_name' or 'SystemAdmin'
+                # if project_shortname is omitted, the group belongs to the current project
+                tmp_group_name: Union[List[str], str] = full_group_name.split(
+                    ":") if ":" in full_group_name else full_group_name
+
+                if len(tmp_group_name) == 2:
+                    project_shortname = tmp_group_name[0]
+                    group_name = tmp_group_name[1]
+
+                    group: Optional[Group] = None
+                    if project_shortname:  # full_group_name refers to an already existing group on DSP
+                        # check that group exists
+                        if all_groups:
+                            for g in all_groups:
+                                if g.project == project.id and g.name == group_name:
+                                    group = g
+                        else:
+                            print(f"WARN '{group_name}' is referring to a group on DSP but no groups found.")
+
+                    else:  # full_group_name refers to a group inside the same ontology
+                        group = groups.get(group_name)
+                    if group is None:
+                        print(f"WARN Group '{group_name}' not found in actual ontology.")
+                    else:
+                        if isinstance(group.id, str):
+                            group_ids.add(group.id)
+                elif tmp_group_name == "SystemAdmin":
+                    sysadmin = True
+                else:
+                    print(f"WARN Provided group '{full_group_name}' for user '{username}' is not valid. Skipping...")
+
+        # if "projects" is provided, add user to the projects(s)
+        user_projects = user.get("projects")
+        if user_projects:
+            all_projects: List[Project] = project.getAllProjects(con)
+            for full_project_name in user_projects:
+                if verbose:
+                    print(f"Add user '{username}' to project '{full_project_name}'.")
+                # full_project_name has the form '[project_name]:member' or '[project_name]:admin'
+                # if project_name is omitted, the user is added to the current project
+                tmp_group_name = full_project_name.split(":")
+
+                if not len(tmp_group_name) == 2:
+                    print(
+                        f"WARN Provided project '{full_project_name}' for user '{username}' is not valid. Skipping...")
+                    continue
+
+                project_name = tmp_group_name[0]
+                project_role = tmp_group_name[1]
+
+                in_project: Optional[Project] = None
+
+                if project_name:  # project_name is provided
+                    # check that project exists
+                    for p in all_projects:
+                        if p.shortname == project_name:
+                            in_project = p
+
+                else:  # no project_name provided
+                    in_project = project
+
+                if in_project and isinstance(in_project.id, str):
+                    if project_role == "admin":
+                        project_info[in_project.id] = True
+                    else:
+                        project_info[in_project.id] = False
+
+        # create the user
+        user_status: Optional[str] = user.get("status")
+        user_status_bool = True
+        if isinstance(user_status, str):
+            user_status_bool = json.loads(user_status.lower())  # lower() converts string to boolean
+        try:
+            User(con=con,
+                 username=user["username"],
+                 email=user["email"],
+                 givenName=user["givenName"],
+                 familyName=user["familyName"],
+                 password=user["password"],
+                 status=user_status_bool,
+                 lang=user["lang"] if user.get("lang") else "en",
+                 sysadmin=sysadmin,
+                 in_projects=project_info,
+                 in_groups=group_ids).create()
+            if verbose:
+                print(f"Created user {username}.")
+        except BaseError as err:
+            print(f"ERROR while trying to create user '{username}'. The error message was: {err.message}")
+            exit(1)
+        except Exception as exception:
+            print(f"ERROR while trying to create user '{username}'. The error message was: {exception}")
+            exit(1)
+
+
 def create_ontology(input_file: str,
-                    lists_file: Optional[str],
+                    lists_file: str,
                     server: str,
-                    user: str,
+                    user_mail: str,
                     password: str,
                     verbose: bool,
                     dump: bool) -> None:
     """
-    Creates the ontology from a json input file on a DSP server
+    Creates the ontology and all its parts from a JSON input file on a DSP server
 
     Args:
-        input_file: The input json file from which the ontology should be created
-        lists_file: The file which the output (list node ID) is written to
+        input_file: The input JSON file from which the ontology and its parts should be created
+        lists_file: The file which the list output (list node ID) is written to
         server: The DSP server which the ontology should be created on
-        user: The user which the ontology should be created with
-        password: The password for the user
-        verbose: Prints some more information
-        dump: Dumps test files (json) for DSP API requests if True
+        user_mail: The user (e-mail) which the ontology should be created with (requesting user)
+        password: The password for the user (requesting user)
+        verbose: Prints more information if set to True
+        dump: Dumps test files (JSON) for DSP API requests if set to True
 
     Returns:
-        True if successful
+        None
     """
 
     knora_api_prefix = "knora-api:"
@@ -65,22 +329,15 @@ def create_ontology(input_file: str,
 
     data_model = json.loads(onto_json_str)
 
-    # expand all lists referenced in the list section of the data model
-    new_lists = expand_lists_from_excel(data_model)
-
-    # add the newly created lists from Excel to the ontology
-    data_model['project']['lists'] = new_lists
+    # expand all lists referenced in the list section of the data model and add them to the ontology
+    data_model["project"]["lists"] = expand_lists_from_excel(data_model)
 
     # validate the ontology
-    if validate_ontology(data_model):
-        pass
-    else:
+    if not validate_ontology(data_model):
         exit(1)
 
     # make the connection to the server
-    con = login(server=server,
-                user=user,
-                password=password)
+    con = login(server=server, user=user_mail, password=password)
 
     if dump:
         con.start_logging()
@@ -88,252 +345,74 @@ def create_ontology(input_file: str,
     # read the prefixes of external ontologies that may be used
     context = Context(data_model.get("prefixes") or {})
 
-    # create or update the project
+    # check if the project exists
     project = None
     try:
-        # try to read the project to check if it exists
         project = Project(con=con, shortcode=data_model["project"]["shortcode"]).read()
+    except BaseError:
+        pass
 
-        # update the project with data from the ontology (data_model)
-        if project.shortname != data_model["project"]["shortname"]:
-            project.shortname = data_model["project"]["shortname"]
-        if project.longname != data_model["project"]["longname"]:
-            project.longname = data_model["project"]["longname"]
-        project.description = data_model["project"].get("descriptions")
-        project.keywords = set(data_model["project"].get("keywords"))
-        updated_project = project.update()
-        if updated_project is not None:
-            project = updated_project
+    # if project exists, update it
+    if project:
+        print(f"Project '{data_model['project']['shortcode']}' already exists. Updating it...")
+        updated_project: Project = update_project(project=project, data_model=data_model, verbose=verbose)
         if verbose:
-            print("Modified project:")
-            project.print()
-    except:
-        # create the project if it does not exist
-        try:
-            project = Project(con=con,
-                              shortcode=data_model["project"]["shortcode"],
-                              shortname=data_model["project"]["shortname"],
-                              longname=data_model["project"]["longname"],
-                              description=LangString(data_model["project"].get("descriptions")),
-                              keywords=set(data_model["project"].get("keywords")),
-                              selfjoin=False,
-                              status=True).create()
-        except BaseError as err:
-            print("Creating project failed: ", err.message)
-            exit(1)
+            updated_project.print()
+
+    # if project does not exist, create it
+    else:
         if verbose:
-            print("Created project:")
-            project.print()
+            print("Create project...")
+        project = create_project(con=con, data_model=data_model, verbose=verbose)
 
-    # create the lists
-    list_root_nodes = create_lists(input_file, lists_file, server, user, password, verbose)
+    # create the list(s), skip if it already exists
+    list_root_nodes = {}
+    if data_model["project"].get("lists"):
+        if verbose:
+            print("Create lists...")
+        list_root_nodes = create_lists(input_file, lists_file, server, user_mail, password, verbose)
 
-    # create the group(s)
-    if verbose:
-        print("Create groups...")
-
+    # create the group(s), skip if it already exists
     new_groups = {}
-    groups = data_model["project"].get('groups')
-    if groups:
-        for group in groups:
-            try:
-                new_group = Group(con=con,
-                                  name=group["name"],
-                                  descriptions=LangString(group["descriptions"]),
-                                  project=project,
-                                  status=group["status"] if group.get("status") else True,
-                                  selfjoin=group["selfjoin"] if group.get("selfjoin") else False).create()
-                new_groups[new_group.name] = new_group
-                if verbose:
-                    print("Created group:")
-                    new_group.print()
+    if data_model["project"].get("groups"):
+        if verbose:
+            print("Create groups...")
+        new_groups = create_groups(con=con, groups=data_model["project"]["groups"], project=project, verbose=verbose)
 
-            except BaseError as err:
-                print(f"ERROR while trying to create group '{group.name}'. The error message was: {err.message}")
-            except Exception as exception:
-                print(f"ERROR while trying to create group '{group.name}'. The error message was: {exception}")
-
-    # create the user(s)
-    if verbose:
-        print("Create users...")
-    all_groups: List[Group] = []
-    all_projects: List[Project] = []
-    users = data_model["project"].get('users')
-    if users is not None:
-        for user in users:
-
-            sysadmin = False
-            group_ids: Set[str] = set()
-
-            user_groups = user.get("groups")
-            # if "groups" is provided, add user to the group(s)
-            if user_groups:
-                for full_group_name in user_groups:
-                    if verbose:
-                        print(f"Add user to group: {full_group_name}")
-                    # full_group_name has the form [project_shortname]:group_name or SystemAdmin
-                    # if project_shortname is omitted, the group belongs to the current project
-                    tmp = full_group_name.split(':')
-
-                    if len(tmp) == 2:
-                        project_shortname = tmp[0]
-                        group_name = tmp[1]
-
-                        group = None
-                        if project_shortname:  # full_group_name refers to an already existing group on DSP
-                            # get all groups vom DSP
-                            if not all_groups:
-                                all_groups = Group.getAllGroups(con)
-
-                            # check that group exists
-                            for g in all_groups:
-                                if g.project.shortname == project_shortname and g.name == group_name:
-                                    group = g
-
-                        else:  # full_group_name refers to a group inside the same ontology
-                            group = new_groups.get(group_name)
-                            assert group is not None
-                        group_ids.add(group.id)
-                    elif len(tmp) == 1:
-                        if tmp[0] == "SystemAdmin":
-                            sysadmin = True
-                    else:
-                        print(f"ERROR Provided group name {full_group_name} for user {user.username} is not valid.")
-
-            project_infos: Dict[str, bool] = {}
-
-            user_projects = user.get("projects")
-            # if "groups" is provided, add user to the group(s)
-            if user_projects:
-                for full_project_name in user_projects:
-                    if verbose:
-                        print(f"Add user to project: {full_project_name}")
-                    # full_project_name has the form [project_name]:member or [project_name]:admin
-                    # if project_name is omitted, the user is added to the current project
-                    tmp = full_project_name.split(':')
-
-                    if not len(tmp) == 2:
-                        print(f"ERROR Provided project name {full_project_name} for user {user.username} is not valid.")
-                        continue
-
-                    project_name = tmp[0]
-                    project_role = tmp[1]
-
-                    in_project = None
-
-                    if project_name:  # project_name is provided
-                        # get all projects vom DSP
-                        if not all_projects:
-                            all_projects = project.getAllProjects(con)
-
-                        # check that project exists
-                        for p in all_projects:
-                            if p.shortname == project_name:
-                                in_project = p
-
-                    else:  # no project_name provided
-                        in_project = project
-
-                    if project_role == "admin":
-                        project_infos[in_project.id] = True
-                    else:
-                        project_infos[in_project.id] = False
-
-            user_existing = False
-            tmp_user = None
-            try:
-                tmp_user = User(con, username=user["username"]).read()
-            except BaseError as err:
-                pass
-            if tmp_user is None:
-                try:
-                    tmp_user = User(con, email=user["email"]).read()
-                except BaseError as err:
-                    pass
-            if tmp_user:
-                # if the user exists already, update his settings
-                if tmp_user.username != user["username"]:
-                    tmp_user.username = user["username"]
-                if tmp_user.email != user["email"]:
-                    tmp_user.email = user["email"]
-                if tmp_user.givenName != user["givenName"]:
-                    tmp_user.givenName = user["givenName"]
-                if tmp_user.familyName != user["familyName"]:
-                    tmp_user.familyName = user["familyName"]
-                if tmp_user.password != user["password"]:
-                    tmp_user.password = user["password"]
-                if user.get("status") and tmp_user.status != user["status"]:
-                    tmp_user.status = user["status"]
-                if user.get("lang") and tmp_user.lang != user["lang"]:
-                    tmp_user.lang = user["lang"]
-                if tmp_user.sysadmin != sysadmin:
-                    tmp_user.sysadmin = sysadmin
-                try:
-                    tmp_user.update()
-                except BaseError as err:
-                    tmp_user.print()
-                    print("Updating user failed:", err.message)
-
-                # update group and project membership
-                # Note: memberships are NOT removed here, just added
-                tmp_in_groups = tmp_user.in_groups
-                add_groups = group_ids - tmp_in_groups
-                for g in add_groups:
-                    User.addToGroup(g)
-                rm_groups = tmp_in_groups - group_ids
-                # we do no remove a user from a group here!
-                tmp_in_projects = tmp_user.in_projects
-                for p in project_infos.items():
-                    if tmp_in_projects.get(p[0]) and tmp_in_projects[p[0]] == p[1]:
-                        continue
-                    User.addToProject(p[0], p[1])
-            else:
-                # if the user does not exist yet, create him
-                try:
-                    new_user = User(con=con,
-                                    username=user["username"],
-                                    email=user["email"],
-                                    givenName=user["givenName"],
-                                    familyName=user["familyName"],
-                                    password=user["password"],
-                                    status=user["status"] if user.get("status") is not None else True,
-                                    lang=user["lang"] if user.get("lang") is not None else "en",
-                                    sysadmin=sysadmin,
-                                    in_projects=project_infos,
-                                    in_groups=group_ids).create()
-                except BaseError as err:
-                    print("Creating user failed:", err.message)
-            if verbose:
-                print("New user:")
-                new_user.print()
+    # create or update the user(s), skip if it already exists
+    if data_model["project"].get("users"):
+        if verbose:
+            print("Create users...")
+        create_users(con=con, users=data_model["project"]["users"], groups=new_groups, project=project,
+                     verbose=verbose)
 
     # create the ontologies
     if verbose:
         print("Create ontologies...")
-    ontologies = data_model.get("project").get("ontologies")
-    for ontology in ontologies:
+    for ontology in data_model.get("project").get("ontologies"):
         new_ontology = None
         last_modification_date = None
+        ontology_name = ontology["name"]
         try:
             new_ontology = Ontology(con=con,
                                     project=project,
-                                    label=ontology.get("label"),
-                                    name=ontology.get("name")).create()
+                                    label=ontology["label"],
+                                    name=ontology_name).create()
             last_modification_date = new_ontology.lastModificationDate
             if verbose:
-                print("Created ontology:")
-                new_ontology.print()
+                print(f"Created ontology '{ontology_name}'.")
         except BaseError as err:
-            print(f"ERROR while trying to create ontology. The error message was {err.message}")
+            print(
+                f"ERROR while trying to create ontology '{ontology_name}'. The error message was {err.message}")
             exit(1)
         except Exception as exception:
-            print(f"ERROR while trying to create ontology. The error message was {exception}")
+            print(f"ERROR while trying to create ontology '{ontology_name}'. The error message was {exception}")
             exit(1)
 
         # add the prefixes defined in the json file
-        for prefix, iri in context:
-            if prefix not in new_ontology.context:
-                s = iri.iri + ("#" if iri.hashtag else "")
+        for prefix, ontology_info in context:
+            if prefix not in new_ontology.context and ontology_info:
+                s = ontology_info.iri + ("#" if ontology_info.hashtag else "")
                 new_ontology.context.add_context(prefix, s)
 
         # create the empty resource classes
@@ -355,7 +434,7 @@ def create_ontology(input_file: str,
                       f"least one direct cardinality is required to create a class with dsp-tools.")
                 continue
 
-            new_res_class = None
+            new_res_class: Optional[ResourceClass] = None
             try:
                 last_modification_date, new_res_class = ResourceClass(con=con,
                                                                       context=new_ontology.context,
@@ -371,12 +450,15 @@ def create_ontology(input_file: str,
             except Exception as exception:
                 print(
                     f"ERROR while trying to create resource class {res_name}. The error message was {exception}")
-            new_res_classes[new_res_class.id] = new_res_class
-            new_ontology.lastModificationDate = last_modification_date
 
-            if verbose:
-                print("Created resource class:")
-                new_res_class.print()
+            if new_res_class:
+                if isinstance(new_res_class.id, str):
+                    new_res_classes[new_res_class.id] = new_res_class
+                new_ontology.lastModificationDate = last_modification_date
+
+                if verbose:
+                    print("Created resource class:")
+                    new_res_class.print()
 
         # create the property classes
         for prop_class in ontology.get("properties"):
@@ -405,12 +487,12 @@ def create_ontology(input_file: str,
             #   - "object_name" : The object is defined in "knora-api"
 
             if prop_class.get("object"):
-                tmp = prop_class.get("object").split(':')
-                if len(tmp) > 1:
-                    if tmp[0]:
+                tmp_group_name = prop_class.get("object").split(':')
+                if len(tmp_group_name) > 1:
+                    if tmp_group_name[0]:
                         prop_object = prop_class.get("object")  # fully qualified name
                     else:
-                        prop_object = new_ontology.name + ':' + tmp[1]  # object refers to actual ontology
+                        prop_object = new_ontology.name + ':' + tmp_group_name[1]  # object refers to actual ontology
                 else:
                     prop_object = knora_api_prefix + prop_class.get("object")  # object refers to knora-api
             else:
@@ -448,12 +530,13 @@ def create_ontology(input_file: str,
                 print(
                     f"ERROR while trying to create property class {prop_name}. The error message was: {exception}")
 
-            new_ontology.lastModificationDate = last_modification_date
-            if verbose:
-                print("Created property:")
-                new_prop_class.print()
+            if new_prop_class:
+                new_ontology.lastModificationDate = last_modification_date
+                if verbose:
+                    print("Created property:")
+                    new_prop_class.print()
 
-        # Add cardinality/ies to class
+        # Add cardinalities to class
         switcher = {
             "1": Cardinality.C_1,
             "0-1": Cardinality.C_0_1,
@@ -464,31 +547,33 @@ def create_ontology(input_file: str,
         for res_class in ontology.get("resources"):
             if res_class.get("cardinalities"):
                 for card_info in res_class.get("cardinalities"):
-                    rc = new_res_classes.get(new_ontology.id + '#' + res_class.get("name"))
+                    rc = new_res_classes.get(new_ontology.id + "#" + res_class.get("name"))
                     cardinality = switcher[card_info.get("cardinality")]
                     prop_name_for_card = card_info.get("propname")
-                    tmp = prop_name_for_card.split(":")
-                    if len(tmp) > 1:
-                        if tmp[0]:
+                    tmp_group_name = prop_name_for_card.split(":")
+                    if len(tmp_group_name) > 1:
+                        if tmp_group_name[0]:
                             prop_id = prop_name_for_card  # fully qualified name
                         else:
-                            prop_id = new_ontology.name + ":" + tmp[1]  # prop name refers to actual ontology
+                            prop_id = new_ontology.name + ":" + tmp_group_name[1]  # prop name refers to actual ontology
                     else:
                         prop_id = knora_api_prefix + prop_name_for_card  # prop name refers to knora-api
 
-                    try:
-                        last_modification_date = rc.addProperty(
-                            property_id=prop_id,
-                            cardinality=cardinality,
-                            gui_order=card_info.get("gui_order"),
-                            last_modification_date=last_modification_date)
-                    except BaseError as err:
-                        print(
-                            f"ERROR while trying to add cardinality {prop_id} to resource class {res_class.get('name')}."
-                            f"The error message was {err.message}")
-                    except Exception as exception:
-                        print(
-                            f"ERROR while trying to add cardinality {prop_id} to resource class {res_class.get('name')}."
-                            f"The error message was {exception}")
+                    if rc:
+                        try:
+                            last_modification_date = rc.addProperty(
+                                property_id=prop_id,
+                                cardinality=cardinality,
+                                gui_order=card_info.get("gui_order"),
+                                last_modification_date=last_modification_date)
 
-                    new_ontology.lastModificationDate = last_modification_date
+                        except BaseError as err:
+                            print(
+                                f"ERROR while trying to add cardinality {prop_id} to resource class {res_class.get('name')}."
+                                f"The error message was {err.message}")
+                        except Exception as exception:
+                            print(
+                                f"ERROR while trying to add cardinality {prop_id} to resource class {res_class.get('name')}."
+                                f"The error message was {exception}")
+
+                        new_ontology.lastModificationDate = last_modification_date

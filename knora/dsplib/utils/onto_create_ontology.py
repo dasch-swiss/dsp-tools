@@ -1,7 +1,7 @@
 """This module handles the ontology creation, update and upload to a DSP server. This includes the creation and update
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
 import json
-from typing import Dict, List, Set, Union, Optional, Any
+from typing import Union, Optional, Any
 
 from knora.dsplib.models.connection import Connection
 from knora.dsplib.models.group import Group
@@ -34,7 +34,7 @@ def login(server: str, user: str, password: str) -> Connection:
     return con
 
 
-def create_project(con: Connection, data_model: Dict[Any, Any], verbose: bool) -> Project:
+def create_project(con: Connection, data_model: dict[str, Any], verbose: bool) -> Project:
     """
     Creates a project on a DSP server with information provided in the data_model
 
@@ -71,7 +71,7 @@ def create_project(con: Connection, data_model: Dict[Any, Any], verbose: bool) -
         exit(1)
 
 
-def update_project(project: Project, data_model: Dict[Any, Any], verbose: bool) -> Project:
+def update_project(project: Project, data_model: dict[str, Any], verbose: bool) -> Project:
     """
     Updates a project on a DSP server with information provided in the data_model
 
@@ -103,8 +103,7 @@ def update_project(project: Project, data_model: Dict[Any, Any], verbose: bool) 
         exit(1)
 
 
-def create_groups(con: Connection, groups: List[Dict[str, str]], project: Project, verbose: bool) -> Dict[
-    Optional[str], Group]:
+def create_groups(con: Connection, groups: list[dict[str, str]], project: Project, verbose: bool) -> dict[str, Group]:
     """
     Creates group(s) on a DSP server from a list of group definitions
 
@@ -117,12 +116,12 @@ def create_groups(con: Connection, groups: List[Dict[str, str]], project: Projec
     Returns:
         Dict with group names and groups
     """
-    new_groups = {}
+    new_groups: dict[str, Group] = {}
     for group in groups:
         group_name = group["name"]
 
         # check if the group already exists, skip if so
-        all_groups: Optional[List[Group]] = Group.getAllGroups(con)
+        all_groups: Optional[list[Group]] = Group.getAllGroups(con)
         group_exists: bool = False
         if all_groups:
             for group_item in all_groups:
@@ -154,7 +153,8 @@ def create_groups(con: Connection, groups: List[Dict[str, str]], project: Projec
                                      selfjoin=group_selfjoin_bool).create()
             if verbose:
                 print(f"Created group '{group_name}'.")
-            new_groups[new_group.name] = new_group
+            if new_group.name:
+                new_groups[new_group.name] = new_group
 
         except BaseError as err:
             print(f"ERROR while trying to create group '{group_name}'. The error message was: {err.message}")
@@ -165,7 +165,7 @@ def create_groups(con: Connection, groups: List[Dict[str, str]], project: Projec
     return new_groups
 
 
-def create_users(con: Connection, users: List[Dict[str, str]], groups: Dict[Optional[str], Group], project: Project,
+def create_users(con: Connection, users: list[dict[str, str]], groups: dict[str, Group], project: Project,
                  verbose: bool) -> None:
     """
     Creates user(s) on a DSP server from a list of user definitions
@@ -194,19 +194,19 @@ def create_users(con: Connection, users: List[Dict[str, str]], groups: Dict[Opti
             continue
 
         sysadmin = False
-        group_ids: Set[str] = set()
-        project_info: Dict[str, bool] = {}
+        group_ids: set[str] = set()
+        project_info: dict[str, bool] = {}
 
         # if "groups" is provided add user to the group(s)
         user_groups = user.get("groups")
         if user_groups:
-            all_groups: Optional[List[Group]] = Group.getAllGroups(con)
+            all_groups: Optional[list[Group]] = Group.getAllGroups(con)
             for full_group_name in user_groups:
                 if verbose:
                     print(f"Add user '{username}' to group '{full_group_name}'.")
                 # full_group_name has the form '[project_shortname]:group_name' or 'SystemAdmin'
                 # if project_shortname is omitted, the group belongs to the current project
-                tmp_group_name: Union[List[str], str] = full_group_name.split(
+                tmp_group_name: Union[list[str], str] = full_group_name.split(
                     ":") if ":" in full_group_name else full_group_name
 
                 if len(tmp_group_name) == 2:
@@ -238,7 +238,7 @@ def create_users(con: Connection, users: List[Dict[str, str]], groups: Dict[Opti
         # if "projects" is provided, add user to the projects(s)
         user_projects = user.get("projects")
         if user_projects:
-            all_projects: List[Project] = project.getAllProjects(con)
+            all_projects: list[Project] = project.getAllProjects(con)
             for full_project_name in user_projects:
                 if verbose:
                     print(f"Add user '{username}' to project '{full_project_name}'.")
@@ -416,7 +416,7 @@ def create_ontology(input_file: str,
                 new_ontology.context.add_context(prefix, s)
 
         # create the empty resource classes
-        new_res_classes: Dict[str, ResourceClass] = {}
+        new_res_classes: dict[str, ResourceClass] = {}
         for res_class in ontology.get("resources"):
             res_name = res_class.get("name")
             super_classes = res_class.get("super")

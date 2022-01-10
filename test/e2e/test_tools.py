@@ -1,7 +1,6 @@
 """This test class tests the basic functionalities of dsp-tools"""
 import json
 import unittest
-from typing import Any
 
 from knora.dsplib.utils import excel_to_json_lists
 from knora.dsplib.utils.excel_to_json_lists import list_excel2json
@@ -17,6 +16,7 @@ from knora.dsplib.utils.xml_upload import xml_upload
 class TestTools(unittest.TestCase):
     server = 'http://0.0.0.0:3333'
     user = 'root@example.com'
+    test_onto_file = 'testdata/test-onto.json'
 
     def setUp(self) -> None:
         """Is executed before each test"""
@@ -29,62 +29,118 @@ class TestTools(unittest.TestCase):
         excel_to_json_lists.cell_names = []
 
     def test_get(self) -> None:
-        with open('testdata/anything-onto.json') as f:
+        with open(self.test_onto_file) as f:
             onto_json_str = f.read()
-        anything_onto = json.loads(onto_json_str)
+        test_onto = json.loads(onto_json_str)
 
-        get_ontology(project_identifier='anything',
-                     outfile='_anything-onto.json',
+        get_ontology(project_identifier='tp',
+                     outfile='_test-onto.json',
                      server=self.server,
                      user=self.user,
                      password='test',
                      verbose=False)
 
-        with open('_anything-onto.json') as f:
+        with open('_test-onto.json') as f:
             onto_json_str = f.read()
-        anything_onto_out = json.loads(onto_json_str)
+        test_onto_out = json.loads(onto_json_str)
 
-        self.assertEqual(anything_onto['project']['shortcode'], anything_onto_out['project']['shortcode'])
-        self.assertEqual(anything_onto['project']['shortname'], anything_onto_out['project']['shortname'])
-        self.assertEqual(anything_onto['project']['longname'], anything_onto_out['project']['longname'])
+        self.assertEqual(test_onto['project']['shortcode'], test_onto_out['project']['shortcode'])
+        self.assertEqual(test_onto['project']['shortname'], test_onto_out['project']['shortname'])
+        self.assertEqual(test_onto['project']['longname'], test_onto_out['project']['longname'])
+        self.assertEqual(test_onto['project']['descriptions'], test_onto_out['project']['descriptions'])
+        self.assertEqual(sorted(test_onto['project']['keywords']), sorted(test_onto_out['project']['keywords']))
 
-        other_tree_list: Any = None
-        other_tree_list_out: Any = None
-        not_used_list: Any = None
-        not_used_list_out: Any = None
-        tree_list_root: Any = None
-        tree_list_root_out: Any = None
+        groups_expected = test_onto['project']['groups']
+        groups_received = test_onto_out['project']['groups']
+        group_names_expected = []
+        group_descriptions_expected = []
+        group_selfjoin_expected = []
+        group_status_expected = []
+        groups_names_received = []
+        group_descriptions_received = []
+        group_selfjoin_received = []
+        group_status_received = []
+        for group in groups_expected:
+            group_names_expected.append(group["name"])
+            group_descriptions_expected.append(group["descriptions"]["en"])
+            group_selfjoin_expected.append(group["selfjoin"])
+            group_status_expected.append(group["status"])
+        for group in groups_received:
+            groups_names_received.append(group["name"])
+            group_descriptions_received.append(group["descriptions"]["en"])
+            group_selfjoin_received.append(group["selfjoin"])
+            group_status_received.append(group["status"])
+        self.assertEqual(sorted(group_names_expected), sorted(groups_names_received))
+        self.assertEqual(sorted(group_descriptions_expected), sorted(group_descriptions_received))
+        self.assertEqual(group_selfjoin_expected, group_selfjoin_received)
+        self.assertEqual(group_status_expected, group_status_received)
 
-        for anything_list in anything_onto['project']['lists']:
-            list_name = anything_list.get('name')
-            if list_name == 'otherTreeList':
-                other_tree_list = anything_list
-            elif list_name == 'notUsedList':
-                not_used_list = anything_list
-            elif list_name == 'treelistroot':
-                tree_list_root = anything_list
+        users_expected = test_onto['project']['users']
+        users_received = test_onto_out['project']['users']
+        user_username_expected = []
+        user_email_expected = []
+        user_given_name_expected = []
+        user_family_name_expected = []
+        user_lang_expected = []
+        user_username_received = []
+        user_email_received = []
+        user_given_name_received = []
+        user_family_name_received = []
+        user_lang_received = []
+        for user in users_expected:
+            if user["username"] == "testerKnownUser":  # ignore testerKnownUser as he is not part of the project
+                continue
+            user_username_expected.append(user["username"])
+            user_email_expected.append(user["email"])
+            user_given_name_expected.append(user["givenName"])
+            user_family_name_expected.append(user["familyName"])
+            user_lang_expected.append(user["lang"])
+        for user in users_received:
+            user_username_received.append(user["username"])
+            user_email_received.append(user["email"])
+            user_given_name_received.append(user["givenName"])
+            user_family_name_received.append(user["familyName"])
+            user_lang_received.append(user["lang"])
+        self.assertEqual(sorted(user_username_expected), sorted(user_username_received))
+        self.assertEqual(sorted(user_email_expected), sorted(user_email_received))
+        self.assertEqual(sorted(user_given_name_expected), sorted(user_given_name_received))
+        self.assertEqual(sorted(user_family_name_expected), sorted(user_family_name_received))
+        self.assertEqual(sorted(user_lang_expected), sorted(user_lang_received))
 
-        for anything_list in anything_onto_out['project']['lists']:
-            list_name = anything_list.get('name')
-            print(anything_list.get('name'))
-            if list_name == 'otherTreeList':
-                other_tree_list_out = anything_list
-            elif list_name == 'notUsedList':
-                not_used_list_out = anything_list
-            elif list_name == 'treelistroot':
-                tree_list_root_out = anything_list
+        ontos_expected = test_onto['project']['ontologies']
+        ontos_received = test_onto_out['project']['ontologies']
+        onto_names_expected = []
+        onto_labels_expected = []
+        onto_names_received = []
+        onto_labels_received = []
+        for onto in ontos_expected:
+            onto_names_expected.append(onto["name"])
+            onto_labels_expected.append(onto["label"])
+        for onto in ontos_received:
+            onto_names_received.append(onto["name"])
+            onto_labels_received.append(onto["label"])
+        self.assertEqual(sorted(onto_names_expected), sorted(onto_names_received))
+        self.assertEqual(sorted(onto_labels_expected), sorted(onto_labels_received))
 
-        self.assertEqual(other_tree_list.get('labels'), other_tree_list_out.get('labels'))
-        self.assertEqual(other_tree_list.get('comments'), other_tree_list_out.get('comments'))
-        self.assertEqual(other_tree_list.get('nodes'), other_tree_list_out.get('nodes'))
+        lists = test_onto['project']['lists']
+        test_list: dict[str, str] = next((l for l in lists if l['name'] == 'testlist'), {})
+        not_used_list: dict[str, str] = next((l for l in lists if l['name'] == 'notUsedList'), {})
+        excel_list: dict[str, str] = next((l for l in lists if l['name'] == 'my-list-from-excel'), {})
+
+        lists_out = test_onto_out['project']['lists']
+        test_list_out: dict[str, str] = next((l for l in lists_out if l['name'] == 'testlist'), {})
+        not_used_list_out: dict[str, str] = next((l for l in lists_out if l['name'] == 'notUsedList'), {})
+        excel_list_out: dict[str, str] = next((l for l in lists_out if l['name'] == 'my-list-from-excel'), {})
+
+        self.assertEqual(test_list.get('labels'), test_list_out.get('labels'))
+        self.assertEqual(test_list.get('comments'), test_list_out.get('comments'))
+        self.assertEqual(test_list.get('nodes'), test_list_out.get('nodes'))
 
         self.assertEqual(not_used_list.get('labels'), not_used_list_out.get('labels'))
         self.assertEqual(not_used_list.get('comments'), not_used_list_out.get('comments'))
         self.assertEqual(not_used_list.get('nodes'), not_used_list_out.get('nodes'))
 
-        self.assertEqual(tree_list_root.get('labels'), tree_list_root_out.get('labels'))
-        self.assertEqual(tree_list_root.get('comments'), tree_list_root_out.get('comments'))
-        self.assertEqual(tree_list_root.get('nodes'), tree_list_root_out.get('nodes'))
+        self.assertEqual(excel_list.get('comments'), excel_list_out.get('comments'))
 
     def test_excel_to_json_list(self) -> None:
         list_excel2json(listname='my_test_list',
@@ -100,10 +156,10 @@ class TestTools(unittest.TestCase):
                               outfile='_properties-out.json')
 
     def test_validate_ontology(self) -> None:
-        validate_ontology('testdata/test-onto.json')
+        validate_ontology(self.test_onto_file)
 
     def test_create_ontology(self) -> None:
-        create_ontology(input_file='testdata/test-onto.json',
+        create_ontology(input_file=self.test_onto_file,
                         lists_file='lists-out.json',
                         server=self.server,
                         user=self.user,

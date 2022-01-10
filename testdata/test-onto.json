@@ -80,6 +80,27 @@
                 "nodes": {
                     "folder": "testdata/lists"
                 }
+            },
+            {
+                "name": "notUsedList",
+                "labels": {
+                    "en": "Not used list"
+                },
+                "comments": {
+                    "en": "no comment",
+                    "de": "kein Kommentar"
+                },
+                "nodes": [
+                    {
+                        "name": "notUsedNode_1",
+                        "labels": {
+                            "en": "nodeLabel_1"
+                        },
+                        "comments": {
+                            "en": "no comment"
+                        }
+                    }
+                ]
             }
         ],
         "groups": [

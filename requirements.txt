@@ -29,7 +29,7 @@ mkdocs-include-markdown-plugin==3.2.3
 mkdocs-material==7.2.3
 mkdocs-material-extensions==1.0.3
 mkdocstrings==0.16.2
-nltk==3.6.5
+nltk==3.6.6
 openpyxl==3.0.9
 packaging==21.2
 pkginfo==1.7.1

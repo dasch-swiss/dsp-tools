@@ -163,7 +163,7 @@ def program(user_args: list[str]) -> None:
                 create_ontology(input_file=args.datamodelfile,
                                 lists_file=args.listfile,
                                 server=args.server,
-                                user=args.user,
+                                user_mail=args.user,
                                 password=args.password,
                                 verbose=args.verbose,
                                 dump=args.dump if args.dump else False)

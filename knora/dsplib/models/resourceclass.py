@@ -1,7 +1,7 @@
 import json
 import re
 from enum import Enum
-from typing import List, Dict, Tuple, Optional, Any, Union
+from typing import Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
 
 from pystrict import strict
@@ -22,7 +22,6 @@ This model implements the handling of resource classes. It contains two classes 
 
 @strict
 class HasProperty(Model):
-
     ROUTE: str = "/v2/ontologies/cardinalities"
 
     class Ptype(Enum):
@@ -263,7 +262,7 @@ class HasProperty(Model):
         if self._cardinality is None:
             raise BaseError("Cardinality id required")
         jsonobj = self.toJsonObj(last_modification_date, Actions.Update)
-        jsondata = json.dumps(jsonobj, indent=3, cls=SetEncoder)
+        jsondata = json.dumps(jsonobj, indent=4, cls=SetEncoder)
         result = self._con.put(HasProperty.ROUTE, jsondata)
         last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
         # TODO: self._changed = str()
@@ -318,7 +317,7 @@ class ResourceClass(Model):
     ontology_id: str
         The IRI/Id of the ontology this resource class belongs to
 
-    superlcasses: str, List[str]
+    superlcasses: str, list[str]
         This is a list of superclasses for this resource class. Usually a project specific class must at least
         be a subclass of "Resource", but can be subclassed of any other valid resource class. In addition, external
         ontologies may be referenced:
@@ -340,7 +339,7 @@ class ResourceClass(Model):
     permission: str
         The default permissions to be used if an instance of this resource class is being created
 
-    has_properties: Dict[str, HasProperty]
+    has_properties: dict[str, HasProperty]
         Holds a dict with the property names as keys and a HasProperty instance. HasProperty holds
         the information, how this resource class uses this property (basically the cardinality)
 
@@ -385,11 +384,11 @@ class ResourceClass(Model):
     _id: str
     _name: str
     _ontology_id: str
-    _superclasses: List[str]
+    _superclasses: list[str]
     _label: LangString
     _comment: LangString
     _permissions: str
-    _has_properties: Dict[str, HasProperty]
+    _has_properties: dict[str, HasProperty]
 
     def __init__(self,
                  con: Connection,
@@ -397,11 +396,11 @@ class ResourceClass(Model):
                  id: Optional[str] = None,
                  name: Optional[str] = None,
                  ontology_id: Optional[str] = None,
-                 superclasses: Optional[List[Union['ResourceClass', str]]] = None,
+                 superclasses: Optional[list[Union['ResourceClass', str]]] = None,
                  label: Optional[Union[LangString, str]] = None,
                  comment: Optional[Union[LangString, str]] = None,
                  permissions: Optional[str] = None,
-                 has_properties: Optional[Dict[str, HasProperty]] = None):
+                 has_properties: Optional[dict[str, HasProperty]] = None):
         """
         Create an instance of  ResourceClass
 
@@ -486,11 +485,11 @@ class ResourceClass(Model):
         raise BaseError('"ontology_id" cannot be modified!')
 
     @property
-    def superclasses(self) -> Optional[List[str]]:
+    def superclasses(self) -> Optional[list[str]]:
         return self._superclasses
 
     @superclasses.setter
-    def superclasses(self, value: List[str]) -> None:
+    def superclasses(self, value: list[str]) -> None:
         raise BaseError('"superclasses" cannot be modified!')
 
     @property
@@ -552,7 +551,7 @@ class ResourceClass(Model):
         raise BaseError('"permissions" cannot be modified!')
 
     @property
-    def has_properties(self) -> Dict[str, HasProperty]:
+    def has_properties(self) -> dict[str, HasProperty]:
         return self._has_properties
 
     @has_properties.setter
@@ -570,7 +569,7 @@ class ResourceClass(Model):
                     property_id: str,
                     cardinality: Cardinality,
                     gui_order: Optional[int] = None,
-                    ) -> Optional[LastModificationDate]:
+                    ) -> LastModificationDate:
         if self._has_properties.get(property_id) is None:
             latest_modification_date, resclass = HasProperty(con=self._con,
                                                              context=self._context,
@@ -639,10 +638,10 @@ class ResourceClass(Model):
         name = tmp_id[1]
         superclasses_obj = json_obj.get(rdfs + ':subClassOf')
         if superclasses_obj is not None:
-            supercls: List[Any] = list(filter(lambda a: a.get('@id') is not None, superclasses_obj))
-            superclasses: List[str] = list(map(lambda a: a['@id'], supercls))
-            has_props: List[Any] = list(filter(lambda a: a.get('@type') == (owl + ':Restriction'), superclasses_obj))
-            has_properties: Dict[HasProperty] = dict(map(lambda a: HasProperty.fromJsonObj(con, context, a), has_props))
+            supercls: list[Any] = list(filter(lambda a: a.get('@id') is not None, superclasses_obj))
+            superclasses: list[str] = list(map(lambda a: a['@id'], supercls))
+            has_props: list[Any] = list(filter(lambda a: a.get('@type') == (owl + ':Restriction'), superclasses_obj))
+            has_properties: dict[HasProperty] = dict(map(lambda a: HasProperty.fromJsonObj(con, context, a), has_props))
             #
             # now remove the ...Value stuff from resource pointers: A resource pointer is returned as 2 properties:
             # one a direct link, the other the pointer to a link value
@@ -679,7 +678,8 @@ class ResourceClass(Model):
                     self._context.add_context(tmp[0])
                     return {"@id": resref}  # fully qualified name in the form "prefix:name"
                 else:
-                    return {"@id": self._context.prefix_from_iri(self._ontology_id) + ':' + tmp[1]}  # ":name" in current ontology
+                    return {"@id": self._context.prefix_from_iri(self._ontology_id) + ':' + tmp[
+                        1]}  # ":name" in current ontology
             else:
                 return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
 
@@ -701,7 +701,7 @@ class ResourceClass(Model):
             else:
                 superclasses = list(map(resolve_resref, self._superclasses))
             if self._comment is None or self._comment.isEmpty():
-                self._comment = LangString("no comment available")
+                self._comment = LangString({"en": "[no comment provided]"})
             if self._label is None or self._label.isEmpty():
                 self._label = LangString("no label available")
             tmp = {
@@ -771,7 +771,7 @@ class ResourceClass(Model):
             ResourceClass.ROUTE + '/' + quote_plus(self._id) + '?lastModificationDate=' + str(last_modification_date))
         return LastModificationDate(result['knora-api:lastModificationDate'])
 
-    def createDefinitionFileObj(self, context: Context, shortname: str, skiplist: List[str]):
+    def createDefinitionFileObj(self, context: Context, shortname: str, skiplist: list[str]):
         resource = {
             "name": self._name,
             "labels": self._label.createDefinitionFileObj(),

@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import json
-from typing import List, Optional, Any, Union
+from typing import Optional, Any, Union
 from urllib.parse import quote_plus
 
 from pystrict import strict
 
-from knora.dsplib.models.langstring import LangString, Languages
+from knora.dsplib.models.langstring import LangString
 from .connection import Connection
 from .helpers import Actions, BaseError
 from .model import Model
@@ -211,7 +213,7 @@ class Group(Model):
                 tmp['selfjoin'] = self._selfjoin
         return tmp
 
-    def create(self):
+    def create(self) -> Group:
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj)
         result = self._con.post(Group.ROUTE, jsondata)
@@ -238,14 +240,16 @@ class Group(Model):
         return Group.fromJsonObj(self._con, result['group'])
 
     @staticmethod
-    def getAllGroups(con: Connection) -> List['Group']:
-        result = con.get(Group.ROUTE)
-        if 'groups' not in result:
-            raise BaseError("Request got no groups!")
-        return list(map(lambda a: Group.fromJsonObj(con, a), result['groups']))
+    def getAllGroups(con: Connection) -> Optional[list[Group]]:
+        try:
+            result = con.get(Group.ROUTE)
+            return [Group.fromJsonObj(con, group_item) for group_item in result["groups"]]
+        except BaseError:
+            # return None if no groups are found or an error happened
+            return None
 
     @staticmethod
-    def getAllGroupsForProject(con: Connection, proj_shortcode: str) -> List['Group']:
+    def getAllGroupsForProject(con: Connection, proj_shortcode: str) -> list[Group]:
         result = con.get(Group.ROUTE)
         if 'groups' not in result:
             raise BaseError("Request got no groups!")
@@ -265,7 +269,7 @@ class Group(Model):
         }
         return group
 
-    def print(self):
+    def print(self) -> None:
         print('Group Info:')
         print('  Id:          {}'.format(self._id))
         print('  Name:        {}'.format(self._name))

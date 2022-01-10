@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import json
 from pprint import pprint
-from typing import List, Set, Optional, Any, Union
+from typing import Optional, Any, Union
 from urllib.parse import quote_plus
 
 from pystrict import strict
@@ -8,9 +10,8 @@ from pystrict import strict
 from knora.dsplib.utils.set_encoder import SetEncoder
 from .connection import Connection
 from .helpers import Actions, BaseError
-from .langstring import Languages, LangStringParam, LangString
+from .langstring import Languages, LangString
 from .model import Model
-
 
 """
 This module implements the handling (CRUD) of Knora projects.
@@ -64,11 +65,11 @@ class Project(Model):
         Knora project description in a given language (Languages.EN, Languages.DE, Languages.FR, Languages.IT).
         A desciption can be add/replaced or removed with the methods ``addDescription``and ``rmDescription``.
 
-    keywords : Set[str]
+    keywords : set[str]
         Set of keywords describing the project. Keywords can be added/removed by the methods ``addKeyword``
         and ``rmKeyword``
 
-    ontologies : Set[str]
+    ontologies : set[str]
         Set if IRI's of the ontologies attached to the project [readonly]
 
     selfjoin : bool
@@ -106,8 +107,8 @@ class Project(Model):
     _shortname: str
     _longname: str
     _description: LangString
-    _keywords: Set[str]
-    _ontologies: Set[str]
+    _keywords: set[str]
+    _ontologies: set[str]
     _selfjoin: bool
     _status: bool
     _logo: Optional[str]
@@ -121,8 +122,8 @@ class Project(Model):
                  shortname: Optional[str] = None,
                  longname: Optional[str] = None,
                  description: LangString = None,
-                 keywords: Optional[Set[str]] = None,
-                 ontologies: Optional[Set[str]] = None,
+                 keywords: Optional[set[str]] = None,
+                 ontologies: Optional[set[str]] = None,
                  selfjoin: Optional[bool] = None,
                  status: Optional[bool] = None,
                  logo: Optional[str] = None):
@@ -231,11 +232,11 @@ class Project(Model):
         self._changed.add('description')
 
     @property
-    def keywords(self) -> Set[str]:
+    def keywords(self) -> set[str]:
         return self._keywords
 
     @keywords.setter
-    def keywords(self, value: Union[List[str], Set[str]]):
+    def keywords(self, value: Union[list[str], set[str]]):
         if isinstance(value, set):
             self._keywords = value
             self._changed.add('keywords')
@@ -272,11 +273,11 @@ class Project(Model):
         self._changed.add('keywords')
 
     @property
-    def ontologies(self) -> Set[str]:
+    def ontologies(self) -> set[str]:
         return self._ontologies
 
     @ontologies.setter
-    def ontologies(self, value: Set[str]) -> None:
+    def ontologies(self, value: set[str]) -> None:
         raise BaseError('Cannot add a ontology!')
 
     @property
@@ -310,7 +311,7 @@ class Project(Model):
             self._changed.add('logo')
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: Any) -> Any:
+    def fromJsonObj(cls, con: Connection, json_obj: Any) -> Project:
         """
         Internal method! Should not be used directly!
 
@@ -358,7 +359,7 @@ class Project(Model):
                    status=status,
                    logo=logo)
 
-    def toJsonObj(self, action: Actions) -> Any:
+    def toJsonObj(self, action: Actions) -> dict[str, str]:
         """
         Internal method! Should not be used directly!
 
@@ -390,6 +391,7 @@ class Project(Model):
             if self._status is None:
                 raise BaseError("status must be defined (True or False!")
             tmp['status'] = self._status
+
         elif action == Actions.Update:
             if self._shortcode is not None and 'shortcode' in self._changed:
                 tmp['shortcode'] = self._shortcode
@@ -416,7 +418,7 @@ class Project(Model):
             "keywords": [kw for kw in self._keywords]
         }
 
-    def create(self) -> 'Project':
+    def create(self) -> Project:
         """
         Create a new project in Knora
 
@@ -428,7 +430,7 @@ class Project(Model):
         result = self._con.post(Project.ROUTE, jsondata)
         return Project.fromJsonObj(self._con, result['project'])
 
-    def read(self) -> 'Project':
+    def read(self) -> Project:
         """
         Read a project from Knora
 
@@ -446,22 +448,19 @@ class Project(Model):
         else:
             return None  # Todo: throw exception
 
-    def update(self) -> Union['Project', None]:
+    def update(self) -> Project:
         """
-        Udate the project info in Knora with the modified data in this project instance
+        Update the project information on the DSP with the modified data in this project instance
 
-        :return: JSON-object from Knora refecting the update
+        Returns: JSON object returned as response from DSP reflecting the update
         """
 
         jsonobj = self.toJsonObj(Actions.Update)
-        if jsonobj:
-            jsondata = json.dumps(jsonobj, cls=SetEncoder)
-            result = self._con.put(Project.IRI + quote_plus(self.id), jsondata)
-            return Project.fromJsonObj(self._con, result['project'])
-        else:
-            return None
+        jsondata = json.dumps(jsonobj, cls=SetEncoder)
+        result = self._con.put(Project.IRI + quote_plus(self.id), jsondata)
+        return Project.fromJsonObj(self._con, result['project'])
 
-    def delete(self) -> 'Project':
+    def delete(self) -> Project:
         """
         Delete the given Knora project
 
@@ -507,7 +506,7 @@ class Project(Model):
         pprint(result)
 
     @staticmethod
-    def getAllProjects(con: Connection) -> List['Project']:
+    def getAllProjects(con: Connection) -> list[Project]:
         """
         Get all existing projects in Knora
 

@@ -5,7 +5,7 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union
 
 from lxml import etree
 
@@ -34,24 +34,24 @@ class ProjectContext:
     """Represents the project context"""
 
     _projects: list[Project]
-    _project_map: Dict[str, str]  # dictionary of (project name:project IRI) pairs
-    _inv_project_map: Dict[str, str]  # dictionary of (project IRI:project name) pairs
+    _project_map: dict[str, str]  # dictionary of (project name:project IRI) pairs
+    _inv_project_map: dict[str, str]  # dictionary of (project IRI:project name) pairs
     _groups: Optional[list[Group]]
-    _group_map: Optional[Dict[str, str]]
+    _group_map: Optional[dict[str, str]]
     _shortcode: Optional[str]
     _project_name: Optional[str]
 
     def __init__(self, con: Connection, shortcode: Optional[str] = None):
         self._shortcode = shortcode
         self._projects = Project.getAllProjects(con=con)
-        self._project_map: Dict[str, str] = {x.shortname: x.id for x in self._projects}
-        self._inv_project_map: Dict[str, str] = {x.id: x.shortname for x in self._projects}
+        self._project_map: dict[str, str] = {x.shortname: x.id for x in self._projects}
+        self._inv_project_map: dict[str, str] = {x.id: x.shortname for x in self._projects}
         try:
             self._groups = Group.getAllGroups(con=con)
         except BaseError:
             self._groups = None
         if self._groups:
-            self._group_map: Dict[str, str] = {self._inv_project_map[x.project] + ':' + x.name: x.id for x in
+            self._group_map: dict[str, str] = {self._inv_project_map[x.project] + ':' + x.name: x.id for x in
                                                self._groups}
         else:
             self._group_map = None
@@ -64,7 +64,7 @@ class ProjectContext:
                     break
 
     @property
-    def group_map(self) -> Dict[str, str]:
+    def group_map(self) -> dict[str, str]:
         """Dictionary of (project:group name) and (group id) pairs of all groups in project"""
         return self._group_map
 
@@ -103,7 +103,7 @@ class XMLValue:
     """Represents a value of a resource property in the XML used for data import"""
 
     _value: Union[str, KnoraStandoffXml]
-    _resrefs: Optional[List[str]]
+    _resrefs: Optional[list[str]]
     _comment: str
     _permissions: str
     _is_richtext: bool
@@ -137,7 +137,7 @@ class XMLValue:
         return self._value
 
     @property
-    def resrefs(self) -> Optional[List[str]]:
+    def resrefs(self) -> Optional[list[str]]:
         """List of resource references"""
         return self._resrefs
 
@@ -171,7 +171,7 @@ class XMLProperty:
 
     _name: str
     _valtype: str
-    _values: List[XMLValue]
+    _values: list[XMLValue]
 
     def __init__(self, node: etree.Element, valtype: str, default_ontology: Optional[str] = None):
         """
@@ -214,7 +214,7 @@ class XMLProperty:
         return self._valtype
 
     @property
-    def values(self) -> List[XMLValue]:
+    def values(self) -> list[XMLValue]:
         """List of values of this property"""
         return self._values
 
@@ -233,7 +233,7 @@ class XMLResource:
     _restype: str
     _permissions: Optional[str]
     _bitstream: Optional[XMLBitstream]
-    _properties: List[XMLProperty]
+    _properties: list[XMLProperty]
 
     def __init__(self, node: etree.Element, default_ontology: Optional[str] = None) -> None:
         """
@@ -305,14 +305,14 @@ class XMLResource:
         for prop in self._properties:
             prop.print()
 
-    def get_resptrs(self) -> List[str]:
+    def get_resptrs(self) -> list[str]:
         """
         Get a list of all resource id's that are referenced by this resource
 
         Returns:
             List of resources identified by their unique id's (as given in the XML)
         """
-        resptrs: List[str] = []
+        resptrs: list[str] = []
         for prop in self._properties:
             if prop.valtype == 'resptr':
                 for value in prop.values:
@@ -323,7 +323,7 @@ class XMLResource:
                         resptrs.extend(value.resrefs)
         return resptrs
 
-    def get_propvals(self, resiri_lookup: Dict[str, str], permissions_lookup: Dict[str, Permissions]) -> Dict[
+    def get_propvals(self, resiri_lookup: dict[str, str], permissions_lookup: dict[str, Permissions]) -> dict[
         str, Permissions]:
         """
         Get a dictionary of the property names and their values belonging to a resource
@@ -338,7 +338,7 @@ class XMLResource:
         """
         prop_data = {}
         for prop in self._properties:
-            vals: List[Union[str, Dict[str, str]]] = []
+            vals: list[Union[str, dict[str, str]]] = []
             for value in prop.values:
                 if prop.valtype == 'resptr':  # we have a resptr, therefore simple lookup or IRI
                     iri = resiri_lookup.get(value.value)
@@ -371,8 +371,8 @@ class XMLResource:
             prop_data[prop.name] = vals if len(vals) > 1 else vals[0]
         return prop_data
 
-    def get_bitstream(self, internal_file_name_bitstream: str, permissions_lookup: Dict[str, Permissions]) -> Optional[
-        Dict[str, Union[str, Permissions]]]:
+    def get_bitstream(self, internal_file_name_bitstream: str, permissions_lookup: dict[str, Permissions]) -> Optional[
+        dict[str, Union[str, Permissions]]]:
         """
         Get the bitstream object belonging to the resource
 
@@ -449,7 +449,7 @@ class XmlPermission:
     """Represents the permission set containing several XmlAllow elements in the XML used for data import"""
 
     _id: str
-    _allows: List[XmlAllow]
+    _allows: list[XmlAllow]
 
     def __init__(self, node: etree.Element, project_context: ProjectContext) -> None:
         """
@@ -470,7 +470,7 @@ class XmlPermission:
         return self._id
 
     @property
-    def allows(self) -> List[XmlAllow]:
+    def allows(self) -> list[XmlAllow]:
         """List of XmlAllow elements defining permissions for specific groups"""
         return self._allows
 
@@ -482,7 +482,7 @@ class XmlPermission:
         return permissions
 
     def __str__(self):
-        allow_str: List[str] = []
+        allow_str: list[str] = []
         for allow in self._allows:
             allow_str.append("{} {}".format(allow.permission, allow.group))
         return '|'.join(allow_str)
@@ -494,7 +494,7 @@ class XmlPermission:
             a.print()
 
 
-def do_sort_order(resources: List[XMLResource], verbose) -> List[XMLResource]:
+def do_sort_order(resources: list[XMLResource], verbose) -> list[XMLResource]:
     """
     Sorts a list of resources.
 
@@ -511,11 +511,11 @@ def do_sort_order(resources: List[XMLResource], verbose) -> List[XMLResource]:
 
     if verbose:
         print("Checking resources for unresolvable references...")
-        
+
     # sort the resources according to outgoing resptrs
-    ok_resources: List[XMLResource] = []
-    nok_resources: List[XMLResource] = []
-    ok_res_ids: List[str] = []
+    ok_resources: list[XMLResource] = []
+    nok_resources: list[XMLResource] = []
+    ok_res_ids: list[str] = []
     cnt = 0
     nok_len = 9999999
     while len(resources) > 0 and cnt < 10000:
@@ -611,8 +611,8 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     con.login(user, password)
     proj_context = ProjectContext(con=con)
 
-    resources: List[XMLResource] = []
-    permissions: Dict[str, XmlPermission] = {}
+    resources: list[XMLResource] = []
+    permissions: dict[str, XmlPermission] = {}
 
     # parse the XML file containing the data
     tree = etree.parse(input_file)
@@ -654,16 +654,16 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     project = ResourceInstanceFactory(con, shortcode)
 
     # create a dictionary to look up permissions
-    permissions_lookup: Dict[str, Permissions] = {}
+    permissions_lookup: dict[str, Permissions] = {}
     for key, perm in permissions.items():
         permissions_lookup[key] = perm.get_permission_instance()
 
     # create a dictionary to look up resource classes
-    res_classes: Dict[str, type] = {}
+    res_classes: dict[str, type] = {}
     for res_class_name in project.get_resclass_names():
         res_classes[res_class_name] = project.get_resclass(res_class_name)
 
-    res_iri_lookup: Dict[str, str] = {}
+    res_iri_lookup: dict[str, str] = {}
 
     failed_uploads = []
     for resource in resources:

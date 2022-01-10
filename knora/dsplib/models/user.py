@@ -2,7 +2,7 @@ import json
 import os
 import sys
 import urllib.parse
-from typing import List, Set, Dict, Optional, Any, Union
+from typing import Optional, Any, Union
 from urllib.parse import quote_plus
 
 from pystrict import strict
@@ -81,11 +81,11 @@ class User(Model):
     sysadmin : bool
         True, if user is system administrator [read/write]
 
-    in_groups : Set[str]
+    in_groups : set[str]
         Set of group IRI's the user is member of [readonly].
         Use ``addToGroup``and ``rmFromGroup`` to modify group membership
 
-    in_projects : Set[str]
+    in_projects : set[str]
         Set of project IRI's the user belongs to
         Use ``addToproject``and ``rmFromproject`` to modify project membership
 
@@ -147,13 +147,13 @@ class User(Model):
     _lang: Languages
     _status: bool
     _sysadmin: bool
-    _in_groups: Set[str]
-    _in_projects: Dict[str, bool]
-    _add_to_project: Dict[str, bool]
-    _rm_from_project: Dict[str, bool]
-    _add_to_group: Set[str]
-    _rm_from_group: Set[str]
-    _change_admin: Dict[str, bool]
+    _in_groups: set[str]
+    _in_projects: dict[str, bool]
+    _add_to_project: dict[str, bool]
+    _rm_from_project: dict[str, bool]
+    _add_to_group: set[str]
+    _rm_from_group: set[str]
+    _change_admin: dict[str, bool]
 
     def __init__(self,
                  con: Connection,
@@ -166,8 +166,8 @@ class User(Model):
                  lang: Optional[Union[str, Languages]] = None,
                  status: Optional[bool] = None,
                  sysadmin: Optional[bool] = None,
-                 in_projects: Optional[Dict[str, bool]] = None,
-                 in_groups: Optional[Set[str]] = None):
+                 in_projects: Optional[dict[str, bool]] = None,
+                 in_groups: Optional[set[str]] = None):
         """
         Constructor for User
 
@@ -324,7 +324,7 @@ class User(Model):
             self._changed.add('sysadmin')
 
     @property
-    def in_groups(self) -> Set[str]:
+    def in_groups(self) -> set[str]:
         return self._in_groups
 
     @in_groups.setter
@@ -364,7 +364,7 @@ class User(Model):
             raise BaseError("User is not in groups!")
 
     @property
-    def in_projects(self) -> Dict[str, bool]:
+    def in_projects(self) -> dict[str, bool]:
         return self._in_projects
 
     @in_projects.setter
@@ -437,7 +437,7 @@ class User(Model):
             raise BaseError("User is not member of project!")
 
     @property
-    def changed(self) -> Set[str]:
+    def changed(self) -> set[str]:
         return self._changed
 
     def has_changed(self, name: str):
@@ -471,8 +471,8 @@ class User(Model):
         if status is None:
             raise BaseError("Status is missing in JSON from knora")
 
-        in_projects: Dict[str, bool] = {}
-        in_groups: Set[str] = set()
+        in_projects: dict[str, bool] = {}
+        in_groups: set[str] = set()
         if json_obj.get('permissions') is not None and json_obj['permissions'].get('groupsPerProject') is not None:
             sysadmin = False
             project_groups = json_obj['permissions']['groupsPerProject']
@@ -664,7 +664,7 @@ class User(Model):
         return User.fromJsonObj(self._con, result['user'])
 
     @staticmethod
-    def getAllUsers(con: Connection) -> List[Any]:
+    def getAllUsers(con: Connection) -> list[Any]:
         """
         Get a list of all users (static method)
 
@@ -678,7 +678,7 @@ class User(Model):
         return list(map(lambda a: User.fromJsonObj(con, a), result['users']))
 
     @staticmethod
-    def getAllUsersForProject(con: Connection, proj_shortcode: str) -> List[Any]:
+    def getAllUsersForProject(con: Connection, proj_shortcode: str) -> list[Any]:
         """
         Get a list of all users that belong to a project(static method)
 

@@ -5,7 +5,6 @@ import json
 import os
 import re
 import unicodedata
-from typing import List, Dict
 
 import jsonschema
 from jsonschema import validate
@@ -15,8 +14,8 @@ list_of_lists = []
 cell_names = []
 
 
-def get_values_from_excel(excelfiles: List[str], base_file: str, parentnode: {}, row: int, col: int,
-                          preval: List[str]) -> int:
+def get_values_from_excel(excelfiles: list[str], base_file: str, parentnode: {}, row: int, col: int,
+                          preval: list[str]) -> int:
     """
     This function calls itself recursively to go through the Excel files. It extracts the cell values and creates the JSON list
     file.
@@ -109,7 +108,7 @@ def get_values_from_excel(excelfiles: List[str], base_file: str, parentnode: {},
     return row - 1
 
 
-def make_json_list_from_excel(rootnode: {}, excelfiles: List[str]) -> None:
+def make_json_list_from_excel(rootnode: {}, excelfiles: list[str]) -> None:
     """
     Reads Excel files and makes a JSON list file from them. The JSON can then be used in an ontology that is uploaded to the
     DaSCH Service Platform.
@@ -206,7 +205,7 @@ def check_language_code(lang_code: str) -> bool:
     return False
 
 
-def make_root_node_from_args(excelfiles: List[str], listname_from_args: str, comments: Dict[str, str]) -> dict:
+def make_root_node_from_args(excelfiles: list[str], listname_from_args: str, comments: dict[str, str]) -> dict:
     """
     Creates the root node for the JSON list
 
@@ -286,7 +285,7 @@ def prepare_list_creation(excelfolder: str, listname: str, comments: dict):
 
     Returns:
         rootnode (dict): The rootnode of the list as a dictionary
-        excel_files (List[str]): list of the Excel files to process
+        excel_files (list[str]): list of the Excel files to process
     """
     # reset the global variables before list creation starts
     global cell_names

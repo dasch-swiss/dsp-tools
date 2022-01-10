@@ -1,6 +1,5 @@
 import json
 import re
-from typing import Dict
 
 from ..models.connection import Connection
 from ..models.group import Group
@@ -83,7 +82,7 @@ def get_ontology(project_identifier: str, outfile: str, server: str, user: str, 
     if verbose:
         print(f"Getting ontologies...")
     project_obj["ontologies"] = []
-    prefixes: Dict[str, str] = {}
+    prefixes: dict[str, str] = {}
     ontologies = Ontology.getProjectOntologies(con, project.id)
     ontology_ids = [onto.id for onto in ontologies]
     for ontology_id in ontology_ids:
@@ -103,4 +102,4 @@ def get_ontology(project_identifier: str, outfile: str, server: str, user: str, 
     }
 
     with open(outfile, 'w', encoding='utf8') as outfile:
-        json.dump(ontology_json, outfile, indent=3, ensure_ascii=False)
+        json.dump(ontology_json, outfile, indent=4, ensure_ascii=False)

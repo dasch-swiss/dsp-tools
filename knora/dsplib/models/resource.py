@@ -2,7 +2,7 @@ import json
 import re
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import List, Set, Dict, Optional, Any, Union, Type
+from typing import Optional, Any, Union, Type
 from urllib.parse import quote_plus
 
 from pystrict import strict
@@ -47,7 +47,7 @@ class ResourceInstance(Model):
 
     ROUTE: str = "/v2/resources"
 
-    baseclasses_with_bitstream: Set[str] = {
+    baseclasses_with_bitstream: set[str] = {
         'StillImageRepresentation',
         'AudioRepresentation',
         'DocumentRepresentation',
@@ -56,7 +56,7 @@ class ResourceInstance(Model):
         'DDDRepresentation',
         'TextRepresentation'
     }
-    knora_properties: Set[str] = {
+    knora_properties: set[str] = {
         "knora-api:isPartOf",
         "knora-api:seqnum",
     }
@@ -67,7 +67,7 @@ class ResourceInstance(Model):
     _permissions: Optional[Permissions]
     _user_permission: Optional[PermissionValue]
     _bitstream: Optional[Bitstream]
-    _values: Optional[Dict[Value, List[Value]]]
+    _values: Optional[dict[Value, list[Value]]]
 
     def __init__(self,
                  con: Connection,
@@ -78,8 +78,8 @@ class ResourceInstance(Model):
                  permissions: Optional[Permissions] = None,
                  user_permission: Optional[PermissionValue] = None,
                  bitstream: Optional[str] = None,
-                 values: Optional[Dict[
-                     str, Union[str, List[str], Dict[str, str], List[Dict[str, str]], Value, List[Value]]]] = None):
+                 values: Optional[dict[
+                     str, Union[str, list[str], dict[str, str], list[dict[str, str]], Value, list[Value]]]] = None):
 
         super().__init__(con)
         self._iri = iri
@@ -199,7 +199,7 @@ class ResourceInstance(Model):
         if id is None:
             raise BaseError('Resource "id" is missing in JSON-LD from DSP-API')
         type = jsonld_obj.get('@type')
-        newinstance._values: Dict[str, Union[Value, List[Value]]] = {}
+        newinstance._values: dict[str, Union[Value, list[Value]]] = {}
         for key, obj in jsonld_obj.items():
             if key in to_be_ignored:
                 continue
@@ -326,9 +326,9 @@ class ResourceInstance(Model):
 class ResourceInstanceFactory:
     _con: Connection
     _project: Project
-    _lists = List[ListNode]
-    _ontologies = Dict[str, Ontology]
-    _ontoname2iri = Dict[str, str]
+    _lists = list[ListNode]
+    _ontologies = dict[str, Ontology]
+    _ontoname2iri = dict[str, str]
     _context: Context
 
     def __init__(self,
@@ -369,17 +369,17 @@ class ResourceInstanceFactory:
             self._context.update(self._ontologies[name].context)
 
     @property
-    def lists(self) -> List[ListNode]:
+    def lists(self) -> list[ListNode]:
         return self._lists
 
-    def get_resclass_names(self) -> List[str]:
-        resclass_names: List[str] = []
+    def get_resclass_names(self) -> list[str]:
+        resclass_names: list[str] = []
         for name, onto in self._ontologies.items():
             for resclass in onto.resource_classes:
                 resclass_names.append(onto.context.get_prefixed_iri(resclass.id))
         return resclass_names
 
-    def _get_baseclass(self, superclasses: List[str]) -> Union[str, None]:
+    def _get_baseclass(self, superclasses: list[str]) -> Union[str, None]:
         for sc in superclasses:
             ontoname, classname = sc.split(':')
             if ontoname == 'knora-api':
@@ -395,7 +395,7 @@ class ResourceInstanceFactory:
         prefix, resclass_name = prefixedresclass.split(':')
         resclass = [x for x in self._ontologies[prefix].resource_classes if x.name == resclass_name][0]
         baseclass = self._get_baseclass(resclass.superclasses)
-        props: Dict[str, Propinfo] = {}
+        props: dict[str, Propinfo] = {}
         switcher = {
             'knora-api:TextValue': TextValue,
             'knora-api:ColorValue': ColorValue,

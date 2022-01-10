@@ -1,6 +1,6 @@
 import copy
 import json
-from typing import List, Tuple, Optional, Any, Union
+from typing import Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
 
 from pystrict import strict
@@ -54,7 +54,6 @@ DELETE
 
 @strict
 class Ontology(Model):
-
     ROUTE: str = '/v2/ontologies'
     METADATA: str = '/metadata/'
     ALL_LANGUAGES: str = '?allLanguages=true'
@@ -65,10 +64,10 @@ class Ontology(Model):
     _label: str
     _comment: str
     _lastModificationDate: LastModificationDate
-    _resource_classes: List[ResourceClass]
-    _property_classes: List[PropertyClass]
+    _resource_classes: list[ResourceClass]
+    _property_classes: list[PropertyClass]
     _context: Context
-    _skiplist: List[str]
+    _skiplist: list[str]
 
     def __init__(self,
                  con: Connection,
@@ -78,8 +77,8 @@ class Ontology(Model):
                  label: Optional[str] = None,
                  comment: Optional[str] = None,
                  lastModificationDate: Optional[Union[str, LastModificationDate]] = None,
-                 resource_classes: List[ResourceClass] = [],
-                 property_classes: List[PropertyClass] = [],
+                 resource_classes: list[ResourceClass] = [],
+                 property_classes: list[PropertyClass] = [],
                  context: Context = None):
         super().__init__(con)
         self._id = id
@@ -152,11 +151,11 @@ class Ontology(Model):
         self._lastModificationDate = LastModificationDate(value)
 
     @property
-    def resource_classes(self) -> List[ResourceClass]:
+    def resource_classes(self) -> list[ResourceClass]:
         return self._resource_classes
 
     @resource_classes.setter
-    def resource_classes(self, value: List[ResourceClass]) -> None:
+    def resource_classes(self, value: list[ResourceClass]) -> None:
         self._resource_classes = value
 
     def addResourceClass(self, resourceclass: ResourceClass, create: bool = False) -> Tuple[int, ResourceClass]:
@@ -181,11 +180,11 @@ class Ontology(Model):
         del self._resource_classes[index]
 
     @property
-    def property_classes(self) -> List[PropertyClass]:
+    def property_classes(self) -> list[PropertyClass]:
         return self._property_classes
 
     @property_classes.setter
-    def property_classes(self, value: List[PropertyClass]):
+    def property_classes(self, value: list[PropertyClass]):
         self._property_classes = value
 
     def addPropertyClass(self, propclass: PropertyClass, create: bool = False) -> Tuple[int, ResourceClass]:
@@ -323,7 +322,7 @@ class Ontology(Model):
                    context=context2)
 
     @classmethod
-    def allOntologiesFromJsonObj(cls, con: Connection, json_obj: Any) -> List['Ontology']:
+    def allOntologiesFromJsonObj(cls, con: Connection, json_obj: Any) -> list['Ontology']:
         context = Context(json_obj.get('@context'))
         rdf = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
         rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
@@ -331,7 +330,7 @@ class Ontology(Model):
         xsd = context.prefix_from_iri("http://www.w3.org/2001/XMLSchema#")
         knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
         salsah_gui = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
-        ontos: List['Ontology'] = []
+        ontos: list['Ontology'] = []
         if json_obj.get('@graph') is not None:
             for o in json_obj['@graph']:
                 ontos.append(Ontology.__oneOntologiesFromJsonObj(con, o, context))
@@ -404,12 +403,12 @@ class Ontology(Model):
         return result.get('knora-api:result')
 
     @staticmethod
-    def getAllOntologies(con: Connection) -> List['Ontology']:
+    def getAllOntologies(con: Connection) -> list['Ontology']:
         result = con.get(Ontology.ROUTE + Ontology.METADATA)
         return Ontology.allOntologiesFromJsonObj(con, result)
 
     @staticmethod
-    def getProjectOntologies(con: Connection, project_id: str) -> List['Ontology']:
+    def getProjectOntologies(con: Connection, project_id: str) -> list['Ontology']:
         if project_id is None:
             raise BaseError('Project ID must be defined!')
         result = con.get(Ontology.ROUTE + Ontology.METADATA + quote_plus(project_id) + Ontology.ALL_LANGUAGES)

@@ -1,5 +1,5 @@
 from enum import Enum, unique
-from typing import List, Dict, Tuple, Optional, Any, Union
+from typing import Tuple, Optional, Any, Union
 
 from ..models.helpers import BaseError
 
@@ -12,7 +12,7 @@ class Languages(Enum):
     IT = 'it'
 
 
-LangStringParam = Optional[Union[Dict[Union[Languages, str], str], str]]
+LangStringParam = Optional[Union[dict[Union[Languages, str], str], str]]
 
 
 class LangStringIterator:
@@ -53,7 +53,7 @@ class LangString:
     "some:thing": "a string without language specificer"
     ```
     """
-    _langstrs: Dict[Languages, str]
+    _langstrs: dict[Languages, str]
     _simplestring: str
 
     def __init__(self, initvalue: LangStringParam = None):
@@ -204,7 +204,7 @@ class LangString:
             # return list(map(lambda a: {'@language': a[0].value, '@value': a[1]}, self._langstrs.items()))
 
     @classmethod
-    def fromJsonLdObj(cls, obj: Optional[Union[List[Dict[str, str]], str]]) -> 'LangString':
+    def fromJsonLdObj(cls, obj: Optional[Union[list[dict[str, str]], str]]) -> 'LangString':
         if obj is None:
             return None
         if isinstance(obj, str):
@@ -213,7 +213,7 @@ class LangString:
             objs = obj
         else:
             objs = [obj]
-        lstrs: Dict[Languages, str] = {}
+        lstrs: dict[Languages, str] = {}
         for o in objs:
             lang = o.get('@language')
             if lang == 'en':
@@ -239,7 +239,7 @@ class LangString:
             objs = obj
         else:
             objs = [obj]
-        lstrs: Dict[Languages, str] = {}
+        lstrs: dict[Languages, str] = {}
         for o in objs:
             lang = o.get('language')
             if lang == 'en':
@@ -268,7 +268,7 @@ class LangString:
     def langstrs(self):
         return self._langstrs
 
-    def createDefinitionFileObj(self) -> Union[str, Dict[str, str]]:
+    def createDefinitionFileObj(self) -> Union[str, dict[str, str]]:
         if self._simplestring:
             return self._simplestring
         langstring = {}

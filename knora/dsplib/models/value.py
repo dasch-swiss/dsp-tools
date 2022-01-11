@@ -835,9 +835,9 @@ class ListValue(Value):
             if lists is None:
                 raise BaseError("Lists from ResourceInstanceFactory must be provided!")
             node_iri = None
-            for list in lists:
-                if list.name == listname:
-                    node_iri = find_listnode(list.children, nodename)
+            for list_item in lists:
+                if list_item.name == listname:
+                    node_iri = find_listnode(list_item.children, nodename)
             if node_iri is not None:
                 self._value = node_iri
             else:

@@ -635,11 +635,11 @@ Represents a node of a (possibly hierarchical) list
 
 - `Radio`: A GUI element for _ListValue_. A set of radio buttons. This works only with flat lists.
     - _gui_attributes_:
-        - `hlist=<list-name>` (required): The reference of a [list](#lists) root node
+        - `hlist=<list-name>` (required): The reference of a [list](./dsp-tools-create.md#lists) root node
 - `List`: A GUI element for _ListValue_. A list of values to select one from. This GUI element should be chosen for
   hierarchical lists or flat lists that could be expanded to hierarchical lists in the future.
     - _gui_attributes_:
-        - `hlist=<list-name>` (required): The reference of a [list](#lists) root node
+        - `hlist=<list-name>` (required): The reference of a [list](./dsp-tools-create.md#lists) root node
 
 *Example:*
 
@@ -664,19 +664,19 @@ Represents a node of a (possibly hierarchical) list
 
 `"object": ":<resource-name>"`
 
-Link properties do not follow the pattern of the previous data types, because they do not connect to a final value but to
-another (existing) resource. Thus, the "object" denominates the resource class the link will point to. If
+Link properties do not follow the pattern of the previous data types, because they do not connect to a final value but 
+to another (existing) resource. Thus, the "object" denominates the resource class the link will point to. If
 the resource is defined in the same ontology, the name has to be prepended by a ":", if the resource is defined in
 another (previously defined) ontology, the ontology name has to be prepended separated by a colon ":", e.g.
 "other-onto:MyResource". When defining a link property, its "super" element has to be "hasLinkTo" or "isPartOf" or 
-derived from "hasLinkTo" or "isPartOf" (how to derive a resource or property from another one is not part of this 
-documentation). "isPartOf" is a special type of linked resources, for more information see [below](#ispartof-property).
+derived from "hasLinkTo" or "isPartOf". "isPartOf" is a special type of linked resources, for more information see 
+[below](#ispartof-property).
 
 *gui-elements/gui_attributes*:
 
-- `Searchbox`: Has to be used with _hasLinkTo_ property. Allows searching resources by entering a resource that the given resource
-  should link to. It has one gui_attribute that indicates how many properties of the found resources should be
-  indicated. This is mandatory.
+- `Searchbox`: Has to be used with _hasLinkTo_ property. Allows searching resources by entering a resource that the 
+  given resource should link to. It has one gui_attribute that indicates how many properties of the found resources 
+  should be indicated. This is mandatory.
     - _gui_attributes_:
         - `numprops=integer` (optional): While dynamically displaying the search result, the number of properties that
           should be displayed.

@@ -217,6 +217,7 @@ class ResourceInstance(Model):
     def toJsonLdObj(self, action: Actions) -> Any:
         tmp = {}
         if action == Actions.Create:
+            # if a custom IRI is provided, use it
             if self._iri:
                 tmp['@id'] = self._iri
             tmp['@type'] = self.classname

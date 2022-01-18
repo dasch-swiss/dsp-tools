@@ -217,6 +217,8 @@ class ResourceInstance(Model):
     def toJsonLdObj(self, action: Actions) -> Any:
         tmp = {}
         if action == Actions.Create:
+            if self._iri:
+                tmp['@id'] = self._iri
             tmp['@type'] = self.classname
             tmp["knora-api:attachedToProject"] = {
                 "@id": self.project

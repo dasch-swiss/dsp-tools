@@ -20,7 +20,6 @@ properties are assigned to the resources by defining "_cardinalities_". A cardin
 mandatory or can be omitted (e.g. if unknown), and if a property may be used several times on the same instance of a
 resource or not. The cardinality definitions are explained [further below](#cardinalities).
 
-
 Example of an `ontologies` object:
 
 ```json
@@ -45,6 +44,7 @@ Example of an `ontologies` object:
   ]
 }
 ```
+
 
 ## Ontologies Object in Detail
 
@@ -85,11 +85,12 @@ The following fields are mandatory:
 
 The following fields are optional:
 
+- `comments` (but if omitted a default value `[no comment provided]`) is used
+- `super` (with the exception of `LinkValue` where `super` is mandatory)
 - `subject`
+- `gui_attributes`
 
 A detailed description of `properties` can be found [below](#properties-object-in-detail).
-
-
 
 ### Resources
 
@@ -111,10 +112,9 @@ A resource object needs to have the following fields:
 
 The following field is optional:
 
-- `comments`
+- `comments` (but if omitted a default value `[no comment provided]`) is used
 
 A detailed description of `resources` can be found [below](#properties-object-in-detail).
-
 
 
 ## Properties Object in Detail
@@ -144,6 +144,89 @@ By convention, property names start with a lower case letter.
 Collection of `labels` for the property as strings with language tag (currently "en", "de", "fr"
 and "it" are supported).
 
+### Comments
+
+(optional)
+
+`"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
+
+Comments with language tags. Currently, "de", "en", "fr" and "it" are supported. The `comments` element is mandatory but
+can be omitted. In that case the default value `[no comment provided]` (with language "en") is used.
+
+### Super
+
+(optional)
+
+`"super": ["<super-property>", "<super-property>, ...]`
+
+A property has to be derived from at least one base property. The most generic base property that the DSP offers is
+_hasValue_. In addition, the property may be a sub-property of properties defined in external or other ontologies.
+External ontologies like `dcterms` or `foaf` must be defined in the "prefix" section. In this case the qualified name -
+including the prefix of the external or internal ontology - has to be given.
+
+The following base properties are defined by DSP:
+
+- `hasValue`: This is the most generic base and taken as default if `super` is omitted.
+- `hasLinkTo`: This value represents a link to another resource. You have to indicate the "_object_" as a prefixed name
+  that identifies the resource class this link points to (a ":" prepended to the name is sufficient if the resource is
+  defined in the current ontology).
+- `hasColor`: Defines a color value (_ColorValue_)
+- `hasComment`: Defines a "standard" comment
+- `hasGeometry`: Defines a geometry value (a JSON describing a polygon, circle or rectangle), see _ColorValue_
+- `isPartOf`: A special variant of _hasLinkTo_. It says that an instance of the given resource class is an integral part
+  of another resource class. E.g. a "page" is part of a "book".
+- `isRegionOf`: A special variant of _hasLinkTo_. It means that the given resource class is a "region" of another
+  resource class. This is typically used to describe regions of interest in images.
+- `isAnnotationOf`: A special variant of _hasLinkTo_. It denotes the given resource class as an annotation to another
+  resource class.
+- `seqnum`: An integer that is used to define a sequence number in an ordered set of instances, e.g. the ordering of the
+  pages in a book (independent of the page naming) in combination with a property derived from `isPartOf`.
+
+Example of a `properties` object:
+
+```json
+{
+  "properties": [
+    {
+      "name": "id",
+      "subject": ":School",
+      "object": "TextValue",
+      "super": [
+          "hasValue"
+      ],
+      "labels": {
+        "en": "School ID",
+        "de": "ID der Schule"
+        "fr": "ID de l'école"
+      },
+      "gui_element": "SimpleText",
+      "gui_attributes": {
+        "size": 32,
+        "maxlength": 128
+      }
+    },
+    {
+      "name": "name",
+      "subject": ":School",
+      "object": "TextValue",
+      "super": [
+          "hasValue"
+      ],
+      "labels": {
+        "en": "Name of the school",
+        "de": "Name der Schule",
+        "fr": "Nom de l'école"
+      },
+      "gui_element": "SimpleText",
+      "gui_attributes": {
+        "size": 32,
+        "maxlength": 128
+      }
+    }
+  ]
+}
+```
+
 ### Subject
 
 (optional)
@@ -161,7 +244,8 @@ resource class (see [below](#referencing-ontologies) on how prefixed names are u
 
 `"object": "<data-type>"`
 
-The `object` defines the data type of the value that the property will store. `gui_element` and `gui_attributes` depend on the data type. The following data types are allowed:
+The `object` defines the data type of the value that the property will store. `gui_element` and `gui_attributes` depend 
+on the data type. The following data types are allowed:
 
 - `TextValue`
 - `ColorValue`
@@ -175,7 +259,7 @@ The `object` defines the data type of the value that the property will store. `g
 - `UriValue`
 - `IntervalValue`
 - `ListValue`
-- `LinkValue`
+- any previously defined resource class in case of a link property
 
 #### TextValue
 
@@ -551,11 +635,11 @@ Represents a node of a (possibly hierarchical) list
 
 - `Radio`: A GUI element for _ListValue_. A set of radio buttons. This works only with flat lists.
     - _gui_attributes_:
-        - `hlist=<list-name>` (required): The reference of a [list](#lists) root node
+        - `hlist=<list-name>` (required): The reference of a [list](./dsp-tools-create.md#lists) root node
 - `List`: A GUI element for _ListValue_. A list of values to select one from. This GUI element should be chosen for
   hierarchical lists or flat lists that could be expanded to hierarchical lists in the future.
     - _gui_attributes_:
-        - `hlist=<list-name>` (required): The reference of a [list](#lists) root node
+        - `hlist=<list-name>` (required): The reference of a [list](./dsp-tools-create.md#lists) root node
 
 *Example:*
 
@@ -576,23 +660,23 @@ Represents a node of a (possibly hierarchical) list
 }
 ```
 
-#### LinkValue
+#### hasLinkTo Property
 
 `"object": ":<resource-name>"`
 
-LinkValues do not follow the pattern of the previous data types, because they do not connect to a final value but to
-another resource which has to be defined. Thus, the "object" denominates the resource class the link will point to. If
+Link properties do not follow the pattern of the previous data types, because they do not connect to a final value but 
+to another (existing) resource. Thus, the "object" denominates the resource class the link will point to. If
 the resource is defined in the same ontology, the name has to be prepended by a ":", if the resource is defined in
-another (previously defined)
-ontology, the ontology name has to be prepended separated by a colon ":", e.g.
-"other-onto:MyResource". The "super"-element has to be "hasLinkTo" or at least derived from "hasLinkTo" (how to derive a
-resource or property from another one is not part of this documentation).
+another (previously defined) ontology, the ontology name has to be prepended separated by a colon ":", e.g.
+"other-onto:MyResource". When defining a link property, its "super" element has to be "hasLinkTo" or "isPartOf" or 
+derived from "hasLinkTo" or "isPartOf". "isPartOf" is a special type of linked resources, for more information see 
+[below](#ispartof-property).
 
 *gui-elements/gui_attributes*:
 
-- `Searchbox`: Has to be used with _hasLinkTo_ property. Allows searching resources by entering a resource that the given resource
-  should link to. It has one gui_attribute that indicates how many properties of the found resources should be
-  indicated. This is mandatory.
+- `Searchbox`: Has to be used with _hasLinkTo_ property. Allows searching resources by entering a resource that the 
+  given resource should link to. It has one gui_attribute that indicates how many properties of the found resources 
+  should be indicated. This is mandatory.
     - _gui_attributes_:
         - `numprops=integer` (optional): While dynamically displaying the search result, the number of properties that
           should be displayed.
@@ -611,80 +695,36 @@ resource or property from another one is not part of this documentation).
 }
 ```
 
-Like already mentioned before: The following two fields are optional (can be omitted), with the notable exception of
-the "super"
-clause in case of LinkValues where the super clause is mandatory:
+#### IsPartOf Property
+A special case of linked resources is resources in a part-of / part-whole relation, i.e. resources that are composed of 
+other resources. A `isPartOf` property has to be added to the resource that is part of another resource. In case of 
+resources that are of type `StillImageRepresentation`, an additional property derived from `seqnum` with object `IntValue` 
+is required. When defined, a client is able to leaf through the parts of a compound object, p.ex. to leaf through pages of a book.
 
-### Super
-
-`"super": ["<super-property>", "<super-property>, ...]`
-
-A property has to be derived from at least one base property. The most generic base property that the DSP offers is
-_hasValue_. In addition, the property may be a sub-property of properties defined in external or other ontologies.
-External ontologies like `dcterms` or `foaf` must be defined in the "prefix" section.
-
-In this case the qualified name - including the prefix of the external or internal ontology - has to be given.
-
-The following base properties are defined by DSP:
-
-- `hasValue`: This is the most generic base.
-- `hasLinkTo`: This value represents a link to another resource. You have to indicate the "_object_" as a prefixed name
-  that identifies the resource class this link points to (a ":" prepended to the name is sufficient if the resource is
-  defined in the current ontology).
-- `hasColor`: Defines a color value (_ColorValue_)
-- `hasComment`: Defines a "standard" comment
-- `hasGeometry`: Defines a geometry value (a JSON describing a polygon, circle or rectangle), see _ColorValue_
-- `isPartOf`: A special variant of _hasLinkTo_. It says that an instance of the given resource class is an integral part
-  of another resource class. E.g. a "page" is part of a "book".
-- `isRegionOf`: A special variant of _hasLinkTo_. It means that the given resource class is a "region" of another
-  resource class. This is typically used to describe regions of interest in images.
-- `isAnnotationOf`: A special variant of _hasLinkTo_. It denotes the given resource class as an annotation to another
-  resource class.
-- `seqnum`: An integer that is used to define a sequence number in an ordered set of instances, e.g. the ordering of the
-  pages in a book (independent of the page naming)
-
-Example of a `properties` object:
+*Example:*
 
 ```json
 {
-  "properties": [
-    {
-      "name": "id",
-      "subject": ":School",
-      "object": "TextValue",
-      "super": [
-          "hasValue"
-      ],
-      "labels": {
-        "en": "School ID",
-        "de": "ID der Schule"
-        "fr": "ID de l'école"
-      },
-      "gui_element": "SimpleText",
-      "gui_attributes": {
-        "size": 32,
-        "maxlength": 128
-      }
-    },
-    {
-      "name": "name",
-      "subject": ":School",
-      "object": "TextValue",
-      "super": [
-          "hasValue"
-      ],
-      "labels": {
-        "en": "Name of the school",
-        "de": "Name der Schule",
-        "fr": "Nom de l'école"
-      },
-      "gui_element": "SimpleText",
-      "gui_attributes": {
-        "size": 32,
-        "maxlength": 128
-      }
-    }
-  ]
+  "name": "partOfBook",
+  "super": [
+    "isPartOf"
+  ],
+  "object": ":Book",
+  "labels": {
+      "en": "is part of"
+  },
+  "gui_element": "Searchbox"
+},
+{
+  "name": "hasPageNumber",
+  "super": [
+    "seqnum"
+  ],
+  "object": "IntValue",
+  "labels": {
+      "en": "has page number"
+  },
+  "gui_element": "Spinbox"
 }
 ```
 
@@ -772,7 +812,8 @@ resource can have as well as how many times the relation is established.
 
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
-Comments with language tags. The `comments` element is optional. Currently, "de", "en", "fr" and "it" are supported.
+Comments with language tags. Currently, "de", "en", "fr" and "it" are supported. The `comments` element is mandatory but 
+can be omitted. In that case the default value `[no comment provided]` (with language "en") is used.
 
 Example for a resource definition:
 

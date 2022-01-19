@@ -52,7 +52,3 @@ class TestIdToIri(unittest.TestCase):
 
         self.assertEqual(result,
                          ["http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg", "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ"])
-
-
-if __name__ == '__main__':
-    unittest.main()

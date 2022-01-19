@@ -52,7 +52,3 @@ class TestExcelToResource(unittest.TestCase):
                 'gui_order': 1
             }]}
         self.assertDictEqual(resource_dict, expected_dict)
-
-
-if __name__ == '__main__':
-    unittest.main()

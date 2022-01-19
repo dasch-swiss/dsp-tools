@@ -598,10 +598,10 @@ def convert_ark_v0_to_resource_iri(ark: str) -> str:
     """
     # create the DaSCH namespace to create version 5 UUIDs
     generic_namespace_url = uuid.NAMESPACE_URL
-    dasch_uuid_ns = uuid.uuid5(generic_namespace_url, "http://dasch.swiss")
+    dasch_uuid_ns = uuid.uuid5(generic_namespace_url, "https://dasch.swiss")
 
     # get the salsah resource ID from the ARK and convert it to a UUID version
-    project_id, salsah_id, other = ark.split("-")
+    project_id, salsah_id, check_digits = ark.split("-")
     project_id = project_id.split("/")[-1]
     dsp_uuid = base64.urlsafe_b64encode(uuid.uuid5(dasch_uuid_ns, salsah_id).bytes).decode("utf-8")
     dsp_uuid = dsp_uuid[:-2]

@@ -588,7 +588,7 @@ def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
 def convert_ark_v0_to_resource_iri(ark: str) -> str:
     """
     Converts an ARK URL from salsah.org (ARK version 0) of the form ark:/72163/080c-779b9990a0c3f-6e to a DSP resource
-    IRI of the form http://rdfh.ch/080C/fcb031cb-b01e-55b1-a7fb-bb259925d172
+    IRI of the form http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q
 
     This method is needed for the migration of projects from salsah.org to DSP. Resources need to be created with an
     existing ARK, so the IRI needs to be extracted from that ARK in order for the ARK URL to be still valid after the
@@ -600,17 +600,17 @@ def convert_ark_v0_to_resource_iri(ark: str) -> str:
         '6e' being check digits
 
     Returns:
-        Resource IRI (str) of the form http://rdfh.ch/080C/fcb031cb-b01e-55b1-a7fb-bb259925d172
+        Resource IRI (str) of the form http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q
     """
     # create the DaSCH namespace to create version 5 UUIDs
     generic_namespace_url = uuid.NAMESPACE_URL
     dasch_uuid_ns = uuid.uuid5(generic_namespace_url, "https://dasch.swiss")  # cace8b00-717e-50d5-bcb9-486f39d733a2
 
-    # get the salsah resource ID from the ARK and convert it to a UUID version 5
+    # get the salsah resource ID from the ARK and convert it to a UUID version 5 (base64 encoded)
     if ark.count("-") != 2:
         raise BaseError(f"while converting ARK '{ark}'. The ARK seems to be invalid")
     project_id, resource_id, check_digits = ark.split("-")
-    project_id = project_id.split("/")[-1]
+    project_id = project_id.split("/")[-1].upper()
     if not re.match("^[0-9aAbBcCdDeEfF]{4}$", project_id):
         raise BaseError(f"while converting ARK '{ark}'. Invalid project shortcode '{project_id}'")
     if not re.match("^[0-9A-Za-z]+$", resource_id):

@@ -28,3 +28,7 @@ class TestValue(unittest.TestCase):
         self.assertEqual(json_ld['knora-api:dateValueHasStartYear'], 700)
         self.assertEqual(json_ld['knora-api:dateValueHasEndYear'], 600)
         self.assertEqual(json_ld['knora-api:dateValueHasEndEra'], 'BCE')
+
+
+if __name__ == '__main__':
+    unittest.main()

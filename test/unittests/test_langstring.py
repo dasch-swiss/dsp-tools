@@ -101,3 +101,7 @@ class TestLangString(unittest.TestCase):
                 self.assertEqual(tmp[1], self.simple_string_de)
             elif tmp[0] == Languages.FR:
                 self.assertEqual(tmp[1], self.simple_string_fr)
+
+
+if __name__ == '__main__':
+    unittest.main()

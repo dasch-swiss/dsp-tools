@@ -4,6 +4,7 @@ This module handles the import of XML data into the DSP platform.
 import base64
 import json
 import os
+import re
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -589,24 +590,36 @@ def convert_ark_v0_to_resource_iri(ark: str) -> str:
     Converts an ARK URL from salsah.org (ARK version 0) of the form ark:/72163/080c-779b9990a0c3f-6e to a DSP resource
     IRI of the form http://rdfh.ch/080C/fcb031cb-b01e-55b1-a7fb-bb259925d172
 
+    This method is needed for the migration of projects from salsah.org to DSP. Resources need to be created with an
+    existing ARK, so the IRI needs to be extracted from that ARK in order for the ARK URL to be still valid after the
+    migration.
+
     Args:
         ark : an ARK version 0 of the form ark:/72163/080c-779b9990a0c3f-6e, '72163' being the Name Assigning Authority
-        number, '080c' being the project shortcode, '779b9990a0c3f' being an ID derived from the object's Salsah ID
+        number, '080c' being the project shortcode, '779b9990a0c3f' being an ID derived from the object's Salsah ID and
+        '6e' being check digits
 
     Returns:
         Resource IRI (str) of the form http://rdfh.ch/080C/fcb031cb-b01e-55b1-a7fb-bb259925d172
     """
     # create the DaSCH namespace to create version 5 UUIDs
     generic_namespace_url = uuid.NAMESPACE_URL
-    dasch_uuid_ns = uuid.uuid5(generic_namespace_url, "https://dasch.swiss")
+    dasch_uuid_ns = uuid.uuid5(generic_namespace_url, "https://dasch.swiss")  # cace8b00-717e-50d5-bcb9-486f39d733a2
 
-    # get the salsah resource ID from the ARK and convert it to a UUID version
-    project_id, salsah_id, check_digits = ark.split("-")
+    # get the salsah resource ID from the ARK and convert it to a UUID version 5
+    if ark.count("-") != 2:
+        raise BaseError(f"while converting ARK '{ark}'. The ARK seems to be invalid")
+    project_id, resource_id, check_digits = ark.split("-")
     project_id = project_id.split("/")[-1]
-    dsp_uuid = base64.urlsafe_b64encode(uuid.uuid5(dasch_uuid_ns, salsah_id).bytes).decode("utf-8")
+    if not re.match("^[0-9aAbBcCdDeEfF]{4}$", project_id):
+        raise BaseError(f"while converting ARK '{ark}'. Invalid project shortcode '{project_id}'")
+    if not re.match("^[0-9A-Za-z]+$", resource_id):
+        raise BaseError(f"while converting ARK '{ark}'. Invalid Salsah ID '{resource_id}'")
+
+    dsp_uuid = base64.urlsafe_b64encode(uuid.uuid5(dasch_uuid_ns, resource_id).bytes).decode("utf-8")
     dsp_uuid = dsp_uuid[:-2]
 
-    # use the UUID to create the resource IRI
+    # use the new UUID to create the resource IRI
     return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
 
 

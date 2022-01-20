@@ -719,7 +719,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         if verbose:
             resource.print()
 
-        resource_iri = None
+        resource_iri = resource.iri
         if resource.ark:
             resource_iri = convert_ark_v0_to_resource_iri(resource.ark)
 

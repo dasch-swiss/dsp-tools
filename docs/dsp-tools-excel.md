@@ -70,11 +70,14 @@ For further information about properties, see [here](./dsp-tools-create.md#prope
 ## Create a list from one or several Excel files
 
 With dsp-tools a JSON list can be created from one or several Excel files. The list can then be inserted into a JSON
-ontology and uploaded to a DSP server. The expected format of the Excel files is
-described [here](./dsp-tools-create.md#lists-from-excel). It is possible to create multilingual lists. In this case, a
-separate Excel file has to be created for each language. The data has to be in the first worksheet of the Excel file(s).
-It is important that all the Excel lists have the same structure. So, the translation(s) of a label in one Excel sheet
-has to be in the exact same cell (i.e. with the same cell index) in its own Excel sheet.
+ontology and uploaded to a DSP server. The expected format of the Excel files is as follows:
+
+![img-list-example.png](assets/images/img-list-example.png)
+
+It is possible to create multilingual lists. In this case, a separate Excel file has to be created for each language. 
+The data has to be in the first worksheet of the Excel file(s). It is important that all the Excel lists have the same 
+structure. So, the translation(s) of a label in one Excel sheet has to be in the exact same cell (i.e. with the same 
+cell index) in its own Excel sheet.
 
 Only Excel files with file extension `.xlsx` are considered. All Excel files have to be located in the same directory.
 When calling the `excel` command, this folder is provided as an argument to the call. The language of the labels has to

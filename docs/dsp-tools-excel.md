@@ -20,9 +20,9 @@ The expected worksheets of the Excel file are:
 - `classes`: a table with all resource classes intended to be used in the resulting JSON
 - `class1`, `class2`,...: a table for each resource class named after its name
 
-The Excel sheet must have the following format.
+The Excel sheet must have the following structure.
 
-The worksheet called `classes` has the following format: 
+The worksheet called `classes` has the following structure: 
 ![img-resources-example-1.png](assets/images/img-resources-example-1.png)
 
 The expected columns are:
@@ -32,7 +32,7 @@ The expected columns are:
 - `comment_en`, `comment_de`, `comment_fr`, `comment_it`: optional comments in the respective language 
 - `super` : The base class of the resource
 
-All other worksheets, one for each resource class, have the following format:
+All other worksheets, one for each resource class, have the following structure:
 ![img-resources-example-2.png](assets/images/img-resources-example-2.png){ width=50% }
 
 The expected columns are:
@@ -53,7 +53,7 @@ into the ontology file and then be uploaded onto a DSP server.
 **An Excel file template can be found [here](assets/templates/properties_template.xlsx). It is recommended to work 
 from the template.**
 
-The Excel sheet must have the following format:
+The Excel sheet must have the following structure:
 ![img-properties-example.png](assets/images/img-properties-example.png)
 
 The expected columns are:
@@ -77,7 +77,7 @@ For further information about properties, see [here](./dsp-tools-create-ontologi
 ## Create a list from one or several Excel files
 
 With dsp-tools a JSON list can be created from one or several Excel files. The list can then be inserted into a JSON 
-ontology and uploaded to a DSP server. The expected format of the Excel files is described 
+ontology and uploaded to a DSP server. The expected structure of the Excel files is described 
 [here](./dsp-tools-create.md#lists-from-excel). It is possible to create multilingual lists. In this case, a separate 
 Excel file has to be created for each language. The data has to be in the first worksheet of the Excel file(s). 
 It is important that all the Excel lists have the same structure. So, the translation(s) of a label in one Excel 

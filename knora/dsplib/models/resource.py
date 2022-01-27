@@ -217,6 +217,9 @@ class ResourceInstance(Model):
     def toJsonLdObj(self, action: Actions) -> Any:
         tmp = {}
         if action == Actions.Create:
+            # if a custom IRI is provided, use it
+            if self._iri:
+                tmp['@id'] = self._iri
             tmp['@type'] = self.classname
             tmp["knora-api:attachedToProject"] = {
                 "@id": self.project
@@ -335,7 +338,7 @@ class ResourceInstanceFactory:
                  con: Connection,
                  projident: str):
         self._con = con
-        if re.match("^[0-9aAbBcCdDeEfF]{4}$", projident):
+        if re.match("^[0-9a-fA-F]{4}$", projident):
             project = Project(con=self._con, shortcode=projident)
         elif re.match("^[\\w-]+$", projident):
             project = Project(con=self._con, shortname=projident)

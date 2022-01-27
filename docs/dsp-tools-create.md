@@ -317,12 +317,8 @@ Example of a list:
 
 #### Lists from Excel
 
-A list can be directly imported from one or several Excel files. The Excel sheet must have the following format:
-
-![img-list-example.png](assets/images/img-list-example.png)
-
-If there are several languages, a separate Excel file for each language has to be provided. The folder with the Excel
-file(s) can be directly referenced inside the list definition by defining it as new list node:
+A list can be directly imported from one or several Excel files. The folder with the Excel file(s) can then directly 
+be referenced inside the list definition by defining it as new list node:
 
 ```json
 {
@@ -341,12 +337,12 @@ file(s) can be directly referenced inside the list definition by defining it as 
 }
 ```
 
-The nodes section must contain the field:
+The `nodes` section has to contain the field:
 
-- _folder_: Path to the folder where the Excel files are stored
+- _folder_: Path to the folder containing the Excel files
 
-Further details to this functionality can be found
-[here](dsp-tools-excel#create-a-list-from-one-or-several-excel-files).
+Further information about the expected format of the Excel lists and details to this functionality can be found
+[here](./dsp-tools-excel.md#create-a-list-from-one-or-several-excel-files).
 
 The `lists` element is optional. If not used, it should be omitted.
 

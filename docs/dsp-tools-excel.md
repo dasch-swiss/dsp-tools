@@ -76,6 +76,7 @@ For further information about properties, see [here](./dsp-tools-create-ontologi
 
 ## Create a list from one or several Excel files
 
+
 With dsp-tools a JSON list can be created from one or several Excel files. The list can then be inserted into a JSON 
 ontology and uploaded to a DSP server. The expected structure of the Excel files is described 
 [here](./dsp-tools-create.md#lists-from-excel). It is possible to create multilingual lists. In this case, a separate 

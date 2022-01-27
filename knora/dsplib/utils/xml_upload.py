@@ -1,8 +1,11 @@
 """
 This module handles the import of XML data into the DSP platform.
 """
+import base64
 import json
 import os
+import re
+import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Union
@@ -229,6 +232,8 @@ class XMLResource:
     """Represents a resource in the XML used for data import"""
 
     _id: str
+    _iri: Optional[str]
+    _ark: Optional[str]
     _label: str
     _restype: str
     _permissions: Optional[str]
@@ -242,8 +247,13 @@ class XMLResource:
         Args:
             node: The DOM node to be processed representing a resource (which is a child of the knora element)
             default_ontology: The default ontology (given in the attribute default-ontology of the knora element)
+
+        Returns:
+            None
         """
         self._id = node.attrib['id']
+        self._iri = node.attrib.get('iri')
+        self._ark = node.attrib.get('ark')
         self._label = node.attrib['label']
         # get the resource type which is in format namespace:resourcetype, p.ex. rosetta:Image
         tmp_res_type = node.attrib['restype'].split(':')
@@ -255,11 +265,7 @@ class XMLResource:
                 self._restype = default_ontology + ':' + tmp_res_type[1]
         else:
             self._restype = 'knora-admin:' + tmp_res_type[0]
-        permissions_tmp = node.attrib.get("permissions")
-        if permissions_tmp:
-            self._permissions = node.attrib['permissions']
-        else:
-            self._permissions = None
+        self._permissions = node.attrib.get("permissions")
         self._bitstream = None
         self._properties = []
         for subnode in node:
@@ -278,6 +284,16 @@ class XMLResource:
         return self._id
 
     @property
+    def iri(self) -> Optional[str]:
+        """The custom IRI of the resource"""
+        return self._iri
+
+    @property
+    def ark(self) -> Optional[str]:
+        """The custom ARK of the resource"""
+        return self._ark
+
+    @property
     def label(self) -> str:
         """The label of the resource"""
         return self._label
@@ -288,7 +304,7 @@ class XMLResource:
         return self._restype
 
     @property
-    def permissions(self) -> str:
+    def permissions(self) -> Optional[str]:
         """The reference to the permissions set for this resource"""
         return self._permissions
 
@@ -323,8 +339,7 @@ class XMLResource:
                         resptrs.extend(value.resrefs)
         return resptrs
 
-    def get_propvals(self, resiri_lookup: dict[str, str], permissions_lookup: dict[str, Permissions]) -> dict[
-        str, Permissions]:
+    def get_propvals(self, resiri_lookup: dict[str, str], permissions_lookup: dict[str, Permissions]) -> dict[str, Permissions]:
         """
         Get a dictionary of the property names and their values belonging to a resource
 
@@ -371,8 +386,7 @@ class XMLResource:
             prop_data[prop.name] = vals if len(vals) > 1 else vals[0]
         return prop_data
 
-    def get_bitstream(self, internal_file_name_bitstream: str, permissions_lookup: dict[str, Permissions]) -> Optional[
-        dict[str, Union[str, Permissions]]]:
+    def get_bitstream(self, internal_file_name_bitstream: str, permissions_lookup: dict[str, Permissions]) -> Optional[dict[str, Union[str, Permissions]]]:
         """
         Get the bitstream object belonging to the resource
 
@@ -574,6 +588,46 @@ def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
     return is_valid
 
 
+def convert_ark_v0_to_resource_iri(ark: str) -> str:
+    """
+    Converts an ARK URL from salsah.org (ARK version 0) of the form ark:/72163/080c-779b9990a0c3f-6e to a DSP resource
+    IRI of the form http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q
+
+    This method is needed for the migration of projects from salsah.org to DSP. Resources need to be created with an
+    existing ARK, so the IRI needs to be extracted from that ARK in order for the ARK URL to be still valid after the
+    migration.
+
+    Args:
+        ark : an ARK version 0 of the form ark:/72163/080c-779b9990a0c3f-6e, '72163' being the Name Assigning Authority
+        number, '080c' being the project shortcode, '779b9990a0c3f' being an ID derived from the object's Salsah ID and
+        '6e' being check digits
+
+    Returns:
+        Resource IRI (str) of the form http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q
+    """
+    # create the DaSCH namespace to create version 5 UUIDs
+    generic_namespace_url = uuid.NAMESPACE_URL
+    dasch_uuid_ns = uuid.uuid5(generic_namespace_url, "https://dasch.swiss")  # cace8b00-717e-50d5-bcb9-486f39d733a2
+
+    # get the salsah resource ID from the ARK and convert it to a UUID version 5 (base64 encoded)
+    if ark.count("-") != 2:
+        raise BaseError(f"while converting ARK '{ark}'. The ARK seems to be invalid")
+    project_id, resource_id, _ = ark.split("-")
+    _, project_id = project_id.rsplit("/", 1)
+    project_id = project_id.upper()
+    if not re.match("^[0-9a-fA-F]{4}$", project_id):
+        raise BaseError(f"while converting ARK '{ark}'. Invalid project shortcode '{project_id}'")
+    if not re.match("^[0-9A-Za-z]+$", resource_id):
+        raise BaseError(f"while converting ARK '{ark}'. Invalid Salsah ID '{resource_id}'")
+
+    # make a UUID v5 from the namespace created above (which is a UUID itself) and the resource ID and encode it to base64
+    dsp_uuid = base64.urlsafe_b64encode(uuid.uuid5(dasch_uuid_ns, resource_id).bytes).decode("utf-8")
+    dsp_uuid = dsp_uuid[:-2]
+
+    # use the new UUID to create the resource IRI
+    return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
+
+
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
                validate_only: bool, incremental: bool) -> None:
     """
@@ -670,6 +724,10 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         if verbose:
             resource.print()
 
+        resource_iri = resource.iri
+        if resource.ark:
+            resource_iri = convert_ark_v0_to_resource_iri(resource.ark)
+
         resource_bitstream = None
         if resource.bitstream:
             img = sipi.upload_bitstream(os.path.join(imgdir, resource.bitstream.value))
@@ -682,6 +740,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             # create a resource instance (ResourceInstance) from the given resource in the XML (XMLResource)
             instance: ResourceInstance = res_classes[resource.restype](con=con,
                                                                        label=resource.label,
+                                                                       iri=resource_iri,
                                                                        permissions=permissions_tmp,
                                                                        bitstream=resource_bitstream,
                                                                        values=resource.get_propvals(res_iri_lookup,

@@ -566,12 +566,12 @@ def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
     xmlschema = etree.XMLSchema(etree.parse(schema_file))
     doc = etree.parse(input_file)
 
-    is_valid = False
-
     if xmlschema.validate(doc):
-        is_valid = True
-
-    return is_valid
+        return True
+    else:
+        print("The input data file cannot be uploaded due to the following validation error(s):")
+        for error in xmlschema.error_log:
+            print(f"  Line {error.line}: {error.message}")
 
 
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,

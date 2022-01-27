@@ -338,7 +338,7 @@ class ResourceInstanceFactory:
                  con: Connection,
                  projident: str):
         self._con = con
-        if re.match("^[0-9aAbBcCdDeEfF]{4}$", projident):
+        if re.match("^[0-9a-fA-F]{4}$", projident):
             project = Project(con=self._con, shortcode=projident)
         elif re.match("^[\\w-]+$", projident):
             project = Project(con=self._con, shortname=projident)

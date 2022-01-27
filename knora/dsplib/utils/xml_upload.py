@@ -247,6 +247,9 @@ class XMLResource:
         Args:
             node: The DOM node to be processed representing a resource (which is a child of the knora element)
             default_ontology: The default ontology (given in the attribute default-ontology of the knora element)
+
+        Returns:
+            None
         """
         self._id = node.attrib['id']
         self._iri = node.attrib.get('iri')
@@ -281,7 +284,7 @@ class XMLResource:
         return self._id
 
     @property
-    def iri(self) -> str:
+    def iri(self) -> Optional[str]:
         """The custom IRI of the resource"""
         return self._iri
 
@@ -609,13 +612,15 @@ def convert_ark_v0_to_resource_iri(ark: str) -> str:
     # get the salsah resource ID from the ARK and convert it to a UUID version 5 (base64 encoded)
     if ark.count("-") != 2:
         raise BaseError(f"while converting ARK '{ark}'. The ARK seems to be invalid")
-    project_id, resource_id, check_digits = ark.split("-")
-    project_id = project_id.split("/")[-1].upper()
-    if not re.match("^[0-9aAbBcCdDeEfF]{4}$", project_id):
+    project_id, resource_id, _ = ark.split("-")
+    _, project_id = project_id.rsplit("/", 1)
+    project_id = project_id.upper()
+    if not re.match("^[0-9a-fA-F]{4}$", project_id):
         raise BaseError(f"while converting ARK '{ark}'. Invalid project shortcode '{project_id}'")
     if not re.match("^[0-9A-Za-z]+$", resource_id):
         raise BaseError(f"while converting ARK '{ark}'. Invalid Salsah ID '{resource_id}'")
 
+    # make a UUID v5 from the namespace created above (which is a UUID itself) and the resource ID and encode it to base64
     dsp_uuid = base64.urlsafe_b64encode(uuid.uuid5(dasch_uuid_ns, resource_id).bytes).decode("utf-8")
     dsp_uuid = dsp_uuid[:-2]
 

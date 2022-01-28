@@ -7,17 +7,17 @@ import re
 import unicodedata
 
 import jsonschema
-import openpyxl.worksheet.worksheet
 from jsonschema import validate
 from openpyxl import load_workbook
+from openpyxl.worksheet.worksheet import Worksheet
 
 list_of_lists = []
 cell_names = []
 
 
 def get_values_from_excel(
-    excelfiles: dict[str, openpyxl.worksheet.worksheet.Worksheet],
-    base_file: dict[str, openpyxl.worksheet.worksheet.Worksheet],
+    excelfiles: dict[str, Worksheet],
+    base_file: dict[str, Worksheet],
     parentnode: dict,
     row: int,
     col: int,
@@ -28,11 +28,11 @@ def get_values_from_excel(
     file.
 
     Args:
-        base_file: File name of the base file
         excelfiles: List of Excel files with the values in different languages
-        parentnode: Name(s) of the parent node(s) of the actual node
-        row: The index of the actual row of the Excel sheet
-        col: The index of the actual column of the Excel sheet
+        base_file: File name of the base file
+        parentnode: Name(s) of the parent node(s) of the current node
+        row: The index of the current row of the Excel sheet
+        col: The index of the current column of the Excel sheet
         preval: List of previous values, needed to check the consistency of the list hierarchy
 
     Returns:
@@ -44,7 +44,7 @@ def get_values_from_excel(
     cell = base_file_ws.cell(column=col, row=row)
 
     if col > 1:
-        # append the cell value of the parent node (which is one value to the left of the actual cell) to the list of
+        # append the cell value of the parent node (which is one value to the left of the current cell) to the list of
         # previous values
         preval.append(base_file_ws.cell(column=col - 1, row=row).value)
 
@@ -75,7 +75,7 @@ def get_values_from_excel(
             list_of_lists.append(new_check_list)
 
             if check_list_for_duplicates(list_of_lists):
-                print('There is at least one duplicate node in the list. Found duplicate:', cell.value)
+                print('There is at least one duplicate node in the list. Found duplicate: ', cell.value)
                 quit()
 
             # create a simplified version of the cell value and use it as name of the node
@@ -239,34 +239,30 @@ def make_root_node_from_args(excelfiles: list[str], listname_from_args: str, com
         dict: The root node of the list as dictionary (JSON)
 
     """
-    rootnode_labels_dict = {}
-    listname = listname_from_args
-    listname_en = ''
+    lang_code_2_listname = {}
 
     for filename in excelfiles:
         basename = os.path.basename(filename)
-        label, lang_code = os.path.splitext(basename)[0].rsplit('_', 1)
+        lang_specific_listname, lang_code = os.path.splitext(basename)[0].rsplit('_', 1)
 
-        # check if language code is valid
         if not check_language_code(lang_code):
             print('Invalid language code is used. Only language codes from ISO 639-1 and ISO 639-2 are accepted.')
             quit()
 
-        rootnode_labels_dict[lang_code] = label
-        listname = label
+        lang_code_2_listname[lang_code] = lang_specific_listname
 
         if '_en.xlsx' in filename:
-            listname_en = label
+            listname_en = lang_specific_listname
 
-    # if an english list is available use its label as listname
-    if listname_en:
-        listname = listname_en
-
-    # if the user provided a listname use it
+    # the listname is taken from the following sources, with descending priority
     if listname_from_args:
         listname = listname_from_args
+    elif listname_en:
+        listname = listname_en
+    else:
+        listname = lang_specific_listname
 
-    rootnode = {'name': listname, 'labels': rootnode_labels_dict, 'comments': comments}
+    rootnode = {'name': listname, 'labels': lang_code_2_listname, 'comments': comments}
 
     return rootnode
 
@@ -295,9 +291,9 @@ def validate_list_with_schema(json_list: str) -> bool:
     return True
 
 
-def prepare_list_creation(excelfolder: str, listname: str, comments: dict):
+def prepare_list_creation(excelfolder: str, listname: str, comments: dict) -> tuple[dict, list[str]]:
     """
-    Gets the excelfolder parameter and checks the validity of the files. It then makes the root node for the list.
+    Create the list of Excel files that can be used to build a JSON list. Then, create the root node for the JSON list.
 
     Args:
         excelfolder: path to the folder containing the Excel file(s)
@@ -305,15 +301,15 @@ def prepare_list_creation(excelfolder: str, listname: str, comments: dict):
         comments: comments for the list to be created
 
     Returns:
-        rootnode (dict): The rootnode of the list as a dictionary
-        excel_files (list[str]): list of the Excel files to process
+        rootnode: The rootnode of the list as a dictionary
+        excel_files: list of the Excel files to process
     """
     # reset the global variables before list creation starts
     global cell_names
     global list_of_lists
 
-    list_of_lists = []
     cell_names = []
+    list_of_lists = []
 
     # check if the given folder parameter is actually a folder
     if not os.path.isdir(excelfolder):
@@ -321,16 +317,14 @@ def prepare_list_creation(excelfolder: str, listname: str, comments: dict):
         exit(1)
 
     # create a list with all excel files from the path provided by the user
-    excel_files = [filename for filename in glob.iglob(f'{excelfolder}/*.xlsx') if
-                   not os.path.basename(filename).startswith('~$')]
+    excel_files = [filename for filename in glob.iglob(f'{excelfolder}/*.xlsx')
+                   if not os.path.basename(filename).startswith('~$')
+                   and os.path.isfile(filename)]
 
-    # check if all excel_files are actually files
+    # log the files that can be used
     print('Found the following files:')
     for file in excel_files:
         print(file)
-        if not os.path.isfile(file):
-            print(file, 'is not a valid file.')
-            exit(1)
 
     # create root node of list
     rootnode = make_root_node_from_args(excel_files, listname, comments)

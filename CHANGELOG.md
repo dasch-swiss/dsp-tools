@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.9.1](https://www.github.com/dasch-swiss/dsp-tools/compare/v1.9.0...v1.9.1) (2022-01-28)
+
+
+### Maintenance
+
+* **xml-upload:** print XML validation errors when xmlupload fails due to validation (DEV-387) ([#149](https://www.github.com/dasch-swiss/dsp-tools/issues/149)) ([03554c2](https://www.github.com/dasch-swiss/dsp-tools/commit/03554c2d2ae666f2af694ba13a3b88c6be8e2409))
+
 ## [1.9.0](https://www.github.com/dasch-swiss/dsp-tools/compare/v1.8.1...v1.9.0) (2022-01-27)
 
 

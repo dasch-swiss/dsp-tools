@@ -7,6 +7,7 @@ import re
 import unicodedata
 
 import jsonschema
+import openpyxl.worksheet.worksheet
 from jsonschema import validate
 from openpyxl import load_workbook
 
@@ -14,8 +15,14 @@ list_of_lists = []
 cell_names = []
 
 
-def get_values_from_excel(excelfiles: list[str], base_file: str, parentnode: {}, row: int, col: int,
-                          preval: list[str]) -> int:
+def get_values_from_excel(
+    excelfiles: dict[str, openpyxl.worksheet.worksheet.Worksheet],
+    base_file: dict[str, openpyxl.worksheet.worksheet.Worksheet],
+    parentnode: dict,
+    row: int,
+    col: int,
+    preval: list[str]
+) -> int:
     """
     This function calls itself recursively to go through the Excel files. It extracts the cell values and creates the JSON list
     file.
@@ -29,32 +36,35 @@ def get_values_from_excel(excelfiles: list[str], base_file: str, parentnode: {},
         preval: List of previous values, needed to check the consistency of the list hierarchy
 
     Returns:
-        int: Row index for the next loop (actual row index minus 1)
+        int: Row index for the next loop (current row index minus 1)
     """
     nodes = []
     currentnode = {}
-    wb = load_workbook(filename=base_file, read_only=True)
-    worksheet = wb.worksheets[0]
-    cell = worksheet.cell(column=col, row=row)
+    base_file_ws = list(base_file.values())[0]
+    cell = base_file_ws.cell(column=col, row=row)
 
     if col > 1:
         # append the cell value of the parent node (which is one value to the left of the actual cell) to the list of
         # previous values
-        preval.append(worksheet.cell(column=col - 1, row=row).value)
+        preval.append(base_file_ws.cell(column=col - 1, row=row).value)
 
     while cell.value:
         # check if all predecessors in row (values to the left) are consistent with the values in preval list
         for idx, val in enumerate(preval[:-1]):
-            if val != worksheet.cell(column=idx + 1, row=row).value:
+            if val != base_file_ws.cell(column=idx + 1, row=row).value:
                 print(
-                    f'Inconsistency in Excel list: {val} not equal to {worksheet.cell(column=idx + 1, row=row).value}')
+                    f'Inconsistency in Excel list: {val} not equal to {base_file_ws.cell(column=idx + 1, row=row).value}')
                 quit()
 
         # loop through the row until the last (furthest right) value is found
-        if worksheet.cell(column=col + 1, row=row).value:
-            row = get_values_from_excel(excelfiles=excelfiles, base_file=base_file, parentnode=currentnode, col=col + 1,
-                                        row=row,
-                                        preval=preval)
+        if base_file_ws.cell(column=col + 1, row=row).value:
+            row = get_values_from_excel(
+                excelfiles=excelfiles,
+                base_file=base_file,
+                parentnode=currentnode,
+                col=col + 1,
+                row=row,
+                preval=preval)
 
         # if value was last in row (no further values to the right), it's a node, continue here
         else:
@@ -81,11 +91,7 @@ def get_values_from_excel(excelfiles: list[str], base_file: str, parentnode: {},
             labels_dict = {}
 
             # read label values from the other Excel files (other languages)
-            for filename_other_lang in excelfiles:
-                wb_other_lang = load_workbook(filename=filename_other_lang, read_only=True)
-                ws_other_lang = wb_other_lang.worksheets[0]
-
-                lang = os.path.splitext(filename_other_lang)[0].split('_')[-1]
+            for lang, ws_other_lang in excelfiles.items():
                 labels_dict[lang] = ws_other_lang.cell(column=col, row=row).value
 
             # create current node from extracted cell values and append it to the nodes list
@@ -97,7 +103,7 @@ def get_values_from_excel(excelfiles: list[str], base_file: str, parentnode: {},
 
         # go one row down and repeat loop if there is a value
         row += 1
-        cell = worksheet.cell(column=col, row=row)
+        cell = base_file_ws.cell(column=col, row=row)
 
     if col > 1:
         preval.pop()
@@ -108,7 +114,7 @@ def get_values_from_excel(excelfiles: list[str], base_file: str, parentnode: {},
     return row - 1
 
 
-def make_json_list_from_excel(rootnode: {}, excelfiles: list[str]) -> None:
+def make_json_list_from_excel(rootnode: dict, excelfile_names: list[str]) -> None:
     """
     Reads Excel files and makes a JSON list file from them. The JSON can then be used in an ontology that is uploaded to the
     DaSCH Service Platform.
@@ -119,21 +125,28 @@ def make_json_list_from_excel(rootnode: {}, excelfiles: list[str]) -> None:
 
     Returns:
         None
-
     """
     # Define starting point in Excel file
     startrow = 1
     startcol = 1
 
-    # Check if English file is available and take it as base file, take last one from list of Excel files if English
-    # is not available. The node names are later  derived from the labels of the base file.
-    base_file = ''
-
-    for filename in excelfiles:
-        base_file = filename
+    # Check if English file is available and take it as base file. Take last one from list of Excel files if English
+    # is not available. The node names are later derived from the labels of the base file.
+    for filename in excelfile_names:
         if '_en.xlsx' in os.path.basename(filename):
-            base_file = filename
-            break
+            lang = 'en'
+            ws = load_workbook(filename, read_only=True).worksheets[0]
+            base_file = {lang: ws}
+    if not base_file:
+        lang = os.path.splitext(filename)[0].split('_')[-1]
+        ws = load_workbook(excelfile_names[-1], read_only=True).worksheets[0]
+        base_file = {lang: ws}
+
+    excelfiles = {}
+    for f in excelfile_names:
+        lang = os.path.splitext(f)[0].split('_')[-1]
+        ws = load_workbook(f, read_only=True).worksheets[0]
+        excelfiles[lang] = ws
 
     get_values_from_excel(excelfiles=excelfiles, base_file=base_file, parentnode=rootnode, row=startrow, col=startcol,
                           preval=[])

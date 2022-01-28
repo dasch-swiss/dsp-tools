@@ -22,7 +22,7 @@ def get_values_from_excel(
     row: int,
     col: int,
     preval: list[str]
-) -> int:
+) -> tuple[int, dict]:
     """
     This function calls itself recursively to go through the Excel files. It extracts the cell values and creates the JSON list
     file.
@@ -58,7 +58,7 @@ def get_values_from_excel(
 
         # loop through the row until the last (furthest right) value is found
         if base_file_ws.cell(column=col + 1, row=row).value:
-            row = get_values_from_excel(
+            row, _ = get_values_from_excel(
                 excelfiles=excelfiles,
                 base_file=base_file,
                 parentnode=currentnode,
@@ -111,20 +111,20 @@ def get_values_from_excel(
     # add the new nodes to the parentnode
     parentnode['nodes'] = nodes
 
-    return row - 1
+    return row - 1, parentnode
 
 
-def make_json_list_from_excel(rootnode: dict, excelfile_names: list[str]) -> None:
+def make_json_list_from_excel(rootnode: dict, excelfile_names: list[str]) -> dict:
     """
     Reads Excel files and makes a JSON list file from them. The JSON can then be used in an ontology that is uploaded to the
     DaSCH Service Platform.
 
     Args:
         rootnode: The root node of the JSON list
-        excelfiles: A list with all the Excel files to be processed
+        excelfile_names: A list with all the Excel files to be processed
 
     Returns:
-        None
+        finished_list: dict
     """
     # Define starting point in Excel file
     startrow = 1
@@ -148,8 +148,16 @@ def make_json_list_from_excel(rootnode: dict, excelfile_names: list[str]) -> Non
         ws = load_workbook(f, read_only=True).worksheets[0]
         excelfiles[lang] = ws
 
-    get_values_from_excel(excelfiles=excelfiles, base_file=base_file, parentnode=rootnode, row=startrow, col=startcol,
-                          preval=[])
+    _, finished_list = get_values_from_excel(
+        excelfiles=excelfiles,
+        base_file=base_file,
+        parentnode=rootnode,
+        row=startrow,
+        col=startcol,
+        preval=[]
+    )
+
+    return finished_list
 
 
 def check_list_for_duplicates(list_to_check: list) -> bool:
@@ -346,13 +354,12 @@ def list_excel2json(listname: str, excelfolder: str, outfile: str):
     rootnode, excel_files = prepare_list_creation(excelfolder, listname, comments={})
 
     # create the list from the Excel files
-    make_json_list_from_excel(rootnode, excel_files)
+    finished_list = make_json_list_from_excel(rootnode, excel_files)
 
     # validate created list with schema
-    if validate_list_with_schema(json.loads(json.dumps(rootnode, indent=4))):
-        # write final list to JSON file if list passed validation
+    if validate_list_with_schema(json.loads(json.dumps(finished_list, indent=4))):
         with open(outfile, 'w', encoding='utf-8') as fp:
-            json.dump(rootnode, fp, indent=4, sort_keys=False, ensure_ascii=False)
+            json.dump(finished_list, fp, indent=4, sort_keys=False, ensure_ascii=False)
             print('List was created successfully and written to file:', outfile)
     else:
         print('List is not valid according to schema.')

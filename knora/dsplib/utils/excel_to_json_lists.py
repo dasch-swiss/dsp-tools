@@ -5,6 +5,7 @@ import json
 import os
 import re
 import unicodedata
+from typing import Any
 
 import jsonschema
 from jsonschema import validate
@@ -18,14 +19,14 @@ cell_names = []
 def get_values_from_excel(
     excelfiles: dict[str, Worksheet],
     base_file: dict[str, Worksheet],
-    parentnode: dict,
+    parentnode: dict[str, Any],
     row: int,
     col: int,
     preval: list[str]
-) -> tuple[int, dict]:
+) -> tuple[int, dict[str, Any]]:
     """
-    This function calls itself recursively to go through the Excel files. It extracts the cell values and creates the JSON list
-    file.
+    This function calls itself recursively to go through the Excel files. It extracts the cell values and creates
+    the JSON list file.
 
     Args:
         excelfiles: List of Excel files with the values in different languages
@@ -37,9 +38,10 @@ def get_values_from_excel(
 
     Returns:
         int: Row index for the next loop (current row index minus 1)
+
     """
     nodes = []
-    currentnode = {}
+    currentnode = dict()
     base_file_ws = list(base_file.values())[0]
     cell = base_file_ws.cell(column=col, row=row)
 
@@ -226,7 +228,7 @@ def check_language_code(lang_code: str) -> bool:
     return False
 
 
-def make_root_node_from_args(excelfiles: list[str], listname_from_args: str, comments: dict[str, str]) -> dict:
+def make_root_node_from_args(excelfiles: list[str], listname_from_args: str, comments: dict[str, str]) -> dict[Any]:
     """
     Creates the root node for the JSON list
 
@@ -237,7 +239,6 @@ def make_root_node_from_args(excelfiles: list[str], listname_from_args: str, com
 
     Returns:
         dict: The root node of the list as dictionary (JSON)
-
     """
     lang_code_2_listname = {}
 

@@ -45,12 +45,15 @@ Example of an `ontologies` object:
 }
 ```
 
+&emsp;
 
-## Ontologies Object in Detail
+## **Ontologies Object in Detail**
 
 The following properties can occur within each object in `ontologies`.
 
-### Name
+&emsp;
+
+### **Name**
 
 (required)
 
@@ -59,7 +62,9 @@ The following properties can occur within each object in `ontologies`.
 The ontology's (short) name should be in the form of a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). This
 means a string without blanks or special characters but `-` and `_` are allowed (although not as first character).
 
-### Label
+&emsp;
+
+### **Label**
 
 (required)
 
@@ -67,7 +72,9 @@ means a string without blanks or special characters but `-` and `_` are allowed 
 
 A string that provides the full name of the ontology.
 
-### Properties
+&emsp;
+
+### **Properties**
 
 (required)
 
@@ -92,7 +99,9 @@ The following fields are optional:
 
 A detailed description of `properties` can be found [below](#properties-object-in-detail).
 
-### Resources
+&emsp;
+
+### **Resources**
 
 (required)
 
@@ -116,14 +125,17 @@ The following field is optional:
 
 A detailed description of `resources` can be found [below](#properties-object-in-detail).
 
+&emsp;
 
-## Properties Object in Detail
+## **Properties Object in Detail**
 
 Please note that `object` is used to define the data type. The `gui_element` depends on the value of the `object`.
 
 The `gui_attributes` depends on the value of the `gui_element`.
 
-### Name
+&emsp;
+
+### **Name**
 
 (required)
 
@@ -135,7 +147,9 @@ but `-` and `_` are allowed (although not as first character).
 
 By convention, property names start with a lower case letter.
 
-### Labels
+&emsp;
+
+### **Labels**
 
 (required)
 
@@ -144,7 +158,9 @@ By convention, property names start with a lower case letter.
 Collection of `labels` for the property as strings with language tag (currently "en", "de", "fr"
 and "it" are supported).
 
-### Comments
+&emsp;
+
+### **Comments**
 
 (optional)
 
@@ -153,7 +169,9 @@ and "it" are supported).
 Comments with language tags. Currently, "de", "en", "fr" and "it" are supported. The `comments` element is mandatory but
 can be omitted. In that case the default value `[no comment provided]` (with language "en") is used.
 
-### Super
+&emsp;
+
+### **Super**
 
 (optional)
 
@@ -170,9 +188,9 @@ The following base properties are defined by DSP:
 - `hasLinkTo`: This value represents a link to another resource. You have to indicate the "_object_" as a prefixed name
   that identifies the resource class this link points to (a ":" prepended to the name is sufficient if the resource is
   defined in the current ontology).
-- `hasColor`: Defines a color value (_ColorValue_)
-- `hasComment`: Defines a "standard" comment
-- `hasGeometry`: Defines a geometry value (a JSON describing a polygon, circle or rectangle), see _ColorValue_
+- `hasColor`: Defines a color value
+- `hasComment`: Defines a standard comment
+- `hasGeometry`: Defines a geometry value (a JSON describing a polygon, circle or rectangle)
 - `isPartOf`: A special variant of _hasLinkTo_. It says that an instance of the given resource class is an integral part
   of another resource class. E.g. a "page" is part of a "book".
 - `isRegionOf`: A special variant of _hasLinkTo_. It means that the given resource class is a "region" of another
@@ -196,7 +214,7 @@ Example of a `properties` object:
       ],
       "labels": {
         "en": "School ID",
-        "de": "ID der Schule"
+        "de": "ID der Schule",
         "fr": "ID de l'école"
       },
       "gui_element": "SimpleText",
@@ -227,7 +245,9 @@ Example of a `properties` object:
 }
 ```
 
-### Subject
+&emsp;
+
+### **Subject**
 
 (optional)
 
@@ -236,7 +256,9 @@ Example of a `properties` object:
 The `subject` defines the resource class the property can be used on. It has to be provided as prefixed name of the 
 resource class (see [below](#referencing-ontologies) on how prefixed names are used).
 
-### Object / gui_element / gui_attributes
+&emsp;
+
+### **Object / gui_element / gui_attributes**
 
 - `object`: required
 - `gui_element`: required
@@ -261,7 +283,10 @@ on the data type. The following data types are allowed:
 - `ListValue`
 - any previously defined resource class in case of a link property
 
-#### TextValue
+&emsp;  
+&emsp;
+
+#### **TextValue**
 
 `"object": "TextValue"`
 
@@ -302,7 +327,10 @@ Represents a text that may contain standoff markup.
 }
 ```
 
-#### ColorValue
+&emsp;  
+&emsp;
+
+#### **ColorValue**
 
 `"object": "ColorValue"`
 
@@ -320,7 +348,7 @@ A string representation of the color in the hexadecimal form e.g. "#ff8000".
 {
   "name": "hasColor",
   "super": [
-    "hasValue"
+    "hasColor"
   ],
   "object": "ColorValue",
   "labels": {
@@ -330,7 +358,10 @@ A string representation of the color in the hexadecimal form e.g. "#ff8000".
 }
 ```
 
-#### DateValue
+&emsp;  
+&emsp;
+
+#### **DateValue**
 
 `object": "DateValue"`  
 Represents a date. It's a string with the format `calendar:start:end`
@@ -370,7 +401,10 @@ which means anytime in between 1925 and the 22nd March 1927.
 }
 ```
 
-#### TimeValue
+&emsp;  
+&emsp;
+
+#### **TimeValue**
 
 `"object": "TimeValue"`
 
@@ -397,7 +431,10 @@ A time value represents a precise moment in time in the Gregorian calendar. Sinc
 }
 ```
 
-#### DecimalValue
+&emsp;  
+&emsp;
+
+#### **DecimalValue**
 
 `"object": "DecimalValue"`
 
@@ -435,7 +472,10 @@ A number with decimal point.
 }
 ```  
 
-#### GeomValue
+&emsp;  
+&emsp;
+
+#### **GeomValue**
 
 `"object": "GeomValue"`
 
@@ -458,7 +498,7 @@ or moving images.
 {
   "name": "hasGeometry",
   "super": [
-    "hasValue"
+    "hasGeometry"
   ],
   "object": "GeomValue",
   "labels": "Geometry",
@@ -466,7 +506,10 @@ or moving images.
 }
 ```
 
-#### GeonameValue
+&emsp;  
+&emsp;
+
+#### **GeonameValue**
 
 Represents a location ID in geonames.org. The DSP platform uses identifiers provided by
 [geonames.org](https://geonames.orgs) to identify geographical locations.
@@ -493,7 +536,10 @@ Represents a location ID in geonames.org. The DSP platform uses identifiers prov
 }
 ```
 
-#### IntValue
+&emsp;  
+&emsp;
+
+#### **IntValue**
 
 `"object": "IntValue"`
 
@@ -532,7 +578,10 @@ Represents an integer value.
 }
 ```
 
-#### BooleanValue
+&emsp;  
+&emsp;
+
+#### **BooleanValue**
 
 `"object": "BooleanValue"`
 
@@ -559,7 +608,10 @@ Represents a Boolean ("true" or "false).
 }
 ```
 
-#### UriValue
+&emsp;  
+&emsp;
+
+#### **UriValue**
 
 `"object": "UriValue"`
 
@@ -593,7 +645,10 @@ Represents an URI
 }
 ```
 
-#### IntervalValue
+&emsp;  
+&emsp;
+
+#### **IntervalValue**
 
 `"object": "IntervalValue"`
 
@@ -606,7 +661,7 @@ Represents a time-interval
     - _gui_attributes_:
         - `maxlength=integer` (optional): The maximum number of characters accepted
         - `size=integer` (optional): The size of the input field
-- `Interval`: not yet implemented.
+- `Interval`: Two spin boxes, one for each decimal
     - _gui_attributes_: No attributes
 
 *Example:*
@@ -625,7 +680,10 @@ Represents a time-interval
 }
 ```
 
-#### ListValue
+&emsp;  
+&emsp;
+
+#### **ListValue**
 
 `"object": "ListValue"`
 
@@ -660,7 +718,9 @@ Represents a node of a (possibly hierarchical) list
 }
 ```
 
-#### hasLinkTo Property
+&emsp;
+
+#### **hasLinkTo Property**
 
 `"object": ":<resource-name>"`
 
@@ -695,7 +755,9 @@ derived from "hasLinkTo" or "isPartOf". "isPartOf" is a special type of linked r
 }
 ```
 
-#### IsPartOf Property
+&emsp;
+
+#### **IsPartOf Property**
 A special case of linked resources is resources in a part-of / part-whole relation, i.e. resources that are composed of 
 other resources. A `isPartOf` property has to be added to the resource that is part of another resource. In case of 
 resources that are of type `StillImageRepresentation`, an additional property derived from `seqnum` with object `IntValue` 
@@ -729,10 +791,14 @@ is required. When defined, a client is able to leaf through the parts of a compo
 ```
 
 
-## Resources Object in Detail
+&emsp;
+
+## **Resources Object in Detail**
 
 
-### Name
+&emsp;
+
+### **Name**
 
 (required)
 
@@ -744,7 +810,9 @@ but `-` and `_` are allowed (although not as first character).
 
 By convention, resource names start with a upper case letter.
 
-### Labels
+&emsp;
+
+### **Labels**
 
 (required)
 
@@ -753,32 +821,36 @@ By convention, resource names start with a upper case letter.
 Collection of `labels` for the resource as strings with language tag (currently "en", "de", "fr"
 and "it" are supported).
 
-### Super
+&emsp;
+
+### **Super**
 
 (required)
 
 `"super": ["<super-resource>", "<super-resource>", ...]`
 
-A resource is always derived from at least one other resource. The most generic resource class for DSP is `Resource`. A resource may be derived from resources defined in external ontologies.
+A resource is always derived from at least one other resource. The most generic resource class for DSP is `Resource`. 
+A resource may be derived from resources defined in external ontologies.
 
 The following predefined resources are provided by DSP:
 
-- `Resource`: A generic resource that represents an item from the real world
-- `StillImageRepresentation`: An object that is connected to a still image
-- `TextRepresentation`: An object that is connected to an (external) text (not yet implemented)
-- `AudioRepresentation`: An object representing audio data (not yet implemented)
+- `Resource`: A generic resource representing an item from the real world. This is the most general case, to be 
+used in all cases when your resource is none of the special cases below.
+- `StillImageRepresentation`: An object representing a still image
+- `TextRepresentation`: An object representing an (external) text (not yet implemented)
+- `AudioRepresentation`: An object representing an audio file
 - `DDDRepresentation`: An object representing a 3-D representation (not yet implemented)
 - `DocumentRepresentation`: An object representing an opaque document (e.g. a PDF)
 - `MovingImageRepresentation`: An object representing a moving image (video, film)
-- `ArchiveRepresentation`: An object representing a archive file (e.g. Zip)
+- `ArchiveRepresentation`: An object representing an archive file (e.g. Zip)
 - `Annotation`: A predefined annotation object. It has automatically the following predefined properties defined:
     - `hasComment` (1-n)
     - `isAnnotationOf` (1)
-- `LinkObj`: A resource class linking together several other, generic, resource classes. The class has the following
+- `LinkObj`: A resource class linking together several other resource classes. The class has the following
   properties:
     - `hasComment` (1-n)
     - `hasLinkTo` (1-n)
-- `Region`: Represents a simple region. The class has the following properties:
+- `Region`: Represents a region in an image. The class has the following properties:
     - `hasColor` (1)
     - `isRegionOf` (1)
     - `hasGeometry` (1)
@@ -786,7 +858,9 @@ The following predefined resources are provided by DSP:
 
 Additionally, resources can be derived from external ontologies or from resources specified in the present document.
 
-### Cardinalities
+&emsp;
+
+### **Cardinalities**
 
 (required)
 
@@ -806,7 +880,9 @@ resource can have as well as how many times the relation is established.
         - `"1-n"`: At least one value must be present, but multiple values may be present.
         - `"0-n"`: The value may be omitted, but may also occur multiple times.
 
-### Comments
+&emsp;
+
+### **Comments**
 
 (optional)
 
@@ -858,7 +934,9 @@ Example for a resource definition:
 ```
 
 
-## Referencing Ontologies
+&emsp;
+
+## **Referencing Ontologies**
 
 For several fields, such as `super` in both `resources` and `properties` or `propname` in `cardinalities`,
 it is necessary to reference entities that are defined elsewhere. The following cases are possible.

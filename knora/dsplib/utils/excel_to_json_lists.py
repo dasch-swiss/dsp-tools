@@ -5,15 +5,16 @@ import json
 import os
 import re
 import unicodedata
-from typing import Any
+from typing import Any, Union, Optional
 
 import jsonschema
-from jsonschema import validate
 from openpyxl import load_workbook
+from openpyxl.cell import Cell
 from openpyxl.worksheet.worksheet import Worksheet
 
-list_of_lists = []
-cell_names = []
+# Global variables used to ensure that there are no duplicate node names
+list_of_lists_of_previous_cell_values: list[list[str]] = []
+list_of_previous_node_names: list[str] = []
 
 
 def get_values_from_excel(
@@ -38,35 +39,42 @@ def get_values_from_excel(
 
     Returns:
         int: Row index for the next loop (current row index minus 1)
-
+        dict: The JSON list up to the current recursion. At the last recursion, this is the final JSON list.
     """
-    nodes = []
-    currentnode = dict()
-    base_file_ws = list(base_file.values())[0]
-    cell = base_file_ws.cell(column=col, row=row)
+    nodes: list[dict[str, Any]] = []
+    currentnode: dict[str, Any] = dict()
+    base_file_ws: Worksheet = list(base_file.values())[0]
+    cell: Cell = base_file_ws.cell(column=col, row=row)
+
+    for excelfile in excelfiles.values():
+        if not(len(str(excelfile['A1'].value).strip()) > 0 and len(str(excelfile['B1'].value).strip()) == 0):
+            print('Inconsistency in Excel list: The first row must consist of exactly one value, but found a second value')
+            quit()
 
     if col > 1:
         # append the cell value of the parent node (which is one value to the left of the current cell) to the list of
         # previous values
-        preval.append(base_file_ws.cell(column=col - 1, row=row).value)
+        preval.append(base_file_ws.cell(column=col-1, row=row).value)
 
     while cell.value:
         # check if all predecessors in row (values to the left) are consistent with the values in preval list
         for idx, val in enumerate(preval[:-1]):
-            if val != base_file_ws.cell(column=idx + 1, row=row).value:
+            if val != base_file_ws.cell(column=idx+1, row=row).value:
                 print(
-                    f'Inconsistency in Excel list: {val} not equal to {base_file_ws.cell(column=idx + 1, row=row).value}')
+                    f'Inconsistency in Excel list: {val} not equal to {base_file_ws.cell(column=idx+1, row=row).value}'
+                )
                 quit()
 
         # loop through the row until the last (furthest right) value is found
-        if base_file_ws.cell(column=col + 1, row=row).value:
+        if base_file_ws.cell(column=col+1, row=row).value:
             row, _ = get_values_from_excel(
                 excelfiles=excelfiles,
                 base_file=base_file,
                 parentnode=currentnode,
-                col=col + 1,
+                col=col+1,
                 row=row,
-                preval=preval)
+                preval=preval
+            )
 
         # if value was last in row (no further values to the right), it's a node, continue here
         else:
@@ -74,34 +82,34 @@ def get_values_from_excel(
             new_check_list = preval.copy()
             new_check_list.append(cell.value)
 
-            list_of_lists.append(new_check_list)
+            list_of_lists_of_previous_cell_values.append(new_check_list)
 
-            if check_list_for_duplicates(list_of_lists):
+            if contains_duplicates(list_of_lists_of_previous_cell_values):
                 print('There is at least one duplicate node in the list. Found duplicate: ', cell.value)
                 quit()
 
             # create a simplified version of the cell value and use it as name of the node
-            cellname = simplify_name(cell.value)
-            cell_names.append(cellname)
+            nodename = simplify_name(cell.value)
+            list_of_previous_node_names.append(nodename)
 
             # append a number (p.ex. node-name-2) if there are list nodes with identical names
-            if check_list_for_duplicates(cell_names):
-                n = cell_names.count(cellname)
+            if contains_duplicates(list_of_previous_node_names):
+                n = list_of_previous_node_names.count(nodename)
                 if n > 1:
-                    cellname = cellname + '-' + str(n)
+                    nodename = nodename + '-' + str(n)
 
-            labels_dict = {}
+            labels_dict: dict[str, str] = {}
 
             # read label values from the other Excel files (other languages)
-            for lang, ws_other_lang in excelfiles.items():
-                labels_dict[lang] = ws_other_lang.cell(column=col, row=row).value
+            for other_lang, ws_other_lang in excelfiles.items():
+                labels_dict[other_lang] = ws_other_lang.cell(column=col, row=row).value
 
             # create current node from extracted cell values and append it to the nodes list
-            currentnode = {'name': cellname, 'labels': labels_dict}
+            currentnode = {'name': nodename, 'labels': labels_dict}
 
             nodes.append(currentnode)
 
-            print(f'Added list node: {cell.value} ({cellname})')
+            print(f'Added list node: {cell.value} ({nodename})')
 
         # go one row down and repeat loop if there is a value
         row += 1
@@ -111,15 +119,16 @@ def get_values_from_excel(
         preval.pop()
 
     # add the new nodes to the parentnode
-    parentnode['nodes'] = nodes
+    new_parentnode = parentnode.copy()
+    new_parentnode['nodes'] = nodes
 
-    return row - 1, parentnode
+    return row - 1, new_parentnode
 
 
-def make_json_list_from_excel(rootnode: dict, excelfile_names: list[str]) -> dict:
+def make_json_list_from_excel(rootnode: dict[str, Any], excelfile_names: list[str]) -> dict[str, Any]:
     """
-    Reads Excel files and makes a JSON list file from them. The JSON can then be used in an ontology that is uploaded to the
-    DaSCH Service Platform.
+    Reads Excel files and makes a JSON list file from them. The JSON can then be used in an ontology that
+    is uploaded to the DaSCH Service Platform.
 
     Args:
         rootnode: The root node of the JSON list
@@ -134,17 +143,19 @@ def make_json_list_from_excel(rootnode: dict, excelfile_names: list[str]) -> dic
 
     # Check if English file is available and take it as base file. Take last one from list of Excel files if English
     # is not available. The node names are later derived from the labels of the base file.
+    base_file: dict[str, Worksheet] = dict()
     for filename in excelfile_names:
         if '_en.xlsx' in os.path.basename(filename):
             lang = 'en'
             ws = load_workbook(filename, read_only=True).worksheets[0]
             base_file = {lang: ws}
-    if not base_file:
-        lang = os.path.splitext(filename)[0].split('_')[-1]
-        ws = load_workbook(excelfile_names[-1], read_only=True).worksheets[0]
+    if len(base_file) == 0:
+        file = excelfile_names[-1]
+        lang = os.path.splitext(file)[0].split('_')[-1]
+        ws = load_workbook(file, read_only=True).worksheets[0]
         base_file = {lang: ws}
 
-    excelfiles = {}
+    excelfiles: dict[str, Worksheet] = {}
     for f in excelfile_names:
         lang = os.path.splitext(f)[0].split('_')[-1]
         ws = load_workbook(f, read_only=True).worksheets[0]
@@ -162,7 +173,7 @@ def make_json_list_from_excel(rootnode: dict, excelfile_names: list[str]) -> dic
     return finished_list
 
 
-def check_list_for_duplicates(list_to_check: list) -> bool:
+def contains_duplicates(list_to_check: list[Any]) -> bool:
     """
     Checks if the given list contains any duplicate items.
 
@@ -171,7 +182,6 @@ def check_list_for_duplicates(list_to_check: list) -> bool:
 
     Returns:
         True if there is a duplicate, false otherwise
-
     """
     has_duplicates = False
 
@@ -228,7 +238,11 @@ def check_language_code(lang_code: str) -> bool:
     return False
 
 
-def make_root_node_from_args(excelfiles: list[str], listname_from_args: str, comments: dict[str, str]) -> dict[Any]:
+def make_root_node_from_args(
+    excelfiles: list[str],
+    listname_from_args: Optional[str],
+    comments: dict[str, str]
+) -> dict[str, Any]:
     """
     Creates the root node for the JSON list
 
@@ -241,13 +255,16 @@ def make_root_node_from_args(excelfiles: list[str], listname_from_args: str, com
         dict: The root node of the list as dictionary (JSON)
     """
     lang_code_2_listname = {}
+    listname_en: str = ''
+    lang_specific_listname: str = ''
 
     for filename in excelfiles:
         basename = os.path.basename(filename)
         lang_specific_listname, lang_code = os.path.splitext(basename)[0].rsplit('_', 1)
 
         if not check_language_code(lang_code):
-            print('Invalid language code is used. Only language codes from ISO 639-1 and ISO 639-2 are accepted.')
+            print(f'Invalid language code "{lang_code}" is used. Only language codes from ISO 639-1 ',
+                  f'and ISO 639-2 are accepted.')
             quit()
 
         lang_code_2_listname[lang_code] = lang_specific_listname
@@ -256,9 +273,9 @@ def make_root_node_from_args(excelfiles: list[str], listname_from_args: str, com
             listname_en = lang_specific_listname
 
     # the listname is taken from the following sources, with descending priority
-    if listname_from_args:
+    if isinstance(listname_from_args, str) and listname_from_args != '':
         listname = listname_from_args
-    elif listname_en:
+    elif listname_en != '':
         listname = listname_en
     else:
         listname = lang_specific_listname
@@ -284,7 +301,7 @@ def validate_list_with_schema(json_list: str) -> bool:
         list_schema = json.load(schema)
 
     try:
-        validate(instance=json_list, schema=list_schema)
+        jsonschema.validate(instance=json_list, schema=list_schema)
     except jsonschema.exceptions.ValidationError as err:
         print(err)
         return False
@@ -292,7 +309,11 @@ def validate_list_with_schema(json_list: str) -> bool:
     return True
 
 
-def prepare_list_creation(excelfolder: str, listname: str, comments: dict) -> tuple[dict, list[str]]:
+def prepare_list_creation(
+    excelfolder: str,
+    listname: Optional[str],
+    comments: dict[str, Any]
+) -> tuple[dict[str, Any], list[str]]:
     """
     Create the list of Excel files that can be used to build a JSON list. Then, create the root node for the JSON list.
 
@@ -306,11 +327,11 @@ def prepare_list_creation(excelfolder: str, listname: str, comments: dict) -> tu
         excel_files: list of the Excel files to process
     """
     # reset the global variables before list creation starts
-    global cell_names
-    global list_of_lists
+    global list_of_previous_node_names
+    global list_of_lists_of_previous_cell_values
 
-    cell_names = []
-    list_of_lists = []
+    list_of_previous_node_names = []
+    list_of_lists_of_previous_cell_values = []
 
     # check if the given folder parameter is actually a folder
     if not os.path.isdir(excelfolder):
@@ -333,7 +354,7 @@ def prepare_list_creation(excelfolder: str, listname: str, comments: dict) -> tu
     return rootnode, excel_files
 
 
-def list_excel2json(listname: str, excelfolder: str, outfile: str):
+def list_excel2json(listname: Union[str, None], excelfolder: str, outfile: str) -> None:
     """
     Takes the arguments from the command line, checks folder and files and starts the process of list creation.
 

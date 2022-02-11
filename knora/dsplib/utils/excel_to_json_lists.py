@@ -70,7 +70,7 @@ def get_values_from_excel(
 
         # loop through the row until the last (furthest right) value is found
         if base_file_ws.cell(column=col+1, row=row).value:
-            row, _ = get_values_from_excel(
+            row, currentnode = get_values_from_excel(
                 excelfiles=excelfiles,
                 base_file=base_file,
                 parentnode=currentnode,

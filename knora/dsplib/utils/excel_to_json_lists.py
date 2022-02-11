@@ -47,8 +47,11 @@ def get_values_from_excel(
     cell: Cell = base_file_ws.cell(column=col, row=row)
 
     for excelfile in excelfiles.values():
-        if not(len(str(excelfile['A1'].value).strip()) > 0 and len(str(excelfile['B1'].value).strip()) == 0):
-            print('Inconsistency in Excel list: The first row must consist of exactly one value, but found a second value')
+        if any((not excelfile['A1'].value, excelfile['B1'].value)):
+            print(f'Inconsistency in Excel list: The first row must consist of exactly one value, in cell A1. '
+                  f'All other cells of row 1 must be empty.\nInstead, found the following:\n'
+                  f'Cell A1: "{excelfile["A1"].value}"\n'
+                  f'Cell B1: "{excelfile["B1"].value}"')
             quit()
 
     if col > 1:

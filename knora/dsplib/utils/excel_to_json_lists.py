@@ -69,7 +69,7 @@ def get_values_from_excel(
 
         # loop through the row until the last (furthest right) value is found
         if base_file_ws.cell(column=col+1, row=row).value:
-            row, currentnode = get_values_from_excel(
+            row, _ = get_values_from_excel(
                 excelfiles=excelfiles,
                 base_file=base_file,
                 parentnode=currentnode,
@@ -117,10 +117,9 @@ def get_values_from_excel(
         preval.pop()
 
     # add the new nodes to the parentnode
-    new_parentnode = parentnode.copy()
-    new_parentnode['nodes'] = nodes
+    parentnode['nodes'] = nodes
 
-    return row - 1, new_parentnode
+    return row - 1, parentnode
 
 
 def make_json_list_from_excel(rootnode: dict[str, Any], excelfile_names: list[str]) -> dict[str, Any]:

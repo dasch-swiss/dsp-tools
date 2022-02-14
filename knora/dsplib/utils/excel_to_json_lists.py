@@ -133,7 +133,7 @@ def make_json_list_from_excel(rootnode: dict[str, Any], excelfile_names: list[st
         excelfile_names: A list with all the Excel files to be processed
 
     Returns:
-        finished_list: dict
+        The finished list as a dict
     """
     # Define starting point in Excel file
     startrow = 1

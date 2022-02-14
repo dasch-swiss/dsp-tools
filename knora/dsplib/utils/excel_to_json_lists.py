@@ -1,4 +1,4 @@
-"""This module handles all the operations which are used for the creation of JSON lists form Excel files."""
+"""This module handles all the operations which are used for the creation of JSON lists from Excel files."""
 import csv
 import glob
 import json
@@ -57,15 +57,14 @@ def get_values_from_excel(
     if col > 1:
         # append the cell value of the parent node (which is one value to the left of the current cell) to the list of
         # previous values
-        preval.append(base_file_ws.cell(column=col-1, row=row).value)
+        preval.append(base_file_ws.cell(column=col-1, row=row).value.strip())
 
     while cell.value:
         # check if all predecessors in row (values to the left) are consistent with the values in preval list
         for idx, val in enumerate(preval[:-1]):
-            if val != base_file_ws.cell(column=idx+1, row=row).value:
-                print(
-                    f'Inconsistency in Excel list: {val} not equal to {base_file_ws.cell(column=idx+1, row=row).value}'
-                )
+            if val != base_file_ws.cell(column=idx+1, row=row).value.strip():
+                print(f'Inconsistency in Excel list: {val} not equal to '
+                      f'{base_file_ws.cell(column=idx+1, row=row).value.strip()}')
                 quit()
 
         # loop through the row until the last (furthest right) value is found
@@ -83,16 +82,15 @@ def get_values_from_excel(
         else:
             # check if there are duplicate nodes (i.e. identical rows), quit the program if so
             new_check_list = preval.copy()
-            new_check_list.append(cell.value)
-
+            new_check_list.append(cell.value.strip())
             list_of_lists_of_previous_cell_values.append(new_check_list)
 
             if contains_duplicates(list_of_lists_of_previous_cell_values):
-                print('There is at least one duplicate node in the list. Found duplicate: ', cell.value)
+                print('There is at least one duplicate node in the list. Found duplicate: ', cell.value.strip())
                 quit()
 
             # create a simplified version of the cell value and use it as name of the node
-            nodename = simplify_name(cell.value)
+            nodename = simplify_name(cell.value.strip())
             list_of_previous_node_names.append(nodename)
 
             # append a number (p.ex. node-name-2) if there are list nodes with identical names
@@ -101,18 +99,15 @@ def get_values_from_excel(
                 if n > 1:
                     nodename = nodename + '-' + str(n)
 
-            labels_dict: dict[str, str] = {}
-
             # read label values from the other Excel files (other languages)
+            labels_dict: dict[str, str] = {}
             for other_lang, ws_other_lang in excelfiles.items():
-                labels_dict[other_lang] = ws_other_lang.cell(column=col, row=row).value
+                labels_dict[other_lang] = ws_other_lang.cell(column=col, row=row).value.strip()
 
             # create current node from extracted cell values and append it to the nodes list
             currentnode = {'name': nodename, 'labels': labels_dict}
-
             nodes.append(currentnode)
-
-            print(f'Added list node: {cell.value} ({nodename})')
+            print(f'Added list node: {cell.value.strip()} ({nodename})')
 
         # go one row down and repeat loop if there is a value
         row += 1
@@ -204,7 +199,6 @@ def simplify_name(value: str) -> str:
 
     Returns:
         str: The simplified value
-
     """
     simplified_value = str(value).lower()
 
@@ -230,7 +224,6 @@ def check_language_code(lang_code: str) -> bool:
 
     Returns:
         True if valid, False if not
-
     """
     current_dir = os.path.dirname(os.path.realpath(__file__))
     with open(os.path.join(current_dir, 'language-codes-3b2_csv.csv'), 'r') as language_codes_file:
@@ -297,7 +290,6 @@ def validate_list_with_schema(json_list: str) -> bool:
 
     Returns:
         True if the list passed validation, False otherwise
-
     """
     current_dir = os.path.dirname(os.path.realpath(__file__))
     with open(os.path.join(current_dir, '../schemas/lists-only.json')) as schema:
@@ -338,7 +330,7 @@ def prepare_list_creation(
 
     # check if the given folder parameter is actually a folder
     if not os.path.isdir(excelfolder):
-        print(excelfolder, 'is not a directory.')
+        print(excelfolder, ' is not a directory.')
         exit(1)
 
     # create a list with all excel files from the path provided by the user

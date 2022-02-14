@@ -45,7 +45,8 @@ def validate_ontology(input_file_or_json: Union[str, Dict, os.PathLike]) -> bool
     try:
         validate(instance=data_model, schema=schema)
     except jsonschema.exceptions.ValidationError as err:
-        print('Data model did not pass validation. The error message is:', err.message)
+        print(f'Data model did not pass validation. The error message is: {err.message}\n'
+              f'The error occurred at {err.json_path}')
         return False
     print('Data model is syntactically correct and passed validation.')
     return True

@@ -179,6 +179,9 @@ A `<resource>` element contains all necessary information to create a resource. 
 - `id`: a unique, arbitrary string providing a unique ID to the resource in order to be referencable by other resources;
   the ID is only used during the import process and later replaced by the IRI used internally by DSP (required)
 - `permissions`: a reference to a permission set; the permissions will be applied to the created resource (optional)
+- `iri`: a custom IRI used when migrating existing resources (optional)
+- `ark`: a version 0 ARK used when migrating existing resources from salsah.org to DSP (optional), it is not possible to
+use `iri` and `ark` in the same resource. When `ark` is used, it overrides `iri`.
 
 A complete `<resource>` element may look as follows:
 

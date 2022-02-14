@@ -7,6 +7,15 @@ load("@knora_py_deps//:requirements.bzl", "requirement")
 package(default_visibility = ["//visibility:public"])
 
 py_test(
+    name = "test_convert_ark_v0_to_resource_iri",
+    srcs = ["test_convert_ark_v0_to_resource_iri.py"],
+    deps = [
+        "//knora/dsplib/utils:xml_upload",
+        "//knora/dsplib/models:helpers"
+    ],
+)
+
+py_test(
     name = "test_langstring",
     srcs = ["test_langstring.py"],
 )

@@ -13,7 +13,6 @@ The import file must start with the standard XML header:
 <?xml version='1.0' encoding='utf-8'?>
 ```
 
-
 ## The root element &lt;knora&gt;
 
 The `<knora>` element describes all resources that should be imported. It has the following attributes:
@@ -42,7 +41,6 @@ The `<knora>` element can only contain the following sub-elements:
 
 - `<permissions>` (optional)
 - `<resource>`
-
 
 ## Describing permissions with &lt;permissions&gt; elements
 
@@ -101,7 +99,6 @@ the resource or property with permission `special-permission`:
 Note: The permissions defined in the XML are applied to resources that are created. But only project or system administrators
 do have the permission to create resources via the XML upload.
 
-
 ### The &lt;allow&gt; sub-element
 
 The `<allow>` element is used to define the permission for a specific group. It is of the following form:
@@ -131,7 +128,6 @@ The available system groups are:
 - SystemAdmin (system administrator)
 
 There are no sub-elements allowed for the `<allow>` element.
-
 
 ### Example for a permissions section
 
@@ -173,7 +169,6 @@ A complete `<permissions>` section may look as follows:
   ...
 </knora>
 ```
-
 
 ## Describing resources with the &lt;resource&gt; element
 
@@ -297,7 +292,6 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
-
 #### &lt;color&gt;
 
 The `<color>` element is used to indicate a color value. The color has to be given in web-notation, that is a `#`
@@ -317,7 +311,6 @@ A property with two color values would be defined as follows:
 </color-prop>
 ```
 
-
 ### &lt;date-prop&gt;
 
 The `<date-prop>` element is used for date values. It must contain at least one `<date>` element.
@@ -325,7 +318,6 @@ The `<date-prop>` element is used for date values. It must contain at least one 
 Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
-
 
 #### &lt;date&gt;
 
@@ -363,7 +355,6 @@ Example:
 </date-prop>
 ```
 
-
 ### &lt;decimal-prop&gt;
 
 The `<decimal-prop>` element is used for decimal values. It must contain at least one `<decimal>` element.
@@ -371,7 +362,6 @@ The `<decimal-prop>` element is used for decimal values. It must contain at leas
 Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
-
 
 #### &lt;decimal&gt;
 
@@ -390,7 +380,6 @@ Example:
 </decimal-prop>
 ```
 
-
 ### &lt;geometry-prop&gt;
 
 The `<geometry-prop>` element is used for a geometric definition of a 2-D region (e.g. a region on an image). It must
@@ -403,7 +392,6 @@ Note:
 Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
-
 
 #### &lt;geometry&gt;
 
@@ -449,7 +437,6 @@ Attributes:
 - `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
-
 ### &lt;geoname-prop&gt;
 
 The `<geoname-prop>` element is used for values that contain a [geonames.org](http://geonames.org) ID. It must contain
@@ -458,7 +445,6 @@ at least one `<geoname>` element.
 Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
-
 
 #### &lt;geoname&gt;
 
@@ -477,7 +463,6 @@ Example (city of Vienna):
 </geoname-prop>
 ```
 
-
 ### &lt;list-prop&gt;
 
 The `<list-prop>` element is used as entry point into a list (list node). List nodes are identified by their `name`
@@ -488,7 +473,6 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 - `list`: name of the list as defined in the ontology (required)
-
 
 #### &lt;list&gt;
 
@@ -507,7 +491,6 @@ Example:
 </list-prop>
 ```
 
-
 ### &lt;iconclass-prop&gt; (_not yet implemented_)
 
 The `<iconclass-prop>` element is used for [iconclass.org](http://iconclass.org) ID. It must contain at least one
@@ -519,7 +502,6 @@ for `(story of) Aurora (Eos); 'Aurora' (Ripa) - infancy, upbringing Aurora · Ri
 Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
-
 
 #### &lt;iconclass&gt; (_not yet implemented_)
 
@@ -538,7 +520,6 @@ Usage:
 </iconclass-prop>
 ```
 
-
 ### &lt;integer-prop&gt;
 
 The `<integer-prop>` element is used for integer values. It must contain at least one `<integer>` element.
@@ -546,7 +527,6 @@ The `<integer-prop>` element is used for integer values. It must contain at leas
 Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
-
 
 #### &lt;integer&gt;
 
@@ -565,7 +545,6 @@ Example:
 </integer-prop>
 ```
 
-
 ### &lt;interval-prop&gt;
 
 The `<interval-prop>` element is used for intervals between two decimal numbers. It must contain at least one
@@ -574,7 +553,6 @@ The `<interval-prop>` element is used for intervals between two decimal numbers.
 Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
-
 
 #### &lt;interval&gt;
 
@@ -593,7 +571,6 @@ Example:
 </interval-prop>
 ```
 
-
 ### &lt;resptr-prop&gt;
 
 The `<resptr-prop>` element is used to link other resources within DSP. It must contain at least one `<resptr>` element.
@@ -601,7 +578,6 @@ The `<resptr-prop>` element is used to link other resources within DSP. It must 
 Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
-
 
 #### &lt;resptr&gt;
 
@@ -624,7 +600,6 @@ be referenced as:
   <resptr>238807</resptr>
 </resptr-prop>
 ```
-
 
 ### &lt;text-prop&gt;
 
@@ -692,7 +667,6 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
-
 #### &lt;time&gt;
 
 The `<time>` element represents an exact datetime value in the form of `yyyy-mm-ddThh:mm:ss.sssssssssssszzzzzz`. The
@@ -746,7 +720,6 @@ The following value indicates noon on October 10, 2009, Eastern Standard Time in
 </time-prop>
 ```
 
-
 ### &lt;uri-prop&gt;
 
 The `<uri-prop>` element is used for referencing resources with a URI. It must contain at least one `<uri>` element.
@@ -754,7 +727,6 @@ The `<uri-prop>` element is used for referencing resources with a URI. It must c
 Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
-
 
 #### &lt;uri&gt;
 
@@ -772,7 +744,7 @@ Example:
    <uri>http://www.groove-t-gang.ch</uri>
 </uri-prop>
 ```
-  
+
 
 ## Incremental XML Upload
 
@@ -791,7 +763,6 @@ To do an incremental XML upload, one of the following procedures is recommended.
 5. Run `dsp-tools xmlupload --incremental new_data.xml` to upload the data to DSP.
 
 - Incremental XML Upload with the use of IRIs: Use IRIs in the XML to reference existing data on the DSP server.
-
 
 ## Complete example
 

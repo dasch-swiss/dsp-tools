@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# **DSP XML file format for importing data**
+# DSP XML file format for importing data
 
 With dsp-tools, data can be imported into a DSP repository (on a DSP server) from an XML file. The import file is a
 standard XML file as described on this page. After a successful upload of the data, an output file is written (called 
@@ -13,9 +13,8 @@ The import file must start with the standard XML header:
 <?xml version='1.0' encoding='utf-8'?>
 ```
 
-&emsp;
 
-## **The root element &lt;knora&gt;**
+## The root element &lt;knora&gt;
 
 The `<knora>` element describes all resources that should be imported. It has the following attributes:
 
@@ -44,10 +43,8 @@ The `<knora>` element can only contain the following sub-elements:
 - `<permissions>` (optional)
 - `<resource>`
 
-&emsp;
-&emsp;
 
-## **Describing permissions with &lt;permissions&gt; elements**
+## Describing permissions with &lt;permissions&gt; elements
 
 The DSP server provides access control for each resource and each field of a resource through permissions. For a
 thorough explanation of the permission and access system of the DSP platform, see
@@ -104,10 +101,8 @@ the resource or property with permission `special-permission`:
 Note: The permissions defined in the XML are applied to resources that are created. But only project or system administrators
 do have the permission to create resources via the XML upload.
 
-&emsp;
-&emsp;
 
-### **The &lt;allow&gt; sub-element**
+### The &lt;allow&gt; sub-element
 
 The `<allow>` element is used to define the permission for a specific group. It is of the following form:
 
@@ -137,10 +132,8 @@ The available system groups are:
 
 There are no sub-elements allowed for the `<allow>` element.
 
-&emsp;
-&emsp;
 
-### **Example for a permissions section**
+### Example for a permissions section
 
 A complete `<permissions>` section may look as follows:
 
@@ -181,10 +174,8 @@ A complete `<permissions>` section may look as follows:
 </knora>
 ```
 
-&emsp;
-&emsp;
 
-## **Describing resources with the &lt;resource&gt; element**
+## Describing resources with the &lt;resource&gt; element
 
 A `<resource>` element contains all necessary information to create a resource. It has the following attributes:
 
@@ -244,9 +235,7 @@ The following property elements exist:
 - `<time-prop>`: contains time values
 - `<uri-prop>`: contains URI values
 
-&emsp;&emsp;
-
-### **&lt;bitstream&gt;**
+### &lt;bitstream&gt;
 
 The `<bitstream>` element is used for bitstream data. It contains the path to a bitstream object like an image file, a
 ZIP container, an audio file etc. It must only be used if the resource is a `StillImageRepresentation`, an
@@ -267,9 +256,7 @@ Example:
 <bitstream permissions="prop-restricted">postcards/images/EURUS015a.jpg</bitstream>
 ```
 
-&emsp;&emsp;
-
-### **&lt;boolean-prop&gt;**
+### &lt;boolean-prop&gt;
 
 The `<boolean-prop>` element is used for boolean values. It must contain exactly one `<boolean>` element.
 
@@ -277,9 +264,8 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
-&emsp;
 
-#### **&lt;boolean&gt;**
+#### &lt;boolean&gt;
 
 The `<boolean>` element must contain the string "true" or "false", or the numeral 1 (true) or 0 (false).
 
@@ -302,10 +288,8 @@ Example:
 </boolean-prop>
 ```
 
-&emsp;
-&emsp;
 
-### **&lt;color-prop&gt;**
+### &lt;color-prop&gt;
 
 The `<color-prop>` element is used for color values. It must contain at least one `<color>` element.
 
@@ -313,9 +297,8 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
-&emsp;
 
-#### **&lt;color&gt;**
+#### &lt;color&gt;
 
 The `<color>` element is used to indicate a color value. The color has to be given in web-notation, that is a `#`
 followed by 3 or 6 hex numerals.
@@ -334,10 +317,8 @@ A property with two color values would be defined as follows:
 </color-prop>
 ```
 
-&emsp;
-&emsp;
 
-### **&lt;date-prop&gt;**
+### &lt;date-prop&gt;
 
 The `<date-prop>` element is used for date values. It must contain at least one `<date>` element.
 
@@ -345,9 +326,8 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
-&emsp;
 
-#### **&lt;date&gt;**
+#### &lt;date&gt;
 
 the `<date>` element contains a DSP-specific date value. It has the following format:
 
@@ -383,10 +363,8 @@ Example:
 </date-prop>
 ```
 
-&emsp;
-&emsp;
 
-### **&lt;decimal-prop&gt;**
+### &lt;decimal-prop&gt;
 
 The `<decimal-prop>` element is used for decimal values. It must contain at least one `<decimal>` element.
 
@@ -394,9 +372,8 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
-&emsp;
 
-#### **&lt;decimal&gt;**
+#### &lt;decimal&gt;
 
 The `<decimal>` element contains a decimal number.
 
@@ -413,10 +390,8 @@ Example:
 </decimal-prop>
 ```
 
-&emsp;
-&emsp;
 
-### **&lt;geometry-prop&gt;**
+### &lt;geometry-prop&gt;
 
 The `<geometry-prop>` element is used for a geometric definition of a 2-D region (e.g. a region on an image). It must
 contain at least one `<geometry>` element.
@@ -429,9 +404,8 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
-&emsp;
 
-#### **&lt;geometry&gt;**
+#### &lt;geometry&gt;
 
 A geometry value is defined as a JSON object. It contains the following data:
 
@@ -475,10 +449,8 @@ Attributes:
 - `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
-&emsp;
-&emsp;
 
-### **&lt;geoname-prop&gt;**
+### &lt;geoname-prop&gt;
 
 The `<geoname-prop>` element is used for values that contain a [geonames.org](http://geonames.org) ID. It must contain
 at least one `<geoname>` element.
@@ -487,9 +459,8 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
-&emsp;
 
-#### **&lt;geoname&gt;**
+#### &lt;geoname&gt;
 
 Contains a valid [geonames.org](http://geonames.org) ID.
 
@@ -506,10 +477,8 @@ Example (city of Vienna):
 </geoname-prop>
 ```
 
-&emsp;
-&emsp;
 
-### **&lt;list-prop&gt;**
+### &lt;list-prop&gt;
 
 The `<list-prop>` element is used as entry point into a list (list node). List nodes are identified by their `name`
 attribute that was given when creating the list nodes (which must be unique within each list!). It must contain at least
@@ -520,9 +489,8 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 - `list`: name of the list as defined in the ontology (required)
 
-&emsp;
 
-#### **&lt;list&gt;**
+#### &lt;list&gt;
 
 The `<list>` element references a node in a (pull-down or hierarchical) list.
 
@@ -539,10 +507,8 @@ Example:
 </list-prop>
 ```
 
-&emsp;
-&emsp;
 
-### **&lt;iconclass-prop&gt; (_not yet implemented_)**
+### &lt;iconclass-prop&gt; (_not yet implemented_)
 
 The `<iconclass-prop>` element is used for [iconclass.org](http://iconclass.org) ID. It must contain at least one
 `<iconclass>` element.
@@ -554,9 +520,8 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
-&emsp;
 
-#### **&lt;iconclass&gt; (_not yet implemented_)**
+#### &lt;iconclass&gt; (_not yet implemented_)
 
 References an [iconclass.org](https://iconclass.org) ID.
 
@@ -573,10 +538,8 @@ Usage:
 </iconclass-prop>
 ```
 
-&emsp;
-&emsp;
 
-### **&lt;integer-prop&gt;**
+### &lt;integer-prop&gt;
 
 The `<integer-prop>` element is used for integer values. It must contain at least one `<integer>` element.
 
@@ -584,9 +547,8 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
-&emsp;
 
-#### **&lt;integer&gt;**
+#### &lt;integer&gt;
 
 The `<integer>` element contains an integer value.
 
@@ -603,10 +565,8 @@ Example:
 </integer-prop>
 ```
 
-&emsp;
-&emsp;
 
-### **&lt;interval-prop&gt;**
+### &lt;interval-prop&gt;
 
 The `<interval-prop>` element is used for intervals between two decimal numbers. It must contain at least one
 `<interval>` element.
@@ -615,9 +575,8 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
-&emsp;
 
-#### **&lt;interval&gt;**
+#### &lt;interval&gt;
 
 The `<interval>` element contains two decimals separated by a colon (`:`).
 
@@ -634,10 +593,8 @@ Example:
 </interval-prop>
 ```
 
-&emsp;
-&emsp;
 
-### **&lt;resptr-prop&gt;**
+### &lt;resptr-prop&gt;
 
 The `<resptr-prop>` element is used to link other resources within DSP. It must contain at least one `<resptr>` element.
 
@@ -645,9 +602,8 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
-&emsp;
 
-#### **&lt;resptr&gt;**
+#### &lt;resptr&gt;
 
 The `<resptr>` element contains either the internal ID of another resource inside the XML or the IRI of an already
 existing resource on DSP. Inside the same XML file, a mixture of the two is not possible. If referencing existing
@@ -669,10 +625,8 @@ be referenced as:
 </resptr-prop>
 ```
 
-&emsp;
-&emsp;
 
-### **&lt;text-prop&gt;**
+### &lt;text-prop&gt;
 
 The `<text-prop>` element is used for text values. It must contain at least one `<text>` element.
 
@@ -680,9 +634,8 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
-&emsp;
 
-#### **&lt;text&gt;**
+#### &lt;text&gt;
 
 The `<text>` element has the following attributes:
 
@@ -698,9 +651,8 @@ complex text values may be mixed. Both simple and complex text values can be use
 that are defined in an ontology (SimpleText, Richtext, Textarea, see [here](dsp-tools-create-ontologies.md#textvalue)). 
 But typically, you would use UTF8 in a SimpleText, and XML in Richtext or Textarea.
 
-&emsp;
 
-#### **Simple text (UTF-8)**
+#### Simple text (UTF-8)
 
 An example for simple text:
 
@@ -713,9 +665,8 @@ An example for simple text:
 If your text is very long, it is not advised to add XML-"pretty-print" whitespaces after line breaks. These 
 whitespaces will be taken into the text field as they are.
 
-&emsp;
 
-#### **Text with markup (XML)**
+#### Text with markup (XML)
 
 dsp-tools assumes that for markup (standoff markup), the
 [DSP standard mapping](https://docs.knora.org/03-apis/api-v1/xml-to-standoff-mapping/) is used (custom mapping is not yet
@@ -732,10 +683,8 @@ Example of a text containing a link to another resource:
 Please note that the `href` option within the anchor tag (`<a>`) points to an internal resource of the DSP and has to
 conform to the special format `IRI:[res-id]:IRI` where [res-id] is the resource id defined within the XML import file.
 
-&emsp;
-&emsp;
 
-### **&lt;time-prop&gt;**
+### &lt;time-prop&gt;
 
 The `<time-prop>` element is used for time values. It must contain at least one `<time>` element.
 
@@ -743,9 +692,8 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
-&emsp;
 
-#### **&lt;time&gt;**
+#### &lt;time&gt;
 
 The `<time>` element represents an exact datetime value in the form of `yyyy-mm-ddThh:mm:ss.sssssssssssszzzzzz`. The
 following abbreviations describe this form:
@@ -798,10 +746,8 @@ The following value indicates noon on October 10, 2009, Eastern Standard Time in
 </time-prop>
 ```
 
-&emsp;
-&emsp;
 
-### **&lt;uri-prop&gt;**
+### &lt;uri-prop&gt;
 
 The `<uri-prop>` element is used for referencing resources with a URI. It must contain at least one `<uri>` element.
 
@@ -809,9 +755,8 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
-&emsp;
 
-#### **&lt;uri&gt;**
+#### &lt;uri&gt;
 
 The `<uri>` element contains a syntactically valid URI.
 
@@ -827,11 +772,9 @@ Example:
    <uri>http://www.groove-t-gang.ch</uri>
 </uri-prop>
 ```
+  
 
-&emsp;  
-&emsp;
-
-## **Incremental XML Upload**
+## Incremental XML Upload
 
 After a successful upload of the data, an output file is written (called `id2iri_mapping_[timstamp].json`) with the 
 mapping of internal IDs used inside the XML and their corresponding IRIs which uniquely identify them inside DSP. This 
@@ -849,10 +792,8 @@ To do an incremental XML upload, one of the following procedures is recommended.
 
 - Incremental XML Upload with the use of IRIs: Use IRIs in the XML to reference existing data on the DSP server.
 
-&emsp;  
-&emsp;
 
-## **Complete example**
+## Complete example
 
 ```xml
 <?xml version='1.0' encoding='utf-8'?>

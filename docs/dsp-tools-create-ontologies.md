@@ -45,15 +45,12 @@ Example of an `ontologies` object:
 }
 ```
 
-&emsp;
 
-## **Ontologies Object in Detail**
+## Ontologies Object in Detail
 
 The following properties can occur within each object in `ontologies`.
 
-&emsp;
-
-### **Name**
+### Name
 
 (required)
 
@@ -62,9 +59,7 @@ The following properties can occur within each object in `ontologies`.
 The ontology's (short) name should be in the form of a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). This
 means a string without blanks or special characters but `-` and `_` are allowed (although not as first character).
 
-&emsp;
-
-### **Label**
+### Label
 
 (required)
 
@@ -72,9 +67,7 @@ means a string without blanks or special characters but `-` and `_` are allowed 
 
 A string that provides the full name of the ontology.
 
-&emsp;
-
-### **Properties**
+### Properties
 
 (required)
 
@@ -92,16 +85,14 @@ The following fields are mandatory:
 
 The following fields are optional:
 
-- `comments` (but if omitted a default value `[no comment provided]`) is used
+- `comments` 
 - `super` (with the exception of `LinkValue` where `super` is mandatory)
 - `subject`
 - `gui_attributes`
 
 A detailed description of `properties` can be found [below](#properties-object-in-detail).
 
-&emsp;
-
-### **Resources**
+### Resources
 
 (required)
 
@@ -121,21 +112,18 @@ A resource object needs to have the following fields:
 
 The following field is optional:
 
-- `comments` (but if omitted a default value `[no comment provided]`) is used
+- `comments` 
 
 A detailed description of `resources` can be found [below](#properties-object-in-detail).
 
-&emsp;
 
-## **Properties Object in Detail**
+## Properties Object in Detail
 
 Please note that `object` is used to define the data type. The `gui_element` depends on the value of the `object`.
 
 The `gui_attributes` depends on the value of the `gui_element`.
 
-&emsp;
-
-### **Name**
+### Name
 
 (required)
 
@@ -147,9 +135,7 @@ but `-` and `_` are allowed (although not as first character).
 
 By convention, property names start with a lower case letter.
 
-&emsp;
-
-### **Labels**
+### Labels
 
 (required)
 
@@ -158,20 +144,15 @@ By convention, property names start with a lower case letter.
 Collection of `labels` for the property as strings with language tag (currently "en", "de", "fr"
 and "it" are supported).
 
-&emsp;
-
-### **Comments**
+### Comments
 
 (optional)
 
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
-Comments with language tags. Currently, "de", "en", "fr" and "it" are supported. The `comments` element is mandatory but
-can be omitted. In that case the default value `[no comment provided]` (with language "en") is used.
+Comments with language tags. Currently, "de", "en", "fr" and "it" are supported. The `comments` element is optional.
 
-&emsp;
-
-### **Super**
+### Super
 
 (optional)
 
@@ -245,9 +226,7 @@ Example of a `properties` object:
 }
 ```
 
-&emsp;
-
-### **Subject**
+### Subject
 
 (optional)
 
@@ -256,9 +235,7 @@ Example of a `properties` object:
 The `subject` defines the resource class the property can be used on. It has to be provided as prefixed name of the 
 resource class (see [below](#referencing-ontologies) on how prefixed names are used).
 
-&emsp;
-
-### **Object / gui_element / gui_attributes**
+### Object / gui_element / gui_attributes
 
 - `object`: required
 - `gui_element`: required
@@ -283,10 +260,7 @@ on the data type. The following data types are allowed:
 - `ListValue`
 - any previously defined resource class in case of a link property
 
-&emsp;  
-&emsp;
-
-#### **TextValue**
+#### TextValue
 
 `"object": "TextValue"`
 
@@ -327,10 +301,7 @@ Represents a text that may contain standoff markup.
 }
 ```
 
-&emsp;  
-&emsp;
-
-#### **ColorValue**
+#### ColorValue
 
 `"object": "ColorValue"`
 
@@ -358,10 +329,7 @@ A string representation of the color in the hexadecimal form e.g. "#ff8000".
 }
 ```
 
-&emsp;  
-&emsp;
-
-#### **DateValue**
+#### DateValue
 
 `object": "DateValue"`  
 Represents a date. It's a string with the format `calendar:start:end`
@@ -401,10 +369,7 @@ which means anytime in between 1925 and the 22nd March 1927.
 }
 ```
 
-&emsp;  
-&emsp;
-
-#### **TimeValue**
+#### TimeValue
 
 `"object": "TimeValue"`
 
@@ -431,10 +396,7 @@ A time value represents a precise moment in time in the Gregorian calendar. Sinc
 }
 ```
 
-&emsp;  
-&emsp;
-
-#### **DecimalValue**
+#### DecimalValue
 
 `"object": "DecimalValue"`
 
@@ -472,10 +434,7 @@ A number with decimal point.
 }
 ```  
 
-&emsp;  
-&emsp;
-
-#### **GeomValue**
+#### GeomValue
 
 `"object": "GeomValue"`
 
@@ -506,10 +465,7 @@ or moving images.
 }
 ```
 
-&emsp;  
-&emsp;
-
-#### **GeonameValue**
+#### GeonameValue
 
 Represents a location ID in geonames.org. The DSP platform uses identifiers provided by
 [geonames.org](https://geonames.orgs) to identify geographical locations.
@@ -536,10 +492,7 @@ Represents a location ID in geonames.org. The DSP platform uses identifiers prov
 }
 ```
 
-&emsp;  
-&emsp;
-
-#### **IntValue**
+#### IntValue
 
 `"object": "IntValue"`
 
@@ -578,10 +531,7 @@ Represents an integer value.
 }
 ```
 
-&emsp;  
-&emsp;
-
-#### **BooleanValue**
+#### BooleanValue
 
 `"object": "BooleanValue"`
 
@@ -608,10 +558,7 @@ Represents a Boolean ("true" or "false).
 }
 ```
 
-&emsp;  
-&emsp;
-
-#### **UriValue**
+#### UriValue
 
 `"object": "UriValue"`
 
@@ -645,10 +592,7 @@ Represents an URI
 }
 ```
 
-&emsp;  
-&emsp;
-
-#### **IntervalValue**
+#### IntervalValue
 
 `"object": "IntervalValue"`
 
@@ -680,10 +624,7 @@ Represents a time-interval
 }
 ```
 
-&emsp;  
-&emsp;
-
-#### **ListValue**
+#### ListValue
 
 `"object": "ListValue"`
 
@@ -718,9 +659,7 @@ Represents a node of a (possibly hierarchical) list
 }
 ```
 
-&emsp;
-
-#### **hasLinkTo Property**
+#### hasLinkTo Property
 
 `"object": ":<resource-name>"`
 
@@ -755,9 +694,7 @@ derived from "hasLinkTo" or "isPartOf". "isPartOf" is a special type of linked r
 }
 ```
 
-&emsp;
-
-#### **IsPartOf Property**
+#### IsPartOf Property
 A special case of linked resources is resources in a part-of / part-whole relation, i.e. resources that are composed of 
 other resources. A `isPartOf` property has to be added to the resource that is part of another resource. In case of 
 resources that are of type `StillImageRepresentation`, an additional property derived from `seqnum` with object `IntValue` 
@@ -791,14 +728,10 @@ is required. When defined, a client is able to leaf through the parts of a compo
 ```
 
 
-&emsp;
-
-## **Resources Object in Detail**
+## Resources Object in Detail
 
 
-&emsp;
-
-### **Name**
+### Name
 
 (required)
 
@@ -810,9 +743,7 @@ but `-` and `_` are allowed (although not as first character).
 
 By convention, resource names start with a upper case letter.
 
-&emsp;
-
-### **Labels**
+### Labels
 
 (required)
 
@@ -821,9 +752,7 @@ By convention, resource names start with a upper case letter.
 Collection of `labels` for the resource as strings with language tag (currently "en", "de", "fr"
 and "it" are supported).
 
-&emsp;
-
-### **Super**
+### Super
 
 (required)
 
@@ -858,9 +787,7 @@ used in all cases when your resource is none of the special cases below.
 
 Additionally, resources can be derived from external ontologies or from resources specified in the present document.
 
-&emsp;
-
-### **Cardinalities**
+### Cardinalities
 
 (required)
 
@@ -880,16 +807,13 @@ resource can have as well as how many times the relation is established.
         - `"1-n"`: At least one value must be present, but multiple values may be present.
         - `"0-n"`: The value may be omitted, but may also occur multiple times.
 
-&emsp;
-
-### **Comments**
+### Comments
 
 (optional)
 
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
-Comments with language tags. Currently, "de", "en", "fr" and "it" are supported. The `comments` element is mandatory but 
-can be omitted. In that case the default value `[no comment provided]` (with language "en") is used.
+Comments with language tags. Currently, "de", "en", "fr" and "it" are supported. The `comments` element is optional.
 
 Example for a resource definition:
 
@@ -934,9 +858,7 @@ Example for a resource definition:
 ```
 
 
-&emsp;
-
-## **Referencing Ontologies**
+## Referencing Ontologies
 
 For several fields, such as `super` in both `resources` and `properties` or `propname` in `cardinalities`,
 it is necessary to reference entities that are defined elsewhere. The following cases are possible.

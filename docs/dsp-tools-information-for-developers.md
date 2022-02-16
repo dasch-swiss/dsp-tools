@@ -46,7 +46,6 @@ in `pyproject.toml` in the root directory of the project.
 ```toml
 [tool.autopep8]
 max_line_length = 180
-in-place = true
 experimental = true
 
 [tool.mypy]
@@ -56,7 +55,7 @@ show_column_numbers = true
 strict = true
 ```
 
-You can use the configuration with `autopep8 --global-config pyproject.toml [file path]`
+You can use the configuration with `autopep8 --global-config pyproject.toml --in-place $FilePath$`
 and `mypy --config-file pyproject.toml
 [file path]`.
 

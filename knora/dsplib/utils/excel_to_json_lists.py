@@ -249,7 +249,7 @@ def make_root_node_from_args(
     Returns:
         dict: The root node of the list as dictionary (JSON)
     """
-    lang_code_2_listname = {}
+    listname_from_lang_code = {}
     listname_en: str = ''
     lang_specific_listname: str = ''
 
@@ -262,7 +262,7 @@ def make_root_node_from_args(
                   f'and ISO 639-2 are accepted.')
             quit()
 
-        lang_code_2_listname[lang_code] = lang_specific_listname
+        listname_from_lang_code[lang_code] = lang_specific_listname
 
         if '_en.xlsx' in filename:
             listname_en = lang_specific_listname
@@ -275,7 +275,7 @@ def make_root_node_from_args(
     else:
         listname = lang_specific_listname
 
-    rootnode = {'name': listname, 'labels': lang_code_2_listname, 'comments': comments}
+    rootnode = {'name': listname, 'labels': lang_specific_listname, 'comments': comments}
 
     return rootnode
 

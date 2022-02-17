@@ -2,3 +2,19 @@
 .md-tabs {
   background-color: rgb(89, 73, 167) !important;
 }
+h1 {
+  font-weight: bold;
+  padding-top: 50px;
+}
+h2 {
+  font-weight: bold;
+  padding-top: 50px;
+}
+h3 {
+  font-weight: bold;
+  padding-top: 50px;
+}
+h4 {
+  font-weight: bold;
+  padding-top: 50px;
+}

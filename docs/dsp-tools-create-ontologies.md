@@ -85,7 +85,7 @@ The following fields are mandatory:
 
 The following fields are optional:
 
-- `comments` (but if omitted a default value `[no comment provided]`) is used
+- `comments` 
 - `super` (with the exception of `LinkValue` where `super` is mandatory)
 - `subject`
 - `gui_attributes`
@@ -112,7 +112,7 @@ A resource object needs to have the following fields:
 
 The following field is optional:
 
-- `comments` (but if omitted a default value `[no comment provided]`) is used
+- `comments` 
 
 A detailed description of `resources` can be found [below](#properties-object-in-detail).
 
@@ -150,8 +150,7 @@ and "it" are supported).
 
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
-Comments with language tags. Currently, "de", "en", "fr" and "it" are supported. The `comments` element is mandatory but
-can be omitted. In that case the default value `[no comment provided]` (with language "en") is used.
+Comments with language tags. Currently, "de", "en", "fr" and "it" are supported. The `comments` element is optional.
 
 ### Super
 
@@ -170,9 +169,9 @@ The following base properties are defined by DSP:
 - `hasLinkTo`: This value represents a link to another resource. You have to indicate the "_object_" as a prefixed name
   that identifies the resource class this link points to (a ":" prepended to the name is sufficient if the resource is
   defined in the current ontology).
-- `hasColor`: Defines a color value (_ColorValue_)
-- `hasComment`: Defines a "standard" comment
-- `hasGeometry`: Defines a geometry value (a JSON describing a polygon, circle or rectangle), see _ColorValue_
+- `hasColor`: Defines a color value
+- `hasComment`: Defines a standard comment
+- `hasGeometry`: Defines a geometry value (a JSON describing a polygon, circle or rectangle)
 - `isPartOf`: A special variant of _hasLinkTo_. It says that an instance of the given resource class is an integral part
   of another resource class. E.g. a "page" is part of a "book".
 - `isRegionOf`: A special variant of _hasLinkTo_. It means that the given resource class is a "region" of another
@@ -196,7 +195,7 @@ Example of a `properties` object:
       ],
       "labels": {
         "en": "School ID",
-        "de": "ID der Schule"
+        "de": "ID der Schule",
         "fr": "ID de l'école"
       },
       "gui_element": "SimpleText",
@@ -320,7 +319,7 @@ A string representation of the color in the hexadecimal form e.g. "#ff8000".
 {
   "name": "hasColor",
   "super": [
-    "hasValue"
+    "hasColor"
   ],
   "object": "ColorValue",
   "labels": {
@@ -458,7 +457,7 @@ or moving images.
 {
   "name": "hasGeometry",
   "super": [
-    "hasValue"
+    "hasGeometry"
   ],
   "object": "GeomValue",
   "labels": "Geometry",
@@ -606,7 +605,7 @@ Represents a time-interval
     - _gui_attributes_:
         - `maxlength=integer` (optional): The maximum number of characters accepted
         - `size=integer` (optional): The size of the input field
-- `Interval`: not yet implemented.
+- `Interval`: Two spin boxes, one for each decimal
     - _gui_attributes_: No attributes
 
 *Example:*
@@ -759,26 +758,28 @@ and "it" are supported).
 
 `"super": ["<super-resource>", "<super-resource>", ...]`
 
-A resource is always derived from at least one other resource. The most generic resource class for DSP is `Resource`. A resource may be derived from resources defined in external ontologies.
+A resource is always derived from at least one other resource. The most generic resource class for DSP is `Resource`. 
+A resource may be derived from resources defined in external ontologies.
 
 The following predefined resources are provided by DSP:
 
-- `Resource`: A generic resource that represents an item from the real world
-- `StillImageRepresentation`: An object that is connected to a still image
-- `TextRepresentation`: An object that is connected to an (external) text (not yet implemented)
-- `AudioRepresentation`: An object representing audio data (not yet implemented)
+- `Resource`: A generic resource representing an item from the real world. This is the most general case, to be 
+used in all cases when your resource is none of the special cases below.
+- `StillImageRepresentation`: An object representing a still image
+- `TextRepresentation`: An object representing an (external) text (not yet implemented)
+- `AudioRepresentation`: An object representing an audio file
 - `DDDRepresentation`: An object representing a 3-D representation (not yet implemented)
 - `DocumentRepresentation`: An object representing an opaque document (e.g. a PDF)
 - `MovingImageRepresentation`: An object representing a moving image (video, film)
-- `ArchiveRepresentation`: An object representing a archive file (e.g. Zip)
+- `ArchiveRepresentation`: An object representing an archive file (e.g. Zip)
 - `Annotation`: A predefined annotation object. It has automatically the following predefined properties defined:
     - `hasComment` (1-n)
     - `isAnnotationOf` (1)
-- `LinkObj`: A resource class linking together several other, generic, resource classes. The class has the following
+- `LinkObj`: A resource class linking together several other resource classes. The class has the following
   properties:
     - `hasComment` (1-n)
     - `hasLinkTo` (1-n)
-- `Region`: Represents a simple region. The class has the following properties:
+- `Region`: Represents a region in an image. The class has the following properties:
     - `hasColor` (1)
     - `isRegionOf` (1)
     - `hasGeometry` (1)
@@ -812,8 +813,7 @@ resource can have as well as how many times the relation is established.
 
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
-Comments with language tags. Currently, "de", "en", "fr" and "it" are supported. The `comments` element is mandatory but 
-can be omitted. In that case the default value `[no comment provided]` (with language "en") is used.
+Comments with language tags. Currently, "de", "en", "fr" and "it" are supported. The `comments` element is optional.
 
 Example for a resource definition:
 

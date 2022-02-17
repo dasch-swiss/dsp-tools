@@ -1,9 +1,11 @@
-from typing import Any
+from typing import Any, Union, Optional, cast
 
 from knora.dsplib.utils.excel_to_json_lists import make_json_list_from_excel, prepare_list_creation
 
 
-def expand_lists_from_excel(data_model: dict[str, Any]) -> list[str]:
+def expand_lists_from_excel(
+    data_model: dict[str, dict[str, list[dict[str, Union[str, dict[str, Any]]]]]]
+) -> list[dict[str, Any]]:
     """
     Gets all list definitions from a data model and expands them to JSON if they are only referenced via an Excel file
 
@@ -13,25 +15,24 @@ def expand_lists_from_excel(data_model: dict[str, Any]) -> list[str]:
     Returns:
         A list of all expanded lists. It can be added to the root node of an ontology as lists section.
     """
-    # create and add lists from Excel references to the ontology
-    lists = data_model["project"].get("lists")
 
-    if not lists:
+    if 'project' not in data_model or 'lists' not in data_model['project']:
         return []
 
+    lists = data_model['project']['lists']
     new_lists = []
+
     for rootnode in lists:
-        nodes = rootnode["nodes"]
+        nodes = rootnode.get('nodes')
+        listname = cast(Optional[str], rootnode.get('name'))
+        comments = cast(dict[str, Any], rootnode.get('comments'))
         # check if the folder parameter is used
-        if rootnode.get("nodes") and isinstance(nodes, dict) and nodes.get("folder"):
+        if isinstance(nodes, dict) and 'folder' in nodes and comments:
             # get the Excel files from the folder and create the rootnode of the list
-            excel_folder = nodes["folder"]
-            rootnode, excel_files = prepare_list_creation(excel_folder, rootnode.get("name"), rootnode.get("comments"))
-
+            prepared_rootnode, excel_files = prepare_list_creation(nodes['folder'], listname, comments)
             # create the list from the Excel files
-            make_json_list_from_excel(rootnode, excel_files)
-
-            new_lists.append(rootnode)
+            finished_list = make_json_list_from_excel(prepared_rootnode, excel_files)
+            new_lists.append(finished_list)
         else:
             new_lists.append(rootnode)
 

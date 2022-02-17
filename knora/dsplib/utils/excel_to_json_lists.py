@@ -268,14 +268,14 @@ def make_root_node_from_args(
             listname_en = lang_specific_listname
 
     # the listname is taken from the following sources, with descending priority
-    if isinstance(listname_from_args, str) and listname_from_args != '':
+    if listname_from_args:
         listname = listname_from_args
     elif listname_en != '':
         listname = listname_en
     else:
         listname = lang_specific_listname
 
-    rootnode = {'name': listname, 'labels': lang_specific_listname, 'comments': comments}
+    rootnode = {'name': listname, 'labels': listname_from_lang_code, 'comments': comments}
 
     return rootnode
 

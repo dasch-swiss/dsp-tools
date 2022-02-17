@@ -80,6 +80,7 @@ The following options are available:
 - `-s` | `--server` _server_: URL of the DSP server (default: 0.0.0.0:3333)
 - `-u` | `--user` _username_: username used for authentication with the DSP API (default: root@example.com)
 - `-p` | `--password` _password_: password used for authentication with the DSP API (default: test)
+- `-V` | `--validate`: If set, only the validation of the XML file is performed.
 - `-i` | `--imgdir` _dirpath_: path to the directory where the bitstream objects are stored (default: .)
 - `-S` | `--sipi` _SIPIserver_: URL of the SIPI IIIF server (default: http://0.0.0.0:1024)
 - `-I` | `--incremental` : If set, IRIs instead of internal IDs are expected as reference to already existing resources on DSP

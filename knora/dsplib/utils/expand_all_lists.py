@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any, Union, Optional, cast
 
 from knora.dsplib.utils.excel_to_json_lists import make_json_list_from_excel, prepare_list_creation
 
@@ -23,13 +23,13 @@ def expand_lists_from_excel(
     new_lists = []
 
     for rootnode in lists:
-        nodes = rootnode['nodes']
+        nodes = rootnode.get('nodes')
+        listname = cast(Optional[str], rootnode.get('name'))
+        comments = cast(dict[str, Any], rootnode.get('comments'))
         # check if the folder parameter is used
-        if nodes and isinstance(nodes, dict) and nodes.get("folder"):
+        if isinstance(nodes, dict) and 'folder' in nodes and comments:
             # get the Excel files from the folder and create the rootnode of the list
-            prepared_rootnode, excel_files = prepare_list_creation(
-                nodes['folder'], str(rootnode['name']), rootnode['comments']
-            )
+            prepared_rootnode, excel_files = prepare_list_creation(nodes['folder'], listname, comments)
             # create the list from the Excel files
             finished_list = make_json_list_from_excel(prepared_rootnode, excel_files)
             new_lists.append(finished_list)

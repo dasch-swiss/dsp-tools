@@ -7,7 +7,7 @@ def expand_lists_from_excel(
     data_model: dict[str, dict[str, list[dict[str, Union[str, dict[str, Any]]]]]]
 ) -> list[dict[str, Any]]:
     """
-    Get all list definitions from a data model and expand them to JSON if they are only referenced via an Excel file
+    Gets all list definitions from a data model and expands them to JSON if they are only referenced via an Excel file
 
     Args:
         data_model: The data model (JSON) the lists are read from

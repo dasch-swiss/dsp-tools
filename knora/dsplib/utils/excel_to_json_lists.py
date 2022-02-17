@@ -270,7 +270,7 @@ def make_root_node_from_args(
     # the listname is taken from the following sources, with descending priority
     if listname_from_args:
         listname = listname_from_args
-    elif listname_en != '':
+    elif listname_en:
         listname = listname_en
     else:
         listname = lang_specific_listname
@@ -309,7 +309,7 @@ def prepare_list_creation(
     comments: dict[str, Any]
 ) -> tuple[dict[str, Any], list[str]]:
     """
-    Create the list of Excel files that can be used to build a JSON list. Then, create the root node for the JSON list.
+    Creates the list from Excel files that can be used to build a JSON list. Then, creates the root node for the JSON list.
 
     Args:
         excelfolder: path to the folder containing the Excel file(s)
@@ -337,7 +337,7 @@ def prepare_list_creation(
                    if not os.path.basename(filename).startswith('~$')
                    and os.path.isfile(filename)]
 
-    # log the files that can be used
+    # print the files that can be used
     print('Found the following files:')
     for file in excel_files:
         print(file)

@@ -21,6 +21,9 @@ py_test(
     deps = [
         "//knora/dsplib/utils:excel_to_json_lists"
     ],
+    data = [
+        "//testdata",
+    ]
 )
 
 py_test(

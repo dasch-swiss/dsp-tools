@@ -22,24 +22,17 @@
                 "labels": {
                     "en": "Testlist"
                 },
-                "comments": {
-                    "en": "no comment",
-                    "de": "kein Kommentar"
-                },
                 "nodes": [
                     {
                         "name": "a",
                         "labels": {
                             "en": "a_label with a\"post'rophes"
-                        },
-                        "comments": {
-                            "en": "no comment"
                         }
                     },
                     {
                         "name": "b",
                         "labels": {
-                            "en": "b_label with no comment"
+                            "en": "b_label with a comment"
                         },
                         "nodes": [
                             {
@@ -60,9 +53,6 @@
                         "name": "c",
                         "labels": {
                             "en": "c_label"
-                        },
-                        "comments": {
-                            "en": "no comment"
                         }
                     }
                 ]
@@ -86,18 +76,11 @@
                 "labels": {
                     "en": "Not used list"
                 },
-                "comments": {
-                    "en": "no comment",
-                    "de": "kein Kommentar"
-                },
                 "nodes": [
                     {
                         "name": "notUsedNode_1",
                         "labels": {
                             "en": "nodeLabel_1"
-                        },
-                        "comments": {
-                            "en": "no comment"
                         }
                     }
                 ]
@@ -185,6 +168,10 @@
                         "object": "TextValue",
                         "labels": {
                             "en": "Text"
+                        },
+                        "comments": {
+                            "en": "properties can optionally have comments",
+                            "de": "Properties können Kommentare haben"
                         },
                         "gui_element": "SimpleText",
                         "gui_attributes": {
@@ -358,10 +345,6 @@
                         "labels": {
                             "en": "TestThing"
                         },
-                        "comments": {
-                            "en": "A thing to test things",
-                            "de": "Ein Ding um allerlei Dinge zu testen."
-                        },
                         "cardinalities": [
                             {
                                 "propname": ":hasText",
@@ -440,9 +423,6 @@
                         "super": "Resource",
                         "labels": {
                             "en": "Another Test Thing"
-                        },
-                        "comments": {
-                            "en": "Another thing for testing  things."
                         },
                         "cardinalities": [
                             {

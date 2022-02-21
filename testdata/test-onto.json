@@ -31,9 +31,6 @@
                         "name": "a",
                         "labels": {
                             "en": "a_label with a\"post'rophes"
-                        },
-                        "comments": {
-                            "en": "no comment"
                         }
                     },
                     {
@@ -60,9 +57,6 @@
                         "name": "c",
                         "labels": {
                             "en": "c_label"
-                        },
-                        "comments": {
-                            "en": "no comment"
                         }
                     }
                 ]
@@ -95,9 +89,6 @@
                         "name": "notUsedNode_1",
                         "labels": {
                             "en": "nodeLabel_1"
-                        },
-                        "comments": {
-                            "en": "no comment"
                         }
                     }
                 ]
@@ -185,6 +176,10 @@
                         "object": "TextValue",
                         "labels": {
                             "en": "Text"
+                        },
+                        "comments": {
+                            "en": "properties can optionally have comments",
+                            "de": "Properties können Kommentare haben"
                         },
                         "gui_element": "SimpleText",
                         "gui_attributes": {
@@ -358,10 +353,6 @@
                         "labels": {
                             "en": "TestThing"
                         },
-                        "comments": {
-                            "en": "A thing to test things",
-                            "de": "Ein Ding um allerlei Dinge zu testen."
-                        },
                         "cardinalities": [
                             {
                                 "propname": ":hasText",
@@ -440,9 +431,6 @@
                         "super": "Resource",
                         "labels": {
                             "en": "Another Test Thing"
-                        },
-                        "comments": {
-                            "en": "Another thing for testing  things."
                         },
                         "cardinalities": [
                             {

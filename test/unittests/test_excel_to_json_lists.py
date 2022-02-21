@@ -3,6 +3,7 @@ import os
 import unittest
 import json
 import jsonpath_ng
+import jsonpath_ng.ext
 import pandas
 
 from knora.dsplib.utils import excel_to_json_lists as e2l

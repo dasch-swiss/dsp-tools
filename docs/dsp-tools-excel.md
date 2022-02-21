@@ -107,7 +107,7 @@ The output is written to the file `list.json`.
 dsp-tools excel listfolder list.json
 ```
 
-The two Excel files `Beschreibung_de.xlsx` and `description_en.xlsx` are located in a folder called `lists`.
+The two Excel files `Beschreibung_de.xlsx` and `description_en.xlsx` are located in a folder called `listfolder`.
 
 ```
 listfolder

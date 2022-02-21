@@ -86,8 +86,9 @@ def get_values_from_excel(
             list_of_lists_of_previous_cell_values.append(new_check_list)
 
             if contains_duplicates(list_of_lists_of_previous_cell_values):
-                print('There is at least one duplicate node in the list. Found duplicate: ', cell.value.strip())
-                quit()
+                print(f'There is at least one duplicate node in the list. Found duplicate in column {cell.column}, '
+                      f'row {cell.row}:\n"{cell.value.strip()}"')
+                quit(1)
 
             # create a simplified version of the cell value and use it as name of the node
             nodename = simplify_name(cell.value.strip())
@@ -102,7 +103,13 @@ def get_values_from_excel(
             # read label values from the other Excel files (other languages)
             labels_dict: dict[str, str] = {}
             for other_lang, ws_other_lang in excelfiles.items():
-                labels_dict[other_lang] = ws_other_lang.cell(column=col, row=row).value.strip()
+                cell_value = ws_other_lang.cell(column=col, row=row).value
+                if not(isinstance(cell_value, str) and len(cell_value) > 0):
+                    print(f'ERROR: Malformed Excel file: The Excel file with the language code "{other_lang}" '
+                          f'should have a value in row {row}, column {col}')
+                    quit(1)
+                else:
+                    labels_dict[other_lang] = cell_value.strip()
 
             # create current node from extracted cell values and append it to the nodes list
             currentnode = {'name': nodename, 'labels': labels_dict}

@@ -295,6 +295,7 @@
                                 "ListValue",
                                 "Region",
                                 "Resource",
+                                "Representation",
                                 "Annotation"
                             ]
                         },

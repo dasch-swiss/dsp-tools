@@ -702,33 +702,22 @@ class ResourceClass(Model):
                 superclasses = list(map(resolve_resref, self._superclasses))
             if self._label is None or self._label.isEmpty():
                 self._label = LangString("no label available")
+            tmp = {
+                "@id": ontid,  # self._ontology_id,
+                "@type": "owl:Ontology",
+                "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
+                "@graph": [{
+                    "@id": resid,
+                    "@type": "owl:Class",
+                    "rdfs:label": self._label.toJsonLdObj(),
+                    "rdfs:subClassOf": superclasses
+                }],
+                "@context": self._context.toJsonObj(),
+            }
             if self._comment:
-                tmp = {
-                    "@id": ontid,  # self._ontology_id,
-                    "@type": "owl:Ontology",
-                    "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
-                    "@graph": [{
-                        "@id": resid,
-                        "@type": "owl:Class",
-                        "rdfs:label": self._label.toJsonLdObj(),
-                        "rdfs:comment": self._comment.toJsonLdObj(),
-                        "rdfs:subClassOf": superclasses
-                    }],
-                    "@context": self._context.toJsonObj(),
-                }
-            else:
-                tmp = {
-                    "@id": ontid,  # self._ontology_id,
-                    "@type": "owl:Ontology",
-                    "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
-                    "@graph": [{
-                        "@id": resid,
-                        "@type": "owl:Class",
-                        "rdfs:label": self._label.toJsonLdObj(),
-                        "rdfs:subClassOf": superclasses
-                    }],
-                    "@context": self._context.toJsonObj(),
-                }
+                tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
+                print(tmp)
+
         elif action == Actions.Update:
             tmp = {
                 "@id": ontid,  # self._ontology_id,

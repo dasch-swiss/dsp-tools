@@ -22,6 +22,10 @@
                 "labels": {
                     "en": "Testlist"
                 },
+                "comments": {
+                    "en": "no comment",
+                    "de": "kein Kommentar"
+                },
                 "nodes": [
                     {
                         "name": "a",
@@ -75,6 +79,10 @@
                 "name": "notUsedList",
                 "labels": {
                     "en": "Not used list"
+                },
+                "comments": {
+                    "en": "no comment",
+                    "de": "kein Kommentar"
                 },
                 "nodes": [
                     {

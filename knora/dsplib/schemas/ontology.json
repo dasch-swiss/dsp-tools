@@ -928,7 +928,10 @@
                         "$ref": "#/definitions/node",
                         "comments": {
                             "$ref": "#/definitions/comment"
-                        }
+                        },
+                        "required": [
+                            "comments"
+                        ]
                     }
                 },
                 "ontologies": {

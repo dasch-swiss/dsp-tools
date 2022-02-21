@@ -664,7 +664,7 @@ Represents a node of a (possibly hierarchical) list
 
 `"object": "Representation"`
 
-Refers to `knora-base:Representation`. Has to be used in combination with `"super": ["hasRepresentation"]`.
+A property pointing to a `knora-base:Representation`. Has to be used in combination with `"super": ["hasRepresentation"]`. A resource having this generic property `hasRepresentation` can point to any type of Representation, be it a `StillImageRepresentation`, an `AudioRepresentation`, etc.
 
 *gui-elements / gui_attributes*:
 

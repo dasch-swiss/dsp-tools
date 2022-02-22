@@ -426,8 +426,6 @@ def create_ontology(input_file: str,
             res_comment = res_class.get("comments")
             if res_comment:
                 res_comment = LangString(res_comment)
-            else:
-                res_comment = LangString({"en": "[no comment provided]"})
             # if no cardinalities are submitted, don't create the class
             if not res_class.get("cardinalities"):
                 print(f"ERROR while trying to add cardinalities to class '{res_name}'. No cardinalities submitted. At"
@@ -505,8 +503,6 @@ def create_ontology(input_file: str,
             prop_comment = prop_class.get("comments")
             if prop_comment:
                 prop_comment = LangString(prop_comment)
-            else:
-                prop_comment = LangString({"en": "[no comment provided]"})
 
             new_prop_class = None
             try:

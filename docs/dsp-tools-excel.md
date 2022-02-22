@@ -74,72 +74,82 @@ For further information about properties, see [here](./dsp-tools-create-ontologi
 
 [not yet implemented]
 
+
+
+
+
 ## Create a list from one or several Excel files
 
+With dsp-tools, a JSON list can be created from one or several Excel files. The list can then be inserted into a JSON 
+ontology and uploaded to a DSP server. It is possible to create multilingual lists. In this case, a separate 
+Excel file has to be created for each language. The data must be in the first worksheet of each Excel file. 
+It is important that all the Excel lists have the same structure. So, the translation of a label in one Excel 
+sheet has to be in the exact same cell than the original was in the other Excel sheet (i.e. same cell index).
 
-With dsp-tools a JSON list can be created from one or several Excel files. The list can then be inserted into a JSON 
-ontology and uploaded to a DSP server. The expected structure of the Excel files is described 
-[here](./dsp-tools-create.md#lists-from-excel). It is possible to create multilingual lists. In this case, a separate 
-Excel file has to be created for each language. The data has to be in the first worksheet of the Excel file(s). 
-It is important that all the Excel lists have the same structure. So, the translation(s) of a label in one Excel 
-sheet has to be in the exact same cell (i.e. with the same cell index) in its own Excel sheet.
+**It is recommended to work from the following templates:  
+[description_en.xlsx](assets/templates/description_en.xlsx): The English list "description"  
+[Beschreibung_de.xlsx](assets/templates/Beschreibung_de.xlsx): Its German counterpart "Beschreibung"**
+
+The Excel sheets must have the following structure:
+![img-list-english-example.png](assets/images/img-list-english-example.png)
+![img-list-german-example.png](assets/images/img-list-german-example.png)
 
 Only Excel files with file extension `.xlsx` are considered. All Excel files have to be located in the same directory. 
 When calling the `excel` command, this folder is provided as an argument to the call. The language of the labels has 
-to be provided in the Excel file's file name after an underline and before the file extension, p.ex. `liste_de.xlsx` 
-would be considered a list with German (`de`) labels, `list_en.xlsx` a list with English (`en`) labels. The language 
-has to be a valid ISO 639-1 or ISO 639-2 language code.
+to be provided in the Excel file's file name after an underline and before the file extension, e.g. 
+`Beschreibung_de.xlsx` would be considered a list with German (`de`) labels, `description_en.xlsx` a list with 
+English (`en`) labels. The language has to be one of {de, en, fr, it}.
 
-The following example shows how to create a JSON list from two Excel files which are in a directory called `lists`. 
+The following example shows how to create a JSON list from two Excel files which are in a directory called `listfolder`. 
 The output is written to the file `list.json`.
 
 ```bash
-dsp-tools excel lists list.json
+dsp-tools excel listfolder list.json
 ```
 
-The two Excel files `liste_de.xlsx` and `list_en.xlsx` are located in a folder called `lists`. `liste_de.xlsx` 
-contains German labels for the list, `list_en.xlsx` contains the English labels.
+The two Excel files `Beschreibung_de.xlsx` and `description_en.xlsx` are located in a folder called `listfolder`.
 
 ```
-lists
-    |__ liste_de.xlsx
-    |__ list_en.xlsx
+listfolder
+    |__ Beschreibung_de.xlsx
+    |__ description_en.xlsx
 ```
 
-For each list node, the `label`s are read from the Excel files. The language code, provided in the file name, is then 
-used for the labels. As node `name`, a simplified version of the English label is taken if English is one of the 
+For each list node, the labels are read from the Excel files. The language code, provided in the file name, is then 
+used for the labels. As node name, a simplified version of the English label is taken if English is one of the 
 available languages. If English is not available, one of the other languages is chosen (which one depends on the 
 representation of the file order). If there are two node names with the same name, an incrementing number is appended to
 the `name`.
 
 ```JSON
 {
-  "name": "sand",
+  "name": "description",
   "labels": {
-    "de": "Sand",
-    "en": "sand"
+    "de": "Beschreibung",
+    "en": "description"
   },
   "nodes": [
     {
-      "name": "fine-sand",
+      "name": "first-sublist",
       "labels": {
-        "de": "Feinsand",
-        "en": "fine sand"
-      }
-    },
-    {
-      "name": "medium-sand",
-      "labels": {
-        "de": "Mittelsand",
-        "en": "medium sand"
-      }
-    },
-    {
-      "name": "coarse-sand",
-      "labels": {
-        "de": "Grobsand",
-        "en": "coarse sand"
-      }
+        "de": "erste Unterliste",
+        "en": "first sublist"
+      },
+      "nodes": [
+        {
+          "name": "first-subnode",
+          "labels": {
+            "de": "erster Listenknoten",
+            "en": "first subnode"
+          },
+          "nodes": [
+            {
+              ...
+            }
+          ]
+        },
+        ...
+      ]
     }
   ]
 }

@@ -700,8 +700,6 @@ class ResourceClass(Model):
                 superclasses = [{"@id": "knora-api:Resource"}]
             else:
                 superclasses = list(map(resolve_resref, self._superclasses))
-            if self._comment is None or self._comment.isEmpty():
-                self._comment = LangString({"en": "[no comment provided]"})
             if self._label is None or self._label.isEmpty():
                 self._label = LangString("no label available")
             tmp = {
@@ -712,11 +710,14 @@ class ResourceClass(Model):
                     "@id": resid,
                     "@type": "owl:Class",
                     "rdfs:label": self._label.toJsonLdObj(),
-                    "rdfs:comment": self._comment.toJsonLdObj(),
                     "rdfs:subClassOf": superclasses
                 }],
                 "@context": self._context.toJsonObj(),
             }
+            if self._comment:
+                tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
+                print(tmp)
+
         elif action == Actions.Update:
             tmp = {
                 "@id": ontid,  # self._ontology_id,

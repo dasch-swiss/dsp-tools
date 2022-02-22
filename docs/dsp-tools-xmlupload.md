@@ -768,8 +768,14 @@ To do an incremental XML upload, one of the following procedures is recommended.
 
 ```xml
 <?xml version='1.0' encoding='utf-8'?>
-<knora xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       shortcode="0001" default-ontology="anything">
+<knora 
+    xmlns="https://dasch.swiss/schema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/data.xsd"
+    shortcode="0001"
+    default-ontology="anything">
+
+    <!-- permissions: see https://docs.dasch.swiss/DSP-API/05-internals/design/api-admin/administration/#permissions -->
     <permissions id="res-default">
         <allow group="UnknownUser">RV</allow>
         <allow group="KnownUser">V</allow>
@@ -978,7 +984,7 @@ To do an incremental XML upload, one of the following procedures is recommended.
               restype=":ThingPicture"
               id="obj_0004"
               permissions="res-default">
-        <image>gaga.tif</image>
+        <bitstream>gaga.tif</bitstream>
         <text-prop name=":hasPictureTitle">
             <text permissions="prop-default" encoding="utf8">This is the famous Lena</text>
         </text-prop>

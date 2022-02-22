@@ -31,14 +31,15 @@ class TestExcelToJSONList(unittest.TestCase):
         # check that the longest Excel row(s) were correctly translated to the deepest-nested node(s)
         longest_rows_indices = input_df[input_df.count().index[-1]].notna()
         for index, row in input_df.loc[longest_rows_indices].iterrows():
-            jsonpath_elems = [e2l.simplify_name(cell.strip()) for cell in row]
+            jsonpath_elems = [cell.strip() for cell in row]
             parser_string = '$'
             for elem in jsonpath_elems:
-                parser_string = parser_string + f'.nodes[?(@.name == "{elem}")]'
+                parser_string = parser_string + f'.nodes[?(@.labels.en == "{elem}")]'
             node_match = jsonpath_ng.ext.parse(parser_string).find(output_as_dict)
             self.assertTrue(
                 len(node_match) == 1,
-                f'The node {jsonpath_elems[-1]} from Excel row {index+1} could not be found in the output JSON file.'
+                f'The node "{jsonpath_elems[-1]}" from Excel row {index+1} was not correctly translated to the output '
+                f'JSON file.'
             )
 
 

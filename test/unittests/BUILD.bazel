@@ -16,6 +16,17 @@ py_test(
 )
 
 py_test(
+    name = "test_excel_to_json_lists",
+    srcs = ["test_excel_to_json_lists.py"],
+    deps = [
+        "//knora/dsplib/utils:excel_to_json_lists"
+    ],
+    data = [
+        "//testdata",
+    ]
+)
+
+py_test(
     name = "test_langstring",
     srcs = ["test_langstring.py"],
 )

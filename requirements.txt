@@ -16,6 +16,7 @@ isodate==0.6.0
 Jinja2==3.0.2
 joblib==1.1.0
 jsonschema==4.2.1
+jsonpath_ng==1.5.3
 keyring==23.2.1
 livereload==2.6.3
 lunr==0.5.8
@@ -32,6 +33,7 @@ mkdocstrings==0.16.2
 nltk==3.6.6
 openpyxl==3.0.9
 packaging==21.2
+pandas==1.4.1
 pkginfo==1.7.1
 Pygments==2.10.0
 pymdown-extensions==9.0

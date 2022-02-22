@@ -258,6 +258,7 @@ on the data type. The following data types are allowed:
 - `UriValue`
 - `IntervalValue`
 - `ListValue`
+- `Representation`
 - any previously defined resource class in case of a link property
 
 #### TextValue
@@ -301,31 +302,80 @@ Represents a text that may contain standoff markup.
 }
 ```
 
-#### ColorValue
+#### IntValue
 
-`"object": "ColorValue"`
+`"object": "IntValue"`
 
-A string representation of the color in the hexadecimal form e.g. "#ff8000".
+Represents an integer value.
 
 *gui-elements / gui_attributes*:
 
-- `Colorpicker`: The only GUI element for _ColorValue_. It's used to choose a color.
+- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
+  "maxlength=integer" and "size=integer" are optional.
     - _gui_attributes_:
-        - `ncolors=integer` (optional): Number of colors the color picker should present.
+        - `maxlength=integer` (optional): The maximum number of characters accepted
+        - `size=integer` (optional): The size of the input field
+- `Spinbox`: A GUI element for _IntegerValue_. A text field with and "up"- and "down"-button for increment/decrement.
+  The attributes "max=decimal" and "min=decimal" are optional.
+    - _gui_attributes_:
+        - `max=decimal` (optional): Maximal value
+        - `min=decimal` (optional): Minimal value
 
 *Example:*
 
 ```json
 {
-  "name": "hasColor",
+  "name": "hasInteger",
   "super": [
-    "hasColor"
+    "hasValue"
   ],
-  "object": "ColorValue",
+  "object": "IntValue",
   "labels": {
-    "en": "Color"
+    "en": "Integer"
   },
-  "gui_element": "Colorpicker"
+  "gui_element": "Spinbox",
+  "gui_attributes": {
+    "max": 10.0,
+    "min": 0.0
+  }
+}
+```
+
+#### DecimalValue
+
+`"object": "DecimalValue"`
+
+A number with decimal point.
+
+*gui-elements / gui_attributes*:
+
+- `Slider`: A GUI element for _DecimalValue_. Provides a slider to select a decimal value.
+    - _gui_attributes_:
+        - `max=decimal` (mandatory): maximal value
+        - `min=decimal` (mandatory): minimal value
+- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
+  "maxlength=integer" and "size=integer" are optional.
+    - _gui_attributes_:
+        - `maxlength=integer` (optional): maximum number of characters accepted
+        - `size=integer` (optional): size of the input field
+
+*Example:*
+
+```json
+{
+  "name": "hasDecimal",
+  "super": [
+    "hasValue"
+  ],
+  "object": "DecimalValue",
+  "labels": {
+    "en": "Decimal number"
+  },
+  "gui_element": "SimpleText",
+  "gui_attributes": {
+    "maxlength": 255,
+    "size": 80
+  }
 }
 ```
 
@@ -396,107 +446,11 @@ A time value represents a precise moment in time in the Gregorian calendar. Sinc
 }
 ```
 
-#### DecimalValue
+#### IntervalValue
 
-`"object": "DecimalValue"`
+`"object": "IntervalValue"`
 
-A number with decimal point.
-
-*gui-elements / gui_attributes*:
-
-- `Slider`: A GUI element for _DecimalValue_. Provides a slider to select a decimal value.
-    - _gui_attributes_:
-        - `max=decimal` (mandatory): maximal value
-        - `min=decimal` (mandatory): minimal value
-- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
-  "maxlength=integer" and "size=integer" are optional.
-    - _gui_attributes_:
-        - `maxlength=integer` (optional): maximum number of characters accepted
-        - `size=integer` (optional): size of the input field
-
-*Example:*
-
-```json
-{
-  "name": "hasDecimal",
-  "super": [
-    "hasValue"
-  ],
-  "object": "DecimalValue",
-  "labels": {
-    "en": "Decimal number"
-  },
-  "gui_element": "SimpleText",
-  "gui_attributes": {
-    "maxlength": 255,
-    "size": 80
-  }
-}
-```  
-
-#### GeomValue
-
-`"object": "GeomValue"`
-
-Represents a geometrical shape as JSON. Geometrical shapes are used to define regions of interest (ROI) on still images
-or moving images.
-
-*gui-elements / gui_attributes*:
-
-- `Geometry`: not yet implemented.
-    - _gui_attributes_: No attributes
-- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
-  "maxlength=integer" and "size=integer" are optional.
-    - _gui_attributes_:
-        - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer` (optional): The size of the input field
-
-*Example*:
-
-```json
-{
-  "name": "hasGeometry",
-  "super": [
-    "hasGeometry"
-  ],
-  "object": "GeomValue",
-  "labels": "Geometry",
-  "gui_element": "SimpleText"
-}
-```
-
-#### GeonameValue
-
-Represents a location ID in geonames.org. The DSP platform uses identifiers provided by
-[geonames.org](https://geonames.orgs) to identify geographical locations.
-
-*gui-elements / gui_attributes*:
-
-- `Geonames`: The only valid GUI element for _GeonameValue_. It interfaces are with geonames.org and it allows to select
-  a location.
-    - _gui_attributes_: No attributes
-
-*Example:*
-
-```json
-{
-  "name": "hasGeoname",
-  "super": [
-    "hasValue"
-  ],
-  "object": "GeonameValue",
-  "labels": {
-    "en": "Geoname"
-  },
-  "gui_element": "Geonames"
-}
-```
-
-#### IntValue
-
-`"object": "IntValue"`
-
-Represents an integer value.
+Represents a time-interval
 
 *gui-elements / gui_attributes*:
 
@@ -505,29 +459,22 @@ Represents an integer value.
     - _gui_attributes_:
         - `maxlength=integer` (optional): The maximum number of characters accepted
         - `size=integer` (optional): The size of the input field
-- `Spinbox`: A GUI element for _IntegerValue_. A text field with and "up"- and "down"-button for increment/decrement.
-  The attributes "max=decimal" and "min=decimal" are optional.
-    - _gui_attributes_:
-        - `max=decimal` (optional): Maximal value
-        - `min=decimal` (optional): Minimal value
+- `Interval`: Two spin boxes, one for each decimal
+    - _gui_attributes_: No attributes
 
 *Example:*
 
 ```json
 {
-  "name": "hasInteger",
+  "name": "hasInterval",
   "super": [
     "hasValue"
   ],
-  "object": "IntValue",
+  "object": "IntervalValue",
   "labels": {
-    "en": "Integer"
+    "en": "Time interval"
   },
-  "gui_element": "Spinbox",
-  "gui_attributes": {
-    "max": 10.0,
-    "min": 0.0
-  }
+  "gui_element": "Interval"
 }
 ```
 
@@ -592,35 +539,89 @@ Represents an URI
 }
 ```
 
-#### IntervalValue
+#### GeonameValue
 
-`"object": "IntervalValue"`
-
-Represents a time-interval
+Represents a location ID in geonames.org. The DSP platform uses identifiers provided by
+[geonames.org](https://geonames.orgs) to identify geographical locations.
 
 *gui-elements / gui_attributes*:
 
-- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
-  "maxlength=integer" and "size=integer" are optional.
-    - _gui_attributes_:
-        - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer` (optional): The size of the input field
-- `Interval`: Two spin boxes, one for each decimal
+- `Geonames`: The only valid GUI element for _GeonameValue_. It interfaces are with geonames.org and it allows to select
+  a location.
     - _gui_attributes_: No attributes
 
 *Example:*
 
 ```json
 {
-  "name": "hasInterval",
+  "name": "hasGeoname",
   "super": [
     "hasValue"
   ],
-  "object": "IntervalValue",
+  "object": "GeonameValue",
   "labels": {
-    "en": "Time interval"
+    "en": "Geoname"
   },
-  "gui_element": "Interval"
+  "gui_element": "Geonames"
+}
+```
+
+#### ColorValue
+
+`"object": "ColorValue"`
+
+A string representation of the color in the hexadecimal form e.g. "#ff8000".
+
+*gui-elements / gui_attributes*:
+
+- `Colorpicker`: The only GUI element for _ColorValue_. It's used to choose a color.
+    - _gui_attributes_:
+        - `ncolors=integer` (optional): Number of colors the color picker should present.
+
+*Example:*
+
+```json
+{
+  "name": "hasColor",
+  "super": [
+    "hasColor"
+  ],
+  "object": "ColorValue",
+  "labels": {
+    "en": "Color"
+  },
+  "gui_element": "Colorpicker"
+}
+```
+
+#### GeomValue
+
+`"object": "GeomValue"`
+
+Represents a geometrical shape as JSON. Geometrical shapes are used to define regions of interest (ROI) on still images
+or moving images.
+
+*gui-elements / gui_attributes*:
+
+- `Geometry`: not yet implemented.
+    - _gui_attributes_: No attributes
+- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
+  "maxlength=integer" and "size=integer" are optional.
+    - _gui_attributes_:
+        - `maxlength=integer` (optional): The maximum number of characters accepted
+        - `size=integer` (optional): The size of the input field
+
+*Example*:
+
+```json
+{
+  "name": "hasGeometry",
+  "super": [
+    "hasGeometry"
+  ],
+  "object": "GeomValue",
+  "labels": "Geometry",
+  "gui_element": "SimpleText"
 }
 ```
 
@@ -659,6 +660,36 @@ Represents a node of a (possibly hierarchical) list
 }
 ```
 
+#### Representation
+
+`"object": "Representation"`
+
+A property pointing to a `knora-base:Representation`. Has to be used in combination with `"super": ["hasRepresentation"]`. A resource having this generic property `hasRepresentation` can point to any type of Representation, be it a `StillImageRepresentation`, an `AudioRepresentation`, etc.
+
+*gui-elements / gui_attributes*:
+
+- `Searchbox`: Allows searching resources that have super class `Representation` by entering at least 3 characters into
+  a searchbox.
+    - _gui_attributes_:
+        - `numprops=integer` (optional): While dynamically displaying the search result, the number of properties that
+          should be displayed.
+
+*Example:*
+
+```json
+{
+    "name": "hasRep",
+    "super": [
+        "hasRepresentation"
+    ],
+    "object": "Representation",
+    "labels": {
+        "en": "Represented by"
+    },
+        "gui_element": "Searchbox"
+    }
+```
+
 #### hasLinkTo Property
 
 `"object": ":<resource-name>"`
@@ -673,9 +704,9 @@ derived from "hasLinkTo" or "isPartOf". "isPartOf" is a special type of linked r
 
 *gui-elements/gui_attributes*:
 
-- `Searchbox`: Has to be used with _hasLinkTo_ property. Allows searching resources by entering a resource that the 
+- `Searchbox`: Has to be used with _hasLinkTo_ property. Allows searching resources by entering the resource name that the 
   given resource should link to. It has one gui_attribute that indicates how many properties of the found resources 
-  should be indicated. This is mandatory.
+  should be indicated.
     - _gui_attributes_:
         - `numprops=integer` (optional): While dynamically displaying the search result, the number of properties that
           should be displayed.

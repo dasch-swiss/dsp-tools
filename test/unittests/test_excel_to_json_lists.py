@@ -1,4 +1,4 @@
-"""unit tests for excel to JSON list"""
+"""unit tests for Excel to JSON list"""
 import os
 import unittest
 import json
@@ -29,8 +29,12 @@ class TestExcelToJSONList(unittest.TestCase):
         )
 
         # check that the longest Excel row(s) were correctly translated to the deepest-nested node(s)
-        longest_rows_indices = input_df[input_df.count().index[-1]].notna()
-        for index, row in input_df.loc[longest_rows_indices].iterrows():
+        last_non_empty_column_index = input_df.count().index[-1]
+        longest_rows_selector = input_df[last_non_empty_column_index].notna()
+            # count() returns a Series that maps each column number to the number of entries it contains
+            # index[-1] returns the number of the last non-empty column (in this test case: 3)
+            # input_df[3].notna() returns a boolean Series with 'true' for every non-empty cell in column 3
+        for index, row in input_df.loc[longest_rows_selector].iterrows():
             jsonpath_elems = [cell.strip() for cell in row]
             parser_string = '$'
             for elem in jsonpath_elems:

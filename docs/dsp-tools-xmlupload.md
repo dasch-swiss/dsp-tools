@@ -547,8 +547,8 @@ Example:
 
 ### &lt;interval-prop&gt;
 
-The `<interval-prop>` element is used for intervals between two decimal numbers. It must contain at least one
-`<interval>` element.
+The `<interval-prop>` element is used for intervals with a start and an end point on a timeline, e.g. relative to the beginning of an audio or video file. 
+An `<interval-prop>`  must contain at least one `<interval>` element.
 
 Attributes:
 
@@ -556,7 +556,9 @@ Attributes:
 
 #### &lt;interval&gt;
 
-The `<interval>` element contains two decimals separated by a colon (`:`).
+A time interval is represented by plain decimal numbers (=seconds), without a special notation for minutes and hours. 
+The `<interval>` element contains two decimals separated by a colon (`:`). The places before the decimal point are 
+seconds, and the places after the decimal points are fractions of a second.
 
 Attributes:
 
@@ -567,7 +569,8 @@ Example:
 
 ```xml
 <interval-prop name=":hasInterval">
-  <interval>1.5:3.12</interval>
+  <interval>60.5:120.5</interval>          <!-- 0:01:00.5 - 0:02:00.5 -->
+  <interval>61:3600</interval>             <!-- 0:01:01 - 1:00:00 -->
 </interval-prop>
 ```
 

@@ -716,7 +716,6 @@ class ResourceClass(Model):
             }
             if self._comment:
                 tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
-                print(tmp)
 
         elif action == Actions.Update:
             tmp = {

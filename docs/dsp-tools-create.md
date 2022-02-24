@@ -66,8 +66,8 @@ full qualified IRI each time it is used. So, instead of writing a property calle
 }
 ```
 
-Note that prefixes can be defined for the ontologies defined in this file, but this is only necessary if the ontology
-needs to be referred to explicitly by another ontology within the same file.
+It is not necessary to define prefixes for the ontologies that are defined in this file. Ontologies in the same
+file can refer to each other via their name. See also [here](./dsp-tools-create-ontologies.md#referencing-ontologies).
 
 ### "$schema" object
 

@@ -905,5 +905,5 @@ it is necessary to reference entities that are defined elsewhere. The following 
   [prefixes](dsp-tools-create.md#prefixes-object) and the prefix must be identical to the ontology's `name`.  
 - A different ontology defined in the same file: Within one data model file, multiple ontologies can be defined.
   These will be created in the exact order they appear in the `ontologies` array. Once an ontology has been created,
-  it can be referenced by the following ontologies, provided it is added in the
-  [prefixes](dsp-tools-create.md#prefixes-object).
+  it can be referenced by the following ontologies via its name: `first-onto:hasName`. It is not necessary to add 
+  `first-onto` to the prefixes.

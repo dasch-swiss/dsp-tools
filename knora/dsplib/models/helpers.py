@@ -162,7 +162,7 @@ class Context:
         # add ontologies from context, if any
         if context:
             for prefix, onto in context.items():
-                self._context[prefix] = OntoInfo(onto.removesuffix('#'), onto.endswith('#'))
+                self._context[prefix] = OntoInfo(onto.removesuffix('#'), True)
 
         # add standard ontologies (rdf, rdfs, owl, xsl)
         for k, v in self.base_ontologies.items():

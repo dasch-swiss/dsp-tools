@@ -25,7 +25,7 @@ class KnoraStandoffXml:
     def getXml(self) -> str:
         return self.__xmlstr
 
-    def findall(self) -> Union[list[str], None]:
+    def get_all_iris(self) -> Union[list[str], None]:
         return self.__iriregexp.findall(self.__xmlstr)
 
     def replace(self, fromStr: str, toStr: str) -> None:

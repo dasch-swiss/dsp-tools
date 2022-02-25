@@ -275,7 +275,7 @@ class ResourceInstance(Model):
             tmp['@context'] = self.context
         return tmp
 
-    def create(self):
+    def create(self) -> 'ResourceInstance':
         jsonobj = self.toJsonLdObj(Actions.Create)
         jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
         # print("jsondata", jsondata)
@@ -291,7 +291,8 @@ class ResourceInstance(Model):
         return self.fromJsonLdObj(con=self._con, jsonld_obj=result)
 
     def update(self):
-        pass
+        jsonobj = self.toJsonLdObj(Actions.Update)
+        ...
 
     def delete(self):
         pass
@@ -394,7 +395,7 @@ class ResourceInstanceFactory:
             return self._get_baseclass(gaga.superclasses)
         return None
 
-    def get_resclass(self, prefixedresclass: str) -> Type:
+    def get_resclass_type(self, prefixedresclass: str) -> Type:
         prefix, resclass_name = prefixedresclass.split(':')
         resclass = [x for x in self._ontologies[prefix].resource_classes if x.name == resclass_name][0]
         baseclass = self._get_baseclass(resclass.superclasses)

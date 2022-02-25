@@ -122,7 +122,7 @@ class XMLValue:
             xmlstr = xmlstr.replace('<text xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">', '')
             xmlstr = xmlstr.replace('</text>', '')
             self._value = KnoraStandoffXml(xmlstr)
-            tmp_id_list = self._value.findall()
+            tmp_id_list = self._value.get_all_iris()
             if tmp_id_list:
                 refs = set()
                 for tmp_id in tmp_id_list:
@@ -144,6 +144,10 @@ class XMLValue:
         """List of resource references"""
         return self._resrefs
 
+    @resrefs.setter
+    def resrefs(self, resrefs):
+        self._resrefs = resrefs
+
     @property
     def comment(self) -> str:
         """Comment about the value"""
@@ -158,6 +162,10 @@ class XMLValue:
     def is_richtext(self) -> bool:
         """true if text value is of type richtext, false otherwise"""
         return self._is_richtext
+
+    @value.setter
+    def value(self, value: Union[str, KnoraStandoffXml]):
+        self._value = value
 
     def print(self) -> None:
         """Prints the value and its attributes."""
@@ -321,6 +329,18 @@ class XMLResource:
         for prop in self._properties:
             prop.print()
 
+    def get_props_with_links(self) -> list[XMLProperty]:
+        link_properties: list[XMLProperty] = []
+        for prop in self._properties:
+            if prop.valtype == 'resptr':
+                link_properties.append(prop)
+            elif prop.valtype == 'text':
+                for value in prop.values:
+                    if value.resrefs is not None:
+                        link_properties.append(prop)
+                        break
+        return link_properties
+
     def get_resptrs(self) -> list[str]:
         """
         Get a list of all resource id's that are referenced by this resource
@@ -363,7 +383,7 @@ class XMLResource:
                         v = value.value  # if we do not find the id, we assume it's a valid knora IRI
                 elif prop.valtype == 'text':
                     if isinstance(value.value, KnoraStandoffXml):
-                        iri_refs = value.value.findall()
+                        iri_refs = value.value.get_all_iris()
                         for iri_ref in iri_refs:
                             res_id = iri_ref.split(':')[1]
                             iri = resiri_lookup.get(res_id)
@@ -508,7 +528,10 @@ class XmlPermission:
             a.print()
 
 
-def do_sort_order(resources: list[XMLResource], verbose) -> list[XMLResource]:
+def do_sort_order(resources: list[XMLResource], verbose) -> (
+    list[XMLResource],
+    dict[str, dict[str, dict[str, Union[str, KnoraStandoffXml]]]]
+):
     """
     Sorts a list of resources.
 
@@ -520,11 +543,14 @@ def do_sort_order(resources: list[XMLResource], verbose) -> list[XMLResource]:
         verbose: verbose output if True
 
     Returns:
-        sorted list of resources
+        list: sorted list of resources
+        dict: dict with the stashed XML texts
     """
 
     if verbose:
         print("Checking resources for unresolvable references...")
+
+    stashed_xml_texts: dict[str, dict[str, dict[str, Union[str, KnoraStandoffXml]]]] = {}
 
     # sort the resources according to outgoing resptrs
     ok_resources: list[XMLResource] = []
@@ -550,20 +576,35 @@ def do_sort_order(resources: list[XMLResource], verbose) -> list[XMLResource]:
                     nok_resources.append(resource)
         resources = nok_resources
         if len(nok_resources) == nok_len:
-            print("ERROR Unable to resolve all resptr dependencies.")
-            for res in nok_resources:
-                unresolvable_resptrs = []
-                for resptr_id in res.get_resptrs():
-                    if resptr_id not in ok_res_ids:
-                        unresolvable_resptrs.append(resptr_id)
-                print(f"\tResource '{res.id}' has unresolvable resptrs to {unresolvable_resptrs}")
-            exit(1)
+            for res in nok_resources.copy():
+                for link_prop in res.get_props_with_links():
+                    if link_prop.valtype == 'text':
+                        for value in link_prop.values:
+                            if not all([_id in ok_res_ids for _id in value.resrefs]):
+                                # stash this XML text, replace it by its hash, and remove the
+                                # problematic resrefs from the XMLValue's resrefs list
+                                value_hash = hash(value.value)
+                                if res.id not in stashed_xml_texts:
+                                    stashed_xml_texts[res.id] = {property.name: {value_hash: value.value}}
+                                else:
+                                    stashed_xml_texts[res.id][property.name] = {value_hash: value.value}
+                                value.value = value_hash
+                                ids_to_remove = [_id for _id in value.resrefs if _id not in ok_res_ids]
+                                for _id in ids_to_remove:
+                                    value.resrefs = value.resrefs.remove(_id)
+                    else:  # link_prop.valtype == 'resptr':
+                        # TODO: implement
+                        pass
+                ok_resources.append(res)
+                ok_res_ids.append(res.id)
+                nok_resources.remove(res)
         nok_len = len(nok_resources)
         nok_resources = []
         cnt += 1
         if verbose:
             print(f'{cnt}. ordering finished.')
-    return ok_resources
+
+    return ok_resources, stashed_xml_texts
 
 
 def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
@@ -700,7 +741,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
     # sort the resources (resources which do not link to others come first) but only if not an incremental upload
     if not incremental:
-        resources = do_sort_order(resources, verbose)
+        resources, stashed_xml_texts = do_sort_order(resources, verbose)
 
     sipi = Sipi(sipi, con.get_token())
 
@@ -713,9 +754,9 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         permissions_lookup[key] = perm.get_permission_instance()
 
     # create a dictionary to look up resource classes
-    res_classes: dict[str, type] = {}
+    resclass_name_2_type: dict[str, type] = {}
     for res_class_name in project.get_resclass_names():
-        res_classes[res_class_name] = project.get_resclass(res_class_name)
+        resclass_name_2_type[res_class_name] = project.get_resclass_type(res_class_name)
 
     res_iri_lookup: dict[str, str] = {}
 
@@ -738,13 +779,16 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
         try:
             # create a resource instance (ResourceInstance) from the given resource in the XML (XMLResource)
-            instance: ResourceInstance = res_classes[resource.restype](con=con,
-                                                                       label=resource.label,
-                                                                       iri=resource_iri,
-                                                                       permissions=permissions_tmp,
-                                                                       bitstream=resource_bitstream,
-                                                                       values=resource.get_propvals(res_iri_lookup,
-                                                                                                    permissions_lookup)).create()
+            resclass_type = resclass_name_2_type[resource.restype]
+            resclass_instance: ResourceInstance = resclass_type(
+                con=con,
+                label=resource.label,
+                iri=resource_iri,
+                permissions=permissions_tmp,
+                bitstream=resource_bitstream,
+                values=resource.get_propvals(res_iri_lookup, permissions_lookup)
+            )
+            resclass_instance.create()
         except BaseError as err:
             print(
                 f"ERROR while trying to create resource '{resource.label}' ({resource.id}). The error message was: {err.message}")
@@ -757,8 +801,23 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             failed_uploads.append(resource.id)
             continue
 
-        res_iri_lookup[resource.id] = instance.iri
-        print(f"Created resource '{instance.label}' ({resource.id}) with IRI '{instance.iri}'")
+        res_iri_lookup[resource.id] = resclass_instance.iri
+        print(f"Created resource '{resclass_instance.label}' ({resource.id}) with IRI '{resclass_instance.iri}'")
+
+    # update the resources with the stashed XML texts
+    for resource in stashed_xml_texts:
+        try:
+            # create a resource instance (ResourceInstance) from the given resource in the XML (XMLResource)
+            resclass_type = resclass_name_2_type[resource.restype]
+            resclass_instance: ResourceInstance = resclass_type(
+                con=con,
+                label=resource.label,
+                iri=resource_iri,
+                permissions=permissions_tmp,
+                bitstream=resource_bitstream,
+                values=resource.get_propvals(res_iri_lookup, permissions_lookup)
+            )
+            resclass_instance.update()
 
     # write mapping of internal IDs to IRIs to file with timestamp
     timestamp_now = datetime.now()

@@ -330,6 +330,10 @@ class XMLResource:
             prop.print()
 
     def get_props_with_links(self) -> list[XMLProperty]:
+        """
+        Get a list of all XMLProperties that have an outgoing link to another resource, be it a resptr-prop link
+        or a standoff link in a text.
+        """
         link_properties: list[XMLProperty] = []
         for prop in self._properties:
             if prop.valtype == 'resptr':
@@ -789,6 +793,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
                 values=resource.get_propvals(res_iri_lookup, permissions_lookup)
             )
             resclass_instance.create()
+            print("This is code from Johannes' working directory!")
         except BaseError as err:
             print(
                 f"ERROR while trying to create resource '{resource.label}' ({resource.id}). The error message was: {err.message}")
@@ -805,19 +810,19 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         print(f"Created resource '{resclass_instance.label}' ({resource.id}) with IRI '{resclass_instance.iri}'")
 
     # update the resources with the stashed XML texts
-    for resource in stashed_xml_texts:
-        try:
-            # create a resource instance (ResourceInstance) from the given resource in the XML (XMLResource)
-            resclass_type = resclass_name_2_type[resource.restype]
-            resclass_instance: ResourceInstance = resclass_type(
-                con=con,
-                label=resource.label,
-                iri=resource_iri,
-                permissions=permissions_tmp,
-                bitstream=resource_bitstream,
-                values=resource.get_propvals(res_iri_lookup, permissions_lookup)
-            )
-            resclass_instance.update()
+    # for resource in stashed_xml_texts:
+    #     try:
+    #         # create a resource instance (ResourceInstance) from the given resource in the XML (XMLResource)
+    #         resclass_type = resclass_name_2_type[resource.restype]
+    #         resclass_instance: ResourceInstance = resclass_type(
+    #             con=con,
+    #             label=resource.label,
+    #             iri=resource_iri,
+    #             permissions=permissions_tmp,
+    #             bitstream=resource_bitstream,
+    #             values=resource.get_propvals(res_iri_lookup, permissions_lookup)
+    #         )
+    #         resclass_instance.update()
 
     # write mapping of internal IDs to IRIs to file with timestamp
     timestamp_now = datetime.now()

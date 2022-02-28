@@ -398,6 +398,7 @@ def create_ontology(input_file: str,
                                     project=project,
                                     label=ontology["label"],
                                     name=ontology_name).create()
+            context.add_context(new_ontology.name, new_ontology.id + ('#' if not new_ontology.id.endswith('#') else ''))
             last_modification_date = new_ontology.lastModificationDate
             if verbose:
                 print(f"Created ontology '{ontology_name}'.")

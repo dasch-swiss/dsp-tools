@@ -363,9 +363,13 @@ class XMLResource:
                         resptrs.extend(value.resrefs)
         return resptrs
 
-    def get_propvals(self, resiri_lookup: dict[str, str], permissions_lookup: dict[str, Permissions]) -> dict[str, Permissions]:
+    def get_propvals(
+        self,
+        resiri_lookup: dict[str, str],
+        permissions_lookup: dict[str, Permissions]
+    ) -> dict[str, Union[list[Union[str, dict[str, str]]], str, dict[str, str]]]:
         """
-        Get a dictionary of the property names and their values belonging to a resource
+        Get a dictionary of the property names and their values. Replace the internal ids by their IRI first.
 
         Args:
             resiri_lookup: Is used to solve internal unique id's of resources to real IRI's
@@ -376,6 +380,7 @@ class XMLResource:
             that Knora.create_resource() expects.
         """
         prop_data = {}
+        failed_properties = []
         for prop in self._properties:
             vals: list[Union[str, dict[str, str]]] = []
             for value in prop.values:
@@ -744,8 +749,8 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             resources.append(XMLResource(child, default_ontology))
 
     # sort the resources (resources which do not link to others come first) but only if not an incremental upload
-    if not incremental:
-        resources, stashed_xml_texts = do_sort_order(resources, verbose)
+    # if not incremental:
+    #     resources, stashed_xml_texts = do_sort_order(resources, verbose)
 
     sipi = Sipi(sipi, con.get_token())
 
@@ -784,25 +789,25 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         try:
             # create a resource instance (ResourceInstance) from the given resource in the XML (XMLResource)
             resclass_type = resclass_name_2_type[resource.restype]
+            properties = resource.get_propvals(res_iri_lookup, permissions_lookup)
             resclass_instance: ResourceInstance = resclass_type(
                 con=con,
                 label=resource.label,
                 iri=resource_iri,
                 permissions=permissions_tmp,
                 bitstream=resource_bitstream,
-                values=resource.get_propvals(res_iri_lookup, permissions_lookup)
+                values=properties
             )
-            resclass_instance.create()
-            print("This is code from Johannes' working directory!")
+            resclass_instance = resclass_instance.create()
         except BaseError as err:
-            print(
-                f"ERROR while trying to create resource '{resource.label}' ({resource.id}). The error message was: {err.message}")
+            print(f"ERROR while trying to create resource '{resource.label}' ({resource.id}). "
+                  f"The error message was: {err.message}")
             failed_uploads.append(resource.id)
             continue
 
         except Exception as exception:
-            print(
-                f"ERROR while trying to create resource '{resource.label}' ({resource.id}). The error message was: {exception}")
+            print(f"EXCEPTION while trying to create resource '{resource.label}' ({resource.id}). "
+                  f"The exception message was: {exception}")
             failed_uploads.append(resource.id)
             continue
 
@@ -822,7 +827,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     #             bitstream=resource_bitstream,
     #             values=resource.get_propvals(res_iri_lookup, permissions_lookup)
     #         )
-    #         resclass_instance.update()
+    #         resclass_instance = resclass_instance.update()
 
     # write mapping of internal IDs to IRIs to file with timestamp
     timestamp_now = datetime.now()

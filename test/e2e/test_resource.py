@@ -24,7 +24,7 @@ class TestResource(unittest.TestCase):
         factory = ResourceInstanceFactory(self.con, 'anything')
 
         # get a blue_thing resource class
-        blue_thing = factory.get_resclass('anything:BlueThing')
+        blue_thing = factory.get_resclass_type('anything:BlueThing')
 
         a_blue_thing = blue_thing(con=self.con,
                                   label='BlueThing',
@@ -50,7 +50,7 @@ class TestResource(unittest.TestCase):
         self.assertEqual(new_blue_thing.value("anything:hasDecimal"), 3.14159)
         self.assertEqual(new_blue_thing.value("anything:hasText"), "Dies ist ein einfacher Text")
 
-        thing_picture = factory.get_resclass('anything:ThingPicture')
+        thing_picture = factory.get_resclass_type('anything:ThingPicture')
         sipi = Sipi('http://0.0.0.0:1024', self.con.get_token())
         img = sipi.upload_bitstream('testdata/bitstreams/TEMP11.TIF')
         file_ref = img['uploadedFiles'][0]['internalFilename']

@@ -290,8 +290,7 @@ class ResourceInstance(Model):
         return self.fromJsonLdObj(con=self._con, jsonld_obj=result)
 
     def update(self):
-        jsonobj = self.toJsonLdObj(Actions.Update)
-        ...
+        pass
 
     def delete(self):
         pass

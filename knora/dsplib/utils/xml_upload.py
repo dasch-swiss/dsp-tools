@@ -8,7 +8,7 @@ import re
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Union, cast
 from urllib.parse import quote_plus
 
 from lxml import etree
@@ -18,7 +18,7 @@ from knora.dsplib.models.group import Group
 from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.models.permission import Permissions
 from knora.dsplib.models.project import Project
-from knora.dsplib.models.resource import ResourceInstanceFactory, ResourceInstance
+from knora.dsplib.models.resource import ResourceInstanceFactory, ResourceInstance, KnoraStandoffXmlEncoder
 from knora.dsplib.models.sipi import Sipi
 from knora.dsplib.models.value import KnoraStandoffXml
 
@@ -30,7 +30,7 @@ class XmlError(BaseException):
     def __init__(self, msg: str):
         self._message = msg
 
-    def __str__(self):
+    def __str__(self) -> str:
         return 'XML-ERROR: ' + self._message
 
 
@@ -140,13 +140,17 @@ class XMLValue:
         """The actual value of the value instance"""
         return self._value
 
+    @value.setter
+    def value(self, value: Union[str, KnoraStandoffXml]) -> None:
+        self._value = value
+
     @property
     def resrefs(self) -> Optional[list[str]]:
         """List of resource references"""
         return self._resrefs
 
     @resrefs.setter
-    def resrefs(self, resrefs):
+    def resrefs(self, resrefs: Optional[list[str]]) -> None:
         self._resrefs = resrefs
 
     @property
@@ -163,10 +167,6 @@ class XMLValue:
     def is_richtext(self) -> bool:
         """true if text value is of type richtext, false otherwise"""
         return self._is_richtext
-
-    @value.setter
-    def value(self, value: Union[str, KnoraStandoffXml]):
-        self._value = value
 
     def print(self) -> None:
         """Prints the value and its attributes."""
@@ -323,11 +323,11 @@ class XMLResource:
         return self._bitstream
 
     @property
-    def properties(self):
+    def properties(self) -> list[XMLProperty]:
         return self._properties
 
     @properties.setter
-    def properties(self, new_properties: list[XMLProperty]):
+    def properties(self, new_properties: list[XMLProperty]) -> None:
         self._properties = new_properties
 
     def print(self) -> None:
@@ -365,7 +365,7 @@ class XMLResource:
         for prop in self._properties:
             if prop.valtype == 'resptr':
                 for value in prop.values:
-                    resptrs.append(value.value)
+                    resptrs.append(str(value.value))
             elif prop.valtype == 'text':
                 for value in prop.values:
                     if value.resrefs is not None:
@@ -545,31 +545,30 @@ class XmlPermission:
             a.print()
 
 
-def do_sort_order(resources: list[XMLResource], verbose) -> \
+def remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
         tuple[list[XMLResource],
-              dict[str, dict[str, dict[str, Union[str, KnoraStandoffXml]]]],
-              dict[str, dict[str, list[Union[str, KnoraStandoffXml]]]]
+              dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+              dict[XMLResource, dict[XMLProperty, list[str]]]
               ]:
     """
-    Sorts a list of resources.
-
-    Resources that reference other resources are added after the referenced resources. The method will report circular
-    references and exit with an error if there are any unresolvable references.
+    Temporarily removes problematic resource-references from a list of resources. A reference is problematic if
+    it creates a circle (circular references).
 
     Args:
-        resources: list of resources to sort
+        resources: list of resources that possibly contain circular references
         verbose: verbose output if True
 
     Returns:
-        list: sorted list of resources
-        dict: dict with the stashed XML texts
+        list: list of cleaned resources
+        stashed_xml_texts: dict with the stashed XML texts
+        stashed_resptr_props: dict with the stashed resptr-props
     """
 
     if verbose:
         print("Checking resources for unresolvable references...")
 
-    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, Union[str, KnoraStandoffXml]]]] = {}
-    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[Union[str, KnoraStandoffXml]]]] = {}
+    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]] = {}
+    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]] = {}
 
     # sort the resources according to outgoing resptrs
     ok_resources: list[XMLResource] = []
@@ -599,33 +598,36 @@ def do_sort_order(resources: list[XMLResource], verbose) -> \
                 for link_prop in res.get_props_with_links():
                     if link_prop.valtype == 'text':
                         for value in link_prop.values:
-                            if not all([_id in ok_res_ids for _id in value.resrefs]):
+                            if value.resrefs and not all([_id in ok_res_ids for _id in value.resrefs]):
                                 # stash this XML text, replace it by its hash, and remove the
                                 # problematic resrefs from the XMLValue's resrefs list
-                                value_hash = hash(value.value)
+                                value_hash = str(hash(f'{value.value}{datetime.now()}'))
                                 if res not in stashed_xml_texts:
-                                    stashed_xml_texts[res] = {link_prop: {value_hash: value.value}}
+                                    stashed_xml_texts[res] = {link_prop: {value_hash: cast(KnoraStandoffXml, value.value)}}
+                                elif link_prop not in stashed_xml_texts[res]:
+                                    stashed_xml_texts[res][link_prop] = {value_hash: cast(KnoraStandoffXml, value.value)}
                                 else:
-                                    stashed_xml_texts[res][link_prop] = {value_hash: value.value}
-                                value.value = value_hash
-                                ids_to_remove = [_id for _id in value.resrefs if _id not in ok_res_ids]
-                                for _id in ids_to_remove:
-                                    value.resrefs.remove(_id)
-                    else:  # link_prop.valtype == 'resptr':
+                                    stashed_xml_texts[res][link_prop][value_hash] = cast(KnoraStandoffXml, value.value)
+                                value.value = KnoraStandoffXml(value_hash)
+                                value.resrefs = [_id for _id in value.resrefs if _id in ok_res_ids]
+                    elif link_prop.valtype == 'resptr':
                         for value in link_prop.values.copy():
                             if value.value not in ok_res_ids:
                                 # value.value is the id of the target resource. stash it, then delete it
                                 # ...stash...
                                 if res not in stashed_resptr_props:
                                     stashed_resptr_props[res] = {}
-                                    stashed_resptr_props[res][link_prop] = [value.value]
+                                    stashed_resptr_props[res][link_prop] = [str(value.value)]
                                 else:
                                     if link_prop not in stashed_resptr_props[res]:
-                                        stashed_resptr_props[res][link_prop] = [value.value]
+                                        stashed_resptr_props[res][link_prop] = [str(value.value)]
                                     else:
-                                        stashed_resptr_props[res][link_prop].append(value.value)
+                                        stashed_resptr_props[res][link_prop].append(str(value.value))
                                 # ...delete...
                                 link_prop.values.remove(value)
+                    else:
+                        print(f'Warning in remove_circular_references(): link_prop.valtype is neither text '
+                              f'nor resptr')
                     if len(link_prop.values) == 0:
                         res.properties.remove(link_prop)
 
@@ -636,7 +638,7 @@ def do_sort_order(resources: list[XMLResource], verbose) -> \
         nok_resources = []
         cnt += 1
         if verbose:
-            print(f'{cnt}. ordering finished.')
+            print(f'{cnt}. ordering pass finished.')
 
     return ok_resources, stashed_xml_texts, stashed_resptr_props
 
@@ -706,35 +708,78 @@ def convert_ark_v0_to_resource_iri(ark: str) -> str:
 def update_xml_texts(
     resource: XMLResource,
     res_iri: str,
-    link_props: dict[str, dict[str, Union[str, KnoraStandoffXml]]],
-    con: Connection
-):
+    link_props: dict[XMLProperty, dict[str, KnoraStandoffXml]],
+    res_iri_lookup: dict[str, str],
+    con: Connection,
+    verbose: bool
+) -> None:
     existing_resource = con.get(path=f'/v2/resources/{quote_plus(res_iri)}')
     context = existing_resource['@context']
     for link_prop, hash_to_value in link_props.items():
-        for value in existing_resource[link_prop.name]:
+        values = existing_resource[link_prop.name]
+        if not isinstance(values, list):
+            values = [values, ]
+        for value in values:
             xmltext = value.get("knora-api:textValueAsXml")
-            if xmltext and xmltext in hash_to_value:
-                new_xmltext = hash_to_value[xmltext]
-                val_iri = value['@id']
-                jsonobj = {
-                    "@id": res_iri,
-                    "@type": resource.restype,
-                    link_prop: {
-                        "@id": val_iri,
-                        "@type": "knora-api:TextValue",
-                        "knora-api:textValueAsXml": new_xmltext
-                    },
-                    "@context": context
-                }
-                jsondata = json.dumps(jsonobj) # , indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
-                new_value = con.put(path='/v2/values', jsondata=jsondata)
-                if not new_value:
-                    print(f'ERROR while updating the xml text of {link_prop} of resource {resource.id}')
-                else:
-                    print(f'SUCESSFULLY updated the xml text of {link_prop} of resource {resource.id}. \n'
-                          f'The server\'s answer was: \n'
-                          f'{json.dumps(new_value, indent=4)}')
+            if xmltext:
+                _hash = re.sub(r'<\?xml.+>(\n)?(<text>)(.+)(<\/text>)', r'\3', xmltext)
+                if _hash in hash_to_value:
+                    new_xmltext = hash_to_value[_hash]
+                    for _id, _iri in res_iri_lookup.items():
+                        new_xmltext.regex_replace(f'href="IRI:{_id}:IRI"', f'href="{_iri}"')
+                    val_iri = value['@id']
+                    jsonobj = {
+                        "@id": res_iri,
+                        "@type": resource.restype,
+                        link_prop.name: {
+                            "@id": val_iri,
+                            "@type": "knora-api:TextValue",
+                            "knora-api:textValueAsXml": new_xmltext,
+                            "knora-api:textValueHasMapping": {
+                                '@id': 'http://rdfh.ch/standoff/mappings/StandardMapping'
+                            }
+                        },
+                        "@context": context
+                    }
+                    jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
+                    new_value = con.put(path='/v2/values', jsondata=jsondata)
+                    if not new_value:
+                        print(f'ERROR while updating the xml text of {link_prop.name} of resource {resource.id}')
+                    elif verbose:
+                        print(f'  Successfully updated Property: {link_prop.name} Type: XML Text\n'
+                              f'   Value: {new_xmltext}')
+
+
+def update_resptr_props(
+    resource: XMLResource,
+    res_iri: str,
+    prop_2_resptrs: dict[XMLProperty, list[str]],
+    res_iri_lookup: dict[str, str],
+    con: Connection,
+    verbose: bool
+) -> None:
+    existing_resource = con.get(path=f'/v2/resources/{quote_plus(res_iri)}')
+    context = existing_resource['@context']
+    for link_prop, resptrs in prop_2_resptrs.items():
+        for resptr in resptrs:
+            jsonobj = {
+                '@id': res_iri,
+                '@type': resource.restype,
+                f'{link_prop.name}Value': {
+                    '@type': 'knora-api:LinkValue',
+                    'knora-api:linkValueHasTargetIri': {
+                        '@id': res_iri_lookup[resptr]
+                    }
+                },
+                '@context': context
+            }
+            jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '))
+            new_value = con.post(path='/v2/values', jsondata=jsondata)
+            if not new_value:
+                print(f'ERROR while updating the resptr prop of {link_prop.name} of resource {resource.id}')
+            elif verbose:
+                print(f'  Successfully updated Property: {link_prop.name} Type: Link property\n'
+                      f'   Value: {resptr}')
 
 
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
@@ -809,9 +854,9 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
     # sort the resources (resources which do not link to others come first) but only if not an incremental upload
     if not incremental:
-        resources, stashed_xml_texts, stashed_resptr_props = do_sort_order(resources, verbose)
+        resources, stashed_xml_texts, stashed_resptr_props = remove_circular_references(resources, verbose)
 
-    sipi = Sipi(sipi, con.get_token())
+    sipi_server = Sipi(sipi, con.get_token())
 
     # get the project information and project ontology from the server
     project = ResourceInstanceFactory(con, shortcode)
@@ -839,7 +884,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
         resource_bitstream = None
         if resource.bitstream:
-            img = sipi.upload_bitstream(os.path.join(imgdir, resource.bitstream.value))
+            img = sipi_server.upload_bitstream(os.path.join(imgdir, resource.bitstream.value))
             internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 
@@ -863,7 +908,6 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
                   f"The error message was: {err.message}")
             failed_uploads.append(resource.id)
             continue
-
         except Exception as exception:
             print(f"EXCEPTION while trying to create resource '{resource.label}' ({resource.id}). "
                   f"The exception message was: {exception}")
@@ -874,23 +918,47 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         print(f"Created resource '{resclass_instance.label}' ({resource.id}) with IRI '{resclass_instance.iri}'")
 
     # update the resources with the stashed XML texts
-    # stashed_resptr_props[res][link_prop] = [value.value]
-
+    if len(stashed_xml_texts) > 0:
+        print('Update the stashed XML texts...')
     for resource, link_props in stashed_xml_texts.items():
+        print(f'Update XML text(s) of resource "{resource.id}"...')
         res_iri = res_iri_lookup[resource.id]
         try:
             update_xml_texts(
                 resource=resource,
                 res_iri=res_iri,
                 link_props=link_props,
-                con=con
+                res_iri_lookup=res_iri_lookup,
+                con=con,
+                verbose=verbose
             )
         except BaseError as err:
-            print(f'BaseError while updating an xmltext of resource {resource.id}')
+            print(f'BaseError while updating an XML text of resource {resource.id}:\n{err.message}')
+            continue
+        except Exception as exception:
+            print(f'Exception while updating an XML text of resource {resource.id}')
             continue
 
+    # update the resources with the stashed resptrs
+    if len(stashed_resptr_props) > 0:
+        print('Update the stashed resptrs...')
+    for resource, prop_2_resptrs in stashed_resptr_props.items():
+        print(f'Update resptrs of resource "{resource.id}"...')
+        res_iri = res_iri_lookup[resource.id]
+        try:
+            update_resptr_props(
+                resource=resource,
+                res_iri=res_iri,
+                prop_2_resptrs=prop_2_resptrs,
+                res_iri_lookup=res_iri_lookup,
+                con=con,
+                verbose=verbose
+            )
+        except BaseError as err:
+            print(f'BaseError while updating an XML text of resource {resource.id}:\n{err.message}')
+            continue
         except Exception as exception:
-            print(f'Exception while updating an xmltext of resource {resource.id}')
+            print(f'Exception while updating an XML text of resource {resource.id}')
             continue
 
     # write mapping of internal IDs to IRIs to file with timestamp

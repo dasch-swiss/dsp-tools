@@ -25,7 +25,7 @@ class KnoraStandoffXmlEncoder(json.JSONEncoder):
 
     def default(self, obj) -> str:
         if isinstance(obj, KnoraStandoffXml):
-            return '<?xml version="1.0" encoding="UTF-8"?>\n<text>' + obj.getXml() + '</text>'
+            return '<?xml version="1.0" encoding="UTF-8"?>\n<text>' + str(obj) + '</text>'
         elif isinstance(obj, OntoInfo):
             return obj.iri + "#" if obj.hashtag else ""
         return json.JSONEncoder.default(self, obj)

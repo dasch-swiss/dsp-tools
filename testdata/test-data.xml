@@ -36,6 +36,9 @@
         <text-prop name=":hasText">
             <text encoding="utf8">Dies ist ein TestThing ohne Angabe von permissions</text>
         </text-prop>
+        <resptr-prop name=":hasTestThing">
+            <resptr permissions="prop-default">obj_0001</resptr>
+        </resptr-prop>
     </resource>
 
     <resource label="Testthing"
@@ -47,18 +50,25 @@
             <text permissions="prop-restricted" encoding="utf8">Nochmals ein einfacher Text</text>
         </text-prop>
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">This is
-                <em>bold and
-                    <strong>string</strong>
-                </em>
-                text!
+            <text permissions="prop-default" encoding="xml">
+                This is<em>bold and<strong>string</strong></em>text! It contains links to all resources:
+                <a class="salsah-link" href="IRI:obj_0000:IRI">obj_0000</a>
+                <a class="salsah-link" href="IRI:obj_0001:IRI">obj_0001</a>
+                <a class="salsah-link" href="IRI:obj_0002:IRI">obj_0002</a>
+                <a class="salsah-link" href="IRI:obj_0003:IRI">obj_0003</a>
+                <a class="salsah-link" href="IRI:obj_0004:IRI">obj_0004</a>
+                <a class="salsah-link" href="IRI:obj_0005:IRI">obj_0005</a>
+                <a class="salsah-link" href="IRI:obj_0006:IRI">obj_0006</a>
+                <a class="salsah-link" href="IRI:obj_0007:IRI">obj_0007</a>
+                <a class="salsah-link" href="IRI:obj_0008:IRI">obj_0008</a>
+                <a class="salsah-link" href="IRI:obj_0009:IRI">obj_0009</a>
+                <a class="salsah-link" href="IRI:obj_0010:IRI">obj_0010</a>
+                <a class="salsah-link" href="IRI:obj_0011:IRI">obj_0011</a>
             </text>
         </text-prop>
-
         <uri-prop name=":hasUri">
             <uri permissions="prop-default">https://dasch.swiss</uri>
         </uri-prop>
-
         <boolean-prop name=":hasBoolean">
             <boolean permissions="prop-default">true</boolean>
         </boolean-prop>
@@ -102,11 +112,41 @@
         </resptr-prop>
     </resource>
 
+    <resource label="Testthing"
+              restype=":TestThing"
+              id="obj_0011"
+              permissions="res-default">
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
+            <text permissions="prop-restricted" encoding="utf8">Nochmals ein einfacher Text</text>
+        </text-prop>
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">
+                This is<em>bold and<strong>string</strong></em>text! It contains links to all resources:
+                <a class="salsah-link" href="IRI:obj_0000:IRI">obj_0000</a>
+                <a class="salsah-link" href="IRI:obj_0001:IRI">obj_0001</a>
+                <a class="salsah-link" href="IRI:obj_0002:IRI">obj_0002</a>
+                <a class="salsah-link" href="IRI:obj_0003:IRI">obj_0003</a>
+                <a class="salsah-link" href="IRI:obj_0004:IRI">obj_0004</a>
+                <a class="salsah-link" href="IRI:obj_0005:IRI">obj_0005</a>
+                <a class="salsah-link" href="IRI:obj_0006:IRI">obj_0006</a>
+                <a class="salsah-link" href="IRI:obj_0007:IRI">obj_0007</a>
+                <a class="salsah-link" href="IRI:obj_0008:IRI">obj_0008</a>
+                <a class="salsah-link" href="IRI:obj_0009:IRI">obj_0009</a>
+                <a class="salsah-link" href="IRI:obj_0010:IRI">obj_0010</a>
+                <a class="salsah-link" href="IRI:obj_0011:IRI">obj_0011</a>
+            </text>
+        </text-prop>
+        <boolean-prop name=":hasBoolean">
+            <boolean permissions="prop-default">false</boolean>
+        </boolean-prop>
+    </resource>
+
     <resource label="Imagething"
               restype=":ImageThing"
               id="obj_0002"
               permissions="res-default">
-        <bitstream>TEMP11.TIF</bitstream>
+        <bitstream>testdata/bitstreams/TEMP11.TIF</bitstream>
         <text-prop name=":hasText">
             <text permissions="prop-default" encoding="utf8">This is a Imagething</text>
         </text-prop>
@@ -125,7 +165,7 @@
               restype=":PartOfThing"
               id="obj_0004"
               permissions="res-default">
-        <bitstream>TEMP12.TIF</bitstream>
+        <bitstream>testdata/bitstreams/TEMP12.TIF</bitstream>
         <resptr-prop name="knora-api:isPartOf">
             <resptr permissions="prop-default">obj_0003</resptr>
         </resptr-prop>
@@ -138,7 +178,7 @@
               restype=":PartOfThing"
               id="obj_0005"
               permissions="res-default">
-        <bitstream>TEMP13.TIF</bitstream>
+        <bitstream>testdata/bitstreams/TEMP13.TIF</bitstream>
         <resptr-prop name="knora-api:isPartOf">
             <resptr permissions="prop-default">obj_0003</resptr>
         </resptr-prop>
@@ -152,7 +192,7 @@
               restype=":PartOfThing"
               id="obj_0006"
               permissions="res-default">
-        <bitstream>TEMP14.TIF</bitstream>
+        <bitstream>testdata/bitstreams/TEMP14.TIF</bitstream>
         <resptr-prop name="knora-api:isPartOf">
             <resptr permissions="prop-default">obj_0003</resptr>
         </resptr-prop>
@@ -165,7 +205,7 @@
               restype=":DocumentThing"
               id="obj_0007"
               permissions="res-default">
-        <bitstream>test.pdf</bitstream>
+        <bitstream>testdata/bitstreams/test.pdf</bitstream>
         <text-prop name=":hasText">
             <text permissions="prop-default" encoding="utf8">This is a Documentthing</text>
         </text-prop>
@@ -175,7 +215,7 @@
               restype=":TextThing"
               id="obj_0008"
               permissions="res-default">
-        <bitstream>test.csv</bitstream>
+        <bitstream>testdata/bitstreams/test.csv</bitstream>
         <text-prop name=":hasText">
             <text permissions="prop-default" encoding="utf8">This is a Textthing as CSV</text>
         </text-prop>
@@ -185,7 +225,7 @@
               restype=":ZipThing"
               id="obj_0009"
               permissions="res-default">
-        <bitstream>test.zip</bitstream>
+        <bitstream>testdata/bitstreams/test.zip</bitstream>
         <text-prop name=":hasText">
             <text permissions="prop-default" encoding="utf8">This is a Zipthing</text>
         </text-prop>
@@ -195,7 +235,7 @@
               restype=":AudioThing"
               id="obj_0010"
               permissions="res-default">
-        <bitstream>clara.wav</bitstream>
+        <bitstream>testdata/bitstreams/clara.wav</bitstream>
         <text-prop name=":hasText">
             <text permissions="prop-default" encoding="utf8">This is a Audiothing</text>
         </text-prop>

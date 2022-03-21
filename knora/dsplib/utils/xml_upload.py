@@ -532,13 +532,13 @@ class XmlPermission:
             permissions.add(allow.permission, allow.group)
         return permissions
 
-    def __str__(self):
+    def __str__(self) -> str:
         allow_str: list[str] = []
         for allow in self._allows:
             allow_str.append("{} {}".format(allow.permission, allow.group))
         return '|'.join(allow_str)
 
-    def print(self):
+    def print(self) -> None:
         """Prints the permission set"""
         print('Permission: ', self._id)
         for a in self._allows:
@@ -594,6 +594,8 @@ def remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
                     nok_resources.append(resource)
         resources = nok_resources
         if len(nok_resources) == nok_len:
+            # there are circular references. go through all problematic resources, and stash the problematic references.
+            # there are two types, text and resptr, which need to be treated differently.
             for res in nok_resources.copy():
                 for link_prop in res.get_props_with_links():
                     if link_prop.valtype == 'text':
@@ -614,7 +616,6 @@ def remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
                         for value in link_prop.values.copy():
                             if value.value not in ok_res_ids:
                                 # value.value is the id of the target resource. stash it, then delete it
-                                # ...stash...
                                 if res not in stashed_resptr_props:
                                     stashed_resptr_props[res] = {}
                                     stashed_resptr_props[res][link_prop] = [str(value.value)]
@@ -623,12 +624,15 @@ def remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
                                         stashed_resptr_props[res][link_prop] = [str(value.value)]
                                     else:
                                         stashed_resptr_props[res][link_prop].append(str(value.value))
-                                # ...delete...
                                 link_prop.values.remove(value)
                     else:
+                        # This should never happen. If this code is ever executed, it proves that there is a
+                        # misconception in the underlying assumptions of the code logic
                         print(f'Warning in remove_circular_references(): link_prop.valtype is neither text '
-                              f'nor resptr')
+                              f'nor resptr. Mistake in the underlying assumptions of the code logic.')
+
                     if len(link_prop.values) == 0:
+                        # if all values of a link property have been stashed, the property needs to be removed
                         res.properties.remove(link_prop)
 
                 ok_resources.append(res)
@@ -663,6 +667,7 @@ def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
         print("The input data file cannot be uploaded due to the following validation error(s):")
         for error in xmlschema.error_log:
             print(f"  Line {error.line}: {error.message}")
+        return False
 
 
 def convert_ark_v0_to_resource_iri(ark: str) -> str:
@@ -852,7 +857,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         elif child.tag == "resource":
             resources.append(XMLResource(child, default_ontology))
 
-    # sort the resources (resources which do not link to others come first) but only if not an incremental upload
+    # temporarily remove circular references, but only if not an incremental upload
     if not incremental:
         resources, stashed_xml_texts, stashed_resptr_props = remove_circular_references(resources, verbose)
 
@@ -933,10 +938,10 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
                 verbose=verbose
             )
         except BaseError as err:
-            print(f'BaseError while updating an XML text of resource {resource.id}:\n{err.message}')
+            print(f'BaseError while updating an XML text of resource "{resource.id}": {err.message}')
             continue
         except Exception as exception:
-            print(f'Exception while updating an XML text of resource {resource.id}')
+            print(f'Exception while updating an XML text of resource "{resource.id}": {exception}')
             continue
 
     # update the resources with the stashed resptrs
@@ -955,10 +960,10 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
                 verbose=verbose
             )
         except BaseError as err:
-            print(f'BaseError while updating an XML text of resource {resource.id}:\n{err.message}')
+            print(f'BaseError while updating an XML text of resource "{resource.id}": {err.message}')
             continue
         except Exception as exception:
-            print(f'Exception while updating an XML text of resource {resource.id}')
+            print(f'Exception while updating an XML text of resource "{resource.id}": {exception}')
             continue
 
     # write mapping of internal IDs to IRIs to file with timestamp

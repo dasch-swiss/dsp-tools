@@ -172,7 +172,7 @@ class TestTools(unittest.TestCase):
                    server=self.server,
                    user=self.user,
                    password='test',
-                   imgdir='testdata/bitstreams',
+                   imgdir='.',
                    sipi='http://0.0.0.0:1024',
                    verbose=False,
                    validate_only=False,

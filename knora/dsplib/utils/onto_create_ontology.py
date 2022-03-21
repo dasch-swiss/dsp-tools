@@ -1,6 +1,7 @@
 """This module handles the ontology creation, update and upload to a DSP server. This includes the creation and update
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
 import json
+import re
 from typing import Union, Optional, Any
 
 from knora.dsplib.models.connection import Connection
@@ -298,6 +299,25 @@ def create_users(con: Connection, users: list[dict[str, str]], groups: dict[str,
             exit(1)
 
 
+def sort_resources(ontology: dict[Any, Any]) -> list[dict[Any, Any]]:
+    onto_name = ontology['name']
+    unsorted_resources: list[dict[Any, Any]] = ontology['resources']
+    sorted_resources: list[dict[Any, Any]] = list()
+    ok_resource_names: list[str] = list()
+    while len(unsorted_resources) > 0:
+        for res in unsorted_resources.copy():
+            parent_classes = res['super']
+            if isinstance(parent_classes, str):
+                parent_classes = [parent_classes]
+            parent_classes = [re.sub(r'^:([^:]+)$', f'{onto_name}:\\1', elem) for elem in parent_classes]
+            parent_classes_okay = [not parent.startswith(onto_name) or parent in ok_resource_names for parent in parent_classes]
+            if all(parent_classes_okay):
+                sorted_resources.append(res)
+                ok_resource_names.append(res['name'])
+                unsorted_resources.remove(res)
+    return sorted_resources
+
+
 def create_ontology(input_file: str,
                     lists_file: str,
                     server: str,
@@ -418,7 +438,8 @@ def create_ontology(input_file: str,
 
         # create the empty resource classes
         new_res_classes: dict[str, ResourceClass] = {}
-        for res_class in ontology.get("resources"):
+        sorted_resources = sort_resources(ontology)
+        for res_class in sorted_resources:
             res_name = res_class.get("name")
             super_classes = res_class.get("super")
             if isinstance(super_classes, str):

@@ -300,12 +300,24 @@ def create_users(con: Connection, users: list[dict[str, str]], groups: dict[str,
 
 
 def sort_resources(ontology: dict[Any, Any]) -> list[dict[Any, Any]]:
+    """
+    In case of inheritance, parent resource classes must be uploaded before their children. This method sorts the
+    resource classes accordingly.
+
+    Args:
+        ontology: an ontology definition from a JSON file
+
+    Returns:
+        the sorted list of resource classes, in the format as it was in the JSON file
+    """
+
     onto_name = ontology['name']
     unsorted_resources: list[dict[Any, Any]] = ontology['resources']
     sorted_resources: list[dict[Any, Any]] = list()
     ok_resource_names: list[str] = list()
     while len(unsorted_resources) > 0:
         for res in unsorted_resources.copy():
+            res_name = f'{onto_name}:{res["name"]}'
             parent_classes = res['super']
             if isinstance(parent_classes, str):
                 parent_classes = [parent_classes]
@@ -313,9 +325,40 @@ def sort_resources(ontology: dict[Any, Any]) -> list[dict[Any, Any]]:
             parent_classes_okay = [not parent.startswith(onto_name) or parent in ok_resource_names for parent in parent_classes]
             if all(parent_classes_okay):
                 sorted_resources.append(res)
-                ok_resource_names.append(res['name'])
+                ok_resource_names.append(res_name)
                 unsorted_resources.remove(res)
     return sorted_resources
+
+
+def sort_prop_classes(ontology: dict[Any, Any]) -> list[dict[Any, Any]]:
+    """
+        In case of inheritance, parent properties must be uploaded before their children. This method sorts the
+        properties.
+
+        Args:
+            ontology: an ontology definition from a JSON file
+
+        Returns:
+            the sorted list of properties, in the format as it was in the JSON file
+        """
+
+    onto_name = ontology['name']
+    unsorted_prop_classes: list[dict[Any, Any]] = ontology['properties']
+    sorted_prop_classes: list[dict[Any, Any]] = list()
+    ok_propclass_names: list[str] = list()
+    while len(unsorted_prop_classes) > 0:
+        for prop in unsorted_prop_classes.copy():
+            prop_name = f'{onto_name}:{prop["name"]}'
+            parent_classes = prop.get('super', 'hasValue')
+            if isinstance(parent_classes, str):
+                parent_classes = [parent_classes]
+            parent_classes = [re.sub(r'^:([^:]+)$', f'{onto_name}:\\1', elem) for elem in parent_classes]
+            parent_classes_okay = [not parent.startswith(onto_name) or parent in ok_propclass_names for parent in parent_classes]
+            if all(parent_classes_okay):
+                sorted_prop_classes.append(prop)
+                ok_propclass_names.append(prop_name)
+                unsorted_prop_classes.remove(prop)
+    return sorted_prop_classes
 
 
 def create_ontology(input_file: str,
@@ -481,7 +524,8 @@ def create_ontology(input_file: str,
                     new_res_class.print()
 
         # create the property classes
-        for prop_class in ontology.get("properties"):
+        sorted_prop_classes = sort_prop_classes(ontology)
+        for prop_class in sorted_prop_classes:
             prop_name = prop_class.get("name")
             prop_label = LangString(prop_class.get("labels"))
 

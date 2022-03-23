@@ -1,6 +1,7 @@
 """This module handles the ontology creation, update and upload to a DSP server. This includes the creation and update
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
 import json
+import re
 from typing import Union, Optional, Any
 
 from knora.dsplib.models.connection import Connection
@@ -298,6 +299,66 @@ def create_users(con: Connection, users: list[dict[str, str]], groups: dict[str,
             exit(1)
 
 
+def sort_resources(unsorted_resources: list[dict[str, Any]], onto_name: str) -> list[dict[str, Any]]:
+    """
+    This method sorts the resource classes in an ontology according their inheritance order
+    (parent classes first).
+
+    Args:
+        unsorted_resources: list of resources from a JSON ontology definition
+        onto_name: name of the onto
+
+    Returns:
+        sorted list of resource classes
+    """
+
+    sorted_resources: list[dict[str, Any]] = list()
+    ok_resource_names: list[str] = list()
+    while len(unsorted_resources) > 0:
+        for res in unsorted_resources.copy():
+            res_name = f'{onto_name}:{res["name"]}'
+            parent_classes = res['super']
+            if isinstance(parent_classes, str):
+                parent_classes = [parent_classes]
+            parent_classes = [re.sub(r'^:([^:]+)$', f'{onto_name}:\\1', elem) for elem in parent_classes]
+            parent_classes_ok = [not parent.startswith(onto_name) or parent in ok_resource_names for parent in parent_classes]
+            if all(parent_classes_ok):
+                sorted_resources.append(res)
+                ok_resource_names.append(res_name)
+                unsorted_resources.remove(res)
+    return sorted_resources
+
+
+def sort_prop_classes(unsorted_prop_classes: list[dict[str, Any]], onto_name: str) -> list[dict[str, Any]]:
+    """
+        In case of inheritance, parent properties must be uploaded before their children. This method sorts the
+        properties.
+
+        Args:
+            unsorted_prop_classes: list of properties from a JSON ontology definition
+            onto_name: name of the onto
+
+        Returns:
+            sorted list of properties
+        """
+
+    sorted_prop_classes: list[dict[str, Any]] = list()
+    ok_propclass_names: list[str] = list()
+    while len(unsorted_prop_classes) > 0:
+        for prop in unsorted_prop_classes.copy():
+            prop_name = f'{onto_name}:{prop["name"]}'
+            parent_classes = prop.get('super', 'hasValue')
+            if isinstance(parent_classes, str):
+                parent_classes = [parent_classes]
+            parent_classes = [re.sub(r'^:([^:]+)$', f'{onto_name}:\\1', elem) for elem in parent_classes]
+            parent_classes_ok = [not parent.startswith(onto_name) or parent in ok_propclass_names for parent in parent_classes]
+            if all(parent_classes_ok):
+                sorted_prop_classes.append(prop)
+                ok_propclass_names.append(prop_name)
+                unsorted_prop_classes.remove(prop)
+    return sorted_prop_classes
+
+
 def create_ontology(input_file: str,
                     lists_file: str,
                     server: str,
@@ -418,7 +479,8 @@ def create_ontology(input_file: str,
 
         # create the empty resource classes
         new_res_classes: dict[str, ResourceClass] = {}
-        for res_class in ontology.get("resources"):
+        sorted_resources = sort_resources(ontology['resources'], ontology['name'])
+        for res_class in sorted_resources:
             res_name = res_class.get("name")
             super_classes = res_class.get("super")
             if isinstance(super_classes, str):
@@ -460,7 +522,8 @@ def create_ontology(input_file: str,
                     new_res_class.print()
 
         # create the property classes
-        for prop_class in ontology.get("properties"):
+        sorted_prop_classes = sort_prop_classes(ontology['properties'], ontology['name'])
+        for prop_class in sorted_prop_classes:
             prop_name = prop_class.get("name")
             prop_label = LangString(prop_class.get("labels"))
 

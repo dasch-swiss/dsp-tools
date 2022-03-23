@@ -299,7 +299,7 @@ def create_users(con: Connection, users: list[dict[str, str]], groups: dict[str,
             exit(1)
 
 
-def sort_resources(unsorted_resources: list[dict[Any, Any]], onto_name: str) -> list[dict[Any, Any]]:
+def sort_resources(unsorted_resources: list[dict[str, Any]], onto_name: str) -> list[dict[str, Any]]:
     """
     This method sorts the resource classes in an ontology according their inheritance order
     (parent classes first).
@@ -312,7 +312,7 @@ def sort_resources(unsorted_resources: list[dict[Any, Any]], onto_name: str) -> 
         sorted list of resource classes
     """
 
-    sorted_resources: list[dict[Any, Any]] = list()
+    sorted_resources: list[dict[str, Any]] = list()
     ok_resource_names: list[str] = list()
     while len(unsorted_resources) > 0:
         for res in unsorted_resources.copy():
@@ -329,7 +329,7 @@ def sort_resources(unsorted_resources: list[dict[Any, Any]], onto_name: str) -> 
     return sorted_resources
 
 
-def sort_prop_classes(unsorted_prop_classes: list[dict[Any, Any]], onto_name: str) -> list[dict[Any, Any]]:
+def sort_prop_classes(unsorted_prop_classes: list[dict[str, Any]], onto_name: str) -> list[dict[str, Any]]:
     """
         In case of inheritance, parent properties must be uploaded before their children. This method sorts the
         properties.
@@ -342,7 +342,7 @@ def sort_prop_classes(unsorted_prop_classes: list[dict[Any, Any]], onto_name: st
             sorted list of properties
         """
 
-    sorted_prop_classes: list[dict[Any, Any]] = list()
+    sorted_prop_classes: list[dict[str, Any]] = list()
     ok_propclass_names: list[str] = list()
     while len(unsorted_prop_classes) > 0:
         for prop in unsorted_prop_classes.copy():

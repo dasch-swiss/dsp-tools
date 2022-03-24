@@ -312,6 +312,7 @@ def sort_resources(unsorted_resources: list[dict[str, Any]], onto_name: str) -> 
         sorted list of resource classes
     """
 
+    unsorted_resources = unsorted_resources.copy()
     sorted_resources: list[dict[str, Any]] = list()
     ok_resource_names: list[str] = list()
     while len(unsorted_resources) > 0:
@@ -342,6 +343,7 @@ def sort_prop_classes(unsorted_prop_classes: list[dict[str, Any]], onto_name: st
             sorted list of properties
         """
 
+    unsorted_prop_classes = unsorted_prop_classes.copy()
     sorted_prop_classes: list[dict[str, Any]] = list()
     ok_propclass_names: list[str] = list()
     while len(unsorted_prop_classes) > 0:

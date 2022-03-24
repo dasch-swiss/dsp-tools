@@ -312,11 +312,11 @@ def sort_resources(unsorted_resources: list[dict[str, Any]], onto_name: str) -> 
         sorted list of resource classes
     """
 
-    unsorted_resources = unsorted_resources.copy()
+    unsorted_resources_copy = unsorted_resources.copy()
     sorted_resources: list[dict[str, Any]] = list()
     ok_resource_names: list[str] = list()
-    while len(unsorted_resources) > 0:
-        for res in unsorted_resources.copy():
+    while len(unsorted_resources_copy) > 0:
+        for res in unsorted_resources_copy.copy():
             res_name = f'{onto_name}:{res["name"]}'
             parent_classes = res['super']
             if isinstance(parent_classes, str):
@@ -326,7 +326,7 @@ def sort_resources(unsorted_resources: list[dict[str, Any]], onto_name: str) -> 
             if all(parent_classes_ok):
                 sorted_resources.append(res)
                 ok_resource_names.append(res_name)
-                unsorted_resources.remove(res)
+                unsorted_resources_copy.remove(res)
     return sorted_resources
 
 
@@ -343,11 +343,11 @@ def sort_prop_classes(unsorted_prop_classes: list[dict[str, Any]], onto_name: st
             sorted list of properties
         """
 
-    unsorted_prop_classes = unsorted_prop_classes.copy()
+    unsorted_prop_classes_copy = unsorted_prop_classes.copy()
     sorted_prop_classes: list[dict[str, Any]] = list()
     ok_propclass_names: list[str] = list()
-    while len(unsorted_prop_classes) > 0:
-        for prop in unsorted_prop_classes.copy():
+    while len(unsorted_prop_classes_copy) > 0:
+        for prop in unsorted_prop_classes_copy.copy():
             prop_name = f'{onto_name}:{prop["name"]}'
             parent_classes = prop.get('super', 'hasValue')
             if isinstance(parent_classes, str):
@@ -357,7 +357,7 @@ def sort_prop_classes(unsorted_prop_classes: list[dict[str, Any]], onto_name: st
             if all(parent_classes_ok):
                 sorted_prop_classes.append(prop)
                 ok_propclass_names.append(prop_name)
-                unsorted_prop_classes.remove(prop)
+                unsorted_prop_classes_copy.remove(prop)
     return sorted_prop_classes
 
 

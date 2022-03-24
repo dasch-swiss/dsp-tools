@@ -22,7 +22,7 @@ class KnoraStandoffXml:
     def __str__(self) -> str:
         return self.__xmlstr
 
-    def get_all_iris(self) -> Union[list[str], None]:
+    def get_all_iris(self) -> Optional[list[str]]:
         return self.__iriregexp.findall(self.__xmlstr)
 
     def replace(self, fromStr: str, toStr: str) -> None:

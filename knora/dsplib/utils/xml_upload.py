@@ -349,7 +349,7 @@ class XMLResource:
                 link_properties.append(prop)
             elif prop.valtype == 'text':
                 for value in prop.values:
-                    if value.resrefs is not None:
+                    if value.resrefs:
                         link_properties.append(prop)
                         break
         return link_properties
@@ -368,7 +368,7 @@ class XMLResource:
                     resptrs.append(str(value.value))
             elif prop.valtype == 'text':
                 for value in prop.values:
-                    if value.resrefs is not None:
+                    if value.resrefs:
                         resptrs.extend(value.resrefs)
         return resptrs
 
@@ -626,10 +626,8 @@ def remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
                                         stashed_resptr_props[res][link_prop].append(str(value.value))
                                 link_prop.values.remove(value)
                     else:
-                        # This should never happen. If this code is ever executed, it proves that there is a
-                        # misconception in the underlying assumptions of the code logic
-                        print(f'Warning in remove_circular_references(): link_prop.valtype is neither text '
-                              f'nor resptr. Mistake in the underlying assumptions of the code logic.')
+                        raise BaseError(f'ERROR in remove_circular_references(): link_prop.valtype is '
+                                        f'neither text nor resptr.')
 
                     if len(link_prop.values) == 0:
                         # if all values of a link property have been stashed, the property needs to be removed

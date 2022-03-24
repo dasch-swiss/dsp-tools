@@ -61,7 +61,7 @@ def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bo
     are temporarily removed.
     """
 
-    # search the ontology for all properties that are derived from hasLinkTo. store them in a dict, and map
+    # search the ontology for all properties that are derived from hasLinkTo, store them in a dict, and map
     # them to their objects (i.e. the resource classes they point to)
     # example: if the property 'rosetta:hasTextMedium' points to 'rosetta:Image2D':
     # link_properties = {'rosetta:hasTextMedium': ['rosetta:Image2D'], ...}
@@ -71,17 +71,17 @@ def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bo
         hasLinkTo_matches = jsonpath_ng.ext.parse(
             f'$.project.ontologies[{index}].properties[?@.super[*] == hasLinkTo]'
         ).find(data_model)
-        new = dict()
+        prop_obj_pair: dict[str, List[str]] = dict()
         for match in hasLinkTo_matches:
             prop = onto['name'] + ':' + match.value['name']
             target = match.value['object']
             if target != 'Resource':
                 # make the target a fully qualified name (with the ontology's name prefixed)
                 target = re.sub(r'^(:?)([^:]+)$', f'{onto["name"]}:\\2', target)
-            new[prop] = [target]
-        link_properties.update(new)
+            prop_obj_pair[prop] = [target]
+        link_properties.update(prop_obj_pair)
 
-    # in case the object of a property is "Resource", the link can point to every resource class
+    # in case the object of a property is "Resource", the link can point to any resource class
     all_res_names: List[str] = list()
     for index, onto in enumerate(ontos):
         matches = jsonpath_ng.ext.parse(f'$.resources[*].name').find(onto)
@@ -135,7 +135,7 @@ def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bo
         dependencies = {res: targets for res, targets in dependencies.items() if res in all_targets}
 
     # check the remaining dependencies (which are only the circular ones) if they have all 0-1 or 0-n
-    okay_cardinalities = ['0-1', '0-n']
+    ok_cardinalities = ['0-1', '0-n']
     notok_dependencies: dict[str, List[str]] = dict()
     for res, cards in dependencies.items():
         ontoname, resname = res.split(':')
@@ -151,7 +151,7 @@ def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bo
                 if len(match) > 0:
                     break
             card_numbers = match[0].value['cardinality']
-            if card_numbers not in okay_cardinalities:
+            if card_numbers not in ok_cardinalities:
                 if res not in notok_dependencies:
                     notok_dependencies[res] = [card]
                 else:
@@ -163,7 +163,7 @@ def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bo
         print('ERROR: Your ontology contains properties derived from "hasLinkTo" that allow circular references '
               'between resources. This is not a problem in itself, but if you try to upload data that actually '
               'contains circular references, these "hasLinkTo" cardinalities will be temporarily removed from the '
-              'problematic resources. To do so, it is important that the involved "hasLinkTo" cardinalities have a '
+              'affected resources. Therefore, it is necessary that the involved "hasLinkTo" cardinalities have a '
               'cardinality of 0-1 or 0-n. \n'
               'Please make sure that the following cardinalities have a cardinality of 0-1 or 0-n:')
         for _res, _cards in notok_dependencies.items():

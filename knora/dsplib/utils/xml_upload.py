@@ -8,7 +8,7 @@ import re
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Union, cast
+from typing import Optional, Union, cast, Tuple
 from urllib.parse import quote_plus
 
 from lxml import etree
@@ -595,54 +595,76 @@ def remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
         resources = nok_resources
         if len(nok_resources) == nok_len:
             # there are circular references. go through all problematic resources, and stash the problematic references.
-            # there are two types, text and resptr, which need to be treated differently.
-            for res in nok_resources.copy():
-                for link_prop in res.get_props_with_links():
-                    if link_prop.valtype == 'text':
-                        for value in link_prop.values:
-                            if value.resrefs and not all([_id in ok_res_ids for _id in value.resrefs]):
-                                # stash this XML text, replace it by its hash, and remove the
-                                # problematic resrefs from the XMLValue's resrefs list
-                                value_hash = str(hash(f'{value.value}{datetime.now()}'))
-                                if res not in stashed_xml_texts:
-                                    stashed_xml_texts[res] = {link_prop: {value_hash: cast(KnoraStandoffXml, value.value)}}
-                                elif link_prop not in stashed_xml_texts[res]:
-                                    stashed_xml_texts[res][link_prop] = {value_hash: cast(KnoraStandoffXml, value.value)}
-                                else:
-                                    stashed_xml_texts[res][link_prop][value_hash] = cast(KnoraStandoffXml, value.value)
-                                value.value = KnoraStandoffXml(value_hash)
-                                value.resrefs = [_id for _id in value.resrefs if _id in ok_res_ids]
-                    elif link_prop.valtype == 'resptr':
-                        for value in link_prop.values.copy():
-                            if value.value not in ok_res_ids:
-                                # value.value is the id of the target resource. stash it, then delete it
-                                if res not in stashed_resptr_props:
-                                    stashed_resptr_props[res] = {}
-                                    stashed_resptr_props[res][link_prop] = [str(value.value)]
-                                else:
-                                    if link_prop not in stashed_resptr_props[res]:
-                                        stashed_resptr_props[res][link_prop] = [str(value.value)]
-                                    else:
-                                        stashed_resptr_props[res][link_prop].append(str(value.value))
-                                link_prop.values.remove(value)
-                    else:
-                        raise BaseError(f'ERROR in remove_circular_references(): link_prop.valtype is '
-                                        f'neither text nor resptr.')
-
-                    if len(link_prop.values) == 0:
-                        # if all values of a link property have been stashed, the property needs to be removed
-                        res.properties.remove(link_prop)
-
-                ok_resources.append(res)
-                ok_res_ids.append(res.id)
-                nok_resources.remove(res)
+            nok_resources, ok_res_ids, ok_resources, stashed_xml_texts, stashed_resptr_props = stash_circular_references(
+                nok_resources,
+                ok_res_ids,
+                ok_resources,
+                stashed_xml_texts,
+                stashed_resptr_props
+            )
         nok_len = len(nok_resources)
         nok_resources = []
         cnt += 1
         if verbose:
             print(f'{cnt}. ordering pass finished.')
-
     return ok_resources, stashed_xml_texts, stashed_resptr_props
+
+
+def stash_circular_references(
+    nok_resources: list[XMLResource],
+    ok_res_ids: list[str],
+    ok_resources: list[XMLResource],
+    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]]
+) -> Tuple[
+    list[XMLResource],
+    list[str],
+    list[XMLResource],
+    dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+    dict[XMLResource, dict[XMLProperty, list[str]]]
+]:
+    for res in nok_resources.copy():
+        for link_prop in res.get_props_with_links():
+            if link_prop.valtype == 'text':
+                for value in link_prop.values:
+                    if value.resrefs and not all([_id in ok_res_ids for _id in value.resrefs]):
+                        # stash this XML text, replace it by its hash, and remove the
+                        # problematic resrefs from the XMLValue's resrefs list
+                        value_hash = str(hash(f'{value.value}{datetime.now()}'))
+                        if res not in stashed_xml_texts:
+                            stashed_xml_texts[res] = {link_prop: {value_hash: cast(KnoraStandoffXml, value.value)}}
+                        elif link_prop not in stashed_xml_texts[res]:
+                            stashed_xml_texts[res][link_prop] = {value_hash: cast(KnoraStandoffXml, value.value)}
+                        else:
+                            stashed_xml_texts[res][link_prop][value_hash] = cast(KnoraStandoffXml, value.value)
+                        value.value = KnoraStandoffXml(value_hash)
+                        value.resrefs = [_id for _id in value.resrefs if _id in ok_res_ids]
+            elif link_prop.valtype == 'resptr':
+                for value in link_prop.values.copy():
+                    if value.value not in ok_res_ids:
+                        # value.value is the id of the target resource. stash it, then delete it
+                        if res not in stashed_resptr_props:
+                            stashed_resptr_props[res] = {}
+                            stashed_resptr_props[res][link_prop] = [str(value.value)]
+                        else:
+                            if link_prop not in stashed_resptr_props[res]:
+                                stashed_resptr_props[res][link_prop] = [str(value.value)]
+                            else:
+                                stashed_resptr_props[res][link_prop].append(str(value.value))
+                        link_prop.values.remove(value)
+            else:
+                raise BaseError(f'ERROR in remove_circular_references(): link_prop.valtype is '
+                                f'neither text nor resptr.')
+
+            if len(link_prop.values) == 0:
+                # if all values of a link property have been stashed, the property needs to be removed
+                res.properties.remove(link_prop)
+
+        ok_resources.append(res)
+        ok_res_ids.append(res.id)
+        nok_resources.remove(res)
+
+    return nok_resources, ok_res_ids, ok_resources, stashed_xml_texts, stashed_resptr_props
 
 
 def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:

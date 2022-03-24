@@ -117,7 +117,7 @@ def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bo
                         dependencies[resname][cardname].extend(targets)
 
     # iteratively purge dependencies from non-circular references
-    for i in range(30):
+    for _ in range(30):
         # remove targets that point to a resource that is not in dependencies,
         # remove cardinalities that have no targets
         for res, cards in dependencies.copy().items():

@@ -891,19 +891,19 @@ Example for a resource definition:
 
 ## Referencing Ontologies
 
-For several fields, such as `super` in both `resources` and `properties` or `propname` in `cardinalities`,
-it is necessary to reference entities that are defined elsewhere. The following cases are possible.
+For several fields, such as `super` in both `resources` and `properties` or `propname` in `cardinalities`
+it is necessary to reference entities that are defined elsewhere. The following cases are possible:
 
-- DSP-API internals: These must be written *without* leading colon and should not be a fully qualified IRI.  
+- DSP API internals: They are referenced as such and do not have a leading colon.  
   E.g. `Resource`, `DocumentRepresentation` or `hasValue`
-- An external ontology: The ontology must be defined in the [prefixes](dsp-tools-create.md#prefixes-object)
-  This prefix should be used for referencing the ontology.  
+- An external ontology: The ontology must be defined in the [prefixes](dsp-tools-create.md#prefixes-object) section.
+  The prefix can then be used for referencing the ontology.  
   E.g. `foaf:familyName` or `sdo:Organization`
 - The current ontology: Within an ontology definition, references can be made by prepending a colon without a prefix.  
-  E.g. `:hasName`  
-  Optionally, an explicit prefix can be used, in this case the ontology must be added to the
-  [prefixes](dsp-tools-create.md#prefixes-object) and the prefix must be identical to the ontology's `name`.  
+  E.g. `:hasName`
+  Optionally, an explicit prefix can be used. In this case the ontology must be added to the
+  [prefixes](dsp-tools-create.md#prefixes-object) section and the prefix must be identical to the ontology's `name`.  
 - A different ontology defined in the same file: Within one data model file, multiple ontologies can be defined.
   These will be created in the exact order they appear in the `ontologies` array. Once an ontology has been created,
-  it can be referenced by the following ontologies via its name: `first-onto:hasName`. It is not necessary to add 
+  it can be referenced by the following ontologies by its name, p.ex. `first-onto:hasName`. It is not necessary to add 
   `first-onto` to the prefixes.

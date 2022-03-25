@@ -366,6 +366,17 @@
                             "en": "Another thing"
                         },
                         "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasTestThing",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": ":TestThing",
+                        "labels": {
+                            "en": "Another thing"
+                        },
+                        "gui_element": "Searchbox"
                     }
                 ],
                 "resources": [
@@ -487,6 +498,11 @@
                                 "propname": ":hasText",
                                 "gui_order": 1,
                                 "cardinality": "1"
+                            },
+                            {
+                                "propname": ":hasTestThing",
+                                "gui_order": 2,
+                                "cardinality": "0-n"
                             }
                         ]
                     },

@@ -1,7 +1,6 @@
 import os
-
 import requests
-
+from typing import Any
 from .helpers import BaseError
 
 
@@ -30,7 +29,7 @@ class Sipi:
         self.sipi_server = sipi_server
         self.token = token
 
-    def upload_bitstream(self, filepath):
+    def upload_bitstream(self, filepath: str) -> dict[Any, Any]:
         """
         Uploads a bitstream to the Sipi server
 
@@ -45,5 +44,5 @@ class Sipi:
             req = requests.post(self.sipi_server + "/upload?token=" + self.token, files=files)
         on_api_error(req)
         print(f'Uploaded file {filepath}')
-        res = req.json()
+        res: dict[Any, Any] = req.json()
         return res

@@ -25,7 +25,7 @@ class KnoraStandoffXmlEncoder(json.JSONEncoder):
 
     def default(self, obj) -> str:
         if isinstance(obj, KnoraStandoffXml):
-            return '<?xml version="1.0" encoding="UTF-8"?>\n<text>' + obj.getXml() + '</text>'
+            return '<?xml version="1.0" encoding="UTF-8"?>\n<text>' + str(obj) + '</text>'
         elif isinstance(obj, OntoInfo):
             return obj.iri + "#" if obj.hashtag else ""
         return json.JSONEncoder.default(self, obj)
@@ -275,10 +275,9 @@ class ResourceInstance(Model):
             tmp['@context'] = self.context
         return tmp
 
-    def create(self):
+    def create(self) -> 'ResourceInstance':
         jsonobj = self.toJsonLdObj(Actions.Create)
         jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
-        # print("jsondata", jsondata)
         result = self._con.post(ResourceInstance.ROUTE, jsondata)
         newinstance = self.clone()
         newinstance._iri = result['@id']
@@ -394,7 +393,7 @@ class ResourceInstanceFactory:
             return self._get_baseclass(gaga.superclasses)
         return None
 
-    def get_resclass(self, prefixedresclass: str) -> Type:
+    def get_resclass_type(self, prefixedresclass: str) -> Type:
         prefix, resclass_name = prefixedresclass.split(':')
         resclass = [x for x in self._ontologies[prefix].resource_classes if x.name == resclass_name][0]
         baseclass = self._get_baseclass(resclass.superclasses)

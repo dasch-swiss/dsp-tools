@@ -16,20 +16,20 @@ class KnoraStandoffXml:
     __iriregexp = re.compile(r'IRI:[^:]*:IRI')
     __xmlstr: str
 
-    def __init__(self, xmlstr: str) -> str:
+    def __init__(self, xmlstr: str) -> None:
         self.__xmlstr = str(xmlstr)
 
     def __str__(self) -> str:
         return self.__xmlstr
 
-    def getXml(self) -> str:
-        return self.__xmlstr
-
-    def findall(self) -> Union[list[str], None]:
+    def get_all_iris(self) -> Optional[list[str]]:
         return self.__iriregexp.findall(self.__xmlstr)
 
     def replace(self, fromStr: str, toStr: str) -> None:
         self.__xmlstr = self.__xmlstr.replace(fromStr, toStr)
+
+    def regex_replace(self, pattern: str, repl: str) -> None:
+        self.__xmlstr = re.sub(pattern=repr(pattern)[1:-1], repl=repl, string=self.__xmlstr)
 
 
 @strict

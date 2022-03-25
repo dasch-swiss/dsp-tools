@@ -169,6 +169,28 @@
                 "label": "Test ontology",
                 "properties": [
                     {
+                        "name": "hasTextChild2",
+                        "super": [
+                            ":hasTextChild1"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "hasTextChild1",
+                        "super": [
+                            ":hasText"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText"
+                    },
+                    {
                         "name": "hasText",
                         "super": [
                             "hasValue"
@@ -187,7 +209,7 @@
                             "size": 80
                         }
                     },
-                    {
+                                        {
                         "name": "hasRichtext",
                         "super": [
                             "hasValue"
@@ -344,6 +366,17 @@
                             "en": "Another thing"
                         },
                         "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasTestThing",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": ":TestThing",
+                        "labels": {
+                            "en": "Another thing"
+                        },
+                        "gui_element": "Searchbox"
                     }
                 ],
                 "resources": [
@@ -427,6 +460,34 @@
                         ]
                     },
                     {
+                        "name": "TestThing2Child2",
+                        "super": ":TestThing2Child1",
+                        "labels": {
+                            "en": "TestThing2Child2"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasTextChild2",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "TestThing2Child1",
+                        "super": ":TestThing2",
+                        "labels": {
+                            "en": "TestThing2Child1"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasTextChild1",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
                         "name": "TestThing2",
                         "super": "Resource",
                         "labels": {
@@ -437,6 +498,11 @@
                                 "propname": ":hasText",
                                 "gui_order": 1,
                                 "cardinality": "1"
+                            },
+                            {
+                                "propname": ":hasTestThing",
+                                "gui_order": 2,
+                                "cardinality": "0-n"
                             }
                         ]
                     },

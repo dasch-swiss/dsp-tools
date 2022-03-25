@@ -72,55 +72,69 @@ Structure of config.json:
         "inProperties": [list of text properties with links]            # default=all text properties
         "linksPerTextField": 1-10,                                      # default=1
         "pointToOtherResclasses": true | false                          # default=true
+    },
+    "permissions": {                                                    # default=one single permission that will be applied everywhere (the one from the example below)
+        "res-default": [V, V, CR, CR],                                  # "allows" for UnknownUser, KnownUser, Creator, ProjectAdmin (in this order)
+        ...
     }
     "outputFiles": true | false                                         # default=true
-    ...
 }
 ```
 
 
 The structure of the cardinalities:
+
+There are some shared elements that can be used in every cardinality:
 ```
 cardinalities: {
-    "hasValue_TextValue": 0-10 | {                                      # 0-10 is the "numOfProps"
+    "hasValue_TextValue" | "hasValue_ColorValue" | "hasValue_DateValue" | "hasValue_TimeValue" | 
+    "hasValue_DecimalValue" | "hasValue_GeomValue" | "hasValue_GeonameValue" | "hasValue_IntValue" | 
+    "hasValue_BooleanValue" | "hasValue_UriValue" | "hasValue_IntervalValue" | "hasValue_ListValue" | 
+    "hasColor" | "hasComment" | "hasLinkTo" | 
+    "hasRepresentation" : 0-10 | {                                      # 0-10 is the "numOfProps"
         "numOfProps": 1-10,                                             # default=1
         "numOfValuesPerProp": 1-100,                                    # default=1
-        "cardinality": "0-1" | "0-n" | "1" | "1-n",                     # default, or if in conflict with "numOfValuesPerProp": "0-n"
+        "cardinality": "0-1" | "0-n" | "1" | "1-n"                      # default, or if in conflict with "numOfValuesPerProp": "0-n"
+        "permissions": [one or more permissions from above]             # default=the first permission from above
+        "comment": "Your comment text"                                  # default=None
+}
+```
+
+In addition to the elements common to every cardinality, there are special definitions:
+```
+cardinalities: {
+    "hasValue_TextValue": {                                      
         "gui_element": "SimpleText" | "Richtext" | "Textarea",          # default="SimpleText"
         "encoding": "xml" | "utf8",                                     # default="utf8"
         "salsah-links": true | false,                                   # default determined by definition above
     },
-    "hasValue_ColorValue": 0-10 | {                                     # 0-10 is the "numOfProps"
-        "numOfProps": 1-10,                                             # default=1
-        "numOfValuesPerProp": 1-100,                                    # default=1
-        "cardinality": "0-1" | "0-n" | "1" | "1-n"                      # default, or if in conflict with "numOfValuesPerProp": "0-n"
+    "hasValue_DateValue": {
+        "dateRanges": true | false                                      # default=false
+        "calendars": ["JULIAN", "GREGORIAN"]                            # default=["GREGORIAN"]
+        "epochs": ["BCE", "CE"]                                         # default=["CE"]
+        "precisionUpTo": ["year", "month", "day"]                       # default=["day"]
     },
-    "hasValue_DateValue": 0-10 | {                                      # 0-10 is the "numOfProps"
-        "numOfProps": 1-10,                                             # default=1
-        "numOfValuesPerProp": 1-100,                                    # default=1
-        "cardinality": "0-1" | "0-n" | "1" | "1-n"                      # default, or if in conflict with "numOfValuesPerProp": "0-n"
+    "hasValue_TimeValue": {
     },
-    "hasValue_TimeValue": 0-10 | {                                      # 0-10 is the "numOfProps"
+    "hasValue_DecimalValue": {
     },
-    "hasValue_DecimalValue": 0-10 | {                                     # 0-10 is the "numOfProps"
+    "hasValue_GeomValue": {
     },
-    "hasValue_GeomValue": 0-10 | {                                      # 0-10 is the "numOfProps"
+    "hasValue_GeonameValue": {
     },
-    "hasValue_GeonameValue": 0-10 | {                                     # 0-10 is the "numOfProps"
+    "hasValue_IntValue": {
     },
-    "hasValue_IntValue": 0-10 | {                                     # 0-10 is the "numOfProps"
+    "hasValue_BooleanValue": {
     },
-    "hasValue_BooleanValue": 0-10 | {                                     # 0-10 is the "numOfProps"
+    "hasValue_UriValue": {
     },
-    "hasValue_UriValue": 0-10 | {                                     # 0-10 is the "numOfProps"
+    "hasValue_IntervalValue": {
     },
-    "hasValue_IntervalValue": 0-10 | {                                     # 0-10 is the "numOfProps"
+    "hasValue_ListValue": {
     },
-    "hasValue_ListValue": 0-10 | {                                     # 0-10 is the "numOfProps"
+    "hasColor": {
     },
-    "hasColor": 0-10 | {                                     # 0-10 is the "numOfProps"
-    },
-    "hasComment": 0-10 | {                                     # 0-10 is the "numOfProps"
+    "hasComment": {
     },
     "hasLinkTo"  --> any Resource
     "hasRepresentation" --> Representation (XML: different <resptr>s with point to Image, Audio, PDF, ...)

@@ -240,13 +240,13 @@
         </text-prop>
     </resource>
 
-    <resource label="TestThing2Child1" restype=":TestThing2Child1" id="obj_0011">
+    <resource label="TestThing2Child1" restype=":TestThing2Child1" id="obj_0012">
         <text-prop name=":hasTextChild1">
             <text encoding="utf8">Some text</text>
         </text-prop>
     </resource>
 
-    <resource label="TestThing2Child2" restype=":TestThing2Child2" id="obj_0012">
+    <resource label="TestThing2Child2" restype=":TestThing2Child2" id="obj_0013">
         <text-prop name=":hasTextChild2">
             <text encoding="utf8">Some text</text>
         </text-prop>

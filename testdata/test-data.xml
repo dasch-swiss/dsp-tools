@@ -187,7 +187,6 @@
         </integer-prop>
     </resource>
 
-
     <resource label="Partofthing-3"
               restype=":PartOfThing"
               id="obj_0006"
@@ -238,6 +237,18 @@
         <bitstream>testdata/bitstreams/clara.wav</bitstream>
         <text-prop name=":hasText">
             <text permissions="prop-default" encoding="utf8">This is a Audiothing</text>
+        </text-prop>
+    </resource>
+
+    <resource label="TestThing2Child1" restype=":TestThing2Child1" id="obj_0011">
+        <text-prop name=":hasTextChild1">
+            <text encoding="utf8">Some text</text>
+        </text-prop>
+    </resource>
+
+    <resource label="TestThing2Child2" restype=":TestThing2Child2" id="obj_0012">
+        <text-prop name=":hasTextChild2">
+            <text encoding="utf8">Some text</text>
         </text-prop>
     </resource>
 

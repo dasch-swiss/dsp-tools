@@ -16,8 +16,11 @@ from pystrict import strict
 @dataclass
 class OntoInfo:
     """
-    A small class thats holds an ontology IRI. The variable "hashtag" is True, if "#" is used s separate elements,
-    False if the element name is just appended
+    Holds an ontology IRI
+
+    Attributes:
+        iri: the ontology IRI
+        hashtag: True if "#" is used to separate elements, False if element name is appended after "/"
     """
     iri: str
     hashtag: bool
@@ -122,7 +125,10 @@ class Context:
         "skos": OntoInfo("http://www.w3.org/2004/02/skos/core", True),
         "bibtex": OntoInfo("http://purl.org/net/nknouf/ns/bibtex", True),
         "bibo": OntoInfo("http://purl.org/ontology/bibo/", False),
-        "cidoc": OntoInfo("http://purl.org/NET/cidoc-crm/core", True)
+        "cidoc": OntoInfo("http://purl.org/NET/cidoc-crm/core", True),
+        "schema": OntoInfo("https://schema.org/", False),
+        "edm": OntoInfo("http://www.europeana.eu/schemas/edm/", False),
+        "ebucore": OntoInfo("http://www.ebu.ch/metadata/ontologies/ebucore/ebucore", True)
     })
 
     knora_ontologies = ContextType({
@@ -242,8 +248,6 @@ class Context:
                 return
             if prefix in self.common_ontologies:
                 self._context[prefix] = self.common_ontologies[prefix]
-            else:
-                raise BaseError("The prefix '{}' is not known!".format(prefix))
         else:
             if iri.endswith("#"):
                 iri = iri[:-1]
@@ -303,15 +307,16 @@ class Context:
 
     def get_qualified_iri(self, val: Optional[str]) -> Optional[str]:
         """
-        We will return the full qualified IRI, if it is not yet a full qualified IRI. If
-        the IRI is already fully qualified, the we just return it.
+        Given an IRI, its fully qualified name is returned.
+        
+        Args:
+            val: The input IRI
 
-        :param val: The input short form
-        :return: the fully qualified IRI
+        Returns:
+            the fully qualified IRI
         """
-        if val is None:
+        if not val:
             return None
-        # if self.__is_iri(val):
         if IriTest.test(val):
             return val
         tmp = val.split(':')
@@ -326,7 +331,7 @@ class Context:
                 self._rcontext[entry[1].iri] = entry[0]
                 iri_info = entry[1]
             else:
-                raise BaseError("Ontology not known! Cannot generate full qualified IRI")
+                raise BaseError("Ontology not known! Cannot generate fully qualified IRI")
         if iri_info.hashtag:
             return iri_info.iri + '#' + tmp[1]
         else:
@@ -370,7 +375,7 @@ class Context:
                 prefix = entry[0]
             else:
                 raise BaseError(
-                    "Ontology {} not known! Cannot generate full qualified IRI: prefix={}".format(iri, prefix))
+                    "Ontology {} not known! Cannot generate fully qualified IRI: prefix={}".format(iri, prefix))
         return prefix + ':' + element
 
     def reduce_iri(self, iristr: str, ontoname: Optional[str] = None) -> str:

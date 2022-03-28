@@ -344,38 +344,36 @@ class Context:
         :param iri: Fully qualified IRI
         :return: Return short from of IRI ("prefix:name")
         """
-
         if iri is None:
             return None
-        #
+
         # check if the iri already has the form "prefix:name"
-        #
         m = re.match("([\\w-]+):([\\w-]+)", iri)
         if m and m.span()[1] == len(iri):
             return iri
-        # if not self.__is_iri(iri):
         if not IriTest.test(iri):
-            raise BaseError("String does not conform to IRI patter: " + iri)
+            raise BaseError(f"The IRI '{iri}' does not conform to the IRI pattern.")
 
-        splitpoint = iri.find('#')
-        if splitpoint == -1:
-            splitpoint = iri.rfind('/')
-            ontopart = iri[:splitpoint + 1]
-            element = iri[splitpoint + 1:]
+        split_point = iri.find('#')
+        if split_point == -1:
+            split_point = iri.rfind('/')
+            onto_part = iri[:split_point + 1]
+            element = iri[split_point + 1:]
         else:
-            ontopart = iri[:splitpoint]
-            element = iri[splitpoint + 1:]
-        prefix = self._rcontext.get(ontopart)
-        if prefix is None:
-            entrylist = list(filter(lambda x: x[1].iri == ontopart, self.common_ontologies.items()))
-            if len(entrylist) == 1:
-                entry = entrylist[0]
+            onto_part = iri[:split_point]
+            element = iri[split_point + 1:]
+
+        prefix = self._rcontext.get(onto_part)
+        if not prefix:
+            entry_list = list(filter(lambda x: x[1].iri == onto_part, self.common_ontologies.items()))
+            if len(entry_list) == 1:
+                entry = entry_list[0]
                 self._context[entry[0]] = entry[1]  # add to list of prefixes used
                 self._rcontext[entry[1].iri] = entry[0]
                 prefix = entry[0]
             else:
                 raise BaseError(
-                    "Ontology {} not known! Cannot generate fully qualified IRI: prefix={}".format(iri, prefix))
+                    f"Ontology '{iri}' not known! Cannot generate fully qualified IRI. The prefix was '{prefix}'")
         return prefix + ':' + element
 
     def reduce_iri(self, iristr: str, ontoname: Optional[str] = None) -> str:

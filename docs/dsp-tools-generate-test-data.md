@@ -35,7 +35,7 @@
             "AnnotationsPerResource": 1-100 | [1-100, 1-100, ...],      # default=0
             "cardinalities": {...},                                     # definition see below
             "RegionsPerResource": 1-100 | [1-100, 1-100, ...],          # default=0
-            "fileSize": "5KB"-"100MB" | ["5KB"-"100MB", ...],           # default="5KB"
+            "fileSize": "100MB" | ["100MB", ...],                       # default="5KB"
             "isCompoundedOf": {                                         # default=None
                 "resclass": another resource class (one),
                 "numOfResources": 1-1000
@@ -48,7 +48,7 @@
             "resourcesPerClass": 1-10000 | [1-10000, 1-10000, ...],     # default=10
             "AnnotationsPerResource": 1-100 | [1-100, 1-100, ...],      # default=0
             "cardinalities": {...},                                     # definition see below
-            "fileSize": "5KB"-"100MB" | ["5KB"-"100MB", ...],           # default="5KB"
+            "fileSize": "100MB" | ["100MB", ...],                       # default="5KB"
             "isCompoundedOf": {                                         # default=None
                 "resclass": another resource class (one),
                 "numOfResources": 1-1000

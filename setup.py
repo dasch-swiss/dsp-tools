@@ -10,8 +10,8 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='https://github.com/dasch-swiss/dsp-tools',
-    author='Lukas Rosenthaler',
-    author_email='lukas.rosenthaler@dasch.swiss',
+    author='DaSCH - Swiss National Data and Service Center for the Humanities',
+    author_email='support@dasch.swiss',
     license='GPLv3',
     packages=setuptools.find_packages(),
     classifiers=[

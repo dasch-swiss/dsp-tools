@@ -25,7 +25,6 @@ jobs:
             -   name: Install dependencies
                 run: |
                     sudo apt-get install ca-certificates-java expect
-                    npm install --global @bazel/bazelisk
             -   name: Set up Python 3.9
                 uses: actions/setup-python@v2
                 with:

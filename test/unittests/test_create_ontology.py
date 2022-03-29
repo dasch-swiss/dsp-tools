@@ -7,7 +7,9 @@ from knora.dsplib.utils.onto_create_ontology import *
 
 
 class TestOntoCreation(unittest.TestCase):
-    ontology: dict[str, Any] = json.loads('testdata/test-onto.json')['project']['ontologies'][0]
+    with open('testdata/test-onto.json', 'r') as json_file:
+        json_onto = json.loads(json_file.read())
+    ontology: dict[str, Any] = json_onto['project']['ontologies'][0]
 
     def test_sort_resources(self) -> None:
         """

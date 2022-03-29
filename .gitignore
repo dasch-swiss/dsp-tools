@@ -70,9 +70,5 @@ id2iri_*
 **/~$*.*
 testdata/tmp/lists_output.json
 
-# bazel
-/bazel-*
-/.ijwb/
-
 # for testing in development
 tmp/

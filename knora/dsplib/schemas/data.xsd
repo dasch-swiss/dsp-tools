@@ -454,7 +454,12 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="permissions" type="permissions_type" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element name="resource" type="resource_type" minOccurs="1" maxOccurs="unbounded"/>
+                <xs:element name="resource" type="resource_type" minOccurs="1" maxOccurs="unbounded">
+                    <xs:unique name="UniqueNameAttr">
+                        <xs:selector xpath="text-prop"/>
+                        <xs:field xpath="@name"/>
+                    </xs:unique>
+                </xs:element>
             </xs:sequence>
             <xs:attribute name="default-ontology" type="xs:string"/>
             <xs:attribute name="shortcode" type="knorashortcode_type"/>

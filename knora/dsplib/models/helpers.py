@@ -351,6 +351,7 @@ class Context:
         m = re.match("([\\w-]+):([\\w-]+)", iri)
         if m and m.span()[1] == len(iri):
             return iri
+
         if not IriTest.test(iri):
             raise BaseError(f"The IRI '{iri}' does not conform to the IRI pattern.")
 
@@ -364,7 +365,7 @@ class Context:
             element = iri[split_point + 1:]
 
         prefix = self._rcontext.get(onto_part)
-        if not prefix:
+        if prefix is None:
             entry_list = list(filter(lambda x: x[1].iri == onto_part, self.common_ontologies.items()))
             if len(entry_list) == 1:
                 entry = entry_list[0]
@@ -372,36 +373,38 @@ class Context:
                 self._rcontext[entry[1].iri] = entry[0]
                 prefix = entry[0]
             else:
-                raise BaseError(
-                    f"Ontology '{iri}' not known! Cannot generate fully qualified IRI. The prefix was '{prefix}'")
+                return None
         return prefix + ':' + element
 
-    def reduce_iri(self, iristr: str, ontoname: Optional[str] = None) -> str:
+    def reduce_iri(self, iri_str: str, onto_name: Optional[str] = None) -> str:
         """
-        Reduce an IRI to the form that is used within the definition json file. It expects
-        the context object to have entries (prefixes)  for all IRI's
-        - if it's an external IRI, it returns: "prefix:name"
-        - if it's in the same ontology, it returns ":name"
-        - if it's a system ontoloy ("knora-api" or "salsah-gui") it returns "name"
-        :param iristr:
-        :return:
+        Reduces an IRI to the form that is used within the definition JSON file. It expects the context object to have
+        entries (prefixes) for all IRIs:
+        - if it's an external IRI and the ontology can be extracted as prefix it returns: "prefix:name"
+        - if it's in the same ontology, it returns: ":name"
+        - if it's a system ontology ("knora-api" or "salsah-gui") it returns: "name"
+        - if the IRI can't be reduced, it's returned as is
+
+        Args:
+            iri_str: the IRI that should be reduced
+            onto_name: the name of the ontology
+
+        Returns:
+            The reduced IRI if possible otherwise the fully qualified IRI
         """
-        rdf = self.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-        rdfs = self.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
-        owl = self.prefix_from_iri("http://www.w3.org/2002/07/owl#")
-        xsd = self.prefix_from_iri("http://www.w3.org/2001/XMLSchema#")
         knora_api = self.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
         salsah_gui = self.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
 
-        if IriTest.test(iristr):
-            iristr = self.get_prefixed_iri(iristr)
-        tmp = iristr.split(':')
+        if IriTest.test(iri_str):
+            if self.get_prefixed_iri(iri_str):
+                iri_str = self.get_prefixed_iri(iri_str)
+        tmp = iri_str.split(':')
         if tmp[0] == knora_api or tmp[0] == salsah_gui:
             return tmp[1]
-        elif ontoname is not None and tmp[0] == ontoname:
+        elif onto_name and tmp[0] == onto_name:
             return ':' + tmp[1]
         else:
-            return iristr
+            return iri_str
 
     def toJsonObj(self) -> dict[str, str]:
         """
@@ -413,7 +416,11 @@ class Context:
 
     def get_externals_used(self) -> dict[str, str]:
         exclude = ["rdf", "rdfs", "owl", "xsd", "knora-api", "salsah-gui"]
-        return {prefix: onto.iri for prefix, onto in self._context.items() if prefix not in exclude}
+        prefixes: dict[str, str] = {}
+        for prefix, onto in self._context.items():
+            if prefix not in exclude:
+                prefixes[prefix] = onto.iri
+        return prefixes
 
     def print(self) -> None:
         for a in self._context.items():

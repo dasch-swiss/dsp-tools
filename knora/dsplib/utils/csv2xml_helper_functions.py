@@ -69,7 +69,7 @@ class PropertyElement:
         else:
             self.encoding = None
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:  # type: ignore
         return all((
             self.value == other.value,
             self.permissions == other.permissions,
@@ -77,11 +77,11 @@ class PropertyElement:
             self.encoding == other.encoding
         ))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'''PropertyElement with value={self.value}, permissions={self.permissions},
         comment={self.comment}, encoding={self.encoding}'''
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(str(self))
 
 
@@ -120,7 +120,7 @@ def make_xs_id_compatible(string: Union[str, Any]) -> str:
     return res
 
 
-def handle_warnings(msg: str):
+def handle_warnings(msg: str) -> None:
     muted_warnings = [
         r'regex of warning you want to ignore',
     ]
@@ -129,10 +129,10 @@ def handle_warnings(msg: str):
         if re.search(pattern = muted_warning, string = msg):
             return
     
-    warnings.warn(msg, stacklevel = 0)
+    warnings.warn(msg, stacklevel=0)
 
 
-def find_date_in_string(string: Union[str, Any], calling_resource = '') -> Union[str, None]:
+def find_date_in_string(string: Union[str, Any], calling_resource: str = '') -> Union[str, None]:
     '''
     Checks if a string contains a date value (single date, or date range), and return the date 
     as DSP-formatted string. Return None if no date was found.

@@ -19,49 +19,37 @@
 ## Structure of config.json
 ```
 {
-    "identicalOntologies": 3,                                           # default=1
+    "identicalOntologies": 1-3,                                         # default=1
     "resources": {
         "Resource": {
             "inheritanceDepth": 1-3,                                    # default=1
             "classesPerInheritanceLevel": 1-10 | [1-10, 1-10, ...],     # default=1
             "resourcesPerClass": 1-10000 | [1-10000, 1-10000, ...],     # default=10
-            "AnnotationsPerResource": 1-100 | [1-100, 1-100, ...],      # default=0
+            "annotationsPerResource": 1-100 | [1-100, 1-100, ...],      # default=0
             "cardinalities": {...}                                      # definition see below
-        },
-        "StillImageRepresentation": {
-            "inheritanceDepth": 1-3,                                    # default=1
-            "classesPerInheritanceLevel": 1-10 | [1-10, 1-10, ...],     # default=1
-            "resourcesPerClass": 1-10000 | [1-10000, 1-10000, ...],     # default=10
-            "AnnotationsPerResource": 1-100 | [1-100, 1-100, ...],      # default=0
-            "cardinalities": {...},                                     # definition see below
-            "RegionsPerResource": 1-100 | [1-100, 1-100, ...],          # default=0
-            "fileSize": "100MB" | ["100MB", ...],                       # default="5KB"
             "isCompoundedOf": {                                         # default=None
                 "resclass": another resource class (one),
                 "numOfResources": 1-1000
             }
+        },
+        "StillImageRepresentation": {
+            # same as in "Resource", plus:
+            "regionsPerResource": 1-100 | [1-100, 1-100, ...],          # default=0
+            "fileSize": "100MB" | ["100MB", ...],                       # default="5KB"
         },
         "TextRepresentation" | "AudioRepresentation" | "DDDRepresentation" | "DocumentRepresentation" | 
         "MovingImageRepresentation" | "ArchiveRepresentation" : {
-            "inheritanceDepth": 1-3,                                    # default=1
-            "classesPerInheritanceLevel": 1-10 | [1-10, 1-10, ...],     # default=1
-            "resourcesPerClass": 1-10000 | [1-10000, 1-10000, ...],     # default=10
-            "AnnotationsPerResource": 1-100 | [1-100, 1-100, ...],      # default=0
-            "cardinalities": {...},                                     # definition see below
+            # same as in "Resource", plus:
             "fileSize": "100MB" | ["100MB", ...],                       # default="5KB"
-            "isCompoundedOf": {                                         # default=None
-                "resclass": another resource class (one),
-                "numOfResources": 1-1000
-            }
         },
         "LinkObj": {                                                    # not implemented yet in dsp-tools
             "numOfLinkObjects": 1-10000,
-            "ResourcesPerLink": 2-10,                                   # default=2
-            "InvolvedResClasses": [list of resource classes]            # default=all
+            "resourcesPerLink": 2-10,                                   # default=2
+            "involvedResClasses": [list of resource classes]            # default=all
         }
     },
-    "properties": {                                                     
-        "hasValue_TextValue": {                                         # only propclasses used in "cardinalities" appear here
+    "properties": {                                                     # optional
+        "hasValue_TextValue": {                                         # only propclasses used in "cardinalities" can appear here
             "inheritanceDepth": 1-3,                                    # default=1
             "propertiesPerLevel": 1-3                                   # default=1
         },
@@ -99,7 +87,7 @@ cardinalities: {
         "numOfProps": 1-10,                                             # default=1
         "numOfValuesPerProp": 1-100 | [1-100, 1-100, ...],              # default=1
         "cardinality": "0-1|0-n|1|1-n" | ["0-1|0-n|1|1-n", ...],        # default, or if in conflict with "numOfValuesPerProp": "0-n"
-        "permissions": [one or more permissions from above],            # default=the first permission from above
+        "permissions": [one or more permission strings from above],     # default=the first permission from above
         "comment": "Your comment" | ["Your comment", ...]               # default=None
 }
 ```

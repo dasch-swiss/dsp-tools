@@ -1,8 +1,11 @@
 import json
+import os
 from typing import Any, Union, cast, Optional
 from lxml import etree
 from enum import Enum
 import csv2xml_helper_functions as csv2xml
+from knora.dsplib.utils.onto_validate import validate_ontology
+from knora.dsplib.utils.xml_upload import validate_xml_against_schema
 
 
 allowed_resources = [
@@ -96,7 +99,7 @@ def parse_salsah_links() -> Optional[dict[str, Union[str, int, bool]]]:
     return None
 
 
-def create_ontologies() -> list[dict[Any, Any]]:
+def create_ontologies(onto_names: list[str]) -> list[dict[Any, Any]]:
     pass
 
 
@@ -246,6 +249,7 @@ def parse_config_file(config: dict[Any, Any]) -> tuple[
 def create_data_model(
     shortcode: str,
     shortname: str,
+    onto_names: list[str],
     lists: Optional[dict[str, Union[int, list[int]]]]
 ) -> dict[str, Any]:
     data_model: dict[str, Any] = {
@@ -285,12 +289,12 @@ def create_data_model(
             numOfDepthLevels=cast(int, lists['numOfDepthLevels']),
             nodesPerDepthLevel=cast(list[int], lists['nodesPerDepthLevel'])
         )
-    data_model['project']['ontologies'] = create_ontologies()
+    data_model['project']['ontologies'] = create_ontologies(onto_names)
 
     return data_model
 
 
-def create_xml_file() -> etree._Element:
+def create_xml_file(shortcode: str, default_ontology: str, permissions: dict[str, list[str]]) -> etree.Element:
     root = csv2xml.make_root(shortcode=shortcode, default_ontology=default_ontology)
     root = csv2xml.append_permissions(root)
     return root
@@ -302,22 +306,30 @@ def create_configurable_test_data(config: dict[Any, Any]) -> None:
     permissions, outputFiles = parse_config_file(config)
 
     shortcode = '0820'
-    shortname = 'generatedTestProject'
+    shortname = 'generatedProject'
+    onto_names = [f'{shortname}Onto_{i}' for i in range(identicalOntologies)]
 
-    data_model = create_data_model(shortcode, shortname, lists)
+    data_model = create_data_model(shortcode, shortname, onto_names, lists)
+    if not validate_ontology(data_model):
+        exit(1)
 
-    xml_file = create_xml_file()
+    xml_files: list[etree.Element] = list()
+    for onto_name in onto_names:
+        xml_file = create_xml_file(shortcode, onto_name, permissions)
+        if not validate_xml_against_schema('path to xml file', 'knora/dsplib/schemas/data.xsd'):
+            exit(1)
+        xml_files.append(xml_file)
 
-
-
-
-
-
-
-
-    ############
     # write files
-    ############
-    with open('testproject.json', 'w', encoding='utf8') as outfile:
+    dirname = f'{shortcode}-{shortname}'
+    os.makedirs(dirname)
+    with open(f'{dirname}/{shortname}-ontologies.json', 'w', encoding='utf8') as outfile:
         json.dump(data_model, outfile, indent=4, ensure_ascii=False)
-    
+    for xml_file, onto_name in zip(xml_files, onto_names):
+        etree.indent(xml_file, space='    ')
+        xml_string = etree.tostring(xml_file, encoding='unicode', pretty_print=True)
+        xml_string = '<?xml version="1.0" encoding="UTF-8"?>\n' + xml_string
+        xml_string = xml_string.replace('&lt;', '<')
+        xml_string = xml_string.replace('&gt;', '>')
+        with open(f'{dirname}/{onto_name}-data.xml', 'w', encoding='utf-8') as f:
+            f.write(xml_string)

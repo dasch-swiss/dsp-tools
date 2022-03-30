@@ -135,6 +135,11 @@ def program(user_args: list[str]) -> None:
                                help='Path to the XML output file containing the replaced IDs (optional)')
     parser_id2iri.add_argument('-v', '--verbose', action='store_true', help=verbose_text)
 
+    parser_generate_test_data = subparsers.add_parser('generate-test-data',
+                                                      help='Generate test data')
+    parser_generate_test_data.set_defaults(action='generate-test-data')
+    parser_generate_test_data.add_argument('config.json', help='path to JSON config file', default='config.json')
+
     args = parser.parse_args(user_args)
 
     if not hasattr(args, 'action'):

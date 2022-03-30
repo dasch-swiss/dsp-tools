@@ -164,7 +164,7 @@ here. An example may clarify it. The following is a valid `config.json`:
     "resources": {
         "Resource": {
             "inheritanceDepth": 1,
-            "classesPerInheritanceLevel": 3
+            "classesPerInheritanceLevel": 3,
             "resourcesPerClass": 1,
             "cardinalities": {
                 "hasValue_TextValue" : 1
@@ -172,7 +172,7 @@ here. An example may clarify it. The following is a valid `config.json`:
         },
         "StillImageRepresentation": {
             "inheritanceDepth": 1,
-            "classesPerInheritanceLevel": 3
+            "classesPerInheritanceLevel": 3,
             "resourcesPerClass": 1,
             "cardinalities": {
                 "hasValue_TextValue" : 1
@@ -185,6 +185,7 @@ here. An example may clarify it. The following is a valid `config.json`:
             "propertiesPerLevel": 2
         }
     }
+}
 ```
 
 This `config.json` will create the following ontology:

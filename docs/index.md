@@ -32,4 +32,5 @@ dsp-tools helps you with the following tasks:
 - [`dsp-tools id2iri`](./dsp-tools-usage.md#replace-internal-ids-with-iris-in-xml-file)
   takes an XML file for bulk data import and replaces referenced internal IDs with IRIs. The mapping has to be provided
   with a JSON file.
-
+- [`dsp-tools generate-test-data`](./dsp-tools-usage.md#generate-test-data)
+  generates test data.

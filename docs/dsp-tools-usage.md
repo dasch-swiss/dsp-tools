@@ -190,3 +190,10 @@ Note that internal IDs and IRIs cannot be mixed. The input XML file has to be pr
 contains the mapping from internal IDs to IRIs. This JSON file is generated after each successful `xmlupload`.
 
 In order to upload data incrementally the procedure described [here](dsp-tools-xmlupload.md#incremental-xml-upload) is recommended.
+
+
+## Generate test data
+```bash
+dsp-tools generate-test-data config.json
+```
+Lorem ipsum

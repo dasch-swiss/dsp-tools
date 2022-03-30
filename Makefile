@@ -28,7 +28,7 @@ upload: ## upload distribution package to PyPI
 	python3 -m twine upload dist/*
 
 .PHONY: upgrade-dist-tools
-upgrade-dist-tool: ## upgrade packages necessary for testing, building, packaging and uploading to PyPI
+upgrade-dist-tools: ## upgrade packages necessary for testing, building, packaging and uploading to PyPI
 	python3 -m pip install --upgrade pip setuptools wheel tqdm twine pytest mkdocs
 
 .PHONY: docs-build

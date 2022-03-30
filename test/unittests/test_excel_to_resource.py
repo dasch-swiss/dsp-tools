@@ -11,7 +11,7 @@ class TestExcelToResource(unittest.TestCase):
 
     def test_excel2json(self) -> None:
         in_file = "testdata/Resources.xlsx"
-        out_file = "out_res.json"
+        out_file = "testdata/tmp/_out_res.json"
         e2j.resources_excel2json(in_file, out_file)
         self.assertTrue(os.path.exists(out_file))
 

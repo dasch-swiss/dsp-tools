@@ -1,0 +1,214 @@
+{
+    "my-list-from-excel": {
+        "id": "http://rdfh.ch/lists/4123/owbkbEuTQDSOc9Ukqw7JnA",
+        "nodes": [
+            {
+                "first-sublist": {
+                    "id": "http://rdfh.ch/lists/4123/uu2luAlZRxuegbLP5KYTwA",
+                    "nodes": [
+                        {
+                            "first-subnode": {
+                                "id": "http://rdfh.ch/lists/4123/NG_Cps9HSGyTOpkRKK9_cw",
+                                "nodes": [
+                                    {
+                                        "one": {
+                                            "id": "http://rdfh.ch/lists/4123/0vQKdTioS-aeTO01qsGwhA"
+                                        }
+                                    },
+                                    {
+                                        "two": {
+                                            "id": "http://rdfh.ch/lists/4123/jI_Y8rgWR8C60ceepMeOTg"
+                                        }
+                                    },
+                                    {
+                                        "three": {
+                                            "id": "http://rdfh.ch/lists/4123/ftGXzUpET3OV_inWdsrHuw",
+                                            "nodes": [
+                                                {
+                                                    "fine": {
+                                                        "id": "http://rdfh.ch/lists/4123/KEQU-yG_R1iedPJpJvwecw"
+                                                    }
+                                                },
+                                                {
+                                                    "medium": {
+                                                        "id": "http://rdfh.ch/lists/4123/Dx7CR0yDQ82q414Qsv9c9w"
+                                                    }
+                                                },
+                                                {
+                                                    "coarse": {
+                                                        "id": "http://rdfh.ch/lists/4123/Bw0a7kUfRvKYGKrTbYtFSQ"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "four": {
+                                            "id": "http://rdfh.ch/lists/4123/v9yx4gfwSwauzSCEfZ4e-Q",
+                                            "nodes": [
+                                                {
+                                                    "fine-2": {
+                                                        "id": "http://rdfh.ch/lists/4123/jIVCV4fHQwmqlNGZZK5uuA"
+                                                    }
+                                                },
+                                                {
+                                                    "medium-2": {
+                                                        "id": "http://rdfh.ch/lists/4123/iqLQzIAfTeOl1Xcj0ORyvA"
+                                                    }
+                                                },
+                                                {
+                                                    "coarse-2": {
+                                                        "id": "http://rdfh.ch/lists/4123/pdPYSijMQImc-9dWxGXauQ"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "five": {
+                                            "id": "http://rdfh.ch/lists/4123/xuWqNSCAQxmRUUfIcPyGSw"
+                                        }
+                                    },
+                                    {
+                                        "six": {
+                                            "id": "http://rdfh.ch/lists/4123/XH7Suj9hQ_mRNd_I8M5ftw"
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "second-subnode": {
+                                "id": "http://rdfh.ch/lists/4123/RnncoL5fSi6pojZykyEPCw",
+                                "nodes": [
+                                    {
+                                        "one-2": {
+                                            "id": "http://rdfh.ch/lists/4123/0g3fq3AlRFyZmuyneX1WaQ"
+                                        }
+                                    },
+                                    {
+                                        "two-2": {
+                                            "id": "http://rdfh.ch/lists/4123/WLvult-8QpiU-RghR0X6MA"
+                                        }
+                                    },
+                                    {
+                                        "three-2": {
+                                            "id": "http://rdfh.ch/lists/4123/WWJ0BqIoR1mkUWrue4KDvA"
+                                        }
+                                    },
+                                    {
+                                        "four-2": {
+                                            "id": "http://rdfh.ch/lists/4123/Z3CRo5JAT7i-Suf-HBjDSQ"
+                                        }
+                                    },
+                                    {
+                                        "five-2": {
+                                            "id": "http://rdfh.ch/lists/4123/MoqRn0OLS6yEZtdSEiCG3A"
+                                        }
+                                    },
+                                    {
+                                        "six-2": {
+                                            "id": "http://rdfh.ch/lists/4123/ckjdpcPFQpC93VhVhgDTDw"
+                                        }
+                                    },
+                                    {
+                                        "seven": {
+                                            "id": "http://rdfh.ch/lists/4123/UszhdJrqQyug3PpMMLBkgg"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "second-sublist": {
+                    "id": "http://rdfh.ch/lists/4123/bQzpvOPdS76IMXwggVP3cg",
+                    "nodes": [
+                        {
+                            "node-of-second-sublist": {
+                                "id": "http://rdfh.ch/lists/4123/kGlVowqaT9Ch_1zqpWeB9A"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "third-sublist": {
+                    "id": "http://rdfh.ch/lists/4123/irJftthERIyK2neJLYZABA",
+                    "nodes": [
+                        {
+                            "special-characters-12-0-are-embedded": {
+                                "id": "http://rdfh.ch/lists/4123/6cemIMIbRNGBEheEjFCLLA",
+                                "nodes": [
+                                    {
+                                        "very": {
+                                            "id": "http://rdfh.ch/lists/4123/4CFS95PNRaaqhPYsEAmO9A",
+                                            "nodes": [
+                                                {
+                                                    "deeply": {
+                                                        "id": "http://rdfh.ch/lists/4123/xCVBcNq-RjCIGPrtuSV1Eg",
+                                                        "nodes": [
+                                                            {
+                                                                "nested": {
+                                                                    "id": "http://rdfh.ch/lists/4123/VcXzgVVIRhiizUFE8oMorQ"
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "notUsedList": {
+        "id": "http://rdfh.ch/lists/4123/EG5YBdCqR3C6zPTrtNJ0Eg",
+        "nodes": [
+            {
+                "notUsedNode_1": {
+                    "id": "http://rdfh.ch/lists/4123/MFc682R4RaGVztS234fA3w"
+                }
+            }
+        ]
+    },
+    "testlist": {
+        "id": "http://rdfh.ch/lists/4123/alZxdvHoTaaCZbKlAh6YIA",
+        "nodes": [
+            {
+                "a": {
+                    "id": "http://rdfh.ch/lists/4123/A52AsIczTEOlPmrsJeZ83Q"
+                }
+            },
+            {
+                "b": {
+                    "id": "http://rdfh.ch/lists/4123/aPA82X2cT4qJls4b72PfkQ",
+                    "nodes": [
+                        {
+                            "b1": {
+                                "id": "http://rdfh.ch/lists/4123/KlPjtl8pSKywxfOHPwDhCA"
+                            }
+                        },
+                        {
+                            "b2": {
+                                "id": "http://rdfh.ch/lists/4123/CNawFP60Rny4VtYeO9Sf_g"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "c": {
+                    "id": "http://rdfh.ch/lists/4123/nqV5JRzFTJOG1SPAROPgNg"
+                }
+            }
+        ]
+    }
+}

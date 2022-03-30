@@ -68,7 +68,8 @@ lists.json
 out.json
 id2iri_*
 **/~$*.*
-testdata/tmp/lists_output.json
+testdata/tmp/_*.json
+testdata/tmp/_*.xml
 
 # for testing in development
 tmp/

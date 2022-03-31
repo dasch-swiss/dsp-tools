@@ -1,0 +1,34 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+jsonpath-ng = "*"
+argparse = "*"
+rdflib = "*"
+lxml = "*"
+validators = "*"
+requests = "*"
+jsonschema = "*"
+click = "*"
+rfc3987 = "*"
+pystrict = "*"
+openpyxl = "*"
+
+[dev-packages]
+mkdocs = "*"
+mkdocs-material = "*"
+mkdocs-include-markdown-plugin = "*"
+mypy = "*"
+autopep8 = "*"
+setuptools = "*"
+wheel = "*"
+pipenv-setup = "*"
+
+[requires]
+python_version = "3.9"
+
+[scripts]
+update-requirements = "pipenv lock -r > requirements.txt"
+update-setup = "pipenv-setup sync" # writes into setup.py to argument "install_requires"

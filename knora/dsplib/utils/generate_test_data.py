@@ -1,9 +1,10 @@
 import json
 import os
-from typing import Any, Union, cast, Optional
+from typing import Any, Union, cast, Optional, Iterable
 from lxml import etree
 from enum import Enum
-import csv2xml_helper_functions as csv2xml
+import knora.dsplib.utils.generate_xml_helper_functions as xml_helper
+import knora.dsplib.utils.generate_json_helper_functions as json_helper
 from knora.dsplib.utils.onto_validate import validate_ontology
 from knora.dsplib.utils.xml_upload import validate_xml_against_schema
 
@@ -82,6 +83,9 @@ class Defaults(Enum):
 
     p_inheritanceDepthDefault = 1
     p_propertiesPerLevelDefault = 1
+    p_gui_elements = ["SimpleText"]
+    p_hlist = 1
+    p_hasLinkTo_target = 'Resource'
 
     permissionsDefault = {'res-default': ['V', 'V', 'CR', 'CR']}
 
@@ -99,30 +103,87 @@ def parse_salsah_links() -> Optional[dict[str, Union[str, int, bool]]]:
     return None
 
 
-def create_ontologies(onto_names: list[str]) -> list[dict[Any, Any]]:
-    pass
+def infinite_generator(iterable: Iterable):
+    while True:
+        for it in iterable:
+            yield it
+
+
+def create_ontologies(
+    onto_names: list[str],
+    resources: dict[str, dict[str, Any]],
+    properties: dict[str, dict[str, Union[int, list[str]]]],
+    salsahLinks: Optional[dict[str, Union[str, int, bool]]],
+    permissions: dict[str, list[str]]
+) -> list[dict[Any, Any]]:
+    finished_props: list[dict[str, Any]] = list()
+    # "hasValue_TextValue": {
+    #     "inheritanceDepth": 2,
+    #     "propertiesPerLevel": 2,
+    #     "gui_elements": ["SimpleText"],
+    #     "hlist": 1-20 (in case of list),
+    #     "targets": "targetClass" | ["targetClassOfProp1", ...] (in case of hasLinkTo/hasRepresentation)
+    # }
+    for propname, propdef in properties.items():
+        name = f'{propname}_class_{i}'
+        super = [propname.split('_')[0]]
+        object = propname.split('_')[1]
+        gui_elements = infinite_generator(propdef['gui_elements'])
+        for i in range(propdef['propertiesPerLevel']):
+            finished_props.append(json_helper.make_property_class(
+                name=name,
+                super=super,
+                object=object,
+                gui_element=next(gui_elements)
+            ))
+
+    finished_res: list[dict[str, Any]] = list()
+    for resname, resdef in resources.items():
+        # "Resource": {
+        #     "inheritanceDepth": 2,
+        #     "classesPerInheritanceLevel": 2,
+        #     "resourcesPerClass": 1,
+        #     "cardinalities": {
+        #         "hasValue_TextValue": 1
+        #     }
+        # }
+        for i in range(resdef['classesPerInheritanceLevel']):
+            finished_res.append(json_helper.make_resource_class(
+                name=f'{resname}_class_{i}',
+                super=resname,
+                cardinalities=
+            ))
+        if resdef['inheritanceDepth'] > 1:
+            for i in range(resdef['classesPerInheritanceLevel']):
+                for j in range(resdef['classesPerInheritanceLevel']):
+                    finished_res.append(json_helper.make_resource_class(
+                        name=f'{resname}_class_{i}_subclass_{j}',
+                        super=f'{resname}_class_{i}',
+                        cardinalities=
+                    ))
+
 
 
 def parse_cardinalities(cardinalities: Optional[dict[str, Union[int, dict[str, Any]]]], permissions: dict[str, list[str]]) -> dict[str, Any]:
     perm = next(iter(permissions.keys()))  # the first element (in insertion order)
-    res: dict[str, dict[str, Any]] = dict()
+    parsed_cards: dict[str, dict[str, Any]] = dict()
     if cardinalities is None:
         pass
         #TODO
     else:
         for proptype, propdef in {k: v for k, v in cardinalities.items() if k in allowed_properties}.items():
             if isinstance(propdef, int):
-                res[proptype] = {
+                parsed_cards[proptype] = {
                     'numOfProps': propdef,
                     'numOfValuesPerProp': [Defaults.numOfValuesPerPropDefault] * propdef,
                     'cardinality': [Defaults.cardinalityDefault] * propdef,
                     'permissions': [perm] * propdef
                 }
             elif isinstance(propdef, dict):
-                res[proptype] = propdef
+                parsed_cards[proptype] = propdef
             else:
                 print('ERROR')
-    return res
+    return parsed_cards
 
 
 def validate_file_size_list(value: Optional[Union[str, list[str]]], length: int) -> list[int]:
@@ -223,20 +284,26 @@ def parse_config_file(config: dict[Any, Any]) -> tuple[
             if file_size:
                 parsed_resources[resname]['fileSize'] = file_size
 
-    properties: dict[str, dict[str, int]] = dict()
+    properties: dict[str, dict[str, Union[int, list[str]]]] = dict()
     for prop in [prop for prop in used_properties if prop in allowed_properties]:
         if prop in config.get('properties', ['']):
-            propdef: dict[str, int] = {
-                'inheritanceDepth': config['properties'].get('inheritanceDepth',
-                                                             cast(int, Defaults.p_inheritanceDepthDefault)),
-                'propertiesPerLevel': config['properties'].get('propertiesPerLevel',
-                                                               cast(int, Defaults.p_propertiesPerLevelDefault))
+            propdef: dict[str, Union[int, list[str]]] = {
+                'inheritanceDepth': config['properties'].get('inheritanceDepth', Defaults.p_inheritanceDepthDefault),
+                'propertiesPerLevel': config['properties'].get('propertiesPerLevel', Defaults.p_propertiesPerLevelDefault),
+                'gui_elements': config['properties'].get('gui_elements', Defaults.p_gui_elements)
             }
+            if prop.split('_')[-1] == 'ListValue':
+                propdef['hlist'] = config['properties'].get('hlist', Defaults.p_hlist)
+            if prop == 'hasLinkTo':
+                propdef['targets'] = config['properties'].get('targets', Defaults.p_hasLinkTo_target)
+            if prop == 'hasRepresentation':
+                propdef['targets'] = config['properties'].get('targets')
             properties[prop] = propdef
         else:
             properties[prop] = {
                 'inheritanceDepth': cast(int, Defaults.p_inheritanceDepthDefault),
-                'propertiesPerLevel': cast(int, Defaults.p_propertiesPerLevelDefault)
+                'propertiesPerLevel': cast(int, Defaults.p_propertiesPerLevelDefault),
+                'gui_elements': cast(list[str], Defaults.p_gui_elements)
             }
 
     lists = parse_lists()
@@ -250,7 +317,11 @@ def create_data_model(
     shortcode: str,
     shortname: str,
     onto_names: list[str],
-    lists: Optional[dict[str, Union[int, list[int]]]]
+    lists: Optional[dict[str, Union[int, list[int]]]],
+    resources: dict[str, dict[str, Any]],
+    properties: dict[str, dict[str, int]],
+    salsahLinks: Optional[dict[str, Union[str, int, bool]]],
+    permissions: dict[str, list[str]]
 ) -> dict[str, Any]:
     data_model: dict[str, Any] = {
         '$schema': 'https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/ontology.json',
@@ -289,14 +360,14 @@ def create_data_model(
             numOfDepthLevels=cast(int, lists['numOfDepthLevels']),
             nodesPerDepthLevel=cast(list[int], lists['nodesPerDepthLevel'])
         )
-    data_model['project']['ontologies'] = create_ontologies(onto_names)
+    data_model['project']['ontologies'] = create_ontologies(onto_names, resources, properties, salsahLinks, permissions)
 
     return data_model
 
 
 def create_xml_file(shortcode: str, default_ontology: str, permissions: dict[str, list[str]]) -> etree.Element:
-    root = csv2xml.make_root(shortcode=shortcode, default_ontology=default_ontology)
-    root = csv2xml.append_permissions(root)
+    root = xml_helper.make_root(shortcode=shortcode, default_ontology=default_ontology)
+    root = xml_helper.append_permissions(root)
     return root
 
 
@@ -309,7 +380,9 @@ def create_configurable_test_data(config: dict[Any, Any]) -> None:
     shortname = 'generatedProject'
     onto_names = [f'{shortname}Onto_{i}' for i in range(identicalOntologies)]
 
-    data_model = create_data_model(shortcode, shortname, onto_names, lists)
+    data_model = create_data_model(
+        shortcode, shortname, onto_names, lists, resources, properties, salsahLinks, permissions
+    )
     if not validate_ontology(data_model):
         exit(1)
 

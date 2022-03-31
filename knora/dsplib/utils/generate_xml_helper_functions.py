@@ -69,7 +69,7 @@ class PropertyElement:
         else:
             self.encoding = None
 
-    def __eq__(self, other) -> bool:  # type: ignore
+    def __eq__(self, other) -> bool: # type: ignore
         return all((
             self.value == other.value,
             self.permissions == other.permissions,
@@ -245,9 +245,9 @@ def find_date_in_string(string: Union[str, Any], calling_resource: str = '') -> 
         startyear = year_only.group(0)
         endyear = startyear
         # optionally, there is a second year:
-        secondyear = re.search(r'\d+/(\d+)', string)
-        if secondyear:
-            secondyear = secondyear.group(1)
+        secondyear_match = re.search(r'\d+/(\d+)', string)
+        if secondyear_match:
+            secondyear = secondyear_match.group(1)
             secondyear = startyear[0:-len(secondyear)] + secondyear
             if int(secondyear) != int(startyear) + 1:
                 handle_warnings(f'Error in resource {calling_resource}: second year of {string} '
@@ -288,11 +288,12 @@ def check_and_prepare_values(
         handle_warnings(f'ERROR in resource "{calling_resource}", property "{name}": \n'
         f'You cannot provide a "value" and a "values" at the same time!')
         quit()
-    
+
+    values_new: list[PropertyElement] = list()
+
     if values is not None:
         valueslist = [v for v in values if v is not None]
         valueslist = sorted(set(valueslist), key=lambda x: valueslist.index(x))
-        values_new: list[PropertyElement] = list()
         for x in valueslist:
             if isinstance(x, PropertyElement):
                 values_new.append(x)
@@ -308,7 +309,6 @@ def check_and_prepare_values(
         elif isinstance(value, Iterable):
             valueslist = [v for v in value if v is not None]
             valueslist = sorted(set(valueslist), key=lambda x: valueslist.index(x))
-            values_new: list[PropertyElement] = list()
             for x in valueslist:
                 if isinstance(x, PropertyElement):
                     values_new.append(x)
@@ -477,7 +477,7 @@ def make_bitstream_prop(path: Union[str, Any], calling_resource: str = '') -> et
     return prop_
 
 
-def format_bool(unformatted, name, calling_resource):
+def format_bool(unformatted: str, name: str, calling_resource: str) -> str:
     true_values = ('true', '1', 1, 'yes')
     false_values = ('false', '0', 0, 'no', '', 'None')
 

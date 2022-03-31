@@ -1,12 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
 # Generation of test data for the DSP API
-
- - Every resource (that allows it) will have the indicated number of every property. The hasLinkTo will point to every 
-   resource class, evenly distributed. 
-   Example: If there are 5 resource classes with 10 resources each, and hasLinkTo is set to 10, there are 5*10-1 
-   possible targets. From every of the 5 classes, 2 resources will be chosen randomly. This means that 5 different  
-   link-properties need to be defined, one for each target class (the target needs to be defined in the JSON onto)
  - Due to exponential growth, the chosen parameters in config.json can easily lead to a high amount of data. If a 
    certain threshold is reached, the user is asked if he wants to continue or not.
  - for the multimedia files, only one file will be created, and then it will be referenced & uploaded multiple times 
@@ -52,6 +46,7 @@
         "hasValue_TextValue": {                                         # only propclasses used in "cardinalities" can appear here
             "inheritanceDepth": 1-3,                                    # default=1
             "propertiesPerLevel": 1-3                                   # default=1
+            "gui_elements": (see below)
         },
         ...
     },
@@ -73,6 +68,35 @@
 }
 ```
 
+### Structure of the "properties" section
+
+Each property class in the "properties" section can define its "gui_elements" in a list. The list 
+can contain more than one entry, if more than one prop of that class is created. The available options
+depend on the object of the property class:
+| super             | object        | gui_elements                               | default            |
+| ----------------- | ------------- | ------------------------------------------ | ------------------ |
+| hasValue          | TextValue     | ["SimpleText", "Richtext", "Textarea"]     | ["SimpleText"]     |
+| hasValue          | DecimalValue  | ["Slider", "SimpleText"]                   | ["SimpleText"]     |
+| hasValue          | IntValue      | ["Spinbox", "SimpleText"]                  | ["SimpleText"]     |
+| hasValue          | IntervalValue | ["Interval", "SimpleText"]                 | ["SimpleText"]     |
+
+In addition, some properties need further specifications:
+"hasValue_ListValue": {
+        "hlist": 1-20                                                   # number of list from lists[numOfLists]; default=1
+},
+"hasLinkTo": {
+    "objects": "resclass" | ["objectClassOfProp1", ...]              # default="Resource" (resources from all classes
+                                                                        # derived from that class can become a target)
+                                                                        # list length delimited by num of props 
+                                                                        # ("inheritanceDepth" * "propertiesPerLevel")
+}
+"hasRepresentation": {
+    "targets": "targetClass" | ["targetClassOfProp1", ...]              # default=resources from all classes derived from
+                                                                        # a multimedia representation can become a target.
+                                                                        # list length delimited by num of props 
+                                                                        # ("inheritanceDepth" * "propertiesPerLevel")
+}
+
 
 ### Structure of the "cardinalities" section
 
@@ -83,8 +107,9 @@ cardinalities: {
     "hasValue_DecimalValue" | "hasValue_GeomValue" | "hasValue_GeonameValue" | "hasValue_IntValue" | 
     "hasValue_BooleanValue" | "hasValue_UriValue" | "hasValue_IntervalValue" | "hasValue_ListValue" | 
     "hasColor" | "hasComment" | "hasLinkTo" | 
-    "hasRepresentation" : 0-10 | {                                      # 0-10 is the "numOfProps"
-        "numOfProps": 1-10,                                             # default=1
+    "hasRepresentation" : 0-x  | {                                      # 0-x is the "numOfProps"
+        "numOfProps": 1-x,                                              # default=1, x=existing props as defined in "properties"
+                                                                        # ("inheritanceDepth" * "propertiesPerLevel")
         "numOfValuesPerProp": 1-100 | [1-100, 1-100, ...],              # default=1
         "cardinality": "0-1|0-n|1|1-n" | ["0-1|0-n|1|1-n", ...],        # default, or if in conflict with "numOfValuesPerProp": "0-n"
         "permissions": [one or more permission strings from above],     # default=the first permission from above
@@ -96,8 +121,8 @@ In addition to the elements common to every cardinality, some cardinalities can 
 ```
 cardinalities: {
     "hasValue_TextValue": {                                      
-        "gui_elements": ["SimpleText", "Richtext", "Textarea"],         # default=["SimpleText"]
-        "encodings": ["xml", "utf8"],                                   # default="utf8", can be overridden by salsah-links
+        "gui_elements": ["SimpleText", "Richtext", "Textarea"],         # default=["SimpleText"], delimited by "numOfProps" and "properties"
+        "encodings": ["xml", "utf8"],                                   # default=["utf8"], can be overridden by salsah-links
         "salsah-links": true | false                                    # default determined by definition above
     },
     "hasValue_DateValue": {
@@ -118,7 +143,7 @@ cardinalities: {
     },
     "hasValue_DecimalValue": {
         "range": "2.30-2.39",                                           # default="0.000-9999.999"
-        "gui_elements": ["Slider", "SimpleText"]                        # default=["SimpleText"]
+        "gui_elements": ["Slider", "SimpleText"]                        # default=["SimpleText"], delimited by "numOfProps" and "properties"
     },
     "hasValue_GeomValue": {
         "status": ["active", "deleted"],                                # default=["active"]
@@ -128,7 +153,7 @@ cardinalities: {
         "numOfPoints": 3-10                                             # for polygons; default=3
     },
     "hasValue_IntValue": {
-        "gui_elements": ["Spinbox", "SimpleText"]                       # default=["SimpleText"]
+        "gui_elements": ["Spinbox", "SimpleText"]                       # default=["SimpleText"], delimited by "numOfProps" and "properties"
     },
     "hasValue_IntervalValue": {
         "gui_elements": ["Interval", "SimpleText"],                     # default=["SimpleText"]
@@ -136,7 +161,7 @@ cardinalities: {
         "decimalMax": 0.0001-9999.99                                    # default=9999.99
     },
     "hasValue_ListValue": {
-        "gui_elements": ["Radio", "List"],                              # default=["List"]
+        "gui_elements": ["Radio", "List"],                              # default=["List"], delimited by "numOfProps" and "properties"
         "hlist": 1-20                                                   # number of list from lists[numOfLists]; default=1
     },
     "hasComment": {
@@ -155,7 +180,7 @@ cardinalities: {
 ## Explanations
 ### properties
 Every propclass that appears in "cardinalities" can appear in this section. Here is defined how many 
-propclasses of this class should be created. Depending on how a resource is defined, there will 
+propclasses of this class will be created. Depending on how a resource is defined, there will 
 be a big number of resclasses that all hold the same cardinalities. These cardinalities can be composed
 of the same propclass again and again, or of different propclasses that are akin. Exactly this is defined
 here. An example may clarify it. The following is a valid `config.json`:
@@ -167,7 +192,8 @@ here. An example may clarify it. The following is a valid `config.json`:
             "classesPerInheritanceLevel": 3,
             "resourcesPerClass": 1,
             "cardinalities": {
-                "hasValue_TextValue" : 1
+                "hasValue_TextValue" : 1,
+                "hasValue_IntValue" : 1
             }
         },
         "StillImageRepresentation": {
@@ -175,7 +201,8 @@ here. An example may clarify it. The following is a valid `config.json`:
             "classesPerInheritanceLevel": 3,
             "resourcesPerClass": 1,
             "cardinalities": {
-                "hasValue_TextValue" : 1
+                "hasValue_TextValue" : 1,
+                "hasValue_IntValue" : 1
             }
         }
     },
@@ -188,16 +215,28 @@ here. An example may clarify it. The following is a valid `config.json`:
 }
 ```
 
+This `config.json` demonstrates the influence of the "properties" section on the cardinalities:
+ - There will be 4 property classes derived from "hasValue_TextValue", and they will be distributed on
+the resource classes.
+ - "hasValue_IntValue" doesn't appear in the "properties", so the default values 1 and 1 are used, so
+every resource class receives "hasValue_IntValue_class_1"
+
 This `config.json` will create the following ontology:
- - Resource-Class1
-   - textpropClass1
- - Resource-Class2
-   - textpropClass1-Child1
- - Resource-Class3
-   - textpropClass1-Child2
- - StillImageResource-Class1
-   - textpropClass2
- - StillImageResource-Class2
-   - textpropClass2-Child1
- - StillImageResource-Class3
-   - textpropClass2-Child2
+ - Resource_class_1
+   - hasValue_TextValue_class_1
+   - hasValue_IntValue_class_1
+ - Resource_class_2
+   - hasValue_TextValue_class_1_subclass_1
+   - hasValue_IntValue_class_1
+ - Resource_class_3
+   - hasValue_TextValue_class_1_subclass_2
+   - hasValue_IntValue_class_1
+ - StillImageRepresentation_class_1
+   - hasValue_TextValue_class_2
+   - hasValue_IntValue_class_1
+ - StillImageRepresentation_class_2
+   - hasValue_TextValue_class_2_subclass_1
+   - hasValue_IntValue_class_1
+ - StillImageRepresentation_class_3
+   - hasValue_TextValue_class_2_subclass_2
+   - hasValue_IntValue_class_1

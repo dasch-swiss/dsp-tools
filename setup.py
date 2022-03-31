@@ -30,7 +30,8 @@ setuptools.setup(
         'click',
         'rfc3987',
         'pystrict',
-        'openpyxl'
+        'openpyxl',
+        'jsonpath-ng'
     ],
     entry_points={
         'console_scripts': [

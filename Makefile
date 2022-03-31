@@ -48,6 +48,7 @@ install-requirements: ## install requirements
 	python3 -m pip install --upgrade pip
 	pip3 install -r requirements.txt
 	pip3 install -r docs/requirements.txt
+	pip3 install -r dev-requirements.txt
 
 .PHONY: install
 install: ## install from source (runs setup.py)
@@ -86,17 +87,10 @@ run: ## create dist, install and run
 	$(MAKE) install
 	dsp-tools
 
-.PHONY: update-requirements
-update-requirements: ## pipenv run update_requirements, pipenv run update_setup
-    pipenv run update-requirements
-
-.PHONY: update-setup
-update-setup: ## pipenv run
-    pipenv run update-setup
-
 .PHONY: freeze-requirements
-freeze-requirements: ## pipenv run
-    $(MAKE) update-requirements
-    $(MAKE) update-setup
+freeze-requirements: ## pipenv run update-requirements, pipenv run update-setup
+	pipenv lock -r > requirements.txt
+	pipenv lock -r --dev-only > dev-requirements.txt
+	pipenv run pipenv-setup sync
 
 .DEFAULT_GOAL := help

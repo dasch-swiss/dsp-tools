@@ -25,10 +25,8 @@ autopep8 = "*"
 setuptools = "*"
 wheel = "*"
 pipenv-setup = "*"
+pytest = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.9"
-
-[scripts]
-update-requirements = "pipenv lock -r > requirements.txt"
-update-setup = "pipenv-setup sync" # writes into setup.py to argument "install_requires"

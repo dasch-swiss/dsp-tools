@@ -86,4 +86,17 @@ run: ## create dist, install and run
 	$(MAKE) install
 	dsp-tools
 
+.PHONY: update-requirements
+update-requirements: ## pipenv run update_requirements, pipenv run update_setup
+    pipenv run update-requirements
+
+.PHONY: update-setup
+update-setup: ## pipenv run
+    pipenv run update-setup
+
+.PHONY: freeze-requirements
+freeze-requirements: ## pipenv run
+    $(MAKE) update-requirements
+    $(MAKE) update-setup
+
 .DEFAULT_GOAL := help

@@ -68,6 +68,7 @@ id2iri_*
 **/~$*.*
 testdata/tmp/_*.json
 testdata/tmp/_*.xml
+testdata/test-list.json
 
 # for testing in development
 tmp/

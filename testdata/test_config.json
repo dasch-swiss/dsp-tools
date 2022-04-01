@@ -1,0 +1,26 @@
+{
+    "resources": {
+        "Resource": {
+            "inheritanceDepth": 1,
+            "classesPerInheritanceLevel": 3,
+            "resourcesPerClass": 1,
+            "cardinalities": {
+                "hasValue_TextValue": 1
+            }
+        },
+        "StillImageRepresentation": {
+            "inheritanceDepth": 1,
+            "classesPerInheritanceLevel": 3,
+            "resourcesPerClass": 1,
+            "cardinalities": {
+                "hasValue_TextValue": 1
+            }
+        }
+    },
+    "properties": {
+        "hasValue_TextValue": {
+            "inheritanceDepth": 2,
+            "propertiesPerLevel": 2
+        }
+    }
+}

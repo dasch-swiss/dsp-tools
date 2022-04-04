@@ -11,7 +11,7 @@ For a quick start, use:
 ```
 pip install pipenv
 pipenv install --dev
-make run
+pipenv run make run
 ```
 
 This creates a pipenv-environment, installs all dependencies, and installs `dsp-tools` from source.
@@ -48,7 +48,7 @@ so it gets added to the `[dev-packages]` section of `Pipfile`.
 
 For security reasons, the maintainer regularly executes
  - `pipenv check` to get informed about vulnerabilities
- - `pipenv lock` to update `Pipfile.lock` with the latest version of every package
+ - `pipenv update` to update `Pipfile.lock` with the latest version of every package
  - `make freeze-requirements` to update the requirement files and `setup.py`
 
 `make freeze-requirements` must also be executed after adding a new dependency. If you prefer working 

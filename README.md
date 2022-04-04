@@ -36,18 +36,18 @@ This works because there are two files defining the dependencies:
    This is done automatically, you must not edit `Pipfile.lock`.
 
 The diverse `requirements.txt` files in this repo are only present for backwards compatibility
-and for Github CI.
+and for GitHub CI.
 
 If you want to install a new package, install it with `pipenv install package`. This 
- - installs the package (incl. sub-dependencies) in your virtual environment.
- - adds the package to the section `[packages]` of `Pipfile`. By default, no versions are pinned.
- - adds the pinned versions of package and all sub-dependencies to `Pipfile.lock`.
+ - installs the package (incl. sub-dependencies) in your virtual environment
+ - adds the package to the section `[packages]` of `Pipfile`. By default, no versions are pinned
+ - adds the pinned versions of package and all sub-dependencies to `Pipfile.lock`
 
 If a package is only needed for development, please install it with `pipenv install package --dev`,
 so it gets added to the `[dev-packages]` section of `Pipfile`.
 
 For security reasons, the maintainer regularly executes
- - `pipenv check` to get informed about vulnerabilities. 
+ - `pipenv check` to get informed about vulnerabilities
  - `pipenv lock` to update `Pipfile.lock` with the latest version of every package
  - `make freeze-requirements` to update the requirement files and `setup.py`
 

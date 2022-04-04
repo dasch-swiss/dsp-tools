@@ -28,7 +28,7 @@ upload: ## upload distribution package to PyPI
 	python3 -m twine upload dist/*
 
 .PHONY: upgrade-dist-tools
-upgrade-dist-tool: ## upgrade packages necessary for testing, building, packaging and uploading to PyPI
+upgrade-dist-tools: ## upgrade packages necessary for testing, building, packaging and uploading to PyPI
 	python3 -m pip install --upgrade pip setuptools wheel tqdm twine pytest mkdocs
 
 .PHONY: docs-build
@@ -56,16 +56,15 @@ install: ## install from source (runs setup.py)
 
 .PHONY: test
 test: clean local-tmp clone-dsp-repo dsp-stack ## run all tests
-	# to run only one test, replace //test/... with p.ex. //test/e2e:test_tools
-	bazel test --test_summary=detailed --test_output=all //test/...
+	pytest test/
 
 .PHONY: test-end-to-end
 test-end-to-end: clean local-tmp clone-dsp-repo dsp-stack ## run e2e tests
-	bazel test --test_summary=detailed --test_output=all //test/e2e/...
+	pytest test/e2e/
 
 .PHONY: test-unittests
 test-unittests: ## run unit tests
-	bazel test --test_summary=detailed --test_output=all //test/unittests/...
+	pytest test/unittests/
 
 .PHONY: local-tmp
 local-tmp: ## create local .tmp folder

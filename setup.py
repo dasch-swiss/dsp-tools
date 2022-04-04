@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='dsp-tools',
-    version='1.11.0',
+    version='1.12.2',
     description='A Python library and tools for the DaSCH Service Platform',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -30,7 +30,8 @@ setuptools.setup(
         'click',
         'rfc3987',
         'pystrict',
-        'openpyxl'
+        'openpyxl',
+        'jsonpath-ng'
     ],
     entry_points={
         'console_scripts': [

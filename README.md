@@ -8,7 +8,13 @@ Go to [Full Documentation](https://dasch-swiss.github.io/dsp-tools/)
 
 ## Information for developers
 
-There is a `Makefile` for all the following tasks (and more). Type `make` to print the available targets.
+There is a `Makefile` for all the following tasks (and more). Type `make` to print the available targets. For a quick
+start use:
+```bash
+make upgrade-dist-tools
+make install-requirements
+make run
+```
 
 ## Install from source
 
@@ -49,21 +55,8 @@ When contributing to the project please make sure you use the same code style ru
 [autopep8](https://pypi.org/project/autopep8/) and [mypy](https://pypi.org/project/mypy/). The configuration is defined
 in `pyproject.toml` in the root directory of the project.
 
-```toml
-[tool.autopep8]
-max_line_length = 180
-experimental = true
-
-[tool.mypy]
-ignore_missing_imports = true
-follow_imports = "silent"
-show_column_numbers = true
-strict = true
-```
-
-You can use the configuration with `autopep8 --global-config pyproject.toml [file path]`
-and `mypy --config-file pyproject.toml
-[file path]`.
+You can use the configuration with `autopep8 --global-config pyproject.toml [file path]` and 
+`mypy --config-file pyproject.toml [file path]`.
 
 If you are using PyCharm we recommend installing autopep8 as external tool. You can then use it with right-click on the
 file > `External Tools` > `autopep8` to reformat files in-place. Due to compatibility issues with VSCode, the argument 

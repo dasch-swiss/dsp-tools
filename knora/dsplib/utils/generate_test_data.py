@@ -85,7 +85,7 @@ class Defaults(Enum):
     p_propertiesPerLevelDefault = 1
     p_gui_elements = ["SimpleText"]
     p_hlist = 1
-    p_hasLinkTo_target = 'Resource'
+    p_hasLinkTo_object = 'Resource'
 
     permissionsDefault = {'res-default': ['V', 'V', 'CR', 'CR']}
 
@@ -122,12 +122,22 @@ def create_ontologies(
     #     "propertiesPerLevel": 2,
     #     "gui_elements": ["SimpleText"],
     #     "hlist": 1-20 (in case of list),
-    #     "targets": "targetClass" | ["targetClassOfProp1", ...] (in case of hasLinkTo/hasRepresentation)
+    #     "objects": "objectClass" | ["objectClassOfProp1", ...] (in case of hasLinkTo/hasRepresentation)
     # }
     for propname, propdef in properties.items():
         name = f'{propname}_class_{i}'
-        super = [propname.split('_')[0]]
-        object = propname.split('_')[1]
+        propname_elems = propname.split('_')
+        super = [propname_elems[0]]
+        if len(propname_elems) > 1:
+            object = propname.split('_')[1]
+        else:
+            if propname == 'hasLinkTo':
+                #todo read objects
+            elif propname == 'hasRepresentation':
+                pass
+            elif propname == 'hasComment':
+                pass
+
         gui_elements = infinite_generator(propdef['gui_elements'])
         for i in range(propdef['propertiesPerLevel']):
             finished_props.append(json_helper.make_property_class(
@@ -295,9 +305,9 @@ def parse_config_file(config: dict[Any, Any]) -> tuple[
             if prop.split('_')[-1] == 'ListValue':
                 propdef['hlist'] = config['properties'].get('hlist', Defaults.p_hlist)
             if prop == 'hasLinkTo':
-                propdef['targets'] = config['properties'].get('targets', Defaults.p_hasLinkTo_target)
+                propdef['objects'] = config['properties'].get('objects', Defaults.p_hasLinkTo_object)
             if prop == 'hasRepresentation':
-                propdef['targets'] = config['properties'].get('targets')
+                propdef['objects'] = config['properties'].get('objects')
             properties[prop] = propdef
         else:
             properties[prop] = {

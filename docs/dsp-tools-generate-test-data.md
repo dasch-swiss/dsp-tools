@@ -86,13 +86,13 @@ In addition, some properties need further specifications:
 },
 "hasLinkTo": {
     "objects": "resclass" | ["objectClassOfProp1", ...]              # default="Resource" (resources from all classes
-                                                                        # derived from that class can become a target)
+                                                                        # derived from that class can become an object)
                                                                         # list length delimited by num of props 
                                                                         # ("inheritanceDepth" * "propertiesPerLevel")
 }
 "hasRepresentation": {
-    "targets": "targetClass" | ["targetClassOfProp1", ...]              # default=resources from all classes derived from
-                                                                        # a multimedia representation can become a target.
+    "objects": "objectClass" | ["objectClassOfProp1", ...]              # default=resources from all classes derived from
+                                                                        # a multimedia representation can become a object.
                                                                         # list length delimited by num of props 
                                                                         # ("inheritanceDepth" * "propertiesPerLevel")
 }
@@ -168,12 +168,12 @@ cardinalities: {
         "commentText": "Your text"                                      # default="My comment"
     },
     "hasLinkTo": {
-        "targets": "targetClass" | ["targetClassOfProp1", ...]          # default="Resource" (resources from all classes
-                                                                        # derived from that class can become a target)
+        "objects": "objectClass" | ["objectClassOfProp1", ...]          # default="Resource" (resources from all classes
+                                                                        # derived from that class can become an object)
     }
     "hasRepresentation": {
-        "targets": "targetClass" | ["targetClassOfProp1", ...]          # default=resources from all classes derived from
-                                                                        # a multimedia representation can become a target
+        "objects": "objectClass" | ["objectClassOfProp1", ...]          # default=resources from all classes derived from
+                                                                        # a multimedia representation can become an object
     }
 ```
 

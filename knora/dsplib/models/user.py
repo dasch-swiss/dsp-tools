@@ -699,6 +699,12 @@ class User(Model):
             for proj in project:
                 if proj["id"] == "http://rdfh.ch/projects/" + proj_shortcode:
                     project_users.append(user)
+        for user in project_users:
+            # TODO: This is the wrong approach. The method User.fromJsonObj() wants the project and the groups to be
+            #  inside the user[permissions] as dict
+            project_info = con.get(f'/admin/users/iri/{urllib.parse.quote_plus(user["id"])}/project-memberships')
+            if 'projects' in project_info and len(project_info['projects']) > 0 and 'shortname' in project_info['projects'][0]:
+                user['projects'].append(project_info['projects'][0]['shortname'])
         return list(map(lambda a: User.fromJsonObj(con, a), project_users))
 
     def createDefinitionFileObj(self):

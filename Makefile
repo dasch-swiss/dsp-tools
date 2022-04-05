@@ -29,7 +29,7 @@ upload: ## upload distribution package to PyPI
 
 .PHONY: upgrade-dist-tools
 upgrade-dist-tools: ## upgrade packages necessary for testing, building, packaging and uploading to PyPI
-	python3 -m pip install --upgrade pip setuptools wheel tqdm twine pytest mkdocs
+	python3 -m pip install --upgrade pip setuptools wheel twine pytest mkdocs
 
 .PHONY: docs-build
 docs-build: ## build docs into the local 'site' folder
@@ -48,6 +48,7 @@ install-requirements: ## install requirements
 	python3 -m pip install --upgrade pip
 	pip3 install -r requirements.txt
 	pip3 install -r docs/requirements.txt
+	pip3 install -r dev-requirements.txt
 
 .PHONY: install
 install: ## install from source (runs setup.py)
@@ -85,5 +86,11 @@ run: ## create dist, install and run
 	$(MAKE) dist
 	$(MAKE) install
 	dsp-tools
+
+.PHONY: freeze-requirements
+freeze-requirements: ## update (dev-)requirements.txt and setup.py based on pipenv's Pipfile.lock
+	pipenv lock -r > requirements.txt
+	pipenv lock -r --dev-only > dev-requirements.txt
+	pipenv run pipenv-setup sync
 
 .DEFAULT_GOAL := help

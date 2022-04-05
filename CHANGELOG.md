@@ -1,5 +1,17 @@
 # Changelog
 
+### [1.12.3](https://www.github.com/dasch-swiss/dsp-tools/compare/v1.12.2...v1.12.3) (2022-04-05)
+
+
+### Bug Fixes
+
+* **get:** handle slash at end of server, improve docs (DEV-734) ([17c0a40](https://www.github.com/dasch-swiss/dsp-tools/commit/17c0a40ec918f20c7fea760aefa002a4dae4ce1e))
+
+
+### Maintenance
+
+* change to pipenv (DEV-764) ([#177](https://www.github.com/dasch-swiss/dsp-tools/issues/177)) ([6c44688](https://www.github.com/dasch-swiss/dsp-tools/commit/6c44688841f9374c307ad4fb7aa94c2b4de7d3ad))
+
 ### [1.12.2](https://www.github.com/dasch-swiss/dsp-tools/compare/v1.12.1...v1.12.2) (2022-03-31)
 
 

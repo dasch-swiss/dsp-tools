@@ -699,12 +699,27 @@ class User(Model):
             for proj in project:
                 if proj["id"] == "http://rdfh.ch/projects/" + proj_shortcode:
                     project_users.append(user)
+
+        # find out the 'groups' and 'projects' of every user
+        # TODO: The method User.fromJsonObj() wants the project and the groups to be
+        #  inside the user[permissions] as dict
+        permissions = con.get(f'/admin/permissions/{urllib.parse.quote_plus("http://rdfh.ch/projects/") + proj_shortcode}')
+        groups = con.get(f'/admin/groups')
+        projects = con.get(f'/admin/projects')
         for user in project_users:
-            # TODO: This is the wrong approach. The method User.fromJsonObj() wants the project and the groups to be
-            #  inside the user[permissions] as dict
             project_info = con.get(f'/admin/users/iri/{urllib.parse.quote_plus(user["id"])}/project-memberships')
-            if 'projects' in project_info and len(project_info['projects']) > 0 and 'shortname' in project_info['projects'][0]:
-                user['projects'].append(project_info['projects'][0]['shortname'])
+            if 'projects' in project_info and len(project_info['projects']) > 0 and 'shortname' in \
+                project_info['projects'][0]:
+                user['groups'].append(f"{ontoname}:project_info['projects'][0]['shortname']")
+            project_admin_memberships = con.get(f'/admin/users/iri/{urllib.parse.quote_plus(user["id"])}/project-admin-memberships')
+            for proj in project_admin_memberships['projects']:
+                user['projects'].append(f"{proj['shortname']}:admin")
+            project_memberships = con.get(f'/admin/users/iri/{urllib.parse.quote_plus(user["id"])}/group-memberships')
+            if 'groups' in project_memberships:
+                for group in project_memberships['groups']:
+                    user['projects'].append(f"{group['project']['shortname']}:member")
+
+
         return list(map(lambda a: User.fromJsonObj(con, a), project_users))
 
     def createDefinitionFileObj(self):

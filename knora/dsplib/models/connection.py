@@ -1,6 +1,6 @@
 import json
 import re
-from typing import Optional, Union
+from typing import Optional, Union, Any
 
 import requests
 from pystrict import strict

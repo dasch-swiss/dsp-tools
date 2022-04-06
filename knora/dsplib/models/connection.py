@@ -1,5 +1,6 @@
 import json
-from typing import Optional, Union, Any
+import re
+from typing import Optional, Union
 
 import requests
 from pystrict import strict
@@ -30,7 +31,7 @@ class Connection:
         :param prefixes: Ontology prefixes used
         """
 
-        self._server = server
+        self._server = re.sub(r'\/$', '', server)
         self._prefixes = prefixes
         self._token = None
         self._log = False

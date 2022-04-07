@@ -1,3 +1,4 @@
+from __future__ import annotations
 import json
 import os
 import sys
@@ -368,7 +369,7 @@ class User(Model):
         return self._in_projects
 
     @in_projects.setter
-    def in_project(self, value: Any):
+    def in_projects(self, value: Any):
         raise BaseError(
             'Project membership cannot be modified directly! Use methods "addToProject" and "rmFromProject"')
 
@@ -444,7 +445,7 @@ class User(Model):
         return name in self._changed
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: Any):
+    def fromJsonObj(cls, con: Connection, json_obj: Any) -> User:
         """
         Internal method! Should not be used directly!
 
@@ -678,7 +679,7 @@ class User(Model):
         return list(map(lambda a: User.fromJsonObj(con, a), result['users']))
 
     @staticmethod
-    def getAllUsersForProject(con: Connection, proj_shortcode: str) -> list[Any]:
+    def getAllUsersForProject(con: Connection, proj_shortcode: str) -> Optional[list[User]]:
         """
         Get a list of all users that belong to a project(static method)
 
@@ -689,7 +690,7 @@ class User(Model):
 
         result = con.get(User.ROUTE)
         if 'users' not in result:
-            raise BaseError("Request got no users!")
+            return None
         all_users = result["users"]
         project_users = []
         for user in all_users:
@@ -701,36 +702,54 @@ class User(Model):
                     project_users.append(user)
 
         # find out the 'groups' and 'projects' of every user
-        # TODO: The method User.fromJsonObj() wants the project and the groups to be
-        #  inside the user[permissions] as dict
-        permissions = con.get(f'/admin/permissions/{urllib.parse.quote_plus("http://rdfh.ch/projects/") + proj_shortcode}')
-        groups = con.get(f'/admin/groups')
-        projects = con.get(f'/admin/projects')
         for user in project_users:
-            project_info = con.get(f'/admin/users/iri/{urllib.parse.quote_plus(user["id"])}/project-memberships')
-            if 'projects' in project_info and len(project_info['projects']) > 0 and 'shortname' in \
-                project_info['projects'][0]:
-                user['groups'].append(f"{ontoname}:project_info['projects'][0]['shortname']")
-            project_admin_memberships = con.get(f'/admin/users/iri/{urllib.parse.quote_plus(user["id"])}/project-admin-memberships')
-            for proj in project_admin_memberships['projects']:
-                user['projects'].append(f"{proj['shortname']}:admin")
-            project_memberships = con.get(f'/admin/users/iri/{urllib.parse.quote_plus(user["id"])}/group-memberships')
-            if 'groups' in project_memberships:
-                for group in project_memberships['groups']:
-                    user['projects'].append(f"{group['project']['shortname']}:member")
+            user_iri_esc = urllib.parse.quote_plus(user["id"])
+            project_memberships      = con.get(f'/admin/users/iri/{user_iri_esc}/project-memberships')
+            admin_group_memberships  = con.get(f'/admin/users/iri/{user_iri_esc}/project-admin-memberships')
+            normal_group_memberships = con.get(f'/admin/users/iri/{user_iri_esc}/group-memberships')
 
+            for adm_group in admin_group_memberships['projects']:
+                user['projects'].append(f"{adm_group['shortname']}:admin")
 
-        return list(map(lambda a: User.fromJsonObj(con, a), project_users))
+            for project in project_memberships['projects']:
+                if f"{project['shortname']}:admin" not in user['projects']:
+                    user['projects'].append(f"{project['shortname']}:member")
 
-    def createDefinitionFileObj(self):
-        user = {
+            for group in normal_group_memberships['groups']:
+                project_prefix = group['project']['shortname']
+                user['groups'].append(f"{project_prefix}:{group['name']}")
+
+            user['groups'].reverse()
+
+        # convert to User objects
+        res: list[User] = list(map(lambda a: User.fromJsonObj(con, a), project_users))
+
+        # add the informations about projects and groups to the User objects
+        for project_user, res_user in zip(project_users, res):
+            res_user._in_groups = res_user._in_groups | set(project_user['groups'])
+            for proj in project_user['projects']:
+                proj_name, admin = proj.split(':')
+                res_user._in_projects[proj_name] = bool(admin=='admin')
+
+        return res
+
+    def createDefinitionFileObj(self) -> dict[str, Union[str, list[str], None]]:
+        user: dict[str, Union[str, list[str], None]] = {
             "username": self.username,
             "email": self.email,
             "givenName": self.givenName,
             "familyName": self.familyName,
             "password": "",
-            "lang": self.lang.value
         }
+        if self.lang:
+            user["lang"] = self.lang.value
+        user["groups"] = list(self._in_groups)
+        user["projects"] = list()
+        for proj, is_admin in self._in_projects.items():
+            if is_admin:
+                user["projects"].append(f"{proj}:admin")
+            else:
+                user["projects"].append(f"{proj}:member")
         return user
 
     def print(self) -> None:

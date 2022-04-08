@@ -85,16 +85,10 @@ In addition, some properties need further specifications:
         "hlist": 1-20                                                   # number of list from lists[numOfLists]; default=1
 },
 "hasLinkTo": {
-    "objects": "resclass" | ["objectClassOfProp1", ...]              # default="Resource" (resources from all classes
+    "objects": "resclass" | ["objectClassOfProp1", ...]                 # default="Resource" (resources from all classes
                                                                         # derived from that class can become an object)
-                                                                        # list length delimited by num of props 
-                                                                        # ("inheritanceDepth" * "propertiesPerLevel")
-}
-"hasRepresentation": {
-    "objects": "objectClass" | ["objectClassOfProp1", ...]              # default=resources from all classes derived from
-                                                                        # a multimedia representation can become a object.
-                                                                        # list length delimited by num of props 
-                                                                        # ("inheritanceDepth" * "propertiesPerLevel")
+                                                                        # list length == "inheritanceDepth" * "propertiesPerLevel"
+                                                                        # (Breadth First Traversal)
 }
 
 
@@ -107,7 +101,7 @@ cardinalities: {
     "hasValue_DecimalValue" | "hasValue_GeomValue" | "hasValue_GeonameValue" | "hasValue_IntValue" | 
     "hasValue_BooleanValue" | "hasValue_UriValue" | "hasValue_IntervalValue" | "hasValue_ListValue" | 
     "hasColor" | "hasComment" | "hasLinkTo" | 
-    "hasRepresentation" : 0-x  | {                                      # 0-x is the "numOfProps"
+    "hasRepresentation" : 1-x  | {                                      # 1-x is the "numOfProps"
         "numOfProps": 1-x,                                              # default=1, x=existing props as defined in "properties"
                                                                         # ("inheritanceDepth" * "propertiesPerLevel")
         "numOfValuesPerProp": 1-100 | [1-100, 1-100, ...],              # default=1
@@ -170,10 +164,6 @@ cardinalities: {
     "hasLinkTo": {
         "objects": "objectClass" | ["objectClassOfProp1", ...]          # default="Resource" (resources from all classes
                                                                         # derived from that class can become an object)
-    }
-    "hasRepresentation": {
-        "objects": "objectClass" | ["objectClassOfProp1", ...]          # default=resources from all classes derived from
-                                                                        # a multimedia representation can become an object
     }
 ```
 

@@ -15,6 +15,7 @@ from knora.dsplib.utils.onto_create_ontology import create_ontology
 from knora.dsplib.utils.onto_get import get_ontology
 from knora.dsplib.utils.onto_validate import validate_ontology
 from knora.dsplib.utils.xml_upload import xml_upload
+from knora.dsplib.utils.generate_test_data import generate_test_data
 
 
 def program(user_args: list[str]) -> None:
@@ -138,7 +139,7 @@ def program(user_args: list[str]) -> None:
     parser_generate_test_data = subparsers.add_parser('generate-test-data',
                                                       help='Generate test data')
     parser_generate_test_data.set_defaults(action='generate-test-data')
-    parser_generate_test_data.add_argument('config.json', help='path to JSON config file', default='config.json')
+    parser_generate_test_data.add_argument('config', help='path to JSON config file', default='config.json')
 
     args = parser.parse_args(user_args)
 
@@ -204,6 +205,9 @@ def program(user_args: list[str]) -> None:
                   json_file=args.jsonfile,
                   out_file=args.outfile,
                   verbose=args.verbose)
+    elif args.action == 'generate-test-data':
+        generate_test_data(config=args.config)
+
 
 
 def main() -> None:

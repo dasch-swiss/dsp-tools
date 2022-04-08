@@ -14,7 +14,7 @@ from pystrict import strict
 
 
 @dataclass
-class OntoInfo:
+class OntoIri:
     """
     Holds an ontology IRI
 
@@ -26,7 +26,7 @@ class OntoInfo:
     hashtag: bool
 
 
-ContextType = NewType("ContextType", dict[str, OntoInfo])
+ContextType = NewType("ContextType", dict[str, OntoIri])
 
 
 def LINE() -> int:
@@ -97,7 +97,7 @@ class ContextIterator:
         self._prefixes = [x for x in self._context.context]
         self._index = 0
 
-    def __next__(self) -> Tuple[Optional[str], Optional[OntoInfo]]:
+    def __next__(self) -> Tuple[Optional[str], Optional[OntoIri]]:
         if len(self._context.context) == 0 and self._index == 0:
             return None, None
         elif self._index < len(self._context.context):
@@ -118,29 +118,29 @@ class Context:
     _exp: Pattern[str]
 
     common_ontologies = ContextType({
-        "foaf": OntoInfo("http://xmlns.com/foaf/0.1/", False),
-        "dc": OntoInfo("http://purl.org/dc/elements/1.1/", False),
-        "dcterms": OntoInfo("http://purl.org/dc/terms/", False),
-        "dcmi": OntoInfo("http://purl.org/dc/dcmitype/", False),
-        "skos": OntoInfo("http://www.w3.org/2004/02/skos/core", True),
-        "bibtex": OntoInfo("http://purl.org/net/nknouf/ns/bibtex", True),
-        "bibo": OntoInfo("http://purl.org/ontology/bibo/", False),
-        "cidoc": OntoInfo("http://purl.org/NET/cidoc-crm/core", True),
-        "schema": OntoInfo("https://schema.org/", False),
-        "edm": OntoInfo("http://www.europeana.eu/schemas/edm/", False),
-        "ebucore": OntoInfo("http://www.ebu.ch/metadata/ontologies/ebucore/ebucore", True)
+        "foaf": OntoIri("http://xmlns.com/foaf/0.1/", False),
+        "dc": OntoIri("http://purl.org/dc/elements/1.1/", False),
+        "dcterms": OntoIri("http://purl.org/dc/terms/", False),
+        "dcmi": OntoIri("http://purl.org/dc/dcmitype/", False),
+        "skos": OntoIri("http://www.w3.org/2004/02/skos/core", True),
+        "bibtex": OntoIri("http://purl.org/net/nknouf/ns/bibtex", True),
+        "bibo": OntoIri("http://purl.org/ontology/bibo/", False),
+        "cidoc": OntoIri("http://purl.org/NET/cidoc-crm/core", True),
+        "schema": OntoIri("https://schema.org/", False),
+        "edm": OntoIri("http://www.europeana.eu/schemas/edm/", False),
+        "ebucore": OntoIri("http://www.ebu.ch/metadata/ontologies/ebucore/ebucore", True)
     })
 
     knora_ontologies = ContextType({
-        "knora-api": OntoInfo("http://api.knora.org/ontology/knora-api/v2", True),
-        "salsah-gui": OntoInfo("http://api.knora.org/ontology/salsah-gui/v2", True)
+        "knora-api": OntoIri("http://api.knora.org/ontology/knora-api/v2", True),
+        "salsah-gui": OntoIri("http://api.knora.org/ontology/salsah-gui/v2", True)
     })
 
     base_ontologies = ContextType({
-        "rdf": OntoInfo("http://www.w3.org/1999/02/22-rdf-syntax-ns", True),
-        "rdfs": OntoInfo("http://www.w3.org/2000/01/rdf-schema", True),
-        "owl": OntoInfo("http://www.w3.org/2002/07/owl", True),
-        "xsd": OntoInfo("http://www.w3.org/2001/XMLSchema", True)
+        "rdf": OntoIri("http://www.w3.org/1999/02/22-rdf-syntax-ns", True),
+        "rdfs": OntoIri("http://www.w3.org/2000/01/rdf-schema", True),
+        "owl": OntoIri("http://www.w3.org/2002/07/owl", True),
+        "xsd": OntoIri("http://www.w3.org/2001/XMLSchema", True)
     })
 
     def __is_iri(self, val: str) -> bool:
@@ -168,7 +168,7 @@ class Context:
         # add ontologies from context, if any
         if context:
             for prefix, onto in context.items():
-                self._context[prefix] = OntoInfo(onto.removesuffix('#'), onto.endswith('#') or onto.endswith('/v2'))
+                self._context[prefix] = OntoIri(onto.removesuffix('#'), onto.endswith('#') or onto.endswith('/v2'))
 
         # add standard ontologies (rdf, rdfs, owl, xsl)
         for k, v in self.base_ontologies.items():
@@ -185,10 +185,10 @@ class Context:
     def __len__(self) -> int:
         return len(self._context)
 
-    def __getitem__(self, key: str) -> OntoInfo:
+    def __getitem__(self, key: str) -> OntoIri:
         return self._context[key]
 
-    def __setitem__(self, key: str, value: OntoInfo) -> None:
+    def __setitem__(self, key: str, value: OntoIri) -> None:
         self._context[key] = value
         self._rcontext[value.iri] = key
 
@@ -251,9 +251,9 @@ class Context:
         else:
             if iri.endswith("#"):
                 iri = iri[:-1]
-                self._context[prefix] = OntoInfo(iri, True)
+                self._context[prefix] = OntoIri(iri, True)
             else:
-                self._context[prefix] = OntoInfo(iri, False)
+                self._context[prefix] = OntoIri(iri, False)
         self._rcontext[iri] = prefix
 
     def iri_from_prefix(self, prefix: str) -> Optional[str]:
@@ -299,7 +299,7 @@ class Context:
                 if tmp[-1] == "v2":
                     #
                     # we have a knora ontology name "http://server/ontology/shortcode/shortname/v2"
-                    self._context[tmp[-2]] = OntoInfo(iri, True)  # add to list of prefixes used
+                    self._context[tmp[-2]] = OntoIri(iri, True)  # add to list of prefixes used
                     self._rcontext[iri] = tmp[-2]
                 else:
                     raise BaseError("Iri cannot be resolved to a well-known prefix!")
@@ -401,7 +401,7 @@ class Context:
         tmp = iri_str.split(':')
         if tmp[0] == knora_api or tmp[0] == salsah_gui:
             return tmp[1]
-        elif onto_name and tmp[0] == onto_name:
+        elif tmp[0] == onto_name:
             return ':' + tmp[1]
         else:
             return iri_str
@@ -416,11 +416,7 @@ class Context:
 
     def get_externals_used(self) -> dict[str, str]:
         exclude = ["rdf", "rdfs", "owl", "xsd", "knora-api", "salsah-gui"]
-        prefixes: dict[str, str] = {}
-        for prefix, onto in self._context.items():
-            if prefix not in exclude:
-                prefixes[prefix] = onto.iri
-        return prefixes
+        return {prefix: onto.iri for prefix, onto in self._context.items() if prefix not in exclude}
 
     def print(self) -> None:
         for a in self._context.items():

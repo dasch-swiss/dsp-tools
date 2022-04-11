@@ -9,7 +9,7 @@ from pystrict import strict
 
 from .bitstream import Bitstream
 from .connection import Connection
-from .helpers import OntoInfo, Actions, BaseError, Cardinality, Context
+from .helpers import OntoIri, Actions, BaseError, Cardinality, Context
 from .listnode import ListNode
 from .model import Model
 from .ontology import Ontology
@@ -26,7 +26,7 @@ class KnoraStandoffXmlEncoder(json.JSONEncoder):
     def default(self, obj) -> str:
         if isinstance(obj, KnoraStandoffXml):
             return '<?xml version="1.0" encoding="UTF-8"?>\n<text>' + str(obj) + '</text>'
-        elif isinstance(obj, OntoInfo):
+        elif isinstance(obj, OntoIri):
             return obj.iri + "#" if obj.hashtag else ""
         return json.JSONEncoder.default(self, obj)
 

@@ -1,5 +1,6 @@
 import json
 import re
+from typing import Optional
 
 from ..models.connection import Connection
 from ..models.group import Group
@@ -48,11 +49,12 @@ def get_ontology(project_identifier: str, outfile: str, server: str, user: str, 
     if verbose:
         print("Getting groups...")
     groups_obj = []
-    groups = Group.getAllGroupsForProject(con=con, proj_shortcode=project.shortcode)
-    for group in groups:
-        groups_obj.append(group.createDefinitionFileObj())
-        if verbose:
-            print(f"\tGot group '{group.name}'")
+    groups: Optional[list[Group]] = Group.getAllGroupsForProject(con=con, proj_shortcode=project.shortcode)
+    if groups:
+        for group in groups:
+            groups_obj.append(group.createDefinitionFileObj())
+            if verbose:
+                print(f"\tGot group '{group.name}'")
     project_obj["groups"] = groups_obj
 
     # get users
@@ -70,20 +72,21 @@ def get_ontology(project_identifier: str, outfile: str, server: str, user: str, 
     # get the lists
     if verbose:
         print("Getting lists...")
-    list_roots = ListNode.getAllLists(con=con, project_iri=project.id)
     list_obj = []
-    for list_root in list_roots:
-        complete_list = list_root.getAllNodes()
-        list_obj.append(complete_list.createDefinitionFileObj())
-        if verbose:
-            print(f"\tGot list '{list_root.name}'")
+    list_roots: Optional[list[ListNode]] = ListNode.getAllLists(con=con, project_iri=project.id)
+    if list_roots:
+        for list_root in list_roots:
+            complete_list = list_root.getAllNodes()
+            list_obj.append(complete_list.createDefinitionFileObj())
+            if verbose:
+                print(f"\tGot list '{list_root.name}'")
     project_obj["lists"] = list_obj
 
     # get the ontologies
     if verbose:
         print(f"Getting ontologies...")
     project_obj["ontologies"] = []
-    prefixes: dict[str, str] = {}
+    prefixes: dict[str, str] = dict()
     ontologies = Ontology.getProjectOntologies(con, project.id)
     ontology_ids = [onto.id for onto in ontologies]
     for ontology_id in ontology_ids:

@@ -126,10 +126,10 @@ def create_groups(con: Connection, groups: list[dict[str, str]], project: Projec
         group_exists: bool = False
         if all_groups:
             for group_item in all_groups:
-                if group_item.project == project.id and group_item.name == group_name:
+                if group_item.name == group_name:
                     group_exists = True
         if group_exists:
-            print(f"WARN Group '{group_name}' already exists. Skipping...")
+            print(f"WARN Group name '{group_name}' already in use. Skipping...")
             continue
 
         # check if status is defined, set default value if not

@@ -123,11 +123,11 @@ def create_groups(con: Connection, groups: list[dict[str, str]], project: Projec
 
         # check if the group already exists, skip if so
         all_groups: Optional[list[Group]] = Group.getAllGroups(con)
+
         group_exists: bool = False
         if all_groups:
-            for group_item in all_groups:
-                if group_item.name == group_name:
-                    group_exists = True
+            group_exists = any(group_item.name == group_name for group_item in all_groups)
+
         if group_exists:
             print(f"WARN Group name '{group_name}' already in use. Skipping...")
             continue

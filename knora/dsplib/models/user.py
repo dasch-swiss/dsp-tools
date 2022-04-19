@@ -689,7 +689,9 @@ class User(Model):
         members = con.get(f'/admin/projects/shortcode/{proj_shortcode}/members')
         if members is None or len(members) < 1:
             return None
-        return [User.fromJsonObj(con, a) for a in members['members']]
+        res: list[User] = [User.fromJsonObj(con, a) for a in members['members']]
+        res.reverse()
+        return res
 
     def createDefinitionFileObj(
         self,

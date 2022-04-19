@@ -1,4 +1,4 @@
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 
 # "Resource": {
@@ -26,7 +26,7 @@ def make_resource_class(
     finished_cards: list[dict[str, str]] = list()
     for card_name, card_def in cardinalities.items():
         eligible_propclasses = (x for x in existing_propclasses if x.startswith(card_name))
-        for i in range(int(card_def['numOfProps'])):
+        for i in range(cast(int, card_def['numOfProps'])):
             finished_cards.append({
                 'propname': f':{next(eligible_propclasses)}',
                 'cardinality': card_def['cardinality'][i]
@@ -46,9 +46,9 @@ def make_property_class(
     super: str,
     object: str,
     gui_element: str,
-    hlist: Optional[str]
-):
-    res = {
+    hlist: Optional[int]
+) -> dict[str, Union[str, list[str], dict[str, str], dict[str, int]]]:
+    res: dict[str, Union[str, list[str], dict[str, str], dict[str, int]]] = {
         'name': name,
         'super': [super],
         'object': object,
@@ -59,3 +59,4 @@ def make_property_class(
     }
     if hlist:
         res['gui_attributes'] = {'hlist': hlist}
+    return res

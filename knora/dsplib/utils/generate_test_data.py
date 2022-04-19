@@ -102,7 +102,7 @@ def parse_salsah_links() -> Optional[dict[str, Union[str, int, bool]]]:
     return None
 
 
-def infinite_generator(iterable: Iterable):
+def infinite_generator(iterable: Iterable[Any]) -> Any:
     while True:
         for it in iterable:
             yield it
@@ -115,7 +115,7 @@ def create_ontologies(
 ) -> list[dict[Any, Any]]:
     finished_props: list[dict[str, Any]] = list()
     for propname, propdef in properties.items():
-        num_of_props = int(propdef['inheritanceDepth']) * int(propdef['propertiesPerLevel'])
+        num_of_props = cast(int, propdef['inheritanceDepth']) * cast(int, propdef['propertiesPerLevel'])
         propname_elems = propname.split('_')
         super = propname_elems[0]
         if len(propname_elems) > 1:
@@ -123,34 +123,34 @@ def create_ontologies(
         elif propname == 'hasRepresentation':
             objects = (x for x in ['Representation'] * num_of_props)
         elif propname != 'hasComment':
-            objects = (x for x in propdef['objects'])
-        gui_elements = infinite_generator(propdef['gui_elements'])
+            objects = (x for x in cast(list[str], propdef['objects']))
+        gui_elements = infinite_generator(cast(list[str], propdef['gui_elements']))
 
-        for i in range(propdef['propertiesPerLevel']):
+        for i in range(cast(int, propdef['propertiesPerLevel'])):
             finished_props.append(json_helper.make_property_class(
                 name=f'{propname}_class_{i}',
                 super=super,
                 object=next(objects),
                 gui_element=next(gui_elements),
-                hlist=propdef.get('hlist')
+                hlist=cast(int, propdef.get('hlist'))
             ))
-            if int(propdef['inheritanceDepth']) > 1:
-                for j in range(propdef['propertiesPerLevel']):
+            if cast(int, propdef['inheritanceDepth']) > 1:
+                for j in range(cast(int, propdef['propertiesPerLevel'])):
                     finished_props.append(json_helper.make_property_class(
                         name=f'{propname}_class_{i}_subclass_{j}',
                         super=f'{propname}_class_{i}',
                         object=next(objects),
                         gui_element=next(gui_elements),
-                        hlist=propdef.get('hlist')
+                        hlist=cast(int, propdef.get('hlist'))
                     ))
-                    if int(propdef['inheritanceDepth']) > 2:
-                        for k in range(propdef['propertiesPerLevel']):
+                    if cast(int, propdef['inheritanceDepth']) > 2:
+                        for k in range(cast(int, propdef['propertiesPerLevel'])):
                             finished_props.append(json_helper.make_property_class(
                                 name=f'{propname}_class_{i}_subclass_{j}_subclass_{k}',
                                 super=f'{propname}_class_{i}_subclass_{j}',
                                 object=next(objects),
                                 gui_element=next(gui_elements),
-                                hlist=propdef.get('hlist')
+                                hlist=cast(int, propdef.get('hlist'))
                             ))
 
     existing_propclasses = [prop['name'] for prop in finished_props]
@@ -255,7 +255,7 @@ def validate_int_list(value: Optional[Union[int, list[int]]], maximum: int, defa
 def parse_config_file(config: str) -> tuple[
     int,
     dict[str, dict[str, Any]],
-    dict[str, dict[str, int]],
+    dict[str, dict[str, Union[int, list[str]]]],
     Optional[dict[str, Union[int, list[int]]]],
     Optional[dict[str, Union[str, int, bool]]],
     dict[str, list[str]],
@@ -329,7 +329,7 @@ def parse_config_file(config: str) -> tuple[
             }
             if prop.split('_')[-1] == 'ListValue':
                 propdef['hlist'] = config_dict['properties'].get('hlist', defaults['p_hlist'])
-            num_of_props = int(propdef['inheritanceDepth']) * int(propdef['propertiesPerLevel'])
+            num_of_props = cast(int, propdef['inheritanceDepth']) * cast(int, propdef['propertiesPerLevel'])
             if prop == 'hasLinkTo':
                 propdef['objects'] = config_dict['properties'].get('objects', [defaults['p_hasLinkTo_object']] * num_of_props)
             properties[prop] = propdef
@@ -353,7 +353,7 @@ def create_data_model(
     onto_names: list[str],
     lists: Optional[dict[str, Union[int, list[int]]]],
     resources: dict[str, dict[str, Any]],
-    properties: dict[str, dict[str, int]]
+    properties: dict[str, dict[str, Union[int, list[str]]]]
 ) -> dict[str, Any]:
     data_model: dict[str, Any] = {
         '$schema': 'https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/ontology.json',
@@ -397,8 +397,17 @@ def create_data_model(
     return data_model
 
 
-def create_xml_file(shortcode: str, default_ontology: str, permissions: dict[str, list[str]]) -> etree.Element:
-    root = xml_helper.make_root(shortcode=shortcode, default_ontology=default_ontology)
+def create_xml_file(
+    shortcode: str,
+    onto_name: str,
+    resources: dict[str, dict[str, Any]],
+    properties: dict[str, dict[str, Union[int, list[str]]]],
+    salsahLinks: Optional[dict[str, Union[str, int, bool]]],
+    permissions: dict[str, list[str]],
+    data_model: dict[str, Any]
+) -> etree.Element:
+    root = xml_helper.make_root(shortcode=shortcode, default_ontology=onto_name)
+    # TODO: enable custom permissions
     root = xml_helper.append_permissions(root)
     return root
 
@@ -418,12 +427,12 @@ def generate_test_data(config: str) -> None:
     if not validate_ontology(data_model):
         exit(1)
 
-    # xml_files: list[etree.Element] = list()
-    # for onto_name in onto_names:
-    #     xml_file = create_xml_file(shortcode, onto_name, permissions)
-    #     if not validate_xml_against_schema('path to xml file', 'knora/dsplib/schemas/data.xsd'):
-    #         exit(1)
-    #     xml_files.append(xml_file)
+    xml_files: list[etree.Element] = list()
+    for onto_name in onto_names:
+        xml_file = create_xml_file(shortcode, onto_name, resources, properties, salsahLinks, permissions, data_model)
+        if not validate_xml_against_schema('path to xml file', 'knora/dsplib/schemas/data.xsd'):
+            exit(1)
+        xml_files.append(xml_file)
 
     # write files
     dirname = f'{shortcode}-{shortname}'

@@ -701,7 +701,7 @@ class User(Model):
                 if proj["id"] == "http://rdfh.ch/projects/" + proj_shortcode:
                     project_users.append(user)
 
-        # find out the 'groups' and 'projects' of every user
+        # get the 'groups' and 'projects' of every user
         for user in project_users:
             user_iri_esc = urllib.parse.quote_plus(user["id"])
             project_memberships      = con.get(f'/admin/users/iri/{user_iri_esc}/project-memberships')
@@ -722,9 +722,9 @@ class User(Model):
             user['groups'].reverse()
 
         # convert to User objects
-        res: list[User] = list(map(lambda a: User.fromJsonObj(con, a), project_users))
+        res: list[User] = [User.fromJsonObj(con, a) for a in project_users]
 
-        # add the informations about projects and groups to the User objects
+        # add the projects and groups to the User objects
         for project_user, res_user in zip(project_users, res):
             res_user._in_groups = res_user._in_groups | set(project_user['groups'])
             for proj in project_user['projects']:

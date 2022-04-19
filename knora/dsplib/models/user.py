@@ -476,18 +476,17 @@ class User(Model):
         in_groups: set[str] = set()
         if json_obj.get('permissions') is not None and json_obj['permissions'].get('groupsPerProject') is not None:
             sysadmin = False
-            project_groups = json_obj['permissions']['groupsPerProject']
-            for project in project_groups:
-                if project == Project.SYSTEM_PROJECT:
-                    if Group.PROJECT_SYSTEMADMIN_GROUP in project_groups[project]:
+            for project_iri, group_memberships in json_obj['permissions']['groupsPerProject'].items():
+                if project_iri == Project.SYSTEM_PROJECT:
+                    if Group.PROJECT_SYSTEMADMIN_GROUP in group_memberships:
                         sysadmin = True
                 else:
-                    for group in project_groups[project]:
+                    for group in group_memberships:
                         if group == Group.PROJECT_MEMBER_GROUP:
-                            if in_projects.get(project) is None:
-                                in_projects[project] = False
+                            if in_projects.get(project_iri) is None:
+                                in_projects[project_iri] = False
                         elif group == Group.PROJECT_ADMIN_GROUP:
-                            in_projects[project] = True
+                            in_projects[project_iri] = True
                         else:
                             in_groups.add(group)
         return cls(con=con,
@@ -681,59 +680,23 @@ class User(Model):
     @staticmethod
     def getAllUsersForProject(con: Connection, proj_shortcode: str) -> Optional[list[User]]:
         """
-        Get a list of all users that belong to a project(static method)
+        Get a list of all users that belong to a project (static method)
 
         :param con: Connection instance
         :project_shortcode: Shortcode of the project
         :return: List of users belonging to that project
         """
-
-        result = con.get(User.ROUTE)
-        if 'users' not in result:
+        members = con.get(f'/admin/projects/shortcode/{proj_shortcode}/members')
+        if members is None or len(members) < 1:
             return None
-        all_users = result["users"]
-        project_users = []
-        for user in all_users:
-            project_list = con.get(
-                User.IRI + urllib.parse.quote_plus(user["id"], safe='') + '/project-memberships')
-            project = project_list["projects"]
-            for proj in project:
-                if proj["id"] == "http://rdfh.ch/projects/" + proj_shortcode:
-                    project_users.append(user)
+        return [User.fromJsonObj(con, a) for a in members['members']]
 
-        # get the 'groups' and 'projects' of every user
-        for user in project_users:
-            user_iri_esc = urllib.parse.quote_plus(user["id"])
-            project_memberships      = con.get(f'/admin/users/iri/{user_iri_esc}/project-memberships')
-            admin_group_memberships  = con.get(f'/admin/users/iri/{user_iri_esc}/project-admin-memberships')
-            normal_group_memberships = con.get(f'/admin/users/iri/{user_iri_esc}/group-memberships')
-
-            for adm_group in admin_group_memberships['projects']:
-                user['projects'].append(f"{adm_group['shortname']}:admin")
-
-            for project in project_memberships['projects']:
-                if f"{project['shortname']}:admin" not in user['projects']:
-                    user['projects'].append(f"{project['shortname']}:member")
-
-            for group in normal_group_memberships['groups']:
-                project_prefix = group['project']['shortname']
-                user['groups'].append(f"{project_prefix}:{group['name']}")
-
-            user['groups'].reverse()
-
-        # convert to User objects
-        res: list[User] = [User.fromJsonObj(con, a) for a in project_users]
-
-        # add the projects and groups to the User objects
-        for project_user, res_user in zip(project_users, res):
-            res_user._in_groups = res_user._in_groups | set(project_user['groups'])
-            for proj in project_user['projects']:
-                proj_name, admin = proj.split(':')
-                res_user._in_projects[proj_name] = bool(admin=='admin')
-
-        return res
-
-    def createDefinitionFileObj(self) -> dict[str, Union[str, list[str], None]]:
+    def createDefinitionFileObj(
+        self,
+        con: Connection,
+        proj_shortname: str,
+        proj_shortcode: str
+    ) -> dict[str, Union[str, list[str], None]]:
         user: dict[str, Union[str, list[str], None]] = {
             "username": self.username,
             "email": self.email,
@@ -743,13 +706,20 @@ class User(Model):
         }
         if self.lang:
             user["lang"] = self.lang.value
-        user["groups"] = list(self._in_groups)
+        groups = list()
+        for group_iri in self._in_groups:
+            group_info = con.get(f'/admin/groups/{urllib.parse.quote_plus(group_iri)}')
+            if 'group' in group_info and 'name' in group_info['group']:
+                groupname = group_info['group']['name']
+                groups.append(f'{proj_shortname}:{groupname}')
+        user["groups"] = groups
         user["projects"] = list()
         for proj, is_admin in self._in_projects.items():
-            if is_admin:
-                user["projects"].append(f"{proj}:admin")
-            else:
-                user["projects"].append(f"{proj}:member")
+            if proj_shortcode in proj:
+                if is_admin:
+                    user["projects"].append(f"{proj_shortname}:admin")
+                else:
+                    user["projects"].append(f"{proj_shortname}:member")
         return user
 
     def print(self) -> None:

@@ -64,7 +64,9 @@ def get_ontology(project_identifier: str, outfile: str, server: str, user: str, 
     users = User.getAllUsersForProject(con=con, proj_shortcode=project.shortcode)
     if users:
         for usr in users:
-            users_obj.append(usr.createDefinitionFileObj())
+            users_obj.append(usr.createDefinitionFileObj(
+                con=con, proj_shortname=project.shortname, proj_shortcode=project.shortcode
+            ))
             if verbose:
                 print(f"\tGot user '{usr.username}'")
         project_obj["users"] = users_obj

@@ -9,14 +9,14 @@ from knora.dsplib.utils.xml_upload import validate_xml_against_schema
 
 
 allowed_resources = [
-    'Resource'
-    'StillImageRepresentation'
-    'TextRepresentation'
-    'AudioRepresentation'
-    'DDDRepresentation'
-    'DocumentRepresentation'
-    'MovingImageRepresentation'
-    'ArchiveRepresentation'
+    'Resource',
+    'StillImageRepresentation',
+    'TextRepresentation',
+    'AudioRepresentation',
+    'DDDRepresentation',
+    'DocumentRepresentation',
+    'MovingImageRepresentation',
+    'ArchiveRepresentation',
     'LinkObj'
 ]
 
@@ -157,7 +157,7 @@ def create_ontologies(
 
     finished_res: list[dict[str, Any]] = list()
     for resname, resdef in resources.items():
-        for i in range(resdef['classesPerInheritanceLevel']):
+        for i in range(resdef['classesPerInheritanceLevel'][0]):
             finished_res.append(json_helper.make_resource_class(
                 name=f'{resname}_class_{i}',
                 super=resname,
@@ -165,7 +165,7 @@ def create_ontologies(
                 existing_propclasses=existing_propclasses
             ))
             if resdef['inheritanceDepth'] > 1:
-                for j in range(resdef['classesPerInheritanceLevel']):
+                for j in range(resdef['classesPerInheritanceLevel'][1]):
                     finished_res.append(json_helper.make_resource_class(
                         name=f'{resname}_class_{i}_subclass_{j}',
                         super=f'{resname}_class_{i}',
@@ -173,7 +173,7 @@ def create_ontologies(
                         existing_propclasses=existing_propclasses
                     ))
                     if resdef['inheritanceDepth'] > 2:
-                        for k in range(resdef['classesPerInheritanceLevel']):
+                        for k in range(resdef['classesPerInheritanceLevel'][2]):
                             finished_res.append(json_helper.make_resource_class(
                                 name=f'{resname}_class_{i}_subclass_{j}_subclass{k}',
                                 super=f'{resname}_class_{i}_subclass_{j}',
@@ -350,6 +350,7 @@ def parse_config_file(config: str) -> tuple[
 def create_data_model(
     shortcode: str,
     shortname: str,
+    longname: str,
     onto_names: list[str],
     lists: Optional[dict[str, Union[int, list[int]]]],
     resources: dict[str, dict[str, Any]],
@@ -360,10 +361,13 @@ def create_data_model(
         'project': {
             'shortcode': shortcode,
             'shortname': shortname,
-            'longname': 'A generated project',
+            'longname': longname,
+            'descriptions': {'en': 'English description of project'},
+            'keywords': ['keyword1', 'keyword2'],
             'groups': [
                 {
                     'name': 'testproject-editors',
+                    'descriptions': {'en': 'Description of testproject-editors'},
                     'selfjoin': False,
                     'status': True
                 }
@@ -417,33 +421,34 @@ def generate_test_data(config: str) -> None:
     identicalOntologies, resources, properties, lists, salsahLinks, \
     permissions, outputFiles = parse_config_file(config)
 
-    shortcode = '0820'
-    shortname = 'generatedProject'
+    shortcode = '0821'
+    shortname = 'gen'
+    longname = 'A generated project'
     onto_names = [f'{shortname}_onto_{i}' for i in range(identicalOntologies)]
 
     data_model = create_data_model(
-        shortcode, shortname, onto_names, lists, resources, properties
+        shortcode, shortname, longname, onto_names, lists, resources, properties
     )
     if not validate_ontology(data_model):
         exit(1)
 
-    xml_files: list[etree.Element] = list()
-    for onto_name in onto_names:
-        xml_file = create_xml_file(shortcode, onto_name, resources, properties, salsahLinks, permissions, data_model)
-        if not validate_xml_against_schema('path to xml file', 'knora/dsplib/schemas/data.xsd'):
-            exit(1)
-        xml_files.append(xml_file)
+    # xml_files: list[etree.Element] = list()
+    # for onto_name in onto_names:
+    #     xml_file = create_xml_file(shortcode, onto_name, resources, properties, salsahLinks, permissions, data_model)
+    #     if not validate_xml_against_schema('path to xml file', 'knora/dsplib/schemas/data.xsd'):
+    #         exit(1)
+    #     xml_files.append(xml_file)
 
     # write files
     dirname = f'{shortcode}-{shortname}'
-    os.makedirs(dirname)
+    os.makedirs(dirname, exist_ok=True)
     with open(f'{dirname}/{shortname}-ontologies.json', 'w', encoding='utf8') as outfile:
         json.dump(data_model, outfile, indent=4, ensure_ascii=False)
-    for xml_file, onto_name in zip(xml_files, onto_names):
-        etree.indent(xml_file, space='    ')
-        xml_string = etree.tostring(xml_file, encoding='unicode', pretty_print=True)
-        xml_string = '<?xml version="1.0" encoding="UTF-8"?>\n' + xml_string
-        xml_string = xml_string.replace('&lt;', '<')
-        xml_string = xml_string.replace('&gt;', '>')
-        with open(f'{dirname}/{onto_name}-data.xml', 'w', encoding='utf-8') as f:
-            f.write(xml_string)
+    # for xml_file, onto_name in zip(xml_files, onto_names):
+    #     etree.indent(xml_file, space='    ')
+    #     xml_string = etree.tostring(xml_file, encoding='unicode', pretty_print=True)
+    #     xml_string = '<?xml version="1.0" encoding="UTF-8"?>\n' + xml_string
+    #     xml_string = xml_string.replace('&lt;', '<')
+    #     xml_string = xml_string.replace('&gt;', '>')
+    #     with open(f'{dirname}/{onto_name}-data.xml', 'w', encoding='utf-8') as f:
+    #         f.write(xml_string)

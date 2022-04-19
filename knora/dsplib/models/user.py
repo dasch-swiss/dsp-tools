@@ -198,7 +198,7 @@ class User(Model):
             if isinstance(lang, Languages):
                 self._lang = lang
             else:
-                lmap = dict(map(lambda a: (a.value, a), Languages))
+                lmap = {a.value: a for a in Languages}
                 if lmap.get(lang) is None:
                     raise BaseError('Invalid language string "' + lang + '"!')
                 self._lang = lmap[lang]
@@ -298,7 +298,7 @@ class User(Model):
             self._lang = value
             self._changed.add('lang')
         else:
-            lmap = dict(map(lambda a: (a.value, a), Languages))
+            lmap = {a.value: a for a in Languages}
             if lmap.get(value) is None:
                 raise BaseError('Invalid language string "' + value + '"!')
             self._lang = lmap[value]
@@ -676,7 +676,7 @@ class User(Model):
         result = con.get(User.ROUTE)
         if 'users' not in result:
             raise BaseError("Request got no users!")
-        return list(map(lambda a: User.fromJsonObj(con, a), result['users']))
+        return [User.fromJsonObj(con, a) for a in result['users']]
 
     @staticmethod
     def getAllUsersForProject(con: Connection, proj_shortcode: str) -> Optional[list[User]]:

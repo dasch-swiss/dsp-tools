@@ -53,20 +53,20 @@ dsp-tools get [options] output_file.json
 
 The following options are available:
 
-- `-s` | `--server` _server_: URL of the DSP server (default: 0.0.0.0:3333)
-- `-u` | `--user` _username_: username used for authentication with the DSP API (default: root@example.com)
-- `-p` | `--password` _password_: password used for authentication with the DSP API (default: test)
-- `-P` | `--project` _shortcode_ | _shortname_ | _iri_: shortcode, shortname or (mandatory)
-  [IRI](https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier) of the project
+- `-s` | `--server`: URL of the DSP server (default: 0.0.0.0:3333)
+- `-u` | `--user`: username used for authentication with the DSP API (default: root@example.com)
+- `-p` | `--password`: password used for authentication with the DSP API (default: test)
+- `-P` | `--project`: shortcode, shortname or
+  [IRI](https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier) of the project (mandatory)
 - `-v` | `--verbose`: If set, some information about the progress is printed to the console.
 
 The command is used to get the definition of a data model from a DSP server and write it into a JSON file. This JSON
 file could then be used to upload the data model to another DSP server. The following example shows how to get the data
-model from a DSP server `https://api.dsl.server.org` provided with the `-s` option. The username `root@example.com` and
+model from a DSP server `https://test.dasch.swiss` provided with the `-s` option. The username `root@example.com` and
 the password `test` are used. The data model is saved into the output file `output_file.json`.
 
 ```bash
-dsp-tools get -s https://api.dsl.server.org -u root@example.com -p test -P my_project output_file.json
+dsp-tools get -s https://api.test.dasch.swiss -u root@example.com -p test -P my_project output_file.json
 ```
 
 ## Upload data to a DSP server

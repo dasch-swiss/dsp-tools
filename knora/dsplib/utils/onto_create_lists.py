@@ -55,7 +55,7 @@ def create_lists(input_file: str, lists_file: str, server: str, user: str, passw
         user: Username (e-mail) for the DSP server, has to have the permissions to create an ontology
         password: Password of the user
         verbose: Verbose output if True
-        dump: ???
+        dump: dumps the request as JSON (used for testing)
 
     Returns:
         list_root_nodes: Dictionary of node names and their respective IRI

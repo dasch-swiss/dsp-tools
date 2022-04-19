@@ -1,6 +1,7 @@
 {
     "prefixes": {
         "foaf": "http://xmlns.com/foaf/0.1/",
+        "externalOnto": "http://otherOntology.com/onto/",
         "dcterms": "http://purl.org/dc/terms/"
     },
     "$schema": "../knora/dsplib/schemas/ontology.json",
@@ -193,7 +194,9 @@
                     {
                         "name": "hasText",
                         "super": [
-                            "hasValue"
+                            "hasValue",
+                            "foaf:name",
+                            "externalOnto:hasText"
                         ],
                         "object": "TextValue",
                         "labels": {
@@ -382,7 +385,11 @@
                 "resources": [
                     {
                         "name": "TestThing",
-                        "super": "Resource",
+                        "super": [
+                            "Resource",
+                            "foaf:Person",
+                            "externalOnto:thing"
+                        ],
                         "labels": {
                             "en": "TestThing"
                         },

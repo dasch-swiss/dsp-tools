@@ -123,13 +123,13 @@ def create_groups(con: Connection, groups: list[dict[str, str]], project: Projec
 
         # check if the group already exists, skip if so
         all_groups: Optional[list[Group]] = Group.getAllGroups(con)
+
         group_exists: bool = False
         if all_groups:
-            for group_item in all_groups:
-                if group_item.project == project.id and group_item.name == group_name:
-                    group_exists = True
+            group_exists = any(group_item.name == group_name for group_item in all_groups)
+
         if group_exists:
-            print(f"WARN Group '{group_name}' already exists. Skipping...")
+            print(f"WARN Group name '{group_name}' already in use. Skipping...")
             continue
 
         # check if status is defined, set default value if not
@@ -473,10 +473,10 @@ def create_ontology(input_file: str,
                 print(f"Created ontology '{ontology_name}'.")
         except BaseError as err:
             print(
-                f"ERROR while trying to create ontology '{ontology_name}'. The error message was {err.message}")
+                f"ERROR while trying to create ontology '{ontology_name}'. The error message was: {err.message}")
             exit(1)
         except Exception as exception:
-            print(f"ERROR while trying to create ontology '{ontology_name}'. The error message was {exception}")
+            print(f"ERROR while trying to create ontology '{ontology_name}'. The error message was: {exception}")
             exit(1)
 
         # add the prefixes defined in the json file
@@ -487,7 +487,7 @@ def create_ontology(input_file: str,
 
         # create the empty resource classes
         new_res_classes: dict[str, ResourceClass] = {}
-        sorted_resources = sort_resources(ontology['resources'], ontology['name'])
+        sorted_resources = sort_resources(ontology["resources"], ontology["name"])
         for res_class in sorted_resources:
             res_name = res_class.get("name")
             super_classes = res_class.get("super")
@@ -515,10 +515,10 @@ def create_ontology(input_file: str,
                     last_modification_date)
             except BaseError as err:
                 print(
-                    f"ERROR while trying to create resource class {res_name}. The error message was {err.message}")
+                    f"ERROR while trying to create resource class '{res_name}'. The error message was: {err.message}")
             except Exception as exception:
                 print(
-                    f"ERROR while trying to create resource class {res_name}. The error message was {exception}")
+                    f"ERROR while trying to create resource class '{res_name}'. The error message was: {exception}")
 
             if new_res_class:
                 if isinstance(new_res_class.id, str):
@@ -530,7 +530,7 @@ def create_ontology(input_file: str,
                     new_res_class.print()
 
         # create the property classes
-        sorted_prop_classes = sort_prop_classes(ontology['properties'], ontology['name'])
+        sorted_prop_classes = sort_prop_classes(ontology["properties"], ontology["name"])
         for prop_class in sorted_prop_classes:
             prop_name = prop_class.get("name")
             prop_label = LangString(prop_class.get("labels"))
@@ -592,11 +592,11 @@ def create_ontology(input_file: str,
                     last_modification_date)
             except BaseError as err:
                 print(
-                    f"ERROR while trying to create property class {prop_name}. The error message was: {err.message}"
+                    f"ERROR while trying to create property class '{prop_name}'. The error message was: {err.message}"
                 )
             except Exception as exception:
                 print(
-                    f"ERROR while trying to create property class {prop_name}. The error message was: {exception}")
+                    f"ERROR while trying to create property class '{prop_name}'. The error message was: {exception}")
 
             if new_prop_class:
                 new_ontology.lastModificationDate = last_modification_date
@@ -635,15 +635,15 @@ def create_ontology(input_file: str,
                                 gui_order=card_info.get("gui_order"),
                                 last_modification_date=last_modification_date)
                             if verbose:
-                                print(f'{res_class["name"]}: Added property {prop_name_for_card}')
+                                print(f"{res_class['name']}: Added property '{prop_name_for_card}'")
 
                         except BaseError as err:
                             print(
-                                f"ERROR while trying to add cardinality {prop_id} to resource class {res_class.get('name')}."
-                                f"The error message was {err.message}")
+                                f"ERROR while trying to add cardinality '{prop_id}' to resource class {res_class.get('name')}."
+                                f"The error message was: {err.message}")
                         except Exception as exception:
                             print(
-                                f"ERROR while trying to add cardinality {prop_id} to resource class {res_class.get('name')}."
-                                f"The error message was {exception}")
+                                f"ERROR while trying to add cardinality '{prop_id}' to resource class {res_class.get('name')}."
+                                f"The error message was: {exception}")
 
                         new_ontology.lastModificationDate = last_modification_date

@@ -52,10 +52,10 @@ A complete data model definition for DSP looks like this:
 
 `"prefixes": { "prefix": "<iri>", ...}`
 
-The `prefixes` object contains the prefixes of external ontologies that are used in the current project. All prefixes
-are composed of the actual prefix and an IRI. The prefix is used as an abbreviation so one does not have to write the
-full qualified IRI each time it is used. So, instead of writing a property called "familyname" as
-`http://xmlns.com/foaf/0.1/familyName` one can simply use `foaf:familyName`.
+The `prefixes` object contains the prefixes of external ontologies that are used in the current file. All prefixes
+are composed of the prefix and a URI. The prefix is used as namespace so one does not have to write the
+fully qualified name of the referenced object each time it is used. Instead of writing a property called "familyName" 
+as `http://xmlns.com/foaf/0.1/familyName` one can simply write `foaf:familyName`.
 
 ```json
 {
@@ -66,8 +66,9 @@ full qualified IRI each time it is used. So, instead of writing a property calle
 }
 ```
 
-It is not necessary to define prefixes for the ontologies that are defined in this file. Ontologies in the same
-file can refer to each other via their name. See also [here](./dsp-tools-create-ontologies.md#referencing-ontologies).
+It is not necessary to define prefixes for the ontologies that are defined in the same file. Ontologies in the same
+file can be referenced by their name. See [this section](./dsp-tools-create-ontologies.md#referencing-ontologies) for
+more information about referencing ontologies.
 
 ### "$schema" object
 

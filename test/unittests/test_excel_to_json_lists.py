@@ -14,7 +14,7 @@ class TestExcelToJSONList(unittest.TestCase):
     def test_excel2jsonlist(self) -> None:
         # check that the output file was created
         excelfolder = "testdata/lists"
-        outfile = "testdata/tmp/lists_output.json"
+        outfile = "testdata/tmp/_lists_output.json"
         e2l.list_excel2json(listname=None, excelfolder=excelfolder, outfile=outfile)
         self.assertTrue(os.path.exists(outfile), f'The outfile {outfile} was not created')
 

@@ -417,7 +417,7 @@ class PropertyClass(Model):
 
     def createDefinitionFileObj(self, context: Context, shortname: str):
         """
-        Create an object that jsonfied can be used as input to "create_onto"
+        Create an object that can be used as input for `create_onto()` to create an ontology on a DSP server
 
         :param context: Context of the ontology
         :param shortname: Shortname of the ontology

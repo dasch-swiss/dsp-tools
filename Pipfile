@@ -1,0 +1,32 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+jsonpath-ng = "*"
+argparse = "*"
+rdflib = "*"
+lxml = "*"
+validators = "*"
+requests = "*"
+jsonschema = "*"
+click = "*"
+rfc3987 = "*"
+pystrict = "*"
+openpyxl = "*"
+
+[dev-packages]
+mkdocs = "*"
+mkdocs-material = "*"
+mkdocs-include-markdown-plugin = "*"
+mypy = "*"
+autopep8 = "*"
+setuptools = "*"
+wheel = "*"
+pipenv-setup = "*"
+pytest = "*"
+pandas = "*"
+
+[requires]
+python_version = "3.9"

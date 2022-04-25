@@ -80,13 +80,13 @@ The following fields are mandatory:
 
 - `name`
 - `labels`
+- `super`
 - `object`
 - `gui_element`
 
 The following fields are optional:
 
 - `comments` 
-- `super` (with the exception of `LinkValue` where `super` is mandatory)
 - `subject`
 - `gui_attributes`
 
@@ -154,7 +154,7 @@ Comments with language tags. Currently, "de", "en", "fr" and "it" are supported.
 
 ### Super
 
-(optional)
+(required)
 
 `"super": ["<super-property>", "<super-property>, ...]`
 
@@ -165,7 +165,7 @@ including the prefix of the external or internal ontology - has to be given.
 
 The following base properties are defined by DSP:
 
-- `hasValue`: This is the most generic base and taken as default if `super` is omitted.
+- `hasValue`: This is the most generic base.
 - `hasLinkTo`: This value represents a link to another resource. You have to indicate the "_object_" as a prefixed name
   that identifies the resource class this link points to (a ":" prepended to the name is sufficient if the resource is
   defined in the current ontology).

@@ -200,16 +200,7 @@
         </xs:simpleContent>
     </xs:complexType>
 
-    <!-- boolean value type
-     <xs:complexType name="boolean_type">
-        <xs:sequence>
-            <xs:element name="text" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
-        </xs:sequence>
-        <xs:attribute name="permissions" type="xs:NCName" use="required"/>
-        <xs:attribute name="comment" type="xs:string"/>
-    </xs:complexType>
-
-    </xs:complexType>-->
+    <!-- boolean value type-->
 
     <xs:complexType name="boolean_type">
     <xs:simpleContent>

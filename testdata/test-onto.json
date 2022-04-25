@@ -293,7 +293,7 @@
                     {
                         "name": "hasGeometry",
                         "super": [
-                            "hasValue"
+                            "hasGeometry"
                         ],
                         "object": "GeomValue",
                         "labels": {

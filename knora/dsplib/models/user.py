@@ -1,3 +1,4 @@
+from __future__ import annotations
 import json
 import os
 import sys
@@ -197,7 +198,7 @@ class User(Model):
             if isinstance(lang, Languages):
                 self._lang = lang
             else:
-                lmap = dict(map(lambda a: (a.value, a), Languages))
+                lmap = {a.value: a for a in Languages}
                 if lmap.get(lang) is None:
                     raise BaseError('Invalid language string "' + lang + '"!')
                 self._lang = lmap[lang]
@@ -297,7 +298,7 @@ class User(Model):
             self._lang = value
             self._changed.add('lang')
         else:
-            lmap = dict(map(lambda a: (a.value, a), Languages))
+            lmap = {a.value: a for a in Languages}
             if lmap.get(value) is None:
                 raise BaseError('Invalid language string "' + value + '"!')
             self._lang = lmap[value]
@@ -368,7 +369,7 @@ class User(Model):
         return self._in_projects
 
     @in_projects.setter
-    def in_project(self, value: Any):
+    def in_projects(self, value: Any):
         raise BaseError(
             'Project membership cannot be modified directly! Use methods "addToProject" and "rmFromProject"')
 
@@ -444,7 +445,7 @@ class User(Model):
         return name in self._changed
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: Any):
+    def fromJsonObj(cls, con: Connection, json_obj: Any) -> User:
         """
         Internal method! Should not be used directly!
 
@@ -475,18 +476,17 @@ class User(Model):
         in_groups: set[str] = set()
         if json_obj.get('permissions') is not None and json_obj['permissions'].get('groupsPerProject') is not None:
             sysadmin = False
-            project_groups = json_obj['permissions']['groupsPerProject']
-            for project in project_groups:
-                if project == Project.SYSTEM_PROJECT:
-                    if Group.PROJECT_SYSTEMADMIN_GROUP in project_groups[project]:
+            for project_iri, group_memberships in json_obj['permissions']['groupsPerProject'].items():
+                if project_iri == Project.SYSTEM_PROJECT:
+                    if Group.PROJECT_SYSTEMADMIN_GROUP in group_memberships:
                         sysadmin = True
                 else:
-                    for group in project_groups[project]:
+                    for group in group_memberships:
                         if group == Group.PROJECT_MEMBER_GROUP:
-                            if in_projects.get(project) is None:
-                                in_projects[project] = False
+                            if in_projects.get(project_iri) is None:
+                                in_projects[project_iri] = False
                         elif group == Group.PROJECT_ADMIN_GROUP:
-                            in_projects[project] = True
+                            in_projects[project_iri] = True
                         else:
                             in_groups.add(group)
         return cls(con=con,
@@ -675,41 +675,53 @@ class User(Model):
         result = con.get(User.ROUTE)
         if 'users' not in result:
             raise BaseError("Request got no users!")
-        return list(map(lambda a: User.fromJsonObj(con, a), result['users']))
+        return [User.fromJsonObj(con, a) for a in result['users']]
 
     @staticmethod
-    def getAllUsersForProject(con: Connection, proj_shortcode: str) -> list[Any]:
+    def getAllUsersForProject(con: Connection, proj_shortcode: str) -> Optional[list[User]]:
         """
-        Get a list of all users that belong to a project(static method)
+        Get a list of all users that belong to a project (static method)
 
         :param con: Connection instance
         :project_shortcode: Shortcode of the project
         :return: List of users belonging to that project
         """
+        members = con.get(f'/admin/projects/shortcode/{proj_shortcode}/members')
+        if members is None or len(members) < 1:
+            return None
+        res: list[User] = [User.fromJsonObj(con, a) for a in members['members']]
+        res.reverse()
+        return res
 
-        result = con.get(User.ROUTE)
-        if 'users' not in result:
-            raise BaseError("Request got no users!")
-        all_users = result["users"]
-        project_users = []
-        for user in all_users:
-            project_list = con.get(
-                User.IRI + urllib.parse.quote_plus(user["id"], safe='') + '/project-memberships')
-            project = project_list["projects"]
-            for proj in project:
-                if proj["id"] == "http://rdfh.ch/projects/" + proj_shortcode:
-                    project_users.append(user)
-        return list(map(lambda a: User.fromJsonObj(con, a), project_users))
-
-    def createDefinitionFileObj(self):
-        user = {
+    def createDefinitionFileObj(
+        self,
+        con: Connection,
+        proj_shortname: str,
+        proj_shortcode: str
+    ) -> dict[str, Union[str, list[str], None]]:
+        user: dict[str, Union[str, list[str], None]] = {
             "username": self.username,
             "email": self.email,
             "givenName": self.givenName,
             "familyName": self.familyName,
             "password": "",
-            "lang": self.lang.value
         }
+        if self.lang:
+            user["lang"] = self.lang.value
+        groups = list()
+        for group_iri in self._in_groups:
+            group_info = con.get(f'/admin/groups/{urllib.parse.quote_plus(group_iri)}')
+            if 'group' in group_info and 'name' in group_info['group']:
+                groupname = group_info['group']['name']
+                groups.append(f'{proj_shortname}:{groupname}')
+        user["groups"] = groups
+        user["projects"] = list()
+        for proj, is_admin in self._in_projects.items():
+            if proj_shortcode in proj:
+                if is_admin:
+                    user["projects"].append(f"{proj_shortname}:admin")
+                else:
+                    user["projects"].append(f"{proj_shortname}:member")
         return user
 
     def print(self) -> None:

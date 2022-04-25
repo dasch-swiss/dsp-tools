@@ -379,6 +379,7 @@
             },
             "required": [
                 "name",
+                "super",
                 "object",
                 "labels",
                 "gui_element"
@@ -475,6 +476,22 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasGeometry"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
                                 "enum": [
                                     "Geometry",
@@ -496,7 +513,7 @@
                         "properties": {
                             "gui_element": {
                                 "const":
-                                    "Geonames"
+                                "Geonames"
                             }
                         }
                     }

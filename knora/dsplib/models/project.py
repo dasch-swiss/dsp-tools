@@ -516,7 +516,7 @@ class Project(Model):
         result = con.get(Project.ROUTE)
         if 'projects' not in result:
             raise BaseError("Request got no projects!")
-        return list(map(lambda a: Project.fromJsonObj(con, a), result['projects']))
+        return [Project.fromJsonObj(con, a) for a in result['projects']]
 
     def print(self) -> None:
         """

@@ -15,6 +15,7 @@ click = "*"
 rfc3987 = "*"
 pystrict = "*"
 openpyxl = "*"
+pyparsing = "==2.4.7"
 
 [dev-packages]
 mkdocs = "*"

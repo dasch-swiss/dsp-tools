@@ -8,7 +8,7 @@ from knora.dsplib.utils.id_to_iri import id_to_iri
 
 
 class TestIdToIri(unittest.TestCase):
-    out_file = '_test-id2iri-replaced.xml'
+    out_file = 'testdata/tmp/_test-id2iri-replaced.xml'
 
     def test_invalid_xml_file_name(self):
         with self.assertRaises(SystemExit) as cm:

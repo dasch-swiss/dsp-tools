@@ -160,8 +160,8 @@ class Group(Model):
 
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any):
-        id = json_obj.get('id')
-        if id is None:
+        group_id = json_obj.get('id')
+        if group_id is None:
             raise BaseError('Group "id" is missing')
         name = json_obj.get('name')
         if name is None:
@@ -181,7 +181,7 @@ class Group(Model):
             raise BaseError("Status is missing")
         return cls(con=con,
                    name=name,
-                   id=id,
+                   id=group_id,
                    descriptions=descriptions,
                    project=project,
                    selfjoin=selfjoin,
@@ -249,16 +249,14 @@ class Group(Model):
             return None
 
     @staticmethod
-    def getAllGroupsForProject(con: Connection, proj_shortcode: str) -> list[Group]:
-        result = con.get(Group.ROUTE)
-        if 'groups' not in result:
-            raise BaseError("Request got no groups!")
-        all_groups = result["groups"]
-        project_groups = []
-        for group in all_groups:
-            if group["project"]["id"] == "http://rdfh.ch/projects/" + proj_shortcode:
-                project_groups.append(group)
-        return list(map(lambda a: Group.fromJsonObj(con, a), project_groups))
+    def getAllGroupsForProject(con: Connection, proj_shortcode: str) -> Optional[list[Group]]:
+        all_groups: Optional[list[Group]] = Group.getAllGroups(con)
+        if all_groups:
+            project_groups = []
+            for group in all_groups:
+                if group.project == "http://rdfh.ch/projects/" + proj_shortcode:
+                    project_groups.append(group)
+            return project_groups
 
     def createDefinitionFileObj(self):
         group = {

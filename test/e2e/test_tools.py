@@ -17,6 +17,8 @@ class TestTools(unittest.TestCase):
     server = 'http://0.0.0.0:3333'
     user = 'root@example.com'
     test_onto_file = 'testdata/test-onto.json'
+    test_list_file = 'testdata/test-list.json'
+    test_data_file = 'testdata/test-data.xml'
 
     def setUp(self) -> None:
         """Is executed before each test"""
@@ -34,13 +36,13 @@ class TestTools(unittest.TestCase):
         test_onto = json.loads(onto_json_str)
 
         get_ontology(project_identifier='tp',
-                     outfile='_test-onto.json',
+                     outfile='testdata/tmp/_test-onto.json',
                      server=self.server,
                      user=self.user,
                      password='test',
                      verbose=False)
 
-        with open('_test-onto.json') as f:
+        with open('testdata/tmp/_test-onto.json') as f:
             onto_json_str = f.read()
         test_onto_out = json.loads(onto_json_str)
 
@@ -145,34 +147,34 @@ class TestTools(unittest.TestCase):
     def test_excel_to_json_list(self) -> None:
         list_excel2json(listname='my_test_list',
                         excelfolder='testdata/lists',
-                        outfile='_lists-out.json')
+                        outfile='testdata/tmp/_lists-out.json')
 
     def test_excel_to_json_resources(self) -> None:
         resources_excel2json(excelfile='testdata/Resources.xlsx',
-                             outfile='_resources-out.json')
+                             outfile='testdata/tmp/_resources-out.json')
 
     def test_excel_to_json_properties(self) -> None:
         properties_excel2json(excelfile='testdata/Properties.xlsx',
-                              outfile='_properties-out.json')
+                              outfile='testdata/tmp/_properties-out.json')
 
     def test_validate_ontology(self) -> None:
         validate_ontology(self.test_onto_file)
 
     def test_create_ontology(self) -> None:
         create_ontology(input_file=self.test_onto_file,
-                        lists_file='lists-out.json',
+                        lists_file=self.test_list_file,
                         server=self.server,
                         user_mail=self.user,
                         password='test',
                         verbose=False,
-                        dump=True)
+                        dump=False)
 
     def test_xml_upload(self) -> None:
-        xml_upload(input_file='testdata/test-data.xml',
+        xml_upload(input_file=self.test_data_file,
                    server=self.server,
                    user=self.user,
                    password='test',
-                   imgdir='testdata/bitstreams',
+                   imgdir='.',
                    sipi='http://0.0.0.0:1024',
                    verbose=False,
                    validate_only=False,
@@ -181,7 +183,7 @@ class TestTools(unittest.TestCase):
     def test_id_to_iri(self) -> None:
         id_to_iri(xml_file='testdata/test-id2iri-data.xml',
                   json_file='testdata/test-id2iri-mapping.json',
-                  out_file='_test-id2iri-replaced.xml',
+                  out_file='testdata/tmp/_test-id2iri-replaced.xml',
                   verbose=False)
 
 

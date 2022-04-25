@@ -6,7 +6,7 @@ from urllib.parse import quote_plus
 from pystrict import strict
 
 from .connection import Connection
-from .helpers import Actions, BaseError, Context, LastModificationDate, OntoInfo, WithId
+from .helpers import Actions, BaseError, Context, LastModificationDate, OntoIri, WithId
 from .model import Model
 from .project import Project
 from .propertyclass import PropertyClass
@@ -19,7 +19,7 @@ class SetEncoder(json.JSONEncoder):
             return list(obj)
         elif isinstance(obj, Context):
             return obj.toJsonObj()
-        elif isinstance(obj, OntoInfo):
+        elif isinstance(obj, OntoIri):
             return {"iri": obj.iri, "hashtag": obj.hashtag}
         return json.JSONEncoder.default(self, obj)
 

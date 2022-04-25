@@ -1,5 +1,6 @@
 import json
-from typing import Optional, Union
+import re
+from typing import Optional, Union, Any
 
 import requests
 from pystrict import strict
@@ -30,7 +31,7 @@ class Connection:
         :param prefixes: Ontology prefixes used
         """
 
-        self._server = server
+        self._server = re.sub(r'\/$', '', server)
         self._prefixes = prefixes
         self._token = None
         self._log = False
@@ -158,7 +159,7 @@ class Connection:
         result = req.json()
         return result
 
-    def get(self, path: str, headers: Optional[dict[str, str]] = None):
+    def get(self, path: str, headers: Optional[dict[str, str]] = None) -> dict[str, Any]:
         """
         Get data from a server using a HTTP GET request
         :param path: Path of RESTful route
@@ -168,22 +169,21 @@ class Connection:
 
         if path[0] != '/':
             path = '/' + path
-        if self._token is None:
-            if headers is None:
-                req = requests.get(self._server + path)
+        if not self._token:
+            if not headers:
+                response = requests.get(self._server + path)
             else:
-                req = requests.get(self._server + path, headers)
+                response = requests.get(self._server + path, headers)
         else:
-            if headers is None:
-                req = requests.get(self._server + path,
-                                   headers={'Authorization': 'Bearer ' + self._token})
+            if not headers:
+                response = requests.get(self._server + path, headers={'Authorization': 'Bearer ' + self._token})
             else:
                 headers['Authorization'] = 'Bearer ' + self._token
-                req = requests.get(self._server + path, headers)
+                response = requests.get(self._server + path, headers)
 
-        self.on_api_error(req)
-        result = req.json()
-        return result
+        self.on_api_error(response)
+        json_response = response.json()
+        return json_response
 
     def put(self, path: str, jsondata: Optional[str] = None, content_type: str = 'application/json'):
         """

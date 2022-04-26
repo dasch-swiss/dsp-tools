@@ -253,6 +253,9 @@ class ResourceInstance(Model):
                 elif self.baseclass == 'ArchiveRepresentation':
                     bitstream_attributes["@type"] = "knora-api:ArchiveFileValue"
                     tmp["knora-api:hasArchiveFileValue"] = bitstream_attributes
+                elif self.baseclass == 'MovingImageRepresentation':
+                    bitstream_attributes["@type"] = "knora-api:MovingImageFileValue"
+                    tmp["knora-api:hasMovingImageFileValue"] = bitstream_attributes
                 else:
                     raise BaseError(f"Baseclass '{self.baseclass}' not yet supported!")
 

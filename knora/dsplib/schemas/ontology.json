@@ -389,6 +389,68 @@
                 {
                     "if": {
                         "properties": {
+                            "super": {
+                                "const": "hasLinkTo"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "Searchbox"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "super": {
+                                "const": "isPartOf"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "Searchbox"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "object": {
+                                "const": "Representation"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": ["hasRepresentation"]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
+                            "gui_element": {
+                                "const": "Searchbox"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
                             "object": {
                                 "const": "TextValue"
                             }
@@ -396,6 +458,20 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": ["hasComment","hasValue"]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
                                 "enum": [ "SimpleText", "Textarea", "Richtext" ]
                             }
@@ -412,6 +488,20 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": ["hasColor"]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
                                 "const": "Colorpicker"
                             }
@@ -428,6 +518,20 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": ["hasValue"]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
                                 "const": "Date"
                             }
@@ -444,6 +548,20 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": ["hasValue"]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
                                 "const": "TimeStamp"
                             }
@@ -460,6 +578,20 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": ["hasValue"]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
                                 "enum": ["Slider","SimpleText"]
                             }
@@ -482,9 +614,7 @@
                                     "type": "string",
                                     "oneOf": [
                                         {
-                                            "enum": [
-                                                "hasGeometry"
-                                            ]
+                                            "enum": ["hasGeometry"]
                                         },
                                         {
                                             "$ref": "#/definitions/prefixedname"
@@ -511,6 +641,20 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": ["hasValue"]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
                                 "const":
                                 "Geonames"
@@ -528,6 +672,20 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": ["hasValue", "seqnum"]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
                                 "enum": [
                                     "Spinbox",
@@ -547,6 +705,20 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": ["hasValue"]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
                                 "const": "Checkbox"
                             }
@@ -563,6 +735,20 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": ["hasValue"]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
                                 "const": "SimpleText"
                             }
@@ -579,6 +765,20 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": ["hasValue"]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
                                 "enum": [
                                     "Interval",
@@ -599,6 +799,20 @@
                     "then": {
                         "properties": {
                             "gui_element": {
+                                "super": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "oneOf": [
+                                            {
+                                                "enum": ["hasValue"]
+                                            },
+                                            {
+                                                "$ref": "#/definitions/prefixedname"
+                                            }
+                                        ]
+                                    }
+                                },
                                 "enum": [
                                     "Radio",
                                     "List"
@@ -879,7 +1093,8 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/cardinality"
-                    }
+                    },
+                    "minItems": 1
                 }
             },
             "required": [

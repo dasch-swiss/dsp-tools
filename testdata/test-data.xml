@@ -240,6 +240,16 @@
         </text-prop>
     </resource>
 
+    <resource label="Moviething"
+              restype=":MovieThing"
+              id="video_0"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/Dummy.mp4</bitstream>
+        <text-prop name=":hasText">
+            <text encoding="utf8" permissions="prop-default">Dummy video with music</text>
+        </text-prop>
+    </resource>
+
     <resource label="TestThing2Child1" restype=":TestThing2Child1" id="obj_0012">
         <text-prop name=":hasTextChild1">
             <text encoding="utf8">Some text</text>

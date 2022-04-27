@@ -1178,7 +1178,6 @@
             "required": [
                 "shortcode",
                 "shortname",
-                "longname",
                 "descriptions",
                 "ontologies",
                 "keywords"

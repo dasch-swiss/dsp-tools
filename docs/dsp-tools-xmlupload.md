@@ -208,7 +208,7 @@ Example for a property element of type text (`<text-prop>`) with two value eleme
 ```
 
 | ⚠ Look out                                                                                                                                     |
-|:-----------------------------------------------------------------------------------------------------------------------------------------------|
+| :--------------------------------------------------------------------------------------------------------------------------------------------- |
 | In case of a cardinality 1-n, multiple `<text>` tags have to be created inside the `<text-prop>` tag (do not use multiple `<text-prop>` tags). |
 
 The following property elements exist:
@@ -788,16 +788,16 @@ To do an incremental XML upload, one of the following procedures is recommended.
     </permissions>
     <permissions id="res-restricted">
         <allow group="KnownUser">V</allow>
-        <allow group="Creator">CR</allow>>
-        <allow group="ProjectAdmin">CR</allow>>
-        <allow group="anything:Thing searcher">M</allow>>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="anything:Thing searcher">M</allow>
     </permissions>
     <permissions id="prop-default">
         <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
         <allow group="Creator">CR</allow>
-        <allow group="ProjectAdmin">CR</allow>>
-        <allow group="anything:Thing searcher">D</allow>>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="anything:Thing searcher">D</allow>
     </permissions>
     <permissions id="prop-restricted">
         <allow group="KnownUser">V</allow>

@@ -80,7 +80,8 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/cardinality"
-                    }
+                    },
+                    "minItems": 1
                 }
             },
             "required": [

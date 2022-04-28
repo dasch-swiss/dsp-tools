@@ -326,7 +326,7 @@
                     {
                         "name": "hasColor",
                         "super": [
-                            "hasValue"
+                            "hasColor"
                         ],
                         "object": "ColorValue",
                         "labels": {

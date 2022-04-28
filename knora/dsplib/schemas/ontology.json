@@ -1,5 +1,5 @@
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$schema": "https://json-schema.org/draft-07/schema",
     "$id": "https://dasch.swiss/schema/ontology.json",
     "title": "JSON schema for DSP ontologies",
     "description": "JSON schema for DSP ontologies",
@@ -434,7 +434,9 @@
                                     "type": "string",
                                     "oneOf": [
                                         {
-                                            "enum": ["hasRepresentation"]
+                                            "enum": [
+                                                "hasRepresentation"
+                                            ]
                                         },
                                         {
                                             "$ref": "#/definitions/prefixedname"
@@ -464,7 +466,10 @@
                                     "type": "string",
                                     "oneOf": [
                                         {
-                                            "enum": ["hasComment","hasValue"]
+                                            "enum": [
+                                                "hasComment",
+                                                "hasValue"
+                                            ]
                                         },
                                         {
                                             "$ref": "#/definitions/prefixedname"
@@ -473,7 +478,11 @@
                                 }
                             },
                             "gui_element": {
-                                "enum": [ "SimpleText", "Textarea", "Richtext" ]
+                                "enum": [
+                                    "SimpleText",
+                                    "Textarea",
+                                    "Richtext"
+                                ]
                             }
                         }
                     }
@@ -494,7 +503,9 @@
                                     "type": "string",
                                     "oneOf": [
                                         {
-                                            "enum": ["hasColor"]
+                                            "enum": [
+                                                "hasColor"
+                                            ]
                                         },
                                         {
                                             "$ref": "#/definitions/prefixedname"
@@ -524,7 +535,9 @@
                                     "type": "string",
                                     "oneOf": [
                                         {
-                                            "enum": ["hasValue"]
+                                            "enum": [
+                                                "hasValue"
+                                            ]
                                         },
                                         {
                                             "$ref": "#/definitions/prefixedname"
@@ -554,7 +567,9 @@
                                     "type": "string",
                                     "oneOf": [
                                         {
-                                            "enum": ["hasValue"]
+                                            "enum": [
+                                                "hasValue"
+                                            ]
                                         },
                                         {
                                             "$ref": "#/definitions/prefixedname"
@@ -584,7 +599,9 @@
                                     "type": "string",
                                     "oneOf": [
                                         {
-                                            "enum": ["hasValue"]
+                                            "enum": [
+                                                "hasValue"
+                                            ]
                                         },
                                         {
                                             "$ref": "#/definitions/prefixedname"
@@ -593,7 +610,10 @@
                                 }
                             },
                             "gui_element": {
-                                "enum": ["Slider","SimpleText"]
+                                "enum": [
+                                    "Slider",
+                                    "SimpleText"
+                                ]
                             }
                         }
                     }
@@ -614,7 +634,9 @@
                                     "type": "string",
                                     "oneOf": [
                                         {
-                                            "enum": ["hasGeometry"]
+                                            "enum": [
+                                                "hasGeometry"
+                                            ]
                                         },
                                         {
                                             "$ref": "#/definitions/prefixedname"
@@ -647,7 +669,9 @@
                                     "type": "string",
                                     "oneOf": [
                                         {
-                                            "enum": ["hasValue"]
+                                            "enum": [
+                                                "hasValue"
+                                            ]
                                         },
                                         {
                                             "$ref": "#/definitions/prefixedname"
@@ -656,8 +680,7 @@
                                 }
                             },
                             "gui_element": {
-                                "const":
-                                "Geonames"
+                                "const": "Geonames"
                             }
                         }
                     }
@@ -678,7 +701,10 @@
                                     "type": "string",
                                     "oneOf": [
                                         {
-                                            "enum": ["hasValue", "seqnum"]
+                                            "enum": [
+                                                "hasValue",
+                                                "seqnum"
+                                            ]
                                         },
                                         {
                                             "$ref": "#/definitions/prefixedname"
@@ -711,7 +737,9 @@
                                     "type": "string",
                                     "oneOf": [
                                         {
-                                            "enum": ["hasValue"]
+                                            "enum": [
+                                                "hasValue"
+                                            ]
                                         },
                                         {
                                             "$ref": "#/definitions/prefixedname"
@@ -741,7 +769,9 @@
                                     "type": "string",
                                     "oneOf": [
                                         {
-                                            "enum": ["hasValue"]
+                                            "enum": [
+                                                "hasValue"
+                                            ]
                                         },
                                         {
                                             "$ref": "#/definitions/prefixedname"
@@ -771,7 +801,9 @@
                                     "type": "string",
                                     "oneOf": [
                                         {
-                                            "enum": ["hasValue"]
+                                            "enum": [
+                                                "hasValue"
+                                            ]
                                         },
                                         {
                                             "$ref": "#/definitions/prefixedname"
@@ -805,7 +837,9 @@
                                         "type": "string",
                                         "oneOf": [
                                             {
-                                                "enum": ["hasValue"]
+                                                "enum": [
+                                                    "hasValue"
+                                                ]
                                             },
                                             {
                                                 "$ref": "#/definitions/prefixedname"
@@ -976,7 +1010,10 @@
                     "if": {
                         "properties": {
                             "gui_element": {
-                                "enum": ["Radio", "List"]
+                                "enum": [
+                                    "Radio",
+                                    "List"
+                                ]
                             }
                         }
                     },
@@ -990,7 +1027,6 @@
                                     }
                                 },
                                 "additionalProperties": false
-
                             }
                         },
                         "required": [
@@ -1024,7 +1060,15 @@
                     "if": {
                         "properties": {
                             "gui_element": {
-                                "enum": ["Richtext", "Date", "TimeStamp", "Geometry", "Geonames", "Checkbox", "Interval"]
+                                "enum": [
+                                    "Richtext",
+                                    "Date",
+                                    "TimeStamp",
+                                    "Geometry",
+                                    "Geonames",
+                                    "Checkbox",
+                                    "Interval"
+                                ]
                             }
                         }
                     },

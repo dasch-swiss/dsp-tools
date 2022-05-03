@@ -5,7 +5,7 @@ from typing import Optional, List
 
 class ResourceEntry:
     """
-    this class represents a resource
+    this class represents a resource knot
 
     Attributes
     ----------
@@ -279,6 +279,27 @@ def get_path_string(path):
     return oneline_
 
 
+def process_res_links(res_links, single_path, open_paths, complete_paths) -> [list, list]:
+    """process the resource links(res_links) of the last element of the single path"""
+    count = 0
+    for name_key in res_links:
+        count += 1
+        entry = res_links[name_key]
+        new_entry = ResourceEntry(name=name_key, hasLinkToName=entry[0], cardinality=entry[1])
+        if contains_res_by_name(single_path=single_path, target_entry=new_entry, pos=0):
+            # circle found
+            single_path.append(new_entry)
+            close_path(single_path, complete_paths, open_paths)
+        else:
+            # no circle found
+            single_path.append(new_entry)
+        # prepare new paths
+        if len(res_links) > count:
+            single_path = get_next_path(old_single_path=single_path, open_paths=open_paths)
+
+    return open_paths, complete_paths
+
+
 def get_complete_path_family(open_paths, resources, shortname, links) -> List:
     """returns all paths which have the same starting point(=path family).
 
@@ -315,20 +336,7 @@ def get_complete_path_family(open_paths, resources, shortname, links) -> List:
         else:
             # res_links != 0 means last resource has links, so path has more resources which have to be added
             count = 0
-            for name_key in res_links:
-                count += 1
-                entry = res_links[name_key]
-                new_entry = ResourceEntry(name=name_key, hasLinkToName=entry[0], cardinality=entry[1])
-                if contains_res_by_name(single_path=single_path,target_entry=new_entry, pos=0):
-                    # circle found
-                    single_path.append(new_entry)
-                    close_path(single_path, complete_paths, open_paths)
-                else:
-                    # no circle found
-                    single_path.append(new_entry)
-                # prepare new paths
-                if len(res_links) > count:
-                    single_path = get_next_path(old_single_path=single_path, open_paths=open_paths)
+            open_paths, complete_paths = process_res_links(res_links=res_links, single_path=single_path, open_paths=open_paths, complete_paths=complete_paths)
         number += 1
 
     return complete_paths

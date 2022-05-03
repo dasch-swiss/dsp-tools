@@ -289,10 +289,14 @@ def process_res_links(res_links, single_path, open_paths, complete_paths) -> [li
 
 
 def get_complete_path_family(open_paths, resources, shortname, links) -> List:
-    """returns all paths which have the same starting point(=path family).
+    """
+    Collecting all paths which have the same starting point(=path family).
 
+    Parameters:
+       resources: resources entries in data model
+       shortname: name of the project
+       links: all hasLinkTo-properties  and the respective resource name they are pointing to
        open_paths:
-
        -open_paths is a list of paths that have the same starting point and which are not complete
           in the sense that their last element, their last resource(=open_paths(-1))
           a) has a link to next resource(s)
@@ -301,9 +305,11 @@ def get_complete_path_family(open_paths, resources, shortname, links) -> List:
        (then they are removed and added to complete_paths)
        -new paths are added to open_paths if the last resource in the path has multiple resources
 
+    Returns
        complete_paths:
        -paths that end in a circle or their last element doesn't have a link to a next resource are added to complete_paths
        -when the while loop ends every path that was part of open_paths in now added to complete_paths
+
     """
     complete_paths: List = list()
     number = 0

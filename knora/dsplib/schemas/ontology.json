@@ -183,6 +183,7 @@
                     "$ref": "#/definitions/comment"
                 },
                 "nodes": {
+                    "minItems": 1,
                     "oneOf": [
                         {
                             "type": "array",
@@ -1207,7 +1208,8 @@
                             "$ref": "#/definitions/comment"
                         },
                         "required": [
-                            "comments"
+                            "comments",
+                            "nodes"
                         ]
                     }
                 },

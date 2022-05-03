@@ -1,5 +1,4 @@
 import json
-import sys
 from typing import Optional, List
 
 
@@ -106,6 +105,7 @@ def get_shortname(data_model):
 
 
 def validation(path_json):
+    """validate the data model in relation to its circles"""
     # 1. prepare
     data_model = load_ontology(path_json=path_json)
     properties = get_properties(data_model=data_model)

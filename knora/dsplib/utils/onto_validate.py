@@ -4,6 +4,8 @@ import re
 from typing import Any, Union, List, Set
 import jsonschema
 import jsonpath_ng, jsonpath_ng.ext
+
+from . import circle_detection_draft
 from ..utils.expand_all_lists import expand_lists_from_excel
 
 
@@ -60,7 +62,8 @@ def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bo
     properties must have the cardinality 0-1 or 0-n, because during the xmlupload process, these values
     are temporarily removed.
     """
-
+    return circle_detection_draft.validation(data_model)
+'''
     # search the ontology for all properties that are derived from hasLinkTo, store them in a dict, and map
     # them to their objects (i.e. the resource classes they point to)
     # example: if the property 'rosetta:hasTextMedium' points to 'rosetta:Image2D':
@@ -171,4 +174,5 @@ def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bo
             for card in _cards:
                 print(f'\t{card}')
         return False
+        '''
 

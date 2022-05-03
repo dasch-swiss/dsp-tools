@@ -298,7 +298,7 @@ def validate_list_with_schema(json_list: str) -> bool:
         True if the list passed validation, False otherwise
     """
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(current_dir, '../schemas/lists.json')) as schema:
+    with open(os.path.join(current_dir, '../schemas/lists-only.json')) as schema:
         list_schema = json.load(schema)
 
     try:

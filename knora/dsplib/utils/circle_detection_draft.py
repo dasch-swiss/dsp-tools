@@ -64,21 +64,6 @@ class ResourceEntry:
         return out
 
 
-def hasCircle(single_path) -> bool:
-    """checks if a circle exists
-    a circle goes from A-B-A, but not from A-A
-    """
-    for number in range(0, len(single_path) - 1):
-        entry = single_path[number]
-        if contains_res_by_name(single_path=single_path, target_entry=entry, pos=number + 1):
-            if number != len(single_path) - 2:
-                # exclude circles like A-A, only include circles that have at least 2 different kind of elements like
-                # A-B-A.
-                return True
-    else:
-        return False
-
-
 def load_ontology(path_json) -> dict:
     """load ontology as dict"""
     with open(path_json) as f:
@@ -115,6 +100,7 @@ def get_HasLinkTo_dict(properties, shortname) -> dict:
 
 
 def get_shortname(data_model):
+    """returns the shortname of the data model"""
     project = data_model["project"]
     return project["shortname"]
 
@@ -139,7 +125,8 @@ def main(path_json):
             print(e)
 
     # 3. display result
-    display_result(paths)
+    return check_for_error_circles(paths)
+
 
 
 def resourceExistsInPaths(name, paths) -> bool:
@@ -153,15 +140,65 @@ def resourceExistsInPaths(name, paths) -> bool:
         return False
 
 
-def display_result(paths):
-    """filters results, displays only paths with circles"""
-    for path_family in paths:
-        print("::::")
-        for single_path in path_family:
-            if hasCircle(single_path):
-                print("single path")
-                print(out_path_list(single_path))
+def get_circle(single_path) -> List:
+    """returns the part of a path which contains a circle"""
+    last_resource = get_last_element(single_path)
+    target_path = single_path[:-1]
+    pos = 0
+    for entry in target_path:
+        if entry.name == last_resource.name:
+            return single_path[pos:]
+        pos += 1
+    else:
+        return None
 
+def get_circle_list(paths) -> List:
+    """returns a list of circles"""
+    circle_parts:List = list()
+    circle_str_parts: List = list()
+    for path_family in paths:
+        for single_path in path_family:
+            circle = get_circle(single_path)
+            if circle is not None:
+                circle_string = get_path_string(circle)
+                if not circle_parts.__contains__(circle_string):
+                    circle_parts.append(circle)
+                    circle_str_parts.append(circle_string)
+    return circle_parts
+
+
+def check_for_error_circles(paths) -> bool:
+    """collects all parts which are a circle"""
+    circle_parts = get_circle_list(paths)
+    error_circles: List = list()
+    ok_cardinalities = ['0-1', '0-n']
+    for circle in circle_parts:
+        for entry in circle:
+            cardinality = entry.cardinality
+            if cardinality not in ok_cardinalities:
+                print(f"Circle error. Found {cardinality} in {get_path_string(circle)} but should be one of {ok_cardinalities}")
+                error_circles.append(circle)
+                break
+    if error_circles != 0:
+        return False
+    else:
+        return True
+
+
+
+def hasCircle(single_path) -> bool:
+    """checks if a circle exists
+    a circle goes from A-B-A, but not from A-A
+    """
+    for number in range(0, len(single_path) - 1):
+        entry = single_path[number]
+        if contains_res_by_name(single_path=single_path, target_entry=entry, pos=number + 1):
+            if number != len(single_path) - 2:
+                # exclude circles like A-A, only include circles that have at least 2 different kind of elements like
+                # A-B-A.
+                return True
+    else:
+        return False
 
 def get_path_family(name, resources, shortname, links) -> List:
     """returns a list of paths, which have all the same starting point e.g. A-B-C-J, A-D-E, A-F-G-H-I etc. (=path
@@ -207,7 +244,6 @@ def get_links_single_resource(target_name, shortname, resources, links) -> dict:
 
 def close_path(single_path, complete_paths, open_paths):
     """close a path by adding it to complete paths and removing from open paths"""
-    print("Close path " + str(out_path_list(single_path)))
     complete_paths.append(single_path)
     open_paths.remove(single_path)
 
@@ -234,8 +270,8 @@ def contains_res_by_name(single_path, target_entry, pos):
         return False
 
 
-def out_path_list(path):
-    """returns a path in one line"""
+def get_path_string(path):
+    """returns a string of path entries"""
     oneline_ = "["
     for entry in path:
         oneline_ += entry.out + " "
@@ -299,6 +335,6 @@ def get_complete_path_family(open_paths, resources, shortname, links) -> List:
 
 
 if __name__ == '__main__':
-    #path_json = "/Users/gregorbachmann/Desktop/biz_onto4circular.json"
-    path_json = "/Users/gregorbachmann/Desktop/postcards_rita/postcards.json"
+    path_json = "/Users/gregorbachmann/Desktop/biz_onto4circular.json"
+    #path_json = "/Users/gregorbachmann/Desktop/postcards_rita/postcards.json"
     main(path_json)

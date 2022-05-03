@@ -200,6 +200,7 @@ def get_links_single_resource(target_name, resources, links) -> dict:
 
 def close_path(single_path, complete_paths, open_paths):
     """close a path by adding it to complete paths and removing from open paths"""
+    print("Close path " + str(single_path))
     complete_paths.append(single_path)
     open_paths.remove(single_path)
 
@@ -264,7 +265,7 @@ def get_complete_path_family(open_paths, resources, links) -> List:
         target_name = last_resource.name
         res_links = get_links_single_resource(target_name=target_name, resources=resources, links=links)
         # process res_links
-        if res_links == 0:
+        if len(res_links) == 0:
             # res_links == 0 means: last resource has no links, so path has no more resources
             # close this path
             close_path(single_path, complete_paths, open_paths)
@@ -291,5 +292,6 @@ def get_complete_path_family(open_paths, resources, links) -> List:
 
 
 if __name__ == '__main__':
-    path_json = "/Users/gregorbachmann/Desktop/biz_onto4circular.json"
+    #path_json = "/Users/gregorbachmann/Desktop/biz_onto4circular.json"
+    path_json = "/Users/gregorbachmann/Desktop/postcards_rita/postcards.json"
     main(path_json)

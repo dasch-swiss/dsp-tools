@@ -105,7 +105,7 @@ def get_shortname(data_model):
     return project["shortname"]
 
 
-def main(path_json):
+def validation(path_json):
     # 1. prepare
     data_model = load_ontology(path_json=path_json)
     properties = get_properties(data_model=data_model)
@@ -124,7 +124,7 @@ def main(path_json):
         except Exception as e:
             print(e)
 
-    # 3. display result
+    # 3. check circles
     return check_for_error_circles(paths)
 
 
@@ -280,7 +280,7 @@ def get_path_string(path):
 
 
 def process_res_links(res_links, single_path, open_paths, complete_paths) -> [list, list]:
-    """process the resource links(res_links) of the last element of the single path"""
+    """add the resource links(res_links) of the last element of the single path"""
     count = 0
     for name_key in res_links:
         count += 1
@@ -345,4 +345,4 @@ def get_complete_path_family(open_paths, resources, shortname, links) -> List:
 if __name__ == '__main__':
     path_json = "/Users/gregorbachmann/Desktop/biz_onto4circular.json"
     #path_json = "/Users/gregorbachmann/Desktop/postcards_rita/postcards.json"
-    main(path_json)
+    validation(path_json)

@@ -72,25 +72,29 @@ def hasCircle(single_path) -> bool:
         entry = single_path[number]
         if contains_res_by_name(single_path=single_path, target_entry=entry, pos=number + 1):
             if number != len(single_path) - 2:
-                # exclude cases like A-B-C-C, only include cases like A-B-C-D-C etc.
+                # exclude circles like A-A, only include circles that have at least 2 different kind of elements like
+                # A-B-A.
                 return True
     else:
         return False
 
 
 def load_ontology(path_json) -> dict:
+    """load ontology as dict"""
     with open(path_json) as f:
         onto_json_str = f.read()
     return json.loads(onto_json_str)
 
 
 def get_properties(data_model) -> List:
+    """returns all properties of an ontology"""
     ontology = data_model['project']['ontologies']
     ontology_dict = ontology[0]
     return ontology_dict["properties"]
 
 
 def get_resources(data_model) -> List:
+    """returns all resources of an ontology"""
     ontology = data_model['project']['ontologies']
     ontology_dict = ontology[0]
     return ontology_dict["resources"]
@@ -98,18 +102,14 @@ def get_resources(data_model) -> List:
 
 def get_HasLinkTo_dict(properties) -> dict:
     """returns a dict, with all hasLinkTo-Properties and the respective resource name they are pointing to"""
-
     links: dict[str, str] = dict()
     for prop in properties:
-        try:
-            super_prop = prop["super"]
-            if super_prop.__contains__("hasLinkTo"):
-                object_prop = prop["object"]
-                object_prop = object_prop[1:]
-                name = prop["name"]
-                links[name] = object_prop
-        except Exception as e:
-            print("exception in 'get_has_to_links properties': " + str(e))
+        super_prop = prop["super"]
+        if super_prop.__contains__("hasLinkTo"):
+            object_prop = prop["object"]
+            object_prop = object_prop[1:]
+            name = prop["name"]
+            links[name] = object_prop
     return links
 
 
@@ -135,37 +135,30 @@ def main(path_json):
     display_result(paths)
 
 
-def path_contains(path, target_name):
-    for entry in path:
-        if entry.name == target_name:
-            return True
-    else:
-        return False
-
-
 def resourceExistsInPaths(name, paths) -> bool:
-    """check if we have already checked the resource in question"""
+    """check if we have already added the resource in question to paths."""
     for path_family in paths:
-        for under_path in path_family:
-            if path_contains(under_path, name):
-                return True
+        for single_path in path_family:
+            for entry in single_path:
+                if name == entry.name:
+                    return True
     else:
         return False
 
 
 def display_result(paths):
     """filters results, displays only paths with circles"""
-    print("-----------------------------")
     for path_family in paths:
         print("::::")
         for single_path in path_family:
             if hasCircle(single_path):
                 print("single path")
-                print(print_path(single_path))
+                print(out_path_list(single_path))
 
 
 def get_path_family(name, resources, links) -> List:
-    """returns a list of paths, which have all the same starting point e.g. A-B-C-J, A-D-E, A-F-G-H-I etc."""
+    """returns a list of paths, which have all the same starting point e.g. A-B-C-J, A-D-E, A-F-G-H-I etc. (=path
+    family) """
     # create a path(a path containing only the starting point)
     first_path = list()
     first_path.append(ResourceEntry(name=name))
@@ -191,7 +184,7 @@ def get_properties_resource(resource) -> dict:
 
 
 def get_links_single_resource(target_name, resources, links) -> dict:
-    '''returns all hasToLinks of a singleResource'''
+    """returns every hasToLink and the respective cardinality of a single resource"""
     linked_resources_dict = dict()
     for resource in resources:
         name = resource["name"]
@@ -205,29 +198,26 @@ def get_links_single_resource(target_name, resources, links) -> dict:
             break
     return linked_resources_dict
 
-
-def get_last_entry(single_path) -> ResourceEntry:
-    '''returns last entry of a path list'''
-    return single_path[-1]
-
-
 def close_path(single_path, complete_paths, open_paths):
+    """close a path by adding it to complete paths and removing from open paths"""
     complete_paths.append(single_path)
     open_paths.remove(single_path)
 
 
 def get_next_path(old_single_path, open_paths) -> list:
+    "returns a new path without the last resource that was added to the path list"
     single_path = list(old_single_path[:-1])
     open_paths.append(single_path)
     return single_path
 
 
-def get_last_path(open_paths):
-    return open_paths[-1]
+def get_last_element(list_):
+    """returns last element of a list"""
+    return list_[-1]
 
 
 def contains_res_by_name(single_path, target_entry, pos):
-    """returns first occurrence from pos"""
+    """returns first occurrence of target_entry in a list from pos to the end of the list"""
     iterated_path = single_path[pos:]
     for entry in iterated_path:
         if entry.name == target_entry.name:
@@ -236,7 +226,8 @@ def contains_res_by_name(single_path, target_entry, pos):
         return False
 
 
-def print_path(path):
+def out_path_list(path):
+    """returns a path in one line"""
     oneline_ = "["
     for entry in path:
         oneline_ += entry.out + " "
@@ -245,6 +236,22 @@ def print_path(path):
 
 
 def get_complete_path_family(open_paths, resources, links) -> List:
+    """returns all paths which have the same starting point(=path family).
+
+       open_paths:
+
+       -open_paths is a list of paths that have the same starting point and which are not complete
+          in the sense that their last element, their last resource(=open_paths(-1))
+          a) has a link to next resource(s)
+          b) doesn't go round in a circle
+       -open_paths is updated in a while-loop until every path has no next resource or ends in a circle
+       (then they are removed and added to complete_paths)
+       -new paths are added to open_paths if the last resource in the path has multiple resources
+
+       complete_paths:
+       -paths that end in a circle or their last element doesn't have a link to a next resource are added to complete_paths
+       -when the while loop ends every path that was part of open_paths in now added to complete_paths
+    """
     complete_paths: List = list()
     number = 0
     while (len(open_paths) != 0):
@@ -253,7 +260,7 @@ def get_complete_path_family(open_paths, resources, links) -> List:
         # choose single path according to number
         single_path = open_paths[number]
         # get links of the last position in path
-        last_resource = get_last_entry(single_path)
+        last_resource = get_last_element(single_path)
         target_name = last_resource.name
         res_links = get_links_single_resource(target_name=target_name, resources=resources, links=links)
         # process res_links

@@ -38,6 +38,7 @@
                     "$ref": "#/definitions/comment"
                 },
                 "nodes": {
+                    "minItems": 1,
                     "oneOf": [
                         {
                             "type": "array",
@@ -127,6 +128,7 @@
     },
     "required": [
         "name",
+        "nodes",
         "labels"
     ],
     "additionalProperties": false

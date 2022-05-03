@@ -100,17 +100,23 @@ def get_resources(data_model) -> List:
     return ontology_dict["resources"]
 
 
-def get_HasLinkTo_dict(properties) -> dict:
+def get_HasLinkTo_dict(properties, shortname) -> dict:
     """returns a dict, with all hasLinkTo-Properties and the respective resource name they are pointing to"""
     links: dict[str, str] = dict()
     for prop in properties:
         super_prop = prop["super"]
         if super_prop.__contains__("hasLinkTo"):
             object_prop = prop["object"]
-            object_prop = object_prop[1:]
+            if object_prop.find(":") == 0:
+                object_prop = shortname + object_prop
             name = prop["name"]
             links[name] = object_prop
     return links
+
+
+def get_shortname(data_model):
+    project = data_model["project"]
+    return project["shortname"]
 
 
 def main(path_json):
@@ -118,15 +124,16 @@ def main(path_json):
     data_model = load_ontology(path_json=path_json)
     properties = get_properties(data_model=data_model)
     resources = get_resources(data_model=data_model)
-    links = get_HasLinkTo_dict(properties=properties)
+    shortname = get_shortname(data_model=data_model)
+    links = get_HasLinkTo_dict(properties=properties, shortname=shortname)
 
     # 2. get circles
     paths: List = list(list(list()))
     for resource in resources:
         try:
-            name = resource["name"]
+            name = shortname + ":" + resource["name"]
             if not resourceExistsInPaths(name, paths):
-                path_family = get_path_family(name=name, resources=resources, links=links)
+                path_family = get_path_family(name=name, resources=resources, shortname=shortname, links=links)
                 paths.append(path_family)
         except Exception as e:
             print(e)
@@ -156,7 +163,7 @@ def display_result(paths):
                 print(out_path_list(single_path))
 
 
-def get_path_family(name, resources, links) -> List:
+def get_path_family(name, resources, shortname, links) -> List:
     """returns a list of paths, which have all the same starting point e.g. A-B-C-J, A-D-E, A-F-G-H-I etc. (=path
     family) """
     # create a path(a path containing only the starting point)
@@ -167,7 +174,7 @@ def get_path_family(name, resources, links) -> List:
     # append first_path to open_paths
     open_paths.append(first_path)
     # let's get all paths that have this path as starting point
-    complete_paths = get_complete_path_family(open_paths, resources, links)
+    complete_paths = get_complete_path_family(open_paths, resources, shortname, links)
     return complete_paths
 
 
@@ -183,11 +190,11 @@ def get_properties_resource(resource) -> dict:
     return entries
 
 
-def get_links_single_resource(target_name, resources, links) -> dict:
+def get_links_single_resource(target_name, shortname, resources, links) -> dict:
     """returns every hasToLink and the respective cardinality of a single resource"""
     linked_resources_dict = dict()
     for resource in resources:
-        name = resource["name"]
+        name = shortname + ":" + resource["name"]
         if target_name == name:
             properties_resource = get_properties_resource(resource)
             for propname in properties_resource:
@@ -200,7 +207,7 @@ def get_links_single_resource(target_name, resources, links) -> dict:
 
 def close_path(single_path, complete_paths, open_paths):
     """close a path by adding it to complete paths and removing from open paths"""
-    print("Close path " + str(single_path))
+    print("Close path " + str(out_path_list(single_path)))
     complete_paths.append(single_path)
     open_paths.remove(single_path)
 
@@ -236,7 +243,7 @@ def out_path_list(path):
     return oneline_
 
 
-def get_complete_path_family(open_paths, resources, links) -> List:
+def get_complete_path_family(open_paths, resources, shortname, links) -> List:
     """returns all paths which have the same starting point(=path family).
 
        open_paths:
@@ -255,7 +262,7 @@ def get_complete_path_family(open_paths, resources, links) -> List:
     """
     complete_paths: List = list()
     number = 0
-    while (len(open_paths) != 0):
+    while len(open_paths) != 0:
         # adapt number to length of open_paths
         number = number % len(open_paths)
         # choose single path according to number
@@ -263,7 +270,7 @@ def get_complete_path_family(open_paths, resources, links) -> List:
         # get links of the last position in path
         last_resource = get_last_element(single_path)
         target_name = last_resource.name
-        res_links = get_links_single_resource(target_name=target_name, resources=resources, links=links)
+        res_links = get_links_single_resource(target_name=target_name, shortname=shortname, resources=resources, links=links)
         # process res_links
         if len(res_links) == 0:
             # res_links == 0 means: last resource has no links, so path has no more resources

@@ -1,6 +1,8 @@
 import json
 from typing import Optional, List
 
+from knora.dsplib.utils.expand_all_lists import expand_lists_from_excel
+
 
 class ResourceEntry:
     """
@@ -180,7 +182,7 @@ def check_for_error_circles(paths) -> bool:
                 print(f"Circle error. Found {cardinality} in {get_path_string(circle)} but should be one of {ok_cardinalities}")
                 error_circles.append(circle)
                 break
-    if error_circles != 0:
+    if len(error_circles) != 0:
         return False
     else:
         return True
@@ -333,4 +335,4 @@ if __name__ == '__main__':
     #path_json = "/Users/gregorbachmann/Desktop/biz_onto4circular.json"
     #path_json = "/Users/gregorbachmann/Desktop/postcards_rita/postcards.json"
     data_model = load_ontology(path_json=path_json)
-    validation(data_model)
+    print("result " + str(validation(data_model)))

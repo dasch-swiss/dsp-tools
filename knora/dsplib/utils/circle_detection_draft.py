@@ -62,13 +62,13 @@ class ResourceEntry:
         out += "]"
         return out
 
-'''
+
 def load_ontology(path_json) -> dict:
     """load ontology as dict"""
     with open(path_json) as f:
         onto_json_str = f.read()
     return json.loads(onto_json_str)
-'''
+
 
 def get_properties(data_model) -> List:
     """returns all properties of an ontology"""
@@ -107,7 +107,6 @@ def get_shortname(data_model):
 def validation(data_model):
     """validate the data model in relation to its circles"""
     # 1. prepare
-    #data_model = load_ontology(path_json=path_json)
     properties = get_properties(data_model=data_model)
     resources = get_resources(data_model=data_model)
     shortname = get_shortname(data_model=data_model)
@@ -173,7 +172,9 @@ def check_for_error_circles(paths) -> bool:
     error_circles: List = list()
     ok_cardinalities = ['0-1', '0-n']
     for circle in circle_parts:
-        for entry in circle:
+        # the first cardinality is the cardinality of the resource before the circle begins, so ignore it
+        for number in range(1, len(circle)):
+            entry = circle[number]
             cardinality = entry.cardinality
             if cardinality not in ok_cardinalities:
                 print(f"Circle error. Found {cardinality} in {get_path_string(circle)} but should be one of {ok_cardinalities}")
@@ -184,21 +185,6 @@ def check_for_error_circles(paths) -> bool:
     else:
         return True
 
-
-
-def hasCircle(single_path) -> bool:
-    """checks if a circle exists
-    a circle goes from A-B-A, but not from A-A
-    """
-    for number in range(0, len(single_path) - 1):
-        entry = single_path[number]
-        if contains_res_by_name(single_path=single_path, target_entry=entry, pos=number + 1):
-            if number != len(single_path) - 2:
-                # exclude circles like A-A, only include circles that have at least 2 different kind of elements like
-                # A-B-A.
-                return True
-    else:
-        return False
 
 def get_path_family(name, resources, shortname, links) -> List:
     """returns a list of paths, which have all the same starting point e.g. A-B-C-J, A-D-E, A-F-G-H-I etc. (=path
@@ -343,6 +329,8 @@ def get_complete_path_family(open_paths, resources, shortname, links) -> List:
 
 
 if __name__ == '__main__':
-    path_json = "/Users/gregorbachmann/Desktop/biz_onto4circular.json"
+    path_json = "/Users/gregorbachmann/Documents/GitHub/dsp-tools/testdata/test-onto.json"
+    #path_json = "/Users/gregorbachmann/Desktop/biz_onto4circular.json"
     #path_json = "/Users/gregorbachmann/Desktop/postcards_rita/postcards.json"
-    validation(path_json)
+    data_model = load_ontology(path_json=path_json)
+    validation(data_model)

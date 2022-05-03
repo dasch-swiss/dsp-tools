@@ -62,13 +62,13 @@ class ResourceEntry:
         out += "]"
         return out
 
-
+'''
 def load_ontology(path_json) -> dict:
     """load ontology as dict"""
     with open(path_json) as f:
         onto_json_str = f.read()
     return json.loads(onto_json_str)
-
+'''
 
 def get_properties(data_model) -> List:
     """returns all properties of an ontology"""
@@ -104,10 +104,10 @@ def get_shortname(data_model):
     return project["shortname"]
 
 
-def validation(path_json):
+def validation(data_model):
     """validate the data model in relation to its circles"""
     # 1. prepare
-    data_model = load_ontology(path_json=path_json)
+    #data_model = load_ontology(path_json=path_json)
     properties = get_properties(data_model=data_model)
     resources = get_resources(data_model=data_model)
     shortname = get_shortname(data_model=data_model)

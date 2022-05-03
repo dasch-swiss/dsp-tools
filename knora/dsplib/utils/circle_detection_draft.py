@@ -14,7 +14,7 @@ class ResourceEntry:
         Name of the resource
 
     hasLinkToName : str
-        Name of the hasLinkTo-property
+        Name of the hasLinkTo-property of the resource before from where this resource was "derived" from
 
     cardinality : str
         cardinality of property,e.g. 1, 0-n, 1-n etc.

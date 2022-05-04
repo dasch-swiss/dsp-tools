@@ -161,11 +161,21 @@ def get_circle_list(paths) -> List:
         for single_path in path_family:
             circle = get_circle(single_path)
             if circle is not None:
+                circle = format_circle(circle)
                 circle_string = get_path_string(circle)
-                if not circle_parts.__contains__(circle_string):
+                if not circle_str_parts.__contains__(circle_string):
                     circle_parts.append(circle)
                     circle_str_parts.append(circle_string)
     return circle_parts
+
+
+def format_circle(circle):
+    """deletes cardinality and hasLinkToName of first resource, which are not part of the circle"""
+    circle_first_resource = circle[0]
+    circle_first_resource.hasLinkToName = None
+    circle_first_resource.cardinality = None
+    return circle
+
 
 
 def check_for_error_circles(paths) -> bool:
@@ -180,6 +190,7 @@ def check_for_error_circles(paths) -> bool:
             cardinality = entry.cardinality
             if cardinality not in ok_cardinalities:
                 print(f"Circle error. Found {cardinality} in {get_path_string(circle)} but should be one of {ok_cardinalities}")
+                print("___")
                 error_circles.append(circle)
                 break
     if len(error_circles) != 0:
@@ -337,8 +348,8 @@ def get_complete_path_family(open_paths, resources, shortname, links) -> List:
 
 
 if __name__ == '__main__':
-    path_json = "/Users/gregorbachmann/Documents/GitHub/dsp-tools/testdata/test-onto.json"
-    #path_json = "/Users/gregorbachmann/Desktop/biz_onto4circular.json"
+    #path_json = "/Users/gregorbachmann/Documents/GitHub/dsp-tools/testdata/test-onto.json"
+    path_json = "/Users/gregorbachmann/Desktop/biz_onto4circular.json"
     #path_json = "/Users/gregorbachmann/Desktop/postcards_rita/postcards.json"
     data_model = load_ontology(path_json=path_json)
     print("result " + str(validation(data_model)))

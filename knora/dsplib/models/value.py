@@ -186,12 +186,16 @@ class TextValue(Value):
         if action == Actions.Create:
             tmp['@type'] = 'knora-api:TextValue'
             if isinstance(self._value, KnoraStandoffXml):
+                self._value.regex_replace('[\n+\t+\r+]', ' ')
+                self._value.regex_replace('[ ]{2,}', ' ')
                 tmp['knora-api:textValueAsXml'] = self._value
                 tmp['knora-api:textValueHasMapping'] = {
                     '@id': 'http://rdfh.ch/standoff/mappings/StandardMapping' if self._mapping is None else self._mapping
                 }
             else:
-                tmp['knora-api:valueAsString'] = str(self._value)
+                # replace spaces, line breaks and tabs with one space, strip whitespace
+                cleaned_up_text_value = re.sub(r'[\s+]', ' ', str(self._value))
+                tmp['knora-api:valueAsString'] = cleaned_up_text_value.strip()
         return tmp
 
     def __str__(self) -> str:

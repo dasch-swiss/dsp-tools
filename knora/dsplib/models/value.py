@@ -193,9 +193,11 @@ class TextValue(Value):
                     '@id': 'http://rdfh.ch/standoff/mappings/StandardMapping' if self._mapping is None else self._mapping
                 }
             else:
-                # replace spaces, line breaks and tabs with one space, strip whitespace
-                cleaned_up_text_value = re.sub(r'[\s+]', ' ', str(self._value))
-                tmp['knora-api:valueAsString'] = cleaned_up_text_value.strip()
+                # replace spaces and tabs with one space, strip whitespace (keep line breaks because they are allowed
+                # in GUI element Textarea)
+                text_value_without_whitespace = re.sub(r'[\t+]', ' ', str(self._value))
+                text_value_with_max_one_space = re.sub(r'[ ]{2,}', ' ', text_value_without_whitespace)
+                tmp['knora-api:valueAsString'] = text_value_with_max_one_space.strip()
         return tmp
 
     def __str__(self) -> str:

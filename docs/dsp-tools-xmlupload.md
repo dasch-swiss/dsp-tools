@@ -624,10 +624,10 @@ The `<text>` element has the following attributes:
 - `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
-There are two variants of text: Simple (UTF8) and complex (XML). Within a text property, multiple simple and 
+There are two variants of text: simple (UTF-8) and complex (XML). Within a text property, multiple simple and 
 complex text values may be mixed. Both simple and complex text values can be used inside all gui_elements 
 that are defined in an ontology (SimpleText, Richtext, Textarea, see [here](dsp-tools-create-ontologies.md#textvalue)). 
-But typically, you would use UTF8 in a SimpleText, and XML in Richtext or Textarea.
+But typically, you would use UTF-8 for SimpleText and Textarea, and XML for Richtext.
 
 
 #### Simple text (UTF-8)
@@ -640,8 +640,8 @@ An example for simple text:
 </text-prop>
 ```
 
-If your text is very long, it is not advised to add XML-"pretty-print" whitespaces after line breaks. These 
-whitespaces will be taken into the text field as they are.
+For simple text values there are two possible GUI elements: SimpleText (one line of text) or Textarea (multiline 
+text). Please note that dsp-tools removes tabs and multiple spaces in a row from your texts. Line breaks are kept.
 
 
 #### Text with markup (XML)

@@ -62,7 +62,7 @@ def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bo
     properties must have the cardinality 0-1 or 0-n, because during the xmlupload process, these values
     are temporarily removed.
     """
-    return circle_detection_networkx.validation(data_model)
+    return circle_detection_validate.validation(data_model)
 '''
     # search the ontology for all properties that are derived from hasLinkTo, store them in a dict, and map
     # them to their objects (i.e. the resource classes they point to)

@@ -1,7 +1,7 @@
 import json
 from typing import List
-
 import networkx as nx
+
 
 def get_resources_and_links(resources, links) -> dict:
     """
@@ -14,6 +14,7 @@ def get_resources_and_links(resources, links) -> dict:
     for resource in resources:
         resource_propnames = get_properties_resource(resource)
         list_: List = list()
+        # append a list of lists for every resource name
         for name in resource_propnames:
             if name in links:
                 target = links[name]
@@ -44,7 +45,7 @@ def get_edges_of_resource(resource):
 
 def get_circles(resources_and_links, shortname) -> List:
     """
-
+    detects circles and returns them
     Parameters
     ----------
     resources_and_links
@@ -54,14 +55,22 @@ def get_circles(resources_and_links, shortname) -> List:
     -------
     list of circles
     """
-    G = nx.DiGraph()
+    graph = nx.DiGraph()
+    graph = populate_graph(graph=graph, resources_and_links=resources_and_links, shortname=shortname)
+    circles = nx.simple_cycles(graph)
+    return circles
+
+
+def populate_graph(graph, resources_and_links, shortname):
+    """populate graph and return it"""
     for name_key in resources_and_links:
         entry = resources_and_links[name_key]
         list_of_edges = get_edges_of_resource(entry)
         name_key = shortname + ":" + name_key
         for edge_part in list_of_edges:
-            G.add_edge(u_of_edge=name_key, v_of_edge=edge_part)
-    return nx.simple_cycles(G)
+            graph.add_edge(u_of_edge=name_key, v_of_edge=edge_part)
+    return graph
+
 
 def load_ontology(path_json) -> dict:
     """load ontology as dict"""
@@ -83,6 +92,7 @@ def get_resources(data_model) -> List:
     ontology_dict = ontology[0]
     return ontology_dict["resources"]
 
+
 def get_properties_resource(resource) -> dict:
     """returns all the properties of a single resource with their respective cardinalities"""
     entries = dict()
@@ -93,6 +103,7 @@ def get_properties_resource(resource) -> dict:
         cardinality = entry["cardinality"]
         entries[name] = cardinality
     return entries
+
 
 def get_HasLinkTo_dict(properties, shortname) -> dict:
     """returns a dict, with all hasLinkTo-Properties and the respective resource name they are pointing to"""
@@ -112,6 +123,7 @@ def get_shortname(data_model):
     """returns the shortname of the data model"""
     project = data_model["project"]
     return project["shortname"]
+
 
 def validation(data_model) -> bool:
     """
@@ -151,12 +163,9 @@ def validation(data_model) -> bool:
     return passed
 
 
-
-
 if __name__ == '__main__':
     path_json = "/Users/gregorbachmann/Desktop/biz_onto4circular.json"
-    #path_json = "/Users/gregorbachmann/Desktop/postcards_rita/postcards.json"
-    #path_json = "/Users/gregorbachmann/Documents/GitHub/dsp-tools/testdata/test-onto.json"
+    # path_json = "/Users/gregorbachmann/Desktop/postcards_rita/postcards.json"
+    # path_json = "/Users/gregorbachmann/Documents/GitHub/dsp-tools/testdata/test-onto.json"
     data_model = load_ontology(path_json=path_json)
     validation(data_model)
-

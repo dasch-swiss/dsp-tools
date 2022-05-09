@@ -18,7 +18,6 @@ openpyxl = "*"
 pyparsing = "==2.4.7"
 
 [dev-packages]
-networkx = "*"
 mkdocs = "*"
 mkdocs-material = "*"
 mkdocs-include-markdown-plugin = "*"

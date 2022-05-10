@@ -1,11 +1,9 @@
-import json
 import os
-import re
 from typing import Any, Union, List, Set
 import jsonschema
-import jsonpath_ng, jsonpath_ng.ext
-
-from . import circle_detection_validate
+import json
+from typing import List
+import networkx as nx
 from ..utils.expand_all_lists import expand_lists_from_excel
 
 
@@ -62,105 +60,21 @@ def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bo
     properties must have the cardinality 0-1 or 0-n, because during the xmlupload process, these values
     are temporarily removed.
     """
-    return circle_detection_validate.validation(data_model)
-'''
-    # search the ontology for all properties that are derived from hasLinkTo, store them in a dict, and map
-    # them to their objects (i.e. the resource classes they point to)
-    # example: if the property 'rosetta:hasTextMedium' points to 'rosetta:Image2D':
-    # link_properties = {'rosetta:hasTextMedium': ['rosetta:Image2D'], ...}
-    ontos = data_model['project']['ontologies']
-    link_properties: dict[str, List[str]] = dict()
-    for index, onto in enumerate(ontos):
-        hasLinkTo_matches = jsonpath_ng.ext.parse(
-            f'$.project.ontologies[{index}].properties[?@.super[*] == hasLinkTo]'
-        ).find(data_model)
-        prop_obj_pair: dict[str, List[str]] = dict()
-        for match in hasLinkTo_matches:
-            prop = onto['name'] + ':' + match.value['name']
-            target = match.value['object']
-            if target != 'Resource':
-                # make the target a fully qualified name (with the ontology's name prefixed)
-                target = re.sub(r'^(:?)([^:]+)$', f'{onto["name"]}:\\2', target)
-            prop_obj_pair[prop] = [target]
-        link_properties.update(prop_obj_pair)
+    # 1. prepare
+    properties = get_properties(data_model=data_model)
+    resources = get_resources(data_model=data_model)
+    shortname = get_shortname(data_model=data_model)
+    links = get_HasLinkTo_dict(properties=properties, shortname=shortname)
 
-    # in case the object of a property is "Resource", the link can point to any resource class
-    all_res_names: List[str] = list()
-    for index, onto in enumerate(ontos):
-        matches = jsonpath_ng.ext.parse(f'$.resources[*].name').find(onto)
-        tmp = [f'{onto["name"]}:{match.value}' for match in matches]
-        all_res_names.extend(tmp)
-    for prop, targ in link_properties.items():
-        if 'Resource' in targ:
-            link_properties[prop] = all_res_names
+    # get resources and their links
+    resources_and_links = get_resources_and_links(resources, links)
+    # get circles
+    circles = get_circles(resources_and_links, shortname)
 
-    # make a dict that maps resource classes to their hasLinkTo-properties, and to the classes they point to
-    # example: if 'rosetta:Text' has the property 'rosetta:hasTextMedium' that points to 'rosetta:Image2D':
-    # dependencies = {'rosetta:Text': {'rosetta:hasTextMedium': ['rosetta:Image2D'], ...}}
-    dependencies: dict[str, dict[str, List[str]]] = dict()
-    for onto in ontos:
-        for resource in onto['resources']:
-            resname: str = onto['name'] + ':' + resource['name']
-            for card in resource['cardinalities']:
-                # make the cardinality a fully qualified name (with the ontology's name prefixed)
-                cardname = re.sub(r'^(:?)([^:]+)$', f'{onto["name"]}:\\2', card['propname'])
-                if cardname in link_properties:
-                    # Look out: if `targets` is created with `targets = link_properties[cardname]`, the ex-
-                    # pression `dependencies[resname][cardname] = targets` causes `dependencies[resname][cardname]`
-                    # to point to `link_properties[cardname]`. Due to that, the expression
-                    # `dependencies[resname][cardname].extend(targets)` will modify 'link_properties'!
-                    # For this reason, `targets` must be created with `targets = list(link_properties[cardname])`
-                    targets = list(link_properties[cardname])
-                    if resname not in dependencies:
-                        dependencies[resname] = dict()
-                        dependencies[resname][cardname] = targets
-                    elif cardname not in dependencies[resname]:
-                        dependencies[resname][cardname] = targets
-                    else:
-                        dependencies[resname][cardname].extend(targets)
-
-    # iteratively purge dependencies from non-circular references
-    for _ in range(30):
-        # remove targets that point to a resource that is not in dependencies,
-        # remove cardinalities that have no targets
-        for res, cards in dependencies.copy().items():
-            for card, targets in cards.copy().items():
-                dependencies[res][card] = [target for target in targets if target in dependencies]
-                if len(dependencies[res][card]) == 0:
-                    del dependencies[res][card]
-        # remove resources that have no cardinalities
-        dependencies = {res: cards for res, cards in dependencies.items() if len(cards) > 0}
-        # remove resources that are not pointed to by any target
-        all_targets: Set[str] = set()
-        for cards in dependencies.values():
-            for trgt in cards.values():
-                all_targets = all_targets | set(trgt)
-        dependencies = {res: targets for res, targets in dependencies.items() if res in all_targets}
-
-    # check the remaining dependencies (which are only the circular ones) if they have all 0-1 or 0-n
+    # check circles
     ok_cardinalities = ['0-1', '0-n']
-    notok_dependencies: dict[str, List[str]] = dict()
-    for res, cards in dependencies.items():
-        ontoname, resname = res.split(':')
-        for card in cards:
-            # the name of the cardinality could be with prepended onto, only with colon, or without anything
-            card_without_colon = card.split(':')[1]
-            card_with_colon = ':' + card_without_colon
-            card_variations = [card, card_with_colon, card_without_colon]
-            for card_variation in card_variations:
-                match = jsonpath_ng.ext.parse(
-                    f'$[?@.name == {ontoname}].resources[?@.name == {resname}].cardinalities[?@.propname == "{card_variation}"]'
-                ).find(ontos)
-                if len(match) > 0:
-                    break
-            card_numbers = match[0].value['cardinality']
-            if card_numbers not in ok_cardinalities:
-                if res not in notok_dependencies:
-                    notok_dependencies[res] = [card]
-                else:
-                    notok_dependencies[res].append(card)
-
-    if len(notok_dependencies) == 0:
+    errors = get_circle_errors(circles, resources_and_links, ok_cardinalities)
+    if len(errors) == 0:
         return True
     else:
         print('ERROR: Your ontology contains properties derived from "hasLinkTo" that allow circular references '
@@ -169,10 +83,171 @@ def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bo
               'affected resources. Therefore, it is necessary that the involved "hasLinkTo" cardinalities have a '
               'cardinality of 0-1 or 0-n. \n'
               'Please make sure that the following cardinalities have a cardinality of 0-1 or 0-n:')
-        for _res, _cards in notok_dependencies.items():
-            print(_res)
-            for card in _cards:
-                print(f'\t{card}')
+        for error in errors:
+            print(error)
         return False
-        '''
 
+
+def get_circle_errors(circles, resources_and_links, ok_cardinalities) -> List:
+    """
+    checks circles and returns errors
+
+    Args:
+        circles: list of circles that were detected
+        resources_and_links: resources with their respective hasLinkToProperties
+        ok_cardinalities: cardinalities that are valuable for hasLinkTo-Properties in circles
+
+    Returns:
+        errors: List of errors
+
+    """
+    errors: List = list()
+    for circle in circles:
+        for element in circle:
+            for key_name in resources_and_links:
+                resource = resources_and_links[key_name]
+                for hasLinkTo_props in resource:
+                    # hasLinkTo: Resource could always cause a circle
+                    if hasLinkTo_props[1] == element or hasLinkTo_props[1] == 'Resource':
+                        cardinality = hasLinkTo_props[2]
+                        if not cardinality in ok_cardinalities:
+                            error_message = "Resource " + key_name + " with hasLinkTo-Property " + str(hasLinkTo_props)
+                            if not errors.__contains__(error_message):
+                                errors.append(error_message)
+    return errors
+
+
+def get_resources_and_links(resources, links) -> dict:
+    """
+    get the resources with their respective hasLinkToProperties
+
+    Args:
+        resources: all resources of the data model.
+        links: hasLinkTo-properties and the respective resource they are pointing to.
+    Returns:
+    resources_and_links:
+        resource name linked to respective hasLinkToProperty-details
+        keys: resource name
+        values: list of list [hasLinkTo-Property name, target name, cardinality]
+    """
+    resources_and_links = dict()
+    for resource in resources:
+        resource_propnames = get_properties_resource(resource)
+        list_: List = list()
+        # append a list of lists for every resource name
+        for name in resource_propnames:
+            if name in links:
+                target = links[name]
+                cardinality = resource_propnames[name]
+                list_.append([name, target, cardinality])
+        if len(list_) != 0:
+            resources_and_links[resource["name"]] = list_
+    return resources_and_links
+
+
+def get_edges_of_resource(resource):
+    """
+    get all the resources a resource is pointing to
+
+    Args:
+        resource: list of [property name, target name,cardinality]
+
+    Returns:
+        list_edges: all resources this resource is pointing to
+    """
+    list_edges: List = list()
+    for entry in resource:
+        target_name = entry[1]
+        list_edges.append(target_name)
+    return list_edges
+
+
+def get_circles(resources_and_links, shortname) -> List:
+    """
+    detects circles and returns them
+
+    Args:
+        resources_and_links: resource names linked to respective hasLinkToProperty-details
+        shortname: shortname of the project
+
+    Returns:
+        circles: list of circles
+    """
+    graph = nx.DiGraph()
+    graph = populate_graph(graph=graph, resources_and_links=resources_and_links, shortname=shortname)
+    circles = nx.simple_cycles(graph)
+    return circles
+
+
+def populate_graph(graph, resources_and_links, shortname):
+    """Populates graph with resources and the resources they are pointing to and returns it
+
+    Args:
+        graph: a void graph
+        resources_and_links: resources with their respective hasLinkToProperties
+        shortname: shortname of project
+
+    Returns:
+        graph: a populated graph
+
+    """
+    for name_key in resources_and_links:
+        entry = resources_and_links[name_key]
+        list_of_edges = get_edges_of_resource(entry)
+        name_key = shortname + ":" + name_key
+        for edge_part in list_of_edges:
+            graph.add_edge(u_of_edge=name_key, v_of_edge=edge_part)
+    return graph
+
+
+def get_properties(data_model) -> List:
+    """returns all properties of an ontology"""
+    ontology = data_model['project']['ontologies']
+    ontology_dict = ontology[0]
+    return ontology_dict["properties"]
+
+
+def get_resources(data_model) -> List:
+    """returns all resources of an ontology"""
+    ontology = data_model['project']['ontologies']
+    ontology_dict = ontology[0]
+    return ontology_dict["resources"]
+
+
+def get_properties_resource(resource) -> dict:
+    """returns all the properties of a single resource with their respective cardinalities"""
+    entries = dict()
+    cardinalities = resource["cardinalities"]
+    for entry in cardinalities:
+        name = entry["propname"]
+        name = name[1:]
+        cardinality = entry["cardinality"]
+        entries[name] = cardinality
+    return entries
+
+
+def get_HasLinkTo_dict(properties, shortname) -> dict:
+    """returns a dict, with every hasLinkTo-Property-name and the respective resource name they are pointing to
+        Args:
+            properties: all properties of the ontology
+            shortname: shortname of the ontology
+        Returns:
+            links: keys = name of hasLinkToProperty, values = the resource the hasLinkTo is pointing to
+    """
+    links: dict[str, str] = dict()
+    for prop in properties:
+        super_prop = prop["super"]
+        if super_prop.__contains__("hasLinkTo"):
+            object_prop = prop["object"]
+            # add shortname, if shortname is not already part of object_prop
+            if object_prop.find(":") == 0:
+                object_prop = shortname + object_prop
+            name = prop["name"]
+            links[name] = object_prop
+    return links
+
+
+def get_shortname(data_model):
+    """returns the shortname of the data model"""
+    project = data_model["project"]
+    return project["shortname"]

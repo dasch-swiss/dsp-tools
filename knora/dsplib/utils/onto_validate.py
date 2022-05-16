@@ -80,8 +80,8 @@ def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bo
         print('ERROR: Your ontology contains properties derived from "hasLinkTo" that allow circular references '
               'between resources. This is not a problem in itself, but if you try to upload data that actually '
               'contains circular references, these "hasLinkTo" cardinalities will be temporarily removed from the '
-              'affected resources. Therefore, it is necessary that the involved "hasLinkTo" cardinalities have a '
-              'cardinality of 0-1 or 0-n. \n'
+              'affected resources. Therefore, it is necessary that ALL involved "hasLinkTo" cardinalities have a '
+              'cardinality of 0-1 or 0-n. \n''Some of them might already be okay, but some need to be adapted. '
               'Please make sure that the following cardinalities have a cardinality of 0-1 or 0-n:')
         for error in errors:
             print(error)

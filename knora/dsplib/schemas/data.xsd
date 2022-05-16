@@ -200,16 +200,16 @@
         </xs:simpleContent>
     </xs:complexType>
 
-    <!-- boolean value type -->
-    <xs:complexType name="boolean_type">
-        <xs:simpleContent>
-            <xs:extension base="xs:boolean">
-                <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="required"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
+    <!-- boolean value type-->
 
+    <xs:complexType name="boolean_type">
+    <xs:simpleContent>
+        <xs:extension base="xs:boolean">
+            <xs:attribute name="comment" type="xs:string"/>
+            <xs:attribute name="permissions" type="xs:NCName" use="required"/>
+        </xs:extension>
+    </xs:simpleContent>
+    </xs:complexType>
     <!-- textprop_type -->
     <xs:complexType name="textprop_type">
         <xs:sequence>
@@ -334,7 +334,7 @@
     <!-- booleanprop_type -->
     <xs:complexType name="booleanprop_type">
         <xs:sequence>
-            <xs:element name="boolean" type="boolean_type" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="boolean" type="boolean_type" minOccurs="1" maxOccurs="1"/>
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>
@@ -454,7 +454,12 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="permissions" type="permissions_type" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element name="resource" type="resource_type" minOccurs="1" maxOccurs="unbounded"/>
+                <xs:element name="resource" type="resource_type" minOccurs="1" maxOccurs="unbounded">
+                    <xs:unique name="UniqueNameAttr">
+                        <xs:selector xpath=".//*"/>
+                        <xs:field xpath="@name"/>
+                    </xs:unique>
+                </xs:element>
             </xs:sequence>
             <xs:attribute name="default-ontology" type="xs:string"/>
             <xs:attribute name="shortcode" type="knorashortcode_type"/>

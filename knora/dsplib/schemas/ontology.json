@@ -1,5 +1,5 @@
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$schema": "https://json-schema.org/draft-07/schema",
     "$id": "https://dasch.swiss/schema/ontology.json",
     "title": "JSON schema for DSP ontologies",
     "description": "JSON schema for DSP ontologies",
@@ -183,6 +183,7 @@
                     "$ref": "#/definitions/comment"
                 },
                 "nodes": {
+                    "minItems": 1,
                     "oneOf": [
                         {
                             "type": "array",
@@ -379,12 +380,77 @@
             },
             "required": [
                 "name",
+                "super",
                 "object",
                 "labels",
                 "gui_element"
             ],
             "additionalProperties": false,
             "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "super": {
+                                "const": "hasLinkTo"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "Searchbox"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "super": {
+                                "const": "isPartOf"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "Searchbox"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "object": {
+                                "const": "Representation"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasRepresentation"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
+                            "gui_element": {
+                                "const": "Searchbox"
+                            }
+                        }
+                    }
+                },
                 {
                     "if": {
                         "properties": {
@@ -395,8 +461,29 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasComment",
+                                                "hasValue"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
-                                "enum": [ "SimpleText", "Textarea", "Richtext" ]
+                                "enum": [
+                                    "SimpleText",
+                                    "Textarea",
+                                    "Richtext"
+                                ]
                             }
                         }
                     }
@@ -411,6 +498,22 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasColor"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
                                 "const": "Colorpicker"
                             }
@@ -427,6 +530,22 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasValue"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
                                 "const": "Date"
                             }
@@ -443,6 +562,22 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasValue"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
                                 "const": "TimeStamp"
                             }
@@ -459,8 +594,27 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasValue"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
-                                "enum": ["Slider","SimpleText"]
+                                "enum": [
+                                    "Slider",
+                                    "SimpleText"
+                                ]
                             }
                         }
                     }
@@ -475,6 +629,22 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasGeometry"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
                                 "enum": [
                                     "Geometry",
@@ -494,9 +664,24 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasValue"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
-                                "const":
-                                    "Geonames"
+                                "const": "Geonames"
                             }
                         }
                     }
@@ -511,6 +696,23 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasValue",
+                                                "seqnum"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
                                 "enum": [
                                     "Spinbox",
@@ -530,6 +732,22 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasValue"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
                                 "const": "Checkbox"
                             }
@@ -546,6 +764,22 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasValue"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
                                 "const": "SimpleText"
                             }
@@ -562,6 +796,22 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasValue"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
                                 "enum": [
                                     "Interval",
@@ -582,6 +832,22 @@
                     "then": {
                         "properties": {
                             "gui_element": {
+                                "super": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "oneOf": [
+                                            {
+                                                "enum": [
+                                                    "hasValue"
+                                                ]
+                                            },
+                                            {
+                                                "$ref": "#/definitions/prefixedname"
+                                            }
+                                        ]
+                                    }
+                                },
                                 "enum": [
                                     "Radio",
                                     "List"
@@ -745,7 +1011,10 @@
                     "if": {
                         "properties": {
                             "gui_element": {
-                                "enum": ["Radio", "List"]
+                                "enum": [
+                                    "Radio",
+                                    "List"
+                                ]
                             }
                         }
                     },
@@ -759,7 +1028,6 @@
                                     }
                                 },
                                 "additionalProperties": false
-
                             }
                         },
                         "required": [
@@ -793,7 +1061,15 @@
                     "if": {
                         "properties": {
                             "gui_element": {
-                                "enum": ["Richtext", "Date", "TimeStamp", "Geometry", "Geonames", "Checkbox", "Interval"]
+                                "enum": [
+                                    "Richtext",
+                                    "Date",
+                                    "TimeStamp",
+                                    "Geometry",
+                                    "Geonames",
+                                    "Checkbox",
+                                    "Interval"
+                                ]
                             }
                         }
                     },
@@ -862,7 +1138,8 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/cardinality"
-                    }
+                    },
+                    "minItems": 1
                 }
             },
             "required": [
@@ -931,7 +1208,8 @@
                             "$ref": "#/definitions/comment"
                         },
                         "required": [
-                            "comments"
+                            "comments",
+                            "nodes"
                         ]
                     }
                 },
@@ -946,7 +1224,6 @@
             "required": [
                 "shortcode",
                 "shortname",
-                "longname",
                 "descriptions",
                 "ontologies",
                 "keywords"

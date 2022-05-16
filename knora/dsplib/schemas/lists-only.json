@@ -1,10 +1,10 @@
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://dasch.swiss/schema/list-only.json",
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "$id": "https://dasch.swiss/schema/lists.json",
     "title": "JSON schema for DSP lists",
     "description": "JSON schema for the lists section used in DSP ontologies",
     "definitions": {
-        "label": {
+        "langstring": {
             "type": "object",
             "patternProperties": {
                 "^(en|de|fr|it)": {
@@ -12,6 +12,9 @@
                 }
             },
             "additionalProperties": false
+        },
+        "label": {
+            "$ref": "#/definitions/langstring"
         },
         "comment": {
             "type": "object",
@@ -35,6 +38,7 @@
                     "$ref": "#/definitions/comment"
                 },
                 "nodes": {
+                    "minItems": 1,
                     "oneOf": [
                         {
                             "type": "array",
@@ -124,7 +128,8 @@
     },
     "required": [
         "name",
-        "nodes"
+        "nodes",
+        "labels"
     ],
     "additionalProperties": false
 }

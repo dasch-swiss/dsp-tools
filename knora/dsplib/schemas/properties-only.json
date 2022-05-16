@@ -48,6 +48,8 @@
                                     "hasComment",
                                     "hasGeometry",
                                     "isPartOf",
+                                    "isSequenceOf",
+                                    "hasSequenceBounds",
                                     "isRegionOf",
                                     "isAnnotationOf",
                                     "hasRepresentation",
@@ -589,7 +591,8 @@
                                     "oneOf": [
                                         {
                                             "enum": [
-                                                "hasValue"
+                                                "hasValue",
+                                                "hasSequenceBounds"
                                             ]
                                         },
                                         {

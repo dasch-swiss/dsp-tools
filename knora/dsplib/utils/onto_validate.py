@@ -110,7 +110,7 @@ def get_circle_errors(circles, resources_and_links, ok_cardinalities) -> List:
                     # hasLinkTo: Resource could always cause a circle
                     if hasLinkTo_props[1] == element or hasLinkTo_props[1] == 'Resource':
                         cardinality = hasLinkTo_props[2]
-                        if not cardinality in ok_cardinalities:
+                        if cardinality not in ok_cardinalities:
                             error_message = "Resource " + key_name + " with hasLinkTo-Property " + str(hasLinkTo_props)
                             if not errors.__contains__(error_message):
                                 errors.append(error_message)

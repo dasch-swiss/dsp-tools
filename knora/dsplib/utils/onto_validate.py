@@ -87,7 +87,7 @@ def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bo
 
 def get_circle_errors(
     circles: list[Any],
-    resources_and_links: dict[Any, list[list[str]]],
+    resources_and_links: dict[str, list[tuple[str, str, str]]],
     ok_cardinalities: list[str]
 ) -> list[str]:
     """
@@ -115,7 +115,10 @@ def get_circle_errors(
     return list(errors)
 
 
-def get_resources_and_links(resources: list[dict[str, Any]], links: dict[str, str]) -> dict[Any, list[list[str]]]:
+def get_resources_and_links(
+    resources: list[dict[str, Any]],
+    links: dict[str, str]
+) -> dict[str, list[tuple[str, str, str]]]:
     """
     get the resources with their respective hasLinkToProperties
 
@@ -137,30 +140,13 @@ def get_resources_and_links(resources: list[dict[str, Any]], links: dict[str, st
             if name in links:
                 target = links[name]
                 cardinality = resource_propnames[name]
-                list_.append([name, target, cardinality])
+                list_.append((name, target, cardinality))
         if len(list_) != 0:
             resources_and_links[resource["name"]] = list_
     return resources_and_links
 
 
-def get_edges_of_resource(resource):
-    """
-    get all the resources a resource is pointing to
-
-    Args:
-        resource: list of [property name, target name,cardinality]
-
-    Returns:
-        list_edges: all resources this resource is pointing to
-    """
-    list_edges: List = list()
-    for entry in resource:
-        target_name = entry[1]
-        list_edges.append(target_name)
-    return list_edges
-
-
-def get_circles(resources_and_links: dict[Any, list[list[str]]], shortname: str) -> list[Any]:
+def get_circles(resources_and_links: dict[Any, list[tuple[str, str, str]]], shortname: str) -> list[Any]:
     """
     detects circles and returns them
 
@@ -172,9 +158,8 @@ def get_circles(resources_and_links: dict[Any, list[list[str]]], shortname: str)
         circles: list of circles
     """
     graph = nx.DiGraph()
-    for name_key in resources_and_links:
-        entry = resources_and_links[name_key]
-        list_of_edges = get_edges_of_resource(entry)
+    for name_key, entry in resources_and_links.items():
+        list_of_edges = [item[1] for item in entry]
         name_key = shortname + ":" + name_key
         for edge_part in list_of_edges:
             graph.add_edge(u_of_edge=name_key, v_of_edge=edge_part)

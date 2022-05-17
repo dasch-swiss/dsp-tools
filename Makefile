@@ -63,6 +63,10 @@ test: clean local-tmp clone-dsp-repo dsp-stack ## run all tests
 test-end-to-end: clean local-tmp clone-dsp-repo dsp-stack ## run e2e tests
 	pytest test/e2e/
 
+.PHONY: test-end-to-end-no-stack
+test-end-to-end-no-stack: ## run e2e tests without starting the stack (for API development)
+	pytest test/e2e/
+
 .PHONY: test-unittests
 test-unittests: ## run unit tests
 	pytest test/unittests/

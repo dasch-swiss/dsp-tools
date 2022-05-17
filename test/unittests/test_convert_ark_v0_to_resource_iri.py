@@ -8,7 +8,7 @@ from knora.dsplib.utils.xml_upload import convert_ark_v0_to_resource_iri
 
 class TestARKV02IRI(unittest.TestCase):
 
-    def test_convert_ark_v0_to_resource_iri(self):
+    def test_convert_ark_v0_to_resource_iri(self) -> None:
         ark = "ark:/72163/080c-779b9990a0c3f-6e"
         iri = convert_ark_v0_to_resource_iri(ark)
         self.assertEqual("http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q", iri)

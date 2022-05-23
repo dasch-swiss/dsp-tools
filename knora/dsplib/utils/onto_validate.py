@@ -124,27 +124,30 @@ def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bo
         for edge, targets in cards.items():
             for target in targets:
                 graph.add_edge(start, target, edge)
-    circle = list(nx.find_cycle(graph, orientation='reverse'))
 
     # check circles if they have all '0-1' or '0-n'
-    ok_cardinalities = ['0-1', '0-n']
     errors: set[str] = set()
-    for element in circle:
-        start, target, link, _ = element
-        if cardinalities[start][link] not in ok_cardinalities:
-            errors.add(f'Resource "{start}", property "{link}"')
+    circles = list(nx.simple_cycles(graph))
+    for circle in circles:
+        for index, resource in enumerate(circle):
+            target = circle[(index+1) % len(circle)]
+            for property, targets in dependencies[resource].items():
+                if target in targets:
+                    prop = property
+            if cardinalities[resource][prop] not in ['0-1', '0-n']:
+                errors.add(f'Resource "{resource}", property "{prop}"')
 
     if len(errors) == 0:
         return True
     else:
         print('ERROR: Your ontology contains properties derived from "hasLinkTo" that allow circular references '
               'between resources. This is not a problem in itself, but if you try to upload data that actually '
-              'contains circular references, these "hasLinkTo" cardinalities will be temporarily removed from the '
-              'affected resources. Therefore, it is necessary that all involved "hasLinkTo" cardinalities have a '
+              'contains circular references, these "hasLinkTo" properties will be temporarily removed from the '
+              'affected resources. Therefore, it is necessary that all involved "hasLinkTo" properties have a '
               'cardinality of 0-1 or 0-n. \n'
-              'Please make sure that the following cardinalities have a cardinality of 0-1 or 0-n:')
+              'Please make sure that the following properties have a cardinality of 0-1 or 0-n:')
         for error in errors:
-            print(error)
+            print(f'\t- {error}')
         return False
 
 

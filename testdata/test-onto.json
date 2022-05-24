@@ -210,7 +210,8 @@
                         },
                         "comments": {
                             "en": "properties can optionally have comments",
-                            "de": "Properties können Kommentare haben"
+                            "de": "Properties können Kommentare haben",
+                            "rm": "Property with a Rumantsch comment"
                         },
                         "gui_element": "SimpleText",
                         "gui_attributes": {
@@ -527,7 +528,8 @@
                             "en": "A Compound Thing"
                         },
                         "comments": {
-                            "en": "A thing for testing compound things."
+                            "en": "A thing for testing compound things.",
+                            "rm": "Rumantsch comment of resource 'CompoundThing'"
                         },
                         "cardinalities": [
                             {

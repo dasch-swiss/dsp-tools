@@ -16,6 +16,7 @@ rfc3987 = "*"
 pystrict = "*"
 openpyxl = "*"
 pyparsing = "==2.4.7"
+networkx = "*"
 
 [dev-packages]
 mkdocs = "*"

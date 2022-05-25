@@ -10,8 +10,87 @@ from knora.dsplib.utils.onto_validate import collect_link_properties, identify_p
 
 class TestOntoCreation(unittest.TestCase):
     with open('testdata/test-onto.json', 'r') as json_file:
-        json_onto: dict[str, Any] = json.load(json_file)
-    ontology: dict[str, Any] = json_onto['project']['ontologies'][0]
+        project: dict[str, Any] = json.load(json_file)
+        ontology: dict[str, Any] = project['project']['ontologies'][0]
+
+    circular_onto = {
+        "project": {
+            "shortcode": "1233",
+            "shortname": "test",
+            "longname": "test",
+            "descriptions": {"en": "test"},
+            "ontologies": [
+                {
+                    "name": "testonto",
+                    "label": "Test ontology",
+                    "properties": [
+                        {
+                            "name": "linkToResource",
+                            "super": ["hasLinkTo"],
+                            "object": "Resource",
+                            "labels": {"en": "has region"},
+                            "gui_element": "Searchbox"
+                        },
+                        {
+                            "name": "linkToTestThing1",
+                            "super": ["foaf:fantasy", "isPartOf"],
+                            "object": ":TestThing1",
+                            "labels": {"en": "has region"},
+                            "gui_element": "Searchbox"
+                        },
+                        {
+                            "name": "linkToTestThing2",
+                            "super": ["isAnnotationOf", "foaf:fantasy"],
+                            "object": ":TestThing2",
+                            "labels": {"en": "has region"},
+                            "gui_element": "Searchbox"
+                        },
+                        {
+                            "name": "linkToTestThing3",
+                            "super": ["isRegionOf"],
+                            "object": ":TestThing3",
+                            "labels": {"en": "has region"},
+                            "gui_element": "Searchbox"
+                        }
+                    ],
+                    "resources": [
+                        {
+                            "name": "TestThing1",
+                            "super": "Resource",
+                            "labels": {"en": "TestThing1"},
+                            "cardinalities": [
+                                {"propname": ":linkToTestThing2", "cardinality": "0-1"}
+                            ]
+                        },
+                        {
+                            "name": "TestThing2",
+                            "super": "Resource",
+                            "labels": {"en": "TestThing2"},
+                            "cardinalities": [
+                                {"propname": ":linkToTestThing3", "cardinality": "0-n"}
+                            ]
+                        },
+                        {
+                            "name": "TestThing3",
+                            "super": "Resource",
+                            "labels": {"en": "TestThing3"},
+                            "cardinalities": [
+                                {"propname": ":linkToResource", "cardinality": "1"}
+                            ]
+                        },
+                        {
+                            "name": "AnyResource",
+                            "super": "Resource",
+                            "labels": {"en": "AnyResource"},
+                            "cardinalities": [
+                                {"propname": ":linkToTestThing1", "cardinality": "1-n"},
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    }
 
     def test_sort_resources(self) -> None:
         """
@@ -46,45 +125,13 @@ class TestOntoCreation(unittest.TestCase):
 
 
     def test_circular_references_in_onto(self) -> None:
-        self.ontology['properties'].extend([
-            {
-                "name": "hasLinkToResource",
-                "super": ["hasLinkTo"],
-                "object": "Resource",
-                "labels": {"en": "has region"},
-                "gui_element": "Searchbox"
-            },
-            {
-                "name": "hasLinkToAudioThing",
-                "super": ["hasLinkTo"],
-                "object": ":AudioThing",
-                "labels": {"en": "hasLinkToAudioThing"},
-                "gui_element": "Searchbox"
-            }
-        ])
-
-        TestThing_hasTestThing2 = jsonpath_ng.ext.parse(
-            '$.resources[?name="TestThing"].cardinalities[?propname=":hasTestThing2"]').find(self.ontology)[0].value
-        TestThing_hasTestThing2['cardinality'] = '1-n'
-        TestThing2_hasTestThing = jsonpath_ng.ext.parse(
-            '$.resources[?name="TestThing2"].cardinalities[?propname=":hasTestThing"]').find(self.ontology)[0].value
-        TestThing2_hasTestThing['cardinality'] = '1-n'
-        TestThing2_cards = jsonpath_ng.ext.parse(
-            '$.resources[?name="TestThing2"].cardinalities').find(self.ontology)[0].value
-        TestThing2_cards.append({
-            "propname": ":hasLinkToAudioThing",
-            "cardinality": "1"
-        })
-        AudioThing_cards = jsonpath_ng.ext.parse('$.resources[?name="AudioThing"].cardinalities').find(self.ontology)[0].value
-        AudioThing_cards.append({
-            "propname": ":hasTestThing",
-            "cardinality": "1"
-        })
-
-        link_properties = collect_link_properties(self.project)
-        errors = identify_problematic_cardinalities(self.project, link_properties)
-        expected_errors = {''}
-        self.assertSetEqual(errors, expected_errors)
+        link_properties = collect_link_properties(self.circular_onto)
+        errors = identify_problematic_cardinalities(self.circular_onto, link_properties)
+        expected_errors = [
+            ('testonto:AnyResource', 'testonto:linkToTestThing1'),
+            ('testonto:TestThing3', 'testonto:linkToResource')
+        ]
+        self.assertListEqual(sorted(errors), sorted(expected_errors))
 
 
 if __name__ == '__main__':

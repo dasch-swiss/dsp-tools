@@ -393,7 +393,7 @@ This object contains user definitions. A user has the following elements:
 - _givenName_: firstname of the user
 - _familyName_: surname of the user
 - _password_: password of the user
-- _lang_: the default language of the user: "en", "de", "fr", "it", "rm" (optional, default: "en")
+- _lang_: the default language of the user: "en", "de", "fr", "it" (optional, default: "en")
 - _groups_: List of groups the user belongs to. The name of the group has to be provided with the project's shortname,
   p.ex. "shortname:editors". The project defined in the same ontology file has no name, so only ":editors" is required
   if the user belongs to the group "editors". (optional)

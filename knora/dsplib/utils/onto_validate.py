@@ -57,12 +57,40 @@ def validate_ontology(input_file_or_json: Union[str, dict[Any, Any], 'os.PathLik
 
 def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bool:
     """
-    Check if there are properties derived from hasLinkTo that form a circular reference. If so, these
+    Check a data model if it contains properties derived from hasLinkTo that form a circular reference. If so, these
     properties must have the cardinality 0-1 or 0-n, because during the xmlupload process, these values
     are temporarily removed.
+
+    Args:
+        data_model: dictionary with a DSP project (as defined in a JSON ontology file)
+
+    Returns:
+        True if no circle was detected, or if all elements of all circles are of cardinality "0-1" or "0-n".
+        False if there is a circle with at least one element that has a cardinality of "1" or "1-n".
     """
-    # map the properties derived from hasLinkTo to the resource classes they point to, for example:
-    # link_properties = {'rosetta:hasImage2D': ['rosetta:Image2D'], ...}
+
+    link_properties = collect_link_properties(data_model)
+    errors = identify_problematic_cardinalities(data_model, link_properties)
+
+    if len(errors) == 0:
+        return True
+    else:
+        print('ERROR: Your ontology contains properties derived from "hasLinkTo" that allow circular references '
+              'between resources. This is not a problem in itself, but if you try to upload data that actually '
+              'contains circular references, these "hasLinkTo" properties will be temporarily removed from the '
+              'affected resources. Therefore, it is necessary that all involved "hasLinkTo" properties have a '
+              'cardinality of 0-1 or 0-n. \n'
+              'Please make sure that the following properties have a cardinality of 0-1 or 0-n:')
+        for error in errors:
+            print(f'\t- {error}')
+        return False
+
+
+def collect_link_properties(data_model: dict[Any, Any]) -> dict[str, list[str]]:
+    """
+    map the properties derived from hasLinkTo to the resource classes they point to, for example:
+    link_properties = {'rosetta:hasImage2D': ['rosetta:Image2D'], ...}
+    """
     ontos = data_model['project']['ontologies']
     hasLinkTo_props = {'hasLinkTo', 'isPartOf', 'isRegionOf', 'isAnnotationOf'}
     link_properties: dict[str, list[str]] = dict()
@@ -96,12 +124,19 @@ def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bo
         if 'Resource' in targ:
             link_properties[prop] = all_res_names
 
+    return link_properties
+
+
+def identify_problematic_cardinalities(data_model: dict[Any, Any], link_properties: dict[str, list[str]]) -> set[str]:
+    """
+    make an error list with all cardinalities that are part of a circle but have "1" or "1-n"
+    """
     # make 2 dicts of the following form:
     # dependencies = {'rosetta:Text': {'rosetta:hasImage2D': ['rosetta:Image2D'], ...}}
     # cardinalities = {'rosetta:Text': {'rosetta:hasImage2D': '0-1', ...}}
     dependencies: dict[str, dict[str, list[str]]] = dict()
     cardinalities: dict[str, dict[str, str]] = dict()
-    for onto in ontos:
+    for onto in data_model['project']['ontologies']:
         for resource in onto['resources']:
             resname: str = onto['name'] + ':' + resource['name']
             for card in resource['cardinalities']:
@@ -132,7 +167,7 @@ def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bo
             for target in targets:
                 graph.add_edge(start, target, edge)
 
-    # check circles if they have all '0-1' or '0-n'
+    # find elements of circles that have a cardinality of "1" or "1-n"
     errors: set[str] = set()
     circles = list(nx.simple_cycles(graph))
     for circle in circles:
@@ -144,19 +179,4 @@ def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bo
             if cardinalities[resource][prop] not in ['0-1', '0-n']:
                 errors.add(f'Resource "{resource}", property "{prop}"')
 
-    if len(errors) == 0:
-        return True
-    else:
-        print('ERROR: Your ontology contains properties derived from "hasLinkTo" that allow circular references '
-              'between resources. This is not a problem in itself, but if you try to upload data that actually '
-              'contains circular references, these "hasLinkTo" properties will be temporarily removed from the '
-              'affected resources. Therefore, it is necessary that all involved "hasLinkTo" properties have a '
-              'cardinality of 0-1 or 0-n. \n'
-              'Please make sure that the following properties have a cardinality of 0-1 or 0-n:')
-        for error in errors:
-            print(f'\t- {error}')
-        return False
-
-
-
-
+    return errors

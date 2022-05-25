@@ -64,18 +64,25 @@ def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bo
     # map the properties derived from hasLinkTo to the resource classes they point to, for example:
     # link_properties = {'rosetta:hasImage2D': ['rosetta:Image2D'], ...}
     ontos = data_model['project']['ontologies']
+    hasLinkTo_props = {'hasLinkTo', 'isPartOf', 'isRegionOf', 'isAnnotationOf'}
     link_properties: dict[str, list[str]] = dict()
     for index, onto in enumerate(ontos):
-        hasLinkTo_matches = jsonpath_ng.ext.parse(
-            f'$.project.ontologies[{index}].properties[?@.super[*] == hasLinkTo]'
-        ).find(data_model)
+        hasLinkTo_matches = list()
+        # look for child-properties down to 5 inheritance levels that are derived from hasLinkTo-properties
+        for i in range(5):
+            for hasLinkTo_prop in hasLinkTo_props:
+                hasLinkTo_matches.extend(jsonpath_ng.ext.parse(
+                    f'$.project.ontologies[{index}].properties[?super[*] == {hasLinkTo_prop}]'
+                ).find(data_model))
+            # make the children from this round to the parents of the next round
+            hasLinkTo_props = {x.value['name'] for x in hasLinkTo_matches}
         prop_obj_pair: dict[str, list[str]] = dict()
         for match in hasLinkTo_matches:
             prop = onto['name'] + ':' + match.value['name']
             target = match.value['object']
             if target != 'Resource':
                 # make the target a fully qualified name (with the ontology's name prefixed)
-                target = re.sub(r'^(:?)([^:]+)$', f'{onto["name"]}:\\2', target)
+                target = re.sub(r'^:([^:]+)$', f'{onto["name"]}:\\1', target)
             prop_obj_pair[prop] = [target]
         link_properties.update(prop_obj_pair)
 

@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.14.1](https://www.github.com/dasch-swiss/dsp-tools/compare/v1.14.0...v1.14.1) (2022-05-25)
+
+
+### Bug Fixes
+
+* **onto validation:** correctly identify circular dependencies (DEV-769) ([#192](https://www.github.com/dasch-swiss/dsp-tools/issues/192)) ([ed35902](https://www.github.com/dasch-swiss/dsp-tools/commit/ed35902136759d17b47ebaaefd06a476fb6781f0))
+
 ## [1.14.0](https://www.github.com/dasch-swiss/dsp-tools/compare/v1.13.0...v1.14.0) (2022-05-03)
 
 

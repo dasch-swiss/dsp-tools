@@ -82,7 +82,7 @@ def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bo
               'cardinality of 0-1 or 0-n. \n'
               'Please make sure that the following properties have a cardinality of 0-1 or 0-n:')
         for error in errors:
-            print(f'\t- {error}')
+            print(f'\t- Resource {error[0]}, property {error[1]}')
         return False
 
 
@@ -127,7 +127,7 @@ def collect_link_properties(data_model: dict[Any, Any]) -> dict[str, list[str]]:
     return link_properties
 
 
-def identify_problematic_cardinalities(data_model: dict[Any, Any], link_properties: dict[str, list[str]]) -> set[str]:
+def identify_problematic_cardinalities(data_model: dict[Any, Any], link_properties: dict[str, list[str]]) -> list[tuple[str, str]]:
     """
     make an error list with all cardinalities that are part of a circle but have "1" or "1-n"
     """
@@ -168,7 +168,7 @@ def identify_problematic_cardinalities(data_model: dict[Any, Any], link_properti
                 graph.add_edge(start, target, edge)
 
     # find elements of circles that have a cardinality of "1" or "1-n"
-    errors: set[str] = set()
+    errors: set[tuple[str, str]] = set()
     circles = list(nx.simple_cycles(graph))
     for circle in circles:
         for index, resource in enumerate(circle):
@@ -177,6 +177,6 @@ def identify_problematic_cardinalities(data_model: dict[Any, Any], link_properti
                 if target in targets:
                     prop = property
             if cardinalities[resource][prop] not in ['0-1', '0-n']:
-                errors.add(f'Resource "{resource}", property "{prop}"')
+                errors.add((resource, prop))
 
-    return errors
+    return sorted(errors, key=lambda x: x[0])

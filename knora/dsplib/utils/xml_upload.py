@@ -909,7 +909,15 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
         resource_bitstream = None
         if resource.bitstream:
-            img = sipi_server.upload_bitstream(os.path.join(imgdir, resource.bitstream.value))
+            try:
+                img = sipi_server.upload_bitstream(os.path.join(imgdir, resource.bitstream.value))
+            except BaseException as err:
+                print(f'xmlupload must be aborted because of the following SIPI error: {err}')
+                write_id2iri_mapping(input_file, res_iri_lookup)
+                if failed_uploads:
+                    print(f"Independently from this error, there were some resources that could not be uploaded: "
+                          f"{failed_uploads}")
+                exit(1)
             internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 
@@ -986,15 +994,16 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             print(f'Exception while updating an XML text of resource "{resource.id}": {exception}')
             continue
 
-    # write mapping of internal IDs to IRIs to file with timestamp
-    timestamp_now = datetime.now()
-    timestamp_str = timestamp_now.strftime("%Y%m%d-%H%M%S")
+    write_id2iri_mapping(input_file, res_iri_lookup)
+    if failed_uploads:
+        print(f"Could not upload the following resources: {failed_uploads}")
 
+
+def write_id2iri_mapping(input_file: str, res_iri_lookup: dict[str, str]) -> None:
+    # write mapping of internal IDs to IRIs to file with timestamp
+    timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
     xml_file_name = Path(input_file).stem
     res_iri_lookup_file = "id2iri_" + xml_file_name + "_mapping_" + timestamp_str + ".json"
     with open(res_iri_lookup_file, "w") as outfile:
         print(f"============\nThe mapping of internal IDs to IRIs was written to {res_iri_lookup_file}")
         outfile.write(json.dumps(res_iri_lookup))
-
-    if failed_uploads:
-        print(f"Could not upload the following resources: {failed_uploads}")

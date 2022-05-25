@@ -102,7 +102,7 @@ def collect_link_properties(data_model: dict[Any, Any]) -> dict[str, list[str]]:
                 hasLinkTo_matches.extend(jsonpath_ng.ext.parse(
                     f'$.project.ontologies[{index}].properties[?super[*] == {hasLinkTo_prop}]'
                 ).find(data_model))
-            # make the children from this round to the parents of the next round
+            # make the children from this iteration to the parents of the next iteration
             hasLinkTo_props = {x.value['name'] for x in hasLinkTo_matches}
         prop_obj_pair: dict[str, list[str]] = dict()
         for match in hasLinkTo_matches:
@@ -129,7 +129,7 @@ def collect_link_properties(data_model: dict[Any, Any]) -> dict[str, list[str]]:
 
 def identify_problematic_cardinalities(data_model: dict[Any, Any], link_properties: dict[str, list[str]]) -> list[tuple[str, str]]:
     """
-    make an error list with all cardinalities that are part of a circle but have "1" or "1-n"
+    make an error list with all cardinalities that are part of a circle but have a cardinality of "1" or "1-n"
     """
     # make 2 dicts of the following form:
     # dependencies = {'rosetta:Text': {'rosetta:hasImage2D': ['rosetta:Image2D'], ...}}

@@ -8,8 +8,10 @@ import re
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Union, cast, Tuple
+from typing import Optional, Union, cast, Tuple, Any
 from urllib.parse import quote_plus
+
+import requests
 
 from lxml import etree
 
@@ -911,13 +913,12 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         if resource.bitstream:
             try:
                 img = sipi_server.upload_bitstream(os.path.join(imgdir, resource.bitstream.value))
+            except requests.exceptions.ConnectionError as err:
+                handle_sipi_error(err, input_file, res_iri_lookup, failed_uploads)
             except BaseException as err:
-                print(f'xmlupload must be aborted because of the following SIPI error: {err}')
-                write_id2iri_mapping(input_file, res_iri_lookup)
-                if failed_uploads:
-                    print(f"Independently from this error, there were some resources that could not be uploaded: "
-                          f"{failed_uploads}")
-                exit(1)
+                handle_sipi_error(err, input_file, res_iri_lookup, failed_uploads)
+            except:
+                handle_sipi_error('err', input_file, res_iri_lookup, failed_uploads)
             internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 
@@ -997,6 +998,14 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     write_id2iri_mapping(input_file, res_iri_lookup)
     if failed_uploads:
         print(f"Could not upload the following resources: {failed_uploads}")
+
+
+def handle_sipi_error(err: Any, input_file: str, res_iri_lookup: dict[str, str], failed_uploads: list[str]) -> None:
+    print(f'xmlupload must be aborted because of the following SIPI error: {err}')
+    write_id2iri_mapping(input_file, res_iri_lookup)
+    if failed_uploads:
+        print(f"Independently of this error, there were some resources that could not be uploaded: "
+              f"{failed_uploads}")
 
 
 def write_id2iri_mapping(input_file: str, res_iri_lookup: dict[str, str]) -> None:

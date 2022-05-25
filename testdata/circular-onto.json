@@ -1,0 +1,118 @@
+{
+    "project": {
+        "shortcode": "1233",
+        "shortname": "test",
+        "longname": "test",
+        "descriptions": {
+            "en": "test"
+        },
+        "ontologies": [
+            {
+                "name": "testonto",
+                "label": "Test ontology",
+                "properties": [
+                    {
+                        "name": "linkToResource",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Resource",
+                        "labels": {
+                            "en": "has region"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "linkToTestThing1",
+                        "super": [
+                            "foaf:fantasy",
+                            "isPartOf"
+                        ],
+                        "object": ":TestThing1",
+                        "labels": {
+                            "en": "has region"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "linkToTestThing2",
+                        "super": [
+                            "isAnnotationOf",
+                            "foaf:fantasy"
+                        ],
+                        "object": ":TestThing2",
+                        "labels": {
+                            "en": "has region"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "linkToTestThing3",
+                        "super": [
+                            "isRegionOf"
+                        ],
+                        "object": ":TestThing3",
+                        "labels": {
+                            "en": "has region"
+                        },
+                        "gui_element": "Searchbox"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "TestThing1",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "TestThing1"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":linkToTestThing2",
+                                "cardinality": "0-1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "TestThing2",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "TestThing2"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":linkToTestThing3",
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "TestThing3",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "TestThing3"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":linkToResource",
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "AnyResource",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "AnyResource"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":linkToTestThing1",
+                                "cardinality": "1-n"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

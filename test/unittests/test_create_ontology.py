@@ -2,14 +2,18 @@
 import unittest
 import json
 from typing import Any
+import jsonpath_ng.ext
 
-from knora.dsplib.utils.onto_create_ontology import *
+from knora.dsplib.utils.onto_create_ontology import sort_resources, sort_prop_classes
+from knora.dsplib.utils.onto_validate import collect_link_properties, identify_problematic_cardinalities
 
 
 class TestOntoCreation(unittest.TestCase):
     with open('testdata/test-onto.json', 'r') as json_file:
-        json_onto: dict[str, Any] = json.load(json_file)
-    ontology: dict[str, Any] = json_onto['project']['ontologies'][0]
+        project: dict[str, Any] = json.load(json_file)
+        ontology: dict[str, Any] = project['project']['ontologies'][0]
+    with open('testdata/circular-onto.json', 'r') as json_file:
+        circular_onto: dict[str, Any] = json.load(json_file)
 
     def test_sort_resources(self) -> None:
         """
@@ -41,6 +45,16 @@ class TestOntoCreation(unittest.TestCase):
         sorted_props = sorted(sorted_props, key=lambda a: a['name'])
 
         self.assertListEqual(unsorted_props, sorted_props)
+
+
+    def test_circular_references_in_onto(self) -> None:
+        link_properties = collect_link_properties(self.circular_onto)
+        errors = identify_problematic_cardinalities(self.circular_onto, link_properties)
+        expected_errors = [
+            ('testonto:AnyResource', 'testonto:linkToTestThing1'),
+            ('testonto:TestThing3', 'testonto:linkToResource')
+        ]
+        self.assertListEqual(sorted(errors), sorted(expected_errors))
 
 
 if __name__ == '__main__':

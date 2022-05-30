@@ -5,6 +5,7 @@ import base64
 import json
 import os
 import re
+import time
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -882,6 +883,9 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     # temporarily remove circular references, but only if not an incremental upload
     if not incremental:
         resources, stashed_xml_texts, stashed_resptr_props = remove_circular_references(resources, verbose)
+    else:
+        stashed_xml_texts = dict()
+        stashed_resptr_props = dict()
 
     sipi_server = Sipi(sipi, con.get_token())
 
@@ -899,8 +903,57 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         resclass_name_2_type[res_class_name] = project.get_resclass_type(res_class_name)
 
     res_iri_lookup: dict[str, str] = {}
+    failed_uploads: list[str] = []
 
-    failed_uploads = []
+    try:
+        upload_resources(verbose, resources, imgdir, sipi_server, permissions_lookup, resclass_name_2_type, res_iri_lookup, con, failed_uploads)
+    except requests.exceptions.ConnectionError as err:
+        handle_upload_error(err, input_file, res_iri_lookup, failed_uploads, stashed_xml_texts, stashed_resptr_props)
+        # exit(1)
+    except ConnectionError as err:
+        handle_upload_error(err, input_file, res_iri_lookup, failed_uploads, stashed_xml_texts, stashed_resptr_props)
+        # exit(1)
+    # what is with org.knora.webapi.exceptions.SipiException ?
+    #TODO: Hier eher die allgemeinen Fehler abfangen. Im try_sipi_upload eher die spezifischen
+
+    # update the resources with the stashed XML texts
+    if len(stashed_xml_texts) > 0:
+        update_stashed_xml_texts(verbose, res_iri_lookup, con, stashed_xml_texts)
+
+    # update the resources with the stashed resptrs
+    if len(stashed_resptr_props) > 0:
+        update_stashed_resptr_props(verbose, res_iri_lookup, con, stashed_resptr_props)
+
+    write_id2iri_mapping(input_file, res_iri_lookup, datetime.now().strftime("%Y%m%d-%H%M%S"))
+    if failed_uploads:
+        print(f"Could not upload the following resources: {failed_uploads}")
+
+
+def try_sipi_upload(sipi_server: Sipi, filepath: str) -> dict[Any, Any]:
+    for _ in range(20):
+        try:
+            img = sipi_server.upload_bitstream(filepath)
+            break
+        except:
+            time.sleep(1)
+            continue
+    if img:
+        return img
+    else:
+        return sipi_server.upload_bitstream(filepath)
+
+
+def upload_resources(
+    verbose: bool,
+    resources: list[XMLResource],
+    imgdir: str,
+    sipi_server: Sipi,
+    permissions_lookup: dict[str, Permissions],
+    resclass_name_2_type: dict[str, type],
+    res_iri_lookup: dict[str, str],
+    con: Connection,
+    failed_uploads: list[str]
+) -> None:
     for resource in resources:
         if verbose:
             resource.print()
@@ -911,14 +964,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
         resource_bitstream = None
         if resource.bitstream:
-            try:
-                img = sipi_server.upload_bitstream(os.path.join(imgdir, resource.bitstream.value))
-            except requests.exceptions.ConnectionError as err:
-                handle_sipi_error(err, input_file, res_iri_lookup, failed_uploads)
-            except BaseException as err:
-                handle_sipi_error(err, input_file, res_iri_lookup, failed_uploads)
-            except:
-                handle_sipi_error('err', input_file, res_iri_lookup, failed_uploads)
+            img = try_sipi_upload(sipi_server=sipi_server, filepath=os.path.join(imgdir, resource.bitstream.value))
             internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 
@@ -951,9 +997,14 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         res_iri_lookup[resource.id] = resclass_instance.iri
         print(f"Created resource '{resclass_instance.label}' ({resource.id}) with IRI '{resclass_instance.iri}'")
 
-    # update the resources with the stashed XML texts
-    if len(stashed_xml_texts) > 0:
-        print('Update the stashed XML texts...')
+
+def update_stashed_xml_texts(
+    verbose: bool,
+    res_iri_lookup: dict[str, str],
+    con: Connection,
+    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]
+) -> None:
+    print('Update the stashed XML texts...')
     for resource, link_props in stashed_xml_texts.items():
         print(f'Update XML text(s) of resource "{resource.id}"...')
         res_iri = res_iri_lookup[resource.id]
@@ -973,9 +1024,14 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             print(f'Exception while updating an XML text of resource "{resource.id}": {exception}')
             continue
 
-    # update the resources with the stashed resptrs
-    if len(stashed_resptr_props) > 0:
-        print('Update the stashed resptrs...')
+
+def update_stashed_resptr_props(
+    verbose: bool,
+    res_iri_lookup: dict[str, str],
+    con: Connection,
+    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]]
+) -> None:
+    print('Update the stashed resptrs...')
     for resource, prop_2_resptrs in stashed_resptr_props.items():
         print(f'Update resptrs of resource "{resource.id}"...')
         res_iri = res_iri_lookup[resource.id]
@@ -995,22 +1051,40 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             print(f'Exception while updating an XML text of resource "{resource.id}": {exception}')
             continue
 
-    write_id2iri_mapping(input_file, res_iri_lookup)
-    if failed_uploads:
-        print(f"Could not upload the following resources: {failed_uploads}")
 
+def handle_upload_error(
+    err: Any,
+    input_file: str,
+    res_iri_lookup: dict[str, str],
+    failed_uploads: list[str],
+    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]]
+) -> None:
+    print(f'xmlupload must be aborted because of the following error: {err}')
+    timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
+    write_id2iri_mapping(input_file, res_iri_lookup, timestamp_str)
+    if len(stashed_xml_texts) > 0:
+        with open(f'stashed_xml_texts_{timestamp_str}.txt', 'a') as f:
+            for res, props in stashed_xml_texts.items():
+                f.write(f'\n{res.id}\n---------\n')
+                for prop, stashed_texts in props.items():
+                    f.write(f'{prop.name}\n')
+                    for name, standoff in stashed_texts.items():
+                        f.write(f'\t{name}: {standoff}')
+    if len(stashed_resptr_props) > 0:
+        with open(f'stashed_resptr_props_{timestamp_str}.txt', 'a') as f:
+            for res, props_ in stashed_resptr_props.items():
+                f.write(f'\n{res.id}\n---------\n')
+                for prop, stashed_props in props_.items():
+                    f.write(f'{prop.name}\n\t{stashed_props}')
 
-def handle_sipi_error(err: Any, input_file: str, res_iri_lookup: dict[str, str], failed_uploads: list[str]) -> None:
-    print(f'xmlupload must be aborted because of the following SIPI error: {err}')
-    write_id2iri_mapping(input_file, res_iri_lookup)
     if failed_uploads:
         print(f"Independently of this error, there were some resources that could not be uploaded: "
               f"{failed_uploads}")
 
 
-def write_id2iri_mapping(input_file: str, res_iri_lookup: dict[str, str]) -> None:
+def write_id2iri_mapping(input_file: str, res_iri_lookup: dict[str, str], timestamp_str: str) -> None:
     # write mapping of internal IDs to IRIs to file with timestamp
-    timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
     xml_file_name = Path(input_file).stem
     res_iri_lookup_file = "id2iri_" + xml_file_name + "_mapping_" + timestamp_str + ".json"
     with open(res_iri_lookup_file, "w") as outfile:

@@ -770,7 +770,15 @@ def update_xml_texts(
                         "@context": context
                     }
                     jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
-                    new_value = con.put(path='/v2/values', jsondata=jsondata)
+                    new_value = None
+                    for _ in range(20):
+                        try:
+                            new_value = con.put(path='/v2/values', jsondata=jsondata)
+                            break
+                        except BaseException:
+                            print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
+                            time.sleep(1)
+                            continue
                     if not new_value:
                         print(f'ERROR while updating the xml text of {link_prop.name} of resource {resource.id}')
                     elif verbose:
@@ -802,7 +810,15 @@ def update_resptr_props(
                 '@context': context
             }
             jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '))
-            new_value = con.post(path='/v2/values', jsondata=jsondata)
+            new_value = None
+            for _ in range(20):
+                try:
+                    new_value = con.post(path='/v2/values', jsondata=jsondata)
+                    break
+                except BaseException:
+                    print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
+                    time.sleep(1)
+                    continue
             if not new_value:
                 print(f'ERROR while updating the resptr prop of {link_prop.name} of resource {resource.id}')
             elif verbose:

@@ -8,10 +8,10 @@ standard XML file as described on this page. After a successful upload of the da
 uniquely identify them inside DSP. This file should be kept if data is later added with the `--incremental` [option](#incremental-xml-upload).
 
 The import file must start with the standard XML header:
-
 ```xml
 <?xml version='1.0' encoding='utf-8'?>
 ```
+
 
 ## The root element &lt;knora&gt;
 
@@ -38,9 +38,9 @@ The `<knora>` element may look as follows:
 ```
 
 The `<knora>` element can only contain the following sub-elements:
-
 - `<permissions>` (optional)
 - `<resource>`
+
 
 ## Describing permissions with &lt;permissions&gt; elements
 
@@ -98,6 +98,7 @@ permission `special-permission` can only be viewed by `ProjectAdmin`s:
 
 Note: The permissions defined in the XML are applied to resources that are created. But only project or system administrators
 do have the permission to create resources via the XML upload.
+
 
 ### The &lt;allow&gt; sub-element
 
@@ -212,9 +213,9 @@ Example for a property element of type text (`<text-prop>`) with two value eleme
 </text-prop>
 ```
 
-| ⚠ Look out                                                                                                                                     |
-| :--------------------------------------------------------------------------------------------------------------------------------------------- |
-| In case of a cardinality 1-n, multiple `<text>` tags have to be created inside the `<text-prop>` tag (do not use multiple `<text-prop>` tags). |
+| ⚠ Look out                                                                                                                                         |
+|:---------------------------------------------------------------------------------------------------------------------------------------------------|
+| In case of a cardinality 1-n, multiple `<text>` tags have to be created inside the `<text-prop>` tag (do not use multiple `<text-prop>` tags).     |
 
 The following property elements exist:
 
@@ -235,6 +236,7 @@ The following property elements exist:
 - `<time-prop>`: contains time values
 - `<uri-prop>`: contains URI values
 
+
 ### &lt;bitstream&gt;
 
 The `<bitstream>` element is used for bitstream data. It contains the path to a bitstream object like an image file, a
@@ -242,26 +244,23 @@ ZIP container, an audio file etc. It must only be used if the resource is a `Sti
 `AudioRepresentation`, a `DocumentRepresentation` etc.
 
 Note:
-
 - There is only _one_ `<bitstream>` element allowed per representation!
 - The `<bitstream>` element must be the first element!
 
 Attributes:
-
 - `permissions` : ID or a permission set (optional, but if omitted, very restricted default permissions apply)
 
 Example:
-
 ```xml
 <bitstream permissions="prop-restricted">postcards/images/EURUS015a.jpg</bitstream>
 ```
+
 
 ### &lt;boolean-prop&gt;
 
 The `<boolean-prop>` element is used for boolean values. It must contain exactly one `<boolean>` element.
 
 Attributes:
-
 - `name`: name of the property as defined in the ontology (required)
 
 
@@ -270,12 +269,10 @@ Attributes:
 The `<boolean>` element must contain the string "true" or "false", or the numeral 1 (true) or 0 (false).
 
 Attributes:
-
 - `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
-
 ```xml
 <boolean-prop name=":hasBoolean">
   <boolean>true</boolean>
@@ -294,8 +291,8 @@ Example:
 The `<color-prop>` element is used for color values. It must contain at least one `<color>` element.
 
 Attributes:
-
 - `name`: name of the property as defined in the ontology (required)
+
 
 #### &lt;color&gt;
 
@@ -303,12 +300,10 @@ The `<color>` element is used to indicate a color value. The color has to be giv
 followed by 3 or 6 hex numerals.
 
 Attributes:
-
 - `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 A property with two color values would be defined as follows:
-
 ```xml
 <color-prop name=":hasColor">
     <color>#00ff66</color>
@@ -316,13 +311,14 @@ A property with two color values would be defined as follows:
 </color-prop>
 ```
 
+
 ### &lt;date-prop&gt;
 
 The `<date-prop>` element is used for date values. It must contain at least one `<date>` element.
 
 Attributes:
-
 - `name`: name of the property as defined in the ontology (required)
+
 
 #### &lt;date&gt;
 
@@ -342,12 +338,10 @@ If two dates are provided, the date is defined as range between the two dates. I
 it _month_, if also the month is omitted, the precision is _year_.
 
 Attributes:
-
 - `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
-
 ```xml
 <date-prop name=":hasDate">
   <date>GREGORIAN:CE:2014-01-31</date>
@@ -360,30 +354,30 @@ Example:
 </date-prop>
 ```
 
+
 ### &lt;decimal-prop&gt;
 
 The `<decimal-prop>` element is used for decimal values. It must contain at least one `<decimal>` element.
 
 Attributes:
-
 - `name`: name of the property as defined in the ontology (required)
+
 
 #### &lt;decimal&gt;
 
 The `<decimal>` element contains a decimal number.
 
 Attributes:
-
 - `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
-
 ```xml
 <decimal-prop name=":hasDecimal">
   <decimal>3.14159</decimal>
 </decimal-prop>
 ```
+
 
 ### &lt;geometry-prop&gt;
 
@@ -391,12 +385,11 @@ The `<geometry-prop>` element is used for a geometric definition of a 2-D region
 contain at least one `<geometry>` element.
 
 Note:
-
 - Usually these are not created by an import and should be used with caution!
 
 Attributes:
-
 - `name`: name of the property as defined in the ontology (required)
+
 
 #### &lt;geometry&gt;
 
@@ -438,9 +431,9 @@ Example of a `<geometry>` element:
 ```
 
 Attributes:
-
 - `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
+
 
 ### &lt;geoname-prop&gt;
 
@@ -448,25 +441,24 @@ The `<geoname-prop>` element is used for values that contain a [geonames.org](ht
 at least one `<geoname>` element.
 
 Attributes:
-
 - `name`: name of the property as defined in the ontology (required)
+
 
 #### &lt;geoname&gt;
 
 Contains a valid [geonames.org](http://geonames.org) ID.
 
 Attributes:
-
 - `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example (city of Vienna):
-
 ```xml
 <geoname-prop name=":hasLocation">
   <geoname>2761369</geoname>
 </geoname-prop>
 ```
+
 
 ### &lt;list-prop&gt;
 
@@ -475,26 +467,25 @@ attribute that was given when creating the list nodes (which must be unique with
 one `<list>` element.
 
 Attributes:
-
 - `name`: name of the property as defined in the ontology (required)
 - `list`: name of the list as defined in the ontology (required)
+
 
 #### &lt;list&gt;
 
 The `<list>` element references a node in a (pull-down or hierarchical) list.
 
 Attributes:
-
 - `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
-
 ```xml
 <list-prop list="category" name=":hasCategory">
   <list>physics</list>
 </list-prop>
 ```
+
 
 ### &lt;iconclass-prop&gt; (_not yet implemented_)
 
@@ -505,50 +496,48 @@ For example: `92E112` stands
 for `(story of) Aurora (Eos); 'Aurora' (Ripa) - infancy, upbringing Aurora · Ripa · air · ancient history · child · classical antiquity · goddess · gods · heaven · history · infancy · mythology · sky · upbringing · youth`
 
 Attributes:
-
 - `name`: name of the property as defined in the ontology (required)
+
 
 #### &lt;iconclass&gt; (_not yet implemented_)
 
 References an [iconclass.org](https://iconclass.org) ID.
 
-Attributes:
-
+Attributes
 - `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Usage:
-
 ```xml
 <iconclass-prop name=":hasIcon">
   <iconclass>92E112</iconclass>
 </iconclass-prop>
 ```
 
+
 ### &lt;integer-prop&gt;
 
 The `<integer-prop>` element is used for integer values. It must contain at least one `<integer>` element.
 
 Attributes:
-
 - `name`: name of the property as defined in the ontology (required)
+
 
 #### &lt;integer&gt;
 
 The `<integer>` element contains an integer value.
 
 Attributes:
-
 - `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
-
 ```xml
 <integer-prop name=":hasInteger">
   <integer>4711</integer>
 </integer-prop>
 ```
+
 
 ### &lt;interval-prop&gt;
 
@@ -556,8 +545,8 @@ The `<interval-prop>` element is used for intervals with a start and an end poin
 An `<interval-prop>`  must contain at least one `<interval>` element.
 
 Attributes:
-
 - `name`: name of the property as defined in the ontology (required)
+
 
 #### &lt;interval&gt;
 
@@ -566,12 +555,10 @@ The `<interval>` element contains two decimals separated by a colon (`:`). The p
 seconds, and the places after the decimal points are fractions of a second.
 
 Attributes:
-
 - `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
-
 ```xml
 <interval-prop name=":hasInterval">
   <interval>60.5:120.5</interval>          <!-- 0:01:00.5 - 0:02:00.5 -->
@@ -579,13 +566,14 @@ Example:
 </interval-prop>
 ```
 
+
 ### &lt;resptr-prop&gt;
 
 The `<resptr-prop>` element is used to link other resources within DSP. It must contain at least one `<resptr>` element.
 
 Attributes:
-
 - `name`: name of the property as defined in the ontology (required)
+
 
 #### &lt;resptr&gt;
 
@@ -594,12 +582,10 @@ existing resource on DSP. Inside the same XML file, a mixture of the two is not 
 resources, `xmlupload --incremental` has to be used.
 
 Attributes:
-
 - `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
-
 If there is a resource defined as `<resource label="EURUS015a" restype=":Postcard" id="238807">...</resource>`, it can
 be referenced as:
 
@@ -609,12 +595,12 @@ be referenced as:
 </resptr-prop>
 ```
 
+
 ### &lt;text-prop&gt;
 
 The `<text-prop>` element is used for text values. It must contain at least one `<text>` element.
 
 Attributes:
-
 - `name`: name of the property as defined in the ontology (required)
 
 
@@ -646,7 +632,7 @@ An example for simple text:
 ```
 
 If your text is very long, it is not advised to add XML-"pretty-print" whitespaces after line breaks. These 
-whitespaces will be taken into the text field as they are.
+whitespaces will be taken into the text field as they are
 
 
 #### Text with markup (XML)
@@ -672,8 +658,8 @@ conform to the special format `IRI:[res-id]:IRI` where [res-id] is the resource 
 The `<time-prop>` element is used for time values. It must contain at least one `<time>` element.
 
 Attributes:
-
 - `name`: name of the property as defined in the ontology (required)
+
 
 #### &lt;time&gt;
 
@@ -708,12 +694,10 @@ The timezone is defined as follows:
   for the time zone is equivalent to specifying +00:00 or -00:00.
 
 Attributes:
-
 - `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
-
 ```xml
 <time-prop name=":hasTime">
   <time>2019-10-23T13:45:12Z</time>
@@ -728,25 +712,24 @@ The following value indicates noon on October 10, 2009, Eastern Standard Time in
 </time-prop>
 ```
 
+
 ### &lt;uri-prop&gt;
 
 The `<uri-prop>` element is used for referencing resources with a URI. It must contain at least one `<uri>` element.
 
 Attributes:
-
 - `name`: name of the property as defined in the ontology (required)
+
 
 #### &lt;uri&gt;
 
 The `<uri>` element contains a syntactically valid URI.
 
 Attributes:
-
 - `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
-
 ```xml
 <uri-prop name=":hasURI">
    <uri>http://www.groove-t-gang.ch</uri>
@@ -772,6 +755,7 @@ To do an incremental XML upload, one of the following procedures is recommended.
 
 - Incremental XML Upload with the use of IRIs: Use IRIs in the XML to reference existing data on the DSP server.
 
+
 ## Complete example
 
 ```xml
@@ -785,13 +769,14 @@ To do an incremental XML upload, one of the following procedures is recommended.
 
     <!-- permissions: see https://docs.dasch.swiss/DSP-API/05-internals/design/api-admin/administration/#permissions -->
     <permissions id="res-default">
-        <allow group="UnknownUser">RV</allow>
+        <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
         <allow group="Creator">CR</allow>
         <allow group="ProjectAdmin">CR</allow>
         <allow group="anything:Thing searcher">D</allow>
     </permissions>
     <permissions id="res-restricted">
+        <allow group="UnknownUser">RV</allow>
         <allow group="KnownUser">V</allow>
         <allow group="Creator">CR</allow>
         <allow group="ProjectAdmin">CR</allow>
@@ -805,6 +790,7 @@ To do an incremental XML upload, one of the following procedures is recommended.
         <allow group="anything:Thing searcher">D</allow>
     </permissions>
     <permissions id="prop-restricted">
+        <allow group="UnknownUser">RV</allow>
         <allow group="KnownUser">V</allow>
         <allow group="Creator">CR</allow>
         <allow group="ProjectAdmin">CR</allow>

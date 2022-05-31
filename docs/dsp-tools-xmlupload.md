@@ -8,6 +8,7 @@ standard XML file as described on this page. After a successful upload of the da
 uniquely identify them inside DSP. This file should be kept if data is later added with the `--incremental` [option](#incremental-xml-upload).
 
 The import file must start with the standard XML header:
+
 ```xml
 <?xml version='1.0' encoding='utf-8'?>
 ```
@@ -540,7 +541,7 @@ Attributes:
 
 References an [iconclass.org](https://iconclass.org) ID.
 
-Attributes
+Attributes:
 
 - `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
@@ -681,7 +682,7 @@ An example for simple text:
 ```
 
 If your text is very long, it is not advised to add XML-"pretty-print" whitespaces after line breaks. These 
-whitespaces will be taken into the text field as they are
+whitespaces will be taken into the text field as they are.
 
 
 #### Text with markup (XML)

@@ -48,23 +48,23 @@ The DSP server provides access control for each resource and each field of a res
 thorough explanation of the permission and access system of the DSP platform, see
 [DSP platform permissions](https://docs.knora.org/02-knora-ontologies/knora-base/#permissions).
 
-It is optional to define permissions in the XML. If not defined, default permissions are applied: Only project and 
+It is optional to define permissions in the XML. If not defined, default permissions are applied, so that only project and 
 system administrators can view and edit resources. All other users have no rights at all, not even `RV`.
 
-The following access rights are defined by the DSP platform which apply to either a resource or a field:
+The following access rights are defined by the DSP platform:
 
 - (no right): If no permission is defined for a certain group of users, these users cannot view any resources/values.
 - `RV` _restricted view permission_: Same as `V`, but if it is applied to an image, the image is shown with a reduced resolution or with a watermark overlay.
-- `V` _view permission_: The user can view a resource or a value, but can not modify it.
-- `M` _modifiy permission_: The user may modify the element, but may mark it as deleted. The original resource or value will be preserved.
+- `V` _view permission_: The user can view a resource or a value, but cannot modify it.
+- `M` _modifiy permission_: The user can modify the element, but cannot mark it as deleted. The original resource or value will be preserved.
 - `D` _delete permission_: The user is allowed to mark an element as deleted. The original resource or value will be preserved.
 - `CR` _change right permission_: The user can change the permission of a resource or value. The user is also allowed to permanently delete (erase) a resource.
 
-The user does not hold the permissions directly, but may belong to an arbitrary number of groups which hold the
+The user does not hold the permissions directly, but belongs to an arbitrary number of groups which hold the
 permissions. By default, the following groups always exist, and each user belongs to at least one of them:
 
 - `UnknownUser`: The user is not known to the DSP platform (not logged in).
-- `KnownUser`: The user is known (performed login), but is not a member of the project the data element belongs to.
+- `KnownUser`: The user is known (logged in), but is not a member of the project the data element belongs to.
 - `ProjectMember`: The user belongs to the same project as the data element.
 - `ProjectAdmin`: The user is project administrator in the project the data element belongs to.
 - `Creator`: The user is the owner of the element (created the element).
@@ -74,8 +74,7 @@ In addition, more groups with arbitrary names can be created by a project admin.
 name has to be prepended before the group name, separated by a colon, e.g. `dsp-test:MlsEditors`.
 
 A `<permissions>` element contains the permissions given to the selected groups and is called a _permission set_. It has
-a mandatory attribute `id` and must contain at least one `<allow>` element per group indicating the group's permission.
-The permission is referenced inside the resource or property tag by its `id`. It is of the following form:
+a mandatory attribute `id` and must contain at least one `<allow>` element:
 
 ```xml
 <permissions id="res-default">
@@ -96,8 +95,8 @@ permission `special-permission` can only be viewed by `ProjectAdmin`s:
 </permissions>
 ```
 
-Note: The permissions defined in the XML are applied to resources that are created. But only project or system administrators
-do have the permission to create resources via the XML upload.
+Note: The permissions defined in the XML are applied to resources that are created. But only project or system 
+administrators have the permission to create resources via the XML upload.
 
 
 ### The &lt;allow&gt; sub-element
@@ -108,11 +107,13 @@ The `<allow>` element is used to define the permission for a specific group. It 
 <allow group="ProjectAdmin">CR</allow>
 ```
 
-The allowed values are described above.
+The values `CR` etc. are described above.
 
-The `group` attribute is mandatory. It defines the group which the permission is applied to. DSP system groups as
-well as project specific groups are supported. A project specific group name has the form `project-shortname:groupname`.
-The available system groups are described above. There are no sub-elements allowed for the `<allow>` element.
+The `group` attribute is mandatory. It defines the group which the permission is applied to. In addition to the DSP 
+system groups, project specific groups are supported as well. A project specific group name has the form 
+`project-shortname:groupname`. The available system groups are described above. 
+
+There are no sub-elements allowed for the `<allow>` element.
 
 
 ### Example of a permissions section
@@ -161,19 +162,30 @@ A complete `<permissions>` section may look as follows:
 
 Based on the permissions section of the above example, there are different ways how to grant permissions to a resource
 and its properties. It is important to note that a resource doesn't inherit its permissions to its properties. Each 
-property must have its own permissions. So, in the example below, the bitstreams don't inherit anything from their 
-resource.
- - With `permissions="prop-default"`, a logged-in user who is not member of the project has `V` rights on the image.
- - With `permissions="prop-restricted"`, a logged-in user who is not member of the project has `RV` rights on the image.
- - With a blank `<bitstream>` tag, a logged-in user who is not member of the project has no rights on the image, he cannot 
-even view it.
+property must have its own permissions. So, in the following example, the bitstreams don't inherit anything from their 
+resource:
 
-Example:
 ```xml
-<bitstream permissions="prop-default">postcards/images/EURUS015a.jpg</bitstream>
-<bitstream permissions="prop-restricted">postcards/images/EURUS015a.jpg</bitstream>
-<bitstream>postcards/images/EURUS015a.jpg</bitstream>
+<resource ...>
+    <bitstream permissions="prop-default">
+        postcards/images/EURUS015a.jpg
+    </bitstream>
+</resource>
+<resource ...>
+    <bitstream permissions="prop-restricted">
+        postcards/images/EURUS015a.jpg
+    </bitstream>
+</resource>
+<resource ...>
+    <bitstream>
+        postcards/images/EURUS015a.jpg
+    </bitstream>
+</resource>
 ```
+
+ - With `permissions="prop-default"`, a logged-in user who is not member of the project has `V` rights on the image: Normal view.
+ - With `permissions="prop-restricted"`, a logged-in user who is not member of the project has `RV` rights on the image: Blurred image.
+ - With a blank `<bitstream>` tag, a logged-in user who is not member of the project has no rights on the image: No view possible.
 
 
 ## Describing resources with the &lt;resource&gt; element

@@ -906,15 +906,11 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     failed_uploads: list[str] = []
 
     try:
-        upload_resources(verbose, resources, imgdir, sipi_server, permissions_lookup, resclass_name_2_type, res_iri_lookup, con, failed_uploads)
-    except requests.exceptions.ConnectionError as err:
+        upload_resources(verbose, resources, imgdir, sipi_server, permissions_lookup,
+                         resclass_name_2_type, res_iri_lookup, con, failed_uploads)
+    except BaseException as err:
         handle_upload_error(err, input_file, res_iri_lookup, failed_uploads, stashed_xml_texts, stashed_resptr_props)
-        # exit(1)
-    except ConnectionError as err:
-        handle_upload_error(err, input_file, res_iri_lookup, failed_uploads, stashed_xml_texts, stashed_resptr_props)
-        # exit(1)
-    # what is with org.knora.webapi.exceptions.SipiException ?
-    #TODO: Hier eher die allgemeinen Fehler abfangen. Im try_sipi_upload eher die spezifischen
+        exit(1)
 
     # update the resources with the stashed XML texts
     if len(stashed_xml_texts) > 0:
@@ -930,11 +926,13 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
 
 def try_sipi_upload(sipi_server: Sipi, filepath: str) -> dict[Any, Any]:
+    img = None
     for _ in range(20):
         try:
             img = sipi_server.upload_bitstream(filepath)
             break
-        except:
+        except BaseException:
+            print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server (SIPI)...')
             time.sleep(1)
             continue
     if img:

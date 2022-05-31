@@ -968,32 +968,34 @@ def upload_resources(
 
         permissions_tmp = permissions_lookup.get(resource.permissions)
 
-        try:
-            # create a resource instance (ResourceInstance) from the given resource in the XML (XMLResource)
-            resclass_type = resclass_name_2_type[resource.restype]
-            properties = resource.get_propvals(res_iri_lookup, permissions_lookup)
-            resclass_instance: ResourceInstance = resclass_type(
-                con=con,
-                label=resource.label,
-                iri=resource_iri,
-                permissions=permissions_tmp,
-                bitstream=resource_bitstream,
-                values=properties
-            )
-            resclass_instance = resclass_instance.create()
-        except BaseError as err:
-            print(f"ERROR while trying to create resource '{resource.label}' ({resource.id}). "
-                  f"The error message was: {err.message}")
-            failed_uploads.append(resource.id)
-            continue
-        except Exception as exception:
-            print(f"EXCEPTION while trying to create resource '{resource.label}' ({resource.id}). "
-                  f"The exception message was: {exception}")
-            failed_uploads.append(resource.id)
-            continue
+        resclass_instance = None
 
-        res_iri_lookup[resource.id] = resclass_instance.iri
-        print(f"Created resource '{resclass_instance.label}' ({resource.id}) with IRI '{resclass_instance.iri}'")
+        for _ in range(20):
+            try:
+                # create a resource instance (ResourceInstance) from the given resource in the XML (XMLResource)
+                resclass_type = resclass_name_2_type[resource.restype]
+                properties = resource.get_propvals(res_iri_lookup, permissions_lookup)
+                resclass_instance: ResourceInstance = resclass_type(
+                    con=con,
+                    label=resource.label,
+                    iri=resource_iri,
+                    permissions=permissions_tmp,
+                    bitstream=resource_bitstream,
+                    values=properties
+                )
+                resclass_instance = resclass_instance.create()
+                break
+            except BaseError:
+                print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
+                time.sleep(1)
+                continue
+
+        if not resclass_instance:
+            print(f"ERROR while trying to create resource '{resource.label}' ({resource.id}). ")
+            failed_uploads.append(resource.id)
+        else:
+            res_iri_lookup[resource.id] = resclass_instance.iri
+            print(f"Created resource '{resclass_instance.label}' ({resource.id}) with IRI '{resclass_instance.iri}'")
 
 
 def update_stashed_xml_texts(

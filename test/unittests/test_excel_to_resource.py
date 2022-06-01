@@ -9,6 +9,10 @@ from knora.dsplib.utils import excel_to_json_resources as e2j
 
 class TestExcelToResource(unittest.TestCase):
 
+    def setUp(self) -> None:
+        """Is executed before each test"""
+        os.makedirs('testdata/tmp', exist_ok=True)
+
     def test_excel2json(self) -> None:
         in_file = "testdata/Resources.xlsx"
         out_file = "testdata/tmp/_out_res.json"

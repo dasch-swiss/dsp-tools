@@ -7,7 +7,7 @@
         "langstring": {
             "type": "object",
             "patternProperties": {
-                "^(en|de|fr|it)": {
+                "^(en|de|fr|it|rm)$": {
                     "type": "string"
                 }
             },

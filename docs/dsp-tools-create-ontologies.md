@@ -541,7 +541,7 @@ Represents an URI
 
 #### GeonameValue
 
-Represents a location ID in geonames.org. The DSP platform uses identifiers provided by
+Represents a location ID in geonames.org. DSP uses identifiers provided by
 [geonames.org](https://geonames.orgs) to identify geographical locations.
 
 *gui-elements / gui_attributes*:

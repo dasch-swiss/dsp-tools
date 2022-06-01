@@ -47,13 +47,13 @@ The `<knora>` element can only contain the following sub-elements:
 ## Describing permissions with &lt;permissions&gt; elements
 
 The DSP server provides access control for each resource and each field of a resource through permissions. For a
-thorough explanation of the permission and access system of the DSP platform, see
-[DSP platform permissions](https://docs.knora.org/02-knora-ontologies/knora-base/#permissions).
+thorough explanation of the permission and access system of DSP, see
+[DSP permissions](https://docs.knora.org/02-knora-ontologies/knora-base/#permissions).
 
 It is optional to define permissions in the XML. If not defined, default permissions are applied, so that only project and 
 system administrators can view and edit resources. All other users have no rights at all, not even `RV`.
 
-The following access rights are defined by the DSP platform:
+The following access rights are defined by DSP:
 
 - (no right): If no permission is defined for a certain group of users, these users cannot view any resources/values.
 - `RV` _restricted view permission_: Same as `V`, but if it is applied to an image, the image is shown with a reduced resolution or with a watermark overlay.
@@ -65,7 +65,7 @@ The following access rights are defined by the DSP platform:
 The user does not hold the permissions directly, but belongs to an arbitrary number of groups which hold the
 permissions. By default, the following groups always exist, and each user belongs to at least one of them:
 
-- `UnknownUser`: The user is not known to the DSP platform (not logged in).
+- `UnknownUser`: The user is not known to DSP (not logged in).
 - `KnownUser`: The user is known (logged in), but is not a member of the project the data element belongs to.
 - `ProjectMember`: The user belongs to the same project as the data element.
 - `ProjectAdmin`: The user is project administrator in the project the data element belongs to.

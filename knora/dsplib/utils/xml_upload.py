@@ -880,6 +880,9 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     # temporarily remove circular references, but only if not an incremental upload
     if not incremental:
         resources, stashed_xml_texts, stashed_resptr_props = remove_circular_references(resources, verbose)
+    else:
+        stashed_xml_texts = dict()
+        stashed_resptr_props = dict()
 
     sipi_server = Sipi(sipi, con.get_token())
 

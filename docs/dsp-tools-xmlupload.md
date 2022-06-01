@@ -264,7 +264,7 @@ Note:
 
 Attributes:
 
-- `permissions` : ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions` : Permission ID (optional, but if omitted, very restricted default permissions apply)
 
 Example:
 
@@ -288,7 +288,7 @@ The `<boolean>` element must contain the string "true" or "false", or the numera
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -322,7 +322,7 @@ followed by 3 or 6 hex numerals.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 A property with two color values would be defined as follows:
@@ -362,7 +362,7 @@ it _month_, if also the month is omitted, the precision is _year_.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -395,7 +395,7 @@ The `<decimal>` element contains a decimal number.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -462,7 +462,7 @@ Example of a `<geometry>` element:
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 
@@ -482,7 +482,7 @@ Contains a valid [geonames.org](http://geonames.org) ID.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example (city of Vienna):
@@ -512,7 +512,7 @@ The `<list>` element references a node in a (pull-down or hierarchical) list.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -543,7 +543,7 @@ References an [iconclass.org](https://iconclass.org) ID.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Usage:
@@ -570,7 +570,7 @@ The `<integer>` element contains an integer value.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -600,7 +600,7 @@ seconds, and the places after the decimal points are fractions of a second.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -630,7 +630,7 @@ resources, `xmlupload --incremental` has to be used.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -662,7 +662,7 @@ The `<text>` element has the following attributes:
     - `utf8`: The element describes a simple text without markup. The text is a simple UTF-8 string.
     - `xml`: The element describes a complex text containing markup. It must follow the XML format as defined by the
     [DSP standard mapping](https://docs.knora.org/03-apis/api-v1/xml-to-standoff-mapping/).
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 There are two variants of text: Simple (UTF8) and complex (XML). Within a text property, multiple simple and 
@@ -746,7 +746,7 @@ The timezone is defined as follows:
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -781,7 +781,7 @@ The `<uri>` element contains a syntactically valid URI.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:

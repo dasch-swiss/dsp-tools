@@ -54,7 +54,7 @@ class Group(Model):
         Name of the group
 
     descriptions : LangString
-        Group descriptions in a given language (Languages.EN, Languages.DE, Languages.FR, Languages.IT).
+        Group descriptions in a given language (Languages.EN, Languages.DE, Languages.FR, Languages.IT, Languages.RM).
 
     project : str | project
         either the IRI of a project [get only, cannot be modified after creation of instance]

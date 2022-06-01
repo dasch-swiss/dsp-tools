@@ -66,7 +66,7 @@ lists.json
 out.json
 id2iri_*
 **/~$*.*
-testdata/tmp
+testdata/tmp/
 testdata/test-list.json
 
 # for testing in development

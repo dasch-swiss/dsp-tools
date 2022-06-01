@@ -29,6 +29,7 @@ class TestTools(unittest.TestCase):
         """Is executed before each test"""
         excel_to_json_lists.list_of_lists = []
         excel_to_json_lists.cell_names = []
+        os.makedirs('testdata/tmp', exist_ok=True)
 
     def tearDown(self) -> None:
         """Is executed after each test"""

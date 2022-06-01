@@ -51,7 +51,7 @@ thorough explanation of the permission and access system of DSP, see
 [DSP permissions](https://docs.knora.org/02-knora-ontologies/knora-base/#permissions).
 
 It is optional to define permissions in the XML. If not defined, default permissions are applied, so that only project and 
-system administrators can view and edit resources. All other users have no rights at all, not even `RV`.
+system administrators can view and edit resources. All other users have no rights at all, not even view or restricted view permissions.
 
 The following access rights are defined by DSP:
 
@@ -164,7 +164,7 @@ A complete `<permissions>` section may look as follows:
 
 Based on the permissions section of the above example, there are different ways how to grant permissions to a resource
 and its properties. It is important to note that a resource doesn't inherit its permissions to its properties. Each 
-property must have its own permissions. So, in the following example, the bitstreams don't inherit anything from their 
+property must have its own permissions. So, in the following example, the bitstreams don't inherit the permissions from their 
 resource:
 
 ```xml

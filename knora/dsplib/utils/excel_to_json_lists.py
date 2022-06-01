@@ -220,26 +220,6 @@ def simplify_name(value: str) -> str:
     return simplified_value
 
 
-def check_language_code(lang_code: str) -> bool:
-    """
-    Checks if a given language code is valid. The code is valid if it is listed in language-codes-3b2_csv.csv. This
-    file provides all ISO 639-1 and ISO 639-2 language codes.
-
-    Args:
-        lang_code: the language code to be checked
-
-    Returns:
-        True if valid, False if not
-    """
-    current_dir = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(current_dir, 'language-codes-3b2_csv.csv'), 'r') as language_codes_file:
-        language_codes = csv.reader(language_codes_file, delimiter=',')
-        for row in language_codes:
-            if lang_code in row:
-                return True
-    return False
-
-
 def make_root_node_from_args(
     excelfiles: list[str],
     listname_from_args: Optional[str],
@@ -264,9 +244,8 @@ def make_root_node_from_args(
         basename = os.path.basename(filename)
         lang_specific_listname, lang_code = os.path.splitext(basename)[0].rsplit('_', 1)
 
-        if not check_language_code(lang_code):
-            print(f'Invalid language code "{lang_code}" is used. Only language codes from ISO 639-1 ',
-                  f'and ISO 639-2 are accepted.')
+        if lang_code not in ['en', 'de', 'fr', 'it', 'rm']:
+            print(f'Invalid language code "{lang_code}" is used. Only en, de, fr, it, and rm are accepted.')
             quit()
 
         listname_from_lang_code[lang_code] = lang_specific_listname

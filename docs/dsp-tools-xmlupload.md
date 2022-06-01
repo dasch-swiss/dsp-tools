@@ -13,6 +13,7 @@ The import file must start with the standard XML header:
 <?xml version='1.0' encoding='utf-8'?>
 ```
 
+
 ## The root element &lt;knora&gt;
 
 The `<knora>` element describes all resources that should be imported. It has the following attributes:
@@ -42,29 +43,30 @@ The `<knora>` element can only contain the following sub-elements:
 - `<permissions>` (optional)
 - `<resource>`
 
+
 ## Describing permissions with &lt;permissions&gt; elements
 
 The DSP server provides access control for each resource and each field of a resource through permissions. For a
-thorough explanation of the permission and access system of the DSP platform, see
-[DSP platform permissions](https://docs.knora.org/02-knora-ontologies/knora-base/#permissions).
+thorough explanation of the permission and access system of DSP, see
+[DSP permissions](https://docs.knora.org/02-knora-ontologies/knora-base/#permissions).
 
-It is optional to define permissions in the XML. If not defined, default permissions are applied (only project and 
-system administrators can view and edit resources).
+It is optional to define permissions in the XML. If not defined, default permissions are applied, so that only project and 
+system administrators can view and edit resources. All other users have no rights at all, not even view or restricted view permissions.
 
-The following access rights are defined by the DSP platform which apply to either a resource or a field:
+The following access rights are defined by DSP:
 
-- `RV` _restricted view permission_: The user gets only a restricted view of the element. E.g. in case of a still image
-  resource, the image is displayed at reduced resolution or with a watermark overlay.
-- `V` _view permission_: The user has read access to the element.
-- `M` _modifiy permission_: The user may modify the element, but may not delete it.
-- `D` _delete permission_: The user is allowed to delete the element.
-- `CR` _change right permission_: The user may change the permission of the element.
+- (no right): If no permission is defined for a certain group of users, these users cannot view any resources/values.
+- `RV` _restricted view permission_: Same as `V`, but if it is applied to an image, the image is shown with a reduced resolution or with a watermark overlay.
+- `V` _view permission_: The user can view a resource or a value, but cannot modify it.
+- `M` _modifiy permission_: The user can modify the element, but cannot mark it as deleted. The original resource or value will be preserved.
+- `D` _delete permission_: The user is allowed to mark an element as deleted. The original resource or value will be preserved.
+- `CR` _change right permission_: The user can change the permission of a resource or value. The user is also allowed to permanently delete (erase) a resource.
 
-The user does not hold the permissions directly, but may belong to an arbitrary number of groups which hold the
+The user does not hold the permissions directly, but belongs to an arbitrary number of groups which hold the
 permissions. By default, the following groups always exist, and each user belongs to at least one of them:
 
-- `UnknownUser`: The user is not known to the DSP platform (not logged in).
-- `KnownUser`: The user is known (performed login), but is not a member of the project the data element belongs to.
+- `UnknownUser`: The user is not known to DSP (not logged in).
+- `KnownUser`: The user is known (logged in), but is not a member of the project the data element belongs to.
 - `ProjectMember`: The user belongs to the same project as the data element.
 - `ProjectAdmin`: The user is project administrator in the project the data element belongs to.
 - `Creator`: The user is the owner of the element (created the element).
@@ -74,8 +76,7 @@ In addition, more groups with arbitrary names can be created by a project admin.
 name has to be prepended before the group name, separated by a colon, e.g. `dsp-test:MlsEditors`.
 
 A `<permissions>` element contains the permissions given to the selected groups and is called a _permission set_. It has
-a mandatory attribute `id` and must contain at least one `<allow>` element per group indicating the group's permission.
-The permission is referenced inside the resource or property tag by its `id`. It is of the following form:
+a mandatory attribute `id` and must contain at least one `<allow>` element:
 
 ```xml
 <permissions id="res-default">
@@ -87,8 +88,8 @@ The permission is referenced inside the resource or property tag by its `id`. It
 </permissions>
 ```
 
-If you don't want a group to have access at all, leave it out. In the following example, only `ProjectAdmin`s will see
-the resource or property with permission `special-permission`:
+If you don't want a group to have access at all, leave it out. In the following example, resources or properties with 
+permission `special-permission` can only be viewed by `ProjectAdmin`s:
 
 ```xml
 <permissions id="special-permission">
@@ -96,8 +97,9 @@ the resource or property with permission `special-permission`:
 </permissions>
 ```
 
-Note: The permissions defined in the XML are applied to resources that are created. But only project or system administrators
-do have the permission to create resources via the XML upload.
+Note: The permissions defined in the XML are applied to resources that are created. But only project or system 
+administrators have the permission to create resources via the XML upload.
+
 
 ### The &lt;allow&gt; sub-element
 
@@ -107,29 +109,16 @@ The `<allow>` element is used to define the permission for a specific group. It 
 <allow group="ProjectAdmin">CR</allow>
 ```
 
-The allowed values are:
+The values `CR` etc. are described above.
 
-- `RV` _restricted view_: Same as `V` but if it is applied to an image, the image is shown blurred.
-- `V` _view_: The user can view a resource or a value, but can not modify it.
-- `M` _modify_: The user can modify a resource or value, but can not delete it. The original resource or value will be preserved.
-- `D` _delete_: The user can mark a resource or value as deleted. The original resource or value will be preserved.
-- `CR` _change right_: The user can change the permission of a resource or value. The user is also allowed to 
-  permanently delete (erase) a resource.
-
-The `group` attribute is mandatory. It defines the group which the permission is applied to. DSP system groups as
-well as project specific groups are supported. A project specific group name has the form `project-shortname:groupname`.
-The available system groups are:
-
-- UnknownUser (not logged in user)
-- KnownUser (logged in user)
-- ProjectMember (user with project membership)
-- Creator (creator of the resource or value)
-- ProjectAdmin (user with project admin membership)
-- SystemAdmin (system administrator)
+The `group` attribute is mandatory. It defines the group which the permission is applied to. In addition to the DSP 
+system groups, project specific groups are supported as well. A project specific group name has the form 
+`project-shortname:groupname`. The available system groups are described above. 
 
 There are no sub-elements allowed for the `<allow>` element.
 
-### Example for a permissions section
+
+### Example of a permissions section
 
 A complete `<permissions>` section may look as follows:
 
@@ -162,13 +151,44 @@ A complete `<permissions>` section may look as follows:
   </permissions>
   
   <permissions id="prop-restricted">
-    <allow group="KnownUser">V</allow>
+    <allow group="KnownUser">RV</allow>
     <allow group="Creator">CR</allow>
     <allow group="ProjectAdmin">CR</allow>
   </permissions>
   ...
 </knora>
 ```
+
+
+### How to use the `permissions` attribute in resources/properties
+
+Based on the permissions section of the above example, there are different ways how to grant permissions to a resource
+and its properties. It is important to note that a resource doesn't inherit its permissions to its properties. Each 
+property must have its own permissions. So, in the following example, the bitstreams don't inherit the permissions from their 
+resource:
+
+```xml
+<resource ...>
+    <bitstream permissions="prop-default">
+        postcards/images/EURUS015a.jpg
+    </bitstream>
+</resource>
+<resource ...>
+    <bitstream permissions="prop-restricted">
+        postcards/images/EURUS015a.jpg
+    </bitstream>
+</resource>
+<resource ...>
+    <bitstream>
+        postcards/images/EURUS015a.jpg
+    </bitstream>
+</resource>
+```
+
+ - With `permissions="prop-default"`, a logged-in user who is not member of the project has `V` rights on the image: Normal view.
+ - With `permissions="prop-restricted"`, a logged-in user who is not member of the project has `RV` rights on the image: Blurred image.
+ - With a blank `<bitstream>` tag, a logged-in user who is not member of the project has no rights on the image: No view possible.
+
 
 ## Describing resources with the &lt;resource&gt; element
 
@@ -207,9 +227,9 @@ Example for a property element of type text (`<text-prop>`) with two value eleme
 </text-prop>
 ```
 
-| ⚠ Look out                                                                                                                                     |
-| :--------------------------------------------------------------------------------------------------------------------------------------------- |
-| In case of a cardinality 1-n, multiple `<text>` tags have to be created inside the `<text-prop>` tag (do not use multiple `<text-prop>` tags). |
+| ⚠ Look out                                                                                                                                         |
+|:---------------------------------------------------------------------------------------------------------------------------------------------------|
+| In case of a cardinality 1-n, multiple `<text>` tags have to be created inside the `<text-prop>` tag (do not use multiple `<text-prop>` tags).     |
 
 The following property elements exist:
 
@@ -230,6 +250,7 @@ The following property elements exist:
 - `<time-prop>`: contains time values
 - `<uri-prop>`: contains URI values
 
+
 ### &lt;bitstream&gt;
 
 The `<bitstream>` element is used for bitstream data. It contains the path to a bitstream object like an image file, a
@@ -243,13 +264,14 @@ Note:
 
 Attributes:
 
-- `permissions` : ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions` : Permission ID (optional, but if omitted, very restricted default permissions apply)
 
 Example:
 
 ```xml
 <bitstream permissions="prop-restricted">postcards/images/EURUS015a.jpg</bitstream>
 ```
+
 
 ### &lt;boolean-prop&gt;
 
@@ -266,7 +288,7 @@ The `<boolean>` element must contain the string "true" or "false", or the numera
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -292,6 +314,7 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
+
 #### &lt;color&gt;
 
 The `<color>` element is used to indicate a color value. The color has to be given in web-notation, that is a `#`
@@ -299,17 +322,17 @@ followed by 3 or 6 hex numerals.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 A property with two color values would be defined as follows:
-
 ```xml
 <color-prop name=":hasColor">
     <color>#00ff66</color>
     <color>#ff00ff</color>
 </color-prop>
 ```
+
 
 ### &lt;date-prop&gt;
 
@@ -318,6 +341,7 @@ The `<date-prop>` element is used for date values. It must contain at least one 
 Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
+
 
 #### &lt;date&gt;
 
@@ -338,7 +362,7 @@ it _month_, if also the month is omitted, the precision is _year_.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -355,6 +379,7 @@ Example:
 </date-prop>
 ```
 
+
 ### &lt;decimal-prop&gt;
 
 The `<decimal-prop>` element is used for decimal values. It must contain at least one `<decimal>` element.
@@ -363,13 +388,14 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
+
 #### &lt;decimal&gt;
 
 The `<decimal>` element contains a decimal number.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -379,6 +405,7 @@ Example:
   <decimal>3.14159</decimal>
 </decimal-prop>
 ```
+
 
 ### &lt;geometry-prop&gt;
 
@@ -392,6 +419,7 @@ Note:
 Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
+
 
 #### &lt;geometry&gt;
 
@@ -434,8 +462,9 @@ Example of a `<geometry>` element:
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
+
 
 ### &lt;geoname-prop&gt;
 
@@ -446,13 +475,14 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
+
 #### &lt;geoname&gt;
 
 Contains a valid [geonames.org](http://geonames.org) ID.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example (city of Vienna):
@@ -462,6 +492,7 @@ Example (city of Vienna):
   <geoname>2761369</geoname>
 </geoname-prop>
 ```
+
 
 ### &lt;list-prop&gt;
 
@@ -474,13 +505,14 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 - `list`: name of the list as defined in the ontology (required)
 
+
 #### &lt;list&gt;
 
 The `<list>` element references a node in a (pull-down or hierarchical) list.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -490,6 +522,7 @@ Example:
   <list>physics</list>
 </list-prop>
 ```
+
 
 ### &lt;iconclass-prop&gt; (_not yet implemented_)
 
@@ -503,13 +536,14 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
+
 #### &lt;iconclass&gt; (_not yet implemented_)
 
 References an [iconclass.org](https://iconclass.org) ID.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Usage:
@@ -520,6 +554,7 @@ Usage:
 </iconclass-prop>
 ```
 
+
 ### &lt;integer-prop&gt;
 
 The `<integer-prop>` element is used for integer values. It must contain at least one `<integer>` element.
@@ -528,13 +563,14 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
+
 #### &lt;integer&gt;
 
 The `<integer>` element contains an integer value.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -545,6 +581,7 @@ Example:
 </integer-prop>
 ```
 
+
 ### &lt;interval-prop&gt;
 
 The `<interval-prop>` element is used for intervals with a start and an end point on a timeline, e.g. relative to the beginning of an audio or video file. 
@@ -554,6 +591,7 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
+
 #### &lt;interval&gt;
 
 A time interval is represented by plain decimal numbers (=seconds), without a special notation for minutes and hours. 
@@ -562,7 +600,7 @@ seconds, and the places after the decimal points are fractions of a second.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -574,6 +612,7 @@ Example:
 </interval-prop>
 ```
 
+
 ### &lt;resptr-prop&gt;
 
 The `<resptr-prop>` element is used to link other resources within DSP. It must contain at least one `<resptr>` element.
@@ -581,6 +620,7 @@ The `<resptr-prop>` element is used to link other resources within DSP. It must 
 Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
+
 
 #### &lt;resptr&gt;
 
@@ -590,7 +630,7 @@ resources, `xmlupload --incremental` has to be used.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -603,6 +643,7 @@ be referenced as:
   <resptr>238807</resptr>
 </resptr-prop>
 ```
+
 
 ### &lt;text-prop&gt;
 
@@ -621,7 +662,7 @@ The `<text>` element has the following attributes:
     - `utf8`: The element describes a simple text without markup. The text is a simple UTF-8 string.
     - `xml`: The element describes a complex text containing markup. It must follow the XML format as defined by the
     [DSP standard mapping](https://docs.knora.org/03-apis/api-v1/xml-to-standoff-mapping/).
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 There are two variants of text: Simple (UTF8) and complex (XML). Within a text property, multiple simple and 
@@ -670,6 +711,7 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
+
 #### &lt;time&gt;
 
 The `<time>` element represents an exact datetime value in the form of `yyyy-mm-ddThh:mm:ss.sssssssssssszzzzzz`. The
@@ -704,7 +746,7 @@ The timezone is defined as follows:
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -723,6 +765,7 @@ The following value indicates noon on October 10, 2009, Eastern Standard Time in
 </time-prop>
 ```
 
+
 ### &lt;uri-prop&gt;
 
 The `<uri-prop>` element is used for referencing resources with a URI. It must contain at least one `<uri>` element.
@@ -731,13 +774,14 @@ Attributes:
 
 - `name`: name of the property as defined in the ontology (required)
 
+
 #### &lt;uri&gt;
 
 The `<uri>` element contains a syntactically valid URI.
 
 Attributes:
 
-- `permissions`: ID or a permission set (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -767,6 +811,7 @@ To do an incremental XML upload, one of the following procedures is recommended.
 
 - Incremental XML Upload with the use of IRIs: Use IRIs in the XML to reference existing data on the DSP server.
 
+
 ## Complete example
 
 ```xml
@@ -780,13 +825,14 @@ To do an incremental XML upload, one of the following procedures is recommended.
 
     <!-- permissions: see https://docs.dasch.swiss/DSP-API/05-internals/design/api-admin/administration/#permissions -->
     <permissions id="res-default">
-        <allow group="UnknownUser">RV</allow>
+        <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
         <allow group="Creator">CR</allow>
         <allow group="ProjectAdmin">CR</allow>
         <allow group="anything:Thing searcher">D</allow>
     </permissions>
     <permissions id="res-restricted">
+        <allow group="UnknownUser">RV</allow>
         <allow group="KnownUser">V</allow>
         <allow group="Creator">CR</allow>
         <allow group="ProjectAdmin">CR</allow>
@@ -800,6 +846,7 @@ To do an incremental XML upload, one of the following procedures is recommended.
         <allow group="anything:Thing searcher">D</allow>
     </permissions>
     <permissions id="prop-restricted">
+        <allow group="UnknownUser">RV</allow>
         <allow group="KnownUser">V</allow>
         <allow group="Creator">CR</allow>
         <allow group="ProjectAdmin">CR</allow>

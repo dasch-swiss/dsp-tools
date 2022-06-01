@@ -10,6 +10,7 @@ class Languages(Enum):
     DE = 'de'
     FR = 'fr'
     IT = 'it'
+    RM = 'rm'
 
 
 LangStringParam = Optional[Union[dict[Union[Languages, str], str], str]]
@@ -224,6 +225,8 @@ class LangString:
                 lstrs[Languages.FR] = o.get('@value')
             elif lang == 'it':
                 lstrs[Languages.IT] = o.get('@value')
+            elif lang == 'rm':
+                lstrs[Languages.RM] = o.get('@value')
             else:
                 if o.get('@value') is not None:
                     return cls(o.get('@value'))
@@ -250,6 +253,8 @@ class LangString:
                 lstrs[Languages.FR] = o.get('value')
             elif lang == 'it':
                 lstrs[Languages.IT] = o.get('value')
+            elif lang == 'rm':
+                lstrs[Languages.RM] = o.get('value')
             else:
                 if o.get('value') is not None:
                     return cls(o.get('value'))

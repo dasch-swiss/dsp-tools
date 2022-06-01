@@ -1,20 +1,19 @@
 <?xml version='1.0' encoding='utf-8'?>
 
-<knora xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns="https://dasch.swiss/schema"
-       xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/data.xsd"
-       shortcode="082E"
-       default-ontology="rosetta">
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../knora/dsplib/schemas/data.xsd"
+       shortcode="4123"
+       default-ontology="testonto">
 
     <!-- :permissions see https://docs.dasch.swiss/DSP-API/05-internals/design/api-admin/administration/#permissions -->
     <permissions id="res-default">
-        <allow group="UnknownUser">V</allow>
+        <allow group="UnknownUser">RV</allow>
         <allow group="KnownUser">V</allow>
         <allow group="Creator">CR</allow>
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
     <permissions id="res-restricted">
-        <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
         <allow group="Creator">CR</allow>
         <allow group="ProjectAdmin">CR</allow>
@@ -26,39 +25,25 @@
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
     <permissions id="prop-restricted">
-        <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
         <allow group="Creator">CR</allow>
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
 
-    <!-- :Image2D -->
-    <resource label="Deluge2" restype=":Image2D" id="img_obj_1" permissions="res-default">
-        <bitstream>Images/Danby-deluge.jpg</bitstream>
-        <text-prop name=":hasTitle">
-            <text permissions="prop-default" encoding="utf8">The Deluge</text>
+    <resource label="TestThing2Incremental"
+              restype=":TestThing2"
+              id="TestThing2Incremental">
+        <text-prop name=":hasText">
+            <text encoding="xml">
+                Text with XML standoff link to resource <a class="salsah-link" href="IRI:obj_0000:IRI">obj_0000</a>
+                and <a class="salsah-link" href="IRI:obj_0011:IRI">obj_0011</a>
+            </text>
         </text-prop>
-        <resptr-prop name=":hasCreator">
-            <resptr permissions="prop-default">person_2</resptr>
+        <resptr-prop name=":hasTestThing">
+            <resptr permissions="prop-default">obj_0001</resptr>
+            <resptr permissions="prop-default">obj_0011</resptr>
         </resptr-prop>
-        <date-prop name=":hasDate">
-            <date permissions="prop-default">GREGORIAN:CE:1877:CE:1879</date>
-        </date-prop>
-        <text-prop name=":hasDescription">
-            <text permissions="prop-default" encoding="utf8">Oil paint on canvas.</text>
-        </text-prop>
-        <text-prop name=":hasCopyright">
-            <text permissions="prop-default" encoding="utf8">The Deluge</text>
-        </text-prop>
-        <resptr-prop name=":inInstitution">
-            <resptr permissions="prop-default">institution_2</resptr>
-        </resptr-prop>
-        <geoname-prop name=":hasLocation">
-            <geoname permissions="prop-default" comment="London">6695209</geoname>
-        </geoname-prop>
-        <uri-prop name=":hasExternalLink">
-            <uri permissions="prop-default">https://www.tate.org.uk/art/artworks/danby-the-deluge-t01337</uri>
-        </uri-prop>
     </resource>
+
 
 </knora>

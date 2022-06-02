@@ -34,10 +34,7 @@
               restype=":TestThing2"
               id="TestThing2Incremental">
         <text-prop name=":hasText">
-            <text encoding="xml">
-                Text with XML standoff link to resource <a class="salsah-link" href="IRI:obj_0000:IRI">obj_0000</a>
-                and <a class="salsah-link" href="IRI:obj_0011:IRI">obj_0011</a>
-            </text>
+            <text encoding="xml">Text</text>
         </text-prop>
         <resptr-prop name=":hasTestThing">
             <resptr permissions="prop-default">obj_0001</resptr>

@@ -956,8 +956,6 @@ def try_sipi_upload(sipi_server: Sipi, filepath: str) -> dict[Any, Any]:
             print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server (SIPI)...')
             time.sleep(1)
             continue
-        except BaseException:
-            break
     if img:
         return img
     else:
@@ -985,7 +983,12 @@ def upload_resources(
 
         resource_bitstream = None
         if resource.bitstream:
-            img = try_sipi_upload(sipi_server=sipi_server, filepath=os.path.join(imgdir, resource.bitstream.value))
+            try:
+                img = try_sipi_upload(sipi_server=sipi_server, filepath=os.path.join(imgdir, resource.bitstream.value))
+            except BaseError:
+                print(f"ERROR while trying to create resource '{resource.label}' ({resource.id}). ")
+                failed_uploads.append(resource.id)
+                continue
             internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 

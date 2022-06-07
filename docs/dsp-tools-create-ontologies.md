@@ -80,13 +80,13 @@ The following fields are mandatory:
 
 - `name`
 - `labels`
+- `super`
 - `object`
 - `gui_element`
 
 The following fields are optional:
 
 - `comments` 
-- `super` (with the exception of `LinkValue` where `super` is mandatory)
 - `subject`
 - `gui_attributes`
 
@@ -141,8 +141,8 @@ By convention, property names start with a lower case letter.
 
 `"labels": {"<language>": "<string>", ...}`
 
-Collection of `labels` for the property as strings with language tag (currently "en", "de", "fr"
-and "it" are supported).
+Collection of `labels` for the property as strings with language tag (currently "en", "de", "fr", "it",
+and "rm" are supported).
 
 ### Comments
 
@@ -150,11 +150,11 @@ and "it" are supported).
 
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
-Comments with language tags. Currently, "de", "en", "fr" and "it" are supported. The `comments` element is optional.
+Comments with language tags. Currently, "de", "en", "fr", "it", and "rm" are supported. The `comments` element is optional.
 
 ### Super
 
-(optional)
+(required)
 
 `"super": ["<super-property>", "<super-property>, ...]`
 
@@ -165,7 +165,7 @@ including the prefix of the external or internal ontology - has to be given.
 
 The following base properties are defined by DSP:
 
-- `hasValue`: This is the most generic base and taken as default if `super` is omitted.
+- `hasValue`: This is the most generic base.
 - `hasLinkTo`: This value represents a link to another resource. You have to indicate the "_object_" as a prefixed name
   that identifies the resource class this link points to (a ":" prepended to the name is sufficient if the resource is
   defined in the current ontology).
@@ -541,7 +541,7 @@ Represents an URI
 
 #### GeonameValue
 
-Represents a location ID in geonames.org. The DSP platform uses identifiers provided by
+Represents a location ID in geonames.org. DSP uses identifiers provided by
 [geonames.org](https://geonames.orgs) to identify geographical locations.
 
 *gui-elements / gui_attributes*:
@@ -780,8 +780,8 @@ By convention, resource names start with a upper case letter.
 
 `"labels": {"<language>": "<string>", ...}`
 
-Collection of `labels` for the resource as strings with language tag (currently "en", "de", "fr"
-and "it" are supported).
+Collection of `labels` for the resource as strings with language tag (currently "en", "de", "fr", "it", 
+and "rm" are supported).
 
 ### Super
 
@@ -844,7 +844,7 @@ resource can have as well as how many times the relation is established.
 
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
-Comments with language tags. Currently, "de", "en", "fr" and "it" are supported. The `comments` element is optional.
+Comments with language tags. Currently, "de", "en", "fr", "it", and "rm" are supported. The `comments` element is optional.
 
 Example for a resource definition:
 

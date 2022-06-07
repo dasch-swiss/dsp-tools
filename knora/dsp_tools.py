@@ -59,7 +59,7 @@ def program(user_args: list[str]) -> None:
     parser_create.add_argument('-V', '--validate', action='store_true',
                                help='Do only validation of JSON, no upload of the '
                                     'ontology')
-    parser_create.add_argument('-L', '--listfile', type=str, default='lists.json',
+    parser_create.add_argument('-L', '--listfile', type=str, default='lists-only.json',
                                help='Name of list node informationfile')
     parser_create.add_argument('-l', '--lists', action='store_true', help='Upload only the list(s)')
     parser_create.add_argument('-v', '--verbose', action='store_true', help=verbose_text)

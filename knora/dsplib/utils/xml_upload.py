@@ -11,10 +11,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Union, cast, Tuple, Any
 from urllib.parse import quote_plus
-
-import requests
-
 from lxml import etree
+from requests import RequestException
 
 from knora.dsplib.models.connection import Connection
 from knora.dsplib.models.group import Group
@@ -947,10 +945,16 @@ def try_sipi_upload(sipi_server: Sipi, filepath: str) -> dict[Any, Any]:
         try:
             img = sipi_server.upload_bitstream(filepath)
             break
-        except BaseException:
+        except ConnectionError:
             print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server (SIPI)...')
             time.sleep(1)
             continue
+        except RequestException:
+            print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server (SIPI)...')
+            time.sleep(1)
+            continue
+        except BaseException:
+            break
     if img:
         return img
     else:
@@ -1001,10 +1005,16 @@ def upload_resources(
                 )
                 resclass_instance = resclass_instance.create()
                 break
-            except BaseError:
+            except ConnectionError:
                 print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
                 time.sleep(1)
                 continue
+            except RequestException:
+                print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
+                time.sleep(1)
+                continue
+            except BaseError:
+                break
 
         if not resclass_instance:
             print(f"ERROR while trying to create resource '{resource.label}' ({resource.id}). ")

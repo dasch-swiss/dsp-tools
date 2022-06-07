@@ -405,6 +405,9 @@ class XMLResource:
                         for iri_ref in iri_refs:
                             res_id = iri_ref.split(':')[1]
                             iri = resiri_lookup.get(res_id)
+                            if not iri:
+                                raise BaseError(f'Resource cannot be created, because it contains a salsah-Link to '
+                                                f'the following invalid resource: {res_id}.')
                             value.value.replace(iri_ref, iri)
                     v = value.value
                 else:

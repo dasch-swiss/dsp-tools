@@ -90,7 +90,9 @@ run: ## create dist, install and run
 .PHONY: freeze-requirements
 freeze-requirements: ## update (dev-)requirements.txt and setup.py based on pipenv's Pipfile.lock
 	pipenv lock -r > requirements.txt
+	sed -i '' 's/==/>=/g' requirements.txt
 	pipenv lock -r --dev-only > dev-requirements.txt
+	sed -i '' 's/==/>=/g' dev-requirements.txt
 	pipenv run pipenv-setup sync
 
 .DEFAULT_GOAL := help

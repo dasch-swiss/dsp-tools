@@ -771,18 +771,23 @@ def update_xml_texts(
                         "@context": context
                     }
                     jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
-                    new_value = None
-                    for _ in range(20):
+                    for _ in range(5):
                         try:
-                            new_value = con.put(path='/v2/values', jsondata=jsondata)
+                            con.put(path='/v2/values', jsondata=jsondata)
                             break
-                        except BaseException:
+                        except ConnectionError:
                             print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
                             time.sleep(1)
                             continue
-                    if not new_value:
-                        print(f'ERROR while updating the xml text of {link_prop.name} of resource {resource.id}')
-                    elif verbose:
+                        except RequestException:
+                            print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
+                            time.sleep(1)
+                            continue
+                        except BaseError:
+                            print(f'ERROR while updating the xml text of {link_prop.name} of resource {resource.id}')
+                            break
+                            continue
+                    if verbose:
                         print(f'  Successfully updated Property: {link_prop.name} Type: XML Text\n'
                               f'   Value: {new_xmltext}')
 
@@ -811,18 +816,23 @@ def update_resptr_props(
                 '@context': context
             }
             jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '))
-            new_value = None
-            for _ in range(20):
+            for _ in range(5):
                 try:
-                    new_value = con.post(path='/v2/values', jsondata=jsondata)
+                    con.post(path='/v2/values', jsondata=jsondata)
                     break
-                except BaseException:
+                except ConnectionError:
                     print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
                     time.sleep(1)
                     continue
-            if not new_value:
-                print(f'ERROR while updating the resptr prop of {link_prop.name} of resource {resource.id}')
-            elif verbose:
+                except RequestException:
+                    print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
+                    time.sleep(1)
+                    continue
+                except BaseError:
+                    print(f'ERROR while updating the resptr prop of {link_prop.name} of resource {resource.id}')
+                    break
+                    continue
+            if verbose:
                 print(f'  Successfully updated Property: {link_prop.name} Type: Link property\n'
                       f'   Value: {resptr}')
 
@@ -944,7 +954,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
 def try_sipi_upload(sipi_server: Sipi, filepath: str) -> dict[Any, Any]:
     img = None
-    for _ in range(20):
+    for _ in range(5):
         try:
             img = sipi_server.upload_bitstream(filepath)
             break
@@ -996,7 +1006,7 @@ def upload_resources(
 
         resclass_instance = None
 
-        for _ in range(20):
+        for _ in range(5):
             try:
                 # create a resource instance (ResourceInstance) from the given resource in the XML (XMLResource)
                 resclass_type = resclass_name_2_type[resource.restype]

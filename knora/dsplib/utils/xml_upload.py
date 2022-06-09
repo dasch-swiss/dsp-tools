@@ -735,6 +735,7 @@ def convert_ark_v0_to_resource_iri(ark: str) -> str:
 
 
 def update_xml_texts(
+    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
     resource: XMLResource,
     res_iri: str,
     link_props: dict[XMLProperty, dict[str, KnoraStandoffXml]],
@@ -771,9 +772,11 @@ def update_xml_texts(
                         "@context": context
                     }
                     jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
+                    answer = None
                     for _ in range(5):
                         try:
-                            con.put(path='/v2/values', jsondata=jsondata)
+                            answer = con.put(path='/v2/values', jsondata=jsondata)
+                            stashed_xml_texts[resource][link_prop].pop(_hash)
                             break
                         except ConnectionError:
                             print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
@@ -784,15 +787,15 @@ def update_xml_texts(
                             time.sleep(1)
                             continue
                         except BaseError:
-                            print(f'ERROR while updating the xml text of {link_prop.name} of resource {resource.id}')
+                            print(f'ERROR while updating the xml text of "{link_prop.name}" of resource "{resource.id}"')
                             break
-                            continue
                     if verbose:
-                        print(f'  Successfully updated Property: {link_prop.name} Type: XML Text\n'
-                              f'   Value: {new_xmltext}')
+                        if answer:
+                            print(f'  Successfully updated xml text of "{link_prop.name}"\n'
 
 
 def update_resptr_props(
+    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
     resource: XMLResource,
     res_iri: str,
     prop_2_resptrs: dict[XMLProperty, list[str]],
@@ -803,7 +806,7 @@ def update_resptr_props(
     existing_resource = con.get(path=f'/v2/resources/{quote_plus(res_iri)}')
     context = existing_resource['@context']
     for link_prop, resptrs in prop_2_resptrs.items():
-        for resptr in resptrs:
+        for resptr in resptrs.copy():
             jsonobj = {
                 '@id': res_iri,
                 '@type': resource.restype,
@@ -816,9 +819,11 @@ def update_resptr_props(
                 '@context': context
             }
             jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '))
+            answer = None
             for _ in range(5):
                 try:
-                    con.post(path='/v2/values', jsondata=jsondata)
+                    answer = con.post(path='/v2/values', jsondata=jsondata)
+                    stashed_resptr_props[resource][link_prop].remove(resptr)
                     break
                 except ConnectionError:
                     print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
@@ -829,12 +834,12 @@ def update_resptr_props(
                     time.sleep(1)
                     continue
                 except BaseError:
-                    print(f'ERROR while updating the resptr prop of {link_prop.name} of resource {resource.id}')
+                    print(f'ERROR while updating the resptr prop of "{link_prop.name}" of resource "{resource.id}"')
                     break
-                    continue
             if verbose:
-                print(f'  Successfully updated Property: {link_prop.name} Type: Link property\n'
-                      f'   Value: {resptr}')
+                if answer:
+                    print(f'  Successfully updated resptr-prop of "{link_prop.name}"\n'
+                          f'    Value: {resptr}')
 
 
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
@@ -941,13 +946,19 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
     # update the resources with the stashed XML texts
     if len(stashed_xml_texts) > 0:
-        update_stashed_xml_texts(verbose, res_iri_lookup, con, stashed_xml_texts)
+        nonapplied_xml_texts = update_stashed_xml_texts(verbose, res_iri_lookup, con, stashed_xml_texts)
 
     # update the resources with the stashed resptrs
     if len(stashed_resptr_props) > 0:
-        update_stashed_resptr_props(verbose, res_iri_lookup, con, stashed_resptr_props)
+        nonapplied_resptr_props = update_stashed_resptr_props(verbose, res_iri_lookup, con, stashed_resptr_props)
 
-    write_id2iri_mapping(input_file, res_iri_lookup, datetime.now().strftime("%Y%m%d-%H%M%S"))
+    timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
+    write_id2iri_mapping(input_file, res_iri_lookup, timestamp_str)
+    if len(nonapplied_xml_texts) > 0:
+        write_stashed_xml_texts(nonapplied_xml_texts, timestamp_str)
+    if len(nonapplied_resptr_props) > 0:
+        write_stashed_respr_props(nonapplied_resptr_props, timestamp_str)
+
     if failed_uploads:
         print(f"Could not upload the following resources: {failed_uploads}")
 
@@ -1045,13 +1056,14 @@ def update_stashed_xml_texts(
     res_iri_lookup: dict[str, str],
     con: Connection,
     stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]
-) -> None:
+) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
     print('Update the stashed XML texts...')
-    for resource, link_props in stashed_xml_texts.items():
+    for resource, link_props in stashed_xml_texts.copy().items():
         print(f'Update XML text(s) of resource "{resource.id}"...')
         res_iri = res_iri_lookup[resource.id]
         try:
-            update_xml_texts(
+            stashed_xml_texts = update_xml_texts(
+                stashed_xml_texts=stashed_xml_texts,
                 resource=resource,
                 res_iri=res_iri,
                 link_props=link_props,
@@ -1066,19 +1078,30 @@ def update_stashed_xml_texts(
             print(f'Exception while updating an XML text of resource "{resource.id}": {exception}')
             continue
 
+    nonapplied_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]] = {}
+    for res, propdict in stashed_xml_texts.items():
+        for prop, xmldict in propdict.items():
+            if len(xmldict) > 0:
+                if res not in nonapplied_xml_texts:
+                    nonapplied_xml_texts[res] = {}
+                nonapplied_xml_texts[res][prop] = xmldict
+
+    return nonapplied_xml_texts
+
 
 def update_stashed_resptr_props(
     verbose: bool,
     res_iri_lookup: dict[str, str],
     con: Connection,
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]]
-) -> None:
+) -> dict[XMLResource, dict[XMLProperty, list[str]]]:
     print('Update the stashed resptrs...')
-    for resource, prop_2_resptrs in stashed_resptr_props.items():
+    for resource, prop_2_resptrs in stashed_resptr_props.copy().items():
         print(f'Update resptrs of resource "{resource.id}"...')
         res_iri = res_iri_lookup[resource.id]
         try:
             update_resptr_props(
+                stashed_resptr_props=stashed_resptr_props,
                 resource=resource,
                 res_iri=res_iri,
                 prop_2_resptrs=prop_2_resptrs,
@@ -1093,6 +1116,16 @@ def update_stashed_resptr_props(
             print(f'Exception while updating an XML text of resource "{resource.id}": {exception}')
             continue
 
+    nonapplied_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]] = {}
+    for res, propdict in stashed_resptr_props.items():
+        for prop, resptrs in propdict.items():
+            if len(resptrs) > 0:
+                if res not in nonapplied_resptr_props:
+                    nonapplied_resptr_props[res] = {}
+                nonapplied_resptr_props[res][prop] = resptrs
+
+    return nonapplied_resptr_props
+
 
 def handle_upload_error(
     err: Any,
@@ -1105,21 +1138,12 @@ def handle_upload_error(
     print(f'xmlupload must be aborted because of the following error: {err}')
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
     write_id2iri_mapping(input_file, res_iri_lookup, timestamp_str)
+    stashed_xml_texts = {res: propdict for res, propdict in stashed_xml_texts.items() if res.id in res_iri_lookup}
     if len(stashed_xml_texts) > 0:
-        with open(f'stashed_xml_texts_{timestamp_str}.txt', 'a') as f:
-            for res, props in stashed_xml_texts.items():
-                f.write(f'\n{res.id}\n---------\n')
-                for prop, stashed_texts in props.items():
-                    f.write(f'{prop.name}\n')
-                    for name, standoff in stashed_texts.items():
-                        f.write(f'\t{name}: {standoff}')
+        write_stashed_xml_texts(stashed_xml_texts, timestamp_str)
+    stashed_resptr_props = {res: propdict for res, propdict in stashed_resptr_props.items() if res.id in res_iri_lookup}
     if len(stashed_resptr_props) > 0:
-        with open(f'stashed_resptr_props_{timestamp_str}.txt', 'a') as f:
-            for res, props_ in stashed_resptr_props.items():
-                f.write(f'\n{res.id}\n---------\n')
-                for prop, stashed_props in props_.items():
-                    f.write(f'{prop.name}\n\t{stashed_props}')
-
+        write_stashed_respr_props(stashed_resptr_props, timestamp_str)
     if failed_uploads:
         print(f"Independently of this error, there were some resources that could not be uploaded: "
               f"{failed_uploads}")
@@ -1132,3 +1156,35 @@ def write_id2iri_mapping(input_file: str, res_iri_lookup: dict[str, str], timest
     with open(res_iri_lookup_file, "w") as outfile:
         print(f"============\nThe mapping of internal IDs to IRIs was written to {res_iri_lookup_file}")
         outfile.write(json.dumps(res_iri_lookup))
+
+
+def write_stashed_xml_texts(
+    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+    timestamp_str: str
+) -> None:
+    filename = f'stashed_xml_texts_{timestamp_str}.txt'
+    print(f'There are stashed xml texts that could not be reapplied. They were saved to {filename}')
+    with open(filename, 'a') as f:
+        f.write('Stashed XML texts that could not be reapplied\n')
+        f.write('*********************************************\n')
+        for res, props in stashed_xml_texts.items():
+            f.write(f'\n{res.id}\n---------\n')
+            for prop, stashed_texts in props.items():
+                f.write(f'{prop.name}\n')
+                for i, standoff in enumerate(stashed_texts.values()):
+                    f.write(f'\t{i}. text: {standoff}')
+
+
+def write_stashed_respr_props(
+    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
+    timestamp_str: str
+) -> None:
+    filename = f'stashed_resptr_props_{timestamp_str}.txt'
+    print(f'There are stashed resptr props that could not be reapplied. They were saved to {filename}')
+    with open(filename, 'a') as f:
+        f.write('Stashed resptr props that could not be reapplied\n')
+        f.write('************************************************\n')
+        for res, props_ in stashed_resptr_props.items():
+            f.write(f'\n{res.id}\n---------\n')
+            for prop, stashed_props in props_.items():
+                f.write(f'{prop.name}\n\t{stashed_props}\n')

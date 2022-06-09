@@ -791,7 +791,7 @@ def update_xml_texts(
                             break
                     if verbose:
                         if answer:
-                            print(f'  Successfully updated xml text of "{link_prop.name}"\n'
+                            print(f'  Successfully updated xml text of "{link_prop.name}"\n')
 
 
 def update_resptr_props(

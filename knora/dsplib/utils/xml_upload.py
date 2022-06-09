@@ -734,115 +734,6 @@ def convert_ark_v0_to_resource_iri(ark: str) -> str:
     return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
 
 
-def update_xml_texts(
-    resource: XMLResource,
-    link_props: dict[XMLProperty, dict[str, KnoraStandoffXml]],
-    res_iri_lookup: dict[str, str],
-    con: Connection,
-    verbose: bool,
-    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]
-) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
-    res_iri = res_iri_lookup[resource.id]
-    existing_resource = con.get(path=f'/v2/resources/{quote_plus(res_iri)}')
-    for link_prop, hash_to_value in link_props.items():
-        values = existing_resource[link_prop.name]
-        if not isinstance(values, list):
-            values = [values, ]
-        for value in values:
-            xmltext = value.get("knora-api:textValueAsXml")
-            if not xmltext:
-                continue
-            _hash = re.sub(r'<\?xml.+>(\n)?(<text>)(.+)(<\/text>)', r'\3', xmltext)
-            if _hash not in hash_to_value:
-                continue
-            new_xmltext = hash_to_value[_hash]
-            for _id, _iri in res_iri_lookup.items():
-                new_xmltext.regex_replace(f'href="IRI:{_id}:IRI"', f'href="{_iri}"')
-            jsonobj = {
-                "@id": res_iri,
-                "@type": resource.restype,
-                link_prop.name: {
-                    "@id": value['@id'],
-                    "@type": "knora-api:TextValue",
-                    "knora-api:textValueAsXml": new_xmltext,
-                    "knora-api:textValueHasMapping": {
-                        '@id': 'http://rdfh.ch/standoff/mappings/StandardMapping'
-                    }
-                },
-                "@context": existing_resource['@context']
-            }
-            jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
-            answer = None
-            for _ in range(5):
-                try:
-                    answer = con.put(path='/v2/values', jsondata=jsondata)
-                    stashed_xml_texts[resource][link_prop].pop(_hash)
-                    break
-                except ConnectionError:
-                    print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
-                    time.sleep(1)
-                    continue
-                except RequestException:
-                    print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
-                    time.sleep(1)
-                    continue
-                except BaseError:
-                    print(f'ERROR while updating the xml text of "{link_prop.name}" of resource "{resource.id}"')
-                    break
-            if verbose:
-                if answer:
-                    print(f'  Successfully updated xml text of "{link_prop.name}"\n')
-
-    return stashed_xml_texts
-
-
-def update_resptr_props(
-    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
-    resource: XMLResource,
-    res_iri: str,
-    prop_2_resptrs: dict[XMLProperty, list[str]],
-    res_iri_lookup: dict[str, str],
-    con: Connection,
-    verbose: bool
-) -> None:
-    existing_resource = con.get(path=f'/v2/resources/{quote_plus(res_iri)}')
-    for link_prop, resptrs in prop_2_resptrs.items():
-        for resptr in resptrs.copy():
-            jsonobj = {
-                '@id': res_iri,
-                '@type': resource.restype,
-                f'{link_prop.name}Value': {
-                    '@type': 'knora-api:LinkValue',
-                    'knora-api:linkValueHasTargetIri': {
-                        '@id': res_iri_lookup[resptr]
-                    }
-                },
-                '@context': existing_resource['@context']
-            }
-            jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '))
-            answer = None
-            for _ in range(5):
-                try:
-                    answer = con.post(path='/v2/values', jsondata=jsondata)
-                    stashed_resptr_props[resource][link_prop].remove(resptr)
-                    break
-                except ConnectionError:
-                    print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
-                    time.sleep(1)
-                    continue
-                except RequestException:
-                    print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
-                    time.sleep(1)
-                    continue
-                except BaseError:
-                    print(f'ERROR while updating the resptr prop of "{link_prop.name}" of resource "{resource.id}"')
-                    break
-            if verbose:
-                if answer:
-                    print(f'  Successfully updated resptr-prop of "{link_prop.name}"\n'
-                          f'    Value: {resptr}')
-
-
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
                validate_only: bool, incremental: bool) -> None:
     """
@@ -1061,14 +952,56 @@ def update_stashed_xml_texts(
     print('Update the stashed XML texts...')
     for resource, link_props in stashed_xml_texts.copy().items():
         print(f'Update XML text(s) of resource "{resource.id}"...')
-        stashed_xml_texts = update_xml_texts(
-            resource=resource,
-            link_props=link_props,
-            res_iri_lookup=res_iri_lookup,
-            con=con,
-            verbose=verbose,
-            stashed_xml_texts=stashed_xml_texts
-        )
+        res_iri = res_iri_lookup[resource.id]
+        existing_resource = con.get(path=f'/v2/resources/{quote_plus(res_iri)}')
+        for link_prop, hash_to_value in link_props.items():
+            values = existing_resource[link_prop.name]
+            if not isinstance(values, list):
+                values = [values, ]
+            for value in values:
+                xmltext = value.get("knora-api:textValueAsXml")
+                if not xmltext:
+                    continue
+                _hash = re.sub(r'<\?xml.+>(\n)?(<text>)(.+)(<\/text>)', r'\3', xmltext)
+                if _hash not in hash_to_value:
+                    continue
+                new_xmltext = hash_to_value[_hash]
+                for _id, _iri in res_iri_lookup.items():
+                    new_xmltext.regex_replace(f'href="IRI:{_id}:IRI"', f'href="{_iri}"')
+                jsonobj = {
+                    "@id": res_iri,
+                    "@type": resource.restype,
+                    link_prop.name: {
+                        "@id": value['@id'],
+                        "@type": "knora-api:TextValue",
+                        "knora-api:textValueAsXml": new_xmltext,
+                        "knora-api:textValueHasMapping": {
+                            '@id': 'http://rdfh.ch/standoff/mappings/StandardMapping'
+                        }
+                    },
+                    "@context": existing_resource['@context']
+                }
+                jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
+                answer = None
+                for _ in range(5):
+                    try:
+                        answer = con.put(path='/v2/values', jsondata=jsondata)
+                        stashed_xml_texts[resource][link_prop].pop(_hash)
+                        break
+                    except ConnectionError:
+                        print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
+                        time.sleep(1)
+                        continue
+                    except RequestException:
+                        print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
+                        time.sleep(1)
+                        continue
+                    except BaseError:
+                        print(f'ERROR while updating the xml text of "{link_prop.name}" of resource "{resource.id}"')
+                        break
+                if verbose:
+                    if answer:
+                        print(f'  Successfully updated xml text of "{link_prop.name}"\n')
 
     nonapplied_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]] = {}
     for res, propdict in stashed_xml_texts.items():
@@ -1091,15 +1024,42 @@ def update_stashed_resptr_props(
     for resource, prop_2_resptrs in stashed_resptr_props.copy().items():
         print(f'Update resptrs of resource "{resource.id}"...')
         res_iri = res_iri_lookup[resource.id]
-        update_resptr_props(
-            stashed_resptr_props=stashed_resptr_props,
-            resource=resource,
-            res_iri=res_iri,
-            prop_2_resptrs=prop_2_resptrs,
-            res_iri_lookup=res_iri_lookup,
-            con=con,
-            verbose=verbose
-        )
+        existing_resource = con.get(path=f'/v2/resources/{quote_plus(res_iri)}')
+        for link_prop, resptrs in prop_2_resptrs.items():
+            for resptr in resptrs.copy():
+                jsonobj = {
+                    '@id': res_iri,
+                    '@type': resource.restype,
+                    f'{link_prop.name}Value': {
+                        '@type': 'knora-api:LinkValue',
+                        'knora-api:linkValueHasTargetIri': {
+                            '@id': res_iri_lookup[resptr]
+                        }
+                    },
+                    '@context': existing_resource['@context']
+                }
+                jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '))
+                answer = None
+                for _ in range(5):
+                    try:
+                        answer = con.post(path='/v2/values', jsondata=jsondata)
+                        stashed_resptr_props[resource][link_prop].remove(resptr)
+                        break
+                    except ConnectionError:
+                        print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
+                        time.sleep(1)
+                        continue
+                    except RequestException:
+                        print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
+                        time.sleep(1)
+                        continue
+                    except BaseError:
+                        print(f'ERROR while updating the resptr prop of "{link_prop.name}" of resource "{resource.id}"')
+                        break
+                if verbose:
+                    if answer:
+                        print(f'  Successfully updated resptr-prop of "{link_prop.name}"\n'
+                              f'    Value: {resptr}')
 
     nonapplied_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]] = {}
     for res, propdict in stashed_resptr_props.items():

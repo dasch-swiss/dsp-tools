@@ -735,14 +735,14 @@ def convert_ark_v0_to_resource_iri(ark: str) -> str:
 
 
 def update_xml_texts(
-    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
     resource: XMLResource,
-    res_iri: str,
     link_props: dict[XMLProperty, dict[str, KnoraStandoffXml]],
     res_iri_lookup: dict[str, str],
     con: Connection,
-    verbose: bool
+    verbose: bool,
+    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]
 ) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
+    res_iri = res_iri_lookup[resource.id]
     existing_resource = con.get(path=f'/v2/resources/{quote_plus(res_iri)}')
     for link_prop, hash_to_value in link_props.items():
         values = existing_resource[link_prop.name]
@@ -1061,23 +1061,14 @@ def update_stashed_xml_texts(
     print('Update the stashed XML texts...')
     for resource, link_props in stashed_xml_texts.copy().items():
         print(f'Update XML text(s) of resource "{resource.id}"...')
-        res_iri = res_iri_lookup[resource.id]
-        try:
-            stashed_xml_texts = update_xml_texts(
-                stashed_xml_texts=stashed_xml_texts,
-                resource=resource,
-                res_iri=res_iri,
-                link_props=link_props,
-                res_iri_lookup=res_iri_lookup,
-                con=con,
-                verbose=verbose
-            )
-        except BaseError as err:
-            print(f'BaseError while updating an XML text of resource "{resource.id}": {err.message}')
-            continue
-        except Exception as exception:
-            print(f'Exception while updating an XML text of resource "{resource.id}": {exception}')
-            continue
+        stashed_xml_texts = update_xml_texts(
+            resource=resource,
+            link_props=link_props,
+            res_iri_lookup=res_iri_lookup,
+            con=con,
+            verbose=verbose,
+            stashed_xml_texts=stashed_xml_texts
+        )
 
     nonapplied_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]] = {}
     for res, propdict in stashed_xml_texts.items():
@@ -1100,22 +1091,15 @@ def update_stashed_resptr_props(
     for resource, prop_2_resptrs in stashed_resptr_props.copy().items():
         print(f'Update resptrs of resource "{resource.id}"...')
         res_iri = res_iri_lookup[resource.id]
-        try:
-            update_resptr_props(
-                stashed_resptr_props=stashed_resptr_props,
-                resource=resource,
-                res_iri=res_iri,
-                prop_2_resptrs=prop_2_resptrs,
-                res_iri_lookup=res_iri_lookup,
-                con=con,
-                verbose=verbose
-            )
-        except BaseError as err:
-            print(f'BaseError while updating an XML text of resource "{resource.id}": {err.message}')
-            continue
-        except Exception as exception:
-            print(f'Exception while updating an XML text of resource "{resource.id}": {exception}')
-            continue
+        update_resptr_props(
+            stashed_resptr_props=stashed_resptr_props,
+            resource=resource,
+            res_iri=res_iri,
+            prop_2_resptrs=prop_2_resptrs,
+            res_iri_lookup=res_iri_lookup,
+            con=con,
+            verbose=verbose
+        )
 
     nonapplied_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]] = {}
     for res, propdict in stashed_resptr_props.items():

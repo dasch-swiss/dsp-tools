@@ -997,7 +997,7 @@ def update_stashed_xml_texts(
                     continue
 
                 # strip all xml tags from the old xmltext, so that the pure text itself remains
-                pure_text = re.sub(r'(<\?xml.+>[\n\s]*)?<text>[\n\s]*(.+)[\n\s]*<\/text>', r'\2', old_xmltext)
+                pure_text = re.sub(r'(<\?xml.+>\s*)?<text>\s*(.+)\s*<\/text>', r'\2', old_xmltext)
 
                 # if the pure text is a hash, the replacement must be made
                 if pure_text not in hash_to_value:

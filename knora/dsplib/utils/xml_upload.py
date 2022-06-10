@@ -832,15 +832,21 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             exit(1)
 
     # write log files
+    exit_code = 0
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
     write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
     if len(nonapplied_xml_texts) > 0:
         write_stashed_xml_texts(nonapplied_xml_texts, timestamp_str)
+        exit_code = 1
     if len(nonapplied_resptr_props) > 0:
         write_stashed_respr_props(nonapplied_resptr_props, timestamp_str)
+        exit_code = 1
 
     if failed_uploads:
         print(f"Could not upload the following resources: {failed_uploads}")
+        exit_code = 1
+
+    exit(exit_code)
 
 
 def try_sipi_upload(sipi_server: Sipi, filepath: str) -> dict[Any, Any]:

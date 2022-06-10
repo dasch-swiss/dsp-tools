@@ -814,13 +814,22 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         exit(1)
 
     # update the resources with the stashed XML texts
+    nonapplied_xml_texts = {}
     if len(stashed_xml_texts) > 0:
-        nonapplied_xml_texts = update_stashed_xml_texts(verbose, id2iri_mapping, con, stashed_xml_texts)
+        try:
+            nonapplied_xml_texts = update_stashed_xml_texts(verbose, id2iri_mapping, con, stashed_xml_texts)
+        except BaseException as err:
+            handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
+            exit(1)
 
     # update the resources with the stashed resptrs
     nonapplied_resptr_props = {}
     if len(stashed_resptr_props) > 0:
-        nonapplied_resptr_props = update_stashed_resptr_props(verbose, id2iri_mapping, con, stashed_resptr_props)
+        try:
+            nonapplied_resptr_props = update_stashed_resptr_props(verbose, id2iri_mapping, con, stashed_resptr_props)
+        except BaseException as err:
+            handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
+            exit(1)
 
     # write log files
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")

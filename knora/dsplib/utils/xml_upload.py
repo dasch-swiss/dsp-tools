@@ -816,7 +816,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     nonapplied_xml_texts = {}
     if len(stashed_xml_texts) > 0:
         try:
-            nonapplied_xml_texts = update_stashed_xml_texts(verbose, id2iri_mapping, con, stashed_xml_texts)
+            nonapplied_xml_texts = upload_stashed_xml_texts(verbose, id2iri_mapping, con, stashed_xml_texts)
         except BaseException as err:
             handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
 
@@ -824,7 +824,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     nonapplied_resptr_props = {}
     if len(stashed_resptr_props) > 0:
         try:
-            nonapplied_resptr_props = update_stashed_resptr_props(verbose, id2iri_mapping, con, stashed_resptr_props)
+            nonapplied_resptr_props = upload_stashed_resptr_props(verbose, id2iri_mapping, con, stashed_resptr_props)
         except BaseException as err:
             handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
 
@@ -966,7 +966,7 @@ def upload_resources(
     return id2iri_mapping, failed_uploads
 
 
-def update_stashed_xml_texts(
+def upload_stashed_xml_texts(
     verbose: bool,
     id2iri_mapping: dict[str, str],
     con: Connection,
@@ -982,7 +982,7 @@ def update_stashed_xml_texts(
         stashed_xml_texts: all xml texts that have been stashed
 
     Returns:
-        nonapplied_xml_texts: the xml texts that could not be updated
+        nonapplied_xml_texts: the xml texts that could not be uploaded
     """
 
     print('Update the stashed XML texts...')
@@ -1061,7 +1061,7 @@ def update_stashed_xml_texts(
     return nonapplied_xml_texts
 
 
-def update_stashed_resptr_props(
+def upload_stashed_resptr_props(
     verbose: bool,
     id2iri_mapping: dict[str, str],
     con: Connection,
@@ -1077,7 +1077,7 @@ def update_stashed_resptr_props(
         stashed_resptr_props: all resptr props that have been stashed
 
     Returns:
-        nonapplied_resptr_props: the resptr props that could not be updated
+        nonapplied_resptr_props: the resptr props that could not be uploaded
     """
 
     print('Update the stashed resptrs...')

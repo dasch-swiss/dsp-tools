@@ -811,7 +811,6 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
                                                           resclass_name_2_type, id2iri_mapping, con, failed_uploads)
     except BaseException as err:
         handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
-        exit(1)
 
     # update the resources with the stashed XML texts
     nonapplied_xml_texts = {}
@@ -820,7 +819,6 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             nonapplied_xml_texts = update_stashed_xml_texts(verbose, id2iri_mapping, con, stashed_xml_texts)
         except BaseException as err:
             handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
-            exit(1)
 
     # update the resources with the stashed resptrs
     nonapplied_resptr_props = {}
@@ -829,7 +827,6 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             nonapplied_resptr_props = update_stashed_resptr_props(verbose, id2iri_mapping, con, stashed_resptr_props)
         except BaseException as err:
             handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
-            exit(1)
 
     # write log files
     exit_code = 0
@@ -1137,7 +1134,7 @@ def update_stashed_resptr_props(
 
 
 def handle_upload_error(
-    err: Any,
+    err: BaseException,
     input_file: str,
     id2iri_mapping: dict[str, str],
     failed_uploads: list[str],
@@ -1147,6 +1144,8 @@ def handle_upload_error(
     """
     In case the xmlupload must be interrupted, e.g. because of an error that could not be handled, or due to keyboard
     interrupt, this method ensures that all information about what is already in DSP is written into log files.
+
+    It then re-raises the original error.
 
     Args:
         err: error that was the cause of the abort
@@ -1160,7 +1159,7 @@ def handle_upload_error(
         None
     """
 
-    print(f'xmlupload must be aborted because of the following error: {err}')
+    print('xmlupload must be aborted because of an error')
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
 
     # write id2iri_mapping of the resources that are already in DSP
@@ -1179,6 +1178,8 @@ def handle_upload_error(
     if failed_uploads:
         print(f"Independently of this error, there were some resources that could not be uploaded: "
               f"{failed_uploads}")
+
+    raise err
 
 
 def write_id2iri_mapping(input_file: str, id2iri_mapping: dict[str, str], timestamp_str: str) -> None:

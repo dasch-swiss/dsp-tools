@@ -859,23 +859,18 @@ def try_sipi_upload(sipi_server: Sipi, filepath: str) -> dict[Any, Any]:
         answer from DSP
     """
 
-    img = None
     for _ in range(5):
         try:
-            img = sipi_server.upload_bitstream(filepath)
-            break
+            return sipi_server.upload_bitstream(filepath)
         except ConnectionError:
-            print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server (SIPI)...')
+            print(f'{datetime.now().isoformat()}: Try reconnecting to SIPI...')
             time.sleep(1)
             continue
         except RequestException:
-            print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server (SIPI)...')
+            print(f'{datetime.now().isoformat()}: Try reconnecting to SIPI...')
             time.sleep(1)
             continue
-    if img:
-        return img
-    else:
-        return sipi_server.upload_bitstream(filepath)
+    raise BaseError(f'Cannot upload "{filepath}" to SIPI')
 
 
 def upload_resources(

@@ -846,7 +846,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     exit(exit_code)
 
 
-def try_sipi_upload(sipi_server: Sipi, filepath: str) -> dict[Any, Any]:
+def _try_sipi_upload(sipi_server: Sipi, filepath: str) -> dict[Any, Any]:
     """
     Wrapper around sipi_server.upload_bitstream(filepath), that handles errors and retries in case of connectivity
     issues.
@@ -914,7 +914,7 @@ def upload_resources(
         resource_bitstream = None
         if resource.bitstream:
             try:
-                img = try_sipi_upload(sipi_server=sipi_server, filepath=os.path.join(imgdir, resource.bitstream.value))
+                img = _try_sipi_upload(sipi_server=sipi_server, filepath=os.path.join(imgdir, resource.bitstream.value))
                 internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']
                 resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
             except BaseError:

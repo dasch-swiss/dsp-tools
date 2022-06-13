@@ -704,7 +704,7 @@ def convert_ark_v0_to_resource_iri(ark: str) -> str:
     migration.
 
     Args:
-        ark : an ARK version 0 of the form ark:/72163/080c-779b9990a0c3f-6e, '72163' being the Name Assigning Authority
+        ark: an ARK version 0 of the form ark:/72163/080c-779b9990a0c3f-6e, '72163' being the Name Assigning Authority
         number, '080c' being the project shortcode, '779b9990a0c3f' being an ID derived from the object's Salsah ID and
         '6e' being check digits
 
@@ -740,14 +740,14 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     This function reads an XML file and imports the data described in it onto the DSP server.
 
     Args:
-        input_file : the XML with the data to be imported onto the DSP server
-        server : the DSP server where the data should be imported
-        user : the user (e-mail) with which the data should be imported
-        password : the password of the user with which the data should be imported
-        imgdir : the image directory
-        sipi : the sipi instance to be used
-        verbose : verbose option for the command, if used more output is given to the user
-        validate_only : validation option to validate the XML data without the actual import of the data
+        input_file: the XML with the data to be imported onto the DSP server
+        server: the DSP server where the data should be imported
+        user: the user (e-mail) with which the data should be imported
+        password: the password of the user with which the data should be imported
+        imgdir: the image directory
+        sipi: the sipi instance to be used
+        verbose: verbose option for the command, if used more output is given to the user
+        validate_only: validation option to validate the XML data without the actual import of the data
         incremental: if set, IRIs instead of internal IDs are expected as resource pointers
 
     Returns:

@@ -836,7 +836,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         write_stashed_xml_texts(nonapplied_xml_texts, timestamp_str)
         exit_code = 1
     if len(nonapplied_resptr_props) > 0:
-        write_stashed_respr_props(nonapplied_resptr_props, timestamp_str)
+        write_stashed_resptr_props(nonapplied_resptr_props, timestamp_str)
         exit_code = 1
 
     if failed_uploads:
@@ -856,7 +856,7 @@ def try_sipi_upload(sipi_server: Sipi, filepath: str) -> dict[Any, Any]:
         filepath: file to upload
 
     Returns:
-        answer from DSP
+        response from DSP
     """
 
     for _ in range(5):
@@ -885,7 +885,7 @@ def upload_resources(
     failed_uploads: list[str]
 ) -> tuple[dict[str, str], list[str]]:
     """
-    Iterates through all resources, uploads them to DSP (incl. error handling)
+    Iterates through all resources and tries to upload them to DSP
 
     Args:
         verbose: bool
@@ -997,7 +997,8 @@ def upload_stashed_xml_texts(
                 # strip all xml tags from the old xmltext, so that the pure text itself remains
                 pure_text = re.sub(r'(<\?xml.+>\s*)?<text>\s*(.+)\s*<\/text>', r'\2', old_xmltext)
 
-                # if the pure text is a hash, the replacement must be made
+                # if the pure text is a hash, the replacement must be made. This hash originates from
+                # stash_circular_references(), and identifies the XML texts
                 if pure_text not in hash_to_value:
                     continue
                 new_xmltext = hash_to_value[pure_text]
@@ -1023,10 +1024,10 @@ def upload_stashed_xml_texts(
                 jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
 
                 # execute API call
-                answer = None
+                response = None
                 for _ in range(5):
                     try:
-                        answer = con.put(path='/v2/values', jsondata=jsondata)
+                        response = con.put(path='/v2/values', jsondata=jsondata)
                         stashed_xml_texts[resource][link_prop].pop(pure_text)
                         break
                     except ConnectionError:
@@ -1041,7 +1042,7 @@ def upload_stashed_xml_texts(
                         print(f'ERROR while updating the xml text of "{link_prop.name}" of resource "{resource.id}"')
                         break
                 if verbose:
-                    if answer:
+                    if response:
                         print(f'  Successfully updated xml text of "{link_prop.name}"\n')
 
     # make a purged version of stashed_xml_texts, without empty entries
@@ -1094,10 +1095,10 @@ def upload_stashed_resptr_props(
                     '@context': existing_resource['@context']
                 }
                 jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '))
-                answer = None
+                response = None
                 for _ in range(5):
                     try:
-                        answer = con.post(path='/v2/values', jsondata=jsondata)
+                        response = con.post(path='/v2/values', jsondata=jsondata)
                         stashed_resptr_props[resource][link_prop].remove(resptr)
                         break
                     except ConnectionError:
@@ -1112,7 +1113,7 @@ def upload_stashed_resptr_props(
                         print(f'ERROR while updating the resptr prop of "{link_prop.name}" of resource "{resource.id}"')
                         break
                 if verbose:
-                    if answer:
+                    if response:
                         print(f'  Successfully updated resptr-prop of "{link_prop.name}"\n'
                               f'    Value: {resptr}')
 
@@ -1167,7 +1168,7 @@ def handle_upload_error(
         write_stashed_xml_texts(stashed_xml_texts, timestamp_str)
     stashed_resptr_props = {res: propdict for res, propdict in stashed_resptr_props.items() if res.id in id2iri_mapping}
     if len(stashed_resptr_props) > 0:
-        write_stashed_respr_props(stashed_resptr_props, timestamp_str)
+        write_stashed_resptr_props(stashed_resptr_props, timestamp_str)
 
     # print the resources that threw an error when they were tried to be uploaded
     if failed_uploads:
@@ -1226,7 +1227,7 @@ def write_stashed_xml_texts(
                     f.write(f'\t{i}. text: {standoff}')
 
 
-def write_stashed_respr_props(
+def write_stashed_resptr_props(
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
     timestamp_str: str
 ) -> None:

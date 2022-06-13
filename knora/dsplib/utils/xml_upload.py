@@ -188,7 +188,7 @@ class XMLProperty:
 
     def __init__(self, node: etree.Element, valtype: str, default_ontology: Optional[str] = None):
         """
-        The constructor for the knora property
+        The constructor for the DSP property
 
         Args:
             node: the property node, p.ex. <decimal-prop></decimal-prop>
@@ -398,7 +398,7 @@ class XMLResource:
                     if iri:
                         v = iri
                     else:
-                        v = value.value  # if we do not find the id, we assume it's a valid knora IRI
+                        v = value.value  # if we do not find the id, we assume it's a valid DSP IRI
                 elif prop.valtype == 'text':
                     if isinstance(value.value, KnoraStandoffXml):
                         iri_refs = value.value.get_all_iris()
@@ -859,7 +859,7 @@ def try_sipi_upload(sipi_server: Sipi, filepath: str) -> dict[Any, Any]:
         filepath: file to upload
 
     Returns:
-        answer from knora
+        answer from DSP
     """
 
     img = None
@@ -893,17 +893,17 @@ def upload_resources(
     failed_uploads: list[str]
 ) -> tuple[dict[str, str], list[str]]:
     """
-    Iterates through all resources, uploads them to knora (incl. error handling)
+    Iterates through all resources, uploads them to DSP (incl. error handling)
 
     Args:
         verbose: bool
-        resources: list of XMLResources to upload to knora
+        resources: list of XMLResources to upload to DSP
         imgdir: folder containing the multimedia files
         sipi_server: Sipi instance
         permissions_lookup: maps permission strings to Permission objects
         resclass_name_2_type: maps resource class names to their types
-        id2iri_mapping: mapping of ids from the XML file to IRIs in knora (initially empty, gets filled during the upload)
-        con: connection to knora
+        id2iri_mapping: mapping of ids from the XML file to IRIs in DSP (initially empty, gets filled during the upload)
+        con: connection to DSP
         failed_uploads: ids of resources that could not be uploaded (initially empty, gets filled during the upload)
 
     Returns:
@@ -932,7 +932,7 @@ def upload_resources(
 
         permissions_tmp = permissions_lookup.get(resource.permissions)
 
-        # create the resource in knora
+        # create the resource in DSP
         resclass_instance: ResourceInstance = None
         for _ in range(5):
             try:
@@ -976,12 +976,12 @@ def update_stashed_xml_texts(
     stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]
 ) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
     """
-    After all resources are uploaded, the stashed xml texts must be applied to their resources in knora.
+    After all resources are uploaded, the stashed xml texts must be applied to their resources in DSP.
 
     Args:
         verbose: bool
-        id2iri_mapping: mapping of ids from the XML file to IRIs in knora
-        con: connection to knora
+        id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
+        con: connection to DSP
         stashed_xml_texts: all xml texts that have been stashed
 
     Returns:
@@ -1071,12 +1071,12 @@ def update_stashed_resptr_props(
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]]
 ) -> dict[XMLResource, dict[XMLProperty, list[str]]]:
     """
-    After all resources are uploaded, the stashed resptr props must be applied to their resources in knora.
+    After all resources are uploaded, the stashed resptr props must be applied to their resources in DSP.
 
     Args:
         verbose: bool
-        id2iri_mapping: mapping of ids from the XML file to IRIs in knora
-        con: connection to knora
+        id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
+        con: connection to DSP
         stashed_resptr_props: all resptr props that have been stashed
 
     Returns:
@@ -1146,13 +1146,13 @@ def handle_upload_error(
 ) -> None:
     """
     In case the xmlupload must be interrupted, e.g. because of an error that could not be handled, or due to keyboard
-    interrupt, this method ensures that all information about what is already in knora is written into log files.
+    interrupt, this method ensures that all information about what is already in DSP is written into log files.
 
     Args:
         err: error that was the cause of the abort
         input_file: file name of the original XML file
-        id2iri_mapping: mapping of ids from the XML file to IRIs in knora (only successful uploads appear here)
-        failed_uploads: resources that caused an error when uploading to knora
+        id2iri_mapping: mapping of ids from the XML file to IRIs in DSP (only successful uploads appear here)
+        failed_uploads: resources that caused an error when uploading to DSP
         stashed_xml_texts: all xml texts that have been stashed
         stashed_resptr_props: all resptr props that have been stashed
 
@@ -1163,11 +1163,11 @@ def handle_upload_error(
     print(f'xmlupload must be aborted because of the following error: {err}')
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
 
-    # write id2iri_mapping of the resources that are already in knora
+    # write id2iri_mapping of the resources that are already in DSP
     write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
 
     # Both stashes are purged from resources that have not been uploaded yet. Only stashed properties of resources that
-    # already exist in knora are of interest.
+    # already exist in DSP are of interest.
     stashed_xml_texts = {res: propdict for res, propdict in stashed_xml_texts.items() if res.id in id2iri_mapping}
     if len(stashed_xml_texts) > 0:
         write_stashed_xml_texts(stashed_xml_texts, timestamp_str)
@@ -1188,7 +1188,7 @@ def write_id2iri_mapping(input_file: str, id2iri_mapping: dict[str, str], timest
 
     Args:
         input_file: the file name of the original XML file
-        id2iri_mapping: mapping of ids from the XML file to IRIs in knora
+        id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
         timestamp_str: timestamp for log file identification
 
     Returns:

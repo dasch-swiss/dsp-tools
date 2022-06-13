@@ -177,16 +177,18 @@ class TestTools(unittest.TestCase):
 
     def test_xml_upload(self) -> None:
         with self.assertRaises(SystemExit) as cm:
-            xml_upload(input_file=self.test_data_file,
-                       server=self.server,
-                       user=self.user,
-                       password=self.password,
-                       imgdir=self.imgdir,
-                       sipi=self.sipi,
-                       verbose=False,
-                       validate_only=False,
-                       incremental=False)
+            result = xml_upload(
+                input_file=self.test_data_file,
+                server=self.server,
+                user=self.user,
+                password=self.password,
+                imgdir=self.imgdir,
+                sipi=self.sipi,
+                verbose=False,
+                validate_only=False,
+                incremental=False)
         self.assertEqual(cm.exception.code, 0)
+        self.assertTrue(result)
 
         mapping_file = ''
         for mapping in [x for x in os.scandir('.') if x.name.startswith('id2iri_test-data_mapping_')]:
@@ -203,7 +205,7 @@ class TestTools(unittest.TestCase):
         self.assertEqual(os.path.isfile(id2iri_replaced_xml_filename), True)
 
         with self.assertRaises(SystemExit) as cm:
-            xml_upload(
+            result = xml_upload(
                 input_file=id2iri_replaced_xml_filename,
                 server=self.server,
                 user=self.user,
@@ -215,6 +217,9 @@ class TestTools(unittest.TestCase):
                 incremental=True
             )
         self.assertEqual(cm.exception.code, 0)
+        self.assertTrue(result)
+        self.assertTrue(all([not f.name.startswith('stashed_xml_texts_') for f in os.scandir('.')]))
+        self.assertTrue(all([not f.name.startswith('stashed_resptr_props_') for f in os.scandir('.')]))
 
 
 if __name__ == '__main__':

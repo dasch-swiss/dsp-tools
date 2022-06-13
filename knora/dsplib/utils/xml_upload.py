@@ -735,7 +735,7 @@ def convert_ark_v0_to_resource_iri(ark: str) -> str:
 
 
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
-               validate_only: bool, incremental: bool) -> None:
+               validate_only: bool, incremental: bool) -> bool:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
 
@@ -751,7 +751,8 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         incremental: if set, IRIs instead of internal IDs are expected as resource pointers
 
     Returns:
-        None
+        True if all resources could be uploaded without errors; False if any resource (or part of it) could not be
+        successfully uploaded
     """
 
     # Validate the input XML file
@@ -829,21 +830,20 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
 
     # write log files
-    exit_code = 0
+    success = True
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
     write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
     if len(nonapplied_xml_texts) > 0:
         write_stashed_xml_texts(nonapplied_xml_texts, timestamp_str)
-        exit_code = 1
+        success = False
     if len(nonapplied_resptr_props) > 0:
         write_stashed_resptr_props(nonapplied_resptr_props, timestamp_str)
-        exit_code = 1
-
+        success = False
     if failed_uploads:
         print(f"Could not upload the following resources: {failed_uploads}")
-        exit_code = 1
+        success = False
 
-    exit(exit_code)
+    return success
 
 
 def _try_sipi_upload(sipi_server: Sipi, filepath: str) -> dict[Any, Any]:

@@ -859,16 +859,16 @@ def _try_sipi_upload(sipi_server: Sipi, filepath: str) -> dict[Any, Any]:
         response from DSP
     """
 
-    for _ in range(5):
+    for i in range(5):
         try:
             return sipi_server.upload_bitstream(filepath)
         except ConnectionError:
             print(f'{datetime.now().isoformat()}: Try reconnecting to SIPI...')
-            time.sleep(1)
+            time.sleep(2**i)
             continue
         except RequestException:
             print(f'{datetime.now().isoformat()}: Try reconnecting to SIPI...')
-            time.sleep(1)
+            time.sleep(2**i)
             continue
     raise BaseError(f'Cannot upload "{filepath}" to SIPI')
 
@@ -926,7 +926,7 @@ def upload_resources(
 
         # create the resource in DSP
         resclass_instance: ResourceInstance = None
-        for _ in range(5):
+        for i in range(5):
             try:
                 resclass_type = resclass_name_2_type[resource.restype]
                 properties = resource.get_propvals(id2iri_mapping, permissions_lookup)
@@ -942,11 +942,11 @@ def upload_resources(
                 break
             except ConnectionError:
                 print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
-                time.sleep(1)
+                time.sleep(2**i)
                 continue
             except RequestException:
                 print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
-                time.sleep(1)
+                time.sleep(2**i)
                 continue
             except BaseError:
                 break
@@ -1025,18 +1025,18 @@ def upload_stashed_xml_texts(
 
                 # execute API call
                 response = None
-                for _ in range(5):
+                for i in range(5):
                     try:
                         response = con.put(path='/v2/values', jsondata=jsondata)
                         stashed_xml_texts[resource][link_prop].pop(pure_text)
                         break
                     except ConnectionError:
                         print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
-                        time.sleep(1)
+                        time.sleep(2**i)
                         continue
                     except RequestException:
                         print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
-                        time.sleep(1)
+                        time.sleep(2**i)
                         continue
                     except BaseError:
                         print(f'ERROR while updating the xml text of "{link_prop.name}" of resource "{resource.id}"')
@@ -1096,18 +1096,18 @@ def upload_stashed_resptr_props(
                 }
                 jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '))
                 response = None
-                for _ in range(5):
+                for i in range(5):
                     try:
                         response = con.post(path='/v2/values', jsondata=jsondata)
                         stashed_resptr_props[resource][link_prop].remove(resptr)
                         break
                     except ConnectionError:
                         print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
-                        time.sleep(1)
+                        time.sleep(2**i)
                         continue
                     except RequestException:
                         print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
-                        time.sleep(1)
+                        time.sleep(2**i)
                         continue
                     except BaseError:
                         print(f'ERROR while updating the resptr prop of "{link_prop.name}" of resource "{resource.id}"')

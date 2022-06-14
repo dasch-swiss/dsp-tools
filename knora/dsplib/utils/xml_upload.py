@@ -922,8 +922,6 @@ def upload_resources(
                 failed_uploads.append(resource.id)
                 continue
 
-        permissions_tmp = permissions_lookup.get(resource.permissions)
-
         # create the resource in DSP
         resclass_instance: ResourceInstance = None
         for i in range(7):
@@ -934,7 +932,7 @@ def upload_resources(
                     con=con,
                     label=resource.label,
                     iri=resource_iri,
-                    permissions=permissions_tmp,
+                    permissions=permissions_lookup.get(resource.permissions),
                     bitstream=resource_bitstream,
                     values=properties
                 )
@@ -1049,6 +1047,13 @@ def upload_stashed_xml_texts(
                         print(f'  Successfully updated xml text of "{link_prop.name}"\n')
 
     # make a purged version of stashed_xml_texts, without empty entries
+    nonapplied_xml_texts = purge_stashed_xml_texts(stashed_xml_texts)
+    return nonapplied_xml_texts
+
+
+def purge_stashed_xml_texts(
+    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]
+) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
     nonapplied_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]] = {}
     for res, propdict in stashed_xml_texts.items():
         for prop, xmldict in propdict.items():
@@ -1056,7 +1061,6 @@ def upload_stashed_xml_texts(
                 if res not in nonapplied_xml_texts:
                     nonapplied_xml_texts[res] = {}
                 nonapplied_xml_texts[res][prop] = xmldict
-
     return nonapplied_xml_texts
 
 
@@ -1124,6 +1128,13 @@ def upload_stashed_resptr_props(
                               f'    Value: {resptr}')
 
     # make a purged version of stashed_resptr_props, without empty entries
+    nonapplied_resptr_props = purge_stashed_resptr_props(stashed_resptr_props)
+    return nonapplied_resptr_props
+
+
+def purge_stashed_resptr_props(
+    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]]
+) -> dict[XMLResource, dict[XMLProperty, list[str]]]:
     nonapplied_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]] = {}
     for res, propdict in stashed_resptr_props.items():
         for prop, resptrs in propdict.items():
@@ -1131,7 +1142,6 @@ def upload_stashed_resptr_props(
                 if res not in nonapplied_resptr_props:
                     nonapplied_resptr_props[res] = {}
                 nonapplied_resptr_props[res][prop] = resptrs
-
     return nonapplied_resptr_props
 
 
@@ -1169,12 +1179,15 @@ def handle_upload_error(
 
     # Both stashes are purged from resources that have not been uploaded yet. Only stashed properties of resources that
     # already exist in DSP are of interest.
-    stashed_xml_texts = {res: propdict for res, propdict in stashed_xml_texts.items() if res.id in id2iri_mapping}
-    if len(stashed_xml_texts) > 0:
-        write_stashed_xml_texts(stashed_xml_texts, timestamp_str)
-    stashed_resptr_props = {res: propdict for res, propdict in stashed_resptr_props.items() if res.id in id2iri_mapping}
-    if len(stashed_resptr_props) > 0:
-        write_stashed_resptr_props(stashed_resptr_props, timestamp_str)
+    stashed_xml_texts_purged = purge_stashed_xml_texts(
+        {res: propdict for res, propdict in stashed_xml_texts.items() if res.id in id2iri_mapping})
+    if len(stashed_xml_texts_purged) > 0:
+        write_stashed_xml_texts(stashed_xml_texts_purged, timestamp_str)
+
+    stashed_resptr_props_purged = purge_stashed_resptr_props(
+        {res: propdict for res, propdict in stashed_resptr_props.items() if res.id in id2iri_mapping})
+    if len(stashed_resptr_props_purged) > 0:
+        write_stashed_resptr_props(stashed_resptr_props_purged, timestamp_str)
 
     # print the resources that threw an error when they were tried to be uploaded
     if failed_uploads:

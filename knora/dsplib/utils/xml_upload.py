@@ -978,7 +978,7 @@ def upload_stashed_xml_texts(
         nonapplied_xml_texts: the xml texts that could not be uploaded
     """
 
-    print('Update the stashed XML texts...')
+    print('Upload the stashed XML texts...')
     for resource, link_props in stashed_xml_texts.copy().items():
         if resource.id not in id2iri_mapping:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
@@ -1040,11 +1040,11 @@ def upload_stashed_xml_texts(
                         time.sleep(2**i)
                         continue
                     except BaseError:
-                        print(f'ERROR while updating the xml text of "{link_prop.name}" of resource "{resource.id}"')
+                        print(f'ERROR while uploading the xml text of "{link_prop.name}" of resource "{resource.id}"')
                         break
                 if verbose:
                     if response:
-                        print(f'  Successfully updated xml text of "{link_prop.name}"\n')
+                        print(f'  Successfully uploaded xml text of "{link_prop.name}"\n')
 
     # make a purged version of stashed_xml_texts, without empty entries
     nonapplied_xml_texts = purge_stashed_xml_texts(stashed_xml_texts)
@@ -1083,7 +1083,7 @@ def upload_stashed_resptr_props(
         nonapplied_resptr_props: the resptr props that could not be uploaded
     """
 
-    print('Update the stashed resptrs...')
+    print('Upload the stashed resptrs...')
     for resource, prop_2_resptrs in stashed_resptr_props.copy().items():
         if resource.id not in id2iri_mapping:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
@@ -1120,11 +1120,11 @@ def upload_stashed_resptr_props(
                         time.sleep(2**i)
                         continue
                     except BaseError:
-                        print(f'ERROR while updating the resptr prop of "{link_prop.name}" of resource "{resource.id}"')
+                        print(f'ERROR while uploading the resptr prop of "{link_prop.name}" of resource "{resource.id}"')
                         break
                 if verbose:
                     if response:
-                        print(f'  Successfully updated resptr-prop of "{link_prop.name}"\n'
+                        print(f'  Successfully uploaded resptr-prop of "{link_prop.name}"\n'
                               f'    Value: {resptr}')
 
     # make a purged version of stashed_resptr_props, without empty entries

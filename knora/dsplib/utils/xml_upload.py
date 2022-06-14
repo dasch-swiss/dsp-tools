@@ -859,15 +859,15 @@ def _try_sipi_upload(sipi_server: Sipi, filepath: str) -> dict[Any, Any]:
         response from DSP
     """
 
-    for i in range(5):
+    for i in range(7):
         try:
             return sipi_server.upload_bitstream(filepath)
         except ConnectionError:
-            print(f'{datetime.now().isoformat()}: Try reconnecting to SIPI...')
+            print(f'{datetime.now().isoformat()}: Try reconnecting to SIPI, next attempt in {2**i} seconds...')
             time.sleep(2**i)
             continue
         except RequestException:
-            print(f'{datetime.now().isoformat()}: Try reconnecting to SIPI...')
+            print(f'{datetime.now().isoformat()}: Try reconnecting to SIPI, next attempt in {2**i} seconds...')
             time.sleep(2**i)
             continue
     raise BaseError(f'Cannot upload "{filepath}" to SIPI')
@@ -926,7 +926,7 @@ def upload_resources(
 
         # create the resource in DSP
         resclass_instance: ResourceInstance = None
-        for i in range(5):
+        for i in range(7):
             try:
                 resclass_type = resclass_name_2_type[resource.restype]
                 properties = resource.get_propvals(id2iri_mapping, permissions_lookup)
@@ -941,11 +941,11 @@ def upload_resources(
                 resclass_instance = resclass_instance.create()
                 break
             except ConnectionError:
-                print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
+                print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2**i} seconds...')
                 time.sleep(2**i)
                 continue
             except RequestException:
-                print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
+                print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2**i} seconds...')
                 time.sleep(2**i)
                 continue
             except BaseError:
@@ -1025,17 +1025,17 @@ def upload_stashed_xml_texts(
 
                 # execute API call
                 response = None
-                for i in range(5):
+                for i in range(7):
                     try:
                         response = con.put(path='/v2/values', jsondata=jsondata)
                         stashed_xml_texts[resource][link_prop].pop(pure_text)
                         break
                     except ConnectionError:
-                        print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
+                        print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2**i} seconds...')
                         time.sleep(2**i)
                         continue
                     except RequestException:
-                        print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
+                        print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2**i} seconds...')
                         time.sleep(2**i)
                         continue
                     except BaseError:
@@ -1096,17 +1096,17 @@ def upload_stashed_resptr_props(
                 }
                 jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '))
                 response = None
-                for i in range(5):
+                for i in range(7):
                     try:
                         response = con.post(path='/v2/values', jsondata=jsondata)
                         stashed_resptr_props[resource][link_prop].remove(resptr)
                         break
                     except ConnectionError:
-                        print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
+                        print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2**i} seconds...')
                         time.sleep(2**i)
                         continue
                     except RequestException:
-                        print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server...')
+                        print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2**i} seconds...')
                         time.sleep(2**i)
                         continue
                     except BaseError:

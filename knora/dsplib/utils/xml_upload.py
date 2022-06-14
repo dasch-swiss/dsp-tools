@@ -982,7 +982,10 @@ def upload_stashed_xml_texts(
 
     print('Update the stashed XML texts...')
     for resource, link_props in stashed_xml_texts.copy().items():
-        print(f'Update XML text(s) of resource "{resource.id}"...')
+        if resource.id not in id2iri_mapping:
+            # resource could not be uploaded to DSP, so the stash cannot be uploaded either
+            continue
+        print(f'  Upload XML text(s) of resource "{resource.id}"...')
         res_iri = id2iri_mapping[resource.id]
         existing_resource = con.get(path=f'/v2/resources/{quote_plus(res_iri)}')
         for link_prop, hash_to_value in link_props.items():
@@ -1078,7 +1081,10 @@ def upload_stashed_resptr_props(
 
     print('Update the stashed resptrs...')
     for resource, prop_2_resptrs in stashed_resptr_props.copy().items():
-        print(f'Update resptrs of resource "{resource.id}"...')
+        if resource.id not in id2iri_mapping:
+            # resource could not be uploaded to DSP, so the stash cannot be uploaded either
+            continue
+        print(f'  Upload resptrs of resource "{resource.id}"...')
         res_iri = id2iri_mapping[resource.id]
         existing_resource = con.get(path=f'/v2/resources/{quote_plus(res_iri)}')
         for link_prop, resptrs in prop_2_resptrs.items():

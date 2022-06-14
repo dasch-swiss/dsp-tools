@@ -1171,7 +1171,8 @@ def handle_upload_error(
         None
     """
 
-    print('xmlupload must be aborted because of an error')
+    print(f'\n=========================================='
+          f'\nxmlupload must be aborted because of an error')
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
 
     # write id2iri_mapping of the resources that are already in DSP
@@ -1194,7 +1195,12 @@ def handle_upload_error(
         print(f"Independently of this error, there were some resources that could not be uploaded: "
               f"{failed_uploads}")
 
-    raise err
+    if isinstance(err, KeyboardInterrupt):
+        exit(1)
+    else:
+        print('The error will now be raised again:\n'
+              '==========================================\n')
+        raise err
 
 
 def write_id2iri_mapping(input_file: str, id2iri_mapping: dict[str, str], timestamp_str: str) -> None:
@@ -1213,7 +1219,7 @@ def write_id2iri_mapping(input_file: str, id2iri_mapping: dict[str, str], timest
 
     id2iri_mapping_file = "id2iri_" + Path(input_file).stem + "_mapping_" + timestamp_str + ".json"
     with open(id2iri_mapping_file, "w") as outfile:
-        print(f"============\nThe mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
+        print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
         outfile.write(json.dumps(id2iri_mapping))
 
 
@@ -1233,17 +1239,30 @@ def write_stashed_xml_texts(
         None
     """
 
-    filename = f'stashed_xml_texts_{timestamp_str}.txt'
-    print(f'There are stashed xml texts that could not be reapplied. They were saved to {filename}')
+    filename = f'stashed_text_properties_{timestamp_str}.txt'
+    print(f'There are stashed text properties that could not be reapplied to the resources they were stripped from. '
+          f'They were saved to {filename}')
     with open(filename, 'a') as f:
-        f.write('Stashed XML texts that could not be reapplied\n')
-        f.write('*********************************************\n')
+        f.write('Stashed text properties that could not be reapplied\n')
+        f.write('***************************************************\n')
+        f.write('During the xmlupload, some text properties had to be stashed away, because the salsah-links in their '
+                'XML text formed a circle. The xmlupload can only be done if these circles are broken up, by stashing '
+                'away some of the chain elements of the circle. \n'
+                'Some of the resources that have been stripped from some of their text properties have been created in '
+                'DSP, but the stashed text properties could not be reapplied to them, because the xmlupload was '
+                'unexpectedly interrupted. \n'
+                'This file is a list of all text properties that are now missing in DSP. The texts have been replaced '
+                'by a hash number that now stands in the text field in DSP. \n'
+                '(Not listed are the stripped resources that haven\'t been created in DSP yet.) \n')
         for res, props in stashed_xml_texts.items():
-            f.write(f'\n{res.id}\n---------\n')
+            f.write(f'\n{res.id}')
+            f.write('\n' + '=' * len(res.id))
             for prop, stashed_texts in props.items():
-                f.write(f'{prop.name}\n')
-                for i, standoff in enumerate(stashed_texts.values()):
-                    f.write(f'\t{i}. text: {standoff}')
+                if len(stashed_texts) > 0:
+                    f.write(f'\n{prop.name}')
+                    f.write('\n' + '-' * len(prop.name))
+                    for hash, standoff in stashed_texts.items():
+                        f.write(f'\ntext with hash {hash}:\n{str(standoff).strip()}\n')
 
 
 def write_stashed_resptr_props(
@@ -1262,11 +1281,20 @@ def write_stashed_resptr_props(
         None
     """
 
-    filename = f'stashed_resptr_props_{timestamp_str}.txt'
-    print(f'There are stashed resptr props that could not be reapplied. They were saved to {filename}')
+    filename = f'stashed_resptr_properties_{timestamp_str}.txt'
+    print(f'There are stashed resptr properties that could not be reapplied to the resources they were stripped from. '
+          f'They were saved to {filename}')
     with open(filename, 'a') as f:
-        f.write('Stashed resptr props that could not be reapplied\n')
-        f.write('************************************************\n')
+        f.write('Stashed resptr properties that could not be reapplied\n')
+        f.write('*****************************************************\n')
+        f.write('During the xmlupload, some resptr-props had to be stashed away, because they formed a circle. The '
+                'xmlupload can only be done if these circles are broken up, by stashing away some of the chain '
+                'elements of the circle. \n'
+                'Some of the resources that have been stripped from some of their resptr-props have been created in '
+                'DSP, but the stashed resptr-props could not be reapplied to them, because the xmlupload was '
+                'unexpectedly interrupted. \n'
+                'This file is a list of all resptr-props that are now missing in DSP. (Not listed are the stripped '
+                'resources that haven\'t been created in DSP yet. \n')
         for res, props_ in stashed_resptr_props.items():
             f.write(f'\n{res.id}\n---------\n')
             for prop, stashed_props in props_.items():

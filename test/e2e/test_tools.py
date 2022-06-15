@@ -176,18 +176,16 @@ class TestTools(unittest.TestCase):
                         dump=False)
 
     def test_xml_upload(self) -> None:
-        with self.assertRaises(SystemExit) as cm:
-            result = xml_upload(
-                input_file=self.test_data_file,
-                server=self.server,
-                user=self.user,
-                password=self.password,
-                imgdir=self.imgdir,
-                sipi=self.sipi,
-                verbose=False,
-                validate_only=False,
-                incremental=False)
-        self.assertEqual(cm.exception.code, 0)
+        result = xml_upload(
+            input_file=self.test_data_file,
+            server=self.server,
+            user=self.user,
+            password=self.password,
+            imgdir=self.imgdir,
+            sipi=self.sipi,
+            verbose=False,
+            validate_only=False,
+            incremental=False)
         self.assertTrue(result)
 
         mapping_file = ''
@@ -204,22 +202,20 @@ class TestTools(unittest.TestCase):
                   verbose=False)
         self.assertEqual(os.path.isfile(id2iri_replaced_xml_filename), True)
 
-        with self.assertRaises(SystemExit) as cm:
-            result = xml_upload(
-                input_file=id2iri_replaced_xml_filename,
-                server=self.server,
-                user=self.user,
-                password=self.password,
-                imgdir=self.imgdir,
-                sipi=self.sipi,
-                verbose=False,
-                validate_only=False,
-                incremental=True
-            )
-        self.assertEqual(cm.exception.code, 0)
+        result = xml_upload(
+            input_file=id2iri_replaced_xml_filename,
+            server=self.server,
+            user=self.user,
+            password=self.password,
+            imgdir=self.imgdir,
+            sipi=self.sipi,
+            verbose=False,
+            validate_only=False,
+            incremental=True
+        )
         self.assertTrue(result)
-        self.assertTrue(all([not f.name.startswith('stashed_xml_texts_') for f in os.scandir('.')]))
-        self.assertTrue(all([not f.name.startswith('stashed_resptr_props_') for f in os.scandir('.')]))
+        self.assertTrue(all([not f.name.startswith('stashed_text_properties_') for f in os.scandir('.')]))
+        self.assertTrue(all([not f.name.startswith('stashed_resptr_properties_') for f in os.scandir('.')]))
 
 
 if __name__ == '__main__':

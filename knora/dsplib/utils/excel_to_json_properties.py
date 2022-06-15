@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from typing import Any
 
 import jsonschema
@@ -44,7 +45,7 @@ def properties_excel2json(excelfile: str, outfile: str) -> list[dict[str, Any]]:
     # load file
     wb = load_workbook(filename=excelfile, read_only=True)
     sheet = wb.worksheets[0]
-    props = [row_to_prop(row) for row in sheet.iter_rows(min_row=2, values_only=True, max_col=13)]
+    props = [row_to_prop(row) for row in sheet.iter_rows(min_row=2, values_only=True, max_col=13) if any(row) and any([re.search(r'[A-Za-z]+', elem) for elem in row if isinstance(elem, str)])]
 
     prefix = '"properties":'
 
@@ -92,12 +93,12 @@ def row_to_prop(row: tuple[str, str, str, str, str, str, str, str, str, str, str
     if comment_it:
         comments['it'] = comment_it
     prop = {
-        'name': name,
-        'super': [super_],
-        'object': object_,
+        'name': name.strip(),
+        'super': [super_.strip()],
+        'object': object_.strip(),
         'labels': labels,
         'comments': comments,
-        'gui_element': gui_element
+        'gui_element': gui_element.strip()
     }
     if hlist:
         prop['gui_attributes'] = {'hlist': hlist}

@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from typing import Any
 
 import jsonschema
@@ -48,7 +49,7 @@ def resources_excel2json(excelfile: str, outfile: str) -> None:
 
     # get overview
     sheet = wb['classes']
-    resource_list = [c for c in sheet.iter_rows(min_row=2, values_only=True)]
+    resource_list = [c for c in sheet.iter_rows(min_row=2, values_only=True) if any(c) and any([re.search(r'[A-Za-z]+', elem) for elem in c if isinstance(elem, str)])]
 
     prefix = '"resources":'
     resources = [_extract_row(res, wb) for res in resource_list]
@@ -92,7 +93,7 @@ def _extract_row(row: tuple[str, str, str, str, str, str, str, str, str, str], w
 
     # load details for this resource
     sh = wb[name]
-    property_list = [c for c in sh.iter_rows(min_row=2, values_only=True)]
+    property_list = [c for c in sh.iter_rows(min_row=2, values_only=True) if any([re.search(r'[A-Za-z]+', elem) for elem in c if isinstance(elem, str)])]
 
     cards = []
     # for each of the detail sheets
@@ -100,8 +101,8 @@ def _extract_row(row: tuple[str, str, str, str, str, str, str, str, str, str], w
         # get name and cardinality.
         # GUI-order is equal to order in the sheet.
         property_ = {
-            "propname": ":" + prop[0],
-            "cardinality": str(prop[1]),
+            "propname": ":" + prop[0].strip(),
+            "cardinality": str(prop[1]).lower().strip(),
             "gui_order": i + 1
         }
         cards.append(property_)

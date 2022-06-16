@@ -27,18 +27,18 @@ The worksheet called `classes` has the following structure:
 
 The expected columns are:
 
-- `name` : The name of the resource
-- `en`, `de`, `fr`, `it` : The labels of the resource in different languages, at least one language has to be provided
+- `name`: The name of the resource
+- `en`, `de`, `fr`, `it`: The labels of the resource in different languages, at least one language has to be provided
 - `comment_en`, `comment_de`, `comment_fr`, `comment_it`: optional comments in the respective language 
-- `super` : The base class of the resource
+- `super`: The base class of the resource
 
 All other worksheets, one for each resource class, have the following structure:
 ![img-resources-example-2.png](assets/images/img-resources-example-2.png){ width=50% }
 
 The expected columns are:
 
-- `Property` : The name of the property
-- `Cardinality` : The cardinality, one of: `1`, `0-1`, `1-n`, `0-n`
+- `Property`: The name of the property
+- `Cardinality`: The cardinality, one of: `1`, `0-1`, `1-n`, `0-n`
 
 The GUI order is given by the order in which the properties are listed in the Excel sheet.
 
@@ -58,15 +58,16 @@ The Excel sheet must have the following structure:
 
 The expected columns are:
 
-- `name` : The name of the property
-- `super` : The base property/ies of the property, separated by commas
-- `object` : If the property is derived from `hasValue`, the type of the property must be further specified by the 
+- `name`: The name of the property
+- `super`: The base property/ies of the property, separated by commas
+- `object`: If the property is derived from `hasValue`, the type of the property must be further specified by the 
 object it takes, e.g. `TextValue`, `ListValue`, or `IntValue`. If the property is derived from `hasLinkTo`, 
 the `object` specifies the resource class that this property refers to.
-- `en`, `de`, `fr`, `it` : The labels of the property in different languages, at least one language has to be provided
+- `en`, `de`, `fr`, `it`: The labels of the property in different languages, at least one language has to be provided
 - `comment_en`, `comment_de`, `comment_fr`, `comment_it`: optional comments in the respective language 
-- `gui_element` : The GUI element for the property
-- `hlist` : In case of list values: the name of the list
+- `gui_element`: The GUI element for the property
+- `gui_attributes` (optional): The gui_attributes in the form "attr: value, attr: value". In case of ListValues, the 
+  name of the list can be given as "hlist: listname" (according to the pattern), or simply as "listname".
 
 For further information about properties, see [here](./dsp-tools-create-ontologies.md#properties).
 

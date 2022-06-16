@@ -83,7 +83,7 @@ def row_to_prop(row: tuple[str, str, str, str, str, str, str, str, str, str, str
     if it:
         labels['it'] = it.strip()
     if not labels:
-        raise Exception(f"No label given in any of the four languages: {name}")
+        raise ValueError(f"No label given in any of the four languages: {name}")
     comments = {}
     if comment_en:
         comments['en'] = comment_en.strip()
@@ -115,8 +115,8 @@ def row_to_prop(row: tuple[str, str, str, str, str, str, str, str, str, str, str
             elif object_.strip() == 'ListValue':
                 attr_dict.update({'hlist': elem})
             else:
-                raise Exception(f'gui_attribute must be of the form "attr: value", except for ListValues, where the '
-                                f'simple name of the list is allowed. But the property "{name}", which is not a list, '
-                                f'has a gui_attribute that does not contain a colon.')
+                raise ValueError(f'gui_attribute must be of the form "attr: value", except for ListValues, where the '
+                                 f'simple name of the list is allowed. But the property "{name}", which is not a list, '
+                                 f'has a gui_attribute that does not contain a colon.')
         prop['gui_attributes'] = attr_dict
     return prop

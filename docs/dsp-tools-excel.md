@@ -59,7 +59,7 @@ The Excel sheet must have the following structure:
 The expected columns are:
 
 - `name` : The name of the property
-- `super` : The base property of the property
+- `super` : The base property/ies of the property, separated by commas
 - `object` : If the property is derived from `hasValue`, the type of the property must be further specified by the 
 object it takes, e.g. `TextValue`, `ListValue`, or `IntValue`. If the property is derived from `hasLinkTo`, 
 the `object` specifies the resource class that this property refers to.

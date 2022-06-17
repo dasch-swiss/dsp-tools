@@ -779,13 +779,13 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             elem.tag = etree.QName(elem).localname  # remove namespace URI in the element's name
     etree.cleanup_namespaces(tree)  # remove unused namespace declarations
 
-    knora = tree.getroot()
-    default_ontology = knora.attrib['default-ontology']
-    shortcode = knora.attrib['shortcode']
+    root = tree.getroot()
+    default_ontology = root.attrib['default-ontology']
+    shortcode = root.attrib['shortcode']
 
     resources: list[XMLResource] = []
     permissions: dict[str, XmlPermission] = {}
-    for child in knora:
+    for child in root:
         if child.tag == "permissions":
             permission = XmlPermission(child, proj_context)
             permissions[permission.id] = permission
@@ -886,10 +886,10 @@ def upload_resources(
         # in case of a multimedia resource: upload the multimedia file
         resource_bitstream = None
         if resource.bitstream:
-            img: dict[Any, Any] = try_network_action(
+            img: Optional[dict[Any, Any]] = try_network_action(
                 object=sipi_server,
                 method='upload_bitstream',
-                args={'filepath': os.path.join(imgdir, resource.bitstream.value)},
+                kwargs={'filepath': os.path.join(imgdir, resource.bitstream.value)},
                 terminal_output_on_failure=f'ERROR while trying to create resource "{resource.label}" ({resource.id}).'
             )
             if not img:
@@ -903,7 +903,7 @@ def upload_resources(
         properties = resource.get_propvals(id2iri_mapping, permissions_lookup)
         resclass_instance: ResourceInstance = try_network_action(
             method=resclass_type,
-            args={
+            kwargs={
                 'con': con,
                 'label': resource.label,
                 'iri': resource_iri,
@@ -960,7 +960,7 @@ def upload_stashed_xml_texts(
         existing_resource = try_network_action(
             object=con,
             method='get',
-            args={'path': f'/v2/resources/{quote_plus(res_iri)}'},
+            kwargs={'path': f'/v2/resources/{quote_plus(res_iri)}'},
             terminal_output_on_failure=f'ERROR while uploading the xml texts of resource "{resource.id}"'
         )
         if not existing_resource:
@@ -1007,7 +1007,7 @@ def upload_stashed_xml_texts(
                 response = try_network_action(
                     object=con,
                     method='put',
-                    args={'path': '/v2/values', 'jsondata': jsondata},
+                    kwargs={'path': '/v2/values', 'jsondata': jsondata},
                     terminal_output_on_failure=f'ERROR while uploading the xml text of "{link_prop.name}" '
                                                f'of resource "{resource.id}"'
                 )
@@ -1079,7 +1079,7 @@ def upload_stashed_resptr_props(
                 response = try_network_action(
                     object=con,
                     method='post',
-                    args={'path': '/v2/values', 'jsondata': jsondata},
+                    kwargs={'path': '/v2/values', 'jsondata': jsondata},
                     terminal_output_on_failure=f'ERROR while uploading the resptr prop of "{link_prop.name}" '
                                                f'of resource "{resource.id}"'
                 )
@@ -1099,7 +1099,7 @@ def try_network_action(
     terminal_output_on_failure: str,
     method: Union[str, Callable[..., Any]],
     object: Optional[Any] = None,
-    args: Optional[dict[str, Any]] = None
+    kwargs: Optional[dict[str, Any]] = None
 ) -> Any:
     """
     Helper method that tries 7 times to execute an action. Each time, it catches ConnectionError and
@@ -1112,7 +1112,7 @@ def try_network_action(
         terminal_output_on_failure: message to be printed if action cannot be executed
         method: either a callable to be called on its own, or a method name (as string) to be called on object
         object: if provided, it must be a python variable/object, accompanied by a method name (as string)
-        args: if provided, a dict with the arguments passed to method
+        kwargs: if provided, a dict with the arguments passed to method
 
     Returns:
         the return value of action, or None
@@ -1121,15 +1121,15 @@ def try_network_action(
     for i in range(7):
         try:
             if object and isinstance(method, str):
-                if not args:
+                if not kwargs:
                     return getattr(object, method)()
                 else:
-                    return getattr(object, method)(**args)
+                    return getattr(object, method)(**kwargs)
             else:
-                if not args:
+                if not kwargs:
                     return method()
                 else:
-                    return method(**args)
+                    return method(**kwargs)
         except ConnectionError:
             print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...')
             time.sleep(2 ** i)
@@ -1222,7 +1222,7 @@ def handle_upload_error(
 def write_id2iri_mapping(input_file: str, id2iri_mapping: dict[str, str], timestamp_str: str) -> None:
     """
     Write the id2iri mapping into a file. The timestamp must be created by the caller, so that different log files can
-    have an identical time stamp.
+    have an identical timestamp.
 
     Args:
         input_file: the file name of the original XML file
@@ -1245,7 +1245,7 @@ def write_stashed_xml_texts(
 ) -> None:
     """
     Write the stashed_xml_texts into a file. The timestamp must be created by the caller, so that different log files
-    can have an identical time stamp.
+    can have an identical timestamp.
 
     Args:
         stashed_xml_texts: all xml texts that have been stashed
@@ -1287,7 +1287,7 @@ def write_stashed_resptr_props(
 ) -> None:
     """
     Write the stashed_resptr_props into a file. The timestamp must be created by the caller, so that different log files
-    can have an identical time stamp.
+    can have an identical timestamp.
 
     Args:
         stashed_resptr_props: all resptr props that have been stashed

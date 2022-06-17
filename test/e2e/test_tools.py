@@ -176,29 +176,34 @@ class TestTools(unittest.TestCase):
                         dump=False)
 
     def test_xml_upload(self) -> None:
-        xml_upload(input_file=self.test_data_file,
-                   server=self.server,
-                   user=self.user,
-                   password=self.password,
-                   imgdir=self.imgdir,
-                   sipi=self.sipi,
-                   verbose=False,
-                   validate_only=False,
-                   incremental=False)
+        result = xml_upload(
+            input_file=self.test_data_file,
+            server=self.server,
+            user=self.user,
+            password=self.password,
+            imgdir=self.imgdir,
+            sipi=self.sipi,
+            verbose=False,
+            validate_only=False,
+            incremental=False)
+        self.assertTrue(result)
 
         mapping_file = ''
         for mapping in [x for x in os.scandir('.') if x.name.startswith('id2iri_test-data_mapping_')]:
             delta = datetime.datetime.now() - datetime.datetime.fromtimestamp(mapping.stat().st_mtime_ns / 1000000000)
             if delta.seconds < 15:
                 mapping_file = mapping.name
+        self.assertNotEqual(mapping_file, '')
 
+        id2iri_replaced_xml_filename = 'testdata/tmp/_test-id2iri-replaced.xml'
         id_to_iri(xml_file='testdata/test-id2iri-data.xml',
                   json_file=mapping_file,
-                  out_file='testdata/tmp/_test-id2iri-replaced.xml',
+                  out_file=id2iri_replaced_xml_filename,
                   verbose=False)
+        self.assertEqual(os.path.isfile(id2iri_replaced_xml_filename), True)
 
-        xml_upload(
-            input_file='testdata/tmp/_test-id2iri-replaced.xml',
+        result = xml_upload(
+            input_file=id2iri_replaced_xml_filename,
             server=self.server,
             user=self.user,
             password=self.password,
@@ -208,6 +213,9 @@ class TestTools(unittest.TestCase):
             validate_only=False,
             incremental=True
         )
+        self.assertTrue(result)
+        self.assertTrue(all([not f.name.startswith('stashed_text_properties_') for f in os.scandir('.')]))
+        self.assertTrue(all([not f.name.startswith('stashed_resptr_properties_') for f in os.scandir('.')]))
 
 
 if __name__ == '__main__':

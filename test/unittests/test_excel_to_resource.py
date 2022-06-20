@@ -1,6 +1,10 @@
 """unit tests for excel to resource"""
 import os
 import unittest
+import pandas as pd
+import json
+import jsonpath_ng
+import re
 
 from openpyxl import Workbook
 
@@ -14,10 +18,71 @@ class TestExcelToResource(unittest.TestCase):
         os.makedirs('testdata/tmp', exist_ok=True)
 
     def test_excel2json(self) -> None:
-        in_file = "testdata/Resources.xlsx"
-        out_file = "testdata/tmp/_out_res.json"
-        e2j.resources_excel2json(in_file, out_file)
-        self.assertTrue(os.path.exists(out_file))
+        excelfile = "testdata/Resources.xlsx"
+        outfile = "testdata/tmp/_out_res.json"
+        e2j.resources_excel2json(excelfile, outfile)
+
+        # read excel: skip all rows that lack one of the required values
+        excel_df = pd.read_excel(excelfile)
+        excel_df = excel_df[pd.notna(excel_df['name'])]
+        excel_df = excel_df[[bool(re.search(r'\w', x)) for x in excel_df['name']]]
+        excel_df = excel_df[pd.notna(excel_df['super'])]
+        excel_df = excel_df[[bool(re.search(r'\w', x)) for x in excel_df['super']]]
+        excel_first_class_df = pd.read_excel(excelfile, sheet_name=1)
+        excel_first_class_df = excel_first_class_df[pd.notna(excel_first_class_df['Property'])]
+        excel_first_class_df = excel_first_class_df[[bool(re.search(r'\w', x)) for x in excel_first_class_df['Property'].astype(str)]]
+        excel_first_class_df = excel_first_class_df[pd.notna(excel_first_class_df['Cardinality'])]
+        excel_first_class_df = excel_first_class_df[[bool(re.search(r'\w', x)) for x in excel_first_class_df['Cardinality'].astype(str)]]
+
+        # extract infos from excel file
+        excel_names = [s.strip() for s in excel_df['name']]
+        excel_supers = [[x.strip() for x in s.split(',')] for s in excel_df['super']]
+        excel_labels_en = [s.strip() if isinstance(s, str) and re.search(r'\w', s) else '' for s in list(excel_df['en'])]
+        excel_labels_de = [s.strip() if isinstance(s, str) and re.search(r'\w', s) else '' for s in list(excel_df['de'])]
+        excel_labels_fr = [s.strip() if isinstance(s, str) and re.search(r'\w', s) else '' for s in list(excel_df['fr'])]
+        excel_labels_it = [s.strip() if isinstance(s, str) and re.search(r'\w', s) else '' for s in list(excel_df['it'])]
+        excel_comments_en = [s.strip() if isinstance(s, str) and re.search(r'\w', s) else '' for s in list(excel_df['comment_en'])]
+        excel_comments_de = [s.strip() if isinstance(s, str) and re.search(r'\w', s) else '' for s in list(excel_df['comment_de'])]
+        excel_comments_fr = [s.strip() if isinstance(s, str) and re.search(r'\w', s) else '' for s in list(excel_df['comment_fr'])]
+        excel_comments_it = [s.strip() if isinstance(s, str) and re.search(r'\w', s) else '' for s in list(excel_df['comment_it'])]
+        excel_first_class_properties = [f':{s.strip()}' for s in excel_first_class_df['Property']]
+        excel_first_class_cardinalities = [str(s).strip().lower() for s in excel_first_class_df['Cardinality']]
+
+        # read json file
+        with open(outfile) as f:
+            json_string = f.read()
+            json_string = '{' + json_string + '}'
+            json_file = json.loads(json_string)
+
+        # extract infos from json file
+        json_names = [match.value for match in jsonpath_ng.parse('$.resources[*].name').find(json_file)]
+        json_supers = [match.value for match in jsonpath_ng.parse('$.resources[*].super').find(json_file)]
+        json_labels = [match.value for match in jsonpath_ng.parse('$.resources[*].labels').find(json_file)]
+        json_labels_en = [label.get('en', '').strip() for label in json_labels]
+        json_labels_de = [label.get('de', '').strip() for label in json_labels]
+        json_labels_fr = [label.get('fr', '').strip() for label in json_labels]
+        json_labels_it = [label.get('it', '').strip() for label in json_labels]
+        json_comments = [match.value for match in jsonpath_ng.parse('$.resources[*].comments').find(json_file)]
+        json_comments_en = [comment.get('en', '').strip() for comment in json_comments]
+        json_comments_de = [comment.get('de', '').strip() for comment in json_comments]
+        json_comments_fr = [comment.get('fr', '').strip() for comment in json_comments]
+        json_comments_it = [comment.get('it', '').strip() for comment in json_comments]
+        json_first_class_properties = [match.value for match in jsonpath_ng.parse('$.resources[0].cardinalities[*].propname').find(json_file)]
+        json_first_class_cardinalities = [match.value for match in jsonpath_ng.parse('$.resources[0].cardinalities[*].cardinality').find(json_file)]
+
+        # make checks
+        self.assertListEqual(excel_names, json_names)
+        self.assertListEqual(excel_supers, json_supers)
+        self.assertListEqual(excel_labels_en, json_labels_en)
+        self.assertListEqual(excel_labels_de, json_labels_de)
+        self.assertListEqual(excel_labels_fr, json_labels_fr)
+        self.assertListEqual(excel_labels_it, json_labels_it)
+        self.assertListEqual(excel_comments_en, json_comments_en)
+        self.assertListEqual(excel_comments_de, json_comments_de)
+        self.assertListEqual(excel_comments_fr, json_comments_fr)
+        self.assertListEqual(excel_comments_it, json_comments_it)
+        self.assertListEqual(excel_first_class_properties, json_first_class_properties)
+        self.assertListEqual(excel_first_class_cardinalities, json_first_class_cardinalities)
 
     def test_extract_row(self) -> None:
         wb = Workbook()
@@ -49,7 +114,7 @@ class TestExcelToResource(unittest.TestCase):
             'comments': {
                 'en': 'A comment on Class A'
             },
-            'super': 'Resource',
+            'super': ['Resource'],
             'cardinalities': [{
                 'propname': ':property1',
                 'cardinality': '1',

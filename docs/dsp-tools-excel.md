@@ -28,9 +28,9 @@ The worksheet called `classes` has the following structure:
 The expected columns are:
 
 - `name`: The name of the resource
-- `en`, `de`, `fr`, `it`: The labels of the resource in different languages, at least one language has to be provided
-- `comment_en`, `comment_de`, `comment_fr`, `comment_it`: optional comments in the respective language 
-- `super`: The base class of the resource
+- `en`, `de`, `fr`, `it`, `rm`: The labels of the resource in different languages, at least one language has to be provided
+- `comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`: optional comments in the respective language 
+- `super`: The base class(es) of the resource, separated by commas
 
 All other worksheets, one for each resource class, have the following structure:
 ![img-resources-example-2.png](assets/images/img-resources-example-2.png){ width=50% }
@@ -63,11 +63,10 @@ The expected columns are:
 - `object`: If the property is derived from `hasValue`, the type of the property must be further specified by the 
 object it takes, e.g. `TextValue`, `ListValue`, or `IntValue`. If the property is derived from `hasLinkTo`, 
 the `object` specifies the resource class that this property refers to.
-- `en`, `de`, `fr`, `it`: The labels of the property in different languages, at least one language has to be provided
-- `comment_en`, `comment_de`, `comment_fr`, `comment_it`: optional comments in the respective language 
+- `en`, `de`, `fr`, `it`, `rm`: The labels of the property in different languages, at least one language has to be provided
+- `comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`: optional comments in the respective language 
 - `gui_element`: The GUI element for the property
-- `gui_attributes` (optional): The gui_attributes in the form "attr: value, attr: value". In case of ListValues, the 
-  name of the list can be given as "hlist: listname" (according to the pattern), or simply as "listname".
+- `gui_attributes` (optional): The gui_attributes in the form "attr: value, attr: value". 
 
 For further information about properties, see [here](./dsp-tools-create-ontologies.md#properties).
 

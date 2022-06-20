@@ -46,10 +46,10 @@ def properties_excel2json(excelfile: str, outfile: str) -> list[dict[str, Any]]:
     wb = load_workbook(filename=excelfile, read_only=True)
     sheet = wb.worksheets[0]
     props = [row_to_prop(row) for row in sheet.iter_rows(min_row=2, values_only=True, max_col=13)
-             if isinstance(row[0], str) and re.search(r'\w', row[0])     # required: name
-             and isinstance(row[1], str) and re.search(r'\w', row[1])    # required: super
-             and isinstance(row[2], str) and re.search(r'\w', row[2])    # required: object
-             and isinstance(row[11], str) and re.search(r'\w', row[11])  # required: gui_element
+             if isinstance(row[0], str) and re.search(r'[\wäöü]', row[0])     # required: name
+             and isinstance(row[1], str) and re.search(r'[\wäöü]', row[1])    # required: super
+             and isinstance(row[2], str) and re.search(r'[\wäöü]', row[2])    # required: object
+             and isinstance(row[11], str) and re.search(r'[\wäöü]', row[11])  # required: gui_element
     ]
 
     prefix = '"properties":'

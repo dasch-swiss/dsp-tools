@@ -49,8 +49,8 @@ def resources_excel2json(excelfile: str, outfile: str) -> None:
     # get overview
     sheet = wb['classes']
     resource_list = [c for c in sheet.iter_rows(min_row=2, values_only=True)
-                     if isinstance(c[0], str) and re.search(r'\w', c[0])  # required: name
-                     and isinstance(c[9], str) and re.search(r'\w', c[9])  # required: super
+                     if isinstance(c[0], str) and re.search(r'[\wäöü]', c[0])  # required: name
+                     and isinstance(c[9], str) and re.search(r'[\wäöü]', c[9])  # required: super
     ]
 
     prefix = '"resources":'
@@ -96,8 +96,8 @@ def _extract_row(row: tuple[str, str, str, str, str, str, str, str, str, str], w
     # load details for this resource
     sh = wb[name]
     property_list = [c for c in sh.iter_rows(min_row=2, values_only=True)
-                     if isinstance(c[0], str) and re.search(r'\w', c[0])  # required: property
-                     and isinstance(c[1], str) and re.search(r'\w', c[1])  # required: cardinality
+                     if isinstance(c[0], str) and re.search(r'[\wäöü]', c[0])  # required: property
+                     and isinstance(c[1], str) and re.search(r'[\wäöü]', c[1])  # required: cardinality
     ]
 
     cards = []

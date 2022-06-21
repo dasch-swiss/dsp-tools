@@ -48,7 +48,7 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
 
     name = row["name"]
     supers = [s.strip() for s in row["super"].split(",")]
-    object = row["object"]
+    _object = row["object"]
 
     labels = {}
     if row.get("en"):
@@ -93,18 +93,18 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
             gui_attributes[attr] = val
 
     # build the dict structure of this property and append it to the list of properties
-    property = {
+    _property = {
         "name": name,
         "super": supers,
-        "object": object,
+        "object": _object,
         "labels": labels}
     if comments:
-        property["comments"] = comments
-    property["gui_element"] = gui_element
+        _property["comments"] = comments
+    _property["gui_element"] = gui_element
     if gui_attributes:
-        property["gui_attributes"] = gui_attributes
+        _property["gui_attributes"] = gui_attributes
 
-    return property
+    return _property
 
 
 def properties_excel2json(excelfile: str, outfile: str) -> None:

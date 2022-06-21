@@ -49,7 +49,7 @@ def _prepare_dataframe(df: pd.DataFrame, required_columns: list[str], location_o
     new_df = df.rename(columns=lambda x: x.strip().lower())
     required_columns = [x.strip().lower() for x in required_columns]
     # strip every cell, and insert "" if there is no valid word in it
-    new_df = new_df.applymap(lambda x: str(x).strip() if pd.notna(x) and re.search(r"[\w\däöü]", str(x)) else "")
+    new_df = new_df.applymap(lambda x: str(x).strip() if pd.notna(x) and re.search(r"[\wäöü]", str(x)) else "")
     # delete rows that don't have the required columns
     for req in required_columns:
         if req not in new_df:

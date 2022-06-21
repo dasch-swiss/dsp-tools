@@ -23,7 +23,7 @@ def _validate_properties_with_schema(json_file: str) -> bool:
 
     """
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(current_dir, '../schemas/properties-only.json')) as schema:
+    with open(os.path.join(current_dir, "../schemas/properties-only.json")) as schema:
         properties_schema = json.load(schema)
 
     try:
@@ -31,7 +31,7 @@ def _validate_properties_with_schema(json_file: str) -> bool:
     except jsonschema.exceptions.ValidationError as err:
         print(err)
         return False
-    print('Properties data passed schema validation.')
+    print("Properties data passed schema validation.")
     return True
 
 
@@ -62,12 +62,12 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
         pairs = row["gui_attributes"].split(",")
         for pair in pairs:
             if pair.count(":") != 1:
-                raise ValueError(f'Row {row_count} of Excel file {excelfile} contains invalid data in column '
-                                 f'"gui_attributes". The expected format is "attribute: value[, attribute: value]".')
-            attr, val = [x.strip() for x in pair.split(':')]
-            if re.search(r'^\d+\.\d+$', val):
+                raise ValueError(f"Row {row_count} of Excel file {excelfile} contains invalid data in column "
+                                 f"'gui_attributes'. The expected format is 'attribute: value[, attribute: value]'.")
+            attr, val = [x.strip() for x in pair.split(":")]
+            if re.search(r"^\d+\.\d+$", val):
                 val = float(val)
-            elif re.search(r'^\d+$', val):
+            elif re.search(r"^\d+$", val):
                 val = int(val)
             gui_attributes[attr] = val
 
@@ -110,9 +110,9 @@ def properties_excel2json(excelfile: str, outfile: str) -> None:
 
     # write final list to JSON file if list passed validation
     if _validate_properties_with_schema(json.loads(json.dumps(props, indent=4))):
-        with open(file=outfile, mode='w+', encoding='utf-8') as file:
+        with open(file=outfile, mode="w+", encoding="utf-8") as file:
             file.write('"properties": ')
             json.dump(props, file, indent=4)
-            print('Properties file was created successfully and written to file: ', outfile)
+            print("Properties file was created successfully and written to file: ", outfile)
     else:
-        print('Properties data is not valid according to schema.')
+        print("Properties data is not valid according to schema.")

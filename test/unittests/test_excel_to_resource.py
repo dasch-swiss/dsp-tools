@@ -31,7 +31,9 @@ class TestExcelToResource(unittest.TestCase):
         excel_first_class_df = pd.read_excel(excelfile, sheet_name=1, dtype=str)
         for required_column in ["Property", "Cardinality"]:
             excel_first_class_df = excel_first_class_df[pd.notna(excel_first_class_df[required_column])]
-            excel_first_class_df = excel_first_class_df[[bool(re.search(any_char_regex, x)) for x in excel_first_class_df[required_column]]]
+            excel_first_class_df = excel_first_class_df[
+                [bool(re.search(any_char_regex, x)) for x in excel_first_class_df[required_column]]
+            ]
 
         # extract infos from excel file
         excel_names = [s.strip() for s in excel_df["name"]]
@@ -39,11 +41,13 @@ class TestExcelToResource(unittest.TestCase):
 
         excel_labels: dict[str, list[str]] = dict()
         for _id in languages:
-            excel_labels[_id] = [s.strip() if isinstance(s, str) and re.search(any_char_regex, s) else "" for s in list(excel_df[_id])]
+            excel_labels[_id] = [s.strip() if isinstance(s, str) and re.search(any_char_regex, s) else ""
+                                 for s in list(excel_df[_id])]
 
         excel_comments: dict[str, list[str]] = dict()
         for _id in [f"comment_{lang}" for lang in languages]:
-            excel_comments[_id] = [s.strip() if isinstance(s, str) and re.search(any_char_regex, s) else "" for s in list(excel_df[_id])]
+            excel_comments[_id] = [s.strip() if isinstance(s, str) and re.search(any_char_regex, s) else ""
+                                   for s in list(excel_df[_id])]
 
         excel_first_class_properties = [f":{s.strip()}" for s in excel_first_class_df["Property"]]
         excel_first_class_cardinalities = [str(s).strip().lower() for s in excel_first_class_df["Cardinality"]]
@@ -65,11 +69,15 @@ class TestExcelToResource(unittest.TestCase):
 
         json_comments: dict[str, list[str]] = dict()
         for _id in languages:
-            # make sure the lists of the json comments contain a blank string even if there is no "comments" section at all in this resource
-            json_comments[f"comment_{_id}"] = [resource.get("comments", {}).get(_id, "").strip() for resource in json_file["resources"]]
+            # make sure the lists of the json comments contain a blank string even if there is no "comments" section
+            # at all in this resource
+            json_comments[f"comment_{_id}"] = [resource.get("comments", {}).get(_id, "").strip()
+                                               for resource in json_file["resources"]]
 
-        json_first_class_properties = [match.value for match in jsonpath_ng.parse("$.resources[0].cardinalities[*].propname").find(json_file)]
-        json_first_class_cardinalities = [match.value for match in jsonpath_ng.parse("$.resources[0].cardinalities[*].cardinality").find(json_file)]
+        json_first_class_properties = [match.value for match in
+                                    jsonpath_ng.parse("$.resources[0].cardinalities[*].propname").find(json_file)]
+        json_first_class_cardinalities = [match.value for match in
+                                    jsonpath_ng.parse("$.resources[0].cardinalities[*].cardinality").find(json_file)]
 
         # make checks
         self.assertListEqual(excel_names, json_names)

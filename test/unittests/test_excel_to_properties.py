@@ -35,11 +35,13 @@ class TestExcelToProperties(unittest.TestCase):
 
         excel_labels: dict[str, list[str]] = dict()
         for _id in languages:
-            excel_labels[_id] = [s.strip() if isinstance(s, str) and re.search(any_char_regex, s) else "" for s in list(excel_df[_id])]
+            excel_labels[_id] = [s.strip() if isinstance(s, str) and re.search(any_char_regex, s) else ""
+                                 for s in list(excel_df[_id])]
 
         excel_comments: dict[str, list[str]] = dict()
         for _id in [f"comment_{lang}" for lang in languages]:
-            excel_comments[_id] = [s.strip() if isinstance(s, str) and re.search(any_char_regex, s) else "" for s in list(excel_df[_id])]
+            excel_comments[_id] = [s.strip() if isinstance(s, str) and re.search(any_char_regex, s) else ""
+                                   for s in list(excel_df[_id])]
 
         excel_gui_elements = [s.strip() for s in list(excel_df["gui_element"])]
 
@@ -61,7 +63,8 @@ class TestExcelToProperties(unittest.TestCase):
 
         json_comments: dict[str, list[str]] = dict()
         for _id in languages:
-            json_comments[f"comment_{_id}"] = [resource.get("comments", {}).get(_id, "").strip() for resource in json_file["properties"]]
+            json_comments[f"comment_{_id}"] = [resource.get("comments", {}).get(_id, "").strip()
+                                               for resource in json_file["properties"]]
 
         json_gui_elements = [match.value for match in jsonpath_ng.parse("$.properties[*].gui_element").find(json_file)]
 

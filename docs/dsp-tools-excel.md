@@ -20,25 +20,25 @@ The expected worksheets of the Excel file are:
 - `classes`: a table with all resource classes intended to be used in the resulting JSON
 - `class1`, `class2`,...: a table for each resource class named after its name
 
-The Excel sheet must have the following structure.
-
-The worksheet called `classes` has the following structure: 
+The worksheet called `classes` must have the following structure: 
 ![img-resources-example-1.png](assets/images/img-resources-example-1.png)
 
 The expected columns are:
 
-- `name`: The name of the resource
+- `name` (mandatory): The name of the resource
 - `en`, `de`, `fr`, `it`, `rm`: The labels of the resource in different languages, at least one language has to be provided
-- `comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`: optional comments in the respective language 
-- `super`: The base class(es) of the resource, separated by commas
+- `comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm` (optional): comments in the respective language 
+- `super` (mandatory): The base class(es) of the resource, separated by commas
+
+The optional columns may be omitted in the Excel.
 
 All other worksheets, one for each resource class, have the following structure:
 ![img-resources-example-2.png](assets/images/img-resources-example-2.png){ width=50% }
 
 The expected columns are:
 
-- `Property`: The name of the property
-- `Cardinality`: The cardinality, one of: `1`, `0-1`, `1-n`, `0-n`
+- `Property` (mandatory): The name of the property
+- `Cardinality` (mandatory): The cardinality, one of: `1`, `0-1`, `1-n`, `0-n`
 
 The GUI order is given by the order in which the properties are listed in the Excel sheet.
 
@@ -58,15 +58,18 @@ The Excel sheet must have the following structure:
 
 The expected columns are:
 
-- `name`: The name of the property
-- `super`: The base property/ies of the property, separated by commas
-- `object`: If the property is derived from `hasValue`, the type of the property must be further specified by the 
+- `name` (mandatory): The name of the property
+- `super` (mandatory): The base property/ies of the property, separated by commas
+- `object` (mandatory): If the property is derived from `hasValue`, the type of the property must be further specified by the 
 object it takes, e.g. `TextValue`, `ListValue`, or `IntValue`. If the property is derived from `hasLinkTo`, 
 the `object` specifies the resource class that this property refers to.
 - `en`, `de`, `fr`, `it`, `rm`: The labels of the property in different languages, at least one language has to be provided
-- `comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`: optional comments in the respective language 
-- `gui_element`: The GUI element for the property
+- `comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm` (optional): comments in the respective language 
+- `gui_element` (mandatory): The GUI element for the property
 - `gui_attributes` (optional): The gui_attributes in the form "attr: value, attr: value". 
+
+The optional columns may be omitted in the Excel.  
+For backwards compatibility, files containing a column `hlist` are valid, but deprecated.
 
 For further information about properties, see [here](./dsp-tools-create-ontologies.md#properties).
 

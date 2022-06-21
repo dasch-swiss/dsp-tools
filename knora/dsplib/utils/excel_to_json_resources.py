@@ -4,11 +4,10 @@ import re
 from typing import Any
 
 import jsonschema
-from openpyxl import load_workbook
-from openpyxl.workbook.workbook import Workbook
+import pandas as pd
 
 
-def validate_resources_with_schema(json_file: str) -> bool:
+def _validate_resources_with_schema(json_file: str) -> bool:
     """
     This function checks if the json resources are valid according to the schema.
 
@@ -19,7 +18,7 @@ def validate_resources_with_schema(json_file: str) -> bool:
         True if the data passed validation, False otherwise
     """
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(current_dir, '../schemas/resources-only.json')) as schema:
+    with open(os.path.join(current_dir, "../schemas/resources-only.json")) as schema:
         resources_schema = json.load(schema)
 
     try:
@@ -27,8 +26,109 @@ def validate_resources_with_schema(json_file: str) -> bool:
     except jsonschema.exceptions.ValidationError as err:
         print(err)
         return False
-    print('Resource data passed schema validation.')
+    print("Resource data passed schema validation.")
     return True
+
+
+def _prepare_dataframe(df: pd.DataFrame, required_columns: list[str], location_of_sheet: str) -> pd.DataFrame:
+    """
+    This method takes a pandas DataFrame, strips the column headers from whitespaces and transforms them to lowercase,
+    strips every cell from whitespaces and inserts "" if there is no string in it, and deletes the rows that don't have
+    a value in one of the required cells.
+
+    Args:
+        df: pandas DataFrame
+        required_columns: headers of the columns where a value is required
+        location_of_sheet: for better error messages, provide this information of the caller
+
+    Returns:
+        prepared DataFrame
+    """
+
+    # strip column headers and transform to lowercase, so that the script doesn't break when the headers vary a bit
+    new_df = df.rename(columns=lambda x: x.strip().lower())
+    required_columns = [x.strip().lower() for x in required_columns]
+    # strip every cell, and insert "" if there is no valid word in it
+    new_df = new_df.applymap(lambda x: str(x).strip() if pd.notna(x) and re.search(r"[\w\däöü]", str(x)) else "")
+    # delete rows that don't have the required columns
+    for req in required_columns:
+        if req not in new_df:
+            raise ValueError(f"{location_of_sheet} requires a column named '{req}'")
+        new_df = new_df[pd.notna(new_df[req])]
+        new_df = new_df[[bool(re.search(r"[\wäöü]", x)) for x in new_df[req]]]
+    if len(new_df) < 1:
+        raise ValueError(f"{location_of_sheet} requires at least one row")
+    return new_df
+
+
+def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
+    """
+    Method that takes a row from a pandas DataFrame, reads its content, and returns a dict object of the resource
+
+    Args:
+        row: row from a pandas DataFrame that defines a resource
+        excelfile: Excel file where the data comes from
+
+    Returns:
+        dict object of the resource
+    """
+
+    name = row["name"]
+
+    labels = {}
+    if row.get("en"):
+        labels["en"] = row["en"]
+    if row.get("de"):
+        labels["de"] = row["de"]
+    if row.get("fr"):
+        labels["fr"] = row["fr"]
+    if row.get("it"):
+        labels["it"] = row["it"]
+    if row.get("rm"):
+        labels["rm"] = row["rm"]
+
+    comments = {}
+    if row.get("comment_en"):
+        comments["en"] = row["comment_en"]
+    if row.get("comment_de"):
+        comments["de"] = row["comment_de"]
+    if row.get("comment_fr"):
+        comments["fr"] = row["comment_fr"]
+    if row.get("comment_it"):
+        comments["it"] = row["comment_it"]
+    if row.get("comment_rm"):
+        comments["rm"] = row["comment_rm"]
+
+    supers = [s.strip() for s in row["super"].split(",")]
+
+    # load the cardinalities of this resource
+    details_df = pd.read_excel(excelfile, sheet_name=name)
+    details_df = _prepare_dataframe(
+        df=details_df,
+        required_columns=["Property", "Cardinality"],
+        location_of_sheet=f"Sheet '{name}' in file '{excelfile}'"
+    )
+
+    cards = []
+    for j, detail_row in details_df.iterrows():
+        property_ = {
+            "propname": ":" + detail_row["property"],
+            "cardinality": detail_row["cardinality"].lower(),
+            "gui_order": j + 1  # gui_order is equal to order in the sheet
+        }
+        cards.append(property_)
+
+    # build the dict structure of this resource and append it to the list of resources
+    resource = {
+        "name": name,
+        "super": supers,
+        "labels": labels
+    }
+    if comments:
+        resource["comments"] = comments
+    resource["cardinalities"] = cards
+
+    return resource
 
 
 def resources_excel2json(excelfile: str, outfile: str) -> None:
@@ -44,79 +144,23 @@ def resources_excel2json(excelfile: str, outfile: str) -> None:
     """
 
     # load file
-    wb = load_workbook(excelfile, read_only=True)
+    all_classes_df: pd.DataFrame = pd.read_excel(excelfile)
+    all_classes_df = _prepare_dataframe(
+        df=all_classes_df,
+        required_columns=["name", "super"],
+        location_of_sheet=f"Sheet 'classes' in file '{excelfile}'")
 
-    # get overview
-    sheet = wb['classes']
-    resource_list = [c for c in sheet.iter_rows(min_row=2, values_only=True)
-                     if isinstance(c[0], str) and re.search(r'[\wäöü]', c[0])  # required: name
-                     and isinstance(c[9], str) and re.search(r'[\wäöü]', c[9])  # required: super
-    ]
+    # transform every row into a resource
+    resources: list[dict[str, Any]] = list()
+    for i, row in all_classes_df.iterrows():
+        resource = _row2resource(row, excelfile)
+        resources.append(resource)
 
-    prefix = '"resources":'
-    resources = [_extract_row(res, wb) for res in resource_list]
-
-    if validate_resources_with_schema(json.loads(json.dumps(resources, indent=4))):
-        # write final list to JSON file if list passed validation
-        with open(file=outfile, mode='w+', encoding='utf-8') as file:
-            file.write(prefix)
+    # write final list of all resources to JSON file, if list passed validation
+    if _validate_resources_with_schema(json.loads(json.dumps(resources, indent=4))):
+        with open(file=outfile, mode="w+", encoding="utf-8") as file:
+            file.write('"resources": ')
             json.dump(resources, file, indent=4)
-            print('Resource file was created successfully and written to file:', outfile)
+            print("Resource file was created successfully and written to file ", outfile)
     else:
-        print('Resource data is not valid according to schema.')
-
-
-def _extract_row(row: tuple[str, str, str, str, str, str, str, str, str, str], wb: Workbook) -> dict[str, Any]:
-    """build a property dict from a row of the excel file"""
-    # get name
-    name = row[0].strip()
-    # get labels
-    labels = {}
-    if row[1]:
-        labels['en'] = row[1].strip()
-    if row[2]:
-        labels['de'] = row[2].strip()
-    if row[3]:
-        labels['fr'] = row[3].strip()
-    if row[4]:
-        labels['it'] = row[4].strip()
-    # get comments
-    comments = {}
-    if row[5]:
-        comments['en'] = row[5].strip()
-    if row[6]:
-        comments['de'] = row[6].strip()
-    if row[7]:
-        comments['fr'] = row[7].strip()
-    if row[8]:
-        comments['it'] = row[8].strip()
-    # get super
-    supers = [elem.strip() for elem in row[9].split(',')]
-
-    # load details for this resource
-    sh = wb[name]
-    property_list = [c for c in sh.iter_rows(min_row=2, values_only=True)
-                     if isinstance(c[0], str) and re.search(r'[\wäöü]', c[0])  # required: property
-                     and isinstance(c[1], str) and re.search(r'[\wäöü]', c[1])  # required: cardinality
-    ]
-
-    cards = []
-    # for each of the detail sheets
-    for i, prop in enumerate(property_list):
-        # get name and cardinality.
-        # GUI-order is equal to order in the sheet.
-        property_ = {
-            "propname": ":" + prop[0].strip(),
-            "cardinality": str(prop[1]).lower().strip(),
-            "gui_order": i + 1
-        }
-        cards.append(property_)
-
-    # return resource dict
-    return {
-        "name": name,
-        "labels": labels,
-        "comments": comments,
-        "super": supers,
-        "cardinalities": cards
-    }
+        print("Resource data is not valid according to schema.")

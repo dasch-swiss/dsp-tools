@@ -19,13 +19,14 @@ class TestExcelToProperties(unittest.TestCase):
         excelfile = "testdata/Properties.xlsx"
         outfile = "testdata/tmp/_out_properties.json"
         languages = ["en", "de", "fr", "it", "rm"]
+        any_char_regex = r"[\wäàëéèêöôòü]"
         e2j.properties_excel2json(excelfile, outfile)
 
         # read excel: skip all rows that lack one of the required values
         excel_df = pd.read_excel(excelfile, dtype=str)
         for required_column in ["name", "super", "object", "gui_element"]:
             excel_df = excel_df[pd.notna(excel_df[required_column])]
-            excel_df = excel_df[[bool(re.search(r'[\wäöü]', x)) for x in excel_df[required_column]]]
+            excel_df = excel_df[[bool(re.search(any_char_regex, x)) for x in excel_df[required_column]]]
 
         # extract infos from excel file
         excel_names = [s.strip() for s in excel_df['name']]
@@ -34,11 +35,11 @@ class TestExcelToProperties(unittest.TestCase):
 
         excel_labels: dict[str, list[str]] = dict()
         for _id in languages:
-            excel_labels[_id] = [s.strip() if isinstance(s, str) and re.search(r'[\wäöü]', s) else '' for s in list(excel_df[_id])]
+            excel_labels[_id] = [s.strip() if isinstance(s, str) and re.search(any_char_regex, s) else '' for s in list(excel_df[_id])]
 
         excel_comments: dict[str, list[str]] = dict()
         for _id in [f"comment_{lang}" for lang in languages]:
-            excel_comments[_id] = [s.strip() if isinstance(s, str) and re.search(r'[\wäöü]', s) else '' for s in list(excel_df[_id])]
+            excel_comments[_id] = [s.strip() if isinstance(s, str) and re.search(any_char_regex, s) else '' for s in list(excel_df[_id])]
 
         excel_gui_elements = [s.strip() for s in list(excel_df['gui_element'])]
 

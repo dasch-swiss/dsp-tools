@@ -6,6 +6,8 @@ from typing import Any
 import jsonschema
 import pandas as pd
 
+languages = ["en", "de", "fr", "it", "rm"]
+
 
 def _validate_resources_with_schema(json_file: str) -> bool:
     """
@@ -30,9 +32,9 @@ def _validate_resources_with_schema(json_file: str) -> bool:
     return True
 
 
-def _prepare_dataframe(df: pd.DataFrame, required_columns: list[str], location_of_sheet: str) -> pd.DataFrame:
+def prepare_dataframe(df: pd.DataFrame, required_columns: list[str], location_of_sheet: str) -> pd.DataFrame:
     """
-    This method takes a pandas DataFrame, strips the column headers from whitespaces and transforms them to lowercase,
+    Takes a pandas DataFrame, strips the column headers from whitespaces and transforms them to lowercase,
     strips every cell from whitespaces and inserts "" if there is no string in it, and deletes the rows that don't have
     a value in one of the required cells.
 
@@ -45,17 +47,19 @@ def _prepare_dataframe(df: pd.DataFrame, required_columns: list[str], location_o
         prepared DataFrame
     """
 
+    any_char_regex = r"[\wäàëéèêöôòü]"
+
     # strip column headers and transform to lowercase, so that the script doesn't break when the headers vary a bit
     new_df = df.rename(columns=lambda x: x.strip().lower())
     required_columns = [x.strip().lower() for x in required_columns]
     # strip every cell, and insert "" if there is no valid word in it
-    new_df = new_df.applymap(lambda x: str(x).strip() if pd.notna(x) and re.search(r"[\wäöü]", str(x)) else "")
+    new_df = new_df.applymap(lambda x: str(x).strip() if pd.notna(x) and re.search(any_char_regex, str(x)) else "")
     # delete rows that don't have the required columns
     for req in required_columns:
         if req not in new_df:
             raise ValueError(f"{location_of_sheet} requires a column named '{req}'")
         new_df = new_df[pd.notna(new_df[req])]
-        new_df = new_df[[bool(re.search(r"[\wäöü]", x)) for x in new_df[req]]]
+        new_df = new_df[[bool(re.search(any_char_regex, x)) for x in new_df[req]]]
     if len(new_df) < 1:
         raise ValueError(f"{location_of_sheet} requires at least one row")
     return new_df
@@ -74,36 +78,13 @@ def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
     """
 
     name = row["name"]
-
-    labels = {}
-    if row.get("en"):
-        labels["en"] = row["en"]
-    if row.get("de"):
-        labels["de"] = row["de"]
-    if row.get("fr"):
-        labels["fr"] = row["fr"]
-    if row.get("it"):
-        labels["it"] = row["it"]
-    if row.get("rm"):
-        labels["rm"] = row["rm"]
-
-    comments = {}
-    if row.get("comment_en"):
-        comments["en"] = row["comment_en"]
-    if row.get("comment_de"):
-        comments["de"] = row["comment_de"]
-    if row.get("comment_fr"):
-        comments["fr"] = row["comment_fr"]
-    if row.get("comment_it"):
-        comments["it"] = row["comment_it"]
-    if row.get("comment_rm"):
-        comments["rm"] = row["comment_rm"]
-
+    labels = {lang: row[lang] for lang in languages if lang in row}
+    comments = {lang: row[f"comment_{lang}"] for lang in languages if f"comment_{lang}" in row}
     supers = [s.strip() for s in row["super"].split(",")]
 
     # load the cardinalities of this resource
     details_df = pd.read_excel(excelfile, sheet_name=name)
-    details_df = _prepare_dataframe(
+    details_df = prepare_dataframe(
         df=details_df,
         required_columns=["Property", "Cardinality"],
         location_of_sheet=f"Sheet '{name}' in file '{excelfile}'"
@@ -145,16 +126,13 @@ def resources_excel2json(excelfile: str, outfile: str) -> None:
 
     # load file
     all_classes_df: pd.DataFrame = pd.read_excel(excelfile)
-    all_classes_df = _prepare_dataframe(
+    all_classes_df = prepare_dataframe(
         df=all_classes_df,
         required_columns=["name", "super"],
         location_of_sheet=f"Sheet 'classes' in file '{excelfile}'")
 
     # transform every row into a resource
-    resources: list[dict[str, Any]] = list()
-    for i, row in all_classes_df.iterrows():
-        resource = _row2resource(row, excelfile)
-        resources.append(resource)
+    resources = [_row2resource(row, excelfile) for i, row in all_classes_df.iterrows()]
 
     # write final list of all resources to JSON file, if list passed validation
     if _validate_resources_with_schema(json.loads(json.dumps(resources, indent=4))):

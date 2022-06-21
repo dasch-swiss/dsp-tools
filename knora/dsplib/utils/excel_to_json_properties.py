@@ -6,7 +6,9 @@ from typing import Any
 import jsonschema
 import pandas as pd
 
-from knora.dsplib.utils.excel_to_json_resources import _prepare_dataframe
+from knora.dsplib.utils.excel_to_json_resources import prepare_dataframe
+
+languages = ["en", "de", "fr", "it", "rm"]
 
 
 def _validate_properties_with_schema(json_file: str) -> bool:
@@ -35,7 +37,7 @@ def _validate_properties_with_schema(json_file: str) -> bool:
 
 def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
     """
-    Method that takes a row from a pandas DataFrame, reads its content, and returns a dict object of the property
+    Takes a row from a pandas DataFrame, reads its content, and returns a dict object of the property
 
     Args:
         row: row from a pandas DataFrame that defines a property
@@ -49,31 +51,8 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
     name = row["name"]
     supers = [s.strip() for s in row["super"].split(",")]
     _object = row["object"]
-
-    labels = {}
-    if row.get("en"):
-        labels["en"] = row["en"]
-    if row.get("de"):
-        labels["de"] = row["de"]
-    if row.get("fr"):
-        labels["fr"] = row["fr"]
-    if row.get("it"):
-        labels["it"] = row["it"]
-    if row.get("rm"):
-        labels["rm"] = row["rm"]
-
-    comments = {}
-    if row.get("comment_en"):
-        comments["en"] = row["comment_en"]
-    if row.get("comment_de"):
-        comments["de"] = row["comment_de"]
-    if row.get("comment_fr"):
-        comments["fr"] = row["comment_fr"]
-    if row.get("comment_it"):
-        comments["it"] = row["comment_it"]
-    if row.get("comment_rm"):
-        comments["rm"] = row["comment_rm"]
-
+    labels = {lang: row[lang] for lang in languages if lang in row}
+    comments = {lang: row[f"comment_{lang}"] for lang in languages if f"comment_{lang}" in row}
     gui_element = row["gui_element"]
 
     gui_attributes = dict()
@@ -121,16 +100,13 @@ def properties_excel2json(excelfile: str, outfile: str) -> None:
     
     # load file
     df: pd.DataFrame = pd.read_excel(excelfile)
-    df = _prepare_dataframe(
+    df = prepare_dataframe(
         df=df,
         required_columns=["name", "super", "object", "gui_element"],
         location_of_sheet=f"File '{excelfile}'")
 
     # transform every row into a property
-    props: list[dict[str, Any]] = list()
-    for i, row in df.iterrows():
-        prop = _row2prop(row, i, excelfile)
-        props.append(prop)
+    props = [_row2prop(row, i, excelfile) for i, row in df.iterrows()]
 
     # write final list to JSON file if list passed validation
     if _validate_properties_with_schema(json.loads(json.dumps(props, indent=4))):

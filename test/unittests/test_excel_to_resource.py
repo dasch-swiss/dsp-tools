@@ -19,18 +19,19 @@ class TestExcelToResource(unittest.TestCase):
         excelfile = "testdata/Resources.xlsx"
         outfile = "testdata/tmp/_out_res.json"
         languages = ["en", "de", "fr", "it", "rm"]
+        any_char_regex = r"[\wäàëéèêöôòü]"
         e2j.resources_excel2json(excelfile, outfile)
 
         # read excel: skip all rows that lack one of the required values
         excel_df = pd.read_excel(excelfile, dtype=str)
         for required_column in ["name", "super"]:
             excel_df = excel_df[pd.notna(excel_df[required_column])]
-            excel_df = excel_df[[bool(re.search(r'[\wäöü]', x)) for x in excel_df[required_column]]]
+            excel_df = excel_df[[bool(re.search(any_char_regex, x)) for x in excel_df[required_column]]]
 
         excel_first_class_df = pd.read_excel(excelfile, sheet_name=1, dtype=str)
         for required_column in ["Property", "Cardinality"]:
             excel_first_class_df = excel_first_class_df[pd.notna(excel_first_class_df[required_column])]
-            excel_first_class_df = excel_first_class_df[[bool(re.search(r'[\wäöü]', x)) for x in excel_first_class_df[required_column]]]
+            excel_first_class_df = excel_first_class_df[[bool(re.search(any_char_regex, x)) for x in excel_first_class_df[required_column]]]
 
         # extract infos from excel file
         excel_names = [s.strip() for s in excel_df['name']]
@@ -38,11 +39,11 @@ class TestExcelToResource(unittest.TestCase):
 
         excel_labels: dict[str, list[str]] = dict()
         for _id in languages:
-            excel_labels[_id] = [s.strip() if isinstance(s, str) and re.search(r'[\wäöü]', s) else '' for s in list(excel_df[_id])]
+            excel_labels[_id] = [s.strip() if isinstance(s, str) and re.search(any_char_regex, s) else '' for s in list(excel_df[_id])]
 
         excel_comments: dict[str, list[str]] = dict()
         for _id in [f"comment_{lang}" for lang in languages]:
-            excel_comments[_id] = [s.strip() if isinstance(s, str) and re.search(r'[\wäöü]', s) else '' for s in list(excel_df[_id])]
+            excel_comments[_id] = [s.strip() if isinstance(s, str) and re.search(any_char_regex, s) else '' for s in list(excel_df[_id])]
 
         excel_first_class_properties = [f':{s.strip()}' for s in excel_first_class_df['Property']]
         excel_first_class_cardinalities = [str(s).strip().lower() for s in excel_first_class_df['Cardinality']]

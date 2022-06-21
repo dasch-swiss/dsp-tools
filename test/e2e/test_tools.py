@@ -155,14 +155,6 @@ class TestTools(unittest.TestCase):
                         excelfolder='testdata/lists',
                         outfile='testdata/tmp/_lists-out.json')
 
-    def test_excel_to_json_resources(self) -> None:
-        resources_excel2json(excelfile='testdata/Resources.xlsx',
-                             outfile='testdata/tmp/_resources-out.json')
-
-    def test_excel_to_json_properties(self) -> None:
-        properties_excel2json(excelfile='testdata/Properties.xlsx',
-                              outfile='testdata/tmp/_properties-out.json')
-
     def test_validate_ontology(self) -> None:
         validate_ontology(self.test_onto_file)
 

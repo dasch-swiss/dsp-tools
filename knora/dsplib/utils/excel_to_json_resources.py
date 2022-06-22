@@ -47,19 +47,19 @@ def prepare_dataframe(df: pd.DataFrame, required_columns: list[str], location_of
         prepared DataFrame
     """
 
-    any_char_regex = r"[\wäàëéèêöôòü]"
+    any_char_regex = r"[\wäàçëéèêïöôòüÄÀÇËÉÊÏÖÔÒÜ]"
 
     # strip column headers and transform to lowercase, so that the script doesn't break when the headers vary a bit
     new_df = df.rename(columns=lambda x: x.strip().lower())
     required_columns = [x.strip().lower() for x in required_columns]
-    # strip every cell, and insert "" if there is no valid word in it
-    new_df = new_df.applymap(lambda x: str(x).strip() if pd.notna(x) and re.search(any_char_regex, str(x)) else "")
+    # strip every cell, and insert "" if there is no valid word in it É
+    new_df = new_df.applymap(lambda x: str(x).strip() if pd.notna(x) and re.search(any_char_regex, str(x), flags=re.IGNORECASE) else "")
     # delete rows that don't have the required columns
     for req in required_columns:
         if req not in new_df:
             raise ValueError(f"{location_of_sheet} requires a column named '{req}'")
         new_df = new_df[pd.notna(new_df[req])]
-        new_df = new_df[[bool(re.search(any_char_regex, x)) for x in new_df[req]]]
+        new_df = new_df[[bool(re.search(any_char_regex, x, flags=re.IGNORECASE)) for x in new_df[req]]]
     if len(new_df) < 1:
         raise ValueError(f"{location_of_sheet} requires at least one row")
     return new_df
@@ -78,8 +78,8 @@ def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
     """
 
     name = row["name"]
-    labels = {lang: row[lang] for lang in languages if lang in row}
-    comments = {lang: row[f"comment_{lang}"] for lang in languages if f"comment_{lang}" in row}
+    labels = {lang: row[lang] for lang in languages if row.get(lang)}
+    comments = {lang: row[f"comment_{lang}"] for lang in languages if row.get(f"comment_{lang}")}
     supers = [s.strip() for s in row["super"].split(",")]
 
     # load the cardinalities of this resource

@@ -51,8 +51,8 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
     name = row["name"]
     supers = [s.strip() for s in row["super"].split(",")]
     _object = row["object"]
-    labels = {lang: row[lang] for lang in languages if lang in row}
-    comments = {lang: row[f"comment_{lang}"] for lang in languages if f"comment_{lang}" in row}
+    labels = {lang: row[lang] for lang in languages if row.get(lang)}
+    comments = {lang: row[f"comment_{lang}"] for lang in languages if row.get(f"comment_{lang}")}
     gui_element = row["gui_element"]
 
     gui_attributes = dict()

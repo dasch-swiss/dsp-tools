@@ -1,4 +1,4 @@
-class XmlError(BaseException):
+class XmlError(Exception):
     """Represents an error raised in the context of the XML import"""
     _message: str
 

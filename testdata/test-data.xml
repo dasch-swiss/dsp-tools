@@ -65,6 +65,12 @@
                 <a class="salsah-link" href="IRI:obj_0010:IRI">obj_0010</a>
                 <a class="salsah-link" href="IRI:obj_0011:IRI">obj_0011</a>
             </text>
+            <text permissions="prop-default" encoding="xml">
+                Another text without salsah-links
+            </text>
+            <text permissions="prop-default" encoding="xml">
+                Another text without salsah-links
+            </text>
         </text-prop>
         <uri-prop name=":hasUri">
             <uri permissions="prop-default">https://dasch.swiss</uri>
@@ -135,6 +141,12 @@
                 <a class="salsah-link" href="IRI:obj_0009:IRI">obj_0009</a>
                 <a class="salsah-link" href="IRI:obj_0010:IRI">obj_0010</a>
                 <a class="salsah-link" href="IRI:obj_0011:IRI">obj_0011</a>
+            </text>
+            <text permissions="prop-default" encoding="xml">
+                Another text without salsah-links
+            </text>
+            <text permissions="prop-default" encoding="xml">
+                Another text without salsah-links
             </text>
         </text-prop>
         <boolean-prop name=":hasBoolean">

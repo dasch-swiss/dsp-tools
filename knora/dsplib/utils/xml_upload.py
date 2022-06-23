@@ -26,7 +26,7 @@ from knora.dsplib.models.xmlproperty import XMLProperty
 from knora.dsplib.models.xmlresource import XMLResource
 
 
-def remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
+def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
         tuple[list[XMLResource],
               dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
               dict[XMLResource, dict[XMLProperty, list[str]]]
@@ -76,7 +76,7 @@ def remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
         resources = nok_resources
         if len(nok_resources) == nok_len:
             # there are circular references. go through all problematic resources, and stash the problematic references.
-            nok_resources, ok_res_ids, ok_resources, stashed_xml_texts, stashed_resptr_props = stash_circular_references(
+            nok_resources, ok_res_ids, ok_resources, stashed_xml_texts, stashed_resptr_props = _stash_circular_references(
                 nok_resources,
                 ok_res_ids,
                 ok_resources,
@@ -91,7 +91,7 @@ def remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
     return ok_resources, stashed_xml_texts, stashed_resptr_props
 
 
-def stash_circular_references(
+def _stash_circular_references(
     nok_resources: list[XMLResource],
     ok_res_ids: list[str],
     ok_resources: list[XMLResource],
@@ -148,7 +148,7 @@ def stash_circular_references(
     return nok_resources, ok_res_ids, ok_resources, stashed_xml_texts, stashed_resptr_props
 
 
-def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
+def _validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
     """
     Validates an XML file against an XSD schema
 
@@ -171,7 +171,7 @@ def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
         return False
 
 
-def convert_ark_v0_to_resource_iri(ark: str) -> str:
+def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     """
     Converts an ARK URL from salsah.org (ARK version 0) of the form ark:/72163/080c-779b9990a0c3f-6e to a DSP resource
     IRI of the form http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q
@@ -235,7 +235,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     # Validate the input XML file
     current_dir = os.path.dirname(os.path.realpath(__file__))
     schema_file = os.path.join(current_dir, '../schemas/data.xsd')
-    if validate_xml_against_schema(input_file, schema_file):
+    if _validate_xml_against_schema(input_file, schema_file):
         print("The input data file is syntactically correct and passed validation.")
         if validate_only:
             exit(0)
@@ -276,7 +276,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
     # temporarily remove circular references, but only if not an incremental upload
     if not incremental:
-        resources, stashed_xml_texts, stashed_resptr_props = remove_circular_references(resources, verbose)
+        resources, stashed_xml_texts, stashed_resptr_props = _remove_circular_references(resources, verbose)
     else:
         stashed_xml_texts = dict()
         stashed_resptr_props = dict()
@@ -285,36 +285,36 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     failed_uploads: list[str] = []
 
     try:
-        id2iri_mapping, failed_uploads = upload_resources(verbose, resources, imgdir, sipi_server, permissions_lookup,
-                                                          resclass_name_2_type, id2iri_mapping, con, failed_uploads)
+        id2iri_mapping, failed_uploads = _upload_resources(verbose, resources, imgdir, sipi_server, permissions_lookup,
+                                                           resclass_name_2_type, id2iri_mapping, con, failed_uploads)
     except BaseException as err:
-        handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
+        _handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
 
     # update the resources with the stashed XML texts
     nonapplied_xml_texts = {}
     if len(stashed_xml_texts) > 0:
         try:
-            nonapplied_xml_texts = upload_stashed_xml_texts(verbose, id2iri_mapping, con, stashed_xml_texts)
+            nonapplied_xml_texts = _upload_stashed_xml_texts(verbose, id2iri_mapping, con, stashed_xml_texts)
         except BaseException as err:
-            handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
+            _handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
 
     # update the resources with the stashed resptrs
     nonapplied_resptr_props = {}
     if len(stashed_resptr_props) > 0:
         try:
-            nonapplied_resptr_props = upload_stashed_resptr_props(verbose, id2iri_mapping, con, stashed_resptr_props)
+            nonapplied_resptr_props = _upload_stashed_resptr_props(verbose, id2iri_mapping, con, stashed_resptr_props)
         except BaseException as err:
-            handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
+            _handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
 
     # write log files
     success = True
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
-    write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
+    _write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
     if len(nonapplied_xml_texts) > 0:
-        write_stashed_xml_texts(nonapplied_xml_texts, timestamp_str)
+        _write_stashed_xml_texts(nonapplied_xml_texts, timestamp_str)
         success = False
     if len(nonapplied_resptr_props) > 0:
-        write_stashed_resptr_props(nonapplied_resptr_props, timestamp_str)
+        _write_stashed_resptr_props(nonapplied_resptr_props, timestamp_str)
         success = False
     if failed_uploads:
         print(f"Could not upload the following resources: {failed_uploads}")
@@ -323,7 +323,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     return success
 
 
-def upload_resources(
+def _upload_resources(
     verbose: bool,
     resources: list[XMLResource],
     imgdir: str,
@@ -358,12 +358,12 @@ def upload_resources(
 
         resource_iri = resource.iri
         if resource.ark:
-            resource_iri = convert_ark_v0_to_resource_iri(resource.ark)
+            resource_iri = _convert_ark_v0_to_resource_iri(resource.ark)
 
         # in case of a multimedia resource: upload the multimedia file
         resource_bitstream = None
         if resource.bitstream:
-            img: Optional[dict[Any, Any]] = try_network_action(
+            img: Optional[dict[Any, Any]] = _try_network_action(
                 object=sipi_server,
                 method='upload_bitstream',
                 kwargs={'filepath': os.path.join(imgdir, resource.bitstream.value)},
@@ -378,7 +378,7 @@ def upload_resources(
         # create the resource in DSP
         resclass_type = resclass_name_2_type[resource.restype]
         properties = resource.get_propvals(id2iri_mapping, permissions_lookup)
-        resclass_instance: ResourceInstance = try_network_action(
+        resclass_instance: ResourceInstance = _try_network_action(
             method=resclass_type,
             kwargs={
                 'con': con,
@@ -394,7 +394,7 @@ def upload_resources(
             failed_uploads.append(resource.id)
             continue
 
-        created_resource: ResourceInstance = try_network_action(
+        created_resource: ResourceInstance = _try_network_action(
             object=resclass_instance,
             method='create',
             terminal_output_on_failure=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
@@ -408,7 +408,7 @@ def upload_resources(
     return id2iri_mapping, failed_uploads
 
 
-def upload_stashed_xml_texts(
+def _upload_stashed_xml_texts(
     verbose: bool,
     id2iri_mapping: dict[str, str],
     con: Connection,
@@ -434,7 +434,7 @@ def upload_stashed_xml_texts(
             continue
         print(f'  Upload XML text(s) of resource "{resource.id}"...')
         res_iri = id2iri_mapping[resource.id]
-        existing_resource = try_network_action(
+        existing_resource = _try_network_action(
             object=con,
             method='get',
             kwargs={'path': f'/v2/resources/{quote_plus(res_iri)}'},
@@ -455,7 +455,7 @@ def upload_stashed_xml_texts(
                 pure_text = re.sub(r'(<\?xml.+>\s*)?<text>\s*(.+)\s*<\/text>', r'\2', old_xmltext)
 
                 # if the pure text is a hash, the replacement must be made. This hash originates from
-                # stash_circular_references(), and identifies the XML texts
+                # _stash_circular_references(), and identifies the XML texts
                 if pure_text not in hash_to_value:
                     continue
                 new_xmltext = hash_to_value[pure_text]
@@ -481,7 +481,7 @@ def upload_stashed_xml_texts(
                 jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
 
                 # execute API call
-                response = try_network_action(
+                response = _try_network_action(
                     object=con,
                     method='put',
                     kwargs={'path': '/v2/values', 'jsondata': jsondata},
@@ -495,11 +495,11 @@ def upload_stashed_xml_texts(
                     print(f'  Successfully uploaded xml text of "{link_prop.name}"\n')
 
     # make a purged version of stashed_xml_texts, without empty entries
-    nonapplied_xml_texts = purge_stashed_xml_texts(stashed_xml_texts)
+    nonapplied_xml_texts = _purge_stashed_xml_texts(stashed_xml_texts)
     return nonapplied_xml_texts
 
 
-def purge_stashed_xml_texts(
+def _purge_stashed_xml_texts(
     stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]
 ) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
     nonapplied_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]] = {}
@@ -512,7 +512,7 @@ def purge_stashed_xml_texts(
     return nonapplied_xml_texts
 
 
-def upload_stashed_resptr_props(
+def _upload_stashed_resptr_props(
     verbose: bool,
     id2iri_mapping: dict[str, str],
     con: Connection,
@@ -553,7 +553,7 @@ def upload_stashed_resptr_props(
                     '@context': existing_resource['@context']
                 }
                 jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '))
-                response = try_network_action(
+                response = _try_network_action(
                     object=con,
                     method='post',
                     kwargs={'path': '/v2/values', 'jsondata': jsondata},
@@ -568,11 +568,11 @@ def upload_stashed_resptr_props(
                           f'    Value: {resptr}')
 
     # make a purged version of stashed_resptr_props, without empty entries
-    nonapplied_resptr_props = purge_stashed_resptr_props(stashed_resptr_props)
+    nonapplied_resptr_props = _purge_stashed_resptr_props(stashed_resptr_props)
     return nonapplied_resptr_props
 
 
-def try_network_action(
+def _try_network_action(
     terminal_output_on_failure: str,
     method: Union[str, Callable[..., Any]],
     object: Optional[Any] = None,
@@ -625,7 +625,7 @@ def try_network_action(
     return None
 
 
-def purge_stashed_resptr_props(
+def _purge_stashed_resptr_props(
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]]
 ) -> dict[XMLResource, dict[XMLProperty, list[str]]]:
     nonapplied_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]] = {}
@@ -638,7 +638,7 @@ def purge_stashed_resptr_props(
     return nonapplied_resptr_props
 
 
-def handle_upload_error(
+def _handle_upload_error(
     err: BaseException,
     input_file: str,
     id2iri_mapping: dict[str, str],
@@ -669,19 +669,19 @@ def handle_upload_error(
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
 
     # write id2iri_mapping of the resources that are already in DSP
-    write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
+    _write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
 
     # Both stashes are purged from resources that have not been uploaded yet. Only stashed properties of resources that
     # already exist in DSP are of interest.
-    stashed_xml_texts_purged = purge_stashed_xml_texts(
+    stashed_xml_texts_purged = _purge_stashed_xml_texts(
         {res: propdict for res, propdict in stashed_xml_texts.items() if res.id in id2iri_mapping})
     if len(stashed_xml_texts_purged) > 0:
-        write_stashed_xml_texts(stashed_xml_texts_purged, timestamp_str)
+        _write_stashed_xml_texts(stashed_xml_texts_purged, timestamp_str)
 
-    stashed_resptr_props_purged = purge_stashed_resptr_props(
+    stashed_resptr_props_purged = _purge_stashed_resptr_props(
         {res: propdict for res, propdict in stashed_resptr_props.items() if res.id in id2iri_mapping})
     if len(stashed_resptr_props_purged) > 0:
-        write_stashed_resptr_props(stashed_resptr_props_purged, timestamp_str)
+        _write_stashed_resptr_props(stashed_resptr_props_purged, timestamp_str)
 
     # print the resources that threw an error when they were tried to be uploaded
     if failed_uploads:
@@ -696,7 +696,7 @@ def handle_upload_error(
         raise err
 
 
-def write_id2iri_mapping(input_file: str, id2iri_mapping: dict[str, str], timestamp_str: str) -> None:
+def _write_id2iri_mapping(input_file: str, id2iri_mapping: dict[str, str], timestamp_str: str) -> None:
     """
     Write the id2iri mapping into a file. The timestamp must be created by the caller, so that different log files can
     have an identical timestamp.
@@ -716,7 +716,7 @@ def write_id2iri_mapping(input_file: str, id2iri_mapping: dict[str, str], timest
         outfile.write(json.dumps(id2iri_mapping))
 
 
-def write_stashed_xml_texts(
+def _write_stashed_xml_texts(
     stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
     timestamp_str: str
 ) -> None:
@@ -758,7 +758,7 @@ def write_stashed_xml_texts(
                         f.write(f'\ntext with hash {hash}:\n{str(standoff).strip()}\n')
 
 
-def write_stashed_resptr_props(
+def _write_stashed_resptr_props(
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
     timestamp_str: str
 ) -> None:

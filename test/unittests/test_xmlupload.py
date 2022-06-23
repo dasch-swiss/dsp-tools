@@ -4,7 +4,7 @@ import unittest
 from lxml import etree
 
 from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.utils.xml_upload import convert_ark_v0_to_resource_iri, remove_circular_references
+from knora.dsplib.utils.xml_upload import _convert_ark_v0_to_resource_iri, _remove_circular_references
 from knora.dsplib.models.xmlresource import XMLResource
 
 
@@ -12,23 +12,23 @@ class TestXMLUpload(unittest.TestCase):
 
     def test_convert_ark_v0_to_resource_iri(self) -> None:
         ark = "ark:/72163/080c-779b9990a0c3f-6e"
-        iri = convert_ark_v0_to_resource_iri(ark)
+        iri = _convert_ark_v0_to_resource_iri(ark)
         self.assertEqual("http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q", iri)
 
         with self.assertRaises(BaseError) as err1:
-            convert_ark_v0_to_resource_iri("ark:/72163/080c-779b999-0a0c3f-6e")
+            _convert_ark_v0_to_resource_iri("ark:/72163/080c-779b999-0a0c3f-6e")
         self.assertEqual(err1.exception.message, "while converting ARK 'ark:/72163/080c-779b999-0a0c3f-6e'. The ARK seems to be invalid")
 
         with self.assertRaises(BaseError) as err2:
-            convert_ark_v0_to_resource_iri("ark:/72163/080X-779b9990a0c3f-6e")
+            _convert_ark_v0_to_resource_iri("ark:/72163/080X-779b9990a0c3f-6e")
         self.assertEqual(err2.exception.message, "while converting ARK 'ark:/72163/080X-779b9990a0c3f-6e'. Invalid project shortcode '080X'")
 
         with self.assertRaises(BaseError) as err3:
-            convert_ark_v0_to_resource_iri("ark:/72163/080c1-779b9990a0c3f-6e")
+            _convert_ark_v0_to_resource_iri("ark:/72163/080c1-779b9990a0c3f-6e")
         self.assertEqual(err3.exception.message, "while converting ARK 'ark:/72163/080c1-779b9990a0c3f-6e'. Invalid project shortcode '080C1'")
 
         with self.assertRaises(BaseError) as err3:
-            convert_ark_v0_to_resource_iri("ark:/72163/080c-779b99+90a0c3f-6e")
+            _convert_ark_v0_to_resource_iri("ark:/72163/080c-779b99+90a0c3f-6e")
         self.assertEqual(err3.exception.message, "while converting ARK 'ark:/72163/080c-779b99+90a0c3f-6e'. Invalid Salsah ID '779b99+90a0c3f'")
 
 
@@ -42,7 +42,7 @@ class TestXMLUpload(unittest.TestCase):
         resources = [XMLResource(x, 'testonto') for x in tree.getroot() if x.tag == "resource"]
 
         # get the purged resources and the stashes from the function to be tested
-        resources, stashed_xml_texts_original, stashed_resptr_props_original = remove_circular_references(resources, False)
+        resources, stashed_xml_texts_original, stashed_resptr_props_original = _remove_circular_references(resources, False)
 
         # make a list of all hashes from the stashed xml texts
         stashed_xml_texts_hashes = list()

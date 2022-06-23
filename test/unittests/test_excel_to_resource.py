@@ -55,7 +55,7 @@ class TestExcelToResource(unittest.TestCase):
                               "Only English", "", "", "", "", "Annotation", "Link Object", "Region of an image"]
         excel_labels["rm"] = ["Rumantsch", "Rumantsch", "Rumantsch", "Rumantsch", "Rumantsch", "Rumantsch", "", "", "",
                               "", "Only Rumantsch", "", "", ""]
-        excel_labels_of_Image = {"en": "Only English"}
+        excel_labels_of_image = {"en": "Only English"}
 
         excel_comments = dict()
         excel_comments["comment_de"] = ["Ein seltsamer Zufall brachte mich in den Besitz dieses Tagebuchs.", "",
@@ -63,7 +63,7 @@ class TestExcelToResource(unittest.TestCase):
                                         "Annotation", "Linkobjekt", ""]
         excel_comments["comment_fr"] = ["Un étrange hasard m'a mis en possession de ce journal.", "", "", "Only French",
                                         "", "", "", "", "", "", "", "", "", ""]
-        excel_comments_of_Image = {"en": "Image", "de": "Bild"}
+        excel_comments_of_image = {"en": "Image", "de": "Bild"}
 
         excel_first_class_properties = [":hasAnthroponym", ":isOwnerOf", ":correspondsToGenericAnthroponym", ":hasAlias",
                                         ":hasGender", ":isDesignatedAs", ":hasTitle", ":hasStatus",
@@ -86,7 +86,7 @@ class TestExcelToResource(unittest.TestCase):
         json_labels: dict[str, list[str]] = dict()
         for lang in ["en", "rm"]:
             json_labels[lang] = [label.get(lang, "").strip() for label in json_labels_all]
-        json_labels_of_Image = jsonpath_ng.ext.parse('$.resources[?name="Image"].labels').find(json_file)[0].value
+        json_labels_of_image = jsonpath_ng.ext.parse('$.resources[?name="Image"].labels').find(json_file)[0].value
 
         json_comments: dict[str, list[str]] = dict()
         for lang in ["de", "fr"]:
@@ -94,7 +94,7 @@ class TestExcelToResource(unittest.TestCase):
             # at all in this resource
             json_comments[f"comment_{lang}"] = [resource.get("comments", {}).get(lang, "").strip()
                                                for resource in json_file["resources"]]
-        json_comments_of_Image = jsonpath_ng.ext.parse('$.resources[?name="Image"].comments').find(json_file)[0].value
+        json_comments_of_image = jsonpath_ng.ext.parse('$.resources[?name="Image"].comments').find(json_file)[0].value
 
         json_first_class_properties = [match.value for match in
                                     jsonpath_ng.parse("$.resources[0].cardinalities[*].propname").find(json_file)]
@@ -105,9 +105,9 @@ class TestExcelToResource(unittest.TestCase):
         self.assertListEqual(excel_names, json_names)
         self.assertListEqual(excel_supers, json_supers)
         self.assertDictEqual(excel_labels, json_labels)
-        self.assertDictEqual(excel_labels_of_Image, json_labels_of_Image)
+        self.assertDictEqual(excel_labels_of_image, json_labels_of_image)
         self.assertDictEqual(excel_comments, json_comments)
-        self.assertDictEqual(excel_comments_of_Image, json_comments_of_Image)
+        self.assertDictEqual(excel_comments_of_image, json_comments_of_image)
         self.assertListEqual(excel_first_class_properties, json_first_class_properties)
         self.assertListEqual(excel_first_class_cardinalities, json_first_class_cardinalities)
 

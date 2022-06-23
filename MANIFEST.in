@@ -4,4 +4,3 @@ include knora/dsplib/schemas/lists-only.json
 include knora/dsplib/schemas/resources-only.json
 include knora/dsplib/schemas/properties-only.json
 include knora/dsplib/schemas/data.xsd
-include knora/dsplib/utils/language-codes-3b2_csv.csv

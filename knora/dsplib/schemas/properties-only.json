@@ -1,5 +1,5 @@
 {
-    "$schema": "https://json-schema.org/draft-07/schema",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://dasch.swiss/schema/properties-only.json",
     "title": "JSON schema for properties used in DSP ontologies",
     "description": "JSON schema for the properties section used in DSP ontologies",
@@ -82,6 +82,7 @@
                                 "ListValue",
                                 "Region",
                                 "Resource",
+                                "Representation",
                                 "Annotation"
                             ]
                         },

@@ -17,6 +17,7 @@ pystrict = "*"
 openpyxl = "*"
 pyparsing = "==2.4.7"
 networkx = "*"
+pandas = "*"
 
 [dev-packages]
 mkdocs = "*"
@@ -28,7 +29,6 @@ setuptools = "*"
 wheel = "*"
 pipenv-setup = "*"
 pytest = "*"
-pandas = "*"
 
 [requires]
 python_version = "3.9"

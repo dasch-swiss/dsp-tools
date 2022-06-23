@@ -250,7 +250,7 @@ class XMLResource:
     _bitstream: Optional[XMLBitstream]
     _properties: list[XMLProperty]
 
-    def __init__(self, node: etree.Element, default_ontology: Optional[str] = None) -> None:
+    def __init__(self, node: etree.Element, default_ontology: str) -> None:
         """
         Constructor that parses a resource node from the XML DOM
 

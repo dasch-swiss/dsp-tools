@@ -1,12 +1,17 @@
 import json
 import os
+import re
 from typing import Any
 
 import jsonschema
-from openpyxl import load_workbook
+import pandas as pd
+
+from knora.dsplib.utils.excel_to_json_resources import prepare_dataframe
+
+languages = ["en", "de", "fr", "it", "rm"]
 
 
-def validate_properties_with_schema(json_file: str) -> bool:
+def _validate_properties_with_schema(json_file: str) -> bool:
     """
     This function checks if the json properties are valid according to the schema.
 
@@ -18,7 +23,7 @@ def validate_properties_with_schema(json_file: str) -> bool:
 
     """
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(current_dir, '../schemas/properties-only.json')) as schema:
+    with open(os.path.join(current_dir, "../schemas/properties-only.json")) as schema:
         properties_schema = json.load(schema)
 
     try:
@@ -26,11 +31,62 @@ def validate_properties_with_schema(json_file: str) -> bool:
     except jsonschema.exceptions.ValidationError as err:
         print(err)
         return False
-    print('Properties data passed schema validation.')
+    print("Properties data passed schema validation.")
     return True
 
 
-def properties_excel2json(excelfile: str, outfile: str) -> list[dict[str, Any]]:
+def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
+    """
+    Takes a row from a pandas DataFrame, reads its content, and returns a dict object of the property
+
+    Args:
+        row: row from a pandas DataFrame that defines a property
+        row_count: row number of Excel file
+        excelfile: name of the original excel file
+
+    Returns:
+        dict object of the property
+    """
+
+    name = row["name"]
+    supers = [s.strip() for s in row["super"].split(",")]
+    _object = row["object"]
+    labels = {lang: row[lang] for lang in languages if row.get(lang)}
+    comments = {lang: row[f"comment_{lang}"] for lang in languages if row.get(f"comment_{lang}")}
+    gui_element = row["gui_element"]
+
+    gui_attributes = dict()
+    if row.get("hlist"):
+        gui_attributes["hlist"] = row["hlist"]
+    if row.get("gui_attributes"):
+        pairs = row["gui_attributes"].split(",")
+        for pair in pairs:
+            if pair.count(":") != 1:
+                raise ValueError(f"Row {row_count} of Excel file {excelfile} contains invalid data in column "
+                                 f"'gui_attributes'. The expected format is 'attribute: value[, attribute: value]'.")
+            attr, val = [x.strip() for x in pair.split(":")]
+            if re.search(r"^\d+\.\d+$", val):
+                val = float(val)
+            elif re.search(r"^\d+$", val):
+                val = int(val)
+            gui_attributes[attr] = val
+
+    # build the dict structure of this property and append it to the list of properties
+    _property = {
+        "name": name,
+        "super": supers,
+        "object": _object,
+        "labels": labels}
+    if comments:
+        _property["comments"] = comments
+    _property["gui_element"] = gui_element
+    if gui_attributes:
+        _property["gui_attributes"] = gui_attributes
+
+    return _property
+
+
+def properties_excel2json(excelfile: str, outfile: str) -> None:
     """
     Converts properties described in an Excel file into a properties section which can be integrated into a DSP ontology
 
@@ -39,66 +95,24 @@ def properties_excel2json(excelfile: str, outfile: str) -> list[dict[str, Any]]:
         outfile: path to the output JSON file containing the properties section for the ontology
 
     Returns:
-        List(JSON): a list with a dict (JSON) for each row in the Excel file
+        None
     """
+    
     # load file
-    wb = load_workbook(filename=excelfile, read_only=True)
-    sheet = wb.worksheets[0]
-    props = [row_to_prop(row) for row in sheet.iter_rows(min_row=2, values_only=True, max_col=13)]
+    df: pd.DataFrame = pd.read_excel(excelfile)
+    df = prepare_dataframe(
+        df=df,
+        required_columns=["name", "super", "object", "gui_element"],
+        location_of_sheet=f"File '{excelfile}'")
 
-    prefix = '"properties":'
+    # transform every row into a property
+    props = [_row2prop(row, i, excelfile) for i, row in df.iterrows()]
 
-    if validate_properties_with_schema(json.loads(json.dumps(props, indent=4))):
-        # write final list to JSON file if list passed validation
-        with open(file=outfile, mode='w+', encoding='utf-8') as file:
-            file.write(prefix)
+    # write final list to JSON file if list passed validation
+    if _validate_properties_with_schema(json.loads(json.dumps(props, indent=4))):
+        with open(file=outfile, mode="w+", encoding="utf-8") as file:
+            file.write('"properties": ')
             json.dump(props, file, indent=4)
-            print('Properties file was created successfully and written to file:', outfile)
+            print("Properties file was created successfully and written to file: ", outfile)
     else:
-        print('Properties data is not valid according to schema.')
-
-    return props
-
-
-def row_to_prop(row: tuple[str, str, str, str, str, str, str, str, str, str, str, str, str]) -> dict[str, Any]:
-    """
-    Parses the row of an Excel sheet and makes a property from it
-
-    Args:
-        row: the row of an Excel sheet
-
-    Returns:
-        prop (JSON): the property in JSON format
-    """
-    name, super_, object_, en, de, fr, it, comment_en, comment_de, comment_fr, comment_it, gui_element, hlist = row
-    labels = {}
-    if en:
-        labels['en'] = en
-    if de:
-        labels['de'] = de
-    if fr:
-        labels['fr'] = fr
-    if it:
-        labels['it'] = it
-    if not labels:
-        raise Exception(f"No label given in any of the four languages: {name}")
-    comments = {}
-    if comment_en:
-        comments['en'] = comment_en
-    if comment_de:
-        comments['de'] = comment_de
-    if comment_fr:
-        comments['fr'] = comment_fr
-    if comment_it:
-        comments['it'] = comment_it
-    prop = {
-        'name': name,
-        'super': [super_],
-        'object': object_,
-        'labels': labels,
-        'comments': comments,
-        'gui_element': gui_element
-    }
-    if hlist:
-        prop['gui_attributes'] = {'hlist': hlist}
-    return prop
+        print("Properties data is not valid according to schema.")

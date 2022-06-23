@@ -52,7 +52,7 @@ def prepare_dataframe(df: pd.DataFrame, required_columns: list[str], location_of
     # strip column headers and transform to lowercase, so that the script doesn't break when the headers vary a bit
     new_df = df.rename(columns=lambda x: x.strip().lower())
     required_columns = [x.strip().lower() for x in required_columns]
-    # strip every cell, and insert "" if there is no valid word in it É
+    # strip every cell, and insert "" if there is no valid word in it
     new_df = new_df.applymap(lambda x: str(x).strip() if pd.notna(x) and re.search(any_char_regex, str(x), flags=re.IGNORECASE) else "")
     # delete rows that don't have the required columns
     for req in required_columns:

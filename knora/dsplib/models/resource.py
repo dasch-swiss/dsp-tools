@@ -336,28 +336,23 @@ class ResourceInstanceFactory:
     _ontoname2iri = dict[str, str]
     _context: Context
 
-    def __init__(self,
-                 con: Connection,
-                 projident: str):
+    def __init__(self, con: Connection, projident: str) -> None:
         self._con = con
         if re.match("^[0-9a-fA-F]{4}$", projident):
-            project = Project(con=self._con, shortcode=projident)
+            project = Project(con=con, shortcode=projident)
         elif re.match("^[\\w-]+$", projident):
-            project = Project(con=self._con, shortname=projident)
+            project = Project(con=con, shortname=projident)
         elif re.match("^(http)s?://([\\w\\.\\-~]+:?\\d{,4})(/[\\w\\-~]+)+$", projident):
-            project = Project(con=self._con, shortname=projident)
+            project = Project(con=con, shortname=projident)
         else:
             raise BaseError("Invalid project identification!")
         self._project = project.read()
 
-        tmp = ListNode.getAllLists(con=self._con, project_iri=self._project.id)
-        self._lists = []
-        for rnode in tmp:
-            self._lists.append(rnode.getAllNodes())
+        self._lists = [x.getAllNodes() for x in ListNode.getAllLists(con=con, project_iri=self._project.id)]
 
-        tmp_ontologies = Ontology.getProjectOntologies(con, self._project.id)
-        shared_project = Project(con=self._con, shortcode="0000").read()
-        shared_ontologies = Ontology.getProjectOntologies(con, shared_project.id)
+        tmp_ontologies = Ontology.getProjectOntologies(con=con, project_id=self._project.id)
+        shared_project = Project(con=con, shortcode="0000").read()
+        shared_ontologies = Ontology.getProjectOntologies(con=con, project_id=shared_project.id)
         tmp_ontologies.extend(shared_ontologies)
         self._ontoname2iri = {x.name: x.id for x in tmp_ontologies}
 

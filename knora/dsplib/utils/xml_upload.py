@@ -270,9 +270,9 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             resources.append(XMLResource(child, default_ontology))
 
     # get the project information and project ontology from the server
-    project = ResourceInstanceFactory(con, shortcode)
+    res_inst_factory = ResourceInstanceFactory(con, shortcode)
     permissions_lookup: dict[str, Permissions] = {s: perm.get_permission_instance() for s, perm in permissions.items()}
-    resclass_name_2_type: dict[str, type] = {s: project.get_resclass_type(s) for s in project.get_resclass_names()}
+    resclass_name_2_type: dict[str, type] = {s: res_inst_factory.get_resclass_type(s) for s in res_inst_factory.get_resclass_names()}
 
     # temporarily remove circular references, but only if not an incremental upload
     if not incremental:
@@ -378,7 +378,7 @@ def _upload_resources(
         # create the resource in DSP
         resclass_type = resclass_name_2_type[resource.restype]
         properties = resource.get_propvals(id2iri_mapping, permissions_lookup)
-        resclass_instance: ResourceInstance = _try_network_action(
+        resource_instance: ResourceInstance = _try_network_action(
             method=resclass_type,
             kwargs={
                 'con': con,
@@ -390,12 +390,12 @@ def _upload_resources(
             },
             terminal_output_on_failure=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
         )
-        if not resclass_instance:
+        if not resource_instance:
             failed_uploads.append(resource.id)
             continue
 
         created_resource: ResourceInstance = _try_network_action(
-            object=resclass_instance,
+            object=resource_instance,
             method='create',
             terminal_output_on_failure=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
         )

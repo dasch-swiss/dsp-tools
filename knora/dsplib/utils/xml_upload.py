@@ -309,7 +309,6 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     # write log files
     success = True
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
-    _write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
     if len(nonapplied_xml_texts) > 0:
         _write_stashed_xml_texts(nonapplied_xml_texts, timestamp_str)
         success = False
@@ -319,6 +318,9 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     if failed_uploads:
         print(f"Could not upload the following resources: {failed_uploads}")
         success = False
+    if success:
+        print("All resources have successfully been uploaded.")
+    _write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
 
     return success
 

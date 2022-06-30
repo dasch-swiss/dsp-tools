@@ -615,10 +615,14 @@ def _try_network_action(
             print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...')
             time.sleep(2 ** i)
             continue
-        except BaseError:
+        except BaseError as err:
+            if hasattr(err, 'message'):
+                terminal_output_on_failure = f"{terminal_output_on_failure} Error message: {err.message}"
             print(terminal_output_on_failure)
             return None
-        except Exception:
+        except Exception as err:
+            if hasattr(err, 'message'):
+                terminal_output_on_failure = f"{terminal_output_on_failure} Error message: {err.message}"
             print(terminal_output_on_failure)
             return None
     print(terminal_output_on_failure)

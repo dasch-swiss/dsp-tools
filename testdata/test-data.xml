@@ -41,7 +41,7 @@
         </resptr-prop>
     </resource>
 
-    <resource label="Testthing"
+    <resource label="First Testthing"
               restype=":TestThing"
               id="obj_0001"
               permissions="res-default">
@@ -87,20 +87,6 @@
         <decimal-prop name=":hasDecimal">
             <decimal permissions="prop-default" comment="Eulersche Zahl">2.718281828459</decimal>
         </decimal-prop>
-        <geometry-prop name=":hasGeometry">
-            <geometry permissions="prop-default">
-                {
-                "status":"active",
-                "lineColor":"#ff3333",
-                "lineWidth":2,
-                "points":[
-                {"x":0.08098591549295775,"y":0.16741071428571427},
-                {"x":0.7394366197183099,"y":0.7299107142857143}],
-                "type":"rectangle",
-                "original_index":0
-                }
-            </geometry>
-        </geometry-prop>
         <geoname-prop name=":hasGeoname">
             <geoname permissions="prop-default" comment="A sacred place for railroad fans">5416656</geoname>
         </geoname-prop>
@@ -118,7 +104,7 @@
         </resptr-prop>
     </resource>
 
-    <resource label="Testthing"
+    <resource label="Second Testthing"
               restype=":TestThing"
               id="obj_0011"
               permissions="res-default">
@@ -272,6 +258,57 @@
         <text-prop name=":hasTextChild2">
             <text encoding="utf8">Some text</text>
         </text-prop>
+    </resource>
+
+    <resource label="Annotation to TestthingOhnePermissions" restype="Annotation" id="annotation_0" permissions="res-default">
+        <text-prop name="hasComment">
+            <text encoding="utf8" permissions="prop-default">This is an annotation to TestthingOhnePermissions.</text>
+        </text-prop>
+        <resptr-prop name="isAnnotationOf">
+            <resptr permissions="prop-default">obj_0000</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Region in image" restype="Region" id="region_0" permissions="res-default">
+        <color-prop name="hasColorr">
+            <color permissions="prop-default">#5d1f1e</color>
+        </color-prop>
+        <resptr-prop name="isRegionOff">
+            <resptr permissions="prop-default">obj_0002</resptr>
+        </resptr-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry permissions="prop-default">
+                {
+                    "status": "active",
+                    "type": "rectangle",
+                    "lineColor": "#ff3333",
+                    "lineWidth": 2,
+                    "points": [
+                        {"x":0.08098591549295775,"y":0.16741071428571427},
+                        {"x":0.739436619718309900,"y":0.72991071428571430}
+                    ],
+                    "original_index": 0
+                }
+            </geometry>
+        </geometry-prop>
+        <text-prop name="hasCommentt">
+            <text encoding="xml" permissions="prop-default">
+                This is a rectangle-formed region of interest of the image Imagething. It is also displayed as Annotation.
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="Link between 'Second Testthing', 'Compoundthing' and 'Partofthing-1'" id="link_obj_0" restype="LinkObj" permissions="res-default">
+        <text-prop name="hasComment">
+            <text permissions="prop-default" encoding="xml">
+                A link object can link together an arbitrary number of resources from any resource class.
+            </text>
+        </text-prop>
+        <resptr-prop name="hasLinkTo">
+            <resptr permissions="prop-default">obj_0011</resptr>
+            <resptr permissions="prop-default">obj_0003</resptr>
+            <resptr permissions="prop-default">obj_0004</resptr>
+        </resptr-prop>
     </resource>
 
 </knora>

@@ -298,17 +298,6 @@
                         }
                     },
                     {
-                        "name": "hasGeometry",
-                        "super": [
-                            "hasGeometry"
-                        ],
-                        "object": "GeomValue",
-                        "labels": {
-                            "en": "Geometry"
-                        },
-                        "gui_element": "Geometry"
-                    },
-                    {
                         "name": "hasGeoname",
                         "super": [
                             "hasValue"
@@ -354,17 +343,6 @@
                         "gui_attributes": {
                             "hlist": "testlist"
                         }
-                    },
-                    {
-                        "name": "hasTestRegion",
-                        "super": [
-                            "hasLinkTo"
-                        ],
-                        "object": "Region",
-                        "labels": {
-                            "en": "has region"
-                        },
-                        "gui_element": "Searchbox"
                     },
                     {
                         "name": "hasTestThing2",
@@ -438,11 +416,6 @@
                                 "cardinality": "0-n"
                             },
                             {
-                                "propname": ":hasGeometry",
-                                "gui_order": 8,
-                                "cardinality": "0-n"
-                            },
-                            {
                                 "propname": ":hasGeoname",
                                 "gui_order": 9,
                                 "cardinality": "0-n"
@@ -460,11 +433,6 @@
                             {
                                 "propname": ":hasListItem",
                                 "gui_order": 12,
-                                "cardinality": "0-n"
-                            },
-                            {
-                                "propname": ":hasTestRegion",
-                                "gui_order": 13,
                                 "cardinality": "0-n"
                             },
                             {

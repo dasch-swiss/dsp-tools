@@ -57,8 +57,14 @@ class ResourceInstance(Model):
         'TextRepresentation'
     }
     knora_properties: set[str] = {
+        "knora-api:hasLinkTo",
+        "knora-api:hasColor",
+        "knora-api:hasComment",
+        "knora-api:hasGeometry",
         "knora-api:isPartOf",
-        "knora-api:seqnum",
+        "knora-api:isRegionOf",
+        "knora-api:isAnnotationOf",
+        "knora-api:seqnum"
     }
     _iri: Optional[str]
     _ark: Optional[str]
@@ -354,6 +360,8 @@ class ResourceInstanceFactory:
         shared_project = Project(con=con, shortcode="0000").read()
         shared_ontologies = Ontology.getProjectOntologies(con=con, project_id=shared_project.id)
         tmp_ontologies.extend(shared_ontologies)
+        knora_api_onto = [x for x in Ontology.getAllOntologies(con=con) if x.name=="knora-api"][0]
+        tmp_ontologies.append(knora_api_onto)
         self._ontoname2iri = {x.name: x.id for x in tmp_ontologies}
 
         ontology_ids = [x.id for x in tmp_ontologies]
@@ -412,7 +420,30 @@ class ResourceInstanceFactory:
             'knora-api:LinkValue': LinkValue,
         }
         for propname, has_property in resclass.has_properties.items():
-            if propname == "knora-api:isPartOf":
+            if propname == "knora-api:isAnnotationOf":
+                valtype = LinkValue
+                props[propname] = Propinfo(valtype=valtype,
+                                           cardinality=has_property.cardinality,
+                                           gui_order=has_property.gui_order)
+
+            if propname == "knora-api:isRegionOf":
+                valtype = LinkValue
+                props[propname] = Propinfo(valtype=valtype,
+                                           cardinality=has_property.cardinality,
+                                           gui_order=has_property.gui_order)
+
+            elif propname == "knora-api:hasGeometry":
+                valtype = GeomValue
+                props[propname] = Propinfo(valtype=valtype,
+                                           cardinality=has_property.cardinality,
+                                           gui_order=has_property.gui_order)
+
+            elif propname == "knora-api:hasColor":
+                valtype = ColorValue
+                props[propname] = Propinfo(valtype=valtype,
+                                           cardinality=has_property.cardinality,
+                                           gui_order=has_property.gui_order)
+            elif propname == "knora-api:isPartOf":
                 valtype = LinkValue
                 props[propname] = Propinfo(valtype=valtype,
                                            cardinality=has_property.cardinality,
@@ -424,6 +455,11 @@ class ResourceInstanceFactory:
                                            gui_order=has_property.gui_order)
             elif propname == "knora-api:hasComment":
                 valtype = TextValue
+                props[propname] = Propinfo(valtype=valtype,
+                                           cardinality=has_property.cardinality,
+                                           gui_order=has_property.gui_order)
+            elif propname == "knora-api:hasLinkTo":
+                valtype = LinkValue
                 props[propname] = Propinfo(valtype=valtype,
                                            cardinality=has_property.cardinality,
                                            gui_order=has_property.gui_order)

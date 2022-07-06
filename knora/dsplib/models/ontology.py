@@ -1,5 +1,6 @@
 import copy
 import json
+import re
 from typing import Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
 
@@ -416,7 +417,10 @@ class Ontology(Model):
 
     @staticmethod
     def getOntologyFromServer(con: Connection, shortcode: str, name: str) -> 'Ontology':
-        result = con.get("/ontology/" + shortcode + "/" + name + "/v2" + Ontology.ALL_LANGUAGES)
+        if re.search(r'[0-9A-F]{4}', shortcode):
+            result = con.get("/ontology/" + shortcode + "/" + name + "/v2" + Ontology.ALL_LANGUAGES)
+        else:
+            result = con.get("/ontology/" + name + "/v2" + Ontology.ALL_LANGUAGES)
         return Ontology.fromJsonObj(con, result)
 
     def createDefinitionFileObj(self):

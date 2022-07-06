@@ -380,6 +380,13 @@
         <xs:attribute name="iri" type="xs:string" use="optional"/>
         <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
         <xs:attribute name="ark" type="xs:string" use="optional"/>
+        <xs:assert test="
+            if(@restype='Region')
+            then (
+                if(resptr-prop[@name='isRegionOf'] and color-prop[@name='hasColor'] and geometry-prop[@name='hasGeometry'] and text-prop[@name='hasComment'])
+                then true()
+                else false()
+            ) else true()"/>
     </xs:complexType>
 
     <!-- data type for knora shortcode -->

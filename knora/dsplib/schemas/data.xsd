@@ -2,7 +2,9 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns="https://dasch.swiss/schema"
            targetNamespace="https://dasch.swiss/schema"
-           elementFormDefault="qualified">
+           elementFormDefault="qualified"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           vc:minVersion="1.1">
 
     <!-- data type for resrefs "ID|ID|..." -->
     <xs:simpleType name="resrefs_type">
@@ -201,7 +203,6 @@
     </xs:complexType>
 
     <!-- boolean value type-->
-
     <xs:complexType name="boolean_type">
     <xs:simpleContent>
         <xs:extension base="xs:boolean">
@@ -210,6 +211,7 @@
         </xs:extension>
     </xs:simpleContent>
     </xs:complexType>
+
     <!-- textprop_type -->
     <xs:complexType name="textprop_type">
         <xs:sequence>
@@ -348,44 +350,10 @@
         </xs:simpleContent>
     </xs:complexType>
 
-    <!-- image tag -->
-    <xs:complexType name="image_type">
-        <xs:simpleContent>
-            <xs:extension base="xs:string"/>
-        </xs:simpleContent>
-    </xs:complexType>
-
-    <!-- sound tag -->
-    <xs:complexType name="sound_type">
-        <xs:simpleContent>
-            <xs:extension base="xs:string"/>
-        </xs:simpleContent>
-    </xs:complexType>
-
-    <!-- movie tag -->
-    <xs:complexType name="movie_type">
-        <xs:simpleContent>
-            <xs:extension base="xs:string"/>
-        </xs:simpleContent>
-    </xs:complexType>
-
-    <!-- document tag -->
-    <xs:complexType name="document_type">
-        <xs:simpleContent>
-            <xs:extension base="xs:string"/>
-        </xs:simpleContent>
-    </xs:complexType>
-
     <!-- resource tag -->
     <xs:complexType name="resource_type">
         <xs:sequence>
             <xs:choice minOccurs="0" maxOccurs="1">
-                <!--
-                <xs:element name="image" type="image_type" />
-                <xs:element name="sound" type="sound_type" />
-                <xs:element name="movie" type="movie_type" />
-                <xs:element name="document" type="document_type" />
-                -->
                 <xs:element name="bitstream" type="bitstream_type"/>
             </xs:choice>
             <xs:choice maxOccurs="unbounded">

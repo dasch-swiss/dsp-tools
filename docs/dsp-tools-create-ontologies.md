@@ -171,7 +171,6 @@ The following base properties are defined by DSP:
   defined in the current ontology).
 - `hasColor`: Defines a color value
 - `hasComment`: Defines a standard comment
-- `hasGeometry`: Defines a geometry value (a JSON describing a polygon, circle or rectangle)
 - `isPartOf`: A special variant of _hasLinkTo_. It says that an instance of the given resource class is an integral part
   of another resource class. E.g. a "page" is part of a "book".
 - `isRegionOf`: A special variant of _hasLinkTo_. It means that the given resource class is a "region" of another
@@ -251,7 +250,6 @@ on the data type. The following data types are allowed:
 - `DateValue`
 - `TimeValue`
 - `DecimalValue`
-- `GeomValue`
 - `GeonameValue`
 - `IntValue`
 - `BooleanValue`
@@ -594,36 +592,6 @@ A string representation of the color in the hexadecimal form e.g. "#ff8000".
 }
 ```
 
-#### GeomValue
-
-`"object": "GeomValue"`
-
-Represents a geometrical shape as JSON. Geometrical shapes are used to define regions of interest (ROI) on still images
-or moving images.
-
-*gui-elements / gui_attributes*:
-
-- `Geometry`: not yet implemented.
-    - _gui_attributes_: No attributes
-- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
-  "maxlength=integer" and "size=integer" are optional.
-    - _gui_attributes_:
-        - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer` (optional): The size of the input field
-
-*Example*:
-
-```json
-{
-  "name": "hasGeometry",
-  "super": [
-    "hasGeometry"
-  ],
-  "object": "GeomValue",
-  "labels": "Geometry",
-  "gui_element": "SimpleText"
-}
-```
 
 #### ListValue
 
@@ -797,24 +765,12 @@ The following predefined resources are provided by DSP:
 - `Resource`: A generic resource representing an item from the real world. This is the most general case, to be 
 used in all cases when your resource is none of the special cases below.
 - `StillImageRepresentation`: An object representing a still image
-- `TextRepresentation`: An object representing an (external) text (not yet implemented)
+- `TextRepresentation`: An object representing an (external) text
 - `AudioRepresentation`: An object representing an audio file
 - `DDDRepresentation`: An object representing a 3-D representation (not yet implemented)
 - `DocumentRepresentation`: An object representing an opaque document (e.g. a PDF)
 - `MovingImageRepresentation`: An object representing a moving image (video, film)
 - `ArchiveRepresentation`: An object representing an archive file (e.g. Zip)
-- `Annotation`: A predefined annotation object. It has automatically the following predefined properties defined:
-    - `hasComment` (1-n)
-    - `isAnnotationOf` (1)
-- `LinkObj`: A resource class linking together several other resource classes. The class has the following
-  properties:
-    - `hasComment` (1-n)
-    - `hasLinkTo` (1-n)
-- `Region`: Represents a region in an image. The class has the following properties:
-    - `hasColor` (1)
-    - `isRegionOf` (1)
-    - `hasGeometry` (1)
-    - `hasComment` (0-n)
 
 Additionally, resources can be derived from external ontologies or from resources specified in the present document.
 
@@ -907,3 +863,19 @@ it is necessary to reference entities that are defined elsewhere. The following 
   These will be created in the exact order they appear in the `ontologies` array. Once an ontology has been created,
   it can be referenced by the following ontologies by its name, e.g. `first-onto:hasName`. It is not necessary to add 
   `first-onto` to the prefixes.
+
+
+## DSP built-ins
+There is a number of resource classes and property classes that must not be subclassed in a project ontology. They are 
+directly available in the XML data file:
+- `Annotation` is an annotation to another resource of any class. It automatically has the following predefined properties:
+    - `hasComment` (1-n)
+    - `isAnnotationOf` (1)
+- `LinkObj` is a resource linking together several other resources of different classes. The class has the following properties:
+    - `hasComment` (1-n)
+    - `hasLinkTo` (1-n)
+- A `Region` resource defines a region of interest (ROI) in an image. It automatically has the following predefined properties:
+    - `hasColor` (1)
+    - `isRegionOf` (1)
+    - `hasGeometry` (1)
+    - `hasComment` (0-n)

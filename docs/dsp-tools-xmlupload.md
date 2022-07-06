@@ -227,10 +227,6 @@ Example for a property element of type text (`<text-prop>`) with two value eleme
 </text-prop>
 ```
 
-| ⚠ Look out                                                                                                                                         |
-|:---------------------------------------------------------------------------------------------------------------------------------------------------|
-| In case of a cardinality 1-n, multiple `<text>` tags have to be created inside the `<text-prop>` tag (do not use multiple `<text-prop>` tags).     |
-
 The following property elements exist:
 
 - `<bitstream>`: contains a path to a file (if the resource is a multimedia resource)
@@ -790,6 +786,89 @@ Example:
 <uri-prop name=":hasURI">
    <uri>http://www.groove-t-gang.ch</uri>
 </uri-prop>
+```
+
+
+## DSP built-ins
+There is a number of resource classes and property classes that must not be subclassed in a project ontology. They are 
+directly available in the XML data file. Built-in names must be used without prepended colon.
+
+### `Annotation`
+`Annotation` is an annotation to another resource of any class. It automatically has the following predefined properties:
+    - `hasComment` (1-n)
+    - `isAnnotationOf` (1)
+
+Example:
+```xml
+<resource label="Annotation to another resource" restype="Annotation" id="annotation_0" permissions="res-default">
+    <text-prop name="hasComment">
+        <text encoding="utf8" permissions="prop-default">This is an annotation to another resource.</text>
+    </text-prop>
+    <resptr-prop name="isAnnotationOf">
+        <resptr permissions="prop-default">img_1</resptr>
+    </resptr-prop>
+</resource>
+```
+
+### `Region`
+A `Region` resource defines a region of interest (ROI) in an image. It automatically has the following predefined properties:
+    - `hasColor` (1)
+    - `isRegionOf` (1)
+    - `hasGeometry` (1)
+    - `hasComment` (0-n)
+
+There are three types of Geometry shapes (rectangle, circle, polygon), but only the rectangle is implemented.
+
+Example:
+```xml
+<resource label="Region in image" restype="Region" id="region_0" permissions="res-default">
+    <color-prop name="hasColor">
+        <color permissions="prop-default">#5d1f1e</color>
+    </color-prop>
+    <resptr-prop name="isRegionOf">
+        <resptr permissions="prop-default">img_1</resptr>
+    </resptr-prop>
+    <geometry-prop name="hasGeometry">
+        <geometry permissions="prop-default">
+            {
+                "status": "active",
+                "type": "rectangle",
+                "lineColor": "#ff3333",
+                "lineWidth": 2,
+                "points": [
+                    {"x":0.08098591549295775,"y":0.16741071428571427},
+                    {"x":0.739436619718309900,"y":0.72991071428571430}
+                ],
+                "original_index": 0
+            }
+        </geometry>
+    </geometry-prop>
+    <text-prop name="hasComment">
+        <text encoding="utf8" permissions="prop-default">This is a rectangle-formed region of interest.</text>
+    </text-prop>
+</resource>
+```
+
+### `LinkObj`
+`LinkObj` is a resource linking together several other resources of different classes. The class has the following 
+properties:
+    - `hasComment` (1-n)
+    - `hasLinkTo` (1-n)
+
+Example:
+```xml
+<resource label="Link between three resources" id="link_obj_0" restype="LinkObj" permissions="res-default">
+    <text-prop name="hasComment">
+        <text permissions="prop-default" encoding="utf8">
+            A link object can link together an arbitrary number of resources from any resource class.
+        </text>
+    </text-prop>
+    <resptr-prop name="hasLinkTo">
+        <resptr permissions="prop-default">doc_001</resptr>
+        <resptr permissions="prop-default">img_obj_5</resptr>
+        <resptr permissions="prop-default">audio_obj_0</resptr>
+    </resptr-prop>
+</resource>
 ```
 
 

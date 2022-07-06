@@ -46,10 +46,7 @@
                                     "hasLinkTo",
                                     "hasColor",
                                     "hasComment",
-                                    "hasGeometry",
                                     "isPartOf",
-                                    "isRegionOf",
-                                    "isAnnotationOf",
                                     "hasRepresentation",
                                     "seqnum"
                                 ]
@@ -72,7 +69,6 @@
                                 "ColorValue",
                                 "DateValue",
                                 "DecimalValue",
-                                "GeomValue",
                                 "GeonameValue",
                                 "IntValue",
                                 "BooleanValue",
@@ -80,10 +76,8 @@
                                 "UriValue",
                                 "IntervalValue",
                                 "ListValue",
-                                "Region",
                                 "Resource",
-                                "Representation",
-                                "Annotation"
+                                "Representation"
                             ]
                         },
                         {
@@ -102,7 +96,6 @@
                     "enum": [
                         "Colorpicker",
                         "Date",
-                        "Geometry",
                         "Geonames",
                         "Interval",
                         "TimeStamp",
@@ -400,41 +393,6 @@
                             "gui_element": {
                                 "enum": [
                                     "Slider",
-                                    "SimpleText"
-                                ]
-                            }
-                        }
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "object": {
-                                "const": "GeomValue"
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "super": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string",
-                                    "oneOf": [
-                                        {
-                                            "enum": [
-                                                "hasGeometry"
-                                            ]
-                                        },
-                                        {
-                                            "$ref": "#/definitions/prefixedname"
-                                        }
-                                    ]
-                                }
-                            },
-                            "gui_element": {
-                                "enum": [
-                                    "Geometry",
                                     "SimpleText"
                                 ]
                             }
@@ -852,7 +810,6 @@
                                     "Richtext",
                                     "Date",
                                     "TimeStamp",
-                                    "Geometry",
                                     "Geonames",
                                     "Checkbox",
                                     "Interval"

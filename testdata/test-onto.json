@@ -351,7 +351,7 @@
                         ],
                         "object": ":TestThing2",
                         "labels": {
-                            "en": "Another thing"
+                            "en": "hasTestThing2"
                         },
                         "gui_element": "Searchbox"
                     },
@@ -362,7 +362,51 @@
                         ],
                         "object": ":TestThing",
                         "labels": {
-                            "en": "Another thing"
+                            "en": "hasTestThing"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasResource",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Resource",
+                        "labels": {
+                            "en": "hasResource"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasRegion",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Region",
+                        "labels": {
+                            "en": "hasRegion"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasRepresentation",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Representation",
+                        "labels": {
+                            "en": "hasRepresentation"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasMovingImageRepresentation",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "MovingImageRepresentation",
+                        "labels": {
+                            "en": "hasMovingImageRepresentation"
                         },
                         "gui_element": "Searchbox"
                     }
@@ -437,7 +481,27 @@
                             },
                             {
                                 "propname": ":hasTestThing2",
+                                "gui_order": 13,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasResource",
                                 "gui_order": 14,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasRegion",
+                                "gui_order": 15,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasRepresentation",
+                                "gui_order": 16,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasMovingImageRepresentation",
+                                "gui_order": 17,
                                 "cardinality": "0-n"
                             }
                         ]

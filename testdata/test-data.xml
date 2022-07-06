@@ -10,7 +10,7 @@
     <permissions id="res-default">
         <allow group="UnknownUser">RV</allow>
         <allow group="KnownUser">V</allow>
-        <allow group="Creator">CR</allow>
+        <allow group="Creator">M</allow>
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
     <permissions id="res-restricted">
@@ -21,7 +21,7 @@
     <permissions id="prop-default">
         <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
-        <allow group="Creator">CR</allow>
+        <allow group="Creator">D</allow>
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
     <permissions id="prop-restricted">
@@ -32,18 +32,18 @@
 
     <resource label="TestthingOhnePermissions"
               restype=":TestThing2"
-              id="obj_0000">
+              id="test_thing_0">
         <text-prop name=":hasText">
             <text encoding="utf8">Dies ist ein TestThing ohne Angabe von permissions</text>
         </text-prop>
         <resptr-prop name=":hasTestThing">
-            <resptr permissions="prop-default">obj_0001</resptr>
+            <resptr permissions="prop-default">test_thing_1</resptr>
         </resptr-prop>
     </resource>
 
     <resource label="First Testthing"
               restype=":TestThing"
-              id="obj_0001"
+              id="test_thing_1"
               permissions="res-default">
         <text-prop name=":hasText">
             <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
@@ -52,18 +52,18 @@
         <text-prop name=":hasRichtext">
             <text permissions="prop-default" encoding="xml">
                 This is<em>bold and<strong>string</strong></em>text! It contains links to all resources:
-                <a class="salsah-link" href="IRI:obj_0000:IRI">obj_0000</a>
-                <a class="salsah-link" href="IRI:obj_0001:IRI">obj_0001</a>
-                <a class="salsah-link" href="IRI:obj_0002:IRI">obj_0002</a>
-                <a class="salsah-link" href="IRI:obj_0003:IRI">obj_0003</a>
-                <a class="salsah-link" href="IRI:obj_0004:IRI">obj_0004</a>
-                <a class="salsah-link" href="IRI:obj_0005:IRI">obj_0005</a>
-                <a class="salsah-link" href="IRI:obj_0006:IRI">obj_0006</a>
-                <a class="salsah-link" href="IRI:obj_0007:IRI">obj_0007</a>
-                <a class="salsah-link" href="IRI:obj_0008:IRI">obj_0008</a>
-                <a class="salsah-link" href="IRI:obj_0009:IRI">obj_0009</a>
-                <a class="salsah-link" href="IRI:obj_0010:IRI">obj_0010</a>
-                <a class="salsah-link" href="IRI:obj_0011:IRI">obj_0011</a>
+                <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
+                <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>
+                <a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a>
+                <a class="salsah-link" href="IRI:compound_thing_0:IRI">compound_thing_0</a>
+                <a class="salsah-link" href="IRI:partof_thing_1:IRI">partof_thing_1</a>
+                <a class="salsah-link" href="IRI:partof_thing_2:IRI">partof_thing_2</a>
+                <a class="salsah-link" href="IRI:partof_thing_3:IRI">partof_thing_3</a>
+                <a class="salsah-link" href="IRI:document_thing_1:IRI">document_thing_1</a>
+                <a class="salsah-link" href="IRI:text_thing_1:IRI">text_thing_1</a>
+                <a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a>
+                <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>
+                <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>
             </text>
             <text permissions="prop-default" encoding="xml">
                 Another text without salsah-links
@@ -100,13 +100,46 @@
             <list permissions="prop-default">b2</list>
         </list-prop>
         <resptr-prop name=":hasTestThing2">
-            <resptr permissions="prop-default">obj_0000</resptr>
+            <resptr permissions="prop-default">test_thing_0</resptr>
+        </resptr-prop>
+        <resptr-prop name=":hasResource">
+            <resptr permissions="prop-default">test_thing_0</resptr>
+            <resptr permissions="prop-default">test_thing_2</resptr>
+            <resptr permissions="prop-default">image_thing_0</resptr>
+            <resptr permissions="prop-default">compound_thing_0</resptr>
+            <resptr permissions="prop-default">partof_thing_1</resptr>
+            <resptr permissions="prop-default">partof_thing_2</resptr>
+            <resptr permissions="prop-default">partof_thing_3</resptr>
+            <resptr permissions="prop-default">document_thing_1</resptr>
+            <resptr permissions="prop-default">text_thing_1</resptr>
+            <resptr permissions="prop-default">zip_thing_1</resptr>
+            <resptr permissions="prop-default">audio_thing_1</resptr>
+            <resptr permissions="prop-default">TestThing2Child1</resptr>
+            <resptr permissions="prop-default">TestThing2Child2</resptr>
+            <resptr permissions="prop-default">video_thing_1</resptr>
+            <resptr permissions="prop-default">annotation_1</resptr>
+            <resptr permissions="prop-default">region_1</resptr>
+            <resptr permissions="prop-default">link_obj_1</resptr>
+       </resptr-prop>
+        <resptr-prop name=":hasRegion">
+            <resptr permissions="prop-default">region_1</resptr>
+        </resptr-prop>
+        <resptr-prop name=":hasRepresentation">
+            <resptr permissions="prop-default">image_thing_0</resptr>
+            <resptr permissions="prop-default">video_thing_1</resptr>
+            <resptr permissions="prop-default">document_thing_1</resptr>
+            <resptr permissions="prop-default">text_thing_1</resptr>
+            <resptr permissions="prop-default">zip_thing_1</resptr>
+            <resptr permissions="prop-default">audio_thing_1</resptr>
+        </resptr-prop>
+        <resptr-prop name=":hasMovingImageRepresentation">
+            <resptr permissions="prop-default">video_thing_1</resptr>
         </resptr-prop>
     </resource>
 
     <resource label="Second Testthing"
               restype=":TestThing"
-              id="obj_0011"
+              id="test_thing_2"
               permissions="res-default">
         <text-prop name=":hasText">
             <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
@@ -115,18 +148,18 @@
         <text-prop name=":hasRichtext">
             <text encoding="xml">
                 This is<em>bold and<strong>string</strong></em>text! It contains links to all resources:
-                <a class="salsah-link" href="IRI:obj_0000:IRI">obj_0000</a>
-                <a class="salsah-link" href="IRI:obj_0001:IRI">obj_0001</a>
-                <a class="salsah-link" href="IRI:obj_0002:IRI">obj_0002</a>
-                <a class="salsah-link" href="IRI:obj_0003:IRI">obj_0003</a>
-                <a class="salsah-link" href="IRI:obj_0004:IRI">obj_0004</a>
-                <a class="salsah-link" href="IRI:obj_0005:IRI">obj_0005</a>
-                <a class="salsah-link" href="IRI:obj_0006:IRI">obj_0006</a>
-                <a class="salsah-link" href="IRI:obj_0007:IRI">obj_0007</a>
-                <a class="salsah-link" href="IRI:obj_0008:IRI">obj_0008</a>
-                <a class="salsah-link" href="IRI:obj_0009:IRI">obj_0009</a>
-                <a class="salsah-link" href="IRI:obj_0010:IRI">obj_0010</a>
-                <a class="salsah-link" href="IRI:obj_0011:IRI">obj_0011</a>
+                <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
+                <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>
+                <a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a>
+                <a class="salsah-link" href="IRI:compound_thing_0:IRI">compound_thing_0</a>
+                <a class="salsah-link" href="IRI:partof_thing_1:IRI">partof_thing_1</a>
+                <a class="salsah-link" href="IRI:partof_thing_2:IRI">partof_thing_2</a>
+                <a class="salsah-link" href="IRI:partof_thing_3:IRI">partof_thing_3</a>
+                <a class="salsah-link" href="IRI:document_thing_1:IRI">document_thing_1</a>
+                <a class="salsah-link" href="IRI:text_thing_1:IRI">text_thing_1</a>
+                <a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a>
+                <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>
+                <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>
             </text>
             <text permissions="prop-default" encoding="xml">
                 Another text without salsah-links
@@ -142,7 +175,7 @@
 
     <resource label="Imagething"
               restype=":ImageThing"
-              id="obj_0002"
+              id="image_thing_0"
               permissions="res-default">
         <bitstream>testdata/bitstreams/TEMP11.TIF</bitstream>
         <text-prop name=":hasText">
@@ -152,7 +185,7 @@
 
     <resource label="Compoundthing"
               restype=":CompoundThing"
-              id="obj_0003"
+              id="compound_thing_0"
               permissions="res-default">
         <text-prop name=":hasText">
             <text permissions="prop-default" encoding="utf8">This is a Compoundthing</text>
@@ -161,11 +194,11 @@
 
     <resource label="Partofthing-1"
               restype=":PartOfThing"
-              id="obj_0004"
+              id="partof_thing_1"
               permissions="res-default">
         <bitstream>testdata/bitstreams/TEMP12.TIF</bitstream>
         <resptr-prop name="knora-api:isPartOf">
-            <resptr permissions="prop-default">obj_0003</resptr>
+            <resptr permissions="prop-default">compound_thing_0</resptr>
         </resptr-prop>
         <integer-prop name="knora-api:seqnum">
             <integer permissions="prop-default">1</integer>
@@ -174,11 +207,11 @@
 
     <resource label="Partofthing-2"
               restype=":PartOfThing"
-              id="obj_0005"
+              id="partof_thing_2"
               permissions="res-default">
         <bitstream>testdata/bitstreams/TEMP13.TIF</bitstream>
         <resptr-prop name="knora-api:isPartOf">
-            <resptr permissions="prop-default">obj_0003</resptr>
+            <resptr permissions="prop-default">compound_thing_0</resptr>
         </resptr-prop>
         <integer-prop name="knora-api:seqnum">
             <integer permissions="prop-default">2</integer>
@@ -187,11 +220,11 @@
 
     <resource label="Partofthing-3"
               restype=":PartOfThing"
-              id="obj_0006"
+              id="partof_thing_3"
               permissions="res-default">
         <bitstream>testdata/bitstreams/TEMP14.TIF</bitstream>
         <resptr-prop name="knora-api:isPartOf">
-            <resptr permissions="prop-default">obj_0003</resptr>
+            <resptr permissions="prop-default">compound_thing_0</resptr>
         </resptr-prop>
         <integer-prop name="knora-api:seqnum">
             <integer permissions="prop-default">3</integer>
@@ -200,7 +233,7 @@
 
     <resource label="Documentthing"
               restype=":DocumentThing"
-              id="obj_0007"
+              id="document_thing_1"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.pdf</bitstream>
         <text-prop name=":hasText">
@@ -210,7 +243,7 @@
 
     <resource label="Textthing-csv"
               restype=":TextThing"
-              id="obj_0008"
+              id="text_thing_1"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.csv</bitstream>
         <text-prop name=":hasText">
@@ -220,7 +253,7 @@
 
     <resource label="Zipthing"
               restype=":ZipThing"
-              id="obj_0009"
+              id="zip_thing_1"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.zip</bitstream>
         <text-prop name=":hasText">
@@ -230,7 +263,7 @@
 
     <resource label="Audiothing"
               restype=":AudioThing"
-              id="obj_0010"
+              id="audio_thing_1"
               permissions="res-default">
         <bitstream>testdata/bitstreams/clara.wav</bitstream>
         <text-prop name=":hasText">
@@ -240,41 +273,49 @@
 
     <resource label="Moviething"
               restype=":MovieThing"
-              id="video_0"
-              permissions="res-default">
+              id="video_thing_1"
+              permissions="res-restricted">
         <bitstream>testdata/bitstreams/Dummy.mp4</bitstream>
         <text-prop name=":hasText">
             <text encoding="utf8" permissions="prop-default">Dummy video with music</text>
         </text-prop>
     </resource>
 
-    <resource label="TestThing2Child1" restype=":TestThing2Child1" id="obj_0012">
+    <resource label="TestThing2Child1" 
+              restype=":TestThing2Child1" 
+              id="TestThing2Child1">
         <text-prop name=":hasTextChild1">
             <text encoding="utf8">Some text</text>
         </text-prop>
     </resource>
 
-    <resource label="TestThing2Child2" restype=":TestThing2Child2" id="obj_0013">
+    <resource label="TestThing2Child2" 
+              restype=":TestThing2Child2" 
+              id="TestThing2Child2">
         <text-prop name=":hasTextChild2">
             <text encoding="utf8">Some text</text>
         </text-prop>
     </resource>
 
-    <resource label="Annotation to TestthingOhnePermissions" restype="Annotation" id="annotation_0" permissions="res-default">
+    <annotation label="Annotation to TestthingOhnePermissions" 
+                id="annotation_1" 
+                permissions="res-default">
         <text-prop name="hasComment">
             <text encoding="utf8" permissions="prop-default">This is an annotation to TestthingOhnePermissions.</text>
         </text-prop>
         <resptr-prop name="isAnnotationOf">
-            <resptr permissions="prop-default">obj_0000</resptr>
+            <resptr permissions="prop-default">test_thing_0</resptr>
         </resptr-prop>
-    </resource>
+    </annotation>
 
-    <resource label="Region in image" restype="Region" id="region_0" permissions="res-default">
-        <color-prop name="hasColorr">
-            <color permissions="prop-default">#5d1f1e</color>
+    <region label="Region in image" 
+            id="region_1"
+            permissions="res-restricted">
+        <color-prop name="hasColor">
+            <color permissions="prop-restricted">#5d1f1e</color>
         </color-prop>
-        <resptr-prop name="isRegionOff">
-            <resptr permissions="prop-default">obj_0002</resptr>
+        <resptr-prop name="isRegionOf">
+            <resptr permissions="prop-default">image_thing_0</resptr>
         </resptr-prop>
         <geometry-prop name="hasGeometry">
             <geometry permissions="prop-default">
@@ -284,31 +325,33 @@
                     "lineColor": "#ff3333",
                     "lineWidth": 2,
                     "points": [
-                        {"x":0.08098591549295775,"y":0.16741071428571427},
+                        {"x":0.080985915492957750,"y":0.16741071428571427},
                         {"x":0.739436619718309900,"y":0.72991071428571430}
                     ],
                     "original_index": 0
                 }
             </geometry>
         </geometry-prop>
-        <text-prop name="hasCommentt">
+        <text-prop name="hasComment">
             <text encoding="xml" permissions="prop-default">
-                This is a rectangle-formed region of interest of the image Imagething. It is also displayed as Annotation.
+                This is a rectangle-formed region of interest of an image. It is also displayed as Annotation.
             </text>
         </text-prop>
-    </resource>
+    </region>
 
-    <resource label="Link between 'Second Testthing', 'Compoundthing' and 'Partofthing-1'" id="link_obj_0" restype="LinkObj" permissions="res-default">
+    <link label="Link between 'Second Testthing', 'Compoundthing' and 'Partofthing-1'" 
+          id="link_obj_1" 
+          permissions="res-default">
         <text-prop name="hasComment">
             <text permissions="prop-default" encoding="xml">
                 A link object can link together an arbitrary number of resources from any resource class.
             </text>
         </text-prop>
         <resptr-prop name="hasLinkTo">
-            <resptr permissions="prop-default">obj_0011</resptr>
-            <resptr permissions="prop-default">obj_0003</resptr>
-            <resptr permissions="prop-default">obj_0004</resptr>
+            <resptr permissions="prop-default">test_thing_2</resptr>
+            <resptr permissions="prop-default">compound_thing_0</resptr>
+            <resptr permissions="prop-default">partof_thing_1</resptr>
         </resptr-prop>
-    </resource>
+    </link>
 
 </knora>

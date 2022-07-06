@@ -420,13 +420,12 @@ class ResourceInstanceFactory:
             'knora-api:LinkValue': LinkValue,
         }
         for propname, has_property in resclass.has_properties.items():
-            if propname == "knora-api:isAnnotationOf":
-                valtype = LinkValue
-                props[propname] = Propinfo(valtype=valtype,
-                                           cardinality=has_property.cardinality,
-                                           gui_order=has_property.gui_order)
-
-            if propname == "knora-api:isRegionOf":
+            if any([
+                propname == "knora-api:isAnnotationOf",
+                propname == "knora-api:isRegionOf",
+                propname == "knora-api:isPartOf",
+                propname == "knora-api:hasLinkTo"
+            ]):
                 valtype = LinkValue
                 props[propname] = Propinfo(valtype=valtype,
                                            cardinality=has_property.cardinality,
@@ -437,14 +436,8 @@ class ResourceInstanceFactory:
                 props[propname] = Propinfo(valtype=valtype,
                                            cardinality=has_property.cardinality,
                                            gui_order=has_property.gui_order)
-
             elif propname == "knora-api:hasColor":
                 valtype = ColorValue
-                props[propname] = Propinfo(valtype=valtype,
-                                           cardinality=has_property.cardinality,
-                                           gui_order=has_property.gui_order)
-            elif propname == "knora-api:isPartOf":
-                valtype = LinkValue
                 props[propname] = Propinfo(valtype=valtype,
                                            cardinality=has_property.cardinality,
                                            gui_order=has_property.gui_order)
@@ -455,11 +448,6 @@ class ResourceInstanceFactory:
                                            gui_order=has_property.gui_order)
             elif propname == "knora-api:hasComment":
                 valtype = TextValue
-                props[propname] = Propinfo(valtype=valtype,
-                                           cardinality=has_property.cardinality,
-                                           gui_order=has_property.gui_order)
-            elif propname == "knora-api:hasLinkTo":
-                valtype = LinkValue
                 props[propname] = Propinfo(valtype=valtype,
                                            cardinality=has_property.cardinality,
                                            gui_order=has_property.gui_order)

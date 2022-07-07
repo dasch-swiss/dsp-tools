@@ -789,39 +789,45 @@ Example:
 ```
 
 
-## DSP built-ins
-There is a number of resource classes and property classes that must not be subclassed in a project ontology. They are 
-directly available in the XML data file. Built-in names must be used without prepended colon.
+## DSP base resources / base properties to be used directly in the XML file
+There is a number of base resources and base properties that must not be subclassed in a project ontology. They are 
+directly available in the XML data file. Please have in mind that built-in names of the knora-base ontology must be used 
+without prepended colon.  
+See also [the related part of the ontology documentation](dsp-tools-create-ontologies.md#dsp-base-resources-base-properties-to-be-used-directly-in-the-xml-file)
 
-### `Annotation`
-`Annotation` is an annotation to another resource of any class. It automatically has the following predefined properties:
-    - `hasComment` (1-n)
-    - `isAnnotationOf` (1)
+### `<annotation>`
+`<annotation>` is an annotation to another resource of any class. It must have the following predefined properties:
+
+- `hasComment` (1-n)
+- `isAnnotationOf` (1)
 
 Example:
 ```xml
-<resource label="Annotation to another resource" restype="Annotation" id="annotation_0" permissions="res-default">
+<annotation label="Annotation to another resource" id="annotation_0" permissions="res-default">
     <text-prop name="hasComment">
-        <text encoding="utf8" permissions="prop-default">This is an annotation to another resource.</text>
+        <text encoding="utf8" permissions="prop-default">This is an annotation to a resource.</text>
     </text-prop>
     <resptr-prop name="isAnnotationOf">
         <resptr permissions="prop-default">img_1</resptr>
     </resptr-prop>
-</resource>
+</annotation>
 ```
 
-### `Region`
-A `Region` resource defines a region of interest (ROI) in an image. It automatically has the following predefined properties:
-    - `hasColor` (1)
-    - `isRegionOf` (1)
-    - `hasGeometry` (1)
-    - `hasComment` (0-n)
+Technical note: An `<annotation>` is in fact a `<resource restype="Annotation">`.
+
+### `<region>`
+A `<region>` resource defines a region of interest (ROI) in an image. It must have the following predefined properties:
+
+- `hasColor` (1)
+- `isRegionOf` (1)
+- `hasGeometry` (1)
+- `hasComment` (0-n)
 
 There are three types of Geometry shapes (rectangle, circle, polygon), but only the rectangle is implemented.
 
 Example:
 ```xml
-<resource label="Region in image" restype="Region" id="region_0" permissions="res-default">
+<region label="Region in image" id="region_0" permissions="res-default">
     <color-prop name="hasColor">
         <color permissions="prop-default">#5d1f1e</color>
     </color-prop>
@@ -846,18 +852,21 @@ Example:
     <text-prop name="hasComment">
         <text encoding="utf8" permissions="prop-default">This is a rectangle-formed region of interest.</text>
     </text-prop>
-</resource>
+</region>
 ```
 
-### `LinkObj`
-`LinkObj` is a resource linking together several other resources of different classes. The class has the following 
-properties:
-    - `hasComment` (1-n)
-    - `hasLinkTo` (1-n)
+Technical note: A `<region>` is in fact a `<resource restype="Region">`.
+
+### `<link>`
+`<link>` is a resource linking together several other resources of different classes. It must have the following 
+predefined properties:
+
+- `hasComment` (1-n)
+- `hasLinkTo` (1-n)
 
 Example:
 ```xml
-<resource label="Link between three resources" id="link_obj_0" restype="LinkObj" permissions="res-default">
+<link label="Link between three resources" id="link_obj_0" permissions="res-default">
     <text-prop name="hasComment">
         <text permissions="prop-default" encoding="utf8">
             A link object can link together an arbitrary number of resources from any resource class.
@@ -868,8 +877,10 @@ Example:
         <resptr permissions="prop-default">img_obj_5</resptr>
         <resptr permissions="prop-default">audio_obj_0</resptr>
     </resptr-prop>
-</resource>
+</link>
 ```
+
+Technical note: A `<link>` is in fact a `<resource restype="LinkObj">`.
 
 
 ## Incremental XML Upload

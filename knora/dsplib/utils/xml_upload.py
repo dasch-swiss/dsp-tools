@@ -7,14 +7,12 @@ import os
 import re
 import time
 import uuid
-import xmlschema
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Union, cast, Tuple, Any, Callable
 from urllib.parse import quote_plus
 from lxml import etree
 from requests import RequestException
-from xmlschema import XMLSchemaException
 
 from knora.dsplib.models.projectContext import ProjectContext
 from knora.dsplib.models.connection import Connection
@@ -161,15 +159,15 @@ def _validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
     Returns:
         True if the XML file is valid, False otherwise
     """
-    schema = xmlschema.XMLSchema11(schema_file)
-    if schema.is_valid(input_file):
+    xmlschema = etree.XMLSchema(etree.parse(schema_file))
+    doc = etree.parse(input_file)
+
+    if xmlschema.validate(doc):
         return True
     else:
-        print("The input data file cannot be uploaded due to the following validation error:")
-        try:
-            schema.validate(input_file)
-        except XMLSchemaException as err:
-            print(err)
+        print("The input data file cannot be uploaded due to the following validation error(s):")
+        for error in xmlschema.error_log:
+            print(f"  Line {error.line}: {error.message}")
         return False
 
 
@@ -256,6 +254,15 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     for elem in tree.getiterator():
         if not (isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction)):
             elem.tag = etree.QName(elem).localname  # remove namespace URI in the element's name
+        if elem.tag == "annotation":
+            elem.attrib["restype"] = "Annotation"
+            elem.tag = "resource"
+        if elem.tag == "link":
+            elem.attrib["restype"] = "LinkObj"
+            elem.tag = "resource"
+        if elem.tag == "region":
+            elem.attrib["restype"] = "Region"
+            elem.tag = "resource"
     etree.cleanup_namespaces(tree)  # remove unused namespace declarations
 
     root = tree.getroot()

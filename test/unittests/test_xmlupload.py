@@ -4,7 +4,7 @@ import unittest
 from lxml import etree
 
 from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.utils.xml_upload import _convert_ark_v0_to_resource_iri, _remove_circular_references
+from knora.dsplib.utils.xml_upload import _convert_ark_v0_to_resource_iri, _remove_circular_references, parse_xml_file
 from knora.dsplib.models.xmlresource import XMLResource
 
 
@@ -34,20 +34,7 @@ class TestXMLUpload(unittest.TestCase):
 
     def test_remove_circular_references(self) -> None:
         # create a list of XMLResources from the test data file
-        tree = etree.parse('testdata/test-data.xml')
-        for elem in tree.getiterator():
-            if not (isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction)):
-                elem.tag = etree.QName(elem).localname  # remove namespace URI in the element's name
-            if elem.tag == "annotation":
-                elem.attrib["restype"] = "Annotation"
-                elem.tag = "resource"
-            if elem.tag == "link":
-                elem.attrib["restype"] = "LinkObj"
-                elem.tag = "resource"
-            if elem.tag == "region":
-                elem.attrib["restype"] = "Region"
-                elem.tag = "resource"
-        etree.cleanup_namespaces(tree)  # remove unused namespace declarations
+        tree = parse_xml_file('testdata/test-data.xml')
         resources = [XMLResource(x, 'testonto') for x in tree.getroot() if x.tag == "resource"]
 
         # get the purged resources and the stashes from the function to be tested

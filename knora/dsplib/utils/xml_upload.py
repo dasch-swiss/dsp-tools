@@ -211,6 +211,39 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
 
 
+def parse_xml_file(input_file: str) -> etree.ElementTree:
+    """
+    Parse an XML file with DSP-conform data, remove namespace URI from the elements' names, and transform the special
+    tags <annotation>, <region>, and <link> to their technically correct form <resource restype="Annotation">,
+    <resource restype="Region">, and <resource restype="LinkObj">.
+
+    Args:
+        input_file: path to the XML file
+
+    Returns:
+        the parsed etree.ElementTree
+    """
+    tree = etree.parse(input_file)
+    for elem in tree.getiterator():
+        if not (isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction)):
+            # remove namespace URI in the element's name
+            elem.tag = etree.QName(elem).localname
+        if elem.tag == "annotation":
+            elem.attrib["restype"] = "Annotation"
+            elem.tag = "resource"
+        elif elem.tag == "link":
+            elem.attrib["restype"] = "LinkObj"
+            elem.tag = "resource"
+        elif elem.tag == "region":
+            elem.attrib["restype"] = "Region"
+            elem.tag = "resource"
+
+    # remove unused namespace declarations
+    etree.cleanup_namespaces(tree)
+
+    return tree
+
+
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
                validate_only: bool, incremental: bool) -> bool:
     """
@@ -249,22 +282,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     proj_context = ProjectContext(con=con)
     sipi_server = Sipi(sipi, con.get_token())
 
-    # parse the XML file
-    tree = etree.parse(input_file)
-    for elem in tree.getiterator():
-        if not (isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction)):
-            elem.tag = etree.QName(elem).localname  # remove namespace URI in the element's name
-        if elem.tag == "annotation":
-            elem.attrib["restype"] = "Annotation"
-            elem.tag = "resource"
-        if elem.tag == "link":
-            elem.attrib["restype"] = "LinkObj"
-            elem.tag = "resource"
-        if elem.tag == "region":
-            elem.attrib["restype"] = "Region"
-            elem.tag = "resource"
-    etree.cleanup_namespaces(tree)  # remove unused namespace declarations
-
+    tree = parse_xml_file(input_file)
     root = tree.getroot()
     default_ontology = root.attrib['default-ontology']
     shortcode = root.attrib['shortcode']

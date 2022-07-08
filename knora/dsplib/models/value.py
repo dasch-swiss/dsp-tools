@@ -401,7 +401,7 @@ class DecimalValue(Value):
                  vark_url: Optional[str] = None):
         self._value = value
         if isinstance(value, str):
-            m = re.match('^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$', value)
+            m = re.match(r'^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$', value)
             if m:
                 self._value = float(value)
             else:

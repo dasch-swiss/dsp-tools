@@ -476,10 +476,30 @@
             <xs:sequence>
                 <xs:element name="permissions" type="permissions_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:choice maxOccurs="unbounded">
-                    <xs:element name="resource" type="resource_type" minOccurs="1" maxOccurs="unbounded"/>
-                    <xs:element name="annotation" type="annotation_type" minOccurs="0" maxOccurs="unbounded"/>
-                    <xs:element name="region" type="region_type" minOccurs="0" maxOccurs="unbounded"/>
-                    <xs:element name="link" type="link_type" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="resource" type="resource_type" minOccurs="1" maxOccurs="unbounded">
+                        <xs:unique name="UniqueNameAttr_Resource">
+                            <xs:selector xpath=".//*"/>
+                            <xs:field xpath="@name"/>
+                        </xs:unique>
+                    </xs:element>
+                    <xs:element name="annotation" type="annotation_type" minOccurs="0" maxOccurs="unbounded">
+                        <xs:unique name="UniqueNameAttr_Annotation">
+                            <xs:selector xpath=".//*"/>
+                            <xs:field xpath="@name"/>
+                        </xs:unique>
+                    </xs:element>
+                    <xs:element name="region" type="region_type" minOccurs="0" maxOccurs="unbounded">
+                        <xs:unique name="UniqueNameAttr_Region">
+                            <xs:selector xpath=".//*"/>
+                            <xs:field xpath="@name"/>
+                        </xs:unique>
+                    </xs:element>
+                    <xs:element name="link" type="link_type" minOccurs="0" maxOccurs="unbounded">
+                        <xs:unique name="UniqueNameAttr_Link">
+                            <xs:selector xpath=".//*"/>
+                            <xs:field xpath="@name"/>
+                        </xs:unique>
+                    </xs:element>
                 </xs:choice>
             </xs:sequence>
             <xs:attribute name="default-ontology" type="xs:string"/>

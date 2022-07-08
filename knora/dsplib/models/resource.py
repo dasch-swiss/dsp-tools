@@ -320,19 +320,6 @@ class ResourceInstance(Model):
                 print(name, ':', str(val))
 
 
-# ToDo: special resourceclasses and properties of knora-api
-#
-# - knora-api:isPartOf -> Object: knora-api:Resource
-# - knora-api:author -> Object: knora-api:User
-# - knora-api:seqnum -> Object: knora-api:IntValue
-# - knora-api:hasComment -> Object: knora-api:TextValue
-#
-# knora-api:Region: IS a resource
-# - knora-api:hasGeometry
-# - knora-api:isRegionOf
-# - knora-api:hasColor
-# - knora-api:hasComment
-
 @strict
 class ResourceInstanceFactory:
     _con: Connection

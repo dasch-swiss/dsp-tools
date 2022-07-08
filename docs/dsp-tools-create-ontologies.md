@@ -915,7 +915,7 @@ in the XML data file:
     - `hasColor` (1)
     - `isRegionOf` (1)
     - `hasGeometry` (1)
-    - `hasComment` (0-n)
+    - `hasComment` (1-n)
 
 There are some DSP base properties that are used directly in the above resource classes. Some of them can also be 
 subclassed and used in a resource class.

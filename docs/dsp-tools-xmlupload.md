@@ -821,7 +821,7 @@ A `<region>` resource defines a region of interest (ROI) in an image. It must ha
 - `hasColor` (1)
 - `isRegionOf` (1)
 - `hasGeometry` (1)
-- `hasComment` (0-n)
+- `hasComment` (1-n)
 
 There are three types of Geometry shapes (rectangle, circle, polygon), but only the rectangle is implemented.
 

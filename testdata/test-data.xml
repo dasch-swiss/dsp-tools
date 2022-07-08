@@ -46,6 +46,7 @@
                 permissions="res-default">
         <text-prop name="hasComment">
             <text encoding="utf8" permissions="prop-default">This is an annotation to TestthingOhnePermissions.</text>
+            <text encoding="utf8" permissions="prop-default">Second comment</text>
         </text-prop>
         <resptr-prop name="isAnnotationOf">
             <resptr permissions="prop-default">test_thing_0</resptr>
@@ -330,6 +331,9 @@
             <text permissions="prop-default" encoding="xml">
                 A link object can link together an arbitrary number of resources from any resource class.
             </text>
+            <text permissions="prop-default" encoding="xml">
+                Second comment
+            </text>
         </text-prop>
         <resptr-prop name="hasLinkTo">
             <resptr permissions="prop-default">test_thing_2</resptr>
@@ -354,9 +358,17 @@
         </text-prop>
     </resource>
 
-    <region label="Region in image without comment"
+    <region label="Another region in image"
             id="region_2"
             permissions="res-restricted">
+        <text-prop name="hasComment">
+            <text encoding="xml" permissions="prop-default">
+                This is a rectangle-formed region of interest of an image. It is also displayed as Annotation.
+            </text>
+            <text encoding="xml" permissions="prop-restricted">
+                This is a second comment.
+            </text>
+        </text-prop>
         <geometry-prop name="hasGeometry">
             <geometry permissions="prop-default">
                 {

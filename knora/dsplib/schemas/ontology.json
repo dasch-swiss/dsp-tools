@@ -23,6 +23,21 @@
             "pattern": "^([a-zA-Z_][\\w.-]*)?:([-\\w]+)$",
             "additionalProperties": false
         },
+        "baseresource": {
+            "type": "string",
+            "enum": [
+                "Resource",
+                "Region",
+                "Representation",
+                "StillImageRepresentation",
+                "TextRepresentation",
+                "AudioRepresentation",
+                "DDDRepresentation",
+                "DocumentRepresentation",
+                "MovingImageRepresentation",
+                "ArchiveRepresentation"
+            ]
+        },
         "label": {
             "$ref": "#/definitions/langstring"
         },
@@ -48,16 +63,7 @@
             ],
             "oneOf": [
                 {
-                    "enum": [
-                        "Resource",
-                        "StillImageRepresentation",
-                        "TextRepresentation",
-                        "AudioRepresentation",
-                        "DDDRepresentation",
-                        "DocumentRepresentation",
-                        "MovingImageRepresentation",
-                        "ArchiveRepresentation"
-                    ]
+                    "$ref": "#/definitions/baseresource"
                 },
                 {
                     "$ref": "#/definitions/prefixedname"
@@ -286,10 +292,11 @@
                                 "TimeValue",
                                 "UriValue",
                                 "IntervalValue",
-                                "ListValue",
-                                "Resource",
-                                "Representation"
+                                "ListValue"
                             ]
+                        },
+                        {
+                            "$ref": "#/definitions/baseresource"
                         },
                         {
                             "$ref": "#/definitions/prefixedname"
@@ -426,7 +433,8 @@
                                     "oneOf": [
                                         {
                                             "enum": [
-                                                "hasRepresentation"
+                                                "hasRepresentation",
+                                                "hasLinkTo"
                                             ]
                                         },
                                         {

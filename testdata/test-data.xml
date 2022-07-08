@@ -41,6 +41,17 @@
         </resptr-prop>
     </resource>
 
+    <annotation label="Annotation to TestthingOhnePermissions"
+                id="annotation_1"
+                permissions="res-default">
+        <text-prop name="hasComment">
+            <text encoding="utf8" permissions="prop-default">This is an annotation to TestthingOhnePermissions.</text>
+        </text-prop>
+        <resptr-prop name="isAnnotationOf">
+            <resptr permissions="prop-default">test_thing_0</resptr>
+        </resptr-prop>
+    </annotation>
+
     <resource label="First Testthing"
               restype=":TestThing"
               id="test_thing_1"
@@ -122,7 +133,7 @@
             <resptr permissions="prop-default">link_obj_1</resptr>
        </resptr-prop>
         <resptr-prop name=":hasRegion">
-            <resptr permissions="prop-default">region_1</resptr>
+            <resptr permissions="prop-default">region_2</resptr>
         </resptr-prop>
         <resptr-prop name=":hasRepresentation">
             <resptr permissions="prop-default">image_thing_0</resptr>
@@ -182,6 +193,37 @@
             <text permissions="prop-default" encoding="utf8">This is a Imagething</text>
         </text-prop>
     </resource>
+
+    <region label="Region in image"
+            id="region_1"
+            permissions="res-restricted">
+        <color-prop name="hasColor">
+            <color permissions="prop-restricted">#5d1f1e</color>
+        </color-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr permissions="prop-default">image_thing_0</resptr>
+        </resptr-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry permissions="prop-default">
+                {
+                    "status": "active",
+                    "type": "rectangle",
+                    "lineColor": "#ff3333",
+                    "lineWidth": 2,
+                    "points": [
+                        {"x":0.080985915492957750,"y":0.16741071428571427},
+                        {"x":0.739436619718309900,"y":0.72991071428571430}
+                    ],
+                    "original_index": 0
+                }
+            </geometry>
+        </geometry-prop>
+        <text-prop name="hasComment">
+            <text encoding="xml" permissions="prop-default">
+                This is a rectangle-formed region of interest of an image. It is also displayed as Annotation.
+            </text>
+        </text-prop>
+    </region>
 
     <resource label="Compoundthing"
               restype=":CompoundThing"
@@ -281,6 +323,21 @@
         </text-prop>
     </resource>
 
+    <link label="Link between 'Second Testthing', 'Compoundthing' and 'Partofthing-1'"
+          id="link_obj_1"
+          permissions="res-default">
+        <text-prop name="hasComment">
+            <text permissions="prop-default" encoding="xml">
+                A link object can link together an arbitrary number of resources from any resource class.
+            </text>
+        </text-prop>
+        <resptr-prop name="hasLinkTo">
+            <resptr permissions="prop-default">test_thing_2</resptr>
+            <resptr permissions="prop-default">compound_thing_0</resptr>
+            <resptr permissions="prop-default">partof_thing_1</resptr>
+        </resptr-prop>
+    </link>
+
     <resource label="TestThing2Child1" 
               restype=":TestThing2Child1" 
               id="TestThing2Child1">
@@ -297,26 +354,9 @@
         </text-prop>
     </resource>
 
-    <annotation label="Annotation to TestthingOhnePermissions" 
-                id="annotation_1" 
-                permissions="res-default">
-        <text-prop name="hasComment">
-            <text encoding="utf8" permissions="prop-default">This is an annotation to TestthingOhnePermissions.</text>
-        </text-prop>
-        <resptr-prop name="isAnnotationOf">
-            <resptr permissions="prop-default">test_thing_0</resptr>
-        </resptr-prop>
-    </annotation>
-
-    <region label="Region in image" 
-            id="region_1"
+    <region label="Region in image without comment"
+            id="region_2"
             permissions="res-restricted">
-        <color-prop name="hasColor">
-            <color permissions="prop-restricted">#5d1f1e</color>
-        </color-prop>
-        <resptr-prop name="isRegionOf">
-            <resptr permissions="prop-default">image_thing_0</resptr>
-        </resptr-prop>
         <geometry-prop name="hasGeometry">
             <geometry permissions="prop-default">
                 {
@@ -332,26 +372,12 @@
                 }
             </geometry>
         </geometry-prop>
-        <text-prop name="hasComment">
-            <text encoding="xml" permissions="prop-default">
-                This is a rectangle-formed region of interest of an image. It is also displayed as Annotation.
-            </text>
-        </text-prop>
-    </region>
-
-    <link label="Link between 'Second Testthing', 'Compoundthing' and 'Partofthing-1'" 
-          id="link_obj_1" 
-          permissions="res-default">
-        <text-prop name="hasComment">
-            <text permissions="prop-default" encoding="xml">
-                A link object can link together an arbitrary number of resources from any resource class.
-            </text>
-        </text-prop>
-        <resptr-prop name="hasLinkTo">
-            <resptr permissions="prop-default">test_thing_2</resptr>
-            <resptr permissions="prop-default">compound_thing_0</resptr>
-            <resptr permissions="prop-default">partof_thing_1</resptr>
+        <resptr-prop name="isRegionOf">
+            <resptr permissions="prop-default">image_thing_0</resptr>
         </resptr-prop>
-    </link>
+        <color-prop name="hasColor">
+            <color permissions="prop-restricted">#5d1f1e</color>
+        </color-prop>
+    </region>
 
 </knora>

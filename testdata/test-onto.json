@@ -212,7 +212,7 @@
                             "size": 80
                         }
                     },
-                                        {
+                    {
                         "name": "hasRichtext",
                         "super": [
                             "hasValue"
@@ -651,6 +651,28 @@
                             {
                                 "propname": "seqnum",
                                 "gui_order": 2,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "VideoSequence",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Sequence of the VideoThing resource."
+                        },
+                        "comments": {
+                            "en": "A test resource for testing sequenceOf relations"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": "isSequenceOf",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            },
+                            {
+                                "propname": "hasSequenceBounds",
+                                "gui_order": 1,
                                 "cardinality": "1"
                             }
                         ]

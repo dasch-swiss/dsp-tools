@@ -141,8 +141,8 @@ By convention, property names start with a lower case letter.
 
 `"labels": {"<language>": "<string>", ...}`
 
-Collection of `labels` for the property as strings with language tag (currently "en", "de", "fr"
-and "it" are supported).
+Collection of `labels` for the property as strings with language tag (currently "en", "de", "fr", "it",
+and "rm" are supported).
 
 ### Comments
 
@@ -150,7 +150,7 @@ and "it" are supported).
 
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
-Comments with language tags. Currently, "de", "en", "fr" and "it" are supported. The `comments` element is optional.
+Comments with language tags. Currently, "de", "en", "fr", "it", and "rm" are supported. The `comments` element is optional.
 
 ### Super
 
@@ -541,7 +541,7 @@ Represents an URI
 
 #### GeonameValue
 
-Represents a location ID in geonames.org. The DSP platform uses identifiers provided by
+Represents a location ID in geonames.org. DSP uses identifiers provided by
 [geonames.org](https://geonames.orgs) to identify geographical locations.
 
 *gui-elements / gui_attributes*:
@@ -780,8 +780,8 @@ By convention, resource names start with a upper case letter.
 
 `"labels": {"<language>": "<string>", ...}`
 
-Collection of `labels` for the resource as strings with language tag (currently "en", "de", "fr"
-and "it" are supported).
+Collection of `labels` for the resource as strings with language tag (currently "en", "de", "fr", "it", 
+and "rm" are supported).
 
 ### Super
 
@@ -844,7 +844,7 @@ resource can have as well as how many times the relation is established.
 
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
-Comments with language tags. Currently, "de", "en", "fr" and "it" are supported. The `comments` element is optional.
+Comments with language tags. Currently, "de", "en", "fr", "it", and "rm" are supported. The `comments` element is optional.
 
 Example for a resource definition:
 

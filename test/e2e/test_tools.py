@@ -1,6 +1,8 @@
 """This test class tests the basic functionalities of dsp-tools"""
 import json
 import unittest
+import os
+import datetime
 
 from knora.dsplib.utils import excel_to_json_lists
 from knora.dsplib.utils.excel_to_json_lists import list_excel2json
@@ -16,6 +18,9 @@ from knora.dsplib.utils.xml_upload import xml_upload
 class TestTools(unittest.TestCase):
     server = 'http://0.0.0.0:3333'
     user = 'root@example.com'
+    password = 'test'
+    imgdir = '.'
+    sipi = 'http://0.0.0.0:1024'
     test_onto_file = 'testdata/test-onto.json'
     test_list_file = 'testdata/test-list.json'
     test_data_file = 'testdata/test-data.xml'
@@ -24,6 +29,7 @@ class TestTools(unittest.TestCase):
         """Is executed before each test"""
         excel_to_json_lists.list_of_lists = []
         excel_to_json_lists.cell_names = []
+        os.makedirs('testdata/tmp', exist_ok=True)
 
     def tearDown(self) -> None:
         """Is executed after each test"""
@@ -151,14 +157,11 @@ class TestTools(unittest.TestCase):
 
     def test_excel_to_json_resources(self) -> None:
         resources_excel2json(excelfile='testdata/Resources.xlsx',
-                             outfile='testdata/tmp/_resources-out.json')
+                             outfile='testdata/tmp/_out_resources.json')
 
     def test_excel_to_json_properties(self) -> None:
         properties_excel2json(excelfile='testdata/Properties.xlsx',
-                              outfile='testdata/tmp/_properties-out.json')
-
-    def test_validate_ontology(self) -> None:
-        validate_ontology(self.test_onto_file)
+                              outfile='testdata/tmp/_out_properties.json')
 
     def test_create_ontology(self) -> None:
         create_ontology(input_file=self.test_onto_file,
@@ -170,21 +173,46 @@ class TestTools(unittest.TestCase):
                         dump=False)
 
     def test_xml_upload(self) -> None:
-        xml_upload(input_file=self.test_data_file,
-                   server=self.server,
-                   user=self.user,
-                   password='test',
-                   imgdir='.',
-                   sipi='http://0.0.0.0:1024',
-                   verbose=False,
-                   validate_only=False,
-                   incremental=False)
+        result = xml_upload(
+            input_file=self.test_data_file,
+            server=self.server,
+            user=self.user,
+            password=self.password,
+            imgdir=self.imgdir,
+            sipi=self.sipi,
+            verbose=False,
+            validate_only=False,
+            incremental=False)
+        self.assertTrue(result)
 
-    def test_id_to_iri(self) -> None:
+        mapping_file = ''
+        for mapping in [x for x in os.scandir('.') if x.name.startswith('id2iri_test-data_mapping_')]:
+            delta = datetime.datetime.now() - datetime.datetime.fromtimestamp(mapping.stat().st_mtime_ns / 1000000000)
+            if delta.seconds < 15:
+                mapping_file = mapping.name
+        self.assertNotEqual(mapping_file, '')
+
+        id2iri_replaced_xml_filename = 'testdata/tmp/_test-id2iri-replaced.xml'
         id_to_iri(xml_file='testdata/test-id2iri-data.xml',
-                  json_file='testdata/test-id2iri-mapping.json',
-                  out_file='testdata/tmp/_test-id2iri-replaced.xml',
+                  json_file=mapping_file,
+                  out_file=id2iri_replaced_xml_filename,
                   verbose=False)
+        self.assertEqual(os.path.isfile(id2iri_replaced_xml_filename), True)
+
+        result = xml_upload(
+            input_file=id2iri_replaced_xml_filename,
+            server=self.server,
+            user=self.user,
+            password=self.password,
+            imgdir=self.imgdir,
+            sipi=self.sipi,
+            verbose=False,
+            validate_only=False,
+            incremental=True
+        )
+        self.assertTrue(result)
+        self.assertTrue(all([not f.name.startswith('stashed_text_properties_') for f in os.scandir('.')]))
+        self.assertTrue(all([not f.name.startswith('stashed_resptr_properties_') for f in os.scandir('.')]))
 
 
 if __name__ == '__main__':

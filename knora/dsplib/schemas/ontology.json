@@ -1,5 +1,5 @@
 {
-    "$schema": "https://json-schema.org/draft-07/schema",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://dasch.swiss/schema/ontology.json",
     "title": "JSON schema for DSP ontologies",
     "description": "JSON schema for DSP ontologies",
@@ -7,7 +7,7 @@
         "langstring": {
             "type": "object",
             "patternProperties": {
-                "^(en|de|fr|it)": {
+                "^(en|de|fr|it|rm)$": {
                     "type": "string"
                 }
             },
@@ -126,7 +126,7 @@
                 },
                 "lang": {
                     "type": "string",
-                    "pattern": "^(en|de|fr|it)"
+                    "pattern": "^(en|de|fr|it|rm)$"
                 },
                 "groups": {
                     "type": "array",

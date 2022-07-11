@@ -167,7 +167,7 @@ The longname is a string that provides the full name of the project.
 
 `"descriptions": {"<lang>": "<string>", ...}`
 
-The description is represented as a collection of strings with language tags (currently "en", "de", "fr" and "it" are
+The description is represented as a collection of strings with language tags (currently "en", "de", "fr", "it", and "rm" are
 supported). It is the description of the project.
 
 ### Keywords
@@ -201,9 +201,9 @@ A node of a list may have the following elements:
 
 - _name_: Name of the node as string. It is mandatory and has to be unique within the list.
 - _labels_: Label with language tags in the form `{ "<lang>": "<label>", "<lang>": "<label>", ... }`. The `labels`
-  element is mandatory. It needs to specify at least one language. Currently, "de", "en", "fr" and "it" are supported.
+  element is mandatory. It needs to specify at least one language. Currently, "de", "en", "fr", "it", and "rm" are supported.
 - _comments_: Comment with language tags in the form `{ "<lang>": "<comment>", "<lang>": "<comment>", ... }`.
-  Currently, "de", "en", "fr" and "it" are supported. The `comments` element is mandatory for the root node of the list.
+  Currently, "de", "en", "fr", "it", and "rm" are supported. The `comments` element is mandatory for the root node of the list.
   For all other nodes, it is optional. If not used, the element should be omitted.
 - _nodes_: Array of sub-nodes. The `nodes` element is optional and can be omitted in case of a flat list.
 
@@ -360,7 +360,7 @@ A group definition has the following elements:
 
 - _name_: name of the group, mandatory
 - _descriptions_: description of the group with language tags in the form `"descriptions": {"<lang>": "<string>", ...}` (
-  currently "en", "de", "fr" and "it" are supported), mandatory
+  currently "en", "de", "fr", "it", and "rm" are supported), mandatory
 - _selfjoin_: true if users are allowed to join the group themselves, false if an administrator has to add the users,
   optional
 - _status_: true if the group is active, false if the group is inactive, optional

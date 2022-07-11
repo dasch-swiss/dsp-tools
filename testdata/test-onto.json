@@ -11,7 +11,8 @@
         "longname": "test project",
         "descriptions": {
             "en": "A systematic test project",
-            "de": "Ein systematisches Testprojekt"
+            "de": "Ein systematisches Testprojekt",
+            "rm": "Rumantsch descripziun"
         },
         "keywords": [
             "test",
@@ -21,17 +22,20 @@
             {
                 "name": "testlist",
                 "labels": {
-                    "en": "Testlist"
+                    "en": "Testlist",
+                    "rm": "Glista test in Rumantsch"
                 },
                 "comments": {
                     "en": "no comment",
-                    "de": "kein Kommentar"
+                    "de": "kein Kommentar",
+                    "rm": "nagin commentar in Rumantsch"
                 },
                 "nodes": [
                     {
                         "name": "a",
                         "labels": {
-                            "en": "a_label with a\"post'rophes"
+                            "en": "a_label with a\"post'rophes",
+                            "rm": "Rumantsch"
                         }
                     },
                     {
@@ -100,7 +104,8 @@
                 "name": "testgroupEditors",
                 "descriptions": {
                     "en": "Test group editors",
-                    "de": "Testgruppe Editors"
+                    "de": "Testgruppe Editors",
+                    "rm": "squadra test 'Editors' in Rumantsch"
                 },
                 "selfjoin": false,
                 "status": true
@@ -176,7 +181,8 @@
                         ],
                         "object": "TextValue",
                         "labels": {
-                            "en": "Text"
+                            "en": "Text",
+                            "rm": "hasTextChild2 in Rumantsch"
                         },
                         "gui_element": "SimpleText"
                     },
@@ -204,7 +210,8 @@
                         },
                         "comments": {
                             "en": "properties can optionally have comments",
-                            "de": "Properties können Kommentare haben"
+                            "de": "Properties können Kommentare haben",
+                            "rm": "Property with a Rumantsch comment"
                         },
                         "gui_element": "SimpleText",
                         "gui_attributes": {
@@ -391,7 +398,8 @@
                             "externalOnto:thing"
                         ],
                         "labels": {
-                            "en": "TestThing"
+                            "en": "TestThing",
+                            "rm": "TestThing in Rumantsch"
                         },
                         "cardinalities": [
                             {
@@ -520,7 +528,8 @@
                             "en": "A Compound Thing"
                         },
                         "comments": {
-                            "en": "A thing for testing compound things."
+                            "en": "A thing for testing compound things.",
+                            "rm": "Rumantsch comment of resource 'CompoundThing'"
                         },
                         "cardinalities": [
                             {

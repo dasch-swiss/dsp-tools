@@ -461,16 +461,16 @@ def _upload_stashed_xml_texts(
         if resource.id not in id2iri_mapping:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             continue
-        print(f'  Upload XML text(s) of resource "{resource.id}"...')
         res_iri = id2iri_mapping[resource.id]
         existing_resource = _try_network_action(
             object=con,
             method='get',
             kwargs={'path': f'/v2/resources/{quote_plus(res_iri)}'},
-            terminal_output_on_failure=f'ERROR while uploading the xml texts of resource "{resource.id}"'
+            terminal_output_on_failure=f'  ERROR while retrieving resource "{resource.id}" from DSP server'
         )
         if not existing_resource:
             continue
+        print(f'  Upload XML text(s) of resource "{resource.id}"...')
         for link_prop, hash_to_value in link_props.items():
             existing_values = existing_resource[link_prop.name]
             if not isinstance(existing_values, list):
@@ -514,7 +514,7 @@ def _upload_stashed_xml_texts(
                     object=con,
                     method='put',
                     kwargs={'path': '/v2/values', 'jsondata': jsondata},
-                    terminal_output_on_failure=f'ERROR while uploading the xml text of "{link_prop.name}" '
+                    terminal_output_on_failure=f'    ERROR while uploading the xml text of "{link_prop.name}" '
                                                f'of resource "{resource.id}"'
                 )
                 if not response:
@@ -565,9 +565,16 @@ def _upload_stashed_resptr_props(
         if resource.id not in id2iri_mapping:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             continue
-        print(f'  Upload resptrs of resource "{resource.id}"...')
         res_iri = id2iri_mapping[resource.id]
-        existing_resource = con.get(path=f'/v2/resources/{quote_plus(res_iri)}')
+        existing_resource = _try_network_action(
+            object=con,
+            method='get',
+            kwargs={'path': f'/v2/resources/{quote_plus(res_iri)}'},
+            terminal_output_on_failure=f'  ERROR while retrieving resource "{resource.id}" from DSP server'
+        )
+        if not existing_resource:
+            continue
+        print(f'  Upload resptrs of resource "{resource.id}"...')
         for link_prop, resptrs in prop_2_resptrs.items():
             for resptr in resptrs.copy():
                 jsonobj = {
@@ -576,7 +583,9 @@ def _upload_stashed_resptr_props(
                     f'{link_prop.name}Value': {
                         '@type': 'knora-api:LinkValue',
                         'knora-api:linkValueHasTargetIri': {
-                            '@id': id2iri_mapping[resptr]
+                            # if target doesn't exist in DSP, send the (invalid) resource ID of target to DSP, which
+                            # will produce an understandable error message
+                            '@id': id2iri_mapping.get(resptr, resptr)
                         }
                     },
                     '@context': existing_resource['@context']
@@ -646,13 +655,19 @@ def _try_network_action(
             continue
         except BaseError as err:
             if hasattr(err, 'message'):
-                terminal_output_on_failure = f"{terminal_output_on_failure} Error message: {err.message}"
-            print(terminal_output_on_failure)
+                err_message = err.message
+            else:
+                err_message = str(err).replace('\n', ' ')
+                err_message = err_message[:150] if len(err_message) > 150 else err_message
+            print(f"{terminal_output_on_failure} Error message: {err_message}")
             return None
-        except Exception as err:
-            if hasattr(err, 'message'):
-                terminal_output_on_failure = f"{terminal_output_on_failure} Error message: {err.message}"
-            print(terminal_output_on_failure)
+        except Exception as exc:
+            if hasattr(exc, 'message'):
+                exc_message = exc.message
+            else:
+                exc_message = str(exc).replace('\n', ' ')
+                exc_message = exc_message[:150] if len(exc_message) > 150 else exc_message
+            print(f"{terminal_output_on_failure} Error message: {exc_message}")
             return None
     print(terminal_output_on_failure)
     return None

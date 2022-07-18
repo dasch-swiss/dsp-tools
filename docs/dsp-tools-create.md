@@ -355,6 +355,8 @@ The `lists` element is optional. If not used, it should be omitted.
 
 The `groups` object contains groups definitions. This is used to specify the permissions a user gets. A project may
 define several groups such as "project-admins", "editors" etc. in order to provide their members specific permissions.
+The groups that were created here are then available in the XML file in the 
+[&lt;allow&gt; sub-element](dsp-tools-xmlupload.md#the-allow-sub-element).
 
 A group definition has the following elements:
 

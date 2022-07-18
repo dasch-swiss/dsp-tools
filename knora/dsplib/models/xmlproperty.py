@@ -31,7 +31,7 @@ class XMLProperty:
                 # replace an empty namespace with the default ontology name
                 self._name = default_ontology + ':' + tmp_prop_name[1]
         else:
-            self._name = 'knora-admin:' + tmp_prop_name[0]
+            self._name = 'knora-api:' + tmp_prop_name[0]
         listname = node.attrib.get('list')  # safe the list name if given (only for lists)
         self._valtype = valtype
         self._values = []

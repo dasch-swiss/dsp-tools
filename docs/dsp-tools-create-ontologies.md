@@ -119,10 +119,6 @@ A detailed description of `resources` can be found [below](#properties-object-in
 
 ## Properties Object in Detail
 
-Please note that `object` is used to define the data type. The `gui_element` depends on the value of the `object`.
-
-The `gui_attributes` depends on the value of the `gui_element`.
-
 ### Name
 
 (required)
@@ -158,28 +154,26 @@ Comments with language tags. Currently, "de", "en", "fr", "it", and "rm" are sup
 
 `"super": ["<super-property>", "<super-property>, ...]`
 
-A property has to be derived from at least one base property. The most generic base property that the DSP offers is
-_hasValue_. In addition, the property may be a sub-property of properties defined in external or other ontologies.
-External ontologies like `dcterms` or `foaf` must be defined in the "prefix" section. In this case the qualified name -
-including the prefix of the external or internal ontology - has to be given.
+A property is always derived from at least one other property. There are three groups of properties that can serve as 
+super-property:
 
-The following base properties are defined by DSP:
+ - DSP base properties
+ - properties defined in external ontologies
+ - properties defined in the project ontology itself
 
-- `hasValue`: This is the most generic base.
-- `hasLinkTo`: This value represents a link to another resource. You have to indicate the "_object_" as a prefixed name
-  that identifies the resource class this link points to (a ":" prepended to the name is sufficient if the resource is
-  defined in the current ontology).
-- `hasColor`: Defines a color value
-- `hasComment`: Defines a standard comment
-- `hasGeometry`: Defines a geometry value (a JSON describing a polygon, circle or rectangle)
-- `isPartOf`: A special variant of _hasLinkTo_. It says that an instance of the given resource class is an integral part
+The syntax how to refer to these different groups of properties is described [here](#referencing-ontologies).
+
+The following base properties can be used as super-property:
+
+- `hasValue`: This is the most general case, to be used in all cases when your property is none of the special cases below.
+- `hasLinkTo`: a link to another resource
+- `isPartOf`: A special variant of `hasLinkTo`. It says that an instance of the given resource class is an integral part
   of another resource class. E.g. a "page" is part of a "book".
-- `isRegionOf`: A special variant of _hasLinkTo_. It means that the given resource class is a "region" of another
-  resource class. This is typically used to describe regions of interest in images.
-- `isAnnotationOf`: A special variant of _hasLinkTo_. It denotes the given resource class as an annotation to another
-  resource class.
 - `seqnum`: An integer that is used to define a sequence number in an ordered set of instances, e.g. the ordering of the
-  pages in a book (independent of the page naming) in combination with a property derived from `isPartOf`.
+  pages in a book. A resource that has a property derived from `seqnum` must also have a property derived from `isPartOf`.
+- `hasColor`: Defines a color value.  
+- `hasComment`: Defines a standard comment.
+
 
 Example of a `properties` object:
 
@@ -237,29 +231,27 @@ resource class (see [below](#referencing-ontologies) on how prefixed names are u
 
 ### Object / gui_element / gui_attributes
 
-- `object`: required
-- `gui_element`: required
-- `gui_attributes`: optional
+These three are related as follows:
 
-`"object": "<data-type>"`
+ - `object` (required) is used to define the data type of the value that the property will store. 
+ - `gui_element` (required) depends on the value of `object`.
+ - `gui_attributes` (optional) depends on the value of `gui_element`.
 
-The `object` defines the data type of the value that the property will store. `gui_element` and `gui_attributes` depend 
-on the data type. The following data types are allowed:
+The following data types are allowed:
 
 - `TextValue`
 - `ColorValue`
 - `DateValue`
 - `TimeValue`
 - `DecimalValue`
-- `GeomValue`
 - `GeonameValue`
 - `IntValue`
 - `BooleanValue`
 - `UriValue`
 - `IntervalValue`
 - `ListValue`
-- `Representation`
-- any previously defined resource class in case of a link property
+- in case of a link property: any resource class
+
 
 #### TextValue
 
@@ -401,7 +393,7 @@ which means anytime in between 1925 and the 22nd March 1927.
 *gui_elements / gui_attributes*:
 
 - `Date`: The only GUI element for _DateValue_. A date picker gui.
-- _gui_attributes_: No attributes
+   - _gui_attributes_: No attributes
 
 *Example:*
 
@@ -594,36 +586,6 @@ A string representation of the color in the hexadecimal form e.g. "#ff8000".
 }
 ```
 
-#### GeomValue
-
-`"object": "GeomValue"`
-
-Represents a geometrical shape as JSON. Geometrical shapes are used to define regions of interest (ROI) on still images
-or moving images.
-
-*gui-elements / gui_attributes*:
-
-- `Geometry`: not yet implemented.
-    - _gui_attributes_: No attributes
-- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
-  "maxlength=integer" and "size=integer" are optional.
-    - _gui_attributes_:
-        - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer` (optional): The size of the input field
-
-*Example*:
-
-```json
-{
-  "name": "hasGeometry",
-  "super": [
-    "hasGeometry"
-  ],
-  "object": "GeomValue",
-  "labels": "Geometry",
-  "gui_element": "SimpleText"
-}
-```
 
 #### ListValue
 
@@ -692,24 +654,31 @@ A property pointing to a `knora-base:Representation`. Has to be used in combinat
 
 #### hasLinkTo Property
 
-`"object": ":<resource-name>"`
+`"object": "<resource-name>"`
 
 Link properties do not follow the pattern of the previous data types, because they do not connect to a final value but 
-to another (existing) resource. Thus, the "object" denominates the resource class the link will point to. If
-the resource is defined in the same ontology, the name has to be prepended by a ":", if the resource is defined in
-another (previously defined) ontology, the ontology name has to be prepended separated by a colon ":", e.g.
-"other-onto:MyResource". When defining a link property, its "super" element has to be "hasLinkTo" or "isPartOf" or 
-derived from "hasLinkTo" or "isPartOf". "isPartOf" is a special type of linked resources, for more information see 
-[below](#ispartof-property).
+to an existing resource. Thus, the `object` denominates the resource class the link will point to. There are different 
+groups of resource classes that can be the object:
+
+ - project resources: a resource class defined in the present ontology itself
+ - external resources: a resource class defined in another ontology
+ - DSP base resources:
+     - `Resource`: the most generic one, can point to any resource class, be it a DSP base resource, a project resource, 
+     or an external resource. `Resource` is at the very top of the inheritance hierarchy.
+     - `Region`: a region in an image
+     - `StillImageRepresentation`, `MovingImageRepresentation`, `TextRepresentation`, `AudioRepresentation`, 
+       `DDDRepresentation`, `DocumentRepresentation`, or `ArchiveRepresentation`
+     - `Representation`: any type of the just mentioned representations. `Representation` is the parent class of them.
+
+The syntax how to refer to these different groups of resources is described [here](#referencing-ontologies).
+
+When defining a link property, its "super" element has to be `hasLinkTo` or derived from `hasLinkTo`.
 
 *gui-elements/gui_attributes*:
 
-- `Searchbox`: Has to be used with _hasLinkTo_ property. Allows searching resources by entering the resource name that the 
-  given resource should link to. It has one gui_attribute that indicates how many properties of the found resources 
-  should be indicated.
+- `Searchbox`: The only GUI element for _hasLinkTo_. Allows searching resources by entering the target resource name.
     - _gui_attributes_:
-        - `numprops=integer` (optional): While dynamically displaying the search result, the number of properties that
-          should be displayed.
+        - `numprops=integer` (optional): Number of search results to be displayed
 
 *Example:*
 
@@ -725,11 +694,17 @@ derived from "hasLinkTo" or "isPartOf". "isPartOf" is a special type of linked r
 }
 ```
 
-#### IsPartOf Property
-A special case of linked resources is resources in a part-of / part-whole relation, i.e. resources that are composed of 
+#### isPartOf Property
+A special case of linked resources are resources in a part-whole relation, i.e. resources that are composed of 
 other resources. A `isPartOf` property has to be added to the resource that is part of another resource. In case of 
 resources that are of type `StillImageRepresentation`, an additional property derived from `seqnum` with object `IntValue` 
 is required. When defined, a client is able to leaf through the parts of a compound object, p.ex. to leaf through pages of a book.
+
+*gui-elements/gui_attributes*:
+
+- `Searchbox`: The only GUI element for _isPartOf_. Allows searching resources by entering the target resource name.
+    - _gui_attributes_:
+        - `numprops=integer` (optional): Number of search results to be displayed
 
 *Example:*
 
@@ -758,9 +733,31 @@ is required. When defined, a client is able to leaf through the parts of a compo
 }
 ```
 
+#### hasComment Property
+
+`"object": "TextValue"`
+
+This property is actually very similar to a simple text field. 
+
+*Example:*
+
+```json
+{
+    "name": "hasComment",
+    "super": [
+      "hasComment"
+    ],
+    "object": "TextValue",
+    "labels": {
+      "de": "Kommentar",
+      "en": "Comment",
+      "fr": "Commentaire"
+    },
+    "gui_element": "SimpleText"
+}
+```
 
 ## Resources Object in Detail
-
 
 ### Name
 
@@ -789,34 +786,27 @@ and "rm" are supported).
 
 `"super": ["<super-resource>", "<super-resource>", ...]`
 
-A resource is always derived from at least one other resource. The most generic resource class for DSP is `Resource`. 
-A resource may be derived from resources defined in external ontologies.
+A resource is always derived from at least one other resource. There are three groups of resources that can serve 
+as super-resource:
 
-The following predefined resources are provided by DSP:
+ - DSP base resources
+ - resources defined in external ontologies
+ - resources defined in the project ontology itself
+
+The syntax how to refer to these different groups of resources is described [here](#referencing-ontologies).
+
+The following base resources can be used as super-resource:
 
 - `Resource`: A generic resource representing an item from the real world. This is the most general case, to be 
 used in all cases when your resource is none of the special cases below.
-- `StillImageRepresentation`: An object representing a still image
-- `TextRepresentation`: An object representing an (external) text (not yet implemented)
-- `AudioRepresentation`: An object representing an audio file
-- `DDDRepresentation`: An object representing a 3-D representation (not yet implemented)
-- `DocumentRepresentation`: An object representing an opaque document (e.g. a PDF)
-- `MovingImageRepresentation`: An object representing a moving image (video, film)
-- `ArchiveRepresentation`: An object representing an archive file (e.g. Zip)
-- `Annotation`: A predefined annotation object. It has automatically the following predefined properties defined:
-    - `hasComment` (1-n)
-    - `isAnnotationOf` (1)
-- `LinkObj`: A resource class linking together several other resource classes. The class has the following
-  properties:
-    - `hasComment` (1-n)
-    - `hasLinkTo` (1-n)
-- `Region`: Represents a region in an image. The class has the following properties:
-    - `hasColor` (1)
-    - `isRegionOf` (1)
-    - `hasGeometry` (1)
-    - `hasComment` (0-n)
+- `StillImageRepresentation`: A resource representing an image
+- `TextRepresentation`: A resource representing a text
+- `AudioRepresentation`: A resource representing an audio file
+- `DDDRepresentation`: A resource representing a 3-D representation (not yet implemented)
+- `DocumentRepresentation`: A resource representing an opaque document (e.g. a PDF)
+- `MovingImageRepresentation`: A resource representing a video
+- `ArchiveRepresentation`: A resource representing an archive file (e.g. ZIP)
 
-Additionally, resources can be derived from external ontologies or from resources specified in the present document.
 
 ### Cardinalities
 
@@ -907,3 +897,44 @@ it is necessary to reference entities that are defined elsewhere. The following 
   These will be created in the exact order they appear in the `ontologies` array. Once an ontology has been created,
   it can be referenced by the following ontologies by its name, e.g. `first-onto:hasName`. It is not necessary to add 
   `first-onto` to the prefixes.
+
+
+## DSP base resources / base properties to be used directly in the XML file
+There is a number of DSP base resources that must not be subclassed in a project ontology. They are directly available 
+in the XML data file:
+
+- `Annotation` is an annotation to another resource of any class. It can be used in the XML file with the 
+  [&lt;annotation&gt; tag](dsp-tools-xmlupload.md#annotation). It automatically has the following predefined properties:
+    - `hasComment` (1-n)
+    - `isAnnotationOf` (1)
+- `LinkObj` is a resource linking together several other resources of different classes. It can be used in the XML file 
+  with the [&lt;link&gt; tag](dsp-tools-xmlupload.md#link). It automatically has the following predefined properties:
+    - `hasComment` (1-n)
+    - `hasLinkTo` (1-n)
+- A `Region` resource defines a region of interest (ROI) in an image. It can be used in the XML file with the 
+  [&lt;region&gt; tag](dsp-tools-xmlupload.md#region). It automatically has the following predefined properties:
+    - `hasColor` (1)
+    - `isRegionOf` (1)
+    - `hasGeometry` (1)
+    - `hasComment` (1-n)
+
+There are some DSP base properties that are used directly in the above resource classes. Some of them can also be 
+subclassed and used in a resource class.
+
+- `hasLinkTo`: a link to another resource
+    - can be subclassed ([hasLinkTo Property](#haslinkto-property))
+    - can be used directly in the XML data file in the [&lt;link&gt; tag](dsp-tools-xmlupload.md#link)
+- `hasColor`: Defines a color value. 
+    - can be subclassed ([ColorValue](#colorvalue))
+    - can be used directly in the XML data file in the [&lt;region&gt; tag](dsp-tools-xmlupload.md#region)
+- `hasComment`: Defines a standard comment. 
+    - can be subclassed ([hasComment Property](#hascomment-property))
+    - can be used directly in the XML data file in the [&lt;region&gt; tag](dsp-tools-xmlupload.md#region) or 
+      [&lt;link&gt; tag](dsp-tools-xmlupload.md#link)
+- `hasGeometry`: Defines a geometry value (a JSON describing a polygon, circle or rectangle). 
+    - must be used directly in the XML data file in the [&lt;region&gt; tag](dsp-tools-xmlupload.md#region)
+- `isRegionOf`: A special variant of `hasLinkTo`. It means that the given resource class is a region of interest in an image. 
+    - must be used directly in the XML data file in the [&lt;region&gt; tag](dsp-tools-xmlupload.md#region)
+- `isAnnotationOf`: A special variant of `hasLinkTo`. It means that the given resource class is an annotation to another
+  resource class. 
+    - must be used directly in the XML data file in the [&lt;annotation&gt; tag](dsp-tools-xmlupload.md#annotation)

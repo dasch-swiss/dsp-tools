@@ -45,7 +45,7 @@ class XMLResource:
                 # replace an empty namespace with the default ontology name
                 self._restype = default_ontology + ':' + tmp_res_type[1]
         else:
-            self._restype = 'knora-admin:' + tmp_res_type[0]
+            self._restype = 'knora-api:' + tmp_res_type[0]
         self._permissions = node.attrib.get("permissions")
         self._bitstream = None
         self._properties = []

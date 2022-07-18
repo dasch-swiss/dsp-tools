@@ -298,17 +298,6 @@
                         }
                     },
                     {
-                        "name": "hasGeometry",
-                        "super": [
-                            "hasGeometry"
-                        ],
-                        "object": "GeomValue",
-                        "labels": {
-                            "en": "Geometry"
-                        },
-                        "gui_element": "Geometry"
-                    },
-                    {
                         "name": "hasGeoname",
                         "super": [
                             "hasValue"
@@ -356,24 +345,13 @@
                         }
                     },
                     {
-                        "name": "hasTestRegion",
-                        "super": [
-                            "hasLinkTo"
-                        ],
-                        "object": "Region",
-                        "labels": {
-                            "en": "has region"
-                        },
-                        "gui_element": "Searchbox"
-                    },
-                    {
                         "name": "hasTestThing2",
                         "super": [
                             "hasLinkTo"
                         ],
                         "object": ":TestThing2",
                         "labels": {
-                            "en": "Another thing"
+                            "en": "hasTestThing2"
                         },
                         "gui_element": "Searchbox"
                     },
@@ -384,7 +362,51 @@
                         ],
                         "object": ":TestThing",
                         "labels": {
-                            "en": "Another thing"
+                            "en": "hasTestThing"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasResource",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Resource",
+                        "labels": {
+                            "en": "hasResource"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasRegion",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Region",
+                        "labels": {
+                            "en": "hasRegion"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasRepresentation",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Representation",
+                        "labels": {
+                            "en": "hasRepresentation"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasMovingImageRepresentation",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "MovingImageRepresentation",
+                        "labels": {
+                            "en": "hasMovingImageRepresentation"
                         },
                         "gui_element": "Searchbox"
                     }
@@ -438,11 +460,6 @@
                                 "cardinality": "0-n"
                             },
                             {
-                                "propname": ":hasGeometry",
-                                "gui_order": 8,
-                                "cardinality": "0-n"
-                            },
-                            {
                                 "propname": ":hasGeoname",
                                 "gui_order": 9,
                                 "cardinality": "0-n"
@@ -463,13 +480,28 @@
                                 "cardinality": "0-n"
                             },
                             {
-                                "propname": ":hasTestRegion",
+                                "propname": ":hasTestThing2",
                                 "gui_order": 13,
                                 "cardinality": "0-n"
                             },
                             {
-                                "propname": ":hasTestThing2",
+                                "propname": ":hasResource",
                                 "gui_order": 14,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasRegion",
+                                "gui_order": 15,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasRepresentation",
+                                "gui_order": 16,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasMovingImageRepresentation",
+                                "gui_order": 17,
                                 "cardinality": "0-n"
                             }
                         ]

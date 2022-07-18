@@ -44,25 +44,23 @@ class TestExcelToResource(unittest.TestCase):
 
         # define the expected values from the excel file
         excel_names = ["Owner", "Title", "GenericAnthroponym", "FamilyMember", "MentionedPerson", "Alias", "Image",
-                       "Video", "Audio", "ZIP", "PDFDocument", "Annotation", "LinkObject", "RegionOfImage"]
+                       "Video", "Audio", "ZIP", "PDFDocument"]
         excel_supers = [["Resource", "dcterms:fantasy"], ["Resource"], ["Resource"], ["Resource"], ["Resource"],
                         ["Resource"], ["StillImageRepresentation", "dcterms:image"], ["MovingImageRepresentation"],
-                        ["AudioRepresentation"], ["ArchiveRepresentation"], ["DocumentRepresentation"], ["Annotation"],
-                        ["LinkObj"], ["Region"]]
+                        ["AudioRepresentation"], ["ArchiveRepresentation"], ["DocumentRepresentation"]]
 
         excel_labels = dict()
         excel_labels["en"] = ["Owner", "Title", "Generic anthroponym", "Family member", "Mentioned person", "Alias",
-                              "Only English", "", "", "", "", "Annotation", "Link Object", "Region of an image"]
+                              "Only English", "", "", "", ""]
         excel_labels["rm"] = ["Rumantsch", "Rumantsch", "Rumantsch", "Rumantsch", "Rumantsch", "Rumantsch", "", "", "",
-                              "", "Only Rumantsch", "", "", ""]
+                              "", "Only Rumantsch"]
         excel_labels_of_image = {"en": "Only English"}
 
         excel_comments = dict()
         excel_comments["comment_de"] = ["Ein seltsamer Zufall brachte mich in den Besitz dieses Tagebuchs.", "",
-                                        "Only German", "", "", "", "Bild", "Video", "Audio", "ZIP", "PDF-Dokument",
-                                        "Annotation", "Linkobjekt", ""]
+                                        "Only German", "", "", "", "Bild", "Video", "Audio", "ZIP", "PDF-Dokument"]
         excel_comments["comment_fr"] = ["Un étrange hasard m'a mis en possession de ce journal.", "", "", "Only French",
-                                        "", "", "", "", "", "", "", "", "", ""]
+                                        "", "", "", "", "", "", ""]
         excel_comments_of_image = {"en": "Image", "de": "Bild"}
 
         excel_first_class_properties = [":hasAnthroponym", ":isOwnerOf", ":correspondsToGenericAnthroponym", ":hasAlias",

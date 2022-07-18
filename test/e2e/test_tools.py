@@ -46,7 +46,7 @@ class TestTools(unittest.TestCase):
                      server=self.server,
                      user=self.user,
                      password='test',
-                     verbose=False)
+                     verbose=True)
 
         with open('testdata/tmp/_test-onto.json') as f:
             onto_json_str = f.read()
@@ -169,7 +169,7 @@ class TestTools(unittest.TestCase):
                         server=self.server,
                         user_mail=self.user,
                         password='test',
-                        verbose=False,
+                        verbose=True,
                         dump=False)
 
     def test_xml_upload(self) -> None:
@@ -180,7 +180,7 @@ class TestTools(unittest.TestCase):
             password=self.password,
             imgdir=self.imgdir,
             sipi=self.sipi,
-            verbose=False,
+            verbose=True,
             validate_only=False,
             incremental=False)
         self.assertTrue(result)
@@ -196,7 +196,7 @@ class TestTools(unittest.TestCase):
         id_to_iri(xml_file='testdata/test-id2iri-data.xml',
                   json_file=mapping_file,
                   out_file=id2iri_replaced_xml_filename,
-                  verbose=False)
+                  verbose=True)
         self.assertEqual(os.path.isfile(id2iri_replaced_xml_filename), True)
 
         result = xml_upload(
@@ -206,7 +206,7 @@ class TestTools(unittest.TestCase):
             password=self.password,
             imgdir=self.imgdir,
             sipi=self.sipi,
-            verbose=False,
+            verbose=True,
             validate_only=False,
             incremental=True
         )

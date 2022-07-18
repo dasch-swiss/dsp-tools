@@ -37,8 +37,8 @@
             <text encoding="xml">Text</text>
         </text-prop>
         <resptr-prop name=":hasTestThing">
-            <resptr permissions="prop-default">obj_0001</resptr>
-            <resptr permissions="prop-default">obj_0011</resptr>
+            <resptr permissions="prop-default">test_thing_1</resptr>
+            <resptr permissions="prop-default">test_thing_2</resptr>
         </resptr-prop>
     </resource>
 

@@ -211,6 +211,39 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
 
 
+def parse_xml_file(input_file: str) -> etree.ElementTree:
+    """
+    Parse an XML file with DSP-conform data, remove namespace URI from the elements' names, and transform the special
+    tags <annotation>, <region>, and <link> to their technically correct form <resource restype="Annotation">,
+    <resource restype="Region">, and <resource restype="LinkObj">.
+
+    Args:
+        input_file: path to the XML file
+
+    Returns:
+        the parsed etree.ElementTree
+    """
+    tree = etree.parse(input_file)
+    for elem in tree.getiterator():
+        if not (isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction)):
+            # remove namespace URI in the element's name
+            elem.tag = etree.QName(elem).localname
+        if elem.tag == "annotation":
+            elem.attrib["restype"] = "Annotation"
+            elem.tag = "resource"
+        elif elem.tag == "link":
+            elem.attrib["restype"] = "LinkObj"
+            elem.tag = "resource"
+        elif elem.tag == "region":
+            elem.attrib["restype"] = "Region"
+            elem.tag = "resource"
+
+    # remove unused namespace declarations
+    etree.cleanup_namespaces(tree)
+
+    return tree
+
+
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
                validate_only: bool, incremental: bool) -> bool:
     """
@@ -249,13 +282,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     proj_context = ProjectContext(con=con)
     sipi_server = Sipi(sipi, con.get_token())
 
-    # parse the XML file
-    tree = etree.parse(input_file)
-    for elem in tree.getiterator():
-        if not (isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction)):
-            elem.tag = etree.QName(elem).localname  # remove namespace URI in the element's name
-    etree.cleanup_namespaces(tree)  # remove unused namespace declarations
-
+    tree = parse_xml_file(input_file)
     root = tree.getroot()
     default_ontology = root.attrib['default-ontology']
     shortcode = root.attrib['shortcode']
@@ -270,9 +297,9 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             resources.append(XMLResource(child, default_ontology))
 
     # get the project information and project ontology from the server
-    project = ResourceInstanceFactory(con, shortcode)
+    res_inst_factory = ResourceInstanceFactory(con, shortcode)
     permissions_lookup: dict[str, Permissions] = {s: perm.get_permission_instance() for s, perm in permissions.items()}
-    resclass_name_2_type: dict[str, type] = {s: project.get_resclass_type(s) for s in project.get_resclass_names()}
+    resclass_name_2_type: dict[str, type] = {s: res_inst_factory.get_resclass_type(s) for s in res_inst_factory.get_resclass_names()}
 
     # temporarily remove circular references, but only if not an incremental upload
     if not incremental:
@@ -309,7 +336,6 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     # write log files
     success = True
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
-    _write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
     if len(nonapplied_xml_texts) > 0:
         _write_stashed_xml_texts(nonapplied_xml_texts, timestamp_str)
         success = False
@@ -319,6 +345,9 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     if failed_uploads:
         print(f"Could not upload the following resources: {failed_uploads}")
         success = False
+    if success:
+        print("All resources have successfully been uploaded.")
+    _write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
 
     return success
 
@@ -378,7 +407,7 @@ def _upload_resources(
         # create the resource in DSP
         resclass_type = resclass_name_2_type[resource.restype]
         properties = resource.get_propvals(id2iri_mapping, permissions_lookup)
-        resclass_instance: ResourceInstance = _try_network_action(
+        resource_instance: ResourceInstance = _try_network_action(
             method=resclass_type,
             kwargs={
                 'con': con,
@@ -390,12 +419,12 @@ def _upload_resources(
             },
             terminal_output_on_failure=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
         )
-        if not resclass_instance:
+        if not resource_instance:
             failed_uploads.append(resource.id)
             continue
 
         created_resource: ResourceInstance = _try_network_action(
-            object=resclass_instance,
+            object=resource_instance,
             method='create',
             terminal_output_on_failure=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
         )
@@ -432,16 +461,16 @@ def _upload_stashed_xml_texts(
         if resource.id not in id2iri_mapping:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             continue
-        print(f'  Upload XML text(s) of resource "{resource.id}"...')
         res_iri = id2iri_mapping[resource.id]
         existing_resource = _try_network_action(
             object=con,
             method='get',
             kwargs={'path': f'/v2/resources/{quote_plus(res_iri)}'},
-            terminal_output_on_failure=f'ERROR while uploading the xml texts of resource "{resource.id}"'
+            terminal_output_on_failure=f'  ERROR while retrieving resource "{resource.id}" from DSP server'
         )
         if not existing_resource:
             continue
+        print(f'  Upload XML text(s) of resource "{resource.id}"...')
         for link_prop, hash_to_value in link_props.items():
             existing_values = existing_resource[link_prop.name]
             if not isinstance(existing_values, list):
@@ -485,7 +514,7 @@ def _upload_stashed_xml_texts(
                     object=con,
                     method='put',
                     kwargs={'path': '/v2/values', 'jsondata': jsondata},
-                    terminal_output_on_failure=f'ERROR while uploading the xml text of "{link_prop.name}" '
+                    terminal_output_on_failure=f'    ERROR while uploading the xml text of "{link_prop.name}" '
                                                f'of resource "{resource.id}"'
                 )
                 if not response:
@@ -536,9 +565,16 @@ def _upload_stashed_resptr_props(
         if resource.id not in id2iri_mapping:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             continue
-        print(f'  Upload resptrs of resource "{resource.id}"...')
         res_iri = id2iri_mapping[resource.id]
-        existing_resource = con.get(path=f'/v2/resources/{quote_plus(res_iri)}')
+        existing_resource = _try_network_action(
+            object=con,
+            method='get',
+            kwargs={'path': f'/v2/resources/{quote_plus(res_iri)}'},
+            terminal_output_on_failure=f'  ERROR while retrieving resource "{resource.id}" from DSP server'
+        )
+        if not existing_resource:
+            continue
+        print(f'  Upload resptrs of resource "{resource.id}"...')
         for link_prop, resptrs in prop_2_resptrs.items():
             for resptr in resptrs.copy():
                 jsonobj = {
@@ -547,7 +583,9 @@ def _upload_stashed_resptr_props(
                     f'{link_prop.name}Value': {
                         '@type': 'knora-api:LinkValue',
                         'knora-api:linkValueHasTargetIri': {
-                            '@id': id2iri_mapping[resptr]
+                            # if target doesn't exist in DSP, send the (invalid) resource ID of target to DSP, which
+                            # will produce an understandable error message
+                            '@id': id2iri_mapping.get(resptr, resptr)
                         }
                     },
                     '@context': existing_resource['@context']
@@ -615,11 +653,21 @@ def _try_network_action(
             print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...')
             time.sleep(2 ** i)
             continue
-        except BaseError:
-            print(terminal_output_on_failure)
+        except BaseError as err:
+            if hasattr(err, 'message'):
+                err_message = err.message
+            else:
+                err_message = str(err).replace('\n', ' ')
+                err_message = err_message[:150] if len(err_message) > 150 else err_message
+            print(f"{terminal_output_on_failure} Error message: {err_message}")
             return None
-        except Exception:
-            print(terminal_output_on_failure)
+        except Exception as exc:
+            if hasattr(exc, 'message'):
+                exc_message = exc.message
+            else:
+                exc_message = str(exc).replace('\n', ' ')
+                exc_message = exc_message[:150] if len(exc_message) > 150 else exc_message
+            print(f"{terminal_output_on_failure} Error message: {exc_message}")
             return None
     print(terminal_output_on_failure)
     return None

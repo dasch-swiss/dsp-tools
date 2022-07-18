@@ -204,9 +204,6 @@
         <color-prop name=":hasColor">
             <color>#00ff00</color>
         </color-prop>
-        <list-prop list="testlist" name=":hasListItem">
-            <list>b2</list>
-        </list-prop>
         <resptr-prop name=":hasTestThing2">
             <resptr>test_thing_0</resptr>
         </resptr-prop>

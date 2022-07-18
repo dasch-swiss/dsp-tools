@@ -57,7 +57,7 @@ class TestXMLUpload(unittest.TestCase):
         stashed_xml_texts_expected = {
             'test_thing_1': {
                 'testonto:hasRichtext': [
-                    '\n                This is<em>bold and<strong>string</strong></em>text! It contains links to all '
+                    '\n                This is <em>bold and <strong>strong</strong></em> text! It contains links to all '
                     'resources:\n'
                     '                <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>\n'
                     '                <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>\n'
@@ -76,7 +76,7 @@ class TestXMLUpload(unittest.TestCase):
             },
             'test_thing_2': {
                 'testonto:hasRichtext': [
-                     '\n                This is<em>bold and<strong>string</strong></em>text! It contains links to all '
+                     '\n                This is <em>bold and <strong>strong</strong></em> text! It contains links to all '
                      'resources:\n'
                      '                <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>\n'
                      '                <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>\n'

@@ -1083,7 +1083,7 @@ To do an incremental XML upload, one of the following procedures is recommended.
             <list permissions="prop-default">Tree list node 02</list>
         </list-prop>
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">This is <em>bold and <strong>string</strong></em> text!</text>
+            <text permissions="prop-default" encoding="xml">This is <em>bold and <strong>strong</strong></em> text!</text>
         </text-prop>
         <text-prop name=":hasText">
             <text permissions="prop-default" encoding="utf8">aa bbb cccc ddddd</text>

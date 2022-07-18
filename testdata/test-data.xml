@@ -63,7 +63,7 @@
         </text-prop>
         <text-prop name=":hasRichtext">
             <text permissions="prop-default" encoding="xml">
-                This is<em>bold and<strong>string</strong></em>text! It contains links to all resources:
+                This is <em>bold and <strong>strong</strong></em> text! It contains links to all resources:
                 <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
                 <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>
                 <a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a>
@@ -159,7 +159,7 @@
         </text-prop>
         <text-prop name=":hasRichtext">
             <text encoding="xml">
-                This is<em>bold and<strong>string</strong></em>text! It contains links to all resources:
+                This is <em>bold and <strong>strong</strong></em> text! It contains links to all resources:
                 <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
                 <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>
                 <a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a>

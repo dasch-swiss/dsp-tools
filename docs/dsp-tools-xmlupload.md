@@ -72,8 +72,9 @@ permissions. By default, the following groups always exist, and each user belong
 - `Creator`: The user is the owner of the element (created the element).
 - `SystemAdmin`: The user is a system administrator.
 
-In addition, more groups with arbitrary names can be created by a project admin. For referencing a group, the project
-name has to be prepended before the group name, separated by a colon, e.g. `dsp-test:MlsEditors`.
+In addition, more groups with arbitrary names can be created by a project admin. See [here](dsp-tools-create.md#groups) 
+how to create a group in an ontology JSON file. For referencing a group, the project name has to be prepended to the 
+group name, separated by a colon, e.g. `dsp-test:MlsEditors`.
 
 A `<permissions>` element contains the permissions given to the selected groups and is called a _permission set_. It has
 a mandatory attribute `id` and must contain at least one `<allow>` element:
@@ -185,9 +186,13 @@ resource:
 </resource>
 ```
 
- - With `permissions="prop-default"`, a logged-in user who is not member of the project has `V` rights on the image: Normal view.
- - With `permissions="prop-restricted"`, a logged-in user who is not member of the project has `RV` rights on the image: Blurred image.
- - With a blank `<bitstream>` tag, a logged-in user who is not member of the project has no rights on the image: No view possible.
+To take `KnownUser` as example:
+ - With `permissions="prop-default"`, a logged-in user who is not member of the project (`KnownUser`) has `V` rights 
+   on the image: Normal view.
+ - With `permissions="prop-restricted"`, a logged-in user who is not member of the project (`KnownUser`) has `RV` 
+   rights on the image: Blurred image.
+ - With a blank `<bitstream>` tag, a logged-in user who is not member of the project (`KnownUser`) has no rights on 
+   the image: No view possible. Only users from `ProjectAdmin` upwards are able to look at the image.
 
 
 ## Describing resources with the &lt;resource&gt; element
@@ -260,7 +265,7 @@ Note:
 
 Attributes:
 
-- `permissions` : Permission ID (optional, but if omitted, very restricted default permissions apply)
+- `permissions` : Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 
 Example:
 
@@ -284,7 +289,7 @@ The `<boolean>` element must contain the string "true" or "false", or the numera
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -318,7 +323,7 @@ followed by 3 or 6 hex numerals.
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 A property with two color values would be defined as follows:
@@ -358,7 +363,7 @@ it _month_, if also the month is omitted, the precision is _year_.
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -391,7 +396,7 @@ The `<decimal>` element contains a decimal number.
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -458,7 +463,7 @@ Example of a `<geometry>` element:
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 
@@ -478,7 +483,7 @@ Contains a valid [geonames.org](http://geonames.org) ID.
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example (city of Vienna):
@@ -508,7 +513,7 @@ The `<list>` element references a node in a (pull-down or hierarchical) list.
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -539,7 +544,7 @@ References an [iconclass.org](https://iconclass.org) ID.
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Usage:
@@ -566,7 +571,7 @@ The `<integer>` element contains an integer value.
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -596,7 +601,7 @@ seconds, and the places after the decimal points are fractions of a second.
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -626,7 +631,7 @@ resources, `xmlupload --incremental` has to be used.
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -658,7 +663,7 @@ The `<text>` element has the following attributes:
     - `utf8`: The element describes a simple text without markup. The text is a simple UTF-8 string.
     - `xml`: The element describes a complex text containing markup. It must follow the XML format as defined by the
     [DSP standard mapping](https://docs.knora.org/03-apis/api-v1/xml-to-standoff-mapping/).
-- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 There are two variants of text: Simple (UTF8) and complex (XML). Within a text property, multiple simple and 
@@ -742,7 +747,7 @@ The timezone is defined as follows:
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -777,7 +782,7 @@ The `<uri>` element contains a syntactically valid URI.
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, very restricted default permissions apply)
+- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -793,7 +798,7 @@ Example:
 There is a number of base resources and base properties that must not be subclassed in a project ontology. They are 
 directly available in the XML data file. Please have in mind that built-in names of the knora-base ontology must be used 
 without prepended colon.  
-See also [the related part of the ontology documentation](dsp-tools-create-ontologies.md#dsp-base-resources-base-properties-to-be-used-directly-in-the-xml-file)
+See also [the related part of the ontology documentation](dsp-tools-create-ontologies.md#dsp-base-resources-base-properties-to-be-used-directly-in-the-xml-file).
 
 ### `<annotation>`
 `<annotation>` is an annotation to another resource of any class. It must have the following predefined properties:
@@ -813,7 +818,8 @@ Example:
 </annotation>
 ```
 
-Technical note: An `<annotation>` is in fact a `<resource restype="Annotation">`.
+Technical note: An `<annotation>` is in fact a `<resource restype="Annotation">`. But it is mandatory to use the 
+shortcut, so that the XML file can be validated more precisely.
 
 ### `<region>`
 A `<region>` resource defines a region of interest (ROI) in an image. It must have the following predefined properties:
@@ -855,7 +861,8 @@ Example:
 </region>
 ```
 
-Technical note: A `<region>` is in fact a `<resource restype="Region">`.
+Technical note: A `<region>` is in fact a `<resource restype="Region">`. But it is mandatory to use the 
+shortcut, so that the XML file can be validated more precisely.
 
 ### `<link>`
 `<link>` is a resource linking together several other resources of different classes. It must have the following 
@@ -880,7 +887,8 @@ Example:
 </link>
 ```
 
-Technical note: A `<link>` is in fact a `<resource restype="LinkObj">`.
+Technical note: A `<link>` is in fact a `<resource restype="LinkObj">`. But it is mandatory to use the 
+shortcut, so that the XML file can be validated more precisely.
 
 
 ## Incremental XML Upload

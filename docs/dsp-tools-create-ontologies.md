@@ -660,14 +660,15 @@ Link properties do not follow the pattern of the previous data types, because th
 to an existing resource. Thus, the `object` denominates the resource class the link will point to. There are different 
 groups of resource classes that can be the object:
 
- - DSP base resources:
-     - `Resource`: the most generic one, can point to any resource class, be it a DSP base resource, a project resource, 
-     or an external resource.
-     - `Region`: a region in an image
-     - `Representation`: any type of Representation, be it a `StillImageRepresentation`, `MovingImageRepresentation`, ...
-     - `StillImageRepresentation`, `MovingImageRepresentation`, or any other type of Representation
  - project resources: a resource class defined in the present ontology itself
  - external resources: a resource class defined in another ontology
+ - DSP base resources:
+     - `Resource`: the most generic one, can point to any resource class, be it a DSP base resource, a project resource, 
+     or an external resource. `Resource` is at the very top of the inheritance hierarchy.
+     - `Region`: a region in an image
+     - `StillImageRepresentation`, `MovingImageRepresentation`, `TextRepresentation`, `AudioRepresentation`, 
+       `DDDRepresentation`, `DocumentRepresentation`, or `ArchiveRepresentation`
+     - `Representation`: any type of the just mentioned representations. `Representation` is the parent class of them.
 
 The syntax how to refer to these different groups of resources is described [here](#referencing-ontologies).
 

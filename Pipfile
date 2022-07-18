@@ -29,6 +29,7 @@ setuptools = "*"
 wheel = "*"
 pipenv-setup = "*"
 pytest = "*"
+types-requests = "*"
 
 [requires]
 python_version = "3.9"

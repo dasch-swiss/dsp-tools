@@ -7,6 +7,8 @@ standard XML file as described on this page. After a successful upload of the da
 `id2iri_mapping_[timstamp].json`) with the mapping from the internal IDs used inside the XML to their corresponding IRIs which
 uniquely identify them inside DSP. This file should be kept if data is later added with the `--incremental` [option](#incremental-xml-upload).
 
+The command to import an XML file on a DSP server is described [here](./dsp-tools-usage.md#upload-data-to-a-dsp-server).
+
 The import file must start with the standard XML header:
 
 ```xml

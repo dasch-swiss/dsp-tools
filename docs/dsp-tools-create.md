@@ -9,6 +9,9 @@ determines the structure of data. Data models are typically specified by a data 
 humanities scholar in a data modeling notation". The following sections describe the notation for ontologies in the
 context of DSP.
 
+A data model as described in this document can be uploaded to a DSP server. The command to do so is described 
+[here](./dsp-tools-usage.md#create-a-data-model-on-a-dsp-server).
+
 ## A short overview
 
 A complete data model definition for DSP looks like this:

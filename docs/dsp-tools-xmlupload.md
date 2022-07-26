@@ -7,6 +7,8 @@ standard XML file as described on this page. After a successful upload of the da
 `id2iri_mapping_[timstamp].json`) with the mapping from the internal IDs used inside the XML to their corresponding IRIs which
 uniquely identify them inside DSP. This file should be kept if data is later added with the `--incremental` [option](#incremental-xml-upload).
 
+The command to import an XML file on a DSP server is described [here](./dsp-tools-usage.md#upload-data-to-a-dsp-server).
+
 The import file must start with the standard XML header:
 
 ```xml
@@ -48,7 +50,7 @@ The `<knora>` element can only contain the following sub-elements:
 
 The DSP server provides access control for each resource and each field of a resource through permissions. For a
 thorough explanation of the permission and access system of DSP, see
-[DSP permissions](https://docs.knora.org/02-knora-ontologies/knora-base/#permissions).
+[DSP permissions](https://docs.dasch.swiss/latest/DSP-API/02-knora-ontologies/knora-base/#permissions).
 
 It is optional to define permissions in the XML. If not defined, default permissions are applied, so that only project and 
 system administrators can view and edit resources. All other users have no rights at all, not even view or restricted view permissions.
@@ -662,7 +664,7 @@ The `<text>` element has the following attributes:
 - `encoding`: either "utf8" or "xml" (required)
     - `utf8`: The element describes a simple text without markup. The text is a simple UTF-8 string.
     - `xml`: The element describes a complex text containing markup. It must follow the XML format as defined by the
-    [DSP standard mapping](https://docs.knora.org/03-apis/api-v1/xml-to-standoff-mapping/).
+    [DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-apis/api-v2/xml-to-standoff-mapping/).
 - `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
@@ -689,7 +691,7 @@ whitespaces will be taken into the text field as they are.
 #### Text with markup (XML)
 
 dsp-tools assumes that for markup (standoff markup), the
-[DSP standard mapping](https://docs.knora.org/03-apis/api-v1/xml-to-standoff-mapping/) is used (custom mapping is not yet
+[DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-apis/api-v2/xml-to-standoff-mapping/) is used (custom mapping is not yet
 implemented).
 
 Example of a text containing a link to another resource:
@@ -921,7 +923,7 @@ To do an incremental XML upload, one of the following procedures is recommended.
     shortcode="0001"
     default-ontology="anything">
 
-    <!-- permissions: see https://docs.dasch.swiss/DSP-API/05-internals/design/api-admin/administration/#permissions -->
+    <!-- permissions: see https://docs.dasch.swiss/latest/DSP-API/02-knora-ontologies/knora-base/#permissions -->
     <permissions id="res-default">
         <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>

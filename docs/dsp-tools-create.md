@@ -363,12 +363,12 @@ The groups that were created here are then available in the XML file in the
 
 A group definition has the following elements:
 
-- _name_: name of the group, mandatory
-- _descriptions_: description of the group with language tags in the form `"descriptions": {"<lang>": "<string>", ...}` (
-  currently "en", "de", "fr", "it", and "rm" are supported), mandatory
-- _selfjoin_: true if users are allowed to join the group themselves, false if an administrator has to add the users,
-  optional
-- _status_: true if the group is active, false if the group is inactive, optional
+- _name_ (mandatory): name of the group
+- _descriptions_ (mandatory): description of the group with language tags in the form `"descriptions": {"<lang>": 
+  "<string>", ...}` (currently "en", "de", "fr", "it", and "rm" are supported)
+- _selfjoin_ (optional): true if users are allowed to join the group themselves, false (default) if an administrator has 
+  to add them
+- _status_ (optional): true (default) if the group is active, false if the group is inactive
 
 Example:
 
@@ -399,13 +399,15 @@ This object contains user definitions. A user has the following elements:
 - _familyName_: surname of the user
 - _password_: password of the user
 - _lang_: the default language of the user: "en", "de", "fr", "it" (optional, default: "en")
-- _groups_: List of groups the user belongs to. The name of the group has to be provided with the project's shortname,
-  p.ex. "shortname:editors". The project defined in the same ontology file has no name, so only ":editors" is required
-  if the user belongs to the group "editors". (optional)
-- _projects_: List of projects the user belongs to. The project name has to be followed by a ":" and either "member"
-  or "admin". This indicates if the new user has admin rights in the given project or is an ordinary
-  user. `myproject:admin` would add the user as admin to the project "myproject". The given project defined in the same
-  ontology file has no name, so only ":admin"or ":member" is required. (optional)
+- _groups_ (optional): List of groups the user belongs to. The group names must be provided in one of the following forms:
+  - "other_project_shortname:groupname"
+  - ":groupname" (for groups defined in the current ontology file)
+  - "SystemAdmin" (the most powerful group, built-in into DSP)
+- _projects_ (optional): List of projects the user belongs to. The project name has to be followed by a ":" and either 
+  "member" or "admin". This indicates if the new user has admin rights in the given project or is an ordinary
+  user. `myproject:admin` would add the user as admin to the project "myproject". The project defined in the same
+  ontology file can be omitted, so only ":admin"or ":member" is enough.
+- _status_ (optional): true (default) if the user is active, false if the user is deleted/inactive
 
 Example:
 
@@ -420,12 +422,14 @@ Example:
       "password": "biz1234",
       "lang": "en",
       "groups": [
-        ":biz-editors"
+        ":biz-editors",
+        "SystemAdmin"
       ],
       "projects": [
         ":admin",
         "otherProject:member"
-      ]
+      ], 
+      "status": true
     }
   ]
 }

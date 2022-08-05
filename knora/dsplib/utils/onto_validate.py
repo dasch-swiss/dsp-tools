@@ -40,7 +40,7 @@ def validate_project(
     if expand_lists:
         # expand all lists referenced in the "lists" section of the project definition, and add them to the project
         # definition
-        new_lists = expand_lists_from_excel(project_definition["project"].get("lists"))
+        new_lists, _ = expand_lists_from_excel(project_definition["project"].get("lists"))
         if new_lists:
             project_definition['project']['lists'] = new_lists
 

@@ -414,9 +414,11 @@ def create_project(
           f"({project_definition['project']['shortcode']})...")
 
     # expand all lists referenced in the "lists" section of the project, and add them to the project
-    new_lists = expand_lists_from_excel(project_definition["project"].get("lists", []))
+    new_lists, success = expand_lists_from_excel(project_definition["project"].get("lists", []))
     if new_lists:
         project_definition["project"]["lists"] = new_lists
+    if not success:
+        overall_success = False
 
     if validate_project(project_definition, expand_lists=False):
         print('\tJSON project file is syntactically correct and passed validation.')

@@ -107,7 +107,9 @@ def create_lists(
         project_definition = json.loads(project_json_str)
         if not project_definition["project"].get("lists"):
             return {}, True
-        lists_to_create = expand_lists_from_excel(project_definition["project"]["lists"])
+        lists_to_create, success = expand_lists_from_excel(project_definition["project"]["lists"])
+        if not success:
+            overall_success = False
         project_definition["project"]["lists"] = lists_to_create
         if validate_project(project_definition, expand_lists=False):
             print('JSON project file is syntactically correct and passed validation.')

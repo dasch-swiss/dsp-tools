@@ -4,7 +4,7 @@ import json
 import os
 import re
 import unicodedata
-from typing import Any, Union, Optional
+from typing import Any, Union, Optional, Tuple
 
 import jsonschema
 from openpyxl import load_workbook
@@ -21,20 +21,23 @@ list_of_previous_node_names: list[str] = []
 
 def expand_lists_from_excel(
     lists_section: list[dict[str, Union[str, dict[str, Any]]]]
-) -> list[dict[str, Any]]:
+) -> Tuple[list[dict[str, Any]], bool]:
     """
     Checks if the "lists" section of a JSON project file contains references to Excel files. Expands all Excel files to
     JSON, and returns the expanded "lists" section. If there are no references to Excel files, the "lists" section is
     returned as is.
+    Returns a tuple consisting of the expanded "lists" section and a boolean value: True if everything went smoothly,
+    False if one of the lists couldn't be expanded correctly.
 
     Args:
         lists_section: the "lists" section of a parsed JSON project file. If this is an empty list, an empty list will be returned.
 
     Returns:
         the same "lists" section, but without references to Excel files
+        True if all lists could be expanded correctly, False if a problem occurred
     """
+    overall_success = True
     new_lists = []
-
     for _list in lists_section:
         if "folder" not in _list["nodes"]:
             # this list is a JSON list: return it as it is
@@ -46,13 +49,18 @@ def expand_lists_from_excel(
                 listname=_list["name"],
                 comments=_list["comments"]
             )
-            print("\tThe following Excel files will be temporarily expanded into the 'lists' section of your project:")
-            [print(f"\t - {filename}") for filename in excel_file_names]
+            try:
+                finished_list = _make_json_list_from_excel(prepared_rootnode, excel_file_names, verbose=False)
+                new_lists.append(finished_list)
+                print(f"\tThe list '{_list['name']}' contains a reference to the folder '{_list['nodes']['folder']}'. "
+                      f"The Excel files therein will be temporarily expanded into the 'lists' section of your project.")
+            except BaseError as err:
+                print(f"\tWARNING: The list '{_list['name']}' contains a reference to the folder "
+                      f"'{_list['nodes']['folder']}', but a problem occurred while trying to expand the Excel files "
+                      f"therein into the 'lists' section of your project: {err.message}")
+                overall_success = False
 
-            finished_list = _make_json_list_from_excel(prepared_rootnode, excel_file_names, verbose=False)
-            new_lists.append(finished_list)
-
-    return new_lists
+    return new_lists, overall_success
 
 
 def _get_values_from_excel(

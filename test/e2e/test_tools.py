@@ -67,12 +67,12 @@ class TestTools(unittest.TestCase):
         group_descriptions_received = []
         group_selfjoin_received = []
         group_status_received = []
-        for group in groups_expected:
+        for group in sorted(groups_expected, key=lambda x: x["name"]):
             group_names_expected.append(group["name"])
             group_descriptions_expected.append(group["descriptions"]["en"])
             group_selfjoin_expected.append(group.get("selfjoin", False))
             group_status_expected.append(group.get("status", True))
-        for group in groups_received:
+        for group in sorted(groups_received, key=lambda x: x["name"]):
             groups_names_received.append(group["name"])
             group_descriptions_received.append(group["descriptions"]["en"])
             group_selfjoin_received.append(group.get("selfjoin", False))

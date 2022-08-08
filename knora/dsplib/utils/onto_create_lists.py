@@ -78,11 +78,12 @@ def create_lists(
     name is already existing in this project on the DSP server, this list is skipped.
     Returns a tuple consisting of a dict and a bool. The dict contains the IRIs of the created list nodes. If there are
     no lists in the project definition, an empty dictionary is returned. The bool indicates if everything went smoothly
-    during the process. If a warning or error occurred, it is False.
+    during the process. If a warning or error occurred (e.g. one of the lists already exists, or one of the nodes could
+    not be created), it is False.
 
     Args:
-        input_file: path to the JSON project file
-        project_definition: parsed JSON project file (must be validated, and the Excel file references must be expanded already)
+        input_file: path to the JSON project file (will be validated, and Excel file references will be expanded)
+        project_definition: parsed JSON project file (must be valid, and the Excel file references must be expanded already)
         server: URL of the DSP server
         user: Username (e-mail) for the DSP server, must have the permissions to create a project
         password: Password of the user

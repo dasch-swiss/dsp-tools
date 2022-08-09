@@ -240,23 +240,18 @@ class Group(Model):
         return Group.fromJsonObj(self._con, result['group'])
 
     @staticmethod
-    def getAllGroups(con: Connection) -> Optional[list[Group]]:
-        try:
-            result = con.get(Group.ROUTE)
-            return [Group.fromJsonObj(con, group_item) for group_item in result["groups"]]
-        except BaseError:
-            # return None if no groups are found or an error happened
-            return None
+    def getAllGroups(con: Connection) -> list[Group]:
+        result = con.get(Group.ROUTE)
+        return [Group.fromJsonObj(con, group_item) for group_item in result["groups"]]
 
     @staticmethod
     def getAllGroupsForProject(con: Connection, proj_shortcode: str) -> Optional[list[Group]]:
-        all_groups: Optional[list[Group]] = Group.getAllGroups(con)
-        if all_groups:
-            project_groups = []
-            for group in all_groups:
-                if group.project == "http://rdfh.ch/projects/" + proj_shortcode:
-                    project_groups.append(group)
-            return project_groups
+        all_groups = Group.getAllGroups(con)
+        project_groups = []
+        for group in all_groups:
+            if group.project == "http://rdfh.ch/projects/" + proj_shortcode:
+                project_groups.append(group)
+        return project_groups
 
     def createDefinitionFileObj(self):
         group = {

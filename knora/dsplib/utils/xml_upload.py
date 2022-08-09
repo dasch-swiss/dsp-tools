@@ -5,14 +5,12 @@ import base64
 import json
 import os
 import re
-import time
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Union, cast, Tuple, Any, Callable
+from typing import Optional, cast, Tuple, Any
 from urllib.parse import quote_plus
 from lxml import etree
-from requests import RequestException
 
 from knora.dsplib.models.projectContext import ProjectContext
 from knora.dsplib.models.connection import Connection
@@ -24,6 +22,7 @@ from knora.dsplib.models.value import KnoraStandoffXml
 from knora.dsplib.models.xmlpermission import XmlPermission
 from knora.dsplib.models.xmlproperty import XMLProperty
 from knora.dsplib.models.xmlresource import XMLResource
+from knora.dsplib.utils.shared_methods import try_network_action
 
 
 def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
@@ -211,7 +210,7 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
 
 
-def parse_xml_file(input_file: str) -> etree.ElementTree:
+def _parse_xml_file(input_file: str) -> etree.ElementTree:
     """
     Parse an XML file with DSP-conform data, remove namespace URI from the elements' names, and transform the special
     tags <annotation>, <region>, and <link> to their technically correct form <resource restype="Annotation">,
@@ -282,7 +281,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     proj_context = ProjectContext(con=con)
     sipi_server = Sipi(sipi, con.get_token())
 
-    tree = parse_xml_file(input_file)
+    tree = _parse_xml_file(input_file)
     root = tree.getroot()
     default_ontology = root.attrib['default-ontology']
     shortcode = root.attrib['shortcode']
@@ -392,13 +391,13 @@ def _upload_resources(
         # in case of a multimedia resource: upload the multimedia file
         resource_bitstream = None
         if resource.bitstream:
-            img: Optional[dict[Any, Any]] = _try_network_action(
-                object=sipi_server,
-                method='upload_bitstream',
-                kwargs={'filepath': os.path.join(imgdir, resource.bitstream.value)},
-                terminal_output_on_failure=f'ERROR while trying to create resource "{resource.label}" ({resource.id}).'
-            )
-            if not img:
+            try:
+                img: Optional[dict[Any, Any]] = try_network_action(
+                    action=lambda: sipi_server.upload_bitstream(filepath=os.path.join(imgdir, resource.bitstream.value)),
+                    failure_msg=f'ERROR while trying to create resource "{resource.label}" ({resource.id}).'
+                )
+            except BaseError as err:
+                print(err.message)
                 failed_uploads.append(resource.id)
                 continue
             internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']
@@ -407,28 +406,30 @@ def _upload_resources(
         # create the resource in DSP
         resclass_type = resclass_name_2_type[resource.restype]
         properties = resource.get_propvals(id2iri_mapping, permissions_lookup)
-        resource_instance: ResourceInstance = _try_network_action(
-            method=resclass_type,
-            kwargs={
-                'con': con,
-                'label': resource.label,
-                'iri': resource_iri,
-                'permissions': permissions_lookup.get(resource.permissions),
-                'bitstream': resource_bitstream,
-                'values': properties
-            },
-            terminal_output_on_failure=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
-        )
-        if not resource_instance:
+        try:
+            resource_instance: ResourceInstance = try_network_action(
+                action=lambda: resclass_type(
+                    con=con,
+                    label=resource.label,
+                    iri=resource_iri,
+                    permissions=permissions_lookup.get(resource.permissions),
+                    bitstream=resource_bitstream,
+                    values=properties
+                ),
+                failure_msg=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
+            )
+        except BaseError as err:
+            print(err.message)
             failed_uploads.append(resource.id)
             continue
 
-        created_resource: ResourceInstance = _try_network_action(
-            object=resource_instance,
-            method='create',
-            terminal_output_on_failure=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
-        )
-        if not created_resource:
+        try:
+            created_resource: ResourceInstance = try_network_action(
+                action=lambda: resource_instance.create(),
+                failure_msg=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
+            )
+        except BaseError as err:
+            print(err.message)
             failed_uploads.append(resource.id)
             continue
         id2iri_mapping[resource.id] = created_resource.iri
@@ -462,13 +463,13 @@ def _upload_stashed_xml_texts(
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             continue
         res_iri = id2iri_mapping[resource.id]
-        existing_resource = _try_network_action(
-            object=con,
-            method='get',
-            kwargs={'path': f'/v2/resources/{quote_plus(res_iri)}'},
-            terminal_output_on_failure=f'  ERROR while retrieving resource "{resource.id}" from DSP server'
-        )
-        if not existing_resource:
+        try:
+            existing_resource = try_network_action(
+                action=lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'),
+                failure_msg=f'  ERROR while retrieving resource "{resource.id}" from DSP server.'
+            )
+        except BaseError as err:
+            print(err.message)
             continue
         print(f'  Upload XML text(s) of resource "{resource.id}"...')
         for link_prop, hash_to_value in link_props.items():
@@ -510,14 +511,13 @@ def _upload_stashed_xml_texts(
                 jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
 
                 # execute API call
-                response = _try_network_action(
-                    object=con,
-                    method='put',
-                    kwargs={'path': '/v2/values', 'jsondata': jsondata},
-                    terminal_output_on_failure=f'    ERROR while uploading the xml text of "{link_prop.name}" '
-                                               f'of resource "{resource.id}"'
-                )
-                if not response:
+                try:
+                    try_network_action(
+                        action=lambda: con.put(path='/v2/values', jsondata=jsondata),
+                        failure_msg=f'    ERROR while uploading the xml text of "{link_prop.name}" of resource "{resource.id}"'
+                    )
+                except BaseError as err:
+                    print(err.message)
                     continue
                 stashed_xml_texts[resource][link_prop].pop(pure_text)
                 if verbose:
@@ -566,13 +566,13 @@ def _upload_stashed_resptr_props(
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             continue
         res_iri = id2iri_mapping[resource.id]
-        existing_resource = _try_network_action(
-            object=con,
-            method='get',
-            kwargs={'path': f'/v2/resources/{quote_plus(res_iri)}'},
-            terminal_output_on_failure=f'  ERROR while retrieving resource "{resource.id}" from DSP server'
-        )
-        if not existing_resource:
+        try:
+            existing_resource = try_network_action(
+                action=lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'),
+                failure_msg=f'  ERROR while retrieving resource "{resource.id}" from DSP server'
+            )
+        except BaseError as err:
+            print(err.message)
             continue
         print(f'  Upload resptrs of resource "{resource.id}"...')
         for link_prop, resptrs in prop_2_resptrs.items():
@@ -591,14 +591,13 @@ def _upload_stashed_resptr_props(
                     '@context': existing_resource['@context']
                 }
                 jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '))
-                response = _try_network_action(
-                    object=con,
-                    method='post',
-                    kwargs={'path': '/v2/values', 'jsondata': jsondata},
-                    terminal_output_on_failure=f'ERROR while uploading the resptr prop of "{link_prop.name}" '
-                                               f'of resource "{resource.id}"'
-                )
-                if not response:
+                try:
+                    try_network_action(
+                        action=lambda: con.post(path='/v2/values', jsondata=jsondata),
+                        failure_msg=f'ERROR while uploading the resptr prop of "{link_prop.name}" of resource "{resource.id}"'
+                    )
+                except BaseError as err:
+                    print(err.message)
                     continue
                 stashed_resptr_props[resource][link_prop].remove(resptr)
                 if verbose:
@@ -608,69 +607,6 @@ def _upload_stashed_resptr_props(
     # make a purged version of stashed_resptr_props, without empty entries
     nonapplied_resptr_props = _purge_stashed_resptr_props(stashed_resptr_props)
     return nonapplied_resptr_props
-
-
-def _try_network_action(
-    terminal_output_on_failure: str,
-    method: Union[str, Callable[..., Any]],
-    object: Optional[Any] = None,
-    kwargs: Optional[dict[str, Any]] = None
-) -> Any:
-    """
-    Helper method that tries 7 times to execute an action. Each time, it catches ConnectionError and
-    requests.exceptions.RequestException, which lead to a waiting time and a retry. The waiting times are 1,
-    2, 4, 8, 16, 32, 64 seconds. It also catches BaseError and Exception each time, which lead to a message being
-    printed and None being returned.
-    If there is still no success at the end, the message is printed and None is returned.
-
-    Args:
-        terminal_output_on_failure: message to be printed if action cannot be executed
-        method: either a callable to be called on its own, or a method name (as string) to be called on object
-        object: if provided, it must be a python variable/object, accompanied by a method name (as string)
-        kwargs: if provided, a dict with the arguments passed to method
-
-    Returns:
-        the return value of action, or None
-    """
-
-    for i in range(7):
-        try:
-            if object and isinstance(method, str):
-                if not kwargs:
-                    return getattr(object, method)()
-                else:
-                    return getattr(object, method)(**kwargs)
-            else:
-                if not kwargs:
-                    return method()
-                else:
-                    return method(**kwargs)
-        except ConnectionError:
-            print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...')
-            time.sleep(2 ** i)
-            continue
-        except RequestException:
-            print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...')
-            time.sleep(2 ** i)
-            continue
-        except BaseError as err:
-            if hasattr(err, 'message'):
-                err_message = err.message
-            else:
-                err_message = str(err).replace('\n', ' ')
-                err_message = err_message[:150] if len(err_message) > 150 else err_message
-            print(f"{terminal_output_on_failure} Error message: {err_message}")
-            return None
-        except Exception as exc:
-            if hasattr(exc, 'message'):
-                exc_message = exc.message
-            else:
-                exc_message = str(exc).replace('\n', ' ')
-                exc_message = exc_message[:150] if len(exc_message) > 150 else exc_message
-            print(f"{terminal_output_on_failure} Error message: {exc_message}")
-            return None
-    print(terminal_output_on_failure)
-    return None
 
 
 def _purge_stashed_resptr_props(

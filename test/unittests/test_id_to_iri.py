@@ -3,7 +3,7 @@
 import unittest
 import os
 
-from knora.dsplib.utils.xml_upload import parse_xml_file
+from knora.dsplib.utils.xml_upload import _parse_xml_file
 from knora.dsplib.utils.id_to_iri import id_to_iri
 
 
@@ -38,7 +38,7 @@ class TestIdToIri(unittest.TestCase):
                   out_file=self.out_file,
                   verbose=True)
 
-        tree = parse_xml_file(self.out_file)
+        tree = _parse_xml_file(self.out_file)
 
         resource_elements = tree.xpath("/knora/resource/resptr-prop/resptr")
         result = []

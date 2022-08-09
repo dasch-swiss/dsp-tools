@@ -35,10 +35,10 @@ The following options are available:
 - `-s` | `--server` _server_: URL of the DSP server (default: 0.0.0.0:3333)
 - `-u` | `--user` _username_: username used for authentication with the DSP API (default: root@example.com)
 - `-p` | `--password` _password_: password used for authentication with the DSP API (default: test)
-- `-V` | `--validate`: If set, only the validation of the JSON file is performed.
-- `-l` | `--lists`: If set, only the lists are created using a [simplified schema](./dsp-tools-create.md#lists). Please
-  note that in this case the project must already exist.
-- `-v` | `--verbose`: If set, some information about the progress is printed to the console.
+- `-V` | `--validate-only`: If set, only the validation of the JSON file is performed.
+- `-l` | `--lists-only`: If set, only the lists are created. Please note that in this case the project must already exist.
+- `-v` | `--verbose`: If set, more information about the progress is printed to the console.
+- `-d` | `--dump`: If set, dump test files for DSP-API requests.
 
 The command is used to read the definition of a data model (provided in a JSON file) and create it on the DSP server.
 The following example shows how to load the ontology defined in `data_model_definition.json` onto the DSP

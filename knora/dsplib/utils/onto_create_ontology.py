@@ -2,7 +2,7 @@
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
 import json
 import re
-from typing import Union, Optional, Any
+from typing import Any, cast, Tuple
 
 from knora.dsplib.models.connection import Connection
 from knora.dsplib.models.group import Group
@@ -13,319 +13,316 @@ from knora.dsplib.models.project import Project
 from knora.dsplib.models.propertyclass import PropertyClass
 from knora.dsplib.models.resourceclass import ResourceClass
 from knora.dsplib.models.user import User
-from knora.dsplib.utils.expand_all_lists import expand_lists_from_excel
+from knora.dsplib.utils.excel_to_json_lists import expand_lists_from_excel
 from knora.dsplib.utils.onto_create_lists import create_lists
-from knora.dsplib.utils.onto_validate import validate_ontology
+from knora.dsplib.utils.onto_validate import validate_project
+from knora.dsplib.utils.shared_methods import login, try_network_action
 
 
-def login(server: str, user: str, password: str) -> Connection:
+def _create_project(con: Connection, project_definition: dict[str, Any]) -> Project:
     """
-    Logs in and returns the active connection
-
-    Args:
-        server: URL of the DSP server to connect to
-        user: Username (e-mail)
-        password: Password of the user
-
-    Return:
-        Connection instance
-    """
-    con = Connection(server)
-    con.login(user, password)
-    return con
-
-
-def create_project(con: Connection, data_model: dict[str, Any], verbose: bool) -> Project:
-    """
-    Creates a project on a DSP server with information provided in the data_model
+    Creates a project on a DSP server from a parsed JSON project file. Raises a BaseError if it is not
+    possible to create the project.
 
     Args:
         con: connection instance to connect to the DSP server
-        data_model: The data model as JSON
-        verbose: Prints out more information if set to True
+        project_definition: a parsed JSON project file
 
     Returns:
         created project
     """
-    project_shortcode = data_model["project"]["shortcode"]
-    project_shortname = data_model["project"]["shortname"]
-
-    try:
-        project = Project(con=con,
-                          shortcode=data_model["project"]["shortcode"],
-                          shortname=data_model["project"]["shortname"],
-                          longname=data_model["project"]["longname"],
-                          description=LangString(data_model["project"].get("descriptions")),
-                          keywords=set(data_model["project"].get("keywords")),
-                          selfjoin=False,
-                          status=True).create()
-        if verbose:
-            print(f"Created project '{project_shortname}' ({project_shortcode}).")
-        return project
-    except BaseError as err:
-        print(
-            f"ERROR while trying to create project '{project_shortname}' ({project_shortcode}). The error message was: {err.message}")
-        exit(1)
-    except Exception as exception:
-        print(
-            f"ERROR while trying to create project '{project_shortname}' ({project_shortcode}). The error message was: {exception}")
-        exit(1)
+    project_local = Project(
+        con=con,
+        shortcode=project_definition["project"]["shortcode"],
+        shortname=project_definition["project"]["shortname"],
+        longname=project_definition["project"]["longname"],
+        description=LangString(project_definition["project"].get("descriptions")),
+        keywords=set(project_definition["project"].get("keywords")),
+        selfjoin=False,
+        status=True
+    )
+    project_remote: Project = try_network_action(
+        action=lambda: project_local.create(),
+        failure_msg=f"ERROR: Cannot create project '{project_definition['project']['shortname']}' "
+                    f"({project_definition['project']['shortcode']}) on DSP server."
+    )
+    return project_remote
 
 
-def update_project(project: Project, data_model: dict[str, Any], verbose: bool) -> Project:
+def _update_project(project: Project, project_definition: dict[str, Any], verbose: bool) -> Project:
     """
-    Updates a project on a DSP server with information provided in the data_model
+    Updates a project on a DSP server from a JSON project file. Only the longname, description and keywords will be
+    updated. Raises a BaseError if the project cannot be updated.
 
     Args:
-        project: The project to be updated
-        data_model: The data model as JSON
-        verbose: Prints out more information if set to True
+        project: the project to be updated (must exist on the DSP server)
+        project_definition: a parsed JSON project file with the same shortname and shortcode than the existing project
 
     Returns:
         updated project
     """
-    project_shortcode = data_model["project"]["shortcode"]
-    project_shortname = data_model["project"]["shortname"]
-    project.longname = data_model["project"]["longname"]
-    project.description = data_model["project"].get("descriptions")
-    project.keywords = data_model["project"].get("keywords")
-    try:
-        updated_project = project.update()
-        if verbose:
-            print(f"Updated project '{project_shortname}' ({project_shortcode}).")
-        return updated_project
-    except BaseError as err:
-        print(
-            f"ERROR while trying to update project '{project_shortname}' ({project_shortcode}). The error message was: {err.message}")
-        exit(1)
-    except Exception as exception:
-        print(
-            f"ERROR while trying to update project '{project_shortname}' ({project_shortcode}). The error message was: {exception}")
-        exit(1)
+    project.longname = project_definition["project"]["longname"]
+    project.description = project_definition["project"].get("descriptions")
+    project.keywords = project_definition["project"].get("keywords")
+    project_remote: Project = try_network_action(
+        action=lambda: project.update(),
+        failure_msg=f"WARNING: Could not update project '{project_definition['project']['shortname']}' "
+                    f"({project_definition['project']['shortcode']})."
+    )
+    if verbose:
+        print(f"\tUpdated project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}).")
+    return project_remote
 
 
-def create_groups(con: Connection, groups: list[dict[str, str]], project: Project, verbose: bool) -> dict[str, Group]:
+def _create_groups(con: Connection, groups: list[dict[str, str]], project: Project) -> Tuple[dict[str, Group], bool]:
     """
-    Creates group(s) on a DSP server from a list of group definitions
+    Creates groups on a DSP server from the "groups" section of a JSON project file. If a group cannot be created, it is
+    skipped and a warning is printed, but such a group will still be part of the returned dict.
+    Returns a tuple consisting of a dict and a bool. The dict contains the groups that have successfully been created
+    (or already exist). The bool indicates if everything went smoothly during the process. If a warning or error
+    occurred, it is False.
 
     Args:
         con: connection instance to connect to the DSP server
-        groups: List of definitions of the groups (JSON) to be created
-        project: Project the group(s) should be added to
-        verbose: Prints out more information if set to True
+        groups: "groups" section of a parsed JSON project file
+        project: Project the group(s) should be added to (must exist on DSP server)
 
     Returns:
-        Dict with group names and groups
+        dict of the form ``{group name: group object}`` with the groups that have successfully been created (or already exist). Empty dict if no group was created.
+        True if everything went smoothly, False if a warning or error occurred
     """
-    new_groups: dict[str, Group] = {}
+    overall_success = True
+    current_project_groups: dict[str, Group] = {}
+    try:
+        remote_groups: list[Group] = try_network_action(
+            action=lambda: Group.getAllGroupsForProject(con=con, proj_shortcode=project.shortcode),
+            failure_msg="WARNING: Unable to check if group names are already existing on DSP server, because it is "
+                        "not possible to retrieve the remote groups from DSP server."
+        )
+    except BaseError as err:
+        print(err.message)
+        remote_groups = []
+        overall_success = False
+        
     for group in groups:
         group_name = group["name"]
 
-        # check if the group already exists, skip if so
-        all_groups: Optional[list[Group]] = Group.getAllGroups(con)
-
-        group_exists: bool = False
-        if all_groups:
-            group_exists = any(group_item.name == group_name for group_item in all_groups)
-
-        if group_exists:
-            print(f"WARN Group name '{group_name}' already in use. Skipping...")
+        # if the group already exists, add it to "current_project_groups" (for later usage), then skip it
+        remotely_existing_group = [g for g in remote_groups if g.name == group_name]
+        if remotely_existing_group:
+            current_project_groups[group_name] = remotely_existing_group[0]
+            print(f"\tWARNING: Group name '{group_name}' already exists on the DSP server. Skipping...")
+            overall_success = False
             continue
 
-        # check if status is defined, set default value if not
-        group_status: Optional[str] = group.get("status")
-        group_status_bool = True
-        if isinstance(group_status, str):
-            group_status_bool = json.loads(group_status.lower())  # lower() converts string to boolean
-
-        # check if selfjoin is defined, set default value if not
-        group_selfjoin: Optional[str] = group.get("selfjoin")
-        group_selfjoin_bool = False
-        if isinstance(group_selfjoin, str):
-            group_selfjoin_bool = json.loads(group_selfjoin.lower())  # lower() converts string to boolean
-
         # create the group
+        group_local = Group(
+            con=con,
+            name=group_name,
+            descriptions=LangString(group["descriptions"]),
+            project=project,
+            status=group.get("status", True),
+            selfjoin=group.get("selfjoin", False)
+        )
         try:
-            new_group: Group = Group(con=con,
-                                     name=group_name,
-                                     descriptions=LangString(group["descriptions"]),
-                                     project=project,
-                                     status=group_status_bool,
-                                     selfjoin=group_selfjoin_bool).create()
-            if verbose:
-                print(f"Created group '{group_name}'.")
-            if new_group.name:
-                new_groups[new_group.name] = new_group
-
+            group_remote: Group = try_network_action(
+                action=lambda: group_local.create(),
+                failure_msg=f"\tWARNING: Unable to create group '{group_name}'."
+            )
         except BaseError as err:
-            print(f"ERROR while trying to create group '{group_name}'. The error message was: {err.message}")
-            exit(1)
-        except Exception as exception:
-            print(f"ERROR while trying to create group '{group_name}'. The error message was: {exception}")
-            exit(1)
-    return new_groups
+            print(err.message)
+            overall_success = False
+            continue
+
+        current_project_groups[group_remote.name] = group_remote
+        print(f"\tCreated group '{group_name}'.")
+
+    return current_project_groups, overall_success
 
 
-def create_users(con: Connection, users: list[dict[str, str]], groups: dict[str, Group], project: Project,
-                 verbose: bool) -> None:
+def _create_users(
+    con: Connection,
+    users: list[dict[str, str]],
+    current_project_groups: dict[str, Group],
+    current_project: Project,
+    verbose: bool
+) -> bool:
     """
-    Creates user(s) on a DSP server from a list of user definitions
+    Creates users on a DSP server from the "users" section of a JSON project file. If a user cannot be created, a
+    warning is printed and the user is skipped.
 
     Args:
         con: connection instance to connect to the DSP server
-        users: List of definitions of the users (JSON) to be created
-        groups: Dict with group definitions defined inside the actual ontology
-        project: Project the user(s) should be added to
+        users: "users" section of a parsed JSON project file
+        current_project_groups: groups defined in the current project (dict of the form {group name - group object}). These groups must exist on the DSP server.
+        current_project: "project" object of the current project (must exist on DSP server)
         verbose: Prints more information if set to True
 
     Returns:
-        None
+        True if all users could be created without any problems. False if a warning/error occurred.
     """
+    overall_success = True
     for user in users:
         username = user["username"]
 
-        # check if the user already exists, skip if so
-        maybe_user: Optional[User] = None
+        # skip the user if he already exists
         try:
-            maybe_user = User(con, email=user["email"]).read()
+            try_network_action(
+                action=lambda: User(con, email=user["email"]).read(),
+                failure_msg=""
+            )
+            print(f"\tWARNING: User '{username}' already exists on the DSP server. Skipping...")
+            overall_success = False
+            continue
         except BaseError:
             pass
-        if maybe_user:
-            print(f"WARN User '{username}' already exists. Skipping...")
-            continue
 
-        sysadmin = False
+        # if "groups" is provided, add user to the group(s)
         group_ids: set[str] = set()
-        project_info: dict[str, bool] = {}
+        sysadmin = False
+        remote_groups: list[Group] = []
+        for full_group_name in user.get("groups", []):
+            # full_group_name has the form '[project_shortname]:group_name' or 'SystemAdmin'
+            if ":" not in full_group_name and full_group_name != "SystemAdmin":
+                print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because such a "
+                      f"group doesn't exist.")
+                overall_success = False
+                continue
 
-        # if "groups" is provided add user to the group(s)
-        user_groups = user.get("groups")
-        if user_groups:
-            all_groups: Optional[list[Group]] = Group.getAllGroups(con)
-            for full_group_name in user_groups:
+            if full_group_name == "SystemAdmin":
+                sysadmin = True
                 if verbose:
-                    print(f"Add user '{username}' to group '{full_group_name}'.")
-                # full_group_name has the form '[project_shortname]:group_name' or 'SystemAdmin'
-                # if project_shortname is omitted, the group belongs to the current project
-                tmp_group_name: Union[list[str], str] = full_group_name.split(
-                    ":") if ":" in full_group_name else full_group_name
+                    print(f"\tAdded user '{username}' to group 'SystemAdmin'.")
+                continue
 
-                if len(tmp_group_name) == 2:
-                    project_shortname = tmp_group_name[0]
-                    group_name = tmp_group_name[1]
-
-                    group: Optional[Group] = None
-                    if project_shortname:  # full_group_name refers to an already existing group on DSP
-                        # check that group exists
-                        if all_groups:
-                            for g in all_groups:
-                                if g.project == project.id and g.name == group_name:
-                                    group = g
-                        else:
-                            print(f"WARN '{group_name}' is referring to a group on DSP but no groups found.")
-
-                    else:  # full_group_name refers to a group inside the same ontology
-                        group = groups.get(group_name)
-                    if group is None:
-                        print(f"WARN Group '{group_name}' not found in actual ontology.")
-                    else:
-                        if isinstance(group.id, str):
-                            group_ids.add(group.id)
-                elif tmp_group_name == "SystemAdmin":
-                    sysadmin = True
-                else:
-                    print(f"WARN Provided group '{full_group_name}' for user '{username}' is not valid. Skipping...")
-
-        # if "projects" is provided, add user to the projects(s)
-        user_projects = user.get("projects")
-        if user_projects:
-            all_projects: list[Project] = project.getAllProjects(con)
-            for full_project_name in user_projects:
-                if verbose:
-                    print(f"Add user '{username}' to project '{full_project_name}'.")
-                # full_project_name has the form '[project_name]:member' or '[project_name]:admin'
-                # if project_name is omitted, the user is added to the current project
-                tmp_group_name = full_project_name.split(":")
-
-                if not len(tmp_group_name) == 2:
-                    print(
-                        f"WARN Provided project '{full_project_name}' for user '{username}' is not valid. Skipping...")
+            # all other cases (":" in full_group_name)
+            project_shortname, group_name = full_group_name.split(":")
+            if not project_shortname:
+                # full_group_name refers to a group inside the same project
+                if group_name not in current_project_groups:
+                    print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because "
+                          f"such a group doesn't exist.")
+                    overall_success = False
                     continue
+                group = current_project_groups[group_name]
+            else:
+                # full_group_name refers to an already existing group on DSP
+                try:
+                    # "remote_groups" might be available from a previous loop cycle
+                    remote_groups = remote_groups or try_network_action(
+                        action=lambda: Group.getAllGroups(con=con),
+                        failure_msg=f"\tWARNING: User '{username}' is referring to the group {full_group_name} that "
+                                    f"exists on the DSP server, but no groups could be retrieved from the DSP server."
+                    )
+                except BaseError as err:
+                    print(err.message)
+                    overall_success = False
+                    continue
+                existing_group = [g for g in remote_groups if g.project == current_project.id and g.name == group_name]
+                if not existing_group:
+                    print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because "
+                          f"such a group doesn't exist.")
+                    overall_success = False
+                    continue
+                group = existing_group[0]
 
-                project_name = tmp_group_name[0]
-                project_role = tmp_group_name[1]
+            group_ids.add(group.id)
+            if verbose:
+                print(f"\tAdded user '{username}' to group '{full_group_name}'.")
 
-                in_project: Optional[Project] = None
+        # if "projects" is provided, add user to the project(s)
+        project_info: dict[str, bool] = {}
+        remote_projects: list[Project] = []
+        for full_project_name in user.get("projects", []):
+            # full_project_name has the form '[project_name]:member' or '[project_name]:admin'
+            if ":" not in full_project_name:
+                print(f"\tWARNING: Provided project '{full_project_name}' for user '{username}' is not valid. "
+                      f"Skipping...")
+                overall_success = False
+                continue
 
-                if project_name:  # project_name is provided
-                    # check that project exists
-                    for p in all_projects:
-                        if p.shortname == project_name:
-                            in_project = p
+            project_name, project_role = full_project_name.split(":")
+            if not project_name:
+                # full_project_name refers to the current project
+                in_project = current_project
+            else:
+                # full_project_name refers to an already existing project on DSP
+                try:
+                    # "remote_projects" might be available from a previous loop cycle
+                    remote_projects = remote_projects or try_network_action(
+                        action=lambda: current_project.getAllProjects(con=con),
+                        failure_msg=f"\tWARNING: User '{username}' cannot be added to the projects {user['projects']} "
+                                    f"because the projects cannot be retrieved from the DSP server."
+                    )
+                except BaseError as err:
+                    print(err.message)
+                    overall_success = False
+                    continue
+                in_project_list = [p for p in remote_projects if p.shortname == project_name]
+                if not in_project_list:
+                    print(f"\tWARNING: Provided project '{full_project_name}' for user '{username}' is not valid. "
+                          f"Skipping...")
+                    overall_success = False
+                    continue
+                in_project = in_project_list[0]
 
-                else:  # no project_name provided
-                    in_project = project
-
-                if in_project and isinstance(in_project.id, str):
-                    if project_role == "admin":
-                        project_info[in_project.id] = True
-                    else:
-                        project_info[in_project.id] = False
+            project_info[in_project.id] = bool(project_role == "admin")
+            if verbose:
+                print(f"\tAdded user '{username}' as {project_role} to project '{in_project.shortname}'.")
 
         # create the user
-        user_status: Optional[str] = user.get("status")
-        user_status_bool = True
-        if isinstance(user_status, str):
-            user_status_bool = json.loads(user_status.lower())  # lower() converts string to boolean
+        user_local = User(
+            con=con,
+            username=user["username"],
+            email=user["email"],
+            givenName=user["givenName"],
+            familyName=user["familyName"],
+            password=user["password"],
+            status=user.get("status", True),
+            lang=user.get("lang", "en"),
+            sysadmin=sysadmin,
+            in_projects=project_info,
+            in_groups=group_ids
+        )
         try:
-            User(con=con,
-                 username=user["username"],
-                 email=user["email"],
-                 givenName=user["givenName"],
-                 familyName=user["familyName"],
-                 password=user["password"],
-                 status=user_status_bool,
-                 lang=user["lang"] if user.get("lang") else "en",
-                 sysadmin=sysadmin,
-                 in_projects=project_info,
-                 in_groups=group_ids).create()
-            if verbose:
-                print(f"Created user {username}.")
+            try_network_action(
+                action=lambda: user_local.create(),
+                failure_msg=f"\tWARNING: Unable to create user '{username}'."
+            )
         except BaseError as err:
-            print(f"ERROR while trying to create user '{username}'. The error message was: {err.message}")
-            exit(1)
-        except Exception as exception:
-            print(f"ERROR while trying to create user '{username}'. The error message was: {exception}")
-            exit(1)
+            print(err.message)
+            overall_success = False
+            continue
+        print(f"\tCreated user '{username}'.")
+
+    return overall_success
 
 
-def sort_resources(unsorted_resources: list[dict[str, Any]], onto_name: str) -> list[dict[str, Any]]:
+def _sort_resources(unsorted_resources: list[dict[str, Any]], onto_name: str) -> list[dict[str, Any]]:
     """
-    This method sorts the resource classes in an ontology according their inheritance order
-    (parent classes first).
+    This method sorts the resource classes in an ontology according to their inheritance order (parent classes first).
 
     Args:
-        unsorted_resources: list of resources from a JSON ontology definition
+        unsorted_resources: list of resources from a parsed JSON project file
         onto_name: name of the onto
 
     Returns:
         sorted list of resource classes
     """
     
-    # do not modify the original unsorted_resources, which points to the original onto file
+    # do not modify the original unsorted_resources, which points to the original JSON project file
     resources_to_sort = unsorted_resources.copy()
     sorted_resources: list[dict[str, Any]] = list()
     ok_resource_names: list[str] = list()
     while len(resources_to_sort) > 0:
-        # inside the for loop, resources_to_sort is modified, so a copy must be made
-        # to iterate over
+        # inside the for loop, resources_to_sort is modified, so a copy must be made to iterate over
         for res in resources_to_sort.copy():
             res_name = f'{onto_name}:{res["name"]}'
             parent_classes = res['super']
             if isinstance(parent_classes, str):
                 parent_classes = [parent_classes]
             parent_classes = [re.sub(r'^:([^:]+)$', f'{onto_name}:\\1', elem) for elem in parent_classes]
-            parent_classes_ok = [not parent.startswith(onto_name) or parent in ok_resource_names for parent in parent_classes]
+            parent_classes_ok = [not p.startswith(onto_name) or p in ok_resource_names for p in parent_classes]
             if all(parent_classes_ok):
                 sorted_resources.append(res)
                 ok_resource_names.append(res_name)
@@ -333,33 +330,32 @@ def sort_resources(unsorted_resources: list[dict[str, Any]], onto_name: str) -> 
     return sorted_resources
 
 
-def sort_prop_classes(unsorted_prop_classes: list[dict[str, Any]], onto_name: str) -> list[dict[str, Any]]:
+def _sort_prop_classes(unsorted_prop_classes: list[dict[str, Any]], onto_name: str) -> list[dict[str, Any]]:
     """
         In case of inheritance, parent properties must be uploaded before their children. This method sorts the
         properties.
 
         Args:
-            unsorted_prop_classes: list of properties from a JSON ontology definition
+            unsorted_prop_classes: list of properties from a parsed JSON project file
             onto_name: name of the onto
 
         Returns:
             sorted list of properties
         """
 
-    # do not modify the original unsorted_prop_classes, which points to the original onto file
+    # do not modify the original unsorted_prop_classes, which points to the original JSON project file
     prop_classes_to_sort = unsorted_prop_classes.copy()
     sorted_prop_classes: list[dict[str, Any]] = list()
     ok_propclass_names: list[str] = list()
     while len(prop_classes_to_sort) > 0:
-        # inside the for loop, resources_to_sort is modified, so a copy must be made
-        # to iterate over
+        # inside the for loop, resources_to_sort is modified, so a copy must be made to iterate over
         for prop in prop_classes_to_sort.copy():
             prop_name = f'{onto_name}:{prop["name"]}'
             parent_classes = prop.get('super', 'hasValue')
             if isinstance(parent_classes, str):
                 parent_classes = [parent_classes]
             parent_classes = [re.sub(r'^:([^:]+)$', f'{onto_name}:\\1', elem) for elem in parent_classes]
-            parent_classes_ok = [not parent.startswith(onto_name) or parent in ok_propclass_names for parent in parent_classes]
+            parent_classes_ok = [not p.startswith(onto_name) or p in ok_propclass_names for p in parent_classes]
             if all(parent_classes_ok):
                 sorted_prop_classes.append(prop)
                 ok_propclass_names.append(prop_name)
@@ -367,244 +363,246 @@ def sort_prop_classes(unsorted_prop_classes: list[dict[str, Any]], onto_name: st
     return sorted_prop_classes
 
 
-def create_ontology(input_file: str,
-                    lists_file: str,
-                    server: str,
-                    user_mail: str,
-                    password: str,
-                    verbose: bool,
-                    dump: bool) -> None:
+def create_project(
+    input_file: str,
+    server: str,
+    user_mail: str,
+    password: str,
+    verbose: bool,
+    dump: bool
+) -> bool:
     """
-    Creates the ontology and all its parts from a JSON input file on a DSP server
+    Creates a project from a JSON project file on a DSP server. A project must contain at least one ontology, and it may
+    contain lists, users, and groups.
+    Returns True if everything went smoothly during the process, False if a warning or error occurred.
 
     Args:
-        input_file: The input JSON file from which the ontology and its parts should be created
-        lists_file: The file which the list output (list node ID) is written to
-        server: The DSP server which the ontology should be created on
-        user_mail: The user (e-mail) which the ontology should be created with (requesting user)
-        password: The password for the user (requesting user)
-        verbose: Prints more information if set to True
-        dump: Dumps test files (JSON) for DSP API requests if set to True
+        input_file: the path to the JSON file from which the project and its parts should be created
+        server: the URL of the DSP server on which the project should be created
+        user_mail: a username (e-mail) who has the permission to create a project
+        password: the user's password
+        verbose: prints more information if set to True
+        dump: dumps test files (JSON) for DSP API requests if set to True
 
     Returns:
-        None
+        True if everything went smoothly, False if a warning or error occurred
     """
 
     knora_api_prefix = "knora-api:"
+    overall_success = True
+    success = True
 
-    # read the ontology from the input file
+    # create project
+    ################
     with open(input_file) as f:
-        onto_json_str = f.read()
+        project_json_str = f.read()
+    project_definition = json.loads(project_json_str)
+    print(f"Create project '{project_definition['project']['shortname']}' "
+          f"({project_definition['project']['shortcode']})...")
 
-    data_model = json.loads(onto_json_str)
+    # expand all lists referenced in the "lists" section of the project, and add them to the project
+    new_lists, success = expand_lists_from_excel(project_definition["project"].get("lists", []))
+    if new_lists:
+        project_definition["project"]["lists"] = new_lists
+    if not success:
+        overall_success = False
 
-    # expand all lists referenced in the list section of the data model and add them to the ontology
-    data_model["project"]["lists"] = expand_lists_from_excel(data_model)
+    if validate_project(project_definition, expand_lists=False):
+        print('\tJSON project file is syntactically correct and passed validation.')
 
-    # validate the ontology
-    if not validate_ontology(data_model):
-        exit(1)
-
-    # make the connection to the server
     con = login(server=server, user=user_mail, password=password)
-
     if dump:
         con.start_logging()
 
     # read the prefixes of external ontologies that may be used
-    context = Context(data_model.get("prefixes") or {})
+    context = Context(project_definition.get("prefixes") or {})
 
-    # check if the project exists
-    project = None
+    # if project exists, update it, otherwise create it
+    project_local = Project(con=con, shortcode=project_definition["project"]["shortcode"])
     try:
-        project = Project(con=con, shortcode=data_model["project"]["shortcode"]).read()
+        project_remote: Project = try_network_action(
+            action=lambda: project_local.read(),
+            failure_msg=""
+        )
+        print(f"\tWARNING: Project '{project_remote.shortname}' ({project_remote.shortcode}) already exists on the DSP "
+              f"server. Updating it...")
+        overall_success = False
+        try:
+            project_remote = _update_project(project=project_remote, project_definition=project_definition, verbose=verbose)
+        except BaseError as err:
+            print(err.message)
     except BaseError:
-        pass
+        project_remote = _create_project(con=con, project_definition=project_definition)
+        print(f"\tCreated project '{project_remote.shortname}' ({project_remote.shortcode}).")
 
-    # if project exists, update it
-    if project:
-        print(f"Project '{data_model['project']['shortcode']}' already exists. Updating it...")
-        updated_project: Project = update_project(project=project, data_model=data_model, verbose=verbose)
-        if verbose:
-            updated_project.print()
+    # create the lists
+    ##################
+    list_root_nodes: dict[str, Any] = {}
+    if project_definition["project"].get("lists"):
+        print("Create lists...")
+        list_root_nodes, success = create_lists(server=server, user=user_mail, password=password, project_definition=project_definition)
+        if not success:
+            overall_success = False
 
-    # if project does not exist, create it
-    else:
-        if verbose:
-            print("Create project...")
-        project = create_project(con=con, data_model=data_model, verbose=verbose)
+    # create the groups
+    ###################
+    current_project_groups: dict[str, Group] = {}
+    if project_definition["project"].get("groups"):
+        print("Create groups...")
+        current_project_groups, success = _create_groups(
+            con=con, 
+            groups=project_definition["project"]["groups"], 
+            project=project_remote
+        )
+        if not success:
+            overall_success = False
 
-    # create the list(s), skip if it already exists
-    list_root_nodes = {}
-    if data_model["project"].get("lists"):
-        if verbose:
-            print("Create lists...")
-        list_root_nodes = create_lists(input_file, lists_file, server, user_mail, password, verbose)
-
-    # create the group(s), skip if it already exists
-    new_groups = {}
-    if data_model["project"].get("groups"):
-        if verbose:
-            print("Create groups...")
-        new_groups = create_groups(con=con, groups=data_model["project"]["groups"], project=project, verbose=verbose)
-
-    # create or update the user(s), skip if it already exists
-    if data_model["project"].get("users"):
-        if verbose:
-            print("Create users...")
-        create_users(con=con, users=data_model["project"]["users"], groups=new_groups, project=project,
-                     verbose=verbose)
+    # create or update the users
+    ############################
+    if project_definition["project"].get("users"):
+        print("Create users...")
+        success = _create_users(
+            con=con, 
+            users=project_definition["project"]["users"], 
+            current_project_groups=current_project_groups, 
+            current_project=project_remote, 
+            verbose=verbose
+        )
+        if not success:
+            overall_success = False
 
     # create the ontologies
-    if verbose:
-        print("Create ontologies...")
-    for ontology in data_model.get("project").get("ontologies"):
-        new_ontology = None
-        last_modification_date = None
-        ontology_name = ontology["name"]
-        try:
-            new_ontology = Ontology(con=con,
-                                    project=project,
-                                    label=ontology["label"],
-                                    name=ontology_name).create()
-            context.add_context(new_ontology.name, new_ontology.id + ('#' if not new_ontology.id.endswith('#') else ''))
-            last_modification_date = new_ontology.lastModificationDate
-            if verbose:
-                print(f"Created ontology '{ontology_name}'.")
-        except BaseError as err:
-            print(
-                f"ERROR while trying to create ontology '{ontology_name}'. The error message was: {err.message}")
-            exit(1)
-        except Exception as exception:
-            print(f"ERROR while trying to create ontology '{ontology_name}'. The error message was: {exception}")
-            exit(1)
+    #######################
+    print("Create ontologies...")
+    all_ontologies: list[Ontology] = try_network_action(
+        action=lambda: Ontology.getAllOntologies(con=con),
+        failure_msg="WARNING: Unable to retrieve remote ontologies. Cannot check if your ontology already exists."
+    )
+    for ontology in project_definition.get("project").get("ontologies"):
+        if ontology["name"] in [onto.name for onto in all_ontologies]:
+            print(f"\tWARNING: Ontology '{ontology['name']}' already exists on the DSP server. Skipping...")
+            overall_success = False
+            continue
+
+        print(f"Create ontology '{ontology['name']}'...")
+        ontology_local = Ontology(
+            con=con,
+            project=project_remote,
+            label=ontology["label"],
+            name=ontology["name"]
+        )
+        ontology_remote: Ontology = try_network_action(
+            action=lambda: ontology_local.create(),
+            failure_msg=f"ERROR while trying to create ontology '{ontology['name']}'."
+        )
+        context.add_context(ontology_remote.name, ontology_remote.id + ('#' if not ontology_remote.id.endswith('#') else ''))
+        last_modification_date = ontology_remote.lastModificationDate
+        if verbose:
+            print(f"\tCreated ontology '{ontology['name']}'.")
 
         # add the prefixes defined in the json file
-        for prefix, ontology_info in context:
-            if prefix not in new_ontology.context and ontology_info:
-                s = ontology_info.iri + ("#" if ontology_info.hashtag else "")
-                new_ontology.context.add_context(prefix, s)
+        for onto_prefix, onto_info in context:
+            if onto_info and onto_prefix not in ontology_remote.context:
+                onto_iri = onto_info.iri + ("#" if onto_info.hashtag else "")
+                ontology_remote.context.add_context(onto_prefix, onto_iri)
 
         # create the empty resource classes
+        print("\tCreate resource classes...")
         new_res_classes: dict[str, ResourceClass] = {}
-        sorted_resources = sort_resources(ontology["resources"], ontology["name"])
+        sorted_resources = _sort_resources(ontology["resources"], ontology["name"])
         for res_class in sorted_resources:
-            res_name = res_class.get("name")
-            super_classes = res_class.get("super")
+            super_classes = res_class["super"]
             if isinstance(super_classes, str):
                 super_classes = [super_classes]
-            res_label = LangString(res_class.get("labels"))
-            res_comment = res_class.get("comments")
-            if res_comment:
-                res_comment = LangString(res_comment)
-            # if no cardinalities are submitted, don't create the class
-            if not res_class.get("cardinalities"):
-                print(f"ERROR while trying to add cardinalities to class '{res_name}'. No cardinalities submitted. At"
-                      f"least one direct cardinality is required to create a class with dsp-tools.")
-                continue
-
-            new_res_class: Optional[ResourceClass] = None
+            res_class_local = ResourceClass(
+                con=con,
+                context=ontology_remote.context,
+                ontology_id=ontology_remote.id,
+                name=res_class["name"],
+                superclasses=super_classes,
+                label=LangString(res_class.get("labels")),
+                comment=LangString(res_class.get("comments")) if res_class.get("comments") else None
+            )
             try:
-                last_modification_date, new_res_class = ResourceClass(con=con,
-                                                                      context=new_ontology.context,
-                                                                      ontology_id=new_ontology.id,
-                                                                      name=res_name,
-                                                                      superclasses=super_classes,
-                                                                      label=res_label,
-                                                                      comment=res_comment).create(
-                    last_modification_date)
-            except BaseError as err:
-                print(
-                    f"ERROR while trying to create resource class '{res_name}'. The error message was: {err.message}")
-            except Exception as exception:
-                print(
-                    f"ERROR while trying to create resource class '{res_name}'. The error message was: {exception}")
-
-            if new_res_class:
-                if isinstance(new_res_class.id, str):
-                    new_res_classes[new_res_class.id] = new_res_class
-                new_ontology.lastModificationDate = last_modification_date
-
+                last_modification_date, res_class_remote = try_network_action(
+                    action=lambda: res_class_local.create(last_modification_date=last_modification_date),
+                    failure_msg=f"WARNING: Unable to create resource class '{res_class['name']}'."
+                )
+                res_class_remote = cast(ResourceClass, res_class_remote)
+                new_res_classes[res_class_remote.id] = res_class_remote
+                ontology_remote.lastModificationDate = last_modification_date
                 if verbose:
-                    print("Created resource class:")
-                    new_res_class.print()
+                    print(f"\tCreated resource class '{res_class['name']}'")
+            except BaseError as err:
+                print(err.message)
+                overall_success = False
 
         # create the property classes
-        sorted_prop_classes = sort_prop_classes(ontology["properties"], ontology["name"])
+        print("\tCreate property classes...")
+        sorted_prop_classes = _sort_prop_classes(ontology["properties"], ontology["name"])
+        new_prop_classes: dict[str, PropertyClass] = {}
         for prop_class in sorted_prop_classes:
-            prop_name = prop_class.get("name")
-            prop_label = LangString(prop_class.get("labels"))
 
-            # get the super-property/ies if defined, valid forms are:
+            # get the super-property/ies, valid forms are:
             #   - "prefix:super-property" : fully qualified name of property in another ontology. The prefix has to be
             #     defined in the prefixes part.
+            #   - ":super-property" : super-property defined in current ontology
             #   - "super-property" : super-property defined in the knora-api ontology
             #   - if omitted, "knora-api:hasValue" is assumed
-
             if prop_class.get("super"):
                 super_props = []
                 for super_class in prop_class.get("super"):
-                    if ':' in super_class:
-                        super_props.append(super_class)
+                    if ":" in super_class:
+                        prefix, _class = super_class.split(":")
+                        super_props.append(super_class if prefix else f"{ontology_remote.name}:{_class}")
                     else:
                         super_props.append(knora_api_prefix + super_class)
             else:
                 super_props = ["knora-api:hasValue"]
 
-            # get the "object" if defined, valid forms are:
+            # get the "object", valid forms are:
             #   - "prefix:object_name" : fully qualified object. The prefix has to be defined in the prefixes part.
             #   - ":object_name" : The object is defined in the current ontology.
             #   - "object_name" : The object is defined in "knora-api"
-
-            if prop_class.get("object"):
-                tmp_group_name = prop_class.get("object").split(':')
-                if len(tmp_group_name) > 1:
-                    if tmp_group_name[0]:
-                        prop_object = prop_class.get("object")  # fully qualified name
-                    else:
-                        prop_object = new_ontology.name + ':' + tmp_group_name[1]  # object refers to actual ontology
-                else:
-                    prop_object = knora_api_prefix + prop_class.get("object")  # object refers to knora-api
+            if ":" in prop_class["object"]:
+                prefix, _object = prop_class["object"].split(':')
+                prop_object = f"{prefix}:{_object}" if prefix else f"{ontology_remote.name}:{_object}"
             else:
-                prop_object = None
-            prop_subject = prop_class.get("subject")
-            gui_element = prop_class.get("gui_element")
+                prop_object = knora_api_prefix + prop_class["object"]
+
             gui_attributes = prop_class.get("gui_attributes")
             if gui_attributes and gui_attributes.get("hlist"):
                 gui_attributes["hlist"] = "<" + list_root_nodes[gui_attributes["hlist"]]["id"] + ">"
-            prop_comment = prop_class.get("comments")
-            if prop_comment:
-                prop_comment = LangString(prop_comment)
 
-            new_prop_class = None
+            prop_class_local = PropertyClass(
+                con=con,
+                context=ontology_remote.context,
+                label=LangString(prop_class.get("labels")),
+                name=prop_class["name"],
+                ontology_id=ontology_remote.id,
+                superproperties=super_props,
+                object=prop_object,
+                subject=prop_class.get("subject"),
+                gui_element="salsah-gui:" + prop_class["gui_element"],
+                gui_attributes=gui_attributes,
+                comment=LangString(prop_class["comments"]) if prop_class.get("comments") else None
+            )
             try:
-                last_modification_date, new_prop_class = PropertyClass(con=con,
-                                                                       context=new_ontology.context,
-                                                                       label=prop_label,
-                                                                       name=prop_name,
-                                                                       ontology_id=new_ontology.id,
-                                                                       superproperties=super_props,
-                                                                       object=prop_object,
-                                                                       subject=prop_subject,
-                                                                       gui_element="salsah-gui:" + gui_element,
-                                                                       gui_attributes=gui_attributes,
-                                                                       comment=prop_comment).create(
-                    last_modification_date)
-            except BaseError as err:
-                print(
-                    f"ERROR while trying to create property class '{prop_name}'. The error message was: {err.message}"
+                last_modification_date, prop_class_remote = try_network_action(
+                    action=lambda: prop_class_local.create(last_modification_date=last_modification_date),
+                    failure_msg=f"WARNING: Unable to create property class '{prop_class['name']}'."
                 )
-            except Exception as exception:
-                print(
-                    f"ERROR while trying to create property class '{prop_name}'. The error message was: {exception}")
-
-            if new_prop_class:
-                new_ontology.lastModificationDate = last_modification_date
+                prop_class_remote = cast(PropertyClass, prop_class_remote)
+                new_prop_classes[prop_class_remote.id] = prop_class_remote
+                ontology_remote.lastModificationDate = last_modification_date
                 if verbose:
-                    print("Created property:")
-                    new_prop_class.print()
+                    print(f"\tCreated property class '{prop_class['name']}'")
+            except BaseError as err:
+                print(err.message)
+                overall_success = False
 
         # Add cardinalities to class
+        print("\tAdd cardinalities to resource classes...")
         switcher = {
             "1": Cardinality.C_1,
             "0-1": Cardinality.C_0_1,
@@ -613,37 +611,53 @@ def create_ontology(input_file: str,
         }
 
         for res_class in ontology.get("resources"):
-            if res_class.get("cardinalities"):
-                for card_info in res_class.get("cardinalities"):
-                    rc = new_res_classes.get(new_ontology.id + "#" + res_class.get("name"))
-                    cardinality = switcher[card_info.get("cardinality")]
-                    prop_name_for_card = card_info.get("propname")
-                    tmp_group_name = prop_name_for_card.split(":")
-                    if len(tmp_group_name) > 1:
-                        if tmp_group_name[0]:
-                            prop_id = prop_name_for_card  # fully qualified name
-                        else:
-                            prop_id = new_ontology.name + ":" + tmp_group_name[1]  # prop name refers to actual ontology
-                    else:
-                        prop_id = knora_api_prefix + prop_name_for_card  # prop name refers to knora-api
+            res_class_remote = new_res_classes.get(ontology_remote.id + "#" + res_class["name"])
+            if not res_class_remote:
+                print(f"WARNING: Unable to add cardinalities to resource class '{res_class['name']}': This class "
+                      f"doesn't exist on the DSP server.")
+                overall_success = False
+                continue
+            for card_info in res_class.get("cardinalities"):
+                if ":" in card_info["propname"]:
+                    prefix, prop = card_info["propname"].split(":")
+                    qualified_propname = card_info["propname"] if prefix else f"{ontology_remote.name}:{prop}"
+                    if not new_prop_classes.get(ontology_remote.id + "#" + prop):
+                        print(f"WARNING: Unable to add cardinality '{card_info['propname']}' to resource class "
+                              f"'{res_class['name']}': This property class doesn't exist on the DSP server.")
+                        overall_success = False
+                        continue
+                else:
+                    qualified_propname = knora_api_prefix + card_info["propname"]
 
-                    if rc:
-                        try:
-                            last_modification_date = rc.addProperty(
-                                property_id=prop_id,
-                                cardinality=cardinality,
-                                gui_order=card_info.get("gui_order"),
-                                last_modification_date=last_modification_date)
-                            if verbose:
-                                print(f"{res_class['name']}: Added property '{prop_name_for_card}'")
+                try:
+                    last_modification_date = try_network_action(
+                        action=lambda: res_class_remote.addProperty(
+                            property_id=qualified_propname,
+                            cardinality=switcher[card_info["cardinality"]],
+                            gui_order=card_info.get("gui_order"),
+                            last_modification_date=last_modification_date
+                        ),
+                        failure_msg=f"WARNING: Unable to add cardinality '{qualified_propname}' to resource class "
+                                    f"{res_class['name']}."
+                    )
+                    if verbose:
+                        print(f"\tAdded cardinality '{card_info['propname']}' to resource class '{res_class['name']}'")
+                except BaseError as err:
+                    print(err.message)
+                    overall_success = False
 
-                        except BaseError as err:
-                            print(
-                                f"ERROR while trying to add cardinality '{prop_id}' to resource class {res_class.get('name')}."
-                                f"The error message was: {err.message}")
-                        except Exception as exception:
-                            print(
-                                f"ERROR while trying to add cardinality '{prop_id}' to resource class {res_class.get('name')}."
-                                f"The error message was: {exception}")
+                ontology_remote.lastModificationDate = last_modification_date
 
-                        new_ontology.lastModificationDate = last_modification_date
+    # final steps
+    #############
+    if overall_success:
+        print("========================================================\n",
+              f"Successfully created project '{project_definition['project']['shortname']}' "
+              f"({project_definition['project']['shortcode']}) with all its ontologies. There were no problems during "
+              f"the creation process.")
+    else:
+        print("========================================================\n",
+              f"WARNING: The project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}) "
+              f"with its ontologies could be created, but during the creation process, some problems occurred. "
+              f"Please carefully check the console output.")
+    return overall_success

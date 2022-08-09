@@ -107,8 +107,7 @@
                     "de": "Testgruppe Editors",
                     "rm": "squadra test 'Editors' in Rumantsch"
                 },
-                "selfjoin": false,
-                "status": true
+                "selfjoin": false
             },
             {
                 "name": "testgroupViewers",
@@ -116,8 +115,16 @@
                     "en": "Test group viewers",
                     "de": "Testgruppe Viewers"
                 },
-                "selfjoin": false,
+                "selfjoin": true,
                 "status": true
+            },
+            {
+                "name": "testgroupInactive",
+                "descriptions": {
+                    "en": "Test group inactive",
+                    "de": "Testgruppe Inaktiv"
+                },
+                "status": false
             }
         ],
         "users": [
@@ -167,6 +174,33 @@
                 "projects": [
                     ":admin"
                 ]
+            },
+            {
+                "username": "testerSystemAdmin",
+                "email": "tester.systemadmin@test.org",
+                "givenName": "Tester",
+                "familyName": "System Admin",
+                "password": "test0815",
+                "lang": "en",
+                "groups": [
+                    "SystemAdmin"
+                ],
+                "status": true
+            },
+            {
+                "username": "inactiveUser",
+                "email": "inactive.user@test.org",
+                "givenName": "Inactive",
+                "familyName": "User",
+                "password": "test0815",
+                "lang": "en",
+                "groups": [
+                    "SystemAdmin"
+                ],
+                "projects": [
+                    ":admin"
+                ],
+                "status": false
             }
         ],
         "ontologies": [

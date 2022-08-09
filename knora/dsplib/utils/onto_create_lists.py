@@ -41,9 +41,8 @@ def _create_list_node(
     )
     try:
         new_node = try_network_action(
-            object=new_node,
-            method="create",
-            error_message_on_failure=f"ERROR while trying to create list node '{node['name']}'."
+            action=lambda: new_node.create(),
+            failure_msg=f"ERROR while trying to create list node '{node['name']}'."
         )
     except BaseError as err:
         print(err.message)
@@ -126,19 +125,16 @@ def create_lists(
     # retrieve the project
     project_local = Project(con=con, shortcode=project_definition["project"]["shortcode"])
     project_remote = try_network_action(
-        object=project_local,
-        method="read",
-        error_message_on_failure="ERROR while trying to create the lists: Project couldn't be read from the DSP server."
+        action=lambda: project_local.read(),
+        failure_msg="ERROR while trying to create the lists: Project couldn't be read from the DSP server."
     )
 
     # retrieve existing lists
     try:
         existing_lists: list[ListNode] = try_network_action(
-            object=ListNode,
-            method="getAllLists",
-            kwargs={"con": con, "project_iri": project_remote.id},
-            error_message_on_failure="WARNING: Unable to retrieve existing lists on DSP server. Cannot check if your "
-                                     "lists are already existing."
+            action=lambda: ListNode.getAllLists(con=con, project_iri=project_remote.id),
+            failure_msg="WARNING: Unable to retrieve existing lists on DSP server. Cannot check if your lists are "
+                        "already existing."
         )
     except BaseError as err:
         print(err.message)

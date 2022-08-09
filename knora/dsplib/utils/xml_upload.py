@@ -393,10 +393,8 @@ def _upload_resources(
         if resource.bitstream:
             try:
                 img: Optional[dict[Any, Any]] = try_network_action(
-                    object=sipi_server,
-                    method='upload_bitstream',
-                    kwargs={'filepath': os.path.join(imgdir, resource.bitstream.value)},
-                    error_message_on_failure=f'ERROR while trying to create resource "{resource.label}" ({resource.id}).'
+                    action=lambda: sipi_server.upload_bitstream(filepath=os.path.join(imgdir, resource.bitstream.value)),
+                    failure_msg=f'ERROR while trying to create resource "{resource.label}" ({resource.id}).'
                 )
             except BaseError as err:
                 print(err.message)
@@ -410,16 +408,15 @@ def _upload_resources(
         properties = resource.get_propvals(id2iri_mapping, permissions_lookup)
         try:
             resource_instance: ResourceInstance = try_network_action(
-                method=resclass_type,
-                kwargs={
-                    'con': con,
-                    'label': resource.label,
-                    'iri': resource_iri,
-                    'permissions': permissions_lookup.get(resource.permissions),
-                    'bitstream': resource_bitstream,
-                    'values': properties
-                },
-                error_message_on_failure=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
+                action=lambda: resclass_type(
+                    con=con,
+                    label=resource.label,
+                    iri=resource_iri,
+                    permissions=permissions_lookup.get(resource.permissions),
+                    bitstream=resource_bitstream,
+                    values=properties
+                ),
+                failure_msg=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
             )
         except BaseError as err:
             print(err.message)
@@ -428,9 +425,8 @@ def _upload_resources(
 
         try:
             created_resource: ResourceInstance = try_network_action(
-                object=resource_instance,
-                method='create',
-                error_message_on_failure=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
+                action=lambda: resource_instance.create(),
+                failure_msg=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
             )
         except BaseError as err:
             print(err.message)
@@ -469,10 +465,8 @@ def _upload_stashed_xml_texts(
         res_iri = id2iri_mapping[resource.id]
         try:
             existing_resource = try_network_action(
-                object=con,
-                method='get',
-                kwargs={'path': f'/v2/resources/{quote_plus(res_iri)}'},
-                error_message_on_failure=f'  ERROR while retrieving resource "{resource.id}" from DSP server.'
+                action=lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'),
+                failure_msg=f'  ERROR while retrieving resource "{resource.id}" from DSP server.'
             )
         except BaseError as err:
             print(err.message)
@@ -519,11 +513,8 @@ def _upload_stashed_xml_texts(
                 # execute API call
                 try:
                     try_network_action(
-                        object=con,
-                        method='put',
-                        kwargs={'path': '/v2/values', 'jsondata': jsondata},
-                        error_message_on_failure=f'    ERROR while uploading the xml text of "{link_prop.name}" '
-                                                   f'of resource "{resource.id}"'
+                        action=lambda: con.put(path='/v2/values', jsondata=jsondata),
+                        failure_msg=f'    ERROR while uploading the xml text of "{link_prop.name}" of resource "{resource.id}"'
                     )
                 except BaseError as err:
                     print(err.message)
@@ -577,10 +568,8 @@ def _upload_stashed_resptr_props(
         res_iri = id2iri_mapping[resource.id]
         try:
             existing_resource = try_network_action(
-                object=con,
-                method='get',
-                kwargs={'path': f'/v2/resources/{quote_plus(res_iri)}'},
-                error_message_on_failure=f'  ERROR while retrieving resource "{resource.id}" from DSP server'
+                action=lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'),
+                failure_msg=f'  ERROR while retrieving resource "{resource.id}" from DSP server'
             )
         except BaseError as err:
             print(err.message)
@@ -604,11 +593,8 @@ def _upload_stashed_resptr_props(
                 jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '))
                 try:
                     try_network_action(
-                        object=con,
-                        method='post',
-                        kwargs={'path': '/v2/values', 'jsondata': jsondata},
-                        error_message_on_failure=f'ERROR while uploading the resptr prop of "{link_prop.name}" '
-                                                   f'of resource "{resource.id}"'
+                        action=lambda: con.post(path='/v2/values', jsondata=jsondata),
+                        failure_msg=f'ERROR while uploading the resptr prop of "{link_prop.name}" of resource "{resource.id}"'
                     )
                 except BaseError as err:
                     print(err.message)

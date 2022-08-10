@@ -239,135 +239,71 @@ These three are related as follows:
 
 The following data types are allowed:
 
-- `TextValue`
+- `BooleanValue`
 - `ColorValue`
 - `DateValue`
-- `TimeValue`
 - `DecimalValue`
 - `GeonameValue`
-- `IntValue`
-- `BooleanValue`
-- `UriValue`
 - `IntervalValue`
+- `IntValue`
 - `ListValue`
+- `TextValue`
+- `TimeValue`
+- `UriValue`
 - in case of a link property: any resource class
 
+#### BooleanValue
 
-#### TextValue
+`"object": "BooleanValue"`
 
-`"object": "TextValue"`
+Represents a Boolean ("true" or "false).
 
-Represents a text that may contain standoff markup.
+*gui-elements / gui_attributes*:
 
-*gui_elements / gui_attributes*:
-
-- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes are:
-    - _gui_attributes_:
-        - `maxlength=integer` (optional): maximal length (number of characters accepted)
-        - `size=integer` (optional): size (width) of widget
-- `Textarea`: A GUI element for _TextValue_. Presents a multiline text entry box. The optional attributes are:
-    - _gui_attributes_:
-        - `cols=integer` (optional): number of columns of the textarea
-        - `rows=integer` (optional): number of rows of the textarea
-        - `width=percent` (optional): width of the textarea on screen
-        - `wrap=soft|hard` (optional): wrapping of text
-- `Richtext`: A GUI element for _TextValue_. Provides a richtext editor.
+- `Checkbox`: A GUI element for _BooleanValue_.
     - _gui_attributes_: No attributes
 
 *Example:*
 
 ```json
 {
-  "name": "hasPictureTitle",
+  "name": "hasBoolean",
   "super": [
     "hasValue"
   ],
-  "object": "TextValue",
+  "object": "BooleanValue",
   "labels": {
-    "en": "Title"
+    "en": "Boolean value"
   },
-  "gui_element": "SimpleText",
-  "gui_attributes": {
-    "maxlength": 255,
-    "size": 80
-  }
+  "gui_element": "Checkbox"
 }
 ```
 
-#### IntValue
+#### ColorValue
 
-`"object": "IntValue"`
+`"object": "ColorValue"`
 
-Represents an integer value.
+A string representation of the color in the hexadecimal form e.g. "#ff8000".
 
 *gui-elements / gui_attributes*:
 
-- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
-  "maxlength=integer" and "size=integer" are optional.
+- `Colorpicker`: The only GUI element for _ColorValue_. It's used to choose a color.
     - _gui_attributes_:
-        - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer` (optional): The size of the input field
-- `Spinbox`: A GUI element for _IntegerValue_. A text field with and "up"- and "down"-button for increment/decrement.
-  The attributes "max=decimal" and "min=decimal" are optional.
-    - _gui_attributes_:
-        - `max=decimal` (optional): Maximal value
-        - `min=decimal` (optional): Minimal value
+        - `ncolors=integer` (optional): Number of colors the color picker should present.
 
 *Example:*
 
 ```json
 {
-  "name": "hasInteger",
+  "name": "hasColor",
   "super": [
-    "hasValue"
+    "hasColor"
   ],
-  "object": "IntValue",
+  "object": "ColorValue",
   "labels": {
-    "en": "Integer"
+    "en": "Color"
   },
-  "gui_element": "Spinbox",
-  "gui_attributes": {
-    "max": 10.0,
-    "min": 0.0
-  }
-}
-```
-
-#### DecimalValue
-
-`"object": "DecimalValue"`
-
-A number with decimal point.
-
-*gui-elements / gui_attributes*:
-
-- `Slider`: A GUI element for _DecimalValue_. Provides a slider to select a decimal value.
-    - _gui_attributes_:
-        - `max=decimal` (mandatory): maximal value
-        - `min=decimal` (mandatory): minimal value
-- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
-  "maxlength=integer" and "size=integer" are optional.
-    - _gui_attributes_:
-        - `maxlength=integer` (optional): maximum number of characters accepted
-        - `size=integer` (optional): size of the input field
-
-*Example:*
-
-```json
-{
-  "name": "hasDecimal",
-  "super": [
-    "hasValue"
-  ],
-  "object": "DecimalValue",
-  "labels": {
-    "en": "Decimal number"
-  },
-  "gui_element": "SimpleText",
-  "gui_attributes": {
-    "maxlength": 255,
-    "size": 80
-  }
+  "gui_element": "Colorpicker"
 }
 ```
 
@@ -411,117 +347,35 @@ which means anytime in between 1925 and the 22nd March 1927.
 }
 ```
 
-#### TimeValue
+#### DecimalValue
 
-`"object": "TimeValue"`
+`"object": "DecimalValue"`
 
-A time value represents a precise moment in time in the Gregorian calendar. Since nanosecond precision can be included, it is suitable for use as a timestamp.
-
-*gui-elements / gui_attributes*:
-
-- `TimeStamp`: A GUI element for _TimeValue_ which contains a date picker and a time picker.
-  - _gui_attributes_: No attributes
-
-*Example:*
-
-```json
-{
-  "name": "hasTime",
-  "super": [
-    "hasValue"
-  ],
-  "object": "TimeValue",
-  "labels": {
-    "en": "Time"
-  },
-  "gui_element": "TimeStamp"
-}
-```
-
-#### IntervalValue
-
-`"object": "IntervalValue"`
-
-Represents a time-interval
+A number with decimal point.
 
 *gui-elements / gui_attributes*:
 
+- `Slider`: A GUI element for _DecimalValue_. Provides a slider to select a decimal value.
+    - _gui_attributes_:
+        - `max=decimal` (mandatory): maximal value
+        - `min=decimal` (mandatory): minimal value
 - `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
   "maxlength=integer" and "size=integer" are optional.
     - _gui_attributes_:
-        - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer` (optional): The size of the input field
-- `Interval`: Two spin boxes, one for each decimal
-    - _gui_attributes_: No attributes
+        - `maxlength=integer` (optional): maximum number of characters accepted
+        - `size=integer` (optional): size of the input field
 
 *Example:*
 
 ```json
 {
-  "name": "hasInterval",
+  "name": "hasDecimal",
   "super": [
     "hasValue"
   ],
-  "object": "IntervalValue",
+  "object": "DecimalValue",
   "labels": {
-    "en": "Time interval"
-  },
-  "gui_element": "Interval"
-}
-```
-
-#### BooleanValue
-
-`"object": "BooleanValue"`
-
-Represents a Boolean ("true" or "false).
-
-*gui-elements / gui_attributes*:
-
-- `Checkbox`: A GUI element for _BooleanValue_.
-    - _gui_attributes_: No attributes
-
-*Example:*
-
-```json
-{
-  "name": "hasBoolean",
-  "super": [
-    "hasValue"
-  ],
-  "object": "BooleanValue",
-  "labels": {
-    "en": "Boolean value"
-  },
-  "gui_element": "Checkbox"
-}
-```
-
-#### UriValue
-
-`"object": "UriValue"`
-
-Represents an URI
-
-*gui-elements / gui_attributes*:
-
-- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
-  "maxlength=integer" and "size=integer" are optional.
-    - _gui_attributes_:
-        - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer` (optional): The size of the input field
-
-*Example:*
-
-```json
-{
-  "name": "hasUri",
-  "super": [
-    "hasValue"
-  ],
-  "object": "UriValue",
-  "labels": {
-    "en": "URI"
+    "en": "Decimal number"
   },
   "gui_element": "SimpleText",
   "gui_attributes": {
@@ -558,34 +412,76 @@ Represents a location ID in geonames.org. DSP uses identifiers provided by
 }
 ```
 
-#### ColorValue
+#### IntervalValue
 
-`"object": "ColorValue"`
+`"object": "IntervalValue"`
 
-A string representation of the color in the hexadecimal form e.g. "#ff8000".
+Represents a time-interval
 
 *gui-elements / gui_attributes*:
 
-- `Colorpicker`: The only GUI element for _ColorValue_. It's used to choose a color.
+- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
+  "maxlength=integer" and "size=integer" are optional.
     - _gui_attributes_:
-        - `ncolors=integer` (optional): Number of colors the color picker should present.
+        - `maxlength=integer` (optional): The maximum number of characters accepted
+        - `size=integer` (optional): The size of the input field
+- `Interval`: Two spin boxes, one for each decimal
+    - _gui_attributes_: No attributes
 
 *Example:*
 
 ```json
 {
-  "name": "hasColor",
+  "name": "hasInterval",
   "super": [
-    "hasColor"
+    "hasValue"
   ],
-  "object": "ColorValue",
+  "object": "IntervalValue",
   "labels": {
-    "en": "Color"
+    "en": "Time interval"
   },
-  "gui_element": "Colorpicker"
+  "gui_element": "Interval"
 }
 ```
 
+#### IntValue
+
+`"object": "IntValue"`
+
+Represents an integer value.
+
+*gui-elements / gui_attributes*:
+
+- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
+  "maxlength=integer" and "size=integer" are optional.
+    - _gui_attributes_:
+        - `maxlength=integer` (optional): The maximum number of characters accepted
+        - `size=integer` (optional): The size of the input field
+- `Spinbox`: A GUI element for _IntegerValue_. A text field with and "up"- and "down"-button for increment/decrement.
+  The attributes "max=decimal" and "min=decimal" are optional.
+    - _gui_attributes_:
+        - `max=decimal` (optional): Maximal value
+        - `min=decimal` (optional): Minimal value
+
+*Example:*
+
+```json
+{
+  "name": "hasInteger",
+  "super": [
+    "hasValue"
+  ],
+  "object": "IntValue",
+  "labels": {
+    "en": "Integer"
+  },
+  "gui_element": "Spinbox",
+  "gui_attributes": {
+    "max": 10.0,
+    "min": 0.0
+  }
+}
+```
 
 #### ListValue
 
@@ -618,6 +514,108 @@ Represents a node of a (possibly hierarchical) list
   "gui_element": "List",
   "gui_attributes": {
     "hlist": "treelistroot"
+  }
+}
+```
+
+#### TextValue
+
+`"object": "TextValue"`
+
+Represents a text that may contain standoff markup.
+
+*gui_elements / gui_attributes*:
+
+- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes are:
+    - _gui_attributes_:
+        - `maxlength=integer` (optional): maximal length (number of characters accepted)
+        - `size=integer` (optional): size (width) of widget
+- `Textarea`: A GUI element for _TextValue_. Presents a multiline text entry box. The optional attributes are:
+    - _gui_attributes_:
+        - `cols=integer` (optional): number of columns of the textarea
+        - `rows=integer` (optional): number of rows of the textarea
+        - `width=percent` (optional): width of the textarea on screen
+        - `wrap=soft|hard` (optional): wrapping of text
+- `Richtext`: A GUI element for _TextValue_. Provides a richtext editor.
+    - _gui_attributes_: No attributes
+
+*Example:*
+
+```json
+{
+  "name": "hasPictureTitle",
+  "super": [
+    "hasValue"
+  ],
+  "object": "TextValue",
+  "labels": {
+    "en": "Title"
+  },
+  "gui_element": "SimpleText",
+  "gui_attributes": {
+    "maxlength": 255,
+    "size": 80
+  }
+}
+```
+
+#### TimeValue
+
+`"object": "TimeValue"`
+
+A time value represents a precise moment in time in the Gregorian calendar. Since nanosecond precision can be included, it is suitable for use as a timestamp.
+
+*gui-elements / gui_attributes*:
+
+- `TimeStamp`: A GUI element for _TimeValue_ which contains a date picker and a time picker.
+  - _gui_attributes_: No attributes
+
+*Example:*
+
+```json
+{
+  "name": "hasTime",
+  "super": [
+    "hasValue"
+  ],
+  "object": "TimeValue",
+  "labels": {
+    "en": "Time"
+  },
+  "gui_element": "TimeStamp"
+}
+```
+
+#### UriValue
+
+`"object": "UriValue"`
+
+Represents an URI
+
+*gui-elements / gui_attributes*:
+
+- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
+  "maxlength=integer" and "size=integer" are optional.
+    - _gui_attributes_:
+        - `maxlength=integer` (optional): The maximum number of characters accepted
+        - `size=integer` (optional): The size of the input field
+
+*Example:*
+
+```json
+{
+  "name": "hasUri",
+  "super": [
+    "hasValue"
+  ],
+  "object": "UriValue",
+  "labels": {
+    "en": "URI"
+  },
+  "gui_element": "SimpleText",
+  "gui_attributes": {
+    "maxlength": 255,
+    "size": 80
   }
 }
 ```

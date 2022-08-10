@@ -36,19 +36,6 @@ jobs:
           make dist
           make upload
 
-  release-docs:
-    name: Release Docs
-    runs-on: ubuntu-latest
-    steps:
-      # check out repo
-      - uses: actions/checkout@v2
-      # install python
-      - name: Deploy docs
-        uses: mhausenblas/mkdocs-deploy-gh-pages@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          REQUIREMENTS: docs/requirements.txt
-
   notification:
     name: Google chat notification about release and published version
     needs: [release-pypi, release-docs]

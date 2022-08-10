@@ -22,7 +22,7 @@ class TestTools(unittest.TestCase):
     sipi = 'http://0.0.0.0:1024'
     test_project_file = 'testdata/test-project-systematic.json'
     test_project_minimal_file = 'testdata/test-project-minimal.json'
-    test_data_file = 'testdata/test-data.xml'
+    test_data_file = 'testdata/test-data-systematic.xml'
 
     def setUp(self) -> None:
         """Is executed before each test"""

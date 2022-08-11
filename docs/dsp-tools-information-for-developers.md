@@ -68,7 +68,7 @@ For formatting Markdown files (*.md) we use the default styling configuration pr
 ## Publishing
 
 Publishing is automated with GitHub Actions and should _not_ be done manually. Please follow the
-[Pull Request Guidelines](https://docs.dasch.swiss/developers/dsp/contribution/#pull-request-guidelines). If done
+[Pull Request Guidelines](https://docs.dasch.swiss/latest/developers/dsp/contribution/#pull-request-guidelines). If done
 correctly, when merging a pull request into `main`, the `release-please` action will create or update a pull request for
 a release. This pull request will follow semantic versioning and update the change log. Once all desired features are
 merged, the release can be executed by merging this release pull request into `main`. This will trigger actions that

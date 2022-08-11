@@ -4,7 +4,7 @@ import unittest
 from lxml import etree
 
 from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.utils.xml_upload import _convert_ark_v0_to_resource_iri, _remove_circular_references
+from knora.dsplib.utils.xml_upload import _convert_ark_v0_to_resource_iri, _remove_circular_references, _parse_xml_file
 from knora.dsplib.models.xmlresource import XMLResource
 
 
@@ -34,11 +34,7 @@ class TestXMLUpload(unittest.TestCase):
 
     def test_remove_circular_references(self) -> None:
         # create a list of XMLResources from the test data file
-        tree = etree.parse('testdata/test-data.xml')
-        for elem in tree.getiterator():
-            if not (isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction)):
-                elem.tag = etree.QName(elem).localname  # remove namespace URI in the element's name
-        etree.cleanup_namespaces(tree)  # remove unused namespace declarations
+        tree = _parse_xml_file('testdata/test-data.xml')
         resources = [XMLResource(x, 'testonto') for x in tree.getroot() if x.tag == "resource"]
 
         # get the purged resources and the stashes from the function to be tested
@@ -59,46 +55,49 @@ class TestXMLUpload(unittest.TestCase):
 
         # hardcode the expected values
         stashed_xml_texts_expected = {
-            'obj_0001': {
+            'test_thing_1': {
                 'testonto:hasRichtext': [
-                    '\n                This is<em>bold and<strong>string</strong></em>text! It contains links to all '
+                    '\n                This is <em>bold and <strong>strong</strong></em> text! It contains links to all '
                     'resources:\n'
-                    '                <a class="salsah-link" href="IRI:obj_0000:IRI">obj_0000</a>\n'
-                    '                <a class="salsah-link" href="IRI:obj_0001:IRI">obj_0001</a>\n'
-                    '                <a class="salsah-link" href="IRI:obj_0002:IRI">obj_0002</a>\n'
-                    '                <a class="salsah-link" href="IRI:obj_0003:IRI">obj_0003</a>\n'
-                    '                <a class="salsah-link" href="IRI:obj_0004:IRI">obj_0004</a>\n'
-                    '                <a class="salsah-link" href="IRI:obj_0005:IRI">obj_0005</a>\n'
-                    '                <a class="salsah-link" href="IRI:obj_0006:IRI">obj_0006</a>\n'
-                    '                <a class="salsah-link" href="IRI:obj_0007:IRI">obj_0007</a>\n'
-                    '                <a class="salsah-link" href="IRI:obj_0008:IRI">obj_0008</a>\n'
-                    '                <a class="salsah-link" href="IRI:obj_0009:IRI">obj_0009</a>\n'
-                    '                <a class="salsah-link" href="IRI:obj_0010:IRI">obj_0010</a>\n'
-                    '                <a class="salsah-link" href="IRI:obj_0011:IRI">obj_0011</a>\n'
+                    '                <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>\n'
+                    '                <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>\n'
+                    '                <a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a>\n'
+                    '                <a class="salsah-link" href="IRI:compound_thing_0:IRI">compound_thing_0</a>\n'
+                    '                <a class="salsah-link" href="IRI:partof_thing_1:IRI">partof_thing_1</a>\n'
+                    '                <a class="salsah-link" href="IRI:partof_thing_2:IRI">partof_thing_2</a>\n'
+                    '                <a class="salsah-link" href="IRI:partof_thing_3:IRI">partof_thing_3</a>\n'
+                    '                <a class="salsah-link" href="IRI:document_thing_1:IRI">document_thing_1</a>\n'
+                    '                <a class="salsah-link" href="IRI:text_thing_1:IRI">text_thing_1</a>\n'
+                    '                <a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a>\n'
+                    '                <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>\n'
+                    '                <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>\n'
                     '            \n            '
                 ]
             },
-            'obj_0011': {
+            'test_thing_2': {
                 'testonto:hasRichtext': [
-                     '\n                This is<em>bold and<strong>string</strong></em>text! It contains links to all '
+                     '\n                This is <em>bold and <strong>strong</strong></em> text! It contains links to all '
                      'resources:\n'
-                     '                <a class="salsah-link" href="IRI:obj_0000:IRI">obj_0000</a>\n'
-                     '                <a class="salsah-link" href="IRI:obj_0001:IRI">obj_0001</a>\n'
-                     '                <a class="salsah-link" href="IRI:obj_0002:IRI">obj_0002</a>\n'
-                     '                <a class="salsah-link" href="IRI:obj_0003:IRI">obj_0003</a>\n'
-                     '                <a class="salsah-link" href="IRI:obj_0004:IRI">obj_0004</a>\n'
-                     '                <a class="salsah-link" href="IRI:obj_0005:IRI">obj_0005</a>\n'
-                     '                <a class="salsah-link" href="IRI:obj_0006:IRI">obj_0006</a>\n'
-                     '                <a class="salsah-link" href="IRI:obj_0007:IRI">obj_0007</a>\n'
-                     '                <a class="salsah-link" href="IRI:obj_0008:IRI">obj_0008</a>\n'
-                     '                <a class="salsah-link" href="IRI:obj_0009:IRI">obj_0009</a>\n'
-                     '                <a class="salsah-link" href="IRI:obj_0010:IRI">obj_0010</a>\n'
-                     '                <a class="salsah-link" href="IRI:obj_0011:IRI">obj_0011</a>\n'
+                     '                <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>\n'
+                     '                <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>\n'
+                     '                <a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a>\n'
+                     '                <a class="salsah-link" href="IRI:compound_thing_0:IRI">compound_thing_0</a>\n'
+                     '                <a class="salsah-link" href="IRI:partof_thing_1:IRI">partof_thing_1</a>\n'
+                     '                <a class="salsah-link" href="IRI:partof_thing_2:IRI">partof_thing_2</a>\n'
+                     '                <a class="salsah-link" href="IRI:partof_thing_3:IRI">partof_thing_3</a>\n'
+                     '                <a class="salsah-link" href="IRI:document_thing_1:IRI">document_thing_1</a>\n'
+                     '                <a class="salsah-link" href="IRI:text_thing_1:IRI">text_thing_1</a>\n'
+                     '                <a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a>\n'
+                     '                <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>\n'
+                     '                <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>\n'
                      '            \n            '
                 ]
             }
         }
-        stashed_resptr_props_expected = {'obj_0000': {'testonto:hasTestThing': ['obj_0001']}}
+        stashed_resptr_props_expected = {
+            'test_thing_0': {'testonto:hasTestThing': ['test_thing_1']},
+            'test_thing_1': {'testonto:hasResource': ['test_thing_2', 'link_obj_1']}
+        }
 
         # check if the stashes are equal to the expected stashes
         self.assertDictEqual(stashed_resptr_props, stashed_resptr_props_expected)

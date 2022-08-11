@@ -4,6 +4,9 @@
 
 The following paragraphs gives you an overview of how to install and use dsp-tools.
 
+
+
+
 ## Installation
 
 To install the latest version run:
@@ -18,6 +21,9 @@ To update to the latest version run:
 pip3 install --upgrade dsp-tools
 ```
 
+
+
+
 ## Create a data model on a DSP server
 
 ```bash
@@ -29,10 +35,10 @@ The following options are available:
 - `-s` | `--server` _server_: URL of the DSP server (default: 0.0.0.0:3333)
 - `-u` | `--user` _username_: username used for authentication with the DSP API (default: root@example.com)
 - `-p` | `--password` _password_: password used for authentication with the DSP API (default: test)
-- `-V` | `--validate`: If set, only the validation of the JSON file is performed.
-- `-l` | `--lists`: If set, only the lists are created using a [simplified schema](./dsp-tools-create.md#lists). Please
-  note that in this case the project must already exist.
-- `-v` | `--verbose`: If set, some information about the progress is printed to the console.
+- `-V` | `--validate-only`: If set, only the validation of the JSON file is performed.
+- `-l` | `--lists-only`: If set, only the lists are created. Please note that in this case the project must already exist.
+- `-v` | `--verbose`: If set, more information about the progress is printed to the console.
+- `-d` | `--dump`: If set, dump test files for DSP-API requests.
 
 The command is used to read the definition of a data model (provided in a JSON file) and create it on the DSP server.
 The following example shows how to load the ontology defined in `data_model_definition.json` onto the DSP
@@ -44,6 +50,9 @@ dsp-tools create -s https://api.dsl.server.org -u root@example.com -p test data_
 ```
 
 The description of the expected JSON format can be found [here](./dsp-tools-create.md).
+
+
+
 
 ## Get a data model from a DSP server
 
@@ -68,6 +77,11 @@ the password `test` are used. The data model is saved into the output file `outp
 ```bash
 dsp-tools get -s https://api.test.dasch.swiss -u root@example.com -p test -P my_project output_file.json
 ```
+
+The description of the JSON format can be found [here](./dsp-tools-create.md).
+
+
+
 
 ## Upload data to a DSP server
 
@@ -98,12 +112,15 @@ dsp-tools xmlupload -s https://api.dsl.server.org -u root@example.com -p test -S
 
 The description of the expected XML format can be found [here](./dsp-tools-xmlupload.md).
 
-An internal ID is used in the `<resptr>` tag of an XML file used for `xmlupload` to reference resources inside the same
-XML file. Once data is uploaded to DSP it cannot be referenced by this internal ID anymore. Instead, the resource's IRI
-has to be used. The mapping of internal IDs to their respective IRIs is written to a file
-called `id2iri_mapping_[timstamp].json` after a successful `xmlupload`.
+An internal ID is used in the `<resptr>` tag of an XML file to reference resources inside the same XML file. Once data 
+is uploaded to DSP, it cannot be referenced by this internal ID anymore. Instead, the resource's IRI has to be used. 
+After a successful `xmlupload`, the mapping of internal IDs to their respective IRIs is written to a file
+called `id2iri_mapping_[timstamp].json`.
 See [`dsp-tools id2iri`](./dsp-tools-usage.md#replace-internal-ids-with-iris-in-xml-file) for more information about how
 to use this file to replace internal IDs in an existing XML file to reference existing resources.
+
+
+
 
 ## Create a JSON list file from one or several Excel files
 
@@ -131,6 +148,9 @@ The description of the expected Excel format can be found [here](./dsp-tools-cre
 information about the usage of this command can be
 found [here](./dsp-tools-excel.md#create-a-list-from-one-or-several-excel-files).
 
+
+
+
 ## Create resources from an Excel file
 
 ```bash
@@ -148,8 +168,10 @@ dsp-tools excel2resources Resources.xlsx resources.json
 ```
 
 More information about the usage of this command can be
-found [here](./dsp-tools-excel.md#create-the-resources-for-a-data-model-from-an-excel-file)
-.
+found [here](./dsp-tools-excel.md#create-the-resources-for-a-data-model-from-an-excel-file).
+
+
+
 
 ## Create properties from an Excel file
 
@@ -168,8 +190,10 @@ dsp-tools excel2properties Properties.xlsx properties.json
 ```
 
 More information about the usage of this command can be found
-[here](./dsp-tools-excel.md#create-the-properties-for-a-data-model-from-an-excel-file)
-.
+[here](./dsp-tools-excel.md#create-the-properties-for-a-data-model-from-an-excel-file).
+
+
+
 
 ## Replace internal IDs with IRIs in XML file
 

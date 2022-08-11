@@ -11,9 +11,9 @@ from knora.dsplib.utils.excel_to_json_properties import properties_excel2json
 from knora.dsplib.utils.excel_to_json_resources import resources_excel2json
 from knora.dsplib.utils.id_to_iri import id_to_iri
 from knora.dsplib.utils.onto_create_lists import create_lists
-from knora.dsplib.utils.onto_create_ontology import create_ontology
+from knora.dsplib.utils.onto_create_ontology import create_project
 from knora.dsplib.utils.onto_get import get_ontology
-from knora.dsplib.utils.onto_validate import validate_ontology
+from knora.dsplib.utils.onto_validate import validate_project
 from knora.dsplib.utils.xml_upload import xml_upload
 
 
@@ -55,12 +55,10 @@ def program(user_args: list[str]) -> None:
     parser_create.add_argument('-s', '--server', type=str, default=default_localhost, help=url_text)
     parser_create.add_argument('-u', '--user', default=default_user, help=username_text)
     parser_create.add_argument('-p', '--password', default=default_pw, help=password_text)
-    parser_create.add_argument('-V', '--validate', action='store_true',
+    parser_create.add_argument('-V', '--validate-only', action='store_true',
                                help='Do only validation of JSON, no upload of the '
                                     'ontology')
-    parser_create.add_argument('-L', '--listfile', type=str, default='lists-only.json',
-                               help='Name of list node informationfile')
-    parser_create.add_argument('-l', '--lists', action='store_true', help='Upload only the list(s)')
+    parser_create.add_argument('-l', '--lists-only', action='store_true', help='Upload only the list(s)')
     parser_create.add_argument('-v', '--verbose', action='store_true', help=verbose_text)
     parser_create.add_argument('-d', '--dump', action='store_true', help='dump test files for DSP-API requests')
     parser_create.add_argument('datamodelfile', help='path to data model file')
@@ -142,31 +140,27 @@ def program(user_args: list[str]) -> None:
         exit(0)
 
     if args.action == 'create':
-        if args.lists:
-            if args.validate:
+        if args.lists_only:
+            if args.validate_only:
                 validate_list_with_schema(args.datamodelfile)
             else:
                 create_lists(input_file=args.datamodelfile,
-                             lists_file=args.listfile,
                              server=args.server,
                              user=args.user,
                              password=args.password,
-                             verbose=args.verbose,
                              dump=args.dump)
         else:
-            if args.validate:
-                if validate_ontology(args.datamodelfile):
+            if args.validate_only:
+                if validate_project(args.datamodelfile):
+                    print('Data model is syntactically correct and passed validation.')
                     exit(0)
-                else:
-                    exit(1)
             else:
-                create_ontology(input_file=args.datamodelfile,
-                                lists_file=args.listfile,
-                                server=args.server,
-                                user_mail=args.user,
-                                password=args.password,
-                                verbose=args.verbose,
-                                dump=args.dump if args.dump else False)
+                create_project(input_file=args.datamodelfile,
+                               server=args.server,
+                               user_mail=args.user,
+                               password=args.password,
+                               verbose=args.verbose,
+                               dump=args.dump if args.dump else False)
     elif args.action == 'get':
         get_ontology(project_identifier=args.project,
                      outfile=args.datamodelfile,

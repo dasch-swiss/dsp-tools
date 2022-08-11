@@ -57,8 +57,14 @@ class ResourceInstance(Model):
         'TextRepresentation'
     }
     knora_properties: set[str] = {
+        "knora-api:hasLinkTo",
+        "knora-api:hasColor",
+        "knora-api:hasComment",
+        "knora-api:hasGeometry",
         "knora-api:isPartOf",
-        "knora-api:seqnum",
+        "knora-api:isRegionOf",
+        "knora-api:isAnnotationOf",
+        "knora-api:seqnum"
     }
     _iri: Optional[str]
     _ark: Optional[str]
@@ -314,19 +320,6 @@ class ResourceInstance(Model):
                 print(name, ':', str(val))
 
 
-# ToDo: special resourceclasses and properties of knora-api
-#
-# - knora-api:isPartOf -> Object: knora-api:Resource
-# - knora-api:author -> Object: knora-api:User
-# - knora-api:seqnum -> Object: knora-api:IntValue
-# - knora-api:hasComment -> Object: knora-api:TextValue
-#
-# knora-api:Region: IS a resource
-# - knora-api:hasGeometry
-# - knora-api:isRegionOf
-# - knora-api:hasColor
-# - knora-api:hasComment
-
 @strict
 class ResourceInstanceFactory:
     _con: Connection
@@ -336,29 +329,26 @@ class ResourceInstanceFactory:
     _ontoname2iri = dict[str, str]
     _context: Context
 
-    def __init__(self,
-                 con: Connection,
-                 projident: str):
+    def __init__(self, con: Connection, projident: str) -> None:
         self._con = con
         if re.match("^[0-9a-fA-F]{4}$", projident):
-            project = Project(con=self._con, shortcode=projident)
+            project = Project(con=con, shortcode=projident)
         elif re.match("^[\\w-]+$", projident):
-            project = Project(con=self._con, shortname=projident)
+            project = Project(con=con, shortname=projident)
         elif re.match("^(http)s?://([\\w\\.\\-~]+:?\\d{,4})(/[\\w\\-~]+)+$", projident):
-            project = Project(con=self._con, shortname=projident)
+            project = Project(con=con, shortname=projident)
         else:
             raise BaseError("Invalid project identification!")
         self._project = project.read()
 
-        tmp = ListNode.getAllLists(con=self._con, project_iri=self._project.id)
-        self._lists = []
-        for rnode in tmp:
-            self._lists.append(rnode.getAllNodes())
+        self._lists = [x.getAllNodes() for x in ListNode.getAllLists(con=con, project_iri=self._project.id)]
 
-        tmp_ontologies = Ontology.getProjectOntologies(con, self._project.id)
-        shared_project = Project(con=self._con, shortcode="0000").read()
-        shared_ontologies = Ontology.getProjectOntologies(con, shared_project.id)
+        tmp_ontologies = Ontology.getProjectOntologies(con=con, project_id=self._project.id)
+        shared_project = Project(con=con, shortcode="0000").read()
+        shared_ontologies = Ontology.getProjectOntologies(con=con, project_id=shared_project.id)
         tmp_ontologies.extend(shared_ontologies)
+        knora_api_onto = [x for x in Ontology.getAllOntologies(con=con) if x.name=="knora-api"][0]
+        tmp_ontologies.append(knora_api_onto)
         self._ontoname2iri = {x.name: x.id for x in tmp_ontologies}
 
         ontology_ids = [x.id for x in tmp_ontologies]
@@ -417,8 +407,24 @@ class ResourceInstanceFactory:
             'knora-api:LinkValue': LinkValue,
         }
         for propname, has_property in resclass.has_properties.items():
-            if propname == "knora-api:isPartOf":
+            if any([
+                propname == "knora-api:isAnnotationOf",
+                propname == "knora-api:isRegionOf",
+                propname == "knora-api:isPartOf",
+                propname == "knora-api:hasLinkTo"
+            ]):
                 valtype = LinkValue
+                props[propname] = Propinfo(valtype=valtype,
+                                           cardinality=has_property.cardinality,
+                                           gui_order=has_property.gui_order)
+
+            elif propname == "knora-api:hasGeometry":
+                valtype = GeomValue
+                props[propname] = Propinfo(valtype=valtype,
+                                           cardinality=has_property.cardinality,
+                                           gui_order=has_property.gui_order)
+            elif propname == "knora-api:hasColor":
+                valtype = ColorValue
                 props[propname] = Propinfo(valtype=valtype,
                                            cardinality=has_property.cardinality,
                                            gui_order=has_property.gui_order)

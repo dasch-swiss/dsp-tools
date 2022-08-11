@@ -6,11 +6,14 @@ dsp-tools is able to process Excel files and output the appropriate JSON or XML 
 used to create the ontology on the DSP server or import data to the DSP repository. dsp-tools can also be used to 
 create a list from an Excel file.
 
+
+
+
 ## Create the resources for a data model from an Excel file
 
-With dsp-tools, the `resources` section used in a data model (JSON) can be created from an Excel file. Only `XLSX` 
-files are allowed. The `resources` section can be inserted into the ontology file and then be uploaded onto a DSP 
-server.
+With dsp-tools, the `resources` section used in a data model (JSON) can be created from an Excel file. The command for 
+this is documented [here](./dsp-tools-usage.md#create-resources-from-an-excel-file). Only `XLSX` files are allowed. 
+The `resources` section can be inserted into the ontology file and then be uploaded onto a DSP server.
 
 **An Excel file template can be found [here](assets/templates/resources_template.xlsx). It is recommended to work from 
 the template.**
@@ -44,11 +47,15 @@ The GUI order is given by the order in which the properties are listed in the Ex
 
 For further information about resources, see [here](./dsp-tools-create-ontologies.md#resources).
 
+
+
+
 ## Create the properties for a data model from an Excel file
 
-With dsp-tools, the `properties` section used in a data model (JSON) can be created from an Excel file. Only the first 
-worksheet of the Excel file is considered and only XLSX files are allowed. The `properties` section can be inserted 
-into the ontology file and then be uploaded onto a DSP server.
+With dsp-tools, the `properties` section used in a data model (JSON) can be created from an Excel file. The command for 
+this is documented [here](./dsp-tools-usage.md#create-properties-from-an-excel-file). Only the first worksheet of the 
+Excel file is considered and only XLSX files are allowed. The `properties` section can be inserted into the ontology 
+file and then be uploaded onto a DSP server.
 
 **An Excel file template can be found [here](assets/templates/properties_template.xlsx). It is recommended to work 
 from the template.**
@@ -73,6 +80,9 @@ For backwards compatibility, files containing a column `hlist` are valid, but de
 
 For further information about properties, see [here](./dsp-tools-create-ontologies.md#properties).
 
+
+
+
 ## Create a DSP-conform XML file from an Excel file
 
 [not yet implemented]
@@ -80,11 +90,11 @@ For further information about properties, see [here](./dsp-tools-create-ontologi
 
 
 
-
 ## Create a list from one or several Excel files
 
-With dsp-tools, a JSON list can be created from one or several Excel files. The list can then be inserted into a JSON 
-ontology and uploaded to a DSP server. It is possible to create multilingual lists. In this case, a separate 
+With dsp-tools, a JSON list can be created from one or several Excel files. The command for this is documented 
+[here](./dsp-tools-usage.md#create-a-json-list-file-from-one-or-several-excel-files). The list can then be inserted 
+into a JSON ontology and uploaded to a DSP server. It is possible to create multilingual lists. In this case, a separate 
 Excel file has to be created for each language. The data must be in the first worksheet of each Excel file. 
 It is important that all the Excel lists have the same structure. So, the translation of a label in one Excel 
 sheet has to be in the exact same cell than the original was in the other Excel sheet (i.e. same cell index).

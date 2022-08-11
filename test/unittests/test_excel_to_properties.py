@@ -21,23 +21,23 @@ class TestExcelToProperties(unittest.TestCase):
 
         # define the expected values from the excel file
         excel_names = ["correspondsToGenericAnthroponym", "hasAnthroponym", "hasGender", "isDesignatedAs", "hasTitle",
-                       "hasStatus", "hasLifeYearAmount", "hasBirthDate", "hasGeometry", "hasRepresentation",
+                       "hasStatus", "hasLifeYearAmount", "hasBirthDate", "hasRepresentation",
                        "hasRemarks", "hasTerminusPostQuem", "hasGND", "hasColor", "hasDecimal", "hasTime",
                        "hasInterval", "hasBoolean", "hasGeoname", "partOfDocument"]
         excel_supers = [["hasLinkTo"], ["hasValue", "dcterms:creator"], ["hasValue"], ["hasValue"], ["hasLinkTo"],
-                        ["hasValue"], ["hasValue"], ["hasValue"], ["hasGeometry"], ["hasRepresentation"],
+                        ["hasValue"], ["hasValue"], ["hasValue"], ["hasRepresentation"],
                         ["hasValue", "dcterms:description"], ["hasValue"],["hasValue"], ["hasColor"], ["hasValue"],
                         ["hasValue"], ["hasValue"], ["hasValue"], ["hasValue"], ["isPartOf"]]
         excel_objects = [":GenericAnthroponym", "TextValue", "ListValue", "ListValue", ":Titles", "ListValue",
-                         "IntValue", "DateValue", "GeomValue", "Representation", "TextValue", "DateValue", "UriValue",
+                         "IntValue", "DateValue", "Representation", "TextValue", "DateValue", "UriValue",
                          "ColorValue", "DecimalValue", "TimeValue", "IntervalValue", "BooleanValue", "GeonameValue",
                          ":Documents"]
 
         excel_labels = dict()
-        excel_labels["de"] = ["", "only German", "", "", "", "", "", "", "Geometrisches Objekt",
+        excel_labels["de"] = ["", "only German", "", "", "", "", "", "",
                               "hat eine Multimediadatei", "", "", "GND", "Farbe", "Dezimalzahl", "Zeit",
                               "Zeitintervall", "Bool'sche Variable", "Link zu Geonames", "ist Teil eines Dokuments"]
-        excel_labels["it"] = ["", "", "", "only Italian", "", "", "", "", "", "", "", "", "GND", "", "", "", "", "", "", ""]
+        excel_labels["it"] = ["", "", "", "only Italian", "", "", "", "", "", "", "", "GND", "", "", "", "", "", "", ""]
 
         excel_comments = dict()
         excel_comments["comment_fr"] = ["J'avais déjà examiné plusieurs propriétés quand, un jour, le notaire, qui me "
@@ -46,7 +46,7 @@ class TestExcelToProperties(unittest.TestCase):
                                 "Je n'en sais rien du tout ; mais si vous voulez la voir, monsieur, voici les "
                                 "indications précises pour la trouver.",
                                 "Vous devrez arranger l'affaire avec le curé du village de --.\"",
-                                "Un étrange hasard m'a mis en possession de ce journal.", "", "", "only French", "", "",
+                                "Un étrange hasard m'a mis en possession de ce journal.", "", "", "only French", "",
                                 "", "J'avais déjà examiné plusieurs propriétés quand, un jour, le notaire, qui me "
                                 "donnait des indications nécessaires pour une de mes explorations, me dit :",
                                 "Gemeinsame Normdatei", "", "Chiffre décimale", "Temps", "", "", "", ""]
@@ -54,12 +54,12 @@ class TestExcelToProperties(unittest.TestCase):
                                 "Uno strano caso mi mise in possesso di questo diario.",
                                 "Non ne so nulla; ma se volete vederla, signore, eccovi le indicazioni precise per trovarla.",
                                 "Dovrete organizzare l'affare con il curato del villaggio di --\".",
-                                "Uno strano caso mi mise in possesso di questo diario.", "", "", "", "only Italian",
+                                "Uno strano caso mi mise in possesso di questo diario.", "", "", "",
                                 "", "", "Avevo già visto diverse proprietà quando un giorno il notaio,",
                                 "Gemeinsame Normdatei", "", "", "", "", "", "", ""]
 
         excel_gui_elements = ["Searchbox", "Richtext", "List", "Radio", "Searchbox", "List", "Spinbox", "Date", 
-                              "SimpleText", "Searchbox", "Textarea", "Date", "SimpleText", "Colorpicker", "Slider", 
+                              "Searchbox", "Textarea", "Date", "SimpleText", "Colorpicker", "Slider",
                               "TimeStamp", "Interval", "Checkbox", "Geonames", "Searchbox"]
 
         excel_gui_attributes_hasGender = {"hlist": "gender"}

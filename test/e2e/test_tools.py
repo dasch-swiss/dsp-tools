@@ -9,9 +9,8 @@ from knora.dsplib.utils.excel_to_json_lists import list_excel2json
 from knora.dsplib.utils.excel_to_json_properties import properties_excel2json
 from knora.dsplib.utils.excel_to_json_resources import resources_excel2json
 from knora.dsplib.utils.id_to_iri import id_to_iri
-from knora.dsplib.utils.onto_create_ontology import create_ontology
+from knora.dsplib.utils.onto_create_ontology import create_project
 from knora.dsplib.utils.onto_get import get_ontology
-from knora.dsplib.utils.onto_validate import validate_ontology
 from knora.dsplib.utils.xml_upload import xml_upload
 
 
@@ -21,8 +20,8 @@ class TestTools(unittest.TestCase):
     password = 'test'
     imgdir = '.'
     sipi = 'http://0.0.0.0:1024'
-    test_onto_file = 'testdata/test-onto.json'
-    test_list_file = 'testdata/test-list.json'
+    test_project_file = 'testdata/test-project-systematic.json'
+    test_project_minimal_file = 'testdata/test-project-minimal.json'
     test_data_file = 'testdata/test-data.xml'
 
     def setUp(self) -> None:
@@ -37,29 +36,29 @@ class TestTools(unittest.TestCase):
         excel_to_json_lists.cell_names = []
 
     def test_get(self) -> None:
-        with open(self.test_onto_file) as f:
-            onto_json_str = f.read()
-        test_onto = json.loads(onto_json_str)
+        with open(self.test_project_file) as f:
+            project_json_str = f.read()
+        test_project = json.loads(project_json_str)
 
         get_ontology(project_identifier='tp',
-                     outfile='testdata/tmp/_test-onto.json',
+                     outfile='testdata/tmp/_test-project-systematic.json',
                      server=self.server,
                      user=self.user,
                      password='test',
-                     verbose=False)
+                     verbose=True)
 
-        with open('testdata/tmp/_test-onto.json') as f:
-            onto_json_str = f.read()
-        test_onto_out = json.loads(onto_json_str)
+        with open('testdata/tmp/_test-project-systematic.json') as f:
+            project_json_str = f.read()
+        test_project_out = json.loads(project_json_str)
 
-        self.assertEqual(test_onto['project']['shortcode'], test_onto_out['project']['shortcode'])
-        self.assertEqual(test_onto['project']['shortname'], test_onto_out['project']['shortname'])
-        self.assertEqual(test_onto['project']['longname'], test_onto_out['project']['longname'])
-        self.assertEqual(test_onto['project']['descriptions'], test_onto_out['project']['descriptions'])
-        self.assertEqual(sorted(test_onto['project']['keywords']), sorted(test_onto_out['project']['keywords']))
+        self.assertEqual(test_project['project']['shortcode'], test_project_out['project']['shortcode'])
+        self.assertEqual(test_project['project']['shortname'], test_project_out['project']['shortname'])
+        self.assertEqual(test_project['project']['longname'], test_project_out['project']['longname'])
+        self.assertEqual(test_project['project']['descriptions'], test_project_out['project']['descriptions'])
+        self.assertEqual(sorted(test_project['project']['keywords']), sorted(test_project_out['project']['keywords']))
 
-        groups_expected = test_onto['project']['groups']
-        groups_received = test_onto_out['project']['groups']
+        groups_expected = test_project['project']['groups']
+        groups_received = test_project_out['project']['groups']
         group_names_expected = []
         group_descriptions_expected = []
         group_selfjoin_expected = []
@@ -68,23 +67,23 @@ class TestTools(unittest.TestCase):
         group_descriptions_received = []
         group_selfjoin_received = []
         group_status_received = []
-        for group in groups_expected:
+        for group in sorted(groups_expected, key=lambda x: x["name"]):
             group_names_expected.append(group["name"])
             group_descriptions_expected.append(group["descriptions"]["en"])
-            group_selfjoin_expected.append(group["selfjoin"])
-            group_status_expected.append(group["status"])
-        for group in groups_received:
+            group_selfjoin_expected.append(group.get("selfjoin", False))
+            group_status_expected.append(group.get("status", True))
+        for group in sorted(groups_received, key=lambda x: x["name"]):
             groups_names_received.append(group["name"])
             group_descriptions_received.append(group["descriptions"]["en"])
-            group_selfjoin_received.append(group["selfjoin"])
-            group_status_received.append(group["status"])
+            group_selfjoin_received.append(group.get("selfjoin", False))
+            group_status_received.append(group.get("status", True))
         self.assertEqual(sorted(group_names_expected), sorted(groups_names_received))
         self.assertEqual(sorted(group_descriptions_expected), sorted(group_descriptions_received))
         self.assertEqual(group_selfjoin_expected, group_selfjoin_received)
         self.assertEqual(group_status_expected, group_status_received)
 
-        users_expected = test_onto['project']['users']
-        users_received = test_onto_out['project']['users']
+        users_expected = test_project['project']['users']
+        users_received = test_project_out['project']['users']
         user_username_expected = []
         user_email_expected = []
         user_given_name_expected = []
@@ -96,7 +95,8 @@ class TestTools(unittest.TestCase):
         user_family_name_received = []
         user_lang_received = []
         for user in users_expected:
-            if user["username"] == "testerKnownUser":  # ignore testerKnownUser as he is not part of the project
+            if user["username"] in ["testerKnownUser", "testerSystemAdmin"]:
+                # ignore the ones who are not part of the project
                 continue
             user_username_expected.append(user["username"])
             user_email_expected.append(user["email"])
@@ -115,8 +115,8 @@ class TestTools(unittest.TestCase):
         self.assertEqual(sorted(user_family_name_expected), sorted(user_family_name_received))
         self.assertEqual(sorted(user_lang_expected), sorted(user_lang_received))
 
-        ontos_expected = test_onto['project']['ontologies']
-        ontos_received = test_onto_out['project']['ontologies']
+        ontos_expected = test_project['project']['ontologies']
+        ontos_received = test_project_out['project']['ontologies']
         onto_names_expected = []
         onto_labels_expected = []
         onto_names_received = []
@@ -130,12 +130,12 @@ class TestTools(unittest.TestCase):
         self.assertEqual(sorted(onto_names_expected), sorted(onto_names_received))
         self.assertEqual(sorted(onto_labels_expected), sorted(onto_labels_received))
 
-        lists = test_onto['project']['lists']
+        lists = test_project['project']['lists']
         test_list: dict[str, str] = next((l for l in lists if l['name'] == 'testlist'), {})
         not_used_list: dict[str, str] = next((l for l in lists if l['name'] == 'notUsedList'), {})
         excel_list: dict[str, str] = next((l for l in lists if l['name'] == 'my-list-from-excel'), {})
 
-        lists_out = test_onto_out['project']['lists']
+        lists_out = test_project_out['project']['lists']
         test_list_out: dict[str, str] = next((l for l in lists_out if l['name'] == 'testlist'), {})
         not_used_list_out: dict[str, str] = next((l for l in lists_out if l['name'] == 'notUsedList'), {})
         excel_list_out: dict[str, str] = next((l for l in lists_out if l['name'] == 'my-list-from-excel'), {})
@@ -163,14 +163,25 @@ class TestTools(unittest.TestCase):
         properties_excel2json(excelfile='testdata/Properties.xlsx',
                               outfile='testdata/tmp/_out_properties.json')
 
-    def test_create_ontology(self) -> None:
-        create_ontology(input_file=self.test_onto_file,
-                        lists_file=self.test_list_file,
-                        server=self.server,
-                        user_mail=self.user,
-                        password='test',
-                        verbose=False,
-                        dump=False)
+    def test_create_project(self) -> None:
+        result1 = create_project(
+            input_file=self.test_project_file,
+            server=self.server,
+            user_mail=self.user,
+            password='test',
+            verbose=True,
+            dump=False
+        )
+        result2 = create_project(
+            input_file=self.test_project_minimal_file,
+            server=self.server,
+            user_mail=self.user,
+            password='test',
+            verbose=True,
+            dump=False
+        )
+        self.assertTrue(result1)
+        self.assertTrue(result2)
 
     def test_xml_upload(self) -> None:
         result = xml_upload(
@@ -180,7 +191,7 @@ class TestTools(unittest.TestCase):
             password=self.password,
             imgdir=self.imgdir,
             sipi=self.sipi,
-            verbose=False,
+            verbose=True,
             validate_only=False,
             incremental=False)
         self.assertTrue(result)
@@ -196,7 +207,7 @@ class TestTools(unittest.TestCase):
         id_to_iri(xml_file='testdata/test-id2iri-data.xml',
                   json_file=mapping_file,
                   out_file=id2iri_replaced_xml_filename,
-                  verbose=False)
+                  verbose=True)
         self.assertEqual(os.path.isfile(id2iri_replaced_xml_filename), True)
 
         result = xml_upload(
@@ -206,7 +217,7 @@ class TestTools(unittest.TestCase):
             password=self.password,
             imgdir=self.imgdir,
             sipi=self.sipi,
-            verbose=False,
+            verbose=True,
             validate_only=False,
             incremental=True
         )

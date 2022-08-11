@@ -23,6 +23,21 @@
             "pattern": "^([a-zA-Z_][\\w.-]*)?:([-\\w]+)$",
             "additionalProperties": false
         },
+        "baseresource": {
+            "type": "string",
+            "enum": [
+                "Resource",
+                "Region",
+                "Representation",
+                "StillImageRepresentation",
+                "TextRepresentation",
+                "AudioRepresentation",
+                "DDDRepresentation",
+                "DocumentRepresentation",
+                "MovingImageRepresentation",
+                "ArchiveRepresentation"
+            ]
+        },
         "label": {
             "$ref": "#/definitions/langstring"
         },
@@ -48,19 +63,7 @@
             ],
             "oneOf": [
                 {
-                    "enum": [
-                        "Resource",
-                        "StillImageRepresentation",
-                        "TextRepresentation",
-                        "AudioRepresentation",
-                        "DDDRepresentation",
-                        "DocumentRepresentation",
-                        "MovingImageRepresentation",
-                        "ArchiveRepresentation",
-                        "Annotation",
-                        "LinkObj",
-                        "Region"
-                    ]
+                    "$ref": "#/definitions/baseresource"
                 },
                 {
                     "$ref": "#/definitions/prefixedname"
@@ -260,12 +263,7 @@
                                     "hasLinkTo",
                                     "hasColor",
                                     "hasComment",
-                                    "hasGeometry",
                                     "isPartOf",
-                                    "isSequenceOf",
-                                    "hasSequenceBounds",
-                                    "isRegionOf",
-                                    "isAnnotationOf",
                                     "hasRepresentation",
                                     "seqnum"
                                 ]
@@ -288,19 +286,17 @@
                                 "ColorValue",
                                 "DateValue",
                                 "DecimalValue",
-                                "GeomValue",
                                 "GeonameValue",
                                 "IntValue",
                                 "BooleanValue",
                                 "TimeValue",
                                 "UriValue",
                                 "IntervalValue",
-                                "ListValue",
-                                "Region",
-                                "Resource",
-                                "Representation",
-                                "Annotation"
+                                "ListValue"
                             ]
+                        },
+                        {
+                            "$ref": "#/definitions/baseresource"
                         },
                         {
                             "$ref": "#/definitions/prefixedname"
@@ -318,7 +314,6 @@
                     "enum": [
                         "Colorpicker",
                         "Date",
-                        "Geometry",
                         "Geonames",
                         "Interval",
                         "TimeStamp",
@@ -438,7 +433,8 @@
                                     "oneOf": [
                                         {
                                             "enum": [
-                                                "hasRepresentation"
+                                                "hasRepresentation",
+                                                "hasLinkTo"
                                             ]
                                         },
                                         {
@@ -625,41 +621,6 @@
                     "if": {
                         "properties": {
                             "object": {
-                                "const": "GeomValue"
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "super": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string",
-                                    "oneOf": [
-                                        {
-                                            "enum": [
-                                                "hasGeometry"
-                                            ]
-                                        },
-                                        {
-                                            "$ref": "#/definitions/prefixedname"
-                                        }
-                                    ]
-                                }
-                            },
-                            "gui_element": {
-                                "enum": [
-                                    "Geometry",
-                                    "SimpleText"
-                                ]
-                            }
-                        }
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "object": {
                                 "const": "GeonameValue"
                             }
                         }
@@ -805,8 +766,7 @@
                                     "oneOf": [
                                         {
                                             "enum": [
-                                                "hasValue",
-                                                "hasSequenceBounds"
+                                                "hasValue"
                                             ]
                                         },
                                         {
@@ -1068,7 +1028,6 @@
                                     "Richtext",
                                     "Date",
                                     "TimeStamp",
-                                    "Geometry",
                                     "Geonames",
                                     "Checkbox",
                                     "Interval"
@@ -1095,9 +1054,7 @@
                         {
                             "enum": [
                                 "isPartOf",
-                                "seqnum",
-                                "isSequenceOf",
-                                "hasSequenceBounds"
+                                "seqnum"
                             ]
                         },
                         {

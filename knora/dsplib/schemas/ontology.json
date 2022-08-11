@@ -264,6 +264,8 @@
                                     "hasColor",
                                     "hasComment",
                                     "isPartOf",
+                                    "isSequenceOf",
+                                    "hasSequenceBounds",
                                     "hasRepresentation",
                                     "seqnum"
                                 ]
@@ -766,7 +768,8 @@
                                     "oneOf": [
                                         {
                                             "enum": [
-                                                "hasValue"
+                                                "hasValue",
+                                                "hasSequenceBounds"
                                             ]
                                         },
                                         {
@@ -1054,7 +1057,9 @@
                         {
                             "enum": [
                                 "isPartOf",
-                                "seqnum"
+                                "seqnum",
+                                "isSequenceOf",
+                                "hasSequenceBounds"
                             ]
                         },
                         {

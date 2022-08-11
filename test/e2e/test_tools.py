@@ -197,7 +197,7 @@ class TestTools(unittest.TestCase):
         self.assertTrue(result)
 
         mapping_file = ''
-        for mapping in [x for x in os.scandir('.') if x.name.startswith('id2iri_test-data_mapping_')]:
+        for mapping in [x for x in os.scandir('.') if x.name.startswith('id2iri_test-data-systematic_mapping_')]:
             delta = datetime.datetime.now() - datetime.datetime.fromtimestamp(mapping.stat().st_mtime_ns / 1000000000)
             if delta.seconds < 15:
                 mapping_file = mapping.name

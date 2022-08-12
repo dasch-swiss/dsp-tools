@@ -34,7 +34,7 @@ class TestXMLUpload(unittest.TestCase):
 
     def test_remove_circular_references(self) -> None:
         # create a list of XMLResources from the test data file
-        tree = _parse_xml_file('testdata/test-data.xml')
+        tree = _parse_xml_file('testdata/test-data-systematic.xml')
         resources = [XMLResource(x, 'testonto') for x in tree.getroot() if x.tag == "resource"]
 
         # get the purged resources and the stashes from the function to be tested

@@ -518,6 +518,36 @@
         </text-prop>
     </resource>
 
+    <resource label="Zipthing-tgz"
+              restype=":ZipThing"
+              id="zip_thing_6"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.tgz</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Zipthing as tgz</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Zipthing-z"
+              restype=":ZipThing"
+              id="zip_thing_7"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.z</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Zipthing as z</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Zipthing-gz"
+              restype=":ZipThing"
+              id="zip_thing_8"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.gz</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Zipthing as gz</text>
+        </text-prop>
+    </resource>
+
     <resource label="Audiothing-wav"
               restype=":AudioThing"
               id="audio_thing_1"
@@ -537,6 +567,8 @@
             <text permissions="prop-default" encoding="utf8">This is a Audiothing as MP3</text>
         </text-prop>
     </resource>
+
+    <!-- the API supports also MP4 files that are purely audio (MIME "audio/mp4), but there is no test file for it -->
 
     <resource label="Moviething"
               restype=":MovieThing"

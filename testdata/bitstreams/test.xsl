@@ -3,13 +3,13 @@
 <xsl:template match="/">
   <html>
   <body>
-    <h2>Reports</h2>
-    <xsl:for-each select="REPORTS/REPORT">
+    <h2>Title</h2>
+    <xsl:for-each select="Example">
     <a>
     <xsl:attribute name="href">
-    <xsl:value-of select="PATH"/>
+    <xsl:value-of select="Something"/>
     </xsl:attribute>
-    <xsl:value-of select="NAME"/>
+    <xsl:value-of select="anotherthing"/>
     </a><p/>
     </xsl:for-each>
   </body>

@@ -343,13 +343,14 @@
                         "gui_element": "Geonames"
                     },
                     {
-                        "name": "hasInterval",
+                        "name": "hasBounds",
                         "super": [
-                            "hasValue"
+                            "hasSequenceBounds"
                         ],
                         "object": "IntervalValue",
                         "labels": {
-                            "en": "Time interval"
+                            "de": "Intervall, das den Start- und Endpunkt der Sequenz definiert",
+                            "en": "Interval defining the start and end point of the sequence"
                         },
                         "gui_element": "Interval"
                     },
@@ -443,6 +444,32 @@
                             "en": "hasMovingImageRepresentation"
                         },
                         "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "sequenceOfVideo",
+                        "super": [
+                            "isSequenceOf"
+                        ],
+                        "subject": ":VideoSequence",
+                        "object": ":MovieThing",
+                        "labels": {
+                            "de": "ist Sequenz von",
+                            "en": "is sequence of"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "sequenceOfAudio",
+                        "super": [
+                            "isSequenceOf"
+                        ],
+                        "subject": ":AudioSequence",
+                        "object": ":AudioThing",
+                        "labels": {
+                            "de": "ist Sequenz von",
+                            "en": "is sequence of"
+                        },
+                        "gui_element": "Searchbox"
                     }
                 ],
                 "resources": [
@@ -496,11 +523,6 @@
                             {
                                 "propname": ":hasGeoname",
                                 "gui_order": 9,
-                                "cardinality": "0-n"
-                            },
-                            {
-                                "propname": ":hasInterval",
-                                "gui_order": 10,
                                 "cardinality": "0-n"
                             },
                             {
@@ -732,23 +754,74 @@
                     },
                     {
                         "name": "VideoSequence",
-                        "super": "Resource",
                         "labels": {
-                            "en": "Sequence of the VideoThing resource."
+                            "de": "Sequenz einer Video-Ressource",
+                            "en": "Sequence of a video resource"
                         },
-                        "comments": {
-                            "en": "A test resource for testing sequenceOf relations"
-                        },
+                        "super": "Resource",
                         "cardinalities": [
                             {
+                                "propname": ":hasText",
+                                "cardinality": "0-1"
+                            },
+                            {
+                                "propname": ":sequenceOfVideo",
+                                "cardinality": "1"
+                            },
+                            {
+                                "propname": ":hasBounds",
+                                "cardinality": "1",
+                                "gui_order": 1
+                            }
+                        ]
+                    },
+                    {
+                        "name": "AudioSequence",
+                        "labels": {
+                            "de": "Sequenz einer Audio-Ressource",
+                            "en": "Sequence of an audio resource"
+                        },
+                        "super": "Resource",
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "cardinality": "0-1"
+                            },
+                            {
+                                "propname": ":sequenceOfAudio",
+                                "cardinality": "1"
+                            },
+                            {
+                                "propname": ":hasBounds",
+                                "cardinality": "1",
+                                "gui_order": 1
+                            }
+                        ]
+                    },
+                    {
+                        "name": "MinimalisticSequence",
+                        "labels": {
+                            "de": "Minimalistische Sequenz einer Audio-/Video-Ressource",
+                            "en": "Minimalistic sequence of an audio/video resource"
+                        },
+                        "comments": {
+                            "de": "Sequenz einer Audio-/Video-Ressource, welche die base properties 'isSequenceOf' und 'hasSequenceBounds' direkt verwendet",
+                            "en": "Sequence of an audio/video resource that uses the base properties 'isSequenceOf' and 'hasSequenceBounds' directly"
+                        },
+                        "super": "Resource",
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "cardinality": "0-1"
+                            },
+                            {
                                 "propname": "isSequenceOf",
-                                "gui_order": 1,
                                 "cardinality": "1"
                             },
                             {
                                 "propname": "hasSequenceBounds",
-                                "gui_order": 1,
-                                "cardinality": "1"
+                                "cardinality": "1",
+                                "gui_order": 1
                             }
                         ]
                     }

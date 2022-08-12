@@ -102,9 +102,6 @@
         <geoname-prop name=":hasGeoname">
             <geoname permissions="prop-default" comment="A sacred place for railroad fans">5416656</geoname>
         </geoname-prop>
-        <interval-prop name=":hasInterval">
-            <interval permissions="prop-default">12.5:14.2</interval>
-        </interval-prop>
         <color-prop name=":hasColor">
             <color permissions="prop-default">#00ff00</color>
         </color-prop>
@@ -198,9 +195,6 @@
         <geoname-prop name=":hasGeoname">
             <geoname comment="A sacred place for railroad fans">5416656</geoname>
         </geoname-prop>
-        <interval-prop name=":hasInterval">
-            <interval>12.5:14.2</interval>
-        </interval-prop>
         <color-prop name=":hasColor">
             <color>#00ff00</color>
         </color-prop>
@@ -415,5 +409,56 @@
             <color permissions="prop-restricted">#5d1f1e</color>
         </color-prop>
     </region>
+
+    <!-- :VideoSequence -->
+    <resource label="Section of a Video" restype=":VideoSequence" id="video_sequence_0" permissions="res-default">
+        <text-prop name=":hasText">
+            <text encoding="utf8" permissions="prop-default">Sequence of a video</text>
+        </text-prop>
+        <resptr-prop name=":sequenceOfVideo">
+            <resptr permissions="prop-default">video_thing_1</resptr>
+        </resptr-prop>
+        <interval-prop name=":hasBounds">
+            <interval permissions="prop-default">2.0:10.0</interval>
+        </interval-prop>
+    </resource>
+
+    <!-- :AudioSequence -->
+    <resource label="Section of a Video" restype=":AudioSequence" id="audio_sequence_0" permissions="res-default">
+        <text-prop name=":hasText">
+            <text encoding="utf8" permissions="prop-default">Sequence of an Audio Resource</text>
+        </text-prop>
+        <resptr-prop name=":sequenceOfAudio">
+            <resptr permissions="prop-default">audio_thing_1</resptr>
+        </resptr-prop>
+        <interval-prop name=":hasBounds">
+            <interval permissions="prop-default">8.0:12.0</interval>
+        </interval-prop>
+    </resource>
+
+    <!-- :MinimalisticSequence -->
+    <resource label="Minimalistic section of a Video" restype=":MinimalisticSequence" id="minimalistic_sequence_0" permissions="res-default">
+        <text-prop name=":hasText">
+            <text encoding="utf8" permissions="prop-default">Sequence of a Video Resource</text>
+        </text-prop>
+        <resptr-prop name="isSequenceOf">
+            <resptr permissions="prop-default">video_thing_1</resptr>
+        </resptr-prop>
+        <interval-prop name="hasSequenceBounds">
+            <interval permissions="prop-default">8.0:12.0</interval>
+        </interval-prop>
+    </resource>
+
+    <resource label="Minimalistic section of an Audio" restype=":MinimalisticSequence" id="minimalistic_sequence_1" permissions="res-default">
+        <text-prop name=":hasText">
+            <text encoding="utf8" permissions="prop-default">Sequence of an Audio Resource</text>
+        </text-prop>
+        <resptr-prop name="isSequenceOf">
+            <resptr permissions="prop-default">audio_thing_1</resptr>
+        </resptr-prop>
+        <interval-prop name="hasSequenceBounds">
+            <interval permissions="prop-default">8.0:12.0</interval>
+        </interval-prop>
+    </resource>
 
 </knora>

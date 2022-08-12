@@ -237,7 +237,7 @@ These three are related as follows:
  - `gui_element` (required) depends on the value of `object`.
  - `gui_attributes` (optional) depends on the value of `gui_element`.
 
-The following data types are allowed:
+The following `object`s are available, and will be discussed below, in this order:
 
 - `BooleanValue`
 - `ColorValue`
@@ -250,7 +250,8 @@ The following data types are allowed:
 - `TextValue`
 - `TimeValue`
 - `UriValue`
-- in case of a link property: any resource class
+- `Representation`
+- in case of the supers `hasLinkTo` or `isPartOf`: any resource class
 
 #### BooleanValue
 
@@ -416,7 +417,9 @@ Represents a location ID in geonames.org. DSP uses identifiers provided by
 
 `"object": "IntervalValue"`
 
-Represents a time-interval
+Represents a time interval of an audio or video. Can be used together with an `isSequenceOf` property on a resource that
+represents the sequence. The `isSequenceOf` would then point to the audio/video resource, and the `hasSequenceBounds` 
+would be the time interval of the sequence.
 
 *gui-elements / gui_attributes*:
 
@@ -432,13 +435,14 @@ Represents a time-interval
 
 ```json
 {
-  "name": "hasInterval",
+  "name": "hasBounds",
   "super": [
-    "hasValue"
+    "hasSequenceBounds"
   ],
+  "subject": ":AudioSequence",
   "object": "IntervalValue",
   "labels": {
-    "en": "Time interval"
+    "en": "Interval defining the start and end point of a sequence of an audio or video file"
   },
   "gui_element": "Interval"
 }
@@ -731,7 +735,7 @@ is required. When defined, a client is able to leaf through the parts of a compo
 }
 ```
 
-#### hasComment Property
+#### hasComment property
 
 `"object": "TextValue"`
 
@@ -754,6 +758,31 @@ This property is actually very similar to a simple text field.
     "gui_element": "SimpleText"
 }
 ```
+
+#### isSequenceOf property
+
+`"object": (AudioRepresentation/MovingImageRepresentation or a subclass of one of them)`
+
+This property can be used, together with a `hasSequenceBounds` property, on a resource representing a sequence of an
+audio/video resource. The `isSequenceOf` would then point to the audio/video resource, and the `hasSequenceBounds` 
+would be the time interval of the sequence.
+
+```json
+{
+    "name": "sequenceOfAudio",
+    "super": [
+      "isSequenceOf"
+    ],
+    "subject": ":AudioSequence",
+    "object": ":Audio",
+    "labels": {
+      "de": "ist Sequenz von",
+      "en": "is sequence of"
+    },
+    "gui_element": "Searchbox"
+}
+```
+
 
 ## Resources Object in Detail
 

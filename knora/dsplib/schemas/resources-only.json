@@ -98,7 +98,9 @@
                         {
                             "enum": [
                                 "isPartOf",
-                                "seqnum"
+                                "seqnum",
+                                "isSequenceOf",
+                                "hasSequenceBounds"
                             ]
                         },
                         {

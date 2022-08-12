@@ -768,7 +768,6 @@
                                     "oneOf": [
                                         {
                                             "enum": [
-                                                "hasValue",
                                                 "hasSequenceBounds"
                                             ]
                                         },

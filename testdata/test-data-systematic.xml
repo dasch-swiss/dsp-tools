@@ -209,13 +209,63 @@
         </resptr-prop>
     </resource>
 
-    <resource label="Imagething"
+    <resource label="Imagething-tif"
               restype=":ImageThing"
               id="image_thing_0"
               permissions="res-default">
-        <bitstream>testdata/bitstreams/TEMP11.TIF</bitstream>
+        <bitstream>testdata/bitstreams/test.tif</bitstream>
         <text-prop name=":hasText">
-            <text permissions="prop-default" encoding="utf8">This is a Imagething</text>
+            <text permissions="prop-default" encoding="utf8">This is a Imagething as TIF</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Imagething-tiff"
+              restype=":ImageThing"
+              id="image_thing_1"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.tiff</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Imagething as TIFF</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Imagething-jp2"
+              restype=":ImageThing"
+              id="image_thing_2"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.jp2</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Imagething as JP2</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Imagething-jpeg"
+              restype=":ImageThing"
+              id="image_thing_3"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.jpeg</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Imagething as JPEG</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Imagething-jpg"
+              restype=":ImageThing"
+              id="image_thing_4"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.jpg</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Imagething as JPG</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Imagething-png"
+              restype=":ImageThing"
+              id="image_thing_5"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.png</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Imagething as PNG</text>
         </text-prop>
     </resource>
 
@@ -263,7 +313,7 @@
               restype=":PartOfThing"
               id="partof_thing_1"
               permissions="res-default">
-        <bitstream>testdata/bitstreams/TEMP12.TIF</bitstream>
+        <bitstream>testdata/bitstreams/test.jpg</bitstream>
         <resptr-prop name="knora-api:isPartOf">
             <resptr permissions="prop-default">compound_thing_0</resptr>
         </resptr-prop>
@@ -276,7 +326,7 @@
               restype=":PartOfThing"
               id="partof_thing_2"
               permissions="res-default">
-        <bitstream>testdata/bitstreams/TEMP13.TIF</bitstream>
+        <bitstream>testdata/bitstreams/test.jpg</bitstream>
         <resptr-prop name="knora-api:isPartOf">
             <resptr permissions="prop-default">compound_thing_0</resptr>
         </resptr-prop>
@@ -289,7 +339,7 @@
               restype=":PartOfThing"
               id="partof_thing_3"
               permissions="res-default">
-        <bitstream>testdata/bitstreams/TEMP14.TIF</bitstream>
+        <bitstream>testdata/bitstreams/test.jpg</bitstream>
         <resptr-prop name="knora-api:isPartOf">
             <resptr permissions="prop-default">compound_thing_0</resptr>
         </resptr-prop>
@@ -298,13 +348,73 @@
         </integer-prop>
     </resource>
 
-    <resource label="Documentthing"
+    <resource label="Documentthing-pdf"
               restype=":DocumentThing"
               id="document_thing_1"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.pdf</bitstream>
         <text-prop name=":hasText">
-            <text permissions="prop-default" encoding="utf8">This is a Documentthing</text>
+            <text permissions="prop-default" encoding="utf8">This is a Documentthing as PDF</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Documentthing-xls"
+              restype=":DocumentThing"
+              id="document_thing_2"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.xls</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Documentthing as XLS</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Documentthing-xlsx"
+              restype=":DocumentThing"
+              id="document_thing_3"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.xlsx</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Documentthing as XLSX</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Documentthing-doc"
+              restype=":DocumentThing"
+              id="document_thing_4"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.doc</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Documentthing as DOC</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Documentthing-docx"
+              restype=":DocumentThing"
+              id="document_thing_5"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.docx</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Documentthing as DOCX</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Documentthing-ppt"
+              restype=":DocumentThing"
+              id="document_thing_6"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.ppt</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Documentthing as PPT</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Documentthing-pptx"
+              restype=":DocumentThing"
+              id="document_thing_7"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.pptx</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Documentthing as PPTX</text>
         </text-prop>
     </resource>
 
@@ -318,31 +428,153 @@
         </text-prop>
     </resource>
 
-    <resource label="Zipthing"
+    <resource label="Textthing-txt"
+              restype=":TextThing"
+              id="text_thing_2"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.txt</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Textthing as TXT</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Textthing-xml"
+              restype=":TextThing"
+              id="text_thing_3"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.xml</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Textthing as XML</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Textthing-xsl"
+              restype=":TextThing"
+              id="text_thing_4"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.xsl</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Textthing as XSL</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Textthing-xsd"
+              restype=":TextThing"
+              id="text_thing_5"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.xsd</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Textthing as XSD</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Zipthing-zip"
               restype=":ZipThing"
               id="zip_thing_1"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.zip</bitstream>
         <text-prop name=":hasText">
-            <text permissions="prop-default" encoding="utf8">This is a Zipthing</text>
+            <text permissions="prop-default" encoding="utf8">This is a Zipthing as ZIP</text>
         </text-prop>
     </resource>
 
-    <resource label="Audiothing"
+    <resource label="Zipthing-7z"
+              restype=":ZipThing"
+              id="zip_thing_2"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.7z</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Zipthing as 7Z</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Zipthing-gzip"
+              restype=":ZipThing"
+              id="zip_thing_3"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.gzip</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Zipthing as gzip</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Zipthing-tar-gz"
+              restype=":ZipThing"
+              id="zip_thing_4"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.tar.gz</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Zipthing as tar.gz</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Zipthing-tar"
+              restype=":ZipThing"
+              id="zip_thing_5"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.tar</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Zipthing as tar</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Zipthing-tgz"
+              restype=":ZipThing"
+              id="zip_thing_6"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.tgz</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Zipthing as tgz</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Zipthing-z"
+              restype=":ZipThing"
+              id="zip_thing_7"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.z</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Zipthing as z</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Zipthing-gz"
+              restype=":ZipThing"
+              id="zip_thing_8"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.gz</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Zipthing as gz</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Audiothing-wav"
               restype=":AudioThing"
               id="audio_thing_1"
               permissions="res-default">
-        <bitstream>testdata/bitstreams/clara.wav</bitstream>
+        <bitstream>testdata/bitstreams/test.wav</bitstream>
         <text-prop name=":hasText">
-            <text permissions="prop-default" encoding="utf8">This is a Audiothing</text>
+            <text permissions="prop-default" encoding="utf8">This is a Audiothing as WAV</text>
         </text-prop>
     </resource>
+
+    <resource label="Audiothing-mp3"
+              restype=":AudioThing"
+              id="audio_thing_2"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.mp3</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">This is a Audiothing as MP3</text>
+        </text-prop>
+    </resource>
+
+    <!-- the API supports also MP4 files that are purely audio (MIME "audio/mp4), but there is no test file for it -->
 
     <resource label="Moviething"
               restype=":MovieThing"
               id="video_thing_1"
               permissions="res-restricted">
-        <bitstream>testdata/bitstreams/Dummy.mp4</bitstream>
+        <bitstream>testdata/bitstreams/test.mp4</bitstream>
         <text-prop name=":hasText">
             <text encoding="utf8" permissions="prop-default">Dummy video with music</text>
         </text-prop>

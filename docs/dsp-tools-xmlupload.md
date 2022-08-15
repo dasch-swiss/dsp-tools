@@ -265,6 +265,19 @@ Note:
 - There is only _one_ `<bitstream>` element allowed per representation!
 - The `<bitstream>` element must be the first element!
 
+Supported file extensions:
+
+| Representation              | Supported formats                      |
+| --------------------------- |----------------------------------------| 
+| `ArchiveRepresentation`     | ZIP, TAR, GZ, Z, TAR.GZ, TGZ, GZIP, 7Z | 
+| `AudioRepresentation`       | MP3, MP4, WAV                          | 
+| `DocumentRepresentation`    | PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX   | 
+| `MovingImageRepresentation` | MP4                                    | 
+| `StillImageRepresentation`  | JPG, JPEG, PNG, TIF, TIFF, JP2         | 
+| `TextRepresentation`        | TXT, CSV, XML, XSL, XSD                | 
+
+For more details, please consult the [API docs](https://docs.dasch.swiss/latest/DSP-API/01-introduction/file-formats/).
+
 Attributes:
 
 - `permissions` : Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)

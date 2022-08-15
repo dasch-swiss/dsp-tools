@@ -966,13 +966,13 @@ The following base resources can be used as super-resource:
 
 - `Resource`: A generic resource representing an item from the real world. This is the most general case, to be 
 used in all cases when your resource is none of the special cases below.
-- `StillImageRepresentation`: A resource representing an image
-- `TextRepresentation`: A resource representing a text
+- `ArchiveRepresentation`: A resource representing an archive file (e.g. ZIP)
 - `AudioRepresentation`: A resource representing an audio file
 - `DDDRepresentation`: A resource representing a 3-D representation (not yet implemented)
 - `DocumentRepresentation`: A resource representing an opaque document (e.g. a PDF)
 - `MovingImageRepresentation`: A resource representing a video
-- `ArchiveRepresentation`: A resource representing an archive file (e.g. ZIP)
+- `StillImageRepresentation`: A resource representing an image
+- `TextRepresentation`: A resource representing a text
 
 
 

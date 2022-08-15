@@ -1,0 +1,5 @@
+Test text file
+--------------
+
+This is a sample text file without much content.	
+It contains the special characters àö¨`ô^.

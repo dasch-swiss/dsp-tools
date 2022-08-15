@@ -450,7 +450,7 @@ Represents a location ID in geonames.org. DSP uses identifiers provided by
 
 `"object": "IntervalValue"`
 
-This `object` belongs to the DSP base property ("`super`") `hasSequenceBounds`. It represents a time interval of an 
+This `object` belongs to the DSP base property `super: hasSequenceBounds`. It represents a time interval of an 
 audio or video. It can be used together with an `isSequenceOf` property on a resource that represents the sequence. The 
 `isSequenceOf` would then point to the audio/video resource, and the `hasSequenceBounds` would be the time interval of 
 the sequence.
@@ -843,7 +843,7 @@ audio/video resource. The `isSequenceOf` would then point to the audio/video res
 would be the time interval of the sequence.
 
 The DSP base properties `isSequenceOf` and `hasSequenceBounds` can be used to derive a custom property from them, or 
-they can be used directly as cardinalities in a resource. The example belows shows both possibilities.
+they can be used directly as cardinalities in a resource. The example below shows both possibilities.
 
 *gui-elements/gui_attributes*:
 
@@ -857,35 +857,25 @@ they can be used directly as cardinalities in a resource. The example belows sho
 "properties": [
     {
         "name": "sequenceOfAudio",
-        "super": [
-            "isSequenceOf"
-        ],
+        "super": ["isSequenceOf"],
         "subject": ":AudioSequence",
         "object": ":Audio",
-        "labels": {
-            "en": "is sequence of"
-        },
+        "labels": {"en": "is sequence of"},
         "gui_element": "Searchbox"
     },
     {
         "name": "hasBounds",
-        "super": [
-            "hasSequenceBounds"
-        ],
+        "super": ["hasSequenceBounds"],
         "subject": ":AudioSequence",
         "object": "IntervalValue",
-        "labels": {
-            "en": "Interval defining the start and end point of a sequence of an audio or video file"
-        },
+        "labels": {"en": "Start and end point of a sequence of an audio/video"},
         "gui_element": "Interval"
     }
 ],
 "resources": [
     {
         "name": "AudioSequence",
-        "labels": {
-            "en": "Sequence of an audio resource that uses properties derived from 'isSequenceOf' and 'hasSequenceBounds'"
-        },
+        "labels": {"en": "Sequence of audio using properties derived from 'isSequenceOf' and 'hasSequenceBounds'"},
         "super": "Resource",
         "cardinalities": [
             {
@@ -900,9 +890,7 @@ they can be used directly as cardinalities in a resource. The example belows sho
     },
     {
         "name": "MinimalisticAudioSequence",
-        "labels": {
-            "en": "Sequence of an audio resource that uses 'isSequenceOf' and 'hasSequenceBounds' directly"
-        },
+        "labels": {"en": "Sequence of audio using 'isSequenceOf' and 'hasSequenceBounds' directly"},
         "super": "Resource",
         "cardinalities": [
             {

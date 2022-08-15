@@ -744,7 +744,11 @@ When defining a link property, its "super" element has to be `hasLinkTo` or deri
 A special case of linked resources are resources in a part-whole relation, i.e. resources that are composed of 
 other resources. A `isPartOf` property has to be added to the resource that is part of another resource. In case of 
 resources that are of type `StillImageRepresentation`, an additional property derived from `seqnum` with object `IntValue` 
-is required. When defined, a client is able to leaf through the parts of a compound object, p.ex. to leaf through pages of a book.
+is required. When defined, the user is able to leaf through the parts of a compound object, p.ex. to leaf through pages 
+of a book.
+
+The DSP base properties `isPartOf` and `seqnum` can be used to derive a custom property from them, or they can be used 
+directly as cardinalities in a resource. The example belows shows both possibilities.
 
 *gui-elements/gui_attributes*:
 
@@ -755,28 +759,53 @@ is required. When defined, a client is able to leaf through the parts of a compo
 *Example:*
 
 ```json
-{
-  "name": "partOfBook",
-  "super": [
-    "isPartOf"
-  ],
-  "object": ":Book",
-  "labels": {
-      "en": "is part of"
-  },
-  "gui_element": "Searchbox"
-},
-{
-  "name": "hasPageNumber",
-  "super": [
-    "seqnum"
-  ],
-  "object": "IntValue",
-  "labels": {
-      "en": "has page number"
-  },
-  "gui_element": "Spinbox"
-}
+"properties": [
+    {
+        "name": "partOfBook",
+        "super": ["isPartOf"],
+        "object": ":Book",
+        "labels": {"en": "is part of"},
+        "gui_element": "Searchbox"
+    },
+    {
+        "name": "hasPageNumber",
+        "super": ["seqnum"],
+        "object": "IntValue",
+        "labels": {"en": "has page number"},
+        "gui_element": "Spinbox"
+    }
+],
+"resources": [
+    {
+        "name": "Page",
+        "labels": {"en": "Page using properties derived from 'isPartOf' and 'seqnum'"},
+        "super": "StillImageRepresentation",
+        "cardinalities": [
+            {
+                "propname": ":partOfBook",
+                "cardinality": "1"
+            },
+            {
+                "propname": ":hasPageNumber",
+                "cardinality": "1"
+            }
+        ]
+    },
+    {
+        "name": "MinimalisticPage",
+        "labels": {"en": "Page using 'isPartOf' and 'seqnum' directly"},
+        "super": "StillImageRepresentation",
+        "cardinalities": [
+            {
+                "propname": "isPartOf",
+                "cardinality": "1"
+            },
+            {
+                "propname": "seqnum",
+                "cardinality": "1"
+            }
+        ]
+    }
 ```
 
 
@@ -814,7 +843,7 @@ audio/video resource. The `isSequenceOf` would then point to the audio/video res
 would be the time interval of the sequence.
 
 The DSP base properties `isSequenceOf` and `hasSequenceBounds` can be used to derive a custom property from them, or 
-they can be userd directly as cardinalities in a resource. The example belows shows both possibilities.
+they can be used directly as cardinalities in a resource. The example belows shows both possibilities.
 
 *gui-elements/gui_attributes*:
 

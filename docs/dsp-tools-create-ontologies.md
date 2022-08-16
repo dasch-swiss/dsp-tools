@@ -904,6 +904,7 @@ they can be used directly as cardinalities in a resource. The example below show
             }
         ]
     }
+]
 ```
 
 

@@ -64,7 +64,9 @@ class ResourceInstance(Model):
         "knora-api:isPartOf",
         "knora-api:isRegionOf",
         "knora-api:isAnnotationOf",
-        "knora-api:seqnum"
+        "knora-api:seqnum",
+        "knora-api:isSequenceOf",
+        "knora-api:hasSequenceBounds"
     }
     _iri: Optional[str]
     _ark: Optional[str]
@@ -407,12 +409,8 @@ class ResourceInstanceFactory:
             'knora-api:LinkValue': LinkValue,
         }
         for propname, has_property in resclass.has_properties.items():
-            if any([
-                propname == "knora-api:isAnnotationOf",
-                propname == "knora-api:isRegionOf",
-                propname == "knora-api:isPartOf",
-                propname == "knora-api:hasLinkTo"
-            ]):
+            if propname in ["knora-api:isAnnotationOf", "knora-api:isRegionOf", "knora-api:isPartOf",
+                            "knora-api:hasLinkTo", "knora-api:isSequenceOf"]:
                 valtype = LinkValue
                 props[propname] = Propinfo(valtype=valtype,
                                            cardinality=has_property.cardinality,
@@ -435,6 +433,11 @@ class ResourceInstanceFactory:
                                            gui_order=has_property.gui_order)
             elif propname == "knora-api:hasComment":
                 valtype = TextValue
+                props[propname] = Propinfo(valtype=valtype,
+                                           cardinality=has_property.cardinality,
+                                           gui_order=has_property.gui_order)
+            elif propname == "knora-api:hasSequenceBounds":
+                valtype = IntervalValue
                 props[propname] = Propinfo(valtype=valtype,
                                            cardinality=has_property.cardinality,
                                            gui_order=has_property.gui_order)

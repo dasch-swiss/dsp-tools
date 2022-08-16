@@ -191,7 +191,7 @@ class TestTools(unittest.TestCase):
             password=self.password,
             imgdir=self.imgdir,
             sipi=self.sipi,
-            verbose=True,
+            verbose=False,
             validate_only=False,
             incremental=False)
         self.assertTrue(result)

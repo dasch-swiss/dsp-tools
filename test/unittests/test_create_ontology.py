@@ -25,11 +25,10 @@ class TestOntoCreation(unittest.TestCase):
         unsorted_resources: list[dict[str, Any]] = self.ontology['resources']
         sorted_resources = _sort_resources(unsorted_resources, onto_name)
 
-        unsorted_resources = sorted(unsorted_resources, key=lambda a: a['name'])
-        sorted_resources = sorted(sorted_resources, key=lambda a: a['name'])
+        unsorted_resources = sorted(unsorted_resources, key=lambda a: str(a['name']))
+        sorted_resources = sorted(sorted_resources, key=lambda a: str(a['name']))
 
         self.assertListEqual(unsorted_resources, sorted_resources)
-
 
     def test_sort_prop_classes(self) -> None:
         """
@@ -41,8 +40,8 @@ class TestOntoCreation(unittest.TestCase):
         unsorted_props: list[dict[str, Any]] = self.ontology['resources']
         sorted_props = _sort_prop_classes(unsorted_props, onto_name)
 
-        unsorted_props = sorted(unsorted_props, key=lambda a: a['name'])
-        sorted_props = sorted(sorted_props, key=lambda a: a['name'])
+        unsorted_props = sorted(unsorted_props, key=lambda a: str(a['name']))
+        sorted_props = sorted(sorted_props, key=lambda a: str(a['name']))
 
         self.assertListEqual(unsorted_props, sorted_props)
 

@@ -46,9 +46,13 @@ Example of an `ontologies` object:
 ```
 
 
+
+
 ## Ontologies Object in Detail
 
 The following properties can occur within each object in `ontologies`.
+
+
 
 ### Name
 
@@ -59,6 +63,8 @@ The following properties can occur within each object in `ontologies`.
 The ontology's (short) name should be in the form of a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). This
 means a string without blanks or special characters but `-` and `_` are allowed (although not as first character).
 
+
+
 ### Label
 
 (required)
@@ -66,6 +72,8 @@ means a string without blanks or special characters but `-` and `_` are allowed 
 `"label": "<string>"`
 
 A string that provides the full name of the ontology.
+
+
 
 ### Properties
 
@@ -92,6 +100,8 @@ The following fields are optional:
 
 A detailed description of `properties` can be found [below](#properties-object-in-detail).
 
+
+
 ### Resources
 
 (required)
@@ -117,7 +127,11 @@ The following field is optional:
 A detailed description of `resources` can be found [below](#properties-object-in-detail).
 
 
+
+
 ## Properties Object in Detail
+
+
 
 ### Name
 
@@ -131,6 +145,8 @@ but `-` and `_` are allowed (although not as first character).
 
 By convention, property names start with a lower case letter.
 
+
+
 ### Labels
 
 (required)
@@ -140,6 +156,8 @@ By convention, property names start with a lower case letter.
 Collection of `labels` for the property as strings with language tag (currently "en", "de", "fr", "it",
 and "rm" are supported).
 
+
+
 ### Comments
 
 (optional)
@@ -147,6 +165,8 @@ and "rm" are supported).
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
 Comments with language tags. Currently, "de", "en", "fr", "it", and "rm" are supported. The `comments` element is optional.
+
+
 
 ### Super
 
@@ -163,7 +183,7 @@ super-property:
 
 The syntax how to refer to these different groups of properties is described [here](#referencing-ontologies).
 
-The following base properties can be used as super-property:
+The following DSP base properties are available:
 
 - `hasValue`: This is the most general case, to be used in all cases when your property is none of the special cases below.
 - `hasLinkTo`: a link to another resource
@@ -173,7 +193,10 @@ The following base properties can be used as super-property:
   pages in a book. A resource that has a property derived from `seqnum` must also have a property derived from `isPartOf`.
 - `hasColor`: Defines a color value.  
 - `hasComment`: Defines a standard comment.
-
+- `isSequenceOf`: A special variant of `hasLinkTo`. It says that an instance of the given resource class is a section 
+  of an audio/video resource.
+- `hasSequenceBounds`: This base property is used together with `isSequenceOf`. It denotes a time interval of an audio/
+  video resource.
 
 Example of a `properties` object:
 
@@ -220,6 +243,8 @@ Example of a `properties` object:
 }
 ```
 
+
+
 ### Subject
 
 (optional)
@@ -229,6 +254,8 @@ Example of a `properties` object:
 The `subject` defines the resource class the property can be used on. It has to be provided as prefixed name of the 
 resource class (see [below](#referencing-ontologies) on how prefixed names are used).
 
+
+
 ### Object / gui_element / gui_attributes
 
 These three are related as follows:
@@ -237,7 +264,7 @@ These three are related as follows:
  - `gui_element` (required) depends on the value of `object`.
  - `gui_attributes` (optional) depends on the value of `gui_element`.
 
-The following data types are allowed:
+The following `object`s are available, and will be discussed below, in this order:
 
 - `BooleanValue`
 - `ColorValue`
@@ -250,7 +277,9 @@ The following data types are allowed:
 - `TextValue`
 - `TimeValue`
 - `UriValue`
-- in case of a link property: any resource class
+- `Representation`
+- in case of the supers `hasLinkTo` or `isPartOf`: any resource class
+
 
 #### BooleanValue
 
@@ -279,6 +308,7 @@ Represents a Boolean ("true" or "false).
 }
 ```
 
+
 #### ColorValue
 
 `"object": "ColorValue"`
@@ -306,6 +336,7 @@ A string representation of the color in the hexadecimal form e.g. "#ff8000".
   "gui_element": "Colorpicker"
 }
 ```
+
 
 #### DateValue
 
@@ -347,6 +378,7 @@ which means anytime in between 1925 and the 22nd March 1927.
 }
 ```
 
+
 #### DecimalValue
 
 `"object": "DecimalValue"`
@@ -385,6 +417,7 @@ A number with decimal point.
 }
 ```
 
+
 #### GeonameValue
 
 Represents a location ID in geonames.org. DSP uses identifiers provided by
@@ -412,11 +445,17 @@ Represents a location ID in geonames.org. DSP uses identifiers provided by
 }
 ```
 
+
 #### IntervalValue
 
 `"object": "IntervalValue"`
 
-Represents a time-interval
+This `object` belongs to the DSP base property `super: hasSequenceBounds`. It represents a time interval of an 
+audio or video. It can be used together with an `isSequenceOf` property on a resource that represents the sequence. The 
+`isSequenceOf` would then point to the audio/video resource, and the `hasSequenceBounds` would be the time interval of 
+the sequence.
+
+See the [`isSequenceOf` property](#issequenceof-property) for more detailed explanations.
 
 *gui-elements / gui_attributes*:
 
@@ -432,17 +471,19 @@ Represents a time-interval
 
 ```json
 {
-  "name": "hasInterval",
+  "name": "hasBounds",
   "super": [
-    "hasValue"
+    "hasSequenceBounds"
   ],
+  "subject": ":AudioSequence",
   "object": "IntervalValue",
   "labels": {
-    "en": "Time interval"
+    "en": "Interval defining the start and end point of a sequence of an audio or video file"
   },
   "gui_element": "Interval"
 }
 ```
+
 
 #### IntValue
 
@@ -483,6 +524,7 @@ Represents an integer value.
 }
 ```
 
+
 #### ListValue
 
 `"object": "ListValue"`
@@ -517,6 +559,7 @@ Represents a node of a (possibly hierarchical) list
   }
 }
 ```
+
 
 #### TextValue
 
@@ -559,6 +602,7 @@ Represents a text that may contain standoff markup.
 }
 ```
 
+
 #### TimeValue
 
 `"object": "TimeValue"`
@@ -585,6 +629,7 @@ A time value represents a precise moment in time in the Gregorian calendar. Sinc
   "gui_element": "TimeStamp"
 }
 ```
+
 
 #### UriValue
 
@@ -620,6 +665,7 @@ Represents an URI
 }
 ```
 
+
 #### Representation
 
 `"object": "Representation"`
@@ -649,6 +695,7 @@ A property pointing to a `knora-base:Representation`. Has to be used in combinat
         "gui_element": "Searchbox"
     }
 ```
+
 
 #### hasLinkTo Property
 
@@ -692,11 +739,16 @@ When defining a link property, its "super" element has to be `hasLinkTo` or deri
 }
 ```
 
+
 #### isPartOf Property
 A special case of linked resources are resources in a part-whole relation, i.e. resources that are composed of 
 other resources. A `isPartOf` property has to be added to the resource that is part of another resource. In case of 
 resources that are of type `StillImageRepresentation`, an additional property derived from `seqnum` with object `IntValue` 
-is required. When defined, a client is able to leaf through the parts of a compound object, p.ex. to leaf through pages of a book.
+is required. When defined, the user is able to leaf through the parts of a compound object, p.ex. to leaf through pages 
+of a book.
+
+The DSP base properties `isPartOf` and `seqnum` can be used to derive a custom property from them, or they can be used 
+directly as cardinalities in a resource. The example belows shows both possibilities.
 
 *gui-elements/gui_attributes*:
 
@@ -707,31 +759,58 @@ is required. When defined, a client is able to leaf through the parts of a compo
 *Example:*
 
 ```json
-{
-  "name": "partOfBook",
-  "super": [
-    "isPartOf"
-  ],
-  "object": ":Book",
-  "labels": {
-      "en": "is part of"
-  },
-  "gui_element": "Searchbox"
-},
-{
-  "name": "hasPageNumber",
-  "super": [
-    "seqnum"
-  ],
-  "object": "IntValue",
-  "labels": {
-      "en": "has page number"
-  },
-  "gui_element": "Spinbox"
-}
+"properties": [
+    {
+        "name": "partOfBook",
+        "super": ["isPartOf"],
+        "object": ":Book",
+        "labels": {"en": "is part of"},
+        "gui_element": "Searchbox"
+    },
+    {
+        "name": "hasPageNumber",
+        "super": ["seqnum"],
+        "object": "IntValue",
+        "labels": {"en": "has page number"},
+        "gui_element": "Spinbox"
+    }
+],
+"resources": [
+    {
+        "name": "Page",
+        "labels": {"en": "Page using properties derived from 'isPartOf' and 'seqnum'"},
+        "super": "StillImageRepresentation",
+        "cardinalities": [
+            {
+                "propname": ":partOfBook",
+                "cardinality": "1"
+            },
+            {
+                "propname": ":hasPageNumber",
+                "cardinality": "1"
+            }
+        ]
+    },
+    {
+        "name": "MinimalisticPage",
+        "labels": {"en": "Page using 'isPartOf' and 'seqnum' directly"},
+        "super": "StillImageRepresentation",
+        "cardinalities": [
+            {
+                "propname": "isPartOf",
+                "cardinality": "1"
+            },
+            {
+                "propname": "seqnum",
+                "cardinality": "1"
+            }
+        ]
+    }
+]
 ```
 
-#### hasComment Property
+
+#### hasComment property
 
 `"object": "TextValue"`
 
@@ -755,6 +834,82 @@ This property is actually very similar to a simple text field.
 }
 ```
 
+
+#### isSequenceOf property
+
+`"object": (AudioRepresentation/MovingImageRepresentation or a subclass of one of them)`
+
+This property can be used, together with a `hasSequenceBounds` property, on a resource representing a sequence of an
+audio/video resource. The `isSequenceOf` would then point to the audio/video resource, and the `hasSequenceBounds` 
+would be the time interval of the sequence.
+
+The DSP base properties `isSequenceOf` and `hasSequenceBounds` can be used to derive a custom property from them, or 
+they can be used directly as cardinalities in a resource. The example below shows both possibilities.
+
+*gui-elements/gui_attributes*:
+
+- `Searchbox`: The only GUI element for _isSequenceOf_. Allows searching resources by entering the target resource name.
+    - _gui_attributes_:
+        - `numprops=integer` (optional): Number of search results to be displayed
+
+*Example:*
+
+```json
+"properties": [
+    {
+        "name": "sequenceOfAudio",
+        "super": ["isSequenceOf"],
+        "subject": ":AudioSequence",
+        "object": ":Audio",
+        "labels": {"en": "is sequence of"},
+        "gui_element": "Searchbox"
+    },
+    {
+        "name": "hasBounds",
+        "super": ["hasSequenceBounds"],
+        "subject": ":AudioSequence",
+        "object": "IntervalValue",
+        "labels": {"en": "Start and end point of a sequence of an audio/video"},
+        "gui_element": "Interval"
+    }
+],
+"resources": [
+    {
+        "name": "AudioSequence",
+        "labels": {"en": "Sequence of audio using properties derived from 'isSequenceOf' and 'hasSequenceBounds'"},
+        "super": "Resource",
+        "cardinalities": [
+            {
+                "propname": ":sequenceOfAudio",
+                "cardinality": "1"
+            },
+            {
+                "propname": ":hasBounds",
+                "cardinality": "1"
+            }
+        ]
+    },
+    {
+        "name": "MinimalisticAudioSequence",
+        "labels": {"en": "Sequence of audio using 'isSequenceOf' and 'hasSequenceBounds' directly"},
+        "super": "Resource",
+        "cardinalities": [
+            {
+                "propname": "isSequenceOf",
+                "cardinality": "1"
+            },
+            {
+                "propname": "hasSequenceBounds",
+                "cardinality": "1"
+            }
+        ]
+    }
+]
+```
+
+
+
+
 ## Resources Object in Detail
 
 ### Name
@@ -769,6 +924,8 @@ but `-` and `_` are allowed (although not as first character).
 
 By convention, resource names start with a upper case letter.
 
+
+
 ### Labels
 
 (required)
@@ -777,6 +934,8 @@ By convention, resource names start with a upper case letter.
 
 Collection of `labels` for the resource as strings with language tag (currently "en", "de", "fr", "it", 
 and "rm" are supported).
+
+
 
 ### Super
 
@@ -806,6 +965,7 @@ used in all cases when your resource is none of the special cases below.
 - `TextRepresentation`: A resource representing a text
 
 
+
 ### Cardinalities
 
 (required)
@@ -825,6 +985,8 @@ resource can have as well as how many times the relation is established.
         - `"0-1"`: The value may be omitted, but can occur only once.
         - `"1-n"`: At least one value must be present, but multiple values may be present.
         - `"0-n"`: The value may be omitted, but may also occur multiple times.
+
+
 
 ### Comments
 
@@ -877,6 +1039,8 @@ Example for a resource definition:
 ```
 
 
+
+
 ## Referencing Ontologies
 
 For several fields, such as `super` in both `resources` and `properties` or `propname` in `cardinalities`
@@ -895,6 +1059,8 @@ it is necessary to reference entities that are defined elsewhere. The following 
   These will be created in the exact order they appear in the `ontologies` array. Once an ontology has been created,
   it can be referenced by the following ontologies by its name, e.g. `first-onto:hasName`. It is not necessary to add 
   `first-onto` to the prefixes.
+
+
 
 
 ## DSP base resources / base properties to be used directly in the XML file

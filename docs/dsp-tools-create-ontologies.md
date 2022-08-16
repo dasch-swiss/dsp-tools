@@ -806,6 +806,7 @@ directly as cardinalities in a resource. The example belows shows both possibili
             }
         ]
     }
+]
 ```
 
 

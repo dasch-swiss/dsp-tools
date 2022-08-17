@@ -131,7 +131,7 @@ class ResourceInstance(Model):
 
                             else:
                                 if value_type is ListValue:
-                                    val = {'value': val, 'lists': self.list}
+                                    val = {'value': val, 'lists': self.lists}
                                 self._values[property_name].append(value_type(val))
                     # property has one value
                     else:
@@ -145,8 +145,10 @@ class ResourceInstance(Model):
 
                         else:
                             if value_type is ListValue:
-                                value = {'value': value, 'lists': self.list}
-                            self._values[property_name] = value_type(value)
+                                value = {'value': value, 'lists': self.lists}
+                                self._values[property_name] = value_type(**value)
+                            else:
+                                self._values[property_name] = value_type(value)
                 else:
                     if cardinality == Cardinality.C_1 or cardinality == Cardinality.C_1_n:
                         raise BaseError(f"ERROR The ontology does require at least one value for '{property_name}'!")

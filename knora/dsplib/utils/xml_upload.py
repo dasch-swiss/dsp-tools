@@ -311,7 +311,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     failed_uploads: list[str] = []
 
     try:
-        id2iri_mapping, failed_uploads = _upload_resources(verbose, resources, imgdir, sipi_server, permissions_lookup,
+        id2iri_mapping, failed_uploads = _upload_resources(resources, imgdir, sipi_server, permissions_lookup,
                                                            resclass_name_2_type, id2iri_mapping, con, failed_uploads)
     except BaseException as err:
         _handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
@@ -321,6 +321,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     if len(stashed_xml_texts) > 0:
         try:
             nonapplied_xml_texts = _upload_stashed_xml_texts(verbose, id2iri_mapping, con, stashed_xml_texts)
+            nonapplied_xml_texts = _purge_stashed_xml_texts(nonapplied_xml_texts, id2iri_mapping)
         except BaseException as err:
             _handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
 
@@ -329,6 +330,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     if len(stashed_resptr_props) > 0:
         try:
             nonapplied_resptr_props = _upload_stashed_resptr_props(verbose, id2iri_mapping, con, stashed_resptr_props)
+            nonapplied_resptr_props = _purge_stashed_resptr_props(stashed_resptr_props, id2iri_mapping)
         except BaseException as err:
             _handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
 
@@ -352,7 +354,6 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
 
 def _upload_resources(
-    verbose: bool,
     resources: list[XMLResource],
     imgdir: str,
     sipi_server: Sipi,
@@ -366,7 +367,6 @@ def _upload_resources(
     Iterates through all resources and tries to upload them to DSP
 
     Args:
-        verbose: bool
         resources: list of XMLResources to upload to DSP
         imgdir: folder containing the multimedia files
         sipi_server: Sipi instance
@@ -381,9 +381,6 @@ def _upload_resources(
     """
 
     for resource in resources:
-        if verbose:
-            resource.print()
-
         resource_iri = resource.iri
         if resource.ark:
             resource_iri = _convert_ark_v0_to_resource_iri(resource.ark)
@@ -529,8 +526,26 @@ def _upload_stashed_xml_texts(
 
 
 def _purge_stashed_xml_texts(
-    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]
+    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+    id2iri_mapping: Optional[dict[str, str]] = None
 ) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
+    """
+    Accepts a stash of XML texts and purges it of resources that could not be uploaded (=don't exist in DSP), and of
+    resources that had all their XML texts reapplied. It returns a new dict with only the resources that exist in DSP,
+    but whose XML texts could not all be uploaded.
+
+    Args:
+        stashed_xml_texts: the stash to purge
+        id2iri_mapping: used to check if a resource could be uploaded (optional)
+
+    Returns:
+        a purged version of stashed_xml_text
+    """
+    # remove resources that couldn't be uploaded. If they don't exist in DSP, it's not worth caring about their xmltexts
+    if id2iri_mapping:
+        stashed_xml_texts = {res: propdict for res, propdict in stashed_xml_texts.items() if res.id in id2iri_mapping}
+
+    # remove resources that don't have stashed xmltexts (=all xmltexts had been reapplied)
     nonapplied_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]] = {}
     for res, propdict in stashed_xml_texts.items():
         for prop, xmldict in propdict.items():
@@ -594,7 +609,7 @@ def _upload_stashed_resptr_props(
                 try:
                     try_network_action(
                         action=lambda: con.post(path='/v2/values', jsondata=jsondata),
-                        failure_msg=f'ERROR while uploading the resptr prop of "{link_prop.name}" of resource "{resource.id}"'
+                        failure_msg=f'    ERROR while uploading the resptr prop of "{link_prop.name}" of resource "{resource.id}"'
                     )
                 except BaseError as err:
                     print(err.message)
@@ -610,8 +625,26 @@ def _upload_stashed_resptr_props(
 
 
 def _purge_stashed_resptr_props(
-    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]]
+    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
+    id2iri_mapping: Optional[dict[str, str]] = None
 ) -> dict[XMLResource, dict[XMLProperty, list[str]]]:
+    """
+    Accepts a stash of resptrs and purges it of resources that could not be uploaded (=don't exist in DSP), and of
+    resources that had all their resptrs reapplied. It returns a new dict with only the resources that exist in DSP,
+    but whose resptrs could not all be uploaded.
+
+    Args:
+        stashed_resptr_props: the stash to purge
+        id2iri_mapping: used to check if a resource could be uploaded (optional)
+
+    Returns:
+        a purged version of stashed_resptr_props
+    """
+    # remove resources that couldn't be uploaded. If they don't exist in DSP, it's not worth caring about their resptrs
+    if id2iri_mapping:
+        stashed_resptr_props = {res: pdict for res, pdict in stashed_resptr_props.items() if res.id in id2iri_mapping}
+
+    # remove resources that don't have stashed resptrs (=all resptrs had been reapplied)
     nonapplied_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]] = {}
     for res, propdict in stashed_resptr_props.items():
         for prop, resptrs in propdict.items():
@@ -657,13 +690,11 @@ def _handle_upload_error(
 
     # Both stashes are purged from resources that have not been uploaded yet. Only stashed properties of resources that
     # already exist in DSP are of interest.
-    stashed_xml_texts_purged = _purge_stashed_xml_texts(
-        {res: propdict for res, propdict in stashed_xml_texts.items() if res.id in id2iri_mapping})
+    stashed_xml_texts_purged = _purge_stashed_xml_texts(stashed_xml_texts, id2iri_mapping)
     if len(stashed_xml_texts_purged) > 0:
         _write_stashed_xml_texts(stashed_xml_texts_purged, timestamp_str)
 
-    stashed_resptr_props_purged = _purge_stashed_resptr_props(
-        {res: propdict for res, propdict in stashed_resptr_props.items() if res.id in id2iri_mapping})
+    stashed_resptr_props_purged = _purge_stashed_resptr_props(stashed_resptr_props, id2iri_mapping)
     if len(stashed_resptr_props_purged) > 0:
         _write_stashed_resptr_props(stashed_resptr_props_purged, timestamp_str)
 
@@ -722,14 +753,14 @@ def _write_stashed_xml_texts(
     with open(filename, 'a') as f:
         f.write('Stashed text properties that could not be reapplied\n')
         f.write('***************************************************\n')
-        f.write('During the xmlupload, some text properties had to be stashed away, because the salsah-links in their '
-                'XML text formed a circle. The xmlupload can only be done if these circles are broken up, by stashing '
-                'away some of the chain elements of the circle. \n'
-                'Some of the resources that have been stripped from some of their text properties have been created in '
-                'DSP, but the stashed text properties could not be reapplied to them, because the xmlupload was '
+        f.write('During the xmlupload, some text properties had to be stashed away, because the salsah-links in \n'
+                'their XML text formed a circle. The xmlupload can only be done if these circles are broken up, by \n'
+                'stashing away some chain elements of the circle. \n'
+                'Some resources that have been stripped from some of their text properties have been created in DSP, \n'
+                'but the stashed text properties could not be reapplied to them, because the xmlupload was \n'
                 'unexpectedly interrupted. \n'
-                'This file is a list of all text properties that are now missing in DSP. The texts have been replaced '
-                'by a hash number that now stands in the text field in DSP. \n'
+                'This file is a list of all text properties that are now missing in DSP. The texts have been \n'
+                'replaced by a hash number that now stands in the text field in DSP. \n'
                 '(Not listed are the stripped resources that haven\'t been created in DSP yet.) \n')
         for res, props in stashed_xml_texts.items():
             f.write(f'\n{res.id}')
@@ -764,13 +795,13 @@ def _write_stashed_resptr_props(
     with open(filename, 'a') as f:
         f.write('Stashed resptr properties that could not be reapplied\n')
         f.write('*****************************************************\n')
-        f.write('During the xmlupload, some resptr-props had to be stashed away, because they formed a circle. The '
-                'xmlupload can only be done if these circles are broken up, by stashing away some of the chain '
-                'elements of the circle. \n'
-                'Some of the resources that have been stripped from some of their resptr-props have been created in '
-                'DSP, but the stashed resptr-props could not be reapplied to them, because the xmlupload was '
-                'unexpectedly interrupted. \n'
-                'This file is a list of all resptr-props that are now missing in DSP. (Not listed are the stripped '
+        f.write('During the xmlupload, some resptr-props had to be stashed away, because they formed a circle. The \n'
+                'xmlupload can only be done if these circles are broken up, by stashing away some chain elements of \n'
+                'the circle. \n'
+                'Some resources that have been stripped from some of their resptr-props have been created in DSP, \n'
+                'but the stashed resptr-props could not be reapplied to them, because the xmlupload was unexpectedly \n'
+                'interrupted. \n'
+                'This file is a list of all resptr-props that are now missing in DSP. (Not listed are the stripped \n'
                 'resources that haven\'t been created in DSP yet. \n')
         for res, props_ in stashed_resptr_props.items():
             f.write(f'\n{res.id}\n---------\n')

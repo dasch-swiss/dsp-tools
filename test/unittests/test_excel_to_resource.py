@@ -12,10 +12,6 @@ from knora.dsplib.utils import excel_to_json_resources as e2j
 
 class TestExcelToResource(unittest.TestCase):
 
-    def setUp(self) -> None:
-        """Is executed before each test"""
-        os.makedirs("testdata/tmp", exist_ok=True)
-
     def test_prepare_dataframe(self) -> None:
         original_df = pd.DataFrame({
              "  TitLE of Column 1 ": ["1",  " 0-1 ", "1-n ", pd.NA,  "    ", " ",    "",     " 0-n ", np.nan],

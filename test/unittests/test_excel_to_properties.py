@@ -10,10 +10,6 @@ from knora.dsplib.utils import excel_to_json_properties as e2j
 
 class TestExcelToProperties(unittest.TestCase):
 
-    def setUp(self) -> None:
-        """Is executed before each test"""
-        os.makedirs("testdata/tmp", exist_ok=True)
-
     def test_excel2json(self) -> None:
         excelfile = "testdata/Properties.xlsx"
         outfile = "testdata/tmp/_out_properties.json"

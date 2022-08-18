@@ -2,7 +2,6 @@
 import unittest
 import json
 from typing import Any
-import jsonpath_ng.ext
 
 from knora.dsplib.utils.onto_create_ontology import _sort_resources, _sort_prop_classes
 from knora.dsplib.utils.onto_validate import _collect_link_properties, _identify_problematic_cardinalities

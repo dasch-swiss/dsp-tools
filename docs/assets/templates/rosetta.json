@@ -1,0 +1,1526 @@
+{
+  "prefixes": {
+    "dcterms": "http://purl.org/dc/terms/"
+  },
+  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/ontology.json",
+  "project": {
+    "shortcode": "082E",
+    "shortname": "rosetta",
+    "longname": "Rosetta: DSP example project",
+    "descriptions": {
+      "de": "Rosetta ist das Beispielprojekt für die <em>DaSCH Service Platform</em>. Es soll einerseits die Möglichkeiten illustrieren, die die Plattform aktuell bietet, andererseits aber auch intern aufzeigen, wo noch Verbesserungsbedarf besteht.",
+      "fr": "Rosetta est le projet exemplaire de la <em>DaSCH Service Platform</em>. D'une part, il vise à illustrer les possibilités actuellement offertes par la plate-forme, mais d'autre part, il montre également en interne les domaines où il est encore possible d'apporter des améliorations.",
+      "en": "Rosetta is the sample project for the <em>DaSCH Service Platform</em>. On one hand, it is intended to illustrate the possibilities currently offered by the platform, but on the other hand, it also shows internally where there is still room for improvement."
+    },
+    "keywords": [
+      "Textquellen",
+      "Objekte",
+      "Bilder",
+      "Audio",
+      "Kyrillisch",
+      "Griechisch",
+      "Keilschrift",
+      "Hieroglyphen",
+      "Hebräisch",
+      "Arabisch",
+      "Japanisch",
+      "Sonderzeichen",
+      "XML",
+      "Markup",
+      "Annotation",
+      "Texteigenschaften",
+      "textual sources",
+      "objects",
+      "images",
+      "audio",
+      "Cyrillic",
+      "Greek",
+      "cuneiform",
+      "hieroglyphs",
+      "Hebrew",
+      "Arabic",
+      "Japanese",
+      "special characters",
+      "textual properties",
+      "sources",
+      "objets",
+      "Cyrillique",
+      "Grec",
+      "cunéiforme",
+      "hiéroglyphes",
+      "Hébreu",
+      "Arabe",
+      "Japonais",
+      "caractères spéciaux",
+      "propriétés de texte",
+      "Data and Service Center for the Humanities (DaSCH)"
+    ],
+    "lists": [
+      {
+        "name": "flatlist",
+        "labels": {
+          "en": "Flat list"
+        },
+        "comments": {
+          "en": "Flat list"
+        },
+        "nodes": [
+          {
+            "name": "first-node",
+            "labels": {
+              "en": "First node"
+            }
+          },
+          {
+            "name": "second-node",
+            "labels": {
+              "en": "Second node"
+            }
+          }
+        ]
+      },
+      {
+        "name": "category",
+        "labels": {
+          "de": "Kategorie",
+          "en": "Category",
+          "fr": "Catégorie"
+        },
+        "comments": {
+          "en": "A list containing categories",
+          "de": "Die Liste enthält Kategorien"
+        },
+        "nodes": [
+          {
+            "name": "artwork",
+            "labels": {
+              "de": "Kunstwerk",
+              "en": "Artwork",
+              "fr": "Oeuvre d'art"
+            }
+          },
+          {
+            "name": "vehicles",
+            "labels": {
+              "de": "Fahrzeuge",
+              "en": "Vehicles",
+              "fr": "Véhicules"
+            }
+          },
+          {
+            "name": "nature",
+            "labels": {
+              "de": "Natur",
+              "en": "Nature",
+              "fr": "Nature"
+            },
+            "nodes": [
+              {
+                "name": "humans",
+                "labels": {
+                  "de": "Menschen",
+                  "en": "Humans",
+                  "fr": "Humains"
+                }
+              },
+              {
+                "name": "animals",
+                "labels": {
+                  "de": "Tiere",
+                  "en": "Animals",
+                  "fr": "Animaux"
+                },
+                "nodes": [
+                  {
+                    "name": "mammals",
+                    "labels": {
+                      "de": "Säugetiere",
+                      "en": "Mammals",
+                      "fr": "Mammifères"
+                    }
+                  },
+                  {
+                    "name": "insects",
+                    "labels": {
+                      "de": "Insekten",
+                      "en": "Insects",
+                      "fr": "Insectes"
+                    }
+                  },
+                  {
+                    "name": "birds",
+                    "labels": {
+                      "de": "Vögel",
+                      "en": "Birds",
+                      "fr": "Oiseaux"
+                    }
+                  },
+                  {
+                    "name": "amphibians",
+                    "labels": {
+                      "de": "Amphibien",
+                      "en": "Amphibians",
+                      "fr": "Amphibiens"
+                    }
+                  },
+                  {
+                    "name": "reptiles",
+                    "labels": {
+                      "de": "Reptilien",
+                      "en": "Reptiles",
+                      "fr": "Reptiles"
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "plants",
+                "labels": {
+                  "de": "Pflanzen",
+                  "en": "Plants",
+                  "fr": "Plantes"
+                }
+              },
+              {
+                "name": "weather",
+                "labels": {
+                  "de": "Wetter",
+                  "en": "Weather",
+                  "fr": "Météo"
+                }
+              },
+              {
+                "name": "physics",
+                "labels": {
+                  "de": "Physik",
+                  "en": "Physics",
+                  "fr": "Physique"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "groups": [
+      {
+        "name": "rosetta-editors",
+        "descriptions": {
+          "en": "Editors for the rosetta-project"
+        },
+        "selfjoin": false,
+        "status": true
+      }
+    ],
+    "users": [
+      {
+        "username": "rosettaedit",
+        "email": "rosettaedit@test.org",
+        "givenName": "rosetta-given",
+        "familyName": "rosetta-family",
+        "password": "rosetta1234",
+        "lang": "de",
+        "groups": [
+          ":rosetta-editors"
+        ],
+        "projects": [
+          ":admin"
+        ]
+      }
+    ],
+    "ontologies": [
+      {
+        "name": "rosetta",
+        "label": "rosetta",
+        "properties": [
+          {
+            "name": "hasTime",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TimeValue",
+            "labels": {
+              "de": "Zeit",
+              "en": "Time",
+              "fr": "Heure"
+            },
+            "gui_element": "TimeStamp"
+          },
+          {
+            "name": "hasTextMedium",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": "StillImageRepresentation",
+            "labels": {
+              "de": "Textträger",
+              "en": "Text medium",
+              "fr": "Support de texte"
+            },
+            "gui_element": "Searchbox",
+            "gui_attributes": {
+              "numprops": 1
+            }
+          },
+          {
+            "name": "hasImage",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": ":Image2D",
+            "labels": {
+              "de": "Bild",
+              "en": "Image",
+              "fr": "Image"
+            },
+            "gui_element": "Searchbox",
+            "gui_attributes": {
+              "numprops": 1
+            }
+          },
+          {
+            "name": "hasOriginalText",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "de": "Text",
+              "en": "Text",
+              "fr": "Texte"
+            },
+            "gui_element": "Richtext"
+          },
+          {
+            "name": "hasTranscription",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "de": "Transkription",
+              "en": "Transcription",
+              "fr": "Transcription"
+            },
+            "gui_element": "Richtext"
+          },
+          {
+            "name": "hasTransliteration",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "de": "Transliteration",
+              "en": "Transliteration",
+              "fr": "Translittération"
+            },
+            "gui_element": "Richtext"
+          },
+          {
+            "name": "hasTranslation",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "de": "Übersetzung",
+              "en": "Translation",
+              "fr": "Traduction"
+            },
+            "gui_element": "Richtext"
+          },
+          {
+            "name": "hasDescription",
+            "super": [
+              "hasValue",
+              "dcterms:description"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "de": "Beschreibung",
+              "en": "Description",
+              "fr": "Description"
+            },
+            "gui_element": "Richtext"
+          },
+          {
+            "name": "hasAuthor",
+            "super": [
+              "hasLinkTo",
+              "dcterms:creator"
+            ],
+            "object": ":Person",
+            "labels": {
+              "de": "Autor",
+              "en": "Author",
+              "fr": "Auteur"
+            },
+            "gui_element": "Searchbox",
+            "gui_attributes": {
+              "numprops": 1
+            }
+          },
+          {
+            "name": "hasName",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "de": "Name",
+              "en": "Name",
+              "fr": "Nom"
+            },
+            "gui_element": "SimpleText",
+            "gui_attributes": {
+              "maxlength": 128,
+              "size": 32
+            }
+          },
+          {
+            "name": "hasTitle",
+            "super": [
+              "hasValue",
+              "dcterms:title"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "de": "Titel",
+              "en": "Title",
+              "fr": "Titre"
+            },
+            "gui_element": "SimpleText",
+            "gui_attributes": {
+              "maxlength": 255,
+              "size": 80
+            }
+          },
+          {
+            "name": "hasDate",
+            "super": [
+              "hasValue"
+            ],
+            "object": "DateValue",
+            "labels": {
+              "de": "Datierung",
+              "en": "Dating",
+              "fr": "Datation"
+            },
+            "gui_element": "Date"
+          },
+          {
+            "name": "hasFindspot",
+            "super": [
+              "hasValue"
+            ],
+            "object": "GeonameValue",
+            "labels": {
+              "de": "Fundort",
+              "en": "Find spot",
+              "fr": "Gisement"
+            },
+            "gui_element": "Geonames"
+          },
+          {
+            "name": "hasLocation",
+            "super": [
+              "hasValue"
+            ],
+            "object": "GeonameValue",
+            "labels": {
+              "de": "Ort",
+              "en": "Location",
+              "fr": "Lieu"
+            },
+            "gui_element": "Geonames"
+          },
+          {
+            "name": "hasBibliographicReference",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "de": "Literatur",
+              "en": "Literature",
+              "fr": "Littérature"
+            },
+            "gui_element": "SimpleText",
+            "gui_attributes": {
+              "maxlength": 128,
+              "size": 128
+            }
+          },
+          {
+            "name": "hasExternalLink",
+            "super": [
+              "hasValue"
+            ],
+            "object": "UriValue",
+            "labels": {
+              "de": "Externer Link",
+              "en": "External link",
+              "fr": "Lien hypertexte externe"
+            },
+            "gui_element": "SimpleText",
+            "gui_attributes": {
+              "maxlength": 128,
+              "size": 128
+            }
+          },
+          {
+            "name": "hasIdentifier",
+            "super": [
+              "hasValue"
+            ],
+            "object": "UriValue",
+            "labels": {
+              "de": "GND",
+              "en": "GND",
+              "fr": "GND"
+            },
+            "gui_element": "SimpleText",
+            "gui_attributes": {
+              "maxlength": 128,
+              "size": 128
+            }
+          },
+          {
+            "name": "hasRelatedArtwork",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": "Resource",
+            "labels": {
+              "de": "Verwandtes Werk",
+              "en": "Related Artwork",
+              "fr": "Oeuvre reliée"
+            },
+            "gui_element": "Searchbox",
+            "gui_attributes": {
+              "numprops": 1
+            }
+          },
+          {
+            "name": "hasCreator",
+            "super": [
+              "hasLinkTo",
+              "dcterms:creator"
+            ],
+            "object": ":Person",
+            "labels": {
+              "de": "Künstler",
+              "en": "Artist",
+              "fr": "Artiste"
+            },
+            "gui_element": "Searchbox"
+          },
+          {
+            "name": "inInstitution",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": ":Institution",
+            "labels": {
+              "de": "Aufbewahrende Institution",
+              "en": "Custodian institution",
+              "fr": "Institution de garde"
+            },
+            "gui_element": "Searchbox",
+            "gui_attributes": {
+              "numprops": 1
+            }
+          },
+          {
+            "name": "hasInventoryNumber",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "de": "Inventarnummer",
+              "en": "Inventory number",
+              "fr": "Numéro d'inventaire"
+            },
+            "gui_element": "SimpleText",
+            "gui_attributes": {
+              "maxlength": 80,
+              "size": 25
+            }
+          },
+          {
+            "name": "hasPagenum",
+            "super": [
+              "seqnum"
+            ],
+            "object": "IntValue",
+            "labels": {
+              "de": "Seitenzahl",
+              "en": "Page number",
+              "fr": "Numéro de page"
+            },
+            "gui_element": "SimpleText",
+            "gui_attributes": {
+              "maxlength": 8,
+              "size": 8
+            }
+          },
+          {
+            "name": "partOf",
+            "super": [
+              "isPartOf"
+            ],
+            "object": ":Book",
+            "labels": {
+              "de": "ist Teil von",
+              "en": "is part of",
+              "fr": "fait partie de"
+            },
+            "gui_element": "Searchbox",
+            "gui_attributes": {
+              "numprops": 1
+            }
+          },
+          {
+            "name": "hasCategory",
+            "super": [
+              "hasValue"
+            ],
+            "object": "ListValue",
+            "labels": {
+              "de": "Kategorie",
+              "en": "Category",
+              "fr": "Catégorie"
+            },
+            "gui_element": "List",
+            "gui_attributes": {
+              "hlist": "category"
+            }
+          },
+          {
+            "name": "hasFlatList",
+            "super": [
+              "hasValue"
+            ],
+            "object": "ListValue",
+            "labels": {
+              "de": "Flatlist",
+              "en": "Flatlist",
+              "fr": "Flatlist"
+            },
+            "gui_element": "Radio",
+            "gui_attributes": {
+              "hlist": "flatlist"
+            }
+          },
+          {
+            "name": "hasColor",
+            "super": [
+              "hasColor"
+            ],
+            "object": "ColorValue",
+            "labels": {
+              "de": "Farbe",
+              "en": "Colour",
+              "fr": "Couleur"
+            },
+            "gui_element": "Colorpicker"
+          },
+          {
+            "name": "hasCopyright",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "de": "Copyright",
+              "en": "Copyright",
+              "fr": "Droit d'auteur"
+            },
+            "gui_element": "SimpleText",
+            "gui_attributes": {
+              "maxlength": 128,
+              "size": 64
+            }
+          },
+          {
+            "name": "isPublic",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "de": "Öffentlich",
+              "en": "Public",
+              "fr": "Public"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "hasChildren",
+            "super": [
+              "hasValue"
+            ],
+            "object": "IntValue",
+            "labels": {
+              "de": "Anzahl der Kinder",
+              "en": "Number of children",
+              "fr": "Nombre d'enfants"
+            },
+            "gui_element": "Spinbox",
+            "gui_attributes": {
+              "max": 25.0,
+              "min": 0.0
+            }
+          },
+          {
+            "name": "hasWeight",
+            "super": [
+              "hasValue"
+            ],
+            "object": "DecimalValue",
+            "labels": {
+              "de": "Gewicht",
+              "en": "Weight",
+              "fr": "Poids"
+            },
+            "gui_element": "SimpleText",
+            "gui_attributes": {
+              "maxlength": 255,
+              "size": 80
+            }
+          },
+          {
+            "name": "hasFiles",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": ":Document",
+            "labels": {
+              "de": "Modell-Dateien",
+              "en": "Files belonging to the model",
+              "fr": "Fichiers appartenants au modèle"
+            },
+            "gui_element": "Searchbox"
+          },
+          {
+            "name": "linksToRegion",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": "Region",
+            "labels": {
+              "de": "verweist auf eine Region in einem Bild",
+              "en": "links to a region of an image",
+              "fr": "réfère à une région d'une image"
+            },
+            "gui_element": "Searchbox"
+          },
+          {
+            "name": "hasComment",
+            "super": [
+              "hasComment"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "de": "Kommentar",
+              "en": "Comment",
+              "fr": "Commentaire"
+            },
+            "gui_element": "SimpleText"
+          },
+          {
+            "name": "hasRepresentation",
+            "super": [
+              "hasRepresentation"
+            ],
+            "object": "Representation",
+            "labels": {
+              "en": "Represented by"
+            },
+            "gui_element": "Searchbox"
+          }
+        ],
+        "resources": [
+          {
+            "name": "Text",
+            "labels": {
+              "de": "Text",
+              "en": "Text",
+              "fr": "Texte"
+            },
+            "super": "Resource",
+            "cardinalities": [
+              {
+                "propname": ":hasTextMedium",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": ":hasAuthor",
+                "cardinality": "0-1",
+                "gui_order": 1
+              },
+              {
+                "propname": ":hasTitle",
+                "cardinality": "0-1",
+                "gui_order": 2
+              },
+              {
+                "propname": ":hasOriginalText",
+                "cardinality": "0-1",
+                "gui_order": 3
+              },
+              {
+                "propname": ":hasTranscription",
+                "cardinality": "0-1",
+                "gui_order": 4
+              },
+              {
+                "propname": ":hasTransliteration",
+                "cardinality": "0-1",
+                "gui_order": 5
+              },
+              {
+                "propname": ":hasTranslation",
+                "cardinality": "0-n",
+                "gui_order": 6
+              },
+              {
+                "propname": ":hasFindspot",
+                "cardinality": "0-1",
+                "gui_order": 7
+              },
+              {
+                "propname": ":hasBibliographicReference",
+                "cardinality": "0-n",
+                "gui_order": 8
+              },
+              {
+                "propname": ":inInstitution",
+                "cardinality": "0-n",
+                "gui_order": 9
+              },
+              {
+                "propname": ":hasLocation",
+                "cardinality": "0-1",
+                "gui_order": 10
+              },
+              {
+                "propname": ":hasCopyright",
+                "cardinality": "0-1",
+                "gui_order": 11
+              },
+              {
+                "propname": ":hasExternalLink",
+                "cardinality": "0-n",
+                "gui_order": 12
+              },
+              {
+                "propname": ":hasRelatedArtwork",
+                "cardinality": "0-1",
+                "gui_order": 13
+              }
+            ]
+          },
+          {
+            "name": "Image2D",
+            "labels": {
+              "de": "2D-Bild",
+              "en": "2D image",
+              "fr": "image 2D"
+            },
+            "super": "StillImageRepresentation",
+            "cardinalities": [
+              {
+                "propname": ":hasTitle",
+                "cardinality": "1",
+                "gui_order": 0
+              },
+              {
+                "propname": ":hasCreator",
+                "cardinality": "0-1",
+                "gui_order": 1
+              },
+              {
+                "propname": ":hasDate",
+                "cardinality": "0-1",
+                "gui_order": 2
+              },
+              {
+                "propname": ":hasDescription",
+                "cardinality": "0-n",
+                "gui_order": 3
+              },
+              {
+                "propname": ":hasCopyright",
+                "cardinality": "0-1",
+                "gui_order": 4
+              },
+              {
+                "propname": ":inInstitution",
+                "cardinality": "0-n",
+                "gui_order": 5
+              },
+              {
+                "propname": ":hasLocation",
+                "cardinality": "0-1",
+                "gui_order": 6
+              },
+              {
+                "propname": ":hasExternalLink",
+                "cardinality": "0-n",
+                "gui_order": 7
+              },
+              {
+                "propname": ":linksToRegion",
+                "cardinality": "0-n",
+                "gui_order": 8
+              }
+            ]
+          },
+          {
+            "name": "ImagePartOfABook",
+            "labels": {
+              "de": "Bild in einem Buch",
+              "en": "Image in a book",
+              "fr": "Image dans un livre"
+            },
+            "comments": {
+              "en": "Image that forms part of a book"
+            },
+            "super": "StillImageRepresentation",
+            "cardinalities": [
+              {
+                "propname": ":hasTitle",
+                "cardinality": "1"
+              },
+              {
+                "propname": "seqnum",
+                "cardinality": "1"
+              },
+              {
+                "propname": "isPartOf",
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name": "Image3D",
+            "labels": {
+              "de": "3D-Bild",
+              "en": "3D image",
+              "fr": "image 3D"
+            },
+            "super": "DDDRepresentation",
+            "cardinalities": [
+              {
+                "propname": ":hasTitle",
+                "cardinality": "1",
+                "gui_order": 0
+              },
+              {
+                "propname": ":hasCreator",
+                "cardinality": "0-1",
+                "gui_order": 1
+              },
+              {
+                "propname": ":hasDate",
+                "cardinality": "0-1",
+                "gui_order": 2
+              },
+              {
+                "propname": ":hasDescription",
+                "cardinality": "0-1",
+                "gui_order": 3
+              },
+              {
+                "propname": ":hasCopyright",
+                "cardinality": "0-1",
+                "gui_order": 4
+              },
+              {
+                "propname": ":hasFiles",
+                "cardinality": "0-1",
+                "gui_order": 5
+              },
+              {
+                "propname": ":inInstitution",
+                "cardinality": "0-n",
+                "gui_order": 6
+              },
+              {
+                "propname": ":hasLocation",
+                "cardinality": "0-1",
+                "gui_order": 7
+              },
+              {
+                "propname": ":hasExternalLink",
+                "cardinality": "0-n",
+                "gui_order": 8
+              }
+            ]
+          },
+          {
+            "name": "Audio",
+            "labels": {
+              "de": "Audio",
+              "en": "Audio",
+              "fr": "Audio"
+            },
+            "super": "AudioRepresentation",
+            "cardinalities": [
+              {
+                "propname": ":hasTitle",
+                "cardinality": "1",
+                "gui_order": 1
+              },
+              {
+                "propname": ":hasCreator",
+                "cardinality": "0-1",
+                "gui_order": 2
+              },
+              {
+                "propname": ":hasDate",
+                "cardinality": "0-1",
+                "gui_order": 3
+              },
+              {
+                "propname": ":hasDescription",
+                "cardinality": "0-1",
+                "gui_order": 4
+              },
+              {
+                "propname": ":hasCopyright",
+                "cardinality": "0-1",
+                "gui_order": 5
+              },
+              {
+                "propname": ":inInstitution",
+                "cardinality": "0-n",
+                "gui_order": 6
+              },
+              {
+                "propname": ":hasLocation",
+                "cardinality": "0-1",
+                "gui_order": 7
+              },
+              {
+                "propname": ":hasExternalLink",
+                "cardinality": "0-n",
+                "gui_order": 8
+              }
+            ]
+          },
+          {
+            "name": "Video",
+            "labels": {
+              "de": "Video",
+              "en": "Video",
+              "fr": "Video"
+            },
+            "super": "MovingImageRepresentation",
+            "cardinalities": [
+              {
+                "propname": ":hasTitle",
+                "cardinality": "1",
+                "gui_order": 1
+              },
+              {
+                "propname": ":hasCreator",
+                "cardinality": "0-1",
+                "gui_order": 2
+              },
+              {
+                "propname": ":hasDate",
+                "cardinality": "0-1",
+                "gui_order": 3
+              },
+              {
+                "propname": ":hasDescription",
+                "cardinality": "0-1",
+                "gui_order": 4
+              },
+              {
+                "propname": ":hasCopyright",
+                "cardinality": "0-1",
+                "gui_order": 5
+              },
+              {
+                "propname": ":inInstitution",
+                "cardinality": "0-n",
+                "gui_order": 6
+              },
+              {
+                "propname": ":hasLocation",
+                "cardinality": "0-1",
+                "gui_order": 7
+              },
+              {
+                "propname": ":hasExternalLink",
+                "cardinality": "0-n",
+                "gui_order": 8
+              }
+            ]
+          },
+          {
+            "name": "VideoSequence",
+            "labels": {
+              "de": "Sequenz einer Video-Ressource",
+              "en": "Sequence of a video resource"
+            },
+            "super": "Resource",
+            "cardinalities": [
+              {
+                "propname": ":hasTitle",
+                "cardinality": "1"
+              },
+              {
+                "propname": "isSequenceOf",
+                "cardinality": "1"
+              },
+              {
+                "propname": "hasSequenceBounds",
+                "cardinality": "1"
+              },
+              {
+                "propname": ":hasCreator",
+                "cardinality": "0-1"
+              },
+              {
+                "propname": ":hasDate",
+                "cardinality": "0-1"
+              },
+              {
+                "propname": ":hasDescription",
+                "cardinality": "0-1"
+              }
+            ]
+          },
+          {
+            "name": "AudioSequence",
+            "labels": {
+              "de": "Sequenz einer Audio-Ressource",
+              "en": "Sequence of an audio resource"
+            },
+            "super": "Resource",
+            "cardinalities": [
+              {
+                "propname": ":hasTitle",
+                "cardinality": "1"
+              },
+              {
+                "propname": "isSequenceOf",
+                "cardinality": "1"
+              },
+              {
+                "propname": "hasSequenceBounds",
+                "cardinality": "1"
+              },
+              {
+                "propname": ":hasCreator",
+                "cardinality": "0-1"
+              },
+              {
+                "propname": ":hasDate",
+                "cardinality": "0-1"
+              },
+              {
+                "propname": ":hasDescription",
+                "cardinality": "0-1"
+              }
+            ]
+          },
+          {
+            "name": "Book",
+            "labels": {
+              "de": "Buch / Manuskript",
+              "en": "book / manuscript",
+              "fr": "livre / manuscrit"
+            },
+            "super": "Resource",
+            "cardinalities": [
+              {
+                "propname": ":hasTitle",
+                "cardinality": "1-n",
+                "gui_order": 1
+              },
+              {
+                "propname": ":hasDescription",
+                "cardinality": "0-1",
+                "gui_order": 2
+              },
+              {
+                "propname": ":hasAuthor",
+                "cardinality": "0-n",
+                "gui_order": 3
+              },
+              {
+                "propname": ":hasDate",
+                "cardinality": "0-1",
+                "gui_order": 4
+              },
+              {
+                "propname": ":inInstitution",
+                "cardinality": "0-n",
+                "gui_order": 5
+              },
+              {
+                "propname": ":hasLocation",
+                "cardinality": "0-1",
+                "gui_order": 6
+              },
+              {
+                "propname": ":hasCopyright",
+                "cardinality": "0-1",
+                "gui_order": 7
+              },
+              {
+                "propname": ":hasExternalLink",
+                "cardinality": "0-n",
+                "gui_order": 8
+              }
+            ]
+          },
+          {
+            "name": "Page",
+            "super": "Resource",
+            "labels": {
+              "de": "Buchseite / Manuskriptseite",
+              "en": "Book page / Manuscript page",
+              "fr": "Page du livre / Page du manuscrit"
+            },
+            "comments": {
+              "en": "A page is a part of a book or manuscript"
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasTextMedium",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": ":hasPagenum",
+                "cardinality": "1",
+                "gui_order": 1
+              },
+              {
+                "propname": ":hasDescription",
+                "cardinality": "0-1",
+                "gui_order": 2
+              },
+              {
+                "propname": ":partOf",
+                "cardinality": "1",
+                "gui_order": 3
+              },
+              {
+                "propname": ":hasTranscription",
+                "cardinality": "0-1",
+                "gui_order": 4
+              },
+              {
+                "propname": ":hasTransliteration",
+                "cardinality": "0-1",
+                "gui_order": 5
+              },
+              {
+                "propname": ":hasTranslation",
+                "cardinality": "0-n",
+                "gui_order": 6
+              },
+              {
+                "propname": ":hasBibliographicReference",
+                "cardinality": "0-n",
+                "gui_order": 7
+              }
+            ]
+          },
+          {
+            "name": "Person",
+            "labels": {
+              "de": "Person",
+              "en": "Person",
+              "fr": "Personne"
+            },
+            "super": "Resource",
+            "cardinalities": [
+              {
+                "propname": ":hasName",
+                "cardinality": "1",
+                "gui_order": 1
+              },
+              {
+                "propname": ":hasIdentifier",
+                "cardinality": "0-1",
+                "gui_order": 2
+              },
+              {
+                "propname": ":hasChildren",
+                "cardinality": "0-1",
+                "gui_order": 3
+              },
+              {
+                "propname": ":hasExternalLink",
+                "cardinality": "0-n",
+                "gui_order": 4
+              }
+            ]
+          },
+          {
+            "name": "Institution",
+            "labels": {
+              "de": "Institution",
+              "en": "Institution",
+              "fr": "Institution"
+            },
+            "super": "Resource",
+            "cardinalities": [
+              {
+                "propname": ":hasName",
+                "cardinality": "1",
+                "gui_order": 1
+              },
+              {
+                "propname": ":hasLocation",
+                "cardinality": "1",
+                "gui_order": 2
+              },
+              {
+                "propname": ":hasIdentifier",
+                "cardinality": "0-1",
+                "gui_order": 3
+              },
+              {
+                "propname": ":hasExternalLink",
+                "cardinality": "0-n",
+                "gui_order": 4
+              }
+            ]
+          },
+          {
+            "name": "Object",
+            "labels": {
+              "de": "Objekt",
+              "en": "Object",
+              "fr": "Objet"
+            },
+            "super": "Resource",
+            "cardinalities": [
+              {
+                "propname": ":hasImage",
+                "cardinality": "0-n",
+                "gui_order": 0
+              },
+              {
+                "propname": ":hasCategory",
+                "cardinality": "0-n",
+                "gui_order": 1
+              },
+              {
+                "propname": ":hasFlatList",
+                "cardinality": "0-n",
+                "gui_order": 1
+              },
+              {
+                "propname": ":hasName",
+                "cardinality": "0-n",
+                "gui_order": 2
+              },
+              {
+                "propname": ":hasDescription",
+                "cardinality": "0-n",
+                "gui_order": 3
+              },
+              {
+                "propname": ":hasWeight",
+                "cardinality": "0-n",
+                "gui_order": 4
+              },
+              {
+                "propname": ":hasCreator",
+                "cardinality": "0-1",
+                "gui_order": 5
+              },
+              {
+                "propname": ":hasFindspot",
+                "cardinality": "0-n",
+                "gui_order": 6
+              },
+              {
+                "propname": ":hasDate",
+                "cardinality": "0-n",
+                "gui_order": 7
+              },
+              {
+                "propname": ":inInstitution",
+                "cardinality": "0-1",
+                "gui_order": 8
+              },
+              {
+                "propname": ":hasLocation",
+                "cardinality": "0-1",
+                "gui_order": 9
+              },
+              {
+                "propname": ":hasInventoryNumber",
+                "cardinality": "0-1",
+                "gui_order": 10
+              },
+              {
+                "propname": ":isPublic",
+                "cardinality": "0-1",
+                "gui_order": 11
+              },
+              {
+                "propname": ":hasColor",
+                "cardinality": "0-n",
+                "gui_order": 12
+              },
+              {
+                "propname": ":hasExternalLink",
+                "cardinality": "0-n",
+                "gui_order": 13
+              },
+              {
+                "propname": ":hasComment",
+                "cardinality": "0-n",
+                "gui_order": 14
+              },
+              {
+                "propname": ":hasTime",
+                "cardinality": "0-n",
+                "gui_order": 15
+              }
+            ]
+          },
+          {
+            "name": "Document",
+            "labels": {
+              "de": "Dokument",
+              "en": "Document",
+              "fr": "Document"
+            },
+            "super": "DocumentRepresentation",
+            "cardinalities": [
+              {
+                "propname": ":hasName",
+                "cardinality": "1",
+                "gui_order": 1
+              },
+              {
+                "propname": ":hasDescription",
+                "cardinality": "1",
+                "gui_order": 2
+              },
+              {
+                "propname": ":hasTime",
+                "cardinality": "0-1",
+                "gui_order": 3
+              }
+            ]
+          },
+          {
+            "name": "Archive",
+            "labels": {
+              "de": "Archiv",
+              "en": "Archive",
+              "fr": "Archive"
+            },
+            "super": "ArchiveRepresentation",
+            "cardinalities": [
+              {
+                "propname": ":hasName",
+                "cardinality": "1",
+                "gui_order": 1
+              },
+              {
+                "propname": ":hasDescription",
+                "cardinality": "1",
+                "gui_order": 2
+              }
+            ]
+          },
+          {
+            "name": "TextDocument",
+            "labels": {
+              "de": "Text-Dokument",
+              "en": "Text document",
+              "fr": "Document texte"
+            },
+            "super": "TextRepresentation",
+            "cardinalities": [
+              {
+                "propname": ":hasName",
+                "cardinality": "1",
+                "gui_order": 1
+              },
+              {
+                "propname": ":hasDescription",
+                "cardinality": "1",
+                "gui_order": 2
+              }
+            ]
+          },
+          {
+            "name": "ObjectWithDifferentRepresentations",
+            "labels": {
+              "de": "Objekt mit unterschiedlichen Repräsentationen",
+              "en": "Object with different representations"
+            },
+            "comments": {
+              "en": "an object that can have representations of different types (audio, images,...)"
+            },
+            "super": "Resource",
+            "cardinalities": [
+              {
+                "propname": ":hasRepresentation",
+                "cardinality": "0-n",
+                "gui_order": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "rosetta2",
+        "label": "rosetta2",
+        "properties": [
+          {
+            "name": "hasLinkToOtherOnto",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": "rosetta:Image2D",
+            "labels": {
+              "de": "Textträger",
+              "en": "Text medium",
+              "fr": "Support de texte"
+            },
+            "gui_element": "Searchbox",
+            "gui_attributes": {
+              "numprops": 1
+            }
+          }
+        ],
+        "resources": [
+          {
+            "name": "TestResource",
+            "labels": {
+              "en": "TestResource"
+            },
+            "super": "Resource",
+            "cardinalities": [
+              {
+                "propname": ":hasLinkToOtherOnto",
+                "cardinality": "1",
+                "gui_order": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

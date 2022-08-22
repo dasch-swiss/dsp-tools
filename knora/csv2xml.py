@@ -171,9 +171,9 @@ def handle_warnings(msg: str, stacklevel: int = 2) -> None:
         f.write(msg + "\n")
 
 
-def find_date_in_string(string: Union[str, Any], calling_resource="") -> Union[str, None]:
+def find_date_in_string(string: str, calling_resource="") -> Union[str, None]:
     """
-    Checks if a string contains a date value (single date, or date range), and return the date as DSP-formatted string.
+    Checks if a string contains a date value (single date, or date range), and return the first found date as DSP-formatted string.
     Returns None if no date was found.
     Assumes Christian era (no BC dates) and Gregorian calendar. The years 0000-2999 are supported.
     Dates written with slashes are always interpreted in a European manner: 5/11/2021 is the 5th of November.
@@ -187,21 +187,27 @@ def find_date_in_string(string: Union[str, Any], calling_resource="") -> Union[s
 
     Examples:
         >>> if find_date_in_string(row["Epoch"]):
-                my_date = find_date_in_string(row["Epoch"])
+        >>>     resource.append(make_date_prop(":hasDate", find_date_in_string(row["Epoch"]))
 
     Currently supported date formats:
+
+    | Input      | Output                                |
+    | -----------| --------------------------------------|
+    | 2021-01-01 | GREGORIAN:CE:2021-01-01:CE:2021-01-01 |
+    | 2021_01_01 | GREGORIAN:CE:2021-01-01:CE:2021-01-01 |
+1848 -> GREGORIAN:CE:1848:CE:1848
+3-digit years need to be zero padded
      - 2021-01-01 | 2015_01_02
      - 26.2.-24.3.1948
      - 27.-28.1.1900
      - 1.12.1973 - 6.1.1974
      - 31.4.2021 | 5/11/2021
      - February 9, 1908 | Dec 5,1908
-     - 1907 | 1886/7 | 1849/1850
+     - 1907
+     - 1849/50 | 1845-50 | 1849/1850
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#date-prop
     """
-
-    string = str(string)
 
     monthes_dict = {
         "January": 1,
@@ -228,99 +234,102 @@ def find_date_in_string(string: Union[str, Any], calling_resource="") -> Union[s
         "Dec": 12,
     }
 
-    startdate: Any = None
-    enddate: Any = None
-    startyear: Any = None
-    endyear: Any = None
+    startdate: Optional[datetime.date] = None
+    enddate: Optional[datetime.date] = None
+    startyear: Optional[int] = None
+    endyear: Optional[int] = None
 
     year_regex = r"([0-2][0-9][0-9][0-9])"
     month_regex = r"([0-1]?[0-9])"
     day_regex = r"([0-3]?[0-9])"
     sep_regex = r"[\./]"
+    lookbehind = r"(?<![0-9A-Za-z])"
+    lookahead = r"(?![0-9A-Za-z])"
 
-    iso_date = re.search(fr"{year_regex}[_-]([0-1][0-9])[_-]([0-3][0-9])", string)
     # template: 2021-01-01 | 2015_01_02
-    eur_date_range = re.search(
-        fr"{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}? ?[\-:] ?{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}",
-        string)
-    # template: 6.2.-24/03/1948 | 6/2/1947 - 24.03.1948
-    eur_date = list(re.finditer(fr"{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}", string))
+    iso_date = re.search(fr"{lookbehind}{year_regex}[_-]([0-1][0-9])[_-]([0-3][0-9]){lookahead}", string)
+    # template: 6.-8.3.1948 | 6/2/1947 - 24.03.1948
+    eur_date_range = re.search(fr"{lookbehind}{day_regex}{sep_regex}(?:{month_regex}{sep_regex}{year_regex}?)? ?(?:-|:|to) ?"
+                               fr"{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}{lookahead}", string)
     # template: 1.4.2021 | 5/11/2021
+    eur_date = re.search(fr"{lookbehind}{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}{lookahead}", string)
+    # template: March 9, 1908 | March5,1908 | May 11, 1906
     monthname_date = re.search(
-        fr"(January|Jan|February|Feb|March|Mar|April|Apr|May|June|Jun|July|Jul|August|Aug|September|Sept|October|Oct|"
-        fr"November|Nov|December|Dec) {day_regex}, ?{year_regex}",
-        string)
-    # template: March 9, 1908 | March 5,1908 | May 11, 1906
-    year_only = re.search(year_regex, string)
-    # template: 1907 | 1886/7 | 1833/34 | 1849/1850
+        fr"{lookbehind}(January|Jan|February|Feb|March|Mar|April|Apr|May|June|Jun|July|Jul|August|Aug|September|Sept|"
+        fr"October|Oct|November|Nov|December|Dec) ?{day_regex}, ?{year_regex}{lookahead}", string)
+    # template: 1849/50 | 1849-50 | 1849/1850
+    year_range = re.search(lookbehind + year_regex + r"[/-](\d{2}|\d{4})" +lookahead, string)
+    # template: 1907
+    year_only = re.search(fr"{lookbehind}{year_regex}{lookahead}", string)
 
-    if iso_date and iso_date.lastindex == 3:
+
+    if iso_date:
         year = int(iso_date.group(1))
         month = int(iso_date.group(2))
         day = int(iso_date.group(3))
-        if month <= 12 and day <= 31:
+        try:
             startdate = datetime.date(year, month, day)
             enddate = startdate
+        except ValueError:
+            handle_warnings(f"Date parsing error in resource {calling_resource}: '{iso_date.group(0)}' is "
+                            f"not a valid date")
+            return None
 
-    elif eur_date_range and eur_date_range.lastindex == 6:
+    elif eur_date_range:
         startday = int(eur_date_range.group(1))
-        startmonth = int(eur_date_range.group(2))
-        if eur_date_range.group(3):
-            startyear = int(eur_date_range.group(3))
+        startmonth = int(eur_date_range.group(2)) if eur_date_range.group(2) else int(eur_date_range.group(5))
+        startyear = int(eur_date_range.group(3)) if eur_date_range.group(3) else int(eur_date_range.group(6))
         endday = int(eur_date_range.group(4))
         endmonth = int(eur_date_range.group(5))
         endyear = int(eur_date_range.group(6))
-        if not startyear:
-            startyear = endyear
-        if startmonth <= 12 and startday <= 31:
+        try:
             startdate = datetime.date(startyear, startmonth, startday)
             enddate = datetime.date(endyear, endmonth, endday)
-            if not enddate >= startdate:
-                handle_warnings(f"Date parsing error in resource {calling_resource}: Enddate ({enddate.isoformat()}) "
-                                f"is earlier than startdate ({startdate.isoformat()})", stacklevel=3)
+            if enddate < startdate:
+                raise ValueError
+        except ValueError:
+            handle_warnings(f"Date parsing error in resource {calling_resource}: '{eur_date_range.group(0)}' is not a "
+                            f"valid date", stacklevel=3)
+            return None
 
-    elif eur_date and eur_date[0].lastindex == 3:
-        startyear = int(eur_date[0].group(3))
-        startmonth = int(eur_date[0].group(2))
-        startday = int(eur_date[0].group(1))
-        if startmonth <= 12 and startday <= 31:
+    elif eur_date:
+        startday = int(eur_date.group(1))
+        startmonth = int(eur_date.group(2))
+        startyear = int(eur_date.group(3))
+        try:
             startdate = datetime.date(startyear, startmonth, startday)
             enddate = startdate
-        if len(eur_date) == 2 and eur_date[1].lastindex == 3:
-            endyear = int(eur_date[1].group(3))
-            endmonth = int(eur_date[1].group(2))
-            endday = int(eur_date[1].group(1))
-            if endmonth <= 12 and endday <= 31:
-                enddate = datetime.date(endyear, endmonth, endday)
-                if not enddate >= startdate:
-                    handle_warnings(f"Date parsing error in in resource {calling_resource}: "
-                                    f"Enddate ({enddate.isoformat()}) is earlier than startdate ({startdate.isoformat()})",
-                                    stacklevel=3)
+        except ValueError:
+            handle_warnings(f"Date parsing error in resource {calling_resource}: '{eur_date.group(0)}' is not a valid "
+                            f"date", stacklevel=3)
+            return None
 
-    elif monthname_date and monthname_date.lastindex == 3:
-        year = int(monthname_date.group(3))
-        month = monthes_dict[monthname_date.group(1)]
+    elif monthname_date:
         day = int(monthname_date.group(2))
-        if month <= 12 and day <= 31:
+        month = monthes_dict[monthname_date.group(1)]
+        year = int(monthname_date.group(3))
+        try:
             startdate = datetime.date(year, month, day)
             enddate = startdate
+        except ValueError:
+            handle_warnings(f"Date parsing error in resource {calling_resource}: '{monthname_date.group(0)}' is not a "
+                            f"valid date", stacklevel=3)
+            return None
+
+    elif year_range:
+        startyear = int(year_range.group(1))
+        endyear = int(year_range.group(2))
+        if int(endyear/100) == 0:
+            # endyear is only 2-digit: add the first two digits of startyear
+            endyear = int(startyear/100) * 100 + endyear
 
     elif year_only:
-        startyear = year_only.group(0)
+        startyear = int(year_only.group(0))
         endyear = startyear
-        # optionally, there is a second year:
-        secondyear_match = re.search(r"\d+/(\d+)", string)
-        if secondyear_match:
-            secondyear = secondyear_match.group(1)
-            secondyear = startyear[0:-len(secondyear)] + secondyear
-            if int(secondyear) != int(startyear) + 1:
-                handle_warnings(f"Error in resource {calling_resource}: second year of {string} could not be parsed, "
-                                f"assume {int(startyear) + 1}", stacklevel=3)
-            endyear = int(startyear) + 1
 
-    if startdate is not None and enddate is not None:
+    if startdate and enddate:
         return f"GREGORIAN:CE:{startdate.isoformat()}:CE:{enddate.isoformat()}"
-    elif startyear is not None and endyear is not None:
+    elif startyear and endyear:
         return f"GREGORIAN:CE:{startyear}:CE:{endyear}"
     else:
         return None

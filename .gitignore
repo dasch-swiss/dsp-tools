@@ -70,6 +70,7 @@ stashed*
 **/~$*.*
 testdata/tmp/
 testdata/test-list.json
+WARNINGS.TXT
 
 # for testing in development
 tmp/

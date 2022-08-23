@@ -31,10 +31,12 @@ class TestCsv2xml(unittest.TestCase):
     def test_check_notna(self) -> None:
         na_values = [None, pd.NA, np.nan, "", "  ", "-", ",", ".", "*", "!", " \n\t ", "N/A", "n/a", "<NA>", ["a", "b"],
                      pd.array(["a", "b"]), np.array([0, 1])]
+        na_values.extend([c2x.PropertyElement(x) for x in na_values])
         for na_value in na_values:
             self.assertFalse(c2x.check_notna(na_value), msg=f"Failed na_value: {na_value}")
 
         notna_values = [1, 0.1, True, False, "True", "False", r" \n\t ", "0", "_"]
+        notna_values.extend([c2x.PropertyElement(x) for x in notna_values])
         for notna_value in notna_values:
             self.assertTrue(c2x.check_notna(notna_value), msg=f"Failed notna_value: {notna_value}")
 
@@ -94,6 +96,22 @@ class TestCsv2xml(unittest.TestCase):
         self.assertEqual(c2x.find_date_in_string("Text 1849/50. text"), "GREGORIAN:CE:1849:CE:1850")
         self.assertEqual(c2x.find_date_in_string("Text (1845-50) text"), "GREGORIAN:CE:1845:CE:1850")
         self.assertEqual(c2x.find_date_in_string("Text [1849/1850] text"), "GREGORIAN:CE:1849:CE:1850")
+
+
+    def test_check_and_prepare_values(self) -> None:
+        values_input = [1, 1.0, "1", "1.0", " 1 "]
+        values_output = c2x._check_and_prepare_values(value=None, values=values_input, name="")
+        self.assertEqual([x.value for x in values_output], values_input)
+
+        values_output = c2x._check_and_prepare_values(value=None, values=[c2x.PropertyElement(x) for x in values_input], name="")
+        self.assertEqual([x.value for x in values_output], values_input)
+
+        self.assertRaises(BaseError, lambda: c2x._check_and_prepare_values(value=values_input, values=None, name=""))
+        self.assertRaises(BaseError, lambda: c2x._check_and_prepare_values(value=[c2x.PropertyElement(x) for x in values_input], values=None, name=""))
+
+        self.assertRaises(BaseError, lambda: c2x._check_and_prepare_values(value=1, values=[1], name=""))
+        self.assertRaises(BaseError, lambda: c2x._check_and_prepare_values(value=np.nan, values=[np.nan], name=""))
+
 
 if __name__ == "__main__":
     unittest.main()

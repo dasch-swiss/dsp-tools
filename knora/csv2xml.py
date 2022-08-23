@@ -5,12 +5,12 @@ import re
 import warnings
 import difflib
 import unicodedata
-import pandas as pd  # type: ignore
-import numpy as np
+import pandas as pd
 from collections.abc import Iterable
 from typing import Any, Optional, Union
 from lxml import etree
-from lxml.builder import E  # type: ignore
+from lxml.builder import E
+
 from knora.dsplib.models.helpers import BaseError
 
 ##############################
@@ -23,21 +23,21 @@ xml_namespace_map = {
 __muted_warnings: list[str] = []
 
 class PropertyElement:
-    value: str
+    value: Union[str, int, float, bool]
     permissions: Optional[str]
     comment: Optional[str]
     encoding: Optional[str]
 
     def __init__(
         self,
-        value: str,
+        value: Union[str, int, float, bool],
         permissions: str = "prop-default",
         comment: Optional[str] = None,
         encoding: Optional[str] = None
     ):
         """
-        A PropertyElement object carries more information about a property value than just a plain string.
-        The "value" is the value that could be passed to a method as plain string. Use a PropertyElement
+        A PropertyElement object carries more information about a property value than the value itself.
+        The "value" is the value that could be passed to a method as plain string/int/float/bool. Use a PropertyElement
         instead to define more precisely what attributes your <text> tag (for example) will have.
 
         Args:
@@ -62,7 +62,7 @@ class PropertyElement:
                         </text>
                     </text-prop>
         """
-        self.value = value.strip()
+        self.value = value
         self.permissions = permissions
         self.comment = comment
         self.encoding = encoding
@@ -345,6 +345,7 @@ def check_notna(value: Optional[Any]) -> bool:
      - a number (integer or float, but not np.nan)
      - a boolean
      - a string with at least one word-character (regex `[A-Za-z0-9_]`), but not "None", "<NA>", "N/A", or "-"
+     - a PropertyElement whose "value" fulfills the above criteria
 
     Args:
         value: any object encountered when analysing data
@@ -352,9 +353,11 @@ def check_notna(value: Optional[Any]) -> bool:
     Returns:
         True if the value is usable, False if it is N/A or otherwise unusable
     """
+    if isinstance(value, PropertyElement):
+        value = value.value
     if any([
         isinstance(value, int),
-        isinstance(value, float) and value is not np.nan,   # necessary because isinstance(np.nan, float)
+        isinstance(value, float) and pd.notna(value),   # necessary because isinstance(np.nan, float)
         isinstance(value, bool)
     ]):
         return True
@@ -368,64 +371,80 @@ def check_notna(value: Optional[Any]) -> bool:
 
 
 def _check_and_prepare_values(
-    value: Optional[Union[PropertyElement, str, Any, Iterable[Union[PropertyElement, str, Any]]]],
-    values: Optional[Iterable[Union[PropertyElement, str, Any]]],
-    name: Union[str, Any],
+    value: Optional[Union[PropertyElement, str, int, float, bool, Iterable[Union[PropertyElement, str, int, float, bool]]]],
+    values: Optional[Iterable[Union[PropertyElement, str, int, float, bool]]],
+    name: str,
     calling_resource: str = ""
 ) -> list[PropertyElement]:
-    if isinstance(value, Iterable) and not isinstance(value, str):
-        if len(set(value)) > 1:
-            raise BaseError(f"There are contradictory '{name}' values for '{calling_resource}': \n{value}")
+    """
+    There is a variety of possibilities how to call a make_*_prop() method. Before such a method can do its job, the
+    parameters need to be checked and prepared, which is done by this helper method. The parameters "value" and "values"
+    are passed to it as they were received. This method will then perform the following checks, and throw a BaseError in
+    case of failure:
+      - check that exactly one of them contains data, but not both.
+      - If "value" is array-like, its elements are checked for identity.
+          - Note that identity is defined in a strict sense: 1 and "1.0" are considered different. Reason: For a
+            <decimal-prop>, 1 might be equivalent to "1.0", but for a <boolean-prop>, 1 is rather equivalent to True
+            than to "1.0".
+
+    Then, N/A-like values are removed from "values", and all values are transformed to PropertyElements and returned as
+    a list. In case of a single "value", the resulting list contains the PropertyElement of this value.
+
+    Args:
+        value: "value" as received from the caller
+        values: "values" as received from the caller
+        name: name of the property (for better error messages)
+        calling_resource: name of the resource (for better error messages)
+
+    Returns:
+        a list of PropertyElements
+    """
+
+    # assert that either "value" or "values" is usable, but not both at the same time
+    if all([
+        not check_notna(value),
+        values is None or not any([check_notna(val) for val in values])
+    ]):
+        raise BaseError(f"ERROR in resource '{calling_resource}', property '{name}': 'value' and 'values' cannot both "
+                        f"be empty")
+
+    if all([
+        check_notna(value),
+        values is not None and any([check_notna(val) for val in values])
+    ]):
+        raise BaseError(f"ERROR in resource '{calling_resource}', property '{name}': You cannot provide a 'value' and "
+                        f"a 'values' at the same time!")
+
+    # construct the resulting list
+    result: list[PropertyElement] = list()
+
+    if check_notna(value):
+        # if "value" contains more than one value, reduce it to a single value
+        if not isinstance(value, Iterable) or isinstance(value, str):
+            single_value: Union[PropertyElement, str, int, float, bool] = value
         else:
-            value = value[0]
+            if len(set(value)) > 1:
+                raise BaseError(f"There are contradictory '{name}' values for '{calling_resource}': {value}")
+            single_value = next(iter(value))
 
-    if all([
-        value is None or pd.isna(value),
-        values is None or all([pd.isna(val) for val in values])
-    ]):
-        raise BaseError(f"ERROR in resource '{calling_resource}', property '{name}': \n'value' and 'values' cannot "
-                        f"both be empty")
-
-    if all([
-        value is not None and pd.notna(value),
-        values is not None and any([pd.notna(val) for val in values])
-    ]):
-        raise BaseError(f"ERROR in resource '{calling_resource}', property '{name}': \n"
-                        f"You cannot provide a 'value' and a 'values' at the same time!")
-
-    values_new: list[PropertyElement] = list()
-
-    if values is not None:
-        valueslist = [v for v in values if v is not None]
-        valueslist = sorted(set(valueslist), key=lambda x: valueslist.index(x))
-        for x in valueslist:
-            if isinstance(x, PropertyElement):
-                values_new.append(x)
-            else:
-                values_new.append(PropertyElement(x))
+        # make a PropertyElement out of it, if necessary
+        if isinstance(single_value, PropertyElement):
+            result.append(single_value)
+        else:
+            result.append(PropertyElement(single_value))
 
     else:
-        if isinstance(value, PropertyElement):
-            values_new = [value, ]
-        elif isinstance(value, str):
-            assert value is not None
-            values_new = [PropertyElement(value), ]
-        elif isinstance(value, Iterable):
-            valueslist = [v for v in value if v is not None]
-            valueslist = sorted(set(valueslist), key=lambda x: valueslist.index(x))
-            for x in valueslist:
-                if isinstance(x, PropertyElement):
-                    values_new.append(x)
-                else:
-                    values_new.append(PropertyElement(x))
-            if len(values_new) > 1:
-                raise BaseError(
-                    f"There are contradictory '{name}' values for '{calling_resource}': \n{[v.value for v in values_new]}")
-        else:
-            raise BaseError("Wrong logic in method '_check_and_prepare_values()'. Please inform Johannes Nussbaum")
-            # TODO such a thing should not happen. Improve architecture, and cover this case with unittests
+        # if "values" contains unusable elements, remove them
+        multiple_values = [val for val in values if check_notna(val)]
 
-    return values_new
+        # make a PropertyElement out of them, if necessary
+        for elem in multiple_values:
+            if isinstance(elem, PropertyElement):
+                result.append(elem)
+            else:
+                result.append(PropertyElement(elem))
+
+    return result
 
 
 def make_root(shortcode: str, default_ontology: str) -> etree._Element:
@@ -550,7 +569,7 @@ def make_resource(
 
     resource_ = etree.Element(
         "{%s}resource" % (xml_namespace_map[None]),
-        **kwargs  # type: ignore
+        **kwargs
     )
     return resource_
 
@@ -676,7 +695,7 @@ def make_boolean_prop(
         kwargs["comment"] = value_new.comment
     value_ = etree.Element(
         "{%s}boolean" % (xml_namespace_map[None]),
-        **kwargs,  # type: ignore
+        **kwargs,
         nsmap=xml_namespace_map
     )
     value_.text = value_new.value
@@ -755,7 +774,7 @@ def make_color_prop(
             kwargs["comment"] = val.comment
         value_ = etree.Element(
             "{%s}color" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            **kwargs,
             nsmap=xml_namespace_map
         )
         value_.text = val.value
@@ -845,7 +864,7 @@ def make_date_prop(
             kwargs["comment"] = val.comment
         value_ = etree.Element(
             "{%s}date" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            **kwargs,
             nsmap=xml_namespace_map
         )
         value_.text = val.value
@@ -907,11 +926,11 @@ def make_decimal_prop(
 
     # check value type
     for val in values_new:
-        assert str(float(val.value)) == val.value, \
-            f"The following is not a valid decimal number:\n" + \
-            f"resource '{calling_resource}'\n" + \
-            f"property '{name}'\n" + \
-            f"value    '{val.value}'"
+        if not re.search(r"^\d+\.\d+$", str(val.value).strip()):
+            raise BaseError(f"The following is not a valid decimal number:\n"
+                            f"resource '{calling_resource}'\n"
+                            f"property '{name}'\n"
+                            f"value    '{val.value}'")
 
     prop_ = etree.Element(
         "{%s}decimal-prop" % (xml_namespace_map[None]),
@@ -924,10 +943,10 @@ def make_decimal_prop(
             kwargs["comment"] = val.comment
         value_ = etree.Element(
             "{%s}decimal" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            **kwargs,
             nsmap=xml_namespace_map
         )
-        value_.text = val.value
+        value_.text = float(val.value)
         prop_.append(value_)
 
     return prop_
@@ -1016,7 +1035,7 @@ def make_geometry_prop(
             kwargs["comment"] = val.comment
         value_ = etree.Element(
             "{%s}geometry" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            **kwargs,
             nsmap=xml_namespace_map
         )
         value_.text = val.value
@@ -1094,7 +1113,7 @@ def make_geoname_prop(
             kwargs["comment"] = val.comment
         value_ = etree.Element(
             "{%s}geoname" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            **kwargs,
             nsmap=xml_namespace_map
         )
         value_.text = val.value
@@ -1156,11 +1175,11 @@ def make_integer_prop(
 
     # check value type
     for val in values_new:
-        assert re.search(r"^\d+$", val.value) is not None, \
-            f"The following is not a valid integer:\n" + \
-            f"resource '{calling_resource}'\n" + \
-            f"property '{name}'\n" + \
-            f"value    '{val.value}'"
+        if not re.search(r"^\d+$", str(val.value).strip()):
+            raise BaseError(f"The following is not a valid integer:\n"
+                            f"resource '{calling_resource}'\n"
+                            f"property '{name}'\n"
+                            f"value    '{val.value}'")
 
     prop_ = etree.Element(
         "{%s}integer-prop" % (xml_namespace_map[None]),
@@ -1173,10 +1192,10 @@ def make_integer_prop(
             kwargs["comment"] = val.comment
         value_ = etree.Element(
             "{%s}integer" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            **kwargs,
             nsmap=xml_namespace_map
         )
-        value_.text = val.value
+        value_.text = int(val.value)
         prop_.append(value_)
 
     return prop_
@@ -1252,7 +1271,7 @@ def make_interval_prop(
             kwargs["comment"] = val.comment
         value_ = etree.Element(
             "{%s}interval" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            **kwargs,
             nsmap=xml_namespace_map
         )
         value_.text = val.value
@@ -1327,7 +1346,7 @@ def make_list_prop(
             kwargs["comment"] = val.comment
         value_ = etree.Element(
             "{%s}list" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            **kwargs,
             nsmap=xml_namespace_map
         )
         value_.text = val.value
@@ -1398,7 +1417,7 @@ def make_resptr_prop(
             kwargs["comment"] = val.comment
         value_ = etree.Element(
             "{%s}resptr" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            **kwargs,
             nsmap=xml_namespace_map
         )
         value_.text = val.value
@@ -1472,7 +1491,7 @@ def make_text_prop(
             kwargs["encoding"] = "utf8"
         value_ = etree.Element(
             "{%s}text" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            **kwargs,
             nsmap=xml_namespace_map
         )
         value_.text = val.value
@@ -1540,11 +1559,11 @@ def make_time_prop(
 
     # check value type
     for val in values_new:
-        assert re.search(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})?$", val.value) is not None, \
-            f"The following is not a valid time:\n" + \
-            f"resource '{calling_resource}'\n" + \
-            f"property '{name}'\n" + \
-            f"value    '{val.value}'"
+        if not re.search(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})?$", str(val.value)):
+            raise BaseError(f"The following is not a valid time:\n"
+                            f"resource '{calling_resource}'\n"
+                            f"property '{name}'\n"
+                            f"value    '{val.value}'")
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1558,7 +1577,7 @@ def make_time_prop(
             kwargs["comment"] = val.comment
         value_ = etree.Element(
             "{%s}time" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            **kwargs,
             nsmap=xml_namespace_map
         )
         value_.text = val.value
@@ -1630,7 +1649,7 @@ def make_uri_prop(
             kwargs["comment"] = val.comment
         value_ = etree.Element(
             "{%s}uri" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            **kwargs,
             nsmap=xml_namespace_map
         )
         value_.text = val.value

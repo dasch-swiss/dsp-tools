@@ -10,6 +10,11 @@ from knora.dsplib.utils.id_to_iri import id_to_iri
 class TestIdToIri(unittest.TestCase):
     out_file = 'testdata/tmp/_test-id2iri-replaced.xml'
 
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Is executed before the methods of this class are run"""
+        os.makedirs('testdata/tmp', exist_ok=True)
+
     def test_invalid_xml_file_name(self) -> None:
         with self.assertRaises(SystemExit) as cm:
             id_to_iri(xml_file='test.xml',
@@ -43,6 +48,13 @@ class TestIdToIri(unittest.TestCase):
 
         self.assertEqual(result,
                          ["http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg", "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ"])
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Is executed after the methods of this class have all run through"""
+        for file in os.listdir('testdata/tmp'):
+            os.remove('testdata/tmp/' + file)
+        os.rmdir('testdata/tmp')
 
 
 if __name__ == '__main__':

@@ -10,6 +10,11 @@ from knora.dsplib.utils import excel_to_json_properties as e2j
 
 class TestExcelToProperties(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Is executed before the methods of this class are run"""
+        os.makedirs('testdata/tmp', exist_ok=True)
+
     def test_excel2json(self) -> None:
         excelfile = "testdata/Properties.xlsx"
         outfile = "testdata/tmp/_out_properties.json"
@@ -99,6 +104,13 @@ class TestExcelToProperties(unittest.TestCase):
         self.assertDictEqual(excel_gui_attributes_hasGND, json_gui_attributes_hasGND)
         self.assertDictEqual(excel_gui_attributes_hasDecimal, json_gui_attributes_hasDecimal)
         self.assertDictEqual(excel_gui_attributes_hasGender, json_gui_attributes_hasGender)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Is executed after the methods of this class have all run through"""
+        for file in os.listdir('testdata/tmp'):
+            os.remove('testdata/tmp/' + file)
+        os.rmdir('testdata/tmp')
 
 
 if __name__ == "__main__":

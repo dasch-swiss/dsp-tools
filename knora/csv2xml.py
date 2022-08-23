@@ -171,7 +171,7 @@ def handle_warnings(msg: str, stacklevel: int = 2) -> None:
         f.write(msg + "\n")
 
 
-def find_date_in_string(string: str, calling_resource="") -> Union[str, None]:
+def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str]:
     """
     Checks if a string contains a date value (single date, or date range), and returns the first found date as
     DSP-formatted string. Returns None if no date was found.
@@ -184,8 +184,8 @@ def find_date_in_string(string: str, calling_resource="") -> Union[str, None]:
     Currently supported date formats:
         - 0476-09-04 -> GREGORIAN:CE:0476-09-04:CE:0476-09-04
         - 0476_09_04 -> GREGORIAN:CE:0476-09-04:CE:0476-09-04
-        - 31.4.2021 -> GREGORIAN:CE:2021-04-31:CE:2021-04-31
-        - 5/11/2021 -> GREGORIAN:CE:2021-05-11:CE:2021-05-11
+        - 30.4.2021 -> GREGORIAN:CE:2021-04-30:CE:2021-04-30
+        - 5/11/2021 -> GREGORIAN:CE:2021-11-05:CE:2021-11-05
         - Jan 26, 1993 -> GREGORIAN:CE:1993-01-26:CE:1993-01-26
         - February26,2051 -> GREGORIAN:CE:2051-02-26:CE:2051-02-26
         - 28.2.-1.12.1515 --> GREGORIAN:CE:1515-02-28:CE:1515-12-01

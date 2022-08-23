@@ -45,37 +45,37 @@ class TestCsv2xml(unittest.TestCase):
         self.assertEqual(c2x.find_date_in_string("text 1492-10-12, text"), "GREGORIAN:CE:1492-10-12:CE:1492-10-12")
         self.assertEqual(c2x.find_date_in_string("Text 0476-09-04. text"), "GREGORIAN:CE:0476-09-04:CE:0476-09-04")
         self.assertEqual(c2x.find_date_in_string("Text (0476-09-04) text"), "GREGORIAN:CE:0476-09-04:CE:0476-09-04")
-        self.assertIsNone(c2x.find_date_in_string("Text [1492-10-32?] text"))
+        self.assertWarns(UserWarning, lambda: c2x.find_date_in_string("Text [1492-10-32?] text"))
 
         # template: 31.4.2021 | 5/11/2021
-        self.assertEqual(c2x.find_date_in_string("Text (31.4.2021) text"), "GREGORIAN:CE:2021-04-31:CE:2021-04-31")
-        self.assertEqual(c2x.find_date_in_string("Text (5/11/2021) text"), "GREGORIAN:CE:2021-05-11:CE:2021-05-11")
+        self.assertEqual(c2x.find_date_in_string("Text (30.4.2021) text"), "GREGORIAN:CE:2021-04-30:CE:2021-04-30")
+        self.assertEqual(c2x.find_date_in_string("Text (5/11/2021) text"), "GREGORIAN:CE:2021-11-05:CE:2021-11-05")
 
         # template: 26.2.-24.3.1948
         self.assertEqual(c2x.find_date_in_string("Text ...2193_01_26... text"), "GREGORIAN:CE:2193-01-26:CE:2193-01-26")
         self.assertEqual(c2x.find_date_in_string("Text -2193_01_26- text"), "GREGORIAN:CE:2193-01-26:CE:2193-01-26")
-        self.assertIsNone(c2x.find_date_in_string("Text 2193_02_30 text"))
+        self.assertWarns(UserWarning, lambda: c2x.find_date_in_string("Text 2193_02_30 text"))
 
         # template: 27.-28.1.1900
         self.assertEqual(c2x.find_date_in_string("Text _1.3. - 25.4.2022_ text"), "GREGORIAN:CE:2022-03-01:CE:2022-04-25")
         self.assertEqual(c2x.find_date_in_string("Text (01.03. - 25.04.2022) text"), "GREGORIAN:CE:2022-03-01:CE:2022-04-25")
         self.assertEqual(c2x.find_date_in_string("Text 28.2.-1.12.1515 text"), "GREGORIAN:CE:1515-02-28:CE:1515-12-01")
         self.assertEqual(c2x.find_date_in_string("Text 28.2.-1.12.1515 text"), "GREGORIAN:CE:1515-02-28:CE:1515-12-01")
-        self.assertIsNone(c2x.find_date_in_string("Text 28.2.-26.2.1515 text"))
+        self.assertWarns(UserWarning, lambda: c2x.find_date_in_string("Text 28.2.-26.2.1515 text"))
 
         # template: 1.12.1973 - 6.1.1974
         self.assertEqual(c2x.find_date_in_string("Text 25.-26.2.0800 text"), "GREGORIAN:CE:0800-02-25:CE:0800-02-26")
         self.assertEqual(c2x.find_date_in_string("Text 25. - 26.2.0800 text"), "GREGORIAN:CE:0800-02-25:CE:0800-02-26")
         self.assertEqual(c2x.find_date_in_string("Text 25. - 26.2.0800 text"), "GREGORIAN:CE:0800-02-25:CE:0800-02-26")
-        self.assertIsNone(c2x.find_date_in_string("Text 25.-24.2.0800 text"))
+        self.assertWarns(UserWarning, lambda: c2x.find_date_in_string("Text 25.-24.2.0800 text"))
 
         # template: 31.4.2021 | 5/11/2021
         self.assertEqual(c2x.find_date_in_string("Text 1.9.2022-3.1.2024 text"), "GREGORIAN:CE:2022-09-01:CE:2024-01-03")
         self.assertEqual(c2x.find_date_in_string("Text 25.12.2022 - 3.1.2024 text"), "GREGORIAN:CE:2022-12-25:CE:2024-01-03")
-        self.assertIsNone(c2x.find_date_in_string("Text 25.12.2022-03.01.2022 text"))
+        self.assertWarns(UserWarning, lambda: c2x.find_date_in_string("Text 25.12.2022-03.01.2022 text"))
         self.assertEqual(c2x.find_date_in_string("Text 25/12/2022-03/01/2024 text"), "GREGORIAN:CE:2022-12-25:CE:2024-01-03")
         self.assertEqual(c2x.find_date_in_string("Text 25/12/2022 - 3/1/2024 text"), "GREGORIAN:CE:2022-12-25:CE:2024-01-03")
-        self.assertIsNone(c2x.find_date_in_string("Text 25/12/2022-03/01/2022 text"))
+        self.assertWarns(UserWarning, lambda: c2x.find_date_in_string("Text 25/12/2022-03/01/2022 text"))
 
         # template: February 9, 1908 | Dec 5,1908
         self.assertEqual(c2x.find_date_in_string("Text Jan 26, 1993 text"), "GREGORIAN:CE:1993-01-26:CE:1993-01-26")

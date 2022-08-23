@@ -173,10 +173,28 @@ def handle_warnings(msg: str, stacklevel: int = 2) -> None:
 
 def find_date_in_string(string: str, calling_resource="") -> Union[str, None]:
     """
-    Checks if a string contains a date value (single date, or date range), and return the first found date as DSP-formatted string.
-    Returns None if no date was found.
-    Assumes Christian era (no BC dates) and Gregorian calendar. The years 0000-2999 are supported.
-    Dates written with slashes are always interpreted in a European manner: 5/11/2021 is the 5th of November.
+    Checks if a string contains a date value (single date, or date range), and returns the first found date as
+    DSP-formatted string. Returns None if no date was found.
+
+    Notes:
+        - Assumes Christian era (no BC dates) and Gregorian calendar.
+        - The years 0000-2999 are supported, in 4-digit form.
+        - Dates written with slashes are always interpreted in a European manner: 5/11/2021 is the 5th of November.
+
+    Currently supported date formats:
+        - 0476-09-04 -> GREGORIAN:CE:0476-09-04:CE:0476-09-04
+        - 0476_09_04 -> GREGORIAN:CE:0476-09-04:CE:0476-09-04
+        - 31.4.2021 -> GREGORIAN:CE:2021-04-31:CE:2021-04-31
+        - 5/11/2021 -> GREGORIAN:CE:2021-05-11:CE:2021-05-11
+        - Jan 26, 1993 -> GREGORIAN:CE:1993-01-26:CE:1993-01-26
+        - February26,2051 -> GREGORIAN:CE:2051-02-26:CE:2051-02-26
+        - 28.2.-1.12.1515 --> GREGORIAN:CE:1515-02-28:CE:1515-12-01
+        - 25.-26.2.0800 --> GREGORIAN:CE:0800-02-25:CE:0800-02-26
+        - 1.9.2022-3.1.2024 --> GREGORIAN:CE:2022-09-01:CE:2024-01-03
+        - 1848 -> GREGORIAN:CE:1848:CE:1848
+        - 1849/1850 -> GREGORIAN:CE:1849:CE:1850
+        - 1849/50 -> GREGORIAN:CE:1849:CE:1850
+        - 1845-50 -> GREGORIAN:CE:1845:CE:1850
 
     Args:
         string: string to check
@@ -188,23 +206,6 @@ def find_date_in_string(string: str, calling_resource="") -> Union[str, None]:
     Examples:
         >>> if find_date_in_string(row["Epoch"]):
         >>>     resource.append(make_date_prop(":hasDate", find_date_in_string(row["Epoch"]))
-
-    Currently supported date formats:
-
-    | Input      | Output                                |
-    | -----------| --------------------------------------|
-    | 2021-01-01 | GREGORIAN:CE:2021-01-01:CE:2021-01-01 |
-    | 2021_01_01 | GREGORIAN:CE:2021-01-01:CE:2021-01-01 |
-1848 -> GREGORIAN:CE:1848:CE:1848
-3-digit years need to be zero padded
-     - 2021-01-01 | 2015_01_02
-     - 26.2.-24.3.1948
-     - 27.-28.1.1900
-     - 1.12.1973 - 6.1.1974
-     - 31.4.2021 | 5/11/2021
-     - February 9, 1908 | Dec 5,1908
-     - 1907
-     - 1849/50 | 1845-50 | 1849/1850
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#date-prop
     """

@@ -826,8 +826,8 @@ def make_date_prop(
 
     # check value type
     for val in values_new:
-        if not re.search(r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})?(-\d{1,2})?(-\d{1,2})?"
-                         r"(:CE|:BCE)?(:\d{4})?(-\d{1,2})?(-\d{1,2})?$", str(val.value).strip()):
+        if not re.search(r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?\d{4}(-\d{1,2})?(-\d{1,2})?"
+                         r"((:CE|:BCE)?:\d{4}(-\d{1,2})?(-\d{1,2})?)?$", str(val.value).strip()):
             raise BaseError(f"Invalid date format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
 
     # make xml structure of the value

@@ -1,7 +1,7 @@
 import random
 import unittest
 import re
-from typing import Union
+from typing import Callable, Union
 
 import pandas as pd
 import numpy as np
@@ -9,6 +9,48 @@ from lxml import etree
 
 from knora import csv2xml as c2x
 from knora.dsplib.models.helpers import BaseError
+
+
+def make_test_cases(
+    prop: str,
+    method: Callable[..., etree._Element],
+    different_values: list[str],
+) -> list[tuple[str, etree._Element]]:
+    """
+    XML-properties have always a similar structure, and all make_*_prop() methods have some similar things to test. This
+    method generates test cases. Please note that different_values must contain at least 5 elements.
+
+    Args:
+        prop: the name of the property
+        method: the make_*_prop() method
+        different_values: at least 5 different values that are valid
+
+    Returns:
+        a list of (expected, received) tuples
+    """
+    identical_values = [different_values[0]] * 3
+    return [
+        (
+            f'<{prop}-prop name=":test"><{prop} permissions="prop-restricted">{different_values[0]}</{prop}></{prop}-prop>',
+            method(":test", c2x.PropertyElement(different_values[0], permissions="prop-restricted"))
+        ),
+        (
+            f'<{prop}-prop name=":test"><{prop} permissions="prop-default" comment="comment">{different_values[1]}</{prop}></{prop}-prop>',
+            method(":test", c2x.PropertyElement(different_values[1], comment="comment"))
+        ),
+        (
+            f'<{prop}-prop name=":test"><{prop} permissions="prop-default">{identical_values[0]}</{prop}></{prop}-prop>',
+            method(":test", value=identical_values)
+        ),
+        (
+            f'<{prop}-prop name=":test">'
+            f'<{prop} permissions="prop-default">{different_values[2]}</{prop}>'
+            f'<{prop} permissions="prop-default">{different_values[3]}</{prop}>'
+            f'<{prop} permissions="prop-default">{different_values[4]}</{prop}>'
+            f'</{prop}-prop>',
+            method(":test", values=different_values[2:5])
+        )
+    ]
 
 
 class TestCsv2xml(unittest.TestCase):
@@ -197,39 +239,38 @@ class TestCsv2xml(unittest.TestCase):
 
 
     def test_make_color_prop(self) -> None:
-        testcases = [
-            (
-                '<color-prop name=":test"><color permissions="prop-restricted">#012345</color></color-prop>',
-                c2x.make_color_prop(":test", c2x.PropertyElement("#012345", permissions="prop-restricted"))
-            ),
-            (
-                '<color-prop name=":test"><color permissions="prop-default" comment="comment">#abcdef</color></color-prop>',
-                c2x.make_color_prop(":test", c2x.PropertyElement("#abcdef", comment="comment"))
-            ),
-            (
-                '<color-prop name=":test"><color permissions="prop-default">#0B0B0B</color></color-prop>',
-                c2x.make_color_prop(":test", value=["#0B0B0B", "#0B0B0B", "#0B0B0B"])
-            ),
-            (
-                '<color-prop name=":test">'
-                    '<color permissions="prop-default">#0B0B0B</color>'
-                    '<color permissions="prop-default">#abcdef</color>'
-                    '<color permissions="prop-default">#AAAAAA</color>'
-                '</color-prop>',
-                c2x.make_color_prop(":test", values=["#0B0B0B", "#abcdef", "#AAAAAA"])
-            )
-        ]
+        prop = "color"
+        method = c2x.make_color_prop
+        different_values = ["#012345", "#abcdef", "#0B0B0B", "#AAAAAA", "#1a2b3c"]
+        invalid_values = ["#0000000", "#00000G"]
 
+        testcases = make_test_cases(prop, method, different_values)
         for testcase in testcases:
-            xml_expected = testcase[0]
-            xml_received = testcase[1]
-            xml_received = etree.tostring(xml_received, encoding="unicode")
+            xml_received = etree.tostring(testcase[1], encoding="unicode")
             xml_received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_received)
-            self.assertEqual(xml_expected, xml_received)
+            self.assertEqual(testcase[0], xml_received)
 
-        self.assertRaises(BaseError, lambda: c2x.make_color_prop(":test", "#0000000"))
-        self.assertRaises(BaseError, lambda: c2x.make_color_prop(":test", "#00000G"))
-        self.assertRaises(BaseError, lambda: c2x.make_color_prop(":test", ["#0B0B0B", "#abcdef", "#AAAAAA"]))
+        for inv in invalid_values:
+            self.assertRaises(BaseError, lambda: method(":test", inv))
+        self.assertRaises(BaseError, lambda: method(":test", different_values))
+
+
+    def test_make_date_prop(self) -> None:
+        prop = "date"
+        method = c2x.make_date_prop
+        different_values = ["CE:1849:CE:1850", "GREGORIAN:1848-01:1849-02", "2022",
+                            "GREGORIAN:CE:0476-09-04:CE:0476-09-04", "GREGORIAN:CE:2014-01-31"]
+        invalid_values = ["GREGORIAN:CE:0476-09-04:CE:09-04", "GREGORIAN:CE:0476-09-010:CE:0476-09-04"]
+
+        testcases = make_test_cases(prop, method, different_values)
+        for testcase in testcases:
+            xml_received = etree.tostring(testcase[1], encoding="unicode")
+            xml_received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_received)
+            self.assertEqual(testcase[0], xml_received)
+
+        for inv in invalid_values:
+            self.assertRaises(BaseError, lambda: method(":test", inv))
+        self.assertRaises(BaseError, lambda: method(":test", different_values))
 
 
 if __name__ == "__main__":

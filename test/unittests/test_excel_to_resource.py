@@ -17,6 +17,13 @@ class TestExcelToResource(unittest.TestCase):
         """Is executed before the methods of this class are run"""
         os.makedirs('testdata/tmp', exist_ok=True)
 
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Is executed after the methods of this class have all run through"""
+        for file in os.listdir('testdata/tmp'):
+            os.remove('testdata/tmp/' + file)
+        os.rmdir('testdata/tmp')
+
     def test_prepare_dataframe(self) -> None:
         original_df = pd.DataFrame({
              "  TitLE of Column 1 ": ["1",  " 0-1 ", "1-n ", pd.NA,  "    ", " ",    "",     " 0-n ", np.nan],
@@ -109,13 +116,6 @@ class TestExcelToResource(unittest.TestCase):
         self.assertDictEqual(excel_comments_of_image, json_comments_of_image)
         self.assertListEqual(excel_first_class_properties, json_first_class_properties)
         self.assertListEqual(excel_first_class_cardinalities, json_first_class_cardinalities)
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        """Is executed after the methods of this class have all run through"""
-        for file in os.listdir('testdata/tmp'):
-            os.remove('testdata/tmp/' + file)
-        os.rmdir('testdata/tmp')
 
 
 if __name__ == "__main__":

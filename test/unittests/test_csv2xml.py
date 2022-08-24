@@ -103,18 +103,58 @@ class TestCsv2xml(unittest.TestCase):
 
 
     def test_check_and_prepare_values(self) -> None:
-        values_input: list[Union[str, int, float]] = [1, 1.0, "1", "1.0", " 1 "]
-        values_output = c2x._check_and_prepare_values(value=None, values=values_input, name="")
-        self.assertEqual([x.value for x in values_output], values_input)
+        identical_values = ["Test", "Test", "Test"]
+        different_values: list[Union[str, int, float]] = [1, 1.0, "1", "1.0", " 1 "]
+        values_with_nas: list[Union[str, int, float]] = ["test", "", 1, np.nan, 0]
 
-        values_output = c2x._check_and_prepare_values(value=None, values=[c2x.PropertyElement(x) for x in values_input], name="")
-        self.assertEqual([x.value for x in values_output], values_input)
+        values_output = c2x._check_and_prepare_values(value=identical_values,
+                                                      values=None,
+                                                      name="")
+        self.assertEqual([x.value for x in values_output], list(set(identical_values)))
 
-        self.assertRaises(BaseError, lambda: c2x._check_and_prepare_values(value=values_input, values=None, name=""))
-        self.assertRaises(BaseError, lambda: c2x._check_and_prepare_values(value=[c2x.PropertyElement(x) for x in values_input], values=None, name=""))
+        values_output = c2x._check_and_prepare_values(value=[c2x.PropertyElement(x) for x in identical_values],
+                                                      values=None,
+                                                      name="")
+        self.assertEqual([x.value for x in values_output], list(set(identical_values)))
 
-        self.assertRaises(BaseError, lambda: c2x._check_and_prepare_values(value=1, values=[1], name=""))
-        self.assertRaises(BaseError, lambda: c2x._check_and_prepare_values(value=np.nan, values=[np.nan], name=""))
+        values_output = c2x._check_and_prepare_values(value=None,
+                                                      values=identical_values,
+                                                      name="")
+        self.assertEqual([x.value for x in values_output], identical_values)
+
+        values_output = c2x._check_and_prepare_values(value=None,
+                                                      values=[c2x.PropertyElement(x) for x in identical_values],
+                                                      name="")
+        self.assertEqual([x.value for x in values_output], identical_values)
+
+        values_output = c2x._check_and_prepare_values(value=None,
+                                                      values=different_values,
+                                                      name="")
+        self.assertEqual([x.value for x in values_output], different_values)
+
+        values_output = c2x._check_and_prepare_values(value=None,
+                                                      values=[c2x.PropertyElement(x) for x in different_values],
+                                                      name="")
+        self.assertEqual([x.value for x in values_output], different_values)
+
+        values_output = c2x._check_and_prepare_values(value=None,
+                                                      values=values_with_nas,
+                                                      name="")
+        self.assertEqual([x.value for x in values_output], ["test", 1, 0])
+
+        self.assertRaises(BaseError, lambda: c2x._check_and_prepare_values(value=different_values,
+                                                                           values=None,
+                                                                           name=""))
+        self.assertRaises(BaseError, lambda: c2x._check_and_prepare_values(value=[c2x.PropertyElement(x) for x in different_values],
+                                                                           values=None,
+                                                                           name=""))
+
+        self.assertRaises(BaseError, lambda: c2x._check_and_prepare_values(value=1,
+                                                                           values=[1],
+                                                                           name=""))
+        self.assertRaises(BaseError, lambda: c2x._check_and_prepare_values(value=np.nan,
+                                                                           values=[np.nan],
+                                                                           name=""))
 
 
     def test_make_boolean_prop(self) -> None:
@@ -138,7 +178,8 @@ class TestCsv2xml(unittest.TestCase):
             false_values.append(_iterable(equivalent_values))
             false_values.append(_iterable(equivalent_propelems))
 
-        unsupported_values = [np.nan, "N/A", "NA", "na", "None", "", " ", "-", None]
+        unsupported_values = [np.nan, "N/A", "NA", "na", "None", "", " ", "-", None,
+                              [True, False], [0, 0, 1], ["True", "false"]]
 
         true_xml_expected = '<boolean-prop name=":test"><boolean permissions="prop-default">true</boolean></boolean-prop>'
         false_xml_expected = '<boolean-prop name=":test"><boolean permissions="prop-default">false</boolean></boolean-prop>'
@@ -153,6 +194,42 @@ class TestCsv2xml(unittest.TestCase):
             self.assertEqual(false_xml, false_xml_expected, msg=f"Failed with '{false_value}'")
         for unsupported_value in unsupported_values:
             self.assertRaises(BaseError, lambda: c2x.make_boolean_prop(":test", unsupported_value))
+
+
+    def test_make_color_prop(self) -> None:
+        testcases = [
+            (
+                '<color-prop name=":test"><color permissions="prop-restricted">#012345</color></color-prop>',
+                c2x.make_color_prop(":test", c2x.PropertyElement("#012345", permissions="prop-restricted"))
+            ),
+            (
+                '<color-prop name=":test"><color permissions="prop-default" comment="comment">#abcdef</color></color-prop>',
+                c2x.make_color_prop(":test", c2x.PropertyElement("#abcdef", comment="comment"))
+            ),
+            (
+                '<color-prop name=":test"><color permissions="prop-default">#0B0B0B</color></color-prop>',
+                c2x.make_color_prop(":test", value=["#0B0B0B", "#0B0B0B", "#0B0B0B"])
+            ),
+            (
+                '<color-prop name=":test">'
+                    '<color permissions="prop-default">#0B0B0B</color>'
+                    '<color permissions="prop-default">#abcdef</color>'
+                    '<color permissions="prop-default">#AAAAAA</color>'
+                '</color-prop>',
+                c2x.make_color_prop(":test", values=["#0B0B0B", "#abcdef", "#AAAAAA"])
+            )
+        ]
+
+        for testcase in testcases:
+            xml_expected = testcase[0]
+            xml_received = testcase[1]
+            xml_received = etree.tostring(xml_received, encoding="unicode")
+            xml_received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_received)
+            self.assertEqual(xml_expected, xml_received)
+
+        self.assertRaises(BaseError, lambda: c2x.make_color_prop(":test", "#0000000"))
+        self.assertRaises(BaseError, lambda: c2x.make_color_prop(":test", "#00000G"))
+        self.assertRaises(BaseError, lambda: c2x.make_color_prop(":test", ["#0B0B0B", "#abcdef", "#AAAAAA"]))
 
 
 if __name__ == "__main__":

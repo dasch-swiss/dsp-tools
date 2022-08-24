@@ -402,31 +402,36 @@ def _check_and_prepare_values(
         a list of PropertyElements
     """
 
+    # reduce 'value' to None if it is not usable
+    if isinstance(value, Iterable):
+        if not any([check_notna(val) for val in value]):
+            value = None
+    else:
+        if not check_notna(value):
+            value = None
+
+    # reduce 'values' to None if it is not usable
+    if values and not any([check_notna(val) for val in values]):
+        values = None
+
     # assert that either "value" or "values" is usable, but not both at the same time
-    if all([
-        not check_notna(value),
-        values is None or not any([check_notna(val) for val in values])
-    ]):
+    if not value and not values:
         raise BaseError(f"ERROR in resource '{calling_resource}', property '{name}': 'value' and 'values' cannot both "
                         f"be empty")
-
-    if all([
-        check_notna(value),
-        values is not None and any([check_notna(val) for val in values])
-    ]):
+    if value and values:
         raise BaseError(f"ERROR in resource '{calling_resource}', property '{name}': You cannot provide a 'value' and "
                         f"a 'values' at the same time!")
 
     # construct the resulting list
     result: list[PropertyElement] = list()
 
-    if check_notna(value):
+    if value:
         # if "value" contains more than one value, reduce it to a single value
         if not isinstance(value, Iterable) or isinstance(value, str):
             single_value: Union[PropertyElement, str, int, float, bool] = value
         else:
             if len(set(value)) > 1:
-                raise BaseError(f"There are contradictory '{name}' values for '{calling_resource}': {value}")
+                raise BaseError(f"There are contradictory values for prop '{name}' in resource '{calling_resource}': {set(value)}")
             single_value = next(iter(value))
 
         # make a PropertyElement out of it, if necessary
@@ -614,7 +619,7 @@ def _format_bool(unformatted: Union[bool, str, int], name: str, calling_resource
     elif unformatted in (True, "true", "True", "1", 1, "yes", "Yes"):
         return "true"
     else:
-        raise BaseError(f"'{unformatted}' is an invalid boolean format for property '{name}' in '{calling_resource}'")
+        raise BaseError(f"Invalid boolean format for prop '{name}' in resource '{calling_resource}': '{unformatted}'")
 
 
 def make_boolean_prop(
@@ -643,9 +648,8 @@ def make_boolean_prop(
                     <boolean permissions="prop-restricted" comment="example">true</boolean>
                 </boolean-prop>
         >>> make_boolean_prop(":testproperty", value=["false", "1"])
-                ERROR. Use this if some fields in your data source should be
-                equal, but you cannot trust your source. This method call will
-                only work if all items of "value" are equivalent.
+                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
+                your source. This method call will only work if all items of "value" are equivalent.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#boolean-prop
     """
@@ -667,13 +671,13 @@ def make_boolean_prop(
                 tmp.append(PropertyElement(value=_format_bool(item, name, calling_resource)))
         value = tmp
         if len(set(value)) == 0:
-            raise BaseError(f"There are no '{name}' values for '{calling_resource}'")
+            raise BaseError(f"There are no values for prop '{name}' in resource '{calling_resource}'")
         elif len(set(value)) > 1:
-            raise BaseError(f"There are contradictory '{name}' values for '{calling_resource}': {set(value)}")
+            raise BaseError(f"There are contradictory values for prop '{name}' in resource '{calling_resource}': {set(value)}")
         else:  # len(set(value)) == 1:
             value_new = list(value)[0]
     else:
-        raise BaseError(f"Wrong boolean format for '{name}' in '{calling_resource}': '{value}'")
+        raise BaseError(f"Invalid boolean format for prop '{name}' in resource '{calling_resource}': '{value}'")
 
     # make xml structure of the value
     prop_ = etree.Element(
@@ -696,22 +700,21 @@ def make_boolean_prop(
 
 
 def make_color_prop(
-    name: Union[str, Any],
-    value: Optional[Union[PropertyElement, str, Any, Iterable[Union[PropertyElement, str, Any]]]] = None,
-    values: Optional[Iterable[Union[PropertyElement, str, Any]]] = None,
+    name: str,
+    value: Optional[Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]]] = None,
+    values: Optional[Iterable[Union[PropertyElement, str]]] = None,
     calling_resource: str = ""
 ) -> etree._Element:
     """
-    Make a <color-prop> from one or more colors. The color(s) can be provided as string or
-    as PropertyElement.
+    Make a <color-prop> from one or more colors. The color(s) can be provided as string or as PropertyElement.
 
-    To create one ``<color>`` child, use the param ``value``, to create more than one
-    ``<color>`` children, use ``values``.
+    To create one ``<color>`` child, use the param ``value``, to create more than one ``<color>`` children, use
+    ``values``.
 
     Args:
         name: the name of this property as defined in the onto
         value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
-        values: an iterable of distinct strings/PropertyElements
+        values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Examples:
@@ -721,9 +724,7 @@ def make_color_prop(
                 </color-prop>
         >>> make_color_prop(":testproperty", PropertyElement("#00ff66", permissions="prop-restricted", comment="example"))
                 <color-prop name=":testproperty">
-                    <color permissions="prop-restricted" comment="example">
-                        #00ff66
-                    </color>
+                    <color permissions="prop-restricted" comment="example">#00ff66</color>
                 </color-prop>
         >>> make_color_prop(":testproperty", values=["#00ff66", "#000000"])
                 <color-prop name=":testproperty">
@@ -731,9 +732,8 @@ def make_color_prop(
                     <color permissions="prop-default">#000000</color>
                 </color-prop>
         >>> make_color_prop(":testproperty", value=["#00ff66", "#000000"])
-                ERROR. Use this if some fields in your data source should be
-                equal, but you cannot trust your source. This method call will
-                only work if all items of "value" are identical.
+                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
+                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#color-prop
     """
@@ -748,12 +748,10 @@ def make_color_prop(
 
     # check value type
     for val in values_new:
-        assert re.search(r"^#[0-9a-f]{6}$", str(val.value)) is not None, \
-            f"The following is not a valid color:\n" + \
-            f"resource '{calling_resource}'\n" + \
-            f"property '{name}'\n" + \
-            f"value    '{val.value}'"
+        if not re.search(r"^#[0-9a-f]{6}$", str(val.value).strip(), flags=re.IGNORECASE):
+            raise BaseError(f"Invalid color format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
 
+    # make xml structure of the value
     prop_ = etree.Element(
         "{%s}color-prop" % (xml_namespace_map[None]),
         name=name,
@@ -768,7 +766,7 @@ def make_color_prop(
             **kwargs,
             nsmap=xml_namespace_map
         )
-        value_.text = val.value
+        value_.text = str(val.value).strip()
         prop_.append(value_)
 
     return prop_
@@ -776,29 +774,25 @@ def make_color_prop(
 
 def make_date_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, Any, Iterable[Union[PropertyElement, str, Any]]]] = None,
-    values: Optional[Iterable[Union[PropertyElement, str, Any]]] = None,
+    value: Optional[Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]]] = None,
+    values: Optional[Iterable[Union[PropertyElement, str]]] = None,
     calling_resource: str = ""
 ) -> etree._Element:
     """
-    Make a <date-prop> from one or more dates/date ranges. The date(s) can be provided as
-    string or as PropertyElement.
+    Make a <date-prop> from one or more dates/date ranges. The date(s) can be provided as string or as PropertyElement.
 
-    To create one ``<date>`` child, use the param ``value``, to create more than one ``<date>``
-    children, use ``values``.
+    To create one ``<date>`` child, use the param ``value``, to create more than one ``<date>`` children, use ``values``.
 
     Args:
         name: the name of this property as defined in the onto
         value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
-        values: an iterable of distinct strings/PropertyElements
+        values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Examples:
         >>> make_date_prop(":testproperty", "GREGORIAN:CE:2014-01-31")
                 <date-prop name=":testproperty">
-                    <date permissions="prop-default">
-                        GREGORIAN:CE:2014-01-31
-                    </date>
+                    <date permissions="prop-default">GREGORIAN:CE:2014-01-31</date>
                 </date-prop>
         >>> make_date_prop(":testproperty", PropertyElement("GREGORIAN:CE:2014-01-31", permissions="prop-restricted", comment="example"))
                 <date-prop name=":testproperty">
@@ -816,9 +810,8 @@ def make_date_prop(
                     </date>
                 </date-prop>
         >>> make_date_prop(":testproperty", value=["GREGORIAN:CE:2014-01-31", "GREGORIAN:CE:1900-01-01"])
-                ERROR. Use this if some fields in your data source should be
-                equal, but you cannot trust your source. This method call will
-                only work if all items of "value" are identical.
+                ERROR. Use this if some fields in your data source should bevequal, but you cannot trust
+                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#date-prop
     """
@@ -833,15 +826,9 @@ def make_date_prop(
 
     # check value type
     for val in values_new:
-        assert re.search(
-            r"(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})?(-\d{1,2})?(-\d{1,2})?"
-            r"(:CE|:BCE)?(:\d{4})?(-\d{1,2})?(-\d{1,2})?",
-            str(val.value)
-        ), \
-            f"The following is not a valid calendar date:\n" + \
-            f"resource '{calling_resource}'\n" + \
-            f"property '{name}'\n" + \
-            f"value    '{val.value}'"
+        if not re.search(r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})?(-\d{1,2})?(-\d{1,2})?"
+                         r"(:CE|:BCE)?(:\d{4})?(-\d{1,2})?(-\d{1,2})?$", str(val.value).strip()):
+            raise BaseError(f"Invalid date format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
 
     # make xml structure of the value
     prop_ = etree.Element(
@@ -858,7 +845,7 @@ def make_date_prop(
             **kwargs,
             nsmap=xml_namespace_map
         )
-        value_.text = val.value
+        value_.text = str(val.value).strip()
         prop_.append(value_)
 
     return prop_
@@ -866,20 +853,20 @@ def make_date_prop(
 
 def make_decimal_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, Any, Iterable[Union[PropertyElement, str, Any]]]] = None,
-    values: Optional[Iterable[Union[PropertyElement, str, Any]]] = None,
+    value: Optional[Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]]] = None,
+    values: Optional[Iterable[Union[PropertyElement, str]]] = None,
     calling_resource: str = ""
 ) -> etree._Element:
     """
-    Make a <decimal-prop> from one or more decimal numbers. The decimal(s) can be provided as
-    string, float, or as PropertyElement.
+    Make a <decimal-prop> from one or more decimal numbers. The decimal(s) can be provided as string, float, or as
+    PropertyElement.
 
-    To create one ``<decimal>`` child, use the param ``value``, to create more than one
-    ``<decimal>`` children, use ``values``.
+    To create one ``<decimal>`` child, use the param ``value``, to create more than one ``<decimal>`` children, use
+    ``values``.
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
+        value: a string/float/PropertyElement, or an iterable of identical strings/floats/PropertyElements
         values: an iterable of distinct strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -890,9 +877,7 @@ def make_decimal_prop(
                 </decimal-prop>
         >>> make_decimal_prop(":testproperty", PropertyElement("3.14159", permissions="prop-restricted", comment="example"))
                 <decimal-prop name=":testproperty">
-                    <decimal permissions="prop-restricted" comment="example">
-                        3.14159
-                    </decimal>
+                    <decimal permissions="prop-restricted" comment="example">3.14159</decimal>
                 </decimal-prop>
         >>> make_decimal_prop(":testproperty", values=["3.14159", "2.718"])
                 <decimal-prop name=":testproperty">
@@ -900,9 +885,8 @@ def make_decimal_prop(
                     <decimal permissions="prop-default">2.718</decimal>
                 </decimal-prop>
         >>> make_decimal_prop(":testproperty", value=["3.14159", "2.718"])
-                ERROR. Use this if some fields in your data source should be
-                equal, but you cannot trust your source. This method call will
-                only work if all items of "value" are identical.
+                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
+                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#decimal-prop
     """
@@ -918,11 +902,9 @@ def make_decimal_prop(
     # check value type
     for val in values_new:
         if not re.search(r"^\d+\.\d+$", str(val.value).strip()):
-            raise BaseError(f"The following is not a valid decimal number:\n"
-                            f"resource '{calling_resource}'\n"
-                            f"property '{name}'\n"
-                            f"value    '{val.value}'")
+            raise BaseError(f"Invalid decimal format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
 
+    # make xml structure of the value
     prop_ = etree.Element(
         "{%s}decimal-prop" % (xml_namespace_map[None]),
         name=name,
@@ -945,50 +927,40 @@ def make_decimal_prop(
 
 def make_geometry_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, Any, Iterable[Union[PropertyElement, str, Any]]]] = None,
-    values: Optional[Iterable[Union[PropertyElement, str, Any]]] = None,
+    value: Optional[Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]]] = None,
+    values: Optional[Iterable[Union[PropertyElement, str]]] = None,
     calling_resource: str = ""
 ) -> etree._Element:
     """
-    Make a <geometry-prop> from one or more areas of an image. The area(s) can be provided as JSON-string or as PropertyElement
-    with the JSON-string as value.
+    Make a <geometry-prop> from one or more areas of an image. The area(s) can be provided as JSON-string or as
+    PropertyElement with the JSON-string as value.
 
-    To create one ``<geometry>`` child, use the param ``value``, to create more than one ``<geometry>`` children, use ``values``.
-
-    Warning: It is rather unusual to create a geometry-prop.
+    To create one ``<geometry>`` child, use the param ``value``, to create more than one ``<geometry>`` children, use
+    ``values``.
 
     Args:
         name: the name of this property as defined in the onto
         value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
-        values: an iterable of distinct strings/PropertyElements
+        values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Examples:
         >>> make_geometry_prop(":testproperty", json_string)
                 <geometry-prop name=":testproperty">
-                    <geometry permissions="prop-default">
-                        {...json string...}
-                    </geometry>
+                    <geometry permissions="prop-default">{JSON}</geometry>
                 </geometry-prop>
         >>> make_geometry_prop(":testproperty", PropertyElement(json_string, permissions="prop-restricted", comment="example"))
                 <geometry-prop name=":testproperty">
-                    <geometry permissions="prop-restricted" comment="example">
-                        {...json string...}
-                    </geometry>
+                    <geometry permissions="prop-restricted" comment="example">{JSON}</geometry>
                 </geometry-prop>
         >>> make_geometry_prop(":testproperty", values=[json_string1, json_string2])
                 <geometry-prop name=":testproperty">
-                    <geometry permissions="prop-default">
-                        {...json string 1...}
-                    </geometry>
-                    <geometry permissions="prop-default">
-                        {...json string 2...}
-                    </geometry>
+                    <geometry permissions="prop-default">{JSON}</geometry>
+                    <geometry permissions="prop-default">{JSON}</geometry>
                 </geometry-prop>
         >>> make_geometry_prop(":testproperty", value=[json_string1, json_string2])
-                ERROR. Use this if some fields in your data source should be
-                equal, but you cannot trust your source. This method call will
-                only work if all items of "value" are identical.
+                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
+                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#geometry-prop
     """
@@ -1005,15 +977,11 @@ def make_geometry_prop(
     for val in values_new:
         try:
             json.loads(val.value)
-        except (json.JSONDecodeError, TypeError) as e:
-            handle_warnings(
-                f"The following is not a valid Geometry JSON:\n" + \
-                f"resource: '{calling_resource}'\n" + \
-                f"property: '{name}'\n" + \
-                f"value:    '{val.value}'\n",
-                stacklevel=3
-            )
+        except (json.JSONDecodeError, TypeError):
+            handle_warnings(f"Invalid decimal format for prop '{name}' in resource '{calling_resource}': '{val.value}'",
+                            stacklevel=3)
 
+    # make xml structure of the value
     prop_ = etree.Element(
         "{%s}geometry-prop" % (xml_namespace_map[None]),
         name=name,
@@ -1049,7 +1017,7 @@ def make_geoname_prop(
     Args:
         name: the name of this property as defined in the onto
         value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
-        values: an iterable of distinct strings/PropertyElements
+        values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Examples:
@@ -1059,9 +1027,7 @@ def make_geoname_prop(
                 </geoname-prop>
         >>> make_geoname_prop(":testproperty", PropertyElement("2761369", permissions="prop-restricted", comment="example"))
                 <geoname-prop name=":testproperty">
-                    <geoname permissions="prop-restricted" comment="example">
-                        2761369
-                    </geoname>
+                    <geoname permissions="prop-restricted" comment="example">2761369</geoname>
                 </geoname-prop>
         >>> make_geoname_prop(":testproperty", values=["2761369", "1010101"])
                 <geoname-prop name=":testproperty">
@@ -1069,9 +1035,8 @@ def make_geoname_prop(
                     <geoname permissions="prop-default">1010101</geoname>
                 </geoname-prop>
         >>> make_geoname_prop(":testproperty", value=["2761369", "1010101"])
-                ERROR. Use this if some fields in your data source should be
-                equal, but you cannot trust your source. This method call will
-                only work if all items of "value" are identical.
+                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
+                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#geoname-prop
     """
@@ -1128,7 +1093,7 @@ def make_integer_prop(
     Args:
         name: the name of this property as defined in the onto
         value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
-        values: an iterable of distinct strings/PropertyElements
+        values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Examples:
@@ -1138,9 +1103,7 @@ def make_integer_prop(
                 </integer-prop>
         >>> make_integer_prop(":testproperty", PropertyElement("2761369", permissions="prop-restricted", comment="example"))
                 <integer-prop name=":testproperty">
-                    <integer permissions="prop-restricted" comment="example">
-                        2761369
-                    </integer>
+                    <integer permissions="prop-restricted" comment="example">2761369</integer>
                 </integer-prop>
         >>> make_integer_prop(":testproperty", values=["2761369", "1010101"])
                 <integer-prop name=":testproperty">
@@ -1148,9 +1111,8 @@ def make_integer_prop(
                     <integer permissions="prop-default">1010101</integer>
                 </integer-prop>
         >>> make_integer_prop(":testproperty", value=["2761369", "1010101"])
-                ERROR. Use this if some fields in your data source should be
-                equal, but you cannot trust your source. This method call will
-                only work if all items of "value" are identical.
+                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
+                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#integer-prop
     """
@@ -1206,7 +1168,7 @@ def make_interval_prop(
     Args:
         name: the name of this property as defined in the onto
         value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
-        values: an iterable of distinct strings/PropertyElements
+        values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Examples:
@@ -1216,9 +1178,7 @@ def make_interval_prop(
                 </interval-prop>
         >>> make_interval_prop(":testproperty", PropertyElement("61:3600", permissions="prop-restricted", comment="example"))
                 <interval-prop name=":testproperty">
-                    <interval permissions="prop-restricted" comment="example">
-                        61:3600
-                    </interval>
+                    <interval permissions="prop-restricted" comment="example">61:3600</interval>
                 </interval-prop>
         >>> make_interval_prop(":testproperty", values=["61:3600", "60.5:120.5"])
                 <interval-prop name=":testproperty">
@@ -1226,9 +1186,8 @@ def make_interval_prop(
                     <interval permissions="prop-default">60.5:120.5</interval>
                 </interval-prop>
         >>> make_interval_prop(":testproperty", value=["61:3600", "60.5:120.5"])
-                ERROR. Use this if some fields in your data source should be
-                equal, but you cannot trust your source. This method call will
-                only work if all items of "value" are identical.
+                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
+                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#interval-prop
     """
@@ -1288,7 +1247,7 @@ def make_list_prop(
         list_name: the name of the list as defined in the onto
         name: the name of this property as defined in the onto
         value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
-        values: an iterable of distinct strings/PropertyElements
+        values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Examples:
@@ -1298,9 +1257,7 @@ def make_list_prop(
                 </list-prop>
         >>> make_list_prop("mylist", ":testproperty", PropertyElement("first_node", permissions="prop-restricted", comment="example"))
                 <list-prop list="mylist" name=":testproperty">
-                    <list permissions="prop-restricted" comment="example">
-                        first_node
-                    </list>
+                    <list permissions="prop-restricted" comment="example">first_node</list>
                 </list-prop>
         >>> make_list_prop("mylist", ":testproperty", values=["first_node", "second_node"])
                 <list-prop list="mylist" name=":testproperty">
@@ -1308,9 +1265,8 @@ def make_list_prop(
                     <list permissions="prop-default">second_node</list>
                 </list-prop>
         >>> make_list_prop("mylist", ":testproperty", value=["first_node", "second_node"])
-                ERROR. Use this if some fields in your data source should be
-                equal, but you cannot trust your source. This method call will
-                only work if all items of "value" are identical.
+                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
+                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#list-prop
     """
@@ -1361,7 +1317,7 @@ def make_resptr_prop(
     Args:
         name: the name of this property as defined in the onto
         value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
-        values: an iterable of distinct strings/PropertyElements
+        values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Examples:
@@ -1371,9 +1327,7 @@ def make_resptr_prop(
                 </resptr-prop>
         >>> make_resptr_prop(":testproperty", PropertyElement("resource_1", permissions="prop-restricted", comment="example"))
                 <resptr-prop name=":testproperty">
-                    <resptr permissions="prop-restricted" comment="example">
-                        resource_1
-                    </resptr>
+                    <resptr permissions="prop-restricted" comment="example">resource_1</resptr>
                 </resptr-prop>
         >>> make_resptr_prop(":testproperty", values=["resource_1", "resource_2"])
                 <resptr-prop name=":testproperty">
@@ -1381,9 +1335,8 @@ def make_resptr_prop(
                     <resptr permissions="prop-default">resource_2</resptr>
                 </resptr-prop>
         >>> make_resptr_prop(":testproperty", value=["resource_1", "resource_2"])
-                ERROR. Use this if some fields in your data source should be
-                equal, but you cannot trust your source. This method call will
-                only work if all items of "value" are identical.
+                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
+                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#resptr-prop
     """
@@ -1432,7 +1385,7 @@ def make_text_prop(
     Args:
         name: the name of this property as defined in the onto
         value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
-        values: an iterable of distinct strings/PropertyElements
+        values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Examples:
@@ -1450,9 +1403,8 @@ def make_text_prop(
                     <text encoding="utf8" permissions="prop-default">second text</text>
                 </text-prop>
         >>> make_text_prop(":testproperty", value=["first text", "second text"])
-                ERROR. Use this if some fields in your data source should be
-                equal, but you cannot trust your source. This method call will
-                only work if all items of "value" are identical.
+                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
+                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#text-prop
     """
@@ -1506,7 +1458,7 @@ def make_time_prop(
     Args:
         name: the name of this property as defined in the onto
         value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
-        values: an iterable of distinct strings/PropertyElements
+        values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Examples:
@@ -1532,9 +1484,8 @@ def make_time_prop(
                     </time>
                 </time-prop>
         >>> make_time_prop(":testproperty", value=["2009-10-10T12:00:00-05:00", "1901-01-01T01:00:00-00:00"])
-                ERROR. Use this if some fields in your data source should be
-                equal, but you cannot trust your source. This method call will
-                only work if all items of "value" are identical.
+                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
+                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#time-prop
     """
@@ -1592,7 +1543,7 @@ def make_uri_prop(
     Args:
         name: the name of this property as defined in the onto
         value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
-        values: an iterable of distinct strings/PropertyElements
+        values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Examples:
@@ -1602,9 +1553,7 @@ def make_uri_prop(
                 </uri-prop>
         >>> make_uri_prop(":testproperty", PropertyElement("www.test.com", permissions="prop-restricted", comment="example"))
                 <uri-prop name=":testproperty">
-                    <uri permissions="prop-restricted" comment="example">
-                        www.test.com
-                    </uri>
+                    <uri permissions="prop-restricted" comment="example">www.test.com</uri>
                 </uri-prop>
         >>> make_uri_prop(":testproperty", values=["www.1.com", "www.2.com"])
                 <uri-prop name=":testproperty">
@@ -1612,9 +1561,8 @@ def make_uri_prop(
                     <uri permissions="prop-default">www.2.com</uri>
                 </uri-prop>
         >>> make_uri_prop(":testproperty", value=["www.1.com", "www.2.com"])
-                ERROR. Use this if some fields in your data source should be
-                equal, but you cannot trust your source. This method call will
-                only work if all items of "value" are identical.
+                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
+                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#uri-prop
     """

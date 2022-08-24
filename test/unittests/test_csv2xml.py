@@ -1,7 +1,12 @@
+import random
 import unittest
 import re
+from typing import Union
+
 import pandas as pd
 import numpy as np
+from lxml import etree
+
 from knora import csv2xml as c2x
 from knora.dsplib.models.helpers import BaseError
 
@@ -31,7 +36,6 @@ class TestCsv2xml(unittest.TestCase):
     def test_check_notna(self) -> None:
         na_values = [None, pd.NA, np.nan, "", "  ", "-", ",", ".", "*", "!", " \n\t ", "N/A", "n/a", "<NA>", ["a", "b"],
                      pd.array(["a", "b"]), np.array([0, 1])]
-        na_values.extend([c2x.PropertyElement(x) for x in na_values])
         for na_value in na_values:
             self.assertFalse(c2x.check_notna(na_value), msg=f"Failed na_value: {na_value}")
 
@@ -99,7 +103,7 @@ class TestCsv2xml(unittest.TestCase):
 
 
     def test_check_and_prepare_values(self) -> None:
-        values_input = [1, 1.0, "1", "1.0", " 1 "]
+        values_input: list[Union[str, int, float]] = [1, 1.0, "1", "1.0", " 1 "]
         values_output = c2x._check_and_prepare_values(value=None, values=values_input, name="")
         self.assertEqual([x.value for x in values_output], values_input)
 
@@ -111,6 +115,44 @@ class TestCsv2xml(unittest.TestCase):
 
         self.assertRaises(BaseError, lambda: c2x._check_and_prepare_values(value=1, values=[1], name=""))
         self.assertRaises(BaseError, lambda: c2x._check_and_prepare_values(value=np.nan, values=[np.nan], name=""))
+
+
+    def test_make_boolean_prop(self) -> None:
+        true_values = [True, "true", "True", "1", 1, "yes", "Yes"]
+        len_of_base_values = len(true_values)
+        true_values.extend([c2x.PropertyElement(x) for x in true_values])
+        for _iterable in [tuple, list, set]:
+            # randomly choose 3 elements among the base values
+            equivalent_values = [true_values[i] for i in random.choices(range(len_of_base_values), k=3)]
+            equivalent_propelems = [c2x.PropertyElement(x) for x in equivalent_values]
+            true_values.append(_iterable(equivalent_values))
+            true_values.append(_iterable(equivalent_propelems))
+
+        false_values = [False, "false", "False", "0", 0, "no", "No"]
+        len_of_base_values = len(false_values)
+        false_values.extend([c2x.PropertyElement(x) for x in false_values])
+        for _iterable in [tuple, list, set]:
+            # randomly choose 3 elements among the base values
+            equivalent_values = [false_values[i] for i in random.choices(range(len_of_base_values), k=3)]
+            equivalent_propelems = [c2x.PropertyElement(x) for x in equivalent_values]
+            false_values.append(_iterable(equivalent_values))
+            false_values.append(_iterable(equivalent_propelems))
+
+        unsupported_values = [np.nan, "N/A", "NA", "na", "None", "", " ", "-", None]
+
+        true_xml_expected = '<boolean-prop name=":test"><boolean permissions="prop-default">true</boolean></boolean-prop>'
+        false_xml_expected = '<boolean-prop name=":test"><boolean permissions="prop-default">false</boolean></boolean-prop>'
+
+        for true_value in true_values:
+            true_xml = etree.tostring(c2x.make_boolean_prop(":test", true_value), encoding="unicode")
+            true_xml = re.sub(r" xmlns(:.+?)?=\".+?\"", "", true_xml)
+            self.assertEqual(true_xml, true_xml_expected, msg=f"Failed with '{true_value}'")
+        for false_value in false_values:
+            false_xml = etree.tostring(c2x.make_boolean_prop(":test", false_value), encoding="unicode")
+            false_xml = re.sub(r" xmlns(:.+?)?=\".+?\"", "", false_xml)
+            self.assertEqual(false_xml, false_xml_expected, msg=f"Failed with '{false_value}'")
+        for unsupported_value in unsupported_values:
+            self.assertRaises(BaseError, lambda: c2x.make_boolean_prop(":test", unsupported_value))
 
 
 if __name__ == "__main__":

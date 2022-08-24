@@ -62,6 +62,8 @@ class PropertyElement:
                         </text>
                     </text-prop>
         """
+        if not check_notna(value):
+            raise BaseError(f"'{value}' is not a valid value for a PropertyElement")
         self.value = value
         self.permissions = permissions
         self.comment = comment
@@ -114,7 +116,7 @@ def make_xsd_id_compatible(string: str) -> str:
     res = f"{res}_{_hash}"
 
     # replace all illegal characters by underscore
-    res = re.sub(r"[^\d\w_\-\.]", "_", res)
+    res = re.sub(r"[^\d\w_\-.]", "_", res)
 
     return res
 
@@ -137,7 +139,7 @@ def mute_warning(regex: str) -> None:
     Examples:
         >>> mute_warning(r"Notoriously_problematic_resource_1")
         >>> mute_warning(r"Notoriously_problematic_resource_2")
-        >>> handle_warnings("Error in resource "Notoriously_problematic_resource_1"!")
+        >>> handle_warnings("Error in resource 'Notoriously_problematic_resource_1'!")
         The call to handle_warnings() won't have an effect.
     """
     __muted_warnings.append(regex)
@@ -449,14 +451,14 @@ def _check_and_prepare_values(
 
 def make_root(shortcode: str, default_ontology: str) -> etree._Element:
     """
-    Start your XML document with creating a root element.
+    Start building your XML document by creating the root element <knora>.
 
     Args:
         shortcode: The shortcode of this project as defined in the JSON onto file
         default ontology: As defined in the JSON onto file
 
     Returns:
-        The root element.
+        The root element <knora>.
 
     Examples:
         >>> root = make_root(shortcode=shortcode, default_ontology=default_ontology)
@@ -481,13 +483,15 @@ def make_root(shortcode: str, default_ontology: str) -> etree._Element:
 
 def append_permissions(root_element: etree._Element) -> etree._Element:
     """
-    Start your XML document with creating a root element, then call this method to append the permissions block.
+    Start building your XML document by creating a root element, then call this method to append the four permissions
+    "res-default", "res-restricted", "prop-default", and "prop-restricted". These four permissions are a good basis to
+    start with, but remember that they can be adapted, and that other permissions can be defined instead of these.
 
     Args:
-        root_element: The XML root element created by make_root()
+        root_element: The XML root element <knora> created by make_root()
 
     Returns:
-        The root element with the permissions appended
+        The root element with the four permission blocks appended
 
     Examples:
         >>> root = make_root(shortcode=shortcode, default_ontology=default_ontology)
@@ -533,11 +537,11 @@ def append_permissions(root_element: etree._Element) -> etree._Element:
 
 
 def make_resource(
-    label: Union[str, Any],
-    restype: Union[str, Any],
-    id: Union[str, Any],
-    ark: Union[str, Any, None] = None,
-    permissions: Union[str, Any] = "res-default"
+    label: str,
+    restype: str,
+    id: str,
+    ark: Optional[str] = None,
+    permissions: str = "res-default"
 ) -> etree._Element:
     """
     Creates an empty resource element, with the attributes as specified by the arguments
@@ -558,14 +562,14 @@ def make_resource(
     """
 
     kwargs = {
-        "label": str(label),
-        "restype": str(restype),
-        "id": str(id),
-        "permissions": str(permissions),
+        "label": label,
+        "restype": restype,
+        "id": id,
+        "permissions": permissions,
         "nsmap": xml_namespace_map
     }
-    if ark is not None:
-        kwargs["ark"] = str(ark)
+    if ark:
+        kwargs["ark"] = ark
 
     resource_ = etree.Element(
         "{%s}resource" % (xml_namespace_map[None]),
@@ -575,7 +579,7 @@ def make_resource(
 
 
 def make_bitstream_prop(
-    path: Union[str, Any],
+    path: str,
     permissions: str = "prop-default",
     calling_resource: str = ""
 ) -> etree._Element:
@@ -583,9 +587,9 @@ def make_bitstream_prop(
     Creates a bitstream element that points to path
 
     Args:
-        path (str): path to a valid file that will be uploaded
-        permissions (str): permissions string
-        calling_resource (str): the name of the parent resource (for better error messages)
+        path: path to a valid file that will be uploaded
+        permissions: permissions string
+        calling_resource: the name of the parent resource (for better error messages)
 
     Examples:
         >>> resource = make_resource(...)
@@ -604,53 +608,44 @@ def make_bitstream_prop(
     return prop_
 
 
-def _format_bool(unformatted, name, calling_resource):
-    true_values = ("true", "1", 1, "yes")
-    false_values = ("false", "0", 0, "no", "", "None")
-
-    if unformatted in false_values or str(unformatted).lower() in false_values or pd.isna(unformatted):
+def _format_bool(unformatted: Union[bool, str, int], name: str, calling_resource: str) -> str:
+    if unformatted in (False, "false", "False", "0", 0, "no", "No"):
         return "false"
-    elif unformatted in true_values or str(unformatted).lower() in true_values:
+    elif unformatted in (True, "true", "True", "1", 1, "yes", "Yes"):
         return "true"
     else:
-        handle_warnings(
-            f"'{unformatted}' is an invalid boolean format for property '{name}' in '{calling_resource}'",
-            stacklevel=4
-        )
-        quit()
+        raise BaseError(f"'{unformatted}' is an invalid boolean format for property '{name}' in '{calling_resource}'")
 
 
 def make_boolean_prop(
-    name: Union[str, Any],
-    value: Union[PropertyElement, str, Any, Iterable[Union[PropertyElement, str, Any]]],
+    name: str,
+    value: Union[PropertyElement, str, int, bool, Iterable[Union[PropertyElement, str, int, bool]]],
     calling_resource: str = ""
 ) -> etree._Element:
     """
-    Make a <boolean-prop> from a boolean value. The value can be provided as PropertyElement
-    or in one of the following formats:
-     - true: ("true", "True", "1", 1, "Yes", "yes")
-     - false: ("false", "False", "0", 0, "No", "no", "", "None", pd.NA)
+    Make a <boolean-prop> from a boolean value. The value can be provided directly or inside a PropertyElement. The
+    following formats are supported:
+     - true: (True, "true", "True", "1", 1, "yes", "Yes")
+     - false: (False, "false", "False", "0", 0, "no", "No")
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
+        value: a str/bool/int itself or inside a PropertyElement, or an iterable of identical str/bool/int/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Examples:
-        >>> make_boolean_prop(":testproperty", "")
+        >>> make_boolean_prop(":testproperty", "no")
                 <boolean-prop name=":testproperty">
                     <boolean permissions="prop-default">false</boolean>
                 </boolean-prop>
         >>> make_boolean_prop(":testproperty", PropertyElement("1", permissions="prop-restricted", comment="example"))
                 <boolean-prop name=":testproperty">
-                    <boolean permissions="prop-restricted" comment="example">
-                        true
-                    </boolean>
+                    <boolean permissions="prop-restricted" comment="example">true</boolean>
                 </boolean-prop>
         >>> make_boolean_prop(":testproperty", value=["false", "1"])
                 ERROR. Use this if some fields in your data source should be
                 equal, but you cannot trust your source. This method call will
-                only work if all items of "value" are identical.
+                only work if all items of "value" are equivalent.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#boolean-prop
     """
@@ -659,30 +654,26 @@ def make_boolean_prop(
     if isinstance(value, PropertyElement):
         value.value = _format_bool(value.value, name, calling_resource)
         value_new = value
-    elif isinstance(value, str) or not isinstance(value, Iterable):  # value is str | Any, but not Iterable
+    elif isinstance(value, str) or isinstance(value, bool) or isinstance(value, int):
         value_new = PropertyElement(_format_bool(value, name, calling_resource))
     elif isinstance(value, Iterable):
         tmp = list()
         for item in value:
             if isinstance(item, PropertyElement):
+                # Format it, so that equivalent values are recognized as identical
+                item.value = _format_bool(item.value, name, calling_resource)
                 tmp.append(item)
             else:
-                tmp.append(_format_bool(item, name, calling_resource))
+                tmp.append(PropertyElement(value=_format_bool(item, name, calling_resource)))
         value = tmp
         if len(set(value)) == 0:
-            value_new = PropertyElement("false")
+            raise BaseError(f"There are no '{name}' values for '{calling_resource}'")
         elif len(set(value)) > 1:
-            handle_warnings(f"There are contradictory '{name}' values for '{calling_resource}': {set(value)}", stacklevel=3)
+            raise BaseError(f"There are contradictory '{name}' values for '{calling_resource}': {set(value)}")
         else:  # len(set(value)) == 1:
-            val = list(value)[0]
-            if isinstance(val, PropertyElement):
-                val.value = _format_bool(val.value, name, calling_resource)
-                value_new = val
-            else:  # val is str | Any
-                value_new = PropertyElement(_format_bool(val, name, calling_resource))
+            value_new = list(value)[0]
     else:
-        raise BaseError("Wrong logic in method make_boolean_prop(). Please inform Johannes Nussbaum")
-        # TODO handle this properly
+        raise BaseError(f"Wrong boolean format for '{name}' in '{calling_resource}': '{value}'")
 
     # make xml structure of the value
     prop_ = etree.Element(
@@ -757,7 +748,7 @@ def make_color_prop(
 
     # check value type
     for val in values_new:
-        assert re.search(r"^#[0-9a-f]{6}$", val.value) is not None, \
+        assert re.search(r"^#[0-9a-f]{6}$", str(val.value)) is not None, \
             f"The following is not a valid color:\n" + \
             f"resource '{calling_resource}'\n" + \
             f"property '{name}'\n" + \
@@ -845,7 +836,7 @@ def make_date_prop(
         assert re.search(
             r"(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})?(-\d{1,2})?(-\d{1,2})?"
             r"(:CE|:BCE)?(:\d{4})?(-\d{1,2})?(-\d{1,2})?",
-            val.value
+            str(val.value)
         ), \
             f"The following is not a valid calendar date:\n" + \
             f"resource '{calling_resource}'\n" + \
@@ -1014,13 +1005,12 @@ def make_geometry_prop(
     for val in values_new:
         try:
             json.loads(val.value)
-        except json.JSONDecodeError as e:
+        except (json.JSONDecodeError, TypeError) as e:
             handle_warnings(
                 f"The following is not a valid Geometry JSON:\n" + \
                 f"resource: '{calling_resource}'\n" + \
                 f"property: '{name}'\n" + \
-                f"value:    '{val.value}'\n" + \
-                f"Error message: {e.msg}",
+                f"value:    '{val.value}'\n",
                 stacklevel=3
             )
 
@@ -1096,7 +1086,7 @@ def make_geoname_prop(
 
     # check value type
     for val in values_new:
-        assert re.search(r"^[0-9]+$", val.value) is not None, \
+        assert re.search(r"^[0-9]+$", str(val.value)) is not None, \
             f"The following is not a valid geoname ID:\n" + \
             f"resource '{calling_resource}'\n" + \
             f"property '{name}'\n" + \
@@ -1254,11 +1244,11 @@ def make_interval_prop(
     # check value type
     for val in values_new:
         assert re.match(r"([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)):([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+))",
-                        val.value) is not None, \
+                        str(val.value)) is not None, \
             f"The following is not a valid interval:\n" + \
             f"resource '{calling_resource}'\n" + \
             f"property '{name}'\n" + \
-            f"value    '{val.value}'"
+            f"value    '{val.value}'"   #TODO Raise baseerror instead
 
     prop_ = etree.Element(
         "{%s}interval-prop" % (xml_namespace_map[None]),
@@ -1779,8 +1769,8 @@ def create_onto_excel_list_mapping(
     list_name: str,
     excel_values: Iterable[str],
     sep: str = '+"*ç%&/()=',
-    corrections: dict[str, str] = {}
-) -> dict:
+    corrections: Optional[dict[str, str]] = None
+) -> dict[str, str]:
     """
     Often, data sources contain list values that don't match the "name" of the node in the onto list which is needed for
     the `dsp-tools xmlupload`.
@@ -1816,6 +1806,10 @@ def create_onto_excel_list_mapping(
         >>> result_of_onto_excel_list_mapping = {" Giraffeeh ": "giraffe", " Antiloupe ": "antelope"}
     """
 
+    # avoid mutable default argument
+    if not corrections:
+        corrections = {}
+
     excel_values_new = list()
     for val in excel_values:
         if isinstance(val, str):
@@ -1834,7 +1828,7 @@ def create_onto_excel_list_mapping(
     for excel_value in [x for x in excel_values_new if x]:
         excel_value_corrected = corrections.get(excel_value, excel_value)
         excel_value_simpl = _simplify_name(excel_value_corrected)
-        matches = difflib.get_close_matches(
+        matches: list[str] = difflib.get_close_matches(
             word=excel_value_simpl,
             possibilities=onto_values,
             n=1,
@@ -1851,7 +1845,7 @@ def create_onto_excel_list_mapping(
     return res
 
 
-def _nested_dict_values_iterator(dicts: list) -> Iterable[str]:
+def _nested_dict_values_iterator(dicts: list[dict[str, Any]]) -> Iterable[str]:
     """ This function accepts a list of nested dictionaries as argument
         and iterates over all values. It yields the values iteratively.
         Credits: https://thispointer.com/python-iterate-loop-over-all-nested-dictionary-values/
@@ -1893,7 +1887,7 @@ def create_onto_list_mapping(
     path_to_onto: str,
     list_name: str,
     language_label: str
-) -> dict:
+) -> dict[str, str]:
     """
     Often, data sources contain list values named after the "label" of the onto list node, instead of the "name" which is
     needed for the `dsp-tools xmlupload`. For this case, you need a dictionary that maps the "labels" to their correct
@@ -1922,7 +1916,7 @@ def create_onto_list_mapping(
     return res
 
 
-def _name_label_mapper_iterator(onto_subset: list, language_label: str):
+def _name_label_mapper_iterator(onto_subset: list[dict[str, Any]], language_label: str) -> Iterable[tuple[str, str]]:
     """
     returns (label, name) pairs of onto list entries
     """

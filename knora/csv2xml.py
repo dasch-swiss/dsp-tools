@@ -5,6 +5,8 @@ import re
 import warnings
 import difflib
 import unicodedata
+
+import numpy as np
 import pandas as pd
 from collections.abc import Iterable
 from typing import Any, Optional, Union
@@ -22,15 +24,16 @@ xml_namespace_map = {
 }
 __muted_warnings: list[str] = []
 
+
 class PropertyElement:
-    value: Union[str, int, float, bool]
+    value: Union[str, int, float, bool, dict[str, Any]]
     permissions: Optional[str]
     comment: Optional[str]
     encoding: Optional[str]
 
     def __init__(
         self,
-        value: Union[str, int, float, bool],
+        value: Union[str, int, float, bool, dict[str, Any]],
         permissions: str = "prop-default",
         comment: Optional[str] = None,
         encoding: Optional[str] = None
@@ -62,7 +65,7 @@ class PropertyElement:
                         </text>
                     </text-prop>
         """
-        if not check_notna(value):
+        if not any([check_notna(value), isinstance(value, dict)]):
             raise BaseError(f"'{value}' is not a valid value for a PropertyElement")
         self.value = value
         self.permissions = permissions
@@ -349,6 +352,7 @@ def check_notna(value: Optional[Any]) -> bool:
     Check a value if it is usable in the context of data archiving. A value is considered usable if it is
      - a number (integer or float, but not np.nan)
      - a boolean
+     - a non-empty dictionary
      - a string with at least one word-character (regex `[A-Za-z0-9_]`), but not "None", "<NA>", "N/A", or "-"
      - a PropertyElement whose "value" fulfills the above criteria
 
@@ -363,7 +367,8 @@ def check_notna(value: Optional[Any]) -> bool:
     if any([
         isinstance(value, int),
         isinstance(value, float) and pd.notna(value),   # necessary because isinstance(np.nan, float)
-        isinstance(value, bool)
+        isinstance(value, bool),
+        isinstance(value, dict) and len(value) > 0
     ]):
         return True
     elif isinstance(value, str):
@@ -375,9 +380,25 @@ def check_notna(value: Optional[Any]) -> bool:
         return False
 
 
+def remove_duplicates(it: Iterable[Any]) -> list[Any]:
+    """
+    Remove duplicates from an Iterable in cases when set() doesn't do the job, because the items are unhashable.
+
+    Args:
+        it: an iterable containing any kind of elements that can be checked for equality with the '==' operator.
+
+    Returns:
+        a deduplicated list
+    """
+    res: list[Any] = []
+    [res.append(elem) for elem in it if elem not in res]
+    return res
+
+
+
 def _check_and_prepare_values(
-    value: Optional[Union[PropertyElement, str, int, float, bool, Iterable[Union[PropertyElement, str, int, float, bool]]]],
-    values: Optional[Iterable[Union[PropertyElement, str, int, float, bool]]],
+    value: Optional[Union[PropertyElement, str, int, float, bool, dict[str, Any], Iterable[Union[PropertyElement, str, int, float, bool, dict[str, Any]]]]],
+    values: Optional[Iterable[Union[PropertyElement, str, int, float, bool, dict[str, Any]]]],
     name: str,
     calling_resource: str = ""
 ) -> list[PropertyElement]:
@@ -430,11 +451,11 @@ def _check_and_prepare_values(
 
     if value:
         # if "value" contains more than one value, reduce it to a single value
-        if not isinstance(value, Iterable) or isinstance(value, str):
-            single_value: Union[PropertyElement, str, int, float, bool] = value
+        if not isinstance(value, Iterable) or isinstance(value, str) or isinstance(value, dict):
+            single_value: Union[PropertyElement, str, int, float, bool, dict[str, Any]] = value
         else:
-            if len(set(value)) > 1:
-                raise BaseError(f"There are contradictory values for prop '{name}' in resource '{calling_resource}': {set(value)}")
+            if len(remove_duplicates(value)) > 1:
+                raise BaseError(f"There are contradictory values for prop '{name}' in resource '{calling_resource}': {remove_duplicates(value)}")
             single_value = next(iter(value))
 
         # make a PropertyElement out of it, if necessary
@@ -922,7 +943,7 @@ def make_decimal_prop(
             **kwargs,
             nsmap=xml_namespace_map
         )
-        value_.text = float(val.value)
+        value_.text = str(val.value)
         prop_.append(value_)
 
     return prop_
@@ -979,10 +1000,12 @@ def make_geometry_prop(
     # check value type
     for val in values_new:
         try:
-            json.loads(val.value)
-        except (json.JSONDecodeError, TypeError):
-            handle_warnings(f"Invalid decimal format for prop '{name}' in resource '{calling_resource}': '{val.value}'",
-                            stacklevel=3)
+            value_as_dict = json.loads(val.value) if isinstance(val.value, str) else val.value
+            assert value_as_dict["type"] in ["rectangle", "circle"]
+            assert isinstance(value_as_dict["points"], list)
+        except (json.JSONDecodeError, TypeError, IndexError, KeyError, AssertionError):
+            raise BaseError(f"Invalid geometry format for prop '{name}' in resource '{calling_resource}': "
+                            f"'{val.value}'")
 
     # make xml structure of the value
     prop_ = etree.Element(
@@ -999,7 +1022,7 @@ def make_geometry_prop(
             **kwargs,
             nsmap=xml_namespace_map
         )
-        value_.text = val.value
+        value_.text = str(val.value)
         prop_.append(value_)
     return prop_
 

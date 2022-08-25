@@ -1,7 +1,7 @@
 import random
 import unittest
 import re
-from typing import Callable, Union
+from typing import Callable, Sequence, Union
 
 import pandas as pd
 import numpy as np
@@ -15,30 +15,33 @@ def run_test(
     testcase: unittest.TestCase,
     prop: str,
     method: Callable[..., etree._Element],
-    different_values: list[str],
-    invalid_values: list[str]
+    different_values: Sequence[Union[str, int, float, bool]],
+    invalid_values: Sequence[Union[str, int, float, bool]]
 ) -> None:
     """
     XML-properties have always a similar structure, and all make_*_prop() methods have some similar things to test. This
-    method generates test cases. Please note that different_values must contain at least 5 elements.
+    method executes the tests in a parametrized way.
 
     Args:
         prop: the name of the property
         method: the make_*_prop() method
-        different_values: at least 5 different values that are valid
-
-    Returns:
-        a list of (expected, received) tuples
+        different_values: some valid values
+        invalid_values: some invalid values
     """
     identical_values = [different_values[0]] * 3
+    max = len(different_values)
     testcases = [
         (
-            f'<{prop}-prop name=":test"><{prop} permissions="prop-restricted">{different_values[0]}</{prop}></{prop}-prop>',
-            method(":test", c2x.PropertyElement(different_values[0], permissions="prop-restricted"))
+            f'<{prop}-prop name=":test"><{prop} permissions="prop-default">{different_values[0 % max]}</{prop}></{prop}-prop>',
+            method(":test", value=different_values[0 % max])
         ),
         (
-            f'<{prop}-prop name=":test"><{prop} permissions="prop-default" comment="comment">{different_values[1]}</{prop}></{prop}-prop>',
-            method(":test", c2x.PropertyElement(different_values[1], comment="comment"))
+            f'<{prop}-prop name=":test"><{prop} permissions="prop-restricted">{different_values[1 % max]}</{prop}></{prop}-prop>',
+            method(":test", value=c2x.PropertyElement(different_values[1 % max], permissions="prop-restricted"))
+        ),
+        (
+            f'<{prop}-prop name=":test"><{prop} permissions="prop-default" comment="comment">{different_values[2 % max]}</{prop}></{prop}-prop>',
+            method(":test", value=c2x.PropertyElement(different_values[2 % max], comment="comment"))
         ),
         (
             f'<{prop}-prop name=":test"><{prop} permissions="prop-default">{identical_values[0]}</{prop}></{prop}-prop>',
@@ -46,21 +49,30 @@ def run_test(
         ),
         (
             f'<{prop}-prop name=":test">'
-            f'<{prop} permissions="prop-default">{different_values[2]}</{prop}>'
-            f'<{prop} permissions="prop-default">{different_values[3]}</{prop}>'
-            f'<{prop} permissions="prop-default">{different_values[4]}</{prop}>'
+            f'<{prop} permissions="prop-default">{identical_values[0]}</{prop}>'
+            f'<{prop} permissions="prop-default">{identical_values[0]}</{prop}>'
+            f'<{prop} permissions="prop-default">{identical_values[0]}</{prop}>'
             f'</{prop}-prop>',
-            method(":test", values=different_values[2:5])
+            method(":test", values=identical_values)
+        ),
+        (
+            f'<{prop}-prop name=":test">'
+            f'<{prop} permissions="prop-default">{different_values[3 % max]}</{prop}>'
+            f'<{prop} permissions="prop-default">{different_values[4 % max]}</{prop}>'
+            f'<{prop} permissions="prop-default">{different_values[5 % max]}</{prop}>'
+            f'</{prop}-prop>',
+            method(":test", values=[different_values[3 % max], different_values[4 % max], different_values[5 % max]])
         )
     ]
 
-    for tc in testcases:
+    for i, tc in enumerate(testcases):
         xml_received = etree.tostring(tc[1], encoding="unicode")
         xml_received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_received)
-        testcase.assertEqual(tc[0], xml_received)
+        testcase.assertEqual(tc[0], xml_received, msg=f"Failed testcase: testcases[{i}]")
 
     for inv in invalid_values:
-        testcase.assertRaises(BaseError, lambda: method(":test", inv))
+        with testcase.assertRaises(BaseError, msg=f"Failed with value '{inv}'"):
+            method(":test", inv)
     testcase.assertRaises(BaseError, lambda: method(":test", different_values))
 
 
@@ -264,6 +276,25 @@ class TestCsv2xml(unittest.TestCase):
         different_values = ["CE:1849:CE:1850", "GREGORIAN:1848-01:1849-02", "2022",
                             "GREGORIAN:CE:0476-09-04:CE:0476-09-04", "GREGORIAN:CE:2014-01-31"]
         invalid_values = ["GREGORIAN:CE:0476-09-04:CE:09-04", "GREGORIAN:CE:0476-09-010:CE:0476-09-04"]
+        run_test(self, prop, method, different_values, invalid_values)
+
+
+    def test_make_decimal_prop(self) -> None:
+        prop = "decimal"
+        method = c2x.make_decimal_prop
+        different_values = ["3.14159", 3.14159, .1, 100.0, "100.0"]
+        invalid_values = ["100", ".1", 100]
+        run_test(self, prop, method, different_values, invalid_values)
+
+
+    def test_make_geometry_prop(self) -> None:
+        prop = "geometry"
+        method = c2x.make_geometry_prop
+        different_values = [
+            '{"type": "rectangle", "lineColor": "#ff3333", "lineWidth": 2, "points": [{"x": 0.08, "y": 0.16}, {"x": 0.73, "y": 0.72}], "original_index": 0}',
+            {"type": "rectangle", "lineColor": "#ff3333", "lineWidth": 2, "points": [{"x": 0.08, "y": 0.16}, {"x": 0.73, "y": 0.72}], "original_index": 0}
+        ]
+        invalid_values = ["100", 100, [0], {"type": "polygon"}]
         run_test(self, prop, method, different_values, invalid_values)
 
 

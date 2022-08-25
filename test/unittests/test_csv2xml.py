@@ -11,11 +11,13 @@ from knora import csv2xml as c2x
 from knora.dsplib.models.helpers import BaseError
 
 
-def make_test_cases(
+def run_test(
+    testcase: unittest.TestCase,
     prop: str,
     method: Callable[..., etree._Element],
     different_values: list[str],
-) -> list[tuple[str, etree._Element]]:
+    invalid_values: list[str]
+) -> None:
     """
     XML-properties have always a similar structure, and all make_*_prop() methods have some similar things to test. This
     method generates test cases. Please note that different_values must contain at least 5 elements.
@@ -29,7 +31,7 @@ def make_test_cases(
         a list of (expected, received) tuples
     """
     identical_values = [different_values[0]] * 3
-    return [
+    testcases = [
         (
             f'<{prop}-prop name=":test"><{prop} permissions="prop-restricted">{different_values[0]}</{prop}></{prop}-prop>',
             method(":test", c2x.PropertyElement(different_values[0], permissions="prop-restricted"))
@@ -51,6 +53,16 @@ def make_test_cases(
             method(":test", values=different_values[2:5])
         )
     ]
+
+    for tc in testcases:
+        xml_received = etree.tostring(tc[1], encoding="unicode")
+        xml_received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_received)
+        testcase.assertEqual(tc[0], xml_received)
+
+    for inv in invalid_values:
+        testcase.assertRaises(BaseError, lambda: method(":test", inv))
+    testcase.assertRaises(BaseError, lambda: method(":test", different_values))
+
 
 
 class TestCsv2xml(unittest.TestCase):
@@ -243,16 +255,7 @@ class TestCsv2xml(unittest.TestCase):
         method = c2x.make_color_prop
         different_values = ["#012345", "#abcdef", "#0B0B0B", "#AAAAAA", "#1a2b3c"]
         invalid_values = ["#0000000", "#00000G"]
-
-        testcases = make_test_cases(prop, method, different_values)
-        for testcase in testcases:
-            xml_received = etree.tostring(testcase[1], encoding="unicode")
-            xml_received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_received)
-            self.assertEqual(testcase[0], xml_received)
-
-        for inv in invalid_values:
-            self.assertRaises(BaseError, lambda: method(":test", inv))
-        self.assertRaises(BaseError, lambda: method(":test", different_values))
+        run_test(self, prop, method, different_values, invalid_values)
 
 
     def test_make_date_prop(self) -> None:
@@ -261,16 +264,7 @@ class TestCsv2xml(unittest.TestCase):
         different_values = ["CE:1849:CE:1850", "GREGORIAN:1848-01:1849-02", "2022",
                             "GREGORIAN:CE:0476-09-04:CE:0476-09-04", "GREGORIAN:CE:2014-01-31"]
         invalid_values = ["GREGORIAN:CE:0476-09-04:CE:09-04", "GREGORIAN:CE:0476-09-010:CE:0476-09-04"]
-
-        testcases = make_test_cases(prop, method, different_values)
-        for testcase in testcases:
-            xml_received = etree.tostring(testcase[1], encoding="unicode")
-            xml_received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_received)
-            self.assertEqual(testcase[0], xml_received)
-
-        for inv in invalid_values:
-            self.assertRaises(BaseError, lambda: method(":test", inv))
-        self.assertRaises(BaseError, lambda: method(":test", different_values))
+        run_test(self, prop, method, different_values, invalid_values)
 
 
 if __name__ == "__main__":

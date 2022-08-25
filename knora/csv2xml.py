@@ -78,8 +78,11 @@ class PropertyElement:
         ))
 
     def __str__(self) -> str:
-        return f"""PropertyElement with value={self.value}, permissions={self.permissions},
-        comment={self.comment}, encoding={self.encoding}"""
+        return f"""PropertyElement[value={self.value}, permissions={self.permissions},
+        comment={self.comment}, encoding={self.encoding}]"""
+
+    def __repr__(self) -> str:
+        return self.__str__()
 
     def __hash__(self) -> int:
         return hash(str(self))

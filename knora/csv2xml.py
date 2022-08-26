@@ -1615,9 +1615,9 @@ def make_uri_prop(
 
 
 def make_region(
-    label: Union[str, Any],
-    id: Union[str, Any],
-    permissions: Union[str, Any] = "res-default"
+    label: str,
+    id: str,
+    permissions: str = "res-default"
 ) -> etree._Element:
     """
     Creates an empty region element, with the attributes as specified by the arguments
@@ -1641,8 +1641,8 @@ def make_region(
     """
 
     kwargs = {
-        "id": str(id),
         "label": str(label),
+        "id": str(id),
         "permissions": str(permissions),
         "nsmap": xml_namespace_map
     }
@@ -1655,9 +1655,9 @@ def make_region(
 
 
 def make_annotation(
-    label: Union[str, Any],
-    id: Union[str, Any],
-    permissions: Union[str, Any] = "res-default"
+    label: str,
+    id: str,
+    permissions: str = "res-default"
 ) -> etree._Element:
     """
     Creates an empty annotation element, with the attributes as specified by the arguments
@@ -1679,8 +1679,8 @@ def make_annotation(
     """
 
     kwargs = {
-        "id": str(id),
         "label": str(label),
+        "id": str(id),
         "permissions": str(permissions),
         "nsmap": xml_namespace_map
     }
@@ -1693,9 +1693,9 @@ def make_annotation(
 
 
 def make_link(
-    label: Union[str, Any],
-    id: Union[str, Any],
-    permissions: Union[str, Any] = "res-default"
+    label: str,
+    id: str,
+    permissions: str = "res-default"
 ) -> etree._Element:
     """
     Creates an empty link element, with the attributes as specified by the arguments
@@ -1717,8 +1717,8 @@ def make_link(
     """
 
     kwargs = {
-        "id": str(id),
         "label": str(label),
+        "id": str(id),
         "permissions": str(permissions),
         "nsmap": xml_namespace_map
     }

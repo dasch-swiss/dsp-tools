@@ -438,5 +438,41 @@ class TestCsv2xml(unittest.TestCase):
         run_test(self, prop, method, different_values, invalid_values)
 
 
+    def test_make_region(self) -> None:
+        xml_received_1 = c2x.make_region("label", "id")
+        xml_received_1 = etree.tostring(xml_received_1, encoding="unicode")
+        xml_received_1 = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_received_1)
+        self.assertEqual('<region label="label" id="id" permissions="res-default"/>', xml_received_1)
+
+        xml_received_2 = c2x.make_region("label", "id", "res-restricted")
+        xml_received_2 = etree.tostring(xml_received_2, encoding="unicode")
+        xml_received_2 = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_received_2)
+        self.assertEqual('<region label="label" id="id" permissions="res-restricted"/>', xml_received_2)
+
+
+    def test_make_annotation(self) -> None:
+        xml_received_1 = c2x.make_annotation("label", "id")
+        xml_received_1 = etree.tostring(xml_received_1, encoding="unicode")
+        xml_received_1 = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_received_1)
+        self.assertEqual('<annotation label="label" id="id" permissions="res-default"/>', xml_received_1)
+
+        xml_received_2 = c2x.make_annotation("label", "id", "res-restricted")
+        xml_received_2 = etree.tostring(xml_received_2, encoding="unicode")
+        xml_received_2 = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_received_2)
+        self.assertEqual('<annotation label="label" id="id" permissions="res-restricted"/>', xml_received_2)
+
+
+    def test_make_link(self) -> None:
+        xml_received_1 = c2x.make_link("label", "id")
+        xml_received_1 = etree.tostring(xml_received_1, encoding="unicode")
+        xml_received_1 = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_received_1)
+        self.assertEqual('<link label="label" id="id" permissions="res-default"/>', xml_received_1)
+
+        xml_received_2 = c2x.make_link("label", "id", "res-restricted")
+        xml_received_2 = etree.tostring(xml_received_2, encoding="unicode")
+        xml_received_2 = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_received_2)
+        self.assertEqual('<link label="label" id="id" permissions="res-restricted"/>', xml_received_2)
+
+
 if __name__ == "__main__":
     unittest.main()

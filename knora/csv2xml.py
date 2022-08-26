@@ -11,6 +11,7 @@ from lxml import etree
 from lxml.builder import E
 
 from knora.dsplib.models.helpers import BaseError
+from knora.dsplib.utils.excel_to_json_lists import _simplify_name
 
 ##############################
 # global variables and classes
@@ -464,8 +465,8 @@ def make_root(shortcode: str, default_ontology: str) -> etree._Element:
     Start building your XML document by creating the root element <knora>.
 
     Args:
-        shortcode: The shortcode of this project as defined in the JSON onto file
-        default ontology: As defined in the JSON onto file
+        shortcode: The shortcode of this project as defined in the JSON project file
+        default ontology: one of the ontologies of the JSON project file
 
     Returns:
         The root element <knora>.
@@ -619,9 +620,11 @@ def make_bitstream_prop(
 
 
 def _format_bool(unformatted: Union[bool, str, int], name: str, calling_resource: str) -> str:
-    if unformatted in (False, "false", "False", "0", 0, "no", "No"):
+    if isinstance(unformatted, str):
+        unformatted = unformatted.lower()
+    if unformatted in (False, "false", "0", 0, "no"):
         return "false"
-    elif unformatted in (True, "true", "True", "1", 1, "yes", "Yes"):
+    elif unformatted in (True, "true", "1", 1, "yes"):
         return "true"
     else:
         raise BaseError(f"Invalid boolean format for prop '{name}' in resource '{calling_resource}': '{unformatted}'")
@@ -1730,35 +1733,35 @@ def make_link(
     return link_
 
 
-def create_onto_excel_list_mapping(
-    path_to_onto: str,
+def create_json_excel_list_mapping(
+    path_to_json: str,
     list_name: str,
     excel_values: Iterable[str],
     sep: str = '+"*ç%&/()=',
     corrections: Optional[dict[str, str]] = None
 ) -> dict[str, str]:
     """
-    Often, data sources contain list values that don't match the "name" of the node in the onto list which is needed for
-    the `dsp-tools xmlupload`.
-    This function accepts an onto-list and an Excel column containing list-values. It creates a dict of the form
-    {excel_value: list_node_name}. Values are only matched if the similarity is > 0.6, otherwise a warning appears.
+    Often, data sources contain list values that aren't identical to the name of the node in the list of the JSON
+    project file (a.k.a. ontology). In order to create a correct XML for the `dsp-tools xmlupload`, a mapping is
+    necessary. This function takes a JSON list and an Excel column containing list-values, and tries to match them
+    automatically based on similarity. The result is a dict of the form {excel_value: list_node_name}.
 
-    Alternatively, consider using the function create_onto_list_mapping(), which also builds a dictionary,
-    but from the names and labels in the onto list, which is easier than this function's approach. However,
-    this function has the advantage that it doesn't assume that your data source uses the list labels correctly.
+    Alternatively, consider using the function create_json_list_mapping(), which also builds a dictionary,
+    but from the names and labels in the JSON list, which is less error-prone than this function's approach. However,
+    this function has the advantage that it even works when your data source doesn't use the list labels correctly.
 
     Args:
-        path_to_onto: path to the JSON ontology file
-        list_name: name of the list in the JSON ontology
+        path_to_json: path to the JSON project file
+        list_name: name of the list in the JSON project file (can also be a nested list)
         excel_values: the Excel column (e.g. as list) with the list values in it
         sep: separator string, if the cells in the Excel contain more than one list entry
         corrections: dict with wrong entries, each pointing to its correct counterpart
 
     Returns:
-        dict of the form {excel_value: list_node_name}
+        dict of the form {excel_value: list_node_name}. Every excel_value is stripped, and also present in a lowercase form.
 
     Examples:
-        >>> onto_list_nodes = [
+        >>> json_list_nodes = [
                 {
                     "name": "giraffe",
                     "labels": {"en": "giraffe"}
@@ -1768,45 +1771,47 @@ def create_onto_excel_list_mapping(
                     "labels": {"en": "antelope"}
                 }
             ]
-        >>> excel_row_1 = [" Giraffeeh ", " Antiloupe "]
-        >>> result_of_onto_excel_list_mapping = {" Giraffeeh ": "giraffe", " Antiloupe ": "antelope"}
+        >>> excel_row_1 = ["Giraffeeh ", " Antiloupe", "Girraffe , Antiloupe "]
+        >>> json_excel_list_mapping = {"Giraffeeh": "giraffe", "Girraffe": "giraffe", "Antiloupe": "antelope",
+        >>>                            "giraffeeh": "giraffe", "girraffe": "giraffe", "antiloupe": "antelope"}
     """
 
     # avoid mutable default argument
-    if not corrections:
-        corrections = {}
+    corrections = corrections or {}
 
+    # split the values, if necessary
     excel_values_new = list()
     for val in excel_values:
         if isinstance(val, str):
-            excel_values_new.extend([x.strip() for x in val.split(sep)])
+            excel_values_new.extend([x.strip() for x in val.split(sep) if x])
 
-    # read the list of the onto (works also for nested lists)
-    onto_file = json.load(open(path_to_onto))
-    onto_subset = list()
-    for elem in onto_file["project"]["lists"]:
+    # read the list of the JSON project (works also for nested lists)
+    with open(path_to_json) as f:
+        json_file = json.load(f)
+    json_subset = list()
+    for elem in json_file["project"]["lists"]:
         if elem["name"] == list_name:
-            onto_subset = elem["nodes"]
-    onto_values = set(_nested_dict_values_iterator(onto_subset))
+            json_subset = elem["nodes"]
+    json_values = set(_nested_dict_values_iterator(json_subset))
 
-    # build dictionaries with the mapping, based on string similarity
+    # build dictionary with the mapping, based on string similarity
     res = dict()
-    for excel_value in [x for x in excel_values_new if x]:
+    for excel_value in excel_values_new:
         excel_value_corrected = corrections.get(excel_value, excel_value)
-        excel_value_simpl = _simplify_name(excel_value_corrected)
+        excel_value_simpl = _simplify_name(excel_value_corrected)  #increase match probability by removing illegal chars
         matches: list[str] = difflib.get_close_matches(
             word=excel_value_simpl,
-            possibilities=onto_values,
+            possibilities=json_values,
             n=1,
             cutoff=0.6
         )
         if matches:
             res[excel_value] = matches[0]
-            res[excel_value.strip().lower()] = matches[0]
+            res[excel_value.lower()] = matches[0]
         else:
             handle_warnings(
                 f"Did not find a close match to the excel list entry ***{excel_value}*** among the values in "
-                + f"the onto list ***{list_name}***", stacklevel=3)
+                + f"the JSON project list ***{list_name}***", stacklevel=3)
 
     return res
 
@@ -1825,71 +1830,52 @@ def _nested_dict_values_iterator(dicts: list[dict[str, Any]]) -> Iterable[str]:
             yield dict["name"]
 
 
-def _simplify_name(value: str) -> str:
-    """
-    This function simplifies a given value in order to use it as node name
-
-    Args:
-        value: The value to be simplified
-
-    Returns:
-        str: The simplified value
-    """
-    simplified_value = str(value).lower()
-
-    # normalize characters (p.ex. ä becomes a)
-    simplified_value = unicodedata.normalize("NFKD", simplified_value)
-
-    # replace forward slash and whitespace with a dash
-    simplified_value = re.sub("[/\\s]+", "-", simplified_value)
-
-    # delete all characters which are not letters, numbers or dashes
-    simplified_value = re.sub("[^A-Za-z0-9\\-]+", "", simplified_value)
-
-    return simplified_value
-
-
-def create_onto_list_mapping(
-    path_to_onto: str,
+def create_json_list_mapping(
+    path_to_json: str,
     list_name: str,
     language_label: str
 ) -> dict[str, str]:
     """
-    Often, data sources contain list values named after the "label" of the onto list node, instead of the "name" which is
-    needed for the `dsp-tools xmlupload`. For this case, you need a dictionary that maps the "labels" to their correct
-    "names".
-    This method accepts the path to an onto.json file, and the name of a list in this onto. Lists may be nested: Each node
-    consists of a name, one or more labels, and optionally of a list of subnodes. "language_label" is the language that will
-    be used.
-    Returns a dictionary of the form {label: name} of all list entries.
+    Often, data sources contain list values named after the "label" of the JSON project list node, instead of the "name"
+    which is needed for the `dsp-tools xmlupload`. In order to create a correct XML, you need a dictionary that maps the
+    "labels" to their correct "names".
 
-    Alternatively, consider using the method create_onto_excel_list_mapping(), which also creates a dictionary, but maps
-    values from your data source to list node names from the onto, based on similarity.
+    Alternatively, consider using the method create_json_excel_list_mapping(), which also creates a dictionary, but maps
+    values from your data source to list node names from the JSON project file, based on similarity.
+
+    Args:
+        path_to_json: path to a JSON project file (a.k.a. ontology)
+        list_name: name of a list in the JSON project (works also for nested lists)
+        language_label: which language of the label to choose
+
+    Returns:
+        a dictionary of the form {label: name}
     """
-
-    onto_file = json.load(open(path_to_onto))
-    onto_subset = list()
-    for numbered_json_obj in onto_file["project"]["lists"]:
+    with open(path_to_json) as f:
+        json_file = json.load(f)
+    json_subset = list()
+    for numbered_json_obj in json_file["project"]["lists"]:
         if numbered_json_obj["name"] == list_name:
-            onto_subset.append(numbered_json_obj)
-    # onto_subset is a list containing one item, namely the json object containing the entire onto-list
+            json_subset.append(numbered_json_obj)
+    # json_subset is a list containing one item, namely the json object containing the entire json-list
 
     res = {}
-    for label, name in _name_label_mapper_iterator(onto_subset, language_label):
-        res[label] = name
-        res[label.strip().lower()] = name
+    for label, name in _name_label_mapper_iterator(json_subset, language_label):
+        if name != list_name:
+            res[label] = name
+            res[label.strip().lower()] = name
 
     return res
 
 
-def _name_label_mapper_iterator(onto_subset: list[dict[str, Any]], language_label: str) -> Iterable[tuple[str, str]]:
+def _name_label_mapper_iterator(json_subset: list[dict[str, Any]], language_label: str) -> Iterable[tuple[str, str]]:
     """
-    returns (label, name) pairs of onto list entries
+    returns (label, name) pairs of JSON project list entries
     """
-    for node in onto_subset:
-        # node is the json object containing the entire onto-list
+    for node in json_subset:
+        # node is the json object containing the entire json-list
         if "nodes" in node:
-            # "nodes" is the json sub-object containing the entries of the onto-list
+            # "nodes" is the json sub-object containing the entries of the json-list
             for value in _name_label_mapper_iterator(node["nodes"], language_label):
                 yield value
                 # "value" is a (label, name) pair of a single list entry

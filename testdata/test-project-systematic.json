@@ -32,36 +32,36 @@
                 },
                 "nodes": [
                     {
-                        "name": "a",
+                        "name": "first node of testlist",
                         "labels": {
-                            "en": "a_label with a\"post'rophes",
+                            "en": "First node of the Test-List",
                             "rm": "Rumantsch"
                         }
                     },
                     {
-                        "name": "b",
+                        "name": "second node of testlist",
                         "labels": {
-                            "en": "b_label with no comment"
+                            "en": "Second node of the Test-List"
                         },
                         "nodes": [
                             {
-                                "name": "b1",
+                                "name": "first subnode",
                                 "labels": {
-                                    "en": "b1_label"
+                                    "en": "First Sub-Node"
                                 }
                             },
                             {
-                                "name": "b2",
+                                "name": "second subnode",
                                 "labels": {
-                                    "en": "b2_label"
+                                    "en": "Second Sub-Node"
                                 }
                             }
                         ]
                     },
                     {
-                        "name": "c",
+                        "name": "third node of testlist",
                         "labels": {
-                            "en": "c_label"
+                            "en": "Third node of the Test-List"
                         }
                     }
                 ]
@@ -93,7 +93,11 @@
                     {
                         "name": "notUsedNode_1",
                         "labels": {
-                            "en": "nodeLabel_1"
+                            "en": "nodeLabel_1\"'"
+                        },
+                        "comments": {
+                            "en": "Nodes can have comments, too!",
+                            "rm": "Even in Rumantsch!"
                         }
                     }
                 ]

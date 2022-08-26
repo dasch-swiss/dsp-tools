@@ -214,3 +214,13 @@ Note that internal IDs and IRIs cannot be mixed. The input XML file has to be pr
 contains the mapping from internal IDs to IRIs. This JSON file is generated after each successful `xmlupload`.
 
 In order to upload data incrementally the procedure described [here](dsp-tools-xmlupload.md#incremental-xml-upload) is recommended.
+
+
+
+
+## Use the package CSV2XML to convert a data source to XML
+dsp-tools assists you in converting a data source like CSV/XLSX to an XML file. Unlike the other features of dsp-tools,
+this doesn't work via command line, but via helper methods that you can import into your own Python script. Because
+every data source is different, there is no single algorithm to convert them to XML. Every user has to deal with the 
+specialties of his/her data source, but csv2xml's helper methods can help a lot. Read more about it 
+[here](dsp-tools-csv2xml.md).

@@ -1,7 +1,7 @@
 import random
 import unittest
 import re
-from typing import Callable, Sequence, Union
+from typing import Callable, Sequence, Union, Optional, Any
 
 import pandas as pd
 import numpy as np
@@ -16,36 +16,44 @@ def run_test(
     prop: str,
     method: Callable[..., etree._Element],
     different_values: Sequence[Union[str, int, float, bool]],
-    invalid_values: Sequence[Union[str, int, float, bool]]
+    invalid_values: Sequence[Union[str, int, float, bool]],
+    listname: Optional[str] = None
 ) -> None:
     """
     XML-properties have always a similar structure, and all make_*_prop() methods have some similar things to test. This
     method executes the tests in a parametrized way.
 
     Args:
+        testcase: the object of the unittest class
         prop: the name of the property
         method: the make_*_prop() method
         different_values: some valid values
         invalid_values: some invalid values
+        listname: to check the method make_list_prop, a list name is necessary
     """
     identical_values = [different_values[0]] * 3
     max = len(different_values)
-    testcases = [
+
+    # prepare the test cases of the form (expected_xml, kwargs for the method to generate XML)
+    testcases: list[tuple[str, dict[str, Any]]] = [
         (
-            f'<{prop}-prop name=":test"><{prop} permissions="prop-default">{different_values[0 % max]}</{prop}></{prop}-prop>',
-            method(":test", value=different_values[0 % max])
+            f'<{prop}-prop name=":test"><{prop} permissions="prop-default">{different_values[0 % max]}'
+            f'</{prop}></{prop}-prop>',
+            dict(name=":test", value=different_values[0 % max])
         ),
         (
-            f'<{prop}-prop name=":test"><{prop} permissions="prop-restricted">{different_values[1 % max]}</{prop}></{prop}-prop>',
-            method(":test", value=c2x.PropertyElement(different_values[1 % max], permissions="prop-restricted"))
+            f'<{prop}-prop name=":test"><{prop} permissions="prop-restricted">{different_values[1 % max]}'
+            f'</{prop}></{prop}-prop>',
+            dict(name=":test", value=c2x.PropertyElement(different_values[1 % max], permissions="prop-restricted"))
         ),
         (
-            f'<{prop}-prop name=":test"><{prop} permissions="prop-default" comment="comment">{different_values[2 % max]}</{prop}></{prop}-prop>',
-            method(":test", value=c2x.PropertyElement(different_values[2 % max], comment="comment"))
+            f'<{prop}-prop name=":test"><{prop} permissions="prop-default" comment="comment">{different_values[2 % max]}'
+            f'</{prop}></{prop}-prop>',
+            dict(name=":test", value=c2x.PropertyElement(different_values[2 % max], comment="comment"))
         ),
         (
             f'<{prop}-prop name=":test"><{prop} permissions="prop-default">{identical_values[0]}</{prop}></{prop}-prop>',
-            method(":test", value=identical_values)
+            dict(name=":test", value=identical_values)
         ),
         (
             f'<{prop}-prop name=":test">'
@@ -53,7 +61,7 @@ def run_test(
             f'<{prop} permissions="prop-default">{identical_values[0]}</{prop}>'
             f'<{prop} permissions="prop-default">{identical_values[0]}</{prop}>'
             f'</{prop}-prop>',
-            method(":test", values=identical_values)
+            dict(name=":test", values=identical_values)
         ),
         (
             f'<{prop}-prop name=":test">'
@@ -61,19 +69,56 @@ def run_test(
             f'<{prop} permissions="prop-default">{different_values[4 % max]}</{prop}>'
             f'<{prop} permissions="prop-default">{different_values[5 % max]}</{prop}>'
             f'</{prop}-prop>',
-            method(":test", values=[different_values[3 % max], different_values[4 % max], different_values[5 % max]])
+            dict(name=":test", values=[different_values[3 % max], different_values[4 % max], different_values[5 % max]])
+        ),
+        (
+            f'<{prop}-prop name=":test">'
+            f'<{prop} permissions="prop-restricted" comment="comment1">{different_values[6 % max]}</{prop}>'
+            f'<{prop} permissions="prop-default" comment="comment2">{different_values[7 % max]}</{prop}>'
+            f'<{prop} permissions="prop-restricted" comment="comment3">{different_values[8 % max]}</{prop}>'
+            f'</{prop}-prop>',
+            dict(name=":test", values=[
+                c2x.PropertyElement(different_values[6 % max], permissions="prop-restricted", comment="comment1"),
+                c2x.PropertyElement(different_values[7 % max], permissions="prop-default", comment="comment2"),
+                c2x.PropertyElement(different_values[8 % max], permissions="prop-restricted", comment="comment3")
+            ])
         )
     ]
 
-    for i, tc in enumerate(testcases):
-        xml_received = etree.tostring(tc[1], encoding="unicode")
+    # run the test cases
+    for tc in testcases:
+        xml_expected = tc[0]
+        kwargs_to_generate_xml = tc[1]
+        if prop == "list":
+            # a <list-prop> has the additional attribute list="listname"
+            xml_expected = re.sub(r"<list-prop", f"<list-prop list=\"{listname}\"", xml_expected)
+            kwargs_to_generate_xml["list_name"] = listname
+        elif prop == "text":
+            # a <text> has the additional attribute encoding="utf8" (the other encoding, xml, is tested in the caller)
+            xml_expected = re.sub(r"<text (permissions=\".+?\")( comment=\".+?\")?", "<text \\1\\2 encoding=\"utf8\"",
+                                  xml_expected)
+        xml_received = method(**kwargs_to_generate_xml)
+        xml_received = etree.tostring(xml_received, encoding="unicode")
         xml_received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_received)
-        testcase.assertEqual(tc[0], xml_received, msg=f"Failed testcase: testcases[{i}]")
+        testcase.assertEqual(xml_expected, xml_received,
+                             msg=f"Method {method.__name__} failed with kwargs {kwargs_to_generate_xml}")
 
-    for inv in invalid_values:
-        with testcase.assertRaises(BaseError, msg=f"Failed with value '{inv}'"):
-            method(":test", inv)
-    testcase.assertRaises(BaseError, lambda: method(":test", different_values))
+    # perform illegal actions
+    # pass iterable of different values as param "value" (instead of iterable of identical values, which would be legal)
+    kwargs_value_with_different_values = dict(name=":test", value=different_values)
+    if prop == "list":
+        kwargs_value_with_different_values["list_name"] = listname
+    with testcase.assertRaises(BaseError, msg=f"Method {method.__name__} failed with kwargs "
+                                              f"{kwargs_value_with_different_values}"):
+        method(**kwargs_value_with_different_values)
+
+    # pass invalid values as param "value"
+    for invalid_value in invalid_values:
+        kwargs_invalid_value = dict(name=":test", value=invalid_value)
+        if prop == "list":
+            kwargs_invalid_value["list_name"] = listname
+        with testcase.assertRaises(BaseError, msg=f"Method {method.__name__} failed with kwargs {kwargs_invalid_value}"):
+            method(**kwargs_invalid_value)
 
 
 
@@ -292,9 +337,104 @@ class TestCsv2xml(unittest.TestCase):
         method = c2x.make_geometry_prop
         different_values = [
             '{"type": "rectangle", "lineColor": "#ff3333", "lineWidth": 2, "points": [{"x": 0.08, "y": 0.16}, {"x": 0.73, "y": 0.72}], "original_index": 0}',
-            {"type": "rectangle", "lineColor": "#ff3333", "lineWidth": 2, "points": [{"x": 0.08, "y": 0.16}, {"x": 0.73, "y": 0.72}], "original_index": 0}
+            '{"type": "rectangle", "lineColor": "#000000", "lineWidth": 1, "points": [{"x": 0.10, "y": 0.10}, {"x": 0.10, "y": 0.10}], "original_index": 1}',
         ]
-        invalid_values = ["100", 100, [0], {"type": "polygon"}]
+        invalid_values = ["100", 100, [0], '{"type": "polygon"}']
+        run_test(self, prop, method, different_values, invalid_values)
+
+
+    def test_make_geoname_prop(self) -> None:
+        prop = "geoname"
+        method = c2x.make_geoname_prop
+        different_values = [1283416, "1283416", 71, "71", 10000000, "10000000"]
+        invalid_values = ["text", 10.0, ["text"]]
+        run_test(self, prop, method, different_values, invalid_values)
+
+
+    def test_make_integer_prop(self) -> None:
+        prop = "integer"
+        method = c2x.make_integer_prop
+        different_values = [1283416, "1283416", 71, "71", 0, "0"]
+        invalid_values = ["text", 10.0, ["text"]]
+        run_test(self, prop, method, different_values, invalid_values)
+
+
+    def test_make_interval_prop(self) -> None:
+        prop = "interval"
+        method = c2x.make_interval_prop
+        different_values = ["+.1:+.9", "10:20", "1.5:2.5", "-.1:5", "-10.0:-5.1"]
+        invalid_values = ["text", 10.0, ["text"], "10:", ":1"]
+        run_test(self, prop, method, different_values, invalid_values)
+
+
+    def test_make_list_prop(self) -> None:
+        prop = "list"
+        method = c2x.make_list_prop
+        different_values = ["first-node", "second-node", "third-node", "fourth-node", "fifth-node"]
+        invalid_values = [10.0]
+        run_test(self, prop, method, different_values, invalid_values, ":myList")
+
+
+    def test_make_resptr_prop(self) -> None:
+        prop = "resptr"
+        method = c2x.make_resptr_prop
+        different_values = ["resource_1", "resource_2", "resource_3", "resource_4", "resource_5"]
+        invalid_values = [True, 10.0, 5]
+        run_test(self, prop, method, different_values, invalid_values)
+
+
+    def test_make_text_prop(self) -> None:
+        prop = "text"
+        method = c2x.make_text_prop
+        different_values = ["text_1", "text_2", "text_3", "text_4", "text_5"]
+        invalid_values = [True, 10.0, 5]
+        run_test(self, prop, method, different_values, invalid_values)
+
+        # test encoding="xml"
+        xml_expected_1 = '<text-prop name=":test"><text permissions="prop-default" encoding="xml">a</text></text-prop>'
+        xml_received_1 = c2x.make_text_prop(":test", c2x.PropertyElement(value="a", encoding="xml"))
+        xml_received_1 = etree.tostring(xml_received_1, encoding="unicode")
+        xml_received_1 = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_received_1)
+        self.assertEqual(xml_expected_1, xml_received_1)
+
+        # encoding="unicode" must raise an error
+        self.assertRaises(BaseError, lambda: c2x.make_text_prop(":test", c2x.PropertyElement(value="a", encoding="unicode")))
+
+
+    def test_make_time_prop(self) -> None:
+        prop = "time"
+        method = c2x.make_time_prop
+        different_values = [
+            "2019-10-23T13:45:12.01-14:00",
+            "2019-10-23T13:45:12-14:00",
+            "2019-10-23T13:45:12Z",
+            "2019-10-23T13:45:12-13:30",
+            "2019-10-23T13:45:12+01:00",
+            "2019-10-23T13:45:12.1111111+01:00",
+            "2019-10-23T13:45:12.123456789012Z",
+        ]
+        invalid_values = [True, 10.0, 5, "2019-10-2", "CE:1849:CE:1850", "2019-10-23T13:45:12.1234567890123Z", "2022",
+                          "GREGORIAN:CE:2014-01-31"]
+        run_test(self, prop, method, different_values, invalid_values)
+
+
+    def test_make_uri_prop(self) -> None:
+        prop = "uri"
+        method = c2x.make_uri_prop
+        different_values = [
+            "https://www.test-case.ch/",
+            "https://reg-exr.com:3000",
+            "https://reg-exr.com:3000/path/to/file",
+            "https://reg-exr.com:3000/path/to/file#fragment",
+            "https://reg-exr.com:3000/path/to/file?query=test",
+            "https://reg-exr.com:3000/path/to/file?query=test#fragment",
+            "https://reg-exr.com/path/to/file?query=test#fragment",
+            "http://www.168.1.1.0/path",
+            "http://www.168.1.1.0:4200/path",
+            "http://[2001:0db8:0000:0000:0000:8a2e:0370:7334]:4200/path",
+            "https://en.wikipedia.org/wiki/Haiku#/media/File:Basho_Horohoroto.jpg"
+        ]
+        invalid_values = ["https:", 10.0, 5, "www.test.com"]
         run_test(self, prop, method, different_values, invalid_values)
 
 

@@ -23,7 +23,15 @@
     <xs:simpleType name="knoradate_type">
         <xs:restriction base="xs:token">
             <xs:pattern
-                value="(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})?(-\d{1,2})?(-\d{1,2})?(:CE|:BCE)?(:\d{4})?(-\d{1,2})?(-\d{1,2})?"/>
+                value="(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})(-\d{1,2})?(-\d{1,2})?((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- data type for knora time -->
+    <xs:simpleType name="knoratime_type">
+        <xs:restriction base="xs:token">
+            <xs:pattern
+                value="\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d{1,12})?(Z|[+-][0-1]\d:[0-5]\d)"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -31,6 +39,13 @@
     <xs:simpleType name="knoracolor_type">
         <xs:restriction base="xs:token">
             <xs:pattern value="#([0-9a-fA-F]{3}){1,2}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- data type for knora uri -->
+    <xs:simpleType name="knorauri_type">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="([a-z][a-z0-9+.\-]*):(//([\w_.\-\[\]:~]+)(:\d{0,6})?)(/[\w_\-.~]*)*(\?[\w_.\-=]+)*(#[\w_/\-~:.]*)?"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -163,7 +178,7 @@
     <!-- time value type -->
     <xs:complexType name="time_type">
         <xs:simpleContent>
-            <xs:extension base="xs:dateTime">
+            <xs:extension base="knoratime_type">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
@@ -183,7 +198,7 @@
     <!-- uri value type -->
     <xs:complexType name="uri_type">
         <xs:simpleContent>
-            <xs:extension base="xs:anyURI">
+            <xs:extension base="knorauri_type">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>

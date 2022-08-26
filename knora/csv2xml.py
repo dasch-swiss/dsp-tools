@@ -5,11 +5,8 @@ import re
 import warnings
 import difflib
 import unicodedata
-
-import numpy as np
 import pandas as pd
-from collections.abc import Iterable
-from typing import Any, Optional, Union
+from typing import Any, Iterable, Optional, Union
 from lxml import etree
 from lxml.builder import E
 
@@ -26,14 +23,14 @@ __muted_warnings: list[str] = []
 
 
 class PropertyElement:
-    value: Union[str, int, float, bool, dict[str, Any]]
+    value: Union[str, int, float, bool]
     permissions: Optional[str]
     comment: Optional[str]
     encoding: Optional[str]
 
     def __init__(
         self,
-        value: Union[str, int, float, bool, dict[str, Any]],
+        value: Union[str, int, float, bool],
         permissions: str = "prop-default",
         comment: Optional[str] = None,
         encoding: Optional[str] = None
@@ -65,11 +62,13 @@ class PropertyElement:
                         </text>
                     </text-prop>
         """
-        if not any([check_notna(value), isinstance(value, dict)]):
+        if not check_notna(value):
             raise BaseError(f"'{value}' is not a valid value for a PropertyElement")
         self.value = value
         self.permissions = permissions
         self.comment = comment
+        if encoding not in ["utf8", "xml", None]:
+            raise BaseError(f"'{encoding}' is not a valid encoding for a PropertyElement")
         self.encoding = encoding
 
     def __eq__(self, other) -> bool:
@@ -352,7 +351,6 @@ def check_notna(value: Optional[Any]) -> bool:
     Check a value if it is usable in the context of data archiving. A value is considered usable if it is
      - a number (integer or float, but not np.nan)
      - a boolean
-     - a non-empty dictionary
      - a string with at least one word-character (regex `[A-Za-z0-9_]`), but not "None", "<NA>", "N/A", or "-"
      - a PropertyElement whose "value" fulfills the above criteria
 
@@ -367,8 +365,7 @@ def check_notna(value: Optional[Any]) -> bool:
     if any([
         isinstance(value, int),
         isinstance(value, float) and pd.notna(value),   # necessary because isinstance(np.nan, float)
-        isinstance(value, bool),
-        isinstance(value, dict) and len(value) > 0
+        isinstance(value, bool)
     ]):
         return True
     elif isinstance(value, str):
@@ -380,25 +377,9 @@ def check_notna(value: Optional[Any]) -> bool:
         return False
 
 
-def remove_duplicates(it: Iterable[Any]) -> list[Any]:
-    """
-    Remove duplicates from an Iterable in cases when set() doesn't do the job, because the items are unhashable.
-
-    Args:
-        it: an iterable containing any kind of elements that can be checked for equality with the '==' operator.
-
-    Returns:
-        a deduplicated list
-    """
-    res: list[Any] = []
-    [res.append(elem) for elem in it if elem not in res]
-    return res
-
-
-
 def _check_and_prepare_values(
-    value: Optional[Union[PropertyElement, str, int, float, bool, dict[str, Any], Iterable[Union[PropertyElement, str, int, float, bool, dict[str, Any]]]]],
-    values: Optional[Iterable[Union[PropertyElement, str, int, float, bool, dict[str, Any]]]],
+    value: Optional[Union[PropertyElement, str, int, float, bool, Iterable[Union[PropertyElement, str, int, float, bool]]]],
+    values: Optional[Iterable[Union[PropertyElement, str, int, float, bool]]],
     name: str,
     calling_resource: str = ""
 ) -> list[PropertyElement]:
@@ -451,11 +432,11 @@ def _check_and_prepare_values(
 
     if value:
         # if "value" contains more than one value, reduce it to a single value
-        if not isinstance(value, Iterable) or isinstance(value, str) or isinstance(value, dict):
-            single_value: Union[PropertyElement, str, int, float, bool, dict[str, Any]] = value
+        if not isinstance(value, Iterable) or isinstance(value, str):
+            single_value: Union[PropertyElement, str, int, float, bool] = value
         else:
-            if len(remove_duplicates(value)) > 1:
-                raise BaseError(f"There are contradictory values for prop '{name}' in resource '{calling_resource}': {remove_duplicates(value)}")
+            if len(set(value)) > 1:
+                raise BaseError(f"There are contradictory values for prop '{name}' in resource '{calling_resource}': {set(value)}")
             single_value = next(iter(value))
 
         # make a PropertyElement out of it, if necessary
@@ -730,7 +711,8 @@ def make_color_prop(
     calling_resource: str = ""
 ) -> etree._Element:
     """
-    Make a <color-prop> from one or more colors. The color(s) can be provided as string or as PropertyElement.
+    Make a <color-prop> from one or more colors. The color(s) can be provided as string or as PropertyElement with a
+    string inside.
 
     To create one ``<color>`` child, use the param ``value``, to create more than one ``<color>`` children, use
     ``values``.
@@ -803,7 +785,8 @@ def make_date_prop(
     calling_resource: str = ""
 ) -> etree._Element:
     """
-    Make a <date-prop> from one or more dates/date ranges. The date(s) can be provided as string or as PropertyElement.
+    Make a <date-prop> from one or more dates/date ranges. The date(s) can be provided as string or as PropertyElement
+    with a string inside.
 
     To create one ``<date>`` child, use the param ``value``, to create more than one ``<date>`` children, use ``values``.
 
@@ -850,8 +833,8 @@ def make_date_prop(
 
     # check value type
     for val in values_new:
-        if not re.search(r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?\d{4}(-\d{1,2})?(-\d{1,2})?"
-                         r"((:CE|:BCE)?:\d{4}(-\d{1,2})?(-\d{1,2})?)?$", str(val.value).strip()):
+        if not re.search(r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})(-\d{1,2})?(-\d{1,2})?"
+                         r"((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$", str(val.value).strip()):
             raise BaseError(f"Invalid date format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
 
     # make xml structure of the value
@@ -883,7 +866,7 @@ def make_decimal_prop(
 ) -> etree._Element:
     """
     Make a <decimal-prop> from one or more decimal numbers. The decimal(s) can be provided as string, float, or as
-    PropertyElement.
+    PropertyElement with a string/float inside.
 
     To create one ``<decimal>`` child, use the param ``value``, to create more than one ``<decimal>`` children, use
     ``values``.
@@ -957,7 +940,7 @@ def make_geometry_prop(
 ) -> etree._Element:
     """
     Make a <geometry-prop> from one or more areas of an image. The area(s) can be provided as JSON-string or as
-    PropertyElement with the JSON-string as value.
+    PropertyElement with the JSON-string inside.
 
     To create one ``<geometry>`` child, use the param ``value``, to create more than one ``<geometry>`` children, use
     ``values``.
@@ -1000,7 +983,7 @@ def make_geometry_prop(
     # check value type
     for val in values_new:
         try:
-            value_as_dict = json.loads(val.value) if isinstance(val.value, str) else val.value
+            value_as_dict = json.loads(val.value)
             assert value_as_dict["type"] in ["rectangle", "circle"]
             assert isinstance(value_as_dict["points"], list)
         except (json.JSONDecodeError, TypeError, IndexError, KeyError, AssertionError):
@@ -1029,21 +1012,21 @@ def make_geometry_prop(
 
 def make_geoname_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, Any, Iterable[Union[PropertyElement, str, Any]]]] = None,
-    values: Optional[Iterable[Union[PropertyElement, str, Any]]] = None,
+    value: Optional[Union[PropertyElement, str, int, Iterable[Union[PropertyElement, str, int]]]] = None,
+    values: Optional[Iterable[Union[PropertyElement, str, int]]] = None,
     calling_resource: str = ""
 ) -> etree._Element:
     """
-    Make a <geoname-prop> from one or more geonames.org IDs. The ID(s) can be provided as
-    string, integer, or as PropertyElement.
+    Make a <geoname-prop> from one or more geonames.org IDs. The ID(s) can be provided as string, integer, or as
+    PropertyElement with a string/integer inside.
 
-    To create one ``<geoname>`` child, use the param ``value``, to create more than one
-    ``<geoname>`` children, use ``values``.
+    To create one ``<geoname>`` child, use the param ``value``, to create more than one ``<geoname>`` children, use
+    ``values``.
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
-        values: an iterable of (usually distinct) strings/PropertyElements
+        value: a string/int/PropertyElement, or an iterable of identical strings/ints/PropertyElements
+        values: an iterable of (usually distinct) strings/ints/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Examples:
@@ -1077,11 +1060,8 @@ def make_geoname_prop(
 
     # check value type
     for val in values_new:
-        assert re.search(r"^[0-9]+$", str(val.value)) is not None, \
-            f"The following is not a valid geoname ID:\n" + \
-            f"resource '{calling_resource}'\n" + \
-            f"property '{name}'\n" + \
-            f"value    '{val.value}'"
+        if not re.search(r"^[0-9]+$", str(val.value)):
+            raise BaseError(f"Invalid geoname format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
 
     prop_ = etree.Element(
         "{%s}geoname-prop" % (xml_namespace_map[None]),
@@ -1097,7 +1077,7 @@ def make_geoname_prop(
             **kwargs,
             nsmap=xml_namespace_map
         )
-        value_.text = val.value
+        value_.text = str(val.value)
         prop_.append(value_)
 
     return prop_
@@ -1105,21 +1085,21 @@ def make_geoname_prop(
 
 def make_integer_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, Any, Iterable[Union[PropertyElement, str, Any]]]] = None,
-    values: Optional[Iterable[Union[PropertyElement, str, Any]]] = None,
+    value: Optional[Union[PropertyElement, str, int, Iterable[Union[PropertyElement, str, int]]]] = None,
+    values: Optional[Iterable[Union[PropertyElement, str, int]]] = None,
     calling_resource: str = ""
 ) -> etree._Element:
     """
-    Make a <integer-prop> from one or more integers. The integers can be provided as string,
-    integer, or as PropertyElement.
+    Make a <integer-prop> from one or more integers. The integers can be provided as string, integer, or as
+    PropertyElement with a string/integer inside.
 
-    To create one ``<integer>`` child, use the param ``value``, to create more than one
-    ``<integer>`` children, use ``values``.
+    To create one ``<integer>`` child, use the param ``value``, to create more than one ``<integer>`` children, use
+    ``values``.
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
-        values: an iterable of (usually distinct) strings/PropertyElements
+        value: a string/int/PropertyElement, or an iterable of identical strings/ints/PropertyElements
+        values: an iterable of (usually distinct) strings/ints/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Examples:
@@ -1154,10 +1134,7 @@ def make_integer_prop(
     # check value type
     for val in values_new:
         if not re.search(r"^\d+$", str(val.value).strip()):
-            raise BaseError(f"The following is not a valid integer:\n"
-                            f"resource '{calling_resource}'\n"
-                            f"property '{name}'\n"
-                            f"value    '{val.value}'")
+            raise BaseError(f"Invalid integer format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
 
     prop_ = etree.Element(
         "{%s}integer-prop" % (xml_namespace_map[None]),
@@ -1173,7 +1150,7 @@ def make_integer_prop(
             **kwargs,
             nsmap=xml_namespace_map
         )
-        value_.text = int(val.value)
+        value_.text = str(val.value)
         prop_.append(value_)
 
     return prop_
@@ -1181,15 +1158,16 @@ def make_integer_prop(
 
 def make_interval_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, Any, Iterable[Union[PropertyElement, str, Any]]]] = None,
-    values: Optional[Iterable[Union[PropertyElement, str, Any]]] = None,
+    value: Optional[Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]]] = None,
+    values: Optional[Iterable[Union[PropertyElement, str]]] = None,
     calling_resource: str = ""
 ) -> etree._Element:
     """
-    Make a <interval-prop> from one or more intervals. The interval(s) can be provided as string or as PropertyElement.
+    Make a <interval-prop> from one or more intervals. The interval(s) can be provided as string or as PropertyElement
+    with a string inside.
 
-    To create one ``<interval>`` child, use the param ``value``, to create more than one
-    ``<interval>`` children, use ``values``.
+    To create one ``<interval>`` child, use the param ``value``, to create more than one ``<interval>`` children, use
+    ``values``.
 
     Args:
         name: the name of this property as defined in the onto
@@ -1228,12 +1206,9 @@ def make_interval_prop(
 
     # check value type
     for val in values_new:
-        assert re.match(r"([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)):([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+))",
-                        str(val.value)) is not None, \
-            f"The following is not a valid interval:\n" + \
-            f"resource '{calling_resource}'\n" + \
-            f"property '{name}'\n" + \
-            f"value    '{val.value}'"   #TODO Raise baseerror instead
+        if not re.match(r"([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)):([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+))", str(val.value)):
+            raise BaseError(f"Invalid integer format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
+
 
     prop_ = etree.Element(
         "{%s}interval-prop" % (xml_namespace_map[None]),
@@ -1258,16 +1233,15 @@ def make_interval_prop(
 def make_list_prop(
     list_name: str,
     name: str,
-    value: Optional[Union[PropertyElement, str, Any, Iterable[Union[PropertyElement, str, Any]]]] = None,
-    values: Optional[Iterable[Union[PropertyElement, str, Any]]] = None,
+    value: Optional[Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]]] = None,
+    values: Optional[Iterable[Union[PropertyElement, str]]] = None,
     calling_resource: str = ""
 ) -> etree._Element:
     """
-    Make a <list-prop> from one or more list items. The list item(s) can be provided as
-    string or as PropertyElement.
+    Make a <list-prop> from one or more list items. The list item(s) can be provided as string or as PropertyElement
+    with a string inside.
 
-    To create one ``<list>`` child, use the param ``value``, to create more than one ``<list>``
-    children, use ``values``.
+    To create one ``<list>`` child, use the param ``value``, to create more than one ``<list>`` children, use ``values``.
 
     Args:
         list_name: the name of the list as defined in the onto
@@ -1305,6 +1279,11 @@ def make_list_prop(
         calling_resource=calling_resource
     )
 
+    # check value type
+    for val in values_new:
+        if not isinstance(val.value, str) or not check_notna(val.value):
+            raise BaseError(f"Invalid list format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
+
     # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}list-prop" % (xml_namespace_map[None]),
@@ -1329,16 +1308,16 @@ def make_list_prop(
 
 def make_resptr_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, Any, Iterable[Union[PropertyElement, str, Any]]]] = None,
-    values: Optional[Iterable[Union[PropertyElement, str, Any]]] = None,
+    value: Optional[Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]]] = None,
+    values: Optional[Iterable[Union[PropertyElement, str]]] = None,
     calling_resource: str = ""
 ) -> etree._Element:
     """
-    Make a <resptr-prop> from one or more links to other resources. The links(s) can be provided as
-    string or as PropertyElement.
+    Make a <resptr-prop> from one or more links to other resources. The links(s) can be provided as string or as
+    PropertyElement with a string inside.
 
-    To create one ``<resptr>`` child, use the param ``value``, to create more than one ``<resptr>``
-    children, use ``values``.
+    To create one ``<resptr>`` child, use the param ``value``, to create more than one ``<resptr>`` children, use
+    ``values``.
 
     Args:
         name: the name of this property as defined in the onto
@@ -1375,6 +1354,12 @@ def make_resptr_prop(
         calling_resource=calling_resource
     )
 
+    # check value type
+    for val in values_new:
+        if not isinstance(val.value, str) or not check_notna(val.value):
+            raise BaseError(f"Invalid resptr format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
+
+    # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}resptr-prop" % (xml_namespace_map[None]),
         name=name,
@@ -1397,13 +1382,13 @@ def make_resptr_prop(
 
 def make_text_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, Any, Iterable[Union[PropertyElement, str, Any]]]] = None,
-    values: Optional[Iterable[Union[PropertyElement, str, Any]]] = None,
+    value: Optional[Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]]] = None,
+    values: Optional[Iterable[Union[PropertyElement, str]]] = None,
     calling_resource: str = ""
 ) -> etree._Element:
     """
-    Make a <text-prop> from one or more texts. The text(s) can be provided as string or as
-    PropertyElement. For a string, the encoding is assumed to be utf8.
+    Make a <text-prop> from one or more texts. The text(s) can be provided as string or as PropertyElement with a string
+    inside. The default encoding is utf8.
 
     To create one ``<text>`` child, use the param ``value``, to create more than one ``<text>``
     children, use ``values``.
@@ -1443,6 +1428,11 @@ def make_text_prop(
         calling_resource=calling_resource
     )
 
+    # check value type
+    for val in values_new:
+        if not isinstance(val.value, str) or not check_notna(val.value):
+            raise BaseError(f"Invalid text format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
+
     # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}text-prop" % (xml_namespace_map[None]),
@@ -1470,16 +1460,16 @@ def make_text_prop(
 
 def make_time_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, Any, Iterable[Union[PropertyElement, str, Any]]]] = None,
-    values: Optional[Iterable[Union[PropertyElement, str, Any]]] = None,
+    value: Optional[Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]]] = None,
+    values: Optional[Iterable[Union[PropertyElement, str]]] = None,
     calling_resource: str = ""
 ) -> etree._Element:
     """
-    Make a <time-prop> from one or more datetime values of the form "2009-10-10T12:00:00-05:00".
-    The time(s) can be provided as string or as PropertyElement.
+    Make a <time-prop> from one or more datetime values of the form "2009-10-10T12:00:00-05:00". The time(s) can be
+    provided as string or as PropertyElement with a string inside.
 
-    To create one ``<time>`` child, use the param ``value``, to create more than one ``<time>``
-    children, use ``values``.
+    To create one ``<time>`` child, use the param ``value``, to create more than one ``<time>`` children, use
+    ``values``.
 
     Args:
         name: the name of this property as defined in the onto
@@ -1526,11 +1516,8 @@ def make_time_prop(
 
     # check value type
     for val in values_new:
-        if not re.search(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})?$", str(val.value)):
-            raise BaseError(f"The following is not a valid time:\n"
-                            f"resource '{calling_resource}'\n"
-                            f"property '{name}'\n"
-                            f"value    '{val.value}'")
+        if not re.search(r"^\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d{1,12})?(Z|[+-][0-1]\d:[0-5]\d)$", str(val.value)):
+            raise BaseError(f"Invalid time format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1560,11 +1547,10 @@ def make_uri_prop(
     calling_resource: str = ""
 ) -> etree._Element:
     """
-    Make a <uri-prop> from one or more URIs. The URI(s) can be provided as string or as
-    PropertyElement.
+    Make a <uri-prop> from one or more URIs. The URI(s) can be provided as string or as PropertyElement with a string
+    inside.
 
-    To create one ``<uri>`` child, use the param ``value``, to create more than one ``<uri>``
-    children, use ``values``.
+    To create one ``<uri>`` child, use the param ``value``, to create more than one ``<uri>`` children, use ``values``.
 
     Args:
         name: the name of this property as defined in the onto
@@ -1600,6 +1586,12 @@ def make_uri_prop(
         name=name,
         calling_resource=calling_resource
     )
+
+    # check value type
+    for val in values_new:
+        # URI = scheme ":" ["//" host [":" port]] path ["?" query] ["#" fragment]
+        if not re.search(r"([a-z][a-z0-9+.\-]*):(//([\w_.\-\[\]:~]+)(:\d{0,6})?)(/[\w_\-.~]*)*(\?[\w_.\-=]+)*(#[\w_/\-~:.]*)?", str(val.value)):
+            raise BaseError(f"Invalid URI format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
 
     # make xml structure of the valid values
     prop_ = etree.Element(

@@ -4,8 +4,8 @@ from knora import excel2xml
 # general preparation
 # -------------------
 excel2xml.reset_warnings_file()
-path_to_json = "rosetta.json"
-main_df = pd.read_csv("excel2xml_sample.csv", dtype="str", sep=",")
+path_to_json = "docs/assets/templates/excel2xml_onto.json"
+main_df = pd.read_csv("docs/assets/templates/excel2xml_sample_data.csv", dtype="str", sep=",")
 # main_df = pd.read_excel("path-to-your-data-source", dtype="str")
 # main_df.drop_duplicates(inplace = True)
 # main_df.dropna(how = "all", inplace = True)

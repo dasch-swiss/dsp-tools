@@ -6,6 +6,7 @@ from typing import Callable, Sequence, Union, Optional, Any
 
 import pandas as pd
 import numpy as np
+import pytest
 from lxml import etree
 
 from knora import excel2xml
@@ -555,8 +556,27 @@ class TestExcel2xml(unittest.TestCase):
         if os.path.isfile("excel2xml-output-data.xml"):
             os.remove("excel2xml-output-data.xml")
 
+    @pytest.mark.filterwarnings("ignore")
+    def test_excel2xml_sample_script(self) -> None:
+        with open("docs/assets/templates/excel2xml_script.py") as f:
+            template_script = f.read()
+            exec(template_script, {})
+        with open("testdata/excel2xml-template-expected-output.xml") as f:
+            template_expected = f.read()
+            # remove the resource ids, because they contain a random component
+            template_expected = re.sub(r'(?<!permissions )id=".+?"', "", template_expected)
+        with open("data.xml") as f:
+            template_returned = f.read()
+            # remove the resource ids, because they contain a random component
+            template_returned = re.sub(r'(?<!permissions )id=".+?"', "", template_returned)
 
+        self.assertEqual(template_expected, template_returned)
 
+        # delete generated data
+        if os.path.isfile("data.xml"):
+            os.remove("data.xml")
+        if os.path.isfile("docs/assets/templates/WARNINGS.TXT"):
+            os.remove("docs/assets/templates/WARNINGS.TXT")
 
 
 if __name__ == "__main__":

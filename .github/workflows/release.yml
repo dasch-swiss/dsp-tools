@@ -38,7 +38,7 @@ jobs:
 
   notification:
     name: Google chat notification about release and published version
-    needs: [release-pypi, release-docs]
+    needs: [release-pypi]
     runs-on: ubuntu-latest
     steps:
       - name: Send notification to google chat room "DSP releases"

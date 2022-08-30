@@ -2001,11 +2001,17 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
     global __make_warnings_persistent
     __make_warnings_persistent = False
     if re.search(r"\.csv$", datafile):
-        main_df = pd.read_csv(datafile, dtype="str", sep=";")
+        # "utf_8_sig": an optional BOM at the start of the file will be skipped
+        # let the "python" engine detect the separator
+        main_df = pd.read_csv(datafile, encoding="utf_8_sig", dtype="str", sep=None, engine="python")
     elif re.search(r"(\.xls|\.xlsx)$", datafile):
         main_df = pd.read_excel(datafile, dtype="str")
     else:
         raise BaseError("The argument 'datafile' must have one of the extensions 'csv', 'xls', 'xlsx'")
+    # remove empty columns, so that the max_prop_count can be calculated without errors
+    main_df.dropna(axis="columns", how="all", inplace=True)
+    # remove empty rows, to prevent them from being processed and raising an error
+    main_df.dropna(axis="index", how="all", inplace=True)
     max_prop_count = int(list(main_df)[-1].split("_")[0])
     root = make_root(shortcode=shortcode, default_ontology=default_ontology)
     root = append_permissions(root)
@@ -2084,14 +2090,14 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
                 if check_notna(value):
                     kwargs_propelem = {
                         "value": value,
-                        "permissions": str(row[f"{i}_permissions"])
+                        "permissions": str(row.get(f"{i}_permissions"))
                     }
-                    if not check_notna(row[f"{i}_permissions"]):
+                    if not check_notna(row.get(f"{i}_permissions")):
                         raise BaseError(f"Missing permissions for value {value} of property {row['prop name']} "
                                         f"in resource {resource_id}")
-                    if check_notna(row[f"{i}_comment"]):
+                    if check_notna(row.get(f"{i}_comment")):
                         kwargs_propelem["comment"] = str(row[f"{i}_comment"])
-                    if check_notna(row[f"{i}_encoding"]):
+                    if check_notna(row.get(f"{i}_encoding")):
                         kwargs_propelem["encoding"] = str(row[f"{i}_encoding"])
 
                     property_elements.append(PropertyElement(**kwargs_propelem))

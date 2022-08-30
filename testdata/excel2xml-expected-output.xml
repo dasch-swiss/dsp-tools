@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knora xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/data.xsd" shortcode="1234" default-ontology="excel2xml-output">
+    <permissions id="res-default">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+    <permissions id="res-restricted">
+        <allow group="UnknownUser">RV</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+    <permissions id="prop-default">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+    <permissions id="prop-restricted">
+        <allow group="UnknownUser">RV</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+    <resource label="Homer" restype=":Person" id="person_0" permissions="res-default">
+        <text-prop name=":hasName">
+            <text permissions="prop-default" encoding="utf8">Homer</text>
+            <text permissions="prop-default" encoding="utf8">Ὅμηρος</text>
+        </text-prop>
+        <uri-prop name=":hasIdentifier">
+            <uri permissions="prop-default">http://d-nb.info/gnd/11855333X</uri>
+        </uri-prop>
+        <uri-prop name=":hasExternalLink">
+            <uri permissions="prop-default">https://en.wikipedia.org/wiki/Homer</uri>
+        </uri-prop>
+    </resource>
+    <annotation label="Annotation to Homer" id="annotation_0" permissions="res-default">
+        <text-prop name="hasComment">
+            <text permissions="prop-default" encoding="utf8">This is an annotation to the resource Homer</text>
+        </text-prop>
+        <resptr-prop name="isAnnotationOf">
+            <resptr permissions="prop-default">person_0</resptr>
+        </resptr-prop>
+    </annotation>
+    <resource label="Iliad Prooem" restype=":Image2D" id="img_obj_6" permissions="res-default">
+        <bitstream permissions="prop-default">testdata/bitstreams/test.jpg</bitstream>
+        <text-prop name=":hasTitle">
+            <text permissions="prop-default" encoding="utf8">Iliad Prooem</text>
+        </text-prop>
+        <text-prop name=":hasDescription">
+            <text permissions="prop-default" encoding="xml">This page shows the prooem of the Iliad in Greek manuscript 1397 in St. Catherine's Monastery on Mount Sinai.</text>
+        </text-prop>
+        <text-prop name=":hasCopyright">
+            <text permissions="prop-default" encoding="xml">© Library of Congress Collection of Manuscripts in St. Catherine's Monastery, Mt. Sinai.</text>
+        </text-prop>
+        <list-prop list="category" name=":hasCategory">
+            <list permissions="prop-default">artwork</list>
+        </list-prop>
+    </resource>
+    <resource label="Testthing Zero" restype=":TestThing2" id="test_thing_0" permissions="res-default" ark="ark:/72163/4123-31ec6eab334-a.2022829">
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">Dies ist ein TestThing</text>
+        </text-prop>
+        <resptr-prop name=":hasTestThing">
+            <resptr permissions="prop-default">test_thing_1</resptr>
+        </resptr-prop>
+    </resource>
+    <annotation label="Annotation to Testthing" id="annotation_1" permissions="res-default">
+        <text-prop name="hasComment">
+            <text permissions="prop-default" encoding="utf8">This is an annotation to Testthing.</text>
+            <text permissions="prop-default" encoding="utf8">Second comment</text>
+        </text-prop>
+        <resptr-prop name="isAnnotationOf">
+            <resptr permissions="prop-default">test_thing_0</resptr>
+        </resptr-prop>
+    </annotation>
+    <resource label="First Testthing" restype=":TestThing" id="test_thing_1" permissions="res-default" iri="http://rdfh.ch/4123/54SYvWF0QUW6d7ClGg6ZIw">
+        <bitstream permissions="prop-default">testdata/bitstreams/test.jpg</bitstream>
+        <text-prop name=":hasText">
+            <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
+            <text permissions="prop-restricted" encoding="utf8">Nochmals ein einfacher Text</text>
+        </text-prop>
+        <text-prop name=":hasRichtext">
+            <text permissions="prop-default" encoding="xml">This is <em>bold and <strong>strong</strong></em> text! It contains links to all resources:
+                <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
+                <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>
+                <a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a>
+                <a class="salsah-link" href="IRI:compound_thing_0:IRI">compound_thing_0</a>
+                <a class="salsah-link" href="IRI:partof_thing_1:IRI">partof_thing_1</a>
+                <a class="salsah-link" href="IRI:partof_thing_2:IRI">partof_thing_2</a>
+                <a class="salsah-link" href="IRI:partof_thing_3:IRI">partof_thing_3</a>
+                <a class="salsah-link" href="IRI:document_thing_1:IRI">document_thing_1</a>
+                <a class="salsah-link" href="IRI:text_thing_1:IRI">text_thing_1</a>
+                <a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a>
+                <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>
+                <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a></text>
+            <text permissions="prop-default" encoding="xml">Another text without salsah-links</text>
+            <text permissions="prop-default" encoding="xml">Another text without salsah-links</text>
+        </text-prop>
+        <uri-prop name=":hasUri">
+            <uri permissions="prop-default">https://dasch.swiss</uri>
+        </uri-prop>
+        <boolean-prop name=":hasBoolean">
+            <boolean permissions="prop-default">true</boolean>
+        </boolean-prop>
+        <date-prop name=":hasDate">
+            <date permissions="prop-default">JULIAN:BCE:0700:BCE:0600</date>
+            <date permissions="prop-default">CE:1849:CE:1850</date>
+            <date permissions="prop-default">2022</date>
+        </date-prop>
+        <integer-prop name=":hasInteger">
+            <integer permissions="prop-default">4711</integer>
+        </integer-prop>
+    </resource>
+</knora>

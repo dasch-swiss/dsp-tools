@@ -83,13 +83,6 @@ For further information about properties, see [here](./dsp-tools-create-ontologi
 
 
 
-## Create a DSP-conform XML file from an Excel file
-
-[not yet implemented]
-
-
-
-
 ## Create a list from one or several Excel files
 
 With dsp-tools, a JSON list can be created from one or several Excel files. The command for this is documented 
@@ -170,3 +163,37 @@ the `name`.
 
 After the creation of the list, a validation against the JSON schema for lists is performed. An error message is 
 printed out if the list is not valid. Furthermore, it is checked that no two nodes are the same.
+
+
+
+
+## Create a DSP-conform XML file from an Excel/CSV file
+
+There are two use cases for a transformation from Excel/CSV to XML: 
+
+ - The command line tool `excel2xml` creates an XML file from an Excel/CSV file which is already structured according to 
+   the DSP specifications. This is mostly used for DaSCH-interal data migration.
+ - The package `excel2xml` can be imported into a custom Python script that transforms any tabular data into an XML. This
+   use case is more frequent, because data from research projects have a variety of formats/structures. The package 
+   `excel2xml` is documented [here](dsp-tools-excel2xml.md).
+
+
+### Command line tool `excel2xml`
+
+The command line tool is used as follows:
+```bash
+dsp-tools excel2xml data-source.xlsx 1234 shortname
+```
+
+There are no flags/options for this command.
+
+See also [here](./dsp-tools-usage.md#create-an-xml-file-from-excelcsv).
+
+The Excel file must be structured as in this image:
+![img-excel2xml.png](assets/images/img-excel2xml.png)
+
+Some notes:
+
+ - The special tags `<annotation>`, `<link>`, and `<region>` are represented as resources of restype `Annotation`, 
+`LinkObj`, and `Region`. 
+ - The columns "ark" and "iri" are only used for DaSCH-internal data migration.

@@ -1,21 +1,25 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# CSV2XML: Convert a data source to XML
+# EXCEL2XML: Convert a data source to XML
 dsp-tools assists you in converting a data source like CSV/XLSX to an XML file. Unlike the other features of dsp-tools,
 this doesn't work via command line, but via helper methods that you can import into your own Python script. Because
 every data source is different, there is no single algorithm to convert them to XML. Every user has to deal with the 
 specialties of his/her data source, but dsp-tool's helper methods can help a lot. This document demonstrates how it 
 works. 
 
-## How to use the package csv2xml
-At the end of this document, you find a sample Python script. In the following, the main steps are explained. 
+## How to use the package excel2xml
+At the end of this document, you find a sample Python script. In the following, it is commented and explained. 
 
 ### General preparation
 Insert your ontology name, project shortcode, and the path to your data source. If necessary, activate one of the lines
 that are commented out.  
 Then, the `root` element is created, which represents the `<knora>` tag of the XML document. As first children of 
 `<knora>`, some standard permissions are added. At the end, please carefully check the permissions of the finished XML
-file if they meet your requirements. Adapt them in the finished XML file, if necessary.
+file if they meet your requirements, and adapt them if necessary.  
+The standard permission of a resource is "res-default", and of a property "prop-default". If you don't specify it 
+otherwise, all resources and properties get these permissions. With excel2xml, it is not possible to create resources/
+properties that don't have permissions, because they would be invisible for all users except project admins and system
+admins. Read more about permissions [here](./dsp-tools-xmlupload.md#how-to-use-the-permissions-attribute-in-resourcesproperties).
 
 ### Create list mappings
 Let's assume that your data source has a column containing list values named after the "label" of the JSON project list, 
@@ -46,6 +50,6 @@ Some examples of useful helper methods:
 Save the following files into a directory, and run the Python script. The features discussed in this document are
 contained therein.
 
- - sample data: [csv2xml_sample_data.csv](assets/templates/csv2xml_sample_data.csv)
- - sample ontology: [csv2xml_onto.json](assets/templates/csv2xml_onto.json)
- - sample script: [csv2xml_script.py](assets/templates/csv2xml_script.py)
+ - sample data: [excel2xml_sample_data.csv](assets/templates/excel2xml_sample_data.csv)
+ - sample ontology: [excel2xml_onto.json](assets/templates/excel2xml_onto.json)
+ - sample script: [excel2xml_script.py](assets/templates/excel2xml_script.py)

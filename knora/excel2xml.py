@@ -4,14 +4,16 @@ import os
 import re
 import warnings
 import difflib
-import unicodedata
+from operator import xor
+import regex
+
 import pandas as pd
 from typing import Any, Iterable, Optional, Union
 from lxml import etree
 from lxml.builder import E
 
 from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.utils.excel_to_json_lists import _simplify_name
+from knora.dsplib.utils.excel_to_json_lists import simplify_name
 
 ##############################
 # global variables and classes
@@ -21,6 +23,7 @@ xml_namespace_map = {
     "xsi": "http://www.w3.org/2001/XMLSchema-instance"
 }
 __muted_warnings: list[str] = []
+__make_warnings_persistent = True
 
 
 class PropertyElement:
@@ -151,10 +154,24 @@ def mute_warning(regex: str) -> None:
     __muted_warnings.append(regex)
 
 
+def reset_warnings_file() -> None:
+    """
+    This method checks if a file named WARNINGS.TXT is existing in the current working directory, and deletes it if it
+    exists.
+
+    Returns:
+        None
+    """
+    if os.path.isfile('WARNINGS.TXT'):
+        os.remove('WARNINGS.TXT')
+
+
 def handle_warnings(msg: str, stacklevel: int = 2) -> None:
     """
     Call this method to be alerted if there is an error in your data that should be corrected. The error message
-    will be printed on console and written into a log file called "WARNINGS.TXT".
+    will be printed on console and written into a log file called "WARNINGS.TXT". If such a file is already existing,
+    a call to this method will append to the end of the existing file. If you want to start with an empty file in every
+    run, add a call to reset_warnings_file() to the beginning of your script.
 
     Args:
         msg: Error message to print/write into the log file
@@ -168,15 +185,17 @@ def handle_warnings(msg: str, stacklevel: int = 2) -> None:
                 handle_warnings(f"Date parsing error: Enddate is earlier than startdate!")
 
     See Also:
-        Warnings can be muted with the method mute_warning()
+        Warnings can be muted with the method mute_warning().
+        An existing WARNINGS.TXT can be deleted with reset_warnings_file().
     """
     for muted_warning in __muted_warnings:
         if re.search(pattern=muted_warning, string=msg):
             return
 
     warnings.warn(msg, stacklevel=stacklevel)
-    with open("WARNINGS.TXT", "a") as f:
-        f.write(msg + "\n")
+    if __make_warnings_persistent:
+        with open("WARNINGS.TXT", "a") as f:
+            f.write(msg + "\n")
 
 
 def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str]:
@@ -371,8 +390,8 @@ def check_notna(value: Optional[Any]) -> bool:
         return True
     elif isinstance(value, str):
         return all([
-            re.search(r"[0-9A-Za-z_]", value),
-            not bool(re.search(r"^(none|<NA>|-|n/a)$", str(value), flags=re.IGNORECASE))
+            regex.search(r"\p{L}|\d|_", value, flags=re.UNICODE),
+            not bool(re.search(r"^(none|<NA>|-|n/a)$", value, flags=re.IGNORECASE))
         ])
     else:
         return False
@@ -551,8 +570,9 @@ def make_resource(
     label: str,
     restype: str,
     id: str,
+    permissions: str = "res-default",
     ark: Optional[str] = None,
-    permissions: str = "res-default"
+    iri: Optional[str] = None
 ) -> etree._Element:
     """
     Creates an empty resource element, with the attributes as specified by the arguments
@@ -562,7 +582,7 @@ def make_resource(
 
     Returns:
         The resource element, without any children, but with the attributes
-        ``<resource label=label restype=restype id=id ark=ark permissions=permissions></resource>``
+        ``<resource label=label restype=restype id=id permissions=permissions ark=ark iri=iri></resource>``
 
     Examples:
         >>> resource = make_resource(...)
@@ -581,6 +601,10 @@ def make_resource(
     }
     if ark:
         kwargs["ark"] = ark
+    if iri:
+        kwargs["iri"] = iri
+    if ark and iri:
+        handle_warnings(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.")
 
     resource_ = etree.Element(
         "{%s}resource" % (xml_namespace_map[None]),
@@ -640,6 +664,8 @@ def make_boolean_prop(
     following formats are supported:
      - true: (True, "true", "True", "1", 1, "yes", "Yes")
      - false: (False, "false", "False", "0", 0, "no", "No")
+
+    Unless provided as PropertyElement, the permission for every value is "prop-default".
 
     Args:
         name: the name of this property as defined in the onto
@@ -715,7 +741,7 @@ def make_color_prop(
 ) -> etree._Element:
     """
     Make a <color-prop> from one or more colors. The color(s) can be provided as string or as PropertyElement with a
-    string inside.
+    string inside. If provided as string, the permission for every value is "prop-default".
 
     To create one ``<color>`` child, use the param ``value``, to create more than one ``<color>`` children, use
     ``values``.
@@ -789,7 +815,7 @@ def make_date_prop(
 ) -> etree._Element:
     """
     Make a <date-prop> from one or more dates/date ranges. The date(s) can be provided as string or as PropertyElement
-    with a string inside.
+    with a string inside. If provided as string, the permission for every value is "prop-default".
 
     To create one ``<date>`` child, use the param ``value``, to create more than one ``<date>`` children, use ``values``.
 
@@ -869,7 +895,8 @@ def make_decimal_prop(
 ) -> etree._Element:
     """
     Make a <decimal-prop> from one or more decimal numbers. The decimal(s) can be provided as string, float, or as
-    PropertyElement with a string/float inside.
+    PropertyElement with a string/float inside. If provided as string/float, the permission for every value is
+    "prop-default".
 
     To create one ``<decimal>`` child, use the param ``value``, to create more than one ``<decimal>`` children, use
     ``values``.
@@ -943,7 +970,7 @@ def make_geometry_prop(
 ) -> etree._Element:
     """
     Make a <geometry-prop> from one or more areas of an image. The area(s) can be provided as JSON-string or as
-    PropertyElement with the JSON-string inside.
+    PropertyElement with the JSON-string inside. If provided as string, the permission for every value is "prop-default".
 
     To create one ``<geometry>`` child, use the param ``value``, to create more than one ``<geometry>`` children, use
     ``values``.
@@ -1021,7 +1048,8 @@ def make_geoname_prop(
 ) -> etree._Element:
     """
     Make a <geoname-prop> from one or more geonames.org IDs. The ID(s) can be provided as string, integer, or as
-    PropertyElement with a string/integer inside.
+    PropertyElement with a string/integer inside. If provided as string/integer, the permission for every value is
+    "prop-default".
 
     To create one ``<geoname>`` child, use the param ``value``, to create more than one ``<geoname>`` children, use
     ``values``.
@@ -1094,7 +1122,8 @@ def make_integer_prop(
 ) -> etree._Element:
     """
     Make a <integer-prop> from one or more integers. The integers can be provided as string, integer, or as
-    PropertyElement with a string/integer inside.
+    PropertyElement with a string/integer inside. If provided as string/integer, the permission for every value is
+    "prop-default".
 
     To create one ``<integer>`` child, use the param ``value``, to create more than one ``<integer>`` children, use
     ``values``.
@@ -1167,7 +1196,7 @@ def make_interval_prop(
 ) -> etree._Element:
     """
     Make a <interval-prop> from one or more intervals. The interval(s) can be provided as string or as PropertyElement
-    with a string inside.
+    with a string inside. If provided as string, the permission for every value is "prop-default".
 
     To create one ``<interval>`` child, use the param ``value``, to create more than one ``<interval>`` children, use
     ``values``.
@@ -1242,7 +1271,7 @@ def make_list_prop(
 ) -> etree._Element:
     """
     Make a <list-prop> from one or more list items. The list item(s) can be provided as string or as PropertyElement
-    with a string inside.
+    with a string inside. If provided as string, the permission for every value is "prop-default".
 
     To create one ``<list>`` child, use the param ``value``, to create more than one ``<list>`` children, use ``values``.
 
@@ -1317,7 +1346,7 @@ def make_resptr_prop(
 ) -> etree._Element:
     """
     Make a <resptr-prop> from one or more links to other resources. The links(s) can be provided as string or as
-    PropertyElement with a string inside.
+    PropertyElement with a string inside. If provided as string, the permission for every value is "prop-default".
 
     To create one ``<resptr>`` child, use the param ``value``, to create more than one ``<resptr>`` children, use
     ``values``.
@@ -1391,7 +1420,7 @@ def make_text_prop(
 ) -> etree._Element:
     """
     Make a <text-prop> from one or more texts. The text(s) can be provided as string or as PropertyElement with a string
-    inside. The default encoding is utf8.
+    inside. The default encoding is utf8. The default permission for every value is "prop-default".
 
     To create one ``<text>`` child, use the param ``value``, to create more than one ``<text>``
     children, use ``values``.
@@ -1469,7 +1498,8 @@ def make_time_prop(
 ) -> etree._Element:
     """
     Make a <time-prop> from one or more datetime values of the form "2009-10-10T12:00:00-05:00". The time(s) can be
-    provided as string or as PropertyElement with a string inside.
+    provided as string or as PropertyElement with a string inside.  If provided as string, the permission for every
+    value is "prop-default".
 
     To create one ``<time>`` child, use the param ``value``, to create more than one ``<time>`` children, use
     ``values``.
@@ -1551,7 +1581,7 @@ def make_uri_prop(
 ) -> etree._Element:
     """
     Make a <uri-prop> from one or more URIs. The URI(s) can be provided as string or as PropertyElement with a string
-    inside.
+    inside. If provided as string, the permission for every value is "prop-default".
 
     To create one ``<uri>`` child, use the param ``value``, to create more than one ``<uri>`` children, use ``values``.
 
@@ -1620,7 +1650,9 @@ def make_uri_prop(
 def make_region(
     label: str,
     id: str,
-    permissions: str = "res-default"
+    permissions: str = "res-default",
+    ark: Optional[str] = None,
+    iri: Optional[str] = None
 ) -> etree._Element:
     """
     Creates an empty region element, with the attributes as specified by the arguments
@@ -1630,7 +1662,7 @@ def make_region(
 
     Returns:
         The region element, without any children, but with the attributes:
-        <region label=label id=id permissions=permissions></region>
+        <region label=label id=id permissions=permissions ark=ark iri=iri></region>
 
     Examples:
         >>> region = make_region("label", "id")
@@ -1644,11 +1676,17 @@ def make_region(
     """
 
     kwargs = {
-        "label": str(label),
-        "id": str(id),
-        "permissions": str(permissions),
+        "label": label,
+        "id": id,
+        "permissions": permissions,
         "nsmap": xml_namespace_map
     }
+    if ark:
+        kwargs["ark"] = ark
+    if iri:
+        kwargs["iri"] = iri
+    if ark and iri:
+        handle_warnings(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.")
 
     region_ = etree.Element(
         "{%s}region" % (xml_namespace_map[None]),
@@ -1660,7 +1698,9 @@ def make_region(
 def make_annotation(
     label: str,
     id: str,
-    permissions: str = "res-default"
+    permissions: str = "res-default",
+    ark: Optional[str] = None,
+    iri: Optional[str] = None
 ) -> etree._Element:
     """
     Creates an empty annotation element, with the attributes as specified by the arguments
@@ -1670,7 +1710,7 @@ def make_annotation(
 
     Returns:
         The annotation element, without any children, but with the attributes:
-        <annotation label=label id=id permissions=permissions></annotation>
+        <annotation label=label id=id permissions=permissions ark=ark iri=iri></annotation>
 
     Examples:
         >>> annotation = make_annotation("label", "id")
@@ -1682,11 +1722,17 @@ def make_annotation(
     """
 
     kwargs = {
-        "label": str(label),
-        "id": str(id),
-        "permissions": str(permissions),
+        "label": label,
+        "id": id,
+        "permissions": permissions,
         "nsmap": xml_namespace_map
     }
+    if ark:
+        kwargs["ark"] = ark
+    if iri:
+        kwargs["iri"] = iri
+    if ark and iri:
+        handle_warnings(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.")
 
     annotation_ = etree.Element(
         "{%s}annotation" % (xml_namespace_map[None]),
@@ -1698,7 +1744,9 @@ def make_annotation(
 def make_link(
     label: str,
     id: str,
-    permissions: str = "res-default"
+    permissions: str = "res-default",
+    ark: Optional[str] = None,
+    iri: Optional[str] = None
 ) -> etree._Element:
     """
     Creates an empty link element, with the attributes as specified by the arguments
@@ -1708,7 +1756,7 @@ def make_link(
 
     Returns:
         The link element, without any children, but with the attributes:
-        <link label=label id=id permissions=permissions></link>
+        <link label=label id=id permissions=permissions ark=ark iri=iri></link>
 
     Examples:
         >>> link = make_link("label", "id")
@@ -1720,11 +1768,17 @@ def make_link(
     """
 
     kwargs = {
-        "label": str(label),
-        "id": str(id),
-        "permissions": str(permissions),
+        "label": label,
+        "id": id,
+        "permissions": permissions,
         "nsmap": xml_namespace_map
     }
+    if ark:
+        kwargs["ark"] = ark
+    if iri:
+        kwargs["iri"] = iri
+    if ark and iri:
+        handle_warnings(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.")
 
     link_ = etree.Element(
         "{%s}link" % (xml_namespace_map[None]),
@@ -1798,7 +1852,7 @@ def create_json_excel_list_mapping(
     res = dict()
     for excel_value in excel_values_new:
         excel_value_corrected = corrections.get(excel_value, excel_value)
-        excel_value_simpl = _simplify_name(excel_value_corrected)  #increase match probability by removing illegal chars
+        excel_value_simpl = simplify_name(excel_value_corrected)  #increase match probability by removing illegal chars
         matches: list[str] = difflib.get_close_matches(
             word=excel_value_simpl,
             possibilities=json_values,
@@ -1902,3 +1956,164 @@ def write_xml(root: etree._Element, filepath: str) -> None:
     xml_string = xml_string.replace("&gt;", ">")
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(xml_string)
+
+
+def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
+    """
+    This is a method that is called from the command line. It isn't intended to be used in a Python script. It takes a
+    tabular data source like CSV or XLS(X) that is formatted according to the specifications, and transforms it to DSP-
+    conforming XML file that can be uploaded to a DSP server with the xmlupload command. The output file is saved in the
+    same directory as the input file, with the name [default_ontology]-data.xml.
+
+    Please note that this method doesn't do any data cleaning or data transformation tasks. The input and the output of
+    this method are semantically exactly equivalent.
+
+    Args:
+        datafile: path to the data file (CSV or XLS(X))
+        shortcode: shortcode of the project that this data belongs to
+        default_ontology: name of the ontology that this data belongs to
+
+    Returns:
+        None
+    """
+
+    # general preparation
+    # -------------------
+    proptype_2_function = {
+        "bitstream": make_bitstream_prop,
+        "boolean-prop": make_boolean_prop,
+        "color-prop": make_color_prop,
+        "date-prop": make_date_prop,
+        "decimal-prop": make_decimal_prop,
+        "geometry-prop": make_geometry_prop,
+        "geoname-prop": make_geoname_prop,
+        "integer-prop": make_integer_prop,
+        "interval-prop": make_interval_prop,
+        "list-prop": make_list_prop,
+        "resptr-prop": make_resptr_prop,
+        "text-prop": make_text_prop,
+        "uri-prop": make_uri_prop
+    }
+    single_value_functions = [
+        make_bitstream_prop,
+        make_boolean_prop
+    ]
+    global __make_warnings_persistent
+    __make_warnings_persistent = False
+    if re.search(r"\.csv$", datafile):
+        main_df = pd.read_csv(datafile, dtype="str", sep=";")
+    elif re.search(r"(\.xls|\.xlsx)$", datafile):
+        main_df = pd.read_excel(datafile, dtype="str")
+    else:
+        raise BaseError("The argument 'datafile' must have one of the extensions 'csv', 'xls', 'xlsx'")
+    max_prop_count = int(list(main_df)[-1].split("_")[0])
+    root = make_root(shortcode=shortcode, default_ontology=default_ontology)
+    root = append_permissions(root)
+    resource_id: str = ""
+
+    # create all resources
+    # --------------------
+    for index, row in main_df.iterrows():
+
+        # there are two cases: either the row is a resource-row or a property-row.
+        if not xor(check_notna(row.get("id")), check_notna(row.get("prop name"))):
+            raise BaseError(f"Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry. Excel row no. "
+                            f"{int(str(index)) + 2} has too many/too less entries:\n"
+                            f"id:        '{row.get('id')}'\n"
+                            f"prop name: '{row.get('prop name')}'")
+
+        ########### case resource-row ###########
+        if check_notna(row["id"]):
+            resource_id = row["id"]
+            resource_permissions = row.get("permissions")
+            if not check_notna(resource_permissions):
+                raise BaseError(f"Missing permissions for resource {resource_id}")
+            resource_label = row.get("label")
+            if not check_notna(resource_label):
+                raise BaseError(f"Missing label for resource {resource_id}")
+            resource_restype = row.get("restype")
+            if not check_notna(resource_restype):
+                raise BaseError(f"Missing restype for resource {resource_id}")
+            # previous resource is finished, now a new resource begins. in all cases (except for
+            # the very first iteration), a previous resource exists. if it exists, append it to root.
+            if "resource" in locals():
+                root.append(resource)
+            kwargs_resource = {
+                "label": resource_label,
+                "permissions": resource_permissions,
+                "id": resource_id
+            }
+            if resource_restype not in ["Annotation", "Region", "LinkObj"]:
+                kwargs_resource["restype"] = resource_restype
+                if check_notna(row.get("ark")):
+                    kwargs_resource["ark"] = row["ark"]
+                if check_notna(row.get("iri")):
+                    kwargs_resource["iri"] = row["iri"]
+                resource = make_resource(**kwargs_resource)
+                if check_notna(row.get("file")):
+                    file_permissions = row.get("file permissions")
+                    if not check_notna(file_permissions):
+                        file_permissions = "prop-default" if resource_permissions == "res-default" else "prop-restricted"
+                    resource.append(make_bitstream_prop(
+                        path=str(row["file"]),
+                        permissions=file_permissions,
+                        calling_resource=resource_id
+                    ))
+            elif resource_restype == "Region":
+                resource = make_region(**kwargs_resource)
+            elif resource_restype == "Annotation":
+                resource = make_annotation(**kwargs_resource)
+            elif resource_restype == "LinkObj":
+                resource = make_link(**kwargs_resource)
+
+        ########### case property-row ###########
+        else:  # check_notna(row["prop name"]):
+            # based on the property type, the right function has to be chosen
+            if row.get("prop type") not in proptype_2_function:
+                raise BaseError(f"Invalid prop type for property {row['prop name']} in resource {resource_id}")
+            make_prop_function = proptype_2_function[row["prop type"]]
+
+            # every property contains i elements, which are represented in the Excel as groups of
+            # columns named {i_value, i_encoding, i_res ref, i_permissions, i_comment}. Depending
+            # on the property type, some of these items are NA.
+            # Thus, prepare list of PropertyElement objects, with each PropertyElement containing only
+            # the existing items.
+            property_elements: list[PropertyElement] = []
+            for i in range(1, max_prop_count + 1):
+                value = row[f"{i}_value"]
+                if check_notna(value):
+                    kwargs_propelem = {
+                        "value": value,
+                        "permissions": str(row[f"{i}_permissions"])
+                    }
+                    if not check_notna(row[f"{i}_permissions"]):
+                        raise BaseError(f"Missing permissions for value {value} of property {row['prop name']} "
+                                        f"in resource {resource_id}")
+                    if check_notna(row[f"{i}_comment"]):
+                        kwargs_propelem["comment"] = str(row[f"{i}_comment"])
+                    if check_notna(row[f"{i}_encoding"]):
+                        kwargs_propelem["encoding"] = str(row[f"{i}_encoding"])
+
+                    property_elements.append(PropertyElement(**kwargs_propelem))
+
+            # create the property and append it to resource
+            kwargs_propfunc: dict[str, Union[str, list[PropertyElement]]] = {
+                "name": row["prop name"],
+                "calling_resource": resource_id
+            }
+            if make_prop_function in single_value_functions or len(property_elements) == 1:
+                kwargs_propfunc["value"] = property_elements
+            else:
+                kwargs_propfunc["values"] = property_elements
+            if check_notna(row["prop list"]):
+                kwargs_propfunc["list_name"] = str(row["prop list"])
+
+            resource.append(make_prop_function(**kwargs_propfunc))
+
+    # append the resource of the very last iteration of the for loop
+    root.append(resource)
+
+    # write file
+    # ----------
+    write_xml(root, f"{default_ontology}-data.xml")
+    print(f"XML file successfully created at {default_ontology}-data.xml")

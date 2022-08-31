@@ -1623,7 +1623,9 @@ def make_uri_prop(
     # check value type
     for val in values_new:
         # URI = scheme ":" ["//" host [":" port]] path ["?" query] ["#" fragment]
-        if not re.search(r"([a-z][a-z0-9+.\-]*):(//([\w_.\-\[\]:~]+)(:\d{0,6})?)(/[\w_\-.~]*)*(\?[\w_.\-=]+)*(#[\w_/\-~:.]*)?", str(val.value)):
+        if not regex.search(
+            r"(?<scheme>[a-z][a-z0-9+.\-]*):(//(?<host>[\w_.\-\[\]:~]+)(?<port>:\d{0,6})?)(?<path>/[\p{L}_\-.~]*)*"
+            r"(?<query>\?[\p{L}_.\-=]+)*(?<fragment>#[\p{L}_/\-~:.]*)?", str(val.value), flags=regex.UNICODE):
             raise BaseError(f"Invalid URI format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
 
     # make xml structure of the valid values

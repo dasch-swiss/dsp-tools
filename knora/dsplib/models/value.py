@@ -1,6 +1,7 @@
 import re
 from typing import Optional, Any, Union
 
+import regex
 from pystrict import strict
 
 from .helpers import IriTest, Actions, BaseError
@@ -637,7 +638,8 @@ class UriValue(Value):
                  ark_url: Optional[str] = None,
                  vark_url: Optional[str] = None):
         # URI = scheme ":" ["//" host [":" port]] path ["?" query] ["#" fragment]
-        m = re.match(r"([a-z][a-z0-9+.\-]*):(//([\w_.\-\[\]:~]+)(:\d{0,6})?)(/[\w_\-.~]*)*(\?[\w_.\-=]+)*(#[\w_/\-~:.]*)?", str(value))
+        m = regex.match(r"(?<scheme>[a-z][a-z0-9+.\-]*):(//(?<host>[\w_.\-\[\]:~]+)(?<port>:\d{0,6})?)(?<path>/[\w_\-.~]*)*"
+                        r"(?<query>\?[\w_.\-=]+)*(?<fragment>#[\w_/\-~:.]*)?", str(value), flags=regex.UNICODE)
         if m:
             self._value = str(value)
         else:

@@ -101,7 +101,7 @@ def run_test(
                                   xml_expected)
         xml_returned = method(**kwargs_to_generate_xml)
         xml_returned = etree.tostring(xml_returned, encoding="unicode")
-        xml_returned = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned)
+        xml_returned = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned)  # remove all xml namespace declarations
         testcase.assertEqual(xml_expected, xml_returned,
                              msg=f"Method {method.__name__} failed with kwargs {kwargs_to_generate_xml}")
 
@@ -147,8 +147,8 @@ class TestExcel2xml(unittest.TestCase):
 
 
     def test_check_notna(self) -> None:
-        na_values = [None, pd.NA, np.nan, "", "  ", "-", ",", ".", "*", "!", " \n\t ", "N/A", "n/a", "<NA>", ["a", "b"],
-                     pd.array(["a", "b"]), np.array([0, 1])]
+        na_values = [None, pd.NA, np.nan, "", "  ", "-", ",", ".", "*", "!", " ⳰", " ῀ ", " ῾ ", " \n\t ", "N/A", "n/a",
+                     "<NA>", ["a", "b"], pd.array(["a", "b"]), np.array([0, 1])]
         for na_value in na_values:
             self.assertFalse(excel2xml.check_notna(na_value), msg=f"Failed na_value: {na_value}")
 
@@ -220,76 +220,101 @@ class TestExcel2xml(unittest.TestCase):
         different_values: list[Union[str, int, float]] = [1, 1.0, "1", "1.0", " 1 "]
         values_with_nas: list[Union[str, int, float]] = ["test", "", 1, np.nan, 0]
 
-        values_output = excel2xml._check_and_prepare_values(value=identical_values,
-                                                      values=None,
-                                                      name="")
+        values_output = excel2xml._check_and_prepare_values(
+            value=identical_values,
+            values=None,
+            name=""
+        )
         self.assertEqual([x.value for x in values_output], list(set(identical_values)))
 
-        values_output = excel2xml._check_and_prepare_values(value=[excel2xml.PropertyElement(x) for x in identical_values],
-                                                      values=None,
-                                                      name="")
+        values_output = excel2xml._check_and_prepare_values(
+            value=[excel2xml.PropertyElement(x) for x in identical_values],
+            values=None,
+            name=""
+        )
         self.assertEqual([x.value for x in values_output], list(set(identical_values)))
 
-        values_output = excel2xml._check_and_prepare_values(value=None,
-                                                      values=identical_values,
-                                                      name="")
+        values_output = excel2xml._check_and_prepare_values(
+            value=None,
+            values=identical_values,
+            name=""
+        )
         self.assertEqual([x.value for x in values_output], identical_values)
 
-        values_output = excel2xml._check_and_prepare_values(value=None,
-                                                      values=[excel2xml.PropertyElement(x) for x in identical_values],
-                                                      name="")
+        values_output = excel2xml._check_and_prepare_values(
+            value=None,
+            values=[excel2xml.PropertyElement(x) for x in identical_values],
+            name=""
+        )
         self.assertEqual([x.value for x in values_output], identical_values)
 
-        values_output = excel2xml._check_and_prepare_values(value=None,
-                                                      values=different_values,
-                                                      name="")
+        values_output = excel2xml._check_and_prepare_values(
+            value=None,
+            values=different_values,
+            name=""
+        )
         self.assertEqual([x.value for x in values_output], different_values)
 
-        values_output = excel2xml._check_and_prepare_values(value=None,
-                                                      values=[excel2xml.PropertyElement(x) for x in different_values],
-                                                      name="")
+        values_output = excel2xml._check_and_prepare_values(
+            value=None,
+            values=[excel2xml.PropertyElement(x) for x in different_values],
+            name=""
+        )
         self.assertEqual([x.value for x in values_output], different_values)
 
-        values_output = excel2xml._check_and_prepare_values(value=None,
-                                                      values=values_with_nas,
-                                                      name="")
+        values_output = excel2xml._check_and_prepare_values(
+            value=None,
+            values=values_with_nas,
+            name=""
+        )
         self.assertEqual([x.value for x in values_output], ["test", 1, 0])
 
-        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_values(value=different_values,
-                                                                           values=None,
-                                                                           name=""))
-        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_values(value=[excel2xml.PropertyElement(x) for x in different_values],
-                                                                           values=None,
-                                                                           name=""))
-
-        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_values(value=1,
-                                                                           values=[1],
-                                                                           name=""))
-        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_values(value=np.nan,
-                                                                           values=[np.nan],
-                                                                           name=""))
+        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_values(
+            value=different_values,
+            values=None,
+            name=""
+        ))
+        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_values(
+            value=[excel2xml.PropertyElement(x) for x in different_values],
+            values=None,
+            name=""
+        ))
+        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_values(
+            value=1,
+            values=[1],
+            name=""
+        ))
+        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_values(
+            value=np.nan,
+            values=[np.nan],
+            name=""
+        ))
 
 
     def test_make_boolean_prop(self) -> None:
-        true_values = [True, "TRue", "TruE", "1", 1, "yes", "YES", "yEs"]
-        len_of_base_values = len(true_values)
-        true_values.extend([excel2xml.PropertyElement(x) for x in true_values])
+        # prepare true_values
+        true_values: list[Any] = list()
+        true_values_base = [True, "TRue", "TruE", "1", 1, "yes", "YES", "yEs"]
+        true_values_propelems = [excel2xml.PropertyElement(x) for x in true_values_base]
+        # add the single elements of both lists to true_values
+        true_values.extend(true_values_base)
+        true_values.extend(true_values_propelems)
+        # add both lists as entire tuple/list/set to true_values
         for _iterable in [tuple, list, set]:
-            # randomly choose 3 elements among the base values
-            equivalent_values = [true_values[i] for i in random.choices(range(len_of_base_values), k=3)]
-            equivalent_propelems = [excel2xml.PropertyElement(x) for x in equivalent_values]
-            true_values.append(_iterable(equivalent_values))
-            true_values.append(_iterable(equivalent_propelems))
+            true_values.append(_iterable(true_values_base))
+            true_values.append(_iterable(true_values_propelems))
 
-        false_values = [False, "false", "False", "falSE", "0", 0, "no", "No", "nO"]
-        len_of_base_values = len(false_values)
-        false_values.extend([excel2xml.PropertyElement(x) for x in false_values])
+        # prepare false_values
+        false_values: list[Any] = list()
+        false_values_base = [False, "false", "False", "falSE", "0", 0, "no", "No", "nO"]
+        false_values_propelems = [excel2xml.PropertyElement(x) for x in false_values_base]
+        # add the single elements of both lists to false_values
+        false_values.extend(false_values_base)
+        false_values.extend(false_values_propelems)
+        # add both lists as entire tuple/list/set to false_values
         for _iterable in [tuple, list, set]:
-            # randomly choose 3 elements among the base values
-            equivalent_values = [false_values[i] for i in random.choices(range(len_of_base_values), k=3)]
-            equivalent_propelems = [excel2xml.PropertyElement(x) for x in equivalent_values]
-            false_values.append(_iterable(equivalent_values))
-            false_values.append(_iterable(equivalent_propelems))
+            false_values.append(_iterable(false_values_base))
+            false_values.append(_iterable(false_values_propelems))
 
         unsupported_values = [np.nan, "N/A", "NA", "na", "None", "", " ", "-", None,
                               [True, False], [0, 0, 1], ["True", "false"]]
@@ -440,10 +465,9 @@ class TestExcel2xml(unittest.TestCase):
         run_test(self, prop, method, different_values, invalid_values)
 
 
-    def test_make_resource_annotation_link_region(self) -> None:
+    def test_make_annotation_link_region(self) -> None:
         """
-        This methods tests four methods at the same time: make_resource(), make_annotation(), make_link(),
-        and make_region().
+        This method tests 3 methods at the same time: make_annotation(), make_link(), and make_region().
         """
         for method, tagname in [
             (excel2xml.make_annotation, "annotation"),
@@ -498,13 +522,14 @@ class TestExcel2xml(unittest.TestCase):
 
 
     def test_create_json_excel_list_mapping(self) -> None:
+        # We start with an Excel column that contains list nodes, but with spelling errors
         excel_column = [
             "  first noude ov testlist  ",
             "sekond noude ov testlist",
-            " fierst sobnode , sekond sobnode , Third Node Ov Testliest",
-            "completely wrong spelling variant of 'first subnode'"
+            " fierst sobnode , sekond sobnode , Third Node Ov Testliest",  # multiple entries per cell are possible
+            "completely wrong spelling variant of 'first subnode' that needs manual correction"
         ]
-        corrections = {"completely wrong spelling variant of 'first subnode'": "first subnode"}
+        corrections = {"completely wrong spelling variant of 'first subnode' that needs manual correction": "first subnode"}
         testlist_mapping_returned = excel2xml.create_json_excel_list_mapping(
             path_to_json="testdata/test-project-systematic.json",
             list_name="testlist",
@@ -519,7 +544,7 @@ class TestExcel2xml(unittest.TestCase):
             "sekond sobnode": "second subnode",
             "Third Node Ov Testliest": "third node of testlist",
             "third node ov testliest": "third node of testlist",
-            "completely wrong spelling variant of 'first subnode'": "first subnode"
+            "completely wrong spelling variant of 'first subnode' that needs manual correction": "first subnode"
         }
         self.assertDictEqual(testlist_mapping_returned, testlist_mapping_expected)
 

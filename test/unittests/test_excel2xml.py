@@ -583,10 +583,12 @@ class TestExcel2xml(unittest.TestCase):
 
     @pytest.mark.filterwarnings("ignore")
     def test_excel2xml_sample_script(self) -> None:
-        with open("docs/assets/templates/excel2xml_script.py") as f:
+        old_working_directory = os.getcwd()
+        os.chdir("docs/assets/templates")
+        with open("excel2xml_script.py") as f:
             template_script = f.read()
             exec(template_script, {})
-        with open("testdata/excel2xml-template-expected-output.xml") as f:
+        with open("../../../testdata/excel2xml-template-expected-output.xml") as f:
             template_expected = f.read()
             # remove the resource ids, because they contain a random component
             template_expected = re.sub(r'(?<!permissions )id=".+?"', "", template_expected)
@@ -600,8 +602,10 @@ class TestExcel2xml(unittest.TestCase):
         # delete generated data
         if os.path.isfile("data.xml"):
             os.remove("data.xml")
-        if os.path.isfile("docs/assets/templates/WARNINGS.TXT"):
-            os.remove("docs/assets/templates/WARNINGS.TXT")
+        if os.path.isfile("WARNINGS.TXT"):
+            os.remove("WARNINGS.TXT")
+
+        os.chdir(old_working_directory)
 
 
 if __name__ == "__main__":

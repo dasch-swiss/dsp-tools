@@ -4,8 +4,8 @@ from knora import excel2xml
 # general preparation
 # -------------------
 excel2xml.reset_warnings_file()
-path_to_json = "docs/assets/templates/excel2xml_onto.json"
-main_df = pd.read_csv("docs/assets/templates/excel2xml_sample_data.csv", dtype="str", sep=",")
+path_to_json = "excel2xml_onto.json"
+main_df = pd.read_csv("excel2xml_sample_data.csv", dtype="str", sep=",")
 # main_df = pd.read_excel("path-to-your-data-source", dtype="str")
 # main_df.drop_duplicates(inplace = True)
 # main_df.dropna(how = "all", inplace = True)
@@ -56,7 +56,8 @@ for index, row in main_df.iterrows():
       if potential_date:
          resource.append(excel2xml.make_date_prop(":date", potential_date))
       else:
-         excel2xml.handle_warnings('The column "Date discovered" should contain a date, but no date was detected!')
+         excel2xml.handle_warnings(f"Error in row {index+2}: The column 'Date discovered' should contain a date, "
+                                   f"but no date was detected in the string {row['Date discovered']}")
    if excel2xml.check_notna(row["Exact time"]):
       resource.append(excel2xml.make_time_prop(":timeprop", row["Exact time"]))
    if excel2xml.check_notna(row["Weight (kg)"]):

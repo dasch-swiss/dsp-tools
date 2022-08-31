@@ -3,21 +3,23 @@
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 CURRENT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
-#################################
+############################
 # Make targets for dsp-tools
-#################################
-
-.PHONY: clone-dsp-repo
-clone-dsp-repo: ## clone the dsp-api git repository
-	@git clone --branch main --single-branch --depth 1 https://github.com/dasch-swiss/dsp-api.git $(CURRENT_DIR)/.tmp/dsp-stack
+############################
 
 .PHONY: dsp-stack
-dsp-stack: ## run the dsp-stack (deletes existing volumes first)
-	$(MAKE) -C $(CURRENT_DIR)/.tmp/dsp-stack env-file
-	$(MAKE) -C $(CURRENT_DIR)/.tmp/dsp-stack stack-down-delete-volumes
-	$(MAKE) -C $(CURRENT_DIR)/.tmp/dsp-stack init-db-test
-	$(MAKE) -C $(CURRENT_DIR)/.tmp/dsp-stack stack-up
-	$(MAKE) -C $(CURRENT_DIR)/.tmp/dsp-stack stack-logs-api-no-follow
+dsp-stack: ## clone the dsp-api git repository and run the dsp-stack
+	@mkdir -p .tmp
+	@git clone --branch main --single-branch --depth 1 https://github.com/dasch-swiss/dsp-api.git .tmp/dsp-stack
+	$(MAKE) -C .tmp/dsp-stack env-file
+	$(MAKE) -C .tmp/dsp-stack init-db-test
+	$(MAKE) -C .tmp/dsp-stack stack-up
+	$(MAKE) -C .tmp/dsp-stack stack-logs-api-no-follow
+
+.PHONY: stack-down
+stack-down: ## stop dsp-stack and remove the cloned dsp-api repository
+	$(MAKE) -C .tmp/dsp-stack stack-down-delete-volumes
+	@rm -rf .tmp
 
 .PHONY: dist
 dist: ## generate distribution package
@@ -37,7 +39,7 @@ docs-build: ## build docs into the local 'site' folder
 
 .PHONY: docs-serve
 docs-serve: ## serve docs for local viewing
-	mkdocs serve
+	mkdocs serve --dev-addr=0.0.0.0:7979
 
 .PHONY: docs-publish
 docs-publish: ## build and publish docs to GitHub Pages
@@ -56,25 +58,30 @@ install: ## install from source (runs setup.py)
 	pip3 install -e .
 
 .PHONY: test
-test: clean local-tmp clone-dsp-repo dsp-stack ## run all tests
+test: dsp-stack ## run all tests
+	pytest test/
+	$(MAKE) stack-down
+
+.PHONY: test-no-stack
+test-no-stack: ## run tests without starting the stack (if a dsp-stack is already running)
 	pytest test/
 
 .PHONY: test-end-to-end
-test-end-to-end: clean local-tmp clone-dsp-repo dsp-stack ## run e2e tests
+test-end-to-end: dsp-stack ## run e2e tests
+	pytest test/e2e/
+	$(MAKE) stack-down
+
+.PHONY: test-end-to-end-no-stack
+test-end-to-end-no-stack: ## run e2e tests without starting the dsp-stack (if a dsp-stack is already running)
 	pytest test/e2e/
 
 .PHONY: test-unittests
 test-unittests: ## run unit tests
 	pytest test/unittests/
 
-.PHONY: local-tmp
-local-tmp: ## create local .tmp folder
-	@mkdir -p $(CURRENT_DIR)/.tmp
-
 .PHONY: clean
 clean: ## clean local project directories
-	@rm -rf $(CURRENT_DIR)/.tmp
-	@rm -rf dist/ build/ site/ knora.egg-info/
+	@rm -rf dist/ build/ site/ dsp_tools.egg-info/
 
 .PHONY: help
 help: ## show this help

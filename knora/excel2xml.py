@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 import re
+import uuid
 import warnings
 import difflib
 from operator import xor
@@ -92,9 +93,9 @@ def make_xsd_id_compatible(string: str) -> str:
     # if start of string is neither letter nor underscore, add an underscore
     res = re.sub(r"^(?=[^A-Za-z_])", "_", string)
 
-    # add hash
-    _hash = hash(f"{res}{datetime.datetime.now()}")
-    res = f"{res}_{_hash}"
+    # add uuid
+    _uuid = uuid.uuid4()
+    res = f"{res}_{_uuid}"
 
     # replace all illegal characters by underscore
     res = re.sub(r"[^\d\w_\-.]", "_", res)
@@ -265,9 +266,6 @@ def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str
         return f"GREGORIAN:CE:{startyear}:CE:{endyear}"
     else:
         return None
-
-    # Fancy, because auto-extracts many date formats out of strings, but discouraged, produces too many false positives:
-    # datetime_obj = parser.parse(string, fuzzy = True, ignoretz = True)
 
 
 def check_notna(value: Optional[Any]) -> bool:

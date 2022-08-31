@@ -1,5 +1,4 @@
 import os
-import random
 import unittest
 import re
 from typing import Callable, Sequence, Union, Optional, Any
@@ -602,8 +601,6 @@ class TestExcel2xml(unittest.TestCase):
         # delete generated data
         if os.path.isfile("data.xml"):
             os.remove("data.xml")
-        if os.path.isfile("WARNINGS.TXT"):
-            os.remove("WARNINGS.TXT")
 
         os.chdir(old_working_directory)
 

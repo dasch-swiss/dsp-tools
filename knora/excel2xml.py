@@ -22,8 +22,6 @@ xml_namespace_map = {
     None: "https://dasch.swiss/schema",
     "xsi": "http://www.w3.org/2001/XMLSchema-instance"
 }
-__muted_warnings: list[str] = []
-__make_warnings_persistent = True
 
 
 class PropertyElement:
@@ -130,74 +128,6 @@ def make_xsd_id_compatible(string: str) -> str:
     return res
 
 
-def mute_warning(regex: str) -> None:
-    """
-    If too many warnings appear, the important ones might get lost among the less important ones. If in a certain phase
-    of development, you would like to mute certain warnings, you can add regexes to the ignore list by adding one or
-    several calls to this method at the top of your script. Only warnings that don't match the regexes in the ignore
-    list will be printed to console and into the WARNINGS.TXT file.
-
-    Don't forget to delete this method call in a later phase of development.
-
-    Args:
-        regex: regex to add to the ignore list. If a warning message matches this regex, it won't escalate
-
-    Returns:
-        None
-
-    Examples:
-        >>> mute_warning(r"Notoriously_problematic_resource_1")
-        >>> mute_warning(r"Notoriously_problematic_resource_2")
-        >>> handle_warnings("Error in resource 'Notoriously_problematic_resource_1'!")
-        The call to handle_warnings() won't have an effect.
-    """
-    __muted_warnings.append(regex)
-
-
-def reset_warnings_file() -> None:
-    """
-    This method checks if a file named WARNINGS.TXT is existing in the current working directory, and deletes it if it
-    exists.
-
-    Returns:
-        None
-    """
-    if os.path.isfile('WARNINGS.TXT'):
-        os.remove('WARNINGS.TXT')
-
-
-def handle_warnings(msg: str, stacklevel: int = 2) -> None:
-    """
-    Call this method to be alerted if there is an error in your data that should be corrected. The error message
-    will be printed on console and written into a log file called "WARNINGS.TXT". If such a file is already existing,
-    a call to this method will append to the end of the existing file. If you want to start with an empty file in every
-    run, add a call to reset_warnings_file() to the beginning of your script.
-
-    Args:
-        msg: Error message to print/write into the log file
-        stacklevel: a normal user can ignore this, because the default=2 is adapted for him.
-
-    Returns:
-        None
-
-    Examples:
-        >>> if not enddate >= startdate:
-                handle_warnings(f"Date parsing error: Enddate is earlier than startdate!")
-
-    See Also:
-        Warnings can be muted with the method mute_warning().
-        An existing WARNINGS.TXT can be deleted with reset_warnings_file().
-    """
-    for muted_warning in __muted_warnings:
-        if re.search(pattern=muted_warning, string=msg):
-            return
-
-    warnings.warn(msg, stacklevel=stacklevel)
-    if __make_warnings_persistent:
-        with open("WARNINGS.TXT", "a") as f:
-            f.write(msg + "\n")
-
-
 def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str]:
     """
     Checks if a string contains a date value (single date, or date range), and returns the first found date as
@@ -299,8 +229,8 @@ def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str
             startdate = datetime.date(year, month, day)
             enddate = startdate
         except ValueError:
-            handle_warnings(f"Date parsing error in resource {calling_resource}: '{iso_date.group(0)}' is "
-                            f"not a valid date")
+            warnings.warn(f"Date parsing error in resource {calling_resource}: '{iso_date.group(0)}' is not a valid "
+                          f"date", stacklevel=2)
             return None
 
     elif eur_date_range:
@@ -316,8 +246,8 @@ def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str
             if enddate < startdate:
                 raise ValueError
         except ValueError:
-            handle_warnings(f"Date parsing error in resource {calling_resource}: '{eur_date_range.group(0)}' is not a "
-                            f"valid date", stacklevel=3)
+            warnings.warn(f"Date parsing error in resource {calling_resource}: '{eur_date_range.group(0)}' is not a "
+                          f"valid date", stacklevel=2)
             return None
 
     elif eur_date:
@@ -328,8 +258,8 @@ def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str
             startdate = datetime.date(startyear, startmonth, startday)
             enddate = startdate
         except ValueError:
-            handle_warnings(f"Date parsing error in resource {calling_resource}: '{eur_date.group(0)}' is not a valid "
-                            f"date", stacklevel=3)
+            warnings.warn(f"Date parsing error in resource {calling_resource}: '{eur_date.group(0)}' is not a valid "
+                          f"date", stacklevel=2)
             return None
 
     elif monthname_date:
@@ -340,8 +270,8 @@ def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str
             startdate = datetime.date(year, month, day)
             enddate = startdate
         except ValueError:
-            handle_warnings(f"Date parsing error in resource {calling_resource}: '{monthname_date.group(0)}' is not a "
-                            f"valid date", stacklevel=3)
+            warnings.warn(f"Date parsing error in resource {calling_resource}: '{monthname_date.group(0)}' is not a "
+                          f"valid date", stacklevel=2)
             return None
 
     elif year_range:
@@ -604,7 +534,8 @@ def make_resource(
     if iri:
         kwargs["iri"] = iri
     if ark and iri:
-        handle_warnings(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.")
+        warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
+                      stacklevel=2)
 
     resource_ = etree.Element(
         "{%s}resource" % (xml_namespace_map[None]),
@@ -635,8 +566,8 @@ def make_bitstream_prop(
     """
 
     if not os.path.isfile(path):
-        handle_warnings(f"The following is not the path to a valid file: {path} (resource '{calling_resource}')",
-                        stacklevel=3)
+        warnings.warn(f"The following is not the path to a valid file: {path} (resource '{calling_resource}')",
+                      stacklevel=2)
     prop_ = etree.Element("{%s}bitstream" % (xml_namespace_map[None]), permissions=permissions,
                           nsmap=xml_namespace_map)
     prop_.text = path
@@ -1688,7 +1619,8 @@ def make_region(
     if iri:
         kwargs["iri"] = iri
     if ark and iri:
-        handle_warnings(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.")
+        warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
+                      stacklevel=2)
 
     region_ = etree.Element(
         "{%s}region" % (xml_namespace_map[None]),
@@ -1734,7 +1666,8 @@ def make_annotation(
     if iri:
         kwargs["iri"] = iri
     if ark and iri:
-        handle_warnings(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.")
+        warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
+                      stacklevel=2)
 
     annotation_ = etree.Element(
         "{%s}annotation" % (xml_namespace_map[None]),
@@ -1780,7 +1713,8 @@ def make_link(
     if iri:
         kwargs["iri"] = iri
     if ark and iri:
-        handle_warnings(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.")
+        warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
+                      stacklevel=2)
 
     link_ = etree.Element(
         "{%s}link" % (xml_namespace_map[None]),
@@ -1865,9 +1799,8 @@ def create_json_excel_list_mapping(
             res[excel_value] = matches[0]
             res[excel_value.lower()] = matches[0]
         else:
-            handle_warnings(
-                f"Did not find a close match to the excel list entry ***{excel_value}*** among the values in "
-                + f"the JSON project list ***{list_name}***", stacklevel=3)
+            warnings.warn(f"Did not find a close match to the excel list entry '{excel_value}' among the values "
+                          f"in the JSON project list '{list_name}'", stacklevel=2)
 
     return res
 
@@ -2000,8 +1933,6 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
         make_bitstream_prop,
         make_boolean_prop
     ]
-    global __make_warnings_persistent
-    __make_warnings_persistent = False
     if re.search(r"\.csv$", datafile):
         # "utf_8_sig": an optional BOM at the start of the file will be skipped
         # let the "python" engine detect the separator

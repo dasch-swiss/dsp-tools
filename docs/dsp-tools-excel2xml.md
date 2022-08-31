@@ -35,7 +35,7 @@ no false matches!
 With the help of pandas, you can then iterate through the rows of your Excel/CSV, and create resources and properties. 
 Some examples of useful helper methods:
 
- - For every property, there is a helper function that explains itself when you hoover over it. It also has a link to 
+ - For every property, there is a helper function that explains itself when you hover over it. It also has a link to 
    the dsp-tools documentation of this property. So you don't need to worry how to construct a certain XML value for a 
    certain property. 
  - `check_notna(cell)`: quickly check if a cell contains at least one word-character

@@ -11,6 +11,7 @@ import pandas as pd
 from typing import Any, Iterable, Optional, Union
 from lxml import etree
 from lxml.builder import E
+import dataclasses
 
 from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.utils.excel_to_json_lists import simplify_name
@@ -24,72 +25,45 @@ xml_namespace_map = {
 }
 
 
+@dataclasses.dataclass(frozen=True)
 class PropertyElement:
+    """
+    A PropertyElement object carries more information about a property value than the value itself.
+    The "value" is the value that could be passed to a method as plain string/int/float/bool. Use a PropertyElement
+    instead to define more precisely what attributes your <text> tag (for example) will have.
+
+    Args:
+        value: This is the content that will be written between the <text></text> tags (for example)
+        permissions: This is the permissions that your <text> tag (for example) will have
+        comment: This is the comment that your <text> tag (for example) will have
+        encoding: For <text> tags only. Can be "xml" or "utf8".
+
+    Examples:
+        See the difference between the first and the second example:
+
+        >>> make_text_prop(":testproperty", "first text")
+                <text-prop name=":testproperty">
+                    <text encoding="utf8" permissions="prop-default">
+                        first text
+                    </text>
+                </text-prop>
+        >>> make_text_prop(":testproperty", PropertyElement("first text", permissions="prop-restricted", encoding="xml"))
+                <text-prop name=":testproperty">
+                    <text encoding="xml" permissions="prop-restricted">
+                        first text
+                    </text>
+                </text-prop>
+    """
     value: Union[str, int, float, bool]
-    permissions: Optional[str]
-    comment: Optional[str]
-    encoding: Optional[str]
+    permissions: str = "prop-default"
+    comment: Optional[str] = None
+    encoding: Optional[str] = None
 
-    def __init__(
-        self,
-        value: Union[str, int, float, bool],
-        permissions: str = "prop-default",
-        comment: Optional[str] = None,
-        encoding: Optional[str] = None
-    ):
-        """
-        A PropertyElement object carries more information about a property value than the value itself.
-        The "value" is the value that could be passed to a method as plain string/int/float/bool. Use a PropertyElement
-        instead to define more precisely what attributes your <text> tag (for example) will have.
-
-        Args:
-            value: This is the content that will be written between the <text></text> tags (for example)
-            permissions: This is the permissions that your <text> tag (for example) will have
-            comment: This is the comment that your <text> tag (for example) will have
-            encoding: For <text> tags only. Can be "xml" or "utf8".
-
-        Examples:
-            See the difference between the first and the second example:
-
-            >>> make_text_prop(":testproperty", "first text")
-                    <text-prop name=":testproperty">
-                        <text encoding="utf8" permissions="prop-default">
-                            first text
-                        </text>
-                    </text-prop>
-            >>> make_text_prop(":testproperty", PropertyElement("first text", permissions="prop-restricted", encoding="xml"))
-                    <text-prop name=":testproperty">
-                        <text encoding="xml" permissions="prop-restricted">
-                            first text
-                        </text>
-                    </text-prop>
-        """
-        if not check_notna(value):
-            raise BaseError(f"'{value}' is not a valid value for a PropertyElement")
-        self.value = value
-        self.permissions = permissions
-        self.comment = comment
-        if encoding not in ["utf8", "xml", None]:
-            raise BaseError(f"'{encoding}' is not a valid encoding for a PropertyElement")
-        self.encoding = encoding
-
-    def __eq__(self, other) -> bool:
-        return all((
-            self.value == other.value,
-            self.permissions == other.permissions,
-            self.comment == other.comment,
-            self.encoding == other.encoding
-        ))
-
-    def __str__(self) -> str:
-        return f"""PropertyElement[value={self.value}, permissions={self.permissions},
-        comment={self.comment}, encoding={self.encoding}]"""
-
-    def __repr__(self) -> str:
-        return self.__str__()
-
-    def __hash__(self) -> int:
-        return hash(str(self))
+    def __post_init__(self) -> None:
+        if not check_notna(self.value):
+            raise BaseError(f"'{self.value}' is not a valid value for a PropertyElement")
+        if self.encoding not in ["utf8", "xml", None]:
+            raise BaseError(f"'{self.encoding}' is not a valid encoding for a PropertyElement")
 
 
 ###########
@@ -621,17 +595,15 @@ def make_boolean_prop(
 
     # check and validate input
     if isinstance(value, PropertyElement):
-        value.value = _format_bool(value.value, name, calling_resource)
-        value_new = value
+        value_new = dataclasses.replace(value, value=_format_bool(value.value, name, calling_resource))
     elif isinstance(value, str) or isinstance(value, bool) or isinstance(value, int):
         value_new = PropertyElement(_format_bool(value, name, calling_resource))
     elif isinstance(value, Iterable):
         tmp = list()
         for item in value:
             if isinstance(item, PropertyElement):
-                # Format it, so that equivalent values are recognized as identical
-                item.value = _format_bool(item.value, name, calling_resource)
-                tmp.append(item)
+                # Create new instance with formatted value, so that equivalent values are recognized as identical
+                tmp.append(dataclasses.replace(item, value=_format_bool(item.value, name, calling_resource)))
             else:
                 tmp.append(PropertyElement(value=_format_bool(item, name, calling_resource)))
         value = tmp

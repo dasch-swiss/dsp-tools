@@ -171,14 +171,14 @@ printed out if the list is not valid. Furthermore, it is checked that no two nod
 
 There are two use cases for a transformation from Excel/CSV to XML: 
 
- - The command line tool `excel2xml` creates an XML file from an Excel/CSV file which is already structured according to 
-   the DSP specifications. This is mostly used for DaSCH-interal data migration.
- - The package `excel2xml` can be imported into a custom Python script that transforms any tabular data into an XML. This
-   use case is more frequent, because data from research projects have a variety of formats/structures. The package 
-   `excel2xml` is documented [here](dsp-tools-excel2xml.md).
+ - The CLI command `dsp-tools excel2xml` creates an XML file from an Excel/CSV file which is already structured 
+   according to the DSP specifications. This is mostly used for DaSCH-interal data migration.
+ - The module `excel2xml` can be imported into a custom Python script that transforms any tabular data into an XML. This
+   use case is more frequent, because data from research projects have a variety of formats/structures. The module 
+   `excel2xml` is documented [here](./dsp-tools-excel2xml.md).
 
 
-### Command line tool `excel2xml`
+### CLI command `excel2xml`
 
 The command line tool is used as follows:
 ```bash
@@ -186,8 +186,6 @@ dsp-tools excel2xml data-source.xlsx 1234 shortname
 ```
 
 There are no flags/options for this command.
-
-See also [here](./dsp-tools-usage.md#create-an-xml-file-from-excelcsv).
 
 The Excel file must be structured as in this image:
 ![img-excel2xml.png](assets/images/img-excel2xml.png)

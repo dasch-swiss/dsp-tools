@@ -1,13 +1,13 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# EXCEL2XML: Convert a data source to XML
-dsp-tools assists you in converting a data source like CSV/XLSX to an XML file. Unlike the other features of dsp-tools,
-this doesn't work via command line, but via helper methods that you can import into your own Python script. Because
-every data source is different, there is no single algorithm to convert them to XML. Every user has to deal with the 
-specialties of his/her data source, but dsp-tool's helper methods can help a lot. This document demonstrates how it 
-works. 
+# `excel2xml`: Convert a data source to XML
+dsp-tools assists you in converting a data source in CSV/XLS(X) format to an XML file. Unlike the other features of 
+dsp-tools, this doesn't work via command line, but via helper methods that you can import into your own Python script. 
+Because every data source is different, there is no single algorithm to convert them to a DSP conform XML. Every user 
+has to deal with the specialties of his/her data source, but `excel2xml`'s helper methods can help a lot. This document 
+demonstrates how it works. 
 
-## How to use the package excel2xml
+## How to use the module excel2xml
 At the end of this document, you find a sample Python script. In the following, it is commented and explained. 
 
 ### General preparation
@@ -23,8 +23,8 @@ admins. Read more about permissions [here](./dsp-tools-xmlupload.md#how-to-use-t
 
 ### Create list mappings
 Let's assume that your data source has a column containing list values named after the "label" of the JSON project list, 
-instead of the "name" which is needed for the `dsp-tools xmlupload`. You need a way to get from the labels to the names.
-If your data sources uses the labels correctly, this is an easy task: The method `create_json_list_mapping()` creates a
+instead of the "name" which is needed for the `dsp-tools xmlupload`. You need a way to get the names from the labels.
+If your data source uses the labels correctly, this is an easy task: The method `create_json_list_mapping()` creates a
 dictionary that maps the labels to the names.  
 If, however, your data source has spelling variants, you need the more sophisticated approach of 
 `create_json_excel_list_mapping()`: This method creates a dict that maps the list values in your data source to their 
@@ -51,5 +51,5 @@ Save the following files into a directory, and run the Python script. The featur
 contained therein.
 
  - sample data: [excel2xml_sample_data.csv](assets/templates/excel2xml_sample_data.csv)
- - sample ontology: [excel2xml_onto.json](assets/templates/excel2xml_onto.json)
- - sample script: [excel2xml_script.py](assets/templates/excel2xml_script.py)
+ - sample ontology: [excel2xml_sample_onto.json](assets/templates/excel2xml_sample_onto.json)
+ - sample script: [excel2xml_sample_script.py](assets/templates/excel2xml_sample_script.py)

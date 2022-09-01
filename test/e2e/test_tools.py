@@ -3,6 +3,7 @@ import json
 import unittest
 import os
 import datetime
+import re
 
 from knora.dsplib.utils import excel_to_json_lists
 from knora.dsplib.utils.excel_to_json_properties import properties_excel2json
@@ -34,6 +35,10 @@ class TestTools(unittest.TestCase):
         for file in os.listdir('testdata/tmp'):
             os.remove('testdata/tmp/' + file)
         os.rmdir('testdata/tmp')
+        for file in [f for f in os.listdir('.') if re.search(r'id2iri_.+\.json', f)]:
+            os.remove(file)
+
+
 
     def test_get(self) -> None:
         with open(self.test_project_file) as f:

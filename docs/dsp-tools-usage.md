@@ -196,12 +196,18 @@ More information about the usage of this command can be found
 
 ## Create an XML file from Excel/CSV
 ```bash
-dsp-tools excel2xml data-source.xlsx 1234 shortname
+dsp-tools excel2xml data-source.xlsx project_shortcode ontology_name
 ```
+
+Arguments:
+
+ - data-source.xlsx: An Excel/CSV file that is structured according to [these requirements](dsp-tools-excel.md#cli-command-excel2xml)
+ - project_shortcode: The four-digit hexadecimal shortcode of the project
+ - ontology_name: the name of the ontology that the data belongs to
 
 If your data source is already structured according to the DSP specifications, but it is not in XML format yet, the 
 command `excel2xml` will transform it into XML. This is mostly used for DaSCH-interal data migration. There are no 
-flags/options for this command. The details of this command are documented [here](dsp-tools-excel.md#command-line-tool-excel2xml).
+flags/options for this command. The details of this command are documented [here](dsp-tools-excel.md#cli-command-excel2xml).
 
 If your data source is not yet structured according to the DSP specifications, you need a custom Python script for the 
 data transformation. For this, you might want to import the package `excel2xml` into your Python script, which is 
@@ -209,12 +215,12 @@ described in the next paragraph.
 
 
 
-## Use the package EXCEL2XML to convert a data source to XML
-dsp-tools assists you in converting a data source like CSV/XLSX to an XML file. Unlike the other features of dsp-tools,
-this doesn't work via command line, but via helper methods that you can import into your own Python script. Because
-every data source is different, there is no single algorithm to convert them to XML. Every user has to deal with the 
-specialties of his/her data source, but `excel2xml`'s helper methods can help a lot. Read more about it 
-[here](./dsp-tools-excel2xml.md).
+## Use the module `excel2xml` to convert a data source to XML
+dsp-tools assists you in converting a data source in CSV/XLS(X) format to an XML file. Unlike the other features of 
+dsp-tools, this doesn't work via command line, but via helper methods that you can import into your own Python script. 
+Because every data source is different, there is no single algorithm to convert them to a DSP conform XML. Every user 
+has to deal with the specialties of his/her data source, but `excel2xml`'s helper methods can help a lot. Read more 
+about it [here](./dsp-tools-excel2xml.md).
 
 
 

@@ -584,7 +584,7 @@ class TestExcel2xml(unittest.TestCase):
     def test_excel2xml_sample_script(self) -> None:
         old_working_directory = os.getcwd()
         os.chdir("docs/assets/templates")
-        with open("excel2xml_script.py") as f:
+        with open("excel2xml_sample_script.py") as f:
             template_script = f.read()
             exec(template_script, {})
         with open("../../../testdata/excel2xml-template-expected-output.xml") as f:

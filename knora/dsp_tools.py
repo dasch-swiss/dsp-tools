@@ -132,8 +132,8 @@ def program(user_args: list[str]) -> None:
     parser_id2iri.add_argument('-v', '--verbose', action='store_true', help=verbose_text)
 
     # excel2xml
-    parser_excel2xml = subparsers.add_parser('excel2xml', help='Transform a tabular data source like CSV or XLS(X) to '
-                                                               'DSP-conforming XML. ')
+    parser_excel2xml = subparsers.add_parser('excel2xml', help='Transform a tabular data source in CSV/XLS(X) format '
+                                                               'to DSP-conforming XML. ')
     parser_excel2xml.set_defaults(action='excel2xml')
     parser_excel2xml.add_argument('datafile', help='Path to the CSV or XLS(X) file containing the data')
     parser_excel2xml.add_argument('shortcode', help='Shortcode of the project that this data belongs to')

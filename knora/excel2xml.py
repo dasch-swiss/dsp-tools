@@ -1908,7 +1908,7 @@ def write_xml(root: etree.Element, filepath: str) -> None:
 def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
     """
     This is a method that is called from the command line. It isn't intended to be used in a Python script. It takes a
-    tabular data source like CSV or XLS(X) that is formatted according to the specifications, and transforms it to DSP-
+    tabular data source in CSV/XLS(X) format that is formatted according to the specifications, and transforms it to DSP-
     conforming XML file that can be uploaded to a DSP server with the xmlupload command. The output file is saved in the
     same directory as the input file, with the name [default_ontology]-data.xml.
 

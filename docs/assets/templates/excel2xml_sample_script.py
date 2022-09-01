@@ -4,7 +4,7 @@ from knora import excel2xml
 
 # general preparation
 # -------------------
-path_to_json = "excel2xml_onto.json"
+path_to_json = "excel2xml_sample_onto.json"
 main_df = pd.read_csv("excel2xml_sample_data.csv", dtype="str", sep=",")
 # main_df = pd.read_excel("path-to-your-data-source", dtype="str")
 # main_df.drop_duplicates(inplace = True)

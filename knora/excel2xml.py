@@ -81,7 +81,7 @@ def make_xsd_id_compatible(string: str) -> str:
     "-". In such cases, a BaseError is thrown.
 
     Args:
-        string: string out of which to make the xsd:ID
+        string: string which to make the xsd:ID from
 
     Returns:
         an `xsd:ID` based on string

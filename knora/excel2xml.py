@@ -88,7 +88,7 @@ def make_xsd_id_compatible(string: str) -> str:
     """
 
     if not isinstance(string, str) or not check_notna(string):
-        raise BaseError(f"The string {string} cannot be made an xsd:id")
+        raise BaseError(f"The string {string} cannot be made an xsd:ID")
 
     # if start of string is neither letter nor underscore, add an underscore
     res = re.sub(r"^(?=[^A-Za-z_])", "_", string)
@@ -480,7 +480,7 @@ def make_resource(
     Creates an empty resource element, with the attributes as specified by the arguments
 
     Args:
-        The arguments correspond 1:1 to the attributes of the <resource> element.
+        The arguments correspond to the attributes of the <resource> element.
 
     Returns:
         The resource element, without any children, but with the attributes
@@ -541,7 +541,7 @@ def make_bitstream_prop(
     """
 
     if not os.path.isfile(path):
-        warnings.warn(f"The following is not the path to a valid file: {path} (resource '{calling_resource}')",
+        warnings.warn(f"The following is not a valid path: {path} (resource '{calling_resource}')",
                       stacklevel=2)
     prop_ = etree.Element("{%s}bitstream" % (xml_namespace_map[None]), permissions=permissions,
                           nsmap=xml_namespace_map)
@@ -597,7 +597,7 @@ def make_boolean_prop(
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#boolean-prop
     """
 
-    # check and validate input
+    # validate input
     if isinstance(value, PropertyElement):
         value_new = dataclasses.replace(value, value=_format_bool(value.value, name, calling_resource))
     elif isinstance(value, str) or isinstance(value, bool) or isinstance(value, int):

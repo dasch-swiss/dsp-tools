@@ -210,7 +210,7 @@ command `excel2xml` will transform it into XML. This is mostly used for DaSCH-in
 flags/options for this command. The details of this command are documented [here](dsp-tools-excel.md#cli-command-excel2xml).
 
 If your data source is not yet structured according to the DSP specifications, you need a custom Python script for the 
-data transformation. For this, you might want to import the package `excel2xml` into your Python script, which is 
+data transformation. For this, you might want to import the module `excel2xml` into your Python script, which is 
 described in the next paragraph.
 
 

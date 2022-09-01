@@ -27,18 +27,18 @@ instead of the "name" which is needed for the `dsp-tools xmlupload`. You need a 
 If your data source uses the labels correctly, this is an easy task: The method `create_json_list_mapping()` creates a
 dictionary that maps the labels to the names.  
 If, however, your data source has spelling variants, you need the more sophisticated approach of 
-`create_json_excel_list_mapping()`: This method creates a dict that maps the list values in your data source to their 
+`create_json_excel_list_mapping()`: This method creates a dictionary that maps the list values in your data source to their 
 correct JSON project node name. This happens based on string similarity. Please carefully check the result if there are
 no false matches!
 
 ### Create all resources
-With the help of pandas, you can then iterate through the rows of your Excel/CSV, and create resources and properties. 
+With the help of the [Python pandas library](https://pandas.pydata.org/), you can then iterate through the rows of your Excel/CSV, and create resources and properties. 
 Some examples of useful helper methods:
 
  - For every property, there is a helper function that explains itself when you hover over it. It also has a link to 
    the dsp-tools documentation of this property. So you don't need to worry how to construct a certain XML value for a 
    certain property. 
- - `check_notna(cell)`: quickly check if a cell contains at least one word-character
+ - `check_notna(cell)`: check if a cell contains at least one word-character
  - `find_date_in_string(string)`: If a cell contains a date, this function converts it to the correctly formatted DSP 
    date string.
  - `make_boolean_prop(cell)`: Recognizes many boolean formats: 0/1, true/false, Yes/No, ...

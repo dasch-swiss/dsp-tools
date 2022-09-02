@@ -155,6 +155,7 @@ def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str
         "June": 6,
         "Jun": 6,
         "July": 7,
+        "Jul": 7,
         "August": 8,
         "Aug": 8,
         "September": 9,
@@ -282,8 +283,10 @@ def check_notna(value: Optional[Any]) -> bool:
     Returns:
         True if the value is usable, False if it is N/A or otherwise unusable
     """
+
     if isinstance(value, PropertyElement):
         value = value.value
+
     if any([
         isinstance(value, int),
         isinstance(value, float) and pd.notna(value),   # necessary because isinstance(np.nan, float)
@@ -300,7 +303,7 @@ def check_notna(value: Optional[Any]) -> bool:
 
 
 def _check_and_prepare_values(
-    value: Optional[Union[PropertyElement, str, int, float, bool, Iterable[Union[PropertyElement, str, int, float, bool]]]],
+    value: Optional[Union[PropertyElement, str, int, float, bool]],
     values: Optional[Iterable[Union[PropertyElement, str, int, float, bool]]],
     name: str,
     calling_resource: str = ""
@@ -311,13 +314,10 @@ def _check_and_prepare_values(
     are passed to it as they were received. This method will then perform the following checks, and throw a BaseError in
     case of failure:
       - check that exactly one of them contains data, but not both.
-      - If "value" is array-like, its elements are checked for identity.
-          - Note that identity is defined in a strict sense: 1 and "1.0" are considered different. Reason: For a
-            <decimal-prop>, 1 might be equivalent to "1.0", but for a <boolean-prop>, 1 is rather equivalent to True
-            than to "1.0".
+      - check that the values are usable, and not N/A
 
-    Then, N/A-like values are removed from "values", and all values are transformed to PropertyElements and returned as
-    a list. In case of a single "value", the resulting list contains the PropertyElement of this value.
+    Then, all values are transformed to PropertyElements and returned as a list. In case of a single "value", the
+    resulting list contains the PropertyElement of this value.
 
     Args:
         value: "value" as received from the caller
@@ -330,12 +330,8 @@ def _check_and_prepare_values(
     """
 
     # reduce 'value' to None if it is not usable
-    if isinstance(value, Iterable):
-        if not any([check_notna(val) for val in value]):
-            value = None
-    else:
-        if not check_notna(value):
-            value = None
+    if not check_notna(value):
+        value = None
 
     # reduce 'values' to None if it is not usable
     if values and not any([check_notna(val) for val in values]):
@@ -353,24 +349,14 @@ def _check_and_prepare_values(
     result: list[PropertyElement] = list()
 
     if value:
-        if not isinstance(value, Iterable) or isinstance(value, str):
-            single_value: Union[PropertyElement, str, int, float, bool] = value
-        else:
-            # "value" contains more than one value: reduce it to a single value
-            if len(set(value)) > 1:
-                raise BaseError(f"There are contradictory values for prop '{name}' in resource '{calling_resource}': {set(value)}")
-            single_value = next(iter(value))
-
         # make a PropertyElement out of it, if necessary
-        if isinstance(single_value, PropertyElement):
-            result.append(single_value)
+        if isinstance(value, PropertyElement):
+            result.append(value)
         else:
-            result.append(PropertyElement(single_value))
-
-    else:
+            result.append(PropertyElement(value))
+    elif values:
         # if "values" contains unusable elements, remove them
         multiple_values = [val for val in values if check_notna(val)]
-
         # make a PropertyElement out of them, if necessary
         for elem in multiple_values:
             if isinstance(elem, PropertyElement):
@@ -562,7 +548,7 @@ def _format_bool(unformatted: Union[bool, str, int], name: str, calling_resource
 
 def make_boolean_prop(
     name: str,
-    value: Union[PropertyElement, str, int, bool, Iterable[Union[PropertyElement, str, int, bool]]],
+    value: Union[PropertyElement, str, int, bool],
     calling_resource: str = ""
 ) -> etree.Element:
     """
@@ -575,7 +561,7 @@ def make_boolean_prop(
 
     Args:
         name: the name of this property as defined in the onto
-        value: a str/bool/int itself or inside a PropertyElement, or an iterable of identical str/bool/int/PropertyElements
+        value: a str/bool/int itself or inside a PropertyElement
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
@@ -590,9 +576,6 @@ def make_boolean_prop(
                 <boolean-prop name=":testproperty">
                     <boolean permissions="prop-restricted" comment="example">true</boolean>
                 </boolean-prop>
-        >>> make_boolean_prop(":testproperty", value=["false", "1"])
-                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
-                your source. This method call will only work if all items of "value" are equivalent.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#boolean-prop
     """
@@ -602,21 +585,6 @@ def make_boolean_prop(
         value_new = dataclasses.replace(value, value=_format_bool(value.value, name, calling_resource))
     elif isinstance(value, str) or isinstance(value, bool) or isinstance(value, int):
         value_new = PropertyElement(_format_bool(value, name, calling_resource))
-    elif isinstance(value, Iterable):
-        tmp = list()
-        for item in value:
-            if isinstance(item, PropertyElement):
-                # Create new instance with formatted value, so that equivalent values are recognized as identical
-                tmp.append(dataclasses.replace(item, value=_format_bool(item.value, name, calling_resource)))
-            else:
-                tmp.append(PropertyElement(value=_format_bool(item, name, calling_resource)))
-        value = tmp
-        if len(set(value)) == 0:
-            raise BaseError(f"There are no values for prop '{name}' in resource '{calling_resource}'")
-        elif len(set(value)) > 1:
-            raise BaseError(f"There are contradictory values for prop '{name}' in resource '{calling_resource}': {set(value)}")
-        else:  # len(set(value)) == 1:
-            value_new = list(value)[0]
     else:
         raise BaseError(f"Invalid boolean format for prop '{name}' in resource '{calling_resource}': '{value}'")
 
@@ -642,7 +610,7 @@ def make_boolean_prop(
 
 def make_color_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]]] = None,
+    value: Optional[Union[PropertyElement, str]] = None,
     values: Optional[Iterable[Union[PropertyElement, str]]] = None,
     calling_resource: str = ""
 ) -> etree.Element:
@@ -655,7 +623,7 @@ def make_color_prop(
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
+        value: a string/PropertyElement
         values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -676,9 +644,6 @@ def make_color_prop(
                     <color permissions="prop-default">#00ff66</color>
                     <color permissions="prop-default">#000000</color>
                 </color-prop>
-        >>> make_color_prop(":testproperty", value=["#00ff66", "#000000"])
-                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
-                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#color-prop
     """
@@ -719,7 +684,7 @@ def make_color_prop(
 
 def make_date_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]]] = None,
+    value: Optional[Union[PropertyElement, str]] = None,
     values: Optional[Iterable[Union[PropertyElement, str]]] = None,
     calling_resource: str = ""
 ) -> etree.Element:
@@ -731,7 +696,7 @@ def make_date_prop(
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
+        value: a string/PropertyElement
         values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -758,9 +723,6 @@ def make_date_prop(
                         GREGORIAN:CE:1930-09-02:CE:1930-09-03
                     </date>
                 </date-prop>
-        >>> make_date_prop(":testproperty", value=["GREGORIAN:CE:2014-01-31", "GREGORIAN:CE:1900-01-01"])
-                ERROR. Use this if some fields in your data source should bevequal, but you cannot trust
-                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#date-prop
     """
@@ -802,7 +764,7 @@ def make_date_prop(
 
 def make_decimal_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]]] = None,
+    value: Optional[Union[PropertyElement, str]] = None,
     values: Optional[Iterable[Union[PropertyElement, str]]] = None,
     calling_resource: str = ""
 ) -> etree.Element:
@@ -816,7 +778,7 @@ def make_decimal_prop(
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/float/PropertyElement, or an iterable of identical strings/floats/PropertyElements
+        value: a string/float/PropertyElement
         values: an iterable of distinct strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -837,9 +799,6 @@ def make_decimal_prop(
                     <decimal permissions="prop-default">3.14159</decimal>
                     <decimal permissions="prop-default">2.718</decimal>
                 </decimal-prop>
-        >>> make_decimal_prop(":testproperty", value=["3.14159", "2.718"])
-                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
-                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#decimal-prop
     """
@@ -880,7 +839,7 @@ def make_decimal_prop(
 
 def make_geometry_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]]] = None,
+    value: Optional[Union[PropertyElement, str]] = None,
     values: Optional[Iterable[Union[PropertyElement, str]]] = None,
     calling_resource: str = ""
 ) -> etree.Element:
@@ -893,7 +852,7 @@ def make_geometry_prop(
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
+        value: a string/PropertyElement
         values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -914,9 +873,6 @@ def make_geometry_prop(
                     <geometry permissions="prop-default">{JSON}</geometry>
                     <geometry permissions="prop-default">{JSON}</geometry>
                 </geometry-prop>
-        >>> make_geometry_prop(":testproperty", value=[json_string1, json_string2])
-                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
-                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#geometry-prop
     """
@@ -961,7 +917,7 @@ def make_geometry_prop(
 
 def make_geoname_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, int, Iterable[Union[PropertyElement, str, int]]]] = None,
+    value: Optional[Union[PropertyElement, str, int]] = None,
     values: Optional[Iterable[Union[PropertyElement, str, int]]] = None,
     calling_resource: str = ""
 ) -> etree.Element:
@@ -975,7 +931,7 @@ def make_geoname_prop(
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/int/PropertyElement, or an iterable of identical strings/ints/PropertyElements
+        value: a string/int/PropertyElement
         values: an iterable of (usually distinct) strings/ints/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -996,9 +952,6 @@ def make_geoname_prop(
                     <geoname permissions="prop-default">2761369</geoname>
                     <geoname permissions="prop-default">1010101</geoname>
                 </geoname-prop>
-        >>> make_geoname_prop(":testproperty", value=["2761369", "1010101"])
-                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
-                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#geoname-prop
     """
@@ -1038,7 +991,7 @@ def make_geoname_prop(
 
 def make_integer_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, int, Iterable[Union[PropertyElement, str, int]]]] = None,
+    value: Optional[Union[PropertyElement, str, int]] = None,
     values: Optional[Iterable[Union[PropertyElement, str, int]]] = None,
     calling_resource: str = ""
 ) -> etree.Element:
@@ -1052,7 +1005,7 @@ def make_integer_prop(
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/int/PropertyElement, or an iterable of identical strings/ints/PropertyElements
+        value: a string/int/PropertyElement
         values: an iterable of (usually distinct) strings/ints/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -1073,9 +1026,6 @@ def make_integer_prop(
                     <integer permissions="prop-default">2761369</integer>
                     <integer permissions="prop-default">1010101</integer>
                 </integer-prop>
-        >>> make_integer_prop(":testproperty", value=["2761369", "1010101"])
-                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
-                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#integer-prop
     """
@@ -1115,7 +1065,7 @@ def make_integer_prop(
 
 def make_interval_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]]] = None,
+    value: Optional[Union[PropertyElement, str]] = None,
     values: Optional[Iterable[Union[PropertyElement, str]]] = None,
     calling_resource: str = ""
 ) -> etree.Element:
@@ -1128,7 +1078,7 @@ def make_interval_prop(
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
+        value: a string/PropertyElement
         values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -1149,9 +1099,6 @@ def make_interval_prop(
                     <interval permissions="prop-default">61:3600</interval>
                     <interval permissions="prop-default">60.5:120.5</interval>
                 </interval-prop>
-        >>> make_interval_prop(":testproperty", value=["61:3600", "60.5:120.5"])
-                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
-                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#interval-prop
     """
@@ -1193,7 +1140,7 @@ def make_interval_prop(
 def make_list_prop(
     list_name: str,
     name: str,
-    value: Optional[Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]]] = None,
+    value: Optional[Union[PropertyElement, str]] = None,
     values: Optional[Iterable[Union[PropertyElement, str]]] = None,
     calling_resource: str = ""
 ) -> etree.Element:
@@ -1206,7 +1153,7 @@ def make_list_prop(
     Args:
         list_name: the name of the list as defined in the onto
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
+        value: a string/PropertyElement
         values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -1227,9 +1174,6 @@ def make_list_prop(
                     <list permissions="prop-default">first_node</list>
                     <list permissions="prop-default">second_node</list>
                 </list-prop>
-        >>> make_list_prop("mylist", ":testproperty", value=["first_node", "second_node"])
-                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
-                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#list-prop
     """
@@ -1271,7 +1215,7 @@ def make_list_prop(
 
 def make_resptr_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]]] = None,
+    value: Optional[Union[PropertyElement, str]] = None,
     values: Optional[Iterable[Union[PropertyElement, str]]] = None,
     calling_resource: str = ""
 ) -> etree.Element:
@@ -1284,7 +1228,7 @@ def make_resptr_prop(
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
+        value: a string/PropertyElement
         values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -1305,9 +1249,6 @@ def make_resptr_prop(
                     <resptr permissions="prop-default">resource_1</resptr>
                     <resptr permissions="prop-default">resource_2</resptr>
                 </resptr-prop>
-        >>> make_resptr_prop(":testproperty", value=["resource_1", "resource_2"])
-                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
-                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#resptr-prop
     """
@@ -1348,7 +1289,7 @@ def make_resptr_prop(
 
 def make_text_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]]] = None,
+    value: Optional[Union[PropertyElement, str]] = None,
     values: Optional[Iterable[Union[PropertyElement, str]]] = None,
     calling_resource: str = ""
 ) -> etree.Element:
@@ -1361,7 +1302,7 @@ def make_text_prop(
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
+        value: a string/PropertyElement
         values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -1382,9 +1323,6 @@ def make_text_prop(
                     <text encoding="utf8" permissions="prop-default">first text</text>
                     <text encoding="utf8" permissions="prop-default">second text</text>
                 </text-prop>
-        >>> make_text_prop(":testproperty", value=["first text", "second text"])
-                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
-                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#text-prop
     """
@@ -1429,7 +1367,7 @@ def make_text_prop(
 
 def make_time_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]]] = None,
+    value: Optional[Union[PropertyElement, str]] = None,
     values: Optional[Iterable[Union[PropertyElement, str]]] = None,
     calling_resource: str = ""
 ) -> etree.Element:
@@ -1443,7 +1381,7 @@ def make_time_prop(
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
+        value: a string/PropertyElement
         values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -1472,9 +1410,6 @@ def make_time_prop(
                         1901-01-01T01:00:00-00:002
                     </time>
                 </time-prop>
-        >>> make_time_prop(":testproperty", value=["2009-10-10T12:00:00-05:00", "1901-01-01T01:00:00-00:00"])
-                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
-                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#time-prop
     """
@@ -1515,7 +1450,7 @@ def make_time_prop(
 
 def make_uri_prop(
     name: str,
-    value: Optional[Union[PropertyElement, str, Any, Iterable[Union[PropertyElement, str, Any]]]] = None,
+    value: Optional[Union[PropertyElement, str, Any]] = None,
     values: Optional[Iterable[Union[PropertyElement, str, Any]]] = None,
     calling_resource: str = ""
 ) -> etree.Element:
@@ -1527,7 +1462,7 @@ def make_uri_prop(
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of identical strings/PropertyElements
+        value: a string/PropertyElement
         values: an iterable of (usually distinct) strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -1548,9 +1483,6 @@ def make_uri_prop(
                     <uri permissions="prop-default">www.1.com</uri>
                     <uri permissions="prop-default">www.2.com</uri>
                 </uri-prop>
-        >>> make_uri_prop(":testproperty", value=["www.1.com", "www.2.com"])
-                ERROR. Use this if some fields in your data source should be equal, but you cannot trust
-                your source. This method call will only work if all items of "value" are identical.
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#uri-prop
     """
@@ -2048,12 +1980,12 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
                     property_elements.append(PropertyElement(**kwargs_propelem))
 
             # create the property and append it to resource
-            kwargs_propfunc: dict[str, Union[str, list[PropertyElement]]] = {
+            kwargs_propfunc: dict[str, Union[str, PropertyElement, list[PropertyElement]]] = {
                 "name": row["prop name"],
                 "calling_resource": resource_id
             }
-            if make_prop_function in single_value_functions or len(property_elements) == 1:
-                kwargs_propfunc["value"] = property_elements
+            if len(property_elements) == 1:
+                kwargs_propfunc["value"] = property_elements[0]
             else:
                 kwargs_propfunc["values"] = property_elements
             if check_notna(row["prop list"]):

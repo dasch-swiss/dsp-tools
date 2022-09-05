@@ -189,7 +189,7 @@
             <uri permissions="prop-restricted">https://en.wiktionary.org/wiki/Ῥόδος</uri>
             <uri permissions="prop-restricted">https://www.test-case.ch/</uri>
             <uri permissions="prop-restricted">https://reg-exr.com:3000</uri>
-            <uri permissions="prop-restricted">https://reg-exr.com:3000/path/to/file</uri>
+            <uri permissions="prop-restricted">https://reg-exr.com:3000/path/to/file_(%C3%89).htm</uri>
             <uri permissions="prop-restricted">https://reg-exr.com:3000/path/to/file#fragment</uri>
             <uri permissions="prop-restricted">https://reg-exr.com:3000/path/to/file?query=test</uri>
             <uri permissions="prop-restricted">https://reg-exr.com:3000/path/to/file?query=test#fragment</uri>

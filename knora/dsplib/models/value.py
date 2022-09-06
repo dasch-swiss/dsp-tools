@@ -1,6 +1,7 @@
 import re
 from typing import Optional, Any, Union
 
+import regex
 from pystrict import strict
 
 from .helpers import IriTest, Actions, BaseError
@@ -269,7 +270,7 @@ class DateValue(Value):
         # A knora date value
         #
         m = re.match(
-            '(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\\d{4})?(-\\d{1,2})?(-\\d{1,2})?(:CE|:BCE)?(:\\d{4})?(-\\d{1,2})?(-\\d{1,2})?',
+            r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})(-\d{1,2})?(-\d{1,2})?((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$",
             str(value))
         if not m:
             raise BaseError("Invalid date format: \"{}\"!".format(str(value)))
@@ -279,10 +280,10 @@ class DateValue(Value):
         self._y1 = None if dp[2] is None else int(dp[2].strip('-: '))
         self._m1 = None if dp[3] is None else int(dp[3].strip('-: '))
         self._d1 = None if dp[4] is None else int(dp[4].strip('-: '))
-        self._e2 = 'CE' if dp[5] is None else dp[5].strip('-: ')
-        self._y2 = None if dp[6] is None else int(dp[6].strip('-: '))
-        self._m2 = None if dp[7] is None else int(dp[7].strip('-: '))
-        self._d2 = None if dp[8] is None else int(dp[8].strip('-: '))
+        self._e2 = 'CE' if dp[6] is None else dp[6].strip('-: ')
+        self._y2 = None if dp[7] is None else int(dp[7].strip('-: '))
+        self._m2 = None if dp[8] is None else int(dp[8].strip('-: '))
+        self._d2 = None if dp[9] is None else int(dp[9].strip('-: '))
         if self._y1 is None:
             raise BaseError("Invalid date format! " + str(value))
 
@@ -636,7 +637,9 @@ class UriValue(Value):
                  iri: Optional[str] = None,
                  ark_url: Optional[str] = None,
                  vark_url: Optional[str] = None):
-        m = re.match("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?", str(value))
+        # URI = scheme ":" ["//" host [":" port]] path ["?" query] ["#" fragment]
+        m = regex.match(r"(?<scheme>[a-z][a-z0-9+.\-]*):(//(?<host>[\w_.\-\[\]:~]+)(?<port>:\d{0,6})?)(?<path>/[\w%()_\-.~]*)*"
+                        r"(?<query>\?[\w_.\-=]+)*(?<fragment>#[\w_/\-~:.]*)?", str(value), flags=regex.UNICODE)
         if m:
             self._value = str(value)
         else:
@@ -688,7 +691,7 @@ class TimeValue(Value):
                  iri: Optional[str] = None,
                  ark_url: Optional[str] = None,
                  vark_url: Optional[str] = None):
-        m = re.match("^([+-])?(\\d{4}-[0-1]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d)(.\\d+)?(Z|[+-][0-2]\\d:[0-5]\\d)$",
+        m = re.match(r"^\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d{1,12})?(Z|[+-][0-1]\d:[0-5]\d)$",
                      str(value))
         if m:
             self._value = str(value)

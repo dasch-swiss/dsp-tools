@@ -32,4 +32,8 @@ dsp-tools helps you with the following tasks:
 - [`dsp-tools id2iri`](./dsp-tools-usage.md#replace-internal-ids-with-iris-in-xml-file)
   takes an XML file for bulk data import and replaces referenced internal IDs with IRIs. The mapping has to be provided
   with a JSON file.
+- [`dsp-tools excel2xml`](./dsp-tools-usage.md#create-an-xml-file-from-excelcsv) transforms a data source that is 
+  already structured according to the DSP specifications to XML.
+- [The module excel2xml](./dsp-tools-usage.md#use-the-module-excel2xml-to-convert-a-data-source-to-xml) provides helper
+  methods that can be used in a Python script to convert data from a tabular format into XML.
 

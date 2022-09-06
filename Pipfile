@@ -18,6 +18,8 @@ openpyxl = "*"
 pyparsing = "==2.4.7"
 networkx = "*"
 pandas = "*"
+xlrd = "*"
+regex = "*"
 
 [dev-packages]
 mkdocs = "*"

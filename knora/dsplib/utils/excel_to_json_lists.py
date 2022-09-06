@@ -137,7 +137,7 @@ def _get_values_from_excel(
                                 f"{cell.column}, row {cell.row}:\n'{cell.value.strip()}'")
 
             # create a simplified version of the cell value and use it as name of the node
-            nodename = _simplify_name(cell.value.strip())
+            nodename = simplify_name(cell.value.strip())
             list_of_previous_node_names.append(nodename)
 
             # append a number (p.ex. node-name-2) if there are list nodes with identical names
@@ -244,7 +244,7 @@ def _contains_duplicates(list_to_check: list[Any]) -> bool:
     return has_duplicates
 
 
-def _simplify_name(value: str) -> str:
+def simplify_name(value: str) -> str:
     """
     Simplifies a given value in order to use it as node name
 

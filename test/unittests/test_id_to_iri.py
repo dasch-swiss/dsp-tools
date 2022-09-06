@@ -10,9 +10,17 @@ from knora.dsplib.utils.id_to_iri import id_to_iri
 class TestIdToIri(unittest.TestCase):
     out_file = 'testdata/tmp/_test-id2iri-replaced.xml'
 
-    def setUp(self) -> None:
-        """Is executed before each test"""
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Is executed before the methods of this class are run"""
         os.makedirs('testdata/tmp', exist_ok=True)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Is executed after the methods of this class have all run through"""
+        for file in os.listdir('testdata/tmp'):
+            os.remove('testdata/tmp/' + file)
+        os.rmdir('testdata/tmp')
 
     def test_invalid_xml_file_name(self) -> None:
         with self.assertRaises(SystemExit) as cm:

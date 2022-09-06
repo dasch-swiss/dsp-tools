@@ -11,9 +11,17 @@ from knora.dsplib.utils import excel_to_json_lists as e2l
 
 class TestExcelToJSONList(unittest.TestCase):
 
-    def setUp(self) -> None:
-        """Is executed before each test"""
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Is executed before the methods of this class are run"""
         os.makedirs('testdata/tmp', exist_ok=True)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Is executed after the methods of this class have all run through"""
+        for file in os.listdir('testdata/tmp'):
+            os.remove('testdata/tmp/' + file)
+        os.rmdir('testdata/tmp')
 
     def test_excel2jsonlist(self) -> None:
         # check that the output file was created

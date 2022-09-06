@@ -32,36 +32,36 @@
                 },
                 "nodes": [
                     {
-                        "name": "a",
+                        "name": "first node of testlist",
                         "labels": {
-                            "en": "a_label with a\"post'rophes",
+                            "en": "First node of the Test-List",
                             "rm": "Rumantsch"
                         }
                     },
                     {
-                        "name": "b",
+                        "name": "second node of testlist",
                         "labels": {
-                            "en": "b_label with no comment"
+                            "en": "Second node of the Test-List"
                         },
                         "nodes": [
                             {
-                                "name": "b1",
+                                "name": "first subnode",
                                 "labels": {
-                                    "en": "b1_label"
+                                    "en": "First Sub-Node"
                                 }
                             },
                             {
-                                "name": "b2",
+                                "name": "second subnode",
                                 "labels": {
-                                    "en": "b2_label"
+                                    "en": "Second Sub-Node"
                                 }
                             }
                         ]
                     },
                     {
-                        "name": "c",
+                        "name": "third node of testlist",
                         "labels": {
-                            "en": "c_label"
+                            "en": "Third node of the Test-List"
                         }
                     }
                 ]
@@ -93,7 +93,11 @@
                     {
                         "name": "notUsedNode_1",
                         "labels": {
-                            "en": "nodeLabel_1"
+                            "en": "nodeLabel_1\"'"
+                        },
+                        "comments": {
+                            "en": "Nodes can have comments, too!",
+                            "rm": "Even in Rumantsch!"
                         }
                     }
                 ]
@@ -302,6 +306,17 @@
                         "gui_element": "Date"
                     },
                     {
+                        "name": "hasTime",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TimeValue",
+                        "labels": {
+                            "en": "Time"
+                        },
+                        "gui_element": "TimeStamp"
+                    },
+                    {
                         "name": "hasInteger",
                         "super": [
                             "hasValue"
@@ -487,77 +502,66 @@
                         "cardinalities": [
                             {
                                 "propname": ":hasText",
-                                "gui_order": 1,
                                 "cardinality": "1-n"
                             },
                             {
                                 "propname": ":hasRichtext",
-                                "gui_order": 2,
                                 "cardinality": "0-n"
                             },
                             {
                                 "propname": ":hasUri",
-                                "gui_order": 3,
                                 "cardinality": "0-n"
                             },
                             {
                                 "propname": ":hasBoolean",
-                                "gui_order": 4,
                                 "cardinality": "1"
                             },
                             {
                                 "propname": ":hasDate",
-                                "gui_order": 5,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasTime",
                                 "cardinality": "0-n"
                             },
                             {
                                 "propname": ":hasInteger",
-                                "gui_order": 6,
                                 "cardinality": "0-n"
                             },
                             {
                                 "propname": ":hasDecimal",
-                                "gui_order": 7,
                                 "cardinality": "0-n"
                             },
                             {
                                 "propname": ":hasGeoname",
-                                "gui_order": 9,
                                 "cardinality": "0-n"
                             },
                             {
                                 "propname": ":hasColor",
-                                "gui_order": 11,
                                 "cardinality": "0-n"
                             },
                             {
                                 "propname": ":hasListItem",
-                                "gui_order": 12,
                                 "cardinality": "0-n"
                             },
                             {
                                 "propname": ":hasTestThing2",
-                                "gui_order": 13,
                                 "cardinality": "0-n"
                             },
                             {
                                 "propname": ":hasResource",
-                                "gui_order": 14,
                                 "cardinality": "0-n"
                             },
                             {
                                 "propname": ":hasRegion",
-                                "gui_order": 15,
                                 "cardinality": "0-n"
                             },
                             {
                                 "propname": ":hasRepresentation",
-                                "gui_order": 16,
                                 "cardinality": "0-n"
                             },
                             {
                                 "propname": ":hasMovingImageRepresentation",
-                                "gui_order": 17,
                                 "cardinality": "0-n"
                             }
                         ]

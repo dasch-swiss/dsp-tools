@@ -1,6 +1,5 @@
 
 mkdocs
-mkdocstrings
 mkdocs-material
 mkdocs-material-extensions
 mkdocs-include-markdown-plugin

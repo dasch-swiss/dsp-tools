@@ -33,7 +33,6 @@ pipenv-setup = "*"
 pytest = "*"
 types-requests = "*"
 twine = "*"
-mkdocstrings = "*"
 
 [requires]
 python_version = "3"

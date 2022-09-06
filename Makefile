@@ -87,5 +87,6 @@ freeze-requirements: ## update (dev-)requirements.txt and setup.py based on pipe
 	sed -i '' 's/==/~=/g' dev-requirements.txt
 	pipenv run pipenv-setup sync
 	sed -i '' 's/==/~=/g' setup.py
+	autopep8 --global-config pyproject.toml --aggressive --in-place setup.py
 
 .DEFAULT_GOAL := help

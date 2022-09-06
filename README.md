@@ -11,16 +11,15 @@ For a quick start, use:
 ```
 pip install pipenv
 pipenv install --dev
-pipenv run make run
+pipenv run make install
 ```
 
 This creates a pipenv-environment, installs all dependencies, and installs `dsp-tools` from source.
 
 If you prefer getting around pipenv, use instead:
 ```bash
-make upgrade-dist-tools
 make install-requirements
-make run
+make install
 ```
 
 ## Pipenv

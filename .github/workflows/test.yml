@@ -23,7 +23,6 @@ jobs:
           python-version: 3.9
       - name: Install dependencies
         run: |
-            make upgrade-dist-tools
             make install-requirements
             make install
       - name: Run tests

@@ -29,10 +29,6 @@ dist: ## generate distribution package
 upload: ## upload distribution package to PyPI
 	python3 -m twine upload dist/*
 
-.PHONY: upgrade-dist-tools
-upgrade-dist-tools: ## upgrade packages necessary for testing, building, packaging and uploading to PyPI
-	python3 -m pip install --upgrade pip setuptools wheel twine pytest mkdocs
-
 .PHONY: docs-build
 docs-build: ## build docs into the local 'site' folder
 	mkdocs build
@@ -86,13 +82,6 @@ clean: ## clean local project directories
 .PHONY: help
 help: ## show this help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort
-
-.PHONY: run
-run: ## create dist, install and run
-	$(MAKE) clean
-	$(MAKE) dist
-	$(MAKE) install
-	dsp-tools
 
 .PHONY: freeze-requirements
 freeze-requirements: ## update (dev-)requirements.txt and setup.py based on pipenv's Pipfile.lock

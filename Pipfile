@@ -30,6 +30,7 @@ wheel = "*"
 pipenv-setup = "*"
 pytest = "*"
 types-requests = "*"
+twine = "*"
 
 [requires]
 python_version = "3"

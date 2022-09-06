@@ -3,9 +3,9 @@ import json
 import unittest
 import os
 import datetime
+import re
 
 from knora.dsplib.utils import excel_to_json_lists
-from knora.dsplib.utils.excel_to_json_lists import list_excel2json
 from knora.dsplib.utils.excel_to_json_properties import properties_excel2json
 from knora.dsplib.utils.excel_to_json_resources import resources_excel2json
 from knora.dsplib.utils.id_to_iri import id_to_iri
@@ -24,16 +24,21 @@ class TestTools(unittest.TestCase):
     test_project_minimal_file = 'testdata/test-project-minimal.json'
     test_data_file = 'testdata/test-data-systematic.xml'
 
-    def setUp(self) -> None:
-        """Is executed before each test"""
-        excel_to_json_lists.list_of_lists = []
-        excel_to_json_lists.cell_names = []
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Is executed before the methods of this class are run"""
         os.makedirs('testdata/tmp', exist_ok=True)
 
-    def tearDown(self) -> None:
-        """Is executed after each test"""
-        excel_to_json_lists.list_of_lists = []
-        excel_to_json_lists.cell_names = []
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Is executed after the methods of this class have all run through"""
+        for file in os.listdir('testdata/tmp'):
+            os.remove('testdata/tmp/' + file)
+        os.rmdir('testdata/tmp')
+        for file in [f for f in os.listdir('.') if re.search(r'id2iri_.+\.json', f)]:
+            os.remove(file)
+
+
 
     def test_get(self) -> None:
         with open(self.test_project_file) as f:
@@ -151,9 +156,9 @@ class TestTools(unittest.TestCase):
         self.assertEqual(excel_list.get('comments'), excel_list_out.get('comments'))
 
     def test_excel_to_json_list(self) -> None:
-        list_excel2json(listname='my_test_list',
-                        excelfolder='testdata/lists',
-                        outfile='testdata/tmp/_lists-out.json')
+        excel_to_json_lists.list_excel2json(listname='my_test_list',
+                                            excelfolder='testdata/lists',
+                                            outfile='testdata/tmp/_lists-out.json')
 
     def test_excel_to_json_resources(self) -> None:
         resources_excel2json(excelfile='testdata/Resources.xlsx',

@@ -92,6 +92,11 @@
         </boolean-prop>
         <date-prop name=":hasDate">
             <date permissions="prop-default">JULIAN:BCE:0700:BCE:0600</date>
+            <date permissions="prop-default">CE:1849:CE:1850</date>
+            <date permissions="prop-default">GREGORIAN:1848-01:1849-02</date>
+            <date permissions="prop-default">2022</date>
+            <date permissions="prop-default">GREGORIAN:CE:0476-09-04:CE:0476-09-04</date>
+            <date permissions="prop-default">GREGORIAN:CE:2014-01-31</date>
         </date-prop>
         <integer-prop name=":hasInteger">
             <integer permissions="prop-default">4711</integer>
@@ -106,7 +111,7 @@
             <color permissions="prop-default">#00ff00</color>
         </color-prop>
         <list-prop list="testlist" name=":hasListItem">
-            <list permissions="prop-default">b2</list>
+            <list permissions="prop-default">first subnode</list>
         </list-prop>
         <resptr-prop name=":hasTestThing2">
             <resptr permissions="prop-default">test_thing_0</resptr>
@@ -181,11 +186,32 @@
             <boolean>false</boolean>
         </boolean-prop>
         <uri-prop name=":hasUri">
-            <uri>https://dasch.swiss</uri>
+            <uri permissions="prop-restricted">https://en.wiktionary.org/wiki/Ῥόδος</uri>
+            <uri permissions="prop-restricted">https://www.test-case.ch/</uri>
+            <uri permissions="prop-restricted">https://reg-exr.com:3000</uri>
+            <uri permissions="prop-restricted">https://reg-exr.com:3000/path/to/file_(%C3%89).htm</uri>
+            <uri permissions="prop-restricted">https://reg-exr.com:3000/path/to/file#fragment</uri>
+            <uri permissions="prop-restricted">https://reg-exr.com:3000/path/to/file?query=test</uri>
+            <uri permissions="prop-restricted">https://reg-exr.com:3000/path/to/file?query=test#fragment</uri>
+            <uri permissions="prop-restricted">https://reg-exr.com/path/to/file?query=test#fragment</uri>
+            <uri permissions="prop-restricted">http://www.168.1.1.0/path</uri>
+            <uri permissions="prop-restricted">http://www.168.1.1.0:4200/path</uri>
+            <uri permissions="prop-restricted">http://[2001:0db8:0000:0000:0000:8a2e:0370:7334]:4200/path</uri>
+            <uri permissions="prop-restricted">https://en.wikipedia.org/wiki/Haiku#/media/File:Basho_Horohoroto.jpg</uri>
+            <uri permissions="prop-restricted">http://datypic.com/prod.html#shirt</uri>
         </uri-prop>
         <date-prop name=":hasDate">
             <date>JULIAN:BCE:0700:BCE:0600</date>
         </date-prop>
+        <time-prop name=":hasTime">
+            <time permissions="prop-default">2019-10-23T13:45:12.01-14:00</time>
+            <time permissions="prop-default">2019-10-23T13:45:12-14:00</time>
+            <time permissions="prop-default">2019-10-23T13:45:12Z</time>
+            <time permissions="prop-default">2019-10-23T13:45:12-13:30</time>
+            <time permissions="prop-default">2019-10-23T13:45:12+01:00</time>
+            <time permissions="prop-default">2019-10-23T13:45:12.1111111+01:00</time>
+            <time permissions="prop-default">2019-10-23T13:45:12.1111111Z</time>
+        </time-prop>
         <integer-prop name=":hasInteger">
             <integer>4711</integer>
         </integer-prop>
@@ -202,7 +228,7 @@
             <resptr>test_thing_0</resptr>
         </resptr-prop>
         <list-prop list="testlist" name=":hasListItem">
-            <list>b2</list>
+            <list>second subnode</list>
         </list-prop>
     </resource>
   
@@ -654,7 +680,7 @@
             <resptr permissions="prop-default">video_thing_1</resptr>
         </resptr-prop>
         <interval-prop name=":hasBounds">
-            <interval permissions="prop-default">2.0:10.0</interval>
+            <interval permissions="prop-default">+.1:+.9</interval>
         </interval-prop>
     </resource>
 
@@ -667,7 +693,7 @@
             <resptr permissions="prop-default">audio_thing_1</resptr>
         </resptr-prop>
         <interval-prop name=":hasBounds">
-            <interval permissions="prop-default">8.0:12.0</interval>
+            <interval permissions="prop-default">-.1:5</interval>
         </interval-prop>
     </resource>
 
@@ -680,7 +706,7 @@
             <resptr permissions="prop-default">video_thing_1</resptr>
         </resptr-prop>
         <interval-prop name="hasSequenceBounds">
-            <interval permissions="prop-default">8.0:12.0</interval>
+            <interval permissions="prop-default">-10.0:-5.1</interval>
         </interval-prop>
     </resource>
 

@@ -11,6 +11,7 @@ nav:
   - JSON data model format:
       - Overview: dsp-tools-create.md
       - Ontologies: dsp-tools-create-ontologies.md
+  - excel2xml: dsp-tools-excel2xml.md
   - Bulk data import: dsp-tools-xmlupload.md
   - Excel file processing: dsp-tools-excel.md
   - Information for developers: dsp-tools-information-for-developers.md

@@ -137,5 +137,5 @@ After updates of the files, build and check the result with the following comman
 make docs-serve 
 ```
 
-The documentation is served at https://docs.dasch.swiss/latest/DSP-TOOLS. During the centralized release process of all
-programs of the DSP software stack, the docs of dsp-tools get built from the main branch to https://docs.dasch.swiss.
+The documentation is published on https://docs.dasch.swiss/latest/DSP-TOOLS. During the centralized release process of all
+components of the DSP software stack, the docs of dsp-tools get built from the main branch to https://docs.dasch.swiss.

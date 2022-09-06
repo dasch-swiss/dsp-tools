@@ -19,7 +19,7 @@ dsp-stack: ## clone the dsp-api git repository and run the dsp-stack
 .PHONY: stack-down
 stack-down: ## stop dsp-stack and remove the cloned dsp-api repository
 	$(MAKE) -C .tmp/dsp-stack stack-down-delete-volumes
-	@rm -rf .tmp
+	@sudo rm -rf .tmp
 
 .PHONY: dist
 dist: ## generate distribution package
@@ -36,10 +36,6 @@ docs-build: ## build docs into the local 'site' folder
 .PHONY: docs-serve
 docs-serve: ## serve docs for local viewing
 	mkdocs serve --dev-addr=0.0.0.0:7979
-
-.PHONY: docs-publish
-docs-publish: ## build and publish docs to GitHub Pages
-	mkdocs gh-deploy
 
 .PHONY: install-requirements
 install-requirements: ## install requirements

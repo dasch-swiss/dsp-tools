@@ -110,15 +110,11 @@ python3 setup.py develop
 ## Contributing to the documentation
 
 The documentation is a collection of [markdown](https://en.wikipedia.org/wiki/Markdown) files in the `docs` folder.  
-After updates of the files, build and check the result with the following commands:
+After updates of the files, build and check the result with the following command:
 
 ```bash
-make docs-build
 make docs-serve 
 ```
 
-To update the changes to the official documentation pages run:
-
-```bash
-make docs-publish
-```
+The documentation is served at https://docs.dasch.swiss/latest/DSP-TOOLS. During the centralized release process of all
+programs of the DSP software stack, the docs of dsp-tools get built from the main branch to https://docs.dasch.swiss.

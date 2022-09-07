@@ -9,7 +9,7 @@ CURRENT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
 .PHONY: dsp-stack
 dsp-stack: ## clone the dsp-api git repository and run the dsp-stack
-	@mkdir -p -m 777 .tmp
+	@mkdir -p .tmp
 	@git clone --branch main --single-branch --depth 1 https://github.com/dasch-swiss/dsp-api.git .tmp/dsp-stack
 	$(MAKE) -C .tmp/dsp-stack env-file
 	$(MAKE) -C .tmp/dsp-stack init-db-test
@@ -19,7 +19,7 @@ dsp-stack: ## clone the dsp-api git repository and run the dsp-stack
 .PHONY: stack-down
 stack-down: ## stop dsp-stack and remove the cloned dsp-api repository
 	$(MAKE) -C .tmp/dsp-stack stack-down-delete-volumes
-	@rm -rf .tmp
+	@test -x .tmp && rm -rf .tmp
 
 .PHONY: dist
 dist: ## generate distribution package

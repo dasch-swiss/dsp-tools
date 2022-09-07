@@ -81,9 +81,9 @@ help: ## show this help
 
 .PHONY: freeze-requirements
 freeze-requirements: ## update (dev-)requirements.txt and setup.py based on pipenv's Pipfile.lock
-	pipenv requirements > requirements.txt
+	pipenv run pipenv requirements > requirements.txt
 	sed -i '' 's/==/~=/g' requirements.txt
-	pipenv requirements --dev-only > dev-requirements.txt
+	pipenv run pipenv requirements --dev-only > dev-requirements.txt
 	sed -i '' 's/==/~=/g' dev-requirements.txt
 	pipenv run pipenv-setup sync
 	sed -i '' 's/==/~=/g' setup.py

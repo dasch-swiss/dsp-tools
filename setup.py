@@ -45,7 +45,7 @@ setup(
         'rfc3987~=1.3.8',
         "six~=1.16.0; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
         "urllib3~=1.26.12; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5' and python_version < '4'",
-    ],
+        'xlrd~=2.0.1'],
     entry_points={
         "console_scripts": ["dsp-tools=knora.dsp_tools:main"],
     },

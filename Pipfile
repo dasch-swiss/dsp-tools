@@ -15,6 +15,7 @@ openpyxl = "*"
 networkx = "*"
 pandas = "*"
 regex = "*"
+xlrd = "*"
 
 [dev-packages]
 mkdocs = "*"

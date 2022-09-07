@@ -23,10 +23,10 @@ setup(
     install_requires=[
         'argparse~=1.4.0',
         "attrs~=22.1.0; python_version >= '3.5'",
-        "certifi~=2022.6.15; python_full_version >= '3.6.0'",
-        "charset-normalizer~=2.1.1; python_full_version >= '3.6.0'",
+        "certifi~=2022.6.15; python_version >= '3.6'",
+        "charset-normalizer~=2.1.1; python_version >= '3.6'",
         "decorator~=5.1.1; python_version >= '3.5'",
-        "et-xmlfile~=1.1.0; python_full_version >= '3.6.0'",
+        "et-xmlfile~=1.1.0; python_version >= '3.6'",
         "idna~=3.3; python_version >= '3.5'",
         'jsonpath-ng~=1.5.3',
         'jsonschema~=4.15.0',
@@ -45,7 +45,7 @@ setup(
         'rfc3987~=1.3.8',
         "six~=1.16.0; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
         "urllib3~=1.26.12; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5' and python_version < '4'",
-        'xlrd~=2.0.1'],
+    ],
     entry_points={
         "console_scripts": ["dsp-tools=knora.dsp_tools:main"],
     },

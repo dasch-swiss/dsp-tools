@@ -14,7 +14,6 @@ pystrict = "*"
 openpyxl = "*"
 networkx = "*"
 pandas = "*"
-xlrd = "*"
 regex = "*"
 
 [dev-packages]

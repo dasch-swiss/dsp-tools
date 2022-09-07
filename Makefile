@@ -9,7 +9,7 @@ CURRENT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
 .PHONY: dsp-stack
 dsp-stack: ## clone the dsp-api git repository and run the dsp-stack
-	@mkdir -p -m 775 .tmp
+	@mkdir -p -m 777 .tmp
 	@git clone --branch main --single-branch --depth 1 https://github.com/dasch-swiss/dsp-api.git .tmp/dsp-stack
 	$(MAKE) -C .tmp/dsp-stack env-file
 	$(MAKE) -C .tmp/dsp-stack init-db-test

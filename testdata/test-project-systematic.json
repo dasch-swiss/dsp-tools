@@ -485,6 +485,28 @@
                             "en": "is sequence of"
                         },
                         "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasPagenum",
+                        "super": [
+                            "seqnum"
+                        ],
+                        "object": "IntValue",
+                        "labels": {
+                            "en": "Page number"
+                        },
+                        "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "partOf",
+                        "super": [
+                            "isPartOf"
+                        ],
+                        "object": ":CompoundThing",
+                        "labels": {
+                            "en": "is part of"
+                        },
+                        "gui_element": "Searchbox"
                     }
                 ],
                 "resources": [
@@ -738,7 +760,7 @@
                         "name": "PartOfThing",
                         "super": "StillImageRepresentation",
                         "labels": {
-                            "en": "A Thing having a partOf and seqnum property"
+                            "en": "A Thing having a isPartOf and seqnum property"
                         },
                         "comments": {
                             "en": "A thing for testing partOf and seqnum properties."
@@ -751,6 +773,28 @@
                             },
                             {
                                 "propname": "seqnum",
+                                "gui_order": 2,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "PartOfThingWithSubproperties",
+                        "super": "StillImageRepresentation",
+                        "labels": {
+                            "en": "A Thing having subproperties of isPartOf and seqnum"
+                        },
+                        "comments": {
+                            "en": "A thing for testing subproperties of isPartOf and seqnum."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":partOf",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            },
+                            {
+                                "propname": ":hasPagenum",
                                 "gui_order": 2,
                                 "cardinality": "1"
                             }

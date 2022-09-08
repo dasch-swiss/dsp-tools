@@ -11,16 +11,15 @@ For a quick start, use:
 ```
 pip install pipenv
 pipenv install --dev
-pipenv run make run
+pipenv run make install
 ```
 
 This creates a pipenv-environment, installs all dependencies, and installs `dsp-tools` from source.
 
 If you prefer getting around pipenv, use instead:
 ```bash
-make upgrade-dist-tools
 make install-requirements
-make run
+make install
 ```
 
 ## Pipenv
@@ -132,15 +131,11 @@ python3 setup.py develop
 
 ## Contributing to the documentation
 The documentation is a collection of [markdown](https://en.wikipedia.org/wiki/Markdown) files in the `docs` folder.  
-After updates of the files, build and check the result with the following commands:
+After updates of the files, build and check the result with the following command:
 
 ```bash
-make docs-build
 make docs-serve 
 ```
 
-To update the changes to the official documentation pages run:
-
-```bash
-make docs-publish
-```
+The documentation is published on https://docs.dasch.swiss/latest/DSP-TOOLS. During the centralized release process of all
+components of the DSP software stack, the docs of dsp-tools get built from the main branch to https://docs.dasch.swiss.

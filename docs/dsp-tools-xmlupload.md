@@ -372,8 +372,17 @@ calendar:epoch:yyyy-mm-dd:epoch:yyyy-mm-dd
 - `mm`: month with two digits (optional, e.g. 01, 02, ..., 12)
 - `dd`: day with two digits (optional, e.g. 01, 02, ..., 31)
 
-If two dates are provided, the date is defined as range between the two dates. If the day is omitted, then the precision
-it _month_, if also the month is omitted, the precision is _year_.
+Notes:
+
+- If the day is omitted, then the precision is month, if also the month is omitted, the precision is year.
+- Internally, a date is always represented as a start and end date. 
+- If start and end date match, it's an exact date. 
+- If start and end date don't match, it's a range.
+- If the end date is omitted, it's a range from the earliest possible beginning of the start date to the latest possible 
+  end of the start date. For example:
+    - "1893" will be expanded to a range from January 1st 1893 to December 31st 1893.
+    - "1893-01" will be expanded to a range from January 1st 1893 to January 31st 1893.
+    - "1893-01-01" will be expanded to the exact date January 1st 1893 to January 1st 1893 (technically also a range).
 
 Attributes:
 

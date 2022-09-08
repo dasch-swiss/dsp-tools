@@ -504,7 +504,7 @@
                         ],
                         "object": ":Book",
                         "labels": {
-                            "en": "is part of",
+                            "en": "is part of"
                         },
                         "gui_element": "Searchbox"
                     }

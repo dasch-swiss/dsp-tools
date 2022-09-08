@@ -510,36 +510,6 @@ Example (city of Vienna):
 ```
 
 
-### &lt;list-prop&gt;
-
-The `<list-prop>` element is used as entry point into a list (list node). List nodes are identified by their `name`
-attribute that was given when creating the list nodes (which must be unique within each list!). It must contain at least
-one `<list>` element.
-
-Attributes:
-
-- `name`: name of the property as defined in the ontology (required)
-- `list`: name of the list as defined in the ontology (required)
-
-
-#### &lt;list&gt;
-
-The `<list>` element references a node in a (pull-down or hierarchical) list.
-
-Attributes:
-
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
-- `comment`: a comment for this specific value (optional)
-
-Example:
-
-```xml
-<list-prop list="category" name=":hasCategory">
-  <list>physics</list>
-</list-prop>
-```
-
-
 ### &lt;iconclass-prop&gt; (_not yet implemented_)
 
 The `<iconclass-prop>` element is used for [iconclass.org](http://iconclass.org) ID. It must contain at least one
@@ -626,6 +596,36 @@ Example:
   <interval>60.5:120.5</interval>          <!-- 0:01:00.5 - 0:02:00.5 -->
   <interval>61:3600</interval>             <!-- 0:01:01 - 1:00:00 -->
 </interval-prop>
+```
+
+
+### &lt;list-prop&gt;
+
+The `<list-prop>` element is used as entry point into a list (list node). List nodes are identified by their `name`
+attribute that was given when creating the list nodes (which must be unique within each list!). It must contain at least
+one `<list>` element.
+
+Attributes:
+
+- `name`: name of the property as defined in the ontology (required)
+- `list`: name of the list as defined in the ontology (required)
+
+
+#### &lt;list&gt;
+
+The `<list>` element references a node in a (pull-down or hierarchical) list.
+
+Attributes:
+
+- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+- `comment`: a comment for this specific value (optional)
+
+Example:
+
+```xml
+<list-prop list="category" name=":hasCategory">
+  <list>physics</list>
+</list-prop>
 ```
 
 

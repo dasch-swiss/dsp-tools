@@ -502,7 +502,7 @@
                         "super": [
                             "isPartOf"
                         ],
-                        "object": ":Book",
+                        "object": ":CompoundThing",
                         "labels": {
                             "en": "is part of"
                         },

@@ -244,7 +244,6 @@ The following property elements exist:
 - `<geometry-prop>`: contains JSON geometry definitions for a region
 - `<geoname-prop>`: contains [geonames.org](https://www.geonames.org/) location codes
 - `<list-prop>`: contains list element labels
-- `<iconclass-prop>`: contains [iconclass.org](http://iconclass.org/) codes (not yet implemented)
 - `<integer-prop>`: contains integer values
 - `<interval-prop>`: contains interval values
 - `<period-prop>`: contains time period values (not yet implemented)
@@ -507,37 +506,6 @@ Example (city of Vienna):
 <geoname-prop name=":hasLocation">
   <geoname>2761369</geoname>
 </geoname-prop>
-```
-
-
-### &lt;iconclass-prop&gt; (_not yet implemented_)
-
-The `<iconclass-prop>` element is used for [iconclass.org](http://iconclass.org) ID. It must contain at least one
-`<iconclass>` element.
-
-For example: `92E112` stands
-for `(story of) Aurora (Eos); 'Aurora' (Ripa) - infancy, upbringing Aurora · Ripa · air · ancient history · child · classical antiquity · goddess · gods · heaven · history · infancy · mythology · sky · upbringing · youth`
-
-Attributes:
-
-- `name`: name of the property as defined in the ontology (required)
-
-
-#### &lt;iconclass&gt; (_not yet implemented_)
-
-References an [iconclass.org](https://iconclass.org) ID.
-
-Attributes:
-
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
-- `comment`: a comment for this specific value (optional)
-
-Usage:
-
-```xml
-<iconclass-prop name=":hasIcon">
-  <iconclass>92E112</iconclass>
-</iconclass-prop>
 ```
 
 

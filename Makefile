@@ -64,7 +64,7 @@ test-end-to-end: dsp-stack ## run e2e tests
 	$(MAKE) stack-down
 
 .PHONY: test-end-to-end-ci
-test-end-to-end: dsp-stack ## run e2e tests on GitHub CI, where it isn't possible nor necessary to remove .tmp
+test-end-to-end-ci: dsp-stack ## run e2e tests on GitHub CI, where it isn't possible nor necessary to remove .tmp
 	pytest test/e2e/
 
 .PHONY: test-end-to-end-no-stack

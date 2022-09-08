@@ -63,6 +63,10 @@ test-end-to-end: dsp-stack ## run e2e tests
 	pytest test/e2e/
 	$(MAKE) stack-down
 
+.PHONY: test-end-to-end-ci
+test-end-to-end: dsp-stack ## run e2e tests on GitHub CI, where it isn't possible nor necessary to remove .tmp
+	pytest test/e2e/
+
 .PHONY: test-end-to-end-no-stack
 test-end-to-end-no-stack: ## run e2e tests without starting the dsp-stack (if a dsp-stack is already running)
 	pytest test/e2e/

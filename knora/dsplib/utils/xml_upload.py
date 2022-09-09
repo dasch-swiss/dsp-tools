@@ -22,7 +22,7 @@ from knora.dsplib.models.value import KnoraStandoffXml
 from knora.dsplib.models.xmlpermission import XmlPermission
 from knora.dsplib.models.xmlproperty import XMLProperty
 from knora.dsplib.models.xmlresource import XMLResource
-from knora.dsplib.utils.shared_methods import try_network_action
+from knora.dsplib.utils.shared_methods import try_network_action, validate_xml_against_schema
 
 
 def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
@@ -147,29 +147,6 @@ def _stash_circular_references(
     return nok_resources, ok_res_ids, ok_resources, stashed_xml_texts, stashed_resptr_props
 
 
-def _validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
-    """
-    Validates an XML file against an XSD schema
-
-    Args:
-        input_file: the XML file to be validated
-        schema_file: the schema against which the XML file should be validated
-
-    Returns:
-        True if the XML file is valid, False otherwise
-    """
-    xmlschema = etree.XMLSchema(etree.parse(schema_file))
-    doc = etree.parse(input_file)
-
-    if xmlschema.validate(doc):
-        return True
-    else:
-        print("The input data file cannot be uploaded due to the following validation error(s):")
-        for error in xmlschema.error_log:
-            print(f"  Line {error.line}: {error.message}")
-        return False
-
-
 def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     """
     Converts an ARK URL from salsah.org (ARK version 0) of the form ark:/72163/080c-779b9990a0c3f-6e to a DSP resource
@@ -244,7 +221,7 @@ def _parse_xml_file(input_file: str) -> etree.ElementTree:
 
 
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
-               validate_only: bool, incremental: bool) -> bool:
+               incremental: bool) -> bool:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
 
@@ -256,7 +233,6 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         imgdir: the image directory
         sipi: the sipi instance to be used
         verbose: verbose option for the command, if used more output is given to the user
-        validate_only: validation option to validate the XML data without the actual import of the data
         incremental: if set, IRIs instead of internal IDs are expected as resource pointers
 
     Returns:
@@ -267,13 +243,11 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     # Validate the input XML file
     current_dir = os.path.dirname(os.path.realpath(__file__))
     schema_file = os.path.join(current_dir, '../schemas/data.xsd')
-    if _validate_xml_against_schema(input_file, schema_file):
-        print("The input data file is syntactically correct and passed validation.")
-        if validate_only:
-            exit(0)
-    else:
-        print("ERROR The input data file did not pass validation.")
-        exit(1)
+    try:
+        validate_xml_against_schema(input_file, schema_file)
+    except BaseError as err:
+        print(err)
+        quit(0)
 
     # Connect to the DaSCH Service Platform API and get the project context
     con = Connection(server)

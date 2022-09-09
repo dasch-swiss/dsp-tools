@@ -104,7 +104,7 @@ Only Excel files with file extension `.xlsx` are considered. All Excel files hav
 When calling the `excel` command, this folder is provided as an argument to the call. The language of the labels has 
 to be provided in the Excel file's file name after an underline and before the file extension, e.g. 
 `Beschreibung_de.xlsx` would be considered a list with German (`de`) labels, `description_en.xlsx` a list with 
-English (`en`) labels. The language has to be one of {de, en, fr, it}.
+English (`en`) labels. The language has to be one of {de, en, fr, it, rm}.
 
 The following example shows how to create a JSON list from two Excel files which are in a directory called `listfolder`. 
 The output is written to the file `list.json`.

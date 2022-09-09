@@ -8,7 +8,7 @@ copyright: "&copy; 2017 - <script>document.write(new Date().getFullYear())</scri
 nav:
   - Overview: index.md
   - Installation and usage: dsp-tools-usage.md
-  - JSON data model format:
+  - JSON project definition format:
       - Overview: dsp-tools-create.md
       - Ontologies: dsp-tools-create-ontologies.md
   - excel2xml: dsp-tools-excel2xml.md

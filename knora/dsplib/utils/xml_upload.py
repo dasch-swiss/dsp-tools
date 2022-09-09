@@ -277,7 +277,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
     # Connect to the DaSCH Service Platform API and get the project context
     con = Connection(server)
-    con.login(user, password)
+    try_network_action(failure_msg="Unable to login to DSP server", action=lambda: con.login(user, password))
     proj_context = ProjectContext(con=con)
     sipi_server = Sipi(sipi, con.get_token())
 
@@ -348,7 +348,8 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         success = False
     if success:
         print("All resources have successfully been uploaded.")
-    _write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
+    if len(id2iri_mapping) > 0:
+        _write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
 
     return success
 
@@ -380,7 +381,15 @@ def _upload_resources(
         id2iri_mapping, failed_uploads: These two arguments are modified during the upload
     """
 
-    for resource in resources:
+    # If there are multimedia files: calculate their total size
+    bitstream_all_sizes_mb = [os.path.getsize(res.bitstream.value) / 1000000 for res in resources if res.bitstream]
+    if len(bitstream_all_sizes_mb) > 0:
+        bitstream_size_total_mb = round(sum(bitstream_all_sizes_mb), 1)
+        bitstream_all_sizes_iterator = iter(bitstream_all_sizes_mb)  # for later reuse, to avoid later system calls
+        bitstream_size_uploaded_mb = 0.0
+        print(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
+
+    for i, resource in enumerate(resources):
         resource_iri = resource.iri
         if resource.ark:
             resource_iri = _convert_ark_v0_to_resource_iri(resource.ark)
@@ -391,12 +400,15 @@ def _upload_resources(
             try:
                 img: Optional[dict[Any, Any]] = try_network_action(
                     action=lambda: sipi_server.upload_bitstream(filepath=os.path.join(imgdir, resource.bitstream.value)),
-                    failure_msg=f'ERROR while trying to create resource "{resource.label}" ({resource.id}).'
+                    failure_msg=f'ERROR while trying to upload file "{resource.bitstream.value}" of resource '
+                                f'"{resource.label}" ({resource.id}).'
                 )
             except BaseError as err:
                 print(err.message)
                 failed_uploads.append(resource.id)
                 continue
+            bitstream_size_uploaded_mb += round(next(bitstream_all_sizes_iterator), 1)
+            print(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb} MB / {bitstream_size_total_mb} MB)")
             internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 
@@ -430,7 +442,8 @@ def _upload_resources(
             failed_uploads.append(resource.id)
             continue
         id2iri_mapping[resource.id] = created_resource.iri
-        print(f"Created resource '{created_resource.label}' ({resource.id}) with IRI '{created_resource.iri}'")
+        print(f"Created resource {i+1}/{len(resources)}: '{created_resource.label}' (ID: '{resource.id}', IRI: "
+              f"'{created_resource.iri}')")
 
     return id2iri_mapping, failed_uploads
 
@@ -542,7 +555,8 @@ def _purge_stashed_xml_texts(
         a purged version of stashed_xml_text
     """
     # remove resources that couldn't be uploaded. If they don't exist in DSP, it's not worth caring about their xmltexts
-    if id2iri_mapping:
+    if id2iri_mapping is not None:
+        # if id2iri_mapping is empty (bool({}) == False), the stashed_resptr_props need to be emptied as well
         stashed_xml_texts = {res: propdict for res, propdict in stashed_xml_texts.items() if res.id in id2iri_mapping}
 
     # remove resources that don't have stashed xmltexts (=all xmltexts had been reapplied)
@@ -641,7 +655,8 @@ def _purge_stashed_resptr_props(
         a purged version of stashed_resptr_props
     """
     # remove resources that couldn't be uploaded. If they don't exist in DSP, it's not worth caring about their resptrs
-    if id2iri_mapping:
+    if id2iri_mapping is not None:
+        # if id2iri_mapping is empty (bool({}) == False), the stashed_resptr_props need to be emptied as well
         stashed_resptr_props = {res: pdict for res, pdict in stashed_resptr_props.items() if res.id in id2iri_mapping}
 
     # remove resources that don't have stashed resptrs (=all resptrs had been reapplied)
@@ -686,7 +701,8 @@ def _handle_upload_error(
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
 
     # write id2iri_mapping of the resources that are already in DSP
-    _write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
+    if len(id2iri_mapping) > 0:
+        _write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
 
     # Both stashes are purged from resources that have not been uploaded yet. Only stashed properties of resources that
     # already exist in DSP are of interest.

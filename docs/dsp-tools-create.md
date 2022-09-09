@@ -1,20 +1,22 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# JSON data model definition format
+# JSON project definition format
 
-This document describes the structure of a data model (ontology) used by DSP. According to Wikipedia,
-the [data model](https://en.wikipedia.org/wiki/Data_model) is "an abstract model that organizes elements of data and
-standardizes how they relate to one another and to the properties of real-world entities. [...] A data model explicitly
-determines the structure of data. Data models are typically specified by a data specialist, data librarian, or a digital
-humanities scholar in a data modeling notation". The following sections describe the notation for ontologies in the
-context of DSP.
+This document describes the structure of a JSON project definition file that can be uploaded to a DSP server. The 
+command to do so is [documented here](./dsp-tools-usage.md#create-a-project-on-a-dsp-server).
 
-A data model as described in this document can be uploaded to a DSP server. The command to do so is described 
-[here](./dsp-tools-usage.md#create-a-data-model-on-a-dsp-server).
+A project on a DSP server is like a container for data. It defines some basic metadata, the data model(s) and the users 
+that will be able to access the data. After the creation of a project, data can be uploaded that conforms with the data
+model(s).
+
+This documentation is divided in two parts:
+
+ - Overview of the sections of a project file (this page)
+ - The "ontologies" section of the project file ([see here](./dsp-tools-create-ontologies.md))
 
 ## A short overview
 
-A complete data model definition for DSP looks like this:
+A complete project definition for DSP looks like this:
 
 ```json
 {
@@ -444,15 +446,15 @@ The `users` element is optional. If not used, it should be omitted.
 
 `"ontologies": [<ontology-definition>, <ontology-definition>, ...]`
 
-Inside the `ontologies` section all resources and properties are described. A project may have multiple ontologies. It
-requires the following data fields:
+Inside the `ontologies` section, all resources and properties are described. A project may have multiple ontologies. It
+requires the following fields:
 
 - `name`
 - `label`
 - `properties`
 - `resources`
 
-A detailed description of `ontologies` can be found [here](dsp-tools-create-ontologies.md)
+The `ontologies` section is [documented here](./dsp-tools-create-ontologies.md)
 
 ## Fully fleshed out example ontology
 

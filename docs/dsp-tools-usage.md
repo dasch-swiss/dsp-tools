@@ -24,10 +24,10 @@ pip3 install --upgrade dsp-tools
 
 
 
-## Create a data model on a DSP server
+## Create a project on a DSP server
 
 ```bash
-dsp-tools create [options] data_model_definition.json
+dsp-tools create [options] project_definition.json
 ```
 
 The following options are available:
@@ -40,21 +40,20 @@ The following options are available:
 - `-v` | `--verbose`: If set, more information about the progress is printed to the console.
 - `-d` | `--dump`: If set, dump test files for DSP-API requests.
 
-The command is used to read the definition of a data model (provided in a JSON file) and create it on the DSP server.
-The following example shows how to load the ontology defined in `data_model_definition.json` onto the DSP
-server `https://api.dsl.server.org` provided with the `-s` option. The username `root@example.com` and the password
-`test` are used.
+The command is used to read the definition of a project with its data model(s) (provided in a JSON file) and create it 
+on the DSP server. The following example shows how to upload the project defined in `project_definition.json` to the DSP
+server `https://api.dsl.server.org`:
 
 ```bash
-dsp-tools create -s https://api.dsl.server.org -u root@example.com -p test data_model_definition.json
+dsp-tools create -s https://api.dsl.server.org -u root@example.com -p test project_definition.json
 ```
 
-The description of the expected JSON format can be found [here](./dsp-tools-create.md).
+The expected JSON format is [documented here](./dsp-tools-create.md).
 
 
 
 
-## Get a data model from a DSP server
+## Get a project from a DSP server
 
 ```bash
 dsp-tools get [options] output_file.json
@@ -69,16 +68,15 @@ The following options are available:
   [IRI](https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier) of the project (mandatory)
 - `-v` | `--verbose`: If set, some information about the progress is printed to the console.
 
-The command is used to get the definition of a data model from a DSP server and write it into a JSON file. This JSON
-file could then be used to upload the data model to another DSP server. The following example shows how to get the data
-model from a DSP server `https://test.dasch.swiss` provided with the `-s` option. The username `root@example.com` and
-the password `test` are used. The data model is saved into the output file `output_file.json`.
+The command is used to get the definition of a project with its data model(s) from a DSP server and write it into a JSON 
+file. This JSON file can then be used to create the same project on another DSP server. The following example shows how 
+to get a project from the DSP server `https://test.dasch.swiss`.
 
 ```bash
 dsp-tools get -s https://api.test.dasch.swiss -u root@example.com -p test -P my_project output_file.json
 ```
 
-The description of the JSON format can be found [here](./dsp-tools-create.md).
+The expected JSON format is [documented here](./dsp-tools-create.md).
 
 
 
@@ -101,16 +99,13 @@ The following options are available:
 - `-v` | `--verbose`: If set, more information about the uploaded resources is printed to the console.
 
 The command is used to upload data defined in an XML file onto a DSP server. The following example shows how to upload
-data from an XML file `xml_data_file.xml` onto the DSP server `https://api.dsl.server.org` provided with the `-s`
-option. The username `root@example.com` and the password `test` are used. The interface for the SIPI IIIF server is
-provided with the `-S`
-option (`https://iiif.dsl.server.org`).
+data from the XML file `xml_data_file.xml` to the DSP server `https://dsl.server.org`:
 
 ```bash
 dsp-tools xmlupload -s https://api.dsl.server.org -u root@example.com -p test -S https://iiif.dsl.server.org xml_data_file.xml
 ```
 
-The description of the expected XML format can be found [here](./dsp-tools-xmlupload.md).
+The expected XML format is [documented here](./dsp-tools-xmlupload.md).
 
 An internal ID is used in the `<resptr>` tag of an XML file to reference resources inside the same XML file. Once data 
 is uploaded to DSP, it cannot be referenced by this internal ID anymore. Instead, the resource's IRI has to be used. 
@@ -144,9 +139,8 @@ The following example shows how to create a JSON list from Excel files in a dire
 dsp-tools excel lists list.json
 ```
 
-The description of the expected Excel format can be found [here](./dsp-tools-create.md#lists-from-excel). More
-information about the usage of this command can be
-found [here](./dsp-tools-excel.md#create-a-list-from-one-or-several-excel-files).
+The expected Excel format is [documented here](./dsp-tools-create.md#lists-from-excel). More information about the usage 
+of this command can be found [here](./dsp-tools-excel.md#create-a-list-from-one-or-several-excel-files).
 
 
 

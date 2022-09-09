@@ -267,13 +267,13 @@ Note:
 Supported file extensions:
 
 | Representation              | Supported formats                      |
-| --------------------------- |----------------------------------------| 
-| `ArchiveRepresentation`     | ZIP, TAR, GZ, Z, TAR.GZ, TGZ, GZIP, 7Z | 
-| `AudioRepresentation`       | MP3, MP4, WAV                          | 
-| `DocumentRepresentation`    | PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX   | 
-| `MovingImageRepresentation` | MP4                                    | 
-| `StillImageRepresentation`  | JPG, JPEG, PNG, TIF, TIFF, JP2         | 
-| `TextRepresentation`        | TXT, CSV, XML, XSL, XSD                | 
+|-----------------------------|----------------------------------------|
+| `ArchiveRepresentation`     | ZIP, TAR, GZ, Z, TAR.GZ, TGZ, GZIP, 7Z |
+| `AudioRepresentation`       | MP3, MP4, WAV                          |
+| `DocumentRepresentation`    | PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX   |
+| `MovingImageRepresentation` | MP4                                    |
+| `StillImageRepresentation`  | JPG, JPEG, PNG, TIF, TIFF, JP2         |
+| `TextRepresentation`        | TXT, CSV, XML, XSL, XSD                |
 
 For more details, please consult the [API docs](https://docs.dasch.swiss/latest/DSP-API/01-introduction/file-formats/).
 
@@ -698,7 +698,7 @@ conform to the special format `IRI:[res-id]:IRI` where [res-id] is the resource 
 
 ### &lt;time-prop&gt;
 
-The `<time-prop>` element is used for time values. It must contain at least one `<time>` element.
+The `<time-prop>` element is used for time values in the Gregorian calendar. It must contain at least one `<time>` element.
 
 Attributes:
 
@@ -711,7 +711,8 @@ The `<time>` element represents an exact datetime value in the form of `yyyy-mm-
 following abbreviations describe this form:
 
 - `yyyy`: a four-digit numeral that represents the year. The value cannot start with a minus (-) or a plus (+) sign.
-  0001 is the lexical representation of the year 1 of the Common Era (also known as 1 AD). The value cannot be 0000.
+  0001 is the lexical representation of the year 1 of the Common Era (also known as 1 AD). The value cannot be 0000. The
+  calendar is always the Gregorian calendar.
 - `mm`: a two-digit numeral that represents the month
 - `dd`: a two-digit numeral that represents the day
 - `hh`: a two-digit numeral representing the hours. Must be between 0 and 23

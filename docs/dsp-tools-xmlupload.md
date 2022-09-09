@@ -244,7 +244,6 @@ The following property elements exist:
 - `<geometry-prop>`: contains JSON geometry definitions for a region
 - `<geoname-prop>`: contains [geonames.org](https://www.geonames.org/) location codes
 - `<list-prop>`: contains list element labels
-- `<iconclass-prop>`: contains [iconclass.org](http://iconclass.org/) codes (not yet implemented)
 - `<integer-prop>`: contains integer values
 - `<interval-prop>`: contains interval values
 - `<period-prop>`: contains time period values (not yet implemented)
@@ -268,13 +267,13 @@ Note:
 Supported file extensions:
 
 | Representation              | Supported formats                      |
-| --------------------------- |----------------------------------------| 
-| `ArchiveRepresentation`     | ZIP, TAR, GZ, Z, TAR.GZ, TGZ, GZIP, 7Z | 
-| `AudioRepresentation`       | MP3, MP4, WAV                          | 
-| `DocumentRepresentation`    | PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX   | 
-| `MovingImageRepresentation` | MP4                                    | 
-| `StillImageRepresentation`  | JPG, JPEG, PNG, TIF, TIFF, JP2         | 
-| `TextRepresentation`        | TXT, CSV, XML, XSL, XSD                | 
+|-----------------------------|----------------------------------------|
+| `ArchiveRepresentation`     | ZIP, TAR, GZ, Z, TAR.GZ, TGZ, GZIP, 7Z |
+| `AudioRepresentation`       | MP3, MP4, WAV                          |
+| `DocumentRepresentation`    | PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX   |
+| `MovingImageRepresentation` | MP4                                    |
+| `StillImageRepresentation`  | JPG, JPEG, PNG, TIF, TIFF, JP2         |
+| `TextRepresentation`        | TXT, CSV, XML, XSL, XSD                |
 
 For more details, please consult the [API docs](https://docs.dasch.swiss/latest/DSP-API/01-introduction/file-formats/).
 
@@ -373,8 +372,17 @@ calendar:epoch:yyyy-mm-dd:epoch:yyyy-mm-dd
 - `mm`: month with two digits (optional, e.g. 01, 02, ..., 12)
 - `dd`: day with two digits (optional, e.g. 01, 02, ..., 31)
 
-If two dates are provided, the date is defined as range between the two dates. If the day is omitted, then the precision
-it _month_, if also the month is omitted, the precision is _year_.
+Notes:
+
+- If the day is omitted, then the precision is month, if also the month is omitted, the precision is year.
+- Internally, a date is always represented as a start and end date. 
+- If start and end date match, it's an exact date. 
+- If start and end date don't match, it's a range.
+- If the end date is omitted, it's a range from the earliest possible beginning of the start date to the latest possible 
+  end of the start date. For example:
+    - "1893" will be expanded to a range from January 1st 1893 to December 31st 1893.
+    - "1893-01" will be expanded to a range from January 1st 1893 to January 31st 1893.
+    - "1893-01-01" will be expanded to the exact date January 1st 1893 to January 1st 1893 (technically also a range).
 
 Attributes:
 
@@ -510,67 +518,6 @@ Example (city of Vienna):
 ```
 
 
-### &lt;list-prop&gt;
-
-The `<list-prop>` element is used as entry point into a list (list node). List nodes are identified by their `name`
-attribute that was given when creating the list nodes (which must be unique within each list!). It must contain at least
-one `<list>` element.
-
-Attributes:
-
-- `name`: name of the property as defined in the ontology (required)
-- `list`: name of the list as defined in the ontology (required)
-
-
-#### &lt;list&gt;
-
-The `<list>` element references a node in a (pull-down or hierarchical) list.
-
-Attributes:
-
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
-- `comment`: a comment for this specific value (optional)
-
-Example:
-
-```xml
-<list-prop list="category" name=":hasCategory">
-  <list>physics</list>
-</list-prop>
-```
-
-
-### &lt;iconclass-prop&gt; (_not yet implemented_)
-
-The `<iconclass-prop>` element is used for [iconclass.org](http://iconclass.org) ID. It must contain at least one
-`<iconclass>` element.
-
-For example: `92E112` stands
-for `(story of) Aurora (Eos); 'Aurora' (Ripa) - infancy, upbringing Aurora · Ripa · air · ancient history · child · classical antiquity · goddess · gods · heaven · history · infancy · mythology · sky · upbringing · youth`
-
-Attributes:
-
-- `name`: name of the property as defined in the ontology (required)
-
-
-#### &lt;iconclass&gt; (_not yet implemented_)
-
-References an [iconclass.org](https://iconclass.org) ID.
-
-Attributes:
-
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
-- `comment`: a comment for this specific value (optional)
-
-Usage:
-
-```xml
-<iconclass-prop name=":hasIcon">
-  <iconclass>92E112</iconclass>
-</iconclass-prop>
-```
-
-
 ### &lt;integer-prop&gt;
 
 The `<integer-prop>` element is used for integer values. It must contain at least one `<integer>` element.
@@ -626,6 +573,36 @@ Example:
   <interval>60.5:120.5</interval>          <!-- 0:01:00.5 - 0:02:00.5 -->
   <interval>61:3600</interval>             <!-- 0:01:01 - 1:00:00 -->
 </interval-prop>
+```
+
+
+### &lt;list-prop&gt;
+
+The `<list-prop>` element is used as entry point into a list (list node). List nodes are identified by their `name`
+attribute that was given when creating the list nodes (which must be unique within each list!). It must contain at least
+one `<list>` element.
+
+Attributes:
+
+- `name`: name of the property as defined in the ontology (required)
+- `list`: name of the list as defined in the ontology (required)
+
+
+#### &lt;list&gt;
+
+The `<list>` element references a node in a (pull-down or hierarchical) list.
+
+Attributes:
+
+- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+- `comment`: a comment for this specific value (optional)
+
+Example:
+
+```xml
+<list-prop list="category" name=":hasCategory">
+  <list>physics</list>
+</list-prop>
 ```
 
 
@@ -721,7 +698,7 @@ conform to the special format `IRI:[res-id]:IRI` where [res-id] is the resource 
 
 ### &lt;time-prop&gt;
 
-The `<time-prop>` element is used for time values. It must contain at least one `<time>` element.
+The `<time-prop>` element is used for time values in the Gregorian calendar. It must contain at least one `<time>` element.
 
 Attributes:
 
@@ -734,7 +711,8 @@ The `<time>` element represents an exact datetime value in the form of `yyyy-mm-
 following abbreviations describe this form:
 
 - `yyyy`: a four-digit numeral that represents the year. The value cannot start with a minus (-) or a plus (+) sign.
-  0001 is the lexical representation of the year 1 of the Common Era (also known as 1 AD). The value cannot be 0000.
+  0001 is the lexical representation of the year 1 of the Common Era (also known as 1 AD). The value cannot be 0000. The
+  calendar is always the Gregorian calendar.
 - `mm`: a two-digit numeral that represents the month
 - `dd`: a two-digit numeral that represents the day
 - `hh`: a two-digit numeral representing the hours. Must be between 0 and 23

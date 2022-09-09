@@ -198,7 +198,6 @@ class TestTools(unittest.TestCase):
             imgdir=self.imgdir,
             sipi=self.sipi,
             verbose=False,
-            validate_only=False,
             incremental=False)
         self.assertTrue(result_minimal)
 
@@ -210,7 +209,6 @@ class TestTools(unittest.TestCase):
             imgdir=self.imgdir,
             sipi=self.sipi,
             verbose=False,
-            validate_only=False,
             incremental=False)
         self.assertTrue(result_systematic)
 
@@ -236,7 +234,6 @@ class TestTools(unittest.TestCase):
             imgdir=self.imgdir,
             sipi=self.sipi,
             verbose=True,
-            validate_only=False,
             incremental=True
         )
         self.assertTrue(result_replaced)

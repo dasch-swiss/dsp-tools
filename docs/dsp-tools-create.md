@@ -5,18 +5,18 @@
 This document describes the structure of a JSON project definition file that can be uploaded to a DSP server. The 
 command to do so is [documented here](./dsp-tools-usage.md#create-a-project-on-a-dsp-server).
 
-A project on a DSP server is like a container for data. It defines some basic metadata, the data model(s) and the users 
-that will be able to access the data. After the creation of a project, data can be uploaded that conforms with the data
-model(s).
+A project on a DSP server is like a container for data. It defines some basic metadata, the data model(s) and optionally 
+the user(s) who will be able to access the data. After the creation of a project, data can be uploaded that conforms 
+with the data model(s).
 
-This documentation is divided in two parts:
+This documentation is divided into two parts:
 
- - Overview of the sections of a project file (this page)
- - The "ontologies" section of the project file ([see here](./dsp-tools-create-ontologies.md))
+ - Overview of the project description file (this page)
+ - The "ontologies" section [explained in detail](./dsp-tools-create-ontologies.md)
 
 ## A short overview
 
-A complete project definition for DSP looks like this:
+A complete project definition looks like this:
 
 ```json
 {
@@ -446,8 +446,8 @@ The `users` element is optional. If not used, it should be omitted.
 
 `"ontologies": [<ontology-definition>, <ontology-definition>, ...]`
 
-Inside the `ontologies` section, all resources and properties are described. A project may have multiple ontologies. It
-requires the following fields:
+Inside the `ontologies` section, all resource classes and properties are defined. A project may have multiple 
+ontologies. It requires the following fields:
 
 - `name`
 - `label`

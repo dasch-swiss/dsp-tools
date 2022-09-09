@@ -42,10 +42,10 @@ The following options are available:
 
 The command is used to read the definition of a project with its data model(s) (provided in a JSON file) and create it 
 on the DSP server. The following example shows how to upload the project defined in `project_definition.json` to the DSP
-server `https://api.dsl.server.org`:
+server `https://admin.dasch.swiss`:
 
 ```bash
-dsp-tools create -s https://api.dsl.server.org -u root@example.com -p test project_definition.json
+dsp-tools create -s https://api.dasch.swiss -u root@example.com -p test project_definition.json
 ```
 
 The expected JSON format is [documented here](./dsp-tools-create.md).
@@ -70,10 +70,10 @@ The following options are available:
 
 The command is used to get the definition of a project with its data model(s) from a DSP server and write it into a JSON 
 file. This JSON file can then be used to create the same project on another DSP server. The following example shows how 
-to get a project from the DSP server `https://test.dasch.swiss`.
+to get a project from the DSP server `https://admin.dasch.swiss`.
 
 ```bash
-dsp-tools get -s https://api.test.dasch.swiss -u root@example.com -p test -P my_project output_file.json
+dsp-tools get -s https://api.dasch.swiss -u root@example.com -p test -P my_project output_file.json
 ```
 
 The expected JSON format is [documented here](./dsp-tools-create.md).
@@ -99,10 +99,10 @@ The following options are available:
 - `-v` | `--verbose`: If set, more information about the uploaded resources is printed to the console.
 
 The command is used to upload data defined in an XML file onto a DSP server. The following example shows how to upload
-data from the XML file `xml_data_file.xml` to the DSP server `https://dsl.server.org`:
+data from the XML file `xml_data_file.xml` to the DSP server `https://admin.dasch.swiss`:
 
 ```bash
-dsp-tools xmlupload -s https://api.dsl.server.org -u root@example.com -p test -S https://iiif.dsl.server.org xml_data_file.xml
+dsp-tools xmlupload -s https://api.dasch.swiss -u root@example.com -p test -S https://iiif.dasch.swiss xml_data_file.xml
 ```
 
 The expected XML format is [documented here](./dsp-tools-xmlupload.md).

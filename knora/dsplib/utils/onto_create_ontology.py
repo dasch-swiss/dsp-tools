@@ -407,8 +407,13 @@ def create_project(
     if not success:
         overall_success = False
 
-    if validate_project(project_definition, expand_lists=False):
+    try:
+        validate_project(project_definition, expand_lists=False)
         print('\tJSON project file is syntactically correct and passed validation.')
+    except BaseError as err:
+        print(f'=====================================\n'
+              f'{err.message}')
+        quit(0)
 
     con = login(server=server, user=user_mail, password=password)
     if dump:

@@ -100,10 +100,10 @@ def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
     doc = etree.parse(input_file)
 
     if xmlschema.validate(doc):
-        print("The input data file is syntactically correct and passed validation.")
+        print("The XML file is syntactically correct and passed validation.")
         return True
     else:
-        error_msg = "The input data file cannot be uploaded due to the following validation error(s):"
+        error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
         for error in xmlschema.error_log:
             error_msg = error_msg + f"\n  Line {error.line}: {error.message}"
         raise BaseError(error_msg)

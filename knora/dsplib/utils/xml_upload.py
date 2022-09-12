@@ -508,13 +508,13 @@ def _upload_stashed_xml_texts(
                     print(f'  Successfully uploaded xml text of "{link_prop.name}"\n')
 
     # make a purged version of stashed_xml_texts, without empty entries
-    nonapplied_xml_texts = _purge_stashed_xml_texts(stashed_xml_texts)
+    nonapplied_xml_texts = _purge_stashed_xml_texts(stashed_xml_texts, id2iri_mapping)
     return nonapplied_xml_texts
 
 
 def _purge_stashed_xml_texts(
     stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
-    id2iri_mapping: Optional[dict[str, str]] = None
+    id2iri_mapping: dict[str, str]
 ) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
     """
     Accepts a stash of XML texts and purges it of resources that could not be uploaded (=don't exist in DSP), and of
@@ -523,15 +523,13 @@ def _purge_stashed_xml_texts(
 
     Args:
         stashed_xml_texts: the stash to purge
-        id2iri_mapping: used to check if a resource could be uploaded (optional)
+        id2iri_mapping: used to check if a resource could be uploaded
 
     Returns:
         a purged version of stashed_xml_text
     """
     # remove resources that couldn't be uploaded. If they don't exist in DSP, it's not worth caring about their xmltexts
-    if id2iri_mapping is not None:
-        # if id2iri_mapping is empty (bool({}) == False), the stashed_resptr_props need to be emptied as well
-        stashed_xml_texts = {res: propdict for res, propdict in stashed_xml_texts.items() if res.id in id2iri_mapping}
+    stashed_xml_texts = {res: propdict for res, propdict in stashed_xml_texts.items() if res.id in id2iri_mapping}
 
     # remove resources that don't have stashed xmltexts (=all xmltexts had been reapplied)
     nonapplied_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]] = {}
@@ -608,13 +606,13 @@ def _upload_stashed_resptr_props(
                           f'    Value: {resptr}')
 
     # make a purged version of stashed_resptr_props, without empty entries
-    nonapplied_resptr_props = _purge_stashed_resptr_props(stashed_resptr_props)
+    nonapplied_resptr_props = _purge_stashed_resptr_props(stashed_resptr_props, id2iri_mapping)
     return nonapplied_resptr_props
 
 
 def _purge_stashed_resptr_props(
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
-    id2iri_mapping: Optional[dict[str, str]] = None
+    id2iri_mapping: dict[str, str]
 ) -> dict[XMLResource, dict[XMLProperty, list[str]]]:
     """
     Accepts a stash of resptrs and purges it of resources that could not be uploaded (=don't exist in DSP), and of
@@ -629,9 +627,7 @@ def _purge_stashed_resptr_props(
         a purged version of stashed_resptr_props
     """
     # remove resources that couldn't be uploaded. If they don't exist in DSP, it's not worth caring about their resptrs
-    if id2iri_mapping is not None:
-        # if id2iri_mapping is empty (bool({}) == False), the stashed_resptr_props need to be emptied as well
-        stashed_resptr_props = {res: pdict for res, pdict in stashed_resptr_props.items() if res.id in id2iri_mapping}
+    stashed_resptr_props = {res: pdict for res, pdict in stashed_resptr_props.items() if res.id in id2iri_mapping}
 
     # remove resources that don't have stashed resptrs (=all resptrs had been reapplied)
     nonapplied_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]] = {}

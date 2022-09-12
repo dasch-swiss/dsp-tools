@@ -243,11 +243,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     # Validate the input XML file
     current_dir = os.path.dirname(os.path.realpath(__file__))
     schema_file = os.path.join(current_dir, '../schemas/data.xsd')
-    try:
-        validate_xml_against_schema(input_file, schema_file)
-    except BaseError as err:
-        print(err)
-        quit(0)
+    validate_xml_against_schema(input_file, schema_file)
 
     # Connect to the DaSCH Service Platform API and get the project context
     con = Connection(server)

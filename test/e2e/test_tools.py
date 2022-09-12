@@ -20,9 +20,10 @@ class TestTools(unittest.TestCase):
     password = 'test'
     imgdir = '.'
     sipi = 'http://0.0.0.0:1024'
-    test_project_file = 'testdata/test-project-systematic.json'
+    test_project_systematic_file = 'testdata/test-project-systematic.json'
     test_project_minimal_file = 'testdata/test-project-minimal.json'
-    test_data_file = 'testdata/test-data-systematic.xml'
+    test_data_systematic_file = 'testdata/test-data-systematic.xml'
+    test_data_minimal_file = 'testdata/test-data-minimal.xml'
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -41,7 +42,7 @@ class TestTools(unittest.TestCase):
 
 
     def test_get(self) -> None:
-        with open(self.test_project_file) as f:
+        with open(self.test_project_systematic_file) as f:
             project_json_str = f.read()
         test_project = json.loads(project_json_str)
 
@@ -170,7 +171,7 @@ class TestTools(unittest.TestCase):
 
     def test_create_project(self) -> None:
         result1 = create_project(
-            input_file=self.test_project_file,
+            input_file=self.test_project_systematic_file,
             server=self.server,
             user_mail=self.user,
             password='test',
@@ -189,17 +190,27 @@ class TestTools(unittest.TestCase):
         self.assertTrue(result2)
 
     def test_xml_upload(self) -> None:
-        result = xml_upload(
-            input_file=self.test_data_file,
+        result_minimal = xml_upload(
+            input_file=self.test_data_minimal_file,
             server=self.server,
             user=self.user,
             password=self.password,
             imgdir=self.imgdir,
             sipi=self.sipi,
             verbose=False,
-            validate_only=False,
             incremental=False)
-        self.assertTrue(result)
+        self.assertTrue(result_minimal)
+
+        result_systematic = xml_upload(
+            input_file=self.test_data_systematic_file,
+            server=self.server,
+            user=self.user,
+            password=self.password,
+            imgdir=self.imgdir,
+            sipi=self.sipi,
+            verbose=False,
+            incremental=False)
+        self.assertTrue(result_systematic)
 
         mapping_file = ''
         for mapping in [x for x in os.scandir('.') if x.name.startswith('id2iri_test-data-systematic_mapping_')]:
@@ -215,7 +226,7 @@ class TestTools(unittest.TestCase):
                   verbose=True)
         self.assertEqual(os.path.isfile(id2iri_replaced_xml_filename), True)
 
-        result = xml_upload(
+        result_replaced = xml_upload(
             input_file=id2iri_replaced_xml_filename,
             server=self.server,
             user=self.user,
@@ -223,10 +234,9 @@ class TestTools(unittest.TestCase):
             imgdir=self.imgdir,
             sipi=self.sipi,
             verbose=True,
-            validate_only=False,
             incremental=True
         )
-        self.assertTrue(result)
+        self.assertTrue(result_replaced)
         self.assertTrue(all([not f.name.startswith('stashed_text_properties_') for f in os.scandir('.')]))
         self.assertTrue(all([not f.name.startswith('stashed_resptr_properties_') for f in os.scandir('.')]))
 

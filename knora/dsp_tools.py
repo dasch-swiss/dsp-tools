@@ -15,6 +15,7 @@ from knora.dsplib.utils.onto_create_ontology import create_project
 from knora.dsplib.utils.onto_get import get_ontology
 from knora.dsplib.utils.onto_validate import validate_project
 from knora.dsplib.utils.xml_upload import xml_upload
+from knora.dsplib.utils.shared_methods import validate_xml_against_schema
 from knora.excel2xml import excel2xml
 
 
@@ -176,15 +177,18 @@ def program(user_args: list[str]) -> None:
                      password=args.password,
                      verbose=args.verbose)
     elif args.action == 'xmlupload':
-        xml_upload(input_file=args.xmlfile,
-                   server=args.server,
-                   user=args.user,
-                   password=args.password,
-                   imgdir=args.imgdir,
-                   sipi=args.sipi,
-                   verbose=args.verbose,
-                   validate_only=args.validate,
-                   incremental=args.incremental)
+        if args.validate:
+            validate_xml_against_schema(input_file=args.xmlfile,
+                                        schema_file="knora/dsplib/schemas/data.xsd")
+        else:
+            xml_upload(input_file=args.xmlfile,
+                       server=args.server,
+                       user=args.user,
+                       password=args.password,
+                       imgdir=args.imgdir,
+                       sipi=args.sipi,
+                       verbose=args.verbose,
+                       incremental=args.incremental)
     elif args.action == 'excel':
         list_excel2json(listname=args.listname,
                         excelfolder=args.excelfolder,

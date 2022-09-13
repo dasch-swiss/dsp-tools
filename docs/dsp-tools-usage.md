@@ -117,35 +117,21 @@ to use this file to replace internal IDs in an existing XML file to reference ex
 
 
 
-## Create a JSON list file from one or several Excel files
+## Create the "lists" section of a JSON project file from Excel files
 
 ```bash
-dsp-tools excel [option] folder_with_excel_files output_file.json
+dsp-tools excel2lists folder output.json
 ```
 
-The following option is available:
+Arguments:
+ - `folder` (optional, default: "lists"): folder with the Excel file(s)
+ - `output.json` (optional, default: "lists.json"): Output file
 
-- `-l` | `--listname` _listname_: name to be used for the list (filename before last occurrence of `_` is used if
-  omitted)
-
-The command is used to create a JSON list file from one or several Excel files. It is possible to create multilingual
-lists. Therefore, an Excel file for each language has to be provided. The data has to be in the first worksheet of the
-Excel file and all Excel files have to be in the same directory. When calling the `excel` command, this directory has to
-be provided as an argument to the call.
-
-The following example shows how to create a JSON list from Excel files in a directory called `lists`.
-
-```bash
-dsp-tools excel lists list.json
-```
-
-The expected Excel format is [documented here](./dsp-tools-create.md#lists-from-excel). More information about the usage 
-of this command can be found [here](./dsp-tools-excel.md#create-a-list-from-one-or-several-excel-files).
+The expected Excel format is [documented here](./dsp-tools-excel.md#create-the-lists-section-of-a-json-project-file-from-excel-files).
 
 
 
-
-## Create resources from an Excel file
+## Create the "resources" section of a JSON project file from an Excel file
 
 ```bash
 dsp-tools excel2resources excel_file.xlsx output_file.json
@@ -167,7 +153,7 @@ found [here](./dsp-tools-excel.md#create-the-resources-for-a-data-model-from-an-
 
 
 
-## Create properties from an Excel file
+## Create the "properties" section of a JSON project file from an Excel file
 
 ```bash
 dsp-tools excel2properties excel_file.xlsx output_file.json

@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "https://dasch.swiss/schema/lists.json",
+    "$id": "https://dasch.swiss/schema/lists-only.json",
     "title": "JSON schema for DSP lists",
     "description": "JSON schema for the lists section used in DSP ontologies",
     "definitions": {
@@ -98,38 +98,39 @@
     },
     "type": "object",
     "properties": {
-        "name": {
-            "type": "string"
-        },
-        "labels": {
-            "$ref": "#/definitions/label"
-        },
-        "comments": {
-            "$ref": "#/definitions/comment"
-        },
-        "nodes": {
-            "oneOf": [
-                {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/node"
+        "lists": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "labels": {
+                        "$ref": "#/definitions/label"
+                    },
+                    "comments": {
+                        "$ref": "#/definitions/comment"
+                    },
+                    "nodes": {
+                        "oneOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/node"
+                                }
+                            },
+                            {
+                                "type": "object",
+                                "$ref": "#/definitions/excelfolderref"
+                            }
+                        ]
                     }
                 },
-                {
-                    "type": "object",
-                    "$ref": "#/definitions/excelfileref"
-                },
-                {
-                    "type": "object",
-                    "$ref": "#/definitions/excelfolderref"
-                }
-            ]
+                "required": ["name", "labels", "comments", "nodes"]
+            },
+            "required": ["lists"],
+            "additionalProperties": false
         }
-    },
-    "required": [
-        "name",
-        "nodes",
-        "labels"
-    ],
-    "additionalProperties": false
+    }
 }

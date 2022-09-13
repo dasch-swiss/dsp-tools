@@ -51,8 +51,9 @@ def validate_project(
     try:
         jsonschema.validate(instance=project_definition, schema=schema)
     except jsonschema.exceptions.ValidationError as err:
-        raise BaseError(f'JSON project file did not pass validation. The error message is: {err.message}\n'
-              f'The error occurred at {err.json_path}')
+        raise BaseError(f'The JSON project file cannot be created due to the following validation error: {err.message}.\n'
+                        f'The error occurred at {err.json_path}:\n'
+                        f'{err.instance}')
 
     # cardinalities check for circular references
     if _check_cardinalities_of_circular_references(project_definition):

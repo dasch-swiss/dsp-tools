@@ -131,7 +131,8 @@
                         ]
                     }
                 },
-                "required": ["name", "labels", "comments", "nodes"]
+                "required": ["name", "labels", "comments", "nodes"],
+                "additionalProperties": false
             }
         }
     }

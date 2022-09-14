@@ -89,14 +89,13 @@ def program(user_args: list[str]) -> None:
     # excel
     parser_excel_lists = subparsers.add_parser(
         'excel2lists',
-        help='Create a JSON list from one or multiple Excel files. The JSON list can be integrated into a JSON '
-             'ontology. If the list should contain multiple languages, an Excel file has to be used for each language. '
-             'The filenames should contain the language as label, p.ex. liste_de.xlsx, list_en.xlsx. The language is '
-             'then taken from the filename. Only files with extension .xlsx are considered.'
+        help='Create the "lists" section of a JSON project file from one or multiple Excel files. If the list should '
+             'contain multiple languages, a separate file has to be used for each language. The file names must '
+             'consist of the language label, e.g. "de.xlsx", "en.xlsx". Only files with extension .xlsx are considered.'
     )
     parser_excel_lists.set_defaults(action='excel2lists')
     parser_excel_lists.add_argument('excelfolder', help='Path to the folder containing the Excel file(s)')
-    parser_excel_lists.add_argument('outfile', help='Path to the output JSON file containing the list data',
+    parser_excel_lists.add_argument('outfile', help='Path to the output JSON file containing the "lists" section',
                                     default='lists.json')
 
     # excel2resources

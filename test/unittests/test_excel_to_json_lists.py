@@ -7,6 +7,7 @@ import jsonpath_ng.ext
 import pandas as pd
 import regex
 
+from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.utils import excel_to_json_lists as e2l
 
 
@@ -27,10 +28,10 @@ class TestExcelToJSONList(unittest.TestCase):
     def test_excel2jsonlist(self) -> None:
         for mode in ["monolingual", "multilingual"]:
             # create output files
-            input_df = pd.read_excel(f"testdata/{mode} lists/Listen_de.xlsx", header=None, dtype='str')
+            input_df = pd.read_excel(f"testdata/{mode}_lists/de.xlsx", header=None, dtype='str')
             input_df = input_df.applymap(lambda x: x if pd.notna(x) and regex.search(r"\p{L}", str(x), flags=regex.UNICODE) else pd.NA)
             input_df.dropna(axis="index", how="all", inplace=True)
-            excelfolder = f"testdata/{mode} lists"
+            excelfolder = f"testdata/{mode}_lists"
             outfile = f"testdata/tmp/lists_output_{mode}.json"
             e2l.list_excel2json(excelfolder=excelfolder, outfile=outfile)
 
@@ -60,6 +61,12 @@ class TestExcelToJSONList(unittest.TestCase):
                     f'The node "{jsonpath_elems[-1]}" from Excel row {index+1} was not correctly translated to the '
                     f'output JSON file.'
                 )
+
+        # make sure that the invalid lists raise an Error
+        with self.assertRaisesRegex(BaseError, r"Found duplicate in column 2, row 9"):
+            e2l.list_excel2json(excelfolder="testdata/invalid_lists_1", outfile=outfile)
+        with self.assertRaisesRegex(BaseError, r"The Excel file with the language code 'de' should have a value in row 10, column 2"):
+            e2l.list_excel2json(excelfolder="testdata/invalid_lists_2", outfile=outfile)
 
 
 if __name__ == '__main__':

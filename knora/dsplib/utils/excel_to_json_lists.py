@@ -46,9 +46,9 @@ def expand_lists_from_excel(
             new_lists.append(_list)
         else:
             # this is a reference to a folder with Excel files
-            excel_file_names = _extract_excel_file_names(_list["nodes"]["folder"])
+            excel_file_paths = _extract_excel_file_paths(_list["nodes"]["folder"])
             try:
-                finished_list = _make_json_lists_from_excel(excel_file_names, verbose=False)
+                finished_list = _make_json_lists_from_excel(excel_file_paths, verbose=False)
                 new_lists.append(finished_list)
                 print(f"\tThe list '{_list['name']}' contains a reference to the folder '{_list['nodes']['folder']}'. "
                       f"The Excel files therein will be temporarily expanded into the 'lists' section of your project.")
@@ -131,7 +131,7 @@ def _get_values_from_excel(
             new_check_list.append(cell.value.strip())
             list_of_lists_of_previous_cell_values.append(new_check_list)
 
-            if _contains_duplicates(list_of_lists_of_previous_cell_values):
+            if any([list_of_lists_of_previous_cell_values.count(x) > 1 for x in list_of_lists_of_previous_cell_values]):
                 raise BaseError(f"ERROR: There is at least one duplicate node in the list. Found duplicate in column "
                                 f"{cell.column}, row {cell.row}:\n'{cell.value.strip()}'")
 
@@ -173,44 +173,40 @@ def _get_values_from_excel(
     return row - 1, parentnode
 
 
-def _make_json_lists_from_excel(excel_file_names: list[str], verbose: bool = False) -> list[dict[str, Any]]:
+def _make_json_lists_from_excel(excel_file_paths: list[str], verbose: bool = False) -> list[dict[str, Any]]:
     """
     Reads Excel files and transforms them into a dict structure which can later be inserted into the "lists" array
     of a JSON project file.
 
     Args:
-        excel_file_names: Excel files to be processed
+        excel_file_paths: Excel files to be processed
         verbose: verbose switch
 
     Returns:
         The finished "lists" section
     """
+    # reset the global variables
+    global list_of_previous_node_names
+    global list_of_lists_of_previous_cell_values
+    list_of_previous_node_names = []
+    list_of_lists_of_previous_cell_values = []
+
     # Define starting point in Excel file
     startrow = 1
     startcol = 1
 
-    # Check if English file is available and take it as base file. Take last one from list of Excel files if English
-    # is not available. The node names are later derived from the labels of the base file.
-    base_file: dict[str, Worksheet] = dict()
-    for filename in excel_file_names:
-        if "_en.xlsx" in os.path.basename(filename):
-            lang = "en"
-            ws = load_workbook(filename, read_only=True).worksheets[0]
-            base_file = {lang: ws}
-    if len(base_file) == 0:
-        file = excel_file_names[-1]
-        lang = os.path.splitext(file)[0].split("_")[-1]
-        ws = load_workbook(file, read_only=True).worksheets[0]
-        base_file = {lang: ws}
+    # make a dict with the language labels and the worksheets
+    lang_to_worksheet: dict[str, Worksheet] = {}
+    for filepath in excel_file_paths:
+        lang_to_worksheet[os.path.basename(filepath)[0:2]] = load_workbook(filepath, read_only=True).worksheets[0]
 
-    excelfiles: dict[str, Worksheet] = {}
-    for f in excel_file_names:
-        lang = os.path.splitext(f)[0].split("_")[-1]
-        ws = load_workbook(f, read_only=True).worksheets[0]
-        excelfiles[lang] = ws
+    # take English as base file. If English is not available, take a random one.
+    base_lang = "en" if "en" in lang_to_worksheet else list(lang_to_worksheet.keys())[0]
+    base_file = {base_lang: lang_to_worksheet[base_lang]}
 
-    _, finished_lists = _get_values_from_excel(
-        excelfiles=excelfiles,
+    # construct the entire "lists" section as children of a fictive dummy parent node
+    _, _list = _get_values_from_excel(
+        excelfiles=lang_to_worksheet,
         base_file=base_file,
         parentnode={},
         row=startrow,
@@ -219,35 +215,20 @@ def _make_json_lists_from_excel(excel_file_names: list[str], verbose: bool = Fal
         verbose=verbose
     )
 
-    # add the comments at the right place (comments are only mandatory for the root node of each list)
-    for i, _list in enumerate(finished_lists["nodes"]):
-        finished_lists["nodes"][i] = {
+    # extract the children of the fictive dummy parent node
+    finished_lists: list[dict[str, Any]] = _list["nodes"]
+
+    # the "comments" section is mandatory for the root node of each list, so make a copy of "labels" and insert it at
+    # the right place
+    for i, _list in enumerate(finished_lists):
+        finished_lists[i] = {
             "name": _list["name"],
             "labels": _list["labels"],
             "comments": _list["labels"],
             "nodes": _list["nodes"]
         }
 
-    return finished_lists["nodes"]
-
-
-def _contains_duplicates(list_to_check: list[Any]) -> bool:
-    """
-    Checks if the given list contains any duplicate items.
-
-    Args:
-        list_to_check: A list of items to be checked for duplicates
-
-    Returns:
-        True if there is a duplicate, false otherwise
-    """
-    has_duplicates = False
-
-    for item in list_to_check:
-        if list_to_check.count(item) > 1:
-            has_duplicates = True
-
-    return has_duplicates
+    return finished_lists
 
 
 def simplify_name(value: str) -> str:
@@ -289,7 +270,8 @@ def validate_lists_section_with_schema(
     Returns:
         True if the list passed validation. Otherwise, a BaseError with a detailed error report is raised
     """
-    assert bool(path_to_json_project_file) != bool(lists_section), "Exactly one of the two arguments must be given"
+    if bool(path_to_json_project_file) == bool(lists_section):
+        raise BaseError("Validation of the 'lists' section works only if exactly one of the two arguments is given.")
     with open("knora/dsplib/schemas/lists-only.json") as schema:
         lists_schema = json.load(schema)
 
@@ -306,7 +288,7 @@ def validate_lists_section_with_schema(
     return True
 
 
-def _extract_excel_file_names(excelfolder: str) -> list[str]:
+def _extract_excel_file_paths(excelfolder: str) -> list[str]:
     """
     This method extracts the names of the Excel files that are in the folder, and asserts that they are named according
     to the requirements.
@@ -315,20 +297,20 @@ def _extract_excel_file_names(excelfolder: str) -> list[str]:
         excelfolder: path to the folder containing the Excel file(s)
 
     Returns:
-        list of the Excel file names to process
+        list of the Excel file paths to process
     """
     if not os.path.isdir(excelfolder):
         raise BaseError(f"ERROR: {excelfolder} is not a directory.")
 
-    excel_file_names = [filename for filename in glob.iglob(f"{excelfolder}/*.xlsx")
+    excel_file_paths = [filename for filename in glob.iglob(f"{excelfolder}/*.xlsx")
                         if not os.path.basename(filename).startswith("~$")
                         and os.path.isfile(filename)]
 
-    for filename in excel_file_names:
-        if not re.search(r'.+_(de|en|fr|it|rm)\.xlsx$', filename):
-            raise BaseError(f"Invalid filename '{excelfolder}/{filename}'. Expected format: ..._languagecode.xlsx")
+    for filepath in excel_file_paths:
+        if not re.search(r'^(de|en|fr|it|rm)\.xlsx$', os.path.basename(filepath)):
+            raise BaseError(f"Invalid file name '{filepath}'. Expected format: 'languagecode.xlsx'")
 
-    return excel_file_names
+    return excel_file_paths
 
 
 def list_excel2json(excelfolder: str, outfile: str) -> None:
@@ -342,15 +324,11 @@ def list_excel2json(excelfolder: str, outfile: str) -> None:
     Returns:
         None
     """
-    try:
-        excel_file_names = _extract_excel_file_names(excelfolder)
-        print("The following Excel files will be processed:")
-        [print(f" - {filename}") for filename in excel_file_names]
-        finished_lists = _make_json_lists_from_excel(excel_file_names, verbose=True)
-        validate_lists_section_with_schema(lists_section=finished_lists)
-    except BaseError as err:
-        print(err.message)
-        quit(1)
+    excel_file_paths = _extract_excel_file_paths(excelfolder)
+    print("The following Excel files will be processed:")
+    [print(f" - {filename}") for filename in excel_file_paths]
+    finished_lists = _make_json_lists_from_excel(excel_file_paths, verbose=True)
+    validate_lists_section_with_schema(lists_section=finished_lists)
 
     with open(outfile, "w", encoding="utf-8") as fp:
         json.dump({"lists": finished_lists}, fp, indent=4, sort_keys=False, ensure_ascii=False)

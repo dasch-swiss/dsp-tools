@@ -232,7 +232,7 @@ A node of a list may have the following elements:
   `{"<lang>": "<comment>", "<lang>": "<comment>", ... }`. Currently, "de", "en", "fr", "it", and "rm" are supported. 
 - `nodes` (optional): Array of sub-nodes.
 
-Example of a "list" section:
+Example of a "lists" section:
 
 ```json
 {

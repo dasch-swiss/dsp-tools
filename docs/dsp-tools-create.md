@@ -439,8 +439,8 @@ To do so, it would be necessary to place the following two files into the folder
 
 The expected format of the Excel files is documented 
 [here](./dsp-tools-excel.md#create-the-lists-section-of-a-json-project-file-from-excel-files). The only difference to 
-the explanations there is that column A of the Excel worksheet is not interpreted as list name, but as node name of the first 
-hierarchy level.
+the explanations there is that column A of the Excel worksheet is not interpreted as list name (root node), but as 
+node name of the first children level below the root node.
 
 
 

@@ -9,7 +9,7 @@ create a list from an Excel file.
 
 
 
-## Create the resources for a data model from an Excel file
+## JSON project file: "resources" section from Excel file
 
 With dsp-tools, the `resources` section used in a data model (JSON) can be created from an Excel file. The command for 
 this is documented [here](./dsp-tools-usage.md#create-the-resources-section-of-a-json-project-file-from-an-excel-file). 
@@ -51,7 +51,7 @@ For further information about resources, see [here](./dsp-tools-create-ontologie
 
 
 
-## Create the properties for a data model from an Excel file
+## JSON project file: "properties" section from Excel file
 
 With dsp-tools, the `properties` section used in a data model (JSON) can be created from an Excel file. The command for 
 this is documented [here](./dsp-tools-usage.md#create-the-properties-section-of-a-json-project-file-from-an-excel-file). 
@@ -84,7 +84,7 @@ For further information about properties, see [here](./dsp-tools-create-ontologi
 
 
 
-## Create the "lists" section of a JSON project file from Excel files
+## JSON project file: "lists" section from Excel file(s)
 
 With dsp-tools, the "lists" section of a JSON project file can be created from one or several Excel files. The lists can 
 then be inserted into a JSON project file and uploaded to a DSP server. The command for this is documented 
@@ -193,7 +193,7 @@ The output of the above command, with the template files, is:
 
 
 
-## Create a DSP-conform XML file from an Excel/CSV file
+## XML data file from Excel/CSV file
 
 There are two use cases for a transformation from Excel/CSV to XML: 
 

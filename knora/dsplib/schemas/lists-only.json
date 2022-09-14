@@ -122,15 +122,17 @@
                             },
                             {
                                 "type": "object",
+                                "$ref": "#/definitions/excelfileref"
+                            },
+                            {
+                                "type": "object",
                                 "$ref": "#/definitions/excelfolderref"
                             }
                         ]
                     }
                 },
                 "required": ["name", "labels", "comments", "nodes"]
-            },
-            "required": ["lists"],
-            "additionalProperties": false
+            }
         }
     }
 }

@@ -6,7 +6,7 @@ import datetime
 import sys
 from importlib.metadata import version
 
-from knora.dsplib.utils.excel_to_json_lists import list_excel2json, validate_list_with_schema
+from knora.dsplib.utils.excel_to_json_lists import list_excel2json, validate_lists_section_with_schema
 from knora.dsplib.utils.excel_to_json_properties import properties_excel2json
 from knora.dsplib.utils.excel_to_json_resources import resources_excel2json
 from knora.dsplib.utils.id_to_iri import id_to_iri
@@ -89,19 +89,15 @@ def program(user_args: list[str]) -> None:
 
     # excel
     parser_excel_lists = subparsers.add_parser(
-        'excel',
-        help='Create a JSON list from one or multiple Excel files. The JSON list can be integrated into a JSON '
-             'ontology. If the list should contain multiple languages, an Excel file has to be used for each language. '
-             'The filenames should contain the language as label, p.ex. liste_de.xlsx, list_en.xlsx. The language is '
-             'then taken from the filename. Only files with extension .xlsx are considered.'
+        'excel2lists',
+        help='Create the "lists" section of a JSON project file from one or multiple Excel files. If the list should '
+             'contain multiple languages, a separate file has to be used for each language. The file names must '
+             'consist of the language label, e.g. "de.xlsx", "en.xlsx". Only files with extension .xlsx are considered.'
     )
-    parser_excel_lists.set_defaults(action='excel')
-    parser_excel_lists.add_argument('-l', '--listname', type=str,
-                                    help='Name of the list to be created (filename is taken if omitted)', default=None)
-    parser_excel_lists.add_argument('excelfolder', help='Path to the folder containing the Excel file(s)',
-                                    default='lists')
-    parser_excel_lists.add_argument('outfile', help='Path to the output JSON file containing the list data',
-                                    default='list.json')
+    parser_excel_lists.set_defaults(action='excel2lists')
+    parser_excel_lists.add_argument('excelfolder', help='Path to the folder containing the Excel file(s)')
+    parser_excel_lists.add_argument('outfile', help='Path to the output JSON file containing the "lists" section',
+                                    default='lists.json')
 
     # excel2resources
     parser_excel_resources = subparsers.add_parser('excel2resources', help='Create a JSON file from an Excel file '
@@ -151,7 +147,7 @@ def program(user_args: list[str]) -> None:
     if args.action == 'create':
         if args.lists_only:
             if args.validate_only:
-                validate_list_with_schema(args.datamodelfile)
+                validate_lists_section_with_schema(path_to_json_project_file=args.datamodelfile)
             else:
                 create_lists(input_file=args.datamodelfile,
                              server=args.server,
@@ -189,9 +185,8 @@ def program(user_args: list[str]) -> None:
                        sipi=args.sipi,
                        verbose=args.verbose,
                        incremental=args.incremental)
-    elif args.action == 'excel':
-        list_excel2json(listname=args.listname,
-                        excelfolder=args.excelfolder,
+    elif args.action == 'excel2lists':
+        list_excel2json(excelfolder=args.excelfolder,
                         outfile=args.outfile)
     elif args.action == 'excel2resources':
         resources_excel2json(excelfile=args.excelfile,

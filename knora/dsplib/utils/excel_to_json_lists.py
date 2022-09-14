@@ -46,16 +46,21 @@ def expand_lists_from_excel(
             new_lists.append(_list)
         else:
             # this is a reference to a folder with Excel files
-            excel_file_paths = _extract_excel_file_paths(_list["nodes"]["folder"])
+            foldername = _list["nodes"]["folder"]
+            excel_file_paths = _extract_excel_file_paths(foldername)
             try:
-                finished_list = _make_json_lists_from_excel(excel_file_paths, verbose=False)
-                new_lists.append(finished_list)
-                print(f"\tThe list '{_list['name']}' contains a reference to the folder '{_list['nodes']['folder']}'. "
-                      f"The Excel files therein will be temporarily expanded into the 'lists' section of your project.")
+                returned_lists_section = _make_json_lists_from_excel(excel_file_paths, verbose=False)
+                # we only need the "nodes" section of the first element of the returned "lists" section. This "nodes"
+                # section needs to replace the Excel folder reference. But the rest of the user-defined list element
+                # needs to stay intact, e.g. the labels and comments.
+                _list["nodes"] = returned_lists_section[0]["nodes"]
+                new_lists.append(_list)
+                print(f"\tThe list '{_list['name']}' contains a reference to the folder '{foldername}'. The Excel "
+                      f"files therein have been temporarily expanded into the 'lists' section of your project.")
             except BaseError as err:
-                print(f"\tWARNING: The list '{_list['name']}' contains a reference to the folder "
-                      f"'{_list['nodes']['folder']}', but a problem occurred while trying to expand the Excel files "
-                      f"therein into the 'lists' section of your project: {err.message}")
+                print(f"\tWARNING: The list '{_list['name']}' contains a reference to the folder '{foldername}', but a "
+                      f"problem occurred while trying to expand the Excel files therein into the 'lists' section of "
+                      f"your project: {err.message}")
                 overall_success = False
 
     return new_lists, overall_success
@@ -175,8 +180,8 @@ def _get_values_from_excel(
 
 def _make_json_lists_from_excel(excel_file_paths: list[str], verbose: bool = False) -> list[dict[str, Any]]:
     """
-    Reads Excel files and transforms them into a dict structure which can later be inserted into the "lists" array
-    of a JSON project file.
+    Reads Excel files and transforms them into a list of dictionaries that can be used as "lists" array of a JSON
+    project file.
 
     Args:
         excel_file_paths: Excel files to be processed

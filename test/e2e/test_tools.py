@@ -156,8 +156,7 @@ class TestTools(unittest.TestCase):
         self.assertEqual(excel_list.get('comments'), excel_list_out.get('comments'))
 
     def test_excel_to_json_list(self) -> None:
-        excel_to_json_lists.list_excel2json(listname='my_test_list',
-                                            excelfolder='testdata/lists',
+        excel_to_json_lists.list_excel2json(excelfolder='testdata/multilingual_lists',
                                             outfile='testdata/tmp/_lists-out.json')
 
     def test_excel_to_json_resources(self) -> None:

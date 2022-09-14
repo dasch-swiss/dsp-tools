@@ -90,7 +90,7 @@ With dsp-tools, the "lists" section of a JSON project file can be created from o
 then be inserted into a JSON project file and uploaded to a DSP server. The command for this is documented 
 [here](./dsp-tools-usage.md#create-the-lists-section-of-a-json-project-file-from-excel-files). 
 
-The following example shows how to create the "lists" section from the two Excel files `de.xlsx` and `en.xlsx` which are 
+The following example shows how to create the "lists" section from the two Excel files `de.xlsx` and `en.xlsx` which are located
 in a directory called `listfolder`:
 
 ```bash
@@ -105,13 +105,13 @@ Some notes:
 
 - The data must be in the first worksheet of each Excel file.
 - It is important that all Excel files have the same structure. So, the translation of a label in the second Excel 
-  file has to be in the exact same cell as the original in the first Excel sheet.
+  file has to be in the exact same cell as the one in the first Excel file.
 - Only Excel files with file extension `.xlsx` are considered. 
 - The file name must consist of the language label, e.g. `de.xlsx` / `en.xlsx`. 
 - The language has to be one of {de, en, fr, it, rm}.
 - As node name, a simplified version of the English label is taken. If English is not available, one of the other 
   languages is taken.
-- If there are two nodes with the same name, an incrementing number is appended to `name`.
+- If there are two nodes with the same name, an incrementing number is appended to the name.
 - After the creation of the list, a validation against the JSON schema for lists is performed. An error message is 
   printed out if the list is not valid.
 
@@ -119,7 +119,7 @@ Some notes:
 [en.xlsx](assets/templates/lists/en.xlsx): File with the English labels  
 [de.xlsx](assets/templates/lists/de.xlsx): File with the German labels**
 
-The output of the above command, with the above files,   looks as follows:
+The output of the above command, with the template files, is:
 
 ```JSON
 {

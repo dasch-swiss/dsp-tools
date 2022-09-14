@@ -217,10 +217,10 @@ requests. If there is a list node "Vocal music" and sub-nodes "Song" and "Opera"
 return objects classified as "Song" and "Opera". But a search for "Song" would only return objects classified as "Song".
  
 The "lists" section is an array of list definitions. A list definition has one root node whose name is used to identify 
-the list. The children of the root node are the actual list nodes. If the list is hierarchical, the list nodes can have
-children on their own, and these children can again have children.
+the list. The children of the root node are the list nodes. If the list is hierarchical, the list nodes can have
+children, and these children can again have children etc.
 
-Once a list is defined in a project, resources can access it via a list-property, e.g. a property with 
+When a list is defined for a project, its values can be referenced in resources within a list property, e.g. a property with 
 [object "ListValue"](./dsp-tools-create-ontologies.md#listvalue).
 
 A node of a list may have the following elements:
@@ -228,7 +228,7 @@ A node of a list may have the following elements:
 - `name` (mandatory): Name of the node. Has to be unique within the entire "lists" section.
 - `labels` (mandatory): Label with language tags in the form `{"<lang>": "<label>", "<lang>": "<label>", ... }`. 
   At least one language needs to be specified. Currently, "de", "en", "fr", "it", and "rm" are supported.
-- `comments` (mandatory for root node, optional for normal nodes): Comment with language tags in the form 
+- `comments` (mandatory for root node, optional for all other nodes): Comment with language tags in the form 
   `{"<lang>": "<comment>", "<lang>": "<comment>", ... }`. Currently, "de", "en", "fr", "it", and "rm" are supported. 
 - `nodes` (optional): Array of sub-nodes.
 
@@ -394,8 +394,8 @@ Example of a "lists" section:
 
 #### Lists from Excel
 
-Instead of being fully defined in JSON, a list can be imported from one or several Excel files. In this case, the 
-`nodes` element of the root node consists of {"folder": "path-to-folder-containing-the-excel-files"}. In the above 
+Instead of being described in JSON, a list can be imported from one or several Excel files. In this case, the 
+`nodes` element of the root node consists of {"folder": "<path-to-folder-containing-the-excel-files>"}. In the above 
 example, the list "colors" could be imported as follows:
 
 ```json
@@ -439,7 +439,7 @@ To do so, it would be necessary to place the following two files into the folder
 
 The expected format of the Excel files is documented 
 [here](./dsp-tools-excel.md#create-the-lists-section-of-a-json-project-file-from-excel-files). The only difference to 
-the explanations there is that the Excel column A is not interpreted as list name, but as node name of the first 
+the explanations there is that column A of the Excel worksheet is not interpreted as list name, but as node name of the first 
 hierarchy level.
 
 

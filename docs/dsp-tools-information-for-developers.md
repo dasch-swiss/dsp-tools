@@ -68,7 +68,7 @@ For formatting Markdown files (*.md) we use the default styling configuration pr
 ## Publishing
 
 Publishing is automated with GitHub Actions and should _not_ be done manually. Please follow the
-[Pull Request Guidelines](https://docs.dasch.swiss/developers/dsp/contribution/#pull-request-guidelines). If done
+[Pull Request Guidelines](https://docs.dasch.swiss/latest/developers/dsp/contribution/#pull-request-guidelines). If done
 correctly, when merging a pull request into `main`, the `release-please` action will create or update a pull request for
 a release. This pull request will follow semantic versioning and update the change log. Once all desired features are
 merged, the release can be executed by merging this release pull request into `main`. This will trigger actions that
@@ -110,15 +110,11 @@ python3 setup.py develop
 ## Contributing to the documentation
 
 The documentation is a collection of [markdown](https://en.wikipedia.org/wiki/Markdown) files in the `docs` folder.  
-After updates of the files, build and check the result with the following commands:
+After updates of the files, build and check the result with the following command:
 
 ```bash
-make docs-build
 make docs-serve 
 ```
 
-To update the changes to the official documentation pages run:
-
-```bash
-make docs-publish
-```
+The documentation is published on https://docs.dasch.swiss/latest/DSP-TOOLS. During the centralized release process of all
+components of the DSP software stack, the docs of dsp-tools get built from the main branch to https://docs.dasch.swiss.

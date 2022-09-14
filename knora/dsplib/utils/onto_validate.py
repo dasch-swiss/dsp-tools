@@ -5,93 +5,99 @@ import jsonschema
 import json
 import jsonpath_ng, jsonpath_ng.ext
 import networkx as nx
-from ..utils.expand_all_lists import expand_lists_from_excel
+from .excel_to_json_lists import expand_lists_from_excel
+from ..models.helpers import BaseError
 
 
-def validate_ontology(input_file_or_json: Union[str, dict[Any, Any], 'os.PathLike[Any]']) -> bool:
+def validate_project(
+    input_file_or_json: Union[dict[str, Any], os.PathLike[Any]],
+    expand_lists: bool = True
+) -> bool:
     """
-    Validates an ontology against the knora schema
+    Validates a JSON project definition file. First, the Excel file references in the "lists" section are expanded
+    (unless this behaviour is disabled). Then, the project is validated against the JSON schema. At last, a check is
+    performed if this project's ontologies contain properties derived from hasLinkTo that form a circular reference. If
+    so, these properties must have the cardinality 0-1 or 0-n, because during the xmlupload process, these values
+    are temporarily removed.
 
     Args:
-        input_file_or_json: the ontology to be validated, can either be a file or a json string (dict)
+        input_file_or_json: the project to be validated, can either be a file path or a parsed JSON file
+        expand_lists: if True, the Excel file references in the "lists" section will be expanded
 
     Returns:
-        True if ontology passed validation, False otherwise
+        True if the project passed validation. Otherwise, a BaseError with a detailed error report is raised.
     """
 
-    data_model: dict[Any, Any] = {}
     if isinstance(input_file_or_json, dict):
-        data_model = input_file_or_json
+        project_definition = input_file_or_json
     elif os.path.isfile(input_file_or_json):
         with open(input_file_or_json) as f:
-            onto_json_str = f.read()
-        data_model = json.loads(onto_json_str)
+            project_json_str = f.read()
+        project_definition = json.loads(project_json_str)
     else:
-        print('Input is not valid.')
-        exit(1)
+        raise BaseError(f"Input '{input_file_or_json}' is neither a file path nor a JSON object.")
 
-    # expand all lists referenced in the list section of the data model
-    new_lists = expand_lists_from_excel(data_model)
+    if expand_lists:
+        # expand all lists referenced in the "lists" section of the project definition, and add them to the project
+        # definition
+        new_lists, _ = expand_lists_from_excel(project_definition["project"].get("lists"))
+        if new_lists:
+            project_definition['project']['lists'] = new_lists
 
-    # add the newly created lists from Excel to the ontology
-    data_model['project']['lists'] = new_lists
-
-    # validate the data model against the schema
+    # validate the project definition against the schema
     current_dir = os.path.dirname(os.path.realpath(__file__))
     with open(os.path.join(current_dir, '../schemas/ontology.json')) as s:
         schema = json.load(s)
     try:
-        jsonschema.validate(instance=data_model, schema=schema)
+        jsonschema.validate(instance=project_definition, schema=schema)
     except jsonschema.exceptions.ValidationError as err:
-        print(f'Data model did not pass validation. The error message is: {err.message}\n'
-              f'The error occurred at {err.json_path}')
-        return False
+        raise BaseError(f'The JSON project file cannot be created due to the following validation error: {err.message}.\n'
+                        f'The error occurred at {err.json_path}:\n'
+                        f'{err.instance}')
 
     # cardinalities check for circular references
-    if check_cardinalities_of_circular_references(data_model):
-        print('Data model is syntactically correct and passed validation.')
+    if _check_cardinalities_of_circular_references(project_definition):
         return True
-    else:
-        return False
 
 
-def check_cardinalities_of_circular_references(data_model: dict[Any, Any]) -> bool:
+def _check_cardinalities_of_circular_references(project_definition: dict[Any, Any]) -> bool:
     """
-    Check a data model if it contains properties derived from hasLinkTo that form a circular reference. If so, these
-    properties must have the cardinality 0-1 or 0-n, because during the xmlupload process, these values
+    Check a JSON project file if it contains properties derived from hasLinkTo that form a circular reference. If so,
+    these properties must have the cardinality 0-1 or 0-n, because during the xmlupload process, these values
     are temporarily removed.
 
     Args:
-        data_model: dictionary with a DSP project (as defined in a JSON ontology file)
+        project_definition: dictionary with a DSP project (as defined in a JSON project file)
 
     Returns:
         True if no circle was detected, or if all elements of all circles are of cardinality "0-1" or "0-n".
         False if there is a circle with at least one element that has a cardinality of "1" or "1-n".
     """
 
-    link_properties = collect_link_properties(data_model)
-    errors = identify_problematic_cardinalities(data_model, link_properties)
+    link_properties = _collect_link_properties(project_definition)
+    errors = _identify_problematic_cardinalities(project_definition, link_properties)
 
     if len(errors) == 0:
         return True
     else:
-        print('ERROR: Your ontology contains properties derived from "hasLinkTo" that allow circular references '
-              'between resources. This is not a problem in itself, but if you try to upload data that actually '
-              'contains circular references, these "hasLinkTo" properties will be temporarily removed from the '
-              'affected resources. Therefore, it is necessary that all involved "hasLinkTo" properties have a '
-              'cardinality of 0-1 or 0-n. \n'
-              'Please make sure that the following properties have a cardinality of 0-1 or 0-n:')
+        error_message = \
+            'ERROR: Your ontology contains properties derived from "hasLinkTo" that allow circular references ' \
+            'between resources. This is not a problem in itself, but if you try to upload data that actually ' \
+            'contains circular references, these "hasLinkTo" properties will be temporarily removed from the ' \
+            'affected resources. Therefore, it is necessary that all involved "hasLinkTo" properties have a ' \
+            'cardinality of 0-1 or 0-n. \n' \
+            'Please make sure that the following properties have a cardinality of 0-1 or 0-n:'
         for error in errors:
-            print(f'\t- Resource {error[0]}, property {error[1]}')
-        return False
+            error_message = error_message + f'\n\t- Resource {error[0]}, property {error[1]}'
+        raise BaseError(error_message)
 
 
-def collect_link_properties(data_model: dict[Any, Any]) -> dict[str, list[str]]:
+def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, list[str]]:
     """
     map the properties derived from hasLinkTo to the resource classes they point to, for example:
     link_properties = {'rosetta:hasImage2D': ['rosetta:Image2D'], ...}
     """
-    ontos = data_model['project']['ontologies']
+    ontos = project_definition['project']['ontologies']
     hasLinkTo_props = {'hasLinkTo', 'isPartOf', 'isRegionOf', 'isAnnotationOf'}
     link_properties: dict[str, list[str]] = dict()
     for index, onto in enumerate(ontos):
@@ -101,7 +107,7 @@ def collect_link_properties(data_model: dict[Any, Any]) -> dict[str, list[str]]:
             for hasLinkTo_prop in hasLinkTo_props:
                 hasLinkTo_matches.extend(jsonpath_ng.ext.parse(
                     f'$.project.ontologies[{index}].properties[?super[*] == {hasLinkTo_prop}]'
-                ).find(data_model))
+                ).find(project_definition))
             # make the children from this iteration to the parents of the next iteration
             hasLinkTo_props = {x.value['name'] for x in hasLinkTo_matches}
         prop_obj_pair: dict[str, list[str]] = dict()
@@ -127,7 +133,7 @@ def collect_link_properties(data_model: dict[Any, Any]) -> dict[str, list[str]]:
     return link_properties
 
 
-def identify_problematic_cardinalities(data_model: dict[Any, Any], link_properties: dict[str, list[str]]) -> list[tuple[str, str]]:
+def _identify_problematic_cardinalities(project_definition: dict[Any, Any], link_properties: dict[str, list[str]]) -> list[tuple[str, str]]:
     """
     make an error list with all cardinalities that are part of a circle but have a cardinality of "1" or "1-n"
     """
@@ -136,7 +142,7 @@ def identify_problematic_cardinalities(data_model: dict[Any, Any], link_properti
     # cardinalities = {'rosetta:Text': {'rosetta:hasImage2D': '0-1', ...}}
     dependencies: dict[str, dict[str, list[str]]] = dict()
     cardinalities: dict[str, dict[str, str]] = dict()
-    for onto in data_model['project']['ontologies']:
+    for onto in project_definition['project']['ontologies']:
         for resource in onto['resources']:
             resname: str = onto['name'] + ':' + resource['name']
             for card in resource['cardinalities']:

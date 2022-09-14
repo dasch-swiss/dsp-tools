@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns="https://dasch.swiss/schema"
+<xs:schema xmlns="https://dasch.swiss/schema"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
            targetNamespace="https://dasch.swiss/schema"
            elementFormDefault="qualified">
 
@@ -23,7 +23,15 @@
     <xs:simpleType name="knoradate_type">
         <xs:restriction base="xs:token">
             <xs:pattern
-                value="(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})?(-\d{1,2})?(-\d{1,2})?(:CE|:BCE)?(:\d{4})?(-\d{1,2})?(-\d{1,2})?"/>
+                value="(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})(-\d{1,2})?(-\d{1,2})?((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- data type for knora time -->
+    <xs:simpleType name="knoratime_type">
+        <xs:restriction base="xs:token">
+            <xs:pattern
+                value="\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d{1,12})?(Z|[+-][0-1]\d:[0-5]\d)"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -31,6 +39,13 @@
     <xs:simpleType name="knoracolor_type">
         <xs:restriction base="xs:token">
             <xs:pattern value="#([0-9a-fA-F]{3}){1,2}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- data type for knora uri -->
+    <xs:simpleType name="knorauri_type">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="([a-z][a-z0-9+.\-]*):(//([\w_.\-\[\]:~]+)(:\d{0,6})?)(/[\w%()_\-.~]*)*(\?[\w_.\-=]+)*(#[\w_/\-~:.]*)?"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -65,7 +80,7 @@
         <xs:simpleContent>
             <xs:extension base="knoracolor_type">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="required"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -75,7 +90,7 @@
         <xs:simpleContent>
             <xs:extension base="knoradate_type">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="required"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -85,7 +100,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:float">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="required"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -95,7 +110,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="required"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -105,7 +120,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="required"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -115,17 +130,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="required"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-
-    <!-- iconclass value type -->
-    <xs:complexType name="iconclass_type">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="required"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -135,7 +140,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:integer">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="required"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -145,7 +150,7 @@
         <xs:simpleContent>
             <xs:extension base="knorainterval_type">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="required"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -155,7 +160,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="required"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -165,7 +170,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="required"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -173,9 +178,9 @@
     <!-- time value type -->
     <xs:complexType name="time_type">
         <xs:simpleContent>
-            <xs:extension base="xs:dateTime">
+            <xs:extension base="knoratime_type">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="required"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -185,7 +190,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:decimal">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="required"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -193,23 +198,23 @@
     <!-- uri value type -->
     <xs:complexType name="uri_type">
         <xs:simpleContent>
-            <xs:extension base="xs:anyURI">
+            <xs:extension base="knorauri_type">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="required"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
 
     <!-- boolean value type-->
-
     <xs:complexType name="boolean_type">
     <xs:simpleContent>
         <xs:extension base="xs:boolean">
             <xs:attribute name="comment" type="xs:string"/>
-            <xs:attribute name="permissions" type="xs:NCName" use="required"/>
+            <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
         </xs:extension>
     </xs:simpleContent>
     </xs:complexType>
+
     <!-- textprop_type -->
     <xs:complexType name="textprop_type">
         <xs:sequence>
@@ -242,14 +247,6 @@
         <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>
 
-    <!-- geometryprop_type -->
-    <xs:complexType name="geometryprop_type">
-        <xs:sequence>
-            <xs:element name="geometry" type="geometry_type" minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
-    </xs:complexType>
-
     <!-- geonameprop_type -->
     <xs:complexType name="geonameprop_type">
         <xs:sequence>
@@ -265,14 +262,6 @@
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="required"/>
         <xs:attribute name="list" type="xs:string" use="required"/>
-    </xs:complexType>
-
-    <!-- iconclassprop_type -->
-    <xs:complexType name="iconclassprop_type">
-        <xs:sequence>
-            <xs:element name="iconclass" type="iconclass_type" minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>
 
     <!-- integerprop_type -->
@@ -339,6 +328,54 @@
         <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>
 
+    <!-- builtin_hasComment_prop_type -->
+    <xs:complexType name="builtin_hasComment_prop_type">
+        <xs:sequence>
+            <xs:element name="text" type="text_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required" fixed="hasComment"/>
+    </xs:complexType>
+
+    <!-- builtin_hasGeometry_prop_type -->
+    <xs:complexType name="builtin_hasGeometry_prop_type">
+        <xs:sequence>
+            <xs:element name="geometry" type="geometry_type" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required" fixed="hasGeometry"/>
+    </xs:complexType>
+
+    <!-- builtin_isAnnotationOf_prop_type -->
+    <xs:complexType name="builtin_isAnnotationOf_prop_type">
+        <xs:sequence>
+            <xs:element name="resptr" type="resptr_type" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required" fixed="isAnnotationOf"/>
+    </xs:complexType>
+
+    <!-- builtin_isRegionOf_prop_type -->
+    <xs:complexType name="builtin_isRegionOf_prop_type">
+        <xs:sequence>
+            <xs:element name="resptr" type="resptr_type" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required" fixed="isRegionOf"/>
+    </xs:complexType>
+
+    <!-- builtin_hasLinkTo_prop_type -->
+    <xs:complexType name="builtin_hasLinkTo_prop_type">
+        <xs:sequence>
+            <xs:element name="resptr" type="resptr_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required" fixed="hasLinkTo"/>
+    </xs:complexType>
+
+    <!-- builtin_hasColor_prop_type -->
+    <xs:complexType name="builtin_hasColor_prop_type">
+        <xs:sequence>
+            <xs:element name="color" type="color_type" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required" fixed="hasColor"/>
+    </xs:complexType>
+
     <!-- bitstream tag -->
     <xs:complexType name="bitstream_type">
         <xs:simpleContent>
@@ -348,54 +385,18 @@
         </xs:simpleContent>
     </xs:complexType>
 
-    <!-- image tag -->
-    <xs:complexType name="image_type">
-        <xs:simpleContent>
-            <xs:extension base="xs:string"/>
-        </xs:simpleContent>
-    </xs:complexType>
-
-    <!-- sound tag -->
-    <xs:complexType name="sound_type">
-        <xs:simpleContent>
-            <xs:extension base="xs:string"/>
-        </xs:simpleContent>
-    </xs:complexType>
-
-    <!-- movie tag -->
-    <xs:complexType name="movie_type">
-        <xs:simpleContent>
-            <xs:extension base="xs:string"/>
-        </xs:simpleContent>
-    </xs:complexType>
-
-    <!-- document tag -->
-    <xs:complexType name="document_type">
-        <xs:simpleContent>
-            <xs:extension base="xs:string"/>
-        </xs:simpleContent>
-    </xs:complexType>
-
     <!-- resource tag -->
     <xs:complexType name="resource_type">
         <xs:sequence>
             <xs:choice minOccurs="0" maxOccurs="1">
-                <!--
-                <xs:element name="image" type="image_type" />
-                <xs:element name="sound" type="sound_type" />
-                <xs:element name="movie" type="movie_type" />
-                <xs:element name="document" type="document_type" />
-                -->
                 <xs:element name="bitstream" type="bitstream_type"/>
             </xs:choice>
             <xs:choice maxOccurs="unbounded">
                 <xs:element name="text-prop" type="textprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="color-prop" type="colorprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="date-prop" type="dateprop_type" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element name="geometry-prop" type="geometryprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="geoname-prop" type="geonameprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="list-prop" type="listprop_type" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element name="iconclass-prop" type="iconclassprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="integer-prop" type="integerprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="interval-prop" type="intervalprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="period-prop" type="periodprop_type" minOccurs="0" maxOccurs="unbounded"/>
@@ -412,6 +413,41 @@
         <xs:attribute name="iri" type="xs:string" use="optional"/>
         <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
         <xs:attribute name="ark" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <!-- annotation tag -->
+    <xs:complexType name="annotation_type">
+        <xs:all>
+            <xs:element name="text-prop" type="builtin_hasComment_prop_type" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="resptr-prop" type="builtin_isAnnotationOf_prop_type" minOccurs="1" maxOccurs="1"/>
+        </xs:all>
+        <xs:attribute name="label" type="xs:string" use="required"/>
+        <xs:attribute name="id" type="xs:ID" use="required"/>
+        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+    </xs:complexType>
+
+    <!-- region tag -->
+    <xs:complexType name="region_type">
+        <xs:all>
+            <xs:element name="text-prop" type="builtin_hasComment_prop_type" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="resptr-prop" type="builtin_isRegionOf_prop_type" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="geometry-prop" type="builtin_hasGeometry_prop_type" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="color-prop" type="builtin_hasColor_prop_type" minOccurs="1" maxOccurs="1"/>
+        </xs:all>
+        <xs:attribute name="label" type="xs:string" use="required"/>
+        <xs:attribute name="id" type="xs:ID" use="required"/>
+        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+    </xs:complexType>
+
+    <!-- link tag -->
+    <xs:complexType name="link_type">
+        <xs:all>
+            <xs:element name="text-prop" type="builtin_hasComment_prop_type" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="resptr-prop" type="builtin_hasLinkTo_prop_type" minOccurs="1" maxOccurs="1"/>
+        </xs:all>
+        <xs:attribute name="label" type="xs:string" use="required"/>
+        <xs:attribute name="id" type="xs:ID" use="required"/>
+        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
     </xs:complexType>
 
     <!-- data type for knora shortcode -->
@@ -454,12 +490,32 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="permissions" type="permissions_type" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element name="resource" type="resource_type" minOccurs="1" maxOccurs="unbounded">
-                    <xs:unique name="UniqueNameAttr">
-                        <xs:selector xpath=".//*"/>
-                        <xs:field xpath="@name"/>
-                    </xs:unique>
-                </xs:element>
+                <xs:choice maxOccurs="unbounded">
+                    <xs:element name="resource" type="resource_type" minOccurs="1" maxOccurs="unbounded">
+                        <xs:unique name="UniqueNameAttr_Resource">
+                            <xs:selector xpath=".//*"/>
+                            <xs:field xpath="@name"/>
+                        </xs:unique>
+                    </xs:element>
+                    <xs:element name="annotation" type="annotation_type" minOccurs="0" maxOccurs="unbounded">
+                        <xs:unique name="UniqueNameAttr_Annotation">
+                            <xs:selector xpath=".//*"/>
+                            <xs:field xpath="@name"/>
+                        </xs:unique>
+                    </xs:element>
+                    <xs:element name="region" type="region_type" minOccurs="0" maxOccurs="unbounded">
+                        <xs:unique name="UniqueNameAttr_Region">
+                            <xs:selector xpath=".//*"/>
+                            <xs:field xpath="@name"/>
+                        </xs:unique>
+                    </xs:element>
+                    <xs:element name="link" type="link_type" minOccurs="0" maxOccurs="unbounded">
+                        <xs:unique name="UniqueNameAttr_Link">
+                            <xs:selector xpath=".//*"/>
+                            <xs:field xpath="@name"/>
+                        </xs:unique>
+                    </xs:element>
+                </xs:choice>
             </xs:sequence>
             <xs:attribute name="default-ontology" type="xs:string"/>
             <xs:attribute name="shortcode" type="knorashortcode_type"/>

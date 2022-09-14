@@ -1,22 +1,24 @@
 # Ontologies
 
-An ontology is a formal representation of a set of terminologies which finally represent real world objects.
+An ontology is a formal representation of a set of terms which represent real world objects.
 Dependencies, attributes and relations of and between the individual components of the set are recorded in a logical,
 formal language. In contrast to a taxonomy, which defines a mere hierarchical structure within a range of terms, an
 ontology is much more a network of information of logical dependencies of term elements. Or, in other words, an ontology
-defines a strict, formal "data model" for real world _concepts_ such as "Person", "Work", "Artist" etc.
+defines a strict, formal "data model" for real world concepts such as "Person", "Work", "Artist" etc.
 
-A full-fledged ontology thus has to offer at least *two* things: a set of _concepts_ or terms (called _resources_,
-actually "resource classes") that represent _concepts_ of real world objects, as well as attributes or _properties_
-describing these resources. These properties are linked either to a final value or may define a relationship to another
-resource. Let's assume that we define a resource called "Person" and two properties called "hasBirthday" and "hasParent"
-. For a specific incarnation of a
-"Person" (we call this an _instance_), "hasBirthday" will have a final value such as "1960-05-21", whereas
+An ontology thus has to offer at least two things: 
+
+ - a set of concepts or terms (called **resource classes**) that represent concepts of real world objects
+ - **properties** describing these resources. These properties are linked either to a final value or may define a 
+   relationship to another resource. 
+
+Let's assume that we define a resource class called "Person" and two properties called "hasBirthday" and "hasParent". 
+For a specific **instance** of a "Person", "hasBirthday" will have a final value such as "1960-05-21", whereas
 "hasParent" will link to another instance of a "Person".
 
 Within DSP, properties may be re-used for different resources. E.g. a property "description" may be used for a resource
 called "image" as well as "movie". Therefore, the list of properties is separated from the list of resources. The
-properties are assigned to the resources by defining "_cardinalities_". A cardinality indicates if a property is
+properties are assigned to the resources by defining "**cardinalities**". A cardinality indicates if a property is
 mandatory or can be omitted (e.g. if unknown), and if a property may be used several times on the same instance of a
 resource or not. The cardinality definitions are explained [further below](#cardinalities).
 
@@ -36,19 +38,23 @@ Example of an `ontologies` object:
       ]
     },
     {
-      ...
+      second ontology
     },
     {
-      ...
+      third ontology
     }
   ]
 }
 ```
 
 
+
+
 ## Ontologies Object in Detail
 
 The following properties can occur within each object in `ontologies`.
+
+
 
 ### Name
 
@@ -59,6 +65,8 @@ The following properties can occur within each object in `ontologies`.
 The ontology's (short) name should be in the form of a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). This
 means a string without blanks or special characters but `-` and `_` are allowed (although not as first character).
 
+
+
 ### Label
 
 (required)
@@ -66,6 +74,8 @@ means a string without blanks or special characters but `-` and `_` are allowed 
 `"label": "<string>"`
 
 A string that provides the full name of the ontology.
+
+
 
 ### Properties
 
@@ -92,13 +102,15 @@ The following fields are optional:
 
 A detailed description of `properties` can be found [below](#properties-object-in-detail).
 
+
+
 ### Resources
 
 (required)
 
 The resource classes are the primary entities of the data model. They are the actual objects inside a terminology space.
 A resource class can be seen as a template for the representation of a real object that is represented in the DSP. A
-resource class defines properties (_data fields_). For each of these properties a data type as well as the cardinality
+resource class defines properties (*data fields*). For each of these properties a data type as well as the cardinality
 has to be provided.
 
 `"resources": [<resource-definition>, <resource-definition>, ...]`
@@ -117,11 +129,11 @@ The following field is optional:
 A detailed description of `resources` can be found [below](#properties-object-in-detail).
 
 
+
+
 ## Properties Object in Detail
 
-Please note that `object` is used to define the data type. The `gui_element` depends on the value of the `object`.
 
-The `gui_attributes` depends on the value of the `gui_element`.
 
 ### Name
 
@@ -135,6 +147,8 @@ but `-` and `_` are allowed (although not as first character).
 
 By convention, property names start with a lower case letter.
 
+
+
 ### Labels
 
 (required)
@@ -144,6 +158,8 @@ By convention, property names start with a lower case letter.
 Collection of `labels` for the property as strings with language tag (currently "en", "de", "fr", "it",
 and "rm" are supported).
 
+
+
 ### Comments
 
 (optional)
@@ -152,34 +168,37 @@ and "rm" are supported).
 
 Comments with language tags. Currently, "de", "en", "fr", "it", and "rm" are supported. The `comments` element is optional.
 
+
+
 ### Super
 
 (required)
 
 `"super": ["<super-property>", "<super-property>, ...]`
 
-A property has to be derived from at least one base property. The most generic base property that the DSP offers is
-_hasValue_. In addition, the property may be a sub-property of properties defined in external or other ontologies.
-External ontologies like `dcterms` or `foaf` must be defined in the "prefix" section. In this case the qualified name -
-including the prefix of the external or internal ontology - has to be given.
+A property is always derived from at least one other property. There are three groups of properties that can serve as 
+super-property:
 
-The following base properties are defined by DSP:
+ - DSP base properties
+ - properties defined in external ontologies
+ - properties defined in the project ontology itself
 
-- `hasValue`: This is the most generic base.
-- `hasLinkTo`: This value represents a link to another resource. You have to indicate the "_object_" as a prefixed name
-  that identifies the resource class this link points to (a ":" prepended to the name is sufficient if the resource is
-  defined in the current ontology).
-- `hasColor`: Defines a color value
-- `hasComment`: Defines a standard comment
-- `hasGeometry`: Defines a geometry value (a JSON describing a polygon, circle or rectangle)
-- `isPartOf`: A special variant of _hasLinkTo_. It says that an instance of the given resource class is an integral part
+The syntax how to refer to these different groups of properties is described [here](#referencing-ontologies).
+
+The following DSP base properties are available:
+
+- `hasValue`: This is the most general case, to be used in all cases when your property is none of the special cases below.
+- `hasLinkTo`: a link to another resource
+- `isPartOf`: A special variant of `hasLinkTo`. It says that an instance of the given resource class is an integral part
   of another resource class. E.g. a "page" is part of a "book".
-- `isRegionOf`: A special variant of _hasLinkTo_. It means that the given resource class is a "region" of another
-  resource class. This is typically used to describe regions of interest in images.
-- `isAnnotationOf`: A special variant of _hasLinkTo_. It denotes the given resource class as an annotation to another
-  resource class.
 - `seqnum`: An integer that is used to define a sequence number in an ordered set of instances, e.g. the ordering of the
-  pages in a book (independent of the page naming) in combination with a property derived from `isPartOf`.
+  pages in a book. A resource that has a property derived from `seqnum` must also have a property derived from `isPartOf`.
+- `hasColor`: Defines a color value.  
+- `hasComment`: Defines a standard comment.
+- `isSequenceOf`: A special variant of `hasLinkTo`. It says that an instance of the given resource class is a section 
+  of an audio/video resource.
+- `hasSequenceBounds`: This base property is used together with `isSequenceOf`. It denotes a time interval of an audio/
+  video resource.
 
 Example of a `properties` object:
 
@@ -226,6 +245,8 @@ Example of a `properties` object:
 }
 ```
 
+
+
 ### Subject
 
 (optional)
@@ -235,131 +256,146 @@ Example of a `properties` object:
 The `subject` defines the resource class the property can be used on. It has to be provided as prefixed name of the 
 resource class (see [below](#referencing-ontologies) on how prefixed names are used).
 
+
+
 ### Object / gui_element / gui_attributes
 
-- `object`: required
-- `gui_element`: required
-- `gui_attributes`: optional
+These three are related as follows:
 
-`"object": "<data-type>"`
+ - `object` (required) is used to define the data type of the value that the property will store. 
+ - `gui_element` (required) depends on the value of `object`.
+ - `gui_attributes` (optional) depends on the value of `gui_element`.
 
-The `object` defines the data type of the value that the property will store. `gui_element` and `gui_attributes` depend 
-on the data type. The following data types are allowed:
+#### Overview
 
-- `TextValue`
-- `ColorValue`
-- `DateValue`
-- `TimeValue`
-- `DecimalValue`
-- `GeomValue`
-- `GeonameValue`
-- `IntValue`
-- `BooleanValue`
-- `UriValue`
-- `IntervalValue`
-- `ListValue`
-- `Representation`
-- any previously defined resource class in case of a link property
+| DSP base property (`super`) | `object`                                                            | `gui_element`                        |
+|-----------------------------|---------------------------------------------------------------------|--------------------------------------|
+| hasValue                    | BooleanValue                                                        | CheckBox                             |
+| hasColor                    | ColorValue                                                          | Colorpicker                          |
+| hasValue                    | DateValue                                                           | Date                                 |
+| hasValue                    | DecimalValue                                                        | Slider, <br>SimpleText               |
+| hasValue                    | GeonameValue                                                        | Geonames                             |
+| hasValue                    | IntValue                                                            | Spinbox, <br>SimpleText              |
+| hasValue                    | ListValue                                                           | Radio, List                          |
+| hasValue                    | TextValue                                                           | SimpleText,<br>Textarea,<br>Richtext |
+| hasComment                  | TextValue                                                           | SimpleText                           |
+| hasValue                    | TimeValue                                                           | TimeStamp                            |
+| hasValue                    | UriValue                                                            | SimpleText                           |
+| hasLinkTo                   | (resourceclass)                                                     | Searchbox                            |
+| hasRepresentation           | Representation                                                      | Searchbox                            |
+| isPartOf                    | (resourceclass)                                                     | Searchbox                            |
+| seqnum                      | IntValue                                                            | Spinbox, <br>SimpleText              |
+| isSequenceOf                | (AudioRepresentation,<br>MovingImageRepresentation,<br>or subclass) | Searchbox                            |
+| hasSequenceBounds           | IntervalValue                                                       | Interval                             |
 
-#### TextValue
 
-`"object": "TextValue"`
+#### BooleanValue
 
-Represents a text that may contain standoff markup.
+`"object": "BooleanValue"`
+
+Represents a Boolean ("true" or "false"). See the [xmlupload documentation](./dsp-tools-xmlupload.md#boolean-prop)
+for more information.
 
 *gui_elements / gui_attributes*:
 
-- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes are:
-    - _gui_attributes_:
-        - `maxlength=integer` (optional): maximal length (number of characters accepted)
-        - `size=integer` (optional): size (width) of widget
-- `Textarea`: A GUI element for _TextValue_. Presents a multiline text entry box. The optional attributes are:
-    - _gui_attributes_:
-        - `cols=integer` (optional): number of columns of the textarea
-        - `rows=integer` (optional): number of rows of the textarea
-        - `width=percent` (optional): width of the textarea on screen
-        - `wrap=soft|hard` (optional): wrapping of text
-- `Richtext`: A GUI element for _TextValue_. Provides a richtext editor.
-    - _gui_attributes_: No attributes
+- `Checkbox`: The only GUI element for boolean values: a box to check or uncheck
+    - *gui_attributes*: No attributes
 
-*Example:*
+Example:
 
 ```json
 {
-  "name": "hasPictureTitle",
+  "name": "hasBoolean",
   "super": [
     "hasValue"
   ],
-  "object": "TextValue",
+  "object": "BooleanValue",
   "labels": {
-    "en": "Title"
+    "en": "Boolean value"
   },
-  "gui_element": "SimpleText",
-  "gui_attributes": {
-    "maxlength": 255,
-    "size": 80
-  }
+  "gui_element": "Checkbox"
 }
 ```
 
-#### IntValue
 
-`"object": "IntValue"`
+#### ColorValue
 
-Represents an integer value.
+`"object": "ColorValue"`
 
-*gui-elements / gui_attributes*:
+A string representation of a color in the hexadecimal form. See the 
+[xmlupload documentation](./dsp-tools-xmlupload.md#color-prop) for more information.
 
-- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
-  "maxlength=integer" and "size=integer" are optional.
-    - _gui_attributes_:
-        - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer` (optional): The size of the input field
-- `Spinbox`: A GUI element for _IntegerValue_. A text field with and "up"- and "down"-button for increment/decrement.
-  The attributes "max=decimal" and "min=decimal" are optional.
-    - _gui_attributes_:
-        - `max=decimal` (optional): Maximal value
-        - `min=decimal` (optional): Minimal value
+*gui_elements / gui_attributes*:
 
-*Example:*
+- `Colorpicker`: The only GUI element for colors. It's used to choose a color.
+    - *gui_attributes*:
+        - `ncolors=integer` (optional): Number of colors the color picker should present.
+
+Example:
 
 ```json
 {
-  "name": "hasInteger",
+  "name": "hasColor",
+  "super": [
+    "hasColor"
+  ],
+  "object": "ColorValue",
+  "labels": {
+    "en": "Color"
+  },
+  "gui_element": "Colorpicker"
+}
+```
+
+
+#### DateValue
+
+`object": "DateValue"`  
+
+Represents a date. It's a string with the format `calendar:start:end`. See the 
+[xmlupload documentation](./dsp-tools-xmlupload.md#date-prop) for more information.
+
+*gui_elements / gui_attributes*:
+
+- `Date`: The only GUI element for *DateValue*. A date picker GUI.
+    - *gui_attributes*: No attributes
+
+Example:
+
+```json
+{
+  "name": "hasDate",
   "super": [
     "hasValue"
   ],
-  "object": "IntValue",
+  "object": "DateValue",
   "labels": {
-    "en": "Integer"
+    "en": "Date"
   },
-  "gui_element": "Spinbox",
-  "gui_attributes": {
-    "max": 10.0,
-    "min": 0.0
-  }
+  "gui_element": "Date"
 }
 ```
+
 
 #### DecimalValue
 
 `"object": "DecimalValue"`
 
-A number with decimal point.
+A number with decimal point. See the [xmlupload documentation](./dsp-tools-xmlupload.md#decimal-prop) for more 
+information.
 
-*gui-elements / gui_attributes*:
+*gui_elements / gui_attributes*:
 
-- `Slider`: A GUI element for _DecimalValue_. Provides a slider to select a decimal value.
-    - _gui_attributes_:
+- `Slider`: Provides a slider to select a decimal value.
+    - *gui_attributes*:
         - `max=decimal` (mandatory): maximal value
         - `min=decimal` (mandatory): minimal value
-- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
-  "maxlength=integer" and "size=integer" are optional.
-    - _gui_attributes_:
+- `SimpleText`: A simple text entry box (one line only).
+    - *gui_attributes*:
         - `maxlength=integer` (optional): maximum number of characters accepted
         - `size=integer` (optional): size of the input field
 
-*Example:*
+Example:
 
 ```json
 {
@@ -379,58 +415,193 @@ A number with decimal point.
 }
 ```
 
-#### DateValue
 
-`object": "DateValue"`  
-Represents a date. It's a string with the format `calendar:start:end`
+#### GeonameValue
 
-Please note that the DateValue is an extremely flexible data type. It can represent an exact date or a date with a given
-uncertainty, and the date can be given in several calendars (currently the Gregorian and the Julian calendars are
-supported, with the Jewish and Islamic coming soon). Internally, a date is always represented as a start and end date.
-If start and end date match, it's an exact date. A value like "1893" will automatically be expanded to a range from
-January 1st 1893 to December 31st 1893.
+`"object": "GeonameValue"`
 
-- _calendar_ is either _GREGORIAN_ or _JULIAN_
-- _start_ has the form _yyyy_-_mm_-_dd_. If only the year is given, the precision is to the year. If only the year and
-  month is given, the precision is to the month.
-- _end_ is optional if the date represents a clearly defined period or uncertainty.
-
-In total, a DateValue has the following form: "GREGORIAN:1925:1927-03-22"
-which means anytime in between 1925 and the 22nd March 1927.
+Represents a location ID of [geonames.org](https://geonames.org). See the 
+[xmlupload documentation](./dsp-tools-xmlupload.md#geoname-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
-- `Date`: The only GUI element for _DateValue_. A date picker gui.
-- _gui_attributes_: No attributes
+- `Geonames`: The only GUI element for *GeonameValue*. A dropdown to select a geonames.org location, either by ID if 
+  digits are typed in, or by name if letters are typed in.
+    - *gui_attributes*: No attributes
 
-*Example:*
+Example:
 
 ```json
 {
-  "name": "hasDate",
+  "name": "hasGeoname",
   "super": [
     "hasValue"
   ],
-  "object": "DateValue",
+  "object": "GeonameValue",
   "labels": {
-    "en": "Date"
+    "en": "Geoname"
   },
-  "gui_element": "Date"
+  "gui_element": "Geonames"
 }
 ```
+
+
+#### IntValue
+
+`"object": "IntValue"`
+
+Represents an integer value. See the [xmlupload documentation](./dsp-tools-xmlupload.md#integer-prop) for more information.
+
+*gui_elements / gui_attributes*:
+
+- `Spinbox`: A GUI element for *IntegerValue*. A text field with and an "up" and a "down" button for increment/decrement.
+    - *gui_attributes*:
+        - `max=decimal` (optional): Maximal value
+        - `min=decimal` (optional): Minimal value
+- `SimpleText`: A simple text entry box (one line only). 
+    - *gui_attributes*:
+        - `maxlength=integer` (optional): The maximum number of characters accepted
+        - `size=integer` (optional): The size of the input field
+
+Example:
+
+```json
+{
+  "name": "hasInteger",
+  "super": [
+    "hasValue"
+  ],
+  "object": "IntValue",
+  "labels": {
+    "en": "Integer"
+  },
+  "gui_element": "Spinbox",
+  "gui_attributes": {
+    "max": 10.0,
+    "min": 0.0
+  }
+}
+```
+
+
+#### ListValue
+
+`"object": "ListValue"`
+
+Represents a node of a (possibly hierarchical) list. See the [xmlupload documentation](./dsp-tools-xmlupload.md#list-prop) 
+for more information.
+
+*gui_elements / gui_attributes*:
+
+- `Radio`: A GUI element for *ListValue*. A set of radio buttons. This works only with flat lists.
+    - *gui_attributes*:
+        - `hlist=<list-name>` (required): The name of a list defined in the ["lists" section](./dsp-tools-create.md#lists).
+- `List`: A GUI element for *ListValue*. A dropdown to select a list node. This GUI element should be chosen for
+  hierarchical lists or flat lists that could be expanded to hierarchical lists in the future.
+    - *gui_attributes*:
+        - `hlist=<list-name>` (required): The name of a list defined in the ["lists" section](./dsp-tools-create.md#lists).
+
+Example:
+
+```json
+{
+  "name": "hasListItem",
+  "super": [
+    "hasValue"
+  ],
+  "object": "ListValue",
+  "labels": {
+    "en": "List element"
+  },
+  "gui_element": "List",
+  "gui_attributes": {
+    "hlist": "treelistroot"
+  }
+}
+```
+
+
+#### TextValue
+
+`"object": "TextValue"`
+
+Represents a text that may contain standoff markup. See the [xmlupload documentation](./dsp-tools-xmlupload.md#text-prop) 
+for more information.
+
+*gui_elements / gui_attributes*:
+
+- `SimpleText`: A simple text entry box (one line only)
+    - *gui_attributes*:
+        - `maxlength=integer` (optional): maximal length (number of characters accepted)
+        - `size=integer` (optional): size (width) of widget
+- `Textarea`: A multiline text entry box
+    - *gui_attributes*:
+        - `cols=integer` (optional): number of columns of the textarea
+        - `rows=integer` (optional): number of rows of the textarea
+        - `width=percent` (optional): width of the textarea on the screen
+        - `wrap=soft|hard` (optional): wrapping of text
+- `Richtext`: A rich-text editor.
+    - *gui_attributes*: No attributes
+
+Example:
+
+```json
+{
+  "name": "hasPictureTitle",
+  "super": [
+    "hasValue"
+  ],
+  "object": "TextValue",
+  "labels": {
+    "en": "Title"
+  },
+  "gui_element": "SimpleText",
+  "gui_attributes": {
+    "maxlength": 255,
+    "size": 80
+  }
+}
+```
+
+
+#### hasComment property
+
+`"object": "TextValue"`
+
+This property is actually very similar to a simple text field. 
+
+Example:
+
+```json
+{
+    "name": "hasComment",
+    "super": [
+      "hasComment"
+    ],
+    "object": "TextValue",
+    "labels": {
+      "de": "Kommentar",
+      "en": "Comment",
+      "fr": "Commentaire"
+    },
+    "gui_element": "SimpleText"
+}
+```
+
 
 #### TimeValue
 
 `"object": "TimeValue"`
 
-A time value represents a precise moment in time in the Gregorian calendar. Since nanosecond precision can be included, it is suitable for use as a timestamp.
+A time value represents a precise moment in time in the Gregorian calendar. See the 
+[xmlupload documentation](./dsp-tools-xmlupload.md#time-prop) for more information.
 
-*gui-elements / gui_attributes*:
+*gui_elements / gui_attributes*:
 
-- `TimeStamp`: A GUI element for _TimeValue_ which contains a date picker and a time picker.
-  - _gui_attributes_: No attributes
+- `TimeStamp`: A GUI element for *TimeValue* which contains a date picker and a time picker.
+    - *gui_attributes*: No attributes
 
-*Example:*
+Example:
 
 ```json
 {
@@ -446,80 +617,21 @@ A time value represents a precise moment in time in the Gregorian calendar. Sinc
 }
 ```
 
-#### IntervalValue
-
-`"object": "IntervalValue"`
-
-Represents a time-interval
-
-*gui-elements / gui_attributes*:
-
-- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
-  "maxlength=integer" and "size=integer" are optional.
-    - _gui_attributes_:
-        - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer` (optional): The size of the input field
-- `Interval`: Two spin boxes, one for each decimal
-    - _gui_attributes_: No attributes
-
-*Example:*
-
-```json
-{
-  "name": "hasInterval",
-  "super": [
-    "hasValue"
-  ],
-  "object": "IntervalValue",
-  "labels": {
-    "en": "Time interval"
-  },
-  "gui_element": "Interval"
-}
-```
-
-#### BooleanValue
-
-`"object": "BooleanValue"`
-
-Represents a Boolean ("true" or "false).
-
-*gui-elements / gui_attributes*:
-
-- `Checkbox`: A GUI element for _BooleanValue_.
-    - _gui_attributes_: No attributes
-
-*Example:*
-
-```json
-{
-  "name": "hasBoolean",
-  "super": [
-    "hasValue"
-  ],
-  "object": "BooleanValue",
-  "labels": {
-    "en": "Boolean value"
-  },
-  "gui_element": "Checkbox"
-}
-```
 
 #### UriValue
 
 `"object": "UriValue"`
 
-Represents an URI
+Represents an URI. See the [xmlupload documentation](./dsp-tools-xmlupload.md#uri-prop) for more information.
 
-*gui-elements / gui_attributes*:
+*gui_elements / gui_attributes*:
 
-- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
-  "maxlength=integer" and "size=integer" are optional.
-    - _gui_attributes_:
+- `SimpleText`: A simple text entry box (one line only).
+    - *gui_attributes*:
         - `maxlength=integer` (optional): The maximum number of characters accepted
         - `size=integer` (optional): The size of the input field
 
-*Example:*
+Example:
 
 ```json
 {
@@ -539,142 +651,70 @@ Represents an URI
 }
 ```
 
-#### GeonameValue
 
-Represents a location ID in geonames.org. DSP uses identifiers provided by
-[geonames.org](https://geonames.orgs) to identify geographical locations.
+### Link-properties
+Link properties do not follow the pattern of the previous data types, because they do not connect to a final value but 
+to an existing resource. Thus, the `object` denominates the resource class the link will point to.
 
-*gui-elements / gui_attributes*:
 
-- `Geonames`: The only valid GUI element for _GeonameValue_. It interfaces are with geonames.org and it allows to select
-  a location.
-    - _gui_attributes_: No attributes
+#### hasLinkTo Property
 
-*Example:*
+`"object": "<resourceclass>"`
 
-```json
-{
-  "name": "hasGeoname",
-  "super": [
-    "hasValue"
-  ],
-  "object": "GeonameValue",
-  "labels": {
-    "en": "Geoname"
-  },
-  "gui_element": "Geonames"
-}
-```
+The most basic kind of link property is the `hasLinkTo` property. Its "super" element has to be `hasLinkTo` or derived 
+from `hasLinkTo`. There are different groups of resource classes that can be the object:
 
-#### ColorValue
+ - project resources: a resource class defined in the present ontology itself
+ - external resources: a resource class defined in another ontology
+ - DSP base resources:
+     - `Resource`: the most generic one, can point to any resource class, be it a DSP base resource, a project resource, 
+     or an external resource. `Resource` is at the very top of the inheritance hierarchy.
+     - `Region`: a region in an image
+     - `StillImageRepresentation`, `MovingImageRepresentation`, `TextRepresentation`, `AudioRepresentation`, 
+       `DDDRepresentation`, `DocumentRepresentation`, or `ArchiveRepresentation`
 
-`"object": "ColorValue"`
+The syntax how to refer to these different groups of resources is described [here](#referencing-ontologies).
 
-A string representation of the color in the hexadecimal form e.g. "#ff8000".
+*gui_elements/gui_attributes*:
 
-*gui-elements / gui_attributes*:
+- `Searchbox`: The only GUI element for *hasLinkTo*. Allows searching resources by entering the target resource name.
+    - *gui_attributes*:
+        - `numprops=integer` (optional): Number of search results to be displayed
 
-- `Colorpicker`: The only GUI element for _ColorValue_. It's used to choose a color.
-    - _gui_attributes_:
-        - `ncolors=integer` (optional): Number of colors the color picker should present.
-
-*Example:*
+Example:
 
 ```json
 {
-  "name": "hasColor",
+  "name": "hasOtherThing",
   "super": [
-    "hasColor"
+    "hasLinkTo"
   ],
-  "object": "ColorValue",
-  "labels": {
-    "en": "Color"
-  },
-  "gui_element": "Colorpicker"
+  "object": ":Thing",
+  "labels": "Another thing",
+  "gui_element": "Searchbox"
 }
 ```
 
-#### GeomValue
 
-`"object": "GeomValue"`
-
-Represents a geometrical shape as JSON. Geometrical shapes are used to define regions of interest (ROI) on still images
-or moving images.
-
-*gui-elements / gui_attributes*:
-
-- `Geometry`: not yet implemented.
-    - _gui_attributes_: No attributes
-- `SimpleText`: A GUI element for _TextValue_. A simple text entry box (one line only). The attributes
-  "maxlength=integer" and "size=integer" are optional.
-    - _gui_attributes_:
-        - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer` (optional): The size of the input field
-
-*Example*:
-
-```json
-{
-  "name": "hasGeometry",
-  "super": [
-    "hasGeometry"
-  ],
-  "object": "GeomValue",
-  "labels": "Geometry",
-  "gui_element": "SimpleText"
-}
-```
-
-#### ListValue
-
-`"object": "ListValue"`
-
-Represents a node of a (possibly hierarchical) list
-
-*gui-elements / gui_attributes*:
-
-- `Radio`: A GUI element for _ListValue_. A set of radio buttons. This works only with flat lists.
-    - _gui_attributes_:
-        - `hlist=<list-name>` (required): The reference of a [list](./dsp-tools-create.md#lists) root node
-- `List`: A GUI element for _ListValue_. A list of values to select one from. This GUI element should be chosen for
-  hierarchical lists or flat lists that could be expanded to hierarchical lists in the future.
-    - _gui_attributes_:
-        - `hlist=<list-name>` (required): The reference of a [list](./dsp-tools-create.md#lists) root node
-
-*Example:*
-
-```json
-{
-  "name": "hasListItem",
-  "super": [
-    "hasValue"
-  ],
-  "object": "ListValue",
-  "labels": {
-    "en": "List element"
-  },
-  "gui_element": "List",
-  "gui_attributes": {
-    "hlist": "treelistroot"
-  }
-}
-```
-
-#### Representation
+#### hasRepresentation Property
 
 `"object": "Representation"`
 
-A property pointing to a `knora-base:Representation`. Has to be used in combination with `"super": ["hasRepresentation"]`. A resource having this generic property `hasRepresentation` can point to any type of Representation, be it a `StillImageRepresentation`, an `AudioRepresentation`, etc.
+A property pointing to the DSP base resource class `Representation`, which is the parent class of the DSP base resource 
+classes `StillImageRepresentation`, `AudioRepresentation`, `MovingImageRepresentation`, ... Has to be used in 
+combination with `"super": ["hasRepresentation"]`. 
+This generic property can point to any type of the aforementioned representations, or to a subclass of them. See the 
+[xmlupload documentation](./dsp-tools-xmlupload.md#resptr-prop) for more information.
 
-*gui-elements / gui_attributes*:
+*gui_elements / gui_attributes*:
 
 - `Searchbox`: Allows searching resources that have super class `Representation` by entering at least 3 characters into
   a searchbox.
-    - _gui_attributes_:
+    - *gui_attributes*:
         - `numprops=integer` (optional): While dynamically displaying the search result, the number of properties that
           should be displayed.
 
-*Example:*
+Example:
 
 ```json
 {
@@ -690,77 +730,216 @@ A property pointing to a `knora-base:Representation`. Has to be used in combinat
     }
 ```
 
-#### hasLinkTo Property
 
-`"object": ":<resource-name>"`
+#### isPartOf Property
 
-Link properties do not follow the pattern of the previous data types, because they do not connect to a final value but 
-to another (existing) resource. Thus, the "object" denominates the resource class the link will point to. If
-the resource is defined in the same ontology, the name has to be prepended by a ":", if the resource is defined in
-another (previously defined) ontology, the ontology name has to be prepended separated by a colon ":", e.g.
-"other-onto:MyResource". When defining a link property, its "super" element has to be "hasLinkTo" or "isPartOf" or 
-derived from "hasLinkTo" or "isPartOf". "isPartOf" is a special type of linked resources, for more information see 
-[below](#ispartof-property).
+`"object": "<resourceclass>"`
 
-*gui-elements/gui_attributes*:
-
-- `Searchbox`: Has to be used with _hasLinkTo_ property. Allows searching resources by entering the resource name that the 
-  given resource should link to. It has one gui_attribute that indicates how many properties of the found resources 
-  should be indicated.
-    - _gui_attributes_:
-        - `numprops=integer` (optional): While dynamically displaying the search result, the number of properties that
-          should be displayed.
-
-*Example:*
-
-```json
-{
-  "name": "hasOtherThing",
-  "super": [
-    "hasLinkTo"
-  ],
-  "object": ":Thing",
-  "labels": "Another thing",
-  "gui_element": "Searchbox"
-}
-```
-
-#### IsPartOf Property
-A special case of linked resources is resources in a part-of / part-whole relation, i.e. resources that are composed of 
+A special case of linked resources are resources in a part-whole relation, i.e. resources that are composed of 
 other resources. A `isPartOf` property has to be added to the resource that is part of another resource. In case of 
 resources that are of type `StillImageRepresentation`, an additional property derived from `seqnum` with object `IntValue` 
-is required. When defined, a client is able to leaf through the parts of a compound object, p.ex. to leaf through pages of a book.
+is required. When defined, the user is able to leaf through the parts of a compound object, p.ex. to leaf through pages 
+of a book.
 
-*Example:*
+The DSP base properties `isPartOf` and `seqnum` can be used to derive a custom property from them, or they can be used 
+directly as cardinalities in a resource. The example belows shows both possibilities.
+
+*gui_elements/gui_attributes*:
+
+- `Searchbox`: The only GUI element for *isPartOf*. Allows searching resources by entering the target resource name.
+    - *gui_attributes*:
+        - `numprops=integer` (optional): Number of search results to be displayed
+
+Example:
+
+```json
+"properties": [
+    {
+        "name": "partOfBook",
+        "super": ["isPartOf"],
+        "object": ":Book",
+        "labels": {"en": "is part of"},
+        "gui_element": "Searchbox"
+    },
+    {
+        "name": "hasPageNumber",
+        "super": ["seqnum"],
+        "object": "IntValue",
+        "labels": {"en": "has page number"},
+        "gui_element": "Spinbox"
+    }
+],
+"resources": [
+    {
+        "name": "Page",
+        "labels": {"en": "Page using properties derived from 'isPartOf' and 'seqnum'"},
+        "super": "StillImageRepresentation",
+        "cardinalities": [
+            {
+                "propname": ":partOfBook",
+                "cardinality": "1"
+            },
+            {
+                "propname": ":hasPageNumber",
+                "cardinality": "1"
+            }
+        ]
+    },
+    {
+        "name": "MinimalisticPage",
+        "labels": {"en": "Page using 'isPartOf' and 'seqnum' directly"},
+        "super": "StillImageRepresentation",
+        "cardinalities": [
+            {
+                "propname": "isPartOf",
+                "cardinality": "1"
+            },
+            {
+                "propname": "seqnum",
+                "cardinality": "1"
+            }
+        ]
+    }
+]
+```
+
+
+#### seqnum Property
+
+`"object": "IntValue"`
+
+This property can be attached to a `StillImageRepresentation`, together with `isPartOf`. The `seqnum` is then the page
+number of the image inside the compound object. Apart from this, `seqnum` is like an integer property. See the 
+[xmlupload documentation](./dsp-tools-xmlupload.md#integer-prop) for more information.
+
+*gui_elements / gui_attributes*:
+
+- `Spinbox`: A GUI element for *IntegerValue*. A text field with and an "up" and a "down" button for increment/decrement.
+    - *gui_attributes*:
+        - `max=decimal` (optional): Maximal value
+        - `min=decimal` (optional): Minimal value
+- `SimpleText`: A simple text entry box (one line only). 
+    - *gui_attributes*:
+        - `maxlength=integer` (optional): The maximum number of characters accepted
+        - `size=integer` (optional): The size of the input field
+
+Example: See the [isPartOf Property](#ispartof-property) above.
+
+
+#### isSequenceOf Property
+
+`"object": <AudioRepresentation/MovingImageRepresentation or a subclass of one of them>`
+
+This property can be used, together with a `hasSequenceBounds` property, on a resource representing a sequence of an
+audio/video resource. The `isSequenceOf` would then point to the audio/video resource, and the `hasSequenceBounds` 
+would be the time interval of the sequence.
+
+The DSP base properties `isSequenceOf` and `hasSequenceBounds` can be used to derive a custom property from them, or 
+they can be used directly as cardinalities in a resource. The example below shows both possibilities.
+
+*gui_elements/gui_attributes*:
+
+- `Searchbox`: The only GUI element for *isSequenceOf*. Allows searching resources by entering the target resource name.
+    - *gui_attributes*:
+        - `numprops=integer` (optional): Number of search results to be displayed
+
+Example:
+
+```json
+"properties": [
+    {
+        "name": "sequenceOfAudio",
+        "super": ["isSequenceOf"],
+        "subject": ":AudioSequence",
+        "object": ":Audio",
+        "labels": {"en": "is sequence of"},
+        "gui_element": "Searchbox"
+    },
+    {
+        "name": "hasBounds",
+        "super": ["hasSequenceBounds"],
+        "subject": ":AudioSequence",
+        "object": "IntervalValue",
+        "labels": {"en": "Start and end point of a sequence of an audio/video"},
+        "gui_element": "Interval"
+    }
+],
+"resources": [
+    {
+        "name": "AudioSequence",
+        "labels": {"en": "Sequence of audio using properties derived from 'isSequenceOf' and 'hasSequenceBounds'"},
+        "super": "Resource",
+        "cardinalities": [
+            {
+                "propname": ":sequenceOfAudio",
+                "cardinality": "1"
+            },
+            {
+                "propname": ":hasBounds",
+                "cardinality": "1"
+            }
+        ]
+    },
+    {
+        "name": "MinimalisticAudioSequence",
+        "labels": {"en": "Sequence of audio using 'isSequenceOf' and 'hasSequenceBounds' directly"},
+        "super": "Resource",
+        "cardinalities": [
+            {
+                "propname": "isSequenceOf",
+                "cardinality": "1"
+            },
+            {
+                "propname": "hasSequenceBounds",
+                "cardinality": "1"
+            }
+        ]
+    }
+]
+```
+
+
+#### hasSequenceBounds Property
+
+`"object": "IntervalValue"`
+
+This property represents a time interval of an audio or video. It can be used together with an `isSequenceOf` property 
+on a resource that represents the sequence. The `isSequenceOf` would then point to the audio/video resource, and the 
+`hasSequenceBounds` would be the time interval of the sequence, represented as two decimal numbers.
+
+See the [`isSequenceOf` property](#issequenceof-property) or the 
+[xmlupload documentation](./dsp-tools-xmlupload.md#interval-prop) for more information.
+
+*gui_elements / gui_attributes*:
+
+- `SimpleText`: A simple text entry box (one line only).
+    - *gui_attributes*:
+        - `maxlength=integer` (optional): The maximum number of characters accepted
+        - `size=integer` (optional): The size of the input field
+- `Interval`: Two Sliders, one for each decimal
+    - *gui_attributes*: No attributes
+
+Example:
 
 ```json
 {
-  "name": "partOfBook",
+  "name": "hasBounds",
   "super": [
-    "isPartOf"
+    "hasSequenceBounds"
   ],
-  "object": ":Book",
+  "subject": ":AudioSequence",
+  "object": "IntervalValue",
   "labels": {
-      "en": "is part of"
+    "en": "Interval defining the start and end point of a sequence of an audio or video file"
   },
-  "gui_element": "Searchbox"
-},
-{
-  "name": "hasPageNumber",
-  "super": [
-    "seqnum"
-  ],
-  "object": "IntValue",
-  "labels": {
-      "en": "has page number"
-  },
-  "gui_element": "Spinbox"
+  "gui_element": "Interval"
 }
 ```
+
+
 
 
 ## Resources Object in Detail
-
 
 ### Name
 
@@ -774,6 +953,8 @@ but `-` and `_` are allowed (although not as first character).
 
 By convention, resource names start with a upper case letter.
 
+
+
 ### Labels
 
 (required)
@@ -783,40 +964,39 @@ By convention, resource names start with a upper case letter.
 Collection of `labels` for the resource as strings with language tag (currently "en", "de", "fr", "it", 
 and "rm" are supported).
 
+
+
 ### Super
 
 (required)
 
 `"super": ["<super-resource>", "<super-resource>", ...]`
 
-A resource is always derived from at least one other resource. The most generic resource class for DSP is `Resource`. 
-A resource may be derived from resources defined in external ontologies.
+A resource is always derived from at least one other resource. There are three groups of resources that can serve 
+as super-resource:
 
-The following predefined resources are provided by DSP:
+ - DSP base resources
+ - resources defined in external ontologies
+ - resources defined in the project ontology itself
+
+The syntax how to refer to these different groups of resources is described [here](#referencing-ontologies).
+
+The following base resources can be used as super-resource:
 
 - `Resource`: A generic resource representing an item from the real world. This is the most general case, to be 
 used in all cases when your resource is none of the special cases below.
-- `StillImageRepresentation`: An object representing a still image
-- `TextRepresentation`: An object representing an (external) text (not yet implemented)
-- `AudioRepresentation`: An object representing an audio file
-- `DDDRepresentation`: An object representing a 3-D representation (not yet implemented)
-- `DocumentRepresentation`: An object representing an opaque document (e.g. a PDF)
-- `MovingImageRepresentation`: An object representing a moving image (video, film)
-- `ArchiveRepresentation`: An object representing an archive file (e.g. Zip)
-- `Annotation`: A predefined annotation object. It has automatically the following predefined properties defined:
-    - `hasComment` (1-n)
-    - `isAnnotationOf` (1)
-- `LinkObj`: A resource class linking together several other resource classes. The class has the following
-  properties:
-    - `hasComment` (1-n)
-    - `hasLinkTo` (1-n)
-- `Region`: Represents a region in an image. The class has the following properties:
-    - `hasColor` (1)
-    - `isRegionOf` (1)
-    - `hasGeometry` (1)
-    - `hasComment` (0-n)
+- `ArchiveRepresentation`: A resource representing an archive file (e.g. ZIP)
+- `AudioRepresentation`: A resource representing an audio file
+- `DDDRepresentation`: A resource representing a 3-D representation (not yet implemented)
+- `DocumentRepresentation`: A resource representing an opaque document (e.g. a PDF)
+- `MovingImageRepresentation`: A resource representing a video
+- `StillImageRepresentation`: A resource representing an image
+- `TextRepresentation`: A resource representing a text
 
-Additionally, resources can be derived from external ontologies or from resources specified in the present document.
+**File Extensions**: An overview of the supported file types per representation can be found in the 
+[xmlupload documentation](./dsp-tools-xmlupload.md#bitstream).
+
+
 
 ### Cardinalities
 
@@ -837,6 +1017,8 @@ resource can have as well as how many times the relation is established.
         - `"0-1"`: The value may be omitted, but can occur only once.
         - `"1-n"`: At least one value must be present, but multiple values may be present.
         - `"0-n"`: The value may be omitted, but may also occur multiple times.
+
+
 
 ### Comments
 
@@ -889,6 +1071,8 @@ Example for a resource definition:
 ```
 
 
+
+
 ## Referencing Ontologies
 
 For several fields, such as `super` in both `resources` and `properties` or `propname` in `cardinalities`
@@ -907,3 +1091,46 @@ it is necessary to reference entities that are defined elsewhere. The following 
   These will be created in the exact order they appear in the `ontologies` array. Once an ontology has been created,
   it can be referenced by the following ontologies by its name, e.g. `first-onto:hasName`. It is not necessary to add 
   `first-onto` to the prefixes.
+
+
+
+
+## DSP base resources / base properties to be used directly in the XML file
+There is a number of DSP base resources that must not be subclassed in a project ontology. They are directly available 
+in the XML data file:
+
+- `Annotation` is an annotation to another resource of any class. It can be used in the XML file with the 
+  [&lt;annotation&gt; tag](dsp-tools-xmlupload.md#annotation). It automatically has the following predefined properties:
+    - `hasComment` (1-n)
+    - `isAnnotationOf` (1)
+- `LinkObj` is a resource linking together several other resources of different classes. It can be used in the XML file 
+  with the [&lt;link&gt; tag](dsp-tools-xmlupload.md#link). It automatically has the following predefined properties:
+    - `hasComment` (1-n)
+    - `hasLinkTo` (1-n)
+- A `Region` resource defines a region of interest (ROI) in an image. It can be used in the XML file with the 
+  [&lt;region&gt; tag](dsp-tools-xmlupload.md#region). It automatically has the following predefined properties:
+    - `hasColor` (1)
+    - `isRegionOf` (1)
+    - `hasGeometry` (1)
+    - `hasComment` (1-n)
+
+There are some DSP base properties that are used directly in the above resource classes. Some of them can also be 
+subclassed and used in a resource class.
+
+- `hasLinkTo`: a link to another resource
+    - can be subclassed ([hasLinkTo Property](#haslinkto-property))
+    - can be used directly in the XML data file in the [&lt;link&gt; tag](dsp-tools-xmlupload.md#link)
+- `hasColor`: Defines a color value. 
+    - can be subclassed ([ColorValue](#colorvalue))
+    - can be used directly in the XML data file in the [&lt;region&gt; tag](dsp-tools-xmlupload.md#region)
+- `hasComment`: Defines a standard comment. 
+    - can be subclassed ([hasComment Property](#hascomment-property))
+    - can be used directly in the XML data file in the [&lt;region&gt; tag](dsp-tools-xmlupload.md#region) or 
+      [&lt;link&gt; tag](dsp-tools-xmlupload.md#link)
+- `hasGeometry`: Defines a geometry value (a JSON describing a polygon, circle or rectangle). 
+    - must be used directly in the XML data file in the [&lt;region&gt; tag](dsp-tools-xmlupload.md#region)
+- `isRegionOf`: A special variant of `hasLinkTo`. It means that the given resource class is a region of interest in an image. 
+    - must be used directly in the XML data file in the [&lt;region&gt; tag](dsp-tools-xmlupload.md#region)
+- `isAnnotationOf`: A special variant of `hasLinkTo`. It means that the given resource class is an annotation to another
+  resource class. 
+    - must be used directly in the XML data file in the [&lt;annotation&gt; tag](dsp-tools-xmlupload.md#annotation)

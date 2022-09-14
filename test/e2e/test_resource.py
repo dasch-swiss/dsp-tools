@@ -52,13 +52,13 @@ class TestResource(unittest.TestCase):
 
         thing_picture = factory.get_resclass_type('anything:ThingPicture')
         sipi = Sipi('http://0.0.0.0:1024', self.con.get_token())
-        img = sipi.upload_bitstream('testdata/bitstreams/TEMP11.TIF')
+        img = sipi.upload_bitstream('testdata/bitstreams/test.tif')
         file_ref = img['uploadedFiles'][0]['internalFilename']
         res_perm = Permissions({PermissionValue.M: ["knora-admin:UnknownUser", "knora-admin:KnownUser"],
                                 PermissionValue.CR: ["knora-admin:Creator", "knora-admin:ProjectAdmin"]})
 
         resource_bitstream = {
-            'value': 'testdata/bitstreams/TEMP11.TIF',
+            'value': 'testdata/bitstreams/test.tif',
             'internal_file_name': file_ref,
             'permissions': res_perm
         }

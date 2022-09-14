@@ -260,9 +260,8 @@ class PropertyClass(Model):
         superproperties: list[Union[None, str]]
         if not isinstance(superproperties_obj, list):
             superproperties_obj = [superproperties_obj]  # make a list out of it
-        if superproperties_obj is not None:
-            superprops: list[Any] = list(filter(lambda a: a.get('@id') is not None, superproperties_obj))
-            superproperties = list(map(lambda a: a['@id'], superprops))
+        if superproperties_obj:
+            superproperties = [x['@id'] for x in superproperties_obj if x and x.get('@id')]
         else:
             superproperties = None
         object = WithId(json_obj.get(knora_api + ':objectType')).str()

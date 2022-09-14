@@ -446,7 +446,8 @@ class Project(Model):
         if result is not None:
             return Project.fromJsonObj(self._con, result['project'])
         else:
-            return None  # Todo: throw exception
+            raise BaseError(f"ERROR: Could not read project '{self.shortname}' ({self.shortcode}) with IRI {self._id} "
+                            f"from DSP server.")
 
     def update(self) -> Project:
         """

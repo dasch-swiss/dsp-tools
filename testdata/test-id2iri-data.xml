@@ -6,7 +6,7 @@
        shortcode="4123"
        default-ontology="testonto">
 
-    <!-- :permissions see https://docs.dasch.swiss/DSP-API/05-internals/design/api-admin/administration/#permissions -->
+    <!-- :permissions see https://docs.dasch.swiss/latest/DSP-API/02-knora-ontologies/knora-base/#permissions -->
     <permissions id="res-default">
         <allow group="UnknownUser">RV</allow>
         <allow group="KnownUser">V</allow>
@@ -37,8 +37,8 @@
             <text encoding="xml">Text</text>
         </text-prop>
         <resptr-prop name=":hasTestThing">
-            <resptr permissions="prop-default">obj_0001</resptr>
-            <resptr permissions="prop-default">obj_0011</resptr>
+            <resptr permissions="prop-default">test_thing_1</resptr>
+            <resptr permissions="prop-default">test_thing_2</resptr>
         </resptr-prop>
     </resource>
 

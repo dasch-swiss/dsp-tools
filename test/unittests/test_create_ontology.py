@@ -2,17 +2,16 @@
 import unittest
 import json
 from typing import Any
-import jsonpath_ng.ext
 
-from knora.dsplib.utils.onto_create_ontology import sort_resources, sort_prop_classes
-from knora.dsplib.utils.onto_validate import collect_link_properties, identify_problematic_cardinalities
+from knora.dsplib.utils.onto_create_ontology import _sort_resources, _sort_prop_classes
+from knora.dsplib.utils.onto_validate import _collect_link_properties, _identify_problematic_cardinalities
 
 
 class TestOntoCreation(unittest.TestCase):
-    with open('testdata/test-onto.json', 'r') as json_file:
+    with open('testdata/test-project-systematic.json', 'r') as json_file:
         project: dict[str, Any] = json.load(json_file)
         ontology: dict[str, Any] = project['project']['ontologies'][0]
-    with open('testdata/circular-onto.json', 'r') as json_file:
+    with open('testdata/test-project-circular-ontology.json', 'r') as json_file:
         circular_onto: dict[str, Any] = json.load(json_file)
 
     def test_sort_resources(self) -> None:
@@ -23,13 +22,12 @@ class TestOntoCreation(unittest.TestCase):
         """
         onto_name: str = self.ontology['name']
         unsorted_resources: list[dict[str, Any]] = self.ontology['resources']
-        sorted_resources = sort_resources(unsorted_resources, onto_name)
+        sorted_resources = _sort_resources(unsorted_resources, onto_name)
 
-        unsorted_resources = sorted(unsorted_resources, key=lambda a: a['name'])
-        sorted_resources = sorted(sorted_resources, key=lambda a: a['name'])
+        unsorted_resources = sorted(unsorted_resources, key=lambda a: str(a['name']))
+        sorted_resources = sorted(sorted_resources, key=lambda a: str(a['name']))
 
         self.assertListEqual(unsorted_resources, sorted_resources)
-
 
     def test_sort_prop_classes(self) -> None:
         """
@@ -39,17 +37,17 @@ class TestOntoCreation(unittest.TestCase):
         """
         onto_name: str = self.ontology['name']
         unsorted_props: list[dict[str, Any]] = self.ontology['resources']
-        sorted_props = sort_prop_classes(unsorted_props, onto_name)
+        sorted_props = _sort_prop_classes(unsorted_props, onto_name)
 
-        unsorted_props = sorted(unsorted_props, key=lambda a: a['name'])
-        sorted_props = sorted(sorted_props, key=lambda a: a['name'])
+        unsorted_props = sorted(unsorted_props, key=lambda a: str(a['name']))
+        sorted_props = sorted(sorted_props, key=lambda a: str(a['name']))
 
         self.assertListEqual(unsorted_props, sorted_props)
 
 
     def test_circular_references_in_onto(self) -> None:
-        link_properties = collect_link_properties(self.circular_onto)
-        errors = identify_problematic_cardinalities(self.circular_onto, link_properties)
+        link_properties = _collect_link_properties(self.circular_onto)
+        errors = _identify_problematic_cardinalities(self.circular_onto, link_properties)
         expected_errors = [
             ('testonto:AnyResource', 'testonto:linkToTestThing1'),
             ('testonto:TestThing3', 'testonto:linkToResource')

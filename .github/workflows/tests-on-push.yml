@@ -1,0 +1,29 @@
+name: Tests on Push
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  tests:
+    name: tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [ 'test-end-to-end-ci', 'test-unittests', 'docs-build' ]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+            make install-requirements
+            make install
+      - name: Run tests
+        run: make ${{ matrix.target }}

@@ -1,5 +1,5 @@
 {
-    "$schema": "https://json-schema.org/draft-07/schema",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://dasch.swiss/schema/properties-only.json",
     "title": "JSON schema for properties used in DSP ontologies",
     "description": "JSON schema for the properties section used in DSP ontologies",
@@ -46,10 +46,9 @@
                                     "hasLinkTo",
                                     "hasColor",
                                     "hasComment",
-                                    "hasGeometry",
                                     "isPartOf",
-                                    "isRegionOf",
-                                    "isAnnotationOf",
+                                    "isSequenceOf",
+                                    "hasSequenceBounds",
                                     "hasRepresentation",
                                     "seqnum"
                                 ]
@@ -72,7 +71,6 @@
                                 "ColorValue",
                                 "DateValue",
                                 "DecimalValue",
-                                "GeomValue",
                                 "GeonameValue",
                                 "IntValue",
                                 "BooleanValue",
@@ -80,9 +78,8 @@
                                 "UriValue",
                                 "IntervalValue",
                                 "ListValue",
-                                "Region",
                                 "Resource",
-                                "Annotation"
+                                "Representation"
                             ]
                         },
                         {
@@ -101,7 +98,6 @@
                     "enum": [
                         "Colorpicker",
                         "Date",
-                        "Geometry",
                         "Geonames",
                         "Interval",
                         "TimeStamp",
@@ -409,41 +405,6 @@
                     "if": {
                         "properties": {
                             "object": {
-                                "const": "GeomValue"
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "super": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string",
-                                    "oneOf": [
-                                        {
-                                            "enum": [
-                                                "hasGeometry"
-                                            ]
-                                        },
-                                        {
-                                            "$ref": "#/definitions/prefixedname"
-                                        }
-                                    ]
-                                }
-                            },
-                            "gui_element": {
-                                "enum": [
-                                    "Geometry",
-                                    "SimpleText"
-                                ]
-                            }
-                        }
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "object": {
                                 "const": "GeonameValue"
                             }
                         }
@@ -589,7 +550,7 @@
                                     "oneOf": [
                                         {
                                             "enum": [
-                                                "hasValue"
+                                                "hasSequenceBounds"
                                             ]
                                         },
                                         {
@@ -851,7 +812,6 @@
                                     "Richtext",
                                     "Date",
                                     "TimeStamp",
-                                    "Geometry",
                                     "Geonames",
                                     "Checkbox",
                                     "Interval"

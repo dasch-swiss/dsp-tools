@@ -3,19 +3,26 @@
 import unittest
 import os
 
-from lxml import etree
-
+from knora.dsplib.utils.xml_upload import _parse_xml_file
 from knora.dsplib.utils.id_to_iri import id_to_iri
 
 
 class TestIdToIri(unittest.TestCase):
     out_file = 'testdata/tmp/_test-id2iri-replaced.xml'
 
-    def setUp(self) -> None:
-        """Is executed before each test"""
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Is executed before the methods of this class are run"""
         os.makedirs('testdata/tmp', exist_ok=True)
 
-    def test_invalid_xml_file_name(self):
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Is executed after the methods of this class have all run through"""
+        for file in os.listdir('testdata/tmp'):
+            os.remove('testdata/tmp/' + file)
+        os.rmdir('testdata/tmp')
+
+    def test_invalid_xml_file_name(self) -> None:
         with self.assertRaises(SystemExit) as cm:
             id_to_iri(xml_file='test.xml',
                       json_file='testdata/test-id2iri-mapping.json',
@@ -24,7 +31,7 @@ class TestIdToIri(unittest.TestCase):
 
         self.assertEqual(cm.exception.code, 1)
 
-    def test_invalid_json_file_name(self):
+    def test_invalid_json_file_name(self) -> None:
         with self.assertRaises(SystemExit) as cm:
             id_to_iri(xml_file='testdata/test-id2iri-data.xml',
                       json_file='test.json',
@@ -33,22 +40,13 @@ class TestIdToIri(unittest.TestCase):
 
         self.assertEqual(cm.exception.code, 1)
 
-    def test_replace_id_with_iri(self):
+    def test_replace_id_with_iri(self) -> None:
         id_to_iri(xml_file='testdata/test-id2iri-data.xml',
                   json_file='testdata/test-id2iri-mapping.json',
                   out_file=self.out_file,
                   verbose=True)
 
-        tree = etree.parse(self.out_file)
-
-        for elem in tree.getiterator():
-            # skip comments and processing instructions as they do not have namespaces
-            if not (
-                isinstance(elem, etree._Comment)
-                or isinstance(elem, etree._ProcessingInstruction)
-            ):
-                # remove namespace declarations
-                elem.tag = etree.QName(elem).localname
+        tree = _parse_xml_file(self.out_file)
 
         resource_elements = tree.xpath("/knora/resource/resptr-prop/resptr")
         result = []

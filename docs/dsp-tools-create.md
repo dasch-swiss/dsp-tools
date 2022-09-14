@@ -1,17 +1,24 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# JSON data model definition format
+# JSON project definition format
 
-This document describes the structure of a data model (ontology) used by DSP. According to Wikipedia,
-the [data model](https://en.wikipedia.org/wiki/Data_model) is "an abstract model that organizes elements of data and
-standardizes how they relate to one another and to the properties of real-world entities. [...] A data model explicitly
-determines the structure of data. Data models are typically specified by a data specialist, data librarian, or a digital
-humanities scholar in a data modeling notation". The following sections describe the notation for ontologies in the
-context of DSP.
+This document describes the structure of a JSON project definition file that can be uploaded to a DSP server. The 
+command to do so is [documented here](./dsp-tools-usage.md#create-a-project-on-a-dsp-server).
+
+A project on a DSP server is like a container for data. It defines some basic metadata, the data model(s) and optionally 
+the user(s) who will be able to access the data. After the creation of a project, data can be uploaded that conforms 
+with the data model(s).
+
+This documentation is divided into two parts:
+
+ - Overview of the project description file (this page)
+ - The "ontologies" section [explained in detail](./dsp-tools-create-ontologies.md)
+
+
 
 ## A short overview
 
-A complete data model definition for DSP looks like this:
+A complete project definition looks like this:
 
 ```json
 {
@@ -46,6 +53,8 @@ A complete data model definition for DSP looks like this:
 }
 ```
 
+
+
 ### "prefixes" object
 
 (optional)
@@ -70,6 +79,8 @@ It is not necessary to define prefixes for the ontologies that are defined in th
 file can be referenced by their name. See [this section](./dsp-tools-create-ontologies.md#referencing-ontologies) for
 more information about referencing ontologies.
 
+
+
 ### "$schema" object
 
 (required)
@@ -77,6 +88,8 @@ more information about referencing ontologies.
 The `$schema` object refers to the JSON schema for DSP data model definitions and is mandatory.
 
 `"$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/ontology.json"`
+
+
 
 ### "project" object
 
@@ -132,9 +145,13 @@ A simple example definition of the `project` object looks like this:
 }
 ```
 
+
+
 ## "project" object in detail
 
 In the following section all fields of the `project` object are explained in detail.
+
+
 
 ### Shortcode
 
@@ -143,6 +160,8 @@ In the following section all fields of the `project` object are explained in det
 `"shortcode": "<4-hex-characters>"`
 
 The shortcode has to be unique and is represented by a 4 digit hexadecimal string. The shortcode has to be provided by the DaSCH.
+
+
 
 ### Shortname
 
@@ -153,6 +172,8 @@ The shortcode has to be unique and is represented by a 4 digit hexadecimal strin
 The shortname has to be unique. It should be in the form of a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). This means a
 string without blanks or special characters but `-` and `_` are allowed (although not as first character).
 
+
+
 ### Longname
 
 (required)
@@ -160,6 +181,8 @@ string without blanks or special characters but `-` and `_` are allowed (althoug
 `"longname": "<string>"`
 
 The longname is a string that provides the full name of the project.
+
+
 
 ### Descriptions
 
@@ -170,6 +193,8 @@ The longname is a string that provides the full name of the project.
 The description is represented as a collection of strings with language tags (currently "en", "de", "fr", "it", and "rm" are
 supported). It is the description of the project.
 
+
+
 ### Keywords
 
 (required)
@@ -178,174 +203,246 @@ supported). It is the description of the project.
 
 Keywords are represented as an array of strings and are used to describe and/or tag the project.
 
+
+
 ### Lists
 
 (optional)
 
 `"lists": [<list-definition>,<list-definition>,...]`
 
-Lists can be used to provide controlled vocabularies and can be "flat" or "hierarchical". One advantage of the use of
+Lists can be used to provide controlled vocabularies. They can be flat or hierarchical. One advantage of the use of
 hierarchical lists is that it allows a user to sub-categorize objects. This helps in the formulation of specific search
 requests. If there is a list node "Vocal music" and sub-nodes "Song" and "Opera", a search for "Vocal Music" would
 return objects classified as "Song" and "Opera". But a search for "Song" would only return objects classified as "Song".
+ 
+The "lists" section is an array of list definitions. A list definition has one root node whose name is used to identify 
+the list. The children of the root node are the list nodes. If the list is hierarchical, the list nodes can have
+children, and these children can again have children etc.
 
-In dsp-tools the structure of a list is mapped using JSON. Only a single root node is allowed which also contains the
-name of the list. Inside the root node any number of child nodes and sub-nodes of child nodes are allowed.
-
-A resource can be assigned to a list node within its properties. For example, a resource of type "Musical work" with the
-title "La Traviata" would have a property like "hasMusicGenre" with the value "Grand opera". Within DSP, each property
-has a cardinality. Sometimes, a taxonomy allows an object to belong to multiple categories. In these cases, a
-cardinality greater than 1 has to be used.
+When a list is defined for a project, its values can be referenced in resources within a list property, e.g. a property with 
+[object "ListValue"](./dsp-tools-create-ontologies.md#listvalue).
 
 A node of a list may have the following elements:
 
-- _name_: Name of the node as string. It is mandatory and has to be unique within the list.
-- _labels_: Label with language tags in the form `{ "<lang>": "<label>", "<lang>": "<label>", ... }`. The `labels`
-  element is mandatory. It needs to specify at least one language. Currently, "de", "en", "fr", "it", and "rm" are supported.
-- _comments_: Comment with language tags in the form `{ "<lang>": "<comment>", "<lang>": "<comment>", ... }`.
-  Currently, "de", "en", "fr", "it", and "rm" are supported. The `comments` element is mandatory for the root node of the list.
-  For all other nodes, it is optional. If not used, the element should be omitted.
-- _nodes_: Array of sub-nodes. The `nodes` element is optional and can be omitted in case of a flat list.
+- `name` (mandatory): Name of the node. Has to be unique within the entire "lists" section.
+- `labels` (mandatory): Label with language tags in the form `{"<lang>": "<label>", "<lang>": "<label>", ... }`. 
+  At least one language needs to be specified. Currently, "de", "en", "fr", "it", and "rm" are supported.
+- `comments` (mandatory for root node, optional for all other nodes): Comment with language tags in the form 
+  `{"<lang>": "<comment>", "<lang>": "<comment>", ... }`. Currently, "de", "en", "fr", "it", and "rm" are supported. 
+- `nodes` (optional): Array of sub-nodes.
 
-Example of a list:
+Example of a "lists" section:
 
 ```json
 {
-  "lists": [
-    {
-      "name": "my_list",
-      "labels": {
-        "en": "Disciplines of the Humanities"
-      },
-      "comments": {
-        "en": "This is just an example.",
-        "fr": "C'est un example."
-      },
-      "nodes": [
+    "lists": [
         {
-          "name": "node_1_1",
-          "labels": {
-            "en": "Performing arts"
-          },
-          "comments": {
-            "en": "Arts that are events",
-            "de": "Künste mit performativem Character"
-          },
-          "nodes": [
-            {
-              "name": "node_2_2",
-              "labels": {
-                "en": "Music"
-              },
-              "nodes": [
+            "name": "colors",
+            "labels": {
+                "de": "Farben",
+                "en": "Colors"
+            },
+            "comments": {
+                "de": "Eine Liste mit einigen Farben",
+                "en": "A list with some colors"
+            },
+            "nodes": [
                 {
-                  "name": "node_3_3",
-                  "labels": {
-                    "en": "Chamber music"
-                  }
-                },
-                {
-                  "name": "node_4_3",
-                  "labels": {
-                    "en": "Church music"
-                  }
-                },
-                {
-                  "name": "node_5_3",
-                  "labels": {
-                    "en": "Conducting"
-                  },
-                  "nodes": [
-                    {
-                      "name": "node_6_4",
-                      "labels": {
-                        "en": "Choirs"
-                      }
-                    },
-                    {
-                      "name": "node_7_4",
-                      "labels": {
-                        "en": "Orchestras"
-                      }
+                    "name": "red",
+                    "labels": {
+                        "de": "rot",
+                        "en": "red"
                     }
-                  ]
                 },
                 {
-                  "name": "node_8_3",
-                  "labels": {
-                    "en": "Music history"
-                  }
+                    "name": "yellow",
+                    "labels": {
+                        "de": "gelb",
+                        "en": "yellow"
+                    }
                 },
                 {
-                  "name": "node_9_3",
-                  "labels": {
-                    "en": "Musictheory"
-                  }
+                    "name": "blue",
+                    "labels": {
+                        "de": "blau",
+                        "en": "blue"
+                    }
                 },
                 {
-                  "name": "node_10_3",
-                  "labels": {
-                    "en": "Musicology"
-                  }
-                },
-                {
-                  "name": "node_11_3",
-                  "labels": {
-                    "en": "Jazz"
-                  }
-                },
-                {
-                  "name": "node_12_3",
-                  "labels": {
-                    "en": "Pop/Rock/Blues"
-                  }
+                    "name": "green",
+                    "labels": {
+                        "de": "grün",
+                        "en": "green"
+                    }
                 }
-              ]
-            }
-          ]
+            ]
         },
         {
-          ...
-        },
-        {
-          ...
+            "name": "category",
+            "labels": {
+                "de": "Kategorie",
+                "en": "category"
+            },
+            "comments": {
+                "de": "Eine Liste mit Kategorien",
+                "en": "A list with categories"
+            },
+            "nodes": [
+                {
+                    "name": "artwork",
+                    "labels": {
+                        "de": "Kunstwerk",
+                        "en": "artwork"
+                    }
+                },
+                {
+                    "name": "vehicles",
+                    "labels": {
+                        "de": "Fahrzeuge",
+                        "en": "vehicles"
+                    }
+                },
+                {
+                    "name": "nature",
+                    "labels": {
+                        "de": "Natur",
+                        "en": "nature"
+                    },
+                    "nodes": [
+                        {
+                            "name": "humanes",
+                            "labels": {
+                                "de": "Menschen",
+                                "en": "Humanes"
+                            }
+                        },
+                        {
+                            "name": "animals",
+                            "labels": {
+                                "de": "Tiere",
+                                "en": "Animals"
+                            },
+                            "nodes": [
+                                {
+                                    "name": "mammals",
+                                    "labels": {
+                                        "de": "Säugetiere",
+                                        "en": "Mammals"
+                                    }
+                                },
+                                {
+                                    "name": "insects",
+                                    "labels": {
+                                        "de": "Insekten",
+                                        "en": "Insects"
+                                    }
+                                },
+                                {
+                                    "name": "birds",
+                                    "labels": {
+                                        "de": "Vögel",
+                                        "en": "Birds"
+                                    }
+                                },
+                                {
+                                    "name": "amphibians",
+                                    "labels": {
+                                        "de": "Ambhibien",
+                                        "en": "Amphibians"
+                                    }
+                                },
+                                {
+                                    "name": "reptiles",
+                                    "labels": {
+                                        "de": "Reptilien",
+                                        "en": "Reptiles"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "plantes",
+                            "labels": {
+                                "de": "Pflanzen",
+                                "en": "Plantes"
+                            }
+                        },
+                        {
+                            "name": "weather",
+                            "labels": {
+                                "de": "Wetter",
+                                "en": "Weather"
+                            }
+                        },
+                        {
+                            "name": "physics",
+                            "labels": {
+                                "de": "Physik",
+                                "en": "Physics"
+                            }
+                        }
+                    ]
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }
 ```
+
+
 
 #### Lists from Excel
 
-A list can be directly imported from one or several Excel files. The folder with the Excel file(s) can then directly 
-be referenced inside the list definition by defining it as new list node:
+Instead of being described in JSON, a list can be imported from one or several Excel files. In this case, the 
+`nodes` element of the root node consists of {"folder": "<path-to-folder-containing-the-excel-files>"}. In the above 
+example, the list "colors" could be imported as follows:
 
 ```json
 {
-  "name": "List-from-excel",
-  "labels": {
-    "en": "List from an Excel file",
-    "de": "Liste von einer Excel-Datei"
-  },
-  "comments": {
-    "en": "This is just an example.",
-    "fr": "C'est un example."
-  },
-  "nodes": {
-    "folder": "excel-lists"
-  }
+    "lists": [
+        {
+            "name": "colors",
+            "labels": {
+                "de": "Farben",
+                "en": "Colors"
+            },
+            "comments": {
+                "de": "Eine Liste mit einigen Farben",
+                "en": "A list with some colors"
+            },
+            "nodes": {
+                "folder": "path-to-folder"
+            }
+        },
+        {
+            "name": "category",
+            "labels": {
+                "de": "Kategorie",
+                "en": "category"
+            },
+            "comments": {
+                "de": "Eine Liste mit Kategorien",
+                "en": "A list with categories"
+            },
+            "nodes": [
+                ...
+            ]
+        }
+    ]
 }
 ```
 
-The `nodes` section has to contain the field:
+To do so, it would be necessary to place the following two files into the folder "path-to-folder":
+![Colors_en](./assets/images/img-list-english-colors.png)
+![Farben_de](./assets/images/img-list-german-colors.png)
 
-- _folder_: Path to the folder containing the Excel files
+The expected format of the Excel files is documented 
+[here](./dsp-tools-excel.md#create-the-lists-section-of-a-json-project-file-from-excel-files). The only difference to 
+the explanations there is that column A of the Excel worksheet is not interpreted as list name (root node), but as 
+node name of the first children level below the root node.
 
-Further information about the expected format of the Excel lists and details to this functionality can be found
-[here](./dsp-tools-excel.md#create-a-list-from-one-or-several-excel-files).
 
-The `lists` element is optional. If not used, it should be omitted.
 
 ### Groups
 
@@ -355,15 +452,17 @@ The `lists` element is optional. If not used, it should be omitted.
 
 The `groups` object contains groups definitions. This is used to specify the permissions a user gets. A project may
 define several groups such as "project-admins", "editors" etc. in order to provide their members specific permissions.
+The groups that were created here are then available in the XML file in the 
+[&lt;allow&gt; sub-element](dsp-tools-xmlupload.md#the-allow-sub-element).
 
 A group definition has the following elements:
 
-- _name_: name of the group, mandatory
-- _descriptions_: description of the group with language tags in the form `"descriptions": {"<lang>": "<string>", ...}` (
-  currently "en", "de", "fr", "it", and "rm" are supported), mandatory
-- _selfjoin_: true if users are allowed to join the group themselves, false if an administrator has to add the users,
-  optional
-- _status_: true if the group is active, false if the group is inactive, optional
+- _name_ (mandatory): name of the group
+- _descriptions_ (mandatory): description of the group with language tags in the form `"descriptions": {"<lang>": 
+  "<string>", ...}` (currently "en", "de", "fr", "it", and "rm" are supported)
+- _selfjoin_ (optional): true if users are allowed to join the group themselves, false (default) if an administrator has 
+  to add them
+- _status_ (optional): true (default) if the group is active, false if the group is inactive
 
 Example:
 
@@ -380,6 +479,8 @@ Example:
 }
 ```
 
+
+
 ### Users
 
 (optional)
@@ -394,13 +495,16 @@ This object contains user definitions. A user has the following elements:
 - _familyName_: surname of the user
 - _password_: password of the user
 - _lang_: the default language of the user: "en", "de", "fr", "it" (optional, default: "en")
-- _groups_: List of groups the user belongs to. The name of the group has to be provided with the project's shortname,
-  p.ex. "shortname:editors". The project defined in the same ontology file has no name, so only ":editors" is required
-  if the user belongs to the group "editors". (optional)
-- _projects_: List of projects the user belongs to. The project name has to be followed by a ":" and either "member"
-  or "admin". This indicates if the new user has admin rights in the given project or is an ordinary
-  user. `myproject:admin` would add the user as admin to the project "myproject". The given project defined in the same
-  ontology file has no name, so only ":admin"or ":member" is required. (optional)
+- _groups_ (optional): List of groups the user belongs to. The group names must be provided in one of the following forms:
+    - `other_project_shortname:groupname`
+    - `:groupname` (for groups defined in the current ontology file)
+    - `SystemAdmin` (the most powerful group, built-in into DSP)
+- _projects_ (optional): List of projects the user belongs to. The project name has to be followed by a `:` and either 
+  `member` or `admin`. This indicates if the new user has admin rights in the given project or is an ordinary
+  user. `myproject:admin` would add the user as admin to the project `myproject`. The project defined in the same
+  ontology file can be omitted, so only `:admin` or `:member` is enough.
+    - If _projects_ is omitted, the user won't be part in any project.
+- _status_ (optional): true (default) if the user is active, false if the user is deleted/inactive
 
 Example:
 
@@ -415,12 +519,14 @@ Example:
       "password": "biz1234",
       "lang": "en",
       "groups": [
-        ":biz-editors"
+        ":biz-editors",
+        "SystemAdmin"
       ],
       "projects": [
         ":admin",
         "otherProject:member"
-      ]
+      ], 
+      "status": true
     }
   ]
 }
@@ -428,23 +534,27 @@ Example:
 
 The `users` element is optional. If not used, it should be omitted.
 
+
+
 ### Ontologies
 
 (required)
 
 `"ontologies": [<ontology-definition>, <ontology-definition>, ...]`
 
-Inside the `ontologies` section all resources and properties are described. A project may have multiple ontologies. It
-requires the following data fields:
+Inside the `ontologies` section, all resource classes and properties are defined. A project may have multiple 
+ontologies. It requires the following fields:
 
 - `name`
 - `label`
 - `properties`
 - `resources`
 
-A detailed description of `ontologies` can be found [here](dsp-tools-create-ontologies.md)
+The `ontologies` section is [documented here](./dsp-tools-create-ontologies.md)
 
-## Fully fleshed out example ontology
+
+
+## Fully fleshed out example of a JSON project file
 
 Finally, here is a complete example of an ontology definition:
 

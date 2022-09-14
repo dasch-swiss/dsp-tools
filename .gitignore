@@ -63,8 +63,10 @@ venv.bak/
 
 # created files
 lists.json
+lists-only.json
 out.json
 id2iri_*
+stashed*
 **/~$*.*
 testdata/tmp/
 testdata/test-list.json

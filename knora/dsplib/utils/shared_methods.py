@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 from typing import Union, Callable, Any, Optional
 
+from lxml import etree
 from requests import RequestException
 
 from knora.dsplib.models.connection import Connection
@@ -82,3 +83,27 @@ def try_network_action(
             raise BaseError(f"{failure_msg} Error message: {exc_message}")
 
     raise BaseError(failure_msg)
+
+
+def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
+    """
+    Validates an XML file against an XSD schema
+
+    Args:
+        input_file: the XML file to be validated
+        schema_file: the schema against which the XML file should be validated
+
+    Returns:
+        True if the XML file is valid. Otherwise, a BaseError with a detailed error log is raised
+    """
+    xmlschema = etree.XMLSchema(etree.parse(schema_file))
+    doc = etree.parse(input_file)
+
+    if xmlschema.validate(doc):
+        print("The XML file is syntactically correct and passed validation.")
+        return True
+    else:
+        error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
+        for error in xmlschema.error_log:
+            error_msg = error_msg + f"\n  Line {error.line}: {error.message}"
+        raise BaseError(error_msg)

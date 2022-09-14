@@ -22,7 +22,7 @@ from knora.dsplib.models.value import KnoraStandoffXml
 from knora.dsplib.models.xmlpermission import XmlPermission
 from knora.dsplib.models.xmlproperty import XMLProperty
 from knora.dsplib.models.xmlresource import XMLResource
-from knora.dsplib.utils.shared_methods import try_network_action
+from knora.dsplib.utils.shared_methods import try_network_action, validate_xml_against_schema
 
 
 def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
@@ -147,29 +147,6 @@ def _stash_circular_references(
     return nok_resources, ok_res_ids, ok_resources, stashed_xml_texts, stashed_resptr_props
 
 
-def _validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
-    """
-    Validates an XML file against an XSD schema
-
-    Args:
-        input_file: the XML file to be validated
-        schema_file: the schema against which the XML file should be validated
-
-    Returns:
-        True if the XML file is valid, False otherwise
-    """
-    xmlschema = etree.XMLSchema(etree.parse(schema_file))
-    doc = etree.parse(input_file)
-
-    if xmlschema.validate(doc):
-        return True
-    else:
-        print("The input data file cannot be uploaded due to the following validation error(s):")
-        for error in xmlschema.error_log:
-            print(f"  Line {error.line}: {error.message}")
-        return False
-
-
 def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     """
     Converts an ARK URL from salsah.org (ARK version 0) of the form ark:/72163/080c-779b9990a0c3f-6e to a DSP resource
@@ -244,7 +221,7 @@ def _parse_xml_file(input_file: str) -> etree.ElementTree:
 
 
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
-               validate_only: bool, incremental: bool) -> bool:
+               incremental: bool) -> bool:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
 
@@ -256,7 +233,6 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         imgdir: the image directory
         sipi: the sipi instance to be used
         verbose: verbose option for the command, if used more output is given to the user
-        validate_only: validation option to validate the XML data without the actual import of the data
         incremental: if set, IRIs instead of internal IDs are expected as resource pointers
 
     Returns:
@@ -267,17 +243,16 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     # Validate the input XML file
     current_dir = os.path.dirname(os.path.realpath(__file__))
     schema_file = os.path.join(current_dir, '../schemas/data.xsd')
-    if _validate_xml_against_schema(input_file, schema_file):
-        print("The input data file is syntactically correct and passed validation.")
-        if validate_only:
-            exit(0)
-    else:
-        print("ERROR The input data file did not pass validation.")
-        exit(1)
+    try:
+        validate_xml_against_schema(input_file, schema_file)
+    except BaseError as err:
+        print(f"=====================================\n"
+              f"{err.message}")
+        quit(0)
 
     # Connect to the DaSCH Service Platform API and get the project context
     con = Connection(server)
-    con.login(user, password)
+    try_network_action(failure_msg="Unable to login to DSP server", action=lambda: con.login(user, password))
     proj_context = ProjectContext(con=con)
     sipi_server = Sipi(sipi, con.get_token())
 
@@ -348,7 +323,8 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         success = False
     if success:
         print("All resources have successfully been uploaded.")
-    _write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
+    if len(id2iri_mapping) > 0:
+        _write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
 
     return success
 
@@ -380,7 +356,15 @@ def _upload_resources(
         id2iri_mapping, failed_uploads: These two arguments are modified during the upload
     """
 
-    for resource in resources:
+    # If there are multimedia files: calculate their total size
+    bitstream_all_sizes_mb = [os.path.getsize(res.bitstream.value) / 1000000 for res in resources if res.bitstream]
+    if len(bitstream_all_sizes_mb) > 0:
+        bitstream_size_total_mb = round(sum(bitstream_all_sizes_mb), 1)
+        bitstream_all_sizes_iterator = iter(bitstream_all_sizes_mb)  # for later reuse, to avoid later system calls
+        bitstream_size_uploaded_mb = 0.0
+        print(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
+
+    for i, resource in enumerate(resources):
         resource_iri = resource.iri
         if resource.ark:
             resource_iri = _convert_ark_v0_to_resource_iri(resource.ark)
@@ -391,12 +375,15 @@ def _upload_resources(
             try:
                 img: Optional[dict[Any, Any]] = try_network_action(
                     action=lambda: sipi_server.upload_bitstream(filepath=os.path.join(imgdir, resource.bitstream.value)),
-                    failure_msg=f'ERROR while trying to create resource "{resource.label}" ({resource.id}).'
+                    failure_msg=f'ERROR while trying to upload file "{resource.bitstream.value}" of resource '
+                                f'"{resource.label}" ({resource.id}).'
                 )
             except BaseError as err:
                 print(err.message)
                 failed_uploads.append(resource.id)
                 continue
+            bitstream_size_uploaded_mb += round(next(bitstream_all_sizes_iterator), 1)
+            print(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb} MB / {bitstream_size_total_mb} MB)")
             internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 
@@ -430,7 +417,8 @@ def _upload_resources(
             failed_uploads.append(resource.id)
             continue
         id2iri_mapping[resource.id] = created_resource.iri
-        print(f"Created resource '{created_resource.label}' ({resource.id}) with IRI '{created_resource.iri}'")
+        print(f"Created resource {i+1}/{len(resources)}: '{created_resource.label}' (ID: '{resource.id}', IRI: "
+              f"'{created_resource.iri}')")
 
     return id2iri_mapping, failed_uploads
 
@@ -521,13 +509,13 @@ def _upload_stashed_xml_texts(
                     print(f'  Successfully uploaded xml text of "{link_prop.name}"\n')
 
     # make a purged version of stashed_xml_texts, without empty entries
-    nonapplied_xml_texts = _purge_stashed_xml_texts(stashed_xml_texts)
+    nonapplied_xml_texts = _purge_stashed_xml_texts(stashed_xml_texts, id2iri_mapping)
     return nonapplied_xml_texts
 
 
 def _purge_stashed_xml_texts(
     stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
-    id2iri_mapping: Optional[dict[str, str]] = None
+    id2iri_mapping: dict[str, str]
 ) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
     """
     Accepts a stash of XML texts and purges it of resources that could not be uploaded (=don't exist in DSP), and of
@@ -536,14 +524,13 @@ def _purge_stashed_xml_texts(
 
     Args:
         stashed_xml_texts: the stash to purge
-        id2iri_mapping: used to check if a resource could be uploaded (optional)
+        id2iri_mapping: used to check if a resource could be uploaded
 
     Returns:
         a purged version of stashed_xml_text
     """
     # remove resources that couldn't be uploaded. If they don't exist in DSP, it's not worth caring about their xmltexts
-    if id2iri_mapping:
-        stashed_xml_texts = {res: propdict for res, propdict in stashed_xml_texts.items() if res.id in id2iri_mapping}
+    stashed_xml_texts = {res: propdict for res, propdict in stashed_xml_texts.items() if res.id in id2iri_mapping}
 
     # remove resources that don't have stashed xmltexts (=all xmltexts had been reapplied)
     nonapplied_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]] = {}
@@ -620,13 +607,13 @@ def _upload_stashed_resptr_props(
                           f'    Value: {resptr}')
 
     # make a purged version of stashed_resptr_props, without empty entries
-    nonapplied_resptr_props = _purge_stashed_resptr_props(stashed_resptr_props)
+    nonapplied_resptr_props = _purge_stashed_resptr_props(stashed_resptr_props, id2iri_mapping)
     return nonapplied_resptr_props
 
 
 def _purge_stashed_resptr_props(
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
-    id2iri_mapping: Optional[dict[str, str]] = None
+    id2iri_mapping: dict[str, str]
 ) -> dict[XMLResource, dict[XMLProperty, list[str]]]:
     """
     Accepts a stash of resptrs and purges it of resources that could not be uploaded (=don't exist in DSP), and of
@@ -641,8 +628,7 @@ def _purge_stashed_resptr_props(
         a purged version of stashed_resptr_props
     """
     # remove resources that couldn't be uploaded. If they don't exist in DSP, it's not worth caring about their resptrs
-    if id2iri_mapping:
-        stashed_resptr_props = {res: pdict for res, pdict in stashed_resptr_props.items() if res.id in id2iri_mapping}
+    stashed_resptr_props = {res: pdict for res, pdict in stashed_resptr_props.items() if res.id in id2iri_mapping}
 
     # remove resources that don't have stashed resptrs (=all resptrs had been reapplied)
     nonapplied_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]] = {}
@@ -686,7 +672,8 @@ def _handle_upload_error(
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
 
     # write id2iri_mapping of the resources that are already in DSP
-    _write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
+    if len(id2iri_mapping) > 0:
+        _write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
 
     # Both stashes are purged from resources that have not been uploaded yet. Only stashed properties of resources that
     # already exist in DSP are of interest.

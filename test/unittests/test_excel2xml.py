@@ -141,18 +141,6 @@ class TestExcel2xml(unittest.TestCase):
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, ".")
 
 
-    def test_check_notna(self) -> None:
-        na_values = [None, pd.NA, np.nan, "", "  ", "-", ",", ".", "*", "!", " ⳰", " ῀ ", " ῾ ", " \n\t ", "N/A", "n/a",
-                     "<NA>", ["a", "b"], pd.array(["a", "b"]), np.array([0, 1])]
-        for na_value in na_values:
-            self.assertFalse(excel2xml.check_notna(na_value), msg=f"Failed na_value: {na_value}")
-
-        notna_values = [1, 0.1, True, False, "True", "False", r" \n\t ", "0", "_", "Ὅμηρος"]
-        notna_values.extend([excel2xml.PropertyElement(x) for x in notna_values])
-        for notna_value in notna_values:
-            self.assertTrue(excel2xml.check_notna(notna_value), msg=f"Failed notna_value: {notna_value}")
-
-
     def test_find_date_in_string(self) -> None:
 
         # template: 2021-01-01 | 2015_01_02

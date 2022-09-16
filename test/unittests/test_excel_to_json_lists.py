@@ -64,44 +64,39 @@ class TestExcelToJSONList(unittest.TestCase):
         # remove mandatory "comments" section from root node
         lists_section_without_comment_at_rootnode = copy.deepcopy(lists_section_valid)
         del lists_section_without_comment_at_rootnode[0]["comments"]
-        self.assertRaisesRegex(
+        with self.assertRaisesRegex(
             BaseError,
-            "\"lists\" section did not pass validation. The error message is: 'comments' is a required property",
-            lambda: e2l.validate_lists_section_with_schema(lists_section=lists_section_without_comment_at_rootnode)
-        )
+            "\"lists\" section did not pass validation. The error message is: 'comments' is a required property"
+        ):
+            e2l.validate_lists_section_with_schema(lists_section=lists_section_without_comment_at_rootnode)
 
         # remove mandatory "comments" section from root node
         lists_section_with_invalid_lang = copy.deepcopy(lists_section_valid)
         lists_section_with_invalid_lang[0]["comments"]["eng"] = "wrong English label"
-        self.assertRaisesRegex(
+        with self.assertRaisesRegex(
             BaseError,
-            "\"lists\" section did not pass validation. The error message is: 'eng' does not match any of the regexes",
-            lambda: e2l.validate_lists_section_with_schema(lists_section=lists_section_with_invalid_lang)
-        )
+            "\"lists\" section did not pass validation. The error message is: 'eng' does not match any of the regexes"
+        ):
+            e2l.validate_lists_section_with_schema(lists_section=lists_section_with_invalid_lang)
 
         # wrong usage of the method
-        self.assertRaisesRegex(
+        with self.assertRaisesRegex(
             BaseError,
-            "Validation of the 'lists' section works only if exactly one of the two arguments is given.",
-            lambda: e2l.validate_lists_section_with_schema(
+            "Validation of the 'lists' section works only if exactly one of the two arguments is given."
+        ):
+            e2l.validate_lists_section_with_schema(
                 path_to_json_project_file="testdata/test-project-systematic.json",
                 lists_section=lists_section_valid
             )
-        )
-        self.assertRaisesRegex(
+        with self.assertRaisesRegex(
             BaseError,
-            "Validation of the 'lists' section works only if exactly one of the two arguments is given.",
-            lambda: e2l.validate_lists_section_with_schema()
-        )
+            "Validation of the 'lists' section works only if exactly one of the two arguments is given."
+        ):
+            e2l.validate_lists_section_with_schema()
 
         # pass a file that doesn't have a "lists" section
-        self.assertRaisesRegex(
-            BaseError,
-            "",
-            lambda: e2l.validate_lists_section_with_schema(
-                path_to_json_project_file="testdata/test-project-minimal.json",
-            )
-        )
+        with self.assertRaisesRegex(BaseError, "there is no \"lists\" section"):
+            e2l.validate_lists_section_with_schema(path_to_json_project_file="testdata/test-project-minimal.json")
 
 
     def test_excel2lists(self) -> None:

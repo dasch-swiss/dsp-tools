@@ -260,6 +260,9 @@ def validate_lists_section_with_schema(
         with open(path_to_json_project_file) as f:
             project = json.load(f)
             lists_section = project["project"].get("lists")
+            if not lists_section:
+                raise BaseError(f"Cannot validate \"lists\" section of {path_to_json_project_file}, because there is "
+                                f"no \"lists\" section in this file.")
 
     try:
         jsonschema.validate(instance={"lists": lists_section}, schema=lists_schema)

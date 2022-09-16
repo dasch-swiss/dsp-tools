@@ -7,6 +7,7 @@ import jsonpath_ng
 import jsonpath_ng.ext
 import pandas as pd
 import regex
+from typing import Any
 
 from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.utils import excel_to_json_lists as e2l
@@ -111,12 +112,15 @@ class TestExcelToJSONList(unittest.TestCase):
             input_df.dropna(axis="index", how="all", inplace=True)
             excelfolder = f"testdata/lists_{mode}"
             outfile = f"testdata/tmp/lists_output_{mode}.json"
-            e2l.excel2lists(excelfolder=excelfolder, outfile=outfile)
+            output_from_method = e2l.excel2lists(excelfolder=excelfolder, outfile=outfile)
+
+            # check that output from file and from method are equal
+            with open(outfile) as f:
+                output_from_file: dict[str, list[dict[str, Any]]] = json.load(f)
+            self.assertListEqual(output_from_file["lists"], output_from_method)
 
             # check that the output file has the same number of nodes than the Excel file has rows
-            with open(outfile) as f:
-                output_as_dict = json.load(f)
-            output_nodes_matches = jsonpath_ng.parse('$..name').find(output_as_dict)
+            output_nodes_matches = jsonpath_ng.parse('$..name').find(output_from_file)
             self.assertTrue(
                 len(input_df.index) == len(output_nodes_matches),
                 f"The output JSON file doesn't have the same number of nodes than the Excel file has rows"
@@ -133,7 +137,7 @@ class TestExcelToJSONList(unittest.TestCase):
                 parser_string = '$'
                 for elem in jsonpath_elems:
                     parser_string = parser_string + f'.nodes[?(@.labels.en == "{elem}")]'
-                node_match = jsonpath_ng.ext.parse(parser_string).find(output_as_dict)
+                node_match = jsonpath_ng.ext.parse(parser_string).find(output_from_file)
                 self.assertTrue(
                     len(node_match) == 1,
                     f'The node "{jsonpath_elems[-1]}" from Excel row {index+1} was not correctly translated to the '

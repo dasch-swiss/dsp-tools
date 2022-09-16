@@ -4,6 +4,7 @@ import unittest
 import json
 import jsonpath_ng
 import jsonpath_ng.ext
+from typing import Any
 from knora.dsplib.utils import excel_to_json_resources as e2j
 
 
@@ -25,7 +26,7 @@ class TestExcelToResource(unittest.TestCase):
     def test_excel2resources(self) -> None:
         excelfile = "testdata/Resources.xlsx"
         outfile = "testdata/tmp/_out_resources.json"
-        e2j.excel2resources(excelfile, outfile)
+        output_from_method = e2j.excel2resources(excelfile, outfile)
 
         # define the expected values from the excel file
         excel_names = ["Owner", "Title", "GenericAnthroponym", "FamilyMember", "MentionedPerson", "Alias", "Image",
@@ -57,30 +58,33 @@ class TestExcelToResource(unittest.TestCase):
 
         # read json file
         with open(outfile) as f:
-            json_file = json.load(f)
+            output_from_file: dict[str, list[dict[str, Any]]] = json.load(f)
 
+        # check that output from file and from method are equal
+        self.assertListEqual(output_from_file["resources"], output_from_method)
+            
         # extract infos from json file
-        json_names = [match.value for match in jsonpath_ng.parse("$.resources[*].name").find(json_file)]
-        json_supers = [match.value for match in jsonpath_ng.parse("$.resources[*].super").find(json_file)]
+        json_names = [match.value for match in jsonpath_ng.parse("$.resources[*].name").find(output_from_file)]
+        json_supers = [match.value for match in jsonpath_ng.parse("$.resources[*].super").find(output_from_file)]
 
-        json_labels_all = [match.value for match in jsonpath_ng.parse("$.resources[*].labels").find(json_file)]
+        json_labels_all = [match.value for match in jsonpath_ng.parse("$.resources[*].labels").find(output_from_file)]
         json_labels: dict[str, list[str]] = dict()
         for lang in ["en", "rm"]:
             json_labels[lang] = [label.get(lang, "").strip() for label in json_labels_all]
-        json_labels_of_image = jsonpath_ng.ext.parse('$.resources[?name="Image"].labels').find(json_file)[0].value
+        json_labels_of_image = jsonpath_ng.ext.parse('$.resources[?name="Image"].labels').find(output_from_file)[0].value
 
         json_comments: dict[str, list[str]] = dict()
         for lang in ["de", "fr"]:
             # make sure the lists of the json comments contain a blank string even if there is no "comments" section
             # at all in this resource
             json_comments[f"comment_{lang}"] = [resource.get("comments", {}).get(lang, "").strip()
-                                               for resource in json_file["resources"]]
-        json_comments_of_image = jsonpath_ng.ext.parse('$.resources[?name="Image"].comments').find(json_file)[0].value
+                                               for resource in output_from_file["resources"]]
+        json_comments_of_image = jsonpath_ng.ext.parse('$.resources[?name="Image"].comments').find(output_from_file)[0].value
 
         json_first_class_properties = [match.value for match in
-                                    jsonpath_ng.parse("$.resources[0].cardinalities[*].propname").find(json_file)]
+                                    jsonpath_ng.parse("$.resources[0].cardinalities[*].propname").find(output_from_file)]
         json_first_class_cardinalities = [match.value for match in
-                                    jsonpath_ng.parse("$.resources[0].cardinalities[*].cardinality").find(json_file)]
+                                    jsonpath_ng.parse("$.resources[0].cardinalities[*].cardinality").find(output_from_file)]
 
         # make checks
         self.assertListEqual(excel_names, json_names)

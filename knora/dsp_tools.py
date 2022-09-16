@@ -186,14 +186,14 @@ def program(user_args: list[str]) -> None:
                        verbose=args.verbose,
                        incremental=args.incremental)
     elif args.action == 'excel2lists':
-        _ = excel2lists(excelfolder=args.excelfolder,
-                        outfile=args.outfile)
+        excel2lists(excelfolder=args.excelfolder,
+                    outfile=args.outfile)
     elif args.action == 'excel2resources':
-        _ = excel2resources(excelfile=args.excelfile,
-                            outfile=args.outfile)
+        excel2resources(excelfile=args.excelfile,
+                        outfile=args.outfile)
     elif args.action == 'excel2properties':
-        _ = excel2properties(excelfile=args.excelfile,
-                             outfile=args.outfile)
+        excel2properties(excelfile=args.excelfile,
+                         outfile=args.outfile)
     elif args.action == 'id2iri':
         id_to_iri(xml_file=args.xmlfile,
                   json_file=args.jsonfile,

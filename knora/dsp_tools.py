@@ -6,9 +6,9 @@ import datetime
 import sys
 from importlib.metadata import version
 
-from knora.dsplib.utils.excel_to_json_lists import list_excel2json, validate_lists_section_with_schema
-from knora.dsplib.utils.excel_to_json_properties import properties_excel2json
-from knora.dsplib.utils.excel_to_json_resources import resources_excel2json
+from knora.dsplib.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
+from knora.dsplib.utils.excel_to_json_properties import excel2properties
+from knora.dsplib.utils.excel_to_json_resources import excel2resources
 from knora.dsplib.utils.id_to_iri import id_to_iri
 from knora.dsplib.utils.onto_create_lists import create_lists
 from knora.dsplib.utils.onto_create_ontology import create_project
@@ -186,14 +186,14 @@ def program(user_args: list[str]) -> None:
                        verbose=args.verbose,
                        incremental=args.incremental)
     elif args.action == 'excel2lists':
-        list_excel2json(excelfolder=args.excelfolder,
+        _ = excel2lists(excelfolder=args.excelfolder,
                         outfile=args.outfile)
     elif args.action == 'excel2resources':
-        resources_excel2json(excelfile=args.excelfile,
-                             outfile=args.outfile)
+        _ = excel2resources(excelfile=args.excelfile,
+                            outfile=args.outfile)
     elif args.action == 'excel2properties':
-        properties_excel2json(excelfile=args.excelfile,
-                              outfile=args.outfile)
+        _ = excel2properties(excelfile=args.excelfile,
+                             outfile=args.outfile)
     elif args.action == 'id2iri':
         id_to_iri(xml_file=args.xmlfile,
                   json_file=args.jsonfile,

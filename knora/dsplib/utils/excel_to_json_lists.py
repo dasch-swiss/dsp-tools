@@ -3,16 +3,14 @@ import glob
 import json
 import os
 import re
-import unicodedata
 from typing import Any, Union, Optional, Tuple
 
 import jsonschema
-from openpyxl import load_workbook
-from openpyxl.cell import Cell
-from openpyxl.worksheet.worksheet import Worksheet
+import openpyxl
 import regex
 
 from knora.dsplib.models.helpers import BaseError
+from knora.dsplib.utils.shared_methods import simplify_name
 
 list_of_lists_of_previous_cell_values: list[list[str]] = []
 """Module level variable used to ensure that there are no duplicate node names"""
@@ -67,8 +65,8 @@ def expand_lists_from_excel(
 
 
 def _get_values_from_excel(
-    excelfiles: dict[str, Worksheet],
-    base_file: dict[str, Worksheet],
+    excelfiles: dict[str, openpyxl.Worksheet],
+    base_file: dict[str, openpyxl.Worksheet],
     parentnode: dict[str, Any],
     row: int,
     col: int,
@@ -94,8 +92,8 @@ def _get_values_from_excel(
     """
     nodes: list[dict[str, Any]] = []
     currentnode: dict[str, Any] = dict()
-    base_file_ws: Worksheet = list(base_file.values())[0]
-    cell: Cell = base_file_ws.cell(column=col, row=row)
+    base_file_ws: openpyxl.Worksheet = list(base_file.values())[0]
+    cell: openpyxl.Cell = base_file_ws.cell(column=col, row=row)
 
     for excelfile in excelfiles.values():
         if any((not excelfile["A1"].value, excelfile["B1"].value)):
@@ -201,9 +199,9 @@ def _make_json_lists_from_excel(excel_file_paths: list[str], verbose: bool = Fal
     startcol = 1
 
     # make a dict with the language labels and the worksheets
-    lang_to_worksheet: dict[str, Worksheet] = {}
+    lang_to_worksheet: dict[str, openpyxl.Worksheet] = {}
     for filepath in excel_file_paths:
-        lang_to_worksheet[os.path.basename(filepath)[0:2]] = load_workbook(filepath, read_only=True).worksheets[0]
+        lang_to_worksheet[os.path.basename(filepath)[0:2]] = openpyxl.load_workbook(filepath, read_only=True).worksheets[0]
 
     # take English as base file. If English is not available, take a random one.
     base_lang = "en" if "en" in lang_to_worksheet else list(lang_to_worksheet.keys())[0]
@@ -236,30 +234,6 @@ def _make_json_lists_from_excel(excel_file_paths: list[str], verbose: bool = Fal
     return finished_lists
 
 
-def simplify_name(value: str) -> str:
-    """
-    Simplifies a given value in order to use it as node name
-
-    Args:
-        value: The value to be simplified
-
-    Returns:
-        str: The simplified value
-    """
-    simplified_value = str(value).lower()
-
-    # normalize characters (p.ex. ä becomes a)
-    simplified_value = unicodedata.normalize("NFKD", simplified_value)
-
-    # replace forward slash and whitespace with a dash
-    simplified_value = re.sub("[/\\s]+", "-", simplified_value)
-
-    # delete all characters which are not letters, numbers or dashes
-    simplified_value = re.sub("[^A-Za-z0-9\\-]+", "", simplified_value)
-
-    return simplified_value
-
-
 def validate_lists_section_with_schema(
     path_to_json_project_file: Optional[str] = None,
     lists_section: Optional[list[dict[str, Any]]] = None
@@ -273,7 +247,7 @@ def validate_lists_section_with_schema(
         lists_section: the "lists" section as Python object
 
     Returns:
-        True if the list passed validation. Otherwise, a BaseError with a detailed error report is raised
+        True if the "lists" section passed validation. Otherwise, a BaseError with a detailed error report is raised
     """
     if bool(path_to_json_project_file) == bool(lists_section):
         raise BaseError("Validation of the 'lists' section works only if exactly one of the two arguments is given.")
@@ -283,12 +257,12 @@ def validate_lists_section_with_schema(
     if path_to_json_project_file:
         with open(path_to_json_project_file) as f:
             project = json.load(f)
-            lists_section = project["project"]["lists"]
+            lists_section = project["project"].get("lists")
 
     try:
         jsonschema.validate(instance={"lists": lists_section}, schema=lists_schema)
     except jsonschema.exceptions.ValidationError as err:
-        raise BaseError(f'"Lists" section did not pass validation. The error message is: {err.message}\n'
+        raise BaseError(f'"lists" section did not pass validation. The error message is: {err.message}\n'
                         f'The error occurred at {err.json_path}')
     return True
 
@@ -318,16 +292,16 @@ def _extract_excel_file_paths(excelfolder: str) -> list[str]:
     return excel_file_paths
 
 
-def list_excel2json(excelfolder: str, outfile: str) -> None:
+def excel2lists(excelfolder: str, outfile: str) -> list[dict[str, Any]]:
     """
-    This method writes a JSON file with a "lists" section that can later be inserted into a JSON project file.
+    Converts lists described in Excel files into a "lists" section that can be inserted into a JSON project file.
 
     Args:
         excelfolder: path to the folder containing the Excel file(s)
         outfile: path to the JSON file the output is written into
 
     Returns:
-        None
+        the "lists" section as Python list
     """
     excel_file_paths = _extract_excel_file_paths(excelfolder)
     print("The following Excel files will be processed:")
@@ -336,5 +310,7 @@ def list_excel2json(excelfolder: str, outfile: str) -> None:
     validate_lists_section_with_schema(lists_section=finished_lists)
 
     with open(outfile, "w", encoding="utf-8") as fp:
-        json.dump({"lists": finished_lists}, fp, indent=4, sort_keys=False, ensure_ascii=False)
-        print("List was created successfully and written to file:", outfile)
+        json.dump({"lists": finished_lists}, fp, indent=4, ensure_ascii=False)
+        print('"lists" section was created successfully and written to file:', outfile)
+
+    return finished_lists

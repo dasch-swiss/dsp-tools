@@ -22,10 +22,10 @@ class TestExcelToProperties(unittest.TestCase):
             os.remove('testdata/tmp/' + file)
         os.rmdir('testdata/tmp')
 
-    def test_excel2json(self) -> None:
+    def test_excel2properties(self) -> None:
         excelfile = "testdata/Properties.xlsx"
         outfile = "testdata/tmp/_out_properties.json"
-        e2j.properties_excel2json(excelfile, outfile)
+        e2j.excel2properties(excelfile, outfile)
 
         # define the expected values from the excel file
         excel_names = ["correspondsToGenericAnthroponym", "hasAnthroponym", "hasGender", "isDesignatedAs", "hasTitle",
@@ -76,9 +76,7 @@ class TestExcelToProperties(unittest.TestCase):
 
         # read json file
         with open(outfile) as f:
-            json_string = f.read()
-            json_string = "{" + json_string + "}"
-            json_file = json.loads(json_string)
+            json_file = json.load(f)
 
         # extract infos from json file
         json_names = [match.value for match in jsonpath_ng.parse("$.properties[*].name").find(json_file)]

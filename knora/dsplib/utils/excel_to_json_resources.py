@@ -1,68 +1,31 @@
 import json
-import os
-import re
 from typing import Any
-
 import jsonschema
 import pandas as pd
+from knora.dsplib.models.helpers import BaseError
+from knora.dsplib.utils.shared_methods import prepare_dataframe
 
 languages = ["en", "de", "fr", "it", "rm"]
 
 
-def _validate_resources_with_schema(json_file: str) -> bool:
+def _validate_resources_with_schema(resources_list: list[dict[str, Any]]) -> bool:
     """
-    This function checks if the json resources are valid according to the schema.
+    This function checks if the "resources" section of a JSON project file is valid according to the schema.
 
     Args:
-        json_file: the json with the resources to be validated
+        resources_list: the "resources" section of a JSON project as a list of dicts
 
     Returns:
-        True if the data passed validation, False otherwise
+        True if the "resources" section passed validation. Otherwise, a BaseError with a detailed error report is raised.
     """
-    current_dir = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(current_dir, "../schemas/resources-only.json")) as schema:
+    with open("knora/dsplib/schemas/resources-only.json") as schema:
         resources_schema = json.load(schema)
-
     try:
-        jsonschema.validate(instance=json_file, schema=resources_schema)
+        jsonschema.validate(instance=resources_list, schema=resources_schema)
     except jsonschema.exceptions.ValidationError as err:
-        print(err)
-        return False
-    print("Resource data passed schema validation.")
+        raise BaseError(f'"resources" section did not pass validation. The error message is: {err.message}\n'
+                        f'The error occurred at {err.json_path}')
     return True
-
-
-def prepare_dataframe(df: pd.DataFrame, required_columns: list[str], location_of_sheet: str) -> pd.DataFrame:
-    """
-    Takes a pandas DataFrame, strips the column headers from whitespaces and transforms them to lowercase,
-    strips every cell from whitespaces and inserts "" if there is no string in it, and deletes the rows that don't have
-    a value in one of the required cells.
-
-    Args:
-        df: pandas DataFrame
-        required_columns: headers of the columns where a value is required
-        location_of_sheet: for better error messages, provide this information of the caller
-
-    Returns:
-        prepared DataFrame
-    """
-
-    any_char_regex = r"[\wäàçëéèêïöôòüÄÀÇËÉÊÏÖÔÒÜ]"
-
-    # strip column headers and transform to lowercase, so that the script doesn't break when the headers vary a bit
-    new_df = df.rename(columns=lambda x: x.strip().lower())
-    required_columns = [x.strip().lower() for x in required_columns]
-    # strip every cell, and insert "" if there is no valid word in it
-    new_df = new_df.applymap(lambda x: str(x).strip() if pd.notna(x) and re.search(any_char_regex, str(x), flags=re.IGNORECASE) else "")
-    # delete rows that don't have the required columns
-    for req in required_columns:
-        if req not in new_df:
-            raise ValueError(f"{location_of_sheet} requires a column named '{req}'")
-        new_df = new_df[pd.notna(new_df[req])]
-        new_df = new_df[[bool(re.search(any_char_regex, x, flags=re.IGNORECASE)) for x in new_df[req]]]
-    if len(new_df) < 1:
-        raise ValueError(f"{location_of_sheet} requires at least one row")
-    return new_df
 
 
 def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
@@ -112,16 +75,17 @@ def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
     return resource
 
 
-def resources_excel2json(excelfile: str, outfile: str) -> None:
+def excel2resources(excelfile: str, outfile: str) -> list[dict[str, Any]]:
     """
-    Converts properties described in an Excel file into a properties section which can be integrated into a DSP ontology
+    Converts resources described in an Excel file into a "resources" section which can be inserted into a JSON
+    project file.
 
     Args:
-        excelfile: path to the Excel file containing the properties
-        outfile: path to the output JSON file containing the properties section for the ontology
+        excelfile: path to the Excel file containing the resources
+        outfile: path to the JSON file the output is written into
 
     Returns:
-        None
+        the "resources" section as Python list
     """
 
     # load file
@@ -129,16 +93,16 @@ def resources_excel2json(excelfile: str, outfile: str) -> None:
     all_classes_df = prepare_dataframe(
         df=all_classes_df,
         required_columns=["name", "super"],
-        location_of_sheet=f"Sheet 'classes' in file '{excelfile}'")
+        location_of_sheet=f"Sheet 'classes' in file '{excelfile}'"
+    )
 
     # transform every row into a resource
     resources = [_row2resource(row, excelfile) for i, row in all_classes_df.iterrows()]
 
     # write final list of all resources to JSON file, if list passed validation
-    if _validate_resources_with_schema(json.loads(json.dumps(resources, indent=4))):
-        with open(file=outfile, mode="w+", encoding="utf-8") as file:
-            file.write('"resources": ')
-            json.dump(resources, file, indent=4)
-            print("Resource file was created successfully and written to file ", outfile)
-    else:
-        print("Resource data is not valid according to schema.")
+    _validate_resources_with_schema(json.loads(json.dumps(resources, indent=4)))
+    with open(file=outfile, mode="w", encoding="utf-8") as file:
+        json.dump({"resources": resources}, file, indent=4, ensure_ascii=False)
+        print('"resources" section was created successfully and written to file:', outfile)
+
+    return resources

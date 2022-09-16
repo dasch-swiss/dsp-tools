@@ -67,17 +67,17 @@
                     "oneOf": [
                         {
                             "enum": [
-                                "TextValue",
+                                "BooleanValue",
                                 "ColorValue",
                                 "DateValue",
                                 "DecimalValue",
                                 "GeonameValue",
                                 "IntValue",
-                                "BooleanValue",
-                                "TimeValue",
-                                "UriValue",
                                 "IntervalValue",
                                 "ListValue",
+                                "TextValue",
+                                "TimeValue",
+                                "UriValue",
                                 "Resource",
                                 "Representation"
                             ]
@@ -96,11 +96,11 @@
                 "gui_element": {
                     "type": "string",
                     "enum": [
+                        "Checkbox",
                         "Colorpicker",
                         "Date",
                         "Geonames",
                         "Interval",
-                        "TimeStamp",
                         "List",
                         "Radio",
                         "Richtext",
@@ -109,8 +109,7 @@
                         "Slider",
                         "Spinbox",
                         "Textarea",
-                        "Checkbox",
-                        "Fileupload"
+                        "TimeStamp"
                     ]
                 },
                 "gui_attributes": {

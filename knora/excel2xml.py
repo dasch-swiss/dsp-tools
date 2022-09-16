@@ -15,7 +15,8 @@ from lxml.builder import E
 import dataclasses
 
 from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.utils.excel_to_json_lists import simplify_name
+from knora.dsplib.models.propertyelement import PropertyElement
+from knora.dsplib.utils.shared_methods import simplify_name, check_notna
 
 ##############################
 # global variables and classes
@@ -24,47 +25,6 @@ xml_namespace_map = {
     None: "https://dasch.swiss/schema",
     "xsi": "http://www.w3.org/2001/XMLSchema-instance"
 }
-
-
-@dataclasses.dataclass(frozen=True)
-class PropertyElement:
-    """
-    A PropertyElement object carries more information about a property value than the value itself.
-    The "value" is the value that could be passed to a method as plain string/int/float/bool. Use a PropertyElement
-    instead to define more precisely what attributes your <text> tag (for example) will have.
-
-    Args:
-        value: This is the content that will be written between the <text></text> tags (for example)
-        permissions: This is the permissions that your <text> tag (for example) will have
-        comment: This is the comment that your <text> tag (for example) will have
-        encoding: For <text> tags only. Can be "xml" or "utf8".
-
-    Examples:
-        See the difference between the first and the second example:
-
-        >>> make_text_prop(":testproperty", "first text")
-                <text-prop name=":testproperty">
-                    <text encoding="utf8" permissions="prop-default">
-                        first text
-                    </text>
-                </text-prop>
-        >>> make_text_prop(":testproperty", PropertyElement("first text", permissions="prop-restricted", encoding="xml"))
-                <text-prop name=":testproperty">
-                    <text encoding="xml" permissions="prop-restricted">
-                        first text
-                    </text>
-                </text-prop>
-    """
-    value: Union[str, int, float, bool]
-    permissions: str = "prop-default"
-    comment: Optional[str] = None
-    encoding: Optional[str] = None
-
-    def __post_init__(self) -> None:
-        if not check_notna(self.value):
-            raise BaseError(f"'{self.value}' is not a valid value for a PropertyElement")
-        if self.encoding not in ["utf8", "xml", None]:
-            raise BaseError(f"'{self.encoding}' is not a valid encoding for a PropertyElement")
 
 
 ###########
@@ -267,39 +227,6 @@ def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str
         return f"GREGORIAN:CE:{startyear}:CE:{endyear}"
     else:
         return None
-
-
-def check_notna(value: Optional[Any]) -> bool:
-    """
-    Check a value if it is usable in the context of data archiving. A value is considered usable if it is
-     - a number (integer or float, but not np.nan)
-     - a boolean
-     - a string with at least one Unicode letter, underscore, or number, but not "None", "<NA>", "N/A", or "-"
-     - a PropertyElement whose "value" fulfills the above criteria
-
-    Args:
-        value: any object encountered when analysing data
-
-    Returns:
-        True if the value is usable, False if it is N/A or otherwise unusable
-    """
-
-    if isinstance(value, PropertyElement):
-        value = value.value
-
-    if any([
-        isinstance(value, int),
-        isinstance(value, float) and pd.notna(value),   # necessary because isinstance(np.nan, float)
-        isinstance(value, bool)
-    ]):
-        return True
-    elif isinstance(value, str):
-        return all([
-            regex.search(r"\p{L}|\d|_", value, flags=re.UNICODE),
-            not bool(re.search(r"^(none|<NA>|-|n/a)$", value, flags=re.IGNORECASE))
-        ])
-    else:
-        return False
 
 
 def _check_and_prepare_values(

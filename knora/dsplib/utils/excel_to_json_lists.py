@@ -6,7 +6,9 @@ import re
 from typing import Any, Union, Optional, Tuple
 
 import jsonschema
-import openpyxl
+from openpyxl import load_workbook
+from openpyxl.cell import Cell
+from openpyxl.worksheet.worksheet import Worksheet
 import regex
 
 from knora.dsplib.models.helpers import BaseError
@@ -65,8 +67,8 @@ def expand_lists_from_excel(
 
 
 def _get_values_from_excel(
-    excelfiles: dict[str, openpyxl.Worksheet],
-    base_file: dict[str, openpyxl.Worksheet],
+    excelfiles: dict[str, Worksheet],
+    base_file: dict[str, Worksheet],
     parentnode: dict[str, Any],
     row: int,
     col: int,
@@ -92,8 +94,8 @@ def _get_values_from_excel(
     """
     nodes: list[dict[str, Any]] = []
     currentnode: dict[str, Any] = dict()
-    base_file_ws: openpyxl.Worksheet = list(base_file.values())[0]
-    cell: openpyxl.Cell = base_file_ws.cell(column=col, row=row)
+    base_file_ws: Worksheet = list(base_file.values())[0]
+    cell: Cell = base_file_ws.cell(column=col, row=row)
 
     for excelfile in excelfiles.values():
         if any((not excelfile["A1"].value, excelfile["B1"].value)):
@@ -199,9 +201,9 @@ def _make_json_lists_from_excel(excel_file_paths: list[str], verbose: bool = Fal
     startcol = 1
 
     # make a dict with the language labels and the worksheets
-    lang_to_worksheet: dict[str, openpyxl.Worksheet] = {}
+    lang_to_worksheet: dict[str, Worksheet] = {}
     for filepath in excel_file_paths:
-        lang_to_worksheet[os.path.basename(filepath)[0:2]] = openpyxl.load_workbook(filepath, read_only=True).worksheets[0]
+        lang_to_worksheet[os.path.basename(filepath)[0:2]] = load_workbook(filepath, read_only=True).worksheets[0]
 
     # take English as base file. If English is not available, take a random one.
     base_lang = "en" if "en" in lang_to_worksheet else list(lang_to_worksheet.keys())[0]

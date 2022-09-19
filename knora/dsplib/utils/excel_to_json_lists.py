@@ -297,25 +297,30 @@ def _extract_excel_file_paths(excelfolder: str) -> list[str]:
     return excel_file_paths
 
 
-def excel2lists(excelfolder: str, outfile: str) -> list[dict[str, Any]]:
+def excel2lists(excelfolder: str, path_to_output_file: Optional[str] = None) -> list[dict[str, Any]]:
     """
     Converts lists described in Excel files into a "lists" section that can be inserted into a JSON project file.
 
     Args:
         excelfolder: path to the folder containing the Excel file(s)
-        outfile: path to the JSON file the output is written into
+        path_to_output_file: if provided, the output is written into this JSON file
 
     Returns:
         the "lists" section as Python list
     """
+    # read the data
     excel_file_paths = _extract_excel_file_paths(excelfolder)
     print("The following Excel files will be processed:")
     [print(f" - {filename}") for filename in excel_file_paths]
+    
+    # construct the "lists" section
     finished_lists = _make_json_lists_from_excel(excel_file_paths, verbose=True)
     validate_lists_section_with_schema(lists_section=finished_lists)
 
-    with open(outfile, "w", encoding="utf-8") as fp:
-        json.dump({"lists": finished_lists}, fp, indent=4, ensure_ascii=False)
-        print('"lists" section was created successfully and written to file:', outfile)
+    # write final "lists" section
+    if path_to_output_file:
+        with open(path_to_output_file, "w", encoding="utf-8") as fp:
+            json.dump(finished_lists, fp, indent=4, ensure_ascii=False)
+            print('"lists" section was created successfully and written to file:', path_to_output_file)
 
     return finished_lists

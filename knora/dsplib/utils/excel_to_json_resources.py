@@ -1,5 +1,5 @@
 import json
-from typing import Any
+from typing import Any, Optional
 import jsonschema
 import pandas as pd
 from knora.dsplib.models.helpers import BaseError
@@ -75,14 +75,14 @@ def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
     return resource
 
 
-def excel2resources(excelfile: str, outfile: str) -> list[dict[str, Any]]:
+def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -> list[dict[str, Any]]:
     """
     Converts resources described in an Excel file into a "resources" section which can be inserted into a JSON
     project file.
 
     Args:
         excelfile: path to the Excel file containing the resources
-        outfile: path to the JSON file the output is written into
+        path_to_output_file: if provided, the output is written into this JSON file
 
     Returns:
         the "resources" section as Python list
@@ -98,11 +98,12 @@ def excel2resources(excelfile: str, outfile: str) -> list[dict[str, Any]]:
 
     # transform every row into a resource
     resources = [_row2resource(row, excelfile) for i, row in all_classes_df.iterrows()]
+    _validate_resources_with_schema(resources)
 
-    # write final list of all resources to JSON file, if list passed validation
-    _validate_resources_with_schema(json.loads(json.dumps(resources, indent=4)))
-    with open(file=outfile, mode="w", encoding="utf-8") as file:
-        json.dump({"resources": resources}, file, indent=4, ensure_ascii=False)
-        print('"resources" section was created successfully and written to file:', outfile)
+    # write final "resources" section into a JSON file
+    if path_to_output_file:
+        with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
+            json.dump(resources, file, indent=4, ensure_ascii=False)
+            print('"resources" section was created successfully and written to file:', path_to_output_file)
 
     return resources

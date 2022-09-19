@@ -1,6 +1,6 @@
 import json
 import re
-from typing import Any
+from typing import Any, Optional
 import jsonschema
 import pandas as pd
 
@@ -82,14 +82,14 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
     return _property
 
 
-def excel2properties(excelfile: str, outfile: str) -> list[dict[str, Any]]:
+def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) -> list[dict[str, Any]]:
     """
     Converts properties described in an Excel file into a "properties" section which can be inserted into a JSON
     project file.
 
     Args:
         excelfile: path to the Excel file containing the properties
-        outfile: path to the JSON file the output is written into
+        path_to_output_file: if provided, the output is written into this JSON file
 
     Returns:
         the "properties" section as Python list
@@ -104,11 +104,12 @@ def excel2properties(excelfile: str, outfile: str) -> list[dict[str, Any]]:
 
     # transform every row into a property
     props = [_row2prop(row, i, excelfile) for i, row in df.iterrows()]
-
-    # write final list to JSON file if list passed validation
     _validate_properties_with_schema(props)
-    with open(file=outfile, mode="w", encoding="utf-8") as file:
-        json.dump({"properties": props}, file, indent=4, ensure_ascii=False)
-        print('"properties" section was created successfully and written to file:', outfile)
+
+    # write final JSON file
+    if path_to_output_file:
+        with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
+            json.dump(props, file, indent=4, ensure_ascii=False)
+            print('"properties" section was created successfully and written to file:', path_to_output_file)
 
     return props

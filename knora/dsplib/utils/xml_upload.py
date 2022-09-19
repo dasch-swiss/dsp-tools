@@ -22,7 +22,7 @@ from knora.dsplib.models.value import KnoraStandoffXml
 from knora.dsplib.models.xmlpermission import XmlPermission
 from knora.dsplib.models.xmlproperty import XMLProperty
 from knora.dsplib.models.xmlresource import XMLResource
-from knora.dsplib.utils.shared_methods import try_network_action, validate_xml_against_schema
+from knora.dsplib.utils.shared import try_network_action, validate_xml_against_schema
 
 
 def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
@@ -382,8 +382,8 @@ def _upload_resources(
                 print(err.message)
                 failed_uploads.append(resource.id)
                 continue
-            bitstream_size_uploaded_mb += round(next(bitstream_all_sizes_iterator), 1)
-            print(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb} MB / {bitstream_size_total_mb} MB)")
+            bitstream_size_uploaded_mb += next(bitstream_all_sizes_iterator)
+            print(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")
             internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 

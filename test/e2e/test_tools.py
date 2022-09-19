@@ -6,8 +6,8 @@ import datetime
 import re
 
 from knora.dsplib.utils import excel_to_json_lists
-from knora.dsplib.utils.excel_to_json_properties import properties_excel2json
-from knora.dsplib.utils.excel_to_json_resources import resources_excel2json
+from knora.dsplib.utils.excel_to_json_properties import excel2properties
+from knora.dsplib.utils.excel_to_json_resources import excel2resources
 from knora.dsplib.utils.id_to_iri import id_to_iri
 from knora.dsplib.utils.onto_create_ontology import create_project
 from knora.dsplib.utils.onto_get import get_ontology
@@ -157,16 +157,16 @@ class TestTools(unittest.TestCase):
         self.assertEqual(excel_list.get('comments'), excel_list_out.get('comments'))
 
     def test_excel_to_json_list(self) -> None:
-        excel_to_json_lists.list_excel2json(excelfolder='testdata/multilingual_lists',
-                                            outfile='testdata/tmp/_lists-out.json')
+        excel_to_json_lists.excel2lists(excelfolder='testdata/lists_multilingual',
+                                        path_to_output_file='testdata/tmp/_lists-out.json')
 
     def test_excel_to_json_resources(self) -> None:
-        resources_excel2json(excelfile='testdata/Resources.xlsx',
-                             outfile='testdata/tmp/_out_resources.json')
+        excel2resources(excelfile='testdata/Resources.xlsx',
+                        path_to_output_file='testdata/tmp/_out_resources.json')
 
     def test_excel_to_json_properties(self) -> None:
-        properties_excel2json(excelfile='testdata/Properties.xlsx',
-                              outfile='testdata/tmp/_out_properties.json')
+        excel2properties(excelfile='testdata/Properties.xlsx',
+                         path_to_output_file='testdata/tmp/_out_properties.json')
 
     def test_create_project(self) -> None:
         result1 = create_project(

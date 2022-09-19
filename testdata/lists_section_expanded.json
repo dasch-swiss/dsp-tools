@@ -1,0 +1,114 @@
+{
+    "expanded lists section of test-project-systematic.json": [
+        {
+            "name": "testlist",
+            "labels": {
+                "en": "Testlist",
+                "rm": "Glista test in Rumantsch"
+            },
+            "comments": {
+                "en": "no comment",
+                "de": "kein Kommentar",
+                "rm": "nagin commentar in Rumantsch"
+            },
+            "nodes": [
+                {
+                    "name": "first node of testlist",
+                    "labels": {
+                        "en": "First node of the Test-List",
+                        "rm": "Rumantsch"
+                    }
+                },
+                {
+                    "name": "second node of testlist",
+                    "labels": {
+                        "en": "Second node of the Test-List"
+                    },
+                    "nodes": [
+                        {
+                            "name": "first subnode",
+                            "labels": {
+                                "en": "First Sub-Node"
+                            }
+                        },
+                        {
+                            "name": "second subnode",
+                            "labels": {
+                                "en": "Second Sub-Node"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "third node of testlist",
+                    "labels": {
+                        "en": "Third node of the Test-List"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "my-list-from-excel",
+            "labels": {
+                "en": "My list from Excel"
+            },
+            "comments": {
+                "en": "a comment",
+                "de": "ein Kommentar",
+                "fr": "un commentaire"
+            },
+            "nodes": [
+                {
+                    "name": "red",
+                    "labels": {
+                        "en": "red",
+                        "de": "rot"
+                    }
+                },
+                {
+                    "name": "yellow",
+                    "labels": {
+                        "en": "yellow",
+                        "de": "gelb"
+                    }
+                },
+                {
+                    "name": "blue",
+                    "labels": {
+                        "en": "blue",
+                        "de": "blau"
+                    }
+                },
+                {
+                    "name": "green",
+                    "labels": {
+                        "en": "green",
+                        "de": "grün"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "notUsedList",
+            "labels": {
+                "en": "Not used list"
+            },
+            "comments": {
+                "en": "no comment",
+                "de": "kein Kommentar"
+            },
+            "nodes": [
+                {
+                    "name": "notUsedNode_1",
+                    "labels": {
+                        "en": "nodeLabel_1\"'"
+                    },
+                    "comments": {
+                        "en": "Nodes can have comments, too!",
+                        "rm": "Even in Rumantsch!"
+                    }
+                }
+            ]
+        }
+    ]
+}

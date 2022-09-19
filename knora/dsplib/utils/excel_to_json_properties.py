@@ -1,37 +1,32 @@
 import json
-import os
 import re
-from typing import Any
-
+from typing import Any, Optional
 import jsonschema
 import pandas as pd
 
-from knora.dsplib.utils.excel_to_json_resources import prepare_dataframe
+from knora.dsplib.models.helpers import BaseError
+from knora.dsplib.utils.shared import prepare_dataframe
 
 languages = ["en", "de", "fr", "it", "rm"]
 
 
-def _validate_properties_with_schema(json_file: str) -> bool:
+def _validate_properties_with_schema(properties_list: list[dict[str, Any]]) -> bool:
     """
-    This function checks if the json properties are valid according to the schema.
+    This function checks if the "properties" section of a JSON project file is valid according to the schema.
 
     Args:
-        json_file: the json with the properties to be validated
+        properties_list: the "properties" section of a JSON project as a list of dicts
 
     Returns:
-        True if the data passed validation, False otherwise
-
+        True if the "properties" section passed validation. Otherwise, a BaseError with a detailed error report is raised.
     """
-    current_dir = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(current_dir, "../schemas/properties-only.json")) as schema:
+    with open("knora/dsplib/schemas/properties-only.json") as schema:
         properties_schema = json.load(schema)
-
     try:
-        jsonschema.validate(instance=json_file, schema=properties_schema)
+        jsonschema.validate(instance=properties_list, schema=properties_schema)
     except jsonschema.exceptions.ValidationError as err:
-        print(err)
-        return False
-    print("Properties data passed schema validation.")
+        raise BaseError(f'"properties" section did not pass validation. The error message is: {err.message}\n'
+                        f'The error occurred at {err.json_path}')
     return True
 
 
@@ -42,19 +37,19 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
     Args:
         row: row from a pandas DataFrame that defines a property
         row_count: row number of Excel file
-        excelfile: name of the original excel file
+        excelfile: name of the original Excel file
 
     Returns:
         dict object of the property
     """
 
+    # extract the elements that are necessary to build the property
     name = row["name"]
     supers = [s.strip() for s in row["super"].split(",")]
     _object = row["object"]
     labels = {lang: row[lang] for lang in languages if row.get(lang)}
     comments = {lang: row[f"comment_{lang}"] for lang in languages if row.get(f"comment_{lang}")}
     gui_element = row["gui_element"]
-
     gui_attributes = dict()
     if row.get("hlist"):
         gui_attributes["hlist"] = row["hlist"]
@@ -71,12 +66,13 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
                 val = int(val)
             gui_attributes[attr] = val
 
-    # build the dict structure of this property and append it to the list of properties
+    # build the dict structure of this property
     _property = {
         "name": name,
         "super": supers,
         "object": _object,
-        "labels": labels}
+        "labels": labels
+    }
     if comments:
         _property["comments"] = comments
     _property["gui_element"] = gui_element
@@ -86,16 +82,17 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
     return _property
 
 
-def properties_excel2json(excelfile: str, outfile: str) -> None:
+def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) -> list[dict[str, Any]]:
     """
-    Converts properties described in an Excel file into a properties section which can be integrated into a DSP ontology
+    Converts properties described in an Excel file into a "properties" section which can be inserted into a JSON
+    project file.
 
     Args:
         excelfile: path to the Excel file containing the properties
-        outfile: path to the output JSON file containing the properties section for the ontology
+        path_to_output_file: if provided, the output is written into this JSON file
 
     Returns:
-        None
+        the "properties" section as Python list
     """
     
     # load file
@@ -107,12 +104,12 @@ def properties_excel2json(excelfile: str, outfile: str) -> None:
 
     # transform every row into a property
     props = [_row2prop(row, i, excelfile) for i, row in df.iterrows()]
+    _validate_properties_with_schema(props)
 
-    # write final list to JSON file if list passed validation
-    if _validate_properties_with_schema(json.loads(json.dumps(props, indent=4))):
-        with open(file=outfile, mode="w+", encoding="utf-8") as file:
-            file.write('"properties": ')
-            json.dump(props, file, indent=4)
-            print("Properties file was created successfully and written to file: ", outfile)
-    else:
-        print("Properties data is not valid according to schema.")
+    # write final JSON file
+    if path_to_output_file:
+        with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
+            json.dump(props, file, indent=4, ensure_ascii=False)
+            print('"properties" section was created successfully and written to file:', path_to_output_file)
+
+    return props

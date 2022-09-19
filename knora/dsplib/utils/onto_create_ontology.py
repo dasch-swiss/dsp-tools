@@ -16,7 +16,7 @@ from knora.dsplib.models.user import User
 from knora.dsplib.utils.excel_to_json_lists import expand_lists_from_excel
 from knora.dsplib.utils.onto_create_lists import create_lists
 from knora.dsplib.utils.onto_validate import validate_project
-from knora.dsplib.utils.shared_methods import login, try_network_action
+from knora.dsplib.utils.shared import login, try_network_action
 
 
 def _create_project(con: Connection, project_definition: dict[str, Any]) -> Project:

@@ -4,6 +4,7 @@ import unittest
 import json
 import jsonpath_ng
 import jsonpath_ng.ext
+from typing import Any
 
 from knora.dsplib.utils import excel_to_json_properties as e2j
 
@@ -22,10 +23,10 @@ class TestExcelToProperties(unittest.TestCase):
             os.remove('testdata/tmp/' + file)
         os.rmdir('testdata/tmp')
 
-    def test_excel2json(self) -> None:
+    def test_excel2properties(self) -> None:
         excelfile = "testdata/Properties.xlsx"
         outfile = "testdata/tmp/_out_properties.json"
-        e2j.properties_excel2json(excelfile, outfile)
+        output_from_method = e2j.excel2properties(excelfile, outfile)
 
         # define the expected values from the excel file
         excel_names = ["correspondsToGenericAnthroponym", "hasAnthroponym", "hasGender", "isDesignatedAs", "hasTitle",
@@ -76,16 +77,17 @@ class TestExcelToProperties(unittest.TestCase):
 
         # read json file
         with open(outfile) as f:
-            json_string = f.read()
-            json_string = "{" + json_string + "}"
-            json_file = json.loads(json_string)
+            output_from_file: list[dict[str, Any]] = json.load(f)
+
+        # check that output from file and from method are equal
+        self.assertListEqual(output_from_file, output_from_method)
 
         # extract infos from json file
-        json_names = [match.value for match in jsonpath_ng.parse("$.properties[*].name").find(json_file)]
-        json_supers = [match.value for match in jsonpath_ng.parse("$.properties[*].super").find(json_file)]
-        json_objects = [match.value for match in jsonpath_ng.parse("$.properties[*].object").find(json_file)]
+        json_names = [match.value for match in jsonpath_ng.parse("$[*].name").find(output_from_file)]
+        json_supers = [match.value for match in jsonpath_ng.parse("$[*].super").find(output_from_file)]
+        json_objects = [match.value for match in jsonpath_ng.parse("$[*].object").find(output_from_file)]
 
-        json_labels_all = [match.value for match in jsonpath_ng.parse("$.properties[*].labels").find(json_file)]
+        json_labels_all = [match.value for match in jsonpath_ng.parse("$[*].labels").find(output_from_file)]
         json_labels: dict[str, list[str]] = dict()
         for lang in ["de", "it"]:
             json_labels[lang] = [label.get(lang, "").strip() for label in json_labels_all]
@@ -93,13 +95,13 @@ class TestExcelToProperties(unittest.TestCase):
         json_comments: dict[str, list[str]] = dict()
         for lang in ["fr", "it"]:
             json_comments[f"comment_{lang}"] = [resource.get("comments", {}).get(lang, "").strip()
-                                               for resource in json_file["properties"]]
+                                               for resource in output_from_file]
 
-        json_gui_elements = [match.value for match in jsonpath_ng.parse("$.properties[*].gui_element").find(json_file)]
+        json_gui_elements = [match.value for match in jsonpath_ng.parse("$[*].gui_element").find(output_from_file)]
 
-        json_gui_attributes_hasGender = jsonpath_ng.ext.parse("$.properties[?name='hasGender'].gui_attributes").find(json_file)[0].value
-        json_gui_attributes_hasGND = jsonpath_ng.ext.parse("$.properties[?name='hasGND'].gui_attributes").find(json_file)[0].value
-        json_gui_attributes_hasDecimal = jsonpath_ng.ext.parse("$.properties[?name='hasDecimal'].gui_attributes").find(json_file)[0].value
+        json_gui_attributes_hasGender = jsonpath_ng.ext.parse("$[?name='hasGender'].gui_attributes").find(output_from_file)[0].value
+        json_gui_attributes_hasGND = jsonpath_ng.ext.parse("$[?name='hasGND'].gui_attributes").find(output_from_file)[0].value
+        json_gui_attributes_hasDecimal = jsonpath_ng.ext.parse("$[?name='hasDecimal'].gui_attributes").find(output_from_file)[0].value
 
         # make checks
         self.assertListEqual(excel_names, json_names)

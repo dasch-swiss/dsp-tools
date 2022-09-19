@@ -7,7 +7,7 @@ from ..models.connection import Connection
 from ..models.helpers import BaseError
 from ..models.listnode import ListNode
 from ..models.project import Project
-from .shared_methods import login, try_network_action
+from .shared import login, try_network_action
 
 
 def _create_list_node(

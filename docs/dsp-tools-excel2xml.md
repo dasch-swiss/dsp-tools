@@ -63,7 +63,8 @@ For `make_boolean_prop(cell)`, the following formats are supported:
 #### Check if a cell contains a usable value
 The method `check_notna(cell)` checks a value if it is usable in the context of data archiving. A value is considered 
 usable if it is
- - a number (integer or float, but not np.nan)
+
+ - a number (integer or float, but not numpy.nan)
  - a boolean
  - a string with at least one Unicode letter, underscore, or number, but not "None", "<NA>", "N/A", or "-"
  - a PropertyElement whose "value" fulfills the above criteria

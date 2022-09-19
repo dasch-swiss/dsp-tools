@@ -158,15 +158,15 @@ class TestTools(unittest.TestCase):
 
     def test_excel_to_json_list(self) -> None:
         excel_to_json_lists.excel2lists(excelfolder='testdata/lists_multilingual',
-                                        outfile='testdata/tmp/_lists-out.json')
+                                        path_to_output_file='testdata/tmp/_lists-out.json')
 
     def test_excel_to_json_resources(self) -> None:
         excel2resources(excelfile='testdata/Resources.xlsx',
-                        outfile='testdata/tmp/_out_resources.json')
+                        path_to_output_file='testdata/tmp/_out_resources.json')
 
     def test_excel_to_json_properties(self) -> None:
         excel2properties(excelfile='testdata/Properties.xlsx',
-                         outfile='testdata/tmp/_out_properties.json')
+                         path_to_output_file='testdata/tmp/_out_properties.json')
 
     def test_create_project(self) -> None:
         result1 = create_project(

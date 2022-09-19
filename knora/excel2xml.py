@@ -16,7 +16,7 @@ import dataclasses
 
 from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.models.propertyelement import PropertyElement
-from knora.dsplib.utils.shared_methods import simplify_name, check_notna
+from knora.dsplib.utils.shared import simplify_name, check_notna
 
 ##############################
 # global variables and classes

@@ -12,7 +12,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 import regex
 
 from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.utils.shared_methods import simplify_name
+from knora.dsplib.utils.shared import simplify_name
 
 list_of_lists_of_previous_cell_values: list[list[str]] = []
 """Module level variable used to ensure that there are no duplicate node names"""

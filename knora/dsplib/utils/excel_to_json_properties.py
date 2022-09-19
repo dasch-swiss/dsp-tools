@@ -5,7 +5,7 @@ import jsonschema
 import pandas as pd
 
 from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.utils.shared_methods import prepare_dataframe
+from knora.dsplib.utils.shared import prepare_dataframe
 
 languages = ["en", "de", "fr", "it", "rm"]
 

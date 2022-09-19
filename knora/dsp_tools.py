@@ -15,7 +15,7 @@ from knora.dsplib.utils.onto_create_ontology import create_project
 from knora.dsplib.utils.onto_get import get_ontology
 from knora.dsplib.utils.onto_validate import validate_project
 from knora.dsplib.utils.xml_upload import xml_upload
-from knora.dsplib.utils.shared_methods import validate_xml_against_schema
+from knora.dsplib.utils.shared import validate_xml_against_schema
 from knora.excel2xml import excel2xml
 
 

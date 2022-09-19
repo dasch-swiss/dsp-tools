@@ -1,11 +1,11 @@
-import dataclasses
 from typing import Union, Optional
 import pandas as pd
 import regex
+from dataclasses import dataclass
 from knora.dsplib.models.helpers import BaseError
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclass(frozen=True)
 class PropertyElement:
     """
     A PropertyElement object carries more information about a property value than the value itself.

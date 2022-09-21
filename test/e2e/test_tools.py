@@ -222,7 +222,7 @@ class TestTools(unittest.TestCase):
         self.assertEqual(excel_list.get("comments"), excel_list_out.get("comments"))
 
     def test_validate_xml_against_schema(self) -> None:
-        self.assertTrue(validate_xml_against_schema(self.test_project_systematic_file))
+        self.assertTrue(validate_xml_against_schema(self.test_data_systematic_file))
 
     def test_xml_upload(self) -> None:
         result_minimal = xml_upload(

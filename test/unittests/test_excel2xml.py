@@ -3,7 +3,6 @@ import unittest
 import re
 from typing import Callable, Sequence, Union, Optional, Any
 
-import pandas as pd
 import numpy as np
 import pytest
 from lxml import etree
@@ -204,71 +203,71 @@ class TestExcel2xml(unittest.TestCase):
         values_with_nas: list[Union[str, int, float]] = ["test", "", 1, np.nan, 0]
 
         for val in different_values:
-            values_output = excel2xml._check_and_prepare_values(
+            values_output = excel2xml._check_and_prepare_value(
                 value=val,
                 values=None,
                 name=""
             )
             self.assertEqual([x.value for x in values_output], [val,])
 
-            values_output = excel2xml._check_and_prepare_values(
+            values_output = excel2xml._check_and_prepare_value(
                 value=excel2xml.PropertyElement(val),
                 values=None,
                 name=""
             )
             self.assertEqual([x.value for x in values_output], [val,])
 
-        values_output = excel2xml._check_and_prepare_values(
+        values_output = excel2xml._check_and_prepare_value(
             value=None,
             values=identical_values,
             name=""
         )
         self.assertEqual([x.value for x in values_output], identical_values)
 
-        values_output = excel2xml._check_and_prepare_values(
+        values_output = excel2xml._check_and_prepare_value(
             value=None,
             values=[excel2xml.PropertyElement(x) for x in identical_values],
             name=""
         )
         self.assertEqual([x.value for x in values_output], identical_values)
 
-        values_output = excel2xml._check_and_prepare_values(
+        values_output = excel2xml._check_and_prepare_value(
             value=None,
             values=different_values,
             name=""
         )
         self.assertEqual([x.value for x in values_output], different_values)
 
-        values_output = excel2xml._check_and_prepare_values(
+        values_output = excel2xml._check_and_prepare_value(
             value=None,
             values=[excel2xml.PropertyElement(x) for x in different_values],
             name=""
         )
         self.assertEqual([x.value for x in values_output], different_values)
 
-        values_output = excel2xml._check_and_prepare_values(
+        values_output = excel2xml._check_and_prepare_value(
             value=None,
             values=values_with_nas,
             name=""
         )
         self.assertEqual([x.value for x in values_output], ["test", 1, 0])
 
-        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_values(
+        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_value(
             value=different_values,
             values=None,
             name=""
         ))
-        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_values(
+        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_value(
             value=[excel2xml.PropertyElement(x) for x in different_values],
             values=None,
             name=""
         ))
-        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_values(
+        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_value(
             value=1,
             values=[1],
             name=""
         ))
-        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_values(
+        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_value(
             value=np.nan,
             values=[np.nan],
             name=""

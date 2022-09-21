@@ -7,7 +7,7 @@ from knora.dsplib.utils.onto_create_ontology import _sort_resources, _sort_prop_
 from knora.dsplib.utils.onto_validate import _collect_link_properties, _identify_problematic_cardinalities
 
 
-class TestOntoCreation(unittest.TestCase):
+class TestProjectCreation(unittest.TestCase):
     with open('testdata/test-project-systematic.json', 'r') as json_file:
         project: dict[str, Any] = json.load(json_file)
         ontology: dict[str, Any] = project['project']['ontologies'][0]

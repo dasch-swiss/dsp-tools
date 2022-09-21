@@ -5,7 +5,7 @@ from knora.dsplib.utils import shared
 from knora.dsplib.models.propertyelement import PropertyElement
 
 
-class TestSharedMethods(unittest.TestCase):
+class TestShared(unittest.TestCase):
     def test_prepare_dataframe(self) -> None:
         original_df = pd.DataFrame({
              "  TitLE of Column 1 ": ["1",  " 0-1 ", "1-n ", pd.NA,  "    ", " ",    "",     " 0-n ", np.nan],

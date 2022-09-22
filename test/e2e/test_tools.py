@@ -1,4 +1,9 @@
-"""This test class tests the basic functionalities of dsp-tools"""
+"""
+This test class tests the basic functionalities of dsp-tools, i.e. all commands that can be called from the command
+line. The methods are tested in the order in which teh appear in dsp_tools.py. This class only tests that the methods
+can be called with the basic configuration that is available via CLI. More thorough testing of each method is done in
+separate unit tests/e2e tests.
+"""
 import json
 import unittest
 import os
@@ -46,8 +51,10 @@ class TestTools(unittest.TestCase):
         for file in [f for f in os.listdir(".") if re.search(r"id2iri_.+\.json", f)]:
             os.remove(file)
 
+
     def test_validate_lists_section_with_schema(self) -> None:
-        validate_lists_section_with_schema(self.test_project_systematic_file)
+        self.assertTrue(validate_lists_section_with_schema(self.test_project_systematic_file))
+
 
     def test_create_lists(self) -> None:
         # the project must already exist, so let's create a project without lists
@@ -59,22 +66,25 @@ class TestTools(unittest.TestCase):
             verbose=True,
             dump=False
         )
+
         # open a "lists" section and the project that was created
         with open("testdata/lists_multilingual_output_expected.json") as f:
             lists_section = json.load(f)
         with open(self.test_project_minimal_file) as f:
             test_project_minimal = json.load(f)
+
         # create a copy of the project that was created, and insert the first list into it
         test_project_minimal_with_list_1 = copy.deepcopy(test_project_minimal)
         test_project_minimal_with_list_1["project"]["lists"] = [lists_section[0], ]
+
         # create another copy of the project that was created, insert the second list into it, and save it as file
         test_project_minimal_with_list_2 = copy.deepcopy(test_project_minimal)
         test_project_minimal_with_list_2["project"]["lists"] = [lists_section[1], ]
         with open("testdata/tmp/test_project_minimal_with_list_2.json", "x") as f:
             json.dump(test_project_minimal_with_list_2, f)
 
-        # The method to be tested can now be called with both versions of the same project. They contain each another
-        # list. One is loaded from the harddisk, the other is a Python object.
+        # The method to be tested can now be called with both versions of the same project. One is loaded from disk,
+        # the other is a Python object.They contain each another list.
         name2iri_mapping1, success1 = create_lists(server=self.server,
                                                    user=self.user,
                                                    password=self.password,
@@ -94,8 +104,10 @@ class TestTools(unittest.TestCase):
         self.assertListEqual(name2iri_names_1, node_names_1)
         self.assertListEqual(name2iri_names_2, node_names_2)
 
+
     def test_validate_project(self) -> None:
         self.assertTrue(validate_project(self.test_project_systematic_file))
+
 
     def test_create_project(self) -> None:
         result = create_project(
@@ -108,7 +120,8 @@ class TestTools(unittest.TestCase):
         )
         self.assertTrue(result)
 
-    def test_get(self) -> None:
+
+    def test_get_ontology(self) -> None:
         with open(self.test_project_systematic_file) as f:
             project_expected = json.load(f)
 
@@ -221,8 +234,10 @@ class TestTools(unittest.TestCase):
 
         self.assertEqual(excel_list.get("comments"), excel_list_out.get("comments"))
 
+
     def test_validate_xml_against_schema(self) -> None:
         self.assertTrue(validate_xml_against_schema(self.test_data_systematic_file))
+
 
     def test_xml_upload(self) -> None:
         result_minimal = xml_upload(
@@ -259,7 +274,7 @@ class TestTools(unittest.TestCase):
                   json_file=mapping_file,
                   out_file=id2iri_replaced_xml_filename,
                   verbose=True)
-        self.assertEqual(os.path.isfile(id2iri_replaced_xml_filename), True)
+        self.assertTrue(os.path.isfile(id2iri_replaced_xml_filename))
 
         result_replaced = xml_upload(
             input_file=id2iri_replaced_xml_filename,
@@ -275,26 +290,45 @@ class TestTools(unittest.TestCase):
         self.assertTrue(all([not f.name.startswith("stashed_text_properties_") for f in os.scandir(".")]))
         self.assertTrue(all([not f.name.startswith("stashed_resptr_properties_") for f in os.scandir(".")]))
 
+        os.remove(mapping_file)
+        os.remove(id2iri_replaced_xml_filename)
+
+
     def test_excel_to_json_list(self) -> None:
         excel2lists(excelfolder="testdata/lists_multilingual",
                     path_to_output_file="testdata/tmp/_lists-out.json")
+        self.assertTrue(os.path.isfile("testdata/tmp/_lists-out.json"))
+        os.remove("testdata/tmp/_lists-out.json")
+
 
     def test_excel_to_json_resources(self) -> None:
         excel2resources(excelfile="testdata/Resources.xlsx",
                         path_to_output_file="testdata/tmp/_out_resources.json")
+        self.assertTrue(os.path.isfile("testdata/tmp/_out_resources.json"))
+        os.remove("testdata/tmp/_out_resources.json")
+
 
     def test_excel_to_json_properties(self) -> None:
         excel2properties(excelfile="testdata/Properties.xlsx",
                          path_to_output_file="testdata/tmp/_out_properties.json")
+        self.assertTrue(os.path.isfile("testdata/tmp/_out_properties.json"))
+        os.remove("testdata/tmp/_out_properties.json")
+
 
     def test_id_to_iri(self) -> None:
         id_to_iri(xml_file="testdata/test-id2iri-data.xml",
                   json_file="testdata/test-id2iri-mapping.json",
                   out_file="testdata/tmp/test-id2iri-out.xml",
                   verbose=True)
+        self.assertTrue(os.path.isfile("testdata/tmp/test-id2iri-out.xml"))
+        os.remove("testdata/tmp/test-id2iri-out.xml")
+
 
     def test_excel2xml(self) -> None:
         excel2xml("testdata/excel2xml-testdata.xlsx", "1234", "excel2xml-output")
+        self.assertTrue(os.path.isfile("testdata/excel2xml-output-data.xml"))
+        os.remove("testdata/excel2xml-output-data.xml")
+
 
 if __name__ == "__main__":
     unittest.main()

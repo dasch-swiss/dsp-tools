@@ -234,7 +234,7 @@ def _check_and_prepare_value(
     parameter "value" needs to be checked and prepared, which is done by this helper method. "value" is passed on to
     this method as it was received.
 
-    This method transforms "value" to a list of PropertyElements and raises a BaseError if one of the values is N/A.
+    This method transforms "value" to a list of PropertyElements and raises a warning if one of the values is N/A.
 
     Args:
         value: "value" as received from the caller
@@ -249,16 +249,18 @@ def _check_and_prepare_value(
         value = [value, ]
 
     result: list[PropertyElement] = list()
-    # make a PropertyElement out of its elements, if necessary. If there are N/A values, this will raise an error
+    # make a PropertyElement out of its elements, if necessary. If there are N/A values, this will raise a warning
     for elem in value:
         if isinstance(elem, PropertyElement):
             result.append(elem)
         else:
-            try:
-                result.append(PropertyElement(elem))
-            except BaseError as err:
-                raise BaseError(f"Error while trying to create property '{name}' of resource '{calling_resource}'. "
-                                f"Error message: {err.message}")
+            with warnings.catch_warnings():
+                warnings.filterwarnings("error")
+                try:
+                    result.append(PropertyElement(elem))
+                except Warning as w:
+                    warnings.warn(f"Warning for property '{name}' of resource '{calling_resource}': {w}")
+                    und dann muss es aber trotzdem angehängt werden!
 
     return result
 

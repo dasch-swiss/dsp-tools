@@ -205,49 +205,42 @@ class TestExcel2xml(unittest.TestCase):
         for val in different_values:
             values_output = excel2xml._check_and_prepare_value(
                 value=val,
-                values=None,
                 name=""
             )
-            self.assertEqual([x.value for x in values_output], [val,])
+            self.assertEqual([x.value for x in values_output], [val, ])
 
             values_output = excel2xml._check_and_prepare_value(
                 value=excel2xml.PropertyElement(val),
-                values=None,
                 name=""
             )
-            self.assertEqual([x.value for x in values_output], [val,])
+            self.assertEqual([x.value for x in values_output], [val, ])
 
         values_output = excel2xml._check_and_prepare_value(
-            value=None,
-            values=identical_values,
+            value=identical_values,
             name=""
         )
         self.assertEqual([x.value for x in values_output], identical_values)
 
         values_output = excel2xml._check_and_prepare_value(
-            value=None,
-            values=[excel2xml.PropertyElement(x) for x in identical_values],
+            value=[excel2xml.PropertyElement(x) for x in identical_values],
             name=""
         )
         self.assertEqual([x.value for x in values_output], identical_values)
 
         values_output = excel2xml._check_and_prepare_value(
-            value=None,
-            values=different_values,
+            value=different_values,
             name=""
         )
         self.assertEqual([x.value for x in values_output], different_values)
 
         values_output = excel2xml._check_and_prepare_value(
-            value=None,
-            values=[excel2xml.PropertyElement(x) for x in different_values],
+            value=[excel2xml.PropertyElement(x) for x in different_values],
             name=""
         )
         self.assertEqual([x.value for x in values_output], different_values)
 
         values_output = excel2xml._check_and_prepare_value(
-            value=None,
-            values=values_with_nas,
+            value=values_with_nas,
             name=""
         )
         self.assertEqual([x.value for x in values_output], ["test", 1, 0])

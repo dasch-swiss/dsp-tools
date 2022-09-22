@@ -50,6 +50,6 @@ class PropertyElement:
                 not bool(regex.search(r"^(none|<NA>|-|n/a)$", self.value, flags=regex.IGNORECASE))
             ])
         ]):
-            warnings.warn(f"'{self.value}' is not a valid value for a PropertyElement")
+            warnings.warn(Warning(f"'{self.value}' is not a valid value for a PropertyElement"))
         if self.encoding not in ["utf8", "xml", None]:
             raise BaseError(f"'{self.encoding}' is not a valid encoding for a PropertyElement")

@@ -1,6 +1,7 @@
 from typing import Union, Optional
 import pandas as pd
 import regex
+import warnings
 from dataclasses import dataclass
 from knora.dsplib.models.helpers import BaseError
 
@@ -10,13 +11,13 @@ class PropertyElement:
     """
     A PropertyElement object carries more information about a property value than the value itself.
     The "value" is the value that could be passed to a method as plain string/int/float/bool. Use a PropertyElement
-    instead to define more precisely what attributes your <text> tag (for example) will have.
+    instead to define more precisely what attributes your value tag (e.g. <text>, <uri>, ...) will have.
 
     Args:
-        value: This is the content that will be written between the <text></text> tags (for example)
+        value: This is the content that will be written into the value tag (e.g. <text>, <uri>, ...)
         permissions: This is the permissions that your <text> tag (for example) will have
         comment: This is the comment that your <text> tag (for example) will have
-        encoding: For <text> tags only. Can be "xml" or "utf8".
+        encoding: For <text> tags only. If provided, it must be "xml" or "utf8".
 
     Examples:
         See the difference between the first and the second example:
@@ -49,6 +50,6 @@ class PropertyElement:
                 not bool(regex.search(r"^(none|<NA>|-|n/a)$", self.value, flags=regex.IGNORECASE))
             ])
         ]):
-            raise BaseError(f"'{self.value}' is not a valid value for a PropertyElement")
+            warnings.warn(f"'{self.value}' is not a valid value for a PropertyElement")
         if self.encoding not in ["utf8", "xml", None]:
             raise BaseError(f"'{self.encoding}' is not a valid encoding for a PropertyElement")

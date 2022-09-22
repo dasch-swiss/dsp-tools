@@ -551,7 +551,7 @@ def make_color_prop(
         if not re.search(r"^#[0-9a-f]{6}$", str(val.value).strip(), flags=re.IGNORECASE):
             raise BaseError(f"Invalid color format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
 
-    # make xml structure of the value
+    # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}color-prop" % (xml_namespace_map[None]),
         name=name,
@@ -626,7 +626,7 @@ def make_date_prop(
                          r"((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$", str(val.value).strip()):
             raise BaseError(f"Invalid date format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
 
-    # make xml structure of the value
+    # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}date-prop" % (xml_namespace_map[None]),
         name=name,
@@ -695,7 +695,7 @@ def make_decimal_prop(
         if not re.search(r"^\d+\.\d+$", str(val.value).strip()):
             raise BaseError(f"Invalid decimal format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
 
-    # make xml structure of the value
+    # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}decimal-prop" % (xml_namespace_map[None]),
         name=name,
@@ -765,10 +765,9 @@ def make_geometry_prop(
             assert value_as_dict["type"] in ["rectangle", "circle", "polygon"]
             assert isinstance(value_as_dict["points"], list)
         except (json.JSONDecodeError, TypeError, IndexError, KeyError, AssertionError):
-            raise BaseError(f"Invalid geometry format for prop '{name}' in resource '{calling_resource}': "
-                            f"'{val.value}'")
+            warnings.warn(f"Invalid geometry format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
 
-    # make xml structure of the value
+    # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}geometry-prop" % (xml_namespace_map[None]),
         name=name,
@@ -836,6 +835,7 @@ def make_geoname_prop(
         if not re.search(r"^[0-9]+$", str(val.value)):
             raise BaseError(f"Invalid geoname format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
 
+    # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}geoname-prop" % (xml_namespace_map[None]),
         name=name,
@@ -904,6 +904,7 @@ def make_integer_prop(
         if not re.search(r"^\d+$", str(val.value).strip()):
             raise BaseError(f"Invalid integer format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
 
+    # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}integer-prop" % (xml_namespace_map[None]),
         name=name,
@@ -969,9 +970,9 @@ def make_interval_prop(
     # check value type
     for val in values:
         if not re.match(r"([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)):([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+))", str(val.value)):
-            raise BaseError(f"Invalid integer format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
+            raise BaseError(f"Invalid interval format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
 
-
+    # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}interval-prop" % (xml_namespace_map[None]),
         name=name,
@@ -1176,7 +1177,7 @@ def make_text_prop(
     # check value type
     for val in values:
         if not isinstance(val.value, str) or not check_notna(val.value):
-            raise BaseError(f"Invalid text format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
+            warnings.warn(f"Invalid text format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1328,7 +1329,7 @@ def make_uri_prop(
         if not regex.search(
             r"(?<scheme>[a-z][a-z0-9+.\-]*):(//(?<host>[\w_.\-\[\]:~]+)(?<port>:\d{0,6})?)(?<path>/[\p{L}%()_\-.~]*)*"
             r"(?<query>\?[\p{L}_.\-=]+)*(?<fragment>#[\p{L}_/\-~:.]*)?", str(val.value), flags=regex.UNICODE):
-            raise BaseError(f"Invalid URI format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
+            warnings.warn(f"Invalid URI format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
 
     # make xml structure of the valid values
     prop_ = etree.Element(

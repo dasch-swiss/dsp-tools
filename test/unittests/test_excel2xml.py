@@ -197,7 +197,7 @@ class TestExcel2xml(unittest.TestCase):
         self.assertEqual(excel2xml.find_date_in_string("Text [1849/1850] text"), "GREGORIAN:CE:1849:CE:1850")
 
 
-    def test_check_and_prepare_values(self) -> None:
+    def test_check_and_prepare_value(self) -> None:
         identical_values = ["Test", "Test", "Test"]
         different_values: list[Union[str, int, float]] = [1, 1.0, "1", "1.0", " 1 "]
         values_with_nas: list[Union[str, int, float]] = ["test", "", 1, np.nan, 0]

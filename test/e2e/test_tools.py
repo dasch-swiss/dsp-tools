@@ -326,8 +326,8 @@ class TestTools(unittest.TestCase):
 
     def test_excel2xml(self) -> None:
         excel2xml("testdata/excel2xml-testdata.xlsx", "1234", "excel2xml-output")
-        self.assertTrue(os.path.isfile("testdata/excel2xml-output-data.xml"))
-        os.remove("testdata/excel2xml-output-data.xml")
+        self.assertTrue(os.path.isfile("excel2xml-output-data.xml"))
+        os.remove("excel2xml-output-data.xml")
 
 
 if __name__ == "__main__":

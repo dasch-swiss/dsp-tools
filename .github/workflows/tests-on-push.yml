@@ -22,7 +22,6 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "17"
-          cache: sbt
       - name: Set up Python 3.9
         uses: actions/setup-python@v2
         with:

@@ -57,7 +57,7 @@ def run_test(
             f'<{prop} permissions="prop-default">{identical_values[0]}</{prop}>'
             f'<{prop} permissions="prop-default">{identical_values[0]}</{prop}>'
             f'</{prop}-prop>',
-            dict(name=":test", values=identical_values)
+            dict(name=":test", value=identical_values)
         ),
         (
             f'<{prop}-prop name=":test">'
@@ -65,7 +65,7 @@ def run_test(
             f'<{prop} permissions="prop-default">{different_values[4 % max]}</{prop}>'
             f'<{prop} permissions="prop-default">{different_values[5 % max]}</{prop}>'
             f'</{prop}-prop>',
-            dict(name=":test", values=[different_values[3 % max], different_values[4 % max], different_values[5 % max]])
+            dict(name=":test", value=[different_values[3 % max], different_values[4 % max], different_values[5 % max]])
         ),
         (
             f'<{prop}-prop name=":test">'
@@ -73,7 +73,7 @@ def run_test(
             f'<{prop} permissions="prop-default" comment="comment2">{different_values[7 % max]}</{prop}>'
             f'<{prop} permissions="prop-restricted" comment="comment3">{different_values[8 % max]}</{prop}>'
             f'</{prop}-prop>',
-            dict(name=":test", values=[
+            dict(name=":test", value=[
                 excel2xml.PropertyElement(different_values[6 % max], permissions="prop-restricted", comment="comment1"),
                 excel2xml.PropertyElement(different_values[7 % max], permissions="prop-default", comment="comment2"),
                 excel2xml.PropertyElement(different_values[8 % max], permissions="prop-restricted", comment="comment3")
@@ -239,32 +239,16 @@ class TestExcel2xml(unittest.TestCase):
         )
         self.assertEqual([x.value for x in values_output], different_values)
 
-        values_output = excel2xml._check_and_prepare_value(
-            value=values_with_nas,
-            name=""
-        )
-        self.assertEqual([x.value for x in values_output], ["test", 1, 0])
-
-        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_value(
-            value=different_values,
-            values=None,
-            name=""
-        ))
-        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_value(
-            value=[excel2xml.PropertyElement(x) for x in different_values],
-            values=None,
-            name=""
-        ))
-        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_value(
-            value=1,
-            values=[1],
-            name=""
-        ))
-        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_value(
-            value=np.nan,
-            values=[np.nan],
-            name=""
-        ))
+        with self.assertWarnsRegex(
+            Warning,
+            rf"Warning for property 'propertyname' of resource 'calling_resource': '.+' is not a valid value for a PropertyElement"
+        ):
+            values_output = excel2xml._check_and_prepare_value(
+                value=values_with_nas,
+                name="propertyname",
+                calling_resource="calling_resource"
+            )
+            self.assertEqual([x.value for x in values_output], values_with_nas)
 
 
     def test_make_boolean_prop(self) -> None:

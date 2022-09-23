@@ -249,18 +249,25 @@ def _check_and_prepare_value(
         value = [value, ]
 
     result: list[PropertyElement] = list()
-    # make a PropertyElement out of its elements, if necessary. If there are N/A values, this will raise a warning
+    # make a PropertyElement out of its elements, if necessary. If there are N/A values, this will raise a warning, but
+    # the program should continue (="weak" validation).
     for elem in value:
         if isinstance(elem, PropertyElement):
             result.append(elem)
         else:
+            # elem has to be transformed to a PropertyElement. In the PropertyElement constructor, a warning might be
+            # raised. It is necessary to add context information to the warning, because the constructor has no
+            # information about the context.
+            # So it is necessary to temporarily make warnings catchable, catch them, and reraise it with context
+            # information. But then, the PropertyElement must be created nevertheless.
             with warnings.catch_warnings():
                 warnings.filterwarnings("error")
                 try:
                     result.append(PropertyElement(elem))
                 except Warning as w:
                     warnings.warn(f"Warning for property '{name}' of resource '{calling_resource}': {w}")
-                    und dann muss es aber trotzdem angehängt werden!
+                    warnings.resetwarnings()
+                    result.append(PropertyElement(elem))
 
     return result
 

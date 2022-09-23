@@ -84,7 +84,7 @@ class TestTools(unittest.TestCase):
             json.dump(test_project_minimal_with_list_2, f)
 
         # The method to be tested can now be called with both versions of the same project. One is loaded from disk,
-        # the other is a Python object.They contain each another list.
+        # the other is a Python object. The two projects each contain another list.
         name2iri_mapping1, success1 = create_lists(server=self.server,
                                                    user=self.user,
                                                    password=self.password,

@@ -71,10 +71,15 @@ def create_lists(
     dump: bool = False
 ) -> Tuple[dict[str, Any], bool]:
     """
-    This method uploads the "lists" section of a JSON project definition file to a DSP server. If the JSON project file
-    is still unparsed, this method parses it, expands the Excel sheets that are referenced, and validates it.
+    This method uploads the "lists" section of a JSON project definition file to a DSP server. The project must already
+    exist on the DSP server.
+
+    If the JSON project file is passed as "input_file", this method parses it, expands the Excel sheets that are
+    referenced, and validates it. If it is passed as "project_definition", these preliminary steps are not necessary.
+
     The "lists" section of the parsed project definition is then uploaded to the DSP server. If a list with the same
     name is already existing in this project on the DSP server, this list is skipped.
+
     Returns a tuple consisting of a dict and a bool. The dict contains the IRIs of the created list nodes. If there are
     no lists in the project definition, an empty dictionary is returned. The bool indicates if everything went smoothly
     during the process. If a warning or error occurred (e.g. one of the lists already exists, or one of the nodes could

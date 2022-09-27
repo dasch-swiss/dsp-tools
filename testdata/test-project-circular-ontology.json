@@ -1,4 +1,5 @@
 {
+    "$schema": "../knora/dsplib/schemas/ontology.json",
     "project": {
         "shortcode": "1233",
         "shortname": "test",
@@ -6,6 +7,10 @@
         "descriptions": {
             "en": "test"
         },
+        "keywords": [
+            "test",
+            "testing"
+        ],
         "ontologies": [
             {
                 "name": "testonto",
@@ -37,23 +42,22 @@
                     {
                         "name": "linkToTestThing2",
                         "super": [
-                            "isAnnotationOf",
-                            "foaf:fantasy"
+                            "hasLinkTo"
                         ],
                         "object": ":TestThing2",
                         "labels": {
-                            "en": "has region"
+                            "en": "has a link to TestThing2"
                         },
                         "gui_element": "Searchbox"
                     },
                     {
                         "name": "linkToTestThing3",
                         "super": [
-                            "isRegionOf"
+                            "hasLinkTo"
                         ],
                         "object": ":TestThing3",
                         "labels": {
-                            "en": "has region"
+                            "en": "has a link to TestThing3"
                         },
                         "gui_element": "Searchbox"
                     }

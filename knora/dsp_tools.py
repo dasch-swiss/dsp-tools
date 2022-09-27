@@ -48,30 +48,29 @@ def program(user_args: list[str]) -> None:
     subparsers = parser.add_subparsers(title='Subcommands', description='Valid subcommands are', help='sub-command help')
 
     # create
-    parser_create = subparsers.add_parser('create', help='Upload an ontology and/or list(s) from a JSON file to the '
-                                               'DaSCH Service Platform')
+    parser_create = subparsers.add_parser('create', help='Upload a project and/or list(s) from a JSON project file to '
+                                               'the DaSCH Service Platform')
     parser_create.set_defaults(action='create')
     parser_create.add_argument('-s', '--server', type=str, default=default_localhost, help=url_text)
     parser_create.add_argument('-u', '--user', default=default_user, help=username_text)
     parser_create.add_argument('-p', '--password', default=default_pw, help=password_text)
-    parser_create.add_argument('-V', '--validate-only', action='store_true', help='Do only validation of JSON, no '
-                                    'upload of the ontology')
+    parser_create.add_argument('-V', '--validate-only', action='store_true', help='Only validate the project against '
+                               'the JSON schema, without uploading it')
     parser_create.add_argument('-l', '--lists-only', action='store_true', help='Upload only the list(s)')
     parser_create.add_argument('-v', '--verbose', action='store_true', help=verbose_text)
     parser_create.add_argument('-d', '--dump', action='store_true', help='dump test files for DSP-API requests')
-    parser_create.add_argument('datamodelfile', help='path to data model file')
+    parser_create.add_argument('projectfile', help='path to a JSON project file')
 
     # get
-    parser_get = subparsers.add_parser('get', help='Get the ontology (data model) of a project from the DaSCH Service '
-                                                   'Platform.')
+    parser_get = subparsers.add_parser('get', help='Get a project from the DaSCH Service Platform.')
     parser_get.set_defaults(action='get')
     parser_get.add_argument('-u', '--user', default=default_user, help=username_text)
     parser_get.add_argument('-p', '--password', default=default_pw, help=password_text)
     parser_get.add_argument('-s', '--server', type=str, default=default_localhost, help=url_text)
     parser_get.add_argument('-P', '--project', type=str, help='Shortcode, shortname or iri of project', required=True)
     parser_get.add_argument('-v', '--verbose', action='store_true', help=verbose_text)
-    parser_get.add_argument('datamodelfile', help='Path to the file the ontology should be written to',
-                            default='onto.json')
+    parser_get.add_argument('projectfile', help='Path to the file the project should be written to',
+                            default='project.json')
 
     # xmlupload
     parser_upload = subparsers.add_parser('xmlupload', help='Upload data from an XML file to the DaSCH Service Platform.')
@@ -101,7 +100,7 @@ def program(user_args: list[str]) -> None:
 
     # excel2resources
     parser_excel_resources = subparsers.add_parser('excel2resources', help='Create a JSON file from an Excel file '
-                                                        'containing resources for a DSP ontology. ')
+                                                   'containing resources for a DSP ontology. ')
     parser_excel_resources.set_defaults(action='excel2resources')
     parser_excel_resources.add_argument('excelfile', help='Path to the Excel file containing the resources',
                                         default='resources.xlsx')
@@ -147,19 +146,22 @@ def program(user_args: list[str]) -> None:
     if args.action == 'create':
         if args.lists_only:
             if args.validate_only:
-                validate_lists_section_with_schema(path_to_json_project_file=args.datamodelfile)
+                validate_lists_section_with_schema(path_to_json_project_file=args.projectfile)
+                print('"Lists" section of the JSON project file is syntactically correct and passed validation.')
+                exit(0)
             else:
-                create_lists(input_file=args.datamodelfile,
+                create_lists(input_file=args.projectfile,
                              server=args.server,
                              user=args.user,
                              password=args.password,
                              dump=args.dump)
         else:
-            if args.validate_only and validate_project(args.datamodelfile):
-                print('Data model is syntactically correct and passed validation.')
+            if args.validate_only:
+                validate_project(args.projectfile)
+                print('JSON project file is syntactically correct and passed validation.')
                 exit(0)
             else:
-                create_project(input_file=args.datamodelfile,
+                create_project(input_file=args.projectfile,
                                server=args.server,
                                user_mail=args.user,
                                password=args.password,
@@ -167,15 +169,14 @@ def program(user_args: list[str]) -> None:
                                dump=args.dump if args.dump else False)
     elif args.action == 'get':
         get_ontology(project_identifier=args.project,
-                     outfile=args.datamodelfile,
+                     outfile=args.projectfile,
                      server=args.server,
                      user=args.user,
                      password=args.password,
                      verbose=args.verbose)
     elif args.action == 'xmlupload':
         if args.validate:
-            validate_xml_against_schema(input_file=args.xmlfile,
-                                        schema_file="knora/dsplib/schemas/data.xsd")
+            validate_xml_against_schema(input_file=args.xmlfile)
         else:
             xml_upload(input_file=args.xmlfile,
                        server=args.server,
@@ -187,13 +188,13 @@ def program(user_args: list[str]) -> None:
                        incremental=args.incremental)
     elif args.action == 'excel2lists':
         excel2lists(excelfolder=args.excelfolder,
-                    outfile=args.outfile)
+                    path_to_output_file=args.outfile)
     elif args.action == 'excel2resources':
         excel2resources(excelfile=args.excelfile,
-                        outfile=args.outfile)
+                        path_to_output_file=args.outfile)
     elif args.action == 'excel2properties':
         excel2properties(excelfile=args.excelfile,
-                         outfile=args.outfile)
+                         path_to_output_file=args.outfile)
     elif args.action == 'id2iri':
         id_to_iri(xml_file=args.xmlfile,
                   json_file=args.jsonfile,

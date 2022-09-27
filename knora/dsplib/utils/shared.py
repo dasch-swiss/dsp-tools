@@ -2,6 +2,7 @@ import time
 import unicodedata
 import pandas as pd
 import regex
+import os
 from lxml import etree
 from requests import RequestException
 from datetime import datetime
@@ -87,17 +88,18 @@ def try_network_action(
     raise BaseError(failure_msg)
 
 
-def validate_xml_against_schema(input_file: str, schema_file: str) -> bool:
+def validate_xml_against_schema(input_file: str) -> bool:
     """
     Validates an XML file against an XSD schema
 
     Args:
         input_file: the XML file to be validated
-        schema_file: the schema against which the XML file should be validated
 
     Returns:
         True if the XML file is valid. Otherwise, a BaseError with a detailed error log is raised
     """
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    schema_file = os.path.join(current_dir, "../schemas/data.xsd")
     xmlschema = etree.XMLSchema(etree.parse(schema_file))
     doc = etree.parse(input_file)
 

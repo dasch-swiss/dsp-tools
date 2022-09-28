@@ -238,7 +238,7 @@ def prepare_value(
     return [x if isinstance(x, PropertyElement) else PropertyElement(x) for x in value]
 
 
-def make_root(shortcode: str, default_ontology: str) -> etree.Element:
+def make_root(shortcode: str, default_ontology: str) -> etree._Element:
     """
     Start building your XML document by creating the root element <knora>.
 
@@ -270,7 +270,7 @@ def make_root(shortcode: str, default_ontology: str) -> etree.Element:
     return root
 
 
-def append_permissions(root_element: etree.Element) -> etree.Element:
+def append_permissions(root_element: etree.Element) -> etree._Element:
     """
     After having created a root element, call this method to append the four permissions "res-default",
     "res-restricted", "prop-default", and "prop-restricted" to it. These four permissions are a good basis to
@@ -332,7 +332,7 @@ def make_resource(
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None
-) -> etree.Element:
+) -> etree._Element:
     """
     Creates an empty resource element, with the attributes as specified by the arguments
 
@@ -377,7 +377,7 @@ def make_bitstream_prop(
     path: str,
     permissions: str = "prop-default",
     calling_resource: str = ""
-) -> etree.Element:
+) -> etree._Element:
     """
     Creates a bitstream element that points to "path". If "path" doesn't point to a valid file, a warning will be
     printed to the console, but the script will continue.
@@ -388,7 +388,7 @@ def make_bitstream_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
-        an etree.Element that can be appended to the parent resource with resource.append(make_*_prop(...))
+        an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
         >>> resource = make_resource(...)
@@ -424,7 +424,7 @@ def make_boolean_prop(
     name: str,
     value: Union[PropertyElement, str, int, bool],
     calling_resource: str = ""
-) -> etree.Element:
+) -> etree._Element:
     """
     Make a <boolean-prop> from a boolean value. The value can be provided directly or inside a PropertyElement. The
     following formats are supported:
@@ -433,7 +433,7 @@ def make_boolean_prop(
 
     If the value is not a valid boolean, a BaseError will be raised.
 
-    Unless provided as PropertyElement, the permission of the value defaults to "prop-default".
+    Unless provided as PropertyElement, the permissions of the value default to "prop-default".
 
     Args:
         name: the name of this property as defined in the onto
@@ -441,7 +441,7 @@ def make_boolean_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
-        an etree.Element that can be appended to the parent resource with resource.append(make_*_prop(...))
+        an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
         >>> make_boolean_prop(":testproperty", "no")
@@ -489,10 +489,10 @@ def make_color_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
     calling_resource: str = ""
-) -> etree.Element:
+) -> etree._Element:
     """
     Make a <color-prop> from one or more colors. The color(s) can be provided as string or as PropertyElement with a
-    string inside. If provided as string, the permission defaults to "prop-default".
+    string inside. If provided as string, the permissions default to "prop-default".
 
     If the value is not a valid color, a BaseError will be raised.
 
@@ -502,7 +502,7 @@ def make_color_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
-        an etree.Element that can be appended to the parent resource with resource.append(make_*_prop(...))
+        an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
         >>> make_color_prop(":testproperty", "#00ff66")
@@ -556,10 +556,10 @@ def make_date_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
     calling_resource: str = ""
-) -> etree.Element:
+) -> etree._Element:
     """
     Make a <date-prop> from one or more dates/date ranges. The date(s) can be provided as string or as PropertyElement
-    with a string inside. If provided as string, the permission defaults to "prop-default".
+    with a string inside. If provided as string, the permissions default to "prop-default".
 
     If the value is not a valid DSP date, a BaseError will be raised.
 
@@ -569,7 +569,7 @@ def make_date_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
-        an etree.Element that can be appended to the parent resource with resource.append(make_*_prop(...))
+        an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
         >>> make_date_prop(":testproperty", "GREGORIAN:CE:2014-01-31")
@@ -630,10 +630,10 @@ def make_decimal_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
     calling_resource: str = ""
-) -> etree.Element:
+) -> etree._Element:
     """
     Make a <decimal-prop> from one or more decimal numbers. The decimal(s) can be provided as string, float, or as
-    PropertyElement with a string/float inside. If provided as string/float, the permission defaults to
+    PropertyElement with a string/float inside. If provided as string/float, the permissions default to
     "prop-default".
 
     If the value is not a valid decimal number, a BaseError will be raised.
@@ -644,7 +644,7 @@ def make_decimal_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
-        an etree.Element that can be appended to the parent resource with resource.append(make_*_prop(...))
+        an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
         >>> make_decimal_prop(":testproperty", "3.14159")
@@ -698,10 +698,10 @@ def make_geometry_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
     calling_resource: str = ""
-) -> etree.Element:
+) -> etree._Element:
     """
     Make a <geometry-prop> from one or more areas of an image. The area(s) can be provided as JSON-string or as
-    PropertyElement with the JSON-string inside. If provided as string, the permission defaults to "prop-default".
+    PropertyElement with the JSON-string inside. If provided as string, the permissions default to "prop-default".
 
     If the value is not a valid JSON geometry object, a BaseError is raised.
 
@@ -711,7 +711,7 @@ def make_geometry_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
-        an etree.Element that can be appended to the parent resource with resource.append(make_*_prop(...))
+        an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
         >>> make_geometry_prop(":testproperty", json_string)
@@ -768,10 +768,10 @@ def make_geoname_prop(
     name: str,
     value: Union[PropertyElement, str, int, Iterable[Union[PropertyElement, str, int]]],
     calling_resource: str = ""
-) -> etree.Element:
+) -> etree._Element:
     """
     Make a <geoname-prop> from one or more geonames.org IDs. The ID(s) can be provided as string, integer, or as
-    PropertyElement with a string/integer inside. If provided as string/integer, the permission defaults to
+    PropertyElement with a string/integer inside. If provided as string/integer, the permissions default to
     "prop-default".
 
     If the value is not a valid geonames.org identifier, a BaseError will be raised.
@@ -782,7 +782,7 @@ def make_geoname_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
-        an etree.Element that can be appended to the parent resource with resource.append(make_*_prop(...))
+        an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
         >>> make_geoname_prop(":testproperty", "2761369")
@@ -836,10 +836,10 @@ def make_integer_prop(
     name: str,
     value: Union[PropertyElement, str, int, Iterable[Union[PropertyElement, str, int]]],
     calling_resource: str = ""
-) -> etree.Element:
+) -> etree._Element:
     """
     Make a <integer-prop> from one or more integers. The integers can be provided as string, integer, or as
-    PropertyElement with a string/integer inside. If provided as string/integer, the permission defaults to
+    PropertyElement with a string/integer inside. If provided as string/integer, the permissions default to
     "prop-default".
 
     If the value is not a valid integer, a BaseError will be raised.
@@ -850,7 +850,7 @@ def make_integer_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
-        an etree.Element that can be appended to the parent resource with resource.append(make_*_prop(...))
+        an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
         >>> make_integer_prop(":testproperty", "2761369")
@@ -904,10 +904,10 @@ def make_interval_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
     calling_resource: str = ""
-) -> etree.Element:
+) -> etree._Element:
     """
     Make a <interval-prop> from one or more DSP intervals. The interval(s) can be provided as string or as
-    PropertyElement with a string inside. If provided as string, the permission defaults to "prop-default".
+    PropertyElement with a string inside. If provided as string, the permissions default to "prop-default".
 
     If the value is not a valid DSP interval, a BaseError will be raised.
 
@@ -917,7 +917,7 @@ def make_interval_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
-        an etree.Element that can be appended to the parent resource with resource.append(make_*_prop(...))
+        an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
         >>> make_interval_prop(":testproperty", "61:3600")
@@ -972,10 +972,10 @@ def make_list_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
     calling_resource: str = ""
-) -> etree.Element:
+) -> etree._Element:
     """
     Make a <list-prop> from one or more list nodes. The name(s) of the list node(s) can be provided as string or as
-    PropertyElement with a string inside. If provided as string, the permission defaults to "prop-default".
+    PropertyElement with a string inside. If provided as string, the permissions default to "prop-default".
 
     If the name of one of the list nodes is not a valid string, a BaseError will be raised.
 
@@ -986,7 +986,7 @@ def make_list_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
-        an etree.Element that can be appended to the parent resource with resource.append(make_*_prop(...))
+        an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
         >>> make_list_prop("mylist", ":testproperty", "first_node")
@@ -1041,10 +1041,10 @@ def make_resptr_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
     calling_resource: str = ""
-) -> etree.Element:
+) -> etree._Element:
     """
     Make a <resptr-prop> from one or more IDs of other resources. The ID(s) can be provided as string or as
-    PropertyElement with a string inside. If provided as string, the permission defaults to "prop-default".
+    PropertyElement with a string inside. If provided as string, the permissions default to "prop-default".
 
     If the ID of one of the target resources is not a valid string, a BaseError will be raised.
 
@@ -1054,7 +1054,7 @@ def make_resptr_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
-        an etree.Element that can be appended to the parent resource with resource.append(make_*_prop(...))
+        an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
         >>> make_resptr_prop(":testproperty", "resource_1")
@@ -1108,10 +1108,10 @@ def make_text_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
     calling_resource: str = ""
-) -> etree.Element:
+) -> etree._Element:
     """
     Make a <text-prop> from one or more strings. The string(s) can be provided as string or as PropertyElement with a
-    string inside. If provided as string, the encoding defaults to utf8, and the permission to "prop-default".
+    string inside. If provided as string, the encoding defaults to utf8, and the permissions to "prop-default".
 
     If the value is not a valid string, a BaseError will be raised.
 
@@ -1121,7 +1121,7 @@ def make_text_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
-        an etree.Element that can be appended to the parent resource with resource.append(make_*_prop(...))
+        an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
         >>> make_text_prop(":testproperty", "first text")
@@ -1179,10 +1179,10 @@ def make_time_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
     calling_resource: str = ""
-) -> etree.Element:
+) -> etree._Element:
     """
     Make a <time-prop> from one or more datetime values of the form "2009-10-10T12:00:00-05:00". The time(s) can be
-    provided as string or as PropertyElement with a string inside. If provided as string, the permission defaults to
+    provided as string or as PropertyElement with a string inside. If provided as string, the permissions default to
     "prop-default".
 
     If one of the values is not a valid DSP time string, a BaseError will be raised.
@@ -1193,7 +1193,7 @@ def make_time_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
-        an etree.Element that can be appended to the parent resource with resource.append(make_*_prop(...))
+        an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
         >>> make_time_prop(":testproperty", "2009-10-10T12:00:00-05:00")
@@ -1255,10 +1255,10 @@ def make_uri_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
     calling_resource: str = ""
-) -> etree.Element:
+) -> etree._Element:
     """
     Make an <uri-prop> from one or more URIs. The URI(s) can be provided as string or as PropertyElement with a string
-    inside. If provided as string, the permission defaults to "prop-default".
+    inside. If provided as string, the permissions default to "prop-default".
 
     If one of the values is not a valid URI, a BaseError will be raised.
 
@@ -1268,7 +1268,7 @@ def make_uri_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
-        an etree.Element that can be appended to the parent resource with resource.append(make_*_prop(...))
+        an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
         >>> make_uri_prop(":testproperty", "www.test.com")
@@ -1327,7 +1327,7 @@ def make_region(
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None
-) -> etree.Element:
+) -> etree._Element:
     """
     Creates an empty region element, with the attributes as specified by the arguments
 
@@ -1376,7 +1376,7 @@ def make_annotation(
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None
-) -> etree.Element:
+) -> etree._Element:
     """
     Creates an empty annotation element, with the attributes as specified by the arguments
 
@@ -1423,7 +1423,7 @@ def make_link(
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None
-) -> etree.Element:
+) -> etree._Element:
     """
     Creates an empty link element, with the attributes as specified by the arguments
 

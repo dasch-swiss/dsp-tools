@@ -35,51 +35,59 @@ def run_test(
     max = len(different_values)
 
     # prepare the test cases of the form (expected_xml, kwargs for the method to generate XML)
-    testcases: list[tuple[str, dict[str, Any]]] = [
-        (
-            f'<{prop}-prop name=":test"><{prop} permissions="prop-default">{different_values[0 % max]}'
-            f'</{prop}></{prop}-prop>',
-            dict(name=":test", value=different_values[0 % max])
-        ),
-        (
-            f'<{prop}-prop name=":test"><{prop} permissions="prop-restricted">{different_values[1 % max]}'
-            f'</{prop}></{prop}-prop>',
-            dict(name=":test", value=excel2xml.PropertyElement(different_values[1 % max], permissions="prop-restricted"))
-        ),
-        (
-            f'<{prop}-prop name=":test"><{prop} permissions="prop-default" comment="comment">{different_values[2 % max]}'
-            f'</{prop}></{prop}-prop>',
-            dict(name=":test", value=excel2xml.PropertyElement(different_values[2 % max], comment="comment"))
-        ),
+    testcases: list[tuple[str, dict[str, Any]]] = list()
+    # pass every element of different_values separately
+    for val in different_values:
+        testcases.extend(
+            [
+                (
+                    f'<{prop}-prop name=":test"><{prop} permissions="prop-default">{val}'
+                    f'</{prop}></{prop}-prop>',
+                    dict(name=":test", value=val)
+                ),
+                (
+                    f'<{prop}-prop name=":test"><{prop} permissions="prop-restricted">{val}'
+                    f'</{prop}></{prop}-prop>',
+                    dict(name=":test", value=excel2xml.PropertyElement(val, permissions="prop-restricted"))
+                ),
+                (
+                    f'<{prop}-prop name=":test"><{prop} permissions="prop-restricted" comment="comment">{val}'
+                    f'</{prop}></{prop}-prop>',
+                    dict(name=":test", value=excel2xml.PropertyElement(val, permissions="prop-restricted", comment="comment"))
+                )
+            ]
+        )
+    # pass the elements of different_values group-wise
+    testcases.extend([
         (
             f'<{prop}-prop name=":test">'
             f'<{prop} permissions="prop-default">{identical_values[0]}</{prop}>'
-            f'<{prop} permissions="prop-default">{identical_values[0]}</{prop}>'
-            f'<{prop} permissions="prop-default">{identical_values[0]}</{prop}>'
+            f'<{prop} permissions="prop-default">{identical_values[1]}</{prop}>'
+            f'<{prop} permissions="prop-default">{identical_values[2]}</{prop}>'
             f'</{prop}-prop>',
             dict(name=":test", value=identical_values)
         ),
         (
             f'<{prop}-prop name=":test">'
-            f'<{prop} permissions="prop-default">{different_values[3 % max]}</{prop}>'
-            f'<{prop} permissions="prop-default">{different_values[4 % max]}</{prop}>'
-            f'<{prop} permissions="prop-default">{different_values[5 % max]}</{prop}>'
+            f'<{prop} permissions="prop-default">{different_values[0 % max]}</{prop}>'
+            f'<{prop} permissions="prop-default">{different_values[1 % max]}</{prop}>'
+            f'<{prop} permissions="prop-default">{different_values[2 % max]}</{prop}>'
             f'</{prop}-prop>',
-            dict(name=":test", value=[different_values[3 % max], different_values[4 % max], different_values[5 % max]])
+            dict(name=":test", value=[different_values[0 % max], different_values[1 % max], different_values[2 % max]])
         ),
         (
             f'<{prop}-prop name=":test">'
-            f'<{prop} permissions="prop-restricted" comment="comment1">{different_values[6 % max]}</{prop}>'
-            f'<{prop} permissions="prop-default" comment="comment2">{different_values[7 % max]}</{prop}>'
-            f'<{prop} permissions="prop-restricted" comment="comment3">{different_values[8 % max]}</{prop}>'
+            f'<{prop} permissions="prop-restricted" comment="comment1">{different_values[3 % max]}</{prop}>'
+            f'<{prop} permissions="prop-default" comment="comment2">{different_values[4 % max]}</{prop}>'
+            f'<{prop} permissions="prop-restricted" comment="comment3">{different_values[5 % max]}</{prop}>'
             f'</{prop}-prop>',
             dict(name=":test", value=[
-                excel2xml.PropertyElement(different_values[6 % max], permissions="prop-restricted", comment="comment1"),
-                excel2xml.PropertyElement(different_values[7 % max], permissions="prop-default", comment="comment2"),
-                excel2xml.PropertyElement(different_values[8 % max], permissions="prop-restricted", comment="comment3")
+                excel2xml.PropertyElement(different_values[3 % max], permissions="prop-restricted", comment="comment1"),
+                excel2xml.PropertyElement(different_values[4 % max], permissions="prop-default", comment="comment2"),
+                excel2xml.PropertyElement(different_values[5 % max], permissions="prop-restricted", comment="comment3")
             ])
         )
-    ]
+    ])
 
     # run the test cases
     for tc in testcases:

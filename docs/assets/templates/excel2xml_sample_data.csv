@@ -1,10 +1,14 @@
-﻿Resource identifier,Resource name,Long text,Image,Category,Complete?,Color,Date discovered,Exact time,Weight (kg),Find location,Number of descendants,Similar to,See also
-res_0,First Resource,"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",testdata/bitstreams/test.jpg,"Mamals, Insects",yes,#00ff66,01.01.01,2019-10-23T13:45:12Z,,2761369,0,res_1,http://test.org
-res_1,Second Resource,"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",,Birds,No,#ff00ff,2015_01_01,2019-10-23T13:45:12Z,45.8,2761369,12,res_8,
-res_2,Third Resource,"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",testdata/bitstreams/test.jpg, Reptilles ,,,05.11.21,,,,3,,
-res_3,Fourth Resource,"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",,Plants,0,,1.12.1973 - 6.1.1974,,,,2,,
-res_4,Fifth Resource,"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",,Physics,TRUE,,"March 5,1908",,,,1,,
-res_5,Sixth Resource,"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",,"Humans, Animals",FALSE,,1886/7,2009-10-10T12:00:00-05:00,200.382,,3,,
-res_6,Seventh Resource,"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",,Amphibians,None,,1849/1850,,,,99,,
-res_7,Eighth Resource,"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",testdata/bitstreams/test.jpg,Physics,,#ff00ff,01.01.01,,,,6,,
-res_8,Ninth Resource,"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",,Plants,1,,26.2.-24.3.1948,,,,7,,
+﻿Object,Title,Description,Category,Public,Color,Date,Time,Weight (kg),Location,URL
+Anubis,Bengal cat,An example of a domesticated cat,"Säugetiere, Huumans",yes,#f5f5dc,2015_01_01,2015-01-01T13:45:12Z,4.8,2661604,https://en.wikipedia.org/wiki/Cat
+Meteorite,Gibeon Meteorite,This is a piece of the so-called Gibeon Meteroite,Physics,1,#808080,"March 5,1908",1908-03-05T12:00:00-05:00,0.3,11821111,https://en.wikipedia.org/wiki/Gibeon_(meteorite)
+BM1888-0601-716,Lekythos,"Attic red-figured Lekythos BM 1888,601.716",Artwörk,TRUE,,1.12.1973 - 6.1.1974,,0.5,351274,https://www.britishmuseum.org/collection/object/G_1888-0601-716
+Horohoroto,Picture and Poem by Matsuo Bashō,ほろほろと山吹ちるかたきのおと,Kunstwerk,,,1849/1850,,1,,https://en.wikipedia.org/wiki/Haiku#/media/File:Basho_Horohoroto.jpg
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,

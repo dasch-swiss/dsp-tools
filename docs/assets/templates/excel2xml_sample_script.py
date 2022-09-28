@@ -1,5 +1,8 @@
-import pandas as pd
+import os
 import warnings
+
+import pandas as pd
+
 from knora import excel2xml
 
 # general preparation
@@ -17,7 +20,7 @@ root = excel2xml.append_permissions(root)
 category_dict = excel2xml.create_json_list_mapping(
     path_to_json=path_to_json,
     list_name="category",
-    language_label="en"
+    language_label="de"
 )
 category_dict_fallback = excel2xml.create_json_excel_list_mapping(
     path_to_json=path_to_json,
@@ -26,21 +29,41 @@ category_dict_fallback = excel2xml.create_json_excel_list_mapping(
     sep=","
 )
 
-# create all resources
-# --------------------
-for index, row in main_df.iterrows():
+# create resources of type ":Image2D"
+# -----------------------------------
+image2d_names_to_ids = dict()
+for img in os.scandir("images"):
+    resource_id = excel2xml.make_xsd_id_compatible(img.name)
+    image2d_names_to_ids[img.name] = resource_id
     resource = excel2xml.make_resource(
-        label=row["Resource name"],
-        restype=":MyResource",
-        id=excel2xml.make_xsd_id_compatible(row["Resource identifier"])
+        label=img.name,
+        restype=":Image2D",
+        id=resource_id
     )
-    if excel2xml.check_notna(row["Image"]):
-        resource.append(excel2xml.make_bitstream_prop(row["Image"], permissions="prop-default"))
-    resource.append(excel2xml.make_text_prop(":name", row["Resource name"]))
+    resource.append(excel2xml.make_bitstream_prop(img.path))
+    resource.append(excel2xml.make_text_prop(":hasTitle", img.name))
+    root.append(resource)
+
+
+# create resources of type ":Object"
+# ----------------------------------
+object_names_to_ids = dict()
+for index, row in main_df.iterrows():
+    resource_id = excel2xml.make_xsd_id_compatible(row["Object"])
+    object_names_to_ids[row["Object"]] = resource_id
+    resource = excel2xml.make_resource(
+        label=row["Object"],
+        restype=":Object",
+        id=resource_id
+    )
+    for img_name, img_id in image2d_names_to_ids.items():
+        if row["Object"] in img_name:
+            resource.append(excel2xml.make_resptr_prop(":hasImage", img_id))
+    resource.append(excel2xml.make_text_prop(":hasName", row["Title"]))
     resource.append(excel2xml.make_text_prop(
-        ":longtext",
-        excel2xml.PropertyElement(value=row["Long text"], permissions="prop-restricted", comment="long text",
-                                  encoding="xml")
+        ":hasDescription",
+        excel2xml.PropertyElement(value=row["Description"], permissions="prop-restricted",
+                                  comment="comment to 'Description'", encoding="xml")
     ))
 
     # to get the correct category values, first split the cell, then look up the values in "category_dict",
@@ -48,52 +71,50 @@ for index, row in main_df.iterrows():
     category_values = [category_dict.get(x.strip(), category_dict_fallback[x.strip()]) for x in
                        row["Category"].split(",")]
     resource.append(excel2xml.make_list_prop("category", ":hasCategory", category_values))
-    if excel2xml.check_notna(row["Complete?"]):
-        resource.append(excel2xml.make_boolean_prop(":isComplete", row["Complete?"]))
+    if excel2xml.check_notna(row["Public"]):
+        resource.append(excel2xml.make_boolean_prop(":isPublic", row["Public"]))
     if excel2xml.check_notna(row["Color"]):
-        resource.append(excel2xml.make_color_prop(":colorprop", row["Color"]))
-    if pd.notna(row["Date discovered"]):
-        potential_date = excel2xml.find_date_in_string(row["Date discovered"])
-        if potential_date:
-            resource.append(excel2xml.make_date_prop(":date", potential_date))
-        else:
-            warnings.warn(f"Error in row {index + 2}: The column 'Date discovered' should contain a date, "
-                          f"but no date was detected in the string '{row['Date discovered']}'")
-    if excel2xml.check_notna(row["Exact time"]):
-        resource.append(excel2xml.make_time_prop(":timeprop", row["Exact time"]))
+        resource.append(excel2xml.make_color_prop(":hasColor", row["Color"]))
+    potential_date = excel2xml.find_date_in_string(row["Date"])
+    if potential_date:
+        resource.append(excel2xml.make_date_prop(":hasDate", potential_date))
+    else:
+        warnings.warn(f"Error in row {index + 2}: The column 'Date' should contain a date!")
+    if excel2xml.check_notna(row["Time"]):
+        resource.append(excel2xml.make_time_prop(":hasTime", row["Time"]))
     if excel2xml.check_notna(row["Weight (kg)"]):
-        resource.append(excel2xml.make_decimal_prop(":weight", row["Weight (kg)"]))
-    if excel2xml.check_notna(row["Find location"]):
-        resource.append(excel2xml.make_geoname_prop(":location", row["Find location"]))
-    resource.append(excel2xml.make_integer_prop(":descendantsCount", row["Number of descendants"]))
-    if excel2xml.check_notna(row["Similar to"]):
-        resource.append(excel2xml.make_resptr_prop(":similarTo", row["Similar to"]))
-    if excel2xml.check_notna(row["See also"]):
-        resource.append(excel2xml.make_uri_prop(":url", row["See also"]))
+        resource.append(excel2xml.make_decimal_prop(":hasWeight", row["Weight (kg)"]))
+    if excel2xml.check_notna(row["Location"]):
+        resource.append(excel2xml.make_geoname_prop(":hasLocation", row["Location"]))
+    if excel2xml.check_notna(row["URL"]):
+        resource.append(excel2xml.make_uri_prop(":hasExternalLink", row["URL"]))
 
     root.append(resource)
 
 # Annotation, Region, Link
 # ------------------------
-annotation = excel2xml.make_annotation("Annotation of Resource 0", "annotation_of_res_0")
-annotation.append(excel2xml.make_text_prop("hasComment", "This is a comment"))
-annotation.append(excel2xml.make_resptr_prop("isAnnotationOf", "res_0"))
+# These special resource classes are DSP base resources, that's why they use DSP base properties without prepended colon
+# See the docs for more details:
+# https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#dsp-base-resources-base-properties-to-be-used-directly-in-the-xml-file
+annotation = excel2xml.make_annotation("Annotation to Anubis", "annotation_to_anubis")
+annotation.append(excel2xml.make_text_prop("hasComment", "Date and time are invented, like for the other resources."))
+annotation.append(excel2xml.make_resptr_prop("isAnnotationOf", object_names_to_ids["Anubis"]))
 root.append(annotation)
 
-region = excel2xml.make_region("Region of Image 0", "region_of_image_0")
+region = excel2xml.make_region("Region of the Meteorite image", "region_of_meteorite")
 region.append(excel2xml.make_text_prop("hasComment", "This is a comment"))
 region.append(excel2xml.make_color_prop("hasColor", "#5d1f1e"))
-region.append(excel2xml.make_resptr_prop("isRegionOf", "image_0"))
+region.append(excel2xml.make_resptr_prop("isRegionOf", image2d_names_to_ids["GibbeonMeteorite.jpg"]))
 region.append(excel2xml.make_geometry_prop(
     "hasGeometry",
-    '{"type": "rectangle", "lineColor": "#ff3333", "lineWidth": 2, "points": [{"x": 0.08, "y": 0.16}, {"x": 0.73, '
-    '"y": 0.72}], "original_index": 0}'
+    '{"type": "rectangle", "lineColor": "#ff3333", "lineWidth": 2, '
+    '"points": [{"x": 0.08, "y": 0.16}, {"x": 0.73, "y": 0.72}], "original_index": 0}'
 ))
 root.append(region)
 
-link = excel2xml.make_link("Link between Resource 0 and 1", "link_res_0_res_1")
+link = excel2xml.make_link("Link between BM1888-0601-716 and Horohoroto", "link_BM1888-0601-716_horohoroto")
 link.append(excel2xml.make_text_prop("hasComment", "This is a comment"))
-link.append(excel2xml.make_resptr_prop("hasLinkTo", ["res_0", "res_1"]))
+link.append(excel2xml.make_resptr_prop("hasLinkTo", [object_names_to_ids["BM1888-0601-716"], object_names_to_ids["Horohoroto"]]))
 root.append(link)
 
 # write file

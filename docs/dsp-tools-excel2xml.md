@@ -39,9 +39,9 @@ This is the simplified pattern how the Python script works:
 3 append the permissions  
 4 if necessary: create list mappings (see below)  
 5 iterate through the rows of your data source:  
-6   create the `<resource>` tag  
-7   append properties to it  
-8   append the resource to the root tag `<knora>`  
+6     create the `<resource>` tag  
+7     append properties to it  
+8     append the resource to the root tag `<knora>`  
 9 save the finished XML file  
 ```
 
@@ -75,6 +75,41 @@ Let's assume that your data source has a column containing list values named aft
 instead of the "name" which is needed for the `dsp-tools xmlupload`. You need a way to get the names from the labels.
 If your data source uses the labels correctly, this is an easy task: The method `create_json_list_mapping()` creates a
 dictionary that maps the labels to the names.  
+
+Example JSON project file:
+```json
+{
+    "$schema": "../knora/dsplib/schemas/ontology.json",
+    "project": {
+        "shortcode": "4124",
+        "shortname": "minimal-tp",
+        "longname": "minimal test project",
+        "descriptions": {"en": "A minimal test project"},
+        "keywords": ["minimal"],
+        "lists": [
+            {
+                "name": "animals",
+                "labels": {"en": "Animals"},
+                "nodes": [
+                    {
+                        "name": "giraffe",
+                        "labels": {"en": "The Giraffe"}
+                    },
+                    {
+                        "name": "antelope",
+                        "labels": {"en": "The Antelope"}
+                    }
+                ]
+            }
+        ],
+        "ontologies": [
+            ...
+        ]
+    }
+}
+
+```
+
 If, however, your data source has spelling variants, you need the more sophisticated approach of 
 `create_json_excel_list_mapping()`: This method creates a dictionary that maps the list values in your data source to their 
 correct JSON project node name. This happens based on string similarity. Please carefully check the result if there are
@@ -189,6 +224,23 @@ usable if it is
  - a string with at least one Unicode letter (matching the regex `\p{L}`), underscore, ?, !, or number, but not "None", 
    "<NA>", "N/A", or "-"
  - a PropertyElement whose "value" fulfills the above criteria
+
+Why not just checking a cell by its boolean value? Like:
+```
+if cell:
+    resource.append(make_*_prop(cell))
+```
+
+There are many problems that can occur with this simple approach! Often, a cell won't evaluate to the boolean that you 
+might expect:
+
+| cell content | return value of `bool(cell)` | You might have expected...                                                  |
+|--------------|------------------------------|-----------------------------------------------------------------------------|
+| 0            | False                        | True, because 0 is a valid integer for your integer property                |
+| " "          | True                         | False, because an empty string is not usable for a text property            |
+| numpy.nan    | True                         | False, because N/A is not a usable value                                    |
+| "<NA>"       | True                         | False, because this is the string representation of N/A, and thus unusable  |
+| "-"          | True                         | False, because this is a placeholder in a text field when there is no entry |
 
 
 ### Calendar date parsing

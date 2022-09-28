@@ -1,17 +1,20 @@
 import os
 import warnings
 
-import pandas as pd
+import pandas
+import regex
 
 from knora import excel2xml
 
 # general preparation
 # -------------------
 path_to_json = "excel2xml_sample_onto.json"
-main_df = pd.read_csv("excel2xml_sample_data.csv", dtype="str", sep=",")
-# main_df = pd.read_excel("path-to-your-data-source", dtype="str")
+main_df = pandas.read_csv("excel2xml_sample_data.csv", dtype="str", sep=",")
+# main_df = pandas.read_excel("path to XLS(X) file", dtype="str")
 # main_df.drop_duplicates(inplace = True)
-# main_df.dropna(how = "all", inplace = True)
+main_df = main_df.applymap(lambda x: x if pandas.notna(x) and regex.search(r"[\p{L}\d_!?]", str(x), flags=regex.UNICODE) else pandas.NA)
+main_df.dropna(axis="columns", how="all", inplace=True)
+main_df.dropna(axis="index", how="all", inplace=True)
 root = excel2xml.make_root(shortcode="0123", default_ontology="onto-name")
 root = excel2xml.append_permissions(root)
 
@@ -32,7 +35,7 @@ category_dict_fallback = excel2xml.create_json_excel_list_mapping(
 # create resources of type ":Image2D"
 # -----------------------------------
 image2d_names_to_ids = dict()
-for img in os.scandir("images"):
+for img in [file for file in os.scandir("images") if not regex.search(r"^~$|^\.", file.name)]:
     resource_id = excel2xml.make_xsd_id_compatible(img.name)
     image2d_names_to_ids[img.name] = resource_id
     resource = excel2xml.make_resource(
@@ -68,7 +71,7 @@ for index, row in main_df.iterrows():
 
     # to get the correct category values, first split the cell, then look up the values in "category_dict",
     # and if it's not there, look in "category_dict_fallback"
-    category_values = [category_dict.get(x.strip(), category_dict_fallback[x.strip()]) for x in
+    category_values = [category_dict.get(x.strip(), category_dict_fallback.get(x.strip())) for x in
                        row["Category"].split(",")]
     resource.append(excel2xml.make_list_prop("category", ":hasCategory", category_values))
     if excel2xml.check_notna(row["Public"]):

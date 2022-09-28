@@ -1,23 +1,22 @@
+import dataclasses
 import datetime
+import difflib
 import json
 import os
 import re
 import uuid
 import warnings
-import difflib
 from operator import xor
-import regex
+from typing import Any, Iterable, Optional, Union
 
 import pandas as pd
-from typing import Any, Iterable, Optional, Union
+import regex
 from lxml import etree
 from lxml.builder import E
-import dataclasses
 
 from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.models.propertyelement import PropertyElement
 from knora.dsplib.utils.shared import simplify_name, check_notna
-
 
 xml_namespace_map = {
     None: "https://dasch.swiss/schema",
@@ -58,7 +57,7 @@ def make_xsd_id_compatible(string: str) -> str:
     return res
 
 
-def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str]:
+def find_date_in_string(string: Optional[str]) -> Optional[str]:
     """
     Checks if a string contains a date value (single date, or date range), and returns the first found date as
     DSP-formatted string. Returns None if no date was found.
@@ -86,7 +85,6 @@ def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str
 
     Args:
         string: string to check
-        calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
         DSP-formatted date string, or None
@@ -97,6 +95,11 @@ def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#date-prop
     """
+
+    # sanitize input, just in case that the method was called on an empty or N/A cell
+    if not check_notna(string):
+        return None
+    string = str(string)
 
     monthes_dict = {
         "January": 1,
@@ -669,7 +672,7 @@ def make_decimal_prop(
 
     # check value type
     for val in values:
-        if not re.search(r"^\d+\.\d+$", str(val.value).strip()):
+        if not re.search(r"^\d+(\.\d+)?$", str(val.value).strip()):
             raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
                             f"'{val.value}' is not a valid decimal number.")
 

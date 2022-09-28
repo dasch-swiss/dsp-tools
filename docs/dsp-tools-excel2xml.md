@@ -16,9 +16,9 @@ transformation from Excel/CSV to XML:
 
 Save the following files into a directory, and run the Python script: 
 
- - sample data: [excel2xml_sample_data.csv](./assets/templates/excel2xml_sample_data.csv)
- - sample ontology: [excel2xml_sample_onto.json](./assets/templates/excel2xml_sample_onto.json)
- - sample script: [excel2xml_sample_script.py](./assets/templates/excel2xml_sample_script.py)
+ - sample data: [excel2xml_sample_data.csv](assets/excel2xml/excel2xml_sample_data.csv)
+ - sample ontology: [excel2xml_sample_onto.json](assets/excel2xml/excel2xml_sample_onto.json)
+ - sample script: [excel2xml_sample_script.py](assets/excel2xml/excel2xml_sample_script.py)
 
 This is the simplified pattern how the Python script works:
 
@@ -77,38 +77,7 @@ If your data source uses the labels correctly, this is an easy task: The method 
 dictionary that maps the labels to the names.  
 
 Example JSON project file:
-```json
-{
-    "$schema": "../knora/dsplib/schemas/ontology.json",
-    "project": {
-        "shortcode": "4124",
-        "shortname": "minimal-tp",
-        "longname": "minimal test project",
-        "descriptions": {"en": "A minimal test project"},
-        "keywords": ["minimal"],
-        "lists": [
-            {
-                "name": "animals",
-                "labels": {"en": "Animals"},
-                "nodes": [
-                    {
-                        "name": "giraffe",
-                        "labels": {"en": "The Giraffe"}
-                    },
-                    {
-                        "name": "antelope",
-                        "labels": {"en": "The Antelope"}
-                    }
-                ]
-            }
-        ],
-        "ontologies": [
-            ...
-        ]
-    }
-}
 
-```
 
 If, however, your data source has spelling variants, you need the more sophisticated approach of 
 `create_json_excel_list_mapping()`: This method creates a dictionary that maps the list values in your data source to their 
@@ -234,13 +203,17 @@ if cell:
 There are many problems that can occur with this simple approach! Often, a cell won't evaluate to the boolean that you 
 might expect:
 
-| cell content | return value of `bool(cell)` | You might have expected...                                                  |
-|--------------|------------------------------|-----------------------------------------------------------------------------|
-| 0            | False                        | True, because 0 is a valid integer for your integer property                |
-| " "          | True                         | False, because an empty string is not usable for a text property            |
-| numpy.nan    | True                         | False, because N/A is not a usable value                                    |
-| "<NA>"       | True                         | False, because this is the string representation of N/A, and thus unusable  |
-| "-"          | True                         | False, because this is a placeholder in a text field when there is no entry |
+| cell content | return value of `bool(cell)` | You might have expected...                                       |
+|--------------|------------------------------|------------------------------------------------------------------|
+| 0            | False                        | True, because 0 is a valid integer for your integer property     |
+| " "          | True                         | False, because an empty string is not usable for a text property |
+| numpy.nan    | True                         | False, because N/A is not a usable value                         |
+| pandas.NA    | TypeError (*)                | False, because N/A is not a usable value                         |
+| "<NA>"       | True                         | False, because this is the string representation of N/A          |
+| "-"          | True                         | False, because this is a placeholder in an empty text field      |
+(*) TypeError: boolean value of NA is ambiguous
+
+In contrast, `check_notna(cell)` will return the expected value for all cases in the table!
 
 
 ### Calendar date parsing

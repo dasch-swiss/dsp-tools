@@ -1,5 +1,5 @@
 import os
-import re
+import regex
 from typing import Any, Union
 import jsonschema
 import json
@@ -10,7 +10,7 @@ from ..models.helpers import BaseError
 
 
 def validate_project(
-    input_file_or_json: Union[dict[str, Any], os.PathLike[Any]],
+    input_file_or_json: Union[dict[str, Any], str],
     expand_lists: bool = True
 ) -> bool:
     """
@@ -28,32 +28,31 @@ def validate_project(
         True if the project passed validation. Otherwise, a BaseError with a detailed error report is raised.
     """
 
-    if isinstance(input_file_or_json, dict):
+    if isinstance(input_file_or_json, dict) and "project" in input_file_or_json:
         project_definition = input_file_or_json
-    elif os.path.isfile(input_file_or_json):
+    elif isinstance(input_file_or_json, str) and os.path.isfile(input_file_or_json) and regex.search(r"\.json$", input_file_or_json):
         with open(input_file_or_json) as f:
-            project_json_str = f.read()
-        project_definition = json.loads(project_json_str)
+            project_definition = json.load(f)
     else:
         raise BaseError(f"Input '{input_file_or_json}' is neither a file path nor a JSON object.")
 
     if expand_lists:
         # expand all lists referenced in the "lists" section of the project definition, and add them to the project
         # definition
-        new_lists, _ = expand_lists_from_excel(project_definition["project"].get("lists"))
+        new_lists, _ = expand_lists_from_excel(project_definition["project"].get("lists", []))
         if new_lists:
-            project_definition['project']['lists'] = new_lists
+            project_definition["project"]["lists"] = new_lists
 
     # validate the project definition against the schema
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(current_dir, '../schemas/ontology.json')) as s:
+    with open(os.path.join(current_dir, "../schemas/ontology.json")) as s:
         schema = json.load(s)
     try:
         jsonschema.validate(instance=project_definition, schema=schema)
     except jsonschema.exceptions.ValidationError as err:
-        raise BaseError(f'The JSON project file cannot be created due to the following validation error: {err.message}.\n'
-                        f'The error occurred at {err.json_path}:\n'
-                        f'{err.instance}')
+        raise BaseError(f"The JSON project file cannot be created due to the following validation error: {err.message}.\n"
+                        f"The error occurred at {err.json_path}:\n"
+                        f"{err.instance}")
 
     # cardinalities check for circular references
     if _check_cardinalities_of_circular_references(project_definition):
@@ -81,24 +80,24 @@ def _check_cardinalities_of_circular_references(project_definition: dict[Any, An
         return True
     else:
         error_message = \
-            'ERROR: Your ontology contains properties derived from "hasLinkTo" that allow circular references ' \
-            'between resources. This is not a problem in itself, but if you try to upload data that actually ' \
-            'contains circular references, these "hasLinkTo" properties will be temporarily removed from the ' \
-            'affected resources. Therefore, it is necessary that all involved "hasLinkTo" properties have a ' \
-            'cardinality of 0-1 or 0-n. \n' \
-            'Please make sure that the following properties have a cardinality of 0-1 or 0-n:'
+            "ERROR: Your ontology contains properties derived from 'hasLinkTo' that allow circular references " \
+            "between resources. This is not a problem in itself, but if you try to upload data that actually " \
+            "contains circular references, these 'hasLinkTo'' properties will be temporarily removed from the " \
+            "affected resources. Therefore, it is necessary that all involved 'hasLinkTo' properties have a " \
+            "cardinality of 0-1 or 0-n. \n" \
+            "Please make sure that the following properties have a cardinality of 0-1 or 0-n:"
         for error in errors:
-            error_message = error_message + f'\n\t- Resource {error[0]}, property {error[1]}'
+            error_message = f"{error_message}\n\t- Resource {error[0]}, property {error[1]}"
         raise BaseError(error_message)
 
 
 def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, list[str]]:
     """
     map the properties derived from hasLinkTo to the resource classes they point to, for example:
-    link_properties = {'rosetta:hasImage2D': ['rosetta:Image2D'], ...}
+    link_properties = {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}
     """
-    ontos = project_definition['project']['ontologies']
-    hasLinkTo_props = {'hasLinkTo', 'isPartOf', 'isRegionOf', 'isAnnotationOf'}
+    ontos = project_definition["project"]["ontologies"]
+    hasLinkTo_props = {"hasLinkTo", "isPartOf", "isRegionOf", "isAnnotationOf"}
     link_properties: dict[str, list[str]] = dict()
     for index, onto in enumerate(ontos):
         hasLinkTo_matches = list()
@@ -106,28 +105,28 @@ def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, li
         for i in range(5):
             for hasLinkTo_prop in hasLinkTo_props:
                 hasLinkTo_matches.extend(jsonpath_ng.ext.parse(
-                    f'$.project.ontologies[{index}].properties[?super[*] == {hasLinkTo_prop}]'
+                    f"$.project.ontologies[{index}].properties[?super[*] == {hasLinkTo_prop}]"
                 ).find(project_definition))
             # make the children from this iteration to the parents of the next iteration
-            hasLinkTo_props = {x.value['name'] for x in hasLinkTo_matches}
+            hasLinkTo_props = {x.value["name"] for x in hasLinkTo_matches}
         prop_obj_pair: dict[str, list[str]] = dict()
         for match in hasLinkTo_matches:
-            prop = onto['name'] + ':' + match.value['name']
-            target = match.value['object']
-            if target != 'Resource':
+            prop = onto["name"] + ":" + match.value["name"]
+            target = match.value["object"]
+            if target != "Resource":
                 # make the target a fully qualified name (with the ontology's name prefixed)
-                target = re.sub(r'^:([^:]+)$', f'{onto["name"]}:\\1', target)
+                target = regex.sub(r"^:([^:]+)$", f"{onto['name']}:\\1", target)
             prop_obj_pair[prop] = [target]
         link_properties.update(prop_obj_pair)
 
     # in case the object of a property is "Resource", the link can point to any resource class
     all_res_names: list[str] = list()
     for index, onto in enumerate(ontos):
-        matches = jsonpath_ng.ext.parse(f'$.resources[*].name').find(onto)
-        tmp = [f'{onto["name"]}:{match.value}' for match in matches]
+        matches = jsonpath_ng.ext.parse(f"$.resources[*].name").find(onto)
+        tmp = [f"{onto['name']}:{match.value}" for match in matches]
         all_res_names.extend(tmp)
     for prop, targ in link_properties.items():
-        if 'Resource' in targ:
+        if "Resource" in targ:
             link_properties[prop] = all_res_names
 
     return link_properties
@@ -138,31 +137,31 @@ def _identify_problematic_cardinalities(project_definition: dict[Any, Any], link
     make an error list with all cardinalities that are part of a circle but have a cardinality of "1" or "1-n"
     """
     # make 2 dicts of the following form:
-    # dependencies = {'rosetta:Text': {'rosetta:hasImage2D': ['rosetta:Image2D'], ...}}
-    # cardinalities = {'rosetta:Text': {'rosetta:hasImage2D': '0-1', ...}}
+    # dependencies = {"rosetta:Text": {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}}
+    # cardinalities = {"rosetta:Text": {"rosetta:hasImage2D": "0-1", ...}}
     dependencies: dict[str, dict[str, list[str]]] = dict()
     cardinalities: dict[str, dict[str, str]] = dict()
-    for onto in project_definition['project']['ontologies']:
-        for resource in onto['resources']:
-            resname: str = onto['name'] + ':' + resource['name']
-            for card in resource['cardinalities']:
+    for onto in project_definition["project"]["ontologies"]:
+        for resource in onto["resources"]:
+            resname: str = onto["name"] + ":" + resource["name"]
+            for card in resource["cardinalities"]:
                 # make the cardinality a fully qualified name (with the ontology's name prefixed)
-                cardname = re.sub(r'^(:?)([^:]+)$', f'{onto["name"]}:\\2', card['propname'])
+                cardname = regex.sub(r"^(:?)([^:]+)$", f"{onto['name']}:\\2", card["propname"])
                 if cardname in link_properties:
                     # Look out: if `targets` is created with `targets = link_properties[cardname]`, the ex-
                     # pression `dependencies[resname][cardname] = targets` causes `dependencies[resname][cardname]`
                     # to point to `link_properties[cardname]`. Due to that, the expression
-                    # `dependencies[resname][cardname].extend(targets)` will modify 'link_properties'!
+                    # `dependencies[resname][cardname].extend(targets)` will modify "link_properties"!
                     # For this reason, `targets` must be created with `targets = list(link_properties[cardname])`
                     targets = list(link_properties[cardname])
                     if resname not in dependencies:
                         dependencies[resname] = dict()
                         dependencies[resname][cardname] = targets
                         cardinalities[resname] = dict()
-                        cardinalities[resname][cardname] = card['cardinality']
+                        cardinalities[resname][cardname] = card["cardinality"]
                     elif cardname not in dependencies[resname]:
                         dependencies[resname][cardname] = targets
-                        cardinalities[resname][cardname] = card['cardinality']
+                        cardinalities[resname][cardname] = card["cardinality"]
                     else:
                         dependencies[resname][cardname].extend(targets)
 
@@ -182,7 +181,7 @@ def _identify_problematic_cardinalities(project_definition: dict[Any, Any], link
             for property, targets in dependencies[resource].items():
                 if target in targets:
                     prop = property
-            if cardinalities[resource][prop] not in ['0-1', '0-n']:
+            if cardinalities[resource][prop] not in ["0-1", "0-n"]:
                 errors.add((resource, prop))
 
     return sorted(errors, key=lambda x: x[0])

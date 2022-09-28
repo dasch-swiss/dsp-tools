@@ -1,0 +1,48 @@
+{
+    "$schema": "../knora/dsplib/schemas/ontology.json",
+    "project": {
+        "shortcode": "4124",
+        "shortname": "minimal-tp",
+        "longname": "minimal test project",
+        "descriptions": {
+            "en": "A minimal test project"
+        },
+        "keywords": [
+            "minimal"
+        ],
+        "ontologies": [
+            {
+                "name": "minimalOnto",
+                "label": "minimal onto",
+                "properties": [
+                    {
+                        "name": "hasText",
+                        "super": [
+                            "hasColor"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "minimalResource",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Minimal Resource"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

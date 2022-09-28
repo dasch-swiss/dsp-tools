@@ -3,7 +3,6 @@ import unittest
 import re
 from typing import Callable, Sequence, Union, Optional, Any
 
-import pandas as pd
 import numpy as np
 import pytest
 from lxml import etree
@@ -36,51 +35,59 @@ def run_test(
     max = len(different_values)
 
     # prepare the test cases of the form (expected_xml, kwargs for the method to generate XML)
-    testcases: list[tuple[str, dict[str, Any]]] = [
-        (
-            f'<{prop}-prop name=":test"><{prop} permissions="prop-default">{different_values[0 % max]}'
-            f'</{prop}></{prop}-prop>',
-            dict(name=":test", value=different_values[0 % max])
-        ),
-        (
-            f'<{prop}-prop name=":test"><{prop} permissions="prop-restricted">{different_values[1 % max]}'
-            f'</{prop}></{prop}-prop>',
-            dict(name=":test", value=excel2xml.PropertyElement(different_values[1 % max], permissions="prop-restricted"))
-        ),
-        (
-            f'<{prop}-prop name=":test"><{prop} permissions="prop-default" comment="comment">{different_values[2 % max]}'
-            f'</{prop}></{prop}-prop>',
-            dict(name=":test", value=excel2xml.PropertyElement(different_values[2 % max], comment="comment"))
-        ),
+    testcases: list[tuple[str, dict[str, Any]]] = list()
+    # pass every element of different_values separately
+    for val in different_values:
+        testcases.extend(
+            [
+                (
+                    f'<{prop}-prop name=":test"><{prop} permissions="prop-default">{val}'
+                    f'</{prop}></{prop}-prop>',
+                    dict(name=":test", value=val)
+                ),
+                (
+                    f'<{prop}-prop name=":test"><{prop} permissions="prop-restricted">{val}'
+                    f'</{prop}></{prop}-prop>',
+                    dict(name=":test", value=excel2xml.PropertyElement(val, permissions="prop-restricted"))
+                ),
+                (
+                    f'<{prop}-prop name=":test"><{prop} permissions="prop-restricted" comment="comment">{val}'
+                    f'</{prop}></{prop}-prop>',
+                    dict(name=":test", value=excel2xml.PropertyElement(val, permissions="prop-restricted", comment="comment"))
+                )
+            ]
+        )
+    # pass the elements of different_values group-wise
+    testcases.extend([
         (
             f'<{prop}-prop name=":test">'
             f'<{prop} permissions="prop-default">{identical_values[0]}</{prop}>'
-            f'<{prop} permissions="prop-default">{identical_values[0]}</{prop}>'
-            f'<{prop} permissions="prop-default">{identical_values[0]}</{prop}>'
+            f'<{prop} permissions="prop-default">{identical_values[1]}</{prop}>'
+            f'<{prop} permissions="prop-default">{identical_values[2]}</{prop}>'
             f'</{prop}-prop>',
-            dict(name=":test", values=identical_values)
+            dict(name=":test", value=identical_values)
         ),
         (
             f'<{prop}-prop name=":test">'
-            f'<{prop} permissions="prop-default">{different_values[3 % max]}</{prop}>'
-            f'<{prop} permissions="prop-default">{different_values[4 % max]}</{prop}>'
-            f'<{prop} permissions="prop-default">{different_values[5 % max]}</{prop}>'
+            f'<{prop} permissions="prop-default">{different_values[0 % max]}</{prop}>'
+            f'<{prop} permissions="prop-default">{different_values[1 % max]}</{prop}>'
+            f'<{prop} permissions="prop-default">{different_values[2 % max]}</{prop}>'
             f'</{prop}-prop>',
-            dict(name=":test", values=[different_values[3 % max], different_values[4 % max], different_values[5 % max]])
+            dict(name=":test", value=[different_values[0 % max], different_values[1 % max], different_values[2 % max]])
         ),
         (
             f'<{prop}-prop name=":test">'
-            f'<{prop} permissions="prop-restricted" comment="comment1">{different_values[6 % max]}</{prop}>'
-            f'<{prop} permissions="prop-default" comment="comment2">{different_values[7 % max]}</{prop}>'
-            f'<{prop} permissions="prop-restricted" comment="comment3">{different_values[8 % max]}</{prop}>'
+            f'<{prop} permissions="prop-restricted" comment="comment1">{different_values[3 % max]}</{prop}>'
+            f'<{prop} permissions="prop-default" comment="comment2">{different_values[4 % max]}</{prop}>'
+            f'<{prop} permissions="prop-restricted" comment="comment3">{different_values[5 % max]}</{prop}>'
             f'</{prop}-prop>',
-            dict(name=":test", values=[
-                excel2xml.PropertyElement(different_values[6 % max], permissions="prop-restricted", comment="comment1"),
-                excel2xml.PropertyElement(different_values[7 % max], permissions="prop-default", comment="comment2"),
-                excel2xml.PropertyElement(different_values[8 % max], permissions="prop-restricted", comment="comment3")
+            dict(name=":test", value=[
+                excel2xml.PropertyElement(different_values[3 % max], permissions="prop-restricted", comment="comment1"),
+                excel2xml.PropertyElement(different_values[4 % max], permissions="prop-default", comment="comment2"),
+                excel2xml.PropertyElement(different_values[5 % max], permissions="prop-restricted", comment="comment3")
             ])
         )
-    ]
+    ])
 
     # run the test cases
     for tc in testcases:
@@ -101,14 +108,6 @@ def run_test(
                              msg=f"Method {method.__name__} failed with kwargs {kwargs_to_generate_xml}")
 
     # perform illegal actions
-    # pass iterable of different values as param "value"
-    kwargs_value_with_different_values = dict(name=":test", value=different_values)
-    if prop == "list":
-        kwargs_value_with_different_values["list_name"] = listname
-    with testcase.assertRaises(BaseError, msg=f"Method {method.__name__} failed with kwargs "
-                                              f"{kwargs_value_with_different_values}"):
-        method(**kwargs_value_with_different_values)
-
     # pass invalid values as param "value"
     for invalid_value in invalid_values:
         kwargs_invalid_value = dict(name=":test", value=invalid_value)
@@ -147,7 +146,7 @@ class TestExcel2xml(unittest.TestCase):
         self.assertEqual(excel2xml.find_date_in_string("text 1492-10-12, text"), "GREGORIAN:CE:1492-10-12:CE:1492-10-12")
         self.assertEqual(excel2xml.find_date_in_string("Text 0476-09-04. text"), "GREGORIAN:CE:0476-09-04:CE:0476-09-04")
         self.assertEqual(excel2xml.find_date_in_string("Text (0476-09-04) text"), "GREGORIAN:CE:0476-09-04:CE:0476-09-04")
-        self.assertWarns(UserWarning, lambda: excel2xml.find_date_in_string("Text [1492-10-32?] text"))
+        self.assertIsNone(excel2xml.find_date_in_string("Text [1492-10-32?] text"))
 
         # template: 31.4.2021 | 5/11/2021
         self.assertEqual(excel2xml.find_date_in_string("Text (30.4.2021) text"), "GREGORIAN:CE:2021-04-30:CE:2021-04-30")
@@ -156,28 +155,28 @@ class TestExcel2xml(unittest.TestCase):
         # template: 26.2.-24.3.1948
         self.assertEqual(excel2xml.find_date_in_string("Text ...2193_01_26... text"), "GREGORIAN:CE:2193-01-26:CE:2193-01-26")
         self.assertEqual(excel2xml.find_date_in_string("Text -2193_01_26- text"), "GREGORIAN:CE:2193-01-26:CE:2193-01-26")
-        self.assertWarns(UserWarning, lambda: excel2xml.find_date_in_string("Text 2193_02_30 text"))
+        self.assertIsNone(excel2xml.find_date_in_string("Text 2193_02_30 text"))
 
         # template: 27.-28.1.1900
         self.assertEqual(excel2xml.find_date_in_string("Text _1.3. - 25.4.2022_ text"), "GREGORIAN:CE:2022-03-01:CE:2022-04-25")
         self.assertEqual(excel2xml.find_date_in_string("Text (01.03. - 25.04.2022) text"), "GREGORIAN:CE:2022-03-01:CE:2022-04-25")
         self.assertEqual(excel2xml.find_date_in_string("Text 28.2.-1.12.1515 text"), "GREGORIAN:CE:1515-02-28:CE:1515-12-01")
         self.assertEqual(excel2xml.find_date_in_string("Text 28.2.-1.12.1515 text"), "GREGORIAN:CE:1515-02-28:CE:1515-12-01")
-        self.assertWarns(UserWarning, lambda: excel2xml.find_date_in_string("Text 28.2.-26.2.1515 text"))
+        self.assertIsNone(excel2xml.find_date_in_string("Text 28.2.-26.2.1515 text"))
 
         # template: 1.12.1973 - 6.1.1974
         self.assertEqual(excel2xml.find_date_in_string("Text 25.-26.2.0800 text"), "GREGORIAN:CE:0800-02-25:CE:0800-02-26")
         self.assertEqual(excel2xml.find_date_in_string("Text 25. - 26.2.0800 text"), "GREGORIAN:CE:0800-02-25:CE:0800-02-26")
         self.assertEqual(excel2xml.find_date_in_string("Text 25. - 26.2.0800 text"), "GREGORIAN:CE:0800-02-25:CE:0800-02-26")
-        self.assertWarns(UserWarning, lambda: excel2xml.find_date_in_string("Text 25.-24.2.0800 text"))
+        self.assertIsNone(excel2xml.find_date_in_string("Text 25.-24.2.0800 text"))
 
         # template: 31.4.2021 | 5/11/2021
         self.assertEqual(excel2xml.find_date_in_string("Text 1.9.2022-3.1.2024 text"), "GREGORIAN:CE:2022-09-01:CE:2024-01-03")
         self.assertEqual(excel2xml.find_date_in_string("Text 25.12.2022 - 3.1.2024 text"), "GREGORIAN:CE:2022-12-25:CE:2024-01-03")
-        self.assertWarns(UserWarning, lambda: excel2xml.find_date_in_string("Text 25.12.2022-03.01.2022 text"))
+        self.assertIsNone(excel2xml.find_date_in_string("Text 25.12.2022-03.01.2022 text"))
         self.assertEqual(excel2xml.find_date_in_string("Text 25/12/2022-03/01/2024 text"), "GREGORIAN:CE:2022-12-25:CE:2024-01-03")
         self.assertEqual(excel2xml.find_date_in_string("Text 25/12/2022 - 3/1/2024 text"), "GREGORIAN:CE:2022-12-25:CE:2024-01-03")
-        self.assertWarns(UserWarning, lambda: excel2xml.find_date_in_string("Text 25/12/2022-03/01/2022 text"))
+        self.assertIsNone(excel2xml.find_date_in_string("Text 25/12/2022-03/01/2022 text"))
 
         # template: February 9, 1908 | Dec 5,1908
         self.assertEqual(excel2xml.find_date_in_string("Text Jan 26, 1993 text"), "GREGORIAN:CE:1993-01-26:CE:1993-01-26")
@@ -198,81 +197,35 @@ class TestExcel2xml(unittest.TestCase):
         self.assertEqual(excel2xml.find_date_in_string("Text [1849/1850] text"), "GREGORIAN:CE:1849:CE:1850")
 
 
-    def test_check_and_prepare_values(self) -> None:
+    def test_prepare_value(self) -> None:
         identical_values = ["Test", "Test", "Test"]
         different_values: list[Union[str, int, float]] = [1, 1.0, "1", "1.0", " 1 "]
         values_with_nas: list[Union[str, int, float]] = ["test", "", 1, np.nan, 0]
 
         for val in different_values:
-            values_output = excel2xml._check_and_prepare_values(
-                value=val,
-                values=None,
-                name=""
-            )
-            self.assertEqual([x.value for x in values_output], [val,])
+            values_output = excel2xml.prepare_value(val)
+            self.assertEqual([x.value for x in values_output], [val, ])
 
-            values_output = excel2xml._check_and_prepare_values(
-                value=excel2xml.PropertyElement(val),
-                values=None,
-                name=""
-            )
-            self.assertEqual([x.value for x in values_output], [val,])
+            values_output = excel2xml.prepare_value(excel2xml.PropertyElement(val))
+            self.assertEqual([x.value for x in values_output], [val, ])
 
-        values_output = excel2xml._check_and_prepare_values(
-            value=None,
-            values=identical_values,
-            name=""
-        )
+        values_output = excel2xml.prepare_value(identical_values)
         self.assertEqual([x.value for x in values_output], identical_values)
 
-        values_output = excel2xml._check_and_prepare_values(
-            value=None,
-            values=[excel2xml.PropertyElement(x) for x in identical_values],
-            name=""
-        )
+        values_output = excel2xml.prepare_value([excel2xml.PropertyElement(x) for x in identical_values])
         self.assertEqual([x.value for x in values_output], identical_values)
 
-        values_output = excel2xml._check_and_prepare_values(
-            value=None,
-            values=different_values,
-            name=""
-        )
+        values_output = excel2xml.prepare_value(different_values)
         self.assertEqual([x.value for x in values_output], different_values)
 
-        values_output = excel2xml._check_and_prepare_values(
-            value=None,
-            values=[excel2xml.PropertyElement(x) for x in different_values],
-            name=""
-        )
+        values_output = excel2xml.prepare_value([excel2xml.PropertyElement(x) for x in different_values])
         self.assertEqual([x.value for x in values_output], different_values)
 
-        values_output = excel2xml._check_and_prepare_values(
-            value=None,
-            values=values_with_nas,
-            name=""
-        )
-        self.assertEqual([x.value for x in values_output], ["test", 1, 0])
+        values_output = excel2xml.prepare_value(values_with_nas)
+        self.assertEqual([x.value for x in values_output], values_with_nas)
 
-        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_values(
-            value=different_values,
-            values=None,
-            name=""
-        ))
-        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_values(
-            value=[excel2xml.PropertyElement(x) for x in different_values],
-            values=None,
-            name=""
-        ))
-        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_values(
-            value=1,
-            values=[1],
-            name=""
-        ))
-        self.assertRaises(BaseError, lambda: excel2xml._check_and_prepare_values(
-            value=np.nan,
-            values=[np.nan],
-            name=""
-        ))
+        values_output = excel2xml.prepare_value([excel2xml.PropertyElement(x) for x in values_with_nas])
+        self.assertEqual([x.value for x in values_output], values_with_nas)
 
 
     def test_make_boolean_prop(self) -> None:

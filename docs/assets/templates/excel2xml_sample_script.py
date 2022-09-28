@@ -47,9 +47,9 @@ for index, row in main_df.iterrows():
     # and if it's not there, look in "category_dict_fallback"
     category_values = [category_dict.get(x.strip(), category_dict_fallback[x.strip()]) for x in
                        row["Category"].split(",")]
-    resource.append(excel2xml.make_list_prop("category", ":hasCategory", values=category_values))
+    resource.append(excel2xml.make_list_prop("category", ":hasCategory", category_values))
     if excel2xml.check_notna(row["Complete?"]):
-        resource.append(excel2xml.make_boolean_prop(name=":isComplete", value=row["Complete?"]))
+        resource.append(excel2xml.make_boolean_prop(":isComplete", row["Complete?"]))
     if excel2xml.check_notna(row["Color"]):
         resource.append(excel2xml.make_color_prop(":colorprop", row["Color"]))
     if pd.notna(row["Date discovered"]):
@@ -93,7 +93,7 @@ root.append(region)
 
 link = excel2xml.make_link("Link between Resource 0 and 1", "link_res_0_res_1")
 link.append(excel2xml.make_text_prop("hasComment", "This is a comment"))
-link.append(excel2xml.make_resptr_prop("hasLinkTo", values=["res_0", "res_1"]))
+link.append(excel2xml.make_resptr_prop("hasLinkTo", ["res_0", "res_1"]))
 root.append(link)
 
 # write file

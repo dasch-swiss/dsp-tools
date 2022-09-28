@@ -8,6 +8,7 @@ from knora.dsplib.models.propertyelement import PropertyElement
 
 
 class TestShared(unittest.TestCase):
+
     def test_validate_xml_against_schema(self) -> None:
         self.assertTrue(shared.validate_xml_against_schema("testdata/test-data-systematic.xml"))
         self.assertTrue(shared.validate_xml_against_schema("testdata/test-data-minimal.xml"))
@@ -17,6 +18,7 @@ class TestShared(unittest.TestCase):
             "The attribute 'invalidtag' is not allowed"
         ):
             shared.validate_xml_against_schema("testdata/test-data-invalid-resource-tag.xml")
+
 
     def test_prepare_dataframe(self) -> None:
         original_df = pd.DataFrame({
@@ -41,7 +43,8 @@ class TestShared(unittest.TestCase):
 
 
     def test_check_notna(self) -> None:
-        na_values = [None, pd.NA, np.nan, "", "  ", "-", ",", ".", "*", "!", " ⳰", " ῀ ", " ῾ ", " \n\t ", "N/A", "n/a",
+        na_values = [None, pd.NA, np.nan, "", "  ", "-", ",", ".", "*", " ⳰", " ῀ ", " ῾ ", " \n\t ", "N/A", "n/a",
+
                      "<NA>", ["a", "b"], pd.array(["a", "b"]), np.array([0, 1])]
         for na_value in na_values:
             self.assertFalse(shared.check_notna(na_value), msg=f"Failed na_value: {na_value}")

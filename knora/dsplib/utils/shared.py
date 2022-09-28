@@ -174,7 +174,8 @@ def check_notna(value: Optional[Any]) -> bool:
     Check a value if it is usable in the context of data archiving. A value is considered usable if it is
      - a number (integer or float, but not np.nan)
      - a boolean
-     - a string with at least one Unicode letter (p{L}), underscore, !, ?, or number, but not "None", "<NA>", "N/A", or "-"
+     - a string with at least one Unicode letter (matching the regex ``\\p{L}``), underscore, !, ?, or number, but not
+       "None", "<NA>", "N/A", or "-"
      - a PropertyElement whose "value" fulfills the above criteria
 
     Args:

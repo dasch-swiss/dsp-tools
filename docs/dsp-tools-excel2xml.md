@@ -60,7 +60,7 @@ Then, the root element is created, which represents the `<knora>` tag of the XML
 
 ## 3. Append the permissions
 As first children of `<knora>`, some standard permissions are added. At the end, please carefully check the permissions 
-of the finished XML file if they meet your requirements, and adapt them if necessary.  
+of the finished XML file to ensure that they meet your requirements, and adapt them if necessary.  
 
 The standard permission of a resource is `res-default`, and of a property `prop-default`. If you don't specify it 
 otherwise, all resources and properties get these permissions. 
@@ -186,7 +186,8 @@ usable if it is
 
  - a number (integer or float, but not numpy.nan)
  - a boolean
- - a string with at least one Unicode letter (`\p{L}`), underscore, ?, !, or number, but not "None", "<NA>", "N/A", or "-"
+ - a string with at least one Unicode letter (matching the regex `\p{L}`), underscore, ?, !, or number, but not "None", 
+   "<NA>", "N/A", or "-"
  - a PropertyElement whose "value" fulfills the above criteria
 
 

@@ -32,8 +32,8 @@ def make_xsd_id_compatible(string: str) -> str:
 
     This method replaces the illegal characters by "_" and appends a random number to the string to make it unique.
 
-    The string must contain at least one Unicode letter (p{L}), underscore, !, ?, or number, but must not be "None",
-    "<NA>", "N/A", or "-". Otherwise, a BaseError will be raised.
+    The string must contain at least one Unicode letter (matching the regex ``\\p{L}``), underscore, !, ?, or number,
+    but must not be "None", "<NA>", "N/A", or "-". Otherwise, a BaseError will be raised.
 
     Args:
         string: input string
@@ -232,7 +232,7 @@ def prepare_value(
     """
     # make sure that "value" is list-like
     if not isinstance(value, Iterable) or isinstance(value, str):
-        value = [value, ]
+        value = [value]
 
     # make a PropertyElement out of its elements, if necessary.
     return [x if isinstance(x, PropertyElement) else PropertyElement(x) for x in value]

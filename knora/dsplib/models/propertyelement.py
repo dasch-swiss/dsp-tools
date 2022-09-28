@@ -1,7 +1,4 @@
 from typing import Union, Optional
-import pandas as pd
-import regex
-import warnings
 from dataclasses import dataclass
 from knora.dsplib.models.helpers import BaseError
 

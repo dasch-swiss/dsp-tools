@@ -29,7 +29,7 @@ class TestSharedMethods(unittest.TestCase):
 
 
     def test_check_notna(self) -> None:
-        na_values = [None, pd.NA, np.nan, "", "  ", "-", ",", ".", "*", "!", " ⳰", " ῀ ", " ῾ ", " \n\t ", "N/A", "n/a",
+        na_values = [None, pd.NA, np.nan, "", "  ", "-", ",", ".", "*", " ⳰", " ῀ ", " ῾ ", " \n\t ", "N/A", "n/a",
                      "<NA>", ["a", "b"], pd.array(["a", "b"]), np.array([0, 1])]
         for na_value in na_values:
             self.assertFalse(shared.check_notna(na_value), msg=f"Failed na_value: {na_value}")

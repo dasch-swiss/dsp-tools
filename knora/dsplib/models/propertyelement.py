@@ -41,15 +41,5 @@ class PropertyElement:
     encoding: Optional[str] = None
 
     def __post_init__(self) -> None:
-        if not any([
-            isinstance(self.value, int),
-            isinstance(self.value, float) and pd.notna(self.value),  # necessary because isinstance(np.nan, float)
-            isinstance(self.value, bool),
-            isinstance(self.value, str) and all([
-                regex.search(r"\p{L}|\d|_", self.value, flags=regex.UNICODE),
-                not bool(regex.search(r"^(none|<NA>|-|n/a)$", self.value, flags=regex.IGNORECASE))
-            ])
-        ]):
-            warnings.warn(Warning(f"'{self.value}' is not a valid value for a PropertyElement"))
         if self.encoding not in ["utf8", "xml", None]:
             raise BaseError(f"'{self.encoding}' is not a valid encoding for a PropertyElement")

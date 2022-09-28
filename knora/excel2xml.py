@@ -27,23 +27,23 @@ xml_namespace_map = {
 
 def make_xsd_id_compatible(string: str) -> str:
     """
-    Make a string compatible with the constraints of xsd:ID as defined in http://www.datypic.com/sc/xsd/t-xsd_ID.html.
-    An xsd:ID cannot contain special characters, and it must be unique in the document.
+    Make a string compatible with the constraints of xsd:ID, so that it can be used as "id" attribute of a <resource>
+    tag. An xsd:ID must not contain special characters, and it must be unique in the document.
 
     This method replaces the illegal characters by "_" and appends a random number to the string to make it unique.
 
-    The string must contain at least one word-character (regex [A-Za-z0-9_]), but must not be "None", "<NA>", "N/A", or
-    "-". In such cases, a BaseError is thrown.
+    The string must contain at least one Unicode letter (p{L}), underscore, !, ?, or number, but must not be "None",
+    "<NA>", "N/A", or "-". Otherwise, a BaseError will be raised.
 
     Args:
-        string: string which to make the xsd:ID from
+        string: input string
 
     Returns:
-        an `xsd:ID` based on string
+        an xsd:ID based on the input string
     """
 
     if not isinstance(string, str) or not check_notna(string):
-        raise BaseError(f"The string {string} cannot be made an xsd:ID")
+        raise BaseError(f"The input '{string}' cannot be transformed to an xsd:ID")
 
     # if start of string is neither letter nor underscore, add an underscore
     res = re.sub(r"^(?=[^A-Za-z_])", "_", string)
@@ -64,7 +64,8 @@ def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str
     DSP-formatted string. Returns None if no date was found.
 
     Notes:
-        - Assumes Christian era (no BC dates) and Gregorian calendar.
+        - All dates are interpreted in the Christian era and the Gregorian calendar. There is no support for BC dates or
+          non-Gregorian calendars.
         - The years 0000-2999 are supported, in 4-digit form.
         - Dates written with slashes are always interpreted in a European manner: 5/11/2021 is the 5th of November.
 
@@ -160,8 +161,6 @@ def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str
             startdate = datetime.date(year, month, day)
             enddate = startdate
         except ValueError:
-            warnings.warn(f"Date parsing error in resource {calling_resource}: '{iso_date.group(0)}' is not a valid "
-                          f"date", stacklevel=2)
             return None
 
     elif eur_date_range:
@@ -177,8 +176,6 @@ def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str
             if enddate < startdate:
                 raise ValueError
         except ValueError:
-            warnings.warn(f"Date parsing error in resource {calling_resource}: '{eur_date_range.group(0)}' is not a "
-                          f"valid date", stacklevel=2)
             return None
 
     elif eur_date:
@@ -189,8 +186,6 @@ def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str
             startdate = datetime.date(startyear, startmonth, startday)
             enddate = startdate
         except ValueError:
-            warnings.warn(f"Date parsing error in resource {calling_resource}: '{eur_date.group(0)}' is not a valid "
-                          f"date", stacklevel=2)
             return None
 
     elif monthname_date:
@@ -201,8 +196,6 @@ def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str
             startdate = datetime.date(year, month, day)
             enddate = startdate
         except ValueError:
-            warnings.warn(f"Date parsing error in resource {calling_resource}: '{monthname_date.group(0)}' is not a "
-                          f"valid date", stacklevel=2)
             return None
 
     elif year_range:
@@ -224,52 +217,25 @@ def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str
         return None
 
 
-def _check_and_prepare_value(
-    value: Union[PropertyElement, str, int, float, bool, Iterable[Union[PropertyElement, str, int, float, bool]]],
-    name: str,
-    calling_resource: str = ""
+def prepare_value(
+    value: Union[PropertyElement, str, int, float, bool, Iterable[Union[PropertyElement, str, int, float, bool]]]
 ) -> list[PropertyElement]:
     """
-    There is a variety of possibilities how to call a make_*_prop() method. Before such a method can do its job, the
-    parameter "value" needs to be checked and prepared, which is done by this helper method. "value" is passed on to
-    this method as it was received.
-
-    This method transforms "value" to a list of PropertyElements and raises a warning if one of the values is N/A.
+    This method transforms the parameter "value" from a make_*_prop() method into a list of PropertyElements. "value" is
+    passed on to this method as it was received.
 
     Args:
         value: "value" as received from the caller
-        name: name of the property (for better error messages)
-        calling_resource: name of the resource (for better error messages)
 
     Returns:
         a list of PropertyElements
     """
-    # make sure that value is list-like
+    # make sure that "value" is list-like
     if not isinstance(value, Iterable) or isinstance(value, str):
         value = [value, ]
 
-    result: list[PropertyElement] = list()
-    # make a PropertyElement out of its elements, if necessary. If there are N/A values, this will raise a warning, but
-    # the program should continue (="weak" validation).
-    for elem in value:
-        if isinstance(elem, PropertyElement):
-            result.append(elem)
-        else:
-            # elem has to be transformed to a PropertyElement. In the PropertyElement constructor, a warning might be
-            # raised. It is necessary to add context information to the warning, because the constructor has no
-            # information about the context.
-            # So it is necessary to temporarily make warnings catchable, catch them, and reraise it with context
-            # information. But then, the PropertyElement must be created nevertheless.
-            with warnings.catch_warnings():
-                warnings.filterwarnings("error")
-                try:
-                    result.append(PropertyElement(elem))
-                except Warning as w:
-                    warnings.warn(f"Warning for property '{name}' of resource '{calling_resource}': {w}")
-                    warnings.resetwarnings()
-                    result.append(PropertyElement(elem))
-
-    return result
+    # make a PropertyElement out of its elements, if necessary.
+    return [x if isinstance(x, PropertyElement) else PropertyElement(x) for x in value]
 
 
 def make_root(shortcode: str, default_ontology: str) -> etree.Element:
@@ -413,7 +379,8 @@ def make_bitstream_prop(
     calling_resource: str = ""
 ) -> etree.Element:
     """
-    Creates a bitstream element that points to path.
+    Creates a bitstream element that points to "path". If "path" doesn't point to a valid file, a warning will be
+    printed to the console, but the script will continue.
 
     Args:
         path: path to a valid file that will be uploaded
@@ -432,7 +399,8 @@ def make_bitstream_prop(
     """
 
     if not os.path.isfile(path):
-        warnings.warn(f"The following is not a valid path: {path} (resource '{calling_resource}')",
+        warnings.warn(f"Failed validation in bitstream tag of resource '{calling_resource}': The following path "
+                      f"doesn't point to a file: {path}",
                       stacklevel=2)
     prop_ = etree.Element("{%s}bitstream" % (xml_namespace_map[None]), permissions=permissions,
                           nsmap=xml_namespace_map)
@@ -448,7 +416,8 @@ def _format_bool(unformatted: Union[bool, str, int], name: str, calling_resource
     elif unformatted in (True, "true", "1", 1, "yes"):
         return "true"
     else:
-        raise BaseError(f"Invalid boolean format for prop '{name}' in resource '{calling_resource}': '{unformatted}'")
+        raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
+                        f"'{unformatted}' is not a valid boolean.")
 
 
 def make_boolean_prop(
@@ -462,11 +431,13 @@ def make_boolean_prop(
      - true: (True, "true", "True", "1", 1, "yes", "Yes")
      - false: (False, "false", "False", "0", 0, "no", "No")
 
-    Unless provided as PropertyElement, the permission for every value is "prop-default".
+    If the value is not a valid boolean, a BaseError will be raised.
+
+    Unless provided as PropertyElement, the permission of the value defaults to "prop-default".
 
     Args:
         name: the name of this property as defined in the onto
-        value: a str/bool/int itself or inside a PropertyElement
+        value: a boolean value as str/bool/int, or as str/bool/int inside a PropertyElement
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
@@ -491,7 +462,8 @@ def make_boolean_prop(
     elif isinstance(value, str) or isinstance(value, bool) or isinstance(value, int):
         value_new = PropertyElement(_format_bool(value, name, calling_resource))
     else:
-        raise BaseError(f"Invalid boolean format for prop '{name}' in resource '{calling_resource}': '{value}'")
+        raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
+                        f"'{value}' is not a valid boolean.")
 
     # make xml structure of the value
     prop_ = etree.Element(
@@ -520,11 +492,13 @@ def make_color_prop(
 ) -> etree.Element:
     """
     Make a <color-prop> from one or more colors. The color(s) can be provided as string or as PropertyElement with a
-    string inside. If provided as string, the permission for every value is "prop-default".
+    string inside. If provided as string, the permission defaults to "prop-default".
+
+    If the value is not a valid color, a BaseError will be raised.
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of strings/PropertyElements
+        value: one or more DSP color(s), as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
@@ -549,16 +523,13 @@ def make_color_prop(
     """
 
     # check the input: prepare a list with valid values
-    values = _check_and_prepare_value(
-        value=value,
-        name=name,
-        calling_resource=calling_resource
-    )
+    values = prepare_value(value)
 
     # check value type
     for val in values:
         if not re.search(r"^#[0-9a-f]{6}$", str(val.value).strip(), flags=re.IGNORECASE):
-            raise BaseError(f"Invalid color format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
+            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
+                            f"'{val.value}' is not a valid color.")
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -588,11 +559,13 @@ def make_date_prop(
 ) -> etree.Element:
     """
     Make a <date-prop> from one or more dates/date ranges. The date(s) can be provided as string or as PropertyElement
-    with a string inside. If provided as string, the permission for every value is "prop-default".
+    with a string inside. If provided as string, the permission defaults to "prop-default".
+
+    If the value is not a valid DSP date, a BaseError will be raised.
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of strings/PropertyElements
+        value: one or more DSP dates, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
@@ -623,17 +596,14 @@ def make_date_prop(
     """
 
     # check the input: prepare a list with valid values
-    values = _check_and_prepare_value(
-        value=value,
-        name=name,
-        calling_resource=calling_resource
-    )
+    values = prepare_value(value)
 
     # check value type
     for val in values:
         if not re.search(r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})(-\d{1,2})?(-\d{1,2})?"
                          r"((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$", str(val.value).strip()):
-            raise BaseError(f"Invalid date format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
+            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
+                            f"'{val.value}' is not a valid DSP date.")
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -663,12 +633,14 @@ def make_decimal_prop(
 ) -> etree.Element:
     """
     Make a <decimal-prop> from one or more decimal numbers. The decimal(s) can be provided as string, float, or as
-    PropertyElement with a string/float inside. If provided as string/float, the permission for every value is
+    PropertyElement with a string/float inside. If provided as string/float, the permission defaults to
     "prop-default".
+
+    If the value is not a valid decimal number, a BaseError will be raised.
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/float/PropertyElement, or an iterable of strings/PropertyElements
+        value: one or more decimal numbers, as string/float/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
@@ -693,16 +665,13 @@ def make_decimal_prop(
     """
 
     # check the input: prepare a list with valid values
-    values = _check_and_prepare_value(
-        value=value,
-        name=name,
-        calling_resource=calling_resource
-    )
+    values = prepare_value(value)
 
     # check value type
     for val in values:
         if not re.search(r"^\d+\.\d+$", str(val.value).strip()):
-            raise BaseError(f"Invalid decimal format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
+            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
+                            f"'{val.value}' is not a valid decimal number.")
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -732,11 +701,13 @@ def make_geometry_prop(
 ) -> etree.Element:
     """
     Make a <geometry-prop> from one or more areas of an image. The area(s) can be provided as JSON-string or as
-    PropertyElement with the JSON-string inside. If provided as string, the permission for every value is "prop-default".
+    PropertyElement with the JSON-string inside. If provided as string, the permission defaults to "prop-default".
+
+    If the value is not a valid JSON geometry object, a BaseError is raised.
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of strings/PropertyElements
+        value: one or more JSON geometry objects, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
@@ -761,11 +732,7 @@ def make_geometry_prop(
     """
 
     # check the input: prepare a list with valid values
-    values = _check_and_prepare_value(
-        value=value,
-        name=name,
-        calling_resource=calling_resource
-    )
+    values = prepare_value(value)
 
     # check value type
     for val in values:
@@ -774,7 +741,8 @@ def make_geometry_prop(
             assert value_as_dict["type"] in ["rectangle", "circle", "polygon"]
             assert isinstance(value_as_dict["points"], list)
         except (json.JSONDecodeError, TypeError, IndexError, KeyError, AssertionError):
-            warnings.warn(f"Invalid geometry format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
+            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
+                            f"'{val.value}' is not a valid JSON geometry object.")
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -803,12 +771,14 @@ def make_geoname_prop(
 ) -> etree.Element:
     """
     Make a <geoname-prop> from one or more geonames.org IDs. The ID(s) can be provided as string, integer, or as
-    PropertyElement with a string/integer inside. If provided as string/integer, the permission for every value is
+    PropertyElement with a string/integer inside. If provided as string/integer, the permission defaults to
     "prop-default".
+
+    If the value is not a valid geonames.org identifier, a BaseError will be raised.
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/int/PropertyElement, or an iterable of strings/ints/PropertyElements
+        value: one or more geonames.org IDs, as string/int/PropertyElement, or as iterable of strings/ints/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
@@ -833,16 +803,13 @@ def make_geoname_prop(
     """
 
     # check the input: prepare a list with valid values
-    values = _check_and_prepare_value(
-        value=value,
-        name=name,
-        calling_resource=calling_resource
-    )
+    values = prepare_value(value)
 
     # check value type
     for val in values:
         if not re.search(r"^[0-9]+$", str(val.value)):
-            raise BaseError(f"Invalid geoname format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
+            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
+                            f"'{val.value}' is not a geonames.org identifier.")
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -872,12 +839,14 @@ def make_integer_prop(
 ) -> etree.Element:
     """
     Make a <integer-prop> from one or more integers. The integers can be provided as string, integer, or as
-    PropertyElement with a string/integer inside. If provided as string/integer, the permission for every value is
+    PropertyElement with a string/integer inside. If provided as string/integer, the permission defaults to
     "prop-default".
+
+    If the value is not a valid integer, a BaseError will be raised.
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/int/PropertyElement, or an iterable of strings/ints/PropertyElements
+        value: one or more integers, as string/int/PropertyElement, or as iterable of strings/ints/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
@@ -902,16 +871,13 @@ def make_integer_prop(
     """
 
     # check the input: prepare a list with valid values
-    values = _check_and_prepare_value(
-        value=value,
-        name=name,
-        calling_resource=calling_resource
-    )
+    values = prepare_value(value)
 
     # check value type
     for val in values:
         if not re.search(r"^\d+$", str(val.value).strip()):
-            raise BaseError(f"Invalid integer format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
+            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
+                            f"'{val.value}' is not a valid integer.")
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -940,12 +906,14 @@ def make_interval_prop(
     calling_resource: str = ""
 ) -> etree.Element:
     """
-    Make a <interval-prop> from one or more intervals. The interval(s) can be provided as string or as PropertyElement
-    with a string inside. If provided as string, the permission for every value is "prop-default".
+    Make a <interval-prop> from one or more DSP intervals. The interval(s) can be provided as string or as
+    PropertyElement with a string inside. If provided as string, the permission defaults to "prop-default".
+
+    If the value is not a valid DSP interval, a BaseError will be raised.
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of strings/PropertyElements
+        value: one or more DSP intervals, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
@@ -970,16 +938,13 @@ def make_interval_prop(
     """
 
     # check the input: prepare a list with valid values
-    values = _check_and_prepare_value(
-        value=value,
-        name=name,
-        calling_resource=calling_resource
-    )
+    values = prepare_value(value)
 
     # check value type
     for val in values:
         if not re.match(r"([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)):([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+))", str(val.value)):
-            raise BaseError(f"Invalid interval format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
+            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
+                            f"'{val.value}' is not a valid DSP interval.")
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1009,13 +974,15 @@ def make_list_prop(
     calling_resource: str = ""
 ) -> etree.Element:
     """
-    Make a <list-prop> from one or more list items. The list item(s) can be provided as string or as PropertyElement
-    with a string inside. If provided as string, the permission for every value is "prop-default".
+    Make a <list-prop> from one or more list nodes. The name(s) of the list node(s) can be provided as string or as
+    PropertyElement with a string inside. If provided as string, the permission defaults to "prop-default".
+
+    If the name of one of the list nodes is not a valid string, a BaseError will be raised.
 
     Args:
         list_name: the name of the list as defined in the onto
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of strings/PropertyElements
+        value: one or more node names, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
@@ -1040,16 +1007,13 @@ def make_list_prop(
     """
 
     # check the input: prepare a list with valid values
-    values = _check_and_prepare_value(
-        value=value,
-        name=name,
-        calling_resource=calling_resource
-    )
+    values = prepare_value(value)
 
     # check value type
     for val in values:
         if not isinstance(val.value, str) or not check_notna(val.value):
-            raise BaseError(f"Invalid list format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
+            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
+                            f"'{val.value}' is not a valid name of a list node.")
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1079,12 +1043,14 @@ def make_resptr_prop(
     calling_resource: str = ""
 ) -> etree.Element:
     """
-    Make a <resptr-prop> from one or more links to other resources. The links(s) can be provided as string or as
-    PropertyElement with a string inside. If provided as string, the permission for every value is "prop-default".
+    Make a <resptr-prop> from one or more IDs of other resources. The ID(s) can be provided as string or as
+    PropertyElement with a string inside. If provided as string, the permission defaults to "prop-default".
+
+    If the ID of one of the target resources is not a valid string, a BaseError will be raised.
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of strings/PropertyElements
+        value: one or more resource identifiers, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
@@ -1109,16 +1075,13 @@ def make_resptr_prop(
     """
 
     # check the input: prepare a list with valid values
-    values = _check_and_prepare_value(
-        value=value,
-        name=name,
-        calling_resource=calling_resource
-    )
+    values = prepare_value(value)
 
     # check value type
     for val in values:
         if not isinstance(val.value, str) or not check_notna(val.value):
-            raise BaseError(f"Invalid resptr format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
+            raise BaseError(f"Validation Error in resource '{calling_resource}', property '{name}': "
+                            f"The following doesn't seem to be a valid ID of a target resource: '{val.value}'")
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1147,12 +1110,14 @@ def make_text_prop(
     calling_resource: str = ""
 ) -> etree.Element:
     """
-    Make a <text-prop> from one or more texts. The text(s) can be provided as string or as PropertyElement with a string
-    inside. The default encoding is utf8. The default permission for every value is "prop-default".
+    Make a <text-prop> from one or more strings. The string(s) can be provided as string or as PropertyElement with a
+    string inside. If provided as string, the encoding defaults to utf8, and the permission to "prop-default".
+
+    If the value is not a valid string, a BaseError will be raised.
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of strings/PropertyElements
+        value: one or more strings, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
@@ -1177,16 +1142,13 @@ def make_text_prop(
     """
 
     # check the input: prepare a list with valid values
-    values = _check_and_prepare_value(
-        value=value,
-        name=name,
-        calling_resource=calling_resource
-    )
+    values = prepare_value(value)
 
     # check value type
     for val in values:
         if not isinstance(val.value, str) or not check_notna(val.value):
-            warnings.warn(f"Invalid text format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
+            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
+                            f"'{val.value}' is not a valid string.")
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1220,12 +1182,14 @@ def make_time_prop(
 ) -> etree.Element:
     """
     Make a <time-prop> from one or more datetime values of the form "2009-10-10T12:00:00-05:00". The time(s) can be
-    provided as string or as PropertyElement with a string inside.  If provided as string, the permission for every
-    value is "prop-default".
+    provided as string or as PropertyElement with a string inside. If provided as string, the permission defaults to
+    "prop-default".
+
+    If one of the values is not a valid DSP time string, a BaseError will be raised.
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of strings/PropertyElements
+        value: one or more DSP times, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
@@ -1258,16 +1222,13 @@ def make_time_prop(
     """
 
     # check the input: prepare a list with valid values
-    values = _check_and_prepare_value(
-        value=value,
-        name=name,
-        calling_resource=calling_resource
-    )
+    values = prepare_value(value)
 
     # check value type
     for val in values:
         if not re.search(r"^\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d{1,12})?(Z|[+-][0-1]\d:[0-5]\d)$", str(val.value)):
-            raise BaseError(f"Invalid time format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
+            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
+                            f"'{val.value}' is not a valid DSP time.")
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1297,11 +1258,13 @@ def make_uri_prop(
 ) -> etree.Element:
     """
     Make an <uri-prop> from one or more URIs. The URI(s) can be provided as string or as PropertyElement with a string
-    inside. If provided as string, the permission for every value is "prop-default".
+    inside. If provided as string, the permission defaults to "prop-default".
+
+    If one of the values is not a valid URI, a BaseError will be raised.
 
     Args:
         name: the name of this property as defined in the onto
-        value: a string/PropertyElement, or an iterable of strings/PropertyElements
+        value: one or more URIs, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
@@ -1326,11 +1289,7 @@ def make_uri_prop(
     """
 
     # check the input: prepare a list with valid values
-    values = _check_and_prepare_value(
-        value=value,
-        name=name,
-        calling_resource=calling_resource
-    )
+    values = prepare_value(value)
 
     # check value type
     for val in values:
@@ -1338,7 +1297,8 @@ def make_uri_prop(
         if not regex.search(
             r"(?<scheme>[a-z][a-z0-9+.\-]*):(//(?<host>[\w_.\-\[\]:~]+)(?<port>:\d{0,6})?)(?<path>/[\p{L}%()_\-.~]*)*"
             r"(?<query>\?[\p{L}_.\-=]+)*(?<fragment>#[\p{L}_/\-~:.]*)?", str(val.value), flags=regex.UNICODE):
-            warnings.warn(f"Invalid URI format for prop '{name}' in resource '{calling_resource}': '{val.value}'")
+            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
+                            f"'{val.value}' is not a valid URI.")
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1821,10 +1781,10 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
                 "name": row["prop name"],
                 "calling_resource": resource_id
             }
-            if len(property_elements) == 1:
+            if make_prop_function in single_value_functions and len(property_elements) == 1:
                 kwargs_propfunc["value"] = property_elements[0]
             else:
-                kwargs_propfunc["values"] = property_elements
+                kwargs_propfunc["value"] = property_elements
             if check_notna(row["prop list"]):
                 kwargs_propfunc["list_name"] = str(row["prop list"])
 

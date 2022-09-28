@@ -5,30 +5,66 @@ dsp-tools assists you in converting a data source in CSV/XLS(X) format to an XML
 transformation from Excel/CSV to XML: 
 
  - The CLI command `dsp-tools excel2xml` creates an XML file from an Excel/CSV file which is already structured 
-   according to the DSP specifications. This is mostly used for DaSCH-interal data migration. The CLI command is 
-   documented [here](dsp-tools-excel.md#cli-command-excel2xml).
+   according to the DSP specifications. This is mostly used for DaSCH-interal data migration. **The CLI command is 
+   documented [here](dsp-tools-excel.md#cli-command-excel2xml).**
  - The module `excel2xml` can be imported into a custom Python script that transforms any tabular data into an XML. This
-   use case is more frequent, because data from research projects have a variety of formats/structures. **This document
-   only treats the `excel2xml` module.**
+   use case is more frequent, because data from research projects have a variety of formats/structures. **The 
+   `excel2xml` module is documented on this page.**
 
 
-## How to use the module excel2xml
-At the end of this document, you find a sample Python script. In the following, it is explained how to use it.
+# How to use the module excel2xml
+Save the following files into a directory, and run the Python script: 
+
+ - sample data: [excel2xml_sample_data.csv](./assets/templates/excel2xml_sample_data.csv)
+ - sample ontology: [excel2xml_sample_onto.json](./assets/templates/excel2xml_sample_onto.json)
+ - sample script: [excel2xml_sample_script.py](./assets/templates/excel2xml_sample_script.py)
+
+This is the simplified pattern how the Python script works:
+
+```python
+1  main_df = pd.read_csv("excel2xml_sample_data.csv", dtype="str", sep=",")
+2  root = excel2xml.make_root(...)
+3  root = excel2xml.append_permissions(root)
+4  # if necessary: create list mappings, according to explanation below
+5  for index, row in main_df.iterrows():
+6      resource = excel2xml.make_resource(...)
+7      resource.append(excel2xml.make_text_prop(...))
+8      root.append(resource)
+9  excel2xml.write_xml(root, "data.xml")
+```
+```
+1 read in your data source with the pandas library (https://pandas.pydata.org/)  
+2 create the root element `<knora>`  
+3 append the permissions  
+4 if necessary: create list mappings (see below)  
+5 iterate through the rows of your data source:  
+6   create the `<resource>` tag  
+7   append properties to it  
+8   append the resource to the root tag `<knora>`  
+9 save the finished XML file  
+```
+
+<br>
+In the following, these steps are explained in-depth.
 
 
-### General preparation
-Insert your ontology name, project shortcode, and the path to your data source. If necessary, activate one of the lines
-that are commented out.  
-Then, the `root` element is created, which represents the `<knora>` tag of the XML document. As first children of 
+## Read data source, create root element `<knora>`, append permissions
+In the first paragraph of the sample script, insert your ontology name, project shortcode, and the path to your data 
+source. If necessary, activate one of the lines that are commented out.  
+
+Then, the root element is created, which represents the `<knora>` tag of the XML document. As first children of 
 `<knora>`, some standard permissions are added. At the end, please carefully check the permissions of the finished XML
 file if they meet your requirements, and adapt them if necessary.  
-The standard permission of a resource is "res-default", and of a property "prop-default". If you don't specify it 
-otherwise, all resources and properties get these permissions. With excel2xml, it is not possible to create resources/
-properties that don't have permissions, because they would be invisible for all users except project admins and system
-admins. Read more about permissions [here](./dsp-tools-xmlupload.md#how-to-use-the-permissions-attribute-in-resourcesproperties).
+
+The standard permission of a resource is `res-default`, and of a property `prop-default`. If you don't specify it 
+otherwise, all resources and properties get these permissions. 
+
+With `excel2xml`, it is not possible to create resources/properties that don't have permissions, because they would be 
+invisible for all users except project admins and system admins. [Read more about permissions 
+here](./dsp-tools-xmlupload.md#how-to-use-the-permissions-attribute-in-resourcesproperties).
 
 
-### Create list mappings
+## Create list mappings
 Let's assume that your data source has a column containing list values named after the "label" of the JSON project list, 
 instead of the "name" which is needed for the `dsp-tools xmlupload`. You need a way to get the names from the labels.
 If your data source uses the labels correctly, this is an easy task: The method `create_json_list_mapping()` creates a
@@ -39,38 +75,83 @@ correct JSON project node name. This happens based on string similarity. Please 
 no false matches!
 
 
-### Create all resources
-With the help of the [Python pandas library](https://pandas.pydata.org/), you can then iterate through the rows of your 
-Excel/CSV, and create resources and properties. Some examples of useful helper methods are:
+## Iterate through the rows of your data source
+With the help of Pandas, you can then iterate through the rows of your Excel/CSV, and create resources and properties. 
+This works as follows:
 
 
-#### Create an ID for a resource
+### Create the ID of a resource
 The method `make_xsd_id_compatible(string)` makes a string compatible with the constraints of xsd:ID, so that it can be 
 used as ID of a resource.
 
 
-#### Create a property
-For every property, there is a helper function that explains itself when you hover over it. It also has a link to 
-the dsp-tools documentation of this property. So you don't need to worry how to construct a certain XML value for a 
-certain property. 
+### Create a property
+For every property, there is a helper function that explains itself when you hover over it. So you don't need to worry 
+any more how to construct a certain XML value for a certain property. 
 
+Here's how the Docstrings assist you:
+
+ - method signature: names of the parameters and accepted types
+ - short explanation how the method behaves
+ - usage examples
+ - link to the dsp-tools documentation of this property
+ - a short description for every parameter
+ - short description of the returned object. `etree.Element` is a type annotation of the underlying library. You don't 
+   have to care about it, as long as you proceed as described (append the returned object to the parent resource).
+
+![docstring example](./assets/images/img-excel2xml-module-docstring.png)
+
+
+### `PropertyElement`
+There are two possibilities how to create a property: The value can be passed as it is, or as `PropertyElement`. If it
+is passed as it is, the `permissions` are assumed to be `prop-default`, texts are assumed to be encoded as `utf8`, and 
+the value won't have a comment:
+```
+make_text_prop(":testproperty", "first text")
+```
+```
+    <text-prop name=":testproperty">
+        <text encoding="utf8" permissions="prop-default">first text</text>
+    </text-prop>
+```
+
+If you want to change these defaults, you have to use a `PropertyElement` instead:
+```
+make_text_prop(
+    ":testproperty", 
+    PropertyElement(
+        value="first text", 
+        permissions="prop-restricted", 
+        encoding="xml",
+        comment="some comment"
+    )
+)
+```
+```
+    <text-prop name=":testproperty">
+        <text encoding="xml" permissions="prop-restricted" comment="some comment">first text</text>
+    </text-prop>
+```
+
+
+### Supported boolean formats
 For `make_boolean_prop(cell)`, the following formats are supported:
 
  - true: True, "true", "True", "1", 1, "yes", "Yes"
  - false: False, "false", "False", "0", 0, "no", "No"
 
 
-#### Check if a cell contains a usable value
+### Check if a cell contains a usable value
 The method `check_notna(cell)` checks a value if it is usable in the context of data archiving. A value is considered 
 usable if it is
 
  - a number (integer or float, but not numpy.nan)
  - a boolean
- - a string with at least one Unicode letter, underscore, or number, but not "None", "<NA>", "N/A", or "-"
+ - a string with at least one Unicode letter (`\p{L}`), underscore, ?, !, or number, but not "None", "<NA>", "N/A", or "-"
  - a PropertyElement whose "value" fulfills the above criteria
 
 
-#### Calendar date parsing
+### Calendar date parsing
 The method `find_date_in_string(string)` tries to find a calendar date in a string. If successful, it 
 returns the DSP-formatted date string.
 
@@ -99,12 +180,3 @@ Currently supported date formats:
 | 1849/1850         | GREGORIAN:CE:1849:CE:1850             |
 | 1849/50           | GREGORIAN:CE:1849:CE:1850             |
 | 1845-50           | GREGORIAN:CE:1845:CE:1850             |
-
-
-## Complete example
-Save the following files into a directory, and run the Python script. The features discussed in this document are
-contained therein.
-
- - sample data: [excel2xml_sample_data.csv](assets/templates/excel2xml_sample_data.csv)
- - sample ontology: [excel2xml_sample_onto.json](assets/templates/excel2xml_sample_onto.json)
- - sample script: [excel2xml_sample_script.py](assets/templates/excel2xml_sample_script.py)

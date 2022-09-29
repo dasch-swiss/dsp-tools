@@ -1,12 +1,13 @@
+import os
 import time
 import unicodedata
-import pandas as pd
-import regex
-import os
-from lxml import etree
-from requests import RequestException
 from datetime import datetime
 from typing import Callable, Any, Optional
+
+import pandas as pd
+import regex
+from lxml import etree
+from requests import RequestException
 
 from knora.dsplib.models.connection import Connection
 from knora.dsplib.models.helpers import BaseError
@@ -93,7 +94,7 @@ def validate_xml_against_schema(input_file: str) -> bool:
     Validates an XML file against an XSD schema
 
     Args:
-        input_file: the XML file to be validated
+        input_file: path to the XML file to be validated
 
     Returns:
         True if the XML file is valid. Otherwise, a BaseError with a detailed error log is raised

@@ -16,7 +16,7 @@ from lxml.builder import E
 
 from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.models.propertyelement import PropertyElement
-from knora.dsplib.utils.shared import simplify_name, check_notna
+from knora.dsplib.utils.shared import simplify_name, check_notna, validate_xml_against_schema
 
 xml_namespace_map = {
     None: "https://dasch.swiss/schema",
@@ -1476,7 +1476,7 @@ def create_json_excel_list_mapping(
 ) -> dict[str, str]:
     """
     Often, data sources contain list values that aren't identical to the name of the node in the list of the JSON
-    project file (a.k.a. ontology). In order to create a correct XML for the `dsp-tools xmlupload`, a mapping is
+    project file (colloquially: ontology). In order to create a correct XML for the `dsp-tools xmlupload`, a mapping is
     necessary. This function takes a JSON list and an Excel column containing list-values, and tries to match them
     automatically based on similarity. The result is a dict of the form {excel_value: list_node_name}.
 
@@ -1635,6 +1635,12 @@ def write_xml(root: etree.Element, filepath: str) -> None:
     xml_string = xml_string.replace("&gt;", ">")
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(xml_string)
+    try:
+        validate_xml_against_schema(filepath)
+        print(f"The XML file was successfully saved to {filepath}")
+    except BaseError as err:
+        warnings.warn(f"The XML file was successfully saved to {filepath}, but the following Schema validation "
+                      f"error(s) occurred: {err.message}")
 
 
 def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:

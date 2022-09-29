@@ -8,15 +8,15 @@ from knora import excel2xml
 
 # general preparation
 # -------------------
-path_to_json = "excel2xml_sample_onto.json"
-main_df = pd.read_csv("excel2xml_sample_data.csv", dtype="str", sep=",")  # or: pd.read_excel("*.xls(x)", dtype="str")
+path_to_json = "migration-project.json"
+main_df = pd.read_csv("migration-data.csv", dtype="str", sep=",")  # or: pd.read_excel("*.xls(x)", dtype="str")
 
 # remove rows without usable values (prevents Errors when there are empty rows at the end of the file)
 main_df = main_df.applymap(lambda x: x if pd.notna(x) and regex.search(r"[\p{L}\d_!?]", str(x), flags=regex.U) else pd.NA)
 main_df.dropna(axis="index", how="all", inplace=True)
 
 # create the root tag <knora> and append the permissions
-root = excel2xml.make_root(shortcode="0123", default_ontology="migration-template")
+root = excel2xml.make_root(shortcode="0123", default_ontology="migration")
 root = excel2xml.append_permissions(root)
 
 
@@ -136,7 +136,7 @@ root.append(annotation)
 region = excel2xml.make_region("Region of the Meteorite image", "region_of_meteorite")
 region.append(excel2xml.make_text_prop("hasComment", "This is a comment"))
 region.append(excel2xml.make_color_prop("hasColor", "#5d1f1e"))
-region.append(excel2xml.make_resptr_prop("isRegionOf", image2d_labels_to_ids["GibbeonMeteorite.jpg"]))
+region.append(excel2xml.make_resptr_prop("isRegionOf", image2d_labels_to_ids["GibeonMeteorite.jpg"]))
 region.append(excel2xml.make_geometry_prop(
     "hasGeometry",
     '{"type": "rectangle", "lineColor": "#ff3333", "lineWidth": 2, '
@@ -152,4 +152,4 @@ root.append(link)
 
 # write file
 # ----------
-excel2xml.write_xml(root, "data.xml")
+excel2xml.write_xml(root, "migrated-data.xml")

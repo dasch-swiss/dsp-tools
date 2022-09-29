@@ -22,68 +22,41 @@
         "nodes": [
           {
             "name": "artwork",
-            "labels": {
-              "de": "Kunstwerk",
-              "en": "Artwork"
-            }
+            "labels": {"de": "Kunstwerk", "en": "Artwork"}
           },
           {
             "name": "nature",
-            "labels": {
-              "de": "Natur",
-              "en": "Nature"
-            },
+            "labels": {"de": "Natur", "en": "Nature"},
             "nodes": [
               {
                 "name": "humans",
-                "labels": {
-                  "de": "Menschen",
-                  "en": "Humans"
-                }
+                "labels": {"de": "Menschen", "en": "Humans"}
               },
               {
                 "name": "animals",
-                "labels": {
-                  "de": "Tiere",
-                  "en": "Animals"
-                },
+                "labels": {"de": "Tiere", "en": "Animals"},
                 "nodes": [
                   {
                     "name": "mammals",
-                    "labels": {
-                      "de": "Säugetiere",
-                      "en": "Mammals"
-                    }
+                    "labels": {"de": "Säugetiere", "en": "Mammals"}
                   },
                   {
                     "name": "birds",
-                    "labels": {
-                      "de": "Vögel",
-                      "en": "Birds"
-                    }
+                    "labels": {"de": "Vögel", "en": "Birds"}
                   },
                   {
                     "name": "reptiles",
-                    "labels": {
-                      "de": "Reptilien",
-                      "en": "Reptiles"
-                    }
+                    "labels": {"de": "Reptilien", "en": "Reptiles"}
                   }
                 ]
               },
               {
                 "name": "plants",
-                "labels": {
-                  "de": "Pflanzen",
-                  "en": "Plants"
-                }
+                "labels": {"de": "Pflanzen", "en": "Plants"}
               },
               {
                 "name": "physics",
-                "labels": {
-                  "de": "Physik",
-                  "en": "Physics"
-                }
+                "labels": {"de": "Physik", "en": "Physics"}
               }
             ]
           }
@@ -97,146 +70,94 @@
         "properties": [
           {
             "name": "hasTime",
-            "super": [
-              "hasValue"
-            ],
+            "super": ["hasValue"],
             "object": "TimeValue",
-            "labels": {
-              "en": "Time"
-            },
+            "labels": {"en": "Time"},
             "gui_element": "TimeStamp"
           },
           {
             "name": "hasImage",
-            "super": [
-              "hasLinkTo"
-            ],
+            "super": ["hasLinkTo"],
             "object": ":Image2D",
-            "labels": {
-              "en": "Image"
-            },
+            "labels": {"en": "Image"},
             "gui_element": "Searchbox"
           },
           {
             "name": "hasDescription",
-            "super": [
-              "hasValue"
-            ],
+            "super": ["hasValue"],
             "object": "TextValue",
-            "labels": {
-              "en": "Description"
-            },
+            "labels": {"en": "Description"},
             "gui_element": "Richtext"
           },
           {
             "name": "hasName",
-            "super": [
-              "hasValue"
-            ],
+            "super": ["hasValue"],
             "object": "TextValue",
-            "labels": {
-              "en": "Name"
-            },
+            "labels": {"en": "Name"},
             "gui_element": "SimpleText"
           },
           {
             "name": "hasTitle",
-            "super": [
-              "hasValue"
-            ],
+            "super": ["hasValue"],
             "object": "TextValue",
-            "labels": {
-              "en": "Title"
-            },
+            "labels": {"en": "Title"},
             "gui_element": "SimpleText"
           },
           {
             "name": "hasDate",
-            "super": [
-              "hasValue"
-            ],
+            "super": ["hasValue"],
             "object": "DateValue",
-            "labels": {
-              "en": "Dating"
-            },
+            "labels": {"en": "Dating"},
             "gui_element": "Date"
           },
           {
             "name": "hasLocation",
-            "super": [
-              "hasValue"
-            ],
+            "super": ["hasValue"],
             "object": "GeonameValue",
-            "labels": {
-              "en": "Location"
-            },
+            "labels": {"en": "Location"},
             "gui_element": "Geonames"
           },
           {
             "name": "hasExternalLink",
-            "super": [
-              "hasValue"
-            ],
+            "super": ["hasValue"],
             "object": "UriValue",
-            "labels": {
-              "en": "External link"
-            },
+            "labels": {"en": "External link"},
             "gui_element": "SimpleText"
           },
           {
             "name": "hasCategory",
-            "super": [
-              "hasValue"
-            ],
+            "super": ["hasValue"],
             "object": "ListValue",
-            "labels": {
-              "en": "Category"
-            },
+            "labels": {"en": "Category"},
             "gui_element": "List",
-            "gui_attributes": {
-              "hlist": "category"
-            }
+            "gui_attributes": {"hlist": "category"}
           },
           {
             "name": "hasColor",
-            "super": [
-              "hasColor"
-            ],
+            "super": ["hasColor"],
             "object": "ColorValue",
-            "labels": {
-              "en": "Colour"
-            },
+            "labels": {"en": "Colour"},
             "gui_element": "Colorpicker"
           },
           {
             "name": "isPublic",
-            "super": [
-              "hasValue"
-            ],
+            "super": ["hasValue"],
             "object": "BooleanValue",
-            "labels": {
-              "en": "Public"
-            },
+            "labels": {"en": "Public"},
             "gui_element": "Checkbox"
           },
           {
             "name": "hasWeight",
-            "super": [
-              "hasValue"
-            ],
+            "super": ["hasValue"],
             "object": "DecimalValue",
-            "labels": {
-              "en": "Weight"
-            },
+            "labels": {"en": "Weight"},
             "gui_element": "SimpleText"
           }
         ],
         "resources": [
           {
             "name": "Image2D",
-            "labels": {
-              "en": "2D image"
-            },
+            "labels": {"en": "2D image"},
             "super": "StillImageRepresentation",
             "cardinalities": [
               {
@@ -247,9 +168,7 @@
           },
           {
             "name": "Object",
-            "labels": {
-              "en": "Object"
-            },
+            "labels": {"en": "Object"},
             "super": "Resource",
             "cardinalities": [
               {

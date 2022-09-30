@@ -276,7 +276,7 @@ class TestExcel2xml(unittest.TestCase):
         method = excel2xml.make_decimal_prop
         different_values = ["3.14159", 3.14159, "1.3e3", "100", ".1", 100]
         invalid_values = ["string"]
-        run_test(self, prop, method, different_values, invalid_values)
+        run_test(self, prop, method, [float(x) for x in different_values], invalid_values)
 
 
     def test_make_geometry_prop(self) -> None:
@@ -303,7 +303,7 @@ class TestExcel2xml(unittest.TestCase):
         method = excel2xml.make_integer_prop
         different_values = [1283416, "1283416", 3.14159, " 11 ", 0, "0"]
         invalid_values = [" 10.3 ", "text", ["text"]]
-        run_test(self, prop, method, different_values, invalid_values)
+        run_test(self, prop, method, [int(x) for x in different_values], invalid_values)
 
 
     def test_make_interval_prop(self) -> None:

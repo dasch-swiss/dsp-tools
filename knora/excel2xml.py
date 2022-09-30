@@ -672,7 +672,9 @@ def make_decimal_prop(
 
     # check value type
     for val in values:
-        if not re.search(r"^\d+(\.\d+)?$", str(val.value).strip()):
+        try:
+            float(val.value)
+        except ValueError:
             raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
                             f"'{val.value}' is not a valid decimal number.")
 
@@ -691,7 +693,7 @@ def make_decimal_prop(
             **kwargs,
             nsmap=xml_namespace_map
         )
-        value_.text = str(val.value)
+        value_.text = str(float(val.value))
         prop_.append(value_)
 
     return prop_
@@ -878,7 +880,9 @@ def make_integer_prop(
 
     # check value type
     for val in values:
-        if not re.search(r"^\d+$", str(val.value).strip()):
+        try:
+            int(val.value)
+        except ValueError:
             raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
                             f"'{val.value}' is not a valid integer.")
 
@@ -897,7 +901,7 @@ def make_integer_prop(
             **kwargs,
             nsmap=xml_namespace_map
         )
-        value_.text = str(val.value)
+        value_.text = str(int(val.value))
         prop_.append(value_)
 
     return prop_

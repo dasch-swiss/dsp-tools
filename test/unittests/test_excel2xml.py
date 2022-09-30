@@ -1,10 +1,9 @@
 import os
-import unittest
 import re
+import unittest
 from typing import Callable, Sequence, Union, Optional, Any
 
 import numpy as np
-import pytest
 from lxml import etree
 
 from knora import excel2xml
@@ -505,30 +504,6 @@ class TestExcel2xml(unittest.TestCase):
                 self.assertEqual(returned, expected, msg=f"Failed with extension {ext}")
         if os.path.isfile("excel2xml-output-data.xml"):
             os.remove("excel2xml-output-data.xml")
-
-    @pytest.mark.filterwarnings("ignore")
-    def test_excel2xml_sample_script(self) -> None:
-        old_working_directory = os.getcwd()
-        os.chdir("docs/assets/templates")
-        with open("excel2xml_sample_script.py") as f:
-            template_script = f.read()
-            exec(template_script, {})
-        with open("../../../testdata/excel2xml-template-expected-output.xml") as f:
-            template_expected = f.read()
-            # remove the resource ids, because they contain a random component
-            template_expected = re.sub(r'(?<!permissions )id=".+?"', "", template_expected)
-        with open("data.xml") as f:
-            template_returned = f.read()
-            # remove the resource ids, because they contain a random component
-            template_returned = re.sub(r'(?<!permissions )id=".+?"', "", template_returned)
-
-        self.assertEqual(template_expected, template_returned)
-
-        # delete generated data
-        if os.path.isfile("data.xml"):
-            os.remove("data.xml")
-
-        os.chdir(old_working_directory)
 
 
 if __name__ == "__main__":

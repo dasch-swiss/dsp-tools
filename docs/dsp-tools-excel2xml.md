@@ -16,9 +16,8 @@ transformation from Excel/CSV to XML:
 
 Save the following files into a directory, and run the Python script: 
 
- - sample data: [excel2xml_sample_data.csv](assets/excel2xml/excel2xml_sample_data.csv)
- - sample ontology: [excel2xml_sample_onto.json](assets/excel2xml/excel2xml_sample_onto.json)
- - sample script: [excel2xml_sample_script.py](assets/excel2xml/excel2xml_sample_script.py)
+ - [directory](assets/0123-import-scripts/import-project.json)
+
 
 This is the simplified pattern how the Python script works:
 
@@ -76,7 +75,7 @@ instead of the "name" which is needed for the `dsp-tools xmlupload`. You need a 
 If your data source uses the labels correctly, this is an easy task: The method `create_json_list_mapping()` creates a
 dictionary that maps the labels to the names.  
 
-Example JSON project file:
+Example from the docstring:
 
 
 If, however, your data source has spelling variants, you need the more sophisticated approach of 

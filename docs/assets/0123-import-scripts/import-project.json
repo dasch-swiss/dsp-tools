@@ -2,8 +2,8 @@
   "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/ontology.json",
   "project": {
     "shortcode": "0123",
-    "shortname": "migration",
-    "longname": "Template project for migrating data to DaSCH",
+    "shortname": "import",
+    "longname": "Template project for importing data to DaSCH",
     "descriptions": {
       "en": "Template project to demonstrate the archiving process of a big dataset at the end of a research project's lifetime."
     },
@@ -65,8 +65,8 @@
     ],
     "ontologies": [
       {
-        "name": "migration",
-        "label": "The template ontology for data migration",
+        "name": "import",
+        "label": "The template ontology for data import",
         "properties": [
           {
             "name": "hasTime",

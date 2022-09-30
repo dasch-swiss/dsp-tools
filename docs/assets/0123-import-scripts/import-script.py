@@ -8,15 +8,15 @@ from knora import excel2xml
 
 # general preparation
 # -------------------
-path_to_json = "migration-project.json"
-main_df = pd.read_csv("migration-data.csv", dtype="str", sep=",")  # or: pd.read_excel("*.xls(x)", dtype="str")
+path_to_json = "import-project.json"
+main_df = pd.read_csv("data-raw.csv", dtype="str", sep=",")  # or: pd.read_excel("*.xls(x)", dtype="str")
 
 # remove rows without usable values (prevents Errors when there are empty rows at the end of the file)
 main_df = main_df.applymap(lambda x: x if pd.notna(x) and regex.search(r"[\p{L}\d_!?]", str(x), flags=regex.U) else pd.NA)
 main_df.dropna(axis="index", how="all", inplace=True)
 
 # create the root tag <knora> and append the permissions
-root = excel2xml.make_root(shortcode="0123", default_ontology="migration")
+root = excel2xml.make_root(shortcode="0123", default_ontology="import")
 root = excel2xml.append_permissions(root)
 
 
@@ -152,4 +152,4 @@ root.append(link)
 
 # write file
 # ----------
-excel2xml.write_xml(root, "migrated-data.xml")
+excel2xml.write_xml(root, "data-processed.xml")

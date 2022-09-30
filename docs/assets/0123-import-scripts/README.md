@@ -13,7 +13,7 @@ Stage all changes, write "init" as commit message, and commit all changes:
 You now have the option to "Publish Branch". This is to synchronize your local work with a GitHub repository on 
 [https://github.com/dasch-swiss/](https://github.com/dasch-swiss/). For this purpose, replace `0123` by your project's 
 shortcode, and `import` by your project's shortname. This is especially recommended for big projects where you spend 
-weeks/months on, when you might want to have a backup. 
-
+weeks/months on, when you might want to have a backup, or when you want to invite colleagues for collaboration or a code
+review.
 
 Open `import-script.py`. You can now choose a Python interpreter. 

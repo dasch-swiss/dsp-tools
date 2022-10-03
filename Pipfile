@@ -28,7 +28,6 @@ pipenv-setup = "*"
 pytest = "*"
 types-requests = "*"
 twine = "*"
-gitpython = "*"
 
 [requires]
 python_version = "3"

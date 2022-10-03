@@ -11,14 +11,8 @@
     "lists": [
       {
         "name": "category",
-        "labels": {
-          "de": "Kategorie",
-          "en": "Category"
-        },
-        "comments": {
-          "en": "A list containing categories",
-          "de": "Eine Liste mit Kategorien"
-        },
+        "labels": {"de": "Kategorie", "en": "Category"},
+        "comments": {"en": "A list containing categories", "de": "Eine Liste mit Kategorien"},
         "nodes": [
           {
             "name": "artwork",

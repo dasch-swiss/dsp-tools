@@ -4,20 +4,24 @@
 dsp-tools assists you in converting a data source in CSV/XLS(X) format to an XML file. There are two use cases for a 
 transformation from Excel/CSV to XML: 
 
- - The CLI command `dsp-tools excel2xml` creates an XML file from an Excel/CSV file which is already structured 
-   according to the DSP specifications. This is mostly used for DaSCH-interal data migration. **The CLI command is 
-   documented [here](dsp-tools-excel.md#cli-command-excel2xml).**
- - The module `excel2xml` can be imported into a custom Python script that transforms any tabular data into an XML. This
-   use case is more frequent, because data from research projects have a variety of formats/structures. **The 
-   `excel2xml` module is documented on this page.**
+- The CLI command `dsp-tools excel2xml` creates an XML file from an Excel/CSV file which is already structured 
+ according to the DSP specifications. This is mostly used for DaSCH-interal data migration. 
+    - **The CLI command is documented [here](dsp-tools-excel.md#cli-command-excel2xml).**
+- The module `excel2xml` can be imported into a custom Python script that transforms any tabular data into an XML. This
+  use case is more frequent, because data from research projects have a variety of formats/structures. 
+    - **The `excel2xml` module is documented on this page.**
 
 <br>
-**In the following, an example is given how to use the module `excel2xml`:**
+**How to use the module `excel2xml`:**
 
-Save the following files into a directory, and run the Python script: 
+Download the [sample repository "0123-import-scripts"](./assets/0123-import-scripts.zip) that contains 
 
- - [directory](assets/0123-import-scripts/import-project.json)
+- a sample JSON project file
+- sample data that fits the data model of the JSON project file
+- a sample Python script that demonstrates how to use the module `excel2xml`.
 
+After having downloaded and unpacked "0123-import-scripts",  learn in the README.md how to get started. Then, return to 
+this page to learn how the sample Python script works.
 
 This is the simplified pattern how the Python script works:
 
@@ -73,15 +77,68 @@ here](./dsp-tools-xmlupload.md#how-to-use-the-permissions-attribute-in-resources
 Let's assume that your data source has a column containing list values named after the "label" of the JSON project list, 
 instead of the "name" which is needed for the `dsp-tools xmlupload`. You need a way to get the names from the labels.
 If your data source uses the labels correctly, this is an easy task: The method `create_json_list_mapping()` creates a
-dictionary that maps the labels to the names.  
+dictionary that maps the labels to the names:  
 
-Example from the docstring:
+The list "category" in `0123-import-scripts/import-project.json` looks as follows:
+```json
+{
+  "name": "category",
+  "labels": {"de": "Kategorie", "en": "Category"},
+  "comments": {"en": "A list containing categories", "de": "Eine Liste mit Kategorien"},
+  "nodes": [
+    {
+      "name": "artwork",
+      "labels": {"de": "Kunstwerk", "en": "Artwork"}
+    },
+    {
+      "name": "nature",
+      "labels": {"de": "Natur", "en": "Nature"},
+      "nodes": [
+        {
+          "name": "humans",
+          "labels": {"de": "Menschen", "en": "Humans"}
+        },
+        {"...": "..."}
+      ]
+    }
+  ]
+}
+```
+
+If you pass this list to `create_json_list_mapping()`, it creates the following dictionary:
+```json
+{
+    "Kunstwerk": "artwork",
+    "kunstwerk": "artwork",
+    "Menschen": "humans",
+    "menschen": "humans",
+    "Natur": "nature",
+    "natur": "nature",
+    "...": "..."
+}
+```
 
 
 If, however, your data source has spelling variants, you need the more sophisticated approach of 
 `create_json_excel_list_mapping()`: This method creates a dictionary that maps the list values in your data source to their 
 correct JSON project node name. This happens based on string similarity. Please carefully check the result if there are
 no false matches!
+
+The column "Category" in `0123-import-scripts/data-raw.csv` has spelling mistakes:  
+![column category](./assets/images/img-excel2xml-raw-data-category.png)
+
+The dictionary that results if you call `create_json_excel_list_mapping()`:
+```json
+{
+    "Huumans": "humans",
+    "huumans": "humans",
+    "Artwörk": "artwork",
+    "artwörk": "artwork"
+}
+```
+
+The sample Python scripts features an example how to call these two methods, and how the resulting dictionaries can be 
+used.
 
 
 ## 5. Iterate through the rows of your data source
@@ -101,8 +158,12 @@ There are four kind of resources that can be created:
 `<resource>` is the most frequent of them. The other three are [explained 
 here](./dsp-tools-xmlupload.md#dsp-base-resources--base-properties-to-be-used-directly-in-the-xml-file). 
 
+#### Resource ID
 Special care is needed when the ID of a resource is created. Every resource must have an ID that is unique in the file,
 and it must meet the constraints of xsd:ID. You can simply achieve this if you use the method `make_xsd_id_compatible()`.
+
+If later, another resource would like to set a resptr-link to the resource that you are coding now, you must store the 
+ID in a dict, so that you can retrieve it later. The example script contains an example of such a dict. 
 
 
 ### 7. Append the properties

@@ -26,10 +26,10 @@ class TestImportScripts(unittest.TestCase):
 
         # check that for every original file, there is exactly one extracted counterpart
         original_files_expected = [re.sub(r"0123-import-scripts-extracted/", "", x) for x in extracted_files]
-        self.assertListEqual(original_files, original_files_expected, "docs/assets/0123-import-scripts.zip is outdated")
+        self.assertListEqual(sorted(original_files), sorted(original_files_expected), "docs/assets/0123-import-scripts.zip is outdated")
 
         # check that the files have the same size and modification time
-        for orig, extr in zip(original_files, extracted_files):
+        for orig, extr in zip(sorted(original_files), sorted(extracted_files)):
             self.assertTrue(filecmp.cmp(orig, extr), "docs/assets/0123-import-scripts.zip is outdated")
 
     @pytest.mark.filterwarnings("ignore")
@@ -38,17 +38,22 @@ class TestImportScripts(unittest.TestCase):
         Execute the import script in its directory, create the project on the DSP server, and upload the created XML to
         the DSP server.
         """
-        # execute the import script in its directory, and check if the output XML is as expected
+        # execute the import script in its directory
         old_working_directory = os.getcwd()
         os.chdir("docs/assets/0123-import-scripts")
-        with open("import-script.py") as f:
-            import_script = f.read()
-            exec(import_script, {})
-        with open("../../../testdata/data-processed-expected.xml") as f:
+        try:
+            with open("import-script.py") as f:
+                import_script = f.read()
+                exec(import_script, {})
+        finally:
+            os.chdir(old_working_directory)
+
+        # check if the output XML is as expected
+        with open("testdata/data-processed-expected.xml") as f:
             data_processed_expected = f.read()
             # remove the resource ids, because they contain a random component
             data_processed_expected = re.sub(r'(?<!permissions )id=".+?"', "", data_processed_expected)
-        with open("data-processed.xml") as f:
+        with open("docs/assets/0123-import-scripts/data-processed.xml") as f:
             data_processed_returned = f.read()
             # remove the resource ids, because they contain a random component
             data_processed_returned = re.sub(r'(?<!permissions )id=".+?"', "", data_processed_returned)
@@ -57,7 +62,7 @@ class TestImportScripts(unittest.TestCase):
 
         # create the JSON project file, and upload the XML
         success_on_creation = create_project(
-            input_file="import-project.json",
+            input_file="docs/assets/0123-import-scripts/import-project.json",
             server="http://0.0.0.0:3333",
             user_mail="root@example.com",
             password="test",
@@ -67,7 +72,7 @@ class TestImportScripts(unittest.TestCase):
         self.assertTrue(success_on_creation)
 
         success_on_xmlupload = xml_upload(
-            input_file="data-processed.xml",
+            input_file="docs/assets/0123-import-scripts/data-processed.xml",
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
@@ -78,10 +83,9 @@ class TestImportScripts(unittest.TestCase):
         )
         self.assertTrue(success_on_xmlupload)
 
-        # delete generated data, restore working directory
-        if os.path.isfile("data-processed.xml"):
-            os.remove("data-processed.xml")
-        os.chdir(old_working_directory)
+        # delete generated data
+        if os.path.isfile("docs/assets/0123-import-scripts/data-processed.xml"):
+            os.remove("docs/assets/0123-import-scripts/data-processed.xml")
 
 
 if __name__ == '__main__':

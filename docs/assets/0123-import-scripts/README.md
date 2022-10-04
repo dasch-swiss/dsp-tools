@@ -34,10 +34,10 @@ review.
 ## Choose a Python interpreter
 Open `import-script.py`. You can now choose a Python interpreter by clicking on the Version number on the bottom right.
 You can either work with the global (system-wide) Python, or you can create a 
-[virtual environment](https://python.land/virtual-environments) for your project. If you don't know which one to choose, 
-take the one installed via Homebrew, which is located in `/usr/local/Cellar`. Probably you already have a symlink 
-(`/usr/local/bin/python3` or `/usr/bin/python3`) that redirects to `/usr/local/Cellar`. The only thing that you 
-shouldn't do is selecting a virtual environment of another project.
+[virtual environment](https://python.land/virtual-environments) for your project.  
+DaSCH employees who have installed Python via Homebrew can choose the one located in `/usr/local/Cellar`. Probably you 
+already have a symlink (`/usr/local/bin/python3` or `/usr/bin/python3`) that redirects to `/usr/local/Cellar`.  
+The only thing that you shouldn't do is selecting a virtual environment of another project.
 
 ![python interpreter](assets/python-interpreter.png)
 
@@ -56,7 +56,8 @@ Code execution will interrupt at your break point, that means, before the line o
 this opportunity to inspect what has been done until now in the "Variables" area on the left, where the current state of
 the program is shown.  
 
-If one of the dependencies is not installed, install it with `pip install package` in the Terminal of Visual Studio 
+If one of the dependencies is not installed, code execution will not reach your break point, but stop at the missing
+dependency. In this case, install the missing dependency with `pip install package` in the Terminal of Visual Studio 
 Code.
 
 ![pause at breakpoint](assets/pause-at-breakpoint.png)
@@ -78,8 +79,8 @@ You see that the debugging mode is a useful tool to understand code and to inspe
 
 
 ## The benefits of version control
-One of the big benefits of version control is the diff viewer. Visual Studio highlights the changes you have introduced 
-since your last commit. 
+One of the big benefits of version control is the diff viewer. Visual Studio Code highlights the changes you have 
+introduced since your last commit. 
 
 - Deletions are shown as red triangle.
 - Additions are shown as green bars.
@@ -103,13 +104,13 @@ push it to a GitHub repo).
 ## Some extras
 ### Data cleaning with OpenRefine
 [**OpenRefine**](https://openrefine.org/) is a tool for working with messy data. Once downloaded and installed, it runs 
-as a local server, accessed by your browser. So, all data remains on your own machine. Installation is quick and 
-painless: 
+as a local server, accessed by your browser. So, all data remains on your own machine. If you work on a Mac and have 
+Homebrew installed, you can simply type: 
 ```
 brew install openrefine
 ```
 
-The potentials for the everyday work of the Client Services at DaSCH are twofold:
+The potentials for the everyday work of the Research Data Unit at DaSCH are twofold:
 1. Data cleaning (recommended): For this purpose, you can think of OpenRefine as a much better version of Excel. You 
    can perform operations which would be very tiresome in Excel.
 2. Conversion to our dps-customised xml format for bulk upload (not recommended)
@@ -120,7 +121,6 @@ Read more in [this report](https://docs.google.com/document/d/1Y_hZV8UV-Irw-7PLd
 ### Git GUIs
 Git can be complicated, so you will appreciate to work with one of these GUIs:
 
- - [**SmartGit**](https://www.syntevo.com/smartgit/) has a free edition. 
  - [**GitHub Desktop**](https://desktop.github.com/)
  - [**SourceTree**](https://www.sourcetreeapp.com/)
 

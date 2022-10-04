@@ -2,6 +2,7 @@ import filecmp
 import glob
 import os
 import re
+import shutil
 import unittest
 from zipfile import ZipFile
 
@@ -12,6 +13,15 @@ from knora.dsplib.utils.xml_upload import xml_upload
 
 
 class TestImportScripts(unittest.TestCase):
+
+    def tearDown(self) -> None:
+        """
+        Remove generated data. This method is executed after every test method.
+        """
+        shutil.rmtree("docs/assets/0123-import-scripts-extracted", ignore_errors=True)
+        if os.path.isfile("docs/assets/0123-import-scripts/data-processed.xml"):
+            os.remove("docs/assets/0123-import-scripts/data-processed.xml")
+
 
     def test_zip_folder(self) -> None:
         """
@@ -31,6 +41,7 @@ class TestImportScripts(unittest.TestCase):
         # check that the files have the same size and modification time
         for orig, extr in zip(sorted(original_files), sorted(extracted_files)):
             self.assertTrue(filecmp.cmp(orig, extr), "docs/assets/0123-import-scripts.zip is outdated")
+
 
     @pytest.mark.filterwarnings("ignore")
     def test_import_scripts(self) -> None:
@@ -57,7 +68,6 @@ class TestImportScripts(unittest.TestCase):
             data_processed_returned = f.read()
             # remove the resource ids, because they contain a random component
             data_processed_returned = re.sub(r'(?<!permissions )id=".+?"', "", data_processed_returned)
-
         self.assertEqual(data_processed_expected, data_processed_returned)
 
         # create the JSON project file, and upload the XML
@@ -82,10 +92,6 @@ class TestImportScripts(unittest.TestCase):
             incremental=False
         )
         self.assertTrue(success_on_xmlupload)
-
-        # delete generated data
-        if os.path.isfile("docs/assets/0123-import-scripts/data-processed.xml"):
-            os.remove("docs/assets/0123-import-scripts/data-processed.xml")
 
 
 if __name__ == '__main__':

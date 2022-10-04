@@ -60,7 +60,7 @@ class TestImportScripts(unittest.TestCase):
             os.chdir(old_working_directory)
 
         # check if the output XML is as expected
-        with open("testdata/data-processed-expected.xml") as f:
+        with open("testdata/0123-data-processed-expected.xml") as f:
             data_processed_expected = f.read()
             # remove the resource ids, because they contain a random component
             data_processed_expected = re.sub(r'(?<!permissions )id=".+?"', "", data_processed_expected)

@@ -41,14 +41,20 @@ category_excel_values_to_names = excel2xml.create_json_excel_list_mapping(
 
 # create resources of type ":Image2D"
 # -----------------------------------
-# create a dict that keeps the IDs of the created resources
+# create a dict that keeps the IDs of the created resources, retrieve all files from the "images" folder
+# that don't start with "~$" or ".", and sort them according to the file name
 image2d_labels_to_ids = dict()
-# iterate through all files in the "images" folder that don't start with "~$" or "." (unusable system files)
-for img in [file for file in os.scandir("images") if not regex.search(r"^~$|^\.", file.name)]:
+all_images = [file for file in os.scandir("images") if not regex.search(r"^~$|^\.", file.name)]
+all_images = sorted(all_images, key=lambda file: file.name)
+
+# iterate through all images, and create an ":Image2D" for every image file
+for img in all_images:
+
+    # keep a reference to this ID in the dict
     resource_label = img.name
     resource_id = excel2xml.make_xsd_id_compatible(resource_label)
-    # keep a reference to this ID in the dict
     image2d_labels_to_ids[resource_label] = resource_id
+
     resource = excel2xml.make_resource(
         label=resource_label,
         restype=":Image2D",

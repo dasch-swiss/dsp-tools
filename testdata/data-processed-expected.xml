@@ -24,18 +24,6 @@
         <allow group="Creator">CR</allow>
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
-    <resource label="GibeonMeteorite.jpg" restype=":Image2D" id="GibeonMeteorite.jpg_79eeb9f5-96db-4595-addd-524306d0e586" permissions="res-default">
-        <bitstream permissions="prop-default">images/GibeonMeteorite.jpg</bitstream>
-        <text-prop name=":hasTitle">
-            <text permissions="prop-default" encoding="utf8">GibeonMeteorite.jpg</text>
-        </text-prop>
-    </resource>
-    <resource label="BM1888-0601-716.png" restype=":Image2D" id="BM1888-0601-716.png_dbf7cc27-582a-4fc2-a28e-d5b66d29693c" permissions="res-default">
-        <bitstream permissions="prop-default">images/BM1888-0601-716.png</bitstream>
-        <text-prop name=":hasTitle">
-            <text permissions="prop-default" encoding="utf8">BM1888-0601-716.png</text>
-        </text-prop>
-    </resource>
     <resource label="Anubis.jpg" restype=":Image2D" id="Anubis.jpg_37fa98fd-a2e4-4031-bbf6-57da0ff82750" permissions="res-default">
         <bitstream permissions="prop-default">images/Anubis.jpg</bitstream>
         <text-prop name=":hasTitle">
@@ -46,6 +34,18 @@
         <bitstream permissions="prop-default">images/Basho_Horohoroto.jpg</bitstream>
         <text-prop name=":hasTitle">
             <text permissions="prop-default" encoding="utf8">Basho_Horohoroto.jpg</text>
+        </text-prop>
+    </resource>
+    <resource label="BM1888-0601-716.png" restype=":Image2D" id="BM1888-0601-716.png_dbf7cc27-582a-4fc2-a28e-d5b66d29693c" permissions="res-default">
+        <bitstream permissions="prop-default">images/BM1888-0601-716.png</bitstream>
+        <text-prop name=":hasTitle">
+            <text permissions="prop-default" encoding="utf8">BM1888-0601-716.png</text>
+        </text-prop>
+    </resource>
+    <resource label="GibeonMeteorite.jpg" restype=":Image2D" id="GibeonMeteorite.jpg_79eeb9f5-96db-4595-addd-524306d0e586" permissions="res-default">
+        <bitstream permissions="prop-default">images/GibeonMeteorite.jpg</bitstream>
+        <text-prop name=":hasTitle">
+            <text permissions="prop-default" encoding="utf8">GibeonMeteorite.jpg</text>
         </text-prop>
     </resource>
     <resource label="Anubis" restype=":Object" id="Anubis_fda7c834-692e-4e2c-b7c8-82e26a2775d9" permissions="res-default">

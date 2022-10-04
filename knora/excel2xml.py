@@ -29,7 +29,7 @@ def make_xsd_id_compatible(string: str) -> str:
     Make a string compatible with the constraints of xsd:ID, so that it can be used as "id" attribute of a <resource>
     tag. An xsd:ID must not contain special characters, and it must be unique in the document.
 
-    This method replaces the illegal characters by "_" and appends a random number to the string to make it unique.
+    This method replaces the illegal characters by "_" and appends a random component to the string to make it unique.
 
     The string must contain at least one Unicode letter (matching the regex ``\\p{L}``), underscore, !, ?, or number,
     but must not be "None", "<NA>", "N/A", or "-". Otherwise, a BaseError will be raised.
@@ -55,6 +55,35 @@ def make_xsd_id_compatible(string: str) -> str:
     res = re.sub(r"[^\d\w_\-.]", "_", res)
 
     return res
+
+
+def _derandomize_xsd_id(string: str, multiple_occurrences: bool = False) -> str:
+    """
+    In some contexts, the random component of the output of make_xsd_id_compatible() is a hindrance, especially for
+    testing. This method removes the random part, but leaves the other modifications introduced by
+    make_xsd_id_compatible() in place. This method's behaviour is defined by the example in the "Examples" section.
+
+    Args:
+        string: the output of make_xsd_id_compatible()
+        multiple_occurrences: If true, string can be an entire XML document, and all occurrences will be removed
+
+    Returns:
+        the derandomized string
+
+    Examples:
+        >>> id_1 = make_xsd_id_compatible("Hello!")
+        >>> id_2 = make_xsd_id_compatible("Hello!")
+        >>> assert _derandomize_xsd_id(id_1) == _derandomize_xsd_id(id_2)
+    """
+    if not isinstance(string, str) or not check_notna(string):
+        raise BaseError(f"The input '{string}' cannot be derandomized.")
+
+    uuid4_regex = r"[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
+    if multiple_occurrences:
+        return re.subn(uuid4_regex, "", string, flags=re.IGNORECASE)[0]
+    else:
+        return re.sub(uuid4_regex, "", string, re.IGNORECASE)
+
 
 
 def find_date_in_string(string: Optional[str]) -> Optional[str]:

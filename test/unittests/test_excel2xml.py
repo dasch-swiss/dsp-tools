@@ -1,5 +1,6 @@
 import os
 import re
+import time
 import unittest
 from typing import Callable, Sequence, Union, Optional, Any
 
@@ -137,6 +138,23 @@ class TestExcel2xml(unittest.TestCase):
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, "")
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, " ")
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, ".")
+
+
+    def test_derandomize_xsd_id(self) -> None:
+        teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠"
+        id_1 = excel2xml.make_xsd_id_compatible(teststring)
+        time.sleep(1)
+        id_2 = excel2xml.make_xsd_id_compatible(teststring)
+        id_1_derandom = excel2xml._derandomize_xsd_id(id_1)
+        id_2_derandom = excel2xml._derandomize_xsd_id(id_2)
+
+        # test single occurrence
+        self.assertEqual(id_1_derandom, id_2_derandom)
+
+        # test multiple occurrence
+        multiple_ids = f"{id_1}----{id_2}----{id_1}----{id_2}"
+        multiple_ids_derandom = excel2xml._derandomize_xsd_id(multiple_ids, multiple_occurrences=True)
+        self.assertListEqual(multiple_ids_derandom.split("----"), [id_1_derandom] * 4)
 
 
     def test_find_date_in_string(self) -> None:

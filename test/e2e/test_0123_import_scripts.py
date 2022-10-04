@@ -10,6 +10,7 @@ import pytest
 
 from knora.dsplib.utils.onto_create_ontology import create_project
 from knora.dsplib.utils.xml_upload import xml_upload
+from knora.excel2xml import _derandomize_xsd_id
 
 
 class TestImportScripts(unittest.TestCase):
@@ -59,16 +60,12 @@ class TestImportScripts(unittest.TestCase):
         finally:
             os.chdir(old_working_directory)
 
-        # check if the output XML is as expected
+        # check if the output XML is as expected (first, remove all random components in the resource IDs and resptr targets
         with open("testdata/0123-data-processed-expected.xml") as f:
-            data_processed_expected = f.read()
-            # remove the resource ids, because they contain a random component
-            data_processed_expected = re.sub(r'(?<!permissions )id=".+?"', "", data_processed_expected)
+            xml_expected = _derandomize_xsd_id(f.read(), multiple_occurrences=True)
         with open("docs/assets/0123-import-scripts/data-processed.xml") as f:
-            data_processed_returned = f.read()
-            # remove the resource ids, because they contain a random component
-            data_processed_returned = re.sub(r'(?<!permissions )id=".+?"', "", data_processed_returned)
-        self.assertEqual(data_processed_expected, data_processed_returned)
+            xml_returned = _derandomize_xsd_id(f.read(), multiple_occurrences=True)
+        self.assertEqual(xml_expected, xml_returned)
 
         # create the JSON project file, and upload the XML
         success_on_creation = create_project(

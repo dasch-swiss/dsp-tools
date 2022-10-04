@@ -45,7 +45,7 @@ category_excel_values_to_names = excel2xml.create_json_excel_list_mapping(
 # that don't start with "~$" or ".", and sort them according to the file name
 image2d_labels_to_ids = dict()
 all_images = [file for file in os.scandir("images") if not regex.search(r"^~$|^\.", file.name)]
-all_images = sorted(all_images, key=lambda file: file.name)
+all_images = sorted(all_images, key=lambda file: file.name.lower())
 
 # iterate through all images, and create an ":Image2D" for every image file
 for img in all_images:

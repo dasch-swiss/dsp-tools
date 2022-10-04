@@ -41,7 +41,7 @@ class TestImportScripts(unittest.TestCase):
 
         # check that the files have the same size and modification time
         for orig, extr in zip(sorted(original_files), sorted(extracted_files)):
-            self.assertTrue(filecmp.cmp(orig, extr, shallow=False), "docs/assets/0123-import-scripts.zip is outdated")
+            self.assertTrue(filecmp.cmp(orig, extr), "docs/assets/0123-import-scripts.zip is outdated")
 
 
     @pytest.mark.filterwarnings("ignore")
@@ -89,15 +89,6 @@ class TestImportScripts(unittest.TestCase):
             incremental=False
         )
         self.assertTrue(success_on_xmlupload)
-
-
-    def test_readme_pdf(self) -> None:
-        """
-        Test that README.md is not younger than README.pdf.
-        """
-        md_age = os.path.getmtime("docs/assets/0123-import-scripts/README.md")
-        pdf_age = os.path.getmtime("docs/assets/0123-import-scripts/README.pdf")
-        self.assertGreaterEqual(md_age, pdf_age)
 
 
 if __name__ == '__main__':

@@ -1,18 +1,11 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
 # `excel2xml`: Convert a data source to XML
-dsp-tools assists you in converting a data source in CSV/XLS(X) format to an XML file. There are two use cases for a 
-transformation from Excel/CSV to XML: 
+dsp-tools assists you in converting a data source in CSV/XLS(X) format to an XML file.
 
-- The CLI command `dsp-tools excel2xml` creates an XML file from an Excel/CSV file which is already structured 
- according to the DSP specifications. This is mostly used for DaSCH-interal data migration. 
-    - **The CLI command is documented [here](dsp-tools-excel.md#cli-command-excel2xml).**
-- The module `excel2xml` can be imported into a custom Python script that transforms any tabular data into an XML. This
-  use case is more frequent, because data from research projects have a variety of formats/structures. 
-    - **The `excel2xml` module is documented on this page.**
-
-<br>
-**How to use the module `excel2xml`:**
+| **Hint**                                                                                                                                  |
+|-------------------------------------------------------------------------------------------------------------------------------------------|
+| This page is about the **module** `excel2xml`. The CLI command is documented [here](dsp-tools-excel.md#xml-data-file-from-excelcsv-file). |
 
 Download the [sample repository "0123-import-scripts"](./assets/0123-import-scripts.zip) that contains 
 
@@ -20,8 +13,11 @@ Download the [sample repository "0123-import-scripts"](./assets/0123-import-scri
 - sample data that fits the data model of the JSON project file
 - a sample Python script that demonstrates how to use the module `excel2xml`.
 
-After having downloaded and unpacked "0123-import-scripts",  learn in the README.md how to get started. Then, return to 
-this page to learn how the sample Python script works.
+After having downloaded and unpacked "0123-import-scripts", open it in [Visual Studio Code](https://code.visualstudio.com/download).
+You will be prompted to install some extensions that are recommended for importing data in DaSCH. After installing them,
+navigate to `README.md` and press ⇧⌘V (Ctrl+Shift+V on Windows) to get a preview. The README will teach you some
+basics that will be necessary to work with `excel2xml`. Once you are familiar with the basics, return to this page to 
+learn how the sample Python script works.
 
 This is the simplified pattern how the Python script works:
 

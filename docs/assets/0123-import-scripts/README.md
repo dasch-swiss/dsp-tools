@@ -15,20 +15,6 @@ Featuring:
 - extras: OpenRefine, Git GUIs, regexr
 
 
-# First steps with Visual Studio Code (VSC)
-[**Visual Studio Code**](https://code.visualstudio.com/download) is the industry standard IDE, free to use, and 
-recommended for your daily work at DaSCH. Recommended extensions to install from within VSC: 
-
-- redhat.vscode-xml
-- ms-python.python
-- ms-python.vscode-pylance 
-- zainchen.json
-- nickdemayo.vscode-json-editor
-- visualstudioexptteam.vscodeintellicode
-- redhat.vscode-xml
-- dotjoshjohnson.xml
-
-
 ## Initialize Git
 Open this repository in Visual Studio Code, change to the "Source Control" tab, and click on "Inizialize Repository":
 

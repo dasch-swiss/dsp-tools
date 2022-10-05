@@ -1,37 +1,27 @@
-# Welcome to import_scripts!
+# Welcome to 0123-import-scripts!
 
 This is a template repository that can be used for the archiving process of a big dataset at the end of a research 
-project's lifetime. Download and unpack this repository from the 
-[excel2xml documentation page](https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-excel2xml/).  
+project's lifetime. For this purpose, the [`excel2xml` module](https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-excel2xml/) 
+of DSP-TOOLS was developed. This repository gives you an example how to use `excel2xml` to import a big dataset into DSP.  
 
-In this README, you will learn how to write a Python script for preparing data for an import into DSP.  
+In this README, you will learn how to write a Python script using `excel2xml`.  
 
-Featuring: 
+## Table of Contents
 
-- first steps with Visual Studio Code
-- the module `excel2xml` of dsp-tools
-- the benefits of Version Control with Git
-- the benefits of the Debugging Mode
-- extras: OpenRefine, Git GUIs, regexr
-
-
-## Initialize Git
-Open this repository in Visual Studio Code, change to the "Source Control" tab, and click on "Inizialize Repository":
-
-![git init](assets/git-init.png)
-
-Stage all changes, write "init" as commit message, and commit all changes:
-
-![git commit](assets/git-commit.png)
-
-You now have the option "Publish Branch". This is to synchronize your local work with a GitHub repository on 
-[https://github.com/dasch-swiss/](https://github.com/dasch-swiss/). For this purpose, name the repository according to 
-the scheme `[project_shortcode]-[project_shortname]-scripts`. This is especially recommended for big projects where you  
-spend weeks/months on, when you might want to have a backup, or when you want to invite colleagues for collaboration or 
-a code review.
+- [Open this repository in Visual Studio Code](#open-this-repository-in-visual-studio-code)
+- [The benefits of the Debugging Mode](#the-benefits-of-the-debugging-mode)
+- [The benefits of Version Control with Git](#the-benefits-of-version-control)
+   - [Make a commit](#make-a-commit)
+   - [Publish your repo on dasch-swiss](#publish-your-repo-on-dasch-swiss)
+- [Some extras: OpenRefine, Git GUIs, regexr](#some-extras)
 
 
-## Choose a Python interpreter
+
+## Open this repository in Visual Studio Code
+From within [GitHub Desktop](https://desktop.github.com/), clone this repository, and open it in [Visual Studio 
+Code](https://code.visualstudio.com/download). You will be prompted to install some extensions that are recommended for 
+importing data in DaSCH. After installing them, navigate to `README.md` and press ⇧⌘V (Ctrl+Shift+V on Windows) to get a preview.  
+
 Open `import_script.py`. You can now choose a Python interpreter by clicking on the Version number on the bottom right.
 You can either work with the global (system-wide) Python, or you can create a 
 [virtual environment](https://python.land/virtual-environments) for your project.  
@@ -40,6 +30,7 @@ already have a symlink (`/usr/local/bin/python3` or `/usr/bin/python3`) that red
 The only thing that you shouldn't do is selecting a virtual environment of another project.
 
 ![python interpreter](assets/python-interpreter.png)
+
 
 
 ## The benefits of the debugging mode
@@ -78,6 +69,7 @@ You see that the debugging mode is a useful tool to understand code and to inspe
 | **Make regular use of the debugging mode to check if your code really does what you think it should do!** | 
 
 
+
 ## The benefits of version control
 One of the big benefits of version control is the diff viewer. Visual Studio Code highlights the changes you have 
 introduced since your last commit. 
@@ -91,14 +83,34 @@ change, revert it, or jump to the next/previous change.
 
 ![diffs](assets/diffs.png)
 
-Once you have a bunch of code changes that can be meaningfully grouped together, you should make a commit (and perhaps
-push it to a GitHub repo).
 
+
+### Make a commit
+Once you have a bunch of code changes that can be meaningfully grouped together, you should make a commit. 
+If you click on "Commit", all staged changes will be committed:
+
+![git commit](assets/git-commit.png)
 
 | **Tips**                                                                |
 |-------------------------------------------------------------------------|
 | **Test your code (e.g. with the debugging mode) before committing it.** | 
 | **Make small commits that contain only one new feature.**               | 
+
+
+
+### Publish your repo on dasch-swiss
+If you work on a big project where you spend weeks/months on, you might want to have a backup, or to invite colleagues for 
+collaboration or a code review. For this purpose, follow these steps:
+
+- create an own repository on [https://github.com/dasch-swiss/](https://github.com/dasch-swiss/)
+- name it according to the scheme `[project_shortcode]-[project_shortname]-scripts`
+- in the "Source Control" tab of VS Code, click on the three dots, and choose Remote > Add Remote..., and set the upstream to `https://github.com/dasch-swiss/shortcode-shortname-scripts`
+- push your local repo to your new GitHub repo
+
+| **WARNING**                                                                                                            |
+|------------------------------------------------------------------------------------------------------------------------|
+| **Do NOT push to https://github.com/dasch-swiss/0123-import-scripts ! This is a template and should remain as it is!** | 
+
 
 
 ## Some extras
@@ -113,9 +125,7 @@ brew install openrefine
 The potentials for the everyday work of the Research Data Unit at DaSCH are twofold:
 1. Data cleaning (recommended): For this purpose, you can think of OpenRefine as a much better version of Excel. You 
    can perform operations which would be very tiresome in Excel.
-2. Conversion to our dps-customised xml format for bulk upload (not recommended)
-
-Read more in [this report](https://docs.google.com/document/d/1Y_hZV8UV-Irw-7PLdhm0BGKnGfXJs8JO).
+2. Conversion to our DSP-specific XML format for bulk upload (not recommended)
 
 
 ### Git GUIs

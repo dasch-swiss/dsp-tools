@@ -85,8 +85,7 @@ def _derandomize_xsd_id(string: str, multiple_occurrences: bool = False) -> str:
         return re.sub(uuid4_regex, "", string, re.IGNORECASE)
 
 
-
-def find_date_in_string(string: Optional[str]) -> Optional[str]:
+def find_date_in_string(string: str) -> Optional[str]:
     """
     Checks if a string contains a date value (single date, or date range), and returns the first found date as
     DSP-formatted string. Returns None if no date was found.

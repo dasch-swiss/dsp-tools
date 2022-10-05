@@ -7,17 +7,16 @@ dsp-tools assists you in converting a data source in CSV/XLS(X) format to an XML
 |-------------------------------------------------------------------------------------------------------------------------------------------|
 | This page is about the **module** `excel2xml`. The CLI command is documented [here](dsp-tools-excel.md#xml-data-file-from-excelcsv-file). |
 
-Download the [sample repository "import_scripts"](./assets/import_scripts.zip) that contains 
+To demonstrate the usage of the `excel2xml` module, there is a GitHub repository named `0123-import-scripts`. It 
+contains:
 
 - a sample JSON project file
 - sample data that fits the data model of the JSON project file
 - a sample Python script that demonstrates how to use the module `excel2xml`.
 
-After having downloaded and unpacked "import_scripts", open it in [Visual Studio Code](https://code.visualstudio.com/download).
-You will be prompted to install some extensions that are recommended for importing data in DaSCH. After installing them,
-navigate to `README.md` and press ⇧⌘V (Ctrl+Shift+V on Windows) to get a preview. The README will teach you some
-basics that will be necessary to work with `excel2xml`. Once you are familiar with the basics, return to this page to 
-learn how the sample Python script works.
+Navigate to [https://github.com/dasch-swiss/0123-import-scripts](https://github.com/dasch-swiss/0123-import-scripts) and 
+follow the steps described there. The README will teach you some basics that will be necessary to work with `excel2xml`. 
+Once you are familiar with the basics, return to this page to learn how the sample Python script works. 
 
 This is the simplified pattern how the Python script works:
 

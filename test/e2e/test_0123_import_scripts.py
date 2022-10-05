@@ -25,14 +25,13 @@ class TestImportScripts(unittest.TestCase):
         the DSP server.
         """
         # pull the latest state of the git submodule
-
+        os.system("git submodule update --remote knora/dsplib/import_scripts")
+        from knora.dsplib.import_scripts import import_script
 
         # execute the import script in its directory
         old_working_directory = os.getcwd()
         os.chdir("knora/dsplib/import_scripts")
         try:
-            os.system("git pull")
-            from knora.dsplib.import_scripts import import_script
             import_script.main()
         finally:
             os.chdir(old_working_directory)

@@ -74,7 +74,7 @@ instead of the "name" which is needed for the `dsp-tools xmlupload`. You need a 
 If your data source uses the labels correctly, this is an easy task: The method `create_json_list_mapping()` creates a
 dictionary that maps the labels to the names:  
 
-The list "category" in `import_scripts/import_project.json` looks as follows:
+The list "category" in `0123-import-scripts/import_project.json` looks as follows:
 ```json
 {
   "name": "category",
@@ -119,7 +119,7 @@ If, however, your data source has spelling variants, you need the more sophistic
 correct JSON project node name. This happens based on string similarity. Please carefully check the result if there are
 no false matches!
 
-The column "Category" in `import_scripts/data_raw.csv` has spelling mistakes:  
+The column "Category" in `0123-import-scripts/data_raw.csv` has spelling mistakes:  
 ![column category](./assets/images/img-excel2xml-raw-data-category.png)
 
 The dictionary that results if you call `create_json_excel_list_mapping()`:

@@ -1,3 +1,3 @@
-[submodule "docs/assets/import_scripts"]
-	path = docs/assets/import_scripts
+[submodule "knora/dsplib/import_scripts"]
+	path = knora/dsplib/import_scripts
 	url = https://github.com/dasch-swiss/0123-import-scripts

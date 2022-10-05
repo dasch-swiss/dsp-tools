@@ -1,4 +1,4 @@
-# Welcome to 0123-import-scripts!
+# Welcome to import_scripts!
 
 This is a template repository that can be used for the archiving process of a big dataset at the end of a research 
 project's lifetime. Download and unpack this repository from the 
@@ -25,14 +25,14 @@ Stage all changes, write "init" as commit message, and commit all changes:
 ![git commit](assets/git-commit.png)
 
 You now have the option "Publish Branch". This is to synchronize your local work with a GitHub repository on 
-[https://github.com/dasch-swiss/](https://github.com/dasch-swiss/). For this purpose, replace `0123` by your project's 
-shortcode, and `import` by your project's shortname. This is especially recommended for big projects where you spend 
-weeks/months on, when you might want to have a backup, or when you want to invite colleagues for collaboration or a code
-review.
+[https://github.com/dasch-swiss/](https://github.com/dasch-swiss/). For this purpose, name the repository according to 
+the scheme `[project_shortcode]-[project_shortname]-scripts`. This is especially recommended for big projects where you  
+spend weeks/months on, when you might want to have a backup, or when you want to invite colleagues for collaboration or 
+a code review.
 
 
 ## Choose a Python interpreter
-Open `import-script.py`. You can now choose a Python interpreter by clicking on the Version number on the bottom right.
+Open `import_script.py`. You can now choose a Python interpreter by clicking on the Version number on the bottom right.
 You can either work with the global (system-wide) Python, or you can create a 
 [virtual environment](https://python.land/virtual-environments) for your project.  
 DaSCH employees who have installed Python via Homebrew can choose the one located in `/usr/local/Cellar`. Probably you 

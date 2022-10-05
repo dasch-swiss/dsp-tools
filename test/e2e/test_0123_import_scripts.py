@@ -1,10 +1,5 @@
-import filecmp
-import glob
 import os
-import re
-import shutil
 import unittest
-from zipfile import ZipFile
 
 import pytest
 
@@ -20,29 +15,8 @@ class TestImportScripts(unittest.TestCase):
         """
         Remove generated data. This method is executed after every test method.
         """
-        shutil.rmtree("docs/assets/import_scripts_extracted", ignore_errors=True)
         if os.path.isfile("docs/assets/import_scripts/data-processed.xml"):
             os.remove("docs/assets/import_scripts/data-processed.xml")
-
-
-    def test_zip_folder(self) -> None:
-        """
-        A ZIP of the directory docs/assets/import_scripts is available for download on docs.dasch.swiss. Make
-        sure that the ZIP's contents are identical to the directory
-        """
-        with ZipFile("docs/assets/import_scripts.zip", "r") as zipfolder:
-            zipfolder.extractall("docs/assets/import_scripts_extracted")
-        original_files = [x for x in glob.glob("docs/assets/import_scripts/**", recursive=True) if os.path.isfile(x)]
-        extracted_files = [x for x in glob.glob("docs/assets/import_scripts_extracted/import_scripts/**", recursive=True)
-                           if os.path.isfile(x)]
-
-        # check that for every original file, there is exactly one extracted counterpart
-        original_files_expected = [re.sub(r"import_scripts_extracted/", "", x) for x in extracted_files]
-        self.assertListEqual(sorted(original_files), sorted(original_files_expected), "docs/assets/import_scripts.zip is outdated")
-
-        # check that the files have the same size and modification time
-        for orig, extr in zip(sorted(original_files), sorted(extracted_files)):
-            self.assertTrue(filecmp.cmp(orig, extr), "docs/assets/import_scripts.zip is outdated")
 
 
     @pytest.mark.filterwarnings("ignore")
@@ -59,7 +33,7 @@ class TestImportScripts(unittest.TestCase):
         finally:
             os.chdir(old_working_directory)
 
-        # check if the output XML is as expected (first, remove all random components in the resource IDs and resptr targets
+        # check the output XML (but before, remove random components from resource IDs and resptr targets)
         with open("testdata/0123-data-processed-expected.xml") as f:
             xml_expected = _derandomize_xsd_id(f.read(), multiple_occurrences=True)
         with open("docs/assets/import_scripts/data-processed.xml") as f:

@@ -1,23 +1,22 @@
+import dataclasses
 import datetime
+import difflib
 import json
 import os
 import re
 import uuid
 import warnings
-import difflib
 from operator import xor
-import regex
+from typing import Any, Iterable, Optional, Union
 
 import pandas as pd
-from typing import Any, Iterable, Optional, Union
+import regex
 from lxml import etree
 from lxml.builder import E
-import dataclasses
 
 from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.models.propertyelement import PropertyElement
-from knora.dsplib.utils.shared import simplify_name, check_notna
-
+from knora.dsplib.utils.shared import simplify_name, check_notna, validate_xml_against_schema
 
 xml_namespace_map = {
     None: "https://dasch.swiss/schema",
@@ -30,7 +29,7 @@ def make_xsd_id_compatible(string: str) -> str:
     Make a string compatible with the constraints of xsd:ID, so that it can be used as "id" attribute of a <resource>
     tag. An xsd:ID must not contain special characters, and it must be unique in the document.
 
-    This method replaces the illegal characters by "_" and appends a random number to the string to make it unique.
+    This method replaces the illegal characters by "_" and appends a random component to the string to make it unique.
 
     The string must contain at least one Unicode letter (matching the regex ``\\p{L}``), underscore, !, ?, or number,
     but must not be "None", "<NA>", "N/A", or "-". Otherwise, a BaseError will be raised.
@@ -58,7 +57,35 @@ def make_xsd_id_compatible(string: str) -> str:
     return res
 
 
-def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str]:
+def _derandomize_xsd_id(string: str, multiple_occurrences: bool = False) -> str:
+    """
+    In some contexts, the random component of the output of make_xsd_id_compatible() is a hindrance, especially for
+    testing. This method removes the random part, but leaves the other modifications introduced by
+    make_xsd_id_compatible() in place. This method's behaviour is defined by the example in the "Examples" section.
+
+    Args:
+        string: the output of make_xsd_id_compatible()
+        multiple_occurrences: If true, string can be an entire XML document, and all occurrences will be removed
+
+    Returns:
+        the derandomized string
+
+    Examples:
+        >>> id_1 = make_xsd_id_compatible("Hello!")
+        >>> id_2 = make_xsd_id_compatible("Hello!")
+        >>> assert _derandomize_xsd_id(id_1) == _derandomize_xsd_id(id_2)
+    """
+    if not isinstance(string, str) or not check_notna(string):
+        raise BaseError(f"The input '{string}' cannot be derandomized.")
+
+    uuid4_regex = r"[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
+    if multiple_occurrences:
+        return re.subn(uuid4_regex, "", string, flags=re.IGNORECASE)[0]
+    else:
+        return re.sub(uuid4_regex, "", string, re.IGNORECASE)
+
+
+def find_date_in_string(string: str) -> Optional[str]:
     """
     Checks if a string contains a date value (single date, or date range), and returns the first found date as
     DSP-formatted string. Returns None if no date was found.
@@ -86,7 +113,6 @@ def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str
 
     Args:
         string: string to check
-        calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
         DSP-formatted date string, or None
@@ -97,6 +123,11 @@ def find_date_in_string(string: str, calling_resource: str = "") -> Optional[str
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#date-prop
     """
+
+    # sanitize input, just in case that the method was called on an empty or N/A cell
+    if not check_notna(string):
+        return None
+    string = str(string)
 
     monthes_dict = {
         "January": 1,
@@ -669,7 +700,9 @@ def make_decimal_prop(
 
     # check value type
     for val in values:
-        if not re.search(r"^\d+\.\d+$", str(val.value).strip()):
+        try:
+            float(val.value)
+        except ValueError:
             raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
                             f"'{val.value}' is not a valid decimal number.")
 
@@ -688,7 +721,7 @@ def make_decimal_prop(
             **kwargs,
             nsmap=xml_namespace_map
         )
-        value_.text = str(val.value)
+        value_.text = str(float(val.value))
         prop_.append(value_)
 
     return prop_
@@ -875,7 +908,9 @@ def make_integer_prop(
 
     # check value type
     for val in values:
-        if not re.search(r"^\d+$", str(val.value).strip()):
+        try:
+            int(val.value)
+        except ValueError:
             raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
                             f"'{val.value}' is not a valid integer.")
 
@@ -894,7 +929,7 @@ def make_integer_prop(
             **kwargs,
             nsmap=xml_namespace_map
         )
-        value_.text = str(val.value)
+        value_.text = str(int(val.value))
         prop_.append(value_)
 
     return prop_
@@ -1473,7 +1508,7 @@ def create_json_excel_list_mapping(
 ) -> dict[str, str]:
     """
     Often, data sources contain list values that aren't identical to the name of the node in the list of the JSON
-    project file (a.k.a. ontology). In order to create a correct XML for the `dsp-tools xmlupload`, a mapping is
+    project file (colloquially: ontology). In order to create a correct XML for the `dsp-tools xmlupload`, a mapping is
     necessary. This function takes a JSON list and an Excel column containing list-values, and tries to match them
     automatically based on similarity. The result is a dict of the form {excel_value: list_node_name}.
 
@@ -1632,6 +1667,12 @@ def write_xml(root: etree.Element, filepath: str) -> None:
     xml_string = xml_string.replace("&gt;", ">")
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(xml_string)
+    try:
+        validate_xml_against_schema(filepath)
+        print(f"The XML file was successfully saved to {filepath}")
+    except BaseError as err:
+        warnings.warn(f"The XML file was successfully saved to {filepath}, but the following Schema validation "
+                      f"error(s) occurred: {err.message}")
 
 
 def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:

@@ -10,12 +10,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, cast, Tuple, Any
 from urllib.parse import quote_plus
+
 from lxml import etree
 
-from knora.dsplib.models.projectContext import ProjectContext
 from knora.dsplib.models.connection import Connection
 from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.models.permission import Permissions
+from knora.dsplib.models.projectContext import ProjectContext
 from knora.dsplib.models.resource import ResourceInstanceFactory, ResourceInstance, KnoraStandoffXmlEncoder
 from knora.dsplib.models.sipi import Sipi
 from knora.dsplib.models.value import KnoraStandoffXml
@@ -355,7 +356,7 @@ def _upload_resources(
     """
 
     # If there are multimedia files: calculate their total size
-    bitstream_all_sizes_mb = [os.path.getsize(res.bitstream.value) / 1000000 for res in resources if res.bitstream]
+    bitstream_all_sizes_mb = [os.path.getsize(os.path.join(imgdir, res.bitstream.value)) / 1000000 for res in resources if res.bitstream]
     if len(bitstream_all_sizes_mb) > 0:
         bitstream_size_total_mb = round(sum(bitstream_all_sizes_mb), 1)
         bitstream_all_sizes_iterator = iter(bitstream_all_sizes_mb)  # for later reuse, to avoid later system calls

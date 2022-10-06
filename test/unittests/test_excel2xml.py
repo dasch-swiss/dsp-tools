@@ -1,10 +1,10 @@
 import os
-import unittest
 import re
+import time
+import unittest
 from typing import Callable, Sequence, Union, Optional, Any
 
 import numpy as np
-import pytest
 from lxml import etree
 
 from knora import excel2xml
@@ -138,6 +138,23 @@ class TestExcel2xml(unittest.TestCase):
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, "")
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, " ")
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, ".")
+
+
+    def test_derandomize_xsd_id(self) -> None:
+        teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠"
+        id_1 = excel2xml.make_xsd_id_compatible(teststring)
+        time.sleep(1)
+        id_2 = excel2xml.make_xsd_id_compatible(teststring)
+        id_1_derandom = excel2xml._derandomize_xsd_id(id_1)
+        id_2_derandom = excel2xml._derandomize_xsd_id(id_2)
+
+        # test single occurrence
+        self.assertEqual(id_1_derandom, id_2_derandom)
+
+        # test multiple occurrence
+        multiple_ids = f"{id_1}----{id_2}----{id_1}----{id_2}"
+        multiple_ids_derandom = excel2xml._derandomize_xsd_id(multiple_ids, multiple_occurrences=True)
+        self.assertListEqual(multiple_ids_derandom.split("----"), [id_1_derandom] * 4)
 
 
     def test_find_date_in_string(self) -> None:
@@ -275,9 +292,9 @@ class TestExcel2xml(unittest.TestCase):
     def test_make_decimal_prop(self) -> None:
         prop = "decimal"
         method = excel2xml.make_decimal_prop
-        different_values = ["3.14159", 3.14159, .1, 100.0, "100.0"]
-        invalid_values = ["100", ".1", 100]
-        run_test(self, prop, method, different_values, invalid_values)
+        different_values = ["3.14159", 3.14159, "1.3e3", "100", ".1", 100]
+        invalid_values = ["string"]
+        run_test(self, prop, method, [float(x) for x in different_values], invalid_values)
 
 
     def test_make_geometry_prop(self) -> None:
@@ -302,9 +319,9 @@ class TestExcel2xml(unittest.TestCase):
     def test_make_integer_prop(self) -> None:
         prop = "integer"
         method = excel2xml.make_integer_prop
-        different_values = [1283416, "1283416", 71, "71", 0, "0"]
-        invalid_values = ["text", 10.0, ["text"]]
-        run_test(self, prop, method, different_values, invalid_values)
+        different_values = [1283416, "1283416", 3.14159, " 11 ", 0, "0"]
+        invalid_values = [" 10.3 ", "text", ["text"]]
+        run_test(self, prop, method, [int(x) for x in different_values], invalid_values)
 
 
     def test_make_interval_prop(self) -> None:
@@ -505,30 +522,6 @@ class TestExcel2xml(unittest.TestCase):
                 self.assertEqual(returned, expected, msg=f"Failed with extension {ext}")
         if os.path.isfile("excel2xml-output-data.xml"):
             os.remove("excel2xml-output-data.xml")
-
-    @pytest.mark.filterwarnings("ignore")
-    def test_excel2xml_sample_script(self) -> None:
-        old_working_directory = os.getcwd()
-        os.chdir("docs/assets/templates")
-        with open("excel2xml_sample_script.py") as f:
-            template_script = f.read()
-            exec(template_script, {})
-        with open("../../../testdata/excel2xml-template-expected-output.xml") as f:
-            template_expected = f.read()
-            # remove the resource ids, because they contain a random component
-            template_expected = re.sub(r'(?<!permissions )id=".+?"', "", template_expected)
-        with open("data.xml") as f:
-            template_returned = f.read()
-            # remove the resource ids, because they contain a random component
-            template_returned = re.sub(r'(?<!permissions )id=".+?"', "", template_returned)
-
-        self.assertEqual(template_expected, template_returned)
-
-        # delete generated data
-        if os.path.isfile("data.xml"):
-            os.remove("data.xml")
-
-        os.chdir(old_working_directory)
 
 
 if __name__ == "__main__":

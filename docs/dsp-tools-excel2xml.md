@@ -1,24 +1,22 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
 # `excel2xml`: Convert a data source to XML
-dsp-tools assists you in converting a data source in CSV/XLS(X) format to an XML file. There are two use cases for a 
-transformation from Excel/CSV to XML: 
+dsp-tools assists you in converting a data source in CSV/XLS(X) format to an XML file.
 
- - The CLI command `dsp-tools excel2xml` creates an XML file from an Excel/CSV file which is already structured 
-   according to the DSP specifications. This is mostly used for DaSCH-interal data migration. **The CLI command is 
-   documented [here](dsp-tools-excel.md#cli-command-excel2xml).**
- - The module `excel2xml` can be imported into a custom Python script that transforms any tabular data into an XML. This
-   use case is more frequent, because data from research projects have a variety of formats/structures. **The 
-   `excel2xml` module is documented on this page.**
+| **Hint**                                                                                                                                  |
+|-------------------------------------------------------------------------------------------------------------------------------------------|
+| This page is about the **module** `excel2xml`. The CLI command is documented [here](dsp-tools-excel.md#xml-data-file-from-excelcsv-file). |
 
-<br>
-**In the following, an example is given how to use the module `excel2xml`:**
+To demonstrate the usage of the `excel2xml` module, there is a GitHub repository named `0123-import-scripts`. It 
+contains:
 
-Save the following files into a directory, and run the Python script: 
+- a sample JSON project file
+- sample data that fits the data model of the JSON project file
+- a sample Python script that demonstrates how to use the module `excel2xml`.
 
- - sample data: [excel2xml_sample_data.csv](./assets/templates/excel2xml_sample_data.csv)
- - sample ontology: [excel2xml_sample_onto.json](./assets/templates/excel2xml_sample_onto.json)
- - sample script: [excel2xml_sample_script.py](./assets/templates/excel2xml_sample_script.py)
+Navigate to [https://github.com/dasch-swiss/0123-import-scripts](https://github.com/dasch-swiss/0123-import-scripts) and 
+follow the steps described there. The README will teach you some basics that will be necessary to work with `excel2xml`. 
+Once you are familiar with the basics, return to this page to learn how the sample Python script works. 
 
 This is the simplified pattern how the Python script works:
 
@@ -39,9 +37,9 @@ This is the simplified pattern how the Python script works:
 3 append the permissions  
 4 if necessary: create list mappings (see below)  
 5 iterate through the rows of your data source:  
-6   create the `<resource>` tag  
-7   append properties to it  
-8   append the resource to the root tag `<knora>`  
+6     create the `<resource>` tag  
+7     append properties to it  
+8     append the resource to the root tag `<knora>`  
 9 save the finished XML file  
 ```
 
@@ -74,11 +72,68 @@ here](./dsp-tools-xmlupload.md#how-to-use-the-permissions-attribute-in-resources
 Let's assume that your data source has a column containing list values named after the "label" of the JSON project list, 
 instead of the "name" which is needed for the `dsp-tools xmlupload`. You need a way to get the names from the labels.
 If your data source uses the labels correctly, this is an easy task: The method `create_json_list_mapping()` creates a
-dictionary that maps the labels to the names.  
+dictionary that maps the labels to the names:  
+
+The list "category" in `0123-import-scripts/import_project.json` looks as follows:
+```json
+{
+  "name": "category",
+  "labels": {"de": "Kategorie", "en": "Category"},
+  "comments": {"en": "A list containing categories", "de": "Eine Liste mit Kategorien"},
+  "nodes": [
+    {
+      "name": "artwork",
+      "labels": {"de": "Kunstwerk", "en": "Artwork"}
+    },
+    {
+      "name": "nature",
+      "labels": {"de": "Natur", "en": "Nature"},
+      "nodes": [
+        {
+          "name": "humans",
+          "labels": {"de": "Menschen", "en": "Humans"}
+        },
+        {"...": "..."}
+      ]
+    }
+  ]
+}
+```
+
+If you pass this list to `create_json_list_mapping()`, it creates the following dictionary:
+```json
+{
+    "Kunstwerk": "artwork",
+    "kunstwerk": "artwork",
+    "Menschen": "humans",
+    "menschen": "humans",
+    "Natur": "nature",
+    "natur": "nature",
+    "...": "..."
+}
+```
+
+
 If, however, your data source has spelling variants, you need the more sophisticated approach of 
 `create_json_excel_list_mapping()`: This method creates a dictionary that maps the list values in your data source to their 
 correct JSON project node name. This happens based on string similarity. Please carefully check the result if there are
 no false matches!
+
+The column "Category" in `0123-import-scripts/data_raw.csv` has spelling mistakes:  
+![column category](./assets/images/img-excel2xml-raw-data-category.png)
+
+The dictionary that results if you call `create_json_excel_list_mapping()`:
+```json
+{
+    "Huumans": "humans",
+    "huumans": "humans",
+    "Artwörk": "artwork",
+    "artwörk": "artwork"
+}
+```
+
+The sample Python scripts features an example how to call these two methods, and how the resulting dictionaries can be 
+used.
 
 
 ## 5. Iterate through the rows of your data source
@@ -98,8 +153,12 @@ There are four kind of resources that can be created:
 `<resource>` is the most frequent of them. The other three are [explained 
 here](./dsp-tools-xmlupload.md#dsp-base-resources--base-properties-to-be-used-directly-in-the-xml-file). 
 
+#### Resource ID
 Special care is needed when the ID of a resource is created. Every resource must have an ID that is unique in the file,
 and it must meet the constraints of xsd:ID. You can simply achieve this if you use the method `make_xsd_id_compatible()`.
+
+If later, another resource would like to set a resptr-link to the resource that you are coding now, you must store the 
+ID in a dict, so that you can retrieve it later. The example script contains an example of such a dict. 
 
 
 ### 7. Append the properties
@@ -189,6 +248,27 @@ usable if it is
  - a string with at least one Unicode letter (matching the regex `\p{L}`), underscore, ?, !, or number, but not "None", 
    "<NA>", "N/A", or "-"
  - a PropertyElement whose "value" fulfills the above criteria
+
+Why not just checking a cell by its boolean value? Like:
+```
+if cell:
+    resource.append(make_*_prop(cell))
+```
+
+There are many problems that can occur with this simple approach! Often, a cell won't evaluate to the boolean that you 
+might expect:
+
+| cell content | return value of `bool(cell)` | You might have expected...                                       |
+|--------------|------------------------------|------------------------------------------------------------------|
+| 0            | False                        | True, because 0 is a valid integer for your integer property     |
+| " "          | True                         | False, because an empty string is not usable for a text property |
+| numpy.nan    | True                         | False, because N/A is not a usable value                         |
+| pandas.NA    | TypeError (*)                | False, because N/A is not a usable value                         |
+| "<NA>"       | True                         | False, because this is the string representation of N/A          |
+| "-"          | True                         | False, because this is a placeholder in an empty text field      |
+(*) TypeError: boolean value of NA is ambiguous
+
+In contrast, `check_notna(cell)` will return the expected value for all cases in the table!
 
 
 ### Calendar date parsing

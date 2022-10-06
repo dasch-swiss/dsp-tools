@@ -25,7 +25,7 @@ class TestImportScripts(unittest.TestCase):
         the DSP server.
         """
         # pull the latest state of the git submodule
-        os.system("git submodule update --remote knora/dsplib/import_scripts")
+        os.system("git submodule update --remote --merge knora/dsplib/import_scripts")
         from knora.dsplib.import_scripts import import_script
 
         # execute the import script in its directory

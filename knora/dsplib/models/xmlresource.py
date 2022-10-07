@@ -2,10 +2,10 @@ from typing import Optional, Union
 
 from lxml import etree
 
-from knora.dsplib.models.xmlbitstream import XMLBitstream
 from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.models.permission import Permissions
 from knora.dsplib.models.value import KnoraStandoffXml
+from knora.dsplib.models.xmlbitstream import XMLBitstream
 from knora.dsplib.models.xmlproperty import XMLProperty
 
 
@@ -18,6 +18,7 @@ class XMLResource:
     _label: str
     _restype: str
     _permissions: Optional[str]
+    _creationDate: Optional[str]
     _bitstream: Optional[XMLBitstream]
     _properties: list[XMLProperty]
 
@@ -35,6 +36,7 @@ class XMLResource:
         self._id = node.attrib['id']
         self._iri = node.attrib.get('iri')
         self._ark = node.attrib.get('ark')
+        self._creationDate = node.attrib.get('creationDate')
         self._label = node.attrib['label']
         # get the resource type which is in format namespace:resourcetype, p.ex. rosetta:Image
         tmp_res_type = node.attrib['restype'].split(':')

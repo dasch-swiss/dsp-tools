@@ -77,7 +77,7 @@ test-unittests: ## run unit tests
 
 .PHONY: clean
 clean: ## clean local project directories
-	@rm -rf dist/ build/ site/ dsp_tools.egg-info/
+	@rm -rf dist/ build/ site/ dsp_tools.egg-info/ id2iri_*_mapping_*.json stashed_*_properties_*.txt
 
 .PHONY: help
 help: ## show this help

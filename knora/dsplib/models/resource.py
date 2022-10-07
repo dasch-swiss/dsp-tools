@@ -71,6 +71,7 @@ class ResourceInstance(Model):
     _iri: Optional[str]
     _ark: Optional[str]
     _version_ark: Optional[str]
+    _creationDate: Optional[str]
     _label: Optional[str]
     _permissions: Optional[Permissions]
     _user_permission: Optional[PermissionValue]
@@ -82,6 +83,7 @@ class ResourceInstance(Model):
                  iri: Optional[str] = None,
                  ark: Optional[str] = None,
                  version_ark: Optional[str] = None,
+                 creationDate: Optional[str] = None,
                  label: Optional[str] = None,
                  permissions: Optional[Permissions] = None,
                  user_permission: Optional[PermissionValue] = None,
@@ -93,6 +95,7 @@ class ResourceInstance(Model):
         self._iri = iri
         self._ark = ark
         self._version_ark = version_ark
+        self._creationDate = creationDate
         self._label = label
         self._permissions = permissions
         self._user_permission = user_permission
@@ -286,6 +289,11 @@ class ResourceInstance(Model):
                     tmp[property_name] = value.toJsonLdObj(action)
 
             tmp['@context'] = self.context
+            if self._creationDate:
+                tmp['knora-api:creationDate'] = {
+                    '@type': 'xsd:dateTimeStamp',
+                    '@value': self._creationDate
+                }
         return tmp
 
     def create(self) -> 'ResourceInstance':

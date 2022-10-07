@@ -743,4 +743,13 @@
             <interval permissions="prop-default">8.0:12.0</interval>
         </interval-prop>
     </resource>
+
+    <!-- reference a resource class from another ontology defined in the same JSON project file than default-ontology-->
+    <!-- Will work when DEV-1381 is resolved
+    <resource label="TestThingPermissions 1" restype="testontoPermissions:TestThingPermissions" id="testthingpermissions_1">
+        <text-prop name="testontoPermissions:hasText">
+            <text encoding="utf8">Hello!</text>
+        </text-prop>
+    </resource>
+    -->
 </knora>

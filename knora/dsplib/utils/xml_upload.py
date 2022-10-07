@@ -252,7 +252,8 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     # Connect to the DaSCH Service Platform API and get the project context
     con = Connection(server)
     try_network_action(failure_msg="Unable to login to DSP server", action=lambda: con.login(user, password))
-    proj_context = ProjectContext(con=con)
+    proj_context = try_network_action(failure_msg="Unable to retrieve project context from DSP server",
+                                      action=lambda: ProjectContext(con=con))
     sipi_server = Sipi(sipi, con.get_token())
 
     tree = _parse_xml_file(input_file)
@@ -273,6 +274,32 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     res_inst_factory = ResourceInstanceFactory(con, shortcode)
     permissions_lookup: dict[str, Permissions] = {s: perm.get_permission_instance() for s, perm in permissions.items()}
     resclass_name_2_type: dict[str, type] = {s: res_inst_factory.get_resclass_type(s) for s in res_inst_factory.get_resclass_names()}
+
+    # check if the data in the XML is consistent with the ontology
+    if verbose:
+        print("Check if the resource types and properties in your XML are consistent with the ontology...")
+    knora_properties = resclass_name_2_type[resources[0].restype].knora_properties
+    for resource in resources:
+        if resource.restype not in resclass_name_2_type:
+            print(f"=========================\n"
+                  f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid resource type "
+                  f"'{resource.restype}'. Is your syntax correct? Remember the rules:\n"
+                  f" - DSP-API internals: <resource restype=\"restype\">         (will be interpreted as 'knora-api:restype')\n"
+                  f" - current onto:      <resource restype=\":restype\">        ('restype' must be defined in the 'resources' section of your ontology)\n"
+                  f" - other onto:        <resource restype=\"other:restype\">   (not yet implemented: 'other' must be defined in the same JSON project file than your ontology)")
+            exit(1)
+        resource_properties = resclass_name_2_type[resource.restype].properties.keys()
+        for propname in [prop.name for prop in resource.properties]:
+            if propname not in knora_properties and propname not in resource_properties:
+                print(f"=========================\n"
+                      f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid property '{propname}'. "
+                      f"Is your syntax correct? Remember the rules:\n"
+                      f" - DSP-API internals: <text-prop name=\"propname\">         (will be interpreted as 'knora-api:propname')\n"
+                      f" - current onto:      <text-prop name=\":propname\">        ('propname' must be defined in the 'properties' section of your ontology)\n"
+                      f" - other onto:        <text-prop name=\"other:propname\">   (not yet implemented: 'other' must be defined in the same JSON project file than your ontology)")
+                exit(1)
+
+    print("The resource types and properties in your XML are consistent with the ontology.")
 
     # temporarily remove circular references, but only if not an incremental upload
     if not incremental:
@@ -318,7 +345,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         _write_stashed_resptr_props(nonapplied_resptr_props, timestamp_str)
         success = False
     if failed_uploads:
-        print(f"Could not upload the following resources: {failed_uploads}")
+        print(f"\nWARNING: Could not upload the following resources: {failed_uploads}\n")
         success = False
     if success:
         print("All resources have successfully been uploaded.")
@@ -387,12 +414,6 @@ def _upload_resources(
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 
         # create the resource in DSP
-        if resource.restype not in resclass_name_2_type:
-            raise BaseError(f"Resource '{resource.label}' (ID: {resource.id}) has an invalid resource type "
-                            f"'{resource.restype}'. Is your syntax correct? Remember the rules:\n"
-                            f" - DSP-API internals: 'restype'\n"
-                            f" - current onto: ':restype'\n"
-                            f" - other onto: 'other:restype'")
         resclass_type = resclass_name_2_type[resource.restype]
         properties = resource.get_propvals(id2iri_mapping, permissions_lookup)
         try:

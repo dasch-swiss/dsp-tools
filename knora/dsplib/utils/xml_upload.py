@@ -387,6 +387,12 @@ def _upload_resources(
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 
         # create the resource in DSP
+        if resource.restype not in resclass_name_2_type:
+            raise BaseError(f"Resource '{resource.label}' (ID: {resource.id}) has an invalid resource type "
+                            f"'{resource.restype}'. Is your syntax correct? Remember the rules:\n"
+                            f" - DSP-API internals: 'restype'\n"
+                            f" - current onto: ':restype'\n"
+                            f" - other onto: 'other:restype'")
         resclass_type = resclass_name_2_type[resource.restype]
         properties = resource.get_propvals(id2iri_mapping, permissions_lookup)
         try:

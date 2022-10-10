@@ -201,14 +201,17 @@ To take `KnownUser` as example:
 
 A `<resource>` element contains all necessary information to create a resource. It has the following attributes:
 
-- `label`: a human-readable, preferably meaningful short name of the resource (required)
-- `restype`: the resource type as defined within the ontology (required)
-- `id`: a unique, arbitrary string providing a unique ID to the resource in order to be referencable by other resources;
-  the ID is only used during the import process and later replaced by the IRI used internally by DSP (required)
-- `permissions`: a reference to a permission set; the permissions will be applied to the created resource (optional)
-- `iri`: a custom IRI used when migrating existing resources (optional)
-- `ark`: a version 0 ARK used when migrating existing resources from salsah.org to DSP (optional), it is not possible to
-use `iri` and `ark` in the same resource. When `ark` is used, it overrides `iri`.
+- `label` (required): a human-readable, preferably meaningful short name of the resource
+- `restype` (required): the resource type as defined within the ontology 
+- `id` (required): a unique, arbitrary string providing a unique ID to the resource in order to be referencable by other 
+  resources; the ID is only used during the import process and later replaced by the IRI used internally by DSP 
+- `permissions` (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not 
+  even view rights): a reference to a permission set; the permissions will be applied to the created resource 
+- `iri` (optional): a custom IRI, used when migrating existing resources 
+- `ark` (optional): a version 0 ARK, used when migrating existing resources from salsah.org to DSP. It is not possible 
+  to use `iri` and `ark` in the same resource. When `ark` is used, it overrides `iri`.
+- `creationDate` (optional): the creation date of the resource, used when migrating existing resources from salsah.org 
+  to DSP
 
 A complete `<resource>` element may look as follows:
 

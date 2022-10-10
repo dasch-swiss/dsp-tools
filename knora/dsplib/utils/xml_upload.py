@@ -285,8 +285,8 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
                   f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid resource type "
                   f"'{resource.restype}'. Is your syntax correct? Remember the rules:\n"
                   f" - DSP-API internals: <resource restype=\"restype\">         (will be interpreted as 'knora-api:restype')\n"
-                  f" - current onto:      <resource restype=\":restype\">        ('restype' must be defined in the 'resources' section of your ontology)\n"
-                  f" - other onto:        <resource restype=\"other:restype\">   (not yet implemented: 'other' must be defined in the same JSON project file than your ontology)")
+                  f" - current ontology:  <resource restype=\":restype\">        ('restype' must be defined in the 'resources' section of your ontology)\n"
+                  f" - other ontology:    <resource restype=\"other:restype\">   (not yet implemented: 'other' must be defined in the same JSON project file than your ontology)")
             exit(1)
         resource_properties = resclass_name_2_type[resource.restype].properties.keys()
         for propname in [prop.name for prop in resource.properties]:
@@ -295,8 +295,8 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
                       f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid property '{propname}'. "
                       f"Is your syntax correct? Remember the rules:\n"
                       f" - DSP-API internals: <text-prop name=\"propname\">         (will be interpreted as 'knora-api:propname')\n"
-                      f" - current onto:      <text-prop name=\":propname\">        ('propname' must be defined in the 'properties' section of your ontology)\n"
-                      f" - other onto:        <text-prop name=\"other:propname\">   (not yet implemented: 'other' must be defined in the same JSON project file than your ontology)")
+                      f" - current ontology:  <text-prop name=\":propname\">        ('propname' must be defined in the 'properties' section of your ontology)\n"
+                      f" - other ontology:    <text-prop name=\"other:propname\">   (not yet implemented: 'other' must be defined in the same JSON project file than your ontology)")
                 exit(1)
 
     print("The resource types and properties in your XML are consistent with the ontology.")

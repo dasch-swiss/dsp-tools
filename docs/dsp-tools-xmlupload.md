@@ -211,7 +211,8 @@ A `<resource>` element contains all necessary information to create a resource. 
 - `ark` (optional): a version 0 ARK, used when migrating existing resources from salsah.org to DSP. It is not possible 
   to use `iri` and `ark` in the same resource. When `ark` is used, it overrides `iri`.
 - `creationDate` (optional): the creation date of the resource, used when migrating existing resources from salsah.org 
-  to DSP
+  to DSP. It must be formatted according to the constraints of [xsd:dateTimeStamp](https://www.w3.org/TR/xmlschema11-2/#dateTimeStamp), 
+  which means that the timezone is required, e.g.: `2005-10-23T13:45:12.502951+02:00`
 
 A complete `<resource>` element may look as follows:
 

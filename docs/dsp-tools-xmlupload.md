@@ -221,17 +221,15 @@ A complete `<resource>` element may look as follows:
 </resource>
 ```
 
-The `<resource>` element contains a property element (e.g. `<text-prop>`) for each property class (i.e. data field)
-describing the resource. The property element itself contains one or several value elements (e.g. `<text>`) and must
-have an attribute `name` with the name of the property as defined in the project specific ontology.
+For every property that the ontology requires, the `<resource>` element contains one property 
+element (e.g. `<integer-prop name="property_name>`). The property element contains one or more values.
 
-Example for a property element of type text (`<text-prop>`) with two value elements `<text>`:
-
+Example of a property element of type integer with two values:
 ```xml
-<text-prop name=":hasTranslation">
-   <text encoding="utf8">Dies ist eine Übersetzung.</text>
-   <text encoding="utf8">Dies ist eine weitere Übersetzung.</text>
-</text-prop>
+<integer-prop name=":hasInteger">
+    <integer permissions="prop-default">4711</integer>
+    <integer permissions="prop-default">1</integer>
+</integer-prop>
 ```
 
 The following property elements exist:
@@ -269,7 +267,7 @@ Supported file extensions:
 | Representation              | Supported formats                      |
 |-----------------------------|----------------------------------------|
 | `ArchiveRepresentation`     | ZIP, TAR, GZ, Z, TAR.GZ, TGZ, GZIP, 7Z |
-| `AudioRepresentation`       | MP3, MP4, WAV                          |
+| `AudioRepresentation`       | MP3, WAV                               |
 | `DocumentRepresentation`    | PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX   |
 | `MovingImageRepresentation` | MP4                                    |
 | `StillImageRepresentation`  | JPG, JPEG, PNG, TIF, TIFF, JP2         |
@@ -281,10 +279,11 @@ Attributes:
 
 - `permissions` : Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 
-Example:
-
+Example of a public image inside a `StillImageRepresentation`:
 ```xml
-<bitstream permissions="prop-restricted">postcards/images/EURUS015a.jpg</bitstream>
+<resource restype=":Image" id="image_1" label="image_1" permissions="res-default">
+    <bitstream permissions="prop-default">postcards/images/EURUS015a.jpg</bitstream>
+</resource>
 ```
 
 
@@ -306,16 +305,12 @@ Attributes:
 - `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-Example:
-
+Example of a public and a hidden boolean property:
 ```xml
 <boolean-prop name=":hasBoolean">
-  <boolean>true</boolean>
+  <boolean permissions="prop-default">true</boolean>
 </boolean-prop>
-```
-
-```xml
-<boolean-prop name=":hasBoolean">
+<boolean-prop name=":hasHiddenBoolean">
   <boolean>0</boolean>
 </boolean-prop>
 ```
@@ -340,10 +335,10 @@ Attributes:
 - `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-A property with two color values would be defined as follows:
+Example of a property with a public and a hidden color value:
 ```xml
 <color-prop name=":hasColor">
-    <color>#00ff66</color>
+    <color permissions="prop-default">#00ff66</color>
     <color>#ff00ff</color>
 </color-prop>
 ```
@@ -389,16 +384,10 @@ Attributes:
 - `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-Example:
-
+Example of a property with a public and a hidden date value:
 ```xml
 <date-prop name=":hasDate">
-  <date>GREGORIAN:CE:2014-01-31</date>
-</date-prop>
-```
-
-```xml
-<date-prop name=":hasDate">
+  <date permissions="prop-default">GREGORIAN:CE:2014-01-31</date>
   <date>GREGORIAN:CE:1930-09-02:CE:1930-09-03</date>
 </date-prop>
 ```
@@ -422,11 +411,11 @@ Attributes:
 - `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-Example:
-
+Example of a property with a public and a hidden decimal value:
 ```xml
 <decimal-prop name=":hasDecimal">
-  <decimal>3.14159</decimal>
+    <decimal permissions="prop-default">3.14159</decimal>
+    <decimal>2.71828</decimal>
 </decimal-prop>
 ```
 
@@ -476,11 +465,27 @@ The following example defines a polygon:
 }
 ```
 
-Example of a `<geometry>` element:
-
+Example of a property with a public polygon and a hidden rectangle:
 ```xml
-<geometry-prop name=":hasPolygon">
-  <geometry>{"status":"active","type"="circle","lineColor"="#ff0000","lineWidth"=2,"points":[{"x":0.5,"y":0.5}],"radius":{"x":0.1,"y":0.0}}</geometry>
+<geometry-prop name=":hasRegion">
+    <geometry permissions="prop-default">
+        { 
+            "status": "active", "type": "polygon", "lineColor": "#ff3333", "lineWidth": 2, "original_index": 0,
+            "points": [{"x": 0.1725239616613418, "y": 0.1597222222222222},
+                       {"x": 0.8242811501597445, "y": 0.1458333333333333},
+                       {"x": 0.8242811501597445, "y": 0.8310185185185185},
+                       {"x": 0.1757188498402556, "y": 0.8240740740740740},
+                       {"x": 0.1757188498402556, "y": 0.1597222222222222},
+                       {"x": 0.1693290734824281, "y": 0.1643518518518518}]
+        }
+    </geometry>
+    <geometry>
+        {
+            "status": "active", "type": "rectangle", "lineColor": "#ff3333", "lineWidth": 2, "original_index": 0,
+            "points": [{"x": 0.080985915492957750, "y": 0.16741071428571427},
+                       {"x": 0.739436619718309900, "y": 0.72991071428571430}]
+        }
+    </geometry>
 </geometry-prop>
 ```
 
@@ -509,11 +514,11 @@ Attributes:
 - `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-Example (city of Vienna):
-
+Example of a property with a public link to Vienna and a hidden link to Basel:
 ```xml
 <geoname-prop name=":hasLocation">
-  <geoname>2761369</geoname>
+    <geoname permissions="prop-default">2761369</geoname>
+    <geoname>2661604</geoname>
 </geoname-prop>
 ```
 
@@ -536,11 +541,11 @@ Attributes:
 - `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-Example:
-
+Example of a property with a public and a hidden integer value:
 ```xml
 <integer-prop name=":hasInteger">
-  <integer>4711</integer>
+    <integer permissions="prop-default">4711</integer>
+    <integer>1</integer>
 </integer-prop>
 ```
 
@@ -566,12 +571,11 @@ Attributes:
 - `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-Example:
-
+Example of a property with a public and a hidden interval value:
 ```xml
 <interval-prop name=":hasInterval">
-  <interval>60.5:120.5</interval>          <!-- 0:01:00.5 - 0:02:00.5 -->
-  <interval>61:3600</interval>             <!-- 0:01:01 - 1:00:00 -->
+    <interval permissions="prop-default">60.5:120.5</interval>   <!-- 0:01:00.5 - 0:02:00.5 -->
+    <interval>61:3600</interval>                                 <!-- 0:01:01 - 1:00:00 -->
 </interval-prop>
 ```
 
@@ -597,11 +601,11 @@ Attributes:
 - `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-Example:
-
+Example of a property with a public and a hidden list value:
 ```xml
 <list-prop list="category" name=":hasCategory">
-  <list>physics</list>
+    <list permissions="prop-default">physics</list>
+    <list>nature</list>
 </list-prop>
 ```
 
@@ -626,14 +630,11 @@ Attributes:
 - `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-Example:
-
-If there is a resource defined as `<resource label="EURUS015a" restype=":Postcard" id="238807">...</resource>`, it can
-be referenced as:
-
+Example of a property with a public link to `<resource id="res_1" ...>` and a hidden link to and `<resource id="res_2" ...>`:
 ```xml
 <resptr-prop name=":hasReferenceTo">
-  <resptr>238807</resptr>
+    <resptr permissions="prop-default">res_1</resptr>
+    <resptr>res_2</resptr>
 </resptr-prop>
 ```
 
@@ -659,41 +660,26 @@ The `<text>` element has the following attributes:
 - `comment`: a comment for this specific value (optional)
 
 There are two variants of text: Simple (UTF8) and complex (XML). Within a text property, multiple simple and 
-complex text values may be mixed. Both simple and complex text values can be used inside all gui_elements 
-that are defined in an ontology (SimpleText, Richtext, Textarea, see [here](dsp-tools-create-ontologies.md#textvalue)). 
-But typically, you would use UTF8 in a SimpleText, and XML in Richtext or Textarea.
+complex text values may be mixed. Both simple and complex text values can be used inside all `gui_element`s 
+that are defined in an ontology (`SimpleText`, `Richtext`, `Textarea`, see [here](dsp-tools-create-ontologies.md#textvalue)). 
+But typically, you would use UTF8 in a `SimpleText`, and XML in `Richtext` or `Textarea`.
 
-
-#### Simple text (UTF-8)
-
-An example for simple text:
-
+Example of a public simple text and a hidden complex text:
 ```xml
 <text-prop name=":hasComment">
-  <text encoding="utf8">Probe bei "Wimberger". Lokal in Wien?</text>
+    <text encoding="utf8" permissions="prop-default">Probe bei "Wimberger". Lokal in Wien?</text>
+    <text encoding="xml">
+        <strong>Bold text</strong> and a <a class="salsah-link" href="IRI:obj_0003:IRI">link to an ID</a>
+        and a <a class="salsah-link" href="http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ">link to an IRI</a>
+    </text>
 </text-prop>
 ```
 
-If your text is very long, it is not advised to add XML-"pretty-print" whitespaces after line breaks. These 
-whitespaces will be taken into the text field as they are.
+For simple texts, it is not advised to add XML-"pretty-print" whitespaces after line breaks, because they will be taken 
+into the text field as they are.  
 
-
-#### Text with markup (XML)
-
-dsp-tools assumes that for markup (standoff markup), the
-[DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-apis/api-v2/xml-to-standoff-mapping/) is used (custom mapping is not yet
-implemented).
-
-Example of a text containing a link to another resource:
-
-```xml
-<text-prop name=":hasComment">
-  <text encoding="xml" >The <strong>third</strong> object and a <a class="salsah-link" href="IRI:obj_0003:IRI">link</a>.</text>
-</text-prop>
-```
-
-Please note that the `href` option within the anchor tag (`<a>`) points to an internal resource of the DSP and has to
-conform to the special format `IRI:[res-id]:IRI` where [res-id] is the resource id defined within the XML import file.
+Complex texts can contain links to a resource. If the target is defined in the same XML file, it is identified by its 
+ID, in the format `IRI:ID:IRI`. If the target already exists on the DSP server, it is defined by its IRI.
 
 
 ### &lt;time-prop&gt;
@@ -707,8 +693,8 @@ Attributes:
 
 #### &lt;time&gt;
 
-The `<time>` element represents an exact datetime value in the form of `yyyy-mm-ddThh:mm:ss.sssssssssssszzzzzz`. The
-following abbreviations describe this form:
+The `<time>` element represents an exact datetime value in the form [xsd:dateTimeStamp](https://www.w3.org/TR/xmlschema11-2/#dateTimeStamp), 
+which is defined as `yyyy-mm-ddThh:mm:ss.sssssssssssszzzzzz`. The following abbreviations describe this form:
 
 - `yyyy`: a four-digit numeral that represents the year. The value cannot start with a minus (-) or a plus (+) sign.
   0001 is the lexical representation of the year 1 of the Common Era (also known as 1 AD). The value cannot be 0000. The
@@ -743,26 +729,19 @@ Attributes:
 - `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-Example:
-
+Example of a property with a public and a hidden time value:
 ```xml
 <time-prop name=":hasTime">
-  <time>2019-10-23T13:45:12Z</time>
-</time-prop>
-```
-
-The following value indicates noon on October 10, 2009, Eastern Standard Time in the United States:
-
-```xml
-<time-prop name=":hasTime">
-  <time>2009-10-10T12:00:00-05:00</time>
+    <time permissions="prop-default">2019-10-23T13:45:12Z</time>
+    <time>2009-10-10T12:00:00-05:00</time>
 </time-prop>
 ```
 
 
 ### &lt;uri-prop&gt;
 
-The `<uri-prop>` element is used for referencing resources with a URI. It must contain at least one `<uri>` element.
+The `<uri-prop>` represents a [Uniform Resource Identifier](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier).
+It must contain at least one `<uri>` element.
 
 Attributes:
 
@@ -778,11 +757,11 @@ Attributes:
 - `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-Example:
-
+Example of a property with a public and a hidden URI:
 ```xml
 <uri-prop name=":hasURI">
-   <uri>http://www.groove-t-gang.ch</uri>
+    <uri permissions="prop-default">http://www.groove-t-gang.ch</uri>
+    <uri>http://dasch.swiss</uri>
 </uri-prop>
 ```
 

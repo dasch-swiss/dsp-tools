@@ -63,7 +63,7 @@ class BaseError(Exception):
         Convert to string
         :return: stringyfied error message
         """
-        return "ERROR: " + self._message + "!\n\n" + format_exc()
+        return self._message + "\n\n" + format_exc()
 
     @property
     def message(self) -> str:

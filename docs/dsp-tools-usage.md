@@ -108,14 +108,13 @@ will upload the XML file on `localhost` for local viewing. It assumes that DSP-A
 settings, and that potential `<bitstream>` tags contain file paths that are relative to the working directory from where 
 `dsp-tools` is called from.
 
-When uploading data to a remote DSP server, you should be aware of some conventions that DaSCH follows when setting up 
-a DSP server:
+When uploading data to a remote DSP server, there are three relevant URLs you should know about:
 
- - In a server address, `admin` stands for the DSP-APP frontend that you look at in your browser
- - `api` stands for the DSP-API (where dsp-tools sends its data to) 
- - `iiif` stands for the SIPI-server (where dsp-tools sends the multimedia files to)
+ - Subdomain `admin` stands for the DSP-APP frontend that you look at in your browser
+ - Subdomain `api` stands for the DSP-API (where dsp-tools sends its data to) 
+ - Subdomain `iiif` stands for the SIPI-server interface (where dsp-tools sends the multimedia files to)
 
-This means that for uploading data to the DSP server `https://admin.dasch.swiss`, you have to type the following:
+This means that for uploading data to a DSP server on the domain `dasch.swiss`, you have to type the following:
 ```bash
 dsp-tools xmlupload -s https://api.dasch.swiss -u root@example.com -p test -S https://iiif.dasch.swiss xml_data_file.xml
 ```

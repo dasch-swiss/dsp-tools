@@ -423,7 +423,7 @@ def _upload_resources(
                     label=resource.label,
                     iri=resource_iri,
                     permissions=permissions_lookup.get(resource.permissions),
-                    creationDate=resource._creationDate,
+                    creation_date=resource._creation_date,
                     bitstream=resource_bitstream,
                     values=properties
                 ),

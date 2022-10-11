@@ -2,6 +2,7 @@
 import unittest
 
 from knora.dsplib.models.connection import Connection
+from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.models.permission import PermissionValue, Permissions
 from knora.dsplib.models.resource import ResourceInstanceFactory
 from knora.dsplib.models.sipi import Sipi

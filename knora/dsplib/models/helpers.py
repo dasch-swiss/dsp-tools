@@ -2,7 +2,6 @@ import re
 import sys
 from dataclasses import dataclass
 from enum import Enum, unique
-from traceback import format_exc
 from typing import NewType, Optional, Any, Tuple, Union, Pattern
 
 from pystrict import strict
@@ -63,7 +62,7 @@ class BaseError(Exception):
         Convert to string
         :return: stringyfied error message
         """
-        return self._message + "\n\n" + format_exc()
+        return self._message
 
     @property
     def message(self) -> str:

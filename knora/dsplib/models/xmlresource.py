@@ -36,7 +36,7 @@ class XMLResource:
         self._id = node.attrib['id']
         self._iri = node.attrib.get('iri')
         self._ark = node.attrib.get('ark')
-        self._creation_date = node.attrib.get('creationDate')
+        self._creation_date = node.attrib.get('creation_date')
         self._label = node.attrib['label']
         # get the resource type which is in format namespace:resourcetype, p.ex. rosetta:Image
         tmp_res_type = node.attrib['restype'].split(':')

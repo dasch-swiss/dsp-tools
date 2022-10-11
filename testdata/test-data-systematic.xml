@@ -33,7 +33,7 @@
     <resource label="TestthingOhnePermissions"
               restype=":TestThing2"
               id="test_thing_0"
-              creationDate="2019-01-09T15:45:54.502951Z">
+              creation_date="2019-01-09T15:45:54.502951Z">
         <text-prop name=":hasText">
             <text encoding="utf8">Dies ist ein TestThing ohne Angabe von permissions</text>
         </text-prop>
@@ -45,7 +45,7 @@
     <annotation label="Annotation to TestthingOhnePermissions"
                 id="annotation_1"
                 permissions="res-default"
-                creationDate="2005-10-23T13:45:12.01-14:00">
+                creation_date="2005-10-23T13:45:12.01-14:00">
         <text-prop name="hasComment">
             <text encoding="utf8" permissions="prop-default">This is an annotation to TestthingOhnePermissions.</text>
             <text encoding="utf8" permissions="prop-default">Second comment</text>
@@ -297,7 +297,7 @@
     <region label="Region in image"
             id="region_1"
             permissions="res-restricted"
-            creationDate="1999-12-31T23:59:59.9999999+01:00">
+            creation_date="1999-12-31T23:59:59.9999999+01:00">
         <color-prop name="hasColor">
             <color permissions="prop-restricted">#5d1f1e</color>
         </color-prop>
@@ -631,7 +631,7 @@
     <link label="Link between 'Second Testthing', 'Compoundthing' and 'Partofthing-1'"
           id="link_obj_1"
           permissions="res-default"
-          creationDate="1970-10-23T03:45:12-13:30">
+          creation_date="1970-10-23T03:45:12-13:30">
         <text-prop name="hasComment">
             <text permissions="prop-default" encoding="xml">
                 A link object can link together an arbitrary number of resources from any resource class.

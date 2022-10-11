@@ -271,7 +271,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             resources.append(XMLResource(child, default_ontology))
 
     # get the project information and project ontology from the server
-    res_inst_factory = ResourceInstanceFactory(con, shortcode)
+    res_inst_factory = try_network_action("", lambda: ResourceInstanceFactory(con, shortcode))
     permissions_lookup: dict[str, Permissions] = {s: perm.get_permission_instance() for s, perm in permissions.items()}
     resclass_name_2_type: dict[str, type] = {s: res_inst_factory.get_resclass_type(s) for s in res_inst_factory.get_resclass_names()}
 

@@ -185,6 +185,10 @@ class ResourceInstance(Model):
         return self._ark
 
     @property
+    def creation_date(self) -> str:
+        return self._creation_date
+
+    @property
     def vark(self) -> str:
         return self._version_ark
 

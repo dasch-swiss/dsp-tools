@@ -53,7 +53,7 @@ class TestResource(unittest.TestCase):
         self.assertEqual(new_blue_thing.value("anything:hasBoolean"), True)
         self.assertEqual(new_blue_thing.value("anything:hasDecimal"), 3.14159)
         self.assertEqual(new_blue_thing.value("anything:hasText"), "Dies ist ein einfacher Text")
-        self.assertEqual(new_blue_thing._creation_date, "1999-12-31T23:59:59.9999999+01:00")
+        self.assertEqual(new_blue_thing.creation_date, "1999-12-31T23:59:59.9999999+01:00")
 
         thing_picture = factory.get_resclass_type('anything:ThingPicture')
         sipi = Sipi('http://0.0.0.0:1024', self.con.get_token())

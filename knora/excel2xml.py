@@ -17,6 +17,7 @@ from lxml.builder import E
 from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.models.propertyelement import PropertyElement
 from knora.dsplib.utils.shared import simplify_name, check_notna, validate_xml_against_schema
+from knora.dsplib.utils.validation import validate_resource_creation_date
 
 xml_namespace_map = {
     None: "https://dasch.swiss/schema",
@@ -362,7 +363,8 @@ def make_resource(
     id: str,
     permissions: str = "res-default",
     ark: Optional[str] = None,
-    iri: Optional[str] = None
+    iri: Optional[str] = None,
+    creation_date: Optional[str] = None
 ) -> etree._Element:
     """
     Creates an empty resource element, with the attributes as specified by the arguments
@@ -396,6 +398,11 @@ def make_resource(
     if ark and iri:
         warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
                       stacklevel=2)
+    if creation_date:
+        validate_resource_creation_date(creation_date,
+                                        f"The resource '{label}' (ID: {id}) has an invalid creation date. Did you "
+                                        f"perhaps forget the timezone?")
+        kwargs["creation_date"] = creation_date
 
     resource_ = etree.Element(
         "{%s}resource" % (xml_namespace_map[None]),
@@ -1361,7 +1368,8 @@ def make_region(
     id: str,
     permissions: str = "res-default",
     ark: Optional[str] = None,
-    iri: Optional[str] = None
+    iri: Optional[str] = None,
+    creation_date: Optional[str] = None
 ) -> etree._Element:
     """
     Creates an empty region element, with the attributes as specified by the arguments
@@ -1397,6 +1405,11 @@ def make_region(
     if ark and iri:
         warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
                       stacklevel=2)
+    if creation_date:
+        validate_resource_creation_date(creation_date,
+                                        f"The region '{label}' (ID: {id}) has an invalid creation date. Did you "
+                                        f"perhaps forget the timezone?")
+        kwargs["creation_date"] = creation_date
 
     region_ = etree.Element(
         "{%s}region" % (xml_namespace_map[None]),
@@ -1410,7 +1423,8 @@ def make_annotation(
     id: str,
     permissions: str = "res-default",
     ark: Optional[str] = None,
-    iri: Optional[str] = None
+    iri: Optional[str] = None,
+    creation_date: Optional[str] = None
 ) -> etree._Element:
     """
     Creates an empty annotation element, with the attributes as specified by the arguments
@@ -1444,6 +1458,11 @@ def make_annotation(
     if ark and iri:
         warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
                       stacklevel=2)
+    if creation_date:
+        validate_resource_creation_date(creation_date,
+                                        f"The annotation '{label}' (ID: {id}) has an invalid creation date. Did you "
+                                        f"perhaps forget the timezone?")
+        kwargs["creation_date"] = creation_date
 
     annotation_ = etree.Element(
         "{%s}annotation" % (xml_namespace_map[None]),
@@ -1457,7 +1476,8 @@ def make_link(
     id: str,
     permissions: str = "res-default",
     ark: Optional[str] = None,
-    iri: Optional[str] = None
+    iri: Optional[str] = None,
+    creation_date: Optional[str] = None
 ) -> etree._Element:
     """
     Creates an empty link element, with the attributes as specified by the arguments
@@ -1491,6 +1511,11 @@ def make_link(
     if ark and iri:
         warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
                       stacklevel=2)
+    if creation_date:
+        validate_resource_creation_date(creation_date,
+                                        f"The link '{label}' (ID: {id}) has an invalid creation date. Did you "
+                                        f"perhaps forget the timezone?")
+        kwargs["creation_date"] = creation_date
 
     link_ = etree.Element(
         "{%s}link" % (xml_namespace_map[None]),
@@ -1723,6 +1748,10 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
         main_df = pd.read_excel(datafile, dtype="str")
     else:
         raise BaseError("The argument 'datafile' must have one of the extensions 'csv', 'xls', 'xlsx'")
+    # replace NA-like cells by NA
+    main_df = main_df.applymap(
+        lambda x: x if pd.notna(x) and regex.search(r"[\w\p{L}]", str(x), flags=regex.U) else pd.NA
+    )
     # remove empty columns, so that the max_prop_count can be calculated without errors
     main_df.dropna(axis="columns", how="all", inplace=True)
     # remove empty rows, to prevent them from being processed and raising an error
@@ -1764,17 +1793,26 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
                 "permissions": resource_permissions,
                 "id": resource_id
             }
+            if check_notna(row.get("ark")):
+                kwargs_resource["ark"] = row["ark"]
+            if check_notna(row.get("iri")):
+                kwargs_resource["iri"] = row["iri"]
+            if check_notna(row.get("created")):
+                kwargs_resource["creation_date"] = row["created"]
             if resource_restype not in ["Annotation", "Region", "LinkObj"]:
                 kwargs_resource["restype"] = resource_restype
-                if check_notna(row.get("ark")):
-                    kwargs_resource["ark"] = row["ark"]
-                if check_notna(row.get("iri")):
-                    kwargs_resource["iri"] = row["iri"]
                 resource = make_resource(**kwargs_resource)
                 if check_notna(row.get("file")):
                     file_permissions = row.get("file permissions")
                     if not check_notna(file_permissions):
-                        file_permissions = "prop-default" if resource_permissions == "res-default" else "prop-restricted"
+                        if resource_permissions == "res-default":
+                            file_permissions = "prop-default"
+                        elif resource_permissions == "res-restricted":
+                            file_permissions = "prop-restricted"
+                        else:
+                            raise BaseError(f"'file permissions' missing for file '{row['file']}' (Excel row "
+                                            f"{int(str(index)) + 2}). An attempt to deduce them from the resource "
+                                            f"permissions failed.")
                     resource.append(make_bitstream_prop(
                         path=str(row["file"]),
                         permissions=file_permissions,

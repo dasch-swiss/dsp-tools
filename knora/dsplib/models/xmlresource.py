@@ -77,6 +77,11 @@ class XMLResource:
         return self._ark
 
     @property
+    def creation_date(self) -> Optional[str]:
+        """The creation date of the resource"""
+        return self._creation_date
+
+    @property
     def label(self) -> str:
         """The label of the resource"""
         return self._label

@@ -416,51 +416,52 @@ class TestExcel2xml(unittest.TestCase):
             (excel2xml.make_link, "link"),
             (excel2xml.make_region, "region"),
         ]:
-            xml_returned_1 = method("label", "id")
-            xml_returned_1 = etree.tostring(xml_returned_1, encoding="unicode")
-            xml_returned_1 = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned_1)
-            self.assertEqual(f'<{tagname} label="label" id="id" permissions="res-default"/>', xml_returned_1)
-
-            xml_returned_2 = method("label", "id", "res-restricted")
-            xml_returned_2 = etree.tostring(xml_returned_2, encoding="unicode")
-            xml_returned_2 = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned_2)
-            self.assertEqual(f'<{tagname} label="label" id="id" permissions="res-restricted"/>', xml_returned_2)
-
-            xml_returned_3 = method("label", "id", ark="ark")
-            xml_returned_3 = etree.tostring(xml_returned_3, encoding="unicode")
-            xml_returned_3 = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned_3)
-            self.assertEqual(f'<{tagname} label="label" id="id" permissions="res-default" ark="ark"/>', xml_returned_3)
-
-            xml_returned_4 = method("label", "id", iri="iri")
-            xml_returned_4 = etree.tostring(xml_returned_4, encoding="unicode")
-            xml_returned_4 = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned_4)
-            self.assertEqual(f'<{tagname} label="label" id="id" permissions="res-default" iri="iri"/>', xml_returned_4)
+            test_cases = [
+                (lambda: method("label", "id"),
+                 f'<{tagname} label="label" id="id" permissions="res-default"/>'),
+                (lambda: method("label", "id", "res-restricted"),
+                 f'<{tagname} label="label" id="id" permissions="res-restricted"/>'),
+                (lambda: method("label", "id", ark="ark"),
+                 f'<{tagname} label="label" id="id" permissions="res-default" ark="ark"/>'),
+                (lambda: method("label", "id", iri="iri"),
+                 f'<{tagname} label="label" id="id" permissions="res-default" iri="iri"/>'),
+                (lambda: method("label", "id", creation_date="2019-10-23T13:45:12Z"),
+                 f'<{tagname} label="label" id="id" permissions="res-default" creation_date="2019-10-23T13:45:12Z"/>')
+            ]
+            for _method, result in test_cases:
+                xml_returned = _method()
+                xml_returned = etree.tostring(xml_returned, encoding="unicode")
+                xml_returned = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned)
+                self.assertEqual(result, xml_returned)
 
             self.assertWarns(UserWarning, lambda: method("label", "id", ark="ark", iri="iri"))
+            with self.assertRaisesRegex(BaseError, "invalid creation date"):
+                method("label", "restype", "id", creation_date="2019-10-23T13:45:12")
 
 
     def test_make_resource(self) -> None:
-        xml_returned_1 = excel2xml.make_resource("label", "restype", "id")
-        xml_returned_1 = etree.tostring(xml_returned_1, encoding="unicode")
-        xml_returned_1 = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned_1)
-        self.assertEqual('<resource label="label" restype="restype" id="id" permissions="res-default"/>', xml_returned_1)
+        test_cases = [
+            (lambda: excel2xml.make_resource("label", "restype", "id"),
+             '<resource label="label" restype="restype" id="id" permissions="res-default"/>'),
+            (lambda: excel2xml.make_resource("label", "restype", "id", "res-restricted"),
+             '<resource label="label" restype="restype" id="id" permissions="res-restricted"/>'),
+            (lambda: excel2xml.make_resource("label", "restype", "id", ark="ark"),
+             '<resource label="label" restype="restype" id="id" permissions="res-default" ark="ark"/>'),
+            (lambda: excel2xml.make_resource("label", "restype", "id", iri="iri"),
+             '<resource label="label" restype="restype" id="id" permissions="res-default" iri="iri"/>'),
+            (lambda: excel2xml.make_resource("label", "restype", "id", creation_date="2019-10-23T13:45:12Z"),
+             '<resource label="label" restype="restype" id="id" permissions="res-default" creation_date="2019-10-23T13:45:12Z"/>')
+        ]
 
-        xml_returned_2 = excel2xml.make_resource("label", "restype", "id", "res-restricted")
-        xml_returned_2 = etree.tostring(xml_returned_2, encoding="unicode")
-        xml_returned_2 = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned_2)
-        self.assertEqual('<resource label="label" restype="restype" id="id" permissions="res-restricted"/>', xml_returned_2)
-
-        xml_returned_3 = excel2xml.make_resource("label", "restype", "id", ark="ark")
-        xml_returned_3 = etree.tostring(xml_returned_3, encoding="unicode")
-        xml_returned_3 = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned_3)
-        self.assertEqual('<resource label="label" restype="restype" id="id" permissions="res-default" ark="ark"/>', xml_returned_3)
-
-        xml_returned_4 = excel2xml.make_resource("label", "restype", "id", iri="iri")
-        xml_returned_4 = etree.tostring(xml_returned_4, encoding="unicode")
-        xml_returned_4 = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned_4)
-        self.assertEqual('<resource label="label" restype="restype" id="id" permissions="res-default" iri="iri"/>', xml_returned_4)
+        for method, result in test_cases:
+            xml_returned = method()
+            xml_returned = etree.tostring(xml_returned, encoding="unicode")
+            xml_returned = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned)
+            self.assertEqual(result, xml_returned)
 
         self.assertWarns(UserWarning, lambda: excel2xml.make_resource("label", "restype", "id", ark="ark", iri="iri"))
+        with self.assertRaisesRegex(BaseError, "invalid creation date"):
+            excel2xml.make_resource("label", "restype", "id", creation_date="2019-10-23T13:45:12")
 
 
     def test_create_json_excel_list_mapping(self) -> None:
@@ -513,6 +514,7 @@ class TestExcel2xml(unittest.TestCase):
 
 
     def test_excel2xml(self) -> None:
+        # test the valid files, 3 times identical, but in the three formats XLSX, XLS, and CSV
         with open("testdata/excel2xml-expected-output.xml") as f:
             expected = f.read()
         for ext in ["xlsx", "xls", "csv"]:
@@ -522,6 +524,22 @@ class TestExcel2xml(unittest.TestCase):
                 self.assertEqual(returned, expected, msg=f"Failed with extension {ext}")
         if os.path.isfile("excel2xml-output-data.xml"):
             os.remove("excel2xml-output-data.xml")
+
+        # test the invalid files
+        invalid_prefix = "testdata/invalid_testdata/excel2xml-testdata-invalid"
+        invalid_cases = [
+            (f"{invalid_prefix}-id-propname-both.xlsx",             "Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry"),
+            (f"{invalid_prefix}-id-propname-none.xlsx",             "Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry"),
+            (f"{invalid_prefix}-missing-prop-permissions.xlsx",     "Missing permissions for value .+ of property"),
+            (f"{invalid_prefix}-missing-resource-label.xlsx",       "Missing label for resource"),
+            (f"{invalid_prefix}-missing-resource-permissions.xlsx", "Missing permissions for resource"),
+            (f"{invalid_prefix}-missing-restype.xlsx",              "Missing restype"),
+            (f"{invalid_prefix}-no-bitstream-permissions.xlsx",     "'file permissions' missing"),
+            (f"{invalid_prefix}-nonexisting-proptype",              "Invalid prop type"),
+        ]
+        for file, regex in invalid_cases:
+            with self.assertRaisesRegex(BaseError, regex):
+                excel2xml.excel2xml(file, "1234", f"excel2xml-invalid")
 
 
 if __name__ == "__main__":

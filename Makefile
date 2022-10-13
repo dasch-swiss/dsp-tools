@@ -51,7 +51,7 @@ install: ## install from source (runs setup.py)
 
 .PHONY: test
 test: dsp-stack ## run all tests
-	pytest test/
+	-pytest test/
 	$(MAKE) stack-down
 
 .PHONY: test-no-stack
@@ -60,7 +60,7 @@ test-no-stack: ## run tests without starting the stack (if a dsp-stack is alread
 
 .PHONY: test-end-to-end
 test-end-to-end: dsp-stack ## run e2e tests
-	pytest test/e2e/
+	-pytest test/e2e/
 	$(MAKE) stack-down
 
 .PHONY: test-end-to-end-ci

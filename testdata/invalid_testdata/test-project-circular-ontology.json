@@ -1,5 +1,5 @@
 {
-    "$schema": "../knora/dsplib/schemas/ontology.json",
+    "$schema": "../../knora/dsplib/schemas/ontology.json",
     "project": {
         "shortcode": "1233",
         "shortname": "test",

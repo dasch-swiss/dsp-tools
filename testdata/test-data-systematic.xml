@@ -292,7 +292,7 @@
         </text-prop>
     </resource>
 
-    <region label="Region in image"
+    <region label="Polygon in image"
             id="region_1"
             permissions="res-restricted">
         <color-prop name="hasColor">
@@ -304,13 +304,14 @@
         <geometry-prop name="hasGeometry">
             <geometry permissions="prop-default">
                 {
-                    "status": "active", "type": "polygon", "lineColor": "#ff3333", "lineWidth": 2, "original_index": 0,
-                    "points": [{"x": 0.1725239616613418, "y": 0.1597222222222222},
-                               {"x": 0.8242811501597445, "y": 0.1458333333333333},
-                               {"x": 0.8242811501597445, "y": 0.8310185185185185},
-                               {"x": 0.1757188498402556, "y": 0.8240740740740740},
-                               {"x": 0.1757188498402556, "y": 0.1597222222222222},
-                               {"x": 0.1693290734824281, "y": 0.1643518518518518}]
+                    "status": "active",
+                    "type": "polygon",
+                    "lineColor": "#ff1100",
+                    "lineWidth": 5,
+                    "points": [{"x": 0.4, "y": 0.6}
+                               {"x": 0.5, "y": 0.9},
+                               {"x": 0.8, "y": 0.9},
+                               {"x": 0.7, "y": 0.6}]
                 }
             </geometry>
         </geometry-prop>
@@ -657,7 +658,7 @@
         </text-prop>
     </resource>
 
-    <region label="Another region in image"
+    <region label="Rectangle in image"
             id="region_2"
             permissions="res-restricted">
         <text-prop name="hasComment">
@@ -673,13 +674,12 @@
                 {
                     "status": "active",
                     "type": "rectangle",
-                    "lineColor": "#ff3333",
-                    "lineWidth": 2,
+                    "lineColor": "#ff1100",
+                    "lineWidth": 5,
                     "points": [
-                        {"x":0.080985915492957750,"y":0.16741071428571427},
-                        {"x":0.739436619718309900,"y":0.72991071428571430}
-                    ],
-                    "original_index": 0
+                        {"x":0.1,"y":0.7},
+                        {"x":0.3,"y":0.2}
+                    ]
                 }
             </geometry>
         </geometry-prop>
@@ -691,12 +691,12 @@
         </color-prop>
     </region>
 
-    <region label="Circle: dysfunctional"
+    <region label="Circle in image"
             id="region_3"
             permissions="res-restricted">
         <text-prop name="hasComment">
             <text encoding="xml" permissions="prop-default">
-                The circle-formed region doesn't work yet.
+                This is a circle-formed region of interest of an image. It is also displayed as Annotation.
             </text>
         </text-prop>
         <geometry-prop name="hasGeometry">
@@ -704,11 +704,10 @@
                 {
                     "status": "active",
                     "type": "circle",
-                    "lineColor": "#ff3333",
-                    "lineWidth": 2,
-                    "center": {"x":0.5,"y":0.5},
-                    "radius": 0.2,
-                    "original_index": 0
+                    "lineColor": "#ff1100",
+                    "lineWidth": 5,
+                    "points": [{"x":0.5,"y":0.3}],
+                    "radius": {"x":0.1,"y":0.1}
                 }
             </geometry>
         </geometry-prop>

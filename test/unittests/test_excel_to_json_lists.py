@@ -1,13 +1,14 @@
 """unit tests for Excel to JSON list"""
 import copy
+import json
 import os
 import unittest
-import json
+from typing import Any
+
 import jsonpath_ng
 import jsonpath_ng.ext
 import pandas as pd
 import regex
-from typing import Any
 
 from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.utils import excel_to_json_lists as e2l
@@ -141,9 +142,9 @@ class TestExcelToJSONList(unittest.TestCase):
 
         # make sure that the invalid lists raise an Error
         with self.assertRaisesRegex(BaseError, r"Found duplicate in column 2, row 9"):
-            e2l.excel2lists(excelfolder="testdata/lists_invalid_1", path_to_output_file=outfile)
+            e2l.excel2lists(excelfolder="testdata/invalid_testdata/lists_invalid_1", path_to_output_file=outfile)
         with self.assertRaisesRegex(BaseError, r"The Excel file with the language code 'de' should have a value in row 10, column 2"):
-            e2l.excel2lists(excelfolder="testdata/lists_invalid_2", path_to_output_file=outfile)
+            e2l.excel2lists(excelfolder="testdata/invalid_testdata/lists_invalid_2", path_to_output_file=outfile)
 
 
 if __name__ == '__main__':

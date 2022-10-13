@@ -1773,7 +1773,7 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
                             f"prop name: '{row.get('prop name')}'")
 
         ########### case resource-row ###########
-        if check_notna(row["id"]):
+        if check_notna(row.get("id")):
             resource_id = row["id"]
             resource_permissions = row.get("permissions")
             if not check_notna(resource_permissions):
@@ -1829,7 +1829,7 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
         else:  # check_notna(row["prop name"]):
             # based on the property type, the right function has to be chosen
             if row.get("prop type") not in proptype_2_function:
-                raise BaseError(f"Invalid prop type for property {row['prop name']} in resource {resource_id}")
+                raise BaseError(f"Invalid prop type for property {row.get('prop name')} in resource {resource_id}")
             make_prop_function = proptype_2_function[row["prop type"]]
 
             # every property contains i elements, which are represented in the Excel as groups of
@@ -1864,7 +1864,7 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
                 kwargs_propfunc["value"] = property_elements[0]
             else:
                 kwargs_propfunc["value"] = property_elements
-            if check_notna(row["prop list"]):
+            if check_notna(row.get("prop list")):
                 kwargs_propfunc["list_name"] = str(row["prop list"])
 
             resource.append(make_prop_function(**kwargs_propfunc))

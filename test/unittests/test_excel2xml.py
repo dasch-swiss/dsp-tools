@@ -535,10 +535,10 @@ class TestExcel2xml(unittest.TestCase):
             (f"{invalid_prefix}-missing-resource-permissions.xlsx", "Missing permissions for resource"),
             (f"{invalid_prefix}-missing-restype.xlsx",              "Missing restype"),
             (f"{invalid_prefix}-no-bitstream-permissions.xlsx",     "'file permissions' missing"),
-            (f"{invalid_prefix}-nonexisting-proptype",              "Invalid prop type"),
+            (f"{invalid_prefix}-nonexisting-proptype.xlsx",         "Invalid prop type"),
         ]
         for file, regex in invalid_cases:
-            with self.assertRaisesRegex(BaseError, regex):
+            with self.assertRaisesRegex(BaseError, regex, msg=f"Failed with file '{file}'"):
                 excel2xml.excel2xml(file, "1234", f"excel2xml-invalid")
 
 

@@ -1,11 +1,12 @@
 """unit tests for ontology creation"""
-import unittest
 import json
+import unittest
 from typing import Any
 
 from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.utils.onto_create_ontology import _sort_resources, _sort_prop_classes
-from knora.dsplib.utils.onto_validate import _collect_link_properties, _identify_problematic_cardinalities, validate_project
+from knora.dsplib.utils.onto_validate import _collect_link_properties, _identify_problematic_cardinalities, \
+    validate_project
 
 
 class TestProjectCreation(unittest.TestCase):
@@ -13,7 +14,7 @@ class TestProjectCreation(unittest.TestCase):
     with open(test_project_systematic_file, "r") as json_file:
         test_project_systematic: dict[str, Any] = json.load(json_file)
         test_project_systematic_ontology: dict[str, Any] = test_project_systematic["project"]["ontologies"][0]
-    test_project_circular_ontology_file = "testdata/test-project-circular-ontology.json"
+    test_project_circular_ontology_file = "testdata/invalid_testdata/test-project-circular-ontology.json"
     with open(test_project_circular_ontology_file, "r") as json_file:
         test_project_circular_ontology: dict[str, Any] = json.load(json_file)
 
@@ -56,7 +57,7 @@ class TestProjectCreation(unittest.TestCase):
         with self.assertRaisesRegex(BaseError, r"Input 'fantasy.xyz' is neither a file path nor a JSON object."):
             validate_project("fantasy.xyz")
         with self.assertRaisesRegex(BaseError, r"validation error: 'hasColor' does not match"):
-            validate_project("testdata/test-project-invalid-super-property.json")
+            validate_project("testdata/invalid_testdata/test-project-invalid-super-property.json")
         with self.assertRaisesRegex(BaseError, r"ERROR: Your ontology contains properties derived from 'hasLinkTo'"):
             validate_project(self.test_project_circular_ontology)
 

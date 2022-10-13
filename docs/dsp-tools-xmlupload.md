@@ -801,11 +801,12 @@ A `<region>` resource defines a region of interest (ROI) in an image. It must ha
 - `hasGeometry` (1)
 - `hasComment` (1-n)
 
-There are three types of Geometry shapes (rectangle, circle, polygon), but only the rectangle is implemented.
+There are three types of Geometry shapes (rectangle, circle, polygon), but only the rectangle can be displayed in 
+DSP-APP. The others can be used as well, but must be looked at in another fronted, e.g. in TANGOH. 
 
-Example:
+Example of a rectangle:
 ```xml
-<region label="Region in image" id="region_0" permissions="res-default">
+<region label="Rectangle in image" id="region_0" permissions="res-default">
     <color-prop name="hasColor">
         <color permissions="prop-default">#5d1f1e</color>
     </color-prop>
@@ -817,13 +818,12 @@ Example:
             {
                 "status": "active",
                 "type": "rectangle",
-                "lineColor": "#ff3333",
-                "lineWidth": 2,
+                "lineColor": "#ff1100",
+                "lineWidth": 5,
                 "points": [
-                    {"x":0.08098591549295775,"y":0.16741071428571427},
-                    {"x":0.739436619718309900,"y":0.72991071428571430}
-                ],
-                "original_index": 0
+                    {"x":0.1,"y":0.7},
+                    {"x":0.3,"y":0.2}
+                ]
             }
         </geometry>
     </geometry-prop>
@@ -833,8 +833,40 @@ Example:
 </region>
 ```
 
-Technical note: A `<region>` is in fact a `<resource restype="Region">`. But it is mandatory to use the 
+
+The circle and polygon are created with the following syntax:
+```json
+{
+    "status": "active",
+    "type": "circle",
+    "lineColor": "#ff1100",
+    "lineWidth": 5,
+    "points": [{"x":0.5,"y":0.3}],
+    "radius": {"x":0.1,"y":0.1}
+},
+{
+    "status": "active",
+    "type": "polygon",
+    "lineColor": "#ff1100",
+    "lineWidth": 5,
+    "points": [{"x": 0.4, "y": 0.6},
+               {"x": 0.5, "y": 0.9},
+               {"x": 0.8, "y": 0.9},
+               {"x": 0.7, "y": 0.6}]
+}
+```
+
+The underlying grid is a 0-1 normalized top left-anchored grid. The following coordinate system shows the three shapes
+that were defined above:
+![grid-for-geometry-prop](./assets/images/grid-for-geometry-prop.png)
+
+
+Technical notes: 
+ - A `<region>` is in fact a `<resource restype="Region">`. But it is mandatory to use the 
 shortcut, so that the XML file can be validated more precisely.
+ - In the SALSAH data, there is also a key named `original_index` in the JSON format of all three shapes, but it doesn't 
+   seem to have an influence on the shapes that TANGOH displays, so it can be omitted.  
+
 
 ### `<link>`
 `<link>` is a resource linking together several other resources of different classes. It must have the following 

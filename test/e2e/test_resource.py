@@ -84,7 +84,7 @@ class TestResource(unittest.TestCase):
         blue_thing = factory.get_resclass_type('anything:BlueThing')
         invalid_timestamps = ["1999-12-32T23:59:59+01:00", "1999-12-31T25:59:59+01:00", "1999-12-31T25:59:59"]
         for invalid_timestamp in invalid_timestamps:
-            with self.assertRaisesRegex(BaseError, "KNORA-ERROR.+Invalid datatype value literal"):
+            with self.assertRaisesRegex(BaseError, "Invalid datatype value literal"):
                 a_blue_thing = blue_thing(con=self.con,
                                           label='BlueThing',
                                           creation_date=invalid_timestamp,

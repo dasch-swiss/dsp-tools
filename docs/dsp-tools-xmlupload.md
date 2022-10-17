@@ -678,7 +678,7 @@ Example of a public simple text and a hidden complex text:
 The complex text above contains a link to the resource `obj_0003`, which is defined in the same XML file. 
 It also contains a link to  the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`, which already exists on the DSP server.
 
-For simple texts, it is not advised to add XML-"pretty-print" whitespaces after line breaks, because they will be taken 
+For simple texts, it is not advised to add XML-"pretty-print" whitespaces or line breaks, because they will be taken 
 into the text field as they are. 
 
 
@@ -842,7 +842,7 @@ The circle and polygon are created with the following syntax:
     "lineColor": "#ff1100",
     "lineWidth": 5,
     "points": [{"x":0.5,"y":0.3}],
-    "radius": {"x":0.1,"y":0.1}
+    "radius": {"x":0.1,"y":0.1}     // vector (0.1, 0.1)
 },
 {
     "status": "active",

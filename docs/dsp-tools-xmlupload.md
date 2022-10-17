@@ -207,12 +207,12 @@ A `<resource>` element contains all necessary information to create a resource. 
   resources; the ID is only used during the import process and later replaced by the IRI used internally by DSP 
 - `permissions` (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not 
   even view rights): a reference to a permission set; the permissions will be applied to the created resource 
-- `iri` (optional): a custom IRI, used when migrating existing resources 
-- `ark` (optional): a version 0 ARK, used when migrating existing resources from salsah.org to DSP. It is not possible 
-  to use `iri` and `ark` in the same resource. When `ark` is used, it overrides `iri`.
-- `creation_date` (optional): the creation date of the resource, used when migrating existing resources from salsah.org 
-  to DSP. It must be formatted according to the constraints of [xsd:dateTimeStamp](https://www.w3.org/TR/xmlschema11-2/#dateTimeStamp), 
-  which means that the timezone is required, e.g.: `2005-10-23T13:45:12.502951+02:00`
+- `iri` (optional): a custom IRI, used when migrating existing resources (DaSCH-internal only)
+- `ark` (optional): a version 0 ARK, used when migrating existing resources. It is not possible 
+  to use `iri` and `ark` in the same resource. When `ark` is used, it overrides `iri` (DaSCH-internal only).
+- `creation_date` (optional): the creation date of the resource, used when migrating existing resources
+  . It must be formatted according to the constraints of [xsd:dateTimeStamp](https://www.w3.org/TR/xmlschema11-2/#dateTimeStamp), 
+  which means that the timezone is required, e.g.: `2005-10-23T13:45:12.502951+02:00` (DaSCH-internal only)
 
 A complete `<resource>` element may look as follows:
 

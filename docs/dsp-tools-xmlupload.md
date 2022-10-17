@@ -653,16 +653,16 @@ Attributes:
 The `<text>` element has the following attributes:
 
 - `encoding`: either "utf8" or "xml" (required)
-    - `utf8`: The element describes a simple text without markup. The text is a simple UTF-8 string.
-    - `xml`: The element describes a complex text containing markup. It must follow the XML format as defined by the
+    - `utf8`: simple text without markup
+    - `xml`: complex text with markup. It must follow the XML format as defined by the
     [DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-apis/api-v2/xml-to-standoff-mapping/).
 - `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-There are two variants of text: Simple (UTF8) and complex (XML). Within a text property, multiple simple and 
-complex text values may be mixed. Both simple and complex text values can be used inside all `gui_element`s 
-that are defined in an ontology (`SimpleText`, `Richtext`, `Textarea`, see [here](dsp-tools-create-ontologies.md#textvalue)). 
-But typically, you would use UTF8 in a `SimpleText`, and XML in `Richtext` or `Textarea`.
+Within a text property, multiple simple (UTF8) and complex (XML) text values may be mixed.  
+Both simple and complex text values can be used inside all `gui_element`s that are defined in an ontology (`SimpleText`, 
+`Richtext`, `Textarea`, see [here](dsp-tools-create-ontologies.md#textvalue)). But typically, you would use UTF8 in a 
+`SimpleText`, and XML in `Richtext` or `Textarea`.
 
 Example of a public simple text and a hidden complex text:
 ```xml
@@ -675,11 +675,11 @@ Example of a public simple text and a hidden complex text:
 </text-prop>
 ```
 
-For simple texts, it is not advised to add XML-"pretty-print" whitespaces after line breaks, because they will be taken 
-into the text field as they are.  
+The complex text above contains a link to the resource `obj_0003`, which is defined in the same XML file. 
+It also contains a link to  the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`, which already exists on the DSP server.
 
-Complex texts can contain links to a resource. If the target is defined in the same XML file, it is identified by its 
-ID, in the format `IRI:ID:IRI`. If the target already exists on the DSP server, it is defined by its IRI.
+For simple texts, it is not advised to add XML-"pretty-print" whitespaces after line breaks, because they will be taken 
+into the text field as they are. 
 
 
 ### &lt;time-prop&gt;

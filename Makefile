@@ -38,7 +38,7 @@ docs-serve: ## serve docs for local viewing
 	mkdocs serve --dev-addr=0.0.0.0:7979
 
 .PHONY: install-requirements
-install-requirements: ## install requirements
+install-requirements: ## install Python dependencies from the diverse requirements.txt files
 	python3 -m pip install --upgrade pip
 	pip3 install -r requirements.txt
 	pip3 install -r docs/requirements.txt
@@ -50,25 +50,25 @@ install: ## install from source (runs setup.py)
 	pip3 install -e .
 
 .PHONY: test
-test: dsp-stack ## run all tests
+test: dsp-stack ## run all tests located in the "test" folder (intended for local usage)
 	-pytest test/
 	$(MAKE) stack-down
 
 .PHONY: test-no-stack
-test-no-stack: ## run tests without starting the stack (if a dsp-stack is already running)
+test-no-stack: ## run all tests located in the "test" folder, without starting the stack (intended for local usage)
 	pytest test/
 
 .PHONY: test-end-to-end
-test-end-to-end: dsp-stack ## run e2e tests
+test-end-to-end: dsp-stack ## run e2e tests (intended for local usage)
 	-pytest test/e2e/
 	$(MAKE) stack-down
 
 .PHONY: test-end-to-end-ci
-test-end-to-end-ci: dsp-stack ## run e2e tests on GitHub CI, where it isn't possible nor necessary to remove .tmp
+test-end-to-end-ci: dsp-stack ## run e2e tests (intended for GitHub CI, where it isn't possible nor necessary to remove .tmp)
 	pytest test/e2e/
 
 .PHONY: test-end-to-end-no-stack
-test-end-to-end-no-stack: ## run e2e tests without starting the dsp-stack (if a dsp-stack is already running)
+test-end-to-end-no-stack: ## run e2e tests without starting the dsp-stack (intended for local usage)
 	pytest test/e2e/
 
 .PHONY: test-unittests

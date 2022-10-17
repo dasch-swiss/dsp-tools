@@ -502,7 +502,8 @@ This object contains user definitions. A user has the following elements:
 - _projects_ (optional): List of projects the user belongs to. The project name has to be followed by a `:` and either 
   `member` or `admin`. This indicates if the new user has admin rights in the given project or is an ordinary
   user. `myproject:admin` would add the user as admin to the project `myproject`. The project defined in the same
-  ontology file can be omitted, so only `:admin` or `:member` is enough.
+  ontology file can be omitted, so only `:admin` or `:member` is enough. Note that in order to give a user `:admin` rights,
+  he also needs to be a `:member` of the project.
     - If _projects_ is omitted, the user won't be part in any project.
 - _status_ (optional): true (default) if the user is active, false if the user is deleted/inactive
 

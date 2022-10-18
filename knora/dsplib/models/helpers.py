@@ -424,27 +424,34 @@ class Context:
 
 class DateTimeStamp:
     """
-    Class to hold and process the last modification date of a ontology
+    Class to hold and process an xsd:dateTimeStamp
     """
     _dateTimeStamp: str
+    _validation_regex = r"^-?([1-9][0-9]{3,}|0[0-9]{3})" \
+                        r"-(0[1-9]|1[0-2])" \
+                        r"-(0[1-9]|[12][0-9]|3[01])" \
+                        r"T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.[0-9]+)?|(24:00:00(\.0+)?))" \
+                        r"(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))$"
 
     def __init__(self, val: Any):
         """
         The constructor works for different inputs:
-        - a string holding the modification date
-        - an instance of "LastModificationDate"
+        - a string
+        - an instance of "DateTimeStamp"
         - json-ld construct of the form { "@type": "xsd:dateTimeStamp", "@value": "date-str" }
-        :param val: datetimestamp as string, instance of "LastModificationDate" or json-ld construct
+        :param val: xsd:dateTimeStamp as string, instance of "DateTimeStamp" or json-ld construct
         """
         if isinstance(val, str):
+            if not re.search(self._validation_regex, val):
+                raise BaseError(f"Invalid xsd:dateTimeStamp: '{val}'")
             self._dateTimeStamp = val
         elif isinstance(val, DateTimeStamp):
             self._dateTimeStamp = str(val)
         else:
-            if val.get("@type") is not None and val.get("@type") == "xsd:dateTimeStamp":
+            if val.get("@type") == "xsd:dateTimeStamp" and re.search(self._validation_regex, str(val.get("@value"))):
                 self._dateTimeStamp = val["@value"]
             else:
-                raise BaseError("Invalid LastModificationDate")
+                raise BaseError(f"Invalid xsd:dateTimeStamp: '{val}'")
 
     def __eq__(self, other: Union[str, 'DateTimeStamp']) -> bool:
         if isinstance(other, str):

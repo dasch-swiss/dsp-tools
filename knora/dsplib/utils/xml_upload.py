@@ -24,7 +24,6 @@ from knora.dsplib.models.xmlpermission import XmlPermission
 from knora.dsplib.models.xmlproperty import XMLProperty
 from knora.dsplib.models.xmlresource import XMLResource
 from knora.dsplib.utils.shared import try_network_action, validate_xml_against_schema
-from knora.dsplib.utils.validation import validate_resource_creation_date
 
 
 def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
@@ -222,14 +221,13 @@ def _parse_xml_file(input_file: str) -> etree.ElementTree:
     return tree
 
 
-def _perform_deep_inspection(
+def _check_consistency_with_ontology(
     resources: list[XMLResource],
     resclass_name_2_type: dict[str, type],
     verbose: bool = False
 ) -> None:
     """
-    Inspects a list of resources more thoroughly than an XSD validation can do. Mainly, it checks if the resource types
-    and properties in the XML are consistent with the ontology.
+    Checks if the resource types and properties in the XML are consistent with the ontology.
 
     Args:
         resources: a list of parsed XMLResources
@@ -240,7 +238,7 @@ def _perform_deep_inspection(
         None if everything went well. Raises a BaseError if there is a problem.
     """
     if verbose:
-        print("Perform a deep inspection of your XML file...")
+        print("Check if the resource types and properties are consistent with the ontology...")
     knora_properties = resclass_name_2_type[resources[0].restype].knora_properties
 
     for resource in resources:
@@ -259,12 +257,6 @@ def _perform_deep_inspection(
                         f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)"
             )
 
-        # validate attribute 'creation_date' of <resource>
-        if resource.creation_date:
-            validate_resource_creation_date(resource.creation_date,
-                                            f"The resource '{resource.label}' (ID: {resource.id}) has an invalid "
-                                            f"creation date. Did you perhaps forget the timezone?")
-
         # check that the property types are consistent with the ontology
         resource_properties = resclass_name_2_type[resource.restype].properties.keys()
         for propname in [prop.name for prop in resource.properties]:
@@ -281,7 +273,7 @@ def _perform_deep_inspection(
                             f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)"
                 )
 
-    print("Deep inspection of your XML file successfully finished.")
+    print("Resource types and properties are consistent with the ontology.")
 
 
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
@@ -339,7 +331,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     resclass_name_2_type: dict[str, type] = {s: res_inst_factory.get_resclass_type(s) for s in res_inst_factory.get_resclass_names()}
 
     # check if the data in the XML is consistent with the ontology
-    _perform_deep_inspection(
+    _check_consistency_with_ontology(
         resources=resources,
         resclass_name_2_type=resclass_name_2_type,
         verbose=verbose

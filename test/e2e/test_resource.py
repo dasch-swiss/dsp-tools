@@ -2,7 +2,7 @@
 import unittest
 
 from knora.dsplib.models.connection import Connection
-from knora.dsplib.models.helpers import BaseError
+from knora.dsplib.models.helpers import DateTimeStamp
 from knora.dsplib.models.permission import PermissionValue, Permissions
 from knora.dsplib.models.resource import ResourceInstanceFactory
 from knora.dsplib.models.sipi import Sipi
@@ -31,7 +31,7 @@ class TestResource(unittest.TestCase):
 
         a_blue_thing = blue_thing(con=self.con,
                                   label='BlueThing',
-                                  creation_date='1999-12-31T23:59:59.9999999+01:00',
+                                  creation_date=DateTimeStamp('1999-12-31T23:59:59.9999999+01:00'),
                                   values={
                                       'anything:hasBoolean': True,
                                       'anything:hasColor': ['#ff0033', '#0077FF'],
@@ -53,7 +53,7 @@ class TestResource(unittest.TestCase):
         self.assertEqual(new_blue_thing.value("anything:hasBoolean"), True)
         self.assertEqual(new_blue_thing.value("anything:hasDecimal"), 3.14159)
         self.assertEqual(new_blue_thing.value("anything:hasText"), "Dies ist ein einfacher Text")
-        self.assertEqual(new_blue_thing.creation_date, "1999-12-31T23:59:59.9999999+01:00")
+        self.assertEqual(new_blue_thing.creation_date, DateTimeStamp("1999-12-31T23:59:59.9999999+01:00"))
 
         thing_picture = factory.get_resclass_type('anything:ThingPicture')
         sipi = Sipi('http://0.0.0.0:1024', self.con.get_token())
@@ -77,31 +77,6 @@ class TestResource(unittest.TestCase):
                 'anything:hasPictureTitle': make_value(value="A Thing Picture named Lena", permissions=res_perm)
             }
         ).create()
-
-
-    def test_creation_date(self) -> None:
-        factory = ResourceInstanceFactory(self.con, 'anything')
-        blue_thing = factory.get_resclass_type('anything:BlueThing')
-        invalid_timestamps = ["1999-12-32T23:59:59+01:00", "1999-12-31T25:59:59+01:00", "1999-12-31T25:59:59"]
-        for invalid_timestamp in invalid_timestamps:
-            with self.assertRaisesRegex(BaseError, "Invalid datatype value literal"):
-                a_blue_thing = blue_thing(con=self.con,
-                                          label='BlueThing',
-                                          creation_date=invalid_timestamp,
-                                          values={
-                                              'anything:hasBoolean': True,
-                                              'anything:hasColor': ['#ff0033', '#0077FF'],
-                                              'anything:hasDate': make_value(value='1833', comment='not verified!'),
-                                              'anything:hasDecimal': 3.14159,
-                                              'anything:hasInteger': "42",
-                                              'anything:hasTimeStamp': "2004-04-12T13:20:00Z",
-                                              'anything:hasInterval': [make_value(value="0.0:3.0", comment="first interval"),
-                                                                       make_value(value="3.5:3.7", comment="second interval")],
-                                              'anything:hasRichtext': KnoraStandoffXml("This is <em>bold</em> text."),
-                                              'anything:hasText': "Dies ist ein einfacher Text",
-                                              'anything:hasUri': 'http://test.com:65500/res'
-                                          })
-                a_blue_thing.create()
 
 
 if __name__ == '__main__':

@@ -9,7 +9,7 @@ from pystrict import strict
 
 from .bitstream import Bitstream
 from .connection import Connection
-from .helpers import OntoIri, Actions, BaseError, Cardinality, Context
+from .helpers import OntoIri, Actions, BaseError, Cardinality, Context, DateTimeStamp
 from .listnode import ListNode
 from .model import Model
 from .ontology import Ontology
@@ -71,7 +71,7 @@ class ResourceInstance(Model):
     _iri: Optional[str]
     _ark: Optional[str]
     _version_ark: Optional[str]
-    _creation_date: Optional[str]
+    _creation_date: Optional[DateTimeStamp]
     _label: Optional[str]
     _permissions: Optional[Permissions]
     _user_permission: Optional[PermissionValue]
@@ -83,7 +83,7 @@ class ResourceInstance(Model):
                  iri: Optional[str] = None,
                  ark: Optional[str] = None,
                  version_ark: Optional[str] = None,
-                 creation_date: Optional[str] = None,
+                 creation_date: Optional[DateTimeStamp] = None,
                  label: Optional[str] = None,
                  permissions: Optional[Permissions] = None,
                  user_permission: Optional[PermissionValue] = None,
@@ -185,7 +185,7 @@ class ResourceInstance(Model):
         return self._ark
 
     @property
-    def creation_date(self) -> str:
+    def creation_date(self) -> Optional[DateTimeStamp]:
         return self._creation_date
 
     @property

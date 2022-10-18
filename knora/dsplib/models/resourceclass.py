@@ -358,12 +358,12 @@ class ResourceClass(Model):
         returns a HasProperty-instance
 
     addProperty: Add a new property to the resource class
-        addProperty(property_id: str, cardinality: Cardinality, last_modification_date: LastModificationDate)
-        -> Optional[LastModificationDate]
+        addProperty(property_id: str, cardinality: Cardinality, last_modification_date: DateTimeStamp)
+        -> Optional[DateTimeStamp]
 
     updateProperty: Updates the cardinality parameters of the given property with the resource class
-        updateProperty(self, property_id: str, cardinality: Cardinality, last_modification_date: LastModificationDate)
-        -> Optional[LastModificationDate]
+        updateProperty(self, property_id: str, cardinality: Cardinality, last_modification_date: DateTimeStamp)
+        -> Optional[DateTimeStamp]
         Please note that the cardinality usually can only be changed to be *less* restrictive!
 
     create: Create a new resource class on the connected server

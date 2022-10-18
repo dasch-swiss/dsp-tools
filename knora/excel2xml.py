@@ -14,10 +14,9 @@ import regex
 from lxml import etree
 from lxml.builder import E
 
-from knora.dsplib.models.helpers import BaseError
+from knora.dsplib.models.helpers import BaseError, DateTimeStamp
 from knora.dsplib.models.propertyelement import PropertyElement
 from knora.dsplib.utils.shared import simplify_name, check_notna, validate_xml_against_schema
-from knora.dsplib.utils.validation import validate_resource_creation_date
 
 xml_namespace_map = {
     None: "https://dasch.swiss/schema",
@@ -399,9 +398,11 @@ def make_resource(
         warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
                       stacklevel=2)
     if creation_date:
-        validate_resource_creation_date(creation_date,
-                                        f"The resource '{label}' (ID: {id}) has an invalid creation date. Did you "
-                                        f"perhaps forget the timezone?")
+        try:
+            DateTimeStamp(creation_date)
+        except BaseError:
+            raise BaseError(f"The resource '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. Did "
+                            f"you perhaps forget the timezone?")
         kwargs["creation_date"] = creation_date
 
     resource_ = etree.Element(
@@ -1406,9 +1407,11 @@ def make_region(
         warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
                       stacklevel=2)
     if creation_date:
-        validate_resource_creation_date(creation_date,
-                                        f"The region '{label}' (ID: {id}) has an invalid creation date. Did you "
-                                        f"perhaps forget the timezone?")
+        try:
+            DateTimeStamp(creation_date)
+        except BaseError:
+            raise BaseError(f"The region '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. Did "
+                            f"you perhaps forget the timezone?")
         kwargs["creation_date"] = creation_date
 
     region_ = etree.Element(
@@ -1459,9 +1462,11 @@ def make_annotation(
         warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
                       stacklevel=2)
     if creation_date:
-        validate_resource_creation_date(creation_date,
-                                        f"The annotation '{label}' (ID: {id}) has an invalid creation date. Did you "
-                                        f"perhaps forget the timezone?")
+        try:
+            DateTimeStamp(creation_date)
+        except BaseError:
+            raise BaseError(f"The annotation '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. Did "
+                            f"you perhaps forget the timezone?")
         kwargs["creation_date"] = creation_date
 
     annotation_ = etree.Element(
@@ -1512,9 +1517,11 @@ def make_link(
         warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
                       stacklevel=2)
     if creation_date:
-        validate_resource_creation_date(creation_date,
-                                        f"The link '{label}' (ID: {id}) has an invalid creation date. Did you "
-                                        f"perhaps forget the timezone?")
+        try:
+            DateTimeStamp(creation_date)
+        except BaseError:
+            raise BaseError(f"The link '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. Did "
+                            f"you perhaps forget the timezone?")
         kwargs["creation_date"] = creation_date
 
     link_ = etree.Element(

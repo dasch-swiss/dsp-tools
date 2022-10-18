@@ -422,11 +422,11 @@ class Context:
             print(a[0] + ': "' + a[1].iri + '"')
 
 
-class LastModificationDate:
+class DateTimeStamp:
     """
     Class to hold and process the last modification date of a ontology
     """
-    _last_modification_date: str
+    _dateTimeStamp: str
 
     def __init__(self, val: Any):
         """
@@ -437,52 +437,52 @@ class LastModificationDate:
         :param val: datetimestamp as string, instance of "LastModificationDate" or json-ld construct
         """
         if isinstance(val, str):
-            self._last_modification_date = val
-        elif isinstance(val, LastModificationDate):
-            self._last_modification_date = str(val)
+            self._dateTimeStamp = val
+        elif isinstance(val, DateTimeStamp):
+            self._dateTimeStamp = str(val)
         else:
             if val.get("@type") is not None and val.get("@type") == "xsd:dateTimeStamp":
-                self._last_modification_date = val["@value"]
+                self._dateTimeStamp = val["@value"]
             else:
                 raise BaseError("Invalid LastModificationDate")
 
-    def __eq__(self, other: Union[str, 'LastModificationDate']) -> bool:
+    def __eq__(self, other: Union[str, 'DateTimeStamp']) -> bool:
         if isinstance(other, str):
-            other = LastModificationDate(other)
-        return self._last_modification_date == other._last_modification_date
+            other = DateTimeStamp(other)
+        return self._dateTimeStamp == other._dateTimeStamp
 
-    def __lt__(self, other: 'LastModificationDate') -> bool:
+    def __lt__(self, other: 'DateTimeStamp') -> bool:
         if isinstance(other, str):
-            other = LastModificationDate(other)
-        return self._last_modification_date < other._last_modification_date
+            other = DateTimeStamp(other)
+        return self._dateTimeStamp < other._dateTimeStamp
 
-    def __le__(self, other: 'LastModificationDate') -> bool:
+    def __le__(self, other: 'DateTimeStamp') -> bool:
         if isinstance(other, str):
-            other = LastModificationDate(other)
-        return self._last_modification_date <= other._last_modification_date
+            other = DateTimeStamp(other)
+        return self._dateTimeStamp <= other._dateTimeStamp
 
-    def __gt__(self, other: 'LastModificationDate') -> bool:
+    def __gt__(self, other: 'DateTimeStamp') -> bool:
         if isinstance(other, str):
-            other = LastModificationDate(other)
-        return self._last_modification_date > other._last_modification_date
+            other = DateTimeStamp(other)
+        return self._dateTimeStamp > other._dateTimeStamp
 
-    def __ge__(self, other: 'LastModificationDate') -> bool:
+    def __ge__(self, other: 'DateTimeStamp') -> bool:
         if isinstance(other, str):
-            other = LastModificationDate(other)
-        return self._last_modification_date >= other._last_modification_date
+            other = DateTimeStamp(other)
+        return self._dateTimeStamp >= other._dateTimeStamp
 
-    def __ne__(self, other: 'LastModificationDate') -> bool:
+    def __ne__(self, other: 'DateTimeStamp') -> bool:
         if isinstance(other, str):
-            other = LastModificationDate(other)
-        return self._last_modification_date != other._last_modification_date
+            other = DateTimeStamp(other)
+        return self._dateTimeStamp != other._dateTimeStamp
 
-    def __str__(self: 'LastModificationDate') -> Union[None, str]:
-        return self._last_modification_date
+    def __str__(self: 'DateTimeStamp') -> Union[None, str]:
+        return self._dateTimeStamp
 
     def toJsonObj(self):
         return {
             "@type": "xsd:dateTimeStamp",
-            "@value": self._last_modification_date
+            "@value": self._dateTimeStamp
         }
 
 

@@ -2,7 +2,7 @@
 import unittest
 
 from knora.dsplib.models.connection import Connection
-from knora.dsplib.models.helpers import LastModificationDate
+from knora.dsplib.models.helpers import DateTimeStamp
 from knora.dsplib.models.langstring import Languages, LangString
 from knora.dsplib.models.ontology import Ontology
 from knora.dsplib.models.propertyclass import PropertyClass
@@ -14,7 +14,7 @@ class TestPropertyClass(unittest.TestCase):
     onto_label = 'propclass_test_ontology'
 
     onto: Ontology
-    last_modification_date: LastModificationDate
+    last_modification_date: DateTimeStamp
     con: Connection
 
     name = 'MyPropClassName'

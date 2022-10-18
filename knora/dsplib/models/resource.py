@@ -28,6 +28,8 @@ class KnoraStandoffXmlEncoder(json.JSONEncoder):
             return '<?xml version="1.0" encoding="UTF-8"?>\n<text>' + str(obj) + '</text>'
         elif isinstance(obj, OntoIri):
             return obj.iri + "#" if obj.hashtag else ""
+        elif isinstance(obj, DateTimeStamp):
+            return str(obj)
         return json.JSONEncoder.default(self, obj)
 
 
@@ -293,6 +295,7 @@ class ResourceInstance(Model):
                     tmp[property_name] = value.toJsonLdObj(action)
 
             tmp['@context'] = self.context
+
             if self._creation_date:
                 tmp['knora-api:creationDate'] = {
                     '@type': 'xsd:dateTimeStamp',

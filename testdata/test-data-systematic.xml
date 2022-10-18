@@ -159,7 +159,7 @@
               permissions="res-default">
         <text-prop name=":hasText">
             <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
-            <text permissions="prop-restricted" encoding="utf8">Nochmals ein einfacher Text</text>
+            <text permissions="prop-restricted" encoding="xml">Ein XML-formatierter Text <strong>mit Markup</strong></text>
         </text-prop>
         <text-prop name=":hasRichtext">
             <text encoding="xml">
@@ -294,7 +294,7 @@
         </text-prop>
     </resource>
 
-    <region label="Region in image"
+    <region label="Polygon in image"
             id="region_1"
             permissions="res-restricted"
             creation_date="1999-12-31T23:59:59.9999999+01:00">
@@ -308,20 +308,19 @@
             <geometry permissions="prop-default">
                 {
                     "status": "active",
-                    "type": "rectangle",
-                    "lineColor": "#ff3333",
-                    "lineWidth": 2,
-                    "points": [
-                        {"x":0.080985915492957750,"y":0.16741071428571427},
-                        {"x":0.739436619718309900,"y":0.72991071428571430}
-                    ],
-                    "original_index": 0
+                    "type": "polygon",
+                    "lineColor": "#ff1100",
+                    "lineWidth": 5,
+                    "points": [{"x": 0.4, "y": 0.6},
+                               {"x": 0.5, "y": 0.9},
+                               {"x": 0.8, "y": 0.9},
+                               {"x": 0.7, "y": 0.6}]
                 }
             </geometry>
         </geometry-prop>
         <text-prop name="hasComment">
             <text encoding="xml" permissions="prop-default">
-                This is a rectangle-formed region of interest of an image. It is also displayed as Annotation.
+                This is a polygon-formed region of interest of an image. It is also displayed as Annotation.
             </text>
         </text-prop>
     </region>
@@ -663,7 +662,7 @@
         </text-prop>
     </resource>
 
-    <region label="Another region in image"
+    <region label="Rectangle in image"
             id="region_2"
             permissions="res-restricted">
         <text-prop name="hasComment">
@@ -679,13 +678,40 @@
                 {
                     "status": "active",
                     "type": "rectangle",
-                    "lineColor": "#ff3333",
-                    "lineWidth": 2,
+                    "lineColor": "#ff1100",
+                    "lineWidth": 5,
                     "points": [
-                        {"x":0.080985915492957750,"y":0.16741071428571427},
-                        {"x":0.739436619718309900,"y":0.72991071428571430}
-                    ],
-                    "original_index": 0
+                        {"x":0.1,"y":0.7},
+                        {"x":0.3,"y":0.2}
+                    ]
+                }
+            </geometry>
+        </geometry-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr permissions="prop-default">image_thing_0</resptr>
+        </resptr-prop>
+        <color-prop name="hasColor">
+            <color permissions="prop-restricted">#5d1f1e</color>
+        </color-prop>
+    </region>
+
+    <region label="Circle in image"
+            id="region_3"
+            permissions="res-restricted">
+        <text-prop name="hasComment">
+            <text encoding="xml" permissions="prop-default">
+                This is a circle-formed region of interest of an image. It is also displayed as Annotation.
+            </text>
+        </text-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry permissions="prop-default">
+                {
+                    "status": "active",
+                    "type": "circle",
+                    "lineColor": "#ff1100",
+                    "lineWidth": 5,
+                    "points": [{"x":0.5,"y":0.3}],
+                    "radius": {"x":0.1,"y":0.1}
                 }
             </geometry>
         </geometry-prop>

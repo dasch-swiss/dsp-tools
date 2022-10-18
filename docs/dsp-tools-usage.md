@@ -89,18 +89,32 @@ dsp-tools xmlupload [options] xml_data_file.xml
 
 The following options are available:
 
-- `-s` | `--server` _server_: URL of the DSP server (default: 0.0.0.0:3333)
-- `-u` | `--user` _username_: username used for authentication with the DSP API (default: root@example.com)
-- `-p` | `--password` _password_: password used for authentication with the DSP API (default: test)
-- `-V` | `--validate`: If set, only the validation of the XML file is performed.
-- `-i` | `--imgdir` _dirpath_: path to the directory where the bitstream objects are stored (default: .)
-- `-S` | `--sipi` _SIPIserver_: URL of the SIPI IIIF server (default: http://0.0.0.0:1024)
-- `-I` | `--incremental` : If set, IRIs instead of internal IDs are expected as reference to already existing resources on DSP
-- `-v` | `--verbose`: If set, more information about the uploaded resources is printed to the console.
+- `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
+- `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP API 
+- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP API
+- `-i` | `--imgdir` (optional, default: `.`): path to the directory where the bitstream objects are stored
+- `-S` | `--sipi` (optional, default: `http://0.0.0.0:1024`): URL of the SIPI IIIF server 
+- `-I` | `--incremental` (optional) : If set, IRIs instead of internal IDs are expected as reference to already existing resources on DSP
+- `-V` | `--validate` (optional): If set, the XML file will only be validated, but not uploaded.
+- `-v` | `--verbose` (optional): If set, more information about the process is printed to the console.
 
-The command is used to upload data defined in an XML file onto a DSP server. The following example shows how to upload
-data from the XML file `xml_data_file.xml` to the DSP server `https://admin.dasch.swiss`:
+The command is used to upload data defined in an XML file onto a DSP server. The defaults are intended for local 
+testing: 
+```bash
+dsp-tools xmlupload xml_data_file.xml
+```
 
+will upload the XML file on `localhost` for local viewing. It assumes that DSP-API has been started up with the default 
+settings, and that potential `<bitstream>` tags contain file paths that are relative to the working directory from where 
+`dsp-tools` is called from.
+
+When uploading data to a remote DSP server, there are three relevant URLs you should know about:
+
+ - Subdomain `admin` stands for the DSP-APP frontend that you look at in your browser
+ - Subdomain `api` stands for the DSP-API (where dsp-tools sends its data to) 
+ - Subdomain `iiif` stands for the SIPI-server interface (where dsp-tools sends the multimedia files to)
+
+This means that for uploading data to a DSP server on the domain `dasch.swiss`, you have to type the following:
 ```bash
 dsp-tools xmlupload -s https://api.dasch.swiss -u root@example.com -p test -S https://iiif.dasch.swiss xml_data_file.xml
 ```

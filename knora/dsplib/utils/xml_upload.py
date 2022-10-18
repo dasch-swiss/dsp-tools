@@ -221,6 +221,61 @@ def _parse_xml_file(input_file: str) -> etree.ElementTree:
     return tree
 
 
+def _check_consistency_with_ontology(
+    resources: list[XMLResource],
+    resclass_name_2_type: dict[str, type],
+    verbose: bool = False
+) -> None:
+    """
+    Checks if the resource types and properties in the XML are consistent with the ontology.
+
+    Args:
+        resources: a list of parsed XMLResources
+        resclass_name_2_type: infos about the resource classes that exist on the DSP server for the current ontology
+        verbose: verbose switch
+
+    Returns:
+        None if everything went well. Raises a BaseError if there is a problem.
+    """
+    if verbose:
+        print("Check if the resource types and properties are consistent with the ontology...")
+    knora_properties = resclass_name_2_type[resources[0].restype].knora_properties
+
+    for resource in resources:
+
+        # check that the resource type is consistent with the ontology
+        if resource.restype not in resclass_name_2_type:
+            raise BaseError(
+                f"=========================\n"
+                f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid resource type "
+                f"'{resource.restype}'. Is your syntax correct? Remember the rules:\n"
+                f" - DSP-API internals: <resource restype=\"restype\">         "
+                        f"(will be interpreted as 'knora-api:restype')\n"
+                f" - current ontology:  <resource restype=\":restype\">        "
+                        f"('restype' must be defined in the 'resources' section of your ontology)\n"
+                f" - other ontology:    <resource restype=\"other:restype\">   "
+                        f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)"
+            )
+
+        # check that the property types are consistent with the ontology
+        resource_properties = resclass_name_2_type[resource.restype].properties.keys()
+        for propname in [prop.name for prop in resource.properties]:
+            if propname not in knora_properties and propname not in resource_properties:
+                raise BaseError(
+                    f"=========================\n"
+                    f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid property '{propname}'. "
+                    f"Is your syntax correct? Remember the rules:\n"
+                    f" - DSP-API internals: <text-prop name=\"propname\">         "
+                            f"(will be interpreted as 'knora-api:propname')\n"
+                    f" - current ontology:  <text-prop name=\":propname\">        "
+                            f"('propname' must be defined in the 'properties' section of your ontology)\n"
+                    f" - other ontology:    <text-prop name=\"other:propname\">   "
+                            f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)"
+                )
+
+    print("Resource types and properties are consistent with the ontology.")
+
+
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
                incremental: bool) -> bool:
     """
@@ -256,11 +311,11 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
                                       action=lambda: ProjectContext(con=con))
     sipi_server = Sipi(sipi, con.get_token())
 
+    # parse the XML file
     tree = _parse_xml_file(input_file)
     root = tree.getroot()
     default_ontology = root.attrib['default-ontology']
     shortcode = root.attrib['shortcode']
-
     resources: list[XMLResource] = []
     permissions: dict[str, XmlPermission] = {}
     for child in root:
@@ -271,35 +326,16 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             resources.append(XMLResource(child, default_ontology))
 
     # get the project information and project ontology from the server
-    res_inst_factory = ResourceInstanceFactory(con, shortcode)
+    res_inst_factory = try_network_action("", lambda: ResourceInstanceFactory(con, shortcode))
     permissions_lookup: dict[str, Permissions] = {s: perm.get_permission_instance() for s, perm in permissions.items()}
     resclass_name_2_type: dict[str, type] = {s: res_inst_factory.get_resclass_type(s) for s in res_inst_factory.get_resclass_names()}
 
     # check if the data in the XML is consistent with the ontology
-    if verbose:
-        print("Check if the resource types and properties in your XML are consistent with the ontology...")
-    knora_properties = resclass_name_2_type[resources[0].restype].knora_properties
-    for resource in resources:
-        if resource.restype not in resclass_name_2_type:
-            print(f"=========================\n"
-                  f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid resource type "
-                  f"'{resource.restype}'. Is your syntax correct? Remember the rules:\n"
-                  f" - DSP-API internals: <resource restype=\"restype\">         (will be interpreted as 'knora-api:restype')\n"
-                  f" - current ontology:  <resource restype=\":restype\">        ('restype' must be defined in the 'resources' section of your ontology)\n"
-                  f" - other ontology:    <resource restype=\"other:restype\">   (not yet implemented: 'other' must be defined in the same JSON project file than your ontology)")
-            exit(1)
-        resource_properties = resclass_name_2_type[resource.restype].properties.keys()
-        for propname in [prop.name for prop in resource.properties]:
-            if propname not in knora_properties and propname not in resource_properties:
-                print(f"=========================\n"
-                      f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid property '{propname}'. "
-                      f"Is your syntax correct? Remember the rules:\n"
-                      f" - DSP-API internals: <text-prop name=\"propname\">         (will be interpreted as 'knora-api:propname')\n"
-                      f" - current ontology:  <text-prop name=\":propname\">        ('propname' must be defined in the 'properties' section of your ontology)\n"
-                      f" - other ontology:    <text-prop name=\"other:propname\">   (not yet implemented: 'other' must be defined in the same JSON project file than your ontology)")
-                exit(1)
-
-    print("The resource types and properties in your XML are consistent with the ontology.")
+    _check_consistency_with_ontology(
+        resources=resources,
+        resclass_name_2_type=resclass_name_2_type,
+        verbose=verbose
+    )
 
     # temporarily remove circular references, but only if not an incremental upload
     if not incremental:
@@ -308,9 +344,9 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         stashed_xml_texts = dict()
         stashed_resptr_props = dict()
 
+    # upload all resources
     id2iri_mapping: dict[str, str] = {}
     failed_uploads: list[str] = []
-
     try:
         id2iri_mapping, failed_uploads = _upload_resources(resources, imgdir, sipi_server, permissions_lookup,
                                                            resclass_name_2_type, id2iri_mapping, con, failed_uploads)
@@ -423,6 +459,7 @@ def _upload_resources(
                     label=resource.label,
                     iri=resource_iri,
                     permissions=permissions_lookup.get(resource.permissions),
+                    creation_date=resource.creation_date,
                     bitstream=resource_bitstream,
                     values=properties
                 ),

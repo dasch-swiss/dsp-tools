@@ -7,7 +7,7 @@ from urllib.parse import quote_plus
 from pystrict import strict
 
 from .connection import Connection
-from .helpers import Actions, BaseError, Context, LastModificationDate, OntoIri, WithId
+from .helpers import Actions, BaseError, Context, DateTimeStamp, OntoIri, WithId
 from .model import Model
 from .project import Project
 from .propertyclass import PropertyClass
@@ -64,7 +64,7 @@ class Ontology(Model):
     _name: str
     _label: str
     _comment: str
-    _lastModificationDate: LastModificationDate
+    _lastModificationDate: DateTimeStamp
     _resource_classes: list[ResourceClass]
     _property_classes: list[PropertyClass]
     _context: Context
@@ -77,7 +77,7 @@ class Ontology(Model):
                  name: Optional[str] = None,
                  label: Optional[str] = None,
                  comment: Optional[str] = None,
-                 lastModificationDate: Optional[Union[str, LastModificationDate]] = None,
+                 lastModificationDate: Optional[Union[str, DateTimeStamp]] = None,
                  resource_classes: list[ResourceClass] = [],
                  property_classes: list[PropertyClass] = [],
                  context: Context = None):
@@ -92,10 +92,10 @@ class Ontology(Model):
         self._comment = comment
         if lastModificationDate is None:
             self._lastModificationDate = None
-        elif isinstance(lastModificationDate, LastModificationDate):
+        elif isinstance(lastModificationDate, DateTimeStamp):
             self._lastModificationDate = lastModificationDate
         else:
-            self._lastModificationDate = LastModificationDate(lastModificationDate)
+            self._lastModificationDate = DateTimeStamp(lastModificationDate)
         self._resource_classes = resource_classes
         self._property_classes = property_classes
         self._context = context if context is not None else Context()
@@ -144,12 +144,12 @@ class Ontology(Model):
         self._changed.add('comment')
 
     @property
-    def lastModificationDate(self) -> LastModificationDate:
+    def lastModificationDate(self) -> DateTimeStamp:
         return self._lastModificationDate
 
     @lastModificationDate.setter
-    def lastModificationDate(self, value: Union[str, LastModificationDate]):
-        self._lastModificationDate = LastModificationDate(value)
+    def lastModificationDate(self, value: Union[str, DateTimeStamp]):
+        self._lastModificationDate = DateTimeStamp(value)
 
     @property
     def resource_classes(self) -> list[ResourceClass]:
@@ -250,7 +250,7 @@ class Ontology(Model):
         project = json_obj[knora_api + ':attachedToProject']['@id']
         tmp = json_obj.get(knora_api + ':lastModificationDate')
         if tmp is not None:
-            last_modification_date = LastModificationDate(json_obj.get(knora_api + ':lastModificationDate'))
+            last_modification_date = DateTimeStamp(json_obj.get(knora_api + ':lastModificationDate'))
         else:
             last_modification_date = None
         resource_classes = None
@@ -303,7 +303,7 @@ class Ontology(Model):
         project = json_obj[knora_api + ':attachedToProject']['@id']
         tmp = json_obj.get(knora_api + ':lastModificationDate')
         if tmp is not None:
-            last_modification_date = LastModificationDate(json_obj.get(knora_api + ':lastModificationDate'))
+            last_modification_date = DateTimeStamp(json_obj.get(knora_api + ':lastModificationDate'))
         else:
             last_modification_date = None
         label = json_obj.get(rdfs + ':label')

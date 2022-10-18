@@ -7,7 +7,7 @@ from urllib.parse import quote_plus
 from pystrict import strict
 
 from .connection import Connection
-from .helpers import Actions, BaseError, Context, Cardinality, LastModificationDate
+from .helpers import Actions, BaseError, Context, Cardinality, DateTimeStamp
 from .langstring import Languages, LangString
 from .model import Model
 from ..utils.set_encoder import SetEncoder
@@ -187,7 +187,7 @@ class HasProperty(Model):
                                 is_inherited=is_inherited,
                                 ptype=ptype)
 
-    def toJsonObj(self, lastModificationDate: LastModificationDate, action: Actions) -> Any:
+    def toJsonObj(self, lastModificationDate: DateTimeStamp, action: Actions) -> Any:
         if self._cardinality is None:
             raise BaseError("There must be a cardinality given!")
         tmp = {}
@@ -240,7 +240,7 @@ class HasProperty(Model):
                 tmp["@graph"][0]["rdfs:subClassOf"]["salsah-gui:guiOrder"] = self._gui_order
         return tmp
 
-    def create(self, last_modification_date: LastModificationDate) -> Tuple[LastModificationDate, 'ResourceClass']:
+    def create(self, last_modification_date: DateTimeStamp) -> Tuple[DateTimeStamp, 'ResourceClass']:
         if self._ontology_id is None:
             raise BaseError("Ontology id required")
         if self._property_id is None:
@@ -251,10 +251,10 @@ class HasProperty(Model):
         jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=2)
         result = self._con.post(HasProperty.ROUTE, jsondata)
-        last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
+        last_modification_date = DateTimeStamp(result['knora-api:lastModificationDate'])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result['@graph'])
 
-    def update(self, last_modification_date: LastModificationDate) -> Tuple[LastModificationDate, 'ResourceClass']:
+    def update(self, last_modification_date: DateTimeStamp) -> Tuple[DateTimeStamp, 'ResourceClass']:
         if self._ontology_id is None:
             raise BaseError("Ontology id required")
         if self._property_id is None:
@@ -264,11 +264,11 @@ class HasProperty(Model):
         jsonobj = self.toJsonObj(last_modification_date, Actions.Update)
         jsondata = json.dumps(jsonobj, indent=4, cls=SetEncoder)
         result = self._con.put(HasProperty.ROUTE, jsondata)
-        last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
+        last_modification_date = DateTimeStamp(result['knora-api:lastModificationDate'])
         # TODO: self._changed = str()
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result['@graph'])
 
-    def delete(self, last_modification_date: LastModificationDate) -> LastModificationDate:
+    def delete(self, last_modification_date: DateTimeStamp) -> DateTimeStamp:
         raise BaseError("Cannot remove a single property from a class!")
         # ToDo: Check with Ben if we could add this feature...
 
@@ -358,12 +358,12 @@ class ResourceClass(Model):
         returns a HasProperty-instance
 
     addProperty: Add a new property to the resource class
-        addProperty(property_id: str, cardinality: Cardinality, last_modification_date: LastModificationDate)
-        -> Optional[LastModificationDate]
+        addProperty(property_id: str, cardinality: Cardinality, last_modification_date: DateTimeStamp)
+        -> Optional[DateTimeStamp]
 
     updateProperty: Updates the cardinality parameters of the given property with the resource class
-        updateProperty(self, property_id: str, cardinality: Cardinality, last_modification_date: LastModificationDate)
-        -> Optional[LastModificationDate]
+        updateProperty(self, property_id: str, cardinality: Cardinality, last_modification_date: DateTimeStamp)
+        -> Optional[DateTimeStamp]
         Please note that the cardinality usually can only be changed to be *less* restrictive!
 
     create: Create a new resource class on the connected server
@@ -565,11 +565,11 @@ class ResourceClass(Model):
             return self._has_properties.get(self._context.get_prefixed_iri(property_id))
 
     def addProperty(self,
-                    last_modification_date: LastModificationDate,
+                    last_modification_date: DateTimeStamp,
                     property_id: str,
                     cardinality: Cardinality,
                     gui_order: Optional[int] = None,
-                    ) -> LastModificationDate:
+                    ) -> DateTimeStamp:
         if self._has_properties.get(property_id) is None:
             latest_modification_date, resclass = HasProperty(con=self._con,
                                                              context=self._context,
@@ -587,11 +587,11 @@ class ResourceClass(Model):
             raise BaseError("Property already has cardinality in this class! " + property_id)
 
     def updateProperty(self,
-                       last_modification_date: LastModificationDate,
+                       last_modification_date: DateTimeStamp,
                        property_id: str,
                        cardinality: Optional[Cardinality],
                        gui_order: Optional[int] = None,
-                       ) -> Optional[LastModificationDate]:
+                       ) -> Optional[DateTimeStamp]:
         property_id = self._context.get_prefixed_iri(property_id)
         if self._has_properties.get(property_id) is not None:
             has_properties = self._has_properties[property_id]
@@ -669,7 +669,7 @@ class ResourceClass(Model):
                    comment=comment,
                    has_properties=has_properties)
 
-    def toJsonObj(self, lastModificationDate: LastModificationDate, action: Actions, what: Optional[str] = None) -> Any:
+    def toJsonObj(self, lastModificationDate: DateTimeStamp, action: Actions, what: Optional[str] = None) -> Any:
 
         def resolve_resref(resref: str):
             tmp = resref.split(':')
@@ -736,14 +736,14 @@ class ResourceClass(Model):
                     tmp['@graph'][0]['rdfs:comment'] = self._comment.toJsonLdObj()
         return tmp
 
-    def create(self, last_modification_date: LastModificationDate) -> Tuple[LastModificationDate, 'ResourceClass']:
+    def create(self, last_modification_date: DateTimeStamp) -> Tuple[DateTimeStamp, 'ResourceClass']:
         jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
         result = self._con.post(ResourceClass.ROUTE, jsondata)
-        last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
+        last_modification_date = DateTimeStamp(result['knora-api:lastModificationDate'])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result['@graph'])
 
-    def update(self, last_modification_date: LastModificationDate) -> Tuple[LastModificationDate, 'ResourceClass']:
+    def update(self, last_modification_date: DateTimeStamp) -> Tuple[DateTimeStamp, 'ResourceClass']:
         #
         # Note: Knora is able to change only one thing per call, either label or comment!
         #
@@ -753,23 +753,23 @@ class ResourceClass(Model):
             jsonobj = self.toJsonObj(last_modification_date, Actions.Update, 'label')
             jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
             result = self._con.put(ResourceClass.ROUTE, jsondata)
-            last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
+            last_modification_date = DateTimeStamp(result['knora-api:lastModificationDate'])
             something_changed = True
         if 'comment' in self._changed:
             jsonobj = self.toJsonObj(last_modification_date, Actions.Update, 'comment')
             jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
             result = self._con.put(ResourceClass.ROUTE, jsondata)
-            last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
+            last_modification_date = DateTimeStamp(result['knora-api:lastModificationDate'])
             something_changed = True
         if something_changed:
             return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result['@graph'])
         else:
             return last_modification_date, self
 
-    def delete(self, last_modification_date: LastModificationDate) -> LastModificationDate:
+    def delete(self, last_modification_date: DateTimeStamp) -> DateTimeStamp:
         result = self._con.delete(
             ResourceClass.ROUTE + '/' + quote_plus(self._id) + '?lastModificationDate=' + str(last_modification_date))
-        return LastModificationDate(result['knora-api:lastModificationDate'])
+        return DateTimeStamp(result['knora-api:lastModificationDate'])
 
     def createDefinitionFileObj(self, context: Context, shortname: str, skiplist: list[str]):
         resource = {

@@ -24,7 +24,7 @@
         <allow group="Creator">CR</allow>
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
-    <resource label="Homer" restype=":Person" id="person_0" permissions="res-default">
+    <resource label="Homer" restype=":Person" id="person_0" permissions="res-default" creation_date="1999-12-31T23:59:59.9999999+01:00">
         <text-prop name=":hasName">
             <text permissions="prop-default" encoding="utf8">Homer</text>
             <text permissions="prop-default" encoding="utf8">Ὅμηρος</text>
@@ -67,16 +67,22 @@
             <resptr permissions="prop-default">test_thing_1</resptr>
         </resptr-prop>
     </resource>
-    <annotation label="Annotation to Testthing" id="annotation_1" permissions="res-default">
+    <region label="Region of img_obj_6" id="region_0" permissions="res-restricted" iri="http://rdfh.ch/4123/54SYvWF0QUW6a">
         <text-prop name="hasComment">
-            <text permissions="prop-default" encoding="utf8">This is an annotation to Testthing.</text>
-            <text permissions="prop-default" encoding="utf8">Second comment</text>
+            <text permissions="prop-restricted" encoding="utf8">This is an annotation to Testthing.</text>
+            <text permissions="prop-restricted" encoding="utf8">Second comment</text>
         </text-prop>
-        <resptr-prop name="isAnnotationOf">
-            <resptr permissions="prop-default">test_thing_0</resptr>
+        <color-prop name="hasColor">
+            <color permissions="prop-restricted">#5d1f1e</color>
+        </color-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry permissions="prop-restricted">{"type": "rectangle", "lineColor": "#ff3333", "lineWidth": 2, "points": [{"x": 0.08, "y": 0.16}, {"x": 0.73, "y": 0.72}], "original_index": 0}</geometry>
+        </geometry-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr permissions="prop-restricted">img_obj_6</resptr>
         </resptr-prop>
-    </annotation>
-    <resource label="First Testthing" restype=":TestThing" id="test_thing_1" permissions="res-default" iri="http://rdfh.ch/4123/54SYvWF0QUW6d7ClGg6ZIw">
+    </region>
+    <resource label="First Testthing" restype=":TestThing" id="test_thing_1" permissions="res-default" iri="http://rdfh.ch/4123/54SYvWF0QUW6d">
         <bitstream permissions="prop-default">testdata/bitstreams/test.jpg</bitstream>
         <text-prop name=":hasText">
             <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
@@ -114,4 +120,13 @@
             <integer permissions="prop-default">4711</integer>
         </integer-prop>
     </resource>
+    <link label="Link between person_0 and img_obj_6" id="link_thing_0" permissions="res-default" ark="ark:/72163/4123-31ec6eab334-a.202280">
+        <text-prop name="hasComment">
+            <text permissions="prop-default" encoding="utf8">This is a link between Homer and Iliad Prooem</text>
+        </text-prop>
+        <resptr-prop name="hasLinkTo">
+            <resptr permissions="prop-default">person_0</resptr>
+            <resptr permissions="prop-default">img_obj_6</resptr>
+        </resptr-prop>
+    </link>
 </knora>

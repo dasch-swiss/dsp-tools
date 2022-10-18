@@ -6,7 +6,7 @@ from urllib.parse import quote_plus
 from pystrict import strict
 
 from .connection import Connection
-from .helpers import Actions, BaseError, Context, LastModificationDate, WithId
+from .helpers import Actions, BaseError, Context, DateTimeStamp, WithId
 from .langstring import Languages, LangString
 from .listnode import ListNode
 from .model import Model
@@ -301,7 +301,7 @@ class PropertyClass(Model):
                    editable=editable,
                    linkvalue=linkvalue)
 
-    def toJsonObj(self, lastModificationDate: LastModificationDate, action: Actions, what: Optional[str] = None) -> Any:
+    def toJsonObj(self, lastModificationDate: DateTimeStamp, action: Actions, what: Optional[str] = None) -> Any:
 
         def resolve_propref(resref: str):
             tmp = resref.split(':')
@@ -379,14 +379,14 @@ class PropertyClass(Model):
 
         return tmp
 
-    def create(self, last_modification_date: LastModificationDate) -> Tuple[LastModificationDate, 'PropertyClass']:
+    def create(self, last_modification_date: DateTimeStamp) -> Tuple[DateTimeStamp, 'PropertyClass']:
         jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=2)
         result = self._con.post(PropertyClass.ROUTE, jsondata)
-        last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
+        last_modification_date = DateTimeStamp(result['knora-api:lastModificationDate'])
         return last_modification_date, PropertyClass.fromJsonObj(self._con, self._context, result['@graph'])
 
-    def update(self, last_modification_date: LastModificationDate) -> Tuple[LastModificationDate, 'ResourceClass']:
+    def update(self, last_modification_date: DateTimeStamp) -> Tuple[DateTimeStamp, 'ResourceClass']:
         #
         # Note: Knora is able to change only one thing per call, either label or comment!
         #
@@ -396,23 +396,23 @@ class PropertyClass(Model):
             jsonobj = self.toJsonObj(last_modification_date, Actions.Update, 'label')
             jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
             result = self._con.put(PropertyClass.ROUTE, jsondata)
-            last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
+            last_modification_date = DateTimeStamp(result['knora-api:lastModificationDate'])
             something_changed = True
         if 'comment' in self._changed:
             jsonobj = self.toJsonObj(last_modification_date, Actions.Update, 'comment')
             jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
             result = self._con.put(PropertyClass.ROUTE, jsondata)
-            last_modification_date = LastModificationDate(result['knora-api:lastModificationDate'])
+            last_modification_date = DateTimeStamp(result['knora-api:lastModificationDate'])
             something_changed = True
         if something_changed:
             return last_modification_date, PropertyClass.fromJsonObj(self._con, self._context, result['@graph'])
         else:
             return last_modification_date, self
 
-    def delete(self, last_modification_date: LastModificationDate) -> LastModificationDate:
+    def delete(self, last_modification_date: DateTimeStamp) -> DateTimeStamp:
         result = self._con.delete(PropertyClass.ROUTE + '/' + quote_plus(self._id) + '?lastModificationDate=' + str(
             last_modification_date))
-        return LastModificationDate(result['knora-api:lastModificationDate'])
+        return DateTimeStamp(result['knora-api:lastModificationDate'])
 
     def createDefinitionFileObj(self, context: Context, shortname: str):
         """

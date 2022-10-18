@@ -9,7 +9,7 @@ from pystrict import strict
 
 from .bitstream import Bitstream
 from .connection import Connection
-from .helpers import OntoIri, Actions, BaseError, Cardinality, Context
+from .helpers import OntoIri, Actions, BaseError, Cardinality, Context, DateTimeStamp
 from .listnode import ListNode
 from .model import Model
 from .ontology import Ontology
@@ -28,6 +28,8 @@ class KnoraStandoffXmlEncoder(json.JSONEncoder):
             return '<?xml version="1.0" encoding="UTF-8"?>\n<text>' + str(obj) + '</text>'
         elif isinstance(obj, OntoIri):
             return obj.iri + "#" if obj.hashtag else ""
+        elif isinstance(obj, DateTimeStamp):
+            return str(obj)
         return json.JSONEncoder.default(self, obj)
 
 
@@ -71,6 +73,7 @@ class ResourceInstance(Model):
     _iri: Optional[str]
     _ark: Optional[str]
     _version_ark: Optional[str]
+    _creation_date: Optional[DateTimeStamp]
     _label: Optional[str]
     _permissions: Optional[Permissions]
     _user_permission: Optional[PermissionValue]
@@ -82,6 +85,7 @@ class ResourceInstance(Model):
                  iri: Optional[str] = None,
                  ark: Optional[str] = None,
                  version_ark: Optional[str] = None,
+                 creation_date: Optional[DateTimeStamp] = None,
                  label: Optional[str] = None,
                  permissions: Optional[Permissions] = None,
                  user_permission: Optional[PermissionValue] = None,
@@ -93,6 +97,7 @@ class ResourceInstance(Model):
         self._iri = iri
         self._ark = ark
         self._version_ark = version_ark
+        self._creation_date = creation_date
         self._label = label
         self._permissions = permissions
         self._user_permission = user_permission
@@ -180,6 +185,10 @@ class ResourceInstance(Model):
     @property
     def ark(self) -> str:
         return self._ark
+
+    @property
+    def creation_date(self) -> Optional[DateTimeStamp]:
+        return self._creation_date
 
     @property
     def vark(self) -> str:
@@ -286,6 +295,12 @@ class ResourceInstance(Model):
                     tmp[property_name] = value.toJsonLdObj(action)
 
             tmp['@context'] = self.context
+
+            if self._creation_date:
+                tmp['knora-api:creationDate'] = {
+                    '@type': 'xsd:dateTimeStamp',
+                    '@value': self._creation_date
+                }
         return tmp
 
     def create(self) -> 'ResourceInstance':

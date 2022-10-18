@@ -20,7 +20,7 @@ dsp-tools helps you with the following tasks:
   a DSP server and writes it into a JSON file.
 - [`dsp-tools xmlupload`](./dsp-tools-usage.md#upload-data-to-a-dsp-server) uploads data from an XML file (bulk
   data import) and writes the mapping from internal IDs to IRIs into a local file.
-- [`dsp-tools excel`](./dsp-tools-usage.md#create-the-lists-section-of-a-json-project-file-from-excel-files)
+- [`dsp-tools excel2lists`](./dsp-tools-usage.md#create-the-lists-section-of-a-json-project-file-from-excel-files)
   creates the "lists" section of a JSON project file from one or several Excel files. The resulting section can be 
   integrated into a JSON project file and then be uploaded to a DSP server with `dsp-tools create`.
 - [`dsp-tools excel2resources`](./dsp-tools-usage.md#create-the-resources-section-of-a-json-project-file-from-an-excel-file)

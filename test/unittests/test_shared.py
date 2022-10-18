@@ -1,10 +1,11 @@
 import unittest
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 
 from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.utils import shared
 from knora.dsplib.models.propertyelement import PropertyElement
+from knora.dsplib.utils import shared
 
 
 class TestShared(unittest.TestCase):
@@ -17,7 +18,7 @@ class TestShared(unittest.TestCase):
             "Line 12: Element '{https://dasch.swiss/schema}resource', attribute 'invalidtag': "
             "The attribute 'invalidtag' is not allowed"
         ):
-            shared.validate_xml_against_schema("testdata/test-data-invalid-resource-tag.xml")
+            shared.validate_xml_against_schema("testdata/invalid_testdata/test-data-invalid-resource-tag.xml")
 
 
     def test_prepare_dataframe(self) -> None:

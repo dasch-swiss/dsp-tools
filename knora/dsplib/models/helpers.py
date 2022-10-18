@@ -2,7 +2,6 @@ import re
 import sys
 from dataclasses import dataclass
 from enum import Enum, unique
-from traceback import format_exc
 from typing import NewType, Optional, Any, Tuple, Union, Pattern
 
 from pystrict import strict
@@ -63,7 +62,7 @@ class BaseError(Exception):
         Convert to string
         :return: stringyfied error message
         """
-        return self._message + "\n\n" + format_exc()
+        return self._message
 
     @property
     def message(self) -> str:
@@ -423,67 +422,74 @@ class Context:
             print(a[0] + ': "' + a[1].iri + '"')
 
 
-class LastModificationDate:
+class DateTimeStamp:
     """
-    Class to hold and process the last modification date of a ontology
+    Class to hold and process an xsd:dateTimeStamp
     """
-    _last_modification_date: str
+    _dateTimeStamp: str
+    _validation_regex = r"^-?([1-9][0-9]{3,}|0[0-9]{3})" \
+                        r"-(0[1-9]|1[0-2])" \
+                        r"-(0[1-9]|[12][0-9]|3[01])" \
+                        r"T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.[0-9]+)?|(24:00:00(\.0+)?))" \
+                        r"(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))$"
 
     def __init__(self, val: Any):
         """
         The constructor works for different inputs:
-        - a string holding the modification date
-        - an instance of "LastModificationDate"
+        - a string
+        - an instance of "DateTimeStamp"
         - json-ld construct of the form { "@type": "xsd:dateTimeStamp", "@value": "date-str" }
-        :param val: datetimestamp as string, instance of "LastModificationDate" or json-ld construct
+        :param val: xsd:dateTimeStamp as string, instance of "DateTimeStamp" or json-ld construct
         """
         if isinstance(val, str):
-            self._last_modification_date = val
-        elif isinstance(val, LastModificationDate):
-            self._last_modification_date = str(val)
+            if not re.search(self._validation_regex, val):
+                raise BaseError(f"Invalid xsd:dateTimeStamp: '{val}'")
+            self._dateTimeStamp = val
+        elif isinstance(val, DateTimeStamp):
+            self._dateTimeStamp = str(val)
         else:
-            if val.get("@type") is not None and val.get("@type") == "xsd:dateTimeStamp":
-                self._last_modification_date = val["@value"]
+            if val.get("@type") == "xsd:dateTimeStamp" and re.search(self._validation_regex, str(val.get("@value"))):
+                self._dateTimeStamp = val["@value"]
             else:
-                raise BaseError("Invalid LastModificationDate")
+                raise BaseError(f"Invalid xsd:dateTimeStamp: '{val}'")
 
-    def __eq__(self, other: Union[str, 'LastModificationDate']) -> bool:
+    def __eq__(self, other: Union[str, 'DateTimeStamp']) -> bool:
         if isinstance(other, str):
-            other = LastModificationDate(other)
-        return self._last_modification_date == other._last_modification_date
+            other = DateTimeStamp(other)
+        return self._dateTimeStamp == other._dateTimeStamp
 
-    def __lt__(self, other: 'LastModificationDate') -> bool:
+    def __lt__(self, other: 'DateTimeStamp') -> bool:
         if isinstance(other, str):
-            other = LastModificationDate(other)
-        return self._last_modification_date < other._last_modification_date
+            other = DateTimeStamp(other)
+        return self._dateTimeStamp < other._dateTimeStamp
 
-    def __le__(self, other: 'LastModificationDate') -> bool:
+    def __le__(self, other: 'DateTimeStamp') -> bool:
         if isinstance(other, str):
-            other = LastModificationDate(other)
-        return self._last_modification_date <= other._last_modification_date
+            other = DateTimeStamp(other)
+        return self._dateTimeStamp <= other._dateTimeStamp
 
-    def __gt__(self, other: 'LastModificationDate') -> bool:
+    def __gt__(self, other: 'DateTimeStamp') -> bool:
         if isinstance(other, str):
-            other = LastModificationDate(other)
-        return self._last_modification_date > other._last_modification_date
+            other = DateTimeStamp(other)
+        return self._dateTimeStamp > other._dateTimeStamp
 
-    def __ge__(self, other: 'LastModificationDate') -> bool:
+    def __ge__(self, other: 'DateTimeStamp') -> bool:
         if isinstance(other, str):
-            other = LastModificationDate(other)
-        return self._last_modification_date >= other._last_modification_date
+            other = DateTimeStamp(other)
+        return self._dateTimeStamp >= other._dateTimeStamp
 
-    def __ne__(self, other: 'LastModificationDate') -> bool:
+    def __ne__(self, other: 'DateTimeStamp') -> bool:
         if isinstance(other, str):
-            other = LastModificationDate(other)
-        return self._last_modification_date != other._last_modification_date
+            other = DateTimeStamp(other)
+        return self._dateTimeStamp != other._dateTimeStamp
 
-    def __str__(self: 'LastModificationDate') -> Union[None, str]:
-        return self._last_modification_date
+    def __str__(self: 'DateTimeStamp') -> Union[None, str]:
+        return self._dateTimeStamp
 
     def toJsonObj(self):
         return {
             "@type": "xsd:dateTimeStamp",
-            "@value": self._last_modification_date
+            "@value": self._dateTimeStamp
         }
 
 

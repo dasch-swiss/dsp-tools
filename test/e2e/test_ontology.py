@@ -2,7 +2,7 @@
 import unittest
 
 from knora.dsplib.models.connection import Connection
-from knora.dsplib.models.helpers import LastModificationDate
+from knora.dsplib.models.helpers import DateTimeStamp
 from knora.dsplib.models.ontology import Ontology
 
 
@@ -29,7 +29,7 @@ class TestOntology(unittest.TestCase):
         self.assertEqual(onto.project, self.test_project)
         self.assertEqual(onto.name, "test_onto_name")
         self.assertEqual(onto.label, "Test ontology label")
-        self.assertEqual(onto.lastModificationDate, LastModificationDate(last_mod_date_str))
+        self.assertEqual(onto.lastModificationDate, DateTimeStamp(last_mod_date_str))
 
     def test_ontology_read(self) -> None:
         onto = Ontology(

@@ -2,10 +2,10 @@ from typing import Optional, Union
 
 from lxml import etree
 
-from knora.dsplib.models.xmlbitstream import XMLBitstream
-from knora.dsplib.models.helpers import BaseError
+from knora.dsplib.models.helpers import BaseError, DateTimeStamp
 from knora.dsplib.models.permission import Permissions
 from knora.dsplib.models.value import KnoraStandoffXml
+from knora.dsplib.models.xmlbitstream import XMLBitstream
 from knora.dsplib.models.xmlproperty import XMLProperty
 
 
@@ -18,6 +18,7 @@ class XMLResource:
     _label: str
     _restype: str
     _permissions: Optional[str]
+    _creation_date: Optional[DateTimeStamp]
     _bitstream: Optional[XMLBitstream]
     _properties: list[XMLProperty]
 
@@ -35,6 +36,9 @@ class XMLResource:
         self._id = node.attrib['id']
         self._iri = node.attrib.get('iri')
         self._ark = node.attrib.get('ark')
+        self._creation_date = None
+        if node.attrib.get('creation_date'):
+            self._creation_date = DateTimeStamp(node.attrib.get('creation_date'))
         self._label = node.attrib['label']
         # get the resource type which is in format namespace:resourcetype, p.ex. rosetta:Image
         tmp_res_type = node.attrib['restype'].split(':')
@@ -73,6 +77,11 @@ class XMLResource:
     def ark(self) -> Optional[str]:
         """The custom ARK of the resource"""
         return self._ark
+
+    @property
+    def creation_date(self) -> Optional[DateTimeStamp]:
+        """The creation date of the resource"""
+        return self._creation_date
 
     @property
     def label(self) -> str:

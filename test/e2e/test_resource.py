@@ -2,6 +2,7 @@
 import unittest
 
 from knora.dsplib.models.connection import Connection
+from knora.dsplib.models.helpers import DateTimeStamp
 from knora.dsplib.models.permission import PermissionValue, Permissions
 from knora.dsplib.models.resource import ResourceInstanceFactory
 from knora.dsplib.models.sipi import Sipi
@@ -9,15 +10,17 @@ from knora.dsplib.models.value import KnoraStandoffXml, make_value
 
 
 class TestResource(unittest.TestCase):
+    con = Connection('http://0.0.0.0:3333')
 
-    def setUp(self) -> None:
-        """
-        is executed before all tests; sets up a connection and logs in as user root
-        """
-        self.con = Connection('http://0.0.0.0:3333')
-        self.con.login('root@example.com', 'test')
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.con.login('root@example.com', 'test')
 
-    def test_Resource_create(self) -> None:
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.con.logout()
+
+    def test_resource_create(self) -> None:
         # make class factory for project anything. The factory creates classes that implement the CRUD methods
         # for the given resource classes
 
@@ -28,6 +31,7 @@ class TestResource(unittest.TestCase):
 
         a_blue_thing = blue_thing(con=self.con,
                                   label='BlueThing',
+                                  creation_date=DateTimeStamp('1999-12-31T23:59:59.9999999+01:00'),
                                   values={
                                       'anything:hasBoolean': True,
                                       'anything:hasColor': ['#ff0033', '#0077FF'],
@@ -49,6 +53,7 @@ class TestResource(unittest.TestCase):
         self.assertEqual(new_blue_thing.value("anything:hasBoolean"), True)
         self.assertEqual(new_blue_thing.value("anything:hasDecimal"), 3.14159)
         self.assertEqual(new_blue_thing.value("anything:hasText"), "Dies ist ein einfacher Text")
+        self.assertEqual(new_blue_thing.creation_date, DateTimeStamp("1999-12-31T23:59:59.9999999+01:00"))
 
         thing_picture = factory.get_resclass_type('anything:ThingPicture')
         sipi = Sipi('http://0.0.0.0:1024', self.con.get_token())
@@ -72,12 +77,6 @@ class TestResource(unittest.TestCase):
                 'anything:hasPictureTitle': make_value(value="A Thing Picture named Lena", permissions=res_perm)
             }
         ).create()
-
-    def tearDown(self) -> None:
-        """
-        is executed after all tests are run through; performs a log out
-        """
-        self.con.logout()
 
 
 if __name__ == '__main__':

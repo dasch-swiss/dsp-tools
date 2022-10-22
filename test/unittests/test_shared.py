@@ -45,12 +45,11 @@ class TestShared(unittest.TestCase):
 
     def test_check_notna(self) -> None:
         na_values = [None, pd.NA, np.nan, "", "  ", "-", ",", ".", "*", " ⳰", " ῀ ", " ῾ ", " \n\t ", "N/A", "n/a",
-
-                     "<NA>", ["a", "b"], pd.array(["a", "b"]), np.array([0, 1])]
+                     "<NA>", "None", ["a", "b"], pd.array(["a", "b"]), np.array([0, 1])]
         for na_value in na_values:
             self.assertFalse(shared.check_notna(na_value), msg=f"Failed na_value: {na_value}")
 
-        notna_values = [1, 0.1, True, False, "True", "False", r" \n\t ", "0", "_", "Ὅμηρος"]
+        notna_values = [1, 0.1, True, False, "True", "False", r" \n\t ", "0", "_", "Ὅμηρος", "!", "?"]
         notna_values.extend([PropertyElement(x) for x in notna_values])
         for notna_value in notna_values:
             self.assertTrue(shared.check_notna(notna_value), msg=f"Failed notna_value: {notna_value}")

@@ -5,6 +5,7 @@ import unittest
 from typing import Callable, Sequence, Union, Optional, Any
 
 import numpy as np
+import pytest
 from lxml import etree
 
 from knora import excel2xml
@@ -104,6 +105,8 @@ def run_test(
         xml_returned = method(**kwargs_to_generate_xml)
         xml_returned = etree.tostring(xml_returned, encoding="unicode")
         xml_returned = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned)  # remove all xml namespace declarations
+        xml_returned = xml_returned.replace("&lt;", "<")
+        xml_returned = xml_returned.replace("&gt;", ">")
         testcase.assertEqual(xml_expected, xml_returned,
                              msg=f"Method {method.__name__} failed with kwargs {kwargs_to_generate_xml}")
 
@@ -348,11 +351,12 @@ class TestExcel2xml(unittest.TestCase):
         run_test(self, prop, method, different_values, invalid_values)
 
 
+    @pytest.mark.filterwarnings("ignore")
     def test_make_text_prop(self) -> None:
         prop = "text"
         method = excel2xml.make_text_prop
-        different_values = ["text_1", "text_2", "text_3", "text_4", "text_5"]
-        invalid_values = [True, 10.0, 5]
+        different_values = ["text_1", " ", "!", "?", "-", "_", "None", "<NA>"]
+        invalid_values = [True, 10.0, 5, ""]
         run_test(self, prop, method, different_values, invalid_values)
 
         # test encoding="xml"
@@ -513,6 +517,7 @@ class TestExcel2xml(unittest.TestCase):
         self.assertDictEqual(testlist_mapping_returned, testlist_mapping_expected)
 
 
+    @pytest.mark.filterwarnings("ignore")
     def test_excel2xml(self) -> None:
         # test the valid files, 3 times identical, but in the three formats XLSX, XLS, and CSV
         with open("testdata/excel2xml-expected-output.xml") as f:
@@ -528,17 +533,20 @@ class TestExcel2xml(unittest.TestCase):
         # test the invalid files
         invalid_prefix = "testdata/invalid_testdata/excel2xml-testdata-invalid"
         invalid_cases = [
-            (f"{invalid_prefix}-id-propname-both.xlsx",             "Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry"),
-            (f"{invalid_prefix}-id-propname-none.xlsx",             "Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry"),
-            (f"{invalid_prefix}-missing-prop-permissions.xlsx",     "Missing permissions for value .+ of property"),
-            (f"{invalid_prefix}-missing-resource-label.xlsx",       "Missing label for resource"),
-            (f"{invalid_prefix}-missing-resource-permissions.xlsx", "Missing permissions for resource"),
-            (f"{invalid_prefix}-missing-restype.xlsx",              "Missing restype"),
-            (f"{invalid_prefix}-no-bitstream-permissions.xlsx",     "'file permissions' missing"),
-            (f"{invalid_prefix}-nonexisting-proptype.xlsx",         "Invalid prop type"),
+            (f"{invalid_prefix}-boolean-prop-two-values.xlsx",           "A <boolean-prop> can only have a single value"),
+            (f"{invalid_prefix}-empty-property.xlsx",                    "At least one value per property is required"),
+            (f"{invalid_prefix}-id-propname-both.xlsx",                  "Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry"),
+            (f"{invalid_prefix}-id-propname-none.xlsx",                  "Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry"),
+            (f"{invalid_prefix}-missing-prop-permissions.xlsx",          "Missing permissions for value .+ of property"),
+            (f"{invalid_prefix}-missing-resource-label.xlsx",            "Missing label for resource"),
+            (f"{invalid_prefix}-missing-resource-permissions.xlsx",      "Missing permissions for resource"),
+            (f"{invalid_prefix}-missing-restype.xlsx",                   "Missing restype"),
+            (f"{invalid_prefix}-no-bitstream-permissions.xlsx",          "'file permissions' missing"),
+            (f"{invalid_prefix}-nonexisting-proptype.xlsx",              "Invalid prop type"),
+            (f"{invalid_prefix}-single-invalid-value-for-property.xlsx", "has an entry in column \\d+_permissions, but not in \\d+_value")
         ]
-        for file, regex in invalid_cases:
-            with self.assertRaisesRegex(BaseError, regex, msg=f"Failed with file '{file}'"):
+        for file, _regex in invalid_cases:
+            with self.assertRaisesRegex(BaseError, _regex, msg=f"Failed with file '{file}'"):
                 excel2xml.excel2xml(file, "1234", f"excel2xml-invalid")
 
 

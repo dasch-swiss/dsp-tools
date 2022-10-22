@@ -60,8 +60,14 @@
               id="test_thing_1"
               permissions="res-default">
         <text-prop name=":hasText">
-            <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
-            <text permissions="prop-restricted" encoding="utf8">Nochmals ein einfacher Text</text>
+            <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup mit <strong>Tags</strong>, die aber nicht geparst werden.</text>
+            <text permissions="prop-restricted" encoding="xml">Nochmals ein einfacher Text, <strong>dessen Tags geparst werden</strong></text>
+            <text encoding="utf8"> </text>
+            <text encoding="utf8">_</text>
+            <text encoding="utf8">!</text>
+            <text encoding="utf8">?</text>
+            <text encoding="utf8">-</text>
+            <text encoding="utf8">œ</text>
         </text-prop>
         <text-prop name=":hasRichtext">
             <text permissions="prop-default" encoding="xml">

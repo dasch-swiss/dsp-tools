@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.20.1](https://www.github.com/dasch-swiss/dsp-tools/compare/v1.20.0...v1.20.1) (2022-10-25)
+
+
+### Bug Fixes
+
+* **excel2xml:** prevent writing empty text-prop, make text-prop validation less restrictive (DEV-1440) [#243](https://www.github.com/dasch-swiss/dsp-tools/issues/243) ([ae777e4](https://www.github.com/dasch-swiss/dsp-tools/commit/ae777e48ee527457031a5c23f9605e92bfd8a992))
+
 ## [1.20.0](https://www.github.com/dasch-swiss/dsp-tools/compare/v1.19.0...v1.20.0) (2022-10-18)
 
 

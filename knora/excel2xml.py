@@ -1189,9 +1189,12 @@ def make_text_prop(
 
     # check value type
     for val in values:
-        if not isinstance(val.value, str) or not check_notna(val.value):
+        if not isinstance(val.value, str) or len(val.value) < 1:
             raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
                             f"'{val.value}' is not a valid string.")
+        if not check_notna(val.value):
+            warnings.warn(f"Warning for resource '{calling_resource}', property '{name}': "
+                          f"'{val.value}' is probably not a usable string.", stacklevel=2)
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1743,10 +1746,6 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
         "text-prop": make_text_prop,
         "uri-prop": make_uri_prop
     }
-    single_value_functions = [
-        make_bitstream_prop,
-        make_boolean_prop
-    ]
     if re.search(r"\.csv$", datafile):
         # "utf_8_sig": an optional BOM at the start of the file will be skipped
         # let the "python" engine detect the separator
@@ -1757,7 +1756,7 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
         raise BaseError("The argument 'datafile' must have one of the extensions 'csv', 'xls', 'xlsx'")
     # replace NA-like cells by NA
     main_df = main_df.applymap(
-        lambda x: x if pd.notna(x) and regex.search(r"[\w\p{L}]", str(x), flags=regex.U) else pd.NA
+        lambda x: x if pd.notna(x) and regex.search(r"[\p{L}\d_!?\-]", str(x), flags=regex.U) else pd.NA
     )
     # remove empty columns, so that the max_prop_count can be calculated without errors
     main_df.dropna(axis="columns", how="all", inplace=True)
@@ -1847,7 +1846,7 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
             property_elements: list[PropertyElement] = []
             for i in range(1, max_prop_count + 1):
                 value = row[f"{i}_value"]
-                if check_notna(value):
+                if pd.notna(value):
                     kwargs_propelem = {
                         "value": value,
                         "permissions": str(row.get(f"{i}_permissions"))
@@ -1861,13 +1860,25 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
                         kwargs_propelem["encoding"] = str(row[f"{i}_encoding"])
 
                     property_elements.append(PropertyElement(**kwargs_propelem))
+                elif check_notna(str(row.get(f"{i}_permissions"))):
+                    raise BaseError(f"Excel row {int(str(index)) + 2} has an entry in column {i}_permissions, but not "
+                                    f"in {i}_value. Please note that cell contents that don't meet the requirements of "
+                                    r"the regex [\p{L}\d_!?\-] are considered inexistent.")
+
+            # validate property_elements
+            if len(property_elements) == 0:
+                raise BaseError(f"At least one value per property is required, but Excel row {int(str(index)) + 2}"
+                                f"doesn't contain any values.")
+            if make_prop_function == make_boolean_prop and len(property_elements) != 1:
+                raise BaseError(f"A <boolean-prop> can only have a single value, but Excel row {int(str(index)) + 2} "
+                                f"contains more than one values.")
 
             # create the property and append it to resource
             kwargs_propfunc: dict[str, Union[str, PropertyElement, list[PropertyElement]]] = {
                 "name": row["prop name"],
                 "calling_resource": resource_id
             }
-            if make_prop_function in single_value_functions and len(property_elements) == 1:
+            if make_prop_function == make_boolean_prop:
                 kwargs_propfunc["value"] = property_elements[0]
             else:
                 kwargs_propfunc["value"] = property_elements

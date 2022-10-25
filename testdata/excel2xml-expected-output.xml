@@ -28,6 +28,8 @@
         <text-prop name=":hasName">
             <text permissions="prop-default" encoding="utf8">Homer</text>
             <text permissions="prop-default" encoding="utf8">Ὅμηρος</text>
+            <text permissions="prop-default" encoding="utf8">??</text>
+            <text permissions="prop-default" encoding="utf8">-</text>
         </text-prop>
         <uri-prop name=":hasIdentifier">
             <uri permissions="prop-default">http://d-nb.info/gnd/11855333X</uri>

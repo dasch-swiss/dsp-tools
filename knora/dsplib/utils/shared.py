@@ -175,8 +175,8 @@ def check_notna(value: Optional[Any]) -> bool:
     Check a value if it is usable in the context of data archiving. A value is considered usable if it is
      - a number (integer or float, but not np.nan)
      - a boolean
-     - a string with at least one Unicode letter (matching the regex ``\\p{L}``), underscore, !, ?, or number, but not
-       "None", "<NA>", "N/A", or "-"
+     - a string with at least one Unicode letter (matching the regex ``\\p{L}``) or number, or at least one _, !, or ?
+       (The strings "None", "<NA>", "N/A", and "-" are considered invalid.)
      - a PropertyElement whose "value" fulfills the above criteria
 
     Args:
@@ -184,6 +184,21 @@ def check_notna(value: Optional[Any]) -> bool:
 
     Returns:
         True if the value is usable, False if it is N/A or otherwise unusable
+
+    Examples:
+        >>> check_notna(0)      == True
+        >>> check_notna(False)  == True
+        >>> check_notna("œ")    == True
+        >>> check_notna("0")    == True
+        >>> check_notna("_")    == True
+        >>> check_notna("!")    == True
+        >>> check_notna("?")    == True
+        >>> check_notna(None)   == False
+        >>> check_notna("None") == False
+        >>> check_notna(<NA>)   == False
+        >>> check_notna("<NA>") == False
+        >>> check_notna("-")    == False
+        >>> check_notna(" ")    == False
     """
 
     if isinstance(value, PropertyElement):

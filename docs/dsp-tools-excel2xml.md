@@ -229,6 +229,23 @@ else:
     excel2xml.make_boolean_prop(":hasBoolean", False)
 ```
 
+#### Supported text values 
+DSP's only restriction on text-properties is that the string must be longer than 0. It is, for example, possible to 
+upload the following property:
+```xml
+<text-prop name=":hasText">
+    <text encoding="utf8"> </text>
+    <text encoding="utf8">-</text>
+</text-prop>
+```
+
+`excel2xml` allows to create such a property, but text values that don't meet the requirements of 
+[`excel2xml.check_notna()`](#check-if-a-cell-contains-a-usable-value) will trigger a warning, for example:
+```python
+excel2xml.make_text_prop(":hasText", " ")   # OK, but triggers a warning
+excel2xml.make_text_prop(":hasText", "-")   # OK, but triggers a warning
+```
+
 
 ### 8. Append the resource to root
 At the end of the for-loop, it is important not to forget to append the finished resource to the root. 
@@ -245,11 +262,28 @@ usable if it is
 
  - a number (integer or float, but not numpy.nan)
  - a boolean
- - a string with at least one Unicode letter (matching the regex `\p{L}`), underscore, ?, !, or number, but not "None", 
-   "<NA>", "N/A", or "-"
+ - a string with at least one Unicode letter (matching the regex ``\\p{L}``) or number, or at least one _, !, or ?
+   (The strings "None", "<NA>", "N/A", and "-" are considered invalid.)
  - a PropertyElement whose "value" fulfills the above criteria
 
-Why not just checking a cell by its boolean value? Like:
+Examples:
+```
+check_notna(0)      == True
+check_notna(False)  == True
+check_notna("œ")    == True
+check_notna("0")    == True
+check_notna("_")    == True
+check_notna("!")    == True
+check_notna("?")    == True
+check_notna(None)   == False
+check_notna("None") == False
+check_notna(<NA>)   == False
+check_notna("<NA>") == False
+check_notna("-")    == False
+check_notna(" ")    == False
+```
+
+But why not just checking a cell by its boolean value? Like:
 ```
 if cell:
     resource.append(make_*_prop(cell))
@@ -264,7 +298,7 @@ might expect:
 | " "          | True                         | False, because an empty string is not usable for a text property |
 | numpy.nan    | True                         | False, because N/A is not a usable value                         |
 | pandas.NA    | TypeError (*)                | False, because N/A is not a usable value                         |
-| "<NA>"       | True                         | False, because this is the string representation of N/A          |
+| "&lt;NA&gt;" | True                         | False, because this is the string representation of N/A          |
 | "-"          | True                         | False, because this is a placeholder in an empty text field      |
 (*) TypeError: boolean value of NA is ambiguous
 

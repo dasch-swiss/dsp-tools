@@ -95,7 +95,7 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
     current_project_groups: dict[str, Group] = {}
     try:
         remote_groups: list[Group] = try_network_action(
-            action=lambda: Group.getAllGroupsForProject(con=con, proj_shortcode=project.shortcode),
+            action=lambda: Group.getAllGroupsForProject(con=con, proj=project),
             failure_msg="WARNING: Unable to check if group names are already existing on DSP server, because it is "
                         "not possible to retrieve the remote groups from DSP server."
         )

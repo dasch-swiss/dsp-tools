@@ -6,8 +6,8 @@ from knora.dsplib.models.langstring import Languages
 from knora.dsplib.models.user import User
 
 # define variables for testing
-iri_project_0001 = "http://rdfh.ch/projects/0001"
-iri_project_0FFF = "http://rdfh.ch/projects/00FF"
+iri_project_0001 = "http://rdfh.ch/projects/Lw3FC39BSzCwvmdOaTyLqQ"
+iri_project_00FF = "http://rdfh.ch/projects/MTvoB0EJRrqovzRkWXqfkA"
 iri_group_thing_searcher = "http://rdfh.ch/groups/0001/thing-searcher"
 iri_group_images_reviewer = "http://rdfh.ch/groups/00FF/images-reviewer"
 
@@ -226,10 +226,10 @@ class TestUser(unittest.TestCase):
             in_projects={iri_project_0001: True},
             in_groups={iri_group_thing_searcher}
         ).create()
-        user.addToProject(iri_project_0FFF, False)
+        user.addToProject(iri_project_00FF, False)
         updated_user = user.update()
         self.assertEqual(updated_user.in_projects,
-                         {iri_project_0001: True, iri_project_0FFF: False})
+                         {iri_project_0001: True, iri_project_00FF: False})
 
     def test_user_remove_from_project(self) -> None:
         user = User(

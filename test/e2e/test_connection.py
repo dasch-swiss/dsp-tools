@@ -40,7 +40,7 @@ class TestConnection(unittest.TestCase):
         res_info = """{
             "@type" : "anything:Thing",
             "knora-api:attachedToProject" : {
-                "@id" : "http://rdfh.ch/projects/0001"
+                "@id" : "http://rdfh.ch/projects/Lw3FC39BSzCwvmdOaTyLqQ"
             },
             "anything:hasBoolean" : {
                 "@type" : "knora-api:BooleanValue",

@@ -7,7 +7,7 @@ from knora.dsplib.models.listnode import ListNode
 
 
 class TestListNode(unittest.TestCase):
-    project = "http://rdfh.ch/projects/0001"
+    project = "http://rdfh.ch/projects/Lw3FC39BSzCwvmdOaTyLqQ"
     otherTreeList = "http://rdfh.ch/lists/0001/otherTreeList"
 
     def setUp(self) -> None:

@@ -7,7 +7,7 @@ from knora.dsplib.models.langstring import LangString, Languages
 
 
 class TestGroup(unittest.TestCase):
-    test_project = "http://rdfh.ch/projects/0001"
+    test_project = "http://rdfh.ch/projects/Lw3FC39BSzCwvmdOaTyLqQ"
 
     def setUp(self) -> None:
         """

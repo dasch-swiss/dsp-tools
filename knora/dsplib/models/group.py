@@ -245,12 +245,9 @@ class Group(Model):
         return [Group.fromJsonObj(con, group_item) for group_item in result["groups"]]
 
     @staticmethod
-    def getAllGroupsForProject(con: Connection, proj_shortcode: str) -> Optional[list[Group]]:
+    def getAllGroupsForProject(con: Connection, proj: Project) -> Optional[list[Group]]:
         all_groups = Group.getAllGroups(con)
-        project_groups = []
-        for group in all_groups:
-            if group.project == "http://rdfh.ch/projects/" + proj_shortcode:
-                project_groups.append(group)
+        project_groups = [g for g in all_groups if g.project == proj.id]
         return project_groups
 
     def createDefinitionFileObj(self):

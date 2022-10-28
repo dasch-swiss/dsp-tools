@@ -8,7 +8,7 @@ from knora.dsplib.models.resourceclass import ResourceClass
 
 
 class TestResourceClass(unittest.TestCase):
-    test_project = "http://rdfh.ch/projects/0001"
+    test_project = "http://rdfh.ch/projects/Lw3FC39BSzCwvmdOaTyLqQ"
 
     res_name = 'res_class_name'
     res_label = LangString({Languages.EN: 'Resource Class Label'})

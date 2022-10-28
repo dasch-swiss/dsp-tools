@@ -44,10 +44,10 @@ class TestProject(unittest.TestCase):
     def test_project_read(self) -> None:
         project = Project(
             con=self.con,
-            id='http://rdfh.ch/projects/0001'
+            id='http://rdfh.ch/projects/Lw3FC39BSzCwvmdOaTyLqQ'
         ).read()
 
-        self.assertEqual(project.id, 'http://rdfh.ch/projects/0001')
+        self.assertEqual(project.id, 'http://rdfh.ch/projects/Lw3FC39BSzCwvmdOaTyLqQ')
         self.assertEqual(project.shortcode, '0001')
         self.assertEqual(project.shortname, 'anything')
         self.assertEqual(project.longname, 'Anything Project')

@@ -7,7 +7,7 @@ from knora.dsplib.models.ontology import Ontology
 
 
 class TestOntology(unittest.TestCase):
-    test_project = "http://rdfh.ch/projects/0001"
+    test_project = "http://rdfh.ch/projects/Lw3FC39BSzCwvmdOaTyLqQ"
     test_onto = "http://0.0.0.0:3333/ontology/0001/anything/v2"
 
     def setUp(self) -> None:

@@ -148,8 +148,8 @@ def program(user_args: list[str]) -> None:
     parser_stackdown.set_defaults(action='stack-down')
 
     # startup DSP-APP
-    parser_dsp_app = subparsers.add_parser('dsp-app', help='Startup a local instance of DSP-APP')
-    parser_dsp_app.set_defaults(action='dsp-app')
+    parser_dsp_app = subparsers.add_parser('start-app', help='Startup a local instance of DSP-APP')
+    parser_dsp_app.set_defaults(action='start-app')
 
 
 
@@ -225,7 +225,7 @@ def program(user_args: list[str]) -> None:
         output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/stackup.sh')])
     elif args.action == 'stack-down':
         output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/stackdown.sh')])
-    elif args.action == 'dsp-app':
+    elif args.action == 'start-app':
         output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/dsp_app.sh')])
 
 

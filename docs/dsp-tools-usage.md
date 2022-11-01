@@ -218,7 +218,6 @@ about it [here](./dsp-tools-excel2xml.md).
 
 
 
-
 ## Replace internal IDs with IRIs in XML file
 
 ```bash
@@ -238,3 +237,31 @@ Note that internal IDs and IRIs cannot be mixed. The input XML file has to be pr
 contains the mapping from internal IDs to IRIs. This JSON file is generated after each successful `xmlupload`.
 
 In order to upload data incrementally the procedure described [here](dsp-tools-xmlupload.md#incremental-xml-upload) is recommended.
+
+
+
+## Start a DSP-stack on your local machine (for DaSCH-internal use only)
+
+For testing purposes, it is sometimes necessary to have DSP-API and/or DSP-APP running on a local machine. However, this
+requires a bunch of other software to be installed. The startup and shutdown of API and APP can be complicated. That's 
+why there are some commands to facilitate the handling of API and APP. Please note that these commands were developed 
+for DaSCH-internal use only. It only works on Mac computers with the same configuration that DaSCH employees have. We 
+don't offer support or troubleshooting for these commands.
+
+### Start DSP-API
+```
+dsp-tools stack-up
+```
+
+This command makes a clone of the [DSP-API repository](https://github.com/dasch-swiss/dsp-api) into `~/.dsp-tools`. If
+it finds an existing clone there, it runs `git pull` instead. If the API is already running, it shuts down the old 
+instance and starts a new one.  
+Before the API is started, this command checks if the software that the API depends on is installed and up to date. If 
+not, a warning is printed to the console.
+
+### Shutdown DSP-API
+```
+dsp-tools stack-down
+```
+
+This command  

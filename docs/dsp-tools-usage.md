@@ -260,6 +260,7 @@ for these commands.
 
 
 ### Start DSP-API
+
 ```
 dsp-tools start-api
 ```
@@ -270,6 +271,7 @@ instance and starts a new one. If the dependencies are outdated or not installed
 
 
 ### Shut DSP-API down
+
 ```
 dsp-tools stop-api
 ```
@@ -278,6 +280,7 @@ This command shuts DSP-API down, deletes all Docker volumes, and removes tempora
 
 
 ### Start DSP-APP
+
 ```
 dsp-tools start-app
 ```

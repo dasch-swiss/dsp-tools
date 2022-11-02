@@ -221,11 +221,11 @@ def program(user_args: list[str]) -> None:
         excel2xml(datafile=args.datafile,
                   shortcode=args.shortcode,
                   default_ontology=args.default_ontology)
-    elif args.action == 'start-api':
+    elif args.action == 'start-api' and not sys.platform.startswith('win'):
         output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-api.sh')])
-    elif args.action == 'stop-api':
+    elif args.action == 'stop-api' and not sys.platform.startswith('win'):
         output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/stop-api.sh')])
-    elif args.action == 'start-app':
+    elif args.action == 'start-app' and not sys.platform.startswith('win'):
         output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-app.sh')])
 
 

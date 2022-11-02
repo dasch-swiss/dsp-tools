@@ -3,8 +3,7 @@
 set -u  # exit if an uninitialised variable is used (https://www.davidpashley.com/articles/writing-robust-shell-scripts/)
 set -e  # exit if any statement returns a non-true return value (https://www.davidpashley.com/articles/writing-robust-shell-scripts/)
 
-# only allow to run this command if we are on a Mac, and if Docker is running.
-[[ ! "$OSTYPE" == "darwin"* ]] && printf "\e[31mERROR: This command can only be run on a Mac. You seem to use another OS.\e[0m\n" && return
+# only allow to run this command if Docker is running
 [[ $(docker stats --no-stream 2>/dev/null ) == "" ]] && printf "\e[31mERROR: Please start Docker before running DSP-API.\e[0m\n" && return
 
 # check dependencies
@@ -35,7 +34,7 @@ if echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 -w 10 > /dev/
     echo "git pull ..." 2>&1 | tee -a "$logfile"
     git pull >>"$logfile" 2>&1
 fi
-echo "make init-db-test-minimal..." 2>&1 | tee -a "$logfile"
+echo "make init-db-test..." 2>&1 | tee -a "$logfile"
 make init-db-test >>"$logfile" 2>&1
 echo "make stack-up..." 2>&1 | tee -a "$logfile"
 make stack-up >>"$logfile" 2>&1

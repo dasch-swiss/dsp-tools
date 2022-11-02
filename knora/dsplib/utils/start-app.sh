@@ -3,7 +3,6 @@
 set -u  # exit if an uninitialised variable is used (https://www.davidpashley.com/articles/writing-robust-shell-scripts/)
 set -e  # exit if any statement returns a non-true return value (https://www.davidpashley.com/articles/writing-robust-shell-scripts/)
 
-[[ ! "$OSTYPE" == "darwin"* ]] && printf "\e[31mERROR: This command can only be run on a Mac. You don't seem to use a Mac.\e[0m\n" && return
 [[ "$(npm -g outdated)" =~ .*@angular/cli.* ]] || printf "\e[31mWARNING: Your Angular seems to be outdated. Please update it with \"npm update -g @angular/cli\"\e[0m\n"
 
 logfile="../dsp-app-startup.log"

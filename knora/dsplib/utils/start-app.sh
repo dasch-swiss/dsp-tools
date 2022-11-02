@@ -27,5 +27,4 @@ fi
 echo "npm i --legacy-peer-deps ..." 2>&1 | tee -a "$logfile"
 npm i --legacy-peer-deps >>"$logfile" 2>&1
 echo "ng s ..." 2>&1 | tee -a "$logfile"
-npm run ng s >>"$logfile" 2>&1
-echo "DSP-APP is now available at https://localhost:4200/" 2>&1 | tee -a "$logfile"
+npm run ng s 2>&1 | tee -a "$logfile"

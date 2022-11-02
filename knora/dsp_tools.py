@@ -3,6 +3,8 @@ The code in this file handles the arguments passed by the user from the command 
 """
 import argparse
 import datetime
+import os
+import subprocess
 import sys
 from importlib.metadata import version
 
@@ -14,8 +16,8 @@ from knora.dsplib.utils.onto_create_lists import create_lists
 from knora.dsplib.utils.onto_create_ontology import create_project
 from knora.dsplib.utils.onto_get import get_ontology
 from knora.dsplib.utils.onto_validate import validate_project
-from knora.dsplib.utils.xml_upload import xml_upload
 from knora.dsplib.utils.shared import validate_xml_against_schema
+from knora.dsplib.utils.xml_upload import xml_upload
 from knora.excel2xml import excel2xml
 
 
@@ -41,6 +43,7 @@ def program(user_args: list[str]) -> None:
     default_pw = 'test'
     dsp_tools_version = version('dsp-tools')
     now = datetime.datetime.now()
+    current_dir = os.path.dirname(os.path.realpath(__file__))
 
     # parse the arguments of the command line
     parser = argparse.ArgumentParser(description=f'dsp-tools (Version {dsp_tools_version}) DaSCH Service Platform data '
@@ -135,6 +138,20 @@ def program(user_args: list[str]) -> None:
     parser_excel2xml.add_argument('shortcode', help='Shortcode of the project that this data belongs to')
     parser_excel2xml.add_argument('default_ontology', help='Name of the ontology that this data belongs to')
 
+    # startup DSP-API
+    parser_stackup = subparsers.add_parser('start-api', help='Startup a local instance of DSP-API')
+    parser_stackup.set_defaults(action='start-api')
+
+    # shutdown DSP-API
+    parser_stackdown = subparsers.add_parser('stop-api', help='Shut down the local instance of DSP-API, delete '
+                                                                'volumes, clean SIPI folders')
+    parser_stackdown.set_defaults(action='stop-api')
+
+    # startup DSP-APP
+    parser_dsp_app = subparsers.add_parser('start-app', help='Startup a local instance of DSP-APP')
+    parser_dsp_app.set_defaults(action='start-app')
+
+
 
     # call the requested action
     args = parser.parse_args(user_args)
@@ -204,6 +221,12 @@ def program(user_args: list[str]) -> None:
         excel2xml(datafile=args.datafile,
                   shortcode=args.shortcode,
                   default_ontology=args.default_ontology)
+    elif args.action == 'start-api' and not sys.platform.startswith('win'):
+        output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-api.sh')])
+    elif args.action == 'stop-api' and not sys.platform.startswith('win'):
+        output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/stop-api.sh')])
+    elif args.action == 'start-app' and not sys.platform.startswith('win'):
+        output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-app.sh')])
 
 
 def main() -> None:

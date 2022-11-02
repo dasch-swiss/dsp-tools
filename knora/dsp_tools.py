@@ -139,13 +139,13 @@ def program(user_args: list[str]) -> None:
     parser_excel2xml.add_argument('default_ontology', help='Name of the ontology that this data belongs to')
 
     # startup DSP-API
-    parser_stackup = subparsers.add_parser('stack-up', help='Startup a local instance of DSP-API')
-    parser_stackup.set_defaults(action='stack-up')
+    parser_stackup = subparsers.add_parser('start-api', help='Startup a local instance of DSP-API')
+    parser_stackup.set_defaults(action='start-api')
 
     # shutdown DSP-API
-    parser_stackdown = subparsers.add_parser('stack-down', help='Shut down the local instance of DSP-API, delete '
+    parser_stackdown = subparsers.add_parser('stop-api', help='Shut down the local instance of DSP-API, delete '
                                                                 'volumes, clean SIPI folders')
-    parser_stackdown.set_defaults(action='stack-down')
+    parser_stackdown.set_defaults(action='stop-api')
 
     # startup DSP-APP
     parser_dsp_app = subparsers.add_parser('start-app', help='Startup a local instance of DSP-APP')
@@ -221,12 +221,12 @@ def program(user_args: list[str]) -> None:
         excel2xml(datafile=args.datafile,
                   shortcode=args.shortcode,
                   default_ontology=args.default_ontology)
-    elif args.action == 'stack-up':
-        output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/stackup.sh')])
-    elif args.action == 'stack-down':
-        output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/stackdown.sh')])
+    elif args.action == 'start-api':
+        output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-api.sh')])
+    elif args.action == 'stop-api':
+        output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/stop-api.sh')])
     elif args.action == 'start-app':
-        output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/dsp_app.sh')])
+        output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-app.sh')])
 
 
 def main() -> None:

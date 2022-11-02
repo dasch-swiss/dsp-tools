@@ -36,4 +36,5 @@ dsp-tools helps you with the following tasks:
   is already structured according to the DSP specifications.
 - [The module excel2xml](./dsp-tools-usage.md#use-the-module-excel2xml-to-convert-a-data-source-to-xml) provides helper
   methods that can be used in a Python script to convert data from a tabular format into XML.
-
+- [`dsp-tools start-api / stop-api / start-app`](./dsp-tools-usage.md#start-a-dsp-stack-on-your-local-machine-for-dasch-internal-use-only)
+  assist you in running a DSP software stack on your local machine.

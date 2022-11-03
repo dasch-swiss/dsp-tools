@@ -142,7 +142,7 @@ The output of the above command, with the template files, is:
                         "en": "red"
                     }
                 },
-                ...
+                "..."
             ]
         },
         {
@@ -163,7 +163,7 @@ The output of the above command, with the template files, is:
                         "en": "artwork"
                     }
                 },
-                ...
+                "..."
             ]
         },
         {
@@ -184,7 +184,7 @@ The output of the above command, with the template files, is:
                         "en": "Faculty of Science"
                     }
                 },
-                ...
+                "..."
             ]
         }
     ]

@@ -24,7 +24,7 @@ resource or not. The cardinality definitions are explained [further below](#card
 
 Example of an `ontologies` object:
 
-```json
+```
 {
   "ontologies": [
     {
@@ -752,7 +752,7 @@ directly as cardinalities in a resource. The example belows shows both possibili
 
 Example:
 
-```json
+```
 "properties": [
     {
         "name": "partOfBook",
@@ -845,7 +845,7 @@ they can be used directly as cardinalities in a resource. The example below show
 
 Example:
 
-```json
+```
 "properties": [
     {
         "name": "sequenceOfAudio",

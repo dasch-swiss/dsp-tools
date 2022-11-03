@@ -220,7 +220,7 @@ For `make_boolean_prop(cell)`, the following formats are supported:
 N/A-like values will raise an Error. So if your cell is empty, this method will not count it as false, but will raise an 
 Error. If you want N/A-like values to be counted as false, you may use a construct like this:
 
-```python
+```
 if excel2xml.check_notna(cell):
     # the cell contains usable content
     excel2xml.make_boolean_prop(":hasBoolean", cell)
@@ -241,7 +241,7 @@ upload the following property:
 
 `excel2xml` allows to create such a property, but text values that don't meet the requirements of 
 [`excel2xml.check_notna()`](#check-if-a-cell-contains-a-usable-value) will trigger a warning, for example:
-```python
+```
 excel2xml.make_text_prop(":hasText", " ")   # OK, but triggers a warning
 excel2xml.make_text_prop(":hasText", "-")   # OK, but triggers a warning
 ```

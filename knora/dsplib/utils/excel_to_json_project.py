@@ -40,17 +40,17 @@ def excel2project(
     # --------------
     if not os.path.isdir(data_model_files):
         raise BaseError(f"ERROR: {data_model_files} is not a directory.")
-    folder = list(os.scandir(data_model_files))
+    folder = [x for x in os.scandir(data_model_files) if not re.search(r"^(\.|~\$).+", x.name)]
 
     onto_folders = [x for x in folder if os.path.isdir(x) and re.search(r"([\w.-]+) (\([\w.-]+\))", x.name)]
     if len(onto_folders) == 0:
         raise BaseError(f"'{data_model_files}' must contain at least one subfolder named after the pattern "
                         f"'onto_name (onto_label)'")
     for onto_folder in onto_folders:
-        if "properties.xlsx" not in [x.name for x in list(os.scandir(onto_folder))]:
-            raise BaseError(f"ERROR: {data_model_files}/{onto_folder.name} must contain a file with the name 'properties.xlsx'")
-        if "resources.xlsx" not in [x.name for x in list(os.scandir(onto_folder))]:
-            raise BaseError(f"ERROR: {data_model_files}/{onto_folder.name} must contain a file with the name 'resources.xlsx'")
+        contents = sorted([x.name for x in os.scandir(onto_folder) if not re.search(r"^(\.|~\$).+", x.name)])
+        if contents != ["properties.xlsx", "resources.xlsx"]:
+            raise BaseError(f"ERROR: '{data_model_files}/{onto_folder.name}' must contain one file 'properties.xlsx' "
+                            f"and one file 'resources.xlsx', but nothing else.")
 
     listfolder = [x for x in folder if os.path.isdir(x) and x.name == "lists"]
     if listfolder:
@@ -58,6 +58,10 @@ def excel2project(
         if not all([re.search(r"(de|en|fr|it|rm).xlsx", file.name) for file in listfolder_contents]):
             raise BaseError(f"The only files allowed in '{data_model_files}/lists' are en.xlsx, de.xlsx, fr.xlsx, "
                             f"it.xlsx, rm.xlsx")
+
+    if len(onto_folders) + len(listfolder) != len(folder):
+        raise BaseError(f"The only allowed subfolders in '{data_model_files}' are 'lists' and folders that match the "
+                        f"pattern 'onto_name (onto_label)'")
 
 
     # create output

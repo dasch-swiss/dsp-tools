@@ -36,7 +36,7 @@ class TestExcelToProperties(unittest.TestCase):
                        "hasInterval", "hasBoolean", "hasGeoname", "partOfDocument"]
         excel_supers = [["hasLinkTo"], ["hasValue", "dcterms:creator"], ["hasValue"], ["hasValue"], ["hasLinkTo"],
                         ["hasValue"], ["hasValue"], ["hasValue"], ["hasRepresentation"],
-                        ["hasValue", "dcterms:description"], ["hasValue"],["hasValue"], ["hasColor"], ["hasValue"],
+                        ["hasValue", "dcterms:description"], ["hasValue"], ["hasValue"], ["hasColor"], ["hasValue"],
                         ["hasValue"], ["hasSequenceBounds"], ["hasValue"], ["hasValue"], ["isPartOf"]]
         excel_objects = [":GenericAnthroponym", "TextValue", "ListValue", "ListValue", ":Titles", "ListValue",
                          "IntValue", "DateValue", "Representation", "TextValue", "DateValue", "UriValue",

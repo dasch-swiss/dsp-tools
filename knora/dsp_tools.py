@@ -9,9 +9,9 @@ import sys
 from importlib.metadata import version
 
 from knora.dsplib.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
+from knora.dsplib.utils.excel_to_json_project import excel2project
 from knora.dsplib.utils.excel_to_json_properties import excel2properties
 from knora.dsplib.utils.excel_to_json_resources import excel2resources
-from knora.dsplib.utils.excel_to_project import excel2project
 from knora.dsplib.utils.id_to_iri import id_to_iri
 from knora.dsplib.utils.onto_create_lists import create_lists
 from knora.dsplib.utils.onto_create_ontology import create_project

@@ -145,13 +145,12 @@ The expected file and folder structures are described [here](./dsp-tools-excel.m
 ### Create the "lists" section of a JSON project file from Excel files
 
 ```bash
-dsp-tools excel2lists folder output.json
+dsp-tools excel2lists [options] folder output.json
 ```
 
-Arguments:
+The following options are available:
 
- - `folder` (optional, default: `lists`): folder with the Excel file(s)
- - `output.json` (optional, default: `lists.json`): Output file
+- `-v` | `--verbose` (optional): If set, more information about the progress is printed to the console.
 
 The expected Excel format is [documented here](./dsp-tools-excel.md#lists-section).
 

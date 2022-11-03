@@ -42,7 +42,7 @@ def excel2project(
         raise BaseError(f"ERROR: {data_model_files} is not a directory.")
     folder = [x for x in os.scandir(data_model_files) if not re.search(r"^(\.|~\$).+", x.name)]
 
-    onto_folders = [x for x in folder if os.path.isdir(x) and re.search(r"([\w.-]+) (\([\w.-]+\))", x.name)]
+    onto_folders = [x for x in folder if os.path.isdir(x) and re.search(r"([\w.-]+) (\([\w.\- ]+\))", x.name)]
     if len(onto_folders) == 0:
         raise BaseError(f"'{data_model_files}' must contain at least one subfolder named after the pattern "
                         f"'onto_name (onto_label)'")
@@ -70,7 +70,7 @@ def excel2project(
 
     ontologies = []
     for onto_folder in onto_folders:
-        name, label = re.search(r"([\w.-]+) \(([\w.-]+)\)", onto_folder.name).groups()
+        name, label = re.search(r"([\w.-]+) \(([\w.\- ]+)\)", onto_folder.name).groups()
         ontologies.append({
             "name": name,
             "label": label,

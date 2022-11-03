@@ -1,10 +1,11 @@
 """unit tests for excel to properties"""
+import json
 import os
 import unittest
-import json
+from typing import Any
+
 import jsonpath_ng
 import jsonpath_ng.ext
-from typing import Any
 
 from knora.dsplib.utils import excel_to_json_properties as e2j
 
@@ -24,7 +25,7 @@ class TestExcelToProperties(unittest.TestCase):
         os.rmdir('testdata/tmp')
 
     def test_excel2properties(self) -> None:
-        excelfile = "testdata/Properties.xlsx"
+        excelfile = "testdata/excel2project_files/test-name (test_label)/properties.xlsx"
         outfile = "testdata/tmp/_out_properties.json"
         output_from_method = e2j.excel2properties(excelfile, outfile)
 

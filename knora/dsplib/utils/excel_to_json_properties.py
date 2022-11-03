@@ -1,6 +1,8 @@
 import json
+import os
 import re
 from typing import Any, Optional
+
 import jsonschema
 import pandas as pd
 
@@ -20,7 +22,8 @@ def _validate_properties_with_schema(properties_list: list[dict[str, Any]]) -> b
     Returns:
         True if the "properties" section passed validation. Otherwise, a BaseError with a detailed error report is raised.
     """
-    with open("knora/dsplib/schemas/properties-only.json") as schema:
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(current_dir, "../schemas/properties-only.json")) as schema:
         properties_schema = json.load(schema)
     try:
         jsonschema.validate(instance=properties_list, schema=properties_schema)

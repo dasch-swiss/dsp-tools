@@ -3,20 +3,58 @@
 # Excel files for data modelling and data import
 
 dsp-tools is able to process Excel files and output the appropriate JSON or XML file. The JSON/XML file can then be
-used to create the ontology on the DSP server or import data to the DSP repository. dsp-tools can also be used to 
-create a list from an Excel file.
+used to create the ontology on the DSP server or import data to the DSP repository. 
 
 
 
 
-## JSON project file: "resources" section from Excel file
+## JSON project file from Excel
+
+With dsp-tools, a JSON project file can be created from Excel files. The command for this is documented 
+[here](./dsp-tools-usage.md#create-a-json-project-file-from-excel-files). A JSON project consists of different parts, and for
+each of these parts, one or several Excel files are necessary. The Excel files and their format are described below.
+It is possible to invoke a command for each of these parts separately (as described below). But it is more convenient to
+use the command that creates the entire JSON project file. In order to do so, put all involved files into a folder with 
+the following structure:
+```
+data_model_templates
+|-- lists
+|   |-- de.xlsx
+|   `-- en.xlsx
+`-- onto_name (onto_label)
+    |-- properties.xlsx
+    `-- resources.xlsx
+```
+
+Conventions for the folder names:
+
+ - The "lists" folder must have exactly this name, if it exists. It can also be omitted.
+ - Replace "onto_name" by your ontology's name, and "onto_label" by your ontology's label.
+ - The only name that can be chosen freely is the name of the topmost folder ("data_model_files" in this example). 
+
+Then, use the following command:
+```
+dsp-tools excel2project data_model_files project.json
+```
+
+This will create a file `project.json` with the lists, properties, and resources from the Excel files. 
+
+Please note that the "header" of the resulting JSON file is empty and thus invalid. It is necessary to add the project
+shortcode, name, description, keywords, etc. by hand.
+
+Continue reading the following paragraphs to learn more about the expected structure of the Excel files.
+
+
+
+
+### "resources" section
 
 With dsp-tools, the `resources` section used in a data model (JSON) can be created from an Excel file. The command for 
 this is documented [here](./dsp-tools-usage.md#create-the-resources-section-of-a-json-project-file-from-an-excel-file). 
 Only `XLSX` files are allowed. The `resources` section can be inserted into the ontology file and then be uploaded onto 
 a DSP server.
 
-**An Excel file template can be found [here](assets/templates/resources_template.xlsx). It is recommended to work from 
+**An Excel file template can be found [here](assets/data_model_templates/onto_name (onto_label)/resources.xlsx). It is recommended to work from 
 the template.**
 
 The expected worksheets of the Excel file are:
@@ -51,14 +89,14 @@ For further information about resources, see [here](./dsp-tools-create-ontologie
 
 
 
-## JSON project file: "properties" section from Excel file
+### "properties" section
 
 With dsp-tools, the `properties` section used in a data model (JSON) can be created from an Excel file. The command for 
 this is documented [here](./dsp-tools-usage.md#create-the-properties-section-of-a-json-project-file-from-an-excel-file). 
 Only the first worksheet of the Excel file is considered and only XLSX files are allowed. The `properties` section can 
 be inserted into the ontology file and then be uploaded onto a DSP server.
 
-**An Excel file template can be found [here](assets/templates/properties_template.xlsx). It is recommended to work 
+**An Excel file template can be found [here](assets/data_model_templates/onto_name (onto_label)/properties.xlsx). It is recommended to work 
 from the template.**
 
 The Excel sheet must have the following structure:
@@ -84,7 +122,7 @@ For further information about properties, see [here](./dsp-tools-create-ontologi
 
 
 
-## JSON project file: "lists" section from Excel file(s)
+### "lists" section
 
 With dsp-tools, the "lists" section of a JSON project file can be created from one or several Excel files. The lists can 
 then be inserted into a JSON project file and uploaded to a DSP server. The command for this is documented 
@@ -116,8 +154,8 @@ Some notes:
   printed out if the list is not valid.
 
 **It is recommended to work from the following templates:  
-[en.xlsx](assets/templates/lists/en.xlsx): File with the English labels  
-[de.xlsx](assets/templates/lists/de.xlsx): File with the German labels**
+[en.xlsx](assets/data_model_templates/lists/en.xlsx): File with the English labels  
+[de.xlsx](assets/data_model_templates/lists/de.xlsx): File with the German labels**
 
 The output of the above command, with the template files, is:
 
@@ -193,7 +231,7 @@ The output of the above command, with the template files, is:
 
 
 
-## XML data file from Excel/CSV file
+## XML data file from Excel/CSV
 
 There are two use cases for a transformation from Excel/CSV to XML: 
 

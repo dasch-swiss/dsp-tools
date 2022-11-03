@@ -11,6 +11,7 @@ from importlib.metadata import version
 from knora.dsplib.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
 from knora.dsplib.utils.excel_to_json_properties import excel2properties
 from knora.dsplib.utils.excel_to_json_resources import excel2resources
+from knora.dsplib.utils.excel_to_project import excel2project
 from knora.dsplib.utils.id_to_iri import id_to_iri
 from knora.dsplib.utils.onto_create_lists import create_lists
 from knora.dsplib.utils.onto_create_ontology import create_project
@@ -89,7 +90,17 @@ def program(user_args: list[str]) -> None:
     parser_upload.add_argument('-I', '--incremental', action='store_true', help='Incremental XML upload')
     parser_upload.add_argument('xmlfile', help='path to xml file containing the data', default='data.xml')
 
-    # excel
+    # excel2project
+    parser_excel2project = subparsers.add_parser(
+        'excel2project',
+        help='Create a JSON project file from a folder containing the required Excel files (lists folder, '
+             'properties.xlsx, resources.xlsx)'
+    )
+    parser_excel2project.set_defaults(action='excel2project')
+    parser_excel2project.add_argument('data_model_files', help='Path to the folder containing the Excel files')
+    parser_excel2project.add_argument('outfile', help='Path to the output JSON file')
+
+    # excel2lists
     parser_excel_lists = subparsers.add_parser(
         'excel2lists',
         help='Create the "lists" section of a JSON project file from one or multiple Excel files. If the list should '
@@ -203,6 +214,9 @@ def program(user_args: list[str]) -> None:
                        sipi=args.sipi,
                        verbose=args.verbose,
                        incremental=args.incremental)
+    elif args.action == 'excel2project':
+        excel2project(data_model_files=args.data_model_files,
+                      path_to_output_file=args.outfile)
     elif args.action == 'excel2lists':
         excel2lists(excelfolder=args.excelfolder,
                     path_to_output_file=args.outfile)

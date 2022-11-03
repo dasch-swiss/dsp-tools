@@ -6,10 +6,10 @@ import re
 from typing import Any, Union, Optional, Tuple
 
 import jsonschema
+import regex
 from openpyxl import load_workbook
 from openpyxl.cell import Cell
 from openpyxl.worksheet.worksheet import Worksheet
-import regex
 
 from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.utils.shared import simplify_name
@@ -253,7 +253,8 @@ def validate_lists_section_with_schema(
     """
     if bool(path_to_json_project_file) == bool(lists_section):
         raise BaseError("Validation of the 'lists' section works only if exactly one of the two arguments is given.")
-    with open("knora/dsplib/schemas/lists-only.json") as schema:
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(current_dir, "../schemas/lists-only.json")) as schema:
         lists_schema = json.load(schema)
 
     if path_to_json_project_file:

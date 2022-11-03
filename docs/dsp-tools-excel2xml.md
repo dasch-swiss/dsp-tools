@@ -3,9 +3,9 @@
 # `excel2xml`: Convert a data source to XML
 dsp-tools assists you in converting a data source in CSV/XLS(X) format to an XML file.
 
-| **Hint**                                                                                                                                  |
-|-------------------------------------------------------------------------------------------------------------------------------------------|
-| This page is about the **module** `excel2xml`. The CLI command is documented [here](dsp-tools-excel.md#xml-data-file-from-excelcsv-file). |
+| **Hint**                                                                                                                             |
+|--------------------------------------------------------------------------------------------------------------------------------------|
+| This page is about the **module** `excel2xml`. The CLI command is documented [here](dsp-tools-excel.md#xml-data-file-from-excelcsv). |
 
 To demonstrate the usage of the `excel2xml` module, there is a GitHub repository named `0123-import-scripts`. It 
 contains:

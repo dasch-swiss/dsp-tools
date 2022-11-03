@@ -32,13 +32,13 @@ dsp-tools create [options] project_definition.json
 
 The following options are available:
 
-- `-s` | `--server` _server_: URL of the DSP server (default: 0.0.0.0:3333)
-- `-u` | `--user` _username_: username used for authentication with the DSP API (default: root@example.com)
-- `-p` | `--password` _password_: password used for authentication with the DSP API (default: test)
-- `-V` | `--validate-only`: If set, only the validation of the JSON file is performed.
-- `-l` | `--lists-only`: If set, only the lists are created. Please note that in this case the project must already exist.
-- `-v` | `--verbose`: If set, more information about the progress is printed to the console.
-- `-d` | `--dump`: If set, dump test files for DSP-API requests.
+- `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
+- `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP API 
+- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP API 
+- `-V` | `--validate-only` (optional): If set, only the validation of the JSON file is performed.
+- `-l` | `--lists-only` (optional): If set, only the lists are created. Please note that in this case the project must already exist.
+- `-v` | `--verbose` (optional): If set, more information about the progress is printed to the console.
+- `-d` | `--dump` (optional): If set, dump test files for DSP-API requests.
 
 The command is used to read the definition of a project with its data model(s) (provided in a JSON file) and create it 
 on the DSP server. The following example shows how to upload the project defined in `project_definition.json` to the DSP
@@ -61,12 +61,12 @@ dsp-tools get [options] output_file.json
 
 The following options are available:
 
-- `-s` | `--server`: URL of the DSP server (default: 0.0.0.0:3333)
-- `-u` | `--user`: username used for authentication with the DSP API (default: root@example.com)
-- `-p` | `--password`: password used for authentication with the DSP API (default: test)
-- `-P` | `--project`: shortcode, shortname or
-  [IRI](https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier) of the project (mandatory)
-- `-v` | `--verbose`: If set, some information about the progress is printed to the console.
+- `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
+- `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP API 
+- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP API 
+- `-P` | `--project` (mandatory): shortcode, shortname or
+  [IRI](https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier) of the project 
+- `-v` | `--verbose` (optional): If set, some information about the progress is printed to the console.
 
 The command is used to get the definition of a project with its data model(s) from a DSP server and write it into a JSON 
 file. This JSON file can then be used to create the same project on another DSP server. The following example shows how 
@@ -131,21 +131,35 @@ to use this file to replace internal IDs in an existing XML file to reference ex
 
 
 
-## Create the "lists" section of a JSON project file from Excel files
+## Create a JSON project file from Excel files
+
+``` 
+dsp-tools excel2project data_model_files project.json
+```
+
+The expected file and folder structures are described [here](./dsp-tools-excel.md#json-project-file-from-excel).
+
+
+
+
+### Create the "lists" section of a JSON project file from Excel files
 
 ```bash
 dsp-tools excel2lists folder output.json
 ```
 
 Arguments:
- - `folder` (optional, default: "lists"): folder with the Excel file(s)
- - `output.json` (optional, default: "lists.json"): Output file
 
-The expected Excel format is [documented here](./dsp-tools-excel.md#create-the-lists-section-of-a-json-project-file-from-excel-files).
+ - `folder` (optional, default: `lists`): folder with the Excel file(s)
+ - `output.json` (optional, default: `lists.json`): Output file
+
+The expected Excel format is [documented here](./dsp-tools-excel.md#lists-section).
+
+**Tip: The command [`excel2project`](#create-a-json-project-file-from-excel-files) is easier to use.**
 
 
 
-## Create the "resources" section of a JSON project file from an Excel file
+### Create the "resources" section of a JSON project file from an Excel file
 
 ```bash
 dsp-tools excel2resources excel_file.xlsx output_file.json
@@ -154,20 +168,14 @@ dsp-tools excel2resources excel_file.xlsx output_file.json
 The command is used to create the resources section of an ontology from an Excel file. Therefore, an Excel file has to
 be provided with the data in the first worksheet of the Excel file.
 
-The following example shows how to create the resources section from an Excel file called `Resources.xlsx`. The output
-is written to a file called `resources.json`.
+The expected Excel format is [documented here](./dsp-tools-excel.md#resources-section).
 
-```bash
-dsp-tools excel2resources Resources.xlsx resources.json
-```
-
-More information about the usage of this command can be
-found [here](./dsp-tools-excel.md#create-the-resources-for-a-data-model-from-an-excel-file).
+**Tip: The command [`excel2project`](#create-a-json-project-file-from-excel-files) is easier to use.**
 
 
 
 
-## Create the "properties" section of a JSON project file from an Excel file
+### Create the "properties" section of a JSON project file from an Excel file
 
 ```bash
 dsp-tools excel2properties excel_file.xlsx output_file.json
@@ -176,15 +184,9 @@ dsp-tools excel2properties excel_file.xlsx output_file.json
 The command is used to create the properties section of an ontology from an Excel file. Therefore, an Excel file has to
 be provided with the data in the first worksheet of the Excel file.
 
-The following example shows how to create the properties section from an Excel file called `Properties.xlsx`. The output
-is written to a file called `properties.json`.
+The expected Excel format is [documented here](./dsp-tools-excel.md#properties-section).
 
-```bash
-dsp-tools excel2properties Properties.xlsx properties.json
-```
-
-More information about the usage of this command can be found
-[here](./dsp-tools-excel.md#create-the-properties-for-a-data-model-from-an-excel-file).
+**Tip: The command [`excel2project`](#create-a-json-project-file-from-excel-files) is easier to use.**
 
 
 
@@ -195,9 +197,9 @@ dsp-tools excel2xml data-source.xlsx project_shortcode ontology_name
 
 Arguments:
 
- - data-source.xlsx: An Excel/CSV file that is structured according to [these requirements](dsp-tools-excel.md#cli-command-excel2xml)
- - project_shortcode: The four-digit hexadecimal shortcode of the project
- - ontology_name: the name of the ontology that the data belongs to
+ - data-source.xlsx (mandatory): An Excel/CSV file that is structured according to [these requirements](dsp-tools-excel.md#cli-command-excel2xml)
+ - project_shortcode (mandatory): The four-digit hexadecimal shortcode of the project
+ - ontology_name (mandatory): the name of the ontology that the data belongs to
 
 If your data source is already structured according to the DSP specifications, but it is not in XML format yet, the 
 command `excel2xml` will transform it into XML. This is mostly used for DaSCH-interal data migration. There are no 

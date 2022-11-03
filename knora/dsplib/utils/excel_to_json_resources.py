@@ -1,7 +1,10 @@
 import json
+import os
 from typing import Any, Optional
+
 import jsonschema
 import pandas as pd
+
 from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.utils.shared import prepare_dataframe
 
@@ -18,7 +21,8 @@ def _validate_resources_with_schema(resources_list: list[dict[str, Any]]) -> boo
     Returns:
         True if the "resources" section passed validation. Otherwise, a BaseError with a detailed error report is raised.
     """
-    with open("knora/dsplib/schemas/resources-only.json") as schema:
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(current_dir, "../schemas/resources-only.json")) as schema:
         resources_schema = json.load(schema)
     try:
         jsonschema.validate(instance=resources_list, schema=resources_schema)

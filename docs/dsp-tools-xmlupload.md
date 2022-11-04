@@ -774,12 +774,15 @@ Example of a property with a public and a hidden URI:
 
 
 ## DSP base resources / base properties to be used directly in the XML file
+
 There is a number of base resources and base properties that must not be subclassed in a project ontology. They are 
 directly available in the XML data file. Please have in mind that built-in names of the knora-base ontology must be used 
 without prepended colon.  
 See also [the related part of the ontology documentation](dsp-tools-create-ontologies.md#dsp-base-resources--base-properties-to-be-used-directly-in-the-xml-file)
 
+
 ### `<annotation>`
+
 `<annotation>` is an annotation to another resource of any class. It must have the following predefined properties:
 
 - `hasComment` (1-n)
@@ -800,7 +803,9 @@ Example:
 Technical note: An `<annotation>` is in fact a `<resource restype="Annotation">`. But it is mandatory to use the 
 shortcut, so that the XML file can be validated more precisely.
 
+
 ### `<region>`
+
 A `<region>` resource defines a region of interest (ROI) in an image. It must have the following predefined properties:
 
 - `hasColor` (1)
@@ -841,10 +846,10 @@ More details about the `<geometry-prop>` are documented [here](#geometry-prop).
 
 Technical note: A `<region>` is in fact a `<resource restype="Region">`. But it is mandatory to use the 
 shortcut, so that the XML file can be validated more precisely.
- 
 
 
 ### `<link>`
+
 `<link>` is a resource linking together several other resources of different classes. It must have the following 
 predefined properties:
 

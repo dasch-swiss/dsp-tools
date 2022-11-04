@@ -1,6 +1,7 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
 # `excel2xml`: Convert a data source to XML
+
 dsp-tools assists you in converting a data source in CSV/XLS(X) format to an XML file.
 
 | **Hint**                                                                                                                                  |
@@ -48,15 +49,18 @@ These steps are now explained in-depth:
 
 
 ## 1. Read in your data source
+
 In the first paragraph of the sample script, insert your ontology name, project shortcode, and the path to your data 
 source. If necessary, activate one of the lines that are commented out.  
 
 
 ## 2. Create root element `<knora>`
+
 Then, the root element is created, which represents the `<knora>` tag of the XML document. 
 
 
 ## 3. Append the permissions
+
 As first children of `<knora>`, some standard permissions are added. At the end, please carefully check the permissions 
 of the finished XML file to ensure that they meet your requirements, and adapt them if necessary.  
 
@@ -69,6 +73,7 @@ here](./dsp-tools-xmlupload.md#how-to-use-the-permissions-attribute-in-resources
 
 
 ## 4. Create list mappings
+
 Let's assume that your data source has a column containing list values named after the "label" of the JSON project list, 
 instead of the "name" which is needed for the `dsp-tools xmlupload`. You need a way to get the names from the labels.
 If your data source uses the labels correctly, this is an easy task: The method `create_json_list_mapping()` creates a
@@ -137,10 +142,12 @@ used.
 
 
 ## 5. Iterate through the rows of your data source
+
 With the help of Pandas, you can then iterate through the rows of your Excel/CSV, and create resources and properties.
 
 
 ### 6. Create the `<resource>` tag
+
 There are four kind of resources that can be created: 
 
 | super        | tag            | method              |
@@ -154,6 +161,7 @@ There are four kind of resources that can be created:
 here](./dsp-tools-xmlupload.md#dsp-base-resources--base-properties-to-be-used-directly-in-the-xml-file). 
 
 #### Resource ID
+
 Special care is needed when the ID of a resource is created. Every resource must have an ID that is unique in the file,
 and it must meet the constraints of xsd:ID. You can simply achieve this if you use the method `make_xsd_id_compatible()`.
 
@@ -162,6 +170,7 @@ ID in a dict, so that you can retrieve it later. The example script contains an 
 
 
 ### 7. Append the properties
+
 For every property, there is a helper function that explains itself when you hover over it. So you don't need to worry 
 any more how to construct a certain XML value for a certain property. 
 
@@ -180,6 +189,7 @@ Here's how the Docstrings assist you:
 
 
 #### Fine-tuning with `PropertyElement`
+
 There are two possibilities how to create a property: The value can be passed as it is, or as `PropertyElement`. If it
 is passed as it is, the `permissions` are assumed to be `prop-default`, texts are assumed to be encoded as `utf8`, and 
 the value won't have a comment:
@@ -212,6 +222,7 @@ make_text_prop(
 
 
 #### Supported boolean formats
+
 For `make_boolean_prop(cell)`, the following formats are supported:
 
  - true: True, "true", "True", "1", 1, "yes", "Yes"
@@ -230,6 +241,7 @@ else:
 ```
 
 #### Supported text values 
+
 DSP's only restriction on text-properties is that the string must be longer than 0. It is, for example, possible to 
 upload the following property:
 ```xml
@@ -248,15 +260,19 @@ excel2xml.make_text_prop(":hasText", "-")   # OK, but triggers a warning
 
 
 ### 8. Append the resource to root
+
 At the end of the for-loop, it is important not to forget to append the finished resource to the root. 
 
 
 ## 9. Save the file
+
 At the very end, save the file under a name that you can choose yourself.
 
 
 ## Other helper methods
+
 ### Check if a cell contains a usable value
+
 The method `check_notna(cell)` checks a value if it is usable in the context of data archiving. A value is considered 
 usable if it is
 
@@ -306,6 +322,7 @@ In contrast, `check_notna(cell)` will return the expected value for all cases in
 
 
 ### Calendar date parsing
+
 The method `find_date_in_string(string)` tries to find a calendar date in a string. If successful, it 
 returns the DSP-formatted date string.
 

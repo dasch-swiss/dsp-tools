@@ -5,6 +5,7 @@ import base64
 import json
 import os
 import re
+import sys
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -304,6 +305,13 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
               f"{err.message}")
         quit(0)
 
+    if sys.platform.startswith("darwin") or sys.platform.startswith("linux"):
+        save_location = f"{os.path.expanduser('~')}/.dsp-tools"
+    elif sys.platform.startswith("win"):
+        save_location = "?"
+    else:
+        save_location = "?"
+
     # Connect to the DaSCH Service Platform API and get the project context
     con = Connection(server)
     try_network_action(failure_msg="Unable to login to DSP server", action=lambda: con.login(user, password))
@@ -351,42 +359,69 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         id2iri_mapping, failed_uploads = _upload_resources(resources, imgdir, sipi_server, permissions_lookup,
                                                            resclass_name_2_type, id2iri_mapping, con, failed_uploads)
     except BaseException as err:
-        _handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
+        _handle_upload_error(
+            err=err,
+            id2iri_mapping=id2iri_mapping,
+            failed_uploads=failed_uploads,
+            stashed_xml_texts=stashed_xml_texts,
+            stashed_resptr_props=stashed_resptr_props,
+            proj_shortcode=shortcode,
+            onto_name=default_ontology,
+            server=server,
+            save_location=save_location
+        )
 
     # update the resources with the stashed XML texts
-    nonapplied_xml_texts = {}
     if len(stashed_xml_texts) > 0:
         try:
             nonapplied_xml_texts = _upload_stashed_xml_texts(verbose, id2iri_mapping, con, stashed_xml_texts)
-            nonapplied_xml_texts = _purge_stashed_xml_texts(nonapplied_xml_texts, id2iri_mapping)
+            if len(nonapplied_xml_texts) > 0:
+                raise BaseError(f"Error while trying to upload the stashed xml texts")
         except BaseException as err:
-            _handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
+            _handle_upload_error(
+                err=err,
+                id2iri_mapping=id2iri_mapping,
+                failed_uploads=failed_uploads,
+                stashed_xml_texts=stashed_xml_texts,
+                stashed_resptr_props=stashed_resptr_props,
+                proj_shortcode=shortcode,
+                onto_name=default_ontology,
+                server=server,
+                save_location=save_location
+            )
 
     # update the resources with the stashed resptrs
-    nonapplied_resptr_props = {}
     if len(stashed_resptr_props) > 0:
         try:
             nonapplied_resptr_props = _upload_stashed_resptr_props(verbose, id2iri_mapping, con, stashed_resptr_props)
-            nonapplied_resptr_props = _purge_stashed_resptr_props(stashed_resptr_props, id2iri_mapping)
+            if len(nonapplied_resptr_props) > 0:
+                raise BaseError(f"Error while trying to upload the stashed resptr props")
         except BaseException as err:
-            _handle_upload_error(err, input_file, id2iri_mapping, failed_uploads, stashed_xml_texts, stashed_resptr_props)
+            _handle_upload_error(
+                err=err,
+                id2iri_mapping=id2iri_mapping,
+                failed_uploads=failed_uploads,
+                stashed_xml_texts=stashed_xml_texts,
+                stashed_resptr_props=stashed_resptr_props,
+                proj_shortcode=shortcode,
+                onto_name=default_ontology,
+                server=server,
+                save_location=save_location
+            )
 
     # write log files
     success = True
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
-    if len(nonapplied_xml_texts) > 0:
-        _write_stashed_xml_texts(nonapplied_xml_texts, timestamp_str)
-        success = False
-    if len(nonapplied_resptr_props) > 0:
-        _write_stashed_resptr_props(nonapplied_resptr_props, timestamp_str)
-        success = False
+    if len(id2iri_mapping) > 0:
+        id2iri_mapping_file = f"id2iri_{Path(input_file).stem}_mapping_{timestamp_str}.json"
+        with open(id2iri_mapping_file, "x") as f:
+            json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
+            print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
     if failed_uploads:
         print(f"\nWARNING: Could not upload the following resources: {failed_uploads}\n")
         success = False
     if success:
         print("All resources have successfully been uploaded.")
-    if len(id2iri_mapping) > 0:
-        _write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
 
     return success
 
@@ -706,11 +741,14 @@ def _purge_stashed_resptr_props(
 
 def _handle_upload_error(
     err: BaseException,
-    input_file: str,
     id2iri_mapping: dict[str, str],
     failed_uploads: list[str],
     stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
-    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]]
+    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
+    proj_shortcode: str,
+    onto_name: str,
+    server: str,
+    save_location: str
 ) -> None:
     """
     In case the xmlupload must be interrupted, e.g. because of an error that could not be handled, or due to keyboard
@@ -720,11 +758,14 @@ def _handle_upload_error(
 
     Args:
         err: error that was the cause of the abort
-        input_file: file name of the original XML file
         id2iri_mapping: mapping of ids from the XML file to IRIs in DSP (only successful uploads appear here)
         failed_uploads: resources that caused an error when uploading to DSP
         stashed_xml_texts: all xml texts that have been stashed
         stashed_resptr_props: all resptr props that have been stashed
+        proj_shortcode: shortcode of the project where the data is uploaded
+        onto_name: name of the ontology into which the data is uploaded
+        server: the server onto which the data is uploaded
+        save_location: path to the directory where dsp-tools can save logs (OS dependent)
 
     Returns:
         None
@@ -734,19 +775,21 @@ def _handle_upload_error(
           f'\nxmlupload must be aborted because of an error')
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
 
-    # write id2iri_mapping of the resources that are already in DSP
-    if len(id2iri_mapping) > 0:
-        _write_id2iri_mapping(input_file, id2iri_mapping, timestamp_str)
-
-    # Both stashes are purged from resources that have not been uploaded yet. Only stashed properties of resources that
-    # already exist in DSP are of interest.
+    # write stashes and id2iri_mapping. First, purge the stashes from resources that have not been uploaded yet. Only
+    # stashed properties of resources that already exist in DSP are of interest.
     stashed_xml_texts_purged = _purge_stashed_xml_texts(stashed_xml_texts, id2iri_mapping)
-    if len(stashed_xml_texts_purged) > 0:
-        _write_stashed_xml_texts(stashed_xml_texts_purged, timestamp_str)
-
     stashed_resptr_props_purged = _purge_stashed_resptr_props(stashed_resptr_props, id2iri_mapping)
-    if len(stashed_resptr_props_purged) > 0:
-        _write_stashed_resptr_props(stashed_resptr_props_purged, timestamp_str)
+    if len(stashed_xml_texts_purged) > 0 or len(stashed_resptr_props_purged) > 0 or len(id2iri_mapping) > 0:
+        _write_logs(
+            id2iri_mapping=id2iri_mapping,
+            stashed_xml_texts=stashed_xml_texts_purged,
+            stashed_resptr_props=stashed_resptr_props_purged,
+            timestamp_str=timestamp_str,
+            save_location=save_location,
+            proj_shortcode=proj_shortcode,
+            onto_name=onto_name,
+            server=server
+        )
 
     # print the resources that threw an error when they were tried to be uploaded
     if failed_uploads:
@@ -761,99 +804,61 @@ def _handle_upload_error(
         raise err
 
 
-def _write_id2iri_mapping(input_file: str, id2iri_mapping: dict[str, str], timestamp_str: str) -> None:
+def _write_logs(
+    id2iri_mapping: Optional[dict[str, str]],
+    stashed_xml_texts: Optional[dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]],
+    stashed_resptr_props: Optional[dict[XMLResource, dict[XMLProperty, list[str]]]],
+    timestamp_str: Optional[str],
+    save_location: str,
+    proj_shortcode: str,
+    onto_name: str,
+    server: str
+) -> None:
     """
-    Write the id2iri mapping into a file. The timestamp must be created by the caller, so that different log files can
-    have an identical timestamp.
+    Write the stashed_xml_texts and stashed_resptr_props into a file. The timestamp must be created by the caller, so
+    that different log files can have an identical timestamp.
 
     Args:
-        input_file: the file name of the original XML file
         id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
-        timestamp_str: timestamp for log file identification
-
-    Returns:
-        None
-    """
-
-    id2iri_mapping_file = "id2iri_" + Path(input_file).stem + "_mapping_" + timestamp_str + ".json"
-    with open(id2iri_mapping_file, "w") as outfile:
-        print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
-        outfile.write(json.dumps(id2iri_mapping))
-
-
-def _write_stashed_xml_texts(
-    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
-    timestamp_str: str
-) -> None:
-    """
-    Write the stashed_xml_texts into a file. The timestamp must be created by the caller, so that different log files
-    can have an identical timestamp.
-
-    Args:
         stashed_xml_texts: all xml texts that have been stashed
-        timestamp_str: timestamp for log file identification
-
-    Returns:
-        None
-    """
-
-    filename = f'stashed_text_properties_{timestamp_str}.txt'
-    print(f'There are stashed text properties that could not be reapplied to the resources they were stripped from. '
-          f'They were saved to {filename}')
-    with open(filename, 'a') as f:
-        f.write('Stashed text properties that could not be reapplied\n')
-        f.write('***************************************************\n')
-        f.write('During the xmlupload, some text properties had to be stashed away, because the salsah-links in \n'
-                'their XML text formed a circle. The xmlupload can only be done if these circles are broken up, by \n'
-                'stashing away some chain elements of the circle. \n'
-                'Some resources that have been stripped from some of their text properties have been created in DSP, \n'
-                'but the stashed text properties could not be reapplied to them, because the xmlupload was \n'
-                'unexpectedly interrupted. \n'
-                'This file is a list of all text properties that are now missing in DSP. The texts have been \n'
-                'replaced by a hash number that now stands in the text field in DSP. \n'
-                '(Not listed are the stripped resources that haven\'t been created in DSP yet.) \n')
-        for res, props in stashed_xml_texts.items():
-            f.write(f'\n{res.id}')
-            f.write('\n' + '=' * len(res.id))
-            for prop, stashed_texts in props.items():
-                if len(stashed_texts) > 0:
-                    f.write(f'\n{prop.name}')
-                    f.write('\n' + '-' * len(prop.name))
-                    for hash, standoff in stashed_texts.items():
-                        f.write(f'\ntext with hash {hash}:\n{str(standoff).strip()}\n')
-
-
-def _write_stashed_resptr_props(
-    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
-    timestamp_str: str
-) -> None:
-    """
-    Write the stashed_resptr_props into a file. The timestamp must be created by the caller, so that different log files
-    can have an identical timestamp.
-
-    Args:
         stashed_resptr_props: all resptr props that have been stashed
         timestamp_str: timestamp for log file identification
+        save_location: path to the directory where dsp-tools can save logs (OS dependent)
+        proj_shortcode: shortcode of the project into which the data is uploaded
+        onto_name: name of the ontology into which the data is uploaded
+        server: the server onto which the data is uploaded
 
     Returns:
         None
     """
+    server_substitutions = {
+        r"https?://": "",
+        r"^api\..+": "",
+        r":\d{4}/?$": "",
+        r"0.0.0.0": "localhost"
+    }
+    for pattern, repl in server_substitutions.items():
+        server = re.sub(pattern, repl, server)
 
-    filename = f'stashed_resptr_properties_{timestamp_str}.txt'
-    print(f'There are stashed resptr properties that could not be reapplied to the resources they were stripped from. '
-          f'They were saved to {filename}')
-    with open(filename, 'a') as f:
-        f.write('Stashed resptr properties that could not be reapplied\n')
-        f.write('*****************************************************\n')
-        f.write('During the xmlupload, some resptr-props had to be stashed away, because they formed a circle. The \n'
-                'xmlupload can only be done if these circles are broken up, by stashing away some chain elements of \n'
-                'the circle. \n'
-                'Some resources that have been stripped from some of their resptr-props have been created in DSP, \n'
-                'but the stashed resptr-props could not be reapplied to them, because the xmlupload was unexpectedly \n'
-                'interrupted. \n'
-                'This file is a list of all resptr-props that are now missing in DSP. (Not listed are the stripped \n'
-                'resources that haven\'t been created in DSP yet. \n')
-        for res, props_ in stashed_resptr_props.items():
-            f.write(f'\n{res.id}\n---------\n')
-            for prop, stashed_props in props_.items():
-                f.write(f'{prop.name}\n\t{stashed_props}\n')
+    save_location_full = f"{save_location}/xmluploads/{server}/{proj_shortcode}/{onto_name}"
+    os.makedirs(save_location_full, exist_ok=True)
+
+    if id2iri_mapping:
+        id2iri_mapping_file = f"{save_location_full}/{timestamp_str}_id2iri_mapping.json"
+        with open(id2iri_mapping_file, "x") as f:
+            json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
+            print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
+
+    if stashed_xml_texts:
+        xml_filename = f"{save_location_full}/{timestamp_str}_stashed_text_properties.json"
+        with open(xml_filename, "x") as f:
+            json.dump(stashed_xml_texts, f, ensure_ascii=False, indent=4)
+        print(f"There are stashed text properties that could not be reapplied to the resources they were stripped "
+              f"from. They were saved to {xml_filename}.")
+
+    if stashed_resptr_props:
+        resptr_filename = f"{save_location_full}/{timestamp_str}_stashed_resptr_properties.json"
+        with open(resptr_filename, "x") as f:
+            json.dump(stashed_resptr_props, f, ensure_ascii=False, indent=4)
+        print(f"There are stashed resptr properties that could not be reapplied to the resources they were stripped "
+              f"from. They were saved to {resptr_filename}")

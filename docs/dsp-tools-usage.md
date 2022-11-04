@@ -154,7 +154,7 @@ The following options are available:
 
 The expected Excel format is [documented here](./dsp-tools-excel.md#lists-section).
 
-**Tip: The command [`excel2project`](#create-a-json-project-file-from-excel-files) is easier to use.**
+**Tip: The command [`excel2project`](#create-a-json-project-file-from-excel-files) might be more convenient to use.**
 
 
 
@@ -169,7 +169,7 @@ be provided with the data in the first worksheet of the Excel file.
 
 The expected Excel format is [documented here](./dsp-tools-excel.md#resources-section).
 
-**Tip: The command [`excel2project`](#create-a-json-project-file-from-excel-files) is easier to use.**
+**Tip: The command [`excel2project`](#create-a-json-project-file-from-excel-files) might be more convenient to use.**
 
 
 
@@ -185,7 +185,7 @@ be provided with the data in the first worksheet of the Excel file.
 
 The expected Excel format is [documented here](./dsp-tools-excel.md#properties-section).
 
-**Tip: The command [`excel2project`](#create-a-json-project-file-from-excel-files) is easier to use.**
+**Tip: The command [`excel2project`](#create-a-json-project-file-from-excel-files) might be more convenient to use.**
 
 
 

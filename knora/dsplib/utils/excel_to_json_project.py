@@ -42,6 +42,7 @@ def excel2project(
         raise BaseError(f"ERROR: {data_model_files} is not a directory.")
     folder = [x for x in os.scandir(data_model_files) if not re.search(r"^(\.|~\$).+", x.name)]
 
+    processed_files = []
     onto_folders = [x for x in folder if os.path.isdir(x) and re.search(r"([\w.-]+) (\([\w.\- ]+\))", x.name)]
     if len(onto_folders) == 0:
         raise BaseError(f"'{data_model_files}' must contain at least one subfolder named after the pattern "
@@ -51,6 +52,7 @@ def excel2project(
         if contents != ["properties.xlsx", "resources.xlsx"]:
             raise BaseError(f"ERROR: '{data_model_files}/{onto_folder.name}' must contain one file 'properties.xlsx' "
                             f"and one file 'resources.xlsx', but nothing else.")
+        processed_files.extend([f"{data_model_files}/{onto_folder.name}/{file}" for file in contents])
 
     listfolder = [x for x in folder if os.path.isdir(x) and x.name == "lists"]
     if listfolder:
@@ -58,10 +60,14 @@ def excel2project(
         if not all([re.search(r"(de|en|fr|it|rm).xlsx", file.name) for file in listfolder_contents]):
             raise BaseError(f"The only files allowed in '{data_model_files}/lists' are en.xlsx, de.xlsx, fr.xlsx, "
                             f"it.xlsx, rm.xlsx")
+        processed_files = [f"{data_model_files}/lists/{file.name}" for file in listfolder_contents] + processed_files
 
     if len(onto_folders) + len(listfolder) != len(folder):
         raise BaseError(f"The only allowed subfolders in '{data_model_files}' are 'lists' and folders that match the "
                         f"pattern 'onto_name (onto_label)'")
+
+    print(f"The following files will be processed:")
+    [print(f" - {file}") for file in processed_files]
 
 
     # create output
@@ -101,3 +107,5 @@ def excel2project(
 
     with open(path_to_output_file, "w") as f:
         json.dump(project, f, indent=4, ensure_ascii=False)
+
+    print(f"JSON project file successfully saved at {path_to_output_file}")

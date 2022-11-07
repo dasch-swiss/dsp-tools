@@ -234,11 +234,11 @@ def program(user_args: list[str]) -> None:
                 distribution = step.get("with", {}).get("distribution", "").lower()
                 java_version = step.get("with", {}).get("java-version", "").lower()
                 regex_for_bash = f".*{distribution}.{java_version}.*"
-        output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-api.sh') + f' {regex_for_bash}'])
+        subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-api.sh'), regex_for_bash])
     elif args.action == 'stop-api' and not sys.platform.startswith('win'):
-        output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/stop-api.sh')])
+        subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/stop-api.sh')])
     elif args.action == 'start-app' and not sys.platform.startswith('win'):
-        output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-app.sh')])
+        subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-app.sh')])
 
 
 def main() -> None:

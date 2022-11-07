@@ -3,7 +3,7 @@
 set -u  # exit if an uninitialised variable is used (https://www.davidpashley.com/articles/writing-robust-shell-scripts/)
 set -e  # exit if any statement returns a non-true return value (https://www.davidpashley.com/articles/writing-robust-shell-scripts/)
 
-[[ "$(npm -g outdated)" =~ .*@angular/cli.* ]] || printf "\e[31mWARNING: Your Angular seems to be outdated. Please update it with \"npm update -g @angular/cli\"\e[0m\n"
+[[ "$(npm -g outdated)" =~ .*@angular/cli.* ]] || printf "\e[33mWARNING: You have outdated npm packages. List them with 'npm -g outdated' and update them with \"npm update -g (package)\"\e[0m\n"
 
 logfile="../dsp-app-startup.log"
 

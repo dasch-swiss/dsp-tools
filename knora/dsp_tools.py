@@ -4,9 +4,13 @@ The code in this file handles the arguments passed by the user from the command 
 import argparse
 import datetime
 import os
+import re
 import subprocess
 import sys
 from importlib.metadata import version
+
+import requests
+import yaml
 
 from knora.dsplib.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
 from knora.dsplib.utils.excel_to_json_properties import excel2properties
@@ -222,7 +226,15 @@ def program(user_args: list[str]) -> None:
                   shortcode=args.shortcode,
                   default_ontology=args.default_ontology)
     elif args.action == 'start-api' and not sys.platform.startswith('win'):
-        output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-api.sh')])
+        regex_for_bash = ".*temurin.17.*"
+        response = requests.get("https://raw.githubusercontent.com/dasch-swiss/dsp-api/main/.github/actions/preparation/action.yml")
+        action = yaml.safe_load(response.content)
+        for step in action.get("runs", {}).get("steps", {}):
+            if re.search("(JDK)|(Java)", step.get("name", "")):
+                distribution = step.get("with", {}).get("distribution", "").lower()
+                java_version = step.get("with", {}).get("java-version", "").lower()
+                regex_for_bash = f".*{distribution}.{java_version}.*"
+        output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-api.sh') + f' {regex_for_bash}'])
     elif args.action == 'stop-api' and not sys.platform.startswith('win'):
         output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/stop-api.sh')])
     elif args.action == 'start-app' and not sys.platform.startswith('win'):

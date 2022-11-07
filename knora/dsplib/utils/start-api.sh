@@ -9,11 +9,13 @@ set -e  # exit if any statement returns a non-true return value (https://www.dav
 # check dependencies
 echo "check for outdated dependencies..."
 [[ "$(brew outdated)" != "" ]] && printf "\e[31mWARNING: Some of your Homebrew formulas/casks are outdated. Please execute \"brew upgrade\"\e[0m\n"
-[[ "$(java --version)" =~ .*[Tt]emurin-17.* ]] || printf "\e[31mWARNING: Your JDK seems to be outdated. Please install JDK 17 Temurin.\e[0m\n"
+shopt -s nocasematch
+[[ "$(java --version)" =~ $? ]] || printf "\e[31mWARNING: Your JDK seems to be outdated. Please install JDK 17 Temurin.\e[0m\n"
 if echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 -w 10 > /dev/null 2>&1; then
     # pip should only be called if there is an internet connection
-    [[ "$(pip list --outdated)" =~ .*dsp-tools.* ]] && printf "\e[31mWARNING: Your version of dsp-tools is outdated. Please update it with \"pip install --upgrade dsp-tools\"\e[0m\n"
-    [[ "$(pip list --outdated)" != "" ]] && printf "\e[31mWARNING: Some of your pip packages are outdated. List them with \"pip list --outdated\" and consider updating them with \"pip install --upgrade (package)\"\e[0m\n"
+    outdated_pip_packages="$(pip list --outdated)"
+    [[ "$outdated_pip_packages" =~ .*dsp-tools.* ]] && printf "\e[31mWARNING: Your version of dsp-tools is outdated. Please update it with \"pip install --upgrade dsp-tools\"\e[0m\n"
+    [[ "$outdated_pip_packages" != "" ]] && printf "\e[31mWARNING: Some of your pip packages are outdated. List them with \"pip list --outdated\" and consider updating them with \"pip install --upgrade (package)\"\e[0m\n"
 fi
 
 logfile="../dsp-api-stackup.log"

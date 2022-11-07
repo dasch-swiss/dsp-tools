@@ -8,7 +8,7 @@ from knora.dsplib.utils.excel_to_json_properties import excel2properties
 from knora.dsplib.utils.excel_to_json_resources import excel2resources
 
 
-def excel2project(
+def excel2json(
     data_model_files: str,
     path_to_output_file: str
 ) -> None:

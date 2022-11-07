@@ -15,7 +15,7 @@ import jsonpath_ng
 import jsonpath_ng.ext
 
 from knora.dsplib.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
-from knora.dsplib.utils.excel_to_json_project import excel2project
+from knora.dsplib.utils.excel_to_json_project import excel2json
 from knora.dsplib.utils.excel_to_json_properties import excel2properties
 from knora.dsplib.utils.excel_to_json_resources import excel2resources
 from knora.dsplib.utils.id_to_iri import id_to_iri
@@ -297,9 +297,9 @@ class TestTools(unittest.TestCase):
 
 
     def test_excel_to_json_project(self) -> None:
-        excel2project(data_model_files="testdata/excel2project_files",
-                      path_to_output_file="testdata/tmp/_out_project.json")
-        with open("testdata/excel2project-expected-output.json") as f:
+        excel2json(data_model_files="testdata/excel2json_files",
+                   path_to_output_file="testdata/tmp/_out_project.json")
+        with open("testdata/excel2json-expected-output.json") as f:
             output_expected = json.load(f)
         with open("testdata/tmp/_out_project.json") as f:
             output = json.load(f)
@@ -315,14 +315,14 @@ class TestTools(unittest.TestCase):
 
 
     def test_excel_to_json_resources(self) -> None:
-        excel2resources(excelfile="testdata/excel2project_files/test-name (test_label)/resources.xlsx",
+        excel2resources(excelfile="testdata/excel2json_files/test-name (test_label)/resources.xlsx",
                         path_to_output_file="testdata/tmp/_out_resources.json")
         self.assertTrue(os.path.isfile("testdata/tmp/_out_resources.json"))
         os.remove("testdata/tmp/_out_resources.json")
 
 
     def test_excel_to_json_properties(self) -> None:
-        excel2properties(excelfile="testdata/excel2project_files/test-name (test_label)/properties.xlsx",
+        excel2properties(excelfile="testdata/excel2json_files/test-name (test_label)/properties.xlsx",
                          path_to_output_file="testdata/tmp/_out_properties.json")
         self.assertTrue(os.path.isfile("testdata/tmp/_out_properties.json"))
         os.remove("testdata/tmp/_out_properties.json")

@@ -134,10 +134,10 @@ to use this file to replace internal IDs in an existing XML file to reference ex
 ## Create a JSON project file from Excel files
 
 ``` 
-dsp-tools excel2project data_model_files project.json
+dsp-tools excel2json data_model_files project.json
 ```
 
-The expected file and folder structures are described [here](./dsp-tools-excel.md#json-project-file-from-excel).
+The expected file and folder structures are described [here](./dsp-tools-excel2json.md#json-project-file-from-excel).
 
 
 
@@ -152,9 +152,9 @@ The following options are available:
 
 - `-v` | `--verbose` (optional): If set, more information about the progress is printed to the console.
 
-The expected Excel format is [documented here](./dsp-tools-excel.md#lists-section).
+The expected Excel format is [documented here](./dsp-tools-excel2json.md#lists-section).
 
-**Tip: The command [`excel2project`](#create-a-json-project-file-from-excel-files) might be more convenient to use.**
+**Tip: The command [`excel2json`](#create-a-json-project-file-from-excel-files) might be more convenient to use.**
 
 
 
@@ -167,9 +167,9 @@ dsp-tools excel2resources excel_file.xlsx output_file.json
 The command is used to create the resources section of an ontology from an Excel file. Therefore, an Excel file has to
 be provided with the data in the first worksheet of the Excel file.
 
-The expected Excel format is [documented here](./dsp-tools-excel.md#resources-section).
+The expected Excel format is [documented here](./dsp-tools-excel2json.md#resources-section).
 
-**Tip: The command [`excel2project`](#create-a-json-project-file-from-excel-files) might be more convenient to use.**
+**Tip: The command [`excel2json`](#create-a-json-project-file-from-excel-files) might be more convenient to use.**
 
 
 
@@ -183,26 +183,38 @@ dsp-tools excel2properties excel_file.xlsx output_file.json
 The command is used to create the properties section of an ontology from an Excel file. Therefore, an Excel file has to
 be provided with the data in the first worksheet of the Excel file.
 
-The expected Excel format is [documented here](./dsp-tools-excel.md#properties-section).
+The expected Excel format is [documented here](./dsp-tools-excel2json.md#properties-section).
 
-**Tip: The command [`excel2project`](#create-a-json-project-file-from-excel-files) might be more convenient to use.**
+**Tip: The command [`excel2json`](#create-a-json-project-file-from-excel-files) might be more convenient to use.**
 
 
 
 ## Create an XML file from Excel/CSV
+
+If your data source is already structured according to the DSP specifications, but it is not in XML format yet, the 
+command `excel2xml` will transform it into XML. This is mostly used for DaSCH-interal data migration.
+
 ```bash
 dsp-tools excel2xml data-source.xlsx project_shortcode ontology_name
 ```
 
 Arguments:
 
- - data-source.xlsx (mandatory): An Excel/CSV file that is structured according to [these requirements](dsp-tools-excel.md#cli-command-excel2xml)
+ - data-source.xlsx (mandatory): An Excel/CSV file that is structured as explained below
  - project_shortcode (mandatory): The four-digit hexadecimal shortcode of the project
  - ontology_name (mandatory): the name of the ontology that the data belongs to
 
-If your data source is already structured according to the DSP specifications, but it is not in XML format yet, the 
-command `excel2xml` will transform it into XML. This is mostly used for DaSCH-interal data migration. There are no 
-flags/options for this command. The details of this command are documented [here](dsp-tools-excel.md#cli-command-excel2xml).
+The Excel file must be structured as in this image:
+![img-excel2xml.png](assets/images/img-excel2xml.png)
+
+Some notes:
+
+ - The special tags `<annotation>`, `<link>`, and `<region>` are represented as resources of restype `Annotation`, 
+`LinkObj`, and `Region`. 
+ - The columns "ark", "iri", and "creation_date" are only used for DaSCH-internal data migration.
+ - If `file` is provided, but no `file permissions`, an attempt will be started to deduce them from the resource 
+   permissions (`res-default` --> `prop-default` and `res-restricted` --> `prop-restricted`). If this attempt is not 
+   successful, a `BaseError` will be raised.
 
 If your data source is not yet structured according to the DSP specifications, you need a custom Python script for the 
 data transformation. For this, you might want to import the module `excel2xml` into your Python script, which is 

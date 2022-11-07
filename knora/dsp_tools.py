@@ -9,7 +9,7 @@ import sys
 from importlib.metadata import version
 
 from knora.dsplib.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
-from knora.dsplib.utils.excel_to_json_project import excel2project
+from knora.dsplib.utils.excel_to_json_project import excel2json
 from knora.dsplib.utils.excel_to_json_properties import excel2properties
 from knora.dsplib.utils.excel_to_json_resources import excel2resources
 from knora.dsplib.utils.id_to_iri import id_to_iri
@@ -90,15 +90,15 @@ def program(user_args: list[str]) -> None:
     parser_upload.add_argument('-I', '--incremental', action='store_true', help='Incremental XML upload')
     parser_upload.add_argument('xmlfile', help='path to xml file containing the data', default='data.xml')
 
-    # excel2project
-    parser_excel2project = subparsers.add_parser(
-        'excel2project',
+    # excel2json
+    parser_excel2json = subparsers.add_parser(
+        'excel2json',
         help='Create a JSON project file from a folder containing the required Excel files (lists folder, '
              'properties.xlsx, resources.xlsx)'
     )
-    parser_excel2project.set_defaults(action='excel2project')
-    parser_excel2project.add_argument('data_model_files', help='Path to the folder containing the Excel files')
-    parser_excel2project.add_argument('outfile', help='Path to the output JSON file')
+    parser_excel2json.set_defaults(action='excel2json')
+    parser_excel2json.add_argument('data_model_files', help='Path to the folder containing the Excel files')
+    parser_excel2json.add_argument('outfile', help='Path to the output JSON file')
 
     # excel2lists
     parser_excel_lists = subparsers.add_parser(
@@ -210,8 +210,8 @@ def program(user_args: list[str]) -> None:
                        sipi=args.sipi,
                        verbose=args.verbose,
                        incremental=args.incremental)
-    elif args.action == 'excel2project':
-        excel2project(data_model_files=args.data_model_files,
+    elif args.action == 'excel2json':
+        excel2json(data_model_files=args.data_model_files,
                       path_to_output_file=args.outfile)
     elif args.action == 'excel2lists':
         excel2lists(excelfolder=args.excelfolder,

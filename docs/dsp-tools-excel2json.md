@@ -1,14 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Excel files for data modelling and data import
-
-dsp-tools is able to process Excel files and output the appropriate JSON or XML file. The JSON/XML file can then be
-used to create the ontology on the DSP server or import data to the DSP repository. 
-
-
-
-
-## JSON project file from Excel
+# `excel2json`: Create a data model (JSON project file) from Excel
 
 With dsp-tools, a JSON project file can be created from Excel files. The command for this is documented 
 [here](./dsp-tools-usage.md#create-a-json-project-file-from-excel-files). A JSON project consists of different parts, and for
@@ -34,7 +26,7 @@ Conventions for the folder names:
 
 Then, use the following command:
 ```
-dsp-tools excel2project data_model_files project.json
+dsp-tools excel2json data_model_files project.json
 ```
 
 This will create a file `project.json` with the lists, properties, and resources from the Excel files. 
@@ -47,7 +39,7 @@ Continue reading the following paragraphs to learn more about the expected struc
 
 
 
-### "resources" section
+## "resources" section
 
 With dsp-tools, the `resources` section used in a data model (JSON) can be created from an Excel file. The command for 
 this is documented [here](./dsp-tools-usage.md#create-the-resources-section-of-a-json-project-file-from-an-excel-file). 
@@ -89,7 +81,7 @@ For further information about resources, see [here](./dsp-tools-create-ontologie
 
 
 
-### "properties" section
+## "properties" section
 
 With dsp-tools, the `properties` section used in a data model (JSON) can be created from an Excel file. The command for 
 this is documented [here](./dsp-tools-usage.md#create-the-properties-section-of-a-json-project-file-from-an-excel-file). 
@@ -122,7 +114,7 @@ For further information about properties, see [here](./dsp-tools-create-ontologi
 
 
 
-### "lists" section
+## "lists" section
 
 With dsp-tools, the "lists" section of a JSON project file can be created from one or several Excel files. The lists can 
 then be inserted into a JSON project file and uploaded to a DSP server. The command for this is documented 
@@ -228,37 +220,3 @@ The output of the above command, with the template files, is:
     ]
 }
 ```
-
-
-
-## XML data file from Excel/CSV
-
-There are two use cases for a transformation from Excel/CSV to XML: 
-
- - The CLI command `dsp-tools excel2xml` creates an XML file from an Excel/CSV file which is already structured 
-   according to the DSP specifications. This is mostly used for DaSCH-interal data migration.
- - The module `excel2xml` can be imported into a custom Python script that transforms any tabular data into an XML. This
-   use case is more frequent, because data from research projects have a variety of formats/structures. The module 
-   `excel2xml` is documented [here](./dsp-tools-excel2xml.md).
-
-
-### CLI command `excel2xml`
-
-The command line tool is used as follows:
-```bash
-dsp-tools excel2xml data-source.xlsx 1234 shortname
-```
-
-There are no flags/options for this command.
-
-The Excel file must be structured as in this image:
-![img-excel2xml.png](assets/images/img-excel2xml.png)
-
-Some notes:
-
- - The special tags `<annotation>`, `<link>`, and `<region>` are represented as resources of restype `Annotation`, 
-`LinkObj`, and `Region`. 
- - The columns "ark", "iri", and "creation_date" are only used for DaSCH-internal data migration.
- - If `file` is provided, but no `file permissions`, an attempt will be started to deduce them from the resource 
-   permissions (`res-default` --> `prop-default` and `res-restricted` --> `prop-restricted`). If this attempt is not 
-   successful, a `BaseError` will be raised.

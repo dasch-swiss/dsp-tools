@@ -1,11 +1,13 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# `excel2xml`: Convert a data source to XML
-dsp-tools assists you in converting a data source in CSV/XLS(X) format to an XML file.
+# Module `excel2xml`: Convert a data source to XML
 
-| **Hint**                                                                                                                             |
-|--------------------------------------------------------------------------------------------------------------------------------------|
-| This page is about the **module** `excel2xml`. The CLI command is documented [here](dsp-tools-excel.md#xml-data-file-from-excelcsv). |
+This page is about the module `excel2xml` that can be imported into a custom Python script that transforms any tabular 
+data into an XML. 
+
+There is also a CLI command `dsp-tools excel2xml` that creates an XML file from an Excel/CSV file which is already 
+structured according to the DSP specifications. The CLI command is documented 
+[here](./dsp-tools-usage.md#use-the-module-excel2xml-to-convert-a-data-source-to-xml).
 
 To demonstrate the usage of the `excel2xml` module, there is a GitHub repository named `0123-import-scripts`. It 
 contains:

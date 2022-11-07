@@ -17,7 +17,7 @@ def excel2json(
 
     ::
 
-        data_model_templates
+        data_model_files
         |-- lists
         |   |-- de.xlsx
         |   `-- en.xlsx

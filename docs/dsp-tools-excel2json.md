@@ -3,13 +3,23 @@
 # `excel2json`: Create a data model (JSON project file) from Excel
 
 With dsp-tools, a JSON project file can be created from Excel files. The command for this is documented 
-[here](./dsp-tools-usage.md#create-a-json-project-file-from-excel-files). A JSON project consists of different parts, and for
-each of these parts, one or several Excel files are necessary. The Excel files and their format are described below.
-It is possible to invoke a command for each of these parts separately (as described below). But it is more convenient to
-use the command that creates the entire JSON project file. In order to do so, put all involved files into a folder with 
-the following structure:
+[here](./dsp-tools-usage.md#create-a-json-project-file-from-excel-files). 
+
+A JSON project consists of
+
+ - 0-1 "lists" sections
+ - 1-n ontologies, each containing
+     - 1 "properties" section
+     - 1 "resources" section
+
+For each of these 3 sections, one or several Excel files are necessary. The Excel files and their format are described 
+below. If you want to convert the Excel files to JSON, it is possible to invoke a command for each of these sections 
+separately (as described below). 
+
+But it is more convenient to use the command that creates the entire JSON project file. In order to do so, put all 
+involved files into a folder with the following structure:
 ```
-data_model_templates
+data_model_files
 |-- lists
 |   |-- de.xlsx
 |   `-- en.xlsx

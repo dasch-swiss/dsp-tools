@@ -240,7 +240,11 @@ def program(user_args: list[str]) -> None:
     elif args.action == 'stop-api' and not sys.platform.startswith('win'):
         subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/stop-api.sh')])
     elif args.action == 'start-app' and not sys.platform.startswith('win'):
-        subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-app.sh')])
+        try:
+            subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-app.sh')])
+        except KeyboardInterrupt:
+            print("You successfully stopped the APP")
+            exit(0)
 
 
 def main() -> None:

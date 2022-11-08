@@ -1,8 +1,10 @@
 #! /bin/bash
-# make this file executable with chmod u+x (filename).sh
 set -u  # exit if an uninitialised variable is used (https://www.davidpashley.com/articles/writing-robust-shell-scripts/)
-set -e  # exit if any statement returns a non-true return value (https://www.davidpashley.com/articles/writing-robust-shell-scripts/)
 
+# only allow to run this command if Docker is running
+[[ $(docker stats --no-stream 2>/dev/null ) == "" ]] && printf "\e[31mERROR: Please start Docker before running DSP-API.\e[0m\n" && return
+
+# check the dependencies with a timeout
 check_dependencies () {
     echo "check for outdated dependencies..."
     shopt -s nocasematch
@@ -16,13 +18,9 @@ check_dependencies () {
     fi
 }
 export -f check_dependencies
+timeout --preserve-status 10s bash -c check_dependencies
 
-# only allow to run this command if Docker is running
-[[ $(docker stats --no-stream 2>/dev/null ) == "" ]] && printf "\e[31mERROR: Please start Docker before running DSP-API.\e[0m\n" && return
-
-# check the dependencies with a timeout
-timeout --signal=0 8s bash -c check_dependencies
-
+set -e  # exit if any statement returns a non-true return value (https://www.davidpashley.com/articles/writing-robust-shell-scripts/)
 logfile="../dsp-api-stackup.log"
 
 cd ~

@@ -226,15 +226,17 @@ def program(user_args: list[str]) -> None:
                   shortcode=args.shortcode,
                   default_ontology=args.default_ontology)
     elif args.action == 'start-api' and not sys.platform.startswith('win'):
-        regex_for_bash = ".*temurin.17.*"
-        response = requests.get("https://raw.githubusercontent.com/dasch-swiss/dsp-api/main/.github/actions/preparation/action.yml")
-        action = yaml.safe_load(response.content)
-        for step in action.get("runs", {}).get("steps", {}):
-            if re.search("(JDK)|(Java)", step.get("name", "")):
-                distribution = step.get("with", {}).get("distribution", "").lower()
-                java_version = step.get("with", {}).get("java-version", "").lower()
-                regex_for_bash = f".*{distribution}.{java_version}.*"
-        subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-api.sh'), regex_for_bash])
+        try:
+            response = requests.get("https://raw.githubusercontent.com/dasch-swiss/dsp-api/main/.github/actions/preparation/action.yml")
+            action = yaml.safe_load(response.content)
+            for step in action.get("runs", {}).get("steps", {}):
+                if re.search("(JDK)|(Java)", step.get("name", "")):
+                    distribution = step.get("with", {}).get("distribution", "").lower()
+                    java_version = step.get("with", {}).get("java-version", "").lower()
+        except requests.ConnectionError:
+            distribution = "temurin"
+            java_version = "17"
+        subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-api.sh'), distribution, java_version])
     elif args.action == 'stop-api' and not sys.platform.startswith('win'):
         subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/stop-api.sh')])
     elif args.action == 'start-app' and not sys.platform.startswith('win'):

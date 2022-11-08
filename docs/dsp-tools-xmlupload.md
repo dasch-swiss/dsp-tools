@@ -262,10 +262,26 @@ The `<bitstream>` element is used for bitstream data. It contains the path to a 
 ZIP container, an audio file etc. It must only be used if the resource is a `StillImageRepresentation`, an
 `AudioRepresentation`, a `DocumentRepresentation` etc.
 
-Note:
+Notes:
 
-- There is only _one_ `<bitstream>` element allowed per representation!
-- The `<bitstream>` element must be the first element!
+- There is only _one_ `<bitstream>` element allowed per representation.
+- The `<bitstream>` element must be the first element.
+- The path is relative to the working directory where `dsp-tools xmlupload` is executed in. It is recommended to 
+  choose the project folder as working directory, `my_project` in the example below:
+
+```
+my_project
+├── files
+│   ├── data_model.json
+│   └── data_file.xml   (<bitstream>images/dog.jpg</bitstream>)
+└── images
+    ├── dog.jpg
+    └── cat.jpg
+```
+
+```
+my_project % dsp-tools xmlupload files/data_file.xml
+```
 
 Supported file extensions:
 

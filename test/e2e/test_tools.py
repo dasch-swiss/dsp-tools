@@ -4,25 +4,27 @@ line. The methods are tested in the order in which teh appear in dsp_tools.py. T
 can be called with the basic configuration that is available via CLI. More thorough testing of each method is done in
 separate unit tests/e2e tests.
 """
-import json
-import unittest
-import os
+import copy
 import datetime
+import json
+import os
 import re
+import unittest
+
 import jsonpath_ng
 import jsonpath_ng.ext
-import copy
 
 from knora.dsplib.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
+from knora.dsplib.utils.excel_to_json_project import excel2json
 from knora.dsplib.utils.excel_to_json_properties import excel2properties
 from knora.dsplib.utils.excel_to_json_resources import excel2resources
 from knora.dsplib.utils.id_to_iri import id_to_iri
-from knora.dsplib.utils.onto_create_ontology import create_project
-from knora.dsplib.utils.onto_validate import validate_project
 from knora.dsplib.utils.onto_create_lists import create_lists
+from knora.dsplib.utils.onto_create_ontology import create_project
 from knora.dsplib.utils.onto_get import get_ontology
-from knora.dsplib.utils.xml_upload import xml_upload
+from knora.dsplib.utils.onto_validate import validate_project
 from knora.dsplib.utils.shared import validate_xml_against_schema
+from knora.dsplib.utils.xml_upload import xml_upload
 from knora.excel2xml import excel2xml
 
 
@@ -294,6 +296,17 @@ class TestTools(unittest.TestCase):
         os.remove(id2iri_replaced_xml_filename)
 
 
+    def test_excel_to_json_project(self) -> None:
+        excel2json(data_model_files="testdata/excel2json_files",
+                   path_to_output_file="testdata/tmp/_out_project.json")
+        with open("testdata/excel2json-expected-output.json") as f:
+            output_expected = json.load(f)
+        with open("testdata/tmp/_out_project.json") as f:
+            output = json.load(f)
+        self.assertDictEqual(output, output_expected)
+        os.remove("testdata/tmp/_out_project.json")
+
+
     def test_excel_to_json_list(self) -> None:
         excel2lists(excelfolder="testdata/lists_multilingual",
                     path_to_output_file="testdata/tmp/_lists-out.json")
@@ -302,14 +315,14 @@ class TestTools(unittest.TestCase):
 
 
     def test_excel_to_json_resources(self) -> None:
-        excel2resources(excelfile="testdata/Resources.xlsx",
+        excel2resources(excelfile="testdata/excel2json_files/test-name (test_label)/resources.xlsx",
                         path_to_output_file="testdata/tmp/_out_resources.json")
         self.assertTrue(os.path.isfile("testdata/tmp/_out_resources.json"))
         os.remove("testdata/tmp/_out_resources.json")
 
 
     def test_excel_to_json_properties(self) -> None:
-        excel2properties(excelfile="testdata/Properties.xlsx",
+        excel2properties(excelfile="testdata/excel2json_files/test-name (test_label)/properties.xlsx",
                          path_to_output_file="testdata/tmp/_out_properties.json")
         self.assertTrue(os.path.isfile("testdata/tmp/_out_properties.json"))
         os.remove("testdata/tmp/_out_properties.json")

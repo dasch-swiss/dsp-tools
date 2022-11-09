@@ -24,7 +24,7 @@ resource or not. The cardinality definitions are explained [further below](#card
 
 Example of an `ontologies` object:
 
-```json
+```
 {
   "ontologies": [
     {
@@ -653,6 +653,7 @@ Example:
 
 
 ### Link-properties
+
 Link properties do not follow the pattern of the previous data types, because they do not connect to a final value but 
 to an existing resource. Thus, the `object` denominates the resource class the link will point to.
 
@@ -752,7 +753,7 @@ directly as cardinalities in a resource. The example belows shows both possibili
 
 Example:
 
-```json
+```
 "properties": [
     {
         "name": "partOfBook",
@@ -845,7 +846,7 @@ they can be used directly as cardinalities in a resource. The example below show
 
 Example:
 
-```json
+```
 "properties": [
     {
         "name": "sequenceOfAudio",
@@ -1096,6 +1097,7 @@ it is necessary to reference entities that are defined elsewhere. The following 
 
 
 ## DSP base resources / base properties to be used directly in the XML file
+
 There is a number of DSP base resources that must not be subclassed in a project ontology. They are directly available 
 in the XML data file:
 

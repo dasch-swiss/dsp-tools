@@ -11,7 +11,7 @@ The command to import an XML file on a DSP server is described [here](./dsp-tool
 
 The import file must start with the standard XML header:
 
-```xml
+```
 <?xml version='1.0' encoding='utf-8'?>
 ```
 
@@ -170,7 +170,7 @@ and its properties. It is important to note that a resource doesn't inherit its 
 property must have its own permissions. So, in the following example, the bitstreams don't inherit the permissions from their 
 resource:
 
-```xml
+```
 <resource ...>
     <bitstream permissions="prop-default">
         postcards/images/EURUS015a.jpg
@@ -189,6 +189,7 @@ resource:
 ```
 
 To take `KnownUser` as example:
+
  - With `permissions="prop-default"`, a logged-in user who is not member of the project (`KnownUser`) has `V` rights 
    on the image: Normal view.
  - With `permissions="prop-restricted"`, a logged-in user who is not member of the project (`KnownUser`) has `RV` 
@@ -261,10 +262,26 @@ The `<bitstream>` element is used for bitstream data. It contains the path to a 
 ZIP container, an audio file etc. It must only be used if the resource is a `StillImageRepresentation`, an
 `AudioRepresentation`, a `DocumentRepresentation` etc.
 
-Note:
+Notes:
 
-- There is only _one_ `<bitstream>` element allowed per representation!
-- The `<bitstream>` element must be the first element!
+- There is only _one_ `<bitstream>` element allowed per representation.
+- The `<bitstream>` element must be the first element.
+- The path is relative to the working directory where `dsp-tools xmlupload` is executed in. It is recommended to 
+  choose the project folder as working directory, `my_project` in the example below:
+
+```
+my_project
+├── files
+│   ├── data_model.json
+│   └── data_file.xml   (<bitstream>images/dog.jpg</bitstream>)
+└── images
+    ├── dog.jpg
+    └── cat.jpg
+```
+
+```
+my_project % dsp-tools xmlupload files/data_file.xml
+```
 
 Supported file extensions:
 
@@ -310,7 +327,7 @@ Attributes:
 - `comment`: a comment for this specific value (optional)
 
 Example of a public and a hidden boolean property:
-```xml
+```
 <boolean-prop name=":hasBoolean">
   <boolean permissions="prop-default">true</boolean>
 </boolean-prop>
@@ -427,15 +444,12 @@ Example of a property with a public and a hidden decimal value:
 ### &lt;geometry-prop&gt;
 
 The `<geometry-prop>` element is used for a geometric definition of a 2-D region (e.g. a region on an image). It must
-contain at least one `<geometry>` element.
-
-Note:
-
-- Usually these are not created by an import and should be used with caution!
+contain at least one `<geometry>` element. A `<geometry-prop>` can only be used inside a [`<region>` tag](#region). 
 
 Attributes:
 
-- `name`: name of the property as defined in the ontology (required)
+- `name`: the only allowed name is `hasGeometry`, because this property is a DSP base property that can only be used in 
+  the [`<region>` tag](#region).
 
 
 #### &lt;geometry&gt;
@@ -443,60 +457,65 @@ Attributes:
 A geometry value is defined as a JSON object. It contains the following data:
 
 - `status`: "active" or "deleted"
-- `type`: "circle", "rectangle" or "polygon"
+- `type`: "circle", "rectangle" or "polygon" (only the rectangle can be displayed in DSP-APP. The others can be 
+  looked at in another frontend, e.g. in TANGOH.)
 - `lineColor`: web-color
 - `lineWidth`: integer number (in pixels)
 - `points`: array of coordinate objects of the form `{"x": decimal, "y": decimal}`
 - `radius`: coordinate object of the form `{"x": decimal, "y": decimal}`
-
-Please note that all coordinates are normalized coordinates (relative to the image size) between 0.0 and 1.0!
-
-The following example defines a polygon:
-
-```json
-{
-   "status": "active",
-   "type": "polygon",
-   "lineColor": "#ff3333",
-   "lineWidth": 2,
-   "points": [{"x": 0.17252396166134185, "y": 0.1597222222222222},
-             {"x": 0.8242811501597445,  "y": 0.14583333333333334},
-             {"x": 0.8242811501597445,  "y": 0.8310185185185185},
-             {"x": 0.1757188498402556,  "y": 0.8240740740740741},
-             {"x": 0.1757188498402556,  "y": 0.1597222222222222},
-             {"x": 0.16932907348242812, "y": 0.16435185185185186}],
-   "original_index": 0
-}
-```
-
-Example of a property with a public polygon and a hidden rectangle:
-```xml
-<geometry-prop name=":hasRegion">
-    <geometry permissions="prop-default">
-        { 
-            "status": "active", "type": "polygon", "lineColor": "#ff3333", "lineWidth": 2, "original_index": 0,
-            "points": [{"x": 0.1725239616613418, "y": 0.1597222222222222},
-                       {"x": 0.8242811501597445, "y": 0.1458333333333333},
-                       {"x": 0.8242811501597445, "y": 0.8310185185185185},
-                       {"x": 0.1757188498402556, "y": 0.8240740740740740},
-                       {"x": 0.1757188498402556, "y": 0.1597222222222222},
-                       {"x": 0.1693290734824281, "y": 0.1643518518518518}]
-        }
-    </geometry>
-    <geometry>
-        {
-            "status": "active", "type": "rectangle", "lineColor": "#ff3333", "lineWidth": 2, "original_index": 0,
-            "points": [{"x": 0.080985915492957750, "y": 0.16741071428571427},
-                       {"x": 0.739436619718309900, "y": 0.72991071428571430}]
-        }
-    </geometry>
-</geometry-prop>
-```
+- In the SALSAH data, there is also a key named `original_index` in the JSON format of all three shapes, but it doesn't 
+  seem to have an influence on the shapes that TANGOH displays, so it can be omitted. 
 
 Attributes:
 
 - `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
+
+Example:
+```
+<geometry-prop name="hasGeometry">
+    <geometry permissions="prop-default">
+        {
+            "status": "active",
+            "type": "rectangle",
+            "lineColor": "#ff1100",
+            "lineWidth": 5,
+            "points": [
+                {"x":0.1,"y":0.7},
+                {"x":0.3,"y":0.2}
+            ]
+        }
+    </geometry>
+    <geometry permissions="prop-default">
+        {
+            "status": "active",
+            "type": "circle",
+            "lineColor": "#ff1100",
+            "lineWidth": 5,
+            "points": [{"x":0.5,"y":0.3}],
+            "radius": {"x":0.1,"y":0.1}     // vector (0.1, 0.1)
+        }
+    </geometry>
+    <geometry permissions="prop-default">
+        {
+            "status": "active",
+            "type": "polygon",
+            "lineColor": "#ff1100",
+            "lineWidth": 5,
+            "points": [{"x": 0.4, "y": 0.6},
+                       {"x": 0.5, "y": 0.9},
+                       {"x": 0.8, "y": 0.9},
+                       {"x": 0.7, "y": 0.6}]
+        }
+    </geometry>
+</geometry-prop>
+```
+
+The underlying grid is a 0-1 normalized top left-anchored grid. The following coordinate system shows the three shapes
+that were defined above:
+![grid-for-geometry-prop](./assets/images/grid-for-geometry-prop.png)
+
+
 
 
 ### &lt;geoname-prop&gt;
@@ -771,12 +790,15 @@ Example of a property with a public and a hidden URI:
 
 
 ## DSP base resources / base properties to be used directly in the XML file
+
 There is a number of base resources and base properties that must not be subclassed in a project ontology. They are 
 directly available in the XML data file. Please have in mind that built-in names of the knora-base ontology must be used 
 without prepended colon.  
-See also [the related part of the ontology documentation](dsp-tools-create-ontologies.md#dsp-base-resources-base-properties-to-be-used-directly-in-the-xml-file).
+See also [the related part of the ontology documentation](dsp-tools-create-ontologies.md#dsp-base-resources--base-properties-to-be-used-directly-in-the-xml-file)
+
 
 ### `<annotation>`
+
 `<annotation>` is an annotation to another resource of any class. It must have the following predefined properties:
 
 - `hasComment` (1-n)
@@ -797,7 +819,9 @@ Example:
 Technical note: An `<annotation>` is in fact a `<resource restype="Annotation">`. But it is mandatory to use the 
 shortcut, so that the XML file can be validated more precisely.
 
+
 ### `<region>`
+
 A `<region>` resource defines a region of interest (ROI) in an image. It must have the following predefined properties:
 
 - `hasColor` (1)
@@ -805,10 +829,7 @@ A `<region>` resource defines a region of interest (ROI) in an image. It must ha
 - `hasGeometry` (1)
 - `hasComment` (1-n)
 
-There are three types of Geometry shapes (rectangle, circle, polygon), but only the rectangle can be displayed in 
-DSP-APP. The others can be used as well, but must be looked at in another fronted, e.g. in TANGOH. 
-
-Example of a rectangle:
+Example:
 ```xml
 <region label="Rectangle in image" id="region_0" permissions="res-default">
     <color-prop name="hasColor">
@@ -837,42 +858,14 @@ Example of a rectangle:
 </region>
 ```
 
+More details about the `<geometry-prop>` are documented [here](#geometry-prop).
 
-The circle and polygon are created with the following syntax:
-```json
-{
-    "status": "active",
-    "type": "circle",
-    "lineColor": "#ff1100",
-    "lineWidth": 5,
-    "points": [{"x":0.5,"y":0.3}],
-    "radius": {"x":0.1,"y":0.1}     // vector (0.1, 0.1)
-},
-{
-    "status": "active",
-    "type": "polygon",
-    "lineColor": "#ff1100",
-    "lineWidth": 5,
-    "points": [{"x": 0.4, "y": 0.6},
-               {"x": 0.5, "y": 0.9},
-               {"x": 0.8, "y": 0.9},
-               {"x": 0.7, "y": 0.6}]
-}
-```
-
-The underlying grid is a 0-1 normalized top left-anchored grid. The following coordinate system shows the three shapes
-that were defined above:
-![grid-for-geometry-prop](./assets/images/grid-for-geometry-prop.png)
-
-
-Technical notes: 
- - A `<region>` is in fact a `<resource restype="Region">`. But it is mandatory to use the 
+Technical note: A `<region>` is in fact a `<resource restype="Region">`. But it is mandatory to use the 
 shortcut, so that the XML file can be validated more precisely.
- - In the SALSAH data, there is also a key named `original_index` in the JSON format of all three shapes, but it doesn't 
-   seem to have an influence on the shapes that TANGOH displays, so it can be omitted.  
 
 
 ### `<link>`
+
 `<link>` is a resource linking together several other resources of different classes. It must have the following 
 predefined properties:
 
@@ -999,20 +992,6 @@ To do an incremental XML upload, one of the following procedures is recommended.
         <color-prop name=":hasColor">
             <color permissions="prop-default">#00ff00</color>
         </color-prop>
-        <geometry-prop name=":hasGeometry">
-            <geometry permissions="prop-default">
-                {
-                    "status":"active",
-                    "lineColor":"#ff3333",
-                    "lineWidth":2,
-                    "points":[
-                        {"x":0.08098591549295775,"y":0.16741071428571427},
-                        {"x":0.7394366197183099,"y":0.7299107142857143}],
-                    "type":"rectangle",
-                    "original_index":0
-                }
-            </geometry>
-        </geometry-prop>
         <geoname-prop name=":hasGeoname">
             <geoname permissions="prop-default" comment="A sacred place for railroad fans">5416656</geoname>
         </geoname-prop>
@@ -1058,20 +1037,6 @@ To do an incremental XML upload, one of the following procedures is recommended.
         <color-prop name=":hasColor">
             <color permissions="prop-default">#33ff77</color>
         </color-prop>
-        <geometry-prop name=":hasGeometry">
-            <geometry permissions="prop-default">
-                {
-                    "status":"active",
-                    "lineColor":"#ff3333",
-                    "lineWidth":2,
-                    "points":[
-                        {"x":0.08098591549295775,"y":0.16741071428571427},
-                        {"x":0.7394366197183099,"y":0.7299107142857143}],
-                    "type":"rectangle",
-                    "original_index":0
-                }
-            </geometry>
-        </geometry-prop>
         <geoname-prop name=":hasGeoname">
             <geoname permissions="prop-default" comment="A sacred place for railroad fans">5416656</geoname>
         </geoname-prop>
@@ -1117,20 +1082,6 @@ To do an incremental XML upload, one of the following procedures is recommended.
         <color-prop name=":hasColor">
             <color permissions="prop-default">#33ff77</color>
         </color-prop>
-        <geometry-prop name=":hasGeometry">
-            <geometry permissions="prop-default">
-                {
-                    "status":"active",
-                    "lineColor":"#ff3333",
-                    "lineWidth":2,
-                    "points":[
-                        {"x":0.08098591549295775,"y":0.16741071428571427},
-                        {"x":0.7394366197183099,"y":0.7299107142857143}],
-                    "type":"rectangle",
-                    "original_index":0
-                }
-            </geometry>
-        </geometry-prop>
         <geoname-prop name=":hasGeoname">
             <geoname permissions="prop-default" comment="A sacred place for railroad fans">5416656</geoname>
         </geoname-prop>

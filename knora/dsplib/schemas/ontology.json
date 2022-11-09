@@ -47,6 +47,33 @@
                 "ArchiveRepresentation"
             ]
         },
+        "super_resource": {
+            "type": ["string"],
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/baseresource"
+                },
+                {
+                    "$ref": "#/definitions/prefixedname"
+                },
+                {
+                    "pattern": "^(http)(s)?://.*"
+                }
+            ]
+        },
+        "super_resource_as_string_or_array": {
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/super_resource"
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/super_resource"
+                    }
+                }
+            ]
+        },
         "baseproperty": {
             "type": "string",
             "enum": [
@@ -104,26 +131,6 @@
         "projectdef": {
             "type": "string",
             "pattern": "^([a-zA-Z_][\\w.-]*)?:(member|admin)$"
-        },
-        "resourcedef": {
-            "type": [
-                "string",
-                "array"
-            ],
-            "oneOf": [
-                {
-                    "$ref": "#/definitions/baseresource"
-                },
-                {
-                    "$ref": "#/definitions/prefixedname"
-                },
-                {
-                    "pattern": "^(http)(s)?://.*"
-                }
-            ],
-            "items": {
-                "$ref": "#/definitions/resourcedef"
-            }
         },
         "excelfileref": {
             "type": "object",
@@ -1103,7 +1110,7 @@
                     "$ref": "#/definitions/ncname"
                 },
                 "super": {
-                    "$ref": "#/definitions/resourcedef"
+                    "$ref": "#/definitions/super_resource_as_string_or_array"
                 },
                 "labels": {
                     "$ref": "#/definitions/label"

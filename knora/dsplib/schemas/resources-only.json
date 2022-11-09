@@ -29,29 +29,26 @@
             "pattern": "^([a-zA-Z_][\\w.-]*)?:([\\w.-]+)$",
             "additionalProperties": false
         },
-        "label": {
-            "$ref": "#/definitions/langstring"
+        "baseresource": {
+            "type": "string",
+            "enum": [
+                "Resource",
+                "Region",
+                "Representation",
+                "StillImageRepresentation",
+                "TextRepresentation",
+                "AudioRepresentation",
+                "DDDRepresentation",
+                "DocumentRepresentation",
+                "MovingImageRepresentation",
+                "ArchiveRepresentation"
+            ]
         },
-        "comment": {
-            "$ref": "#/definitions/langstring"
-        },
-        "resourcedef": {
-            "type": [
-                "string",
-                "array"
-            ],
+        "super_resource": {
+            "type": ["string"],
             "oneOf": [
                 {
-                    "enum": [
-                        "Resource",
-                        "StillImageRepresentation",
-                        "TextRepresentation",
-                        "AudioRepresentation",
-                        "DDDRepresentation",
-                        "DocumentRepresentation",
-                        "MovingImageRepresentation",
-                        "ArchiveRepresentation"
-                    ]
+                    "$ref": "#/definitions/baseresource"
                 },
                 {
                     "$ref": "#/definitions/prefixedname"
@@ -59,10 +56,20 @@
                 {
                     "pattern": "^(http)(s)?://.*"
                 }
-            ],
-            "items": {
-                "$ref": "#/definitions/resourcedef"
-            }
+            ]
+        },
+        "super_resource_as_string_or_array": {
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/super_resource"
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/super_resource"
+                    }
+                }
+            ]
         },
         "resource": {
             "type": "object",
@@ -71,7 +78,7 @@
                     "$ref": "#/definitions/ncname"
                 },
                 "super": {
-                    "$ref": "#/definitions/resourcedef"
+                    "$ref": "#/definitions/super_resource_as_string_or_array"
                 },
                 "labels": {
                     "$ref": "#/definitions/label"

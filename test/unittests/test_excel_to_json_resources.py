@@ -1,10 +1,12 @@
 """unit tests for excel to resource"""
+import json
 import os
 import unittest
-import json
+from typing import Any
+
 import jsonpath_ng
 import jsonpath_ng.ext
-from typing import Any
+
 from knora.dsplib.utils import excel_to_json_resources as e2j
 
 
@@ -24,7 +26,7 @@ class TestExcelToResource(unittest.TestCase):
 
 
     def test_excel2resources(self) -> None:
-        excelfile = "testdata/Resources.xlsx"
+        excelfile = "testdata/excel2json_files/test-name (test_label)/resources.xlsx"
         outfile = "testdata/tmp/_out_resources.json"
         output_from_method = e2j.excel2resources(excelfile, outfile)
 

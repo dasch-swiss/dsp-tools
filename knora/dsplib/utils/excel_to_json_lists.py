@@ -6,10 +6,10 @@ import re
 from typing import Any, Union, Optional, Tuple
 
 import jsonschema
+import regex
 from openpyxl import load_workbook
 from openpyxl.cell import Cell
 from openpyxl.worksheet.worksheet import Worksheet
-import regex
 
 from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.utils.shared import simplify_name
@@ -253,7 +253,8 @@ def validate_lists_section_with_schema(
     """
     if bool(path_to_json_project_file) == bool(lists_section):
         raise BaseError("Validation of the 'lists' section works only if exactly one of the two arguments is given.")
-    with open("knora/dsplib/schemas/lists-only.json") as schema:
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(current_dir, "../schemas/lists-only.json")) as schema:
         lists_schema = json.load(schema)
 
     if path_to_json_project_file:
@@ -297,24 +298,30 @@ def _extract_excel_file_paths(excelfolder: str) -> list[str]:
     return excel_file_paths
 
 
-def excel2lists(excelfolder: str, path_to_output_file: Optional[str] = None) -> list[dict[str, Any]]:
+def excel2lists(
+    excelfolder: str,
+    path_to_output_file: Optional[str] = None,
+    verbose: bool = False
+) -> list[dict[str, Any]]:
     """
     Converts lists described in Excel files into a "lists" section that can be inserted into a JSON project file.
 
     Args:
         excelfolder: path to the folder containing the Excel file(s)
         path_to_output_file: if provided, the output is written into this JSON file
+        verbose: verbose switch
 
     Returns:
         the "lists" section as Python list
     """
     # read the data
     excel_file_paths = _extract_excel_file_paths(excelfolder)
-    print("The following Excel files will be processed:")
-    [print(f" - {filename}") for filename in excel_file_paths]
+    if verbose:
+        print("The following Excel files will be processed:")
+        [print(f" - {filename}") for filename in excel_file_paths]
     
     # construct the "lists" section
-    finished_lists = _make_json_lists_from_excel(excel_file_paths, verbose=True)
+    finished_lists = _make_json_lists_from_excel(excel_file_paths, verbose=verbose)
     validate_lists_section_with_schema(lists_section=finished_lists)
 
     # write final "lists" section

@@ -20,7 +20,7 @@ This documentation is divided into two parts:
 
 A complete project definition looks like this:
 
-```json
+```
 {
   "prefixes": {
     "foaf": "http://xmlns.com/foaf/0.1/",
@@ -32,10 +32,12 @@ A complete project definition looks like this:
     "shortname": "BiZ",
     "longname": "Bildung in Zahlen",
     "descriptions": {
-      ...
+      "en": "This is a simple example project",
+      "de": "Dies ist ein einfaches Beispielprojekt"
     },
     "keywords": [
-      ...
+      "example",
+      "simple"
     ],
     "lists": [
       ...
@@ -112,38 +114,6 @@ The following fields are optional (if one or more of these fields are not used, 
 - lists
 - groups
 - users
-
-A simple example definition of the `project` object looks like this:
-
-```json
-{
-  "project": {
-    "shortcode": "0809",
-    "shortname": "test",
-    "longname": "Test Example",
-    "descriptions": {
-      "en": "This is a simple example project",
-      "de": "Dies ist ein einfaches Beispielprojekt"
-    },
-    "keywords": [
-      "example",
-      "simple"
-    ],
-    "lists": [
-      ...
-    ],
-    "groups": [
-      ...
-    ],
-    "users": [
-      ...
-    ],
-    "ontologies": [
-      ...
-    ]
-  }
-}
-```
 
 
 
@@ -426,7 +396,7 @@ example, the list "colors" could be imported as follows:
                 "en": "A list with categories"
             },
             "nodes": [
-                ...
+                "..."
             ]
         }
     ]
@@ -437,8 +407,7 @@ To do so, it would be necessary to place the following two files into the folder
 ![Colors_en](./assets/images/img-list-english-colors.png)
 ![Farben_de](./assets/images/img-list-german-colors.png)
 
-The expected format of the Excel files is documented 
-[here](./dsp-tools-excel.md#create-the-lists-section-of-a-json-project-file-from-excel-files). The only difference to 
+The expected format of the Excel files is documented [here](./dsp-tools-excel2json.md#lists-section). The only difference to 
 the explanations there is that column A of the Excel worksheet is not interpreted as list name (root node), but as 
 node name of the first children level below the root node.
 

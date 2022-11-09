@@ -10,7 +10,7 @@ CURRENT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 .PHONY: dsp-stack
 dsp-stack: ## clone the dsp-api git repository and run the dsp-stack
 	@mkdir -p .tmp
-	@git clone --branch main --single-branch --depth 1 https://github.com/dasch-swiss/dsp-api.git .tmp/dsp-stack
+	@git clone --branch v24.0.8 --single-branch https://github.com/dasch-swiss/dsp-api.git .tmp/dsp-stack
 	$(MAKE) -C .tmp/dsp-stack env-file
 	$(MAKE) -C .tmp/dsp-stack init-db-test
 	$(MAKE) -C .tmp/dsp-stack stack-up
@@ -51,7 +51,7 @@ install: ## install from source (runs setup.py)
 
 .PHONY: test
 test: dsp-stack ## run all tests located in the "test" folder (intended for local usage)
-	-pytest test/
+	-pytest test/	# ignore errors, continue anyway with stack-down
 	$(MAKE) stack-down
 
 .PHONY: test-no-stack
@@ -60,7 +60,7 @@ test-no-stack: ## run all tests located in the "test" folder, without starting t
 
 .PHONY: test-end-to-end
 test-end-to-end: dsp-stack ## run e2e tests (intended for local usage)
-	-pytest test/e2e/
+	-pytest test/e2e/	# ignore errors, continue anyway with stack-down
 	$(MAKE) stack-down
 
 .PHONY: test-end-to-end-ci

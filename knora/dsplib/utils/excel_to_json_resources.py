@@ -1,9 +1,12 @@
 import json
+import os
 from typing import Any, Optional
+
 import jsonschema
 import pandas as pd
+
 from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.utils.shared import prepare_dataframe
+from knora.dsplib.utils.shared import prepare_dataframe, check_notna
 
 languages = ["en", "de", "fr", "it", "rm"]
 
@@ -18,7 +21,8 @@ def _validate_resources_with_schema(resources_list: list[dict[str, Any]]) -> boo
     Returns:
         True if the "resources" section passed validation. Otherwise, a BaseError with a detailed error report is raised.
     """
-    with open("knora/dsplib/schemas/resources-only.json") as schema:
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(current_dir, "../schemas/resources-only.json")) as schema:
         resources_schema = json.load(schema)
     try:
         jsonschema.validate(instance=resources_list, schema=resources_schema)
@@ -92,9 +96,13 @@ def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -
     all_classes_df: pd.DataFrame = pd.read_excel(excelfile)
     all_classes_df = prepare_dataframe(
         df=all_classes_df,
-        required_columns=["name", "super"],
+        required_columns=["name"],
         location_of_sheet=f"Sheet 'classes' in file '{excelfile}'"
     )
+
+    for index, row in all_classes_df.iterrows():
+        if not check_notna(row["super"]):
+            raise BaseError(f"Sheet 'classes' of '{excelfile}' has a missing value in row {index + 2}, column 'super'")
 
     # transform every row into a resource
     resources = [_row2resource(row, excelfile) for i, row in all_classes_df.iterrows()]

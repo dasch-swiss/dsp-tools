@@ -13,6 +13,15 @@
             },
             "additionalProperties": false
         },
+        "label": {
+            "$ref": "#/definitions/langstring"
+        },
+        "description": {
+            "$ref": "#/definitions/langstring"
+        },
+        "comment": {
+            "$ref": "#/definitions/langstring"
+        },
         "ncname": {
             "type": "string",
             "pattern": "^[a-zA-Z_][\\w.-]*$",
@@ -20,7 +29,7 @@
         },
         "prefixedname": {
             "type": "string",
-            "pattern": "^([a-zA-Z_][\\w.-]*)?:([-\\w]+)$",
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:([\\w.-]+)$",
             "additionalProperties": false
         },
         "baseresource": {
@@ -38,14 +47,54 @@
                 "ArchiveRepresentation"
             ]
         },
-        "label": {
-            "$ref": "#/definitions/langstring"
+        "baseproperty": {
+            "type": "string",
+            "enum": [
+                "hasValue",
+                "hasLinkTo",
+                "hasColor",
+                "hasComment",
+                "isPartOf",
+                "isSequenceOf",
+                "hasSequenceBounds",
+                "hasRepresentation",
+                "seqnum"
+            ]
         },
-        "description": {
-            "$ref": "#/definitions/langstring"
+        "basevalue":  {
+            "type": "string",
+            "enum": [
+                "BooleanValue",
+                "ColorValue",
+                "DateValue",
+                "DecimalValue",
+                "GeonameValue",
+                "IntValue",
+                "IntervalValue",
+                "ListValue",
+                "TextValue",
+                "TimeValue",
+                "UriValue"
+            ]
         },
-        "comment": {
-            "$ref": "#/definitions/langstring"
+        "gui_element": {
+            "type": "string",
+            "enum": [
+                "Checkbox",
+                "Colorpicker",
+                "Date",
+                "Geonames",
+                "Interval",
+                "List",
+                "Radio",
+                "Richtext",
+                "Searchbox",
+                "SimpleText",
+                "Slider",
+                "Spinbox",
+                "Textarea",
+                "TimeStamp"
+            ]
         },
         "groupdef": {
             "type": "string",
@@ -258,17 +307,7 @@
                         "type": "string",
                         "oneOf": [
                             {
-                                "enum": [
-                                    "hasValue",
-                                    "hasLinkTo",
-                                    "hasColor",
-                                    "hasComment",
-                                    "isPartOf",
-                                    "isSequenceOf",
-                                    "hasSequenceBounds",
-                                    "hasRepresentation",
-                                    "seqnum"
-                                ]
+                                "$ref": "#/definitions/baseproperty"
                             },
                             {
                                 "$ref": "#/definitions/prefixedname"
@@ -283,19 +322,7 @@
                     "type": "string",
                     "oneOf": [
                         {
-                            "enum": [
-                                "TextValue",
-                                "ColorValue",
-                                "DateValue",
-                                "DecimalValue",
-                                "GeonameValue",
-                                "IntValue",
-                                "BooleanValue",
-                                "TimeValue",
-                                "UriValue",
-                                "IntervalValue",
-                                "ListValue"
-                            ]
+                            "$ref": "#/definitions/basevalue"
                         },
                         {
                             "$ref": "#/definitions/baseresource"
@@ -312,23 +339,7 @@
                     "$ref": "#/definitions/label"
                 },
                 "gui_element": {
-                    "type": "string",
-                    "enum": [
-                        "Colorpicker",
-                        "Date",
-                        "Geonames",
-                        "Interval",
-                        "TimeStamp",
-                        "List",
-                        "Radio",
-                        "Richtext",
-                        "Searchbox",
-                        "SimpleText",
-                        "Slider",
-                        "Spinbox",
-                        "Textarea",
-                        "Checkbox"
-                    ]
+                    "$ref": "#/definitions/gui_element"
                 },
                 "gui_attributes": {
                     "type": "object",

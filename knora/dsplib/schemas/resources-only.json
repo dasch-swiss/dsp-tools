@@ -13,6 +13,12 @@
             },
             "additionalProperties": false
         },
+        "label": {
+            "$ref": "#/definitions/langstring"
+        },
+        "comment": {
+            "$ref": "#/definitions/langstring"
+        },
         "ncname": {
             "type": "string",
             "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$",
@@ -20,7 +26,7 @@
         },
         "prefixedname": {
             "type": "string",
-            "pattern": "^([a-zA-Z_][\\w.-]*)?:([-\\w]+)$",
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:([\\w.-]+)$",
             "additionalProperties": false
         },
         "label": {

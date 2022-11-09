@@ -41,8 +41,8 @@ dsp-tools excel2json data_model_files project.json
 
 This will create a file `project.json` with the lists, properties, and resources from the Excel files. 
 
-Please note that the "header" of the resulting JSON file is empty and thus invalid. It is necessary to add the project
-shortcode, name, description, keywords, etc. by hand.
+**Please note that the "header" of the resulting JSON file is empty and thus invalid. It is necessary to add the project
+shortcode, name, description, keywords, etc. by hand.**
 
 Continue reading the following paragraphs to learn more about the expected structure of the Excel files.
 

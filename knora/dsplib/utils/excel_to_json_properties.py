@@ -1,11 +1,13 @@
 import json
+import os
 import re
 from typing import Any, Optional
+
 import jsonschema
 import pandas as pd
 
 from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.utils.shared import prepare_dataframe
+from knora.dsplib.utils.shared import prepare_dataframe, check_notna
 
 languages = ["en", "de", "fr", "it", "rm"]
 
@@ -20,7 +22,8 @@ def _validate_properties_with_schema(properties_list: list[dict[str, Any]]) -> b
     Returns:
         True if the "properties" section passed validation. Otherwise, a BaseError with a detailed error report is raised.
     """
-    with open("knora/dsplib/schemas/properties-only.json") as schema:
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(current_dir, "../schemas/properties-only.json")) as schema:
         properties_schema = json.load(schema)
     try:
         jsonschema.validate(instance=properties_list, schema=properties_schema)
@@ -99,8 +102,15 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
     df: pd.DataFrame = pd.read_excel(excelfile)
     df = prepare_dataframe(
         df=df,
-        required_columns=["name", "super", "object", "gui_element"],
-        location_of_sheet=f"File '{excelfile}'")
+        required_columns=["name"],
+        location_of_sheet=f"File '{excelfile}'"
+    )
+
+    required = ["super", "object", "gui_element"]
+    for index, row in df.iterrows():
+        for req in required:
+            if not check_notna(row[req]):
+                raise BaseError(f"'{excelfile}' has a missing value in row {index + 2}, column '{req}'")
 
     # transform every row into a property
     props = [_row2prop(row, i, excelfile) for i, row in df.iterrows()]

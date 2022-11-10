@@ -1141,7 +1141,7 @@
             "type": "object",
             "patternProperties": {
                 "^[-\\w]+$": {
-                    "format": "uri"
+                    "pattern": "^(http)(s)?://.*"
                 }
             },
             "additionalProperties": false

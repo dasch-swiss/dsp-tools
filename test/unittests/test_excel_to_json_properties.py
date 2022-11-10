@@ -33,23 +33,31 @@ class TestExcelToProperties(unittest.TestCase):
         excel_names = ["correspondsToGenericAnthroponym", "hasAnthroponym", "hasGender", "isDesignatedAs", "hasTitle",
                        "hasStatus", "hasLifeYearAmount", "hasBirthDate", "hasRepresentation",
                        "hasRemarks", "hasTerminusPostQuem", "hasGND", "hasColor", "hasDecimal", "hasTime",
-                       "hasInterval", "hasBoolean", "hasGeoname", "partOfDocument"]
+                       "hasInterval", "hasBoolean", "hasGeoname", "partOfDocument", "linkstoRegion", "hasLinkToImage",
+                       "hasLinkToResource", "hasLinkToArchiveRepresentation", "hasLinkToMovingImageRepesentation",
+                       "hasLinkToAudioRepesentation"]
         excel_supers = [["hasLinkTo"], ["hasValue", "dcterms:creator"], ["hasValue"], ["hasValue"], ["hasLinkTo"],
                         ["hasValue"], ["hasValue"], ["hasValue"], ["hasRepresentation"],
                         ["hasValue", "dcterms:description"], ["hasValue"], ["hasValue"], ["hasColor"], ["hasValue"],
-                        ["hasValue"], ["hasSequenceBounds"], ["hasValue"], ["hasValue"], ["isPartOf"]]
+                        ["hasValue"], ["hasSequenceBounds"], ["hasValue"], ["hasValue"], ["isPartOf"], ["hasLinkTo"],
+                        ["hasLinkTo"], ["hasLinkTo"], ["hasLinkTo"], ["hasLinkTo"], ["hasLinkTo"]]
         excel_objects = [":GenericAnthroponym", "TextValue", "ListValue", "ListValue", ":Titles", "ListValue",
                          "IntValue", "DateValue", "Representation", "TextValue", "DateValue", "UriValue",
                          "ColorValue", "DecimalValue", "TimeValue", "IntervalValue", "BooleanValue", "GeonameValue",
-                         ":Documents"]
+                         ":Documents", "Region", "StillImageRepresentation", "Resource", "ArchiveRepresentation",
+                         "MovingImageRepresentation", "AudioRepresentation"]
 
         excel_labels = dict()
+        # there are also labels in other languages, but they are not tested
         excel_labels["de"] = ["", "only German", "", "", "", "", "", "",
                               "hat eine Multimediadatei", "", "", "GND", "Farbe", "Dezimalzahl", "Zeit",
-                              "Zeitintervall", "Bool'sche Variable", "Link zu Geonames", "ist Teil eines Dokuments"]
-        excel_labels["it"] = ["", "", "", "only Italian", "", "", "", "", "", "", "", "GND", "", "", "", "", "", "", ""]
+                              "Zeitintervall", "Bool'sche Variable", "Link zu Geonames", "ist Teil eines Dokuments",
+                              "", "", "", "", "", ""]
+        excel_labels["it"] = ["", "", "", "only Italian", "", "", "", "", "", "", "", "GND", "", "", "", "", "", "", "",
+                              "", "", "", "", "", ""]
 
         excel_comments = dict()
+        # there are also comments in other languages, but they are not tested
         excel_comments["comment_fr"] = ["J'avais déjà examiné plusieurs propriétés quand, un jour, le notaire, qui me "
                                 "donnait des indications nécessaires pour une de mes explorations, me dit :",
                                 "Un étrange hasard m'a mis en possession de ce journal.",
@@ -59,18 +67,20 @@ class TestExcelToProperties(unittest.TestCase):
                                 "Un étrange hasard m'a mis en possession de ce journal.", "", "", "only French", "",
                                 "", "J'avais déjà examiné plusieurs propriétés quand, un jour, le notaire, qui me "
                                 "donnait des indications nécessaires pour une de mes explorations, me dit :",
-                                "Gemeinsame Normdatei", "", "Chiffre décimale", "Temps", "", "", "", ""]
+                                "Gemeinsame Normdatei", "", "Chiffre décimale", "Temps", "", "", "", "", "", "", "", "",
+                                        "", ""]
         excel_comments["comment_it"] = ["Avevo già visto diverse proprietà quando un giorno il notaio,",
                                 "Uno strano caso mi mise in possesso di questo diario.",
                                 "Non ne so nulla; ma se volete vederla, signore, eccovi le indicazioni precise per trovarla.",
                                 "Dovrete organizzare l'affare con il curato del villaggio di --\".",
                                 "Uno strano caso mi mise in possesso di questo diario.", "", "", "",
                                 "", "", "Avevo già visto diverse proprietà quando un giorno il notaio,",
-                                "Gemeinsame Normdatei", "", "", "", "", "", "", ""]
+                                "Gemeinsame Normdatei", "", "", "", "", "", "", "", "", "", "", "", "", ""]
 
         excel_gui_elements = ["Searchbox", "Richtext", "List", "Radio", "Searchbox", "List", "Spinbox", "Date", 
                               "Searchbox", "Textarea", "Date", "SimpleText", "Colorpicker", "Slider",
-                              "TimeStamp", "Interval", "Checkbox", "Geonames", "Searchbox"]
+                              "TimeStamp", "Interval", "Checkbox", "Geonames", "Searchbox", "Searchbox", "Searchbox",
+                              "Searchbox", "Searchbox", "Searchbox", "Searchbox"]
 
         excel_gui_attributes_hasGender = {"hlist": "gender"}
         excel_gui_attributes_hasGND = {"size": 100}

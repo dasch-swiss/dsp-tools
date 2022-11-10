@@ -132,27 +132,6 @@
             "type": "string",
             "pattern": "^([a-zA-Z_][\\w.-]*)?:(member|admin)$"
         },
-        "excelfileref": {
-            "type": "object",
-            "properties": {
-                "file": {
-                    "type": "string"
-                },
-                "worksheet": {
-                    "type": "string"
-                },
-                "startrow": {
-                    "type": "integer"
-                },
-                "startcol": {
-                    "type": "integer"
-                }
-            },
-            "required": [
-                "file",
-                "worksheet"
-            ]
-        },
         "excelfolderref": {
             "type": "object",
             "properties": {
@@ -242,23 +221,11 @@
                     "$ref": "#/definitions/comment"
                 },
                 "nodes": {
+                    "type": "array",
                     "minItems": 1,
-                    "oneOf": [
-                        {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/node"
-                            }
-                        },
-                        {
-                            "type": "object",
-                            "$ref": "#/definitions/excelfileref"
-                        },
-                        {
-                            "type": "object",
-                            "$ref": "#/definitions/excelfolderref"
-                        }
-                    ]
+                    "items": {
+                        "$ref": "#/definitions/node"
+                    }
                 }
             },
             "required": [
@@ -1187,14 +1154,34 @@
                 "lists": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/node",
-                        "comments": {
-                            "$ref": "#/definitions/comment"
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "labels": {
+                                "$ref": "#/definitions/label"
+                            },
+                            "comments": {
+                                "$ref": "#/definitions/comment"
+                            },
+                            "nodes": {
+                                "oneOf": [
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/definitions/node"
+                                        }
+                                    },
+                                    {
+                                        "type": "object",
+                                        "$ref": "#/definitions/excelfolderref"
+                                    }
+                                ]
+                            }
                         },
-                        "required": [
-                            "comments",
-                            "nodes"
-                        ]
+                        "required": ["name", "labels", "comments", "nodes"],
+                        "additionalProperties": false
                     }
                 },
                 "ontologies": {

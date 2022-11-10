@@ -38,23 +38,11 @@
                     "$ref": "#/definitions/comment"
                 },
                 "nodes": {
+                    "type": "array",
                     "minItems": 1,
-                    "oneOf": [
-                        {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/node"
-                            }
-                        },
-                        {
-                            "type": "object",
-                            "$ref": "#/definitions/excelfileref"
-                        },
-                        {
-                            "type": "object",
-                            "$ref": "#/definitions/excelfolderref"
-                        }
-                    ]
+                    "items": {
+                        "$ref": "#/definitions/node"
+                    }
                 }
             },
             "required": [
@@ -62,27 +50,6 @@
                 "labels"
             ],
             "additionalProperties": false
-        },
-        "excelfileref": {
-            "type": "object",
-            "properties": {
-                "file": {
-                    "type": "string"
-                },
-                "worksheet": {
-                    "type": "string"
-                },
-                "startrow": {
-                    "type": "integer"
-                },
-                "startcol": {
-                    "type": "integer"
-                }
-            },
-            "required": [
-                "file",
-                "worksheet"
-            ]
         },
         "excelfolderref": {
             "type": "object",
@@ -119,10 +86,6 @@
                                 "items": {
                                     "$ref": "#/definitions/node"
                                 }
-                            },
-                            {
-                                "type": "object",
-                                "$ref": "#/definitions/excelfileref"
                             },
                             {
                                 "type": "object",

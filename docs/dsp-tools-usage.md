@@ -265,8 +265,9 @@ it might happen that a dependency is replaced, e.g. JDK 11 Zulu by JDK 17 Temuri
 in this jungle. 
 
 That's why dsp-tools offers some commands to facilitate the handling of API and APP. These commands 
+
  - clone the repos to `~/.dsp-tools`, and keep them up to date.
- - check every time if the dependencies are up-to-date, and give you advice how to update them, if necessary.
+ - check every time if the dependencies are up to date, and give you advice how to update them, if necessary.
  - pass on the right commands to APP and API, even if the correct usage of these commands changes over time.
  - make sure that the repos don't get cluttered with old files over time.
  - log their activity in `~/.dsp-tools`, so you can check the logs for troubleshooting, if necessary.
@@ -289,7 +290,8 @@ dsp-tools start-api
 
 This command makes a clone of the [DSP-API repository](https://github.com/dasch-swiss/dsp-api) into `~/.dsp-tools`. If
 it finds an existing clone there, it runs `git pull` instead. If the API is already running, it shuts down the old 
-instance and starts a new one. If the dependencies are outdated or not installed, a warning is printed to the console.
+instance, deletes all data that was in it, and starts a new one. If the dependencies are outdated or not installed, a 
+warning is printed to the console.
 
 
 ### Shut DSP-API down

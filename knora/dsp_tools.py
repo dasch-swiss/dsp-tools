@@ -254,7 +254,10 @@ def program(user_args: list[str]) -> None:
         try:
             subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-app.sh')])
         except KeyboardInterrupt:
-            print("You successfully stopped the APP")
+            print("\n\n"
+                  "================================\n"
+                  "You successfully stopped the APP\n"
+                  "================================")
             exit(0)
 
 

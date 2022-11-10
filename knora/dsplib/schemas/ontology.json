@@ -24,6 +24,11 @@
             "pattern": "^([a-zA-Z_][\\w.-]*)?:([\\w.-]+)$",
             "additionalProperties": false
         },
+        "prefixedname_or_uri": {
+            "type": "string",
+            "pattern": "^(([a-zA-Z_][\\w.-]*)?:([\\w.-]+))|(https?://.*)$",
+            "additionalProperties": false
+        },
         "baseresource": {
             "type": "string",
             "enum": [
@@ -46,10 +51,7 @@
                     "$ref": "#/definitions/baseresource"
                 },
                 {
-                    "$ref": "#/definitions/prefixedname"
-                },
-                {
-                    "pattern": "^(http)(s)?://.*"
+                    "$ref": "#/definitions/prefixedname_or_uri"
                 }
             ]
         },
@@ -276,10 +278,7 @@
                                 "$ref": "#/definitions/baseproperty"
                             },
                             {
-                                "$ref": "#/definitions/prefixedname"
-                            },
-                            {
-                                "pattern": "^(http)(s)?://.*"
+                                "$ref": "#/definitions/prefixedname_or_uri"
                             }
                         ]
                     }
@@ -417,7 +416,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -450,7 +449,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -486,7 +485,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -518,7 +517,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -550,7 +549,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -582,7 +581,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -617,7 +616,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -650,7 +649,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -685,7 +684,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -717,7 +716,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -749,7 +748,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -785,7 +784,7 @@
                                                 ]
                                             },
                                             {
-                                                "$ref": "#/definitions/prefixedname"
+                                                "$ref": "#/definitions/prefixedname_or_uri"
                                             }
                                         ]
                                     }
@@ -1100,7 +1099,7 @@
             "type": "object",
             "patternProperties": {
                 "^[-\\w]+$": {
-                    "pattern": "^(http)(s)?://.*"
+                    "pattern": "^https?://.*"
                 }
             },
             "additionalProperties": false

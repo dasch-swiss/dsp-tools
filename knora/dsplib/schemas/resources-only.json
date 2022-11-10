@@ -49,7 +49,7 @@
                     "$ref": "#/definitions/prefixedname"
                 },
                 {
-                    "pattern": "^(http)(s)?://.*"
+                    "pattern": "^https?://.*"
                 }
             ]
         },

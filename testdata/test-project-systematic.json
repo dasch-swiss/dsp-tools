@@ -898,7 +898,10 @@
                 "resources": [
                     {
                         "name": "TestThingPermissions",
-                        "super": "http://xmlns.com/foaf/0.1/#term_name",
+                        "super": [
+                            "Resource",
+                            "http://xmlns.com/foaf/0.1/#term_name"
+                        ],
                         "labels": {
                             "en": "Test thing for permissions without object"
                         },

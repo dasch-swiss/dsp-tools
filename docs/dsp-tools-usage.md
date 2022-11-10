@@ -256,17 +256,25 @@ In order to upload data incrementally the procedure described [here](dsp-tools-x
 
 ## Start a DSP-stack on your local machine (for DaSCH-internal use only)
 
-For testing purposes, it is sometimes necessary to have DSP-API and/or DSP-APP running on a local machine. The startup 
+For testing purposes, it is sometimes necessary to run DSP-API and DSP-APP on a local machine. But the startup 
 and shutdown of API and APP can be complicated: Both repos need to be cloned locally, a `git pull` has to be executed 
 from time to time to stay up to date, and then there are several commands for each repository to remember. 
-That's why dsp-tools offers some commands to facilitate the handling of API and APP. 
+
+Another challenge is the software that DSP depends upon: JDK, node, npm, Angular, etc. should be kept up to date. And
+it might happen that a dependency is replaced, e.g. JDK 11 Zulu by JDK 17 Temurin. An non-developer can quickly get lost
+in this jungle. 
+
+That's why dsp-tools offers some commands to facilitate the handling of API and APP. These commands 
+ - clone the repos to `~/.dsp-tools`, and keep them up to date.
+ - check every time if the dependencies are up-to-date, and give you advice how to update them, if necessary.
+ - pass on the right commands to APP and API, even if the correct usage of these commands changes over time.
+ - make sure that the repos don't get cluttered with old files over time.
+ - log their activity in `~/.dsp-tools`, so you can check the logs for troubleshooting, if necessary.
 
 The only requirements for these commands are:
 
  - the initial installation of all software that you accomplished when you started working at DaSCH
- - Docker must be running
-
-It isn't necessary anymore to clone DSP-API and DSP-APP, to navigate to these repos and execute commands there.
+ - Docker must be running (for DSP-API only)
 
 Please note that these commands were developed for DaSCH-internal use only. They only work on Macs that have the 
 required software installed that makes it possible to run the API and APP. We don't offer support or troubleshooting 
@@ -299,6 +307,6 @@ This command shuts DSP-API down, deletes all Docker volumes, and removes tempora
 dsp-tools start-app
 ```
 
-This command makes a clone of the [DSP-APp repository](https://github.com/dasch-swiss/dsp-app) into `~/.dsp-tools`. If
+This command makes a clone of the [DSP-APP repository](https://github.com/dasch-swiss/dsp-app) into `~/.dsp-tools`. If
 it finds an existing clone there, it runs `git pull` instead. Then, it installs the `npm` dependencies and runs DSP-APP.
 You must keep the terminal window open as long as you work with the APP. Then, you can press `Ctrl` + `C` to stop DSP-APP.

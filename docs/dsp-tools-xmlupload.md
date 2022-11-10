@@ -266,8 +266,9 @@ Notes:
 
 - There is only _one_ `<bitstream>` element allowed per representation.
 - The `<bitstream>` element must be the first element.
-- The path is relative to the working directory where `dsp-tools xmlupload` is executed in. It is recommended to 
-  choose the project folder as working directory, `my_project` in the example below:
+- By default, the path is relative to the working directory where `dsp-tools xmlupload` is executed in. This behaviour 
+  can be modified with the flag [`--imgdir`](./dsp-tools-usage.md#upload-data-to-a-dsp-server). If you keep the default,
+  it is recommended to choose the project folder as working directory, `my_project` in the example below:
 
 ```
 my_project

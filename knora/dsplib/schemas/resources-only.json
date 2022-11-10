@@ -13,12 +13,6 @@
             },
             "additionalProperties": false
         },
-        "label": {
-            "$ref": "#/definitions/langstring"
-        },
-        "comment": {
-            "$ref": "#/definitions/langstring"
-        },
         "ncname": {
             "type": "string",
             "pattern": "^[a-zA-Z_][\\w.-]*$",
@@ -81,10 +75,10 @@
                     "$ref": "#/definitions/super_resource_as_string_or_array"
                 },
                 "labels": {
-                    "$ref": "#/definitions/label"
+                    "$ref": "#/definitions/langstring"
                 },
                 "comments": {
-                    "$ref": "#/definitions/comment"
+                    "$ref": "#/definitions/langstring"
                 },
                 "cardinalities": {
                     "type": "array",

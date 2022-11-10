@@ -13,18 +13,6 @@
             },
             "additionalProperties": false
         },
-        "label": {
-            "$ref": "#/definitions/langstring"
-        },
-        "comment": {
-            "type": "object",
-            "patternProperties": {
-                "^(en|de|fr|it|rm)$": {
-                    "type": "string"
-                }
-            },
-            "additionalProperties": false
-        },
         "node": {
             "type": "object",
             "properties": {
@@ -32,10 +20,10 @@
                     "type": "string"
                 },
                 "labels": {
-                    "$ref": "#/definitions/label"
+                    "$ref": "#/definitions/langstring"
                 },
                 "comments": {
-                    "$ref": "#/definitions/comment"
+                    "$ref": "#/definitions/langstring"
                 },
                 "nodes": {
                     "type": "array",
@@ -74,10 +62,10 @@
                         "type": "string"
                     },
                     "labels": {
-                        "$ref": "#/definitions/label"
+                        "$ref": "#/definitions/langstring"
                     },
                     "comments": {
-                        "$ref": "#/definitions/comment"
+                        "$ref": "#/definitions/langstring"
                     },
                     "nodes": {
                         "oneOf": [

@@ -13,12 +13,6 @@
             },
             "additionalProperties": false
         },
-        "label": {
-            "$ref": "#/definitions/langstring"
-        },
-        "comment": {
-            "$ref": "#/definitions/langstring"
-        },
         "ncname": {
             "type": "string",
             "pattern": "^[a-zA-Z_][\\w.-]*$",
@@ -134,7 +128,7 @@
                     "$ref": "#/definitions/prefixedname"
                 },
                 "labels": {
-                    "$ref": "#/definitions/label"
+                    "$ref": "#/definitions/langstring"
                 },
                 "gui_element": {
                     "$ref": "#/definitions/gui_element"
@@ -183,7 +177,7 @@
                     }
                 },
                 "comments": {
-                    "$ref": "#/definitions/comment"
+                    "$ref": "#/definitions/langstring"
                 }
             },
             "required": [

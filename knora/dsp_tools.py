@@ -4,9 +4,13 @@ The code in this file handles the arguments passed by the user from the command 
 import argparse
 import datetime
 import os
+import re
 import subprocess
 import sys
 from importlib.metadata import version
+
+import requests
+import yaml
 
 from knora.dsplib.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
 from knora.dsplib.utils.excel_to_json_project import excel2json
@@ -233,11 +237,28 @@ def program(user_args: list[str]) -> None:
                   shortcode=args.shortcode,
                   default_ontology=args.default_ontology)
     elif args.action == 'start-api' and not sys.platform.startswith('win'):
-        output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-api.sh')])
+        try:
+            response = requests.get("https://raw.githubusercontent.com/dasch-swiss/dsp-api/main/.github/actions/preparation/action.yml")
+            action = yaml.safe_load(response.content)
+            for step in action.get("runs", {}).get("steps", {}):
+                if re.search("(JDK)|(Java)", step.get("name", "")):
+                    distribution = step.get("with", {}).get("distribution", "").lower()
+                    java_version = step.get("with", {}).get("java-version", "").lower()
+        except:
+            distribution = "temurin"
+            java_version = "17"
+        subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-api.sh'), distribution, java_version])
     elif args.action == 'stop-api' and not sys.platform.startswith('win'):
-        output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/stop-api.sh')])
+        subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/stop-api.sh')])
     elif args.action == 'start-app' and not sys.platform.startswith('win'):
-        output = subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-app.sh')])
+        try:
+            subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-app.sh')])
+        except KeyboardInterrupt:
+            print("\n\n"
+                  "================================\n"
+                  "You successfully stopped the APP\n"
+                  "================================")
+            exit(0)
 
 
 def main() -> None:

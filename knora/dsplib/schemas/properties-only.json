@@ -11,23 +11,87 @@
                     "type": "string"
                 }
             },
+            "minProperties": 1,
             "additionalProperties": false
         },
         "ncname": {
             "type": "string",
-            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$",
+            "pattern": "^[a-zA-Z_][\\w.-]*$",
             "additionalProperties": false
         },
         "prefixedname": {
             "type": "string",
-            "pattern": "^([a-zA-Z_][\\w.-]*)?:([-\\w]+)$",
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:([\\w.-]+)$",
             "additionalProperties": false
         },
-        "label": {
-            "$ref": "#/definitions/langstring"
+        "prefixedname_or_uri": {
+            "type": "string",
+            "pattern": "^(([a-zA-Z_][\\w.-]*)?:([\\w.-]+))|(https?://.*)$",
+            "additionalProperties": false
         },
-        "comment": {
-            "$ref": "#/definitions/langstring"
+        "baseresource": {
+            "type": "string",
+            "enum": [
+                "Resource",
+                "Region",
+                "Representation",
+                "StillImageRepresentation",
+                "TextRepresentation",
+                "AudioRepresentation",
+                "DDDRepresentation",
+                "DocumentRepresentation",
+                "MovingImageRepresentation",
+                "ArchiveRepresentation"
+            ]
+        },
+        "baseproperty": {
+            "type": "string",
+            "enum": [
+                "hasValue",
+                "hasLinkTo",
+                "hasColor",
+                "hasComment",
+                "isPartOf",
+                "isSequenceOf",
+                "hasSequenceBounds",
+                "hasRepresentation",
+                "seqnum"
+            ]
+        },
+        "basevalue":  {
+            "type": "string",
+            "enum": [
+                "BooleanValue",
+                "ColorValue",
+                "DateValue",
+                "DecimalValue",
+                "GeonameValue",
+                "IntValue",
+                "IntervalValue",
+                "ListValue",
+                "TextValue",
+                "TimeValue",
+                "UriValue"
+            ]
+        },
+        "gui_element": {
+            "type": "string",
+            "enum": [
+                "Checkbox",
+                "Colorpicker",
+                "Date",
+                "Geonames",
+                "Interval",
+                "List",
+                "Radio",
+                "Richtext",
+                "Searchbox",
+                "SimpleText",
+                "Slider",
+                "Spinbox",
+                "Textarea",
+                "TimeStamp"
+            ]
         },
         "property": {
             "type": "object",
@@ -41,23 +105,10 @@
                         "type": "string",
                         "oneOf": [
                             {
-                                "enum": [
-                                    "hasValue",
-                                    "hasLinkTo",
-                                    "hasColor",
-                                    "hasComment",
-                                    "isPartOf",
-                                    "isSequenceOf",
-                                    "hasSequenceBounds",
-                                    "hasRepresentation",
-                                    "seqnum"
-                                ]
+                                "$ref": "#/definitions/baseproperty"
                             },
                             {
-                                "$ref": "#/definitions/prefixedname"
-                            },
-                            {
-                                "pattern": "^(http)(s)?://.*"
+                                "$ref": "#/definitions/prefixedname_or_uri"
                             }
                         ]
                     }
@@ -66,21 +117,10 @@
                     "type": "string",
                     "oneOf": [
                         {
-                            "enum": [
-                                "BooleanValue",
-                                "ColorValue",
-                                "DateValue",
-                                "DecimalValue",
-                                "GeonameValue",
-                                "IntValue",
-                                "IntervalValue",
-                                "ListValue",
-                                "TextValue",
-                                "TimeValue",
-                                "UriValue",
-                                "Resource",
-                                "Representation"
-                            ]
+                            "$ref": "#/definitions/basevalue"
+                        },
+                        {
+                            "$ref": "#/definitions/baseresource"
                         },
                         {
                             "$ref": "#/definitions/prefixedname"
@@ -91,26 +131,10 @@
                     "$ref": "#/definitions/prefixedname"
                 },
                 "labels": {
-                    "$ref": "#/definitions/label"
+                    "$ref": "#/definitions/langstring"
                 },
                 "gui_element": {
-                    "type": "string",
-                    "enum": [
-                        "Checkbox",
-                        "Colorpicker",
-                        "Date",
-                        "Geonames",
-                        "Interval",
-                        "List",
-                        "Radio",
-                        "Richtext",
-                        "Searchbox",
-                        "SimpleText",
-                        "Slider",
-                        "Spinbox",
-                        "Textarea",
-                        "TimeStamp"
-                    ]
+                    "$ref": "#/definitions/gui_element"
                 },
                 "gui_attributes": {
                     "type": "object",
@@ -156,7 +180,7 @@
                     }
                 },
                 "comments": {
-                    "$ref": "#/definitions/comment"
+                    "$ref": "#/definitions/langstring"
                 }
             },
             "required": [
@@ -217,11 +241,12 @@
                                     "oneOf": [
                                         {
                                             "enum": [
-                                                "hasRepresentation"
+                                                "hasRepresentation",
+                                                "hasLinkTo"
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -254,7 +279,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -290,7 +315,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -322,7 +347,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -354,7 +379,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -386,7 +411,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -421,7 +446,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -454,7 +479,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -489,7 +514,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -521,7 +546,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -553,7 +578,7 @@
                                             ]
                                         },
                                         {
-                                            "$ref": "#/definitions/prefixedname"
+                                            "$ref": "#/definitions/prefixedname_or_uri"
                                         }
                                     ]
                                 }
@@ -589,7 +614,7 @@
                                                 ]
                                             },
                                             {
-                                                "$ref": "#/definitions/prefixedname"
+                                                "$ref": "#/definitions/prefixedname_or_uri"
                                             }
                                         ]
                                     }

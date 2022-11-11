@@ -56,7 +56,7 @@ def excel2json(
 
     listfolder = [x for x in folder if os.path.isdir(x) and x.name == "lists"]
     if listfolder:
-        listfolder_contents = list(os.scandir(listfolder[0]))
+        listfolder_contents = [x for x in os.scandir(listfolder[0]) if not re.search(r"^(\.|~\$).+", x.name)]
         if not all([re.search(r"(de|en|fr|it|rm).xlsx", file.name) for file in listfolder_contents]):
             raise BaseError(f"The only files allowed in '{data_model_files}/lists' are en.xlsx, de.xlsx, fr.xlsx, "
                             f"it.xlsx, rm.xlsx")

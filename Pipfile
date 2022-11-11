@@ -15,6 +15,7 @@ networkx = "*"
 pandas = "*"
 regex = "*"
 xlrd = "*"
+pyyaml = "*"
 
 [dev-packages]
 mkdocs = "*"
@@ -28,6 +29,7 @@ pipenv-setup = "*"
 pytest = "*"
 types-requests = "*"
 twine = "*"
+types-pyyaml = "*"
 
 [requires]
 python_version = "3"

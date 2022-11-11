@@ -1,21 +1,26 @@
 #! /bin/bash
-# make this file executable with chmod u+x (filename).sh
 set -u  # exit if an uninitialised variable is used (https://www.davidpashley.com/articles/writing-robust-shell-scripts/)
-set -e  # exit if any statement returns a non-true return value (https://www.davidpashley.com/articles/writing-robust-shell-scripts/)
 
 # only allow to run this command if Docker is running
-[[ $(docker stats --no-stream 2>/dev/null ) == "" ]] && printf "\e[31mERROR: Please start Docker before running DSP-API.\e[0m\n" && return
+[[ $(docker stats --no-stream 2>/dev/null ) == "" ]] && printf "\e[31mERROR: Please start Docker before running DSP-API.\e[0m\n" && exit 1
 
-# check dependencies
-echo "check for outdated dependencies..."
-[[ "$(brew outdated)" != "" ]] && printf "\e[31mWARNING: Some of your Homebrew formulas/casks are outdated. Please execute \"brew upgrade\"\e[0m\n"
-[[ "$(java --version)" =~ .*[Tt]emurin-17.* ]] || printf "\e[31mWARNING: Your JDK seems to be outdated. Please install JDK 17 Temurin.\e[0m\n"
-if echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 -w 10 > /dev/null 2>&1; then
-    # pip should only be called if there is an internet connection
-    [[ "$(pip list --outdated)" =~ .*dsp-tools.* ]] && printf "\e[31mWARNING: Your version of dsp-tools is outdated. Please update it with \"pip install --upgrade dsp-tools\"\e[0m\n"
-    [[ "$(pip list --outdated)" != "" ]] && printf "\e[31mWARNING: Some of your pip packages are outdated. List them with \"pip list --outdated\" and consider updating them with \"pip install --upgrade (package)\"\e[0m\n"
-fi
+# check the dependencies with a timeout
+check_dependencies () {
+    echo "check for outdated dependencies..."
+    shopt -s nocasematch
+    [[ "$(java --version)" =~ .*$1.$2.* ]] || printf "\e[33mWARNING: Your JDK seems to be outdated. Please install JDK %s %s.\e[0m\n" "$2" "$2"
+    if echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 -w 10 > /dev/null 2>&1; then
+        # don't make network calls if there is no internet connection
+        [[ "$(brew outdated)" != "" ]] && printf "\e[33mWARNING: Some of your Homebrew formulas/casks are outdated. Please execute \"brew upgrade\"\e[0m\n"
+        outdated_pip_packages="$(pip list --outdated)"
+        [[ "$outdated_pip_packages" =~ .*dsp-tools.* ]] && printf "\e[33mWARNING: Your version of dsp-tools is outdated. Please update it with \"pip install --upgrade dsp-tools\"\e[0m\n"
+        [[ "$outdated_pip_packages" != "" ]] && printf "\e[33mWARNING: Some of your pip packages are outdated. List them with \"pip list --outdated\" and consider updating them with \"pip install --upgrade (package)\"\e[0m\n"
+    fi
+}
+export -f check_dependencies
+timeout --preserve-status 15s bash -c check_dependencies
 
+set -e  # exit if any statement returns a non-true return value (https://www.davidpashley.com/articles/writing-robust-shell-scripts/)
 logfile="../dsp-api-stackup.log"
 
 cd ~

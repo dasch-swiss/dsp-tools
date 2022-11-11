@@ -20,7 +20,7 @@ This documentation is divided into two parts:
 
 A complete project definition looks like this:
 
-```json
+```
 {
   "prefixes": {
     "foaf": "http://xmlns.com/foaf/0.1/",
@@ -32,10 +32,12 @@ A complete project definition looks like this:
     "shortname": "BiZ",
     "longname": "Bildung in Zahlen",
     "descriptions": {
-      ...
+      "en": "This is a simple example project",
+      "de": "Dies ist ein einfaches Beispielprojekt"
     },
     "keywords": [
-      ...
+      "example",
+      "simple"
     ],
     "lists": [
       ...
@@ -112,38 +114,6 @@ The following fields are optional (if one or more of these fields are not used, 
 - lists
 - groups
 - users
-
-A simple example definition of the `project` object looks like this:
-
-```json
-{
-  "project": {
-    "shortcode": "0809",
-    "shortname": "test",
-    "longname": "Test Example",
-    "descriptions": {
-      "en": "This is a simple example project",
-      "de": "Dies ist ein einfaches Beispielprojekt"
-    },
-    "keywords": [
-      "example",
-      "simple"
-    ],
-    "lists": [
-      ...
-    ],
-    "groups": [
-      ...
-    ],
-    "users": [
-      ...
-    ],
-    "ontologies": [
-      ...
-    ]
-  }
-}
-```
 
 
 
@@ -426,7 +396,7 @@ example, the list "colors" could be imported as follows:
                 "en": "A list with categories"
             },
             "nodes": [
-                ...
+                "..."
             ]
         }
     ]

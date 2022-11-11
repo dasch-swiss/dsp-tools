@@ -1,10 +1,13 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
 # DSP-TOOLS - DaSCH Service Platform Tools
+
 dsp-tools is a command line tool that helps you interacting with the DaSCH Service Platform API.  
 Go to [Full Documentation](https://docs.dasch.swiss/latest/DSP-TOOLS)
 
+
 ## Information for developers
+
 There is a `Makefile` for all the following tasks (and more). Type `make` to print the available targets. 
 
 For a quick start, use: 
@@ -22,7 +25,9 @@ make install-requirements
 make install
 ```
 
+
 ## Pipenv
+
 We use pipenv for our dependency management. There are two ways to get started:
  - `pipenv install --dev` installs all dependencies, while giving them the opportunity to update themselves
  - `pipenv install --ignore-pipfile` is used to get a deterministic build in production
@@ -54,7 +59,9 @@ For security reasons, the maintainer regularly executes
 without pipenv, you can freeze your requirements with `pip3 freeze > requirements.txt` and update `setup.py`
 manually.
 
+
 ### Pipenv setup in PyCharm
+
  - Go to Add Interpreter > Pipenv Environment
  - Base Interpreter: PyCarm auto-detects one of your system-wide installed Pythons as base interpreter. 
  - Pipenv executable: auto-detected
@@ -63,7 +70,9 @@ manually.
 If you already initialized a pipenv-environment via command line, you can add its interpreter in PyCharm,
 but this will create the pipenv-environment again.
 
+
 ## Testing
+
 Please note that testing requires launching the complete DSP API stack which is based on docker images. 
 Therefore, we recommend installing the [docker desktop client](https://www.docker.com/products).  
 To run the complete test suite:
@@ -71,7 +80,9 @@ To run the complete test suite:
 make test
 ```
 
+
 ## Code style
+
 When contributing to the project please make sure you use the same code style rules as we do. We use
 [autopep8](https://pypi.org/project/autopep8/) and [mypy](https://pypi.org/project/mypy/). The 
 configuration is defined in `pyproject.toml` in the root directory of the project.
@@ -89,7 +100,9 @@ In VSCode, both mypy and autopep8 can be set up as default linter and formatter 
 
 For formatting Markdown files (*.md) we use the default styling configuration provided by PyCharm.
 
+
 ## Publishing
+
 Publishing is automated with GitHub Actions and should _not_ be done manually. Please follow the
 [Pull Request Guidelines](https://docs.dasch.swiss/latest/developers/dsp/contribution/#pull-request-guidelines). If done
 correctly, when merging a pull request into `main`, the `release-please` action will create or update a pull request for
@@ -99,7 +112,9 @@ create a release on GitHub, on PyPI and the docs.
 
 Please ensure you have only one pull request per feature.
 
+
 ## Publishing manually
+
 Publishing is automated with GitHub Actions and should _not_ be done manually. If you still need to do it, follow the
 steps below.
 
@@ -129,7 +144,9 @@ For local development:
 python3 setup.py develop
 ```
 
+
 ## Contributing to the documentation
+
 The documentation is a collection of [markdown](https://en.wikipedia.org/wiki/Markdown) files in the `docs` folder.  
 After updates of the files, build and check the result with the following command:
 

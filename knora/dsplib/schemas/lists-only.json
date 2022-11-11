@@ -11,18 +11,7 @@
                     "type": "string"
                 }
             },
-            "additionalProperties": false
-        },
-        "label": {
-            "$ref": "#/definitions/langstring"
-        },
-        "comment": {
-            "type": "object",
-            "patternProperties": {
-                "^(en|de|fr|it|rm)$": {
-                    "type": "string"
-                }
-            },
+            "minProperties": 1,
             "additionalProperties": false
         },
         "node": {
@@ -32,29 +21,17 @@
                     "type": "string"
                 },
                 "labels": {
-                    "$ref": "#/definitions/label"
+                    "$ref": "#/definitions/langstring"
                 },
                 "comments": {
-                    "$ref": "#/definitions/comment"
+                    "$ref": "#/definitions/langstring"
                 },
                 "nodes": {
+                    "type": "array",
                     "minItems": 1,
-                    "oneOf": [
-                        {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/node"
-                            }
-                        },
-                        {
-                            "type": "object",
-                            "$ref": "#/definitions/excelfileref"
-                        },
-                        {
-                            "type": "object",
-                            "$ref": "#/definitions/excelfolderref"
-                        }
-                    ]
+                    "items": {
+                        "$ref": "#/definitions/node"
+                    }
                 }
             },
             "required": [
@@ -62,27 +39,6 @@
                 "labels"
             ],
             "additionalProperties": false
-        },
-        "excelfileref": {
-            "type": "object",
-            "properties": {
-                "file": {
-                    "type": "string"
-                },
-                "worksheet": {
-                    "type": "string"
-                },
-                "startrow": {
-                    "type": "integer"
-                },
-                "startcol": {
-                    "type": "integer"
-                }
-            },
-            "required": [
-                "file",
-                "worksheet"
-            ]
         },
         "excelfolderref": {
             "type": "object",
@@ -107,10 +63,10 @@
                         "type": "string"
                     },
                     "labels": {
-                        "$ref": "#/definitions/label"
+                        "$ref": "#/definitions/langstring"
                     },
                     "comments": {
-                        "$ref": "#/definitions/comment"
+                        "$ref": "#/definitions/langstring"
                     },
                     "nodes": {
                         "oneOf": [
@@ -119,10 +75,6 @@
                                 "items": {
                                     "$ref": "#/definitions/node"
                                 }
-                            },
-                            {
-                                "type": "object",
-                                "$ref": "#/definitions/excelfileref"
                             },
                             {
                                 "type": "object",

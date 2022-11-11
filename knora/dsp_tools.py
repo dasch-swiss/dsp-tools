@@ -244,7 +244,7 @@ def program(user_args: list[str]) -> None:
                 if re.search("(JDK)|(Java)", step.get("name", "")):
                     distribution = step.get("with", {}).get("distribution", "").lower()
                     java_version = step.get("with", {}).get("java-version", "").lower()
-        except requests.ConnectionError:
+        except:
             distribution = "temurin"
             java_version = "17"
         subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-api.sh'), distribution, java_version])

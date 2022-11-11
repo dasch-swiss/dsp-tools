@@ -464,6 +464,75 @@
                             "de": "ist Teil eines Dokuments"
                         },
                         "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "linkstoRegion",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Region",
+                        "labels": {
+                            "en": "Links to a region of an image"
+                        },
+                        "gui_element": "Searchbox",
+                        "gui_attributes": {
+                            "numprops": 1
+                        }
+                    },
+                    {
+                        "name": "hasLinkToImage",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "StillImageRepresentation",
+                        "labels": {
+                            "en": "link to image"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasLinkToResource",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Resource",
+                        "labels": {
+                            "en": "hasLinkToResource"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasLinkToArchiveRepresentation",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "ArchiveRepresentation",
+                        "labels": {
+                            "en": "hasLinkToArchiveRepresentation"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasLinkToMovingImageRepesentation",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "MovingImageRepresentation",
+                        "labels": {
+                            "en": "hasLinkToMovingImageRepesentation"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasLinkToAudioRepesentation",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "AudioRepresentation",
+                        "labels": {
+                            "en": "hasLinkToAudioRepesentation"
+                        },
+                        "gui_element": "Searchbox"
                     }
                 ],
                 "resources": [

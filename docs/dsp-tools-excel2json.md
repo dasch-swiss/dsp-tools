@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# `excel2json`: Create a data model (JSON project file) from Excel
+# excel2json
 
 With dsp-tools, a JSON project file can be created from Excel files. The command for this is documented 
 [here](./dsp-tools-usage.md#create-a-json-project-file-from-excel-files). 
@@ -56,8 +56,8 @@ this is documented [here](./dsp-tools-usage.md#create-the-resources-section-of-a
 Only `XLSX` files are allowed. The `resources` section can be inserted into the ontology file and then be uploaded onto 
 a DSP server.
 
-**An Excel file template can be found [here](assets/data_model_templates/onto_name (onto_label)/resources.xlsx). It is recommended to work from 
-the template.**
+**An Excel file template can be found [here](assets/data_model_templates/rosetta (rosetta)/resources.xlsx). It is recommended to work from 
+the template.** 
 
 The expected worksheets of the Excel file are:
 
@@ -98,7 +98,7 @@ this is documented [here](./dsp-tools-usage.md#create-the-properties-section-of-
 Only the first worksheet of the Excel file is considered and only XLSX files are allowed. The `properties` section can 
 be inserted into the ontology file and then be uploaded onto a DSP server.
 
-**An Excel file template can be found [here](assets/data_model_templates/onto_name (onto_label)/properties.xlsx). It is recommended to work 
+**An Excel file template can be found [here](assets/data_model_templates/rosetta (rosetta)/properties.xlsx). It is recommended to work 
 from the template.**
 
 The Excel sheet must have the following structure:
@@ -126,7 +126,7 @@ For further information about properties, see [here](./dsp-tools-create-ontologi
 
 ## "lists" section
 
-With dsp-tools, the "lists" section of a JSON project file can be created from one or several Excel files. The lists can 
+With dsp-tools, the `lists` section of a JSON project file can be created from one or several Excel files. The lists can 
 then be inserted into a JSON project file and uploaded to a DSP server. The command for this is documented 
 [here](./dsp-tools-usage.md#create-the-lists-section-of-a-json-project-file-from-excel-files). 
 

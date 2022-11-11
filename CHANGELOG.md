@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.21.0](https://www.github.com/dasch-swiss/dsp-tools/compare/v1.20.0...v1.21.0) (2022-11-11)
+
+
+### Bug Fixes
+
+* bugs in json schema (DEV-1142) ([#252](https://www.github.com/dasch-swiss/dsp-tools/issues/252)) ([92af830](https://www.github.com/dasch-swiss/dsp-tools/commit/92af83084d82f0083714f4bfcf5f39f03e5b0077))
+* excel2json is not broken any more by hidden system files (DEV-1492) ([#253](https://www.github.com/dasch-swiss/dsp-tools/issues/253)) ([7f2d238](https://www.github.com/dasch-swiss/dsp-tools/commit/7f2d238fe0f21a77d108e588b440bdac641cb262))
+* **excel2xml:** prevent writing empty text-prop, make text-prop validation less restrictive (DEV-1440) [#243](https://www.github.com/dasch-swiss/dsp-tools/issues/243) ([ae777e4](https://www.github.com/dasch-swiss/dsp-tools/commit/ae777e48ee527457031a5c23f9605e92bfd8a992))
+* improve start-api and start-app (DEV-1485) ([#251](https://www.github.com/dasch-swiss/dsp-tools/issues/251)) ([da0cb73](https://www.github.com/dasch-swiss/dsp-tools/commit/da0cb73be461e7153555b3ff227e5c9682273f97))
+
+
+### Enhancements
+
+* add command excel2json to create JSON project file from folder with Excel files (DEV-960) ([#248](https://www.github.com/dasch-swiss/dsp-tools/issues/248)) ([e8e05e4](https://www.github.com/dasch-swiss/dsp-tools/commit/e8e05e4d7fcbf8830ae5ef71c3c148fc13c01485))
+* startup API and APP with dsp-tools (DEV-126) ([#246](https://www.github.com/dasch-swiss/dsp-tools/issues/246)) ([de182dc](https://www.github.com/dasch-swiss/dsp-tools/commit/de182dcdce0217635fd74320da1800ce71c47a9f))
+
+
+### Documentation
+
+* improve docs (DEV-1478) ([#249](https://www.github.com/dasch-swiss/dsp-tools/issues/249)) ([7947dec](https://www.github.com/dasch-swiss/dsp-tools/commit/7947dec863d46ee2a07622f116948e21e24346c4))
+
 ## [1.20.0](https://www.github.com/dasch-swiss/dsp-tools/compare/v1.19.0...v1.20.0) (2022-10-18)
 
 

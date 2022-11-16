@@ -513,7 +513,7 @@ Example:
 ```
 
 The underlying grid is a 0-1 normalized top left-anchored grid. The following coordinate system shows the three shapes
-that were defined above:
+that were defined above:  
 ![grid-for-geometry-prop](./assets/images/grid-for-geometry-prop.png)
 
 

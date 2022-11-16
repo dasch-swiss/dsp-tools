@@ -5,7 +5,7 @@
 With dsp-tools, a JSON project file can be created from Excel files. The command for this is documented 
 [here](./dsp-tools-usage.md#create-a-json-project-file-from-excel-files). 
 
-A JSON project consists of
+To put it simple, a JSON project consists of
 
  - 0-1 "lists" sections
  - 1-n ontologies, each containing
@@ -57,15 +57,16 @@ this is documented [here](./dsp-tools-usage.md#create-the-resources-section-of-a
 Only `XLSX` files are allowed. The `resources` section can be inserted into the ontology file and then be uploaded onto 
 a DSP server.
 
-**An Excel file template can be found [here](assets/data_model_templates/rosetta (rosetta)/resources.xlsx). It is recommended to work from 
-the template.** 
+**An Excel file template can be found [here](assets/data_model_templates/rosetta (rosetta)/resources.xlsx) or also in the 
+[`data_model_files` folder of `0123-import-scripts`](https://github.com/dasch-swiss/0123-import-scripts/tree/main/data_model_files).
+It is recommended to work from the template.** 
 
 The expected worksheets of the Excel file are:
 
 - `classes`: a table with all resource classes intended to be used in the resulting JSON
 - `class1`, `class2`,...: a table for each resource class named after its name
 
-The worksheet called `classes` must have the following structure: 
+The worksheet called `classes` must have the following structure:  
 ![img-resources-example-1.png](assets/images/img-resources-example-1.png)
 
 The expected columns are:
@@ -77,8 +78,8 @@ The expected columns are:
 
 The optional columns may be omitted in the Excel.
 
-All other worksheets, one for each resource class, have the following structure:
-![img-resources-example-2.png](assets/images/img-resources-example-2.png){ width=50% }
+All other worksheets, one for each resource class, have the following structure:  
+![img-resources-example-2.png](assets/images/img-resources-example-2.png){ width=30% }
 
 The expected columns are:
 
@@ -99,10 +100,11 @@ this is documented [here](./dsp-tools-usage.md#create-the-properties-section-of-
 Only the first worksheet of the Excel file is considered and only XLSX files are allowed. The `properties` section can 
 be inserted into the ontology file and then be uploaded onto a DSP server.
 
-**An Excel file template can be found [here](assets/data_model_templates/rosetta (rosetta)/properties.xlsx). It is recommended to work 
-from the template.**
+**An Excel file template can be found [here](assets/data_model_templates/rosetta (rosetta)/properties.xlsx) or also in the 
+[`data_model_files` folder of `0123-import-scripts`](https://github.com/dasch-swiss/0123-import-scripts/tree/main/data_model_files). 
+It is recommended to work from the template.**
 
-The Excel sheet must have the following structure:
+The Excel sheet must have the following structure:  
 ![img-properties-example.png](assets/images/img-properties-example.png)
 
 The expected columns are:
@@ -138,9 +140,9 @@ in a directory called `listfolder`:
 dsp-tools excel2lists listfolder lists.json
 ```
 
-The Excel sheets must have the following structure:
-![img-list-english-example.png](assets/images/img-list-english-example.png)
-![img-list-german-example.png](assets/images/img-list-german-example.png)
+The Excel sheets must have the following structure:  
+![img-list-english-example.png](assets/images/img-list-english-example.png){ width=60% }  
+![img-list-german-example.png](assets/images/img-list-german-example.png){ width=60% }
 
 Some notes:
 
@@ -156,9 +158,11 @@ Some notes:
 - After the creation of the list, a validation against the JSON schema for lists is performed. An error message is 
   printed out if the list is not valid.
 
-**It is recommended to work from the following templates:  
-[en.xlsx](assets/data_model_templates/lists/en.xlsx): File with the English labels  
-[de.xlsx](assets/data_model_templates/lists/de.xlsx): File with the German labels**
+**It is recommended to work from the following templates:**  
+
+ - [en.xlsx](assets/data_model_templates/lists/en.xlsx): File with the English labels  
+ - [de.xlsx](assets/data_model_templates/lists/de.xlsx): File with the German labels
+ - or alternatively from the [`data_model_files` folder of `0123-import-scripts`](https://github.com/dasch-swiss/0123-import-scripts/tree/main/data_model_files)
 
 The output of the above command, with the template files, is:
 

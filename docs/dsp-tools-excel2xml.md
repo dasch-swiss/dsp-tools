@@ -11,7 +11,7 @@ There are two kinds of Excel files that can be transformed into an XML file:
 | custom structure | customer    | module `excel2xml`       | ![](./assets/images/img-excel2xml-raw-data-category.png) |
 | DSP structure    | DSP server  | CLI command `excel2xml`  | ![](./assets/images/img-excel2xml-closeup.png)           |
 
-The use first case is the most frequent: The DaSCH receives a data export from a research project. Every project uses 
+The first use case is the most frequent: The DaSCH receives a data export from a research project. Every project uses 
 different software, so every project will deliver their data in a different structure. The screenshot is just a 
 simplified example. For this use case, it is necessary to write a Python script that transforms the data from an 
 undefined state X into a DSP-conforming XML file that can be uploaded with `dsp-tools xmlupload`. For this, you need to
@@ -22,7 +22,7 @@ data already has the correct structure, and can automatically be transformed to 
 command `dsp-tools excel2xml` which is documented 
 [here](./dsp-tools-usage.md#use-the-module-excel2xml-to-convert-a-data-source-to-xml).
 
-**This page is about the module `excel2xml`** .
+**This page deals only with the first use case, the module `excel2xml`** .
 
 
 ## Module `excel2xml`: Convert a data source to XML

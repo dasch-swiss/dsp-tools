@@ -2,7 +2,7 @@
 
 # DSP-TOOLS documentation
 
-dsp-tools is a command line tool that helps you to interact with the DaSCH Service Platform server (DSP server).
+dsp-tools is a command line tool that helps you to interact with a DaSCH Service Platform (DSP) server.
 
 In order to archive your data on the DaSCH Service Platform, you need a data model (ontology) that describes your data.
 The data model is defined in a JSON project definition file which has to be transmitted to the DSP server. If the DSP 
@@ -22,21 +22,21 @@ dsp-tools helps you with the following tasks:
   data import) and writes the mapping from internal IDs to IRIs into a local file.
 - [`dsp-tools excel2json`](./dsp-tools-usage.md#create-a-json-project-file-from-excel-files) creates an entire JSON
   project file from a folder with Excel files in it.
-- [`dsp-tools excel2lists`](./dsp-tools-usage.md#create-the-lists-section-of-a-json-project-file-from-excel-files)
-  creates the "lists" section of a JSON project file from one or several Excel files. The resulting section can be 
-  integrated into a JSON project file and then be uploaded to a DSP server with `dsp-tools create`.
-- [`dsp-tools excel2resources`](./dsp-tools-usage.md#create-the-resources-section-of-a-json-project-file-from-an-excel-file)
-  creates the "resources" section of a JSON project file from an Excel file. The resulting section can be integrated 
-  into a JSON project file and then be uploaded to a DSP server with `dsp-tools create`.
-- [`dsp-tools excel2properties`](./dsp-tools-usage.md#create-the-properties-section-of-a-json-project-file-from-an-excel-file)
-  creates the "properties" section of a JSON project file from an Excel file. The resulting section can be integrated 
-  into a JSON project file and then be uploaded to a DSP server with `dsp-tools create`.
+    - [`dsp-tools excel2lists`](./dsp-tools-usage.md#create-the-lists-section-of-a-json-project-file-from-excel-files)
+      creates the "lists" section of a JSON project file from one or several Excel files. The resulting section can be 
+      integrated into a JSON project file and then be uploaded to a DSP server with `dsp-tools create`.
+    - [`dsp-tools excel2resources`](./dsp-tools-usage.md#create-the-resources-section-of-a-json-project-file-from-an-excel-file)
+      creates the "resources" section of a JSON project file from an Excel file. The resulting section can be integrated 
+      into a JSON project file and then be uploaded to a DSP server with `dsp-tools create`.
+    - [`dsp-tools excel2properties`](./dsp-tools-usage.md#create-the-properties-section-of-a-json-project-file-from-an-excel-file)
+      creates the "properties" section of a JSON project file from an Excel file. The resulting section can be integrated 
+      into a JSON project file and then be uploaded to a DSP server with `dsp-tools create`.
+- [`dsp-tools excel2xml`](./dsp-tools-usage.md#create-an-xml-file-from-excelcsv) transforms a data source to XML if it 
+  is already structured according to the DSP specifications.
+- [The module `excel2xml`](./dsp-tools-usage.md#use-the-module-excel2xml-to-convert-a-data-source-to-xml) provides helper
+  methods that can be used in a Python script to convert data from a tabular format into XML.
 - [`dsp-tools id2iri`](./dsp-tools-usage.md#replace-internal-ids-with-iris-in-xml-file)
   takes an XML file for bulk data import and replaces referenced internal IDs with IRIs. The mapping has to be provided
   with a JSON file.
-- [`dsp-tools excel2xml`](./dsp-tools-usage.md#create-an-xml-file-from-excelcsv) transforms a data source to XML if it 
-  is already structured according to the DSP specifications.
-- [The module excel2xml](./dsp-tools-usage.md#use-the-module-excel2xml-to-convert-a-data-source-to-xml) provides helper
-  methods that can be used in a Python script to convert data from a tabular format into XML.
 - [`dsp-tools start-api / stop-api / start-app`](./dsp-tools-usage.md#start-a-dsp-stack-on-your-local-machine-for-dasch-internal-use-only)
   assist you in running a DSP software stack on your local machine.

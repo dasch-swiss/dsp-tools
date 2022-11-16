@@ -204,7 +204,7 @@ Arguments:
  - project_shortcode (mandatory): The four-digit hexadecimal shortcode of the project
  - ontology_name (mandatory): the name of the ontology that the data belongs to
 
-The Excel file must be structured as in this image:
+The Excel file must be structured as in this image:  
 ![img-excel2xml.png](assets/images/img-excel2xml.png)
 
 Some notes:

@@ -365,7 +365,7 @@ Example of a "lists" section:
 #### Lists from Excel
 
 Instead of being described in JSON, a list can be imported from one or several Excel files. In this case, the 
-`nodes` element of the root node consists of {"folder": "<path-to-folder-containing-the-excel-files>"}. In the above 
+`nodes` element of the root node consists of `{"folder": "<path-to-folder-containing-the-excel-files>"}`. In the above 
 example, the list "colors" could be imported as follows:
 
 ```json
@@ -403,9 +403,9 @@ example, the list "colors" could be imported as follows:
 }
 ```
 
-To do so, it would be necessary to place the following two files into the folder "path-to-folder":
-![Colors_en](./assets/images/img-list-english-colors.png)
-![Farben_de](./assets/images/img-list-german-colors.png)
+To do so, it would be necessary to place the following two files into the folder "path-to-folder":  
+![Colors_en](./assets/images/img-list-english-colors.png){ width=50% }
+![Farben_de](./assets/images/img-list-german-colors.png){ width=50% }
 
 The expected format of the Excel files is documented [here](./dsp-tools-excel2json.md#lists-section). The only difference to 
 the explanations there is that column A of the Excel worksheet is not interpreted as list name (root node), but as 

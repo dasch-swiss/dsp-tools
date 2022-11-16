@@ -1,13 +1,31 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Module `excel2xml`: Convert a data source to XML
+# excel2xml
 
-This page is about the module `excel2xml` that can be imported into a custom Python script that transforms any tabular 
-data into an XML. 
+## Two use cases - two approaches
 
-There is also a CLI command `dsp-tools excel2xml` that creates an XML file from an Excel/CSV file which is already 
-structured according to the DSP specifications. The CLI command is documented 
+There are two kinds of Excel files that can be transformed into an XML file:
+
+| structure        | provenance  | tool                     | example screenshot                                       |
+|------------------|-------------|--------------------------|----------------------------------------------------------|
+| custom structure | customer    | module `excel2xml`       | ![](./assets/images/img-excel2xml-raw-data-category.png) |
+| DSP structure    | DSP server  | CLI command `excel2xml`  | ![](./assets/images/img-excel2xml-closeup.png)           |
+
+The first use case is the most frequent: The DaSCH receives a data export from a research project. Every project uses 
+different software, so every project will deliver their data in a different structure. The screenshot is just a 
+simplified example. For this use case, it is necessary to write a Python script that transforms the data from an 
+undefined state X into a DSP-conforming XML file that can be uploaded with `dsp-tools xmlupload`. For this, you need to
+import the module `excel2xml` into your Python script.
+
+The second use case is less frequent: We migrate data DaSCH-internally from one server to another. In this case, the 
+data already has the correct structure, and can automatically be transformed to XML. This can be done with the CLI 
+command `dsp-tools excel2xml` which is documented 
 [here](./dsp-tools-usage.md#use-the-module-excel2xml-to-convert-a-data-source-to-xml).
+
+**This page deals only with the first use case, the module `excel2xml`** .
+
+
+## Module `excel2xml`: Convert a data source to XML
 
 To demonstrate the usage of the `excel2xml` module, there is a GitHub repository named `0123-import-scripts`. It 
 contains:

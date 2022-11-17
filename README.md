@@ -2,8 +2,8 @@
 
 # DSP-TOOLS - DaSCH Service Platform Tools
 
-dsp-tools is a command line tool that helps you interacting with the DaSCH Service Platform API.  
-Go to [Full Documentation](https://docs.dasch.swiss/latest/DSP-TOOLS)
+dsp-tools is a command line tool that helps you to interact with the DaSCH Service Platform API. Consult the full 
+documentation [here](https://docs.dasch.swiss/latest/DSP-TOOLS).
 
 
 ## Information for developers
@@ -11,7 +11,7 @@ Go to [Full Documentation](https://docs.dasch.swiss/latest/DSP-TOOLS)
 There is a `Makefile` for all the following tasks (and more). Type `make` to print the available targets. 
 
 For a quick start, use: 
-```
+```bash
 pip install pipenv
 pipenv install --dev
 pipenv run make install
@@ -24,6 +24,84 @@ If you prefer getting around pipenv, use instead:
 make install-requirements
 make install
 ```
+
+
+## Git submodules
+
+This repository embeds [https://github.com/dasch-swiss/0123-import-scripts](https://github.com/dasch-swiss/0123-import-scripts) 
+as a Git submodule in `knora/dsplib/import_scripts`. That means that `knora/dsplib/import_scripts` has no contents, but
+only a reference to a certain commit in the main branch of `0123-import-scripts`. When you clone `dsp-tools` from GitHub 
+as usual, `knora/dsplib/import_scripts` will be empty.
+
+
+### Passively using the contents of the submodule
+
+If you don't have a clone of dsp-tools yet, clone it with 
+
+```bash
+git clone --recurse-submodules https://github.com/dasch-swiss/dsp-tools.git
+```
+
+After cloning it that way, and after some time has passed, you might want to get the latest changes from GitHub:
+
+```bash
+cd dsp-tools
+git pull --recurse-submodules
+```
+
+These two commands take care of the submodule, so that its contents are cloned/pulled as well. 
+
+In case you have an old clone of dsp-tools, without the submodule, and you want to update it, you have to proceed 
+differently: 
+
+```bash
+cd dsp-tools
+git pull
+git submodule update --init --recursive
+```
+
+Some notes:
+ - `git clone --recurse-submodules <repo>` is shorthand for `git clone <repo>; cd <repo>; git submodule update --init --recursive`
+ - `git pull --recurse-submodules` is shorthand for `git pull; git submodule update --init --recursive`
+ - `--init` is necessary if you don't have the submodule `knora/dsplib/import_scripts` yet. In all successive calls, 
+   when the submodule is already on your machine, the flag `--init` can be omitted.
+ - `--recursive` is optional, in case there would be more than one (nested) submodules inside dsp-tools. 
+ - Since Git 2.15, you can tell Git to use `--recurse-submodules` for all commands that support it (except `clone`), 
+   with `git config submodule.recurse true`.
+ - These explanations rely on [the official Git Submodules documentation](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
+
+
+### Actively working with the contents of the submodule
+
+After retrieving the contents of a submodule as described in the paragraph above, it is in "detached HEAD" state. Before 
+committing to it, the `main` branch needs to be checked out. The order how to proceed is the following:
+
+```bash
+cd knora/dsplib/import_scripts
+git checkout main                     # check out main branch of 0123-import-scripts
+# (modify contents of submodule)
+git add .
+git commit -m "modify submodule"
+git push origin main                  # push to origin of 0123-import-scripts
+cd ../../..
+git add knora/dsplib/import_scripts
+git commit -m "modify submodule"
+git push origin feature-branch        # push to origin of dsp-tools
+```
+
+When switching between branches, there are two options:
+
+1. By default (`submodule.recurse` is false AND branches are switched with `git checkout <branch>`), the contents of 
+  submodules will not be updated.
+2. If `submodule.recurse` has been set to true, OR if branches are switched with `git checkout <branch> 
+    --recurse-submodules`, the contents of submodules will be updated according to the commit recorded in the 
+   superproject. If local modifications in a submodule would be overwritten, the checkout will fail.
+
+To quickly switch between branches when you have 
+uncommitted work in the submodule, the first option might be preferable. After merging a Pull Request and switching 
+back to the main branch, the second option might be more suitable.  
+Read more about the checkout options in [the official documentation](https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt---recurse-submodules)
+
 
 
 ## Pipenv

@@ -411,12 +411,11 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
 
     # write log files
     success = True
-    timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
-    if len(id2iri_mapping) > 0:
-        id2iri_mapping_file = f"id2iri_{Path(input_file).stem}_mapping_{timestamp_str}.json"
-        with open(id2iri_mapping_file, "x") as f:
-            json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
-            print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
+    timestamp_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+    id2iri_mapping_file = f"id2iri_{Path(input_file).stem}_mapping_{timestamp_str}.json"
+    with open(id2iri_mapping_file, "x") as f:
+        json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
+        print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
     if failed_uploads:
         print(f"\nWARNING: Could not upload the following resources: {failed_uploads}\n")
         success = False
@@ -773,64 +772,8 @@ def _handle_upload_error(
 
     print(f'\n=========================================='
           f'\nxmlupload must be aborted because of an error')
-    timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
+    timestamp_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
 
-    # write stashes and id2iri_mapping. First, purge the stashes from resources that have not been uploaded yet. Only
-    # stashed properties of resources that already exist in DSP are of interest.
-    stashed_xml_texts_purged = _purge_stashed_xml_texts(stashed_xml_texts, id2iri_mapping)
-    stashed_resptr_props_purged = _purge_stashed_resptr_props(stashed_resptr_props, id2iri_mapping)
-    if len(stashed_xml_texts_purged) > 0 or len(stashed_resptr_props_purged) > 0 or len(id2iri_mapping) > 0:
-        _write_logs(
-            id2iri_mapping=id2iri_mapping,
-            stashed_xml_texts=stashed_xml_texts_purged,
-            stashed_resptr_props=stashed_resptr_props_purged,
-            timestamp_str=timestamp_str,
-            save_location=save_location,
-            proj_shortcode=proj_shortcode,
-            onto_name=onto_name,
-            server=server
-        )
-
-    # print the resources that threw an error when they were tried to be uploaded
-    if failed_uploads:
-        print(f"Independently of this error, there were some resources that could not be uploaded: "
-              f"{failed_uploads}")
-
-    if isinstance(err, KeyboardInterrupt):
-        exit(1)
-    else:
-        print('The error will now be raised again:\n'
-              '==========================================\n')
-        raise err
-
-
-def _write_logs(
-    id2iri_mapping: Optional[dict[str, str]],
-    stashed_xml_texts: Optional[dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]],
-    stashed_resptr_props: Optional[dict[XMLResource, dict[XMLProperty, list[str]]]],
-    timestamp_str: Optional[str],
-    save_location: str,
-    proj_shortcode: str,
-    onto_name: str,
-    server: str
-) -> None:
-    """
-    Write the stashed_xml_texts and stashed_resptr_props into a file. The timestamp must be created by the caller, so
-    that different log files can have an identical timestamp.
-
-    Args:
-        id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
-        stashed_xml_texts: all xml texts that have been stashed
-        stashed_resptr_props: all resptr props that have been stashed
-        timestamp_str: timestamp for log file identification
-        save_location: path to the directory where dsp-tools can save logs (OS dependent)
-        proj_shortcode: shortcode of the project into which the data is uploaded
-        onto_name: name of the ontology into which the data is uploaded
-        server: the server onto which the data is uploaded
-
-    Returns:
-        None
-    """
     server_substitutions = {
         r"https?://": "",
         r"^api\..+": "",
@@ -843,22 +786,37 @@ def _write_logs(
     save_location_full = f"{save_location}/xmluploads/{server}/{proj_shortcode}/{onto_name}"
     os.makedirs(save_location_full, exist_ok=True)
 
+    # only stashed properties of resources that already exist in DSP are of interest
+    stashed_xml_texts = _purge_stashed_xml_texts(stashed_xml_texts, id2iri_mapping)
+    stashed_resptr_props = _purge_stashed_resptr_props(stashed_resptr_props, id2iri_mapping)
+
     if id2iri_mapping:
         id2iri_mapping_file = f"{save_location_full}/{timestamp_str}_id2iri_mapping.json"
         with open(id2iri_mapping_file, "x") as f:
             json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
             print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
-
     if stashed_xml_texts:
         xml_filename = f"{save_location_full}/{timestamp_str}_stashed_text_properties.json"
         with open(xml_filename, "x") as f:
             json.dump(stashed_xml_texts, f, ensure_ascii=False, indent=4)
         print(f"There are stashed text properties that could not be reapplied to the resources they were stripped "
               f"from. They were saved to {xml_filename}.")
-
     if stashed_resptr_props:
         resptr_filename = f"{save_location_full}/{timestamp_str}_stashed_resptr_properties.json"
         with open(resptr_filename, "x") as f:
             json.dump(stashed_resptr_props, f, ensure_ascii=False, indent=4)
-        print(f"There are stashed resptr properties that could not be reapplied to the resources they were stripped "
-              f"from. They were saved to {resptr_filename}")
+        print(
+            f"There are stashed resptr properties that could not be reapplied to the resources they were stripped "
+            f"from. They were saved to {resptr_filename}")
+
+    # print the resources that threw an error when they were tried to be uploaded
+    if failed_uploads:
+        print(f"Independently of this error, there were some resources that could not be uploaded: "
+              f"{failed_uploads}")
+
+    if isinstance(err, KeyboardInterrupt):
+        exit(1)
+    else:
+        print('The error will now be raised again:\n'
+              '==========================================\n')
+        raise err

@@ -74,7 +74,7 @@ Some notes:
 ### Actively working with the contents of the submodule
 
 After retrieving the contents of a submodule as described in the paragraph above, it is in "detached HEAD" state. Before 
-committing to it, the `main` branch needs to be checked out. The precise order how to proceed is the following:
+committing to it, the `main` branch needs to be checked out. The order how to proceed is the following:
 
 ```bash
 cd knora/dsplib/import_scripts
@@ -97,7 +97,7 @@ When switching between branches, there are two options:
     --recurse-submodules`, the contents of submodules will be updated according to the commit recorded in the 
    superproject. If local modifications in a submodule would be overwritten, the checkout will fail.
 
-It is up to you to decide which of the two is the desired behaviour. To quickly switch between branches when you have 
+To quickly switch between branches when you have 
 uncommitted work in the submodule, the first option might be preferable. After merging a Pull Request and switching 
 back to the main branch, the second option might be more suitable.  
 Read more about the checkout options in [the official documentation](https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt---recurse-submodules)

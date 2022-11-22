@@ -308,9 +308,9 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     if sys.platform.startswith("darwin") or sys.platform.startswith("linux"):
         save_location = f"{os.path.expanduser('~')}/.dsp-tools"
     elif sys.platform.startswith("win"):
-        save_location = "?"
+        save_location = "."
     else:
-        save_location = "?"
+        save_location = "."
 
     # Connect to the DaSCH Service Platform API and get the project context
     con = Connection(server)
@@ -783,7 +783,10 @@ def _handle_upload_error(
     for pattern, repl in server_substitutions.items():
         server = re.sub(pattern, repl, server)
 
-    save_location_full = f"{save_location}/xmluploads/{server}/{proj_shortcode}/{onto_name}"
+    if save_location == ".":
+        save_location_full = f"xmluploads/{server}/{proj_shortcode}/{onto_name}"
+    else:
+        save_location_full = f"{save_location}/xmluploads/{server}/{proj_shortcode}/{onto_name}"
     os.makedirs(save_location_full, exist_ok=True)
 
     # only stashed properties of resources that already exist in DSP are of interest

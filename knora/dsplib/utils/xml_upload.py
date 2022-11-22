@@ -311,6 +311,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         save_location = "."
     else:
         save_location = "."
+    # TODO: use the home directory provided by Pathlib
 
     # Connect to the DaSCH Service Platform API and get the project context
     con = Connection(server)
@@ -798,6 +799,7 @@ def _handle_upload_error(
         with open(id2iri_mapping_file, "x") as f:
             json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
         print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
+
     if stashed_xml_texts:
         stashed_xml_texts_serializable = {r.id: {p.name: xml for p, xml in rdict.items()} for r, rdict in stashed_xml_texts.items()}
         xml_filename = f"{save_location_full}/{timestamp_str}_stashed_text_properties.json"
@@ -805,6 +807,7 @@ def _handle_upload_error(
             json.dump(stashed_xml_texts_serializable, f, ensure_ascii=False, indent=4, cls=KnoraStandoffXmlEncoder)
         print(f"There are stashed text properties that could not be reapplied to the resources they were stripped "
               f"from. They were saved to {xml_filename}.")
+
     if stashed_resptr_props:
         stashed_resptr_props_serializable = {r.id: {p.name: plist for p, plist in rdict.items()} for r, rdict in stashed_resptr_props.items()}
         resptr_filename = f"{save_location_full}/{timestamp_str}_stashed_resptr_properties.json"

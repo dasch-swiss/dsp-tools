@@ -761,10 +761,10 @@ def _handle_upload_error(
         failed_uploads: resources that caused an error when uploading to DSP
         stashed_xml_texts: all xml texts that have been stashed
         stashed_resptr_props: all resptr props that have been stashed
-        proj_shortcode: shortcode of the project where the data is uploaded
-        onto_name: name of the ontology into which the data is uploaded
-        server: the server onto which the data is uploaded
-        save_location: path to the directory where dsp-tools can save logs (OS dependent)
+        proj_shortcode: shortcode of the project the data belongs to
+        onto_name: name of the ontology the data references
+        server: the server which the data is uploaded onto
+        save_location: path to the directory where dsp-tools should save logs (OS dependent)
 
     Returns:
         None

@@ -32,13 +32,20 @@ if [[ ! -d dsp-api ]]; then
 fi
 cd dsp-api
 rm -f "$logfile"
+
 echo "make stack-down-delete-volumes..." 2>&1 | tee -a "$logfile"
 make stack-down-delete-volumes >>"$logfile" 2>&1
+
 if echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 -w 10 > /dev/null 2>&1; then
     # only pull if there is an internet connection
+    echo "git reset --hard HEAD ..." 2>&1 | tee -a "$logfile"
+    git reset --hard HEAD >>"$logfile" 2>&1
+    echo "git checkout main ..." 2>&1 | tee -a "$logfile"
+    git checkout main >>"$logfile" 2>&1
     echo "git pull ..." 2>&1 | tee -a "$logfile"
     git pull >>"$logfile" 2>&1
 fi
+
 echo "make init-db-test..." 2>&1 | tee -a "$logfile"
 make init-db-test >>"$logfile" 2>&1
 echo "make stack-up..." 2>&1 | tee -a "$logfile"

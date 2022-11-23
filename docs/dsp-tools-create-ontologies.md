@@ -530,17 +530,17 @@ for more information.
 
 *gui_elements / gui_attributes*:
 
-- `SimpleText`: A simple text entry box (one line only)
+- `SimpleText`: one-line text entry box (for text **without** markup)
     - *gui_attributes*:
         - `maxlength=integer` (optional): maximal length (number of characters accepted)
         - `size=integer` (optional): size (width) of widget
-- `Textarea`: A multiline text entry box
+- `Textarea`: multiline text entry box (for text **without** markup)
     - *gui_attributes*:
         - `cols=integer` (optional): number of columns of the textarea
         - `rows=integer` (optional): number of rows of the textarea
         - `width=percent` (optional): width of the textarea on the screen
         - `wrap=soft|hard` (optional): wrapping of text
-- `Richtext`: A rich-text editor.
+- `Richtext`: multiline rich-text editor (for text **with** markup)
     - *gui_attributes*: No attributes
 
 Example:

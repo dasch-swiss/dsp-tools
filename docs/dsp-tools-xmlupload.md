@@ -691,7 +691,7 @@ see the table:
 |-------------------------------|-----------------------|------------------------------------------------------------------------------------------------------------------------------|
 | `SimpleText`                  | `utf8`                | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                |
 | `Textarea`                    | `utf8`                | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                |
-| `Richtext`                    | `xml`                 | Pretty-print whitespaces and newlines from the XML are removed. If you want a newline in the text field, use `<br>` instead. |
+| `Richtext`                    | `xml`                 | Pretty-print whitespaces and newlines from the XML are removed. If you want a newline in the text field, use `<br />` instead. |
 
 Example of a public and a hidden text:
 ```xml

@@ -16,6 +16,7 @@ from lxml import etree
 
 from knora.dsplib.models.connection import Connection
 from knora.dsplib.models.helpers import BaseError
+from knora.dsplib.models.logformatter import LogFormatter
 from knora.dsplib.models.permission import Permissions
 from knora.dsplib.models.projectContext import ProjectContext
 from knora.dsplib.models.resource import ResourceInstanceFactory, ResourceInstance, KnoraStandoffXmlEncoder
@@ -26,8 +27,11 @@ from knora.dsplib.models.xmlproperty import XMLProperty
 from knora.dsplib.models.xmlresource import XMLResource
 from knora.dsplib.utils.shared import try_network_action, validate_xml_against_schema
 
+# use the logger globally
+logger: logging.Logger
 
-def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
+
+def _remove_circular_references(resources: list[XMLResource]) -> \
         tuple[list[XMLResource],
               dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
               dict[XMLResource, dict[XMLProperty, list[str]]]
@@ -38,16 +42,13 @@ def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> 
 
     Args:
         resources: list of resources that possibly contain circular references
-        verbose: verbose output if True
 
     Returns:
         list: list of cleaned resources
         stashed_xml_texts: dict with the stashed XML texts
         stashed_resptr_props: dict with the stashed resptr-props
     """
-
-    if verbose:
-        print("Checking resources for unresolvable references...")
+    logger.debug("Checking resources for unresolvable references...")
 
     stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]] = {}
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]] = {}
@@ -87,8 +88,7 @@ def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> 
         nok_len = len(nok_resources)
         nok_resources = []
         cnt += 1
-        if verbose:
-            print(f'{cnt}. ordering pass finished.')
+        logger.debug(f"{cnt}. ordering pass finished.")
     return ok_resources, stashed_xml_texts, stashed_resptr_props
 
 
@@ -107,12 +107,12 @@ def _stash_circular_references(
 ]:
     for res in nok_resources.copy():
         for link_prop in res.get_props_with_links():
-            if link_prop.valtype == 'text':
+            if link_prop.valtype == "text":
                 for value in link_prop.values:
                     if value.resrefs and not all([_id in ok_res_ids for _id in value.resrefs]):
                         # stash this XML text, replace it by its hash, and remove the
                         # problematic resrefs from the XMLValue's resrefs list
-                        value_hash = str(hash(f'{value.value}{datetime.now()}'))
+                        value_hash = str(hash(f"{value.value}{datetime.now()}"))
                         if res not in stashed_xml_texts:
                             stashed_xml_texts[res] = {link_prop: {value_hash: cast(KnoraStandoffXml, value.value)}}
                         elif link_prop not in stashed_xml_texts[res]:
@@ -121,7 +121,7 @@ def _stash_circular_references(
                             stashed_xml_texts[res][link_prop][value_hash] = cast(KnoraStandoffXml, value.value)
                         value.value = KnoraStandoffXml(value_hash)
                         value.resrefs = [_id for _id in value.resrefs if _id in ok_res_ids]
-            elif link_prop.valtype == 'resptr':
+            elif link_prop.valtype == "resptr":
                 for value in link_prop.values.copy():
                     if value.value not in ok_res_ids:
                         # value.value is the id of the target resource. stash it, then delete it
@@ -135,8 +135,8 @@ def _stash_circular_references(
                                 stashed_resptr_props[res][link_prop].append(str(value.value))
                         link_prop.values.remove(value)
             else:
-                raise BaseError(f'ERROR in remove_circular_references(): link_prop.valtype is '
-                                f'neither text nor resptr.')
+                raise BaseError(f"ERROR in remove_circular_references(): link_prop.valtype is "
+                                f"neither text nor resptr.")
 
             if len(link_prop.values) == 0:
                 # if all values of a link property have been stashed, the property needs to be removed
@@ -189,6 +189,70 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
 
 
+def _configure_logger(server: str, shortcode: str, default_ontology: str, verbose: bool) -> tuple[dict[str, str], logging.Logger]:
+    """
+    Creates a directory structure where the logs will be saved at, depending on the OS, the server, the project, and
+    the ontology. Creates also a logger, depending on the verbosity.
+
+    Args:
+        server: server address where the data is uploaded to
+        shortcode: shortcode of the project
+        default_ontology: name of the ontology
+        verbose: verbose switch
+
+    Returns:
+        a "log_conf" dict containing time, server, save_location, and both id2iri pathes; and a logger
+    """
+
+    # initialize log_conf
+    log_conf = {
+        "time": datetime.now().strftime("%Y-%m-%d_%H%M%S"),
+        "server": server
+    }
+
+    # transform the server into a form which is usable as directory name
+    server_substitutions = {
+        r"https?://": "",
+        r"^api\..+": "",
+        r":\d{4}/?$": "",
+        r"0.0.0.0": "localhost"
+    }
+    for pattern, repl in server_substitutions.items():
+        log_conf["server"] = re.sub(pattern, repl, log_conf["server"])
+
+    # determine the log save location and create directories
+    if sys.platform.startswith("darwin") or sys.platform.startswith("linux"):
+        log_conf["save_location"] = f"{os.path.expanduser('~')}/.dsp-tools/xmluploads/{log_conf['server']}/{shortcode}/{default_ontology}"
+    else:
+        log_conf["save_location"] = f"xmluploads/{log_conf['server']}/{shortcode}/{default_ontology}"
+    # TODO: use the home directory provided by Pathlib
+    os.makedirs(log_conf["save_location"], exist_ok=True)
+
+    # define the two pathes of the id2iri_mappings
+    log_conf["id2iri_cwd"] = f"{log_conf['time']}_id2iri_mapping_{default_ontology}.json"
+    log_conf["id2iri_logging"] = f"{log_conf['save_location']}/{log_conf['time']}_id2iri_mapping_{default_ontology}.json"
+
+    # customise the logger, depending on verbosity
+    _logger = logging.getLogger(__name__)
+    if verbose:
+        filename = f"{log_conf['save_location']}/{log_conf['time']}_xmlupload_logging.csv"
+        with open(filename, "x") as f: f.write("sep=;\n")
+        print(f"You are in the verbose mode, which logs everything to {filename}")
+        file_handler = logging.FileHandler(filename)
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(logging.Formatter("%(asctime)s;%(name)s;%(levelname)s;%(message)s"))
+        _logger.addHandler(file_handler)
+        _logger.setLevel(logging.DEBUG)
+    else:
+        stdout_handler = logging.StreamHandler(stream=sys.stdout)
+        stdout_handler.setLevel(logging.INFO)
+        stdout_handler.setFormatter(LogFormatter("%(levelname)s: %(message)s"))
+        _logger.addHandler(stdout_handler)
+        _logger.setLevel(logging.INFO)
+
+    return log_conf, _logger
+
+
 def _parse_xml_file(input_file: str) -> etree.ElementTree:
     """
     Parse an XML file with DSP-conform data, remove namespace URI from the elements' names, and transform the special
@@ -224,8 +288,7 @@ def _parse_xml_file(input_file: str) -> etree.ElementTree:
 
 def _check_consistency_with_ontology(
     resources: list[XMLResource],
-    resclass_name_2_type: dict[str, type],
-    verbose: bool = False
+    resclass_name_2_type: dict[str, type]
 ) -> None:
     """
     Checks if the resource types and properties in the XML are consistent with the ontology.
@@ -233,13 +296,11 @@ def _check_consistency_with_ontology(
     Args:
         resources: a list of parsed XMLResources
         resclass_name_2_type: infos about the resource classes that exist on the DSP server for the current ontology
-        verbose: verbose switch
 
     Returns:
         None if everything went well. Raises a BaseError if there is a problem.
     """
-    if verbose:
-        print("Check if the resource types and properties are consistent with the ontology...")
+    logger.debug("Check if the resource types and properties are consistent with the ontology...")
     knora_properties = resclass_name_2_type[resources[0].restype].knora_properties
 
     for resource in resources:
@@ -274,7 +335,7 @@ def _check_consistency_with_ontology(
                             f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)"
                 )
 
-    print("Resource types and properties are consistent with the ontology.")
+    logger.info("Resource types and properties are consistent with the ontology.")
 
 
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
@@ -304,9 +365,6 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         successfully uploaded
     """
 
-    # configure logger provisionally
-    logging.basicConfig(level=logging.INFO)
-
     # validate the input XML file
     try:
         validate_xml_against_schema(input_file)
@@ -316,36 +374,13 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     # get project shortcode and onto name
     tree = _parse_xml_file(input_file)
     root = tree.getroot()
-    default_ontology = root.attrib['default-ontology']
-    shortcode = root.attrib['shortcode']
+    default_ontology = root.attrib["default-ontology"]
+    shortcode = root.attrib["shortcode"]
 
     # configure logger
-    log_conf = {
-        "time": datetime.now().strftime("%Y-%m-%d_%H%M%S"),
-        "server": server
-    }
-    server_substitutions = {
-        r"https?://": "",
-        r"^api\..+": "",
-        r":\d{4}/?$": "",
-        r"0.0.0.0": "localhost"
-    }
-    for pattern, repl in server_substitutions.items():
-        log_conf["server"] = re.sub(pattern, repl, log_conf["server"])
-
-    if sys.platform.startswith("darwin") or sys.platform.startswith("linux"):
-        log_conf["save_location"] = f"{os.path.expanduser('~')}/.dsp-tools/xmluploads/{log_conf['server']}/{shortcode}/{default_ontology}"
-    else:
-        log_conf["save_location"] = f"xmluploads/{log_conf['server']}/{shortcode}/{default_ontology}"
-    # TODO: use the home directory provided by Pathlib
-    os.makedirs(log_conf["save_location"], exist_ok=True)
-
-    log_conf["id2iri_cwd"] = f"{log_conf['time']}_id2iri_mapping_{default_ontology}.json"
-    log_conf["id2iri_logging"] = f"{log_conf['save_location']}/{log_conf['time']}_id2iri_mapping_{default_ontology}.json"
-
-    if verbose:
-        filename = f"{log_conf['save_location']}/{log_conf['time']}_xmlupload.log"
-        logging.basicConfig(filename=filename, level=logging.DEBUG)
+    log_conf, _logger = _configure_logger(server=server, shortcode=shortcode, default_ontology=default_ontology, verbose=verbose)
+    global logger
+    logger = _logger
 
     # connect to the DaSCH Service Platform API and get the project context
     con = Connection(server)
@@ -372,13 +407,12 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     # check if the data in the XML is consistent with the ontology
     _check_consistency_with_ontology(
         resources=resources,
-        resclass_name_2_type=resclass_name_2_type,
-        verbose=verbose
+        resclass_name_2_type=resclass_name_2_type
     )
 
     # temporarily remove circular references, but only if not an incremental upload
     if not incremental:
-        resources, stashed_xml_texts, stashed_resptr_props = _remove_circular_references(resources, verbose)
+        resources, stashed_xml_texts, stashed_resptr_props = _remove_circular_references(resources)
     else:
         stashed_xml_texts = dict()
         stashed_resptr_props = dict()
@@ -402,7 +436,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     # update the resources with the stashed XML texts
     if len(stashed_xml_texts) > 0:
         try:
-            nonapplied_xml_texts = _upload_stashed_xml_texts(verbose, id2iri_mapping, con, stashed_xml_texts)
+            nonapplied_xml_texts = _upload_stashed_xml_texts(id2iri_mapping, con, stashed_xml_texts)
             if len(nonapplied_xml_texts) > 0:
                 raise BaseError(f"Error while trying to upload the stashed xml texts")
         except BaseException as err:
@@ -418,7 +452,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     # update the resources with the stashed resptrs
     if len(stashed_resptr_props) > 0:
         try:
-            nonapplied_resptr_props = _upload_stashed_resptr_props(verbose, id2iri_mapping, con, stashed_resptr_props)
+            nonapplied_resptr_props = _upload_stashed_resptr_props(id2iri_mapping, con, stashed_resptr_props)
             if len(nonapplied_resptr_props) > 0:
                 raise BaseError(f"Error while trying to upload the stashed resptr props")
         except BaseException as err:
@@ -434,17 +468,17 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     # save id2iri_mapping to the working directory
     with open(log_conf["id2iri_cwd"], "x") as f:
         json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
-        print(f"The mapping of internal IDs to IRIs was written to {log_conf['id2iri_cwd']}")
+        logger.info(f"The mapping of internal IDs to IRIs was written to {log_conf['id2iri_cwd']}")
     # save a copy of id2iri_mapping to the logging directory
-    with open(log_conf['id2iri_logging'], "x") as f:
+    with open(log_conf["id2iri_logging"], "x") as f:
         json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
 
     success = True
     if failed_uploads:
-        print(f"\nWARNING: Could not upload the following resources: {failed_uploads}\n")
+        logger.warning(f"Could not upload the following resources: {failed_uploads}")
         success = False
     if success:
-        print("All resources have successfully been uploaded.")
+        logger.info("All resources have successfully been uploaded.")
 
     return success
 
@@ -482,7 +516,7 @@ def _upload_resources(
         bitstream_size_total_mb = round(sum(bitstream_all_sizes_mb), 1)
         bitstream_all_sizes_iterator = iter(bitstream_all_sizes_mb)  # for later reuse, to avoid later system calls
         bitstream_size_uploaded_mb = 0.0
-        print(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
+        logger.info(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
 
     for i, resource in enumerate(resources):
         resource_iri = resource.iri
@@ -495,16 +529,16 @@ def _upload_resources(
             try:
                 img: Optional[dict[Any, Any]] = try_network_action(
                     action=lambda: sipi_server.upload_bitstream(filepath=os.path.join(imgdir, resource.bitstream.value)),
-                    failure_msg=f'ERROR while trying to upload file "{resource.bitstream.value}" of resource '
-                                f'"{resource.label}" ({resource.id}).'
+                    failure_msg=f"ERROR while trying to upload file '{resource.bitstream.value}' of resource "
+                                f"'{resource.label}' ({resource.id})."
                 )
             except BaseError as err:
-                print(err.message)
+                logger.error(err.message)
                 failed_uploads.append(resource.id)
                 continue
             bitstream_size_uploaded_mb += next(bitstream_all_sizes_iterator)
-            print(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")
-            internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']
+            logger.info(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")
+            internal_file_name_bitstream = img["uploadedFiles"][0]["internalFilename"]
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 
         # create the resource in DSP
@@ -524,7 +558,7 @@ def _upload_resources(
                 failure_msg=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
             )
         except BaseError as err:
-            print(err.message)
+            logger.error(err.message)
             failed_uploads.append(resource.id)
             continue
 
@@ -534,18 +568,16 @@ def _upload_resources(
                 failure_msg=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
             )
         except BaseError as err:
-            print(err.message)
+            logger.error(err.message)
             failed_uploads.append(resource.id)
             continue
         id2iri_mapping[resource.id] = created_resource.iri
-        print(f"Created resource {i+1}/{len(resources)}: '{created_resource.label}' (ID: '{resource.id}', IRI: "
-              f"'{created_resource.iri}')")
+        logger.info(f"Created resource {i+1}/{len(resources)}: '{created_resource.label}' (ID: '{resource.id}')")
 
     return id2iri_mapping, failed_uploads
 
 
 def _upload_stashed_xml_texts(
-    verbose: bool,
     id2iri_mapping: dict[str, str],
     con: Connection,
     stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]
@@ -554,7 +586,6 @@ def _upload_stashed_xml_texts(
     After all resources are uploaded, the stashed xml texts must be applied to their resources in DSP.
 
     Args:
-        verbose: bool
         id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
         con: connection to DSP
         stashed_xml_texts: all xml texts that have been stashed
@@ -563,7 +594,7 @@ def _upload_stashed_xml_texts(
         nonapplied_xml_texts: the xml texts that could not be uploaded
     """
 
-    print('Upload the stashed XML texts...')
+    logger.info("Upload the stashed XML texts...")
     for resource, link_props in stashed_xml_texts.copy().items():
         if resource.id not in id2iri_mapping:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
@@ -571,13 +602,13 @@ def _upload_stashed_xml_texts(
         res_iri = id2iri_mapping[resource.id]
         try:
             existing_resource = try_network_action(
-                action=lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'),
-                failure_msg=f'  ERROR while retrieving resource "{resource.id}" from DSP server.'
+                action=lambda: con.get(path=f"/v2/resources/{quote_plus(res_iri)}"),
+                failure_msg=f"  ERROR while retrieving resource '{resource.id}' from DSP server."
             )
         except BaseError as err:
-            print(err.message)
+            logger.error(err.message)
             continue
-        print(f'  Upload XML text(s) of resource "{resource.id}"...')
+        logger.info(f"  Upload XML text(s) of resource '{resource.id}'...")
         for link_prop, hash_to_value in link_props.items():
             existing_values = existing_resource[link_prop.name]
             if not isinstance(existing_values, list):
@@ -588,7 +619,7 @@ def _upload_stashed_xml_texts(
                     continue
 
                 # strip all xml tags from the old xmltext, so that the pure text itself remains
-                pure_text = re.sub(r'(<\?xml.+>\s*)?<text>\s*(.+)\s*<\/text>', r'\2', old_xmltext)
+                pure_text = re.sub(r"(<\?xml.+>\s*)?<text>\s*(.+)\s*<\/text>", r"\2", old_xmltext)
 
                 # if the pure text is a hash, the replacement must be made. This hash originates from
                 # _stash_circular_references(), and identifies the XML texts
@@ -605,29 +636,28 @@ def _upload_stashed_xml_texts(
                     "@id": res_iri,
                     "@type": resource.restype,
                     link_prop.name: {
-                        "@id": existing_value['@id'],
+                        "@id": existing_value["@id"],
                         "@type": "knora-api:TextValue",
                         "knora-api:textValueAsXml": new_xmltext,
                         "knora-api:textValueHasMapping": {
-                            '@id': 'http://rdfh.ch/standoff/mappings/StandardMapping'
+                            "@id": "http://rdfh.ch/standoff/mappings/StandardMapping"
                         }
                     },
-                    "@context": existing_resource['@context']
+                    "@context": existing_resource["@context"]
                 }
-                jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
+                jsondata = json.dumps(jsonobj, indent=4, separators=(",", ": "), cls=KnoraStandoffXmlEncoder)
 
                 # execute API call
                 try:
                     try_network_action(
-                        action=lambda: con.put(path='/v2/values', jsondata=jsondata),
-                        failure_msg=f'    ERROR while uploading the xml text of "{link_prop.name}" of resource "{resource.id}"'
+                        action=lambda: con.put(path="/v2/values", jsondata=jsondata),
+                        failure_msg=f"    ERROR while uploading the xml text of '{link_prop.name}' of resource '{resource.id}'"
                     )
                 except BaseError as err:
-                    print(err.message)
+                    logger.error(err.message)
                     continue
                 stashed_xml_texts[resource][link_prop].pop(pure_text)
-                if verbose:
-                    print(f'  Successfully uploaded xml text of "{link_prop.name}"\n')
+                logger.debug(f"  Successfully uploaded xml text of '{link_prop.name}'\n")
 
     # make a purged version of stashed_xml_texts, without empty entries
     nonapplied_xml_texts = _purge_stashed_xml_texts(stashed_xml_texts, id2iri_mapping)
@@ -665,7 +695,6 @@ def _purge_stashed_xml_texts(
 
 
 def _upload_stashed_resptr_props(
-    verbose: bool,
     id2iri_mapping: dict[str, str],
     con: Connection,
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]]
@@ -674,7 +703,6 @@ def _upload_stashed_resptr_props(
     After all resources are uploaded, the stashed resptr props must be applied to their resources in DSP.
 
     Args:
-        verbose: bool
         id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
         con: connection to DSP
         stashed_resptr_props: all resptr props that have been stashed
@@ -683,7 +711,7 @@ def _upload_stashed_resptr_props(
         nonapplied_resptr_props: the resptr props that could not be uploaded
     """
 
-    print('Upload the stashed resptrs...')
+    logger.info("Upload the stashed resptrs...")
     for resource, prop_2_resptrs in stashed_resptr_props.copy().items():
         if resource.id not in id2iri_mapping:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
@@ -691,41 +719,39 @@ def _upload_stashed_resptr_props(
         res_iri = id2iri_mapping[resource.id]
         try:
             existing_resource = try_network_action(
-                action=lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'),
-                failure_msg=f'  ERROR while retrieving resource "{resource.id}" from DSP server'
+                action=lambda: con.get(path=f"/v2/resources/{quote_plus(res_iri)}"),
+                failure_msg=f"  ERROR while retrieving resource '{resource.id}' from DSP server"
             )
         except BaseError as err:
-            print(err.message)
+            logger.error(err.message)
             continue
-        print(f'  Upload resptrs of resource "{resource.id}"...')
+        logger.info(f"  Upload resptrs of resource '{resource.id}'...")
         for link_prop, resptrs in prop_2_resptrs.items():
             for resptr in resptrs.copy():
                 jsonobj = {
-                    '@id': res_iri,
-                    '@type': resource.restype,
-                    f'{link_prop.name}Value': {
-                        '@type': 'knora-api:LinkValue',
-                        'knora-api:linkValueHasTargetIri': {
+                    "@id": res_iri,
+                    "@type": resource.restype,
+                    f"{link_prop.name}Value": {
+                        "@type": "knora-api:LinkValue",
+                        "knora-api:linkValueHasTargetIri": {
                             # if target doesn't exist in DSP, send the (invalid) resource ID of target to DSP, which
                             # will produce an understandable error message
-                            '@id': id2iri_mapping.get(resptr, resptr)
+                            "@id": id2iri_mapping.get(resptr, resptr)
                         }
                     },
-                    '@context': existing_resource['@context']
+                    "@context": existing_resource["@context"]
                 }
-                jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '))
+                jsondata = json.dumps(jsonobj, indent=4, separators=(",", ": "))
                 try:
                     try_network_action(
-                        action=lambda: con.post(path='/v2/values', jsondata=jsondata),
-                        failure_msg=f'    ERROR while uploading the resptr prop of "{link_prop.name}" of resource "{resource.id}"'
+                        action=lambda: con.post(path="/v2/values", jsondata=jsondata),
+                        failure_msg=f"    ERROR while uploading the resptr prop of '{link_prop.name}' of resource '{resource.id}'"
                     )
                 except BaseError as err:
-                    print(err.message)
+                    logger.error(err.message)
                     continue
                 stashed_resptr_props[resource][link_prop].remove(resptr)
-                if verbose:
-                    print(f'  Successfully uploaded resptr-prop of "{link_prop.name}"\n'
-                          f'    Value: {resptr}')
+                logger.debug(f"  Successfully uploaded resptr-prop of '{link_prop.name}'. Value: '{resptr}'")
 
     # make a purged version of stashed_resptr_props, without empty entries
     nonapplied_resptr_props = _purge_stashed_resptr_props(stashed_resptr_props, id2iri_mapping)
@@ -788,8 +814,7 @@ def _handle_upload_error(
         None
     """
 
-    print(f'\n=========================================='
-          f'\nxmlupload must be aborted because of an error')
+    logger.error(f"xmlupload must be aborted because of an error")
 
     # only stashed properties of resources that already exist in DSP are of interest
     stashed_xml_texts = _purge_stashed_xml_texts(stashed_xml_texts, id2iri_mapping)
@@ -798,35 +823,33 @@ def _handle_upload_error(
     if id2iri_mapping:
         with open(log_conf["id2iri_logging"], "x") as f:
             json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
-        print(f"The mapping of internal IDs to IRIs was written to {log_conf['id2iri_logging']}")
+        logger.info(f"The mapping of internal IDs to IRIs was written to {log_conf['id2iri_logging']}")
 
     if stashed_xml_texts:
         stashed_xml_texts_serializable = {r.id: {p.name: xml for p, xml in rdict.items()} for r, rdict in stashed_xml_texts.items()}
         xml_filename = f"{log_conf['save_location']}/{log_conf['time']}_stashed_text_properties.json"
         with open(xml_filename, "x") as f:
             json.dump(stashed_xml_texts_serializable, f, ensure_ascii=False, indent=4, cls=KnoraStandoffXmlEncoder)
-        print(f"There are stashed text properties that could not be reapplied to the resources they were stripped "
-              f"from. They were saved to {xml_filename}.")
+        logger.error(f"There are stashed text properties that could not be reapplied to the resources they were "
+                     f"stripped from. They were saved to {xml_filename}.")
 
     if stashed_resptr_props:
         stashed_resptr_props_serializable = {r.id: {p.name: plist for p, plist in rdict.items()} for r, rdict in stashed_resptr_props.items()}
         resptr_filename = f"{log_conf['save_location']}/{log_conf['time']}_stashed_resptr_properties.json"
         with open(resptr_filename, "x") as f:
             json.dump(stashed_resptr_props_serializable, f, ensure_ascii=False, indent=4)
-        print(
-            f"There are stashed resptr properties that could not be reapplied to the resources they were stripped "
-            f"from. They were saved to {resptr_filename}")
+        logger.error(f"There are stashed resptr properties that could not be reapplied to the resources they were "
+                     f"stripped from. They were saved to {resptr_filename}")
 
     if failed_uploads:
         with open(f"{log_conf['save_location']}/{log_conf['time']}_failed_uploads.txt", "x") as f:
             json.dump(failed_uploads, f, ensure_ascii=False, indent=4)
-        print(f"Independently of this error, there were some resources that could not be uploaded: "
-              f"{failed_uploads}")
+        logger.error(f"Independently of this error, there were some resources that could not be uploaded: "
+                     f"{failed_uploads}")
 
     # exit or raise the error again
     if isinstance(err, KeyboardInterrupt):
         sys.exit(1)
     else:
-        print('The error will now be raised again:\n'
-              '==========================================\n')
+        logger.error("The error will now be raised again:")
         raise err

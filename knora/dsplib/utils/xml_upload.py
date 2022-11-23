@@ -3,12 +3,12 @@ This module handles the import of XML data into the DSP platform.
 """
 import base64
 import json
+import logging
 import os
 import re
 import sys
 import uuid
 from datetime import datetime
-from pathlib import Path
 from typing import Optional, cast, Tuple, Any
 from urllib.parse import quote_plus
 
@@ -280,7 +280,14 @@ def _check_consistency_with_ontology(
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
                incremental: bool) -> bool:
     """
-    This function reads an XML file and imports the data described in it onto the DSP server.
+    This function reads an XML file and imports the data described in it onto a DSP server.
+
+    In case of success, a JSON file with the mapping of internal IDs to the IRIs on the DSP server is saved into the
+    directory where dsp-tools was called from. A copy of this file is also written to "~/.dsp-tools" (on Macs).
+
+    In case of failure, diagnosis data is written to "~/.dsp-tools" (on Macs). This data contains the status of the
+    xmlupload at the time of the interruption. It allows to reconstruct which data is already on the server and which
+    not yet.
 
     Args:
         input_file: the XML with the data to be imported onto the DSP server
@@ -289,7 +296,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         password: the password of the user with which the data should be imported
         imgdir: the image directory
         sipi: the sipi instance to be used
-        verbose: verbose option for the command, if used more output is given to the user
+        verbose: if true, detailed output is written into a log file to "~/.dsp-tools" (on Macs)
         incremental: if set, IRIs instead of internal IDs are expected as resource pointers
 
     Returns:
@@ -297,23 +304,50 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         successfully uploaded
     """
 
-    # Validate the input XML file
+    # configure logger provisionally
+    logging.basicConfig(level=logging.INFO)
+
+    # validate the input XML file
     try:
         validate_xml_against_schema(input_file)
     except BaseError as err:
-        print(f"=====================================\n"
-              f"{err.message}")
-        quit(0)
+        sys.exit(err.message)
+
+    # get project shortcode and onto name
+    tree = _parse_xml_file(input_file)
+    root = tree.getroot()
+    default_ontology = root.attrib['default-ontology']
+    shortcode = root.attrib['shortcode']
+
+    # configure logger
+    log_conf = {
+        "time": datetime.now().strftime("%Y-%m-%d_%H%M%S"),
+        "server": server
+    }
+    server_substitutions = {
+        r"https?://": "",
+        r"^api\..+": "",
+        r":\d{4}/?$": "",
+        r"0.0.0.0": "localhost"
+    }
+    for pattern, repl in server_substitutions.items():
+        log_conf["server"] = re.sub(pattern, repl, log_conf["server"])
 
     if sys.platform.startswith("darwin") or sys.platform.startswith("linux"):
-        save_location = f"{os.path.expanduser('~')}/.dsp-tools"
-    elif sys.platform.startswith("win"):
-        save_location = "."
+        log_conf["save_location"] = f"{os.path.expanduser('~')}/.dsp-tools/xmluploads/{log_conf['server']}/{shortcode}/{default_ontology}"
     else:
-        save_location = "."
+        log_conf["save_location"] = f"xmluploads/{log_conf['server']}/{shortcode}/{default_ontology}"
     # TODO: use the home directory provided by Pathlib
+    os.makedirs(log_conf["save_location"], exist_ok=True)
 
-    # Connect to the DaSCH Service Platform API and get the project context
+    log_conf["id2iri_cwd"] = f"{log_conf['time']}_id2iri_mapping_{default_ontology}.json"
+    log_conf["id2iri_logging"] = f"{log_conf['save_location']}/{log_conf['time']}_id2iri_mapping_{default_ontology}.json"
+
+    if verbose:
+        filename = f"{log_conf['save_location']}/{log_conf['time']}_xmlupload.log"
+        logging.basicConfig(filename=filename, level=logging.DEBUG)
+
+    # connect to the DaSCH Service Platform API and get the project context
     con = Connection(server)
     try_network_action(failure_msg="Unable to login to DSP server", action=lambda: con.login(user, password))
     proj_context = try_network_action(failure_msg="Unable to retrieve project context from DSP server",
@@ -321,10 +355,6 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     sipi_server = Sipi(sipi, con.get_token())
 
     # parse the XML file
-    tree = _parse_xml_file(input_file)
-    root = tree.getroot()
-    default_ontology = root.attrib['default-ontology']
-    shortcode = root.attrib['shortcode']
     resources: list[XMLResource] = []
     permissions: dict[str, XmlPermission] = {}
     for child in root:
@@ -366,10 +396,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             failed_uploads=failed_uploads,
             stashed_xml_texts=stashed_xml_texts,
             stashed_resptr_props=stashed_resptr_props,
-            proj_shortcode=shortcode,
-            onto_name=default_ontology,
-            server=server,
-            save_location=save_location
+            log_conf=log_conf
         )
 
     # update the resources with the stashed XML texts
@@ -385,10 +412,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
                 failed_uploads=failed_uploads,
                 stashed_xml_texts=stashed_xml_texts,
                 stashed_resptr_props=stashed_resptr_props,
-                proj_shortcode=shortcode,
-                onto_name=default_ontology,
-                server=server,
-                save_location=save_location
+                log_conf=log_conf
             )
 
     # update the resources with the stashed resptrs
@@ -404,19 +428,18 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
                 failed_uploads=failed_uploads,
                 stashed_xml_texts=stashed_xml_texts,
                 stashed_resptr_props=stashed_resptr_props,
-                proj_shortcode=shortcode,
-                onto_name=default_ontology,
-                server=server,
-                save_location=save_location
+                log_conf=log_conf
             )
 
-    # write log files
-    success = True
-    timestamp_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    id2iri_mapping_file = f"id2iri_{Path(input_file).stem}_mapping_{timestamp_str}.json"
-    with open(id2iri_mapping_file, "x") as f:
+    # save id2iri_mapping to the working directory
+    with open(log_conf["id2iri_cwd"], "x") as f:
         json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
-        print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
+        print(f"The mapping of internal IDs to IRIs was written to {log_conf['id2iri_cwd']}")
+    # save a copy of id2iri_mapping to the logging directory
+    with open(log_conf['id2iri_logging'], "x") as f:
+        json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
+
+    success = True
     if failed_uploads:
         print(f"\nWARNING: Could not upload the following resources: {failed_uploads}\n")
         success = False
@@ -745,10 +768,7 @@ def _handle_upload_error(
     failed_uploads: list[str],
     stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
-    proj_shortcode: str,
-    onto_name: str,
-    server: str,
-    save_location: str
+    log_conf: dict[str, str]
 ) -> None:
     """
     In case the xmlupload must be interrupted, e.g. because of an error that could not be handled, or due to keyboard
@@ -762,10 +782,7 @@ def _handle_upload_error(
         failed_uploads: resources that caused an error when uploading to DSP
         stashed_xml_texts: all xml texts that have been stashed
         stashed_resptr_props: all resptr props that have been stashed
-        proj_shortcode: shortcode of the project the data belongs to
-        onto_name: name of the ontology the data references
-        server: the server which the data is uploaded onto
-        save_location: path to the directory where dsp-tools should save logs (OS dependent)
+        log_conf: dictionary with information about the logging configuration
 
     Returns:
         None
@@ -773,36 +790,19 @@ def _handle_upload_error(
 
     print(f'\n=========================================='
           f'\nxmlupload must be aborted because of an error')
-    timestamp_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-
-    server_substitutions = {
-        r"https?://": "",
-        r"^api\..+": "",
-        r":\d{4}/?$": "",
-        r"0.0.0.0": "localhost"
-    }
-    for pattern, repl in server_substitutions.items():
-        server = re.sub(pattern, repl, server)
-
-    if save_location == ".":
-        save_location_full = f"xmluploads/{server}/{proj_shortcode}/{onto_name}"
-    else:
-        save_location_full = f"{save_location}/xmluploads/{server}/{proj_shortcode}/{onto_name}"
-    os.makedirs(save_location_full, exist_ok=True)
 
     # only stashed properties of resources that already exist in DSP are of interest
     stashed_xml_texts = _purge_stashed_xml_texts(stashed_xml_texts, id2iri_mapping)
     stashed_resptr_props = _purge_stashed_resptr_props(stashed_resptr_props, id2iri_mapping)
 
     if id2iri_mapping:
-        id2iri_mapping_file = f"{save_location_full}/{timestamp_str}_id2iri_mapping.json"
-        with open(id2iri_mapping_file, "x") as f:
+        with open(log_conf["id2iri_logging"], "x") as f:
             json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
-        print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
+        print(f"The mapping of internal IDs to IRIs was written to {log_conf['id2iri_logging']}")
 
     if stashed_xml_texts:
         stashed_xml_texts_serializable = {r.id: {p.name: xml for p, xml in rdict.items()} for r, rdict in stashed_xml_texts.items()}
-        xml_filename = f"{save_location_full}/{timestamp_str}_stashed_text_properties.json"
+        xml_filename = f"{log_conf['save_location']}/{log_conf['time']}_stashed_text_properties.json"
         with open(xml_filename, "x") as f:
             json.dump(stashed_xml_texts_serializable, f, ensure_ascii=False, indent=4, cls=KnoraStandoffXmlEncoder)
         print(f"There are stashed text properties that could not be reapplied to the resources they were stripped "
@@ -810,20 +810,22 @@ def _handle_upload_error(
 
     if stashed_resptr_props:
         stashed_resptr_props_serializable = {r.id: {p.name: plist for p, plist in rdict.items()} for r, rdict in stashed_resptr_props.items()}
-        resptr_filename = f"{save_location_full}/{timestamp_str}_stashed_resptr_properties.json"
+        resptr_filename = f"{log_conf['save_location']}/{log_conf['time']}_stashed_resptr_properties.json"
         with open(resptr_filename, "x") as f:
             json.dump(stashed_resptr_props_serializable, f, ensure_ascii=False, indent=4)
         print(
             f"There are stashed resptr properties that could not be reapplied to the resources they were stripped "
             f"from. They were saved to {resptr_filename}")
 
-    # print the resources that threw an error when they were tried to be uploaded
     if failed_uploads:
+        with open(f"{log_conf['save_location']}/{log_conf['time']}_failed_uploads.txt", "x") as f:
+            json.dump(failed_uploads, f, ensure_ascii=False, indent=4)
         print(f"Independently of this error, there were some resources that could not be uploaded: "
               f"{failed_uploads}")
 
+    # exit or raise the error again
     if isinstance(err, KeyboardInterrupt):
-        exit(1)
+        sys.exit(1)
     else:
         print('The error will now be raised again:\n'
               '==========================================\n')

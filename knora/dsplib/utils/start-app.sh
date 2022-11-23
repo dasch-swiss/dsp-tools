@@ -27,8 +27,11 @@ rm -f "$logfile"
 
 if echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 -w 10 > /dev/null 2>&1; then
     # only pull if there is an internet connection
+    echo "git reset --hard HEAD ..." 2>&1 | tee -a "$logfile"
+    git reset --hard HEAD >>"$logfile" 2>&1
+    echo "git checkout main ..." 2>&1 | tee -a "$logfile"
+    git checkout main >>"$logfile" 2>&1
     echo "git pull ..." 2>&1 | tee -a "$logfile"
-    git checkout HEAD package-lock.json >>"$logfile" 2>&1
     git pull >>"$logfile" 2>&1
 fi
 

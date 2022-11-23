@@ -676,34 +676,36 @@ Attributes:
 
 The `<text>` element has the following attributes:
 
-- `encoding`: either "utf8" or "xml" (required)
+- `encoding` (required)
     - `utf8`: simple text without markup
     - `xml`: complex text with markup. It must follow the XML format as defined by the
     [DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-apis/api-v2/xml-to-standoff-mapping/).
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions 
+  at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-Within a text property, multiple simple (UTF8) and complex (XML) text values may be mixed.  
-Both simple and complex text values can be used inside all `gui_element`s that are defined in an ontology (`SimpleText`, 
-`Richtext`, `Textarea`, see [here](dsp-tools-create-ontologies.md#textvalue)). But typically, you would use UTF8 in a 
-`SimpleText`, and XML in `Richtext` or `Textarea`.
+For the possible combinations of `encoding` with the `gui_element` [defined in the ontology](dsp-tools-create-ontologies.md#textvalue), 
+see the table: 
 
-Example of a public simple text and a hidden complex text:
+| `gui_element` (JSON ontology) | `encoding` (XML data) | How DSP-APP renders the whitespaces                                                                                          |
+|-------------------------------|-----------------------|------------------------------------------------------------------------------------------------------------------------------|
+| `SimpleText`                  | `utf8`                | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                |
+| `Textarea`                    | `utf8`                | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                |
+| `Richtext`                    | `xml`                 | Pretty-print whitespaces and newlines from the XML are removed. If you want a newline in the text field, use `<br />` instead. |
+
+Example of a public and a hidden text:
 ```xml
-<text-prop name=":hasComment">
-    <text encoding="utf8" permissions="prop-default">Probe bei "Wimberger". Lokal in Wien?</text>
+<text-prop name=":hasDescription">
+    <text encoding="xml" permissions="prop-default">Probe bei "Wimberger". Lokal in Wien?</text>
     <text encoding="xml">
-        <strong>Bold text</strong> and a <a class="salsah-link" href="IRI:obj_0003:IRI">link to an ID</a>
-        and a <a class="salsah-link" href="http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ">link to an IRI</a>
+        <strong>Bold text</strong> and a <a class="salsah-link" href="IRI:obj_0003:IRI">link to an ID</a>.<br/>
+        And a <a class="salsah-link" href="http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ">link to an IRI</a>.
     </text>
 </text-prop>
 ```
 
-The complex text above contains a link to the resource `obj_0003`, which is defined in the same XML file. 
-It also contains a link to  the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`, which already exists on the DSP server.
-
-For simple texts, it is not advised to add XML-"pretty-print" whitespaces or line breaks, because they will be taken 
-into the text field as they are. 
+The second text above contains a link to the resource `obj_0003`, which is defined in the same XML file. It also 
+contains a link to  the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`, which already exists on the DSP server.
 
 
 ### &lt;time-prop&gt;

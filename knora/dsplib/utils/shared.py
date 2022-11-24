@@ -1,17 +1,20 @@
+import logging
 import os
 import time
-import unicodedata
 from datetime import datetime
 from typing import Callable, Any, Optional
 
 import pandas as pd
 import regex
+import unicodedata
 from lxml import etree
 from requests import RequestException
 
 from knora.dsplib.models.connection import Connection
 from knora.dsplib.models.helpers import BaseError
 from knora.dsplib.models.propertyelement import PropertyElement
+
+logger = logging.getLogger("fake")
 
 
 def login(server: str, user: str, password: str) -> Connection:
@@ -60,16 +63,16 @@ def try_network_action(
         try:
             return action()
         except ConnectionError:
-            print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...')
+            logger.warning(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...')
             time.sleep(2 ** i)
             continue
         except RequestException:
-            print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...')
+            logger.warning(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...')
             time.sleep(2 ** i)
             continue
         except BaseError as err:
             if regex.search(r'try again later', err.message) or regex.search(r'status code=5\d\d', err.message):
-                print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...')
+                logger.warning(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...')
                 time.sleep(2 ** i)
                 continue
             if hasattr(err, 'message'):

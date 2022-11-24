@@ -14,9 +14,9 @@ from urllib.parse import quote_plus
 
 from lxml import etree
 
+from knora.dsplib.models.colorformatter import ColorFormatter
 from knora.dsplib.models.connection import Connection
 from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.models.logformatter import LogFormatter
 from knora.dsplib.models.permission import Permissions
 from knora.dsplib.models.projectContext import ProjectContext
 from knora.dsplib.models.resource import ResourceInstanceFactory, ResourceInstance, KnoraStandoffXmlEncoder
@@ -25,10 +25,12 @@ from knora.dsplib.models.value import KnoraStandoffXml
 from knora.dsplib.models.xmlpermission import XmlPermission
 from knora.dsplib.models.xmlproperty import XMLProperty
 from knora.dsplib.models.xmlresource import XMLResource
+from knora.dsplib.utils import shared
 from knora.dsplib.utils.shared import try_network_action, validate_xml_against_schema
 
-# use the logger globally
-logger: logging.Logger
+# Create a global logger that can be accessed by all methods. Initialize it with a fake logger that will be used by the
+# tests. Later, _configure_logger() will create the real logger and overwrite the fake logger.
+logger = logging.getLogger("fake")
 
 
 def _remove_circular_references(resources: list[XMLResource]) -> \
@@ -189,10 +191,11 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
 
 
-def _configure_logger(server: str, shortcode: str, default_ontology: str, verbose: bool) -> tuple[dict[str, str], logging.Logger]:
+def _configure_logger(server: str, shortcode: str, default_ontology: str, verbose: bool) -> dict[str, str]:
     """
     Creates a directory structure where the logs will be saved at, depending on the OS, the server, the project, and
-    the ontology. Creates also a logger, depending on the verbosity.
+    the ontology. Creates also a logger, depending on the verbosity, and stores it as a module variable in xml_upload.py
+    and in shared.py.
 
     Args:
         server: server address where the data is uploaded to
@@ -201,7 +204,7 @@ def _configure_logger(server: str, shortcode: str, default_ontology: str, verbos
         verbose: verbose switch
 
     Returns:
-        a "log_conf" dict containing time, server, save_location, and both id2iri pathes; and a logger
+        a "log_conf" dict containing time, server, save_location, and both id2iri pathes
     """
 
     # initialize log_conf
@@ -246,11 +249,15 @@ def _configure_logger(server: str, shortcode: str, default_ontology: str, verbos
     else:
         stdout_handler = logging.StreamHandler(stream=sys.stdout)
         stdout_handler.setLevel(logging.INFO)
-        stdout_handler.setFormatter(LogFormatter("%(levelname)s: %(message)s"))
+        stdout_handler.setFormatter(ColorFormatter("%(message)s"))
         _logger.addHandler(stdout_handler)
         _logger.setLevel(logging.INFO)
 
-    return log_conf, _logger
+    global logger
+    logger = _logger
+    shared.logger = _logger
+
+    return log_conf
 
 
 def _parse_xml_file(input_file: str) -> etree.ElementTree:
@@ -378,9 +385,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     shortcode = root.attrib["shortcode"]
 
     # configure logger
-    log_conf, _logger = _configure_logger(server=server, shortcode=shortcode, default_ontology=default_ontology, verbose=verbose)
-    global logger
-    logger = _logger
+    log_conf = _configure_logger(server=server, shortcode=shortcode, default_ontology=default_ontology, verbose=verbose)
 
     # connect to the DaSCH Service Platform API and get the project context
     con = Connection(server)
@@ -657,7 +662,7 @@ def _upload_stashed_xml_texts(
                     logger.error(err.message)
                     continue
                 stashed_xml_texts[resource][link_prop].pop(pure_text)
-                logger.debug(f"  Successfully uploaded xml text of '{link_prop.name}'\n")
+                logger.debug(f"  Successfully uploaded xml text of '{link_prop.name}'")
 
     # make a purged version of stashed_xml_texts, without empty entries
     nonapplied_xml_texts = _purge_stashed_xml_texts(stashed_xml_texts, id2iri_mapping)

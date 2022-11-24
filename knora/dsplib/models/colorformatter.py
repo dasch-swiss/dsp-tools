@@ -1,7 +1,7 @@
 import logging
 
 
-class LogFormatter(logging.Formatter):
+class ColorFormatter(logging.Formatter):
     """
     Logging colored formatter, adapted from
      - https://alexandra-zaharia.github.io/posts/make-your-own-custom-color-formatter-with-python-logging/
@@ -19,9 +19,9 @@ class LogFormatter(logging.Formatter):
         self.FORMATS = {
             logging.DEBUG: self.fmt,
             logging.INFO: self.fmt,
-            logging.WARNING: self.orange + self.fmt + self.reset,
-            logging.ERROR: self.red + self.fmt + self.reset,
-            logging.CRITICAL: self.bold_red + self.fmt + self.reset
+            logging.WARNING: self.orange + "WARNING: " + self.fmt + self.reset,
+            logging.ERROR: self.red + "ERROR: " + self.fmt + self.reset,
+            logging.CRITICAL: self.bold_red + "CRITICAL: " + self.fmt + self.reset
         }
 
     def format(self, record: logging.LogRecord) -> str:

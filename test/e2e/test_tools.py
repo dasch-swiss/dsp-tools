@@ -285,7 +285,7 @@ class TestTools(unittest.TestCase):
             password=self.password,
             imgdir=self.imgdir,
             sipi=self.sipi,
-            verbose=True,
+            verbose=False,
             incremental=True
         )
         self.assertTrue(result_replaced)

@@ -1,11 +1,10 @@
 """Unit tests for xmlupload"""
 
 import unittest
-from lxml import etree
 
 from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.utils.xml_upload import _convert_ark_v0_to_resource_iri, _remove_circular_references, _parse_xml_file
 from knora.dsplib.models.xmlresource import XMLResource
+from knora.dsplib.utils.xml_upload import _convert_ark_v0_to_resource_iri, _remove_circular_references, _parse_xml_file
 
 
 class TestXMLUpload(unittest.TestCase):
@@ -38,7 +37,7 @@ class TestXMLUpload(unittest.TestCase):
         resources = [XMLResource(x, 'testonto') for x in tree.getroot() if x.tag == "resource"]
 
         # get the purged resources and the stashes from the function to be tested
-        resources, stashed_xml_texts_original, stashed_resptr_props_original = _remove_circular_references(resources, False)
+        resources, stashed_xml_texts_original, stashed_resptr_props_original = _remove_circular_references(resources)
 
         # make a list of all hashes from the stashed xml texts
         stashed_xml_texts_hashes = list()

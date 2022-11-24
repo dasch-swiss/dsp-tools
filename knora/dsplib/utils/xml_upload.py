@@ -240,11 +240,11 @@ def _configure_logger(server: str, shortcode: str, default_ontology: str, verbos
     if verbose:
         filename = f"{log_conf['save_location']}/{log_conf['time']}_xmlupload_logging.csv"
         with open(filename, "x") as f:
-            f.write("sep=;\nasctime;ms since 'logging' was loaded;level;message\n")
+            f.write("sep=;\nserver;asctime;ms since 'logging' was loaded;level;message\n")
         print(f"You are in the verbose mode, which logs everything to {filename}")
         file_handler = logging.FileHandler(filename)
         file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(logging.Formatter("%(asctime)s;%(relativeCreated)d;%(levelname)s;%(message)s"))
+        file_handler.setFormatter(logging.Formatter(f"{log_conf['server']};%(asctime)s;%(relativeCreated)d;%(levelname)s;%(message)s"))
         _logger.addHandler(file_handler)
         _logger.setLevel(logging.DEBUG)
     else:
@@ -854,7 +854,7 @@ def _handle_upload_error(
                      f"stripped from. They were saved to {resptr_filename}")
 
     if failed_uploads:
-        with open(f"{log_conf['save_location']}/{log_conf['time']}_failed_uploads.txt", "x") as f:
+        with open(f"{log_conf['save_location']}/{log_conf['time']}_failed_uploads.json", "x") as f:
             json.dump(failed_uploads, f, ensure_ascii=False, indent=4)
         logger.error(f"Independently of this error, there were some resources that could not be uploaded: "
                      f"{failed_uploads}")

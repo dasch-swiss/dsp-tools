@@ -239,11 +239,12 @@ def _configure_logger(server: str, shortcode: str, default_ontology: str, verbos
     _logger = logging.getLogger(__name__)
     if verbose:
         filename = f"{log_conf['save_location']}/{log_conf['time']}_xmlupload_logging.csv"
-        with open(filename, "x") as f: f.write("sep=;\n")
+        with open(filename, "x") as f:
+            f.write("sep=;\nasctime;ms since 'logging' was loaded;level;message\n")
         print(f"You are in the verbose mode, which logs everything to {filename}")
         file_handler = logging.FileHandler(filename)
         file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(logging.Formatter("%(asctime)s;%(name)s;%(levelname)s;%(message)s"))
+        file_handler.setFormatter(logging.Formatter("%(asctime)s;%(relativeCreated)d;%(levelname)s;%(message)s"))
         _logger.addHandler(file_handler)
         _logger.setLevel(logging.DEBUG)
     else:
@@ -253,6 +254,7 @@ def _configure_logger(server: str, shortcode: str, default_ontology: str, verbos
         _logger.addHandler(stdout_handler)
         _logger.setLevel(logging.INFO)
 
+    _logger.debug("First call to the just created logger")
     global logger
     logger = _logger
     shared.logger = _logger
@@ -308,7 +310,7 @@ def _check_consistency_with_ontology(
         None if everything went well. Raises a BaseError if there is a problem.
     """
     logger.debug("Check if the resource types and properties are consistent with the ontology...")
-    knora_properties = resclass_name_2_type[resources[0].restype].knora_properties
+    knora_properties = resclass_name_2_type[resources[0].restype].knora_properties  # type: ignore
 
     for resource in resources:
 
@@ -327,7 +329,7 @@ def _check_consistency_with_ontology(
             )
 
         # check that the property types are consistent with the ontology
-        resource_properties = resclass_name_2_type[resource.restype].properties.keys()
+        resource_properties = resclass_name_2_type[resource.restype].properties.keys()  # type: ignore
         for propname in [prop.name for prop in resource.properties]:
             if propname not in knora_properties and propname not in resource_properties:
                 raise BaseError(
@@ -393,6 +395,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     proj_context = try_network_action(failure_msg="Unable to retrieve project context from DSP server",
                                       action=lambda: ProjectContext(con=con))
     sipi_server = Sipi(sipi, con.get_token())
+    logger.debug("Logged in, created ProjectContext object and Sipi object")
 
     # parse the XML file
     resources: list[XMLResource] = []
@@ -403,11 +406,13 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             permissions[permission.id] = permission
         elif child.tag == "resource":
             resources.append(XMLResource(child, default_ontology))
+    logger.debug("Parsed XML file")
 
     # get the project information and project ontology from the server
     res_inst_factory = try_network_action("", lambda: ResourceInstanceFactory(con, shortcode))
     permissions_lookup: dict[str, Permissions] = {s: perm.get_permission_instance() for s, perm in permissions.items()}
     resclass_name_2_type: dict[str, type] = {s: res_inst_factory.get_resclass_type(s) for s in res_inst_factory.get_resclass_names()}
+    logger.debug("Created a ResourceInstanceFactory object, a permissions lookup dict, and resclass_name_2_type dict")
 
     # check if the data in the XML is consistent with the ontology
     _check_consistency_with_ontology(
@@ -516,10 +521,9 @@ def _upload_resources(
     """
 
     # If there are multimedia files: calculate their total size
-    bitstream_all_sizes_mb = [os.path.getsize(os.path.join(imgdir, res.bitstream.value)) / 1000000 for res in resources if res.bitstream]
-    if len(bitstream_all_sizes_mb) > 0:
+    bitstream_all_sizes_mb = [os.path.getsize(os.path.join(imgdir, res.bitstream.value)) / 1000000 if res.bitstream else 0 for res in resources]
+    if sum(bitstream_all_sizes_mb) > 0:
         bitstream_size_total_mb = round(sum(bitstream_all_sizes_mb), 1)
-        bitstream_all_sizes_iterator = iter(bitstream_all_sizes_mb)  # for later reuse, to avoid later system calls
         bitstream_size_uploaded_mb = 0.0
         logger.info(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
 
@@ -531,9 +535,10 @@ def _upload_resources(
         # in case of a multimedia resource: upload the multimedia file
         resource_bitstream = None
         if resource.bitstream:
+            logger.debug(f"Start uploading file {resource.bitstream.value} with a size of {bitstream_all_sizes_mb[i]} MB")
             try:
                 img: Optional[dict[Any, Any]] = try_network_action(
-                    action=lambda: sipi_server.upload_bitstream(filepath=os.path.join(imgdir, resource.bitstream.value)),
+                    action=lambda: sipi_server.upload_bitstream(filepath=os.path.join(imgdir, resource.bitstream.value)),  # type: ignore
                     failure_msg=f"ERROR while trying to upload file '{resource.bitstream.value}' of resource "
                                 f"'{resource.label}' ({resource.id})."
                 )
@@ -541,9 +546,9 @@ def _upload_resources(
                 logger.error(err.message)
                 failed_uploads.append(resource.id)
                 continue
-            bitstream_size_uploaded_mb += next(bitstream_all_sizes_iterator)
+            bitstream_size_uploaded_mb += bitstream_all_sizes_mb[i]
             logger.info(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")
-            internal_file_name_bitstream = img["uploadedFiles"][0]["internalFilename"]
+            internal_file_name_bitstream = img["uploadedFiles"][0]["internalFilename"]  # type: ignore
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 
         # create the resource in DSP
@@ -555,13 +560,14 @@ def _upload_resources(
                     con=con,
                     label=resource.label,
                     iri=resource_iri,
-                    permissions=permissions_lookup.get(resource.permissions),
+                    permissions=permissions_lookup.get(resource.permissions),  # type: ignore
                     creation_date=resource.creation_date,
                     bitstream=resource_bitstream,
                     values=properties
                 ),
                 failure_msg=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
             )
+            logger.debug(f"Retrieved the ResourceInstance object for {resource.id}")
         except BaseError as err:
             logger.error(err.message)
             failed_uploads.append(resource.id)
@@ -572,6 +578,7 @@ def _upload_resources(
                 action=lambda: resource_instance.create(),
                 failure_msg=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
             )
+            logger.debug(f"Created the ResourceInstance object of {resource.id}")
         except BaseError as err:
             logger.error(err.message)
             failed_uploads.append(resource.id)

@@ -225,9 +225,9 @@ def _configure_logger(server: str, shortcode: str, default_ontology: str, verbos
 
     # determine the log save location and create directories
     if sys.platform.startswith("darwin") or sys.platform.startswith("linux"):
-        log_conf["save_location"] = f"{os.path.expanduser('~')}/.dsp-tools/xmluploads/{log_conf['server']}/{shortcode}/{default_ontology}"
+        log_conf["save_location"] = f"{os.path.expanduser('~')}/.dsp-tools/xmluploads/{log_conf['server']}/{shortcode}/{default_ontology}/{log_conf['time']}"
     else:
-        log_conf["save_location"] = f"xmluploads/{log_conf['server']}/{shortcode}/{default_ontology}"
+        log_conf["save_location"] = f"xmluploads/{log_conf['server']}/{shortcode}/{default_ontology}/{log_conf['time']}"
     # TODO: use the home directory provided by Pathlib
     os.makedirs(log_conf["save_location"], exist_ok=True)
 

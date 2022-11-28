@@ -26,6 +26,7 @@ make install
 ```
 
 
+
 ## Git submodules
 
 This repository embeds [https://github.com/dasch-swiss/0123-import-scripts](https://github.com/dasch-swiss/0123-import-scripts) 
@@ -97,10 +98,10 @@ When switching between branches, there are two options:
     --recurse-submodules`, the contents of submodules will be updated according to the commit recorded in the 
    superproject. If local modifications in a submodule would be overwritten, the checkout will fail.
 
-To quickly switch between branches when you have 
-uncommitted work in the submodule, the first option might be preferable. After merging a Pull Request and switching 
-back to the main branch, the second option might be more suitable.  
-Read more about the checkout options in [the official documentation](https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt---recurse-submodules)
+To quickly switch between branches when you have uncommitted work in the submodule, the first option might be 
+preferable. After merging a Pull Request and switching back to the main branch, the second option might be more 
+suitable. Read more about the checkout options in 
+[the official documentation](https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt---recurse-submodules)
 
 
 
@@ -149,6 +150,7 @@ If you already initialized a pipenv-environment via command line, you can add it
 but this will create the pipenv-environment again.
 
 
+
 ## Testing
 
 Please note that testing requires launching the complete DSP API stack which is based on docker images. 
@@ -157,6 +159,7 @@ To run the complete test suite:
 ```bash
 make test
 ```
+
 
 
 ## Code style
@@ -179,19 +182,20 @@ In VSCode, both mypy and autopep8 can be set up as default linter and formatter 
 For formatting Markdown files (*.md) we use the default styling configuration provided by PyCharm.
 
 
+
 ## Publishing
 
 Publishing is automated with GitHub Actions and should _not_ be done manually. Please follow the
 [Pull Request Guidelines](https://docs.dasch.swiss/latest/developers/dsp/contribution/#pull-request-guidelines). If done
-correctly, when merging a pull request into `main`, the `release-please` action will create or update a pull request for
-a release. This pull request will follow semantic versioning and update the change log. Once all desired features are
+correctly, when merging a pull request into `main`, the `release-please` action will create or update a release 
+PR. This PR will follow semantic versioning and update the change log. Once all desired features are
 merged, the release can be executed by merging this release pull request into `main`. This will trigger actions that
-create a release on GitHub, on PyPI and the docs.
+create a release on GitHu and on PyPI.
 
 Please ensure you have only one pull request per feature.
 
 
-## Publishing manually
+### Publishing manually
 
 Publishing is automated with GitHub Actions and should _not_ be done manually. If you still need to do it, follow the
 steps below.
@@ -221,6 +225,7 @@ For local development:
 ```bash
 python3 setup.py develop
 ```
+
 
 
 ## Contributing to the documentation

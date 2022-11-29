@@ -14,7 +14,7 @@ jobs:
         target: [ 'test-end-to-end-ci', 'test-unittests', 'docs-build' ]
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
       - name: Set up JDK 17
@@ -23,7 +23,7 @@ jobs:
           distribution: "temurin"
           java-version: "17"
       - name: Set up Python 3.9
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.9
       - name: Install dependencies

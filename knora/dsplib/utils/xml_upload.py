@@ -240,7 +240,7 @@ def _check_consistency_with_ontology(
     """
     if verbose:
         print("Check if the resource types and properties are consistent with the ontology...")
-    knora_properties = resclass_name_2_type[resources[0].restype].knora_properties
+    knora_properties = resclass_name_2_type[resources[0].restype].knora_properties  # type: ignore
 
     for resource in resources:
 
@@ -259,7 +259,7 @@ def _check_consistency_with_ontology(
             )
 
         # check that the property types are consistent with the ontology
-        resource_properties = resclass_name_2_type[resource.restype].properties.keys()
+        resource_properties = resclass_name_2_type[resource.restype].properties.keys()  # type: ignore
         for propname in [prop.name for prop in resource.properties]:
             if propname not in knora_properties and propname not in resource_properties:
                 raise BaseError(
@@ -471,7 +471,7 @@ def _upload_resources(
         if resource.bitstream:
             try:
                 img: Optional[dict[Any, Any]] = try_network_action(
-                    action=lambda: sipi_server.upload_bitstream(filepath=os.path.join(imgdir, resource.bitstream.value)),
+                    action=lambda: sipi_server.upload_bitstream(filepath=os.path.join(imgdir, resource.bitstream.value)), # type: ignore
                     failure_msg=f'ERROR while trying to upload file "{resource.bitstream.value}" of resource '
                                 f'"{resource.label}" ({resource.id}).'
                 )
@@ -481,7 +481,7 @@ def _upload_resources(
                 continue
             bitstream_size_uploaded_mb += next(bitstream_all_sizes_iterator)
             print(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")
-            internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']
+            internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']  # type: ignore
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 
         # create the resource in DSP
@@ -493,7 +493,7 @@ def _upload_resources(
                     con=con,
                     label=resource.label,
                     iri=resource_iri,
-                    permissions=permissions_lookup.get(resource.permissions),
+                    permissions=permissions_lookup.get(resource.permissions),  # type: ignore
                     creation_date=resource.creation_date,
                     bitstream=resource_bitstream,
                     values=properties

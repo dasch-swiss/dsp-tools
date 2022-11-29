@@ -13,6 +13,7 @@ import unittest
 
 import jsonpath_ng
 import jsonpath_ng.ext
+import pytest
 
 from knora.dsplib.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
 from knora.dsplib.utils.excel_to_json_project import excel2json
@@ -336,7 +337,7 @@ class TestTools(unittest.TestCase):
         self.assertTrue(os.path.isfile("testdata/tmp/test-id2iri-out.xml"))
         os.remove("testdata/tmp/test-id2iri-out.xml")
 
-
+    @pytest.mark.filterwarnings("ignore")
     def test_excel2xml(self) -> None:
         excel2xml("testdata/excel2xml-testdata.xlsx", "1234", "excel2xml-output")
         self.assertTrue(os.path.isfile("excel2xml-output-data.xml"))

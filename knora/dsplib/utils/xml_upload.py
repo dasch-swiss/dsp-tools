@@ -28,7 +28,7 @@ from knora.dsplib.models.xmlproperty import XMLProperty
 from knora.dsplib.models.xmlresource import XMLResource
 from knora.dsplib.utils.shared import try_network_action, validate_xml_against_schema
 
-MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "timediff"])
+MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "duration_microsec"])
 
 
 def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
@@ -368,8 +368,8 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         stashed_resptr_props = dict()
 
     xml_upload_preparation_time = datetime.now() - xml_upload_method_start
-    xml_upload_preparation_time_ms = xml_upload_preparation_time.seconds * 1_000_000 + xml_upload_preparation_time.microseconds
-    metrics.append(MetricRecord("", "", "", "xml upload preparation", xml_upload_preparation_time_ms))
+    xml_upload_preparation_time_microsec = xml_upload_preparation_time.seconds * 1_000_000 + xml_upload_preparation_time.microseconds
+    metrics.append(MetricRecord("", "", "", "xml upload preparation", xml_upload_preparation_time_microsec))
 
     # upload all resources
     id2iri_mapping: dict[str, str] = {}
@@ -490,7 +490,7 @@ def _upload_resources(
         resource_upload_start = datetime.now()
         filetype = ""
         filesize = bitstream_all_sizes_mb[i]
-        bitstream_upload_time_ms = None
+        bitstream_upload_time_microsec = None
         resource_iri = resource.iri
         if resource.ark:
             resource_iri = _convert_ark_v0_to_resource_iri(resource.ark)
@@ -507,8 +507,8 @@ def _upload_resources(
                                 f'"{resource.label}" ({resource.id}).'
                 )
                 bitstream_upload_time = datetime.now() - bitstream_upload_start
-                bitstream_upload_time_ms = bitstream_upload_time.seconds * 1_000_000 + bitstream_upload_time.microseconds
-                metrics.append(MetricRecord(resource.id, filetype, filesize, "bitstream upload", bitstream_upload_time_ms))
+                bitstream_upload_time_microsec = bitstream_upload_time.seconds * 1_000_000 + bitstream_upload_time.microseconds
+                metrics.append(MetricRecord(resource.id, filetype, filesize, "bitstream upload", bitstream_upload_time_microsec))
             except BaseError as err:
                 print(err.message)
                 failed_uploads.append(resource.id)
@@ -537,8 +537,8 @@ def _upload_resources(
                 failure_msg=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
             )
             resource_creation_time = datetime.now() - resource_creation_start
-            resource_creation_time_ms = resource_creation_time.seconds * 1_000_000 + resource_creation_time.microseconds
-            metrics.append(MetricRecord(resource.id, filetype, filesize, "resource creation", resource_creation_time_ms))
+            resource_creation_time_microsec = resource_creation_time.seconds * 1_000_000 + resource_creation_time.microseconds
+            metrics.append(MetricRecord(resource.id, filetype, filesize, "resource creation", resource_creation_time_microsec))
         except BaseError as err:
             print(err.message)
             failed_uploads.append(resource.id)
@@ -549,7 +549,7 @@ def _upload_resources(
 
         resource_upload_diff = datetime.now() - resource_upload_start
         resource_upload_diff_ms = resource_upload_diff.seconds * 1_000_000 + resource_upload_diff.microseconds
-        looping_overhead_ms = resource_upload_diff_ms - resource_creation_time_ms - (bitstream_upload_time_ms or 0)
+        looping_overhead_ms = resource_upload_diff_ms - resource_creation_time_microsec - (bitstream_upload_time_microsec or 0)
         metrics.append(MetricRecord(resource.id, filetype, filesize, "looping overhead", looping_overhead_ms))
 
     return id2iri_mapping, failed_uploads, metrics

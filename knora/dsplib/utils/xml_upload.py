@@ -314,12 +314,9 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         quit(0)
 
     if sys.platform.startswith("darwin") or sys.platform.startswith("linux"):
-        save_location = f"{os.path.expanduser('~')}/.dsp-tools"
-    elif sys.platform.startswith("win"):
-        save_location = "."
+        save_location = Path.home() / Path(".dsp-tools")
     else:
-        save_location = "."
-    # TODO: use the home directory provided by Pathlib
+        save_location = Path.cwd()
     server_as_foldername = server
     server_substitutions = {
         r"https?://": "",
@@ -483,7 +480,7 @@ def _upload_resources(
     """
 
     # If there are multimedia files: calculate their total size
-    bitstream_all_sizes_mb = [os.path.getsize(os.path.join(imgdir, res.bitstream.value)) / 1000000 if res.bitstream else 0 for res in resources]
+    bitstream_all_sizes_mb = [Path(Path(imgdir) / Path(res.bitstream.value)).stat().st_size / 1000000 if res.bitstream else 0 for res in resources]
     if sum(bitstream_all_sizes_mb) > 0:
         bitstream_size_total_mb = round(sum(bitstream_all_sizes_mb), 1)
         bitstream_size_uploaded_mb = 0.0
@@ -505,7 +502,7 @@ def _upload_resources(
                 bitstream_upload_start = datetime.now()
                 filetype = Path(resource.bitstream.value).suffix[1:]
                 img: Optional[dict[Any, Any]] = try_network_action(
-                    action=lambda: sipi_server.upload_bitstream(filepath=os.path.join(imgdir, resource.bitstream.value)), # type: ignore
+                    action=lambda: sipi_server.upload_bitstream(filepath=str(Path(imgdir) / Path(resource.bitstream.value))),  # type: ignore
                     failure_msg=f'ERROR while trying to upload file "{resource.bitstream.value}" of resource '
                                 f'"{resource.label}" ({resource.id}).'
                 )
@@ -785,7 +782,7 @@ def _handle_upload_error(
     proj_shortcode: str,
     onto_name: str,
     server_as_foldername: str,
-    save_location: str
+    save_location: Path
 ) -> None:
     """
     In case the xmlupload must be interrupted, e.g. because of an error that could not be handled, or due to keyboard
@@ -802,7 +799,7 @@ def _handle_upload_error(
         proj_shortcode: shortcode of the project the data belongs to
         onto_name: name of the ontology the data references
         server_as_foldername: the server which the data is uploaded onto (in a form that can be used as folder name)
-        save_location: path to the directory where dsp-tools should save logs (OS dependent)
+        save_location: path to the directory where dsp-tools should save logs
 
     Returns:
         None
@@ -812,11 +809,8 @@ def _handle_upload_error(
           f'\nxmlupload must be aborted because of an error')
     timestamp_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
 
-    if save_location == ".":
-        save_location_full = f"xmluploads/{server_as_foldername}/{proj_shortcode}/{onto_name}"
-    else:
-        save_location_full = f"{save_location}/xmluploads/{server_as_foldername}/{proj_shortcode}/{onto_name}"
-    os.makedirs(save_location_full, exist_ok=True)
+    save_location_full = save_location / "xmluploads" / server_as_foldername / proj_shortcode / onto_name
+    save_location_full.mkdir(parents=True, exist_ok=True)
 
     # only stashed properties of resources that already exist in DSP are of interest
     stashed_xml_texts = _purge_stashed_xml_texts(stashed_xml_texts, id2iri_mapping)

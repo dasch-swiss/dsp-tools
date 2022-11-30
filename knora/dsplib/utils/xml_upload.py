@@ -7,11 +7,13 @@ import os
 import re
 import sys
 import uuid
+from collections import namedtuple
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, cast, Tuple, Any
 from urllib.parse import quote_plus
 
+import pandas as pd
 from lxml import etree
 
 from knora.dsplib.models.connection import Connection
@@ -25,6 +27,8 @@ from knora.dsplib.models.xmlpermission import XmlPermission
 from knora.dsplib.models.xmlproperty import XMLProperty
 from knora.dsplib.models.xmlresource import XMLResource
 from knora.dsplib.utils.shared import try_network_action, validate_xml_against_schema
+
+MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "timediff"])
 
 
 def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
@@ -278,7 +282,7 @@ def _check_consistency_with_ontology(
 
 
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
-               incremental: bool) -> bool:
+               incremental: bool, save_metrics: bool) -> bool:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
 
@@ -291,11 +295,15 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         sipi: the sipi instance to be used
         verbose: verbose option for the command, if used more output is given to the user
         incremental: if set, IRIs instead of internal IDs are expected as resource pointers
+        save_metrics: if true, saves time measurements into ~/.dsp-tools
 
     Returns:
         True if all resources could be uploaded without errors; False if any resource (or part of it) could not be
         successfully uploaded
     """
+
+    metrics: list[MetricRecord] = []
+    xml_upload_method_start = datetime.now()
 
     # Validate the input XML file
     try:
@@ -312,6 +320,15 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     else:
         save_location = "."
     # TODO: use the home directory provided by Pathlib
+    server_as_foldername = server
+    server_substitutions = {
+        r"https?://": "",
+        r"^api\..+": "",
+        r":\d{4}/?$": "",
+        r"0.0.0.0": "localhost"
+    }
+    for pattern, repl in server_substitutions.items():
+        server_as_foldername = re.sub(pattern, repl, server_as_foldername)
 
     # Connect to the DaSCH Service Platform API and get the project context
     con = Connection(server)
@@ -353,12 +370,18 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         stashed_xml_texts = dict()
         stashed_resptr_props = dict()
 
+    xml_upload_preparation_time = datetime.now() - xml_upload_method_start
+    xml_upload_preparation_time_ms = xml_upload_preparation_time.seconds * 1_000_000 + xml_upload_preparation_time.microseconds
+    metrics.append(MetricRecord("", "", "", "xml upload preparation", xml_upload_preparation_time_ms))
+
     # upload all resources
     id2iri_mapping: dict[str, str] = {}
     failed_uploads: list[str] = []
     try:
-        id2iri_mapping, failed_uploads = _upload_resources(resources, imgdir, sipi_server, permissions_lookup,
-                                                           resclass_name_2_type, id2iri_mapping, con, failed_uploads)
+        id2iri_mapping, failed_uploads, metrics = _upload_resources(
+            resources, imgdir, sipi_server, permissions_lookup, resclass_name_2_type, id2iri_mapping, con,
+            failed_uploads, metrics
+        )
     except BaseException as err:
         _handle_upload_error(
             err=err,
@@ -368,7 +391,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             stashed_resptr_props=stashed_resptr_props,
             proj_shortcode=shortcode,
             onto_name=default_ontology,
-            server=server,
+            server_as_foldername=server_as_foldername,
             save_location=save_location
         )
 
@@ -387,7 +410,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
                 stashed_resptr_props=stashed_resptr_props,
                 proj_shortcode=shortcode,
                 onto_name=default_ontology,
-                server=server,
+                server_as_foldername=server_as_foldername,
                 save_location=save_location
             )
 
@@ -406,7 +429,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
                 stashed_resptr_props=stashed_resptr_props,
                 proj_shortcode=shortcode,
                 onto_name=default_ontology,
-                server=server,
+                server_as_foldername=server_as_foldername,
                 save_location=save_location
             )
 
@@ -420,6 +443,10 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     if failed_uploads:
         print(f"\nWARNING: Could not upload the following resources: {failed_uploads}\n")
         success = False
+    if save_metrics:
+        os.makedirs("metrics", exist_ok=True)
+        df = pd.DataFrame(metrics)
+        df.to_csv(f"metrics/{timestamp_str}_metrics_{server_as_foldername}_{Path(input_file).stem}.csv")
     if success:
         print("All resources have successfully been uploaded.")
 
@@ -434,8 +461,9 @@ def _upload_resources(
     resclass_name_2_type: dict[str, type],
     id2iri_mapping: dict[str, str],
     con: Connection,
-    failed_uploads: list[str]
-) -> tuple[dict[str, str], list[str]]:
+    failed_uploads: list[str],
+    metrics: list[MetricRecord]
+) -> tuple[dict[str, str], list[str], list[MetricRecord]]:
     """
     Iterates through all resources and tries to upload them to DSP
 
@@ -448,20 +476,24 @@ def _upload_resources(
         id2iri_mapping: mapping of ids from the XML file to IRIs in DSP (initially empty, gets filled during the upload)
         con: connection to DSP
         failed_uploads: ids of resources that could not be uploaded (initially empty, gets filled during the upload)
+        metrics: list with the metric records collected until now (gets filled during the upload)
 
     Returns:
-        id2iri_mapping, failed_uploads: These two arguments are modified during the upload
+        id2iri_mapping, failed_uploads, metrics
     """
 
     # If there are multimedia files: calculate their total size
-    bitstream_all_sizes_mb = [os.path.getsize(os.path.join(imgdir, res.bitstream.value)) / 1000000 for res in resources if res.bitstream]
-    if len(bitstream_all_sizes_mb) > 0:
+    bitstream_all_sizes_mb = [os.path.getsize(os.path.join(imgdir, res.bitstream.value)) / 1000000 if res.bitstream else 0 for res in resources]
+    if sum(bitstream_all_sizes_mb) > 0:
         bitstream_size_total_mb = round(sum(bitstream_all_sizes_mb), 1)
-        bitstream_all_sizes_iterator = iter(bitstream_all_sizes_mb)  # for later reuse, to avoid later system calls
         bitstream_size_uploaded_mb = 0.0
         print(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
 
     for i, resource in enumerate(resources):
+        resource_upload_start = datetime.now()
+        filetype = ""
+        filesize = bitstream_all_sizes_mb[i]
+        bitstream_upload_time_ms = None
         resource_iri = resource.iri
         if resource.ark:
             resource_iri = _convert_ark_v0_to_resource_iri(resource.ark)
@@ -470,16 +502,21 @@ def _upload_resources(
         resource_bitstream = None
         if resource.bitstream:
             try:
+                bitstream_upload_start = datetime.now()
+                filetype = Path(resource.bitstream.value).suffix[1:]
                 img: Optional[dict[Any, Any]] = try_network_action(
                     action=lambda: sipi_server.upload_bitstream(filepath=os.path.join(imgdir, resource.bitstream.value)), # type: ignore
                     failure_msg=f'ERROR while trying to upload file "{resource.bitstream.value}" of resource '
                                 f'"{resource.label}" ({resource.id}).'
                 )
+                bitstream_upload_time = datetime.now() - bitstream_upload_start
+                bitstream_upload_time_ms = bitstream_upload_time.seconds * 1_000_000 + bitstream_upload_time.microseconds
+                metrics.append(MetricRecord(resource.id, filetype, filesize, "bitstream upload", bitstream_upload_time_ms))
             except BaseError as err:
                 print(err.message)
                 failed_uploads.append(resource.id)
                 continue
-            bitstream_size_uploaded_mb += next(bitstream_all_sizes_iterator)
+            bitstream_size_uploaded_mb += bitstream_all_sizes_mb[i]
             print(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")
             internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']  # type: ignore
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
@@ -487,29 +524,24 @@ def _upload_resources(
         # create the resource in DSP
         resclass_type = resclass_name_2_type[resource.restype]
         properties = resource.get_propvals(id2iri_mapping, permissions_lookup)
+        resource_instance: ResourceInstance = resclass_type(
+            con=con,
+            label=resource.label,
+            iri=resource_iri,
+            permissions=permissions_lookup.get(resource.permissions),  # type: ignore
+            creation_date=resource.creation_date,
+            bitstream=resource_bitstream,
+            values=properties
+        )
         try:
-            resource_instance: ResourceInstance = try_network_action(
-                action=lambda: resclass_type(
-                    con=con,
-                    label=resource.label,
-                    iri=resource_iri,
-                    permissions=permissions_lookup.get(resource.permissions),  # type: ignore
-                    creation_date=resource.creation_date,
-                    bitstream=resource_bitstream,
-                    values=properties
-                ),
-                failure_msg=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
-            )
-        except BaseError as err:
-            print(err.message)
-            failed_uploads.append(resource.id)
-            continue
-
-        try:
+            resource_creation_start = datetime.now()
             created_resource: ResourceInstance = try_network_action(
                 action=lambda: resource_instance.create(),
                 failure_msg=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
             )
+            resource_creation_time = datetime.now() - resource_creation_start
+            resource_creation_time_ms = resource_creation_time.seconds * 1_000_000 + resource_creation_time.microseconds
+            metrics.append(MetricRecord(resource.id, filetype, filesize, "resource creation", resource_creation_time_ms))
         except BaseError as err:
             print(err.message)
             failed_uploads.append(resource.id)
@@ -518,7 +550,12 @@ def _upload_resources(
         print(f"Created resource {i+1}/{len(resources)}: '{created_resource.label}' (ID: '{resource.id}', IRI: "
               f"'{created_resource.iri}')")
 
-    return id2iri_mapping, failed_uploads
+        resource_upload_diff = datetime.now() - resource_upload_start
+        resource_upload_diff_ms = resource_upload_diff.seconds * 1_000_000 + resource_upload_diff.microseconds
+        looping_overhead_ms = resource_upload_diff_ms - resource_creation_time_ms - (bitstream_upload_time_ms or 0)
+        metrics.append(MetricRecord(resource.id, filetype, filesize, "looping overhead", looping_overhead_ms))
+
+    return id2iri_mapping, failed_uploads, metrics
 
 
 def _upload_stashed_xml_texts(
@@ -747,7 +784,7 @@ def _handle_upload_error(
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
     proj_shortcode: str,
     onto_name: str,
-    server: str,
+    server_as_foldername: str,
     save_location: str
 ) -> None:
     """
@@ -764,7 +801,7 @@ def _handle_upload_error(
         stashed_resptr_props: all resptr props that have been stashed
         proj_shortcode: shortcode of the project the data belongs to
         onto_name: name of the ontology the data references
-        server: the server which the data is uploaded onto
+        server_as_foldername: the server which the data is uploaded onto (in a form that can be used as folder name)
         save_location: path to the directory where dsp-tools should save logs (OS dependent)
 
     Returns:
@@ -775,19 +812,10 @@ def _handle_upload_error(
           f'\nxmlupload must be aborted because of an error')
     timestamp_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
 
-    server_substitutions = {
-        r"https?://": "",
-        r"^api\..+": "",
-        r":\d{4}/?$": "",
-        r"0.0.0.0": "localhost"
-    }
-    for pattern, repl in server_substitutions.items():
-        server = re.sub(pattern, repl, server)
-
     if save_location == ".":
-        save_location_full = f"xmluploads/{server}/{proj_shortcode}/{onto_name}"
+        save_location_full = f"xmluploads/{server_as_foldername}/{proj_shortcode}/{onto_name}"
     else:
-        save_location_full = f"{save_location}/xmluploads/{server}/{proj_shortcode}/{onto_name}"
+        save_location_full = f"{save_location}/xmluploads/{server_as_foldername}/{proj_shortcode}/{onto_name}"
     os.makedirs(save_location_full, exist_ok=True)
 
     # only stashed properties of resources that already exist in DSP are of interest

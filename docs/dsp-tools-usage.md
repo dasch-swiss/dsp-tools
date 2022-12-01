@@ -264,7 +264,7 @@ and shutdown of API and APP can be complicated: Both repos need to be cloned loc
 from time to time to stay up to date, and then there are several commands for each repository to remember. And your 
 local clone of the API might get cluttered with old files over time.
 
-Another challenge is the software that DSP depends upon, and that should be kept up to date: JDK, node, npm, Angular, 
+Another challenge is the software that DSP depends on, and that should be kept up to date: JDK, node, npm, Angular, 
 etc. And it might happen that a dependency is replaced, e.g. JDK 11 Zulu by JDK 17 Temurin. A non-developer can quickly 
 get lost in this jungle. 
 

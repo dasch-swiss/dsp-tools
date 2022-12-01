@@ -64,4 +64,4 @@ def stop_stack() -> None:
     """
     Shut down the Docker containers of DSP-API and delete all data that is in them.
     """
-    subprocess.run("docker compose down", shell=True)
+    subprocess.run("docker compose down", shell=True, cwd="knora/dsplib/docker")

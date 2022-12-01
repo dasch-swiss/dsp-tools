@@ -35,7 +35,7 @@ services:
       - SIPI_WEBAPI_PORT=3333
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST=0.0.0.0
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT=3333
-    command: --config=/sipi/config/sipi.docker-config.lua
+    command: --config=sipi.docker-config.lua
 
   api:
     image: daschswiss/knora-api:24.0.8-18-gb8eaadf  # after every deployment (fortnightly), check latest tag at https://hub.docker.com/r/daschswiss/knora-api/tags

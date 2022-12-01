@@ -4,30 +4,30 @@ import time
 
 import requests
 
+from knora.dsplib.models.helpers import BaseError
+
 
 def start_stack() -> None:
     """
     Start the Docker containers of DSP-API, and load some basic data models and data.
     """
     # start up the fuseki database
-    completed_process = subprocess.run("docker compose up db -d", shell=True)
+    completed_process = subprocess.run("docker compose up db -d", shell=True, cwd="knora/dsplib/docker")
     if not completed_process or completed_process.returncode != 0:
-        exit(1)
+        raise BaseError("Cannot start the API: Error while executing 'docker compose up db -d'")
     time.sleep(5)
 
-    # create the "knora-test" repository
+    # inside fuseki, create the "knora-test" repository
     url_prefix = "https://raw.githubusercontent.com/dasch-swiss/dsp-api/main"
-    repo_template_response = requests.get(f"{url_prefix}/webapi/scripts/fuseki-repository-config.ttl.template")
-    if not repo_template_response or repo_template_response.status_code != 200:
-        exit(1)
-    repo_template = re.sub(r"@REPOSITORY@", "knora-test", repo_template_response.text)
+    repo_template = requests.get(f"{url_prefix}/webapi/scripts/fuseki-repository-config.ttl.template").text
+    repo_template = re.sub(r"@REPOSITORY@", "knora-test", repo_template)
     response = requests.post(
         url="http://0.0.0.0:3030/$/datasets",
         files={"file": ("file.ttl", repo_template, "text/turtle; charset=utf8")},
         auth=("admin", "test")
     )
-    if not response or response.status_code != 200:
-        exit(1)
+    if not response.ok:
+        raise BaseError("Cannot start the API: Error when creating the 'knora-test' repository")
 
     # load some basic ontos and data into the repository
     graph_prefix = "http://0.0.0.0:3030/knora-test/data?graph="
@@ -42,15 +42,22 @@ def start_stack() -> None:
          f"{graph_prefix}http://www.knora.org/data/permissions")
     ]
     for ttl_file, graph in ttl_files:
-        response = requests.get(ttl_file)
-        requests.post(
+        ttl_text = requests.get(ttl_file).text
+        response = requests.post(
             url=graph,
-            files={"file": ("file.ttl", response.text, "text/turtle; charset: utf-8")},
+            files={"file": ("file.ttl", ttl_text, "text/turtle; charset: utf-8")},
             auth=("admin", "test"),
         )
+        if not response.ok:
+            raise BaseError(f"Cannot start the API: Error when creating graph '{graph}'")
+
+    # get sipi.docker-config.lua
+    docker_config_lua_text = requests.get(f"{url_prefix}/sipi/config/sipi.docker-config.lua").text
+    with open("knora/dsplib/docker/sipi.docker-config.lua", "w") as f:
+        f.write(docker_config_lua_text)
 
     # startup all other components
-    subprocess.run("docker compose up -d", shell=True)
+    subprocess.run("docker compose up -d", shell=True, cwd="knora/dsplib/docker")
 
 
 def stop_stack() -> None:

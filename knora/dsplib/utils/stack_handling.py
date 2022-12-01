@@ -1,6 +1,6 @@
+import re
 import subprocess
 import time
-import re
 
 import requests
 
@@ -21,8 +21,13 @@ def start_stack() -> None:
     if not repo_template_response or repo_template_response.status_code != 200:
         exit(1)
     repo_template = re.sub(r"@REPOSITORY@", "knora-test", repo_template_response.text)
-    response = requests.post(url="http://0.0.0.0:3030/$/datasets", files={"file": ("file.ttl", repo_template)},
-                             auth=("admin", "test"), headers={"Content-Type": "text/turtle", "charset": "utf-8"})
+    response = requests.post(
+        url="http://0.0.0.0:3030/$/datasets",
+        files={"file": ("file.ttl", repo_template, "text/turtle; charset=utf8")},
+        auth=("admin", "test")
+    )
+    if not response or response.status_code != 200:
+        exit(1)
 
     # load some basic ontos and data into the repository
     graph_prefix = "http://0.0.0.0:3030/knora-test/data?graph="
@@ -38,8 +43,11 @@ def start_stack() -> None:
     ]
     for ttl_file, graph in ttl_files:
         response = requests.get(ttl_file)
-        requests.post(url=graph, files={"file": ("file.ttl", response.text)}, auth=("admin", "test"),
-                      headers={"Content-Type": "text/turtle", "charset": "utf-8"})
+        requests.post(
+            url=graph,
+            files={"file": ("file.ttl", response.text, "text/turtle; charset: utf-8")},
+            auth=("admin", "test"),
+        )
 
     # startup all other components
     subprocess.run("docker compose up -d", shell=True)

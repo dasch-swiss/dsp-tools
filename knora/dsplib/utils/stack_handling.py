@@ -58,10 +58,11 @@ def start_stack() -> None:
 
     # startup all other components
     subprocess.run("docker compose up -d", shell=True, cwd="knora/dsplib/docker")
+    subprocess.run("docker system prune -f", shell=True, cwd="knora/dsplib/docker")
 
 
 def stop_stack() -> None:
     """
     Shut down the Docker containers of DSP-API and delete all data that is in them.
     """
-    subprocess.run("docker compose down", shell=True, cwd="knora/dsplib/docker")
+    subprocess.run("docker compose down --volumes", shell=True, cwd="knora/dsplib/docker")

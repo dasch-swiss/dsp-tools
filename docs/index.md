@@ -38,5 +38,5 @@ dsp-tools helps you with the following tasks:
 - [`dsp-tools id2iri`](./dsp-tools-usage.md#replace-internal-ids-with-iris-in-xml-file)
   takes an XML file for bulk data import and replaces referenced internal IDs with IRIs. The mapping has to be provided
   with a JSON file.
-- [`dsp-tools start-api / stop-api / start-app`](./dsp-tools-usage.md#start-a-dsp-stack-on-your-local-machine-for-dasch-internal-use-only)
+- [`dsp-tools start-stack / stop-stack`](./dsp-tools-usage.md#start-a-dsp-stack-on-your-local-machine)
   assist you in running a DSP software stack on your local machine.

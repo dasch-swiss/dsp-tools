@@ -40,7 +40,7 @@ services:
     command: --config=/docker/sipi.docker-config.lua
 
   api:
-    image: daschswiss/knora-api:24.0.8-18-gb8eaadf  # after every deployment (fortnightly), check latest tag at https://hub.docker.com/r/daschswiss/knora-api/tags
+    image: daschswiss/knora-api:25.0.0  # after every deployment (fortnightly), check latest tag at https://hub.docker.com/r/daschswiss/knora-api/tags
     depends_on:
       - sipi
       - db

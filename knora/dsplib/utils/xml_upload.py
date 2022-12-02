@@ -294,7 +294,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         sipi: the sipi instance to be used
         verbose: verbose option for the command, if used more output is given to the user
         incremental: if set, IRIs instead of internal IDs are expected as resource pointers
-        save_metrics: if true, saves time measurements into ~/.dsp-tools
+        save_metrics: if true, saves time measurements into a "metrics" folder in the current working directory
 
     Returns:
         True if all resources could be uploaded without errors; False if any resource (or part of it) could not be

@@ -256,7 +256,7 @@ In order to upload data incrementally the procedure described [here](dsp-tools-x
 
 ## Start a DSP stack on your local machine 
 
-DSP-API is the heart of the DaSCH software - it is a server application for storing data from the Humanities.
+DSP-API is the heart of the DaSCH service platform - it is a server application for storing data from the Humanities.
 DSP-APP is a generic user interface for the user to look at and work with data stored in DSP. It's a server application, too.
 
 For testing purposes, it is sometimes necessary to run DSP-API and DSP-APP on a local machine. But the startup 
@@ -268,17 +268,17 @@ Another challenge is the software that DSP depends on, and that should be kept u
 etc. And it might happen that a dependency is replaced, e.g. JDK 11 Zulu by JDK 17 Temurin. A non-developer can quickly 
 get lost in this jungle. 
 
-That's why dsp-tools offers a command to facilitate the handling of API and APP:
+That's why dsp-tools offers a command to facilitate the handling of DSP-API and DSP-APP:
 ```
 dsp-tools start-stack
 ```
 
-This calls Docker commands to start up the latest deployed versions of API and the APP, i.e. the versions that are 
+This calls Docker commands to start up the latest deployed versions of DSP-API and DSP-APP, i.e. the versions that are 
 running on [https://admin.dasch.swiss](https://admin.dasch.swiss). It's no longer necessary to have two local clones, 
 nor to execute `make` commands inside them. The only requirement for this command is that Docker must be running. It 
 can even be executed on a Windows machine without any of the software dependencies.
 
-When your work is done, shut down API and APP with
+When your work is done, shut down DSP-API and DSP-APP with
 ```
 dsp-tools stop-stack
 ```
@@ -292,7 +292,7 @@ Some notes:
    will still be running, in the state how you left it.
  - You can also send your computer to sleep while the DSP stack is running. For this, you don't even need to pause 
    Docker.
- - This command provides you with the latest released & deployed version of API and APP. If you want to run a 
+ - This command provides you with the latest released & deployed version of DSP-API and DSP-APP. If you want to run a 
    development version, you need to have the software dependencies installed, clone the repos of DSP-API and DSP-APP,
    and execute `make` commands therein.
  - This command was developed for DaSCH-internal use only. We don't offer support or troubleshooting for it.

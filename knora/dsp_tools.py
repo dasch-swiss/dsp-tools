@@ -146,7 +146,7 @@ def program(user_args: list[str]) -> None:
     parser_excel2xml.add_argument('default_ontology', help='Name of the ontology that this data belongs to')
 
     # startup DSP stack
-    parser_stackup = subparsers.add_parser('start-stack', help='Startup a local instance of the DSP stack (API and APP)')
+    parser_stackup = subparsers.add_parser('start-stack', help='Startup a local instance of the DSP stack (DSP-API and DSP-APP)')
     parser_stackup.set_defaults(action='start-stack')
 
     # shutdown DSP-API

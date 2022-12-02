@@ -257,10 +257,10 @@ In order to upload data incrementally the procedure described [here](dsp-tools-x
 ## Start a DSP stack on your local machine 
 
 DSP-API is the heart of the DaSCH software - it is a server application for storing data from the Humanities.
-DSP-APP is our generic user interface, i.e. the viewer to look at the data. It's a server application, too.
+DSP-APP is a generic user interface for the user to look at and work with data stored in DSP. It's a server application, too.
 
 For testing purposes, it is sometimes necessary to run DSP-API and DSP-APP on a local machine. But the startup 
-and shutdown of API and APP can be complicated: Both repos need to be cloned locally, a `git pull` has to be executed 
+and shutdown of DSP-API and DSP-APP can be time-consuming: both code repositories need to be cloned, a `git pull` has to be executed 
 from time to time to stay up to date, and then there are several commands for each repository to remember. And your 
 local clone of the API might get cluttered with old files over time.
 
@@ -283,7 +283,7 @@ When your work is done, shut down API and APP with
 dsp-tools stop-stack
 ```
 
-This deletes all Docker volumes, and removes all data that was in the database.
+This command deletes all Docker volumes, and removes all data that was in the database.
 
 Some notes:
 

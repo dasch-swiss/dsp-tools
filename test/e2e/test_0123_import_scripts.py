@@ -62,7 +62,8 @@ class TestImportScripts(unittest.TestCase):
             imgdir="knora/dsplib/import_scripts/",
             sipi="http://0.0.0.0:1024",
             verbose=False,
-            incremental=False
+            incremental=False,
+            save_metrics=False
         )
         self.assertTrue(success_on_xmlupload)
 

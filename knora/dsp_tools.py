@@ -88,6 +88,8 @@ def program(user_args: list[str]) -> None:
     parser_upload.add_argument('-S', '--sipi', type=str, default='http://0.0.0.0:1024', help='URL of SIPI server')
     parser_upload.add_argument('-v', '--verbose', action='store_true', help=verbose_text)
     parser_upload.add_argument('-I', '--incremental', action='store_true', help='Incremental XML upload')
+    parser_upload.add_argument('-m', '--metrics', action='store_true', help='Write metrics into a "metrics" folder in '
+                                                                            'the current working directory')
     parser_upload.add_argument('xmlfile', help='path to xml file containing the data', default='data.xml')
 
     # excel2json
@@ -204,7 +206,8 @@ def program(user_args: list[str]) -> None:
                        imgdir=args.imgdir,
                        sipi=args.sipi,
                        verbose=args.verbose,
-                       incremental=args.incremental)
+                       incremental=args.incremental,
+                       save_metrics=args.metrics)
     elif args.action == 'excel2json':
         excel2json(data_model_files=args.data_model_files,
                       path_to_output_file=args.outfile)

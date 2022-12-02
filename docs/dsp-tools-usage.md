@@ -97,6 +97,7 @@ The following options are available:
 - `-I` | `--incremental` (optional) : If set, IRIs instead of internal IDs are expected as reference to already existing resources on DSP
 - `-V` | `--validate` (optional): If set, the XML file will only be validated, but not uploaded.
 - `-v` | `--verbose` (optional): If set, more information about the process is printed to the console.
+- `-m` | `--metrics` (optional): If set, write metrics into a "metrics" folder in the current working directory
 
 The command is used to upload data defined in an XML file onto a DSP server. The defaults are intended for local 
 testing: 

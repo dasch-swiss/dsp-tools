@@ -148,8 +148,13 @@ def program(user_args: list[str]) -> None:
     parser_excel2xml.add_argument('default_ontology', help='Name of the ontology that this data belongs to')
 
     # startup DSP stack
-    parser_stackup = subparsers.add_parser('start-stack', help='Startup a local instance of the DSP stack (DSP-API and DSP-APP)')
+    parser_stackup = subparsers.add_parser('start-stack', help='Startup a local instance of the DSP stack (DSP-API and '
+                                                               'DSP-APP)')
     parser_stackup.set_defaults(action='start-stack')
+    parser_stackup.add_argument('--max_file_size', type=int, default=None,
+                                help='max. multimedia file size allowed by SIPI, in MB (default: 250, max: 100\'000)')
+    parser_stackup.add_argument('--enforce_docker_system_prune', action='store_true',
+                                help='if True, prune Docker without asking the user')
 
     # shutdown DSP-API
     parser_stackdown = subparsers.add_parser('stop-stack', help='Shut down the local instance of the DSP stack, and '
@@ -231,7 +236,8 @@ def program(user_args: list[str]) -> None:
                   shortcode=args.shortcode,
                   default_ontology=args.default_ontology)
     elif args.action == 'start-stack':
-        start_stack()
+        start_stack(max_file_size=args.max_file_size,
+                    enforce_docker_system_prune=args.enforce_docker_system_prune)
     elif args.action == 'stop-stack':
         stop_stack()
 

@@ -15,7 +15,19 @@ def start_stack() -> None:
     completed_process = subprocess.run("docker compose up db -d", shell=True, cwd="knora/dsplib/docker")
     if not completed_process or completed_process.returncode != 0:
         raise BaseError("Cannot start the API: Error while executing 'docker compose up db -d'")
-    time.sleep(5)
+
+    # wait until fuseki is up (same behaviour as dsp-api/webapi/scripts/wait-for-db.sh)
+    for i in range(360):
+        try:
+            response = requests.get(
+                url="http://0.0.0.0:3030/$/server",
+                auth=("admin", "test")
+            )
+            if response.ok:
+                break
+        except:
+            time.sleep(1)
+        time.sleep(1)
 
     # inside fuseki, create the "knora-test" repository
     url_prefix = "https://raw.githubusercontent.com/dasch-swiss/dsp-api/main"

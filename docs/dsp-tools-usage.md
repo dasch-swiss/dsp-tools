@@ -276,22 +276,23 @@ Here's an overview:
 | target group                | researchers, RDU employees  | developers of DSP-API or DSP-APP                                 |
 | how it works                | run `dsp-tools start-stack` | execute commands from within the DSP-API/DSP-APP repositories    |
 | software dependencies       | Docker, Python, dsp-tools   | XCode command line tools, Docker, sbt, Java, Angular, node, yarn |
-| mechanism in the background | run Docker containers       | build DSP-API and DSP-APP from a branch in the repository        |
-| available versions          | latest deployed versions    | any commit from any branch, or locally modified working tree     |
+| OS                          | Windows, Mac OS, Linux      | Mac OS, Linux                                                    |
+| mechanism in the background | run pre-built Docker images | build DSP-API and DSP-APP from a branch in the repository        |
+| available versions          | latest released versions    | any commit from any branch, or locally modified working tree     |
 | caveats                     |                             | dependencies must be kept up to date                             |
 
 
 
 ### Simple way: `dsp-tools start-stack`
 
-The only prerequisites for this is that your Docker Desktop is running, and that you have Python and dsp-tools 
+The only prerequisite for this is that your Docker Desktop is running, and that you have Python and dsp-tools 
 installed.
 
 ```
 dsp-tools start-stack
 ```
 
-This calls Docker commands to start up the latest deployed versions of DSP-API and DSP-APP, i.e. the versions that are 
+This calls Docker commands to start up the latest released versions of DSP-API and DSP-APP, i.e. the versions that are 
 running on [https://admin.dasch.swiss](https://admin.dasch.swiss). When your work is done, shut down DSP-API and 
 DSP-APP with
 

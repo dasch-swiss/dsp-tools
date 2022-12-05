@@ -2,17 +2,23 @@
 
 # DSP-TOOLS documentation
 
-dsp-tools is a command line tool that helps you to interact with a DaSCH Service Platform (DSP) server.
+DSP-TOOLS is a Python package with a command line tool that helps you to interact with a DaSCH Service Platform (DSP) 
+server. The DSP server you interact with can be on a remote server, or on your local machine. The two main tasks 
+that DSP-TOOLS serves for are:
 
-In order to archive your data on the DaSCH Service Platform, you need a data model (ontology) that describes your data.
+**Create a project with its data model(s), described in a JSON file, on a DSP server**  
+In order to archive your data on the DaSCH Service Platform, you need a data model that describes your data.
 The data model is defined in a JSON project definition file which has to be transmitted to the DSP server. If the DSP 
 server is aware of the data model for your project, conforming data can be uploaded into the DSP repository.
 
-Often, data is initially added in large quantities. Therefore, dsp-tools allows you to perform bulk imports of your
-data. In order to do so, the data has to be described in an XML file. dsp-tools is able to read the XML file and upload
+**Upload data, described in an XML file, to a DSP server that has a project with a matching data model**  
+Often, data is initially added in large quantities. Therefore, DSP-TOOLS allows you to perform bulk imports of your
+data. In order to do so, the data has to be described in an XML file. DSP-TOOLS is able to read the XML file and upload
 all data to the DSP server.
 
-dsp-tools helps you with the following tasks:
+All of DSP-TOOLS' functionality revolves around these two basic tasks. 
+
+DSP-TOOLS provides the following functionalities:
 
 - [`dsp-tools create`](./dsp-tools-usage.md#create-a-project-on-a-dsp-server) creates the project with its data model(s) 
   on a DSP server from a JSON file.

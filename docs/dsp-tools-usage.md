@@ -285,21 +285,21 @@ Here's an overview:
 
 ### Simple way: `dsp-tools start-stack`
 
-The only prerequisite for this is that your Docker Desktop is running, and that you have Python and dsp-tools 
-installed.
+This command runs Docker images with the latest released versions of DSP-API and DSP-APP, i.e. the versions that are 
+running on [https://admin.dasch.swiss](https://admin.dasch.swiss). The only prerequisite for this is that your Docker 
+Desktop is running, and that you have Python and dsp-tools installed.
 
 ```
 dsp-tools start-stack
 ```
 
-You will be prompted to allow dsp-tools to clean your Docker. Just type `y` and then Enter/Return. 
-This calls Docker commands to start up the latest released versions of DSP-API and DSP-APP, i.e. the versions that are 
-running on [https://admin.dasch.swiss](https://admin.dasch.swiss). 
+**You will be prompted to allow dsp-tools to clean your Docker. Just type `y` and then `Enter`.**
 
 The following options are available:
 
 - `--max_file_size` (optional, default: `250`): max. multimedia file size allowed by SIPI, in MB (max: 100'000)
-- `--enforce_docker_system_prune` (optional): if set, prune Docker without asking the user
+- `--prune` (optional): if set, execute `docker system prune` without asking the user
+- `--no-prune` (optional): if set, don't execute `docker system prune` (and don't ask)
 
 Example: If you start the stack with `dsp-tools start-stack --max_file_size=1000`, it will be possible to upload files 
 that are up to 1 GB big. If a file bigger than `max_file_size` is uploaded via `xmlupload`, SIPI will interrupt the 
@@ -321,8 +321,7 @@ Some notes:
  - You can also send your computer to sleep while the DSP stack is running. For this, you don't even need to pause 
    Docker.
  - This command was developed for DaSCH-internal use only. We don't offer support or troubleshooting for it.
- - **To keep Docker clean, this command regularly executes `docker system prune -f`. It is assumed that people using 
-   the simple way don't use Docker for other purposes.**
+ - To keep Docker clean, this command will ask you for permission to execute `docker system prune`. 
 
 
 #### When should I restart DSP-API?

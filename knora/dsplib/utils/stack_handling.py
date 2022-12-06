@@ -11,7 +11,8 @@ from knora.dsplib.models.helpers import BaseError
 
 def start_stack(
     max_file_size: Optional[int] = None,
-    enforce_docker_system_prune: bool = False
+    enforce_docker_system_prune: bool = False,
+    suppress_docker_system_prune: bool = False
 ) -> None:
     """
     Start the Docker containers of DSP-API and DSP-APP, and load some basic data models and data. After startup, ask
@@ -20,7 +21,11 @@ def start_stack(
     Args:
         max_file_size: max. multimedia file size allowed by SIPI, in MB (max: 100'000)
         enforce_docker_system_prune: if True, prune Docker without asking the user
+        suppress_docker_system_prune: if True, don't prune Docker (and don't ask)
     """
+    if enforce_docker_system_prune and suppress_docker_system_prune:
+        raise BaseError('The arguments "--prune" and "--no-prune" are mutually exclusive')
+
     # get sipi.docker-config.lua
     latest_release = json.loads(requests.get("https://api.github.com/repos/dasch-swiss/dsp-api/releases").text)[0]
     url_prefix = f"https://github.com/dasch-swiss/dsp-api/raw/{latest_release['target_commitish']}/"
@@ -85,19 +90,24 @@ def start_stack(
 
     # startup all other components
     subprocess.run("docker compose up -d", shell=True, cwd="knora/dsplib/docker")
+    print("DSP-API is now running on http://localhost:3030/ and DSP-APP on http://localhost:4200/")
+
+    # docker system prune
     if enforce_docker_system_prune:
-        prune_docker = "y\n"
+        prune_docker = "y"
+    elif suppress_docker_system_prune:
+        prune_docker = "N"
     else:
         prune_docker = None
-        while prune_docker != "y\n" or prune_docker != "N\n":
+        while prune_docker not in ["y", "N"]:
             prune_docker = subprocess.run(
                 "read -p \"Allow us executing a docker system prune? This is necessary to keep your Docker clean. If "
                 "you are unsure what that means, just type y and press Enter. [y/N]\" response; echo $response",
                 shell=True,
                 stdout=subprocess.PIPE,
                 text=True
-            ).stdout
-    if prune_docker == "y\n":
+            ).stdout.replace("\n", "")
+    if prune_docker == "y":
         subprocess.run("docker system prune -f", shell=True, cwd="knora/dsplib/docker")
 
 

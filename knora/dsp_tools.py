@@ -153,8 +153,10 @@ def program(user_args: list[str]) -> None:
     parser_stackup.set_defaults(action='start-stack')
     parser_stackup.add_argument('--max_file_size', type=int, default=None,
                                 help='max. multimedia file size allowed by SIPI, in MB (default: 250, max: 100\'000)')
-    parser_stackup.add_argument('--enforce_docker_system_prune', action='store_true',
-                                help='if True, prune Docker without asking the user')
+    parser_stackup.add_argument('--prune', action='store_true',
+                                help='if set, execute "docker system prune" without asking the user')
+    parser_stackup.add_argument('--no-prune', action='store_true',
+                                help='if set, don\'t execute "docker system prune" (and don\'t ask)')
 
     # shutdown DSP-API
     parser_stackdown = subparsers.add_parser('stop-stack', help='Shut down the local instance of the DSP stack, and '
@@ -237,7 +239,8 @@ def program(user_args: list[str]) -> None:
                   default_ontology=args.default_ontology)
     elif args.action == 'start-stack':
         start_stack(max_file_size=args.max_file_size,
-                    enforce_docker_system_prune=args.enforce_docker_system_prune)
+                    enforce_docker_system_prune=args.prune,
+                    suppress_docker_system_prune=args.no_prune)
     elif args.action == 'stop-stack':
         stop_stack()
 

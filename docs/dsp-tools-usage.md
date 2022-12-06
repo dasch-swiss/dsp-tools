@@ -2,8 +2,8 @@
 
 # Installation and usage
 
-dsp-tools is a Python package with a command line tool that helps you to interact with a DaSCH Service Platform (DSP) 
-server. The following paragraphs give you an overview how to install and use dsp-tools.
+dsp-tools is a Python package with a command line interface that helps you interact with the DaSCH Service Platform (DSP) 
+The following paragraphs give you an overview of how to install and use dsp-tools.
 
 
 
@@ -271,11 +271,11 @@ Here's an overview of the two ways:
 |                             | simple                      | advanced                                                         |
 |-----------------------------|-----------------------------|------------------------------------------------------------------|
 | target group                | researchers, RDU employees  | developers of DSP-API or DSP-APP                                 |
-| how it works                | run `dsp-tools start-stack` | execute commands from within the DSP-API/DSP-APP repositories    |
+| how it works                | run `dsp-tools start-stack` | execute commands from within locally cloned DSP-API/DSP-APP repositories    |
 | software dependencies       | Docker, Python, dsp-tools   | XCode command line tools, Docker, sbt, Java, Angular, node, yarn |
 | OS                          | Windows, Mac OS, Linux      | Mac OS, Linux                                                    |
 | mechanism in the background | run pre-built Docker images | build DSP-API and DSP-APP from a branch in the repository        |
-| available versions          | latest released version     | any commit from any branch, or locally modified working tree     |
+| available versions          | latest released version     | any branch, or locally modified working tree     |
 | caveats                     |                             | dependencies must be kept up to date                             |
 
 
@@ -283,15 +283,15 @@ Here's an overview of the two ways:
 ### Simple way: `dsp-tools start-stack`
 
 This command runs Docker images with the latest released versions of DSP-API and DSP-APP, i.e. the versions that are 
-running on [https://admin.dasch.swiss](https://admin.dasch.swiss). The only prerequisite for this is that your Docker 
-Desktop is running, and that you have Python and dsp-tools installed. Just type:
+running on [https://admin.dasch.swiss](https://admin.dasch.swiss). The only prerequisite for this is that Docker 
+ is running, and that you have Python and dsp-tools installed. Just type:
 
 ```
 dsp-tools start-stack
 ```
 
-**You will be prompted to allow dsp-tools to clean your Docker with a `docker system prune`. If you don't know what that 
-means, just type `y` and then `Enter`.**
+**You will be prompted to allow dsp-tools to clean your Docker with a `docker system prune`. This will remove all unused containers, networks and images. If you don't know what that 
+means, just type `y` ("yes") and then `Enter`.**
 
 The following options are available:
 
@@ -321,10 +321,10 @@ Some notes:
 
 
 #### When should I restart DSP-API?
-After creating a data model and adding some data in your local DSP stack, you can make experiments and do your stuff. 
-But there are certain actions that are destructive or that cannot be undone. There are also steps that can only be 
+After creating a data model and adding some data in your local DSP stack, you can work on DSP as if it was the live platform.
+But there are certain actions that are irreversible or can only be 
 executed once, e.g. uploading the same JSON project file. If you edit your data model in the JSON file, and then you 
-want to upload it a second time, the API will not allow this: You have to shut it down and restart.
+want to upload it a second time, DSP-API will refuse to create the same project again. So, you might want to restart the stack and start over again from a clean setup.
 
 It is possible, however, to modify the XML data file and upload it again and again. But after some uploads, you are 
 cluttered with data, and you want to restart the stack.
@@ -333,7 +333,7 @@ cluttered with data, and you want to restart the stack.
 
 ### Advanced way
 
-If you want to run a branch of DSP-API/DSP-APP, or to modify them yourself, you need to 
+If you want to run a specific branch of DSP-API / DSP-APP, or to modify them yourself, you need to:
 
  - install the dependencies (XCode command line tools, Docker, sbt, Java, Angular, node, yarn)
  - keep the dependencies up to date (keep in mind that dependencies might be replaced over time)

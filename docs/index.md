@@ -12,7 +12,7 @@ The data model is defined in a JSON project definition file which has to be tran
 server is aware of the data model for your project, conforming data can be uploaded into the DSP repository.
 
 **Upload data, described in an XML file, to a DSP server that has a project with a matching data model**  
-Often, data is initially added in large quantities. Therefore, DSP-TOOLS allows you to perform bulk imports of your
+Sometimes, data is added in large quantities. Therefore, DSP-TOOLS allows you to perform bulk imports of your
 data. In order to do so, the data has to be described in an XML file. DSP-TOOLS is able to read the XML file and upload
 all data to the DSP server.
 
@@ -45,4 +45,4 @@ DSP-TOOLS provides the following functionalities:
   takes an XML file for bulk data import and replaces referenced internal IDs with IRIs. The mapping has to be provided
   with a JSON file.
 - [`dsp-tools start-stack / stop-stack`](./dsp-tools-usage.md#start-a-dsp-stack-on-your-local-machine)
-  assist you in running a DSP software stack on your local machine.
+  assist you in running a DSP stack on your local machine.

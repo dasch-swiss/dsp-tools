@@ -68,7 +68,7 @@ def start_stack(
         auth=("admin", "test")
     )
     if not response.ok:
-        raise BaseError("Cannot start DSP-API: Error when creating the 'knora-test' repository. Is there perhaps "
+        raise BaseError("Cannot start DSP-API: Error when creating the 'knora-test' repository. Is DSP-API perhaps already running? "
                         "another DSP-API running already?")
 
     # load some basic ontos and data into the repository
@@ -94,7 +94,7 @@ def start_stack(
 
     # startup all other components
     subprocess.run("docker compose up -d", shell=True, cwd=docker_path)
-    print("DSP-API is now running on http://localhost:3030/ and DSP-APP on http://localhost:4200/")
+    print("DSP-API is now running on http://localhost:3333/ and DSP-APP on http://localhost:4200/")
 
     # docker system prune
     if enforce_docker_system_prune:
@@ -105,7 +105,7 @@ def start_stack(
         prune_docker = None
         while prune_docker not in ["y", "N"]:
             prune_docker = subprocess.run(
-                "read -p \"Allow us executing a docker system prune? This is necessary to keep your Docker clean. If "
+                "read -p \"Allow dsp-tools to execute a docker system prune? This is necessary to keep your Docker clean. If "
                 "you are unsure what that means, just type y and press Enter. [y/N]\" response; echo $response",
                 shell=True,
                 stdout=subprocess.PIPE,
@@ -117,6 +117,6 @@ def start_stack(
 
 def stop_stack() -> None:
     """
-    Shut down the Docker containers of DSP-API and delete all data that is in them.
+    Shut down the Docker containers of your local DSP stack and delete all data that is in it.
     """
     subprocess.run("docker compose down --volumes", shell=True, cwd=docker_path)

@@ -2,11 +2,15 @@ import json
 import re
 import subprocess
 import time
+from pathlib import Path
 from typing import Optional
 
 import requests
 
 from knora.dsplib.models.helpers import BaseError
+
+# relative path to "knora/dsplib/docker", so that it is accessible when dsp-tools is called from another working directory
+docker_path = Path(__file__).parent / Path("../docker")
 
 
 def start_stack(
@@ -37,11 +41,11 @@ def start_stack(
         if not re.search(max_post_size_regex, docker_config_lua_text):
             raise BaseError("sipi.docker-config.lua doesn't contain a variable max_post_size that could be replaced")
         docker_config_lua_text = re.sub(max_post_size_regex, f"max_post_size = '{max_file_size}M'", docker_config_lua_text)
-    with open("knora/dsplib/docker/sipi.docker-config.lua", "w") as f:
+    with open(docker_path / "sipi.docker-config.lua", "w") as f:
         f.write(docker_config_lua_text)
 
     # start up the fuseki database
-    completed_process = subprocess.run("docker compose up db -d", shell=True, cwd="knora/dsplib/docker")
+    completed_process = subprocess.run("docker compose up db -d", shell=True, cwd=docker_path)
     if not completed_process or completed_process.returncode != 0:
         raise BaseError("Cannot start the API: Error while executing 'docker compose up db -d'")
 
@@ -89,7 +93,7 @@ def start_stack(
             raise BaseError(f"Cannot start DSP-API: Error when creating graph '{graph}'")
 
     # startup all other components
-    subprocess.run("docker compose up -d", shell=True, cwd="knora/dsplib/docker")
+    subprocess.run("docker compose up -d", shell=True, cwd=docker_path)
     print("DSP-API is now running on http://localhost:3030/ and DSP-APP on http://localhost:4200/")
 
     # docker system prune
@@ -108,11 +112,11 @@ def start_stack(
                 text=True
             ).stdout.replace("\n", "")
     if prune_docker == "y":
-        subprocess.run("docker system prune -f", shell=True, cwd="knora/dsplib/docker")
+        subprocess.run("docker system prune -f", shell=True, cwd=docker_path)
 
 
 def stop_stack() -> None:
     """
     Shut down the Docker containers of DSP-API and delete all data that is in them.
     """
-    subprocess.run("docker compose down --volumes", shell=True, cwd="knora/dsplib/docker")
+    subprocess.run("docker compose down --volumes", shell=True, cwd=docker_path)

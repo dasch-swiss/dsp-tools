@@ -258,18 +258,15 @@ In order to upload data incrementally the procedure described [here](dsp-tools-x
 
 ## Start a DSP stack on your local machine 
 
-DSP-API is the heart of the DaSCH service platform. It is a server application for storing data from the Humanities.
-
+DSP-API is the heart of the DaSCH service platform. It is a server application for storing data from the Humanities. 
 DSP-APP is a generic user interface for the user to look at and work with data stored in DSP-API. It's a server 
-application, too.
-
-For testing purposes, it is sometimes necessary to run DSP-API and DSP-APP on a local machine. There are two ways to 
-do this:
+application, too. For testing purposes, it is sometimes necessary to run DSP-API and DSP-APP on a local machine. 
+There are two ways to do this:
 
  - simple: run `dsp-tools start-stack`
  - advanced: execute commands from within the DSP-API/DSP-APP repositories
 
-Here's an overview:
+Here's an overview of the two ways:
 
 |                             | simple                      | advanced                                                         |
 |-----------------------------|-----------------------------|------------------------------------------------------------------|
@@ -278,7 +275,7 @@ Here's an overview:
 | software dependencies       | Docker, Python, dsp-tools   | XCode command line tools, Docker, sbt, Java, Angular, node, yarn |
 | OS                          | Windows, Mac OS, Linux      | Mac OS, Linux                                                    |
 | mechanism in the background | run pre-built Docker images | build DSP-API and DSP-APP from a branch in the repository        |
-| available versions          | latest released versions    | any commit from any branch, or locally modified working tree     |
+| available versions          | latest released version     | any commit from any branch, or locally modified working tree     |
 | caveats                     |                             | dependencies must be kept up to date                             |
 
 
@@ -287,23 +284,23 @@ Here's an overview:
 
 This command runs Docker images with the latest released versions of DSP-API and DSP-APP, i.e. the versions that are 
 running on [https://admin.dasch.swiss](https://admin.dasch.swiss). The only prerequisite for this is that your Docker 
-Desktop is running, and that you have Python and dsp-tools installed.
+Desktop is running, and that you have Python and dsp-tools installed. Just type:
 
 ```
 dsp-tools start-stack
 ```
 
-**You will be prompted to allow dsp-tools to clean your Docker. Just type `y` and then `Enter`.**
+**You will be prompted to allow dsp-tools to clean your Docker with a `docker system prune`. If you don't know what that 
+means, just type `y` and then `Enter`.**
 
 The following options are available:
 
-- `--max_file_size` (optional, default: `250`): max. multimedia file size allowed by SIPI, in MB (max: 100'000)
+- `--max_file_size=int` (optional, default: `250`): max. multimedia file size allowed by SIPI, in MB (max: 100'000)
 - `--prune` (optional): if set, execute `docker system prune` without asking the user
 - `--no-prune` (optional): if set, don't execute `docker system prune` (and don't ask)
 
 Example: If you start the stack with `dsp-tools start-stack --max_file_size=1000`, it will be possible to upload files 
-that are up to 1 GB big. If a file bigger than `max_file_size` is uploaded via `xmlupload`, SIPI will interrupt the 
-`xmlupload`.
+that are up to 1 GB big. If a file bigger than `max_file_size` is uploaded, SIPI will reject it.
 
 When your work is done, shut down DSP-API and DSP-APP with
 
@@ -321,7 +318,6 @@ Some notes:
  - You can also send your computer to sleep while the DSP stack is running. For this, you don't even need to pause 
    Docker.
  - This command was developed for DaSCH-internal use only. We don't offer support or troubleshooting for it.
- - To keep Docker clean, this command will ask you for permission to execute `docker system prune`. 
 
 
 #### When should I restart DSP-API?
@@ -340,7 +336,7 @@ cluttered with data, and you want to restart the stack.
 If you want to run a branch of DSP-API/DSP-APP, or to modify them yourself, you need to 
 
  - install the dependencies (XCode command line tools, Docker, sbt, Java, Angular, node, yarn)
- - keep the dependencies up to date (they might also change over time)
+ - keep the dependencies up to date (keep in mind that dependencies might be replaced over time)
  - clone the repositories from GitHub
  - keep them up to date with `git pull`
  - execute commands from within the repositories (`make` for DSP-API, `angular` for DSP-APP)

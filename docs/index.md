@@ -2,9 +2,8 @@
 
 # DSP-TOOLS documentation
 
-DSP-TOOLS is a Python package with a command line tool that helps you to interact with a DaSCH Service Platform (DSP) 
-server. The DSP server you interact with can be on a remote server, or on your local machine. The two main tasks 
-that DSP-TOOLS serves for are:
+DSP-TOOLS is a Python package with a command line interface that helps you interact with a DSP server. The DSP server 
+you interact with can be on a remote server, or on your local machine. The two main tasks that DSP-TOOLS serves for are:
 
 **Create a project with its data model(s), described in a JSON file, on a DSP server**  
 In order to archive your data on the DaSCH Service Platform, you need a data model that describes your data.

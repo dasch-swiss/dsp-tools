@@ -2,8 +2,9 @@
 
 # Installation and usage
 
-dsp-tools is a Python package with a command line interface that helps you interact with the DaSCH Service Platform (DSP) 
-The following paragraphs give you an overview of how to install and use dsp-tools.
+DSP-TOOLS is a Python package with a command line interface that helps you interact with a DSP server. The DSP server 
+you interact with can be on a remote server, or on your local machine. The following paragraphs give you an overview of 
+how to install and use dsp-tools.
 
 
 
@@ -321,10 +322,10 @@ Some notes:
 
 
 #### When should I restart DSP-API?
-After creating a data model and adding some data in your local DSP stack, you can work on DSP as if it was the live platform.
-But there are certain actions that are irreversible or can only be 
-executed once, e.g. uploading the same JSON project file. If you edit your data model in the JSON file, and then you 
-want to upload it a second time, DSP-API will refuse to create the same project again. So, you might want to restart the stack and start over again from a clean setup.
+After creating a data model and adding some data in your local DSP stack, you can work on DSP as if it was the live 
+platform. But there are certain actions that are irreversible or can only be executed once, e.g. uploading the same JSON 
+project file. If you edit your data model in the JSON file, and then you want to upload it a second time, DSP-API will 
+refuse to create the same project again. So, you might want to restart the stack and start over again from a clean setup.
 
 It is possible, however, to modify the XML data file and upload it again and again. But after some uploads, you are 
 cluttered with data, and you want to restart the stack.
@@ -335,7 +336,8 @@ cluttered with data, and you want to restart the stack.
 
 If you want to run a specific branch of DSP-API / DSP-APP, or to modify them yourself, you need to:
 
- - install the dependencies (XCode command line tools, Docker, sbt, Java, Angular, node, yarn)
+ - install the dependencies (check [https://github.com/dasch-swiss/dsp-api](https://github.com/dasch-swiss/dsp-api) and 
+   [https://github.com/dasch-swiss/dsp-app](https://github.com/dasch-swiss/dsp-app) how to do it)
  - keep the dependencies up to date (keep in mind that dependencies might be replaced over time)
  - clone the repositories from GitHub
  - keep them up to date with `git pull`

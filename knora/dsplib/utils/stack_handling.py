@@ -27,6 +27,10 @@ def start_stack(
         enforce_docker_system_prune: if True, prune Docker without asking the user
         suppress_docker_system_prune: if True, don't prune Docker (and don't ask)
     """
+    # validate input
+    if max_file_size is not None:
+        if not 1 <= max_file_size <= 100_000:
+            raise BaseError("max_file_size must be between 1 and 100000")
     if enforce_docker_system_prune and suppress_docker_system_prune:
         raise BaseError('The arguments "--prune" and "--no-prune" are mutually exclusive')
 
@@ -34,12 +38,10 @@ def start_stack(
     latest_release = json.loads(requests.get("https://api.github.com/repos/dasch-swiss/dsp-api/releases").text)[0]
     url_prefix = f"https://github.com/dasch-swiss/dsp-api/raw/{latest_release['target_commitish']}/"
     docker_config_lua_text = requests.get(f"{url_prefix}sipi/config/sipi.docker-config.lua").text
-    if max_file_size is not None:
-        if not 1 <= max_file_size <= 100_000:
-            raise BaseError("max_file_size must be between 1 and 100000")
+    if max_file_size:
         max_post_size_regex = r"max_post_size ?= ?[\'\"]\d+M[\'\"]"
         if not re.search(max_post_size_regex, docker_config_lua_text):
-            raise BaseError("sipi.docker-config.lua doesn't contain a variable max_post_size that could be replaced")
+            raise BaseError("Unable to set max_file_size. Please try again without this flag.")
         docker_config_lua_text = re.sub(max_post_size_regex, f"max_post_size = '{max_file_size}M'", docker_config_lua_text)
     with open(docker_path / "sipi.docker-config.lua", "w") as f:
         f.write(docker_config_lua_text)
@@ -68,8 +70,8 @@ def start_stack(
         auth=("admin", "test")
     )
     if not response.ok:
-        raise BaseError("Cannot start DSP-API: Error when creating the 'knora-test' repository. Is DSP-API perhaps already running? "
-                        "another DSP-API running already?")
+        raise BaseError("Cannot start DSP-API: Error when creating the 'knora-test' repository. Is DSP-API perhaps "
+                        "running already?")
 
     # load some basic ontos and data into the repository
     graph_prefix = "http://0.0.0.0:3030/knora-test/data?graph="
@@ -100,17 +102,12 @@ def start_stack(
     if enforce_docker_system_prune:
         prune_docker = "y"
     elif suppress_docker_system_prune:
-        prune_docker = "N"
+        prune_docker = "n"
     else:
         prune_docker = None
-        while prune_docker not in ["y", "N"]:
-            prune_docker = subprocess.run(
-                "read -p \"Allow dsp-tools to execute a docker system prune? This is necessary to keep your Docker clean. If "
-                "you are unsure what that means, just type y and press Enter. [y/N]\" response; echo $response",
-                shell=True,
-                stdout=subprocess.PIPE,
-                text=True
-            ).stdout.replace("\n", "")
+        while prune_docker not in ["y", "n"]:
+            prune_docker = input("Allow dsp-tools to execute 'docker system prune'? This is necessary to keep your "
+                                 "Docker clean. If you are unsure what that means, just type y and press Enter. [y/n]")
     if prune_docker == "y":
         subprocess.run("docker system prune -f", shell=True, cwd=docker_path)
 

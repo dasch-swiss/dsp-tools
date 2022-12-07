@@ -152,7 +152,7 @@ def program(user_args: list[str]) -> None:
                                                                'DSP-APP)')
     parser_stackup.set_defaults(action='start-stack')
     parser_stackup.add_argument('--max_file_size', type=int, default=None,
-                                help='max. multimedia file size allowed by SIPI, in MB (default: 250, max: 100\'000)')
+                                help="max. multimedia file size allowed by SIPI, in MB (default: 250, max: 100'000)")
     parser_stackup.add_argument('--prune', action='store_true',
                                 help='if set, execute "docker system prune" without asking the user')
     parser_stackup.add_argument('--no-prune', action='store_true',

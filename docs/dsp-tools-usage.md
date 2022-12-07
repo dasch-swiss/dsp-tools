@@ -269,15 +269,15 @@ There are two ways to do this:
 
 Here's an overview of the two ways:
 
-|                             | simple                      | advanced                                                         |
-|-----------------------------|-----------------------------|------------------------------------------------------------------|
-| target group                | researchers, RDU employees  | developers of DSP-API or DSP-APP                                 |
-| how it works                | run `dsp-tools start-stack` | execute commands from within locally cloned DSP-API/DSP-APP repositories    |
-| software dependencies       | Docker, Python, dsp-tools   | XCode command line tools, Docker, sbt, Java, Angular, node, yarn |
-| OS                          | Windows, Mac OS, Linux      | Mac OS, Linux                                                    |
-| mechanism in the background | run pre-built Docker images | build DSP-API and DSP-APP from a branch in the repository        |
-| available versions          | latest released version     | any branch, or locally modified working tree     |
-| caveats                     |                             | dependencies must be kept up to date                             |
+|                             | simple                      | advanced                                                                 |
+|-----------------------------|-----------------------------|--------------------------------------------------------------------------|
+| target group                | researchers, RDU employees  | developers of DSP-API or DSP-APP                                         |
+| how it works                | run `dsp-tools start-stack` | execute commands from within locally cloned DSP-API/DSP-APP repositories |
+| software dependencies       | Docker, Python, dsp-tools   | XCode command line tools, Docker, sbt, Java, Angular, node, yarn         |
+| OS                          | Windows, Mac OS, Linux      | Mac OS, Linux                                                            |
+| mechanism in the background | run pre-built Docker images | build DSP-API and DSP-APP from a branch in the repository                |
+| available versions          | latest released version     | any branch, or locally modified working tree                             |
+| caveats                     |                             | dependencies must be kept up to date                                     |
 
 
 
@@ -291,8 +291,8 @@ running on [https://admin.dasch.swiss](https://admin.dasch.swiss). The only prer
 dsp-tools start-stack
 ```
 
-**You will be prompted to allow dsp-tools to clean your Docker with a `docker system prune`. This will remove all unused containers, networks and images. If you don't know what that 
-means, just type `y` ("yes") and then `Enter`.**
+**dsp-tools will ask you for permission to clean Docker with a `docker system prune`. This will remove all unused 
+containers, networks and images. If you don't know what that means, just type `y` ("yes") and then `Enter`.**
 
 The following options are available:
 
@@ -327,8 +327,8 @@ platform. But there are certain actions that are irreversible or can only be exe
 project file. If you edit your data model in the JSON file, and then you want to upload it a second time, DSP-API will 
 refuse to create the same project again. So, you might want to restart the stack and start over again from a clean setup.
 
-It is possible, however, to modify the XML data file and upload it again and again. But after some uploads, you are 
-cluttered with data, and you want to restart the stack.
+It is possible, however, to modify the XML data file and upload it again and again. But after some uploads, DSP is 
+cluttered with data, so you might want to restart the stack.
 
 
 

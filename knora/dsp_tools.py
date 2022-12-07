@@ -4,13 +4,8 @@ The code in this file handles the arguments passed by the user from the command 
 import argparse
 import datetime
 import os
-import re
-import subprocess
 import sys
 from importlib.metadata import version
-
-import requests
-import yaml
 
 from knora.dsplib.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
 from knora.dsplib.utils.excel_to_json_project import excel2json
@@ -22,6 +17,7 @@ from knora.dsplib.utils.onto_create_ontology import create_project
 from knora.dsplib.utils.onto_get import get_ontology
 from knora.dsplib.utils.onto_validate import validate_project
 from knora.dsplib.utils.shared import validate_xml_against_schema
+from knora.dsplib.utils.stack_handling import start_stack, stop_stack
 from knora.dsplib.utils.xml_upload import xml_upload
 from knora.excel2xml import excel2xml
 
@@ -92,6 +88,8 @@ def program(user_args: list[str]) -> None:
     parser_upload.add_argument('-S', '--sipi', type=str, default='http://0.0.0.0:1024', help='URL of SIPI server')
     parser_upload.add_argument('-v', '--verbose', action='store_true', help=verbose_text)
     parser_upload.add_argument('-I', '--incremental', action='store_true', help='Incremental XML upload')
+    parser_upload.add_argument('-m', '--metrics', action='store_true', help='Write metrics into a "metrics" folder in '
+                                                                            'the current working directory')
     parser_upload.add_argument('xmlfile', help='path to xml file containing the data', default='data.xml')
 
     # excel2json
@@ -149,19 +147,21 @@ def program(user_args: list[str]) -> None:
     parser_excel2xml.add_argument('shortcode', help='Shortcode of the project that this data belongs to')
     parser_excel2xml.add_argument('default_ontology', help='Name of the ontology that this data belongs to')
 
-    # startup DSP-API
-    parser_stackup = subparsers.add_parser('start-api', help='Startup a local instance of DSP-API')
-    parser_stackup.set_defaults(action='start-api')
+    # startup DSP stack
+    parser_stackup = subparsers.add_parser('start-stack', help='Startup a local instance of the DSP stack (DSP-API and '
+                                                               'DSP-APP)')
+    parser_stackup.set_defaults(action='start-stack')
+    parser_stackup.add_argument('--max_file_size', type=int, default=None,
+                                help="max. multimedia file size allowed by SIPI, in MB (default: 250, max: 100'000)")
+    parser_stackup.add_argument('--prune', action='store_true',
+                                help='if set, execute "docker system prune" without asking the user')
+    parser_stackup.add_argument('--no-prune', action='store_true',
+                                help='if set, don\'t execute "docker system prune" (and don\'t ask)')
 
     # shutdown DSP-API
-    parser_stackdown = subparsers.add_parser('stop-api', help='Shut down the local instance of DSP-API, delete '
-                                                                'volumes, clean SIPI folders')
-    parser_stackdown.set_defaults(action='stop-api')
-
-    # startup DSP-APP
-    parser_dsp_app = subparsers.add_parser('start-app', help='Startup a local instance of DSP-APP')
-    parser_dsp_app.set_defaults(action='start-app')
-
+    parser_stackdown = subparsers.add_parser('stop-stack', help='Shut down the local instance of the DSP stack, and '
+                                                                'delete all data in it')
+    parser_stackdown.set_defaults(action='stop-stack')
 
 
     # call the requested action
@@ -213,7 +213,8 @@ def program(user_args: list[str]) -> None:
                        imgdir=args.imgdir,
                        sipi=args.sipi,
                        verbose=args.verbose,
-                       incremental=args.incremental)
+                       incremental=args.incremental,
+                       save_metrics=args.metrics)
     elif args.action == 'excel2json':
         excel2json(data_model_files=args.data_model_files,
                       path_to_output_file=args.outfile)
@@ -236,29 +237,13 @@ def program(user_args: list[str]) -> None:
         excel2xml(datafile=args.datafile,
                   shortcode=args.shortcode,
                   default_ontology=args.default_ontology)
-    elif args.action == 'start-api' and not sys.platform.startswith('win'):
-        try:
-            response = requests.get("https://raw.githubusercontent.com/dasch-swiss/dsp-api/main/.github/actions/preparation/action.yml")
-            action = yaml.safe_load(response.content)
-            for step in action.get("runs", {}).get("steps", {}):
-                if re.search("(JDK)|(Java)", step.get("name", "")):
-                    distribution = step.get("with", {}).get("distribution", "").lower()
-                    java_version = step.get("with", {}).get("java-version", "").lower()
-        except:
-            distribution = "temurin"
-            java_version = "17"
-        subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-api.sh'), distribution, java_version])
-    elif args.action == 'stop-api' and not sys.platform.startswith('win'):
-        subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/stop-api.sh')])
-    elif args.action == 'start-app' and not sys.platform.startswith('win'):
-        try:
-            subprocess.run(['/bin/bash', os.path.join(current_dir, 'dsplib/utils/start-app.sh')])
-        except KeyboardInterrupt:
-            print("\n\n"
-                  "================================\n"
-                  "You successfully stopped the APP\n"
-                  "================================")
-            exit(0)
+    elif args.action == 'start-stack':
+        start_stack(max_file_size=args.max_file_size,
+                    enforce_docker_system_prune=args.prune,
+                    suppress_docker_system_prune=args.no_prune)
+    elif args.action == 'stop-stack':
+        stop_stack()
+
 
 
 def main() -> None:

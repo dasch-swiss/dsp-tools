@@ -2,17 +2,22 @@
 
 # DSP-TOOLS documentation
 
-dsp-tools is a command line tool that helps you to interact with a DaSCH Service Platform (DSP) server.
+DSP-TOOLS is a Python package with a command line interface that helps you interact with a DSP server. The DSP server 
+you interact with can be on a remote server, or on your local machine. The two main tasks that DSP-TOOLS serves for are:
 
-In order to archive your data on the DaSCH Service Platform, you need a data model (ontology) that describes your data.
+**Create a project with its data model(s), described in a JSON file, on a DSP server**  
+In order to archive your data on the DaSCH Service Platform, you need a data model that describes your data.
 The data model is defined in a JSON project definition file which has to be transmitted to the DSP server. If the DSP 
 server is aware of the data model for your project, conforming data can be uploaded into the DSP repository.
 
-Often, data is initially added in large quantities. Therefore, dsp-tools allows you to perform bulk imports of your
-data. In order to do so, the data has to be described in an XML file. dsp-tools is able to read the XML file and upload
+**Upload data, described in an XML file, to a DSP server that has a project with a matching data model**  
+Sometimes, data is added in large quantities. Therefore, DSP-TOOLS allows you to perform bulk imports of your
+data. In order to do so, the data has to be described in an XML file. DSP-TOOLS is able to read the XML file and upload
 all data to the DSP server.
 
-dsp-tools helps you with the following tasks:
+All of DSP-TOOLS' functionality revolves around these two basic tasks. 
+
+DSP-TOOLS provides the following functionalities:
 
 - [`dsp-tools create`](./dsp-tools-usage.md#create-a-project-on-a-dsp-server) creates the project with its data model(s) 
   on a DSP server from a JSON file.
@@ -38,5 +43,5 @@ dsp-tools helps you with the following tasks:
 - [`dsp-tools id2iri`](./dsp-tools-usage.md#replace-internal-ids-with-iris-in-xml-file)
   takes an XML file for bulk data import and replaces referenced internal IDs with IRIs. The mapping has to be provided
   with a JSON file.
-- [`dsp-tools start-api / stop-api / start-app`](./dsp-tools-usage.md#start-a-dsp-stack-on-your-local-machine-for-dasch-internal-use-only)
-  assist you in running a DSP software stack on your local machine.
+- [`dsp-tools start-stack / stop-stack`](./dsp-tools-usage.md#start-a-dsp-stack-on-your-local-machine)
+  assist you in running a DSP stack on your local machine.

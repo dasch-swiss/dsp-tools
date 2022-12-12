@@ -103,9 +103,9 @@ class ResourceInstance(Model):
         self._user_permission = user_permission
 
         if self.baseclass in self.baseclasses_with_bitstream and bitstream is None:
-            raise BaseError(f"ERROR Baseclass '{self.baseclass}' requires a bitstream value!")
+            raise BaseError(f"ERROR in resource with label '{self._label}': Baseclass '{self.baseclass}' requires a bitstream value")
         if self.baseclass not in self.baseclasses_with_bitstream and bitstream:
-            raise BaseError(f"ERROR Baseclass '{self.baseclass}' does not allow a bitstream value!")
+            raise BaseError(f"ERROR in resource with label '{self._label}': Baseclass '{self.baseclass}' does not allow a bitstream value")
         if self.baseclass in self.baseclasses_with_bitstream and bitstream:
             self._bitstream = bitstream
         else:
@@ -124,7 +124,7 @@ class ResourceInstance(Model):
                         for val in value:
                             # check if cardinality allows multiple values for a property
                             if cardinality == Cardinality.C_0_1 or cardinality == Cardinality.C_1:
-                                raise BaseError(f"ERROR Ontology does not allow multiple values for '{property_name}'!")
+                                raise BaseError(f"ERROR in resource with label '{self._label}': Ontology does not allow multiple values for '{property_name}'")
 
                             if type(val) is Value:
                                 self._values[property_name].append(val)
@@ -156,11 +156,11 @@ class ResourceInstance(Model):
                                 self._values[property_name] = value_type(value)
                 else:
                     if cardinality == Cardinality.C_1 or cardinality == Cardinality.C_1_n:
-                        raise BaseError(f"ERROR The ontology does require at least one value for '{property_name}'!")
+                        raise BaseError(f"ERROR in resource with label '{self._label}': The ontology requires at least one value for '{property_name}'")
 
             for property_name in values:
                 if property_name not in self.knora_properties and not self.properties.get(property_name):
-                    raise BaseError(f"ERROR Property '{property_name}' is not part of ontology!")
+                    raise BaseError(f"ERROR in resource with label '{self._label}': Property '{property_name}' is not part of ontology")
 
     def value(self, item) -> Optional[list[Value]]:
         if self._values.get(item):

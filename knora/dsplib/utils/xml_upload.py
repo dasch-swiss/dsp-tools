@@ -518,16 +518,16 @@ def _upload_resources(
         # create the resource in DSP
         resclass_type = resclass_name_2_type[resource.restype]
         properties = resource.get_propvals(id2iri_mapping, permissions_lookup)
-        resource_instance: ResourceInstance = resclass_type(
-            con=con,
-            label=resource.label,
-            iri=resource_iri,
-            permissions=permissions_lookup.get(resource.permissions),  # type: ignore
-            creation_date=resource.creation_date,
-            bitstream=resource_bitstream,
-            values=properties
-        )
         try:
+            resource_instance: ResourceInstance = resclass_type(
+                con=con,
+                label=resource.label,
+                iri=resource_iri,
+                permissions=permissions_lookup.get(resource.permissions),  # type: ignore
+                creation_date=resource.creation_date,
+                bitstream=resource_bitstream,
+                values=properties
+            )
             resource_creation_start = datetime.now()
             created_resource: ResourceInstance = try_network_action(
                 action=lambda: resource_instance.create(),

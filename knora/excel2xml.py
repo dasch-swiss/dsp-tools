@@ -16,6 +16,7 @@ from lxml.builder import E
 
 from knora.dsplib.models.helpers import BaseError, DateTimeStamp
 from knora.dsplib.models.propertyelement import PropertyElement
+from knora.dsplib.models.value import UriValue
 from knora.dsplib.utils.shared import simplify_name, check_notna, validate_xml_against_schema
 
 xml_namespace_map = {
@@ -1339,10 +1340,9 @@ def make_uri_prop(
 
     # check value type
     for val in values:
-        # URI = scheme ":" ["//" host [":" port]] path ["?" query] ["#" fragment]
-        if not regex.search(
-            r"(?<scheme>[a-z][a-z0-9+.\-]*):(//(?<host>[\w_.\-\[\]:~]+)(?<port>:\d{0,6})?)(?<path>/[\p{L}%()_\-.~]*)*"
-            r"(?<query>\?[\p{L}_.\-=]+)*(?<fragment>#[\p{L}_/\-~:.]*)?", str(val.value), flags=regex.UNICODE):
+        try:
+            UriValue(str(val.value))
+        except BaseError:
             raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
                             f"'{val.value}' is not a valid URI.")
 

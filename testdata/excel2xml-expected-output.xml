@@ -3,26 +3,26 @@
     <permissions id="res-default">
         <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
-        <allow group="Creator">CR</allow>
+        <allow group="ProjectMember">D</allow>
         <allow group="ProjectAdmin">CR</allow>
+        <allow group="Creator">CR</allow>
     </permissions>
     <permissions id="res-restricted">
-        <allow group="UnknownUser">RV</allow>
-        <allow group="KnownUser">V</allow>
-        <allow group="Creator">CR</allow>
+        <allow group="ProjectMember">M</allow>
         <allow group="ProjectAdmin">CR</allow>
+        <allow group="Creator">CR</allow>
     </permissions>
     <permissions id="prop-default">
         <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
-        <allow group="Creator">CR</allow>
+        <allow group="ProjectMember">D</allow>
         <allow group="ProjectAdmin">CR</allow>
+        <allow group="Creator">CR</allow>
     </permissions>
     <permissions id="prop-restricted">
-        <allow group="UnknownUser">RV</allow>
-        <allow group="KnownUser">V</allow>
-        <allow group="Creator">CR</allow>
+        <allow group="ProjectMember">M</allow>
         <allow group="ProjectAdmin">CR</allow>
+        <allow group="Creator">CR</allow>
     </permissions>
     <resource label="Homer" restype=":Person" id="person_0" permissions="res-default" creation_date="1999-12-31T23:59:59.9999999+01:00">
         <text-prop name=":hasName">

@@ -3,14 +3,14 @@ version: '3.7'
 services:
 
   app:
-    image: daschswiss/dsp-app:v10.11.0-11-g4356dea  # after every deployment (fortnightly), check latest tag at https://hub.docker.com/r/daschswiss/dsp-app/tags
+    image: daschswiss/dsp-app:v10.11.1  # after every deployment (fortnightly), check latest tag at https://hub.docker.com/r/daschswiss/dsp-app/tags
     ports:
       - "4200:4200"
     networks:
       - knora-net
 
   db:
-    image: daschswiss/apache-jena-fuseki:2.0.10  # after every deployment (fortnightly), check latest tag at https://hub.docker.com/r/daschswiss/apache-jena-fuseki/tags
+    image: daschswiss/apache-jena-fuseki:2.0.8  # after every deployment (fortnightly), check latest tag at https://hub.docker.com/r/daschswiss/apache-jena-fuseki/tags
     ports:
       - "3030:3030"
     networks:

@@ -8,21 +8,27 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dsp-tools"
-version = "1.21.0"
+version = "1.22.0"
 authors = [
     {name="DaSCH - Swiss National Data and Service Center for the Humanities", email="info@dasch.swiss"},
 ]
-description = "A Python library and tools for the DaSCH Service Platform"
-readme = "README.md"
+description = "DSP-TOOLS is a Python package with a command line interface that helps you interact with a DaSCH service platform (DSP) server."
+readme = "docs/index.md"
 requires-python = ">=3.9.0"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
 ]
+entry-points = {
+        "console_scripts": ["dsp-tools=knora.dsp_tools:main"],
+    }
+license = "GPLv3" must be a table
+urls = "Homepage" = "https://github.com/dasch-swiss/dsp-tools"
+"Documentation" = "https://docs.dasch.swiss/latest/DSP-TOOLS/"
 
 
-# are the dependencies needed here?
+# are the dependencies needed here? it's sure that they are allowed here.
 dependencies = [
     'argparse~=1.4.0',
     "attrs~=22.1.0; python_version >= '3.5'",
@@ -54,6 +60,7 @@ dependencies = [
 
 [project.urls]
 "Homepage" = "https://github.com/dasch-swiss/dsp-tools"
+"Documentation" = "https://docs.dasch.swiss/latest/DSP-TOOLS/"
 
 [tool.autopep8]
 max_line_length = 180

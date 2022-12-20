@@ -37,7 +37,6 @@ def start_stack(
     commit_of_used_api_version = "3f44354df"
     url_prefix = f"https://github.com/dasch-swiss/dsp-api/raw/{commit_of_used_api_version}/"
     docker_config_lua_text = requests.get(f"{url_prefix}sipi/config/sipi.docker-config.lua").text
-    #docker_config_lua_text = docker_config_lua_text.replace("0.0.0.0", "localhost")
     if max_file_size:
         max_post_size_regex = r"max_post_size ?= ?[\'\"]\d+M[\'\"]"
         if not re.search(max_post_size_regex, docker_config_lua_text):

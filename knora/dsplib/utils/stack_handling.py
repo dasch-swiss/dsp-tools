@@ -1,4 +1,3 @@
-import json
 import re
 import subprocess
 import time
@@ -35,8 +34,8 @@ def start_stack(
         raise BaseError('The arguments "--prune" and "--no-prune" are mutually exclusive')
 
     # get sipi.docker-config.lua
-    latest_release = json.loads(requests.get("https://api.github.com/repos/dasch-swiss/dsp-api/releases").text)[0]
-    url_prefix = f"https://github.com/dasch-swiss/dsp-api/raw/{latest_release['target_commitish']}/"
+    commit_of_used_api_version = "3f44354df"
+    url_prefix = f"https://github.com/dasch-swiss/dsp-api/raw/{commit_of_used_api_version}/"
     docker_config_lua_text = requests.get(f"{url_prefix}sipi/config/sipi.docker-config.lua").text
     if max_file_size:
         max_post_size_regex = r"max_post_size ?= ?[\'\"]\d+M[\'\"]"
@@ -96,7 +95,7 @@ def start_stack(
 
     # startup all other components
     subprocess.run("docker compose up -d", shell=True, cwd=docker_path)
-    print("DSP-API is now running on http://localhost:3333/ and DSP-APP on http://localhost:4200/")
+    print("DSP-API is now running on http://0.0.0.0:3333/ and DSP-APP on http://0.0.0.0:4200/")
 
     # docker system prune
     if enforce_docker_system_prune:

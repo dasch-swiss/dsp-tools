@@ -274,7 +274,6 @@ Here's an overview of the two ways:
 | target group                | researchers, RDU employees  | developers of DSP-API or DSP-APP                                         |
 | how it works                | run `dsp-tools start-stack` | execute commands from within locally cloned DSP-API/DSP-APP repositories |
 | software dependencies       | Docker, Python, dsp-tools   | XCode command line tools, Docker, sbt, Java, Angular, node, yarn         |
-| OS                          | Windows, Mac OS, Linux      | Mac OS, Linux                                                            |
 | mechanism in the background | run pre-built Docker images | build DSP-API and DSP-APP from a branch in the repository                |
 | available versions          | latest released version     | any branch, or locally modified working tree                             |
 | caveats                     |                             | dependencies must be kept up to date                                     |

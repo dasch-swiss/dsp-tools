@@ -34,9 +34,8 @@ def start_stack(
         raise BaseError('The arguments "--prune" and "--no-prune" are mutually exclusive')
 
     # get sipi.docker-config.lua
-    # latest_release = json.loads(requests.get("https://api.github.com/repos/dasch-swiss/dsp-api/releases").text)[0]
-    # url_prefix = f"https://github.com/dasch-swiss/dsp-api/raw/{latest_release['target_commitish']}/"
-    url_prefix = "https://github.com/dasch-swiss/dsp-api/raw/3f44354df/"
+    commit_of_used_api_version = "3f44354df"
+    url_prefix = f"https://github.com/dasch-swiss/dsp-api/raw/{commit_of_used_api_version}/"
     docker_config_lua_text = requests.get(f"{url_prefix}sipi/config/sipi.docker-config.lua").text
     docker_config_lua_text = docker_config_lua_text.replace("0.0.0.0", "localhost")
     if max_file_size:

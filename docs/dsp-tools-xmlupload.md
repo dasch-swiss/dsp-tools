@@ -46,12 +46,12 @@ The `<knora>` element can only contain the following sub-elements:
 - `<resource>`
 
 
-## The DSP permission system
+## The DSP permissions
 
 The DSP server provides access control for every resource and every property.
 
 
-#### Groups
+### Groups
 
 The user doesn't hold the permissions directly, but belongs to an arbitrary number of groups which hold the
 permissions. There are **built-in groups** and **project specific groups**:
@@ -67,7 +67,7 @@ permissions. There are **built-in groups** and **project specific groups**:
      - can be defined in the [JSON project file](./dsp-tools-create.md#groups)
 
 
-#### Rights
+### Rights
 
 A group can have exactly one of these rights:
 
@@ -81,10 +81,10 @@ A group can have exactly one of these rights:
 Every right of this row includes all previous rights.
 
 
-### &lt;permissions&gt; element
+### Defining permissions with the &lt;permissions&gt; element
 
 The `<permissions>` element defines a _permission ID_ that can subsequently be used in a 
-[permissions attribute](#the-permissions-attribute-in-resourcesproperties) of a `<resource>` or `<xyz-prop>` tag.
+[permissions attribute](#using-permissions-with-the-permissions-attribute) of a `<resource>` or `<xyz-prop>` tag.
 
 It is optional to define permissions in the XML. If not defined, default permissions are applied, so that only project 
 and system administrators can view and edit resources. All other users have no rights at all, not even view or 
@@ -113,44 +113,11 @@ permission `special-permission` can only be viewed by `ProjectAdmin`s:
 ```
 
 
-### Example of a permissions section
+### Using permissions with the `permissions` attribute
 
-A complete `<permissions>` section may look as follows:
-
-```
-<permissions id="res-default">
-    <allow group="UnknownUser">V</allow>
-    <allow group="KnownUser">V</allow>
-    <allow group="ProjectMember">D</allow>
-    <allow group="ProjectAdmin">CR</allow>
-    <allow group="Creator">CR</allow>
-</permissions>
-<permissions id="res-restricted">
-    <allow group="ProjectMember">M</allow>
-    <allow group="ProjectAdmin">CR</allow>
-    <allow group="Creator">CR</allow>
-</permissions>
-<permissions id="prop-default">
-    <allow group="UnknownUser">V</allow>
-    <allow group="KnownUser">V</allow>
-    <allow group="ProjectMember">D</allow>
-    <allow group="ProjectAdmin">CR</allow>
-    <allow group="Creator">CR</allow>
-</permissions>
-<permissions id="prop-restricted">
-    <allow group="ProjectMember">M</allow>
-    <allow group="ProjectAdmin">CR</allow>
-    <allow group="Creator">CR</allow>
-</permissions>
-```
-
-
-### The `permissions` attribute in resources/properties
-
-The permission IDs of the above example can now be used as `permissions` attribute in the `<resource>` and 
-`<xyz-prop>` tags. It is important to note that a resource doesn't inherit its permissions to its properties. 
-Each property must have its own permissions. So, in the following example, the bitstreams don't inherit the permissions 
-from their resource:
+Once defined, the permission IDs can be used as `permissions` attribute in the `<resource>` and `<xyz-prop>` tags. It is 
+important to note that a resource doesn't inherit its permissions to its properties. Each property must have its own 
+permissions. So, in the following example, the bitstreams don't inherit the permissions from their resource:
 
 ```
 <resource ...>
@@ -661,10 +628,10 @@ The `<text>` element has the following attributes:
 For the possible combinations of `encoding` with the `gui_element` [defined in the ontology](dsp-tools-create-ontologies.md#textvalue), 
 see the table: 
 
-| `gui_element` (JSON ontology) | `encoding` (XML data) | How DSP-APP renders the whitespaces                                                                                          |
-|-------------------------------|-----------------------|------------------------------------------------------------------------------------------------------------------------------|
-| `SimpleText`                  | `utf8`                | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                |
-| `Textarea`                    | `utf8`                | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                |
+| `gui_element` (JSON ontology) | `encoding` (XML data) | How DSP-APP renders the whitespaces                                                                                            |
+|-------------------------------|-----------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| `SimpleText`                  | `utf8`                | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                  |
+| `Textarea`                    | `utf8`                | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                  |
 | `Richtext`                    | `xml`                 | Pretty-print whitespaces and newlines from the XML are removed. If you want a newline in the text field, use `<br />` instead. |
 
 Example of a public and a hidden text:
@@ -878,13 +845,11 @@ file should be kept if data is later added with the `--incremental` option.
 To do an incremental XML upload, one of the following procedures is recommended.
 
 - Incremental XML upload with use of internal IDs:
-
-1. Initial XML upload with internal IDs.
-2. The file `id2iri_mapping_[timestamp].json` is created.
-3. Create new XML file(s) with resources referencing other resources by their internal IDs in `<resptr>` (using the same IDs as in the initial XML upload).
-4. Run `dsp-tools id2iri new_data.xml id2iri_mapping_[timestamp].json` to replace the internal IDs in `new_data.xml` with IRIs. Only internal IDs inside the `<resptr>` tag are replaced.
-5. Run `dsp-tools xmlupload --incremental new_data.xml` to upload the data to DSP.
-
+     1. Initial XML upload with internal IDs.
+     2. The file `id2iri_mapping_[timestamp].json` is created.
+     3. Create new XML file(s) with resources referencing other resources by their internal IDs in `<resptr>` (using the same IDs as in the initial XML upload).
+     4. Run `dsp-tools id2iri new_data.xml id2iri_mapping_[timestamp].json` to replace the internal IDs in `new_data.xml` with IRIs. Only internal IDs inside the `<resptr>` tag are replaced.
+     5. Run `dsp-tools xmlupload --incremental new_data.xml` to upload the data to DSP.
 - Incremental XML Upload with the use of IRIs: Use IRIs in the XML to reference existing data on the DSP server.
 
 

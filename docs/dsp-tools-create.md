@@ -186,7 +186,7 @@ The `groups` object contains **project specific** group definitions. As opposed 
 can be freely chosen by the `ProjectAdmin`. A project may define several groups such as "student-assistant", 
 "editors", etc. in order to provide their members specific permissions.
 The groups that were created here are then available in the XML file in the 
-[&lt;permissions&gt; element](dsp-tools-xmlupload.md#permissions-element).
+[&lt;permissions&gt; element](dsp-tools-xmlupload.md#defining-permissions-with-the-ltpermissionsgt-element).
 
 A project specific group definition has the following elements:
 

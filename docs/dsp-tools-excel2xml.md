@@ -88,7 +88,7 @@ otherwise, all resources and properties get these permissions.
 
 With `excel2xml`, it is not possible to create resources/properties that don't have permissions, because they would be 
 invisible for all users except project admins and system admins. [Read more about permissions 
-here](./dsp-tools-xmlupload.md#how-to-use-the-permissions-attribute-in-resourcesproperties).
+here](./dsp-tools-xmlupload.md#using-permissions-with-the-permissions-attribute).
 
 
 ## 4. Create list mappings

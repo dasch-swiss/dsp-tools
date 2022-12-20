@@ -37,7 +37,7 @@ def start_stack(
     commit_of_used_api_version = "3f44354df"
     url_prefix = f"https://github.com/dasch-swiss/dsp-api/raw/{commit_of_used_api_version}/"
     docker_config_lua_text = requests.get(f"{url_prefix}sipi/config/sipi.docker-config.lua").text
-    docker_config_lua_text = docker_config_lua_text.replace("0.0.0.0", "localhost")
+    #docker_config_lua_text = docker_config_lua_text.replace("0.0.0.0", "localhost")
     if max_file_size:
         max_post_size_regex = r"max_post_size ?= ?[\'\"]\d+M[\'\"]"
         if not re.search(max_post_size_regex, docker_config_lua_text):
@@ -54,7 +54,7 @@ def start_stack(
     # wait until fuseki is up (same behaviour as dsp-api/webapi/scripts/wait-for-db.sh)
     for i in range(360):
         try:
-            response = requests.get(url="http://localhost:3030/$/server", auth=("admin", "test"))
+            response = requests.get(url="http://0.0.0.0:3030/$/server", auth=("admin", "test"))
             if response.ok:
                 break
         except:
@@ -65,7 +65,7 @@ def start_stack(
     repo_template = requests.get(f"{url_prefix}webapi/scripts/fuseki-repository-config.ttl.template").text
     repo_template = repo_template.replace("@REPOSITORY@", "knora-test")
     response = requests.post(
-        url="http://localhost:3030/$/datasets",
+        url="http://0.0.0.0:3030/$/datasets",
         files={"file": ("file.ttl", repo_template, "text/turtle; charset=utf8")},
         auth=("admin", "test")
     )
@@ -74,7 +74,7 @@ def start_stack(
                         "running already?")
 
     # load some basic ontos and data into the repository
-    graph_prefix = "http://localhost:3030/knora-test/data?graph="
+    graph_prefix = "http://0.0.0.0:3030/knora-test/data?graph="
     ttl_files = [
         ("knora-ontologies/knora-admin.ttl", "http://www.knora.org/ontology/knora-admin"),
         ("knora-ontologies/knora-base.ttl", "http://www.knora.org/ontology/knora-base"),
@@ -96,7 +96,7 @@ def start_stack(
 
     # startup all other components
     subprocess.run("docker compose up -d", shell=True, cwd=docker_path)
-    print("DSP-API is now running on http://localhost:3333/ and DSP-APP on http://localhost:4200/")
+    print("DSP-API is now running on http://0.0.0.0:3333/ and DSP-APP on http://0.0.0.0:4200/")
 
     # docker system prune
     if enforce_docker_system_prune:

@@ -39,7 +39,7 @@ def program(user_args: list[str]) -> None:
     verbose_text = 'Verbose feedback'
 
     # default values
-    default_localhost = 'http://localhost:3333'
+    default_localhost = 'http://0.0.0.0:3333'
     default_user = 'root@example.com'
     default_pw = 'test'
     dsp_tools_version = version('dsp-tools')
@@ -85,7 +85,7 @@ def program(user_args: list[str]) -> None:
     parser_upload.add_argument('-V', '--validate', action='store_true',
                                help='Do only validation of XML, no upload of the data')
     parser_upload.add_argument('-i', '--imgdir', type=str, default='.', help='Path to folder containing the images')
-    parser_upload.add_argument('-S', '--sipi', type=str, default='http://localhost:1024', help='URL of SIPI server')
+    parser_upload.add_argument('-S', '--sipi', type=str, default='http://0.0.0.0:1024', help='URL of SIPI server')
     parser_upload.add_argument('-v', '--verbose', action='store_true', help=verbose_text)
     parser_upload.add_argument('-I', '--incremental', action='store_true', help='Incremental XML upload')
     parser_upload.add_argument('-m', '--metrics', action='store_true', help='Write metrics into a "metrics" folder in '

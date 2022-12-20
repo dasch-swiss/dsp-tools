@@ -1,4 +1,3 @@
-import json
 import re
 import subprocess
 import time
@@ -35,9 +34,11 @@ def start_stack(
         raise BaseError('The arguments "--prune" and "--no-prune" are mutually exclusive')
 
     # get sipi.docker-config.lua
-    latest_release = json.loads(requests.get("https://api.github.com/repos/dasch-swiss/dsp-api/releases").text)[0]
-    url_prefix = f"https://github.com/dasch-swiss/dsp-api/raw/{latest_release['target_commitish']}/"
+    # latest_release = json.loads(requests.get("https://api.github.com/repos/dasch-swiss/dsp-api/releases").text)[0]
+    # url_prefix = f"https://github.com/dasch-swiss/dsp-api/raw/{latest_release['target_commitish']}/"
+    url_prefix = "https://github.com/dasch-swiss/dsp-api/raw/3f44354df/"
     docker_config_lua_text = requests.get(f"{url_prefix}sipi/config/sipi.docker-config.lua").text
+    docker_config_lua_text = docker_config_lua_text.replace("0.0.0.0", "localhost")
     if max_file_size:
         max_post_size_regex = r"max_post_size ?= ?[\'\"]\d+M[\'\"]"
         if not re.search(max_post_size_regex, docker_config_lua_text):
@@ -54,7 +55,7 @@ def start_stack(
     # wait until fuseki is up (same behaviour as dsp-api/webapi/scripts/wait-for-db.sh)
     for i in range(360):
         try:
-            response = requests.get(url="http://0.0.0.0:3030/$/server", auth=("admin", "test"))
+            response = requests.get(url="http://localhost:3030/$/server", auth=("admin", "test"))
             if response.ok:
                 break
         except:
@@ -65,7 +66,7 @@ def start_stack(
     repo_template = requests.get(f"{url_prefix}webapi/scripts/fuseki-repository-config.ttl.template").text
     repo_template = repo_template.replace("@REPOSITORY@", "knora-test")
     response = requests.post(
-        url="http://0.0.0.0:3030/$/datasets",
+        url="http://localhost:3030/$/datasets",
         files={"file": ("file.ttl", repo_template, "text/turtle; charset=utf8")},
         auth=("admin", "test")
     )
@@ -74,7 +75,7 @@ def start_stack(
                         "running already?")
 
     # load some basic ontos and data into the repository
-    graph_prefix = "http://0.0.0.0:3030/knora-test/data?graph="
+    graph_prefix = "http://localhost:3030/knora-test/data?graph="
     ttl_files = [
         ("knora-ontologies/knora-admin.ttl", "http://www.knora.org/ontology/knora-admin"),
         ("knora-ontologies/knora-base.ttl", "http://www.knora.org/ontology/knora-base"),

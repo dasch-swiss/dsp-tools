@@ -140,7 +140,7 @@ to use this file to replace internal IDs in an existing XML file to reference ex
 dsp-tools excel2json data_model_files project.json
 ```
 
-The expected file and folder structures are described [here](./dsp-tools-excel2json.md#json-project-file-from-excel).
+The expected file and folder structures are described [here](./dsp-tools-excel2json.md).
 
 
 

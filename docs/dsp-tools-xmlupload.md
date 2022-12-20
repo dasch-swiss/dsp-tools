@@ -46,16 +46,30 @@ The `<knora>` element can only contain the following sub-elements:
 - `<resource>`
 
 
-## Describing permissions with &lt;permissions&gt; elements
+## The DSP permissions
 
-The DSP server provides access control for each resource and each field of a resource through permissions. For a
-thorough explanation of the permission and access system of DSP, see
-[DSP permissions](https://docs.dasch.swiss/latest/DSP-API/02-knora-ontologies/knora-base/#permissions).
+The DSP server provides access control for every resource and every property.
 
-It is optional to define permissions in the XML. If not defined, default permissions are applied, so that only project and 
-system administrators can view and edit resources. All other users have no rights at all, not even view or restricted view permissions.
 
-The following access rights are defined by DSP:
+### Groups
+
+The user doesn't hold the permissions directly, but belongs to an arbitrary number of groups which hold the
+permissions. There are **built-in groups** and **project specific groups**:
+
+ - **Built-in groups**: Every user is automatically in at least one of the following built-in groups:
+     - `UnknownUser`: The user is not known to DSP (not logged in).
+     - `KnownUser`: The user is logged in, but not a member of the project the data element belongs to.
+     - `ProjectMember`: The user belongs to the same project as the data element.
+     - `ProjectAdmin`: The user is project administrator in the project the data element belongs to.
+     - `Creator`: The user is the owner of the element (created the element).
+     - `SystemAdmin`: The user is a system administrator.
+ - **Project specific groups**: 
+     - can be defined in the [JSON project file](./dsp-tools-create.md#groups)
+
+
+### Rights
+
+A group can have exactly one of these rights:
 
 - (no right): If no permission is defined for a certain group of users, these users cannot view any resources/values.
 - `RV` _restricted view permission_: Same as `V`, but if it is applied to an image, the image is shown with a reduced resolution or with a watermark overlay.
@@ -64,32 +78,30 @@ The following access rights are defined by DSP:
 - `D` _delete permission_: The user is allowed to mark an element as deleted. The original resource or value will be preserved.
 - `CR` _change right permission_: The user can change the permission of a resource or value. The user is also allowed to permanently delete (erase) a resource.
 
-The user does not hold the permissions directly, but belongs to an arbitrary number of groups which hold the
-permissions. By default, the following groups always exist, and each user belongs to at least one of them:
+Every right of this row includes all previous rights.
 
-- `UnknownUser`: The user is not known to DSP (not logged in).
-- `KnownUser`: The user is known (logged in), but is not a member of the project the data element belongs to.
-- `ProjectMember`: The user belongs to the same project as the data element.
-- `ProjectAdmin`: The user is project administrator in the project the data element belongs to.
-- `Creator`: The user is the owner of the element (created the element).
-- `SystemAdmin`: The user is a system administrator.
 
-In addition, more groups with arbitrary names can be created by a project admin. See [here](dsp-tools-create.md#groups) 
-how to create a group in an ontology JSON file. For referencing a group, the project name has to be prepended to the 
-group name, separated by a colon, e.g. `dsp-test:MlsEditors`.
+### Defining permissions with the &lt;permissions&gt; element
 
-A `<permissions>` element contains the permissions given to the selected groups and is called a _permission set_. It has
-a mandatory attribute `id` and must contain at least one `<allow>` element:
+The `<permissions>` element defines a _permission ID_ that can subsequently be used in a 
+[permissions attribute](#using-permissions-with-the-permissions-attribute) of a `<resource>` or `<xyz-prop>` tag.
+
+It is optional to define permissions in the XML. If not defined, default permissions are applied, so that only project 
+and system administrators can view and edit resources. All other users have no rights at all, not even view or 
+restricted view permissions.
+
+The `<permissions>` element defines which rights are given to which groups:
 
 ```xml
 <permissions id="res-default">
   <allow group="UnknownUser">RV</allow>
   <allow group="KnownUser">V</allow>
-  <allow group="ProjectAdmin">CR</allow>
-  <allow group="Creator">CR</allow>
   <allow group="dsp-test:MlsEditors">D</allow>
 </permissions>
 ```
+
+In addition to the DSP built-in groups, [project specific groups](./dsp-tools-create.md#groups) are supported as well.
+A project specific group name has the form `project-shortname:groupname`.
 
 If you don't want a group to have access at all, leave it out. In the following example, resources or properties with 
 permission `special-permission` can only be viewed by `ProjectAdmin`s:
@@ -100,102 +112,31 @@ permission `special-permission` can only be viewed by `ProjectAdmin`s:
 </permissions>
 ```
 
-Note: The permissions defined in the XML are applied to resources that are created. But only project or system 
-administrators have the permission to create resources via the XML upload.
 
+### Using permissions with the `permissions` attribute
 
-### The &lt;allow&gt; sub-element
-
-The `<allow>` element is used to define the permission for a specific group. It is of the following form:
-
-```xml
-<allow group="ProjectAdmin">CR</allow>
-```
-
-The values `CR` etc. are described above.
-
-The `group` attribute is mandatory. It defines the group which the permission is applied to. In addition to the DSP 
-system groups, project specific groups are supported as well. A project specific group name has the form 
-`project-shortname:groupname`. The available system groups are described above. 
-
-There are no sub-elements allowed for the `<allow>` element.
-
-
-### Example of a permissions section
-
-A complete `<permissions>` section may look as follows:
-
-```xml
-<knora
-    xmlns="https://dasch.swiss/schema"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/data.xsd"
-    shortcode="0806"
-    default-ontology="webern">
-  
-  <permissions id="res-default">
-    <allow group="UnknownUser">RV</allow>
-    <allow group="KnownUser">V</allow>
-    <allow group="Creator">CR</allow>
-    <allow group="ProjectAdmin">CR</allow>
-  </permissions>
-  
-  <permissions id="res-restricted">
-    <allow group="KnownUser">V</allow>
-    <allow group="Creator">CR</allow>
-    <allow group="ProjectAdmin">CR</allow>
-  </permissions>
-  
-  <permissions id="prop-default">
-    <allow group="UnknownUser">V</allow>
-    <allow group="KnownUser">V</allow>
-    <allow group="Creator">CR</allow>
-    <allow group="ProjectAdmin">CR</allow>
-  </permissions>
-  
-  <permissions id="prop-restricted">
-    <allow group="KnownUser">RV</allow>
-    <allow group="Creator">CR</allow>
-    <allow group="ProjectAdmin">CR</allow>
-  </permissions>
-  ...
-</knora>
-```
-
-
-### How to use the `permissions` attribute in resources/properties
-
-Based on the permissions section of the above example, there are different ways how to grant permissions to a resource
-and its properties. It is important to note that a resource doesn't inherit its permissions to its properties. Each 
-property must have its own permissions. So, in the following example, the bitstreams don't inherit the permissions from their 
-resource:
+Once defined, the permission IDs can be used as `permissions` attribute in the `<resource>` and `<xyz-prop>` tags. It is 
+important to note that a resource doesn't inherit its permissions to its properties. Each property must have its own 
+permissions. So, in the following example, the bitstreams don't inherit the permissions from their resource:
 
 ```
 <resource ...>
-    <bitstream permissions="prop-default">
-        postcards/images/EURUS015a.jpg
-    </bitstream>
+    <bitstream permissions="prop-default">images/EURUS015a.jpg</bitstream>
 </resource>
 <resource ...>
-    <bitstream permissions="prop-restricted">
-        postcards/images/EURUS015a.jpg
-    </bitstream>
+    <bitstream permissions="prop-restricted">images/EURUS015a.jpg</bitstream>
 </resource>
 <resource ...>
-    <bitstream>
-        postcards/images/EURUS015a.jpg
-    </bitstream>
+    <bitstream>images/EURUS015a.jpg</bitstream>
 </resource>
 ```
 
-To take `KnownUser` as example:
+To take as example `KnownUser`, i.e. a logged-in user who is not member of the project:
 
- - With `permissions="prop-default"`, a logged-in user who is not member of the project (`KnownUser`) has `V` rights 
-   on the image: Normal view.
- - With `permissions="prop-restricted"`, a logged-in user who is not member of the project (`KnownUser`) has `RV` 
-   rights on the image: Blurred image.
- - With a blank `<bitstream>` tag, a logged-in user who is not member of the project (`KnownUser`) has no rights on 
-   the image: No view possible. Only users from `ProjectAdmin` upwards are able to look at the image.
+ - With `permissions="prop-default"`, he has `V` rights on the image: Normal view.
+ - With `permissions="prop-restricted"`, he has `RV` rights on the image: Blurred image.
+ - With a blank `<bitstream>` tag, he has no rights on the image: No view possible. Only users from `ProjectAdmin` 
+   upwards are able to look at the image.
 
 
 ## Describing resources with the &lt;resource&gt; element
@@ -207,7 +148,7 @@ A `<resource>` element contains all necessary information to create a resource. 
 - `id` (required): a unique, arbitrary string providing a unique ID to the resource in order to be referencable by other 
   resources; the ID is only used during the import process and later replaced by the IRI used internally by DSP 
 - `permissions` (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not 
-  even view rights): a reference to a permission set; the permissions will be applied to the created resource 
+  even view rights): a reference to a permission ID
 - `iri` (optional): a custom IRI, used when migrating existing resources (DaSCH-internal only)
 - `ark` (optional): a version 0 ARK, used when migrating existing resources. It is not possible 
   to use `iri` and `ark` in the same resource. When `ark` is used, it overrides `iri` (DaSCH-internal only).
@@ -687,10 +628,10 @@ The `<text>` element has the following attributes:
 For the possible combinations of `encoding` with the `gui_element` [defined in the ontology](dsp-tools-create-ontologies.md#textvalue), 
 see the table: 
 
-| `gui_element` (JSON ontology) | `encoding` (XML data) | How DSP-APP renders the whitespaces                                                                                          |
-|-------------------------------|-----------------------|------------------------------------------------------------------------------------------------------------------------------|
-| `SimpleText`                  | `utf8`                | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                |
-| `Textarea`                    | `utf8`                | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                |
+| `gui_element` (JSON ontology) | `encoding` (XML data) | How DSP-APP renders the whitespaces                                                                                            |
+|-------------------------------|-----------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| `SimpleText`                  | `utf8`                | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                  |
+| `Textarea`                    | `utf8`                | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                  |
 | `Richtext`                    | `xml`                 | Pretty-print whitespaces and newlines from the XML are removed. If you want a newline in the text field, use `<br />` instead. |
 
 Example of a public and a hidden text:
@@ -904,17 +845,23 @@ file should be kept if data is later added with the `--incremental` option.
 To do an incremental XML upload, one of the following procedures is recommended.
 
 - Incremental XML upload with use of internal IDs:
-
-1. Initial XML upload with internal IDs.
-2. The file `id2iri_mapping_[timestamp].json` is created.
-3. Create new XML file(s) with resources referencing other resources by their internal IDs in `<resptr>` (using the same IDs as in the initial XML upload).
-4. Run `dsp-tools id2iri new_data.xml id2iri_mapping_[timestamp].json` to replace the internal IDs in `new_data.xml` with IRIs. Only internal IDs inside the `<resptr>` tag are replaced.
-5. Run `dsp-tools xmlupload --incremental new_data.xml` to upload the data to DSP.
-
+     1. Initial XML upload with internal IDs.
+     2. The file `id2iri_mapping_[timestamp].json` is created.
+     3. Create new XML file(s) with resources referencing other resources by their internal IDs in `<resptr>` (using the same IDs as in the initial XML upload).
+     4. Run `dsp-tools id2iri new_data.xml id2iri_mapping_[timestamp].json` to replace the internal IDs in `new_data.xml` with IRIs. Only internal IDs inside the `<resptr>` tag are replaced.
+     5. Run `dsp-tools xmlupload --incremental new_data.xml` to upload the data to DSP.
 - Incremental XML Upload with the use of IRIs: Use IRIs in the XML to reference existing data on the DSP server.
 
 
 ## Complete example
+
+DaSCH provides you with two example repositories that contain everything which is necessary to create a project and 
+upload data. Both of them also contain an XML data file. You can find them here:
+
+- [https://github.com/dasch-swiss/0123-import-scripts](https://github.com/dasch-swiss/0123-import-scripts)
+- [https://github.com/dasch-swiss/082E-rosetta-scripts](https://github.com/dasch-swiss/082E-rosetta-scripts)
+
+In addition, there is another complete example of an XML data file here:
 
 ```xml
 <?xml version='1.0' encoding='utf-8'?>

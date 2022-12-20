@@ -39,13 +39,13 @@ A complete project definition looks like this:
       "example",
       "simple"
     ],
-    "lists": [
-      ...
-    ],
     "groups": [
       ...
     ],
     "users": [
+      ...
+    ],
+    "lists": [
       ...
     ],
     "ontologies": [
@@ -99,8 +99,7 @@ The `$schema` object refers to the JSON schema for DSP data model definitions an
 
 `"project": {"key": "<value>", ...}`
 
-The `project` object contains all resources and properties of the ontology as well as some information about the
-project. It requires all the following data fields:
+The `project` object contains the basic metadata about the project. The following fields are required:
 
 - shortcode
 - shortname
@@ -119,7 +118,7 @@ The following fields are optional (if one or more of these fields are not used, 
 
 ## "project" object in detail
 
-In the following section all fields of the `project` object are explained in detail.
+In the following section, all fields of the `project` object are explained in detail.
 
 
 
@@ -129,7 +128,8 @@ In the following section all fields of the `project` object are explained in det
 
 `"shortcode": "<4-hex-characters>"`
 
-The shortcode has to be unique and is represented by a 4 digit hexadecimal string. The shortcode has to be provided by the DaSCH.
+The shortcode has to be unique and is represented by a 4 digit hexadecimal string. The shortcode has to be provided by 
+the DaSCH.
 
 
 
@@ -139,8 +139,8 @@ The shortcode has to be unique and is represented by a 4 digit hexadecimal strin
 
 `"shortname": "<string>"`
 
-The shortname has to be unique. It should be in the form of a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). This means a
-string without blanks or special characters but `-` and `_` are allowed (although not as first character).
+The shortname has to be unique. It should be in the form of a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). 
+This means a string without blanks or special characters but `-` and `_` are allowed (although not as first character).
 
 
 
@@ -160,8 +160,8 @@ The longname is a string that provides the full name of the project.
 
 `"descriptions": {"<lang>": "<string>", ...}`
 
-The description is represented as a collection of strings with language tags (currently "en", "de", "fr", "it", and "rm" are
-supported). It is the description of the project.
+The description is represented as a collection of strings with language tags (currently, "en", "de", "fr", "it", and 
+"rm" are supported). 
 
 
 
@@ -172,6 +172,101 @@ supported). It is the description of the project.
 `"keywords": ["<string>", "<string>", ...]`
 
 Keywords are represented as an array of strings and are used to describe and/or tag the project.
+
+
+
+### Groups
+
+(optional)
+
+`"groups": [<group-definition>, <group-definition>,...]`
+
+The `groups` object contains **project specific** group definitions. As opposed to the 
+[**built-in** groups](./dsp-tools-xmlupload.md#groups), the membership of the users to the project specific groups 
+can be freely chosen by the `ProjectAdmin`. A project may define several groups such as "student-assistant", 
+"editors", etc. in order to provide their members specific permissions.
+The groups that were created here are then available in the XML file in the 
+[&lt;permissions&gt; element](dsp-tools-xmlupload.md#defining-permissions-with-the-ltpermissionsgt-element).
+
+A project specific group definition has the following elements:
+
+- _name_ (mandatory): name of the group
+- _descriptions_ (mandatory): description of the group with language tags in the form `"descriptions": {"<lang>": 
+  "<string>", ...}` (currently, "en", "de", "fr", "it", and "rm" are supported)
+- _selfjoin_ (optional): true if users are allowed to join the group themselves, false (default) if a `ProjectAdmin` has 
+  to add them
+- _status_ (optional): true (default) if the group is active, false if the group is inactive
+
+Example:
+
+```json
+{
+  "groups": [
+    {
+      "name": "biz-editors",
+      "descriptions": {"en" : "Editors for the BiZ project"},
+      "selfjoin": false,
+      "status": true
+    }
+  ]
+}
+```
+
+
+
+### Users
+
+(optional)
+
+`"users": [<user-definition>, <user-definition>,...]`
+
+This object contains user definitions. A user has the following elements:
+
+- _username_: username used for login
+- _email_: email that identifies the user, has to be unique within DSP
+- _givenName_: first name of the user
+- _familyName_: surname of the user
+- _password_: password of the user
+- _lang_: the default language of the user: "en", "de", "fr", "it", "rm" (optional, default: "en")
+- _groups_ (optional): List of groups the user belongs to. The group names must be provided in one of the following forms:
+    - `other_project_shortname:groupname`
+    - `:groupname` (for groups defined in the current JSON project file)
+    - `SystemAdmin` (the most powerful group, built-in into DSP)
+- _projects_ (optional): List of projects the user belongs to. The project name has to be followed by a `:` and either 
+  `member` or `admin`. This indicates if the new user has admin rights in the given project or is an ordinary
+  user. `myproject:admin` would add the user as admin to the project `myproject`. The project defined in the same
+  JSON project file can be omitted, so only `:admin` or `:member` is enough. Note that in order to give a user `:admin` 
+  rights, he also needs to be a `:member` of the project.
+    - If _projects_ is omitted, the user won't be part in any project.
+- _status_ (optional): true (default) if the user is active, false if the user is deleted/inactive
+
+Example:
+
+```json
+{
+  "users": [
+    {
+      "username": "bizedit",
+      "email": "bizedit@test.org",
+      "givenName": "biz-given",
+      "familyName": "biz-family",
+      "password": "biz1234",
+      "lang": "en",
+      "groups": [
+        ":biz-editors",
+        "SystemAdmin"
+      ],
+      "projects": [
+        ":admin",
+        "otherProject:member"
+      ], 
+      "status": true
+    }
+  ]
+}
+```
+
+The `users` element is optional. If not used, it should be omitted.
 
 
 
@@ -188,9 +283,9 @@ return objects classified as "Song" and "Opera". But a search for "Song" would o
  
 The "lists" section is an array of list definitions. A list definition has one root node whose name is used to identify 
 the list. The children of the root node are the list nodes. If the list is hierarchical, the list nodes can have
-children, and these children can again have children etc.
+children, and these children can again have children, etc.
 
-When a list is defined for a project, its values can be referenced in resources within a list property, e.g. a property with 
+When a project defines a list, resources can use the list values by defining a list property, e.g. a property with 
 [object "ListValue"](./dsp-tools-create-ontologies.md#listvalue).
 
 A node of a list may have the following elements:
@@ -202,16 +297,16 @@ A node of a list may have the following elements:
   `{"<lang>": "<comment>", "<lang>": "<comment>", ... }`. Currently, "de", "en", "fr", "it", and "rm" are supported. 
 - `nodes` (optional): Array of sub-nodes.
 
-Example of a "lists" section:
+Example of a "lists" section that contains the two lists "color" and "category":
 
 ```json
 {
     "lists": [
         {
-            "name": "colors",
+            "name": "color",
             "labels": {
-                "de": "Farben",
-                "en": "Colors"
+                "de": "Farbe",
+                "en": "Color"
             },
             "comments": {
                 "de": "Eine Liste mit einigen Farben",
@@ -332,10 +427,10 @@ Example of a "lists" section:
                             ]
                         },
                         {
-                            "name": "plantes",
+                            "name": "plants",
                             "labels": {
                                 "de": "Pflanzen",
-                                "en": "Plantes"
+                                "en": "Plants"
                             }
                         },
                         {
@@ -366,16 +461,16 @@ Example of a "lists" section:
 
 Instead of being described in JSON, a list can be imported from one or several Excel files. In this case, the 
 `nodes` element of the root node consists of `{"folder": "<path-to-folder-containing-the-excel-files>"}`. In the above 
-example, the list "colors" could be imported as follows:
+example, the list "color" could be imported as follows:
 
 ```json
 {
     "lists": [
         {
-            "name": "colors",
+            "name": "color",
             "labels": {
-                "de": "Farben",
-                "en": "Colors"
+                "de": "Farbe",
+                "en": "Color"
             },
             "comments": {
                 "de": "Eine Liste mit einigen Farben",
@@ -407,102 +502,9 @@ To do so, it would be necessary to place the following two files into the folder
 ![Colors_en](./assets/images/img-list-english-colors.png){ width=50% }
 ![Farben_de](./assets/images/img-list-german-colors.png){ width=50% }
 
-The expected format of the Excel files is documented [here](./dsp-tools-excel2json.md#lists-section). The only difference to 
-the explanations there is that column A of the Excel worksheet is not interpreted as list name (root node), but as 
-node name of the first children level below the root node.
-
-
-
-### Groups
-
-(optional)
-
-`"groups": [<group-definition>, <group-definition>,...]`
-
-The `groups` object contains groups definitions. This is used to specify the permissions a user gets. A project may
-define several groups such as "project-admins", "editors" etc. in order to provide their members specific permissions.
-The groups that were created here are then available in the XML file in the 
-[&lt;allow&gt; sub-element](dsp-tools-xmlupload.md#the-allow-sub-element).
-
-A group definition has the following elements:
-
-- _name_ (mandatory): name of the group
-- _descriptions_ (mandatory): description of the group with language tags in the form `"descriptions": {"<lang>": 
-  "<string>", ...}` (currently "en", "de", "fr", "it", and "rm" are supported)
-- _selfjoin_ (optional): true if users are allowed to join the group themselves, false (default) if an administrator has 
-  to add them
-- _status_ (optional): true (default) if the group is active, false if the group is inactive
-
-Example:
-
-```json
-{
-  "groups": [
-    {
-      "name": "biz-editors",
-      "descriptions": {"en" : "Editors for the BiZ project"},
-      "selfjoin": false,
-      "status": true
-    }
-  ]
-}
-```
-
-
-
-### Users
-
-(optional)
-
-`"users": [<user-definition>, <user-definition>,...]`
-
-This object contains user definitions. A user has the following elements:
-
-- _username_: username used for login
-- _email_: email that identifies the user, has to be unique within DSP
-- _givenName_: firstname of the user
-- _familyName_: surname of the user
-- _password_: password of the user
-- _lang_: the default language of the user: "en", "de", "fr", "it" (optional, default: "en")
-- _groups_ (optional): List of groups the user belongs to. The group names must be provided in one of the following forms:
-    - `other_project_shortname:groupname`
-    - `:groupname` (for groups defined in the current ontology file)
-    - `SystemAdmin` (the most powerful group, built-in into DSP)
-- _projects_ (optional): List of projects the user belongs to. The project name has to be followed by a `:` and either 
-  `member` or `admin`. This indicates if the new user has admin rights in the given project or is an ordinary
-  user. `myproject:admin` would add the user as admin to the project `myproject`. The project defined in the same
-  ontology file can be omitted, so only `:admin` or `:member` is enough. Note that in order to give a user `:admin` rights,
-  he also needs to be a `:member` of the project.
-    - If _projects_ is omitted, the user won't be part in any project.
-- _status_ (optional): true (default) if the user is active, false if the user is deleted/inactive
-
-Example:
-
-```json
-{
-  "users": [
-    {
-      "username": "bizedit",
-      "email": "bizedit@test.org",
-      "givenName": "biz-given",
-      "familyName": "biz-family",
-      "password": "biz1234",
-      "lang": "en",
-      "groups": [
-        ":biz-editors",
-        "SystemAdmin"
-      ],
-      "projects": [
-        ":admin",
-        "otherProject:member"
-      ], 
-      "status": true
-    }
-  ]
-}
-```
-
-The `users` element is optional. If not used, it should be omitted.
+The expected format of the Excel files is documented [here](./dsp-tools-excel2json.md#lists-section). The only 
+difference to the explanations there is that column A of the Excel worksheet is not interpreted as list name (root 
+node), but as node name of the first children level below the root node.
 
 
 
@@ -526,7 +528,13 @@ The `ontologies` section is [documented here](./dsp-tools-create-ontologies.md)
 
 ## Fully fleshed out example of a JSON project file
 
-Finally, here is a complete example of an ontology definition:
+DaSCH provides you with two example repositories that contain everything which is necessary to create a project and 
+upload data. Both of them also contain a JSON project definition file. You can find them here:
+
+- [https://github.com/dasch-swiss/0123-import-scripts](https://github.com/dasch-swiss/0123-import-scripts)
+- [https://github.com/dasch-swiss/082E-rosetta-scripts](https://github.com/dasch-swiss/082E-rosetta-scripts)
+
+In addition, there is another complete example of a JSON project file here:
 
 ```json
 {
@@ -636,7 +644,7 @@ Finally, here is a complete example of an ontology definition:
             "super": [
               "hasLinkTo"
             ],
-            "object": "teimp:organization",
+            "object": ":organization",
             "labels": {
               "en": "member of",
               "de": "Mitglied von"
@@ -666,7 +674,7 @@ Finally, here is a complete example of an ontology definition:
             ],
             "object": "ListValue",
             "labels": {
-              "en": "Organizationtype",
+              "en": "Organization type",
               "de": "Organisationstyp"
             },
             "comments": {

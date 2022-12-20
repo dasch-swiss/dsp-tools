@@ -16,6 +16,7 @@ from lxml.builder import E
 
 from knora.dsplib.models.helpers import BaseError, DateTimeStamp
 from knora.dsplib.models.propertyelement import PropertyElement
+from knora.dsplib.models.value import UriValue
 from knora.dsplib.utils.shared import simplify_name, check_notna, validate_xml_against_schema
 
 xml_namespace_map = {
@@ -328,29 +329,29 @@ def append_permissions(root_element: etree.Element) -> etree._Element:
     res_default = etree.Element("{%s}permissions" % (xml_namespace_map[None]), id="res-default")
     res_default.append(ALLOW("V", group="UnknownUser"))
     res_default.append(ALLOW("V", group="KnownUser"))
-    res_default.append(ALLOW("CR", group="Creator"))
+    res_default.append(ALLOW("D", group="ProjectMember"))
     res_default.append(ALLOW("CR", group="ProjectAdmin"))
+    res_default.append(ALLOW("CR", group="Creator"))
     root_element.append(res_default)
 
     res_restricted = PERMISSIONS(id="res-restricted")
-    res_restricted.append(ALLOW("RV", group="UnknownUser"))
-    res_restricted.append(ALLOW("V", group="KnownUser"))
-    res_restricted.append(ALLOW("CR", group="Creator"))
+    res_restricted.append(ALLOW("M", group="ProjectMember"))
     res_restricted.append(ALLOW("CR", group="ProjectAdmin"))
+    res_restricted.append(ALLOW("CR", group="Creator"))
     root_element.append(res_restricted)
 
     prop_default = PERMISSIONS(id="prop-default")
     prop_default.append(ALLOW("V", group="UnknownUser"))
     prop_default.append(ALLOW("V", group="KnownUser"))
-    prop_default.append(ALLOW("CR", group="Creator"))
+    prop_default.append(ALLOW("D", group="ProjectMember"))
     prop_default.append(ALLOW("CR", group="ProjectAdmin"))
+    prop_default.append(ALLOW("CR", group="Creator"))
     root_element.append(prop_default)
 
     prop_restricted = PERMISSIONS(id="prop-restricted")
-    prop_restricted.append(ALLOW("RV", group="UnknownUser"))
-    prop_restricted.append(ALLOW("V", group="KnownUser"))
-    prop_restricted.append(ALLOW("CR", group="Creator"))
+    prop_restricted.append(ALLOW("M", group="ProjectMember"))
     prop_restricted.append(ALLOW("CR", group="ProjectAdmin"))
+    prop_restricted.append(ALLOW("CR", group="Creator"))
     root_element.append(prop_restricted)
 
     return root_element
@@ -1339,10 +1340,9 @@ def make_uri_prop(
 
     # check value type
     for val in values:
-        # URI = scheme ":" ["//" host [":" port]] path ["?" query] ["#" fragment]
-        if not regex.search(
-            r"(?<scheme>[a-z][a-z0-9+.\-]*):(//(?<host>[\w_.\-\[\]:~]+)(?<port>:\d{0,6})?)(?<path>/[\p{L}%()_\-.~]*)*"
-            r"(?<query>\?[\p{L}_.\-=]+)*(?<fragment>#[\p{L}_/\-~:.]*)?", str(val.value), flags=regex.UNICODE):
+        try:
+            UriValue(str(val.value))
+        except BaseError:
             raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
                             f"'{val.value}' is not a valid URI.")
 

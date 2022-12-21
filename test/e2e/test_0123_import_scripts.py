@@ -14,8 +14,8 @@ class TestImportScripts(unittest.TestCase):
         """
         Remove generated data. This method is executed after every test method.
         """
-        if os.path.isfile("knora/dsplib/import_scripts/data-processed.xml"):
-            os.remove("knora/dsplib/import_scripts/data-processed.xml")
+        if os.path.isfile("src/dsp_tools/import_scripts/data-processed.xml"):
+            os.remove("src/dsp_tools/import_scripts/data-processed.xml")
 
 
     @pytest.mark.filterwarnings("ignore")
@@ -30,7 +30,7 @@ class TestImportScripts(unittest.TestCase):
 
         # execute the import script in its directory
         old_working_directory = os.getcwd()
-        os.chdir("knora/dsplib/import_scripts")
+        os.chdir("src/dsp_tools/import_scripts")
         try:
             import_script.main()
         finally:
@@ -39,13 +39,13 @@ class TestImportScripts(unittest.TestCase):
         # check the output XML (but before, remove random components from resource IDs and resptr targets)
         with open("testdata/0123-data-processed-expected.xml") as f:
             xml_expected = _derandomize_xsd_id(f.read(), multiple_occurrences=True)
-        with open("knora/dsplib/import_scripts/data-processed.xml") as f:
+        with open("src/dsp_tools/import_scripts/data-processed.xml") as f:
             xml_returned = _derandomize_xsd_id(f.read(), multiple_occurrences=True)
         self.assertEqual(xml_expected, xml_returned)
 
         # create the JSON project file, and upload the XML
         success_on_creation = create_project(
-            input_file="knora/dsplib/import_scripts/import_project.json",
+            input_file="src/dsp_tools/import_scripts/import_project.json",
             server="http://0.0.0.0:3333",
             user_mail="root@example.com",
             password="test",
@@ -55,11 +55,11 @@ class TestImportScripts(unittest.TestCase):
         self.assertTrue(success_on_creation)
 
         success_on_xmlupload = xml_upload(
-            input_file="knora/dsplib/import_scripts/data-processed.xml",
+            input_file="src/dsp_tools/import_scripts/data-processed.xml",
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            imgdir="knora/dsplib/import_scripts/",
+            imgdir="src/dsp_tools/import_scripts/",
             sipi="http://0.0.0.0:1024",
             verbose=False,
             incremental=False,

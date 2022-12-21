@@ -88,7 +88,7 @@ def excel2json(
         "prefixes": {
             "": ""
         },
-        "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/ontology.json",
+        "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/schemas/ontology.json",
         "project": {
             "shortcode": "",
             "shortname": "",

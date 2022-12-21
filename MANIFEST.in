@@ -1,4 +1,4 @@
 include README.md
-include src/dsplib/schemas/*
-include src/dsplib/docker/*
-exclude src/dsplib/import_scripts/*
+include src/dsp_tools/schemas/*
+include src/dsp_tools/docker/*
+exclude src/dsp_tools/import_scripts/*

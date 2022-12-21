@@ -30,9 +30,9 @@ make install
 ## Git submodules
 
 This repository embeds [https://github.com/dasch-swiss/0123-import-scripts](https://github.com/dasch-swiss/0123-import-scripts) 
-as a Git submodule in `knora/dsplib/import_scripts`. That means that `knora/dsplib/import_scripts` has no contents, but
+as a Git submodule in `src/dsp_tools/import_scripts`. That means that `src/dsp_tools/import_scripts` has no contents, but
 only a reference to a certain commit in the main branch of `0123-import-scripts`. When you clone `dsp-tools` from GitHub 
-as usual, `knora/dsplib/import_scripts` will be empty.
+as usual, `src/dsp_tools/import_scripts` will be empty.
 
 
 ### Passively using the contents of the submodule
@@ -64,7 +64,7 @@ git submodule update --init --recursive
 Some notes:
  - `git clone --recurse-submodules <repo>` is shorthand for `git clone <repo>; cd <repo>; git submodule update --init --recursive`
  - `git pull --recurse-submodules` is shorthand for `git pull; git submodule update --init --recursive`
- - `--init` is necessary if you don't have the submodule `knora/dsplib/import_scripts` yet. In all successive calls, 
+ - `--init` is necessary if you don't have the submodule `src/dsp_tools/import_scripts` yet. In all successive calls, 
    when the submodule is already on your machine, the flag `--init` can be omitted.
  - `--recursive` is optional, in case there would be more than one (nested) submodules inside dsp-tools. 
  - Since Git 2.15, you can tell Git to use `--recurse-submodules` for all commands that support it (except `clone`), 
@@ -78,14 +78,14 @@ After retrieving the contents of a submodule as described in the paragraph above
 committing to it, the `main` branch needs to be checked out. The order how to proceed is the following:
 
 ```bash
-cd knora/dsplib/import_scripts
+cd src/dsp_tools/import_scripts
 git checkout main                     # check out main branch of 0123-import-scripts
 # (modify contents of submodule)
 git add .
 git commit -m "modify submodule"
 git push origin main                  # push to origin of 0123-import-scripts
 cd ../../..
-git add knora/dsplib/import_scripts
+git add src/dsp_tools/import_scripts
 git commit -m "modify submodule"
 git push origin feature-branch        # push to origin of dsp-tools
 ```

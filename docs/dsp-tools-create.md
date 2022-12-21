@@ -26,7 +26,7 @@ A complete project definition looks like this:
     "foaf": "http://xmlns.com/foaf/0.1/",
     "dcterms": "http://purl.org/dc/terms/"
   },
-  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/ontology.json",
+  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/schemas/ontology.json",
   "project": {
     "shortcode": "0123",
     "shortname": "BiZ",
@@ -89,7 +89,7 @@ more information about referencing ontologies.
 
 The `$schema` object refers to the JSON schema for DSP data model definitions and is mandatory.
 
-`"$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/ontology.json"`
+`"$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/schemas/ontology.json"`
 
 
 
@@ -542,7 +542,7 @@ In addition, there is another complete example of a JSON project file here:
     "foaf": "http://xmlns.com/foaf/0.1/",
     "dcterms": "http://purl.org/dc/terms/"
   },
-  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/ontology.json",
+  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/schemas/ontology.json",
   "project": {
     "shortcode": "0170",
     "shortname": "teimp",

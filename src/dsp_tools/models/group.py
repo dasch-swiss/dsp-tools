@@ -6,7 +6,7 @@ from urllib.parse import quote_plus
 
 from pystrict import strict
 
-from src.dsplib.models.langstring import LangString
+from src.dsp_tools.models.langstring import LangString
 from .connection import Connection
 from .helpers import Actions, BaseError
 from .model import Model

@@ -9,7 +9,7 @@ import pytest
 from lxml import etree
 
 from src import excel2xml
-from src.dsplib.models.helpers import BaseError
+from src.dsp_tools.models.helpers import BaseError
 
 
 def run_test(

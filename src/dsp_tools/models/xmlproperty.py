@@ -2,8 +2,8 @@ from typing import Optional
 
 from lxml import etree
 
-from src.dsplib.models.xmlvalue import XMLValue
-from src.dsplib.models.xmlerror import XmlError
+from src.dsp_tools.models.xmlvalue import XMLValue
+from src.dsp_tools.models.xmlerror import XmlError
 
 
 class XMLProperty:

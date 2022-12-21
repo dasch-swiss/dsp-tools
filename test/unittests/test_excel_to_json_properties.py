@@ -7,7 +7,7 @@ from typing import Any
 import jsonpath_ng
 import jsonpath_ng.ext
 
-from src.dsplib.utils import excel_to_json_properties as e2j
+from src.dsp_tools.utils import excel_to_json_properties as e2j
 
 
 class TestExcelToProperties(unittest.TestCase):

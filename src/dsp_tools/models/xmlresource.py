@@ -2,11 +2,11 @@ from typing import Optional, Union
 
 from lxml import etree
 
-from src.dsplib.models.helpers import BaseError, DateTimeStamp
-from src.dsplib.models.permission import Permissions
-from src.dsplib.models.value import KnoraStandoffXml
-from src.dsplib.models.xmlbitstream import XMLBitstream
-from src.dsplib.models.xmlproperty import XMLProperty
+from src.dsp_tools.models.helpers import BaseError, DateTimeStamp
+from src.dsp_tools.models.permission import Permissions
+from src.dsp_tools.models.value import KnoraStandoffXml
+from src.dsp_tools.models.xmlbitstream import XMLBitstream
+from src.dsp_tools.models.xmlproperty import XMLProperty
 
 
 class XMLResource:

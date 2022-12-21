@@ -1,8 +1,8 @@
 """unit tests for date values"""
 import unittest
 
-from src.dsplib.models.helpers import Actions
-from src.dsplib.models.value import DateValue
+from src.dsp_tools.models.helpers import Actions
+from src.dsp_tools.models.value import DateValue
 
 
 class TestValue(unittest.TestCase):

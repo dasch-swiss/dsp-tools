@@ -1,8 +1,8 @@
 from lxml import etree
 
-from src.dsplib.models.permission import Permissions
-from src.dsplib.models.projectContext import ProjectContext
-from src.dsplib.models.xmlallow import XmlAllow
+from src.dsp_tools.models.permission import Permissions
+from src.dsp_tools.models.projectContext import ProjectContext
+from src.dsp_tools.models.xmlallow import XmlAllow
 
 
 class XmlPermission:

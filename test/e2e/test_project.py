@@ -1,9 +1,9 @@
 """end to end tests for project class"""
 import unittest
 
-from src.dsplib.models.connection import Connection
-from src.dsplib.models.langstring import Languages, LangString
-from src.dsplib.models.project import Project
+from src.dsp_tools.models.connection import Connection
+from src.dsp_tools.models.langstring import Languages, LangString
+from src.dsp_tools.models.project import Project
 
 
 class TestProject(unittest.TestCase):

@@ -3,9 +3,9 @@ import json
 import unittest
 from typing import Any
 
-from src.dsplib.models.helpers import BaseError
-from src.dsplib.utils.onto_create_ontology import _sort_resources, _sort_prop_classes
-from src.dsplib.utils.onto_validate import _collect_link_properties, _identify_problematic_cardinalities, \
+from src.dsp_tools.models.helpers import BaseError
+from src.dsp_tools.utils.onto_create_ontology import _sort_resources, _sort_prop_classes
+from src.dsp_tools.utils.onto_validate import _collect_link_properties, _identify_problematic_cardinalities, \
     validate_project
 
 

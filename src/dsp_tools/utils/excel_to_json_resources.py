@@ -5,8 +5,8 @@ from typing import Any, Optional
 import jsonschema
 import pandas as pd
 
-from src.dsplib.models.helpers import BaseError
-from src.dsplib.utils.shared import prepare_dataframe, check_notna
+from src.dsp_tools.models.helpers import BaseError
+from src.dsp_tools.utils.shared import prepare_dataframe, check_notna
 
 languages = ["en", "de", "fr", "it", "rm"]
 

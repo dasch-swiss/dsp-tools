@@ -15,17 +15,17 @@ from urllib.parse import quote_plus
 import pandas as pd
 from lxml import etree
 
-from src.dsplib.models.connection import Connection
-from src.dsplib.models.helpers import BaseError
-from src.dsplib.models.permission import Permissions
-from src.dsplib.models.projectContext import ProjectContext
-from src.dsplib.models.resource import ResourceInstanceFactory, ResourceInstance, KnoraStandoffXmlEncoder
-from src.dsplib.models.sipi import Sipi
-from src.dsplib.models.value import KnoraStandoffXml
-from src.dsplib.models.xmlpermission import XmlPermission
-from src.dsplib.models.xmlproperty import XMLProperty
-from src.dsplib.models.xmlresource import XMLResource
-from src.dsplib.utils.shared import try_network_action, validate_xml_against_schema
+from src.dsp_tools.models.connection import Connection
+from src.dsp_tools.models.helpers import BaseError
+from src.dsp_tools.models.permission import Permissions
+from src.dsp_tools.models.projectContext import ProjectContext
+from src.dsp_tools.models.resource import ResourceInstanceFactory, ResourceInstance, KnoraStandoffXmlEncoder
+from src.dsp_tools.models.sipi import Sipi
+from src.dsp_tools.models.value import KnoraStandoffXml
+from src.dsp_tools.models.xmlpermission import XmlPermission
+from src.dsp_tools.models.xmlproperty import XMLProperty
+from src.dsp_tools.models.xmlresource import XMLResource
+from src.dsp_tools.utils.shared import try_network_action, validate_xml_against_schema
 
 MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "duration_ms", "mb_per_sec"])
 

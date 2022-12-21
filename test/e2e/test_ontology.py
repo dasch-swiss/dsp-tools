@@ -1,9 +1,9 @@
 """end to end tests for ontology class"""
 import unittest
 
-from src.dsplib.models.connection import Connection
-from src.dsplib.models.helpers import DateTimeStamp
-from src.dsplib.models.ontology import Ontology
+from src.dsp_tools.models.connection import Connection
+from src.dsp_tools.models.helpers import DateTimeStamp
+from src.dsp_tools.models.ontology import Ontology
 
 
 class TestOntology(unittest.TestCase):

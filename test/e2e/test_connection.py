@@ -1,8 +1,8 @@
 """end to end tests for connection class"""
 import unittest
 
-from src.dsplib.models.connection import Connection
-from src.dsplib.models.helpers import BaseError
+from src.dsp_tools.models.connection import Connection
+from src.dsp_tools.models.helpers import BaseError
 
 
 class TestConnection(unittest.TestCase):

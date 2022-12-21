@@ -1,10 +1,10 @@
 """end to end tests for resourceClass class"""
 import unittest
 
-from src.dsplib.models.connection import Connection
-from src.dsplib.models.langstring import Languages, LangString
-from src.dsplib.models.ontology import Ontology
-from src.dsplib.models.resourceclass import ResourceClass
+from src.dsp_tools.models.connection import Connection
+from src.dsp_tools.models.langstring import Languages, LangString
+from src.dsp_tools.models.ontology import Ontology
+from src.dsp_tools.models.resourceclass import ResourceClass
 
 
 class TestResourceClass(unittest.TestCase):

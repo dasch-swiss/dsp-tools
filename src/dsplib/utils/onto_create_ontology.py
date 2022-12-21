@@ -4,19 +4,19 @@ import json
 import re
 from typing import Any, cast, Tuple
 
-from knora.dsplib.models.connection import Connection
-from knora.dsplib.models.group import Group
-from knora.dsplib.models.helpers import BaseError, Cardinality, Context
-from knora.dsplib.models.langstring import LangString
-from knora.dsplib.models.ontology import Ontology
-from knora.dsplib.models.project import Project
-from knora.dsplib.models.propertyclass import PropertyClass
-from knora.dsplib.models.resourceclass import ResourceClass
-from knora.dsplib.models.user import User
-from knora.dsplib.utils.excel_to_json_lists import expand_lists_from_excel
-from knora.dsplib.utils.onto_create_lists import create_lists
-from knora.dsplib.utils.onto_validate import validate_project
-from knora.dsplib.utils.shared import login, try_network_action
+from src.dsplib.models.connection import Connection
+from src.dsplib.models.group import Group
+from src.dsplib.models.helpers import BaseError, Cardinality, Context
+from src.dsplib.models.langstring import LangString
+from src.dsplib.models.ontology import Ontology
+from src.dsplib.models.project import Project
+from src.dsplib.models.propertyclass import PropertyClass
+from src.dsplib.models.resourceclass import ResourceClass
+from src.dsplib.models.user import User
+from src.dsplib.utils.excel_to_json_lists import expand_lists_from_excel
+from src.dsplib.utils.onto_create_lists import create_lists
+from src.dsplib.utils.onto_validate import validate_project
+from src.dsplib.utils.shared import login, try_network_action
 
 
 def _create_project(con: Connection, project_definition: dict[str, Any]) -> Project:

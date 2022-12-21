@@ -6,7 +6,7 @@ from typing import Optional
 
 import requests
 
-from knora.dsplib.models.helpers import BaseError
+from src.dsplib.models.helpers import BaseError
 
 # relative path to "knora/dsplib/docker", to make it accessible when dsp-tools is called from another working directory
 docker_path = Path(__file__).parent / Path("../docker")

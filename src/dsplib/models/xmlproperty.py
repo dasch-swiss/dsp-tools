@@ -2,8 +2,8 @@ from typing import Optional
 
 from lxml import etree
 
-from knora.dsplib.models.xmlvalue import XMLValue
-from knora.dsplib.models.xmlerror import XmlError
+from src.dsplib.models.xmlvalue import XMLValue
+from src.dsplib.models.xmlerror import XmlError
 
 
 class XMLProperty:

@@ -1,7 +1,7 @@
 """unit tests for langstrings"""
 import unittest
 
-from knora.dsplib.models.langstring import Languages, LangString
+from src.dsplib.models.langstring import Languages, LangString
 
 
 class TestLangString(unittest.TestCase):

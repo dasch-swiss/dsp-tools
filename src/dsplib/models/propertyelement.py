@@ -1,6 +1,6 @@
 from typing import Union, Optional
 from dataclasses import dataclass
-from knora.dsplib.models.helpers import BaseError
+from src.dsplib.models.helpers import BaseError
 
 
 @dataclass(frozen=True)

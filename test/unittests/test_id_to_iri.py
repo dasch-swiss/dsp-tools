@@ -3,8 +3,8 @@
 import unittest
 import os
 
-from knora.dsplib.utils.xml_upload import _parse_xml_file
-from knora.dsplib.utils.id_to_iri import id_to_iri
+from src.dsplib.utils.xml_upload import _parse_xml_file
+from src.dsplib.utils.id_to_iri import id_to_iri
 
 
 class TestIdToIri(unittest.TestCase):

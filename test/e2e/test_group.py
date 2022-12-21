@@ -1,9 +1,9 @@
 """end to end tests for group class"""
 import unittest
 
-from knora.dsplib.models.connection import Connection
-from knora.dsplib.models.group import Group
-from knora.dsplib.models.langstring import LangString, Languages
+from src.dsplib.models.connection import Connection
+from src.dsplib.models.group import Group
+from src.dsplib.models.langstring import LangString, Languages
 
 
 class TestGroup(unittest.TestCase):

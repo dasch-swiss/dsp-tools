@@ -9,9 +9,9 @@ import regex
 from lxml import etree
 from requests import RequestException
 
-from knora.dsplib.models.connection import Connection
-from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.models.propertyelement import PropertyElement
+from src.dsplib.models.connection import Connection
+from src.dsplib.models.helpers import BaseError
+from src.dsplib.models.propertyelement import PropertyElement
 
 
 def login(server: str, user: str, password: str) -> Connection:

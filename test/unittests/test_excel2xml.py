@@ -8,8 +8,8 @@ import numpy as np
 import pytest
 from lxml import etree
 
-from knora import excel2xml
-from knora.dsplib.models.helpers import BaseError
+from src import excel2xml
+from src.dsplib.models.helpers import BaseError
 
 
 def run_test(

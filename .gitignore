@@ -70,7 +70,7 @@ stashed*
 **/~$*.*
 testdata/tmp/
 testdata/test-list.json
-knora/dsplib/docker/sipi.docker-config.lua
+src/dsplib/docker/sipi.docker-config.lua
 
 # for testing in development
 tmp/

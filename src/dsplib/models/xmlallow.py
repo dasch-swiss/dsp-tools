@@ -1,7 +1,7 @@
 from lxml import etree
 
-from knora.dsplib.models.projectContext import ProjectContext
-from knora.dsplib.models.xmlerror import XmlError
+from src.dsplib.models.projectContext import ProjectContext
+from src.dsplib.models.xmlerror import XmlError
 
 
 class XmlAllow:

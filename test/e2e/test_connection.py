@@ -1,8 +1,8 @@
 """end to end tests for connection class"""
 import unittest
 
-from knora.dsplib.models.connection import Connection
-from knora.dsplib.models.helpers import BaseError
+from src.dsplib.models.connection import Connection
+from src.dsplib.models.helpers import BaseError
 
 
 class TestConnection(unittest.TestCase):

@@ -2,10 +2,10 @@ import json
 import os
 import re
 
-from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.utils.excel_to_json_lists import excel2lists
-from knora.dsplib.utils.excel_to_json_properties import excel2properties
-from knora.dsplib.utils.excel_to_json_resources import excel2resources
+from src.dsplib.models.helpers import BaseError
+from src.dsplib.utils.excel_to_json_lists import excel2lists
+from src.dsplib.utils.excel_to_json_properties import excel2properties
+from src.dsplib.utils.excel_to_json_resources import excel2resources
 
 
 def excel2json(

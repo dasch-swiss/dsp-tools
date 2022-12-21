@@ -3,9 +3,9 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.models.propertyelement import PropertyElement
-from knora.dsplib.utils import shared
+from src.dsplib.models.helpers import BaseError
+from src.dsplib.models.propertyelement import PropertyElement
+from src.dsplib.utils import shared
 
 
 class TestShared(unittest.TestCase):

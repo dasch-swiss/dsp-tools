@@ -2,7 +2,7 @@ from typing import Union, Optional
 
 from lxml import etree
 
-from knora.dsplib.models.value import KnoraStandoffXml
+from src.dsplib.models.value import KnoraStandoffXml
 
 
 class XMLValue:

@@ -15,17 +15,17 @@ from urllib.parse import quote_plus
 import pandas as pd
 from lxml import etree
 
-from knora.dsplib.models.connection import Connection
-from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.models.permission import Permissions
-from knora.dsplib.models.projectContext import ProjectContext
-from knora.dsplib.models.resource import ResourceInstanceFactory, ResourceInstance, KnoraStandoffXmlEncoder
-from knora.dsplib.models.sipi import Sipi
-from knora.dsplib.models.value import KnoraStandoffXml
-from knora.dsplib.models.xmlpermission import XmlPermission
-from knora.dsplib.models.xmlproperty import XMLProperty
-from knora.dsplib.models.xmlresource import XMLResource
-from knora.dsplib.utils.shared import try_network_action, validate_xml_against_schema
+from src.dsplib.models.connection import Connection
+from src.dsplib.models.helpers import BaseError
+from src.dsplib.models.permission import Permissions
+from src.dsplib.models.projectContext import ProjectContext
+from src.dsplib.models.resource import ResourceInstanceFactory, ResourceInstance, KnoraStandoffXmlEncoder
+from src.dsplib.models.sipi import Sipi
+from src.dsplib.models.value import KnoraStandoffXml
+from src.dsplib.models.xmlpermission import XmlPermission
+from src.dsplib.models.xmlproperty import XMLProperty
+from src.dsplib.models.xmlresource import XMLResource
+from src.dsplib.utils.shared import try_network_action, validate_xml_against_schema
 
 MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "duration_ms", "mb_per_sec"])
 

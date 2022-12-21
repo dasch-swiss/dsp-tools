@@ -3,9 +3,9 @@ import unittest
 
 import pytest
 
-from knora.dsplib.utils.onto_create_ontology import create_project
-from knora.dsplib.utils.xml_upload import xml_upload
-from knora.excel2xml import _derandomize_xsd_id
+from src.dsplib.utils.onto_create_ontology import create_project
+from src.dsplib.utils.xml_upload import xml_upload
+from src.excel2xml import _derandomize_xsd_id
 
 
 class TestImportScripts(unittest.TestCase):
@@ -26,7 +26,7 @@ class TestImportScripts(unittest.TestCase):
         """
         # pull the latest state of the git submodule
         os.system("git submodule update --init --recursive")
-        from knora.dsplib.import_scripts import import_script
+        from src.dsplib.import_scripts import import_script
 
         # execute the import script in its directory
         old_working_directory = os.getcwd()

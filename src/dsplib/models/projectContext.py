@@ -1,9 +1,9 @@
 from typing import Optional
 
-from knora.dsplib.models.connection import Connection
-from knora.dsplib.models.group import Group
-from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.models.project import Project
+from src.dsplib.models.connection import Connection
+from src.dsplib.models.group import Group
+from src.dsplib.models.helpers import BaseError
+from src.dsplib.models.project import Project
 
 
 class ProjectContext:

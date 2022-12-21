@@ -15,18 +15,18 @@ import jsonpath_ng
 import jsonpath_ng.ext
 import pytest
 
-from knora.dsplib.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
-from knora.dsplib.utils.excel_to_json_project import excel2json
-from knora.dsplib.utils.excel_to_json_properties import excel2properties
-from knora.dsplib.utils.excel_to_json_resources import excel2resources
-from knora.dsplib.utils.id_to_iri import id_to_iri
-from knora.dsplib.utils.onto_create_lists import create_lists
-from knora.dsplib.utils.onto_create_ontology import create_project
-from knora.dsplib.utils.onto_get import get_ontology
-from knora.dsplib.utils.onto_validate import validate_project
-from knora.dsplib.utils.shared import validate_xml_against_schema
-from knora.dsplib.utils.xml_upload import xml_upload
-from knora.excel2xml import excel2xml
+from src.dsplib.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
+from src.dsplib.utils.excel_to_json_project import excel2json
+from src.dsplib.utils.excel_to_json_properties import excel2properties
+from src.dsplib.utils.excel_to_json_resources import excel2resources
+from src.dsplib.utils.id_to_iri import id_to_iri
+from src.dsplib.utils.onto_create_lists import create_lists
+from src.dsplib.utils.onto_create_ontology import create_project
+from src.dsplib.utils.onto_get import get_ontology
+from src.dsplib.utils.onto_validate import validate_project
+from src.dsplib.utils.shared import validate_xml_against_schema
+from src.dsplib.utils.xml_upload import xml_upload
+from src.excel2xml import excel2xml
 
 
 class TestTools(unittest.TestCase):

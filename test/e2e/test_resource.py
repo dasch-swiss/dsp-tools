@@ -1,12 +1,12 @@
 """end to end tests for resource class"""
 import unittest
 
-from knora.dsplib.models.connection import Connection
-from knora.dsplib.models.helpers import DateTimeStamp
-from knora.dsplib.models.permission import PermissionValue, Permissions
-from knora.dsplib.models.resource import ResourceInstanceFactory
-from knora.dsplib.models.sipi import Sipi
-from knora.dsplib.models.value import KnoraStandoffXml, make_value
+from src.dsplib.models.connection import Connection
+from src.dsplib.models.helpers import DateTimeStamp
+from src.dsplib.models.permission import PermissionValue, Permissions
+from src.dsplib.models.resource import ResourceInstanceFactory
+from src.dsplib.models.sipi import Sipi
+from src.dsplib.models.value import KnoraStandoffXml, make_value
 
 
 class TestResource(unittest.TestCase):

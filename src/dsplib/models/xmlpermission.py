@@ -1,8 +1,8 @@
 from lxml import etree
 
-from knora.dsplib.models.permission import Permissions
-from knora.dsplib.models.projectContext import ProjectContext
-from knora.dsplib.models.xmlallow import XmlAllow
+from src.dsplib.models.permission import Permissions
+from src.dsplib.models.projectContext import ProjectContext
+from src.dsplib.models.xmlallow import XmlAllow
 
 
 class XmlPermission:

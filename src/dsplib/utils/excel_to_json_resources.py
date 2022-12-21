@@ -5,8 +5,8 @@ from typing import Any, Optional
 import jsonschema
 import pandas as pd
 
-from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.utils.shared import prepare_dataframe, check_notna
+from src.dsplib.models.helpers import BaseError
+from src.dsplib.utils.shared import prepare_dataframe, check_notna
 
 languages = ["en", "de", "fr", "it", "rm"]
 

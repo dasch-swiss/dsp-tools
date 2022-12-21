@@ -3,9 +3,9 @@ import json
 import unittest
 from typing import Any
 
-from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.utils.onto_create_ontology import _sort_resources, _sort_prop_classes
-from knora.dsplib.utils.onto_validate import _collect_link_properties, _identify_problematic_cardinalities, \
+from src.dsplib.models.helpers import BaseError
+from src.dsplib.utils.onto_create_ontology import _sort_resources, _sort_prop_classes
+from src.dsplib.utils.onto_validate import _collect_link_properties, _identify_problematic_cardinalities, \
     validate_project
 
 

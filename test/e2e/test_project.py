@@ -1,9 +1,9 @@
 """end to end tests for project class"""
 import unittest
 
-from knora.dsplib.models.connection import Connection
-from knora.dsplib.models.langstring import Languages, LangString
-from knora.dsplib.models.project import Project
+from src.dsplib.models.connection import Connection
+from src.dsplib.models.langstring import Languages, LangString
+from src.dsplib.models.project import Project
 
 
 class TestProject(unittest.TestCase):

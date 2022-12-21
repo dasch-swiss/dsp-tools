@@ -7,7 +7,7 @@ from typing import Any
 import jsonpath_ng
 import jsonpath_ng.ext
 
-from knora.dsplib.utils import excel_to_json_resources as e2j
+from src.dsplib.utils import excel_to_json_resources as e2j
 
 
 class TestExcelToResource(unittest.TestCase):

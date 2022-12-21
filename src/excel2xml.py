@@ -14,10 +14,10 @@ import regex
 from lxml import etree
 from lxml.builder import E
 
-from knora.dsplib.models.helpers import BaseError, DateTimeStamp
-from knora.dsplib.models.propertyelement import PropertyElement
-from knora.dsplib.models.value import UriValue
-from knora.dsplib.utils.shared import simplify_name, check_notna, validate_xml_against_schema
+from src.dsplib.models.helpers import BaseError, DateTimeStamp
+from src.dsplib.models.propertyelement import PropertyElement
+from src.dsplib.models.value import UriValue
+from src.dsplib.utils.shared import simplify_name, check_notna, validate_xml_against_schema
 
 xml_namespace_map = {
     None: "https://dasch.swiss/schema",

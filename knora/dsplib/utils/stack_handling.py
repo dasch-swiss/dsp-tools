@@ -10,6 +10,9 @@ import requests
 
 from knora.dsplib.models.helpers import BaseError
 
+docker_path_of_user = Path.home() / Path(".dsp-tools/docker")
+docker_path_of_user.mkdir(parents=True, exist_ok=True)
+
 
 def start_stack(
     max_file_size: Optional[int] = None,
@@ -35,8 +38,6 @@ def start_stack(
     # copy contents of knora/dsplib/docker to ~/.dsp-tools/docker
     # rationale to use importlib.resources: https://setuptools.pypa.io/en/latest/userguide/datafiles.html#accessing-data-files-at-runtime
     docker_path_of_distribution = importlib.resources.files("knora").joinpath("dsplib").joinpath("docker")
-    docker_path_of_user = Path.home() / Path(".dsp-tools/docker")
-    docker_path_of_user.mkdir(parents=True, exist_ok=True)
     for file in docker_path_of_distribution.iterdir():
         dst = docker_path_of_user / file.name
         if not dst.is_file():

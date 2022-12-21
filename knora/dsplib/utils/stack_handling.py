@@ -1,4 +1,6 @@
+import importlib.resources
 import re
+import shutil
 import subprocess
 import time
 from pathlib import Path
@@ -7,9 +9,6 @@ from typing import Optional
 import requests
 
 from knora.dsplib.models.helpers import BaseError
-
-# relative path to "knora/dsplib/docker", to make it accessible when dsp-tools is called from another working directory
-docker_path = Path(__file__).parent / Path("../docker")
 
 
 def start_stack(
@@ -33,6 +32,16 @@ def start_stack(
     if enforce_docker_system_prune and suppress_docker_system_prune:
         raise BaseError('The arguments "--prune" and "--no-prune" are mutually exclusive')
 
+    # copy contents of knora/dsplib/docker to ~/.dsp-tools/docker
+    # rationale to use importlib.resources: https://setuptools.pypa.io/en/latest/userguide/datafiles.html#accessing-data-files-at-runtime
+    docker_path_of_distribution = importlib.resources.files("knora").joinpath("dsplib").joinpath("docker")
+    docker_path_of_user = Path.home() / Path(".dsp-tools/docker")
+    docker_path_of_user.mkdir(parents=True, exist_ok=True)
+    for file in docker_path_of_distribution.iterdir():
+        dst = docker_path_of_user / file.name
+        if not dst.is_file():
+            shutil.copy(file, dst)
+
     # get sipi.docker-config.lua
     commit_of_used_api_version = "3f44354df"
     url_prefix = f"https://github.com/dasch-swiss/dsp-api/raw/{commit_of_used_api_version}/"
@@ -42,11 +51,11 @@ def start_stack(
         if not re.search(max_post_size_regex, docker_config_lua_text):
             raise BaseError("Unable to set max_file_size. Please try again without this flag.")
         docker_config_lua_text = re.sub(max_post_size_regex, f"max_post_size = '{max_file_size}M'", docker_config_lua_text)
-    with open(docker_path / "sipi.docker-config.lua", "w") as f:
+    with open(docker_path_of_user / "sipi.docker-config.lua", "w") as f:
         f.write(docker_config_lua_text)
 
     # start up the fuseki database
-    completed_process = subprocess.run("docker compose up db -d", shell=True, cwd=docker_path)
+    completed_process = subprocess.run("docker compose up db -d", shell=True, cwd=docker_path_of_user)
     if not completed_process or completed_process.returncode != 0:
         raise BaseError("Cannot start the API: Error while executing 'docker compose up db -d'")
 
@@ -94,7 +103,7 @@ def start_stack(
             raise BaseError(f"Cannot start DSP-API: Error when creating graph '{graph}'")
 
     # startup all other components
-    subprocess.run("docker compose up -d", shell=True, cwd=docker_path)
+    subprocess.run("docker compose up -d", shell=True, cwd=docker_path_of_user)
     print("DSP-API is now running on http://0.0.0.0:3333/ and DSP-APP on http://0.0.0.0:4200/")
 
     # docker system prune
@@ -108,11 +117,11 @@ def start_stack(
             prune_docker = input("Allow dsp-tools to execute 'docker system prune'? This is necessary to keep your "
                                  "Docker clean. If you are unsure what that means, just type y and press Enter. [y/n]")
     if prune_docker == "y":
-        subprocess.run("docker system prune -f", shell=True, cwd=docker_path)
+        subprocess.run("docker system prune -f", shell=True, cwd=docker_path_of_user)
 
 
 def stop_stack() -> None:
     """
     Shut down the Docker containers of your local DSP stack and delete all data that is in it.
     """
-    subprocess.run("docker compose down --volumes", shell=True, cwd=docker_path)
+    subprocess.run("docker compose down --volumes", shell=True, cwd=docker_path_of_user)

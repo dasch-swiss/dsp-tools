@@ -1,7 +1,4 @@
 include README.md
-include knora/dsplib/schemas/ontology.json
-include knora/dsplib/schemas/lists-only.json
-include knora/dsplib/schemas/resources-only.json
-include knora/dsplib/schemas/properties-only.json
-include knora/dsplib/schemas/data.xsd
-include knora/dsplib/docker/*
+include src/dsplib/schemas/*
+include src/dsplib/docker/*
+exlude src/dsplib/import_scripts/*

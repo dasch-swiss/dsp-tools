@@ -1,17 +1,18 @@
 # See https://packaging.python.org/en/latest/tutorials/packaging-projects/#creating-pyproject-toml
-# pyproject.toml tells “frontend” build tools like pip and build what “backend” tool to use (in our case: setuptools)
+# and https://packaging.python.org/en/latest/specifications/declaring-project-metadata
+
 
 [build-system]
-requires = ["setuptools"]       # needed for building only. build frontends like pip will install them automatically in
-                                # a temporary, isolated virtual environment for use during the build process.
+# Tells “frontend” build tools (like pip or build) what “backend” build tool to use. The "backend" doesn't need to be
+# installed. It will be installed by the "frontend" in a temporary, isolated environment for use during the build process.
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
 
 [project]
 name = "dsp-tools"
-version = "1.22.0"
-authors = [
-    {name="DaSCH - Swiss National Data and Service Center for the Humanities", email="info@dasch.swiss"},
-]
+version = "1.22.1"
+authors = [{name = "DaSCH - Swiss National Data and Service Center for the Humanities", email = "info@dasch.swiss"}]
 description = "DSP-TOOLS is a Python package with a command line interface that helps you interact with a DaSCH service platform (DSP) server."
 readme = "docs/index.md"
 requires-python = ">=3.9.0"
@@ -20,15 +21,8 @@ classifiers = [
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
 ]
-entry-points = {
-        "console_scripts": ["dsp-tools=knora.dsp_tools:main"],
-    }
-license = "GPLv3" must be a table
-urls = "Homepage" = "https://github.com/dasch-swiss/dsp-tools"
-"Documentation" = "https://docs.dasch.swiss/latest/DSP-TOOLS/"
-
-
-# are the dependencies needed here? it's sure that they are allowed here.
+license = {file = "LICENSE"}
+urls = {"Homepage" = "https://github.com/dasch-swiss/dsp-tools", "Documentation" = "https://docs.dasch.swiss/latest/DSP-TOOLS/"}
 dependencies = [
     'argparse~=1.4.0',
     "attrs~=22.1.0; python_version >= '3.5'",
@@ -58,13 +52,21 @@ dependencies = [
     'xlrd~=2.0.1'
 ]
 
-[project.urls]
-"Homepage" = "https://github.com/dasch-swiss/dsp-tools"
-"Documentation" = "https://docs.dasch.swiss/latest/DSP-TOOLS/"
+
+#[tool.setuptools.packages.find]
+#where = ["src"]
+#include = ["dsplib.schemas", "dsplib.docker"]
+#exclude = ["dsplib.import_scripts"]
+
+
+[project.scripts]
+dsp-tools = "src.dsp_tools:main"
+
 
 [tool.autopep8]
 max_line_length = 180
 experimental = true
+
 
 [tool.mypy]
 ignore_missing_imports = true

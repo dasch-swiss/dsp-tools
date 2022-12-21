@@ -247,7 +247,7 @@ def program(user_args: list[str]) -> None:
 
 
 def main() -> None:
-    """Main entry point of the program as referenced in setup.py"""
+    """Main entry point of the program as referenced in pyproject.toml"""
     program(sys.argv[1:])
 
 

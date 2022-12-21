@@ -132,11 +132,10 @@ so it gets added to the `[dev-packages]` section of `Pipfile`.
 For security reasons, the maintainer regularly executes
  - `pipenv check` to get informed about vulnerabilities
  - `pipenv update` to update `Pipfile.lock` with the latest version of every package
- - `make freeze-requirements` to update the requirement files and `setup.py`
+ - `make freeze-requirements` to update the requirement files
 
 `make freeze-requirements` must also be executed after adding a new dependency. If you prefer working 
-without pipenv, you can freeze your requirements with `pip3 freeze > requirements.txt` and update `setup.py`
-manually.
+without pipenv, you can freeze your requirements with `pip3 freeze > requirements.txt`.
 
 
 ### Pipenv setup in PyCharm
@@ -200,11 +199,10 @@ Please ensure you have only one pull request per feature.
 Publishing is automated with GitHub Actions and should _not_ be done manually. If you still need to do it, follow the
 steps below.
 
-Generate the distribution package. Make sure you have the latest versions of `setuptools` and `wheel` installed:
+Generate the distribution package:
 
 ```bash
-python3 -m pip install --upgrade pip setuptools wheel
-python3 setup.py sdist bdist_wheel
+make dist
 ```
 
 You can install the package locally from the dist:
@@ -216,14 +214,7 @@ python3 -m pip ./dist/some_name.whl
 Upload package works also with `make`:
 
 ```bash
-make dist
 make upload
-```
-
-For local development:
-
-```bash
-python3 setup.py develop
 ```
 
 

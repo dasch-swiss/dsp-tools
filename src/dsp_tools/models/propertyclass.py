@@ -5,12 +5,12 @@ from urllib.parse import quote_plus
 
 from pystrict import strict
 
-from .connection import Connection
-from .helpers import Actions, BaseError, Context, DateTimeStamp, WithId
-from .langstring import Languages, LangString
-from .listnode import ListNode
-from .model import Model
-from ..utils.set_encoder import SetEncoder
+from dsp_tools.utils.set_encoder import SetEncoder
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.helpers import Actions, BaseError, Context, DateTimeStamp, WithId
+from dsp_tools.models.langstring import Languages, LangString
+from dsp_tools.models.listnode import ListNode
+from dsp_tools.models.model import Model
 
 
 @strict

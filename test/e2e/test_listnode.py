@@ -1,9 +1,9 @@
 """end to end tests for listnode class"""
 import unittest
 
-from src.dsp_tools.models.connection import Connection
-from src.dsp_tools.models.langstring import Languages, LangString
-from src.dsp_tools.models.listnode import ListNode
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.langstring import Languages, LangString
+from dsp_tools.models.listnode import ListNode
 
 
 class TestListNode(unittest.TestCase):

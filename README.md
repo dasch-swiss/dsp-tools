@@ -27,6 +27,30 @@ make install
 
 
 
+## Packaging 
+
+build frontend: build
+build backend: setuptools (using setuptools as all-inclusive is deprecated: setup.py sdist bdist_wheel)
+all infos in pyproject.toml, except some that don't work there are in manifest.in
+src layout
+
+instead of testing the local code, test the editable installation: https://stackoverflow.com/a/4780549/14414188. 
+This is done in the GitHub actions when `make install` is called before the tests are executed. This makes 
+the package `dsp_tools` directly accessible in the import statements, identically to copies installed on a 
+customer's machine. Otherwise, it would be necessary to `from dsp_tools.models.x import Y` - 
+but that would break on the customer's machine, because he doesn't have `src`.
+
+This also solves another problem: 
+Assume that inside a Python file from `src/dsp_tools/utils`, I would import a class from another Python file in 
+`src/dsp_tools/models`: If I cannot access the other file via `from dsp_tools.models.x import Y`, and also not via 
+`from dsp_tools.models.x import Y`, I would think to do it with a relative import: `from ..models.x import Y`. This 
+would work in the IDE, but when executing test with pytest, it would not, because Relative imports depend on the 
+location of the file that is run. https://stackoverflow.com/a/57292232/14414188
+
+For this reason, you always have to make an editable install before working with the dsp-tools repository
+
+
+
 ## Git submodules
 
 This repository embeds [https://github.com/dasch-swiss/0123-import-scripts](https://github.com/dasch-swiss/0123-import-scripts) 

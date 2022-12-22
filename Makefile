@@ -47,7 +47,7 @@ install-requirements: ## install Python dependencies from the diverse requiremen
 .PHONY: install
 install: ## install from source
 	python3 -m pip install --upgrade pip
-	pip3 install -e .
+	pipenv run pip3 install -e .
 
 .PHONY: test
 test: dsp-stack ## run all tests located in the "test" folder (intended for local usage)
@@ -77,7 +77,7 @@ test-unittests: ## run unit tests
 
 .PHONY: clean
 clean: ## clean local project directories
-	@rm -rf dist/ build/ site/ dsp_tools.egg-info/ id2iri_*_mapping_*.json stashed_*_properties_*.txt
+	@rm -rf dist/ build/ site/ src/dsp_tools.egg-info/ id2iri_*_mapping_*.json stashed_*_properties_*.txt
 
 .PHONY: help
 help: ## show this help

@@ -3,8 +3,8 @@
 import unittest
 import os
 
-from src.dsp_tools.utils.xml_upload import _parse_xml_file
-from src.dsp_tools.utils.id_to_iri import id_to_iri
+from dsp_tools.utils.xml_upload import _parse_xml_file
+from dsp_tools.utils.id_to_iri import id_to_iri
 
 
 class TestIdToIri(unittest.TestCase):

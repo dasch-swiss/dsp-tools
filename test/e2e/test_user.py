@@ -1,9 +1,9 @@
 """end to end tests for user class"""
 import unittest
 
-from src.dsp_tools.models.connection import Connection
-from src.dsp_tools.models.langstring import Languages
-from src.dsp_tools.models.user import User
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.langstring import Languages
+from dsp_tools.models.user import User
 
 # define variables for testing
 iri_project_0001 = "http://rdfh.ch/projects/0001"

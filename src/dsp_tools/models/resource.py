@@ -7,16 +7,16 @@ from urllib.parse import quote_plus
 
 from pystrict import strict
 
-from .bitstream import Bitstream
-from .connection import Connection
-from .helpers import OntoIri, Actions, BaseError, Cardinality, Context, DateTimeStamp
-from .listnode import ListNode
-from .model import Model
-from .ontology import Ontology
-from .permission import PermissionValue, Permissions
-from .project import Project
-from .resourceclass import HasProperty
-from .value import KnoraStandoffXml, Value, TextValue, ColorValue, DateValue, DecimalValue, GeomValue, GeonameValue, \
+from dsp_tools.models.bitstream import Bitstream
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.helpers import OntoIri, Actions, BaseError, Cardinality, Context, DateTimeStamp
+from dsp_tools.models.listnode import ListNode
+from dsp_tools.models.model import Model
+from dsp_tools.models.ontology import Ontology
+from dsp_tools.models.permission import PermissionValue, Permissions
+from dsp_tools.models.project import Project
+from dsp_tools.models.resourceclass import HasProperty
+from dsp_tools.models.value import KnoraStandoffXml, Value, TextValue, ColorValue, DateValue, DecimalValue, GeomValue, GeonameValue, \
     IntValue, BooleanValue, UriValue, TimeValue, IntervalValue, ListValue, LinkValue, fromJsonLdObj
 
 

@@ -11,8 +11,8 @@ from openpyxl import load_workbook
 from openpyxl.cell import Cell
 from openpyxl.worksheet.worksheet import Worksheet
 
-from src.dsp_tools.models.helpers import BaseError
-from src.dsp_tools.utils.shared import simplify_name
+from dsp_tools.models.helpers import BaseError
+from dsp_tools.utils.shared import simplify_name
 
 list_of_lists_of_previous_cell_values: list[list[str]] = []
 """Module level variable used to ensure that there are no duplicate node names"""

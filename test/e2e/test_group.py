@@ -1,9 +1,9 @@
 """end to end tests for group class"""
 import unittest
 
-from src.dsp_tools.models.connection import Connection
-from src.dsp_tools.models.group import Group
-from src.dsp_tools.models.langstring import LangString, Languages
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.group import Group
+from dsp_tools.models.langstring import LangString, Languages
 
 
 class TestGroup(unittest.TestCase):

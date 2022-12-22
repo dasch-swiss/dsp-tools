@@ -1,9 +1,9 @@
 from typing import Optional
 
-from src.dsp_tools.models.connection import Connection
-from src.dsp_tools.models.group import Group
-from src.dsp_tools.models.helpers import BaseError
-from src.dsp_tools.models.project import Project
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.group import Group
+from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.project import Project
 
 
 class ProjectContext:

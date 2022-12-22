@@ -1,13 +1,13 @@
 import json
 from typing import Any, Optional, Tuple
 
-from .excel_to_json_lists import expand_lists_from_excel
-from .onto_validate import validate_project
-from ..models.connection import Connection
-from ..models.helpers import BaseError
-from ..models.listnode import ListNode
-from ..models.project import Project
-from .shared import login, try_network_action
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.listnode import ListNode
+from dsp_tools.models.project import Project
+from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
+from dsp_tools.utils.onto_validate import validate_project
+from dsp_tools.utils.shared import login, try_network_action
 
 
 def _create_list_node(

@@ -7,11 +7,11 @@ from urllib.parse import quote_plus
 
 from pystrict import strict
 
-from src.dsp_tools.utils.set_encoder import SetEncoder
-from .connection import Connection
-from .helpers import Actions, BaseError
-from .langstring import Languages, LangString
-from .model import Model
+from dsp_tools.utils.set_encoder import SetEncoder
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.helpers import Actions, BaseError
+from dsp_tools.models.langstring import Languages, LangString
+from dsp_tools.models.model import Model
 
 """
 This module implements the handling (CRUD) of Knora projects.

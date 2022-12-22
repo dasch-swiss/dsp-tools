@@ -54,13 +54,20 @@ dependencies = [
 
 
 #[tool.setuptools.packages.find]
-#where = ["src"]
-#include = ["dsplib.schemas", "dsplib.docker"]
-#exclude = ["dsplib.import_scripts"]
+#where = ["dsp_tools"]
+#include = ["*schemas*", "*docker*"]
+#exclude = ["*import_scripts*"]
 
 
 [project.scripts]
-dsp-tools = "src.dsp_tools:main"
+dsp-tools = "dsp_tools.dsp_tools:main"
+
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
+# see https://docs.pytest.org/en/latest/explanation/goodpractices.html#tests-outside-application-code
 
 
 [tool.autopep8]

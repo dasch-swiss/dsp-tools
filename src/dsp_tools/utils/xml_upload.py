@@ -15,17 +15,17 @@ from urllib.parse import quote_plus
 import pandas as pd
 from lxml import etree
 
-from src.dsp_tools.models.connection import Connection
-from src.dsp_tools.models.helpers import BaseError
-from src.dsp_tools.models.permission import Permissions
-from src.dsp_tools.models.projectContext import ProjectContext
-from src.dsp_tools.models.resource import ResourceInstanceFactory, ResourceInstance, KnoraStandoffXmlEncoder
-from src.dsp_tools.models.sipi import Sipi
-from src.dsp_tools.models.value import KnoraStandoffXml
-from src.dsp_tools.models.xmlpermission import XmlPermission
-from src.dsp_tools.models.xmlproperty import XMLProperty
-from src.dsp_tools.models.xmlresource import XMLResource
-from src.dsp_tools.utils.shared import try_network_action, validate_xml_against_schema
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.permission import Permissions
+from dsp_tools.models.projectContext import ProjectContext
+from dsp_tools.models.resource import ResourceInstanceFactory, ResourceInstance, KnoraStandoffXmlEncoder
+from dsp_tools.models.sipi import Sipi
+from dsp_tools.models.value import KnoraStandoffXml
+from dsp_tools.models.xmlpermission import XmlPermission
+from dsp_tools.models.xmlproperty import XMLProperty
+from dsp_tools.models.xmlresource import XMLResource
+from dsp_tools.utils.shared import try_network_action, validate_xml_against_schema
 
 MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "duration_ms", "mb_per_sec"])
 

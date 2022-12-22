@@ -2,12 +2,12 @@ import json
 import re
 from typing import Optional
 
-from ..models.connection import Connection
-from ..models.group import Group
-from ..models.listnode import ListNode
-from ..models.ontology import Ontology
-from ..models.project import Project
-from ..models.user import User
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.group import Group
+from dsp_tools.models.listnode import ListNode
+from dsp_tools.models.ontology import Ontology
+from dsp_tools.models.project import Project
+from dsp_tools.models.user import User
 
 
 def get_ontology(project_identifier: str, outfile: str, server: str, user: str, password: str, verbose: bool) -> None:

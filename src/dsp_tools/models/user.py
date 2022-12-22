@@ -8,12 +8,12 @@ from urllib.parse import quote_plus
 
 from pystrict import strict
 
-from .connection import Connection
-from .group import Group
-from .helpers import Actions, BaseError
-from .langstring import Languages
-from .model import Model
-from .project import Project
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.group import Group
+from dsp_tools.models.helpers import Actions, BaseError
+from dsp_tools.models.langstring import Languages
+from dsp_tools.models.model import Model
+from dsp_tools.models.project import Project
 
 path = os.path.abspath(os.path.dirname(__file__))
 (head, tail) = os.path.split(path)

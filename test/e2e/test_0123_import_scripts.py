@@ -3,9 +3,9 @@ import unittest
 
 import pytest
 
-from src.dsp_tools.utils.onto_create_ontology import create_project
-from src.dsp_tools.utils.xml_upload import xml_upload
-from src.excel2xml import _derandomize_xsd_id
+from dsp_tools.utils.onto_create_ontology import create_project
+from dsp_tools.utils.xml_upload import xml_upload
+from dsp_tools.excel2xml import _derandomize_xsd_id
 
 
 class TestImportScripts(unittest.TestCase):
@@ -26,7 +26,7 @@ class TestImportScripts(unittest.TestCase):
         """
         # pull the latest state of the git submodule
         os.system("git submodule update --init --recursive")
-        from src.dsp_tools.import_scripts import import_script
+        from dsp_tools.import_scripts import import_script
 
         # execute the import script in its directory
         old_working_directory = os.getcwd()

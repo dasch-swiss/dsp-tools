@@ -9,9 +9,9 @@ import regex
 from lxml import etree
 from requests import RequestException
 
-from src.dsp_tools.models.connection import Connection
-from src.dsp_tools.models.helpers import BaseError
-from src.dsp_tools.models.propertyelement import PropertyElement
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.propertyelement import PropertyElement
 
 
 def login(server: str, user: str, password: str) -> Connection:

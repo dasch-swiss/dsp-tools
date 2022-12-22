@@ -6,11 +6,11 @@ from urllib.parse import quote_plus
 
 from pystrict import strict
 
-from .connection import Connection
-from .helpers import Actions, BaseError, Context, Cardinality, DateTimeStamp
-from .langstring import Languages, LangString
-from .model import Model
-from ..utils.set_encoder import SetEncoder
+from dsp_tools.utils.set_encoder import SetEncoder
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.helpers import Actions, BaseError, Context, Cardinality, DateTimeStamp
+from dsp_tools.models.langstring import Languages, LangString
+from dsp_tools.models.model import Model
 
 """
 This model implements the handling of resource classes. It contains two classes that work closely together:

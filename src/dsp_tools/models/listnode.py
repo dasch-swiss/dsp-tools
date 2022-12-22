@@ -5,12 +5,12 @@ from urllib.parse import quote_plus
 
 from pystrict import strict
 
-from .connection import Connection
-from .helpers import Actions, BaseError
-from .langstring import Languages, LangString
-from .model import Model
-from .project import Project
-from ..utils.set_encoder import SetEncoder
+from dsp_tools.utils.set_encoder import SetEncoder
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.helpers import Actions, BaseError
+from dsp_tools.models.langstring import Languages, LangString
+from dsp_tools.models.model import Model
+from dsp_tools.models.project import Project
 
 """
 This module implements the handling (CRUD) of list nodes and adds some function to read whole lists.

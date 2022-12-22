@@ -3,9 +3,9 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from src.dsp_tools.models.helpers import BaseError
-from src.dsp_tools.models.propertyelement import PropertyElement
-from src.dsp_tools.utils import shared
+from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.propertyelement import PropertyElement
+from dsp_tools.utils import shared
 
 
 class TestShared(unittest.TestCase):

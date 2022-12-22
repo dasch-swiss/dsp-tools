@@ -15,18 +15,18 @@ import jsonpath_ng
 import jsonpath_ng.ext
 import pytest
 
-from src.dsp_tools.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
-from src.dsp_tools.utils.excel_to_json_project import excel2json
-from src.dsp_tools.utils.excel_to_json_properties import excel2properties
-from src.dsp_tools.utils.excel_to_json_resources import excel2resources
-from src.dsp_tools.utils.id_to_iri import id_to_iri
-from src.dsp_tools.utils.onto_create_lists import create_lists
-from src.dsp_tools.utils.onto_create_ontology import create_project
-from src.dsp_tools.utils.onto_get import get_ontology
-from src.dsp_tools.utils.onto_validate import validate_project
-from src.dsp_tools.utils.shared import validate_xml_against_schema
-from src.dsp_tools.utils.xml_upload import xml_upload
-from src.excel2xml import excel2xml
+from dsp_tools.excel2xml import excel2xml
+from dsp_tools.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
+from dsp_tools.utils.excel_to_json_project import excel2json
+from dsp_tools.utils.excel_to_json_properties import excel2properties
+from dsp_tools.utils.excel_to_json_resources import excel2resources
+from dsp_tools.utils.id_to_iri import id_to_iri
+from dsp_tools.utils.onto_create_lists import create_lists
+from dsp_tools.utils.onto_create_ontology import create_project
+from dsp_tools.utils.onto_get import get_ontology
+from dsp_tools.utils.onto_validate import validate_project
+from dsp_tools.utils.shared import validate_xml_against_schema
+from dsp_tools.utils.xml_upload import xml_upload
 
 
 class TestTools(unittest.TestCase):

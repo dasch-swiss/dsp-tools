@@ -6,12 +6,12 @@ from urllib.parse import quote_plus
 
 from pystrict import strict
 
-from .connection import Connection
-from .helpers import Actions, BaseError, Context, DateTimeStamp, OntoIri, WithId
-from .model import Model
-from .project import Project
-from .propertyclass import PropertyClass
-from .resourceclass import ResourceClass
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.helpers import Actions, BaseError, Context, DateTimeStamp, OntoIri, WithId
+from dsp_tools.models.model import Model
+from dsp_tools.models.project import Project
+from dsp_tools.models.propertyclass import PropertyClass
+from dsp_tools.models.resourceclass import ResourceClass
 
 
 class SetEncoder(json.JSONEncoder):

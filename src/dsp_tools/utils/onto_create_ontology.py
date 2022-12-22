@@ -4,19 +4,19 @@ import json
 import re
 from typing import Any, cast, Tuple
 
-from src.dsp_tools.models.connection import Connection
-from src.dsp_tools.models.group import Group
-from src.dsp_tools.models.helpers import BaseError, Cardinality, Context
-from src.dsp_tools.models.langstring import LangString
-from src.dsp_tools.models.ontology import Ontology
-from src.dsp_tools.models.project import Project
-from src.dsp_tools.models.propertyclass import PropertyClass
-from src.dsp_tools.models.resourceclass import ResourceClass
-from src.dsp_tools.models.user import User
-from src.dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
-from src.dsp_tools.utils.onto_create_lists import create_lists
-from src.dsp_tools.utils.onto_validate import validate_project
-from src.dsp_tools.utils.shared import login, try_network_action
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.group import Group
+from dsp_tools.models.helpers import BaseError, Cardinality, Context
+from dsp_tools.models.langstring import LangString
+from dsp_tools.models.ontology import Ontology
+from dsp_tools.models.project import Project
+from dsp_tools.models.propertyclass import PropertyClass
+from dsp_tools.models.resourceclass import ResourceClass
+from dsp_tools.models.user import User
+from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
+from dsp_tools.utils.onto_create_lists import create_lists
+from dsp_tools.utils.onto_validate import validate_project
+from dsp_tools.utils.shared import login, try_network_action
 
 
 def _create_project(con: Connection, project_definition: dict[str, Any]) -> Project:

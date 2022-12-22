@@ -6,11 +6,11 @@ from urllib.parse import quote_plus
 
 from pystrict import strict
 
-from src.dsp_tools.models.langstring import LangString
-from .connection import Connection
-from .helpers import Actions, BaseError
-from .model import Model
-from .project import Project
+from dsp_tools.models.langstring import LangString
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.helpers import Actions, BaseError
+from dsp_tools.models.model import Model
+from dsp_tools.models.project import Project
 
 """
 This module implements the handling (CRUD) of Knora groups.

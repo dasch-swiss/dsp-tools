@@ -4,10 +4,10 @@ from typing import Optional, Any, Union
 import regex
 from pystrict import strict
 
-from .helpers import IriTest, Actions, BaseError
-from .langstring import LangString
-from .listnode import ListNode
-from .permission import PermissionValue, Permissions
+from dsp_tools.models.helpers import IriTest, Actions, BaseError
+from dsp_tools.models.langstring import LangString
+from dsp_tools.models.listnode import ListNode
+from dsp_tools.models.permission import PermissionValue, Permissions
 
 
 @strict

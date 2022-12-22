@@ -2,8 +2,8 @@ from typing import Optional, Any
 
 from pystrict import strict
 
-from .helpers import Actions
-from .permission import Permissions
+from dsp_tools.models.helpers import Actions
+from dsp_tools.models.permission import Permissions
 
 
 @strict

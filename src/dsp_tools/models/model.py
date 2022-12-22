@@ -1,5 +1,5 @@
-from .connection import Connection
-from .helpers import BaseError
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.helpers import BaseError
 
 
 class Model:

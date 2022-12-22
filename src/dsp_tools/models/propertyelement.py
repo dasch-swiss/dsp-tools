@@ -1,6 +1,7 @@
-from typing import Union, Optional
 from dataclasses import dataclass
-from src.dsp_tools.models.helpers import BaseError
+from typing import Union, Optional
+
+from dsp_tools.models.helpers import BaseError
 
 
 @dataclass(frozen=True)

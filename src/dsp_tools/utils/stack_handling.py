@@ -6,7 +6,7 @@ from typing import Optional
 
 import requests
 
-from src.dsp_tools.models.helpers import BaseError
+from dsp_tools.models.helpers import BaseError
 
 # relative path to "src/dsp_tools/docker", to make it accessible when dsp-tools is called from another working directory
 docker_path = Path(__file__).parent / Path("../docker")

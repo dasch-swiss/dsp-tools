@@ -1,7 +1,7 @@
 import os
 import requests
 from typing import Any
-from .helpers import BaseError
+from dsp_tools.models.helpers import BaseError
 
 
 def on_api_error(res):

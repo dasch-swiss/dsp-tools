@@ -14,22 +14,17 @@ openpyxl = "*"
 networkx = "*"
 pandas = "*"
 regex = "*"
-xlrd = "*"
-pyyaml = "*"
 
 [dev-packages]
+build = "*"
 mkdocs = "*"
 mkdocs-material = "*"
 mkdocs-include-markdown-plugin = "*"
 mypy = "*"
 autopep8 = "*"
-setuptools = "*"
-wheel = "*"
-pipenv-setup = "*"
 pytest = "*"
 types-requests = "*"
 twine = "*"
-types-pyyaml = "*"
 
 [requires]
 python_version = "3"

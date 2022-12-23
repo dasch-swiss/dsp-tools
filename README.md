@@ -133,9 +133,13 @@ Read more about the checkout options in [the official documentation](https://git
 
 ## Pipenv
 
-We use pipenv for our dependency management. There are two ways to get started:
- - `pipenv install --dev` installs all dependencies, while giving them the opportunity to update themselves
- - `pipenv install --ignore-pipfile` is used to get a deterministic build in production
+We use pipenv for our dependency management. pipenv creates a new virtual environment for every project, and 
+installs the dependencies into that virtual environment. If you want to work on the code, there are two ways to get 
+started:
+ - `pipenv install --dev` installs all dependencies into a new virtual environment, giving them the opportunity to 
+   update themselves.
+ - `pipenv install --dev --ignore-pipfile` installs all dependencies into a new virtual environment, enforcing exact 
+   versions.
 
 This works because there are two files defining the dependencies:
  - `Pipfile` replaces `requirements.txt`, but lists only the core dependencies, ordered in two sections:

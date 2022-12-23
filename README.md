@@ -78,6 +78,26 @@ location of the file that is run. https://stackoverflow.com/a/57292232/14414188
 
 For this reason, you always have to make an editable install before working with the dsp-tools repository
 
+site-packages
+├── dsp_tools
+│   ├── __init__.py
+│   ├── docker
+│   ├── dsp_tools.py
+│   ├── excel2xml.py
+│   ├── models
+│   ├── schemas
+│   └── utils
+└── dsp_tools-1.22.1.dist-info
+    ├── INSTALLER
+    ├── LICENSE
+    ├── METADATA
+    ├── RECORD
+    ├── REQUESTED
+    ├── WHEEL
+    ├── direct_url.json
+    ├── entry_points.txt
+    └── top_level.txt
+
 
 
 ## Git submodules

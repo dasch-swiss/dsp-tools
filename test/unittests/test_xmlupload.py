@@ -3,9 +3,9 @@
 import unittest
 from lxml import etree
 
-from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.utils.xml_upload import _convert_ark_v0_to_resource_iri, _remove_circular_references, _parse_xml_file
-from knora.dsplib.models.xmlresource import XMLResource
+from dsp_tools.models.helpers import BaseError
+from dsp_tools.utils.xml_upload import _convert_ark_v0_to_resource_iri, _remove_circular_references, _parse_xml_file
+from dsp_tools.models.xmlresource import XMLResource
 
 
 class TestXMLUpload(unittest.TestCase):

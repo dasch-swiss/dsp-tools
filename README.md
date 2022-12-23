@@ -53,7 +53,9 @@ following places in the code:
 build frontend: build
 build backend: setuptools (using setuptools as all-inclusive is deprecated: setup.py sdist bdist_wheel)
 all infos in pyproject.toml, except some that don't work there are in manifest.in
+
 src layout
+reason to use src layout: https://blog.ionelmc.ro/2014/05/25/python-packaging/#the-structure
 
 instead of testing the local code, test the editable installation: https://stackoverflow.com/a/4780549/14414188. 
 This is done in the GitHub actions when `make install` is called before the tests are executed. This makes 

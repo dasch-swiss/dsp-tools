@@ -23,7 +23,7 @@ stack-down: ## stop dsp-stack and remove the cloned dsp-api repository
 
 .PHONY: dist
 dist: ## generate distribution package
-	python3 setup.py sdist bdist_wheel
+	python3 -m build
 
 .PHONY: upload
 upload: ## upload distribution package to PyPI
@@ -45,9 +45,9 @@ install-requirements: ## install Python dependencies from the diverse requiremen
 	pip3 install -r dev-requirements.txt
 
 .PHONY: install
-install: ## install from source (runs setup.py)
+install: ## install from source
 	python3 -m pip install --upgrade pip
-	pip3 install -e .
+	pipenv run pip3 install -e .
 
 .PHONY: test
 test: dsp-stack ## run all tests located in the "test" folder (intended for local usage)
@@ -77,20 +77,17 @@ test-unittests: ## run unit tests
 
 .PHONY: clean
 clean: ## clean local project directories
-	@rm -rf dist/ build/ site/ dsp_tools.egg-info/ id2iri_*_mapping_*.json stashed_*_properties_*.txt
+	@rm -rf dist/ build/ site/ src/dsp_tools.egg-info/ id2iri_*_mapping_*.json stashed_*_properties_*.txt
 
 .PHONY: help
 help: ## show this help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort
 
 .PHONY: freeze-requirements
-freeze-requirements: ## update (dev-)requirements.txt and setup.py based on pipenv's Pipfile.lock
+freeze-requirements: ## update (dev-)requirements.txt based on pipenv's Pipfile.lock
 	pipenv run pipenv requirements > requirements.txt
 	sed -i '' 's/==/~=/g' requirements.txt
 	pipenv run pipenv requirements --dev-only > dev-requirements.txt
 	sed -i '' 's/==/~=/g' dev-requirements.txt
-	pipenv run pipenv-setup sync
-	sed -i '' 's/==/~=/g' setup.py
-	autopep8 --global-config pyproject.toml --aggressive --in-place setup.py
 
 .DEFAULT_GOAL := help

@@ -19,12 +19,6 @@ pipenv run make install
 
 This creates a pipenv-environment, installs all dependencies, and installs `dsp-tools` from source.
 
-If you prefer getting around pipenv, use instead:
-```bash
-make install-requirements
-make install
-```
-
 
 
 ## User data in the folder `.dsp-tools`
@@ -173,9 +167,6 @@ This works because there are two files defining the dependencies:
  - `Pipfile.lock` enables deterministic builds, by exactly pinning the version of all (sub-) dependencies. 
    This is done automatically, you must not edit `Pipfile.lock`.
 
-The diverse `requirements.txt` files in this repo are only present for backwards compatibility
-and for GitHub CI.
-
 If you want to install a new package, install it with `pipenv install package`. This 
  - installs the package (incl. sub-dependencies) in your virtual environment
  - adds the package to the section `[packages]` of `Pipfile`. By default, no versions are pinned
@@ -187,10 +178,6 @@ so it gets added to the `[dev-packages]` section of `Pipfile`.
 For security reasons, the maintainer regularly executes
  - `pipenv check` to get informed about vulnerabilities
  - `pipenv update` to update `Pipfile.lock` with the latest version of every package
- - `make freeze-requirements` to update the requirement files
-
-`make freeze-requirements` must also be executed after adding a new dependency. If you prefer working 
-without pipenv, you can freeze your requirements with `pip3 freeze > requirements.txt`.
 
 
 ### Pipenv setup in PyCharm

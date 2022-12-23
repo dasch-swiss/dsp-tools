@@ -37,13 +37,6 @@ docs-build: ## build docs into the local 'site' folder
 docs-serve: ## serve docs for local viewing
 	mkdocs serve --dev-addr=0.0.0.0:7979
 
-.PHONY: install-requirements
-install-requirements: ## install Python dependencies from the diverse requirements.txt files
-	python3 -m pip install --upgrade pip
-	pip3 install -r requirements.txt
-	pip3 install -r docs/requirements.txt
-	pip3 install -r dev-requirements.txt
-
 .PHONY: install
 install: ## install from source
 	python3 -m pip install --upgrade pip
@@ -82,12 +75,5 @@ clean: ## clean local project directories
 .PHONY: help
 help: ## show this help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort
-
-.PHONY: freeze-requirements
-freeze-requirements: ## update (dev-)requirements.txt based on pipenv's Pipfile.lock
-	pipenv run pipenv requirements > requirements.txt
-	sed -i '' 's/==/~=/g' requirements.txt
-	pipenv run pipenv requirements --dev-only > dev-requirements.txt
-	sed -i '' 's/==/~=/g' dev-requirements.txt
 
 .DEFAULT_GOAL := help

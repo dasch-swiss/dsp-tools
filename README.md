@@ -19,6 +19,12 @@ pipenv run make install
 
 This creates a pipenv-environment, installs all dependencies, and installs `dsp-tools` from source.
 
+If you prefer getting around pipenv, use instead:
+```bash
+make install-requirements
+make install
+```
+
 
 
 ## User data in the folder `.dsp-tools`
@@ -145,22 +151,18 @@ When switching between branches, there are two options:
     --recurse-submodules`, the contents of submodules will be updated according to the commit recorded in the 
    superproject. If local modifications in a submodule would be overwritten, the checkout will fail.
 
-To quickly switch between branches when you have 
-uncommitted work in the submodule, the first option might be preferable. After merging a Pull Request and switching 
-back to the main branch, the second option might be more suitable.  
-Read more about the checkout options in [the official documentation](https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt---recurse-submodules)
+To quickly switch between branches when you have uncommitted work in the submodule, the first option might be 
+preferable. After merging a Pull Request and switching back to the main branch, the second option might be more 
+suitable. Read more about the checkout options in 
+[the official documentation](https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt---recurse-submodules)
 
 
 
 ## Pipenv
 
-We use pipenv for our dependency management. pipenv creates a new virtual environment for every project, and 
-installs the dependencies into that virtual environment. If you want to work on the code, there are two ways to get 
-started:
- - `pipenv install --dev` installs all dependencies into a new virtual environment, giving them the opportunity to 
-   update themselves.
- - `pipenv install --dev --ignore-pipfile` installs all dependencies into a new virtual environment, enforcing exact 
-   versions.
+We use pipenv for our dependency management. There are two ways to get started:
+ - `pipenv install --dev` installs all dependencies, while giving them the opportunity to update themselves
+ - `pipenv install --ignore-pipfile` is used to get a deterministic build in production
 
 This works because there are two files defining the dependencies:
  - `Pipfile` replaces `requirements.txt`, but lists only the core dependencies, ordered in two sections:
@@ -168,6 +170,9 @@ This works because there are two files defining the dependencies:
    - `[dev-packages]` lists additional dependencies used for tests and deployment.
  - `Pipfile.lock` enables deterministic builds, by exactly pinning the version of all (sub-) dependencies. 
    This is done automatically, you must not edit `Pipfile.lock`.
+
+The diverse `requirements.txt` files in this repo are only present for backwards compatibility
+and for GitHub CI.
 
 If you want to install a new package, install it with `pipenv install package`. This 
  - installs the package (incl. sub-dependencies) in your virtual environment
@@ -180,6 +185,10 @@ so it gets added to the `[dev-packages]` section of `Pipfile`.
 For security reasons, the maintainer regularly executes
  - `pipenv check` to get informed about vulnerabilities
  - `pipenv update` to update `Pipfile.lock` with the latest version of every package
+ - `make freeze-requirements` to update the requirement files
+
+`make freeze-requirements` must also be executed after adding a new dependency. If you prefer working 
+without pipenv, you can freeze your requirements with `pip3 freeze > requirements.txt`.
 
 
 ### Pipenv setup in PyCharm
@@ -252,7 +261,7 @@ make dist
 You can install the package locally from the dist:
 
 ```bash
-python3 -m pip install ./dist/some_name.whl
+python3 -m pip ./dist/some_name.whl
 ```
 
 Upload package works also with `make`:

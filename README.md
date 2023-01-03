@@ -2,28 +2,240 @@
 
 # DSP-TOOLS - DaSCH Service Platform Tools
 
-dsp-tools is a command line tool that helps you to interact with the DaSCH Service Platform API. Consult the full 
-documentation [here](https://docs.dasch.swiss/latest/DSP-TOOLS).
+dsp-tools is a command line tool that helps you to interact with the DaSCH Service Platform API. This document is 
+intended for developers who want to work with the code of DSP-TOOLS. 
+
+| Hint                                                                                                                                                       |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| If you are a normal user of DSP-TOOLS, consult the [end user documentation](https://docs.dasch.swiss/latest/DSP-TOOLS) instead of this technical document. |
 
 
-## Information for developers
 
-There is a `Makefile` for all the following tasks (and more). Type `make` to print the available targets. 
+## Toolbox for dependency management, packaging, and distribution
 
-For a quick start, use: 
+There are a number of tasks necessary to develop and distribute a Python package, and a number of tools to assist with 
+these processes. The [Python Packaging User Guide](https://packaging.python.org) lists the following, among others:
+
+| Task                   | poetry | Hatch | pipenv | venv | build | setuptools | flit | twine |
+|------------------------|--------|-------|--------|------|-------|------------|------|-------|
+| Dependency management  | X      |       | X      |      |       |            |      |       |
+| Virtual environment    | X      | X     | X      | X    |       |            |      |       |
+| Build frontend         | X      | X     |        |      | X     |            |      |       |
+| Build backend          | X      | X     |        |      |       | X          | X    |       |
+| Publishing to pypi.org | X      | X     |        |      |       |            | X    | X     |
+
+DSP-TOOLS uses [poetry](https://python-poetry.org) for all of these tasks. This allows us to use one single tool 
+for all processes, and to keep the number of configuration files at a minimum. 
+
+There are many configuration and metadata files that can be found on the top level of a Python repository. The ones 
+used in the DSP-TOOLS repository are:
+
+| file           | purpose                                                                         |
+|----------------|---------------------------------------------------------------------------------|
+| README.md      | Markdown-formatted infos for developers                                         |
+| pyproject.toml | Modern configuration/metadata file replacing the deprecated files listed below  |
+| .gitignore     | List of files not under version control (won't be uploaded to GitHub)           |
+| .gitmodules    | DSP-TOOLS contains a Git submodule (more infos below)                           |
+| CHANGELOG.md   | Markdown-formatted release notes (must not be edited by hand)                   |
+| LICENSE        | Text file with the license how to use the source code of DSP-TOOLS              |
+| Makefile       | Definition of commands that can be executed with `make [command]`               |
+| poetry.lock    | Pinned versions of all (sub-) dependencies, allows a deterministic installation |
+| mkdocs.yml     | Configuration of `mkdocs`, used to build the documentation webpage              |
+
+In earlier times, there were some more configuration files, but thanks to poetry, they are not necessary anymore:
+
+| Deprecated file      | Replaced by                             | Replaced by                                          |
+|----------------------|-----------------------------------------|------------------------------------------------------|
+| MANIFEST.in          | files to include into distribution      | pyproject.toml: [tool.poetry.include]                |
+| setup.py             | project metadata, dependencies          | pyproject.toml                                       |
+| setup.cfg            | configuration for setuptools            | pyproject.toml                                       |
+| requirements.txt     | all (sub-) dependencies                 | pyproject.toml: [tool.poetry.dependencies]           |
+| dev-requirements.txt | additional dependencies for development | pyproject.toml: [tool.poetry.group.dev.dependencies] |
+| Pipfile              | direct dependencies                     | pyproject.toml: [tool.poetry.dependencies]           |
+| Pipfile.lock         | pinned dependencies                     | poetry.lock                                          |
+
+
+
+### Dependency management
+
+#### Historical considerations
+
+The classic way to manage the dependencies was to write the required packages by hand into a `requirements.txt` and 
+into a `setup.py` file. 
+
+But this is cumbersome and error-prone, so there was a time when [pipenv](https://pipenv.pypa.io/en/latest/) was the 
+way to go: Pipenv introduced the important distinction between (a) dependencies necessary to run the application, 
+(b) dependencies necessary for development, and (c) sub-dependencies, i.e. dependencies of your dependencies. Another 
+useful concept of pipenv is the distinction between a human-friendly list of (mostly unpinned) direct dependencies and 
+a machine-friendly definition of exact (pinned) versions of all dependencies.  
+But since pipenv has no packaging functionality, it was necessary to sync the dependency definitions from `Pipfile` to  
+`requirements.txt` and `setup.py`.  
+
+`setup.py`, too, is problematic, especially 
+[calling `setup.py sdist bdist_wheel`](https://blog.ganssle.io/articles/2021/10/setup-py-deprecated.html#summary). 
+Python projects should define their dependencies and metadata in the modern `pyproject.toml` file. So it is 
+necessary to dynamically manage the dependencies in `pyproject.toml`. And poetry seems to be the only tool capable 
+of doing this.
+
+
+#### Using poetry for dependency management
+
+If you want to work on the code of DSP-TOOLS, you first have to do a `make install`, which will
+
+ - install poetry with `curl -sSL https://install.python-poetry.org | python3 -` (for Windows, see 
+   [https://python-poetry.org/docs/](https://python-poetry.org/docs/))
+ - execute `poetry install`, which will: 
+     - create a virtual environment (if there isn't already one) 
+     - install all dependencies (dev and non-dev) from `poetry.lock`. If `poetry.lock` doesn't exist, it installs 
+       the dependencies from `pyproject.toml`, and creates a new `poetry.lock`.
+     - make an editable installation of DSP-TOOLS inside the virtual environment
+
+There are two files defining the dependencies:
+
+ - `pyproject.toml` lists the direct dependencies, ordered in two sections:
+   - `[tool.poetry.dependencies]` lists the dependencies used to run the software.
+   - `[tool.poetry.group.dev.dependencies]` lists the dependencies used for developing and testing.
+ - `poetry.lock` enables deterministic installations, by exactly pinning the version of all (sub-) dependencies. 
+   This is done automatically, you must not edit `poetry.lock`.
+
+If you want to install a new package, install it with `poetry add package`. This 
+
+ - installs the package (incl. sub-dependencies) in your virtual environment
+ - adds the package to the section `[tool.poetry.dependencies]` of `pyproject.toml`
+ - adds the pinned versions of the package and all sub-dependencies to `poetry.lock`
+
+If a package is only needed for development, please install it with `poetry add package --group dev`,
+so it will be added to the `[tool.poetry.group.dev.dependencies]` section of `pyproject.toml`.
+
+For security reasons, the maintainer regularly executes `poetry update` to update `poetry.lock` with the latest 
+version of every package. The resulting changes are then committed in a version bumping PR.
+
+All developers working with the DSP-TOOLS repository should regularly execute `poetry self update` to update poetry, 
+and `poetry install` to update the dependencies from `poetry.lock`.
+
+
+
+### Using the virtual environment
+
+`poetry shell` spawns a shell within the virtual environment. From there, the command `dsp-tools` is available, 
+because `poetry install` made an editable installation of DSP-TOOLS inside the virtual environment. This means that 
+inside the `site-packages` folder of your poetry virtual environment, there is a folder called `dsp_tools-[version].
+dist-info` containing a link to your local clone of the DSP-TOOLS repository. When you call `dsp-tools` from within 
+the virtual environment, the code of your local clone will be executed.
+
+
+### Packaging 
+
+All project metadata, together with the dependencies and the configuration of the packaging tool poetry, is defined in 
+`pyproject.toml`. The authoritative resource on how to create this file is 
+[https://packaging.python.org/en/latest/specifications/declaring-project-metadata](https://packaging.python.org/en/latest/specifications/declaring-project-metadata).
+
+The table `[build-system]` of `pyproject.toml` tells frontend build tools what backend build tool to use. The backend 
+doesn't need to be installed. It will be installed by the frontend in a temporary, isolated environment for use during 
+the build process. DSP-TOOLS uses poetry as both frontend and backend.
+
+What happens when a distribution package of DSP-TOOLS is created? Poetry creates two files in the `dist` folder: a `.
+tar.gz` compressed archive (the sdist or source distribution) and a `.whl` file (a wheel). Both contain the contents of 
+the `src` folder plus some metadata - they are equivalent. They are then uploaded to the 
+[Python Package Index](https://pypi.org/).  
+
+When a user installs DSP-TOOLS via `pip install dsp-tools`, pip takes the sdist or the wheel, unpacks it, and copies 
+it into the `site-packages` folder of the user's Python installation. As a result, the user has the same packages in 
+their `site-packages` folder as the `src` folder of the dsp-tools repository. In our case, this the `dsp_tools` package. 
+
+Putting all packages into a `src` folder has an important consequence: For the developer, the working directory is 
+the root of the repository, so the root will implicitly be included in `sys.path`. Users will never have the same 
+current working directory than the developer. So, removing the packages from the root by putting them into `src` 
+prevents some practices that will not work on the user's machine. One of these practices is to reference resources 
+with their path relative to the root
+has several advantages: 
+
+- better separation between packages to be distributed and other files/folders
+- requires an editable installation of the project to be able to run its code
+- makes sure that the editable installation is only able to import files that will also be importable in a regular installation.
+- import parity: 
+
+If you use the ad hoc layout without an src directory, your tests do not run against the package as it will be  
+installed by its users. They run against whatever the situation in your project directory is.
+
+https://blog.ionelmc.ro/2014/05/25/python-packaging/
+https://hynek.me/articles/testing-packaging/
+https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/
+
+instead of testing the local code, test the editable installation: https://stackoverflow.com/a/4780549/14414188. 
+This is done in the GitHub actions when `make install` is called before the tests are executed. This makes 
+the package `dsp_tools` directly accessible in the import statements, identically to copies installed on a 
+customer's machine. Otherwise, it would be necessary to `from src.dsp_tools.models.x import Y` - 
+but that would break on the customer's machine, because he doesn't have `src`.
+
+This also solves another problem: 
+Assume that inside a Python file from `src/dsp_tools/utils`, I would import a class from another Python file in 
+`src/dsp_tools/models`: If I cannot access the other file via `from src.dsp_tools.models.x import Y`, and also not via 
+`from dsp_tools.models.x import Y`, I would think to do it with a relative import: `from ..models.x import Y`. This 
+would work in the IDE, but when executing test with pytest, it would not, because Relative imports depend on the 
+location of the file that is run. https://stackoverflow.com/a/57292232/14414188
+
+For this reason, you always have to make an editable install before working with the dsp-tools repository. 
+
+site-packages
+├── dsp_tools
+│   ├── __init__.py
+│   ├── docker
+│   ├── dsp_tools.py
+│   ├── excel2xml.py
+│   ├── models
+│   ├── schemas
+│   └── utils
+└── dsp_tools-1.22.1.dist-info
+    ├── INSTALLER
+    ├── LICENSE
+    ├── METADATA
+    ├── RECORD
+    ├── REQUESTED
+    ├── WHEEL
+    ├── direct_url.json
+    ├── entry_points.txt
+    └── top_level.txt
+
+
+
+### Publishing/distribution
+
+#TODO: explain source distribution and wheel
+
+Publishing is automated with GitHub Actions and should _not_ be done manually. Please follow the
+[Pull Request Guidelines](https://docs.dasch.swiss/latest/developers/dsp/contribution/#pull-request-guidelines). If done
+correctly, when merging a pull request into `main`, the `release-please` action will create or update a release 
+PR. This PR will follow semantic versioning and update the change log. Once all desired features are
+merged, the release can be executed by merging this release pull request into `main`. This will trigger actions that
+create a release on GitHub and on PyPI.
+
+Please ensure you have only one pull request per feature.
+
+
+### Publishing manually
+
+Publishing is automated with GitHub Actions and should _not_ be done manually. If you still need to do it, follow the
+steps below.
+
+Generate the distribution package:
+
 ```bash
-pip install pipenv
-pipenv install --dev
-pipenv run make install
+make dist
 ```
 
-This creates a pipenv-environment, installs all dependencies, and installs `dsp-tools` from source.
+You can install the package locally from the dist:
 
-If you prefer getting around pipenv, use instead:
 ```bash
-make install-requirements
-make install
+python3 -m pip ./dist/some_name.whl
 ```
+
+Upload package works also with `make`:
+
+```bash
+make upload
+```
+
 
 
 
@@ -50,53 +262,6 @@ following places in the code:
   DockerHub image of the last deployed version
 - `knora/dsplib/utils/stack_handling.py`: The variable `commit_of_used_api_version` must be the commit hash of DSP-API 
   of the version that is running on [https://admin.dasch.swiss](https://admin.dasch.swiss/help).
-
-
-
-
-## Packaging 
-
-build frontend: build
-build backend: setuptools (using setuptools as all-inclusive is deprecated: setup.py sdist bdist_wheel)
-all infos in pyproject.toml, except some that don't work there are in manifest.in
-
-src layout
-reason to use src layout: https://blog.ionelmc.ro/2014/05/25/python-packaging/#the-structure
-
-instead of testing the local code, test the editable installation: https://stackoverflow.com/a/4780549/14414188. 
-This is done in the GitHub actions when `make install` is called before the tests are executed. This makes 
-the package `dsp_tools` directly accessible in the import statements, identically to copies installed on a 
-customer's machine. Otherwise, it would be necessary to `from dsp_tools.models.x import Y` - 
-but that would break on the customer's machine, because he doesn't have `src`.
-
-This also solves another problem: 
-Assume that inside a Python file from `src/dsp_tools/utils`, I would import a class from another Python file in 
-`src/dsp_tools/models`: If I cannot access the other file via `from dsp_tools.models.x import Y`, and also not via 
-`from dsp_tools.models.x import Y`, I would think to do it with a relative import: `from ..models.x import Y`. This 
-would work in the IDE, but when executing test with pytest, it would not, because Relative imports depend on the 
-location of the file that is run. https://stackoverflow.com/a/57292232/14414188
-
-For this reason, you always have to make an editable install before working with the dsp-tools repository
-
-site-packages
-├── dsp_tools
-│   ├── __init__.py
-│   ├── docker
-│   ├── dsp_tools.py
-│   ├── excel2xml.py
-│   ├── models
-│   ├── schemas
-│   └── utils
-└── dsp_tools-1.22.1.dist-info
-    ├── INSTALLER
-    ├── LICENSE
-    ├── METADATA
-    ├── RECORD
-    ├── REQUESTED
-    ├── WHEEL
-    ├── direct_url.json
-    ├── entry_points.txt
-    └── top_level.txt
 
 
 
@@ -178,51 +343,6 @@ suitable. Read more about the checkout options in
 
 
 
-## Pipenv
-
-We use pipenv for our dependency management. There are two ways to get started:
- - `pipenv install --dev` installs all dependencies, while giving them the opportunity to update themselves
- - `pipenv install --ignore-pipfile` is used to get a deterministic build in production
-
-This works because there are two files defining the dependencies:
- - `Pipfile` replaces `requirements.txt`, but lists only the core dependencies, ordered in two sections:
-   - `[packages]` lists the dependencies used to run the software.
-   - `[dev-packages]` lists additional dependencies used for tests and deployment.
- - `Pipfile.lock` enables deterministic builds, by exactly pinning the version of all (sub-) dependencies. 
-   This is done automatically, you must not edit `Pipfile.lock`.
-
-The diverse `requirements.txt` files in this repo are only present for backwards compatibility
-and for GitHub CI.
-
-If you want to install a new package, install it with `pipenv install package`. This 
- - installs the package (incl. sub-dependencies) in your virtual environment
- - adds the package to the section `[packages]` of `Pipfile`. By default, no versions are pinned
- - adds the pinned versions of package and all sub-dependencies to `Pipfile.lock`
-
-If a package is only needed for development, please install it with `pipenv install package --dev`,
-so it gets added to the `[dev-packages]` section of `Pipfile`.
-
-For security reasons, the maintainer regularly executes
- - `pipenv check` to get informed about vulnerabilities
- - `pipenv update` to update `Pipfile.lock` with the latest version of every package
- - `make freeze-requirements` to update the requirement files
-
-`make freeze-requirements` must also be executed after adding a new dependency. If you prefer working 
-without pipenv, you can freeze your requirements with `pip3 freeze > requirements.txt`.
-
-
-### Pipenv setup in PyCharm
-
- - Go to Add Interpreter > Pipenv Environment
- - Base Interpreter: PyCarm auto-detects one of your system-wide installed Pythons as base interpreter. 
- - Pipenv executable: auto-detected
- - After hitting OK, PyCharm creates a new pipenv environment and installs the dependencies from `Pipfile`
-
-If you already initialized a pipenv-environment via command line, you can add its interpreter in PyCharm,
-but this will create the pipenv-environment again.
-
-
-
 ## Testing
 
 Please note that testing requires launching the complete DSP API stack which is based on docker images. 
@@ -252,43 +372,6 @@ mypy is available as [plugin](https://plugins.jetbrains.com/plugin/11086-mypy).
 In VSCode, both mypy and autopep8 can be set up as default linter and formatter through the python extension.
 
 For formatting Markdown files (*.md) we use the default styling configuration provided by PyCharm.
-
-
-
-## Publishing
-
-Publishing is automated with GitHub Actions and should _not_ be done manually. Please follow the
-[Pull Request Guidelines](https://docs.dasch.swiss/latest/developers/dsp/contribution/#pull-request-guidelines). If done
-correctly, when merging a pull request into `main`, the `release-please` action will create or update a release 
-PR. This PR will follow semantic versioning and update the change log. Once all desired features are
-merged, the release can be executed by merging this release pull request into `main`. This will trigger actions that
-create a release on GitHub and on PyPI.
-
-Please ensure you have only one pull request per feature.
-
-
-### Publishing manually
-
-Publishing is automated with GitHub Actions and should _not_ be done manually. If you still need to do it, follow the
-steps below.
-
-Generate the distribution package:
-
-```bash
-make dist
-```
-
-You can install the package locally from the dist:
-
-```bash
-python3 -m pip ./dist/some_name.whl
-```
-
-Upload package works also with `make`:
-
-```bash
-make upload
-```
 
 
 

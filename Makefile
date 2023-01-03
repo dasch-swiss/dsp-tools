@@ -23,11 +23,12 @@ stack-down: ## stop dsp-stack and remove the cloned dsp-api repository
 
 .PHONY: dist
 dist: ## generate distribution package
-	python3 -m build
+	@rm -rf dist/ build/
+	poetry build
 
 .PHONY: upload
 upload: ## upload distribution package to PyPI
-	python3 -m twine upload dist/*
+	poetry publish
 
 .PHONY: docs-build
 docs-build: ## build docs into the local 'site' folder
@@ -38,39 +39,39 @@ docs-serve: ## serve docs for local viewing
 	mkdocs serve --dev-addr=0.0.0.0:7979
 
 .PHONY: install
-install: ## install from source
-	python3 -m pip install --upgrade pip
-	pipenv run pip3 install -e .
+install: ## install Poetry, which in turn installs the dependencies and makes an editable installation of dsp-tools
+	curl -sSL https://install.python-poetry.org | python3 -
+	poetry install
 
 .PHONY: test
 test: dsp-stack ## run all tests located in the "test" folder (intended for local usage)
-	-pytest test/	# ignore errors, continue anyway with stack-down
+	-poetry run pytest test/	# ignore errors, continue anyway with stack-down
 	$(MAKE) stack-down
 
 .PHONY: test-no-stack
 test-no-stack: ## run all tests located in the "test" folder, without starting the stack (intended for local usage)
-	pytest test/
+	poetry run pytest test/
 
 .PHONY: test-end-to-end
 test-end-to-end: dsp-stack ## run e2e tests (intended for local usage)
-	-pytest test/e2e/	# ignore errors, continue anyway with stack-down
+	-poetry run pytest test/e2e/	# ignore errors, continue anyway with stack-down
 	$(MAKE) stack-down
 
 .PHONY: test-end-to-end-ci
 test-end-to-end-ci: dsp-stack ## run e2e tests (intended for GitHub CI, where it isn't possible nor necessary to remove .tmp)
-	pytest test/e2e/
+	poetry run pytest test/e2e/
 
 .PHONY: test-end-to-end-no-stack
 test-end-to-end-no-stack: ## run e2e tests without starting the dsp-stack (intended for local usage)
-	pytest test/e2e/
+	poetry run pytest test/e2e/
 
 .PHONY: test-unittests
 test-unittests: ## run unit tests
-	pytest test/unittests/
+	poetry run pytest test/unittests/
 
 .PHONY: clean
 clean: ## clean local project directories
-	@rm -rf dist/ build/ site/ src/dsp_tools.egg-info/ id2iri_*_mapping_*.json stashed_*_properties_*.txt
+	@rm -rf dist/ build/ site/ id2iri_*_mapping_*.json stashed_*_properties_*.txt
 
 .PHONY: help
 help: ## show this help

@@ -1,4 +1,0 @@
-include README.md
-include src/dsp_tools/schemas/*
-include src/dsp_tools/docker/*
-exclude src/dsp_tools/import_scripts/*

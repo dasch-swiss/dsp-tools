@@ -26,4 +26,4 @@ jobs:
                 run: |
                     make install
             -   name: Run e2e tests
-                run: make test-end-to-end
+                run: make test-end-to-end-ci

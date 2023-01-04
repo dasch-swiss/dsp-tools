@@ -232,9 +232,9 @@ swiss](https://admin.dasch.swiss/help). In addition to the containers, a number 
 repository is necessary. The version of the docker images and these files must be the same. The version is hardcoded at the 
 following places in the code:
 
-- `knora/dsplib/docker/docker-compose.yml`: The 4 variables `services/{app,db,sipi,api}/image` must point to the 
+- `src/dsp_tools/docker/docker-compose.yml`: The 4 variables `services/{app,db,sipi,api}/image` must point to the 
   DockerHub image of the last deployed version
-- `knora/dsplib/utils/stack_handling.py`: The variable `commit_of_used_api_version` must be the commit hash of DSP-API 
+- `src/dsp_tools/utils/stack_handling.py`: The variable `commit_of_used_api_version` must be the commit hash of DSP-API 
   of the version that is running on [https://admin.dasch.swiss](https://admin.dasch.swiss/help).
 
 

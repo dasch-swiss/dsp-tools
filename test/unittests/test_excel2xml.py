@@ -527,8 +527,8 @@ class TestExcel2xml(unittest.TestCase):
             with open("excel2xml-output-data.xml") as f:
                 returned = f.read()
                 self.assertEqual(returned, expected, msg=f"Failed with extension {ext}")
-        if os.path.isfile("excel2xml-output-data.xml"):
-            os.remove("excel2xml-output-data.xml")
+            if os.path.isfile("excel2xml-output-data.xml"):
+                os.remove("excel2xml-output-data.xml")
 
         # test the invalid files
         invalid_prefix = "testdata/invalid_testdata/excel2xml-testdata-invalid"

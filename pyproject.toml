@@ -35,6 +35,7 @@ pystrict = "^1.3"
 openpyxl = "^3.0.10"
 networkx = "^2.8.8"
 pandas = "^1.5.2"
+xlrd = ">=1.0.0"            # without this, pandas raises an ImportError: Missing optional dependency 'xlrd'
 regex = "^2022.10.31"
 
 

@@ -8,18 +8,12 @@ CURRENT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 ############################
 
 .PHONY: dsp-stack
-dsp-stack: ## clone the dsp-api git repository and run the dsp-stack
-	@mkdir -p .tmp
-	@git clone --branch v24.0.8 --single-branch https://github.com/dasch-swiss/dsp-api.git .tmp/dsp-stack
-	$(MAKE) -C .tmp/dsp-stack env-file
-	$(MAKE) -C .tmp/dsp-stack init-db-test
-	$(MAKE) -C .tmp/dsp-stack stack-up
-	$(MAKE) -C .tmp/dsp-stack stack-logs-api-no-follow
+dsp-stack: ## run the dsp-stack
+	@dsp-tools start-stack --no-prune
 
 .PHONY: stack-down
-stack-down: ## stop dsp-stack and remove the cloned dsp-api repository
-	$(MAKE) -C .tmp/dsp-stack stack-down-delete-volumes
-	@test -x .tmp && rm -rf .tmp
+stack-down: ## stop dsp-stack
+	@dsp-tools stop-stack
 
 .PHONY: dist
 dist: ## generate distribution package
@@ -44,7 +38,7 @@ install: ## install Poetry, which in turn installs the dependencies and makes an
 	poetry install
 
 .PHONY: test
-test: dsp-stack ## run all tests located in the "test" folder (intended for local usage)
+test: dsp-stack ## run all tests located in the "test" folder
 	-poetry run pytest test/	# ignore errors, continue anyway with stack-down
 	$(MAKE) stack-down
 
@@ -53,13 +47,9 @@ test-no-stack: ## run all tests located in the "test" folder, without starting t
 	poetry run pytest test/
 
 .PHONY: test-end-to-end
-test-end-to-end: dsp-stack ## run e2e tests (intended for local usage)
+test-end-to-end: dsp-stack ## run e2e tests
 	-poetry run pytest test/e2e/	# ignore errors, continue anyway with stack-down
 	$(MAKE) stack-down
-
-.PHONY: test-end-to-end-ci
-test-end-to-end-ci: dsp-stack ## run e2e tests (intended for GitHub CI, where it isn't possible nor necessary to remove .tmp)
-	poetry run pytest test/e2e/
 
 .PHONY: test-end-to-end-no-stack
 test-end-to-end-no-stack: ## run e2e tests without starting the dsp-stack (intended for local usage)

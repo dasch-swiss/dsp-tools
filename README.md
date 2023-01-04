@@ -142,66 +142,40 @@ the `src` folder plus some metadata - they are equivalent. They are then uploade
 When a user installs DSP-TOOLS via `pip install dsp-tools`, pip takes the sdist or the wheel, unpacks it, and copies 
 it into the `site-packages` folder of the user's Python installation. As a result, the user has the same packages in 
 their `site-packages` folder as the `src` folder of the dsp-tools repository. In our case, this the `dsp_tools` package. 
+Since `site-packages` is on `sys.path`, the user can then import the package `dsp_tools` in his script.
 
-Putting all packages into a `src` folder has an important consequence: For the developer, the working directory is 
-the root of the repository, so the root will implicitly be included in `sys.path`. Users will never have the same 
-current working directory than the developer. So, removing the packages from the root by putting them into `src` 
-prevents some practices that will not work on the user's machine. One of these practices is to reference resources 
-with their path relative to the root
-has several advantages: 
+Putting all packages into a `src` folder has an important consequence: It forces the developer to work with an 
+editable installation of his package. Why? Without editable installation, it is impossible to write correct import 
+statements. `from src.package import module` will not work, because the user has `package` installed, not `src`. And 
+relative imports like `import module` will not work either, because when the tests code (situated in a separate 
+`test` folder) imports the actual code, the relative imports in the actual code fail. This is because relative imports 
+depend on the location of the file that is run, not on the file that contains the import statement. 
 
-- better separation between packages to be distributed and other files/folders
-- requires an editable installation of the project to be able to run its code
-- makes sure that the editable installation is only able to import files that will also be importable in a regular installation.
-- import parity: 
+The solution is to always have an editable installation of the package under development. Poetry does this 
+automatically when you execute `poetry install`. This makes the package `dsp_tools` importable - just like on a 
+user's machine. And exactly this is the big advantage: With the src layout + editable installation, the setup on the 
+developer's machine is more similar to the user's setup than with any other project layout. 
 
-If you use the ad hoc layout without an src directory, your tests do not run against the package as it will be  
-installed by its users. They run against whatever the situation in your project directory is.
+The concrete advantages of the src layout are:
 
-https://blog.ionelmc.ro/2014/05/25/python-packaging/
-https://hynek.me/articles/testing-packaging/
-https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/
+- import parity
+- The tests run against the package as it will be installed by the user - not against the situation in the 
+  developer's repository.
+- It is obvious to both humans and tools if a folder is a package to be distributed, or not.
+- The editable installation is only able to import files that will also be importable in a regular installation.
+- For the developer, the working directory is the root of the repository, so the root will implicitly be included in 
+  `sys.path`. Users will never have the same current working directory than the developer. So, removing the packages 
+  from the root by putting them into `src` prevents some practices that will not work on the user's machine. 
 
-instead of testing the local code, test the editable installation: https://stackoverflow.com/a/4780549/14414188. 
-This is done in the GitHub actions when `make install` is called before the tests are executed. This makes 
-the package `dsp_tools` directly accessible in the import statements, identically to copies installed on a 
-customer's machine. Otherwise, it would be necessary to `from src.dsp_tools.models.x import Y` - 
-but that would break on the customer's machine, because he doesn't have `src`.
+These things are better explained by the following, often-cited readings:
 
-This also solves another problem: 
-Assume that inside a Python file from `src/dsp_tools/utils`, I would import a class from another Python file in 
-`src/dsp_tools/models`: If I cannot access the other file via `from src.dsp_tools.models.x import Y`, and also not via 
-`from dsp_tools.models.x import Y`, I would think to do it with a relative import: `from ..models.x import Y`. This 
-would work in the IDE, but when executing test with pytest, it would not, because Relative imports depend on the 
-location of the file that is run. https://stackoverflow.com/a/57292232/14414188
-
-For this reason, you always have to make an editable install before working with the dsp-tools repository. 
-
-site-packages
-├── dsp_tools
-│   ├── __init__.py
-│   ├── docker
-│   ├── dsp_tools.py
-│   ├── excel2xml.py
-│   ├── models
-│   ├── schemas
-│   └── utils
-└── dsp_tools-1.22.1.dist-info
-    ├── INSTALLER
-    ├── LICENSE
-    ├── METADATA
-    ├── RECORD
-    ├── REQUESTED
-    ├── WHEEL
-    ├── direct_url.json
-    ├── entry_points.txt
-    └── top_level.txt
+- [https://blog.ionelmc.ro/2014/05/25/python-packaging](https://blog.ionelmc.ro/2014/05/25/python-packaging)
+- [https://hynek.me/articles/testing-packaging](https://hynek.me/articles/testing-packaging)
+- [https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout](https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout)
 
 
 
 ### Publishing/distribution
-
-#TODO: explain source distribution and wheel
 
 Publishing is automated with GitHub Actions and should _not_ be done manually. Please follow the
 [Pull Request Guidelines](https://docs.dasch.swiss/latest/developers/dsp/contribution/#pull-request-guidelines). If done

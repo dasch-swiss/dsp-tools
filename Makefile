@@ -32,7 +32,7 @@ upload: ## upload distribution package to PyPI
 
 .PHONY: docs-build
 docs-build: ## build docs into the local 'site' folder
-	mkdocs build
+	poetry run mkdocs build
 
 .PHONY: docs-serve
 docs-serve: ## serve docs for local viewing

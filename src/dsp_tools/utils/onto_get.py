@@ -103,7 +103,7 @@ def get_ontology(project_identifier: str, outfile: str, server: str, user: str, 
 
     ontology_json = {
         "prefixes": prefixes,
-        "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/schemas/ontology.json",
+        "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/ontology.json",
         "project": project_obj
     }
 

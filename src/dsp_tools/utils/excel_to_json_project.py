@@ -2,11 +2,10 @@ import json
 import os
 import re
 
+from dsp_tools.models.helpers import BaseError
 from dsp_tools.utils.excel_to_json_lists import excel2lists
 from dsp_tools.utils.excel_to_json_properties import excel2properties
 from dsp_tools.utils.excel_to_json_resources import excel2resources
-
-from dsp_tools.models.helpers import BaseError
 
 
 def excel2json(

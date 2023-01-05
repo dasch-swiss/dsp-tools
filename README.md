@@ -2,6 +2,7 @@
 
 # DSP-TOOLS - DaSCH Service Platform Tools
 
+<!--bookmark-start-for-mkdocs-include-markdown-plugin-->
 DSP-TOOLS is a command line tool that helps you to interact with the DaSCH Service Platform API. This document is 
 intended for developers who want to work with the code of DSP-TOOLS. 
 
@@ -132,6 +133,7 @@ dist-info` containing a link to your local clone of the DSP-TOOLS repository. Wh
 the virtual environment, the code of your local clone will be executed.
 
 
+
 ### Packaging 
 
 All project metadata, together with the dependencies and the configuration of the packaging tool poetry, is defined in 
@@ -151,6 +153,9 @@ When a user installs DSP-TOOLS via `pip install dsp-tools`, pip takes the sdist 
 it into the `site-packages` folder of the user's Python installation. As a result, the user has the same packages in 
 their `site-packages` folder as the `src` folder of the dsp-tools repository. In our case, this the `dsp_tools` package. 
 Since `site-packages` is on `sys.path`, the user can then import the package `dsp_tools` in his script.
+
+
+#### Advantages of the src layout
 
 Putting all packages into a `src` folder has an important consequence: It forces the developer to work with an 
 editable installation of his package. Why? Without editable installation, it is impossible to write correct import 

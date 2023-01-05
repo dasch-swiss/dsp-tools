@@ -1,14 +1,14 @@
 name: Release-Please
 
 # triggered when a PR is merged into main
-on:
-  pull_request:
-    types:
-      - closed
+on: push
+#  pull_request:
+#    types:
+#      - closed
 
 jobs:
   release-please:
-    if: github.event.pull_request.merged == true
+#    if: github.event.pull_request.merged == true
     # Automate releases with Conventional Commit Messages as Pull Requests are merged into "main" branch
     name: Prepare next release
     runs-on: ubuntu-latest

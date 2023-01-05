@@ -2,12 +2,20 @@
 
 # DSP-TOOLS - DaSCH Service Platform Tools
 
-dsp-tools is a command line tool that helps you to interact with the DaSCH Service Platform API. This document is 
+DSP-TOOLS is a command line tool that helps you to interact with the DaSCH Service Platform API. This document is 
 intended for developers who want to work with the code of DSP-TOOLS. 
 
 | Hint                                                                                                                                                       |
 |------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | If you are a normal user of DSP-TOOLS, consult the [end user documentation](https://docs.dasch.swiss/latest/DSP-TOOLS) instead of this technical document. |
+
+
+
+## Quick start
+
+If you want to work on the code of DSP-TOOLS, you first have to do a `make install`, which will install poetry, 
+install the dependencies into a virtual environment, and make an editable installation of DSP-TOOLS. More details 
+are described below.
 
 
 
@@ -201,7 +209,7 @@ make dist
 You can install the package locally from the dist:
 
 ```bash
-python3 -m pip ./dist/some_name.whl
+pip install dist/some_name.whl
 ```
 
 Upload package works also with `make`:
@@ -221,7 +229,7 @@ structure:
 | folder     | command using it | description                                  |
 |:-----------|:-----------------|:---------------------------------------------|
 | xmluploads | `xmlupload`      | saves id2iri mappings and error reports      |
-| docker     | `stack-up`       | files necessary to startup Docker containers |
+| docker     | `start-stack`    | files necessary to startup Docker containers |
 
 
 

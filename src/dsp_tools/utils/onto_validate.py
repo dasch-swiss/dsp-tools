@@ -8,8 +8,8 @@ import jsonschema
 import networkx as nx
 import regex
 
-from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 from dsp_tools.models.helpers import BaseError
+from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 
 
 def validate_project(
@@ -48,7 +48,7 @@ def validate_project(
 
     # validate the project definition against the schema
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(current_dir, "../schemas/ontology.json")) as s:
+    with open(os.path.join(current_dir, "../schemas/project.json")) as s:
         schema = json.load(s)
     try:
         jsonschema.validate(instance=project_definition, schema=schema)

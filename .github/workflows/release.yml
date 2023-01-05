@@ -28,7 +28,7 @@ jobs:
       # install python dependencies
       - name: Install dependencies
         run: |
-            make install
+          make install
       # release new version to PyPI
       - run: |
           make dist

@@ -36,7 +36,7 @@ docs-build: ## build docs into the local 'site' folder
 
 .PHONY: docs-serve
 docs-serve: ## serve docs for local viewing
-	mkdocs serve --dev-addr=0.0.0.0:7979
+	poetry run mkdocs serve --dev-addr=0.0.0.0:7979
 
 .PHONY: install
 install: ## install Poetry, which in turn installs the dependencies and makes an editable installation of dsp-tools

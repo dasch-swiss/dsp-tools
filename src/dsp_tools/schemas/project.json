@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "https://dasch.swiss/schema/ontology.json",
+    "$id": "https://dasch.swiss/schema/project.json",
     "title": "JSON schema for DSP ontologies",
     "description": "JSON schema for DSP ontologies",
     "definitions": {

@@ -45,7 +45,7 @@ install: ## install Poetry, which in turn installs the dependencies and makes an
 
 .PHONY: test
 test: dsp-stack ## run all tests located in the "test" folder (intended for local usage)
-	-poetry run pytest test/	# ignore errors, continue anyway with stack-down
+	-poetry run pytest test/	# ignore errors, continue anyway with stack-down (see https://www.gnu.org/software/make/manual/make.html#Errors)
 	$(MAKE) stack-down
 
 .PHONY: test-no-stack
@@ -54,7 +54,7 @@ test-no-stack: ## run all tests located in the "test" folder, without starting t
 
 .PHONY: test-end-to-end
 test-end-to-end: dsp-stack ## run e2e tests (intended for local usage)
-	-poetry run pytest test/e2e/	# ignore errors, continue anyway with stack-down
+	-poetry run pytest test/e2e/	# ignore errors, continue anyway with stack-down (see https://www.gnu.org/software/make/manual/make.html#Errors)
 	$(MAKE) stack-down
 
 .PHONY: test-end-to-end-ci

@@ -34,7 +34,7 @@ There are two files defining the dependencies:
  - `pyproject.toml` lists the direct dependencies, ordered in two sections:
    - `[tool.poetry.dependencies]` lists the dependencies used to run the software.
    - `[tool.poetry.group.dev.dependencies]` lists the dependencies used for developing and testing.
- - `poetry.lock` enables deterministic installations, by exactly pinning the version of all (sub-) dependencies. 
+ - `poetry.lock` enables deterministic installations, by exactly pinning the versions of all (sub-)dependencies. 
    This is done automatically, you must not edit `poetry.lock`.
 
 If you want to install a new package, install it with `poetry add package`. This 

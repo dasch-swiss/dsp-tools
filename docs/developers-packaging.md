@@ -21,17 +21,17 @@ for all processes, and to keep the number of configuration files at a minimum.
 There are many configuration and metadata files that can be found on the top level of a Python repository. The ones 
 used in the DSP-TOOLS repository are:
 
-| file           | purpose                                                                         |
-|----------------|---------------------------------------------------------------------------------|
-| README.md      | Markdown-formatted infos for developers                                         |
-| pyproject.toml | Modern configuration/metadata file replacing the deprecated files listed below  |
-| .gitignore     | List of files not under version control (won't be uploaded to GitHub)           |
-| .gitmodules    | DSP-TOOLS contains a Git submodule (more infos below)                           |
-| CHANGELOG.md   | Markdown-formatted release notes (must not be edited by hand)                   |
-| LICENSE        | Text file with the license how to use the source code of DSP-TOOLS              |
-| Makefile       | Definition of commands that can be executed with `make [command]`               |
-| poetry.lock    | Pinned versions of all (sub-) dependencies, allows a deterministic installation |
-| mkdocs.yml     | Configuration of `mkdocs`, used to build the documentation webpage              |
+| file           | purpose                                                                        |
+|----------------|--------------------------------------------------------------------------------|
+| README.md      | Markdown-formatted infos for developers                                        |
+| pyproject.toml | Modern configuration/metadata file replacing the deprecated files listed below |
+| .gitignore     | List of files not under version control (won't be uploaded to GitHub)          |
+| .gitmodules    | DSP-TOOLS contains a Git submodule (more infos below)                          |
+| CHANGELOG.md   | Markdown-formatted release notes (must not be edited by hand)                  |
+| LICENSE        | Text file with the license how to use the source code of DSP-TOOLS             |
+| Makefile       | Definition of commands that can be executed with `make [command]`              |
+| poetry.lock    | Pinned versions of all (sub-)dependencies, allows a deterministic installation |
+| mkdocs.yml     | Configuration of `mkdocs`, used to build the documentation webpages            |
 
 In earlier times, there were some more configuration files, but thanks to poetry, they are not necessary anymore:
 
@@ -40,7 +40,7 @@ In earlier times, there were some more configuration files, but thanks to poetry
 | MANIFEST.in          | files to include into distribution      | pyproject.toml: [tool.poetry.include]                |
 | setup.py             | project metadata, dependencies          | pyproject.toml                                       |
 | setup.cfg            | configuration for setuptools            | pyproject.toml                                       |
-| requirements.txt     | all (sub-) dependencies                 | pyproject.toml: [tool.poetry.dependencies]           |
+| requirements.txt     | all (sub-)dependencies                  | pyproject.toml: [tool.poetry.dependencies]           |
 | dev-requirements.txt | additional dependencies for development | pyproject.toml: [tool.poetry.group.dev.dependencies] |
 | Pipfile              | direct dependencies                     | pyproject.toml: [tool.poetry.dependencies]           |
 | Pipfile.lock         | pinned dependencies                     | poetry.lock                                          |
@@ -80,18 +80,18 @@ the build process. DSP-TOOLS uses poetry as both frontend and backend.
 What happens when a distribution package of DSP-TOOLS is created? Poetry creates two files in the `dist` folder: a `.
 tar.gz` compressed archive (the sdist or source distribution) and a `.whl` file (a wheel). Both contain the contents of 
 the `src` folder plus some metadata - they are equivalent. They are then uploaded to the 
-[Python Package Index](https://pypi.org/).  
+[Python Package Index (PyPI)](https://pypi.org/).  
 
-When a user installs DSP-TOOLS via `pip install dsp-tools`, pip takes the sdist or the wheel, unpacks it, and copies 
+When a user installs DSP-TOOLS with `pip install dsp-tools`, pip takes the sdist or the wheel, unpacks it, and copies 
 it into the `site-packages` folder of the user's Python installation. As a result, the user has the same packages in 
-their `site-packages` folder as the `src` folder of the dsp-tools repository. In our case, this the `dsp_tools` package. 
-Since `site-packages` is on `sys.path`, the user can then import the package `dsp_tools` in his script.
+his `site-packages` folder as the `src` folder of the dsp-tools repository. In our case, this is the `dsp_tools` 
+package. Since `site-packages` is on `sys.path`, the user can then import the package `dsp_tools` in his script.
 
 
 ### Advantages of the src layout
 
 Putting all packages into a `src` folder has an important consequence: It forces the developer to work with an 
-editable installation of his package. Why? Without editable installation, it is impossible to write correct import 
+editable installation of his package. Why? Without an editable installation, it is impossible to write correct import 
 statements. `from src.package import module` will not work, because the user has `package` installed, not `src`. And 
 relative imports like `import module` will not work either, because when the tests code (situated in a separate 
 `test` folder) imports the actual code, the relative imports in the actual code fail. This is because relative imports 
@@ -99,28 +99,28 @@ depend on the location of the file that is run, not on the file that contains th
 
 The solution is to always have an editable installation of the package under development. Poetry does this 
 automatically when you execute `poetry install`. This makes the package `dsp_tools` importable - just like on a 
-user's machine. And exactly this is the big advantage: With the src layout + editable installation, the setup on the 
-developer's machine is more similar to the user's setup than with any other project layout. 
+user's machine. And exactly this is the big advantage: With the src layout and an editable installation, the setup on 
+the developer's machine is more similar to the user's setup. 
 
-The concrete advantages of the src layout are:
+The advantages of the src layout are:
 
 - import parity
 - The tests run against the package as it will be installed by the user - not against the situation in the 
   developer's repository.
 - It is obvious to both humans and tools if a folder is a package to be distributed, or not.
-- The editable installation is only able to import files that will also be importable in a regular installation.
+- The editable installation is only able to import modules that will also be importable in a regular installation.
 - For the developer, the working directory is the root of the repository, so the root will implicitly be included in 
   `sys.path`. Users will never have the same current working directory than the developer. So, removing the packages 
   from the root by putting them into `src` prevents some practices that will not work on the user's machine. 
 
-These things are better explained by the following, often-cited readings:
+For more in-depth explanations, please visit the following pages:
 
 - [https://blog.ionelmc.ro/2014/05/25/python-packaging](https://blog.ionelmc.ro/2014/05/25/python-packaging)
 - [https://hynek.me/articles/testing-packaging](https://hynek.me/articles/testing-packaging)
 - [https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout](https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout)
 
 
-## Publishing/distribution
+## Publishing and distribution
 
 Publishing is automated with GitHub Actions and should _not_ be done manually. If you still need to do it, follow the
 steps below.

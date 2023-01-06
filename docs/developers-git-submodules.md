@@ -57,7 +57,20 @@ Some notes:
  - `--recursive` is optional, in case there would be more than one (nested) submodules inside dsp-tools. 
  - Since Git 2.15, you can tell Git to use `--recurse-submodules` for all commands that support it (except `clone`), 
    with `git config submodule.recurse true`.
- - These explanations rely on [the official Git Submodules documentation](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
+ - These explanations rely on [the Git Submodules documentation](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
+
+
+
+## Renaming a parent directory of the submodule
+
+Renaming a parent directory of the submodule should be done with `git mv old-name new-name`, so that git won't be 
+confused that the path to the submodule changed. If this doesn't help, it might be necessary to manually modify 
+
+- the `gitdir` in `src/dsptools/import_scripts/.git`
+- the `path` in `.gitmodules`, and the name of the submodule in the title of that file
+- the `worktree` entry in `.git/modules/src/dsptools/import_scripts/config` and the affected folder names in 
+  the path containing that file)
+
 
 
 ## Actively working with the contents of the submodule

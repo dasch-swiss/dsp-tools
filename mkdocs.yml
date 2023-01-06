@@ -9,12 +9,17 @@ nav:
   - Overview: index.md
   - Installation and usage: dsp-tools-usage.md
   - JSON project definition format:
-      - Overview: dsp-tools-create.md
-      - Ontologies: dsp-tools-create-ontologies.md
+        - Overview: dsp-tools-create.md
+        - Ontologies: dsp-tools-create-ontologies.md
   - Bulk data import: dsp-tools-xmlupload.md
   - excel2json: dsp-tools-excel2json.md
   - excel2xml: dsp-tools-excel2xml.md
-  - Information for developers: dsp-tools-information-for-developers.md
+  - Information for developers:
+        - Developers documentation: developers-index.md
+        - dependencies, packaging & distribution: developers-packaging.md
+        - git submodules: developers-git-submodules.md
+        - start-stack command: developers-start-stack-command.md
+        - user data: developers-user-data.md
   - Changelog: changelog.md
 
 theme:

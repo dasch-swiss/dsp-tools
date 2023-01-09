@@ -1,9 +1,9 @@
 """end to end tests for ontology class"""
 import unittest
 
-from knora.dsplib.models.connection import Connection
-from knora.dsplib.models.helpers import DateTimeStamp
-from knora.dsplib.models.ontology import Ontology
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.helpers import DateTimeStamp
+from dsp_tools.models.ontology import Ontology
 
 
 class TestOntology(unittest.TestCase):

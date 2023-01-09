@@ -1,0 +1,1201 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://dasch.swiss/schema/project.json",
+    "title": "JSON schema for DSP ontologies",
+    "description": "JSON schema for DSP ontologies",
+    "definitions": {
+        "langstring": {
+            "type": "object",
+            "patternProperties": {
+                "^(en|de|fr|it|rm)$": {
+                    "type": "string"
+                }
+            },
+            "minProperties": 1,
+            "additionalProperties": false
+        },
+        "ncname": {
+            "type": "string",
+            "pattern": "^[a-zA-Z_][\\w.-]*$",
+            "additionalProperties": false
+        },
+        "prefixedname": {
+            "type": "string",
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:([\\w.-]+)$",
+            "additionalProperties": false
+        },
+        "prefixedname_or_uri": {
+            "type": "string",
+            "pattern": "^(([a-zA-Z_][\\w.-]*)?:([\\w.-]+))|(https?://.*)$",
+            "additionalProperties": false
+        },
+        "baseresource": {
+            "type": "string",
+            "enum": [
+                "Resource",
+                "Region",
+                "Representation",
+                "StillImageRepresentation",
+                "TextRepresentation",
+                "AudioRepresentation",
+                "DDDRepresentation",
+                "DocumentRepresentation",
+                "MovingImageRepresentation",
+                "ArchiveRepresentation"
+            ]
+        },
+        "super_resource": {
+            "type": ["string"],
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/baseresource"
+                },
+                {
+                    "$ref": "#/definitions/prefixedname_or_uri"
+                }
+            ]
+        },
+        "super_resource_as_string_or_array": {
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/super_resource"
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/super_resource"
+                    }
+                }
+            ]
+        },
+        "baseproperty": {
+            "type": "string",
+            "enum": [
+                "hasValue",
+                "hasLinkTo",
+                "hasColor",
+                "hasComment",
+                "isPartOf",
+                "isSequenceOf",
+                "hasSequenceBounds",
+                "hasRepresentation",
+                "seqnum"
+            ]
+        },
+        "basevalue":  {
+            "type": "string",
+            "enum": [
+                "BooleanValue",
+                "ColorValue",
+                "DateValue",
+                "DecimalValue",
+                "GeonameValue",
+                "IntValue",
+                "IntervalValue",
+                "ListValue",
+                "TextValue",
+                "TimeValue",
+                "UriValue"
+            ]
+        },
+        "gui_element": {
+            "type": "string",
+            "enum": [
+                "Checkbox",
+                "Colorpicker",
+                "Date",
+                "Geonames",
+                "Interval",
+                "List",
+                "Radio",
+                "Richtext",
+                "Searchbox",
+                "SimpleText",
+                "Slider",
+                "Spinbox",
+                "Textarea",
+                "TimeStamp"
+            ]
+        },
+        "groupdef": {
+            "type": "string",
+            "pattern": "^(([a-zA-Z_][\\w.-]*)?:([-\\w .]+))|(SystemAdmin)$",
+            "additionalProperties": false
+        },
+        "projectdef": {
+            "type": "string",
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:(member|admin)$"
+        },
+        "excelfolderref": {
+            "type": "object",
+            "properties": {
+                "folder": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "folder"
+            ]
+        },
+        "user": {
+            "type": "object",
+            "properties": {
+                "username": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
+                },
+                "givenName": {
+                    "type": "string"
+                },
+                "familyName": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "lang": {
+                    "type": "string",
+                    "pattern": "^(en|de|fr|it|rm)$"
+                },
+                "groups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/groupdef"
+                    }
+                },
+                "projects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/projectdef"
+                    }
+                }
+            },
+            "required": [
+                "username",
+                "email",
+                "givenName",
+                "familyName",
+                "password"
+            ]
+        },
+        "group": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "descriptions": {
+                    "$ref": "#/definitions/langstring"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "selfjoin": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "name",
+                "descriptions"
+            ]
+        },
+        "node": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "labels": {
+                    "$ref": "#/definitions/langstring"
+                },
+                "comments": {
+                    "$ref": "#/definitions/langstring"
+                },
+                "nodes": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/node"
+                    }
+                }
+            },
+            "required": [
+                "name",
+                "labels"
+            ],
+            "additionalProperties": false
+        },
+        "ontology": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "$ref": "#/definitions/ncname"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "comments": {
+                    "$ref": "#/definitions/langstring"
+                },
+                "properties": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/property"
+                    }
+                },
+                "resources": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/resource"
+                    }
+                }
+            },
+            "required": [
+                "name",
+                "label",
+                "properties",
+                "resources"
+            ],
+            "additionalProperties": false
+        },
+        "property": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "$ref": "#/definitions/ncname"
+                },
+                "super": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "oneOf": [
+                            {
+                                "$ref": "#/definitions/baseproperty"
+                            },
+                            {
+                                "$ref": "#/definitions/prefixedname_or_uri"
+                            }
+                        ]
+                    }
+                },
+                "object": {
+                    "type": "string",
+                    "oneOf": [
+                        {
+                            "$ref": "#/definitions/basevalue"
+                        },
+                        {
+                            "$ref": "#/definitions/baseresource"
+                        },
+                        {
+                            "$ref": "#/definitions/prefixedname"
+                        }
+                    ]
+                },
+                "subject": {
+                    "$ref": "#/definitions/prefixedname"
+                },
+                "labels": {
+                    "$ref": "#/definitions/langstring"
+                },
+                "gui_element": {
+                    "$ref": "#/definitions/gui_element"
+                },
+                "gui_attributes": {
+                    "type": "object",
+                    "properties": {
+                        "size": {
+                            "type": "integer"
+                        },
+                        "maxlength": {
+                            "type": "integer"
+                        },
+                        "hlist": {
+                            "type": "string"
+                        },
+                        "numprops": {
+                            "type": "integer"
+                        },
+                        "ncolors": {
+                            "type": "integer"
+                        },
+                        "cols": {
+                            "type": "integer"
+                        },
+                        "rows": {
+                            "type": "integer"
+                        },
+                        "width": {
+                            "type": "string",
+                            "pattern": "^[0-9]*%?$"
+                        },
+                        "wrap": {
+                            "type": "string",
+                            "enum": [
+                                "soft",
+                                "hard"
+                            ]
+                        },
+                        "max": {
+                            "type": "number"
+                        },
+                        "min": {
+                            "type": "number"
+                        }
+                    }
+                },
+                "comments": {
+                    "$ref": "#/definitions/langstring"
+                }
+            },
+            "required": [
+                "name",
+                "super",
+                "object",
+                "labels",
+                "gui_element"
+            ],
+            "additionalProperties": false,
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "super": {
+                                "const": "hasLinkTo"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "Searchbox"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "super": {
+                                "const": "isPartOf"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "Searchbox"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "object": {
+                                "const": "Representation"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasRepresentation",
+                                                "hasLinkTo"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname_or_uri"
+                                        }
+                                    ]
+                                }
+                            },
+                            "gui_element": {
+                                "const": "Searchbox"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "object": {
+                                "const": "TextValue"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasComment",
+                                                "hasValue"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname_or_uri"
+                                        }
+                                    ]
+                                }
+                            },
+                            "gui_element": {
+                                "enum": [
+                                    "SimpleText",
+                                    "Textarea",
+                                    "Richtext"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "object": {
+                                "const": "ColorValue"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasColor"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname_or_uri"
+                                        }
+                                    ]
+                                }
+                            },
+                            "gui_element": {
+                                "const": "Colorpicker"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "object": {
+                                "const": "DateValue"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasValue"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname_or_uri"
+                                        }
+                                    ]
+                                }
+                            },
+                            "gui_element": {
+                                "const": "Date"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "object": {
+                                "const": "TimeValue"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasValue"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname_or_uri"
+                                        }
+                                    ]
+                                }
+                            },
+                            "gui_element": {
+                                "const": "TimeStamp"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "object": {
+                                "const": "DecimalValue"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasValue"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname_or_uri"
+                                        }
+                                    ]
+                                }
+                            },
+                            "gui_element": {
+                                "enum": [
+                                    "Slider",
+                                    "SimpleText"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "object": {
+                                "const": "GeonameValue"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasValue"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname_or_uri"
+                                        }
+                                    ]
+                                }
+                            },
+                            "gui_element": {
+                                "const": "Geonames"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "object": {
+                                "const": "IntValue"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasValue",
+                                                "seqnum"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname_or_uri"
+                                        }
+                                    ]
+                                }
+                            },
+                            "gui_element": {
+                                "enum": [
+                                    "Spinbox",
+                                    "SimpleText"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "object": {
+                                "const": "BooleanValue"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasValue"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname_or_uri"
+                                        }
+                                    ]
+                                }
+                            },
+                            "gui_element": {
+                                "const": "Checkbox"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "object": {
+                                "const": "UriValue"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasValue"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname_or_uri"
+                                        }
+                                    ]
+                                }
+                            },
+                            "gui_element": {
+                                "const": "SimpleText"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "object": {
+                                "const": "IntervalValue"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasSequenceBounds"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname_or_uri"
+                                        }
+                                    ]
+                                }
+                            },
+                            "gui_element": {
+                                "enum": [
+                                    "Interval",
+                                    "SimpleText"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "object": {
+                                "const": "ListValue"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_element": {
+                                "super": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "oneOf": [
+                                            {
+                                                "enum": [
+                                                    "hasValue"
+                                                ]
+                                            },
+                                            {
+                                                "$ref": "#/definitions/prefixedname_or_uri"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "enum": [
+                                    "Radio",
+                                    "List"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "object": {
+                                "$ref": "#/definitions/prefixedname"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "Searchbox"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "SimpleText"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_attributes": {
+                                "type": "object",
+                                "properties": {
+                                    "maxlength": {
+                                        "type": "integer"
+                                    },
+                                    "size": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "Textarea"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_attributes": {
+                                "type": "object",
+                                "properties": {
+                                    "cols": {
+                                        "type": "integer"
+                                    },
+                                    "rows": {
+                                        "type": "integer"
+                                    },
+                                    "width": {
+                                        "type": "string",
+                                        "pattern": "^[0-9]*%?$"
+                                    },
+                                    "wrap": {
+                                        "enum": [
+                                            "soft",
+                                            "hard"
+                                        ]
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "Colorpicker"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_attributes": {
+                                "type": "object",
+                                "properties": {
+                                    "ncolors": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "Slider"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_attributes": {
+                                "type": "object",
+                                "properties": {
+                                    "max": {
+                                        "type": "number"
+                                    },
+                                    "min": {
+                                        "type": "number"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        },
+                        "required": [
+                            "gui_attributes"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "Spinbox"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_attributes": {
+                                "type": "object",
+                                "properties": {
+                                    "max": {
+                                        "type": "number"
+                                    },
+                                    "min": {
+                                        "type": "number"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "gui_element": {
+                                "enum": [
+                                    "Radio",
+                                    "List"
+                                ]
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_attributes": {
+                                "type": "object",
+                                "properties": {
+                                    "hlist": {
+                                        "type": "string"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        },
+                        "required": [
+                            "gui_attributes"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "Searchbox"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_attributes": {
+                                "type": "object",
+                                "properties": {
+                                    "numprops": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "gui_element": {
+                                "enum": [
+                                    "Richtext",
+                                    "Date",
+                                    "TimeStamp",
+                                    "Geonames",
+                                    "Checkbox",
+                                    "Interval"
+                                ]
+                            }
+                        }
+                    },
+                    "then": {
+                        "not": {
+                            "required": [
+                                "gui_attributes"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "cardinality": {
+            "type": "object",
+            "properties": {
+                "propname": {
+                    "type": "string",
+                    "oneOf": [
+                        {
+                            "enum": [
+                                "isPartOf",
+                                "seqnum",
+                                "isSequenceOf",
+                                "hasSequenceBounds"
+                            ]
+                        },
+                        {
+                            "$ref": "#/definitions/prefixedname"
+                        }
+                    ]
+                },
+                "cardinality": {
+                    "type": "string",
+                    "enum": [
+                        "1",
+                        "0-1",
+                        "1-n",
+                        "0-n"
+                    ]
+                },
+                "gui_order": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "propname",
+                "cardinality"
+            ],
+            "additionalProperties": false
+        },
+        "resource": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "$ref": "#/definitions/ncname"
+                },
+                "super": {
+                    "$ref": "#/definitions/super_resource_as_string_or_array"
+                },
+                "labels": {
+                    "$ref": "#/definitions/langstring"
+                },
+                "comments": {
+                    "$ref": "#/definitions/langstring"
+                },
+                "cardinalities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cardinality"
+                    },
+                    "minItems": 1
+                }
+            },
+            "required": [
+                "name",
+                "super",
+                "labels",
+                "cardinalities"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "type": "object",
+    "properties": {
+        "prefixes": {
+            "type": "object",
+            "patternProperties": {
+                "^[-\\w]+$": {
+                    "pattern": "^https?://.*"
+                }
+            },
+            "additionalProperties": false
+        },
+        "$schema": {
+            "type": "string"
+        },
+        "project": {
+            "type": "object",
+            "properties": {
+                "shortcode": {
+                    "type": "string",
+                    "pattern": "^[0-9A-F]{4}$"
+                },
+                "shortname": {
+                    "$ref": "#/definitions/ncname"
+                },
+                "longname": {
+                    "type": "string"
+                },
+                "descriptions": {
+                    "$ref": "#/definitions/langstring"
+                },
+                "keywords": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "groups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/group"
+                    }
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user"
+                    }
+                },
+                "lists": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "labels": {
+                                "$ref": "#/definitions/langstring"
+                            },
+                            "comments": {
+                                "$ref": "#/definitions/langstring"
+                            },
+                            "nodes": {
+                                "oneOf": [
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/definitions/node"
+                                        }
+                                    },
+                                    {
+                                        "type": "object",
+                                        "$ref": "#/definitions/excelfolderref"
+                                    }
+                                ]
+                            }
+                        },
+                        "required": ["name", "labels", "comments", "nodes"],
+                        "additionalProperties": false
+                    }
+                },
+                "ontologies": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/ontology"
+                    }
+                }
+            },
+            "required": [
+                "shortcode",
+                "shortname",
+                "descriptions",
+                "ontologies",
+                "keywords"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "required": [
+        "$schema",
+        "project"
+    ],
+    "additionalProperties": false
+}

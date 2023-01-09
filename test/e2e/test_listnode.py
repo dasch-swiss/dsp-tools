@@ -1,9 +1,9 @@
 """end to end tests for listnode class"""
 import unittest
 
-from knora.dsplib.models.connection import Connection
-from knora.dsplib.models.langstring import Languages, LangString
-from knora.dsplib.models.listnode import ListNode
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.langstring import Languages, LangString
+from dsp_tools.models.listnode import ListNode
 
 
 class TestListNode(unittest.TestCase):

@@ -23,74 +23,58 @@ stack-down: ## stop dsp-stack and remove the cloned dsp-api repository
 
 .PHONY: dist
 dist: ## generate distribution package
-	python3 setup.py sdist bdist_wheel
+	@rm -rf dist/ build/
+	poetry build
 
 .PHONY: upload
 upload: ## upload distribution package to PyPI
-	python3 -m twine upload dist/*
+	poetry publish
 
 .PHONY: docs-build
 docs-build: ## build docs into the local 'site' folder
-	mkdocs build
+	poetry run mkdocs build
 
 .PHONY: docs-serve
 docs-serve: ## serve docs for local viewing
-	mkdocs serve --dev-addr=0.0.0.0:7979
-
-.PHONY: install-requirements
-install-requirements: ## install Python dependencies from the diverse requirements.txt files
-	python3 -m pip install --upgrade pip
-	pip3 install -r requirements.txt
-	pip3 install -r docs/requirements.txt
-	pip3 install -r dev-requirements.txt
+	poetry run mkdocs serve --dev-addr=localhost:7979
 
 .PHONY: install
-install: ## install from source (runs setup.py)
-	python3 -m pip install --upgrade pip
-	pip3 install -e .
+install: ## install Poetry, which in turn installs the dependencies and makes an editable installation of dsp-tools
+	curl -sSL https://install.python-poetry.org | python3 -
+	poetry install
 
 .PHONY: test
 test: dsp-stack ## run all tests located in the "test" folder (intended for local usage)
-	-pytest test/	# ignore errors, continue anyway with stack-down
+	-poetry run pytest test/	# ignore errors, continue anyway with stack-down (see https://www.gnu.org/software/make/manual/make.html#Errors)
 	$(MAKE) stack-down
 
 .PHONY: test-no-stack
 test-no-stack: ## run all tests located in the "test" folder, without starting the stack (intended for local usage)
-	pytest test/
+	poetry run pytest test/
 
 .PHONY: test-end-to-end
 test-end-to-end: dsp-stack ## run e2e tests (intended for local usage)
-	-pytest test/e2e/	# ignore errors, continue anyway with stack-down
+	-poetry run pytest test/e2e/	# ignore errors, continue anyway with stack-down (see https://www.gnu.org/software/make/manual/make.html#Errors)
 	$(MAKE) stack-down
 
 .PHONY: test-end-to-end-ci
 test-end-to-end-ci: dsp-stack ## run e2e tests (intended for GitHub CI, where it isn't possible nor necessary to remove .tmp)
-	pytest test/e2e/
+	poetry run pytest test/e2e/
 
 .PHONY: test-end-to-end-no-stack
 test-end-to-end-no-stack: ## run e2e tests without starting the dsp-stack (intended for local usage)
-	pytest test/e2e/
+	poetry run pytest test/e2e/
 
 .PHONY: test-unittests
 test-unittests: ## run unit tests
-	pytest test/unittests/
+	poetry run pytest test/unittests/
 
 .PHONY: clean
 clean: ## clean local project directories
-	@rm -rf dist/ build/ site/ dsp_tools.egg-info/ id2iri_*_mapping_*.json stashed_*_properties_*.txt
+	@rm -rf dist/ build/ site/ id2iri_*_mapping_*.json stashed_*_properties_*.txt
 
 .PHONY: help
 help: ## show this help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort
-
-.PHONY: freeze-requirements
-freeze-requirements: ## update (dev-)requirements.txt and setup.py based on pipenv's Pipfile.lock
-	pipenv run pipenv requirements > requirements.txt
-	sed -i '' 's/==/~=/g' requirements.txt
-	pipenv run pipenv requirements --dev-only > dev-requirements.txt
-	sed -i '' 's/==/~=/g' dev-requirements.txt
-	pipenv run pipenv-setup sync
-	sed -i '' 's/==/~=/g' setup.py
-	autopep8 --global-config pyproject.toml --aggressive --in-place setup.py
 
 .DEFAULT_GOAL := help

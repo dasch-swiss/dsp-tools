@@ -24,7 +24,6 @@ jobs:
                     python-version: 3.9
             -   name: Install dependencies
                 run: |
-                    make install-requirements
                     make install
             -   name: Run e2e tests
                 run: make test-end-to-end-ci

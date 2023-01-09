@@ -1,6 +1,78 @@
+# See https://packaging.python.org/en/latest/specifications/declaring-project-metadata
+
+[tool.poetry]
+name = "dsp-tools"
+version = "1.22.2"
+description = "DSP-TOOLS is a Python package with a command line interface that helps you interact with a DaSCH service platform (DSP) server."
+authors = ["DaSCH - Swiss National Data and Service Center for the Humanities <info@dasch.swiss>"]
+readme = "docs/index.md"
+license = "GPL-3.0-only"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+]
+documentation = "https://docs.dasch.swiss/latest/DSP-TOOLS/"
+homepage = "https://www.dasch.swiss/"
+repository = "https://github.com/dasch-swiss/dsp-tools"
+include = [
+    "src/dsp_tools/schemas/*",
+    "src/dsp_tools/docker/*"
+]
+exclude = [
+    "src/dsp_tools/import_scripts/*"
+]
+
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.12"
+jsonpath-ng = "^1.5.3"
+argparse = "^1.4.0"
+lxml = "^4.9.2"
+requests = "^2.28.1"
+jsonschema = "^4.17.3"
+pystrict = "^1.3"
+openpyxl = "^3.0.10"
+networkx = "^2.8.8"
+pandas = "^1.5.2"
+xlrd = ">=1.0.0"            # without this, pandas raises an ImportError: Missing optional dependency 'xlrd'
+regex = "^2022.10.31"
+
+
+[tool.poetry.group.dev.dependencies]
+mkdocs = "^1.4.2"
+mkdocs-material = "^8.5.11"
+mkdocs-include-markdown-plugin = "^4.0.3"
+mypy = "^0.991"
+autopep8 = "^2.0.1"
+pytest = "^7.2.0"
+types-requests = "^2.28.11.7"
+
+
+[tool.poetry.scripts]
+# definition of the entry point
+dsp-tools = "dsp_tools.dsp_tools:main"
+
+
+[build-system]
+# Tells “frontend” build tools (like pip, build, or poetry) what “backend” build tool to use (e.g. setuptools, poetry).
+# The "backend" doesn't need to be installed. It will be installed by the "frontend" in a temporary, isolated
+# environment for use during the build process.
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
+# see https://docs.pytest.org/en/latest/explanation/goodpractices.html#tests-outside-application-code
+
+
 [tool.autopep8]
 max_line_length = 180
 experimental = true
+
 
 [tool.mypy]
 ignore_missing_imports = true

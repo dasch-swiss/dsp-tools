@@ -28,7 +28,6 @@ jobs:
           python-version: 3.9
       - name: Install dependencies
         run: |
-            make install-requirements
             make install
       - name: Run tests
         run: make ${{ matrix.target }}

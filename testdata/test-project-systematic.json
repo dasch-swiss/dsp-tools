@@ -4,7 +4,7 @@
         "externalOnto": "http://otherOntology.com/onto/",
         "dcterms": "http://purl.org/dc/terms/"
     },
-    "$schema": "../knora/dsplib/schemas/ontology.json",
+    "$schema": "../src/dsp_tools/schemas/project.json",
     "project": {
         "shortcode": "4123",
         "shortname": "tp",

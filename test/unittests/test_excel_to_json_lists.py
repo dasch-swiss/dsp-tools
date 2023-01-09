@@ -10,8 +10,8 @@ import jsonpath_ng.ext
 import pandas as pd
 import regex
 
-from knora.dsplib.models.helpers import BaseError
-from knora.dsplib.utils import excel_to_json_lists as e2l
+from dsp_tools.models.helpers import BaseError
+from dsp_tools.utils import excel_to_json_lists as e2l
 
 
 class TestExcelToJSONList(unittest.TestCase):

@@ -22,7 +22,7 @@ The `<knora>` element describes all resources that should be imported. It has th
 
 - `xmlns`: `"https://dasch.swiss/schema"` (required)
 - `xmlns:xsi`: `"http://www.w3.org/2001/XMLSchema-instance"` (required)
-- `xsi:schemaLocation`: `"https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/data.xsd"` (
+- `xsi:schemaLocation`: `"https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/schemas/data.xsd"` (
   required)
 - `shortcode`: project shortcode, e.g. "0801" (required)
 - `default-ontology`: name of the ontology (required)
@@ -33,7 +33,7 @@ The `<knora>` element may look as follows:
 <knora
     xmlns="https://dasch.swiss/schema"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/data.xsd"
+    xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/schemas/data.xsd"
     shortcode="0806"
     default-ontology="webern">
  ...
@@ -868,7 +868,7 @@ In addition, there is another complete example of an XML data file here:
 <knora 
     xmlns="https://dasch.swiss/schema"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/data.xsd"
+    xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/schemas/data.xsd"
     shortcode="0001"
     default-ontology="anything">
 

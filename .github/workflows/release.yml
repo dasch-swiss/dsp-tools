@@ -11,7 +11,7 @@ env:
 
 jobs:
   release-pypi:
-    name: Release to PyPI
+    name: release-to-pypi
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
@@ -26,7 +26,7 @@ jobs:
         run:
           make install
       - name: Release new version to PyPI
-        run:
+        run: |
           rm -rf dist/ build/
           poetry build      # generate distribution package
           poetry publish    # upload distribution package to PyPI

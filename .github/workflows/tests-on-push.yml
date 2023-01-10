@@ -7,7 +7,7 @@ on:
 
 jobs:
   tests:
-    name: tests
+    name: tests-on-push
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
@@ -22,7 +22,7 @@ jobs:
         run:
           make install
       - name: Run tests
-        run:
+        run: |
           make test-unittests
           make test-end-to-end
           poetry run mkdocs build   # build docs into the local 'site' folder

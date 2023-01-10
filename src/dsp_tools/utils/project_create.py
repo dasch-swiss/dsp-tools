@@ -14,8 +14,8 @@ from dsp_tools.models.propertyclass import PropertyClass
 from dsp_tools.models.resourceclass import ResourceClass
 from dsp_tools.models.user import User
 from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
-from dsp_tools.utils.onto_create_lists import create_lists
-from dsp_tools.utils.onto_validate import validate_project
+from dsp_tools.utils.project_create_lists import create_lists
+from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import login, try_network_action
 
 

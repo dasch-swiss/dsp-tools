@@ -3,7 +3,7 @@ import unittest
 
 import pytest
 
-from dsp_tools.utils.onto_create_ontology import create_project
+from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.xml_upload import xml_upload
 from dsp_tools.excel2xml import _derandomize_xsd_id
 

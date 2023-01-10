@@ -71,6 +71,7 @@ def start_stack(
         time.sleep(1)
 
     # inside fuseki, create the "knora-test" repository
+    # (same behaviour as dsp-api/webapi/target/docker/stage/opt/docker/scripts/fuseki-init-knora-test.sh)
     repo_template = requests.get(f"{url_prefix}webapi/scripts/fuseki-repository-config.ttl.template").text
     repo_template = repo_template.replace("@REPOSITORY@", "knora-test")
     response = requests.post(
@@ -83,6 +84,7 @@ def start_stack(
                         "running already?")
 
     # load some basic ontos and data into the repository
+    # (same behaviour as dsp-api/webapi/target/docker/stage/opt/docker/scripts/fuseki-init-knora-test.sh)
     graph_prefix = "http://0.0.0.0:3030/knora-test/data?graph="
     ttl_files = [
         ("knora-ontologies/knora-admin.ttl", "http://www.knora.org/ontology/knora-admin"),
@@ -91,7 +93,9 @@ def start_stack(
         ("knora-ontologies/standoff-data.ttl", "http://www.knora.org/data/standoff"),
         ("knora-ontologies/salsah-gui.ttl", "http://www.knora.org/ontology/salsah-gui"),
         ("test_data/all_data/admin-data-minimal.ttl", "http://www.knora.org/data/admin"),
-        ("test_data/all_data/permissions-data-minimal.ttl", "http://www.knora.org/data/permissions")
+        ("test_data/all_data/permissions-data-minimal.ttl", "http://www.knora.org/data/permissions"),
+        ("test_data/ontologies/anything-onto.ttl", "http://www.knora.org/ontology/0001/anything"),
+        ("test_data/all_data/anything-data.ttl", "http://www.knora.org/data/0001/anything")
     ]
     for ttl_file, graph in ttl_files:
         ttl_text = requests.get(url_prefix + ttl_file).text

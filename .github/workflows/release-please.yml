@@ -1,6 +1,5 @@
 name: Release-Please
 
-# triggered when a PR is merged into main
 on:
   pull_request:
     types:
@@ -8,11 +7,9 @@ on:
 
 jobs:
   release-please:
+    # triggered when a PR is merged into main
     if: github.event.pull_request.merged == true
-    # Automate releases with Conventional Commit Messages as Pull Requests are merged into "main" branch
-    name: Prepare next release
     runs-on: ubuntu-latest
-    # release only if tests pass
     steps:
       - uses: google-github-actions/release-please-action@v3
         with:

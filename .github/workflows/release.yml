@@ -1,4 +1,4 @@
-name: Release to PyPI
+name: Publish to PyPI
 
 on:
   release:
@@ -10,8 +10,7 @@ env:
   POETRY_HTTP_BASIC_PYPI_PASSWORD: ${{ secrets.PYPI_PW }}
 
 jobs:
-  release-pypi:
-    name: release-to-pypi
+  publish-to-pypi:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
@@ -23,9 +22,8 @@ jobs:
         with:
           python-version: '3.9'
       - name: Install dependencies
-        run:
-          make install
-      - name: Release new version to PyPI
+        run: make install
+      - name: publish new version to PyPI
         run: |
           rm -rf dist/ build/
           poetry build      # generate distribution package
@@ -33,7 +31,7 @@ jobs:
 
   notification:
     name: Google chat notification about release and published version
-    needs: [release-pypi]
+    needs: [publish-to-pypi]
     runs-on: ubuntu-latest
     steps:
       - name: Send notification to google chat room "DSP releases"

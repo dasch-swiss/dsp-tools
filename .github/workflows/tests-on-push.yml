@@ -6,8 +6,7 @@ on:
       - main
 
 jobs:
-  tests:
-    name: tests-on-push
+  tests-on-push:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source

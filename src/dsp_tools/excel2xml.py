@@ -293,7 +293,7 @@ def make_root(shortcode: str, default_ontology: str) -> etree._Element:
         attrib={
             str(etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation")):
                 "https://dasch.swiss/schema " + \
-                "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/knora/dsplib/schemas/data.xsd",
+                "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/schemas/data.xsd",
             "shortcode": shortcode,
             "default-ontology": default_ontology
         },

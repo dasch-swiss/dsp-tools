@@ -2,7 +2,7 @@
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
 import json
 import re
-from typing import Any, cast, Tuple
+from typing import Any, cast, Tuple, Optional
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.group import Group
@@ -19,59 +19,38 @@ from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import login, try_network_action
 
 
-def _create_project(con: Connection, project_definition: dict[str, Any]) -> Project:
-    """
-    Creates a project on a DSP server from a parsed JSON project file. Raises a BaseError if it is not
-    possible to create the project.
-
-    Args:
-        con: connection instance to connect to the DSP server
-        project_definition: a parsed JSON project file
-
-    Returns:
-        created project
-    """
-    project_local = Project(
-        con=con,
-        shortcode=project_definition["project"]["shortcode"],
-        shortname=project_definition["project"]["shortname"],
-        longname=project_definition["project"]["longname"],
-        description=LangString(project_definition["project"].get("descriptions")),
-        keywords=set(project_definition["project"].get("keywords")),
-        selfjoin=False,
-        status=True
-    )
-    project_remote: Project = try_network_action(
-        action=lambda: project_local.create(),
-        failure_msg=f"ERROR: Cannot create project '{project_definition['project']['shortname']}' "
-                    f"({project_definition['project']['shortcode']}) on DSP server."
-    )
-    return project_remote
-
-
-def _update_project(project: Project, project_definition: dict[str, Any], verbose: bool) -> Project:
+def _update_project(
+        project: Project, project_definition: dict[str, Any],
+        verbose: bool
+) -> Tuple[Optional[Project], bool]:
     """
     Updates a project on a DSP server from a JSON project file. Only the longname, description and keywords will be
-    updated. Raises a BaseError if the project cannot be updated.
+    updated. Returns the updated project (or None if not successful) and a boolean saying if the update was successful
+    or not. If the update was not successful, an error message is printed to stdout.
 
     Args:
         project: the project to be updated (must exist on the DSP server)
         project_definition: a parsed JSON project file with the same shortname and shortcode than the existing project
 
     Returns:
-        updated project
+        tuple of (updated project/None, success status)
     """
     project.longname = project_definition["project"]["longname"]
     project.description = project_definition["project"].get("descriptions")
     project.keywords = project_definition["project"].get("keywords")
-    project_remote: Project = try_network_action(
-        action=lambda: project.update(),
-        failure_msg=f"WARNING: Could not update project '{project_definition['project']['shortname']}' "
-                    f"({project_definition['project']['shortcode']})."
-    )
-    if verbose:
-        print(f"\tUpdated project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}).")
-    return project_remote
+    try:
+        project_remote: Project = try_network_action(
+            action=lambda: project.update(),
+            failure_msg=f"WARNING: Could not update project '{project_definition['project']['shortname']}' "
+                        f"({project_definition['project']['shortcode']})."
+        )
+        if verbose:
+            print(f"\tUpdated project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}).")
+        return project_remote, True
+    except BaseError as err:
+        print(err.message)
+        return None, False
+
 
 
 def _create_groups(con: Connection, groups: list[dict[str, str]], project: Project) -> Tuple[dict[str, Group], bool]:
@@ -423,8 +402,8 @@ def create_project(
     context = Context(project_definition.get("prefixes") or {})
 
     # if project exists, update it, otherwise create it
-    project_local = Project(con=con, shortcode=project_definition["project"]["shortcode"])
     try:
+        project_local = Project(con=con, shortcode=project_definition["project"]["shortcode"])
         project_remote: Project = try_network_action(
             action=lambda: project_local.read(),
             failure_msg=""
@@ -432,12 +411,23 @@ def create_project(
         print(f"\tWARNING: Project '{project_remote.shortname}' ({project_remote.shortcode}) already exists on the DSP "
               f"server. Updating it...")
         overall_success = False
-        try:
-            project_remote = _update_project(project=project_remote, project_definition=project_definition, verbose=verbose)
-        except BaseError as err:
-            print(err.message)
+        project_remote, success = _update_project(project=project_remote, project_definition=project_definition, verbose=verbose)
     except BaseError:
-        project_remote = _create_project(con=con, project_definition=project_definition)
+        project_local = Project(
+            con=con,
+            shortcode=project_definition["project"]["shortcode"],
+            shortname=project_definition["project"]["shortname"],
+            longname=project_definition["project"]["longname"],
+            description=LangString(project_definition["project"].get("descriptions")),
+            keywords=set(project_definition["project"].get("keywords")),
+            selfjoin=False,
+            status=True
+        )
+        project_remote = try_network_action(
+            action=lambda: project_local.create(),
+            failure_msg=f"ERROR: Cannot create project '{project_definition['project']['shortname']}' "
+                        f"({project_definition['project']['shortcode']}) on DSP server."
+        )
         print(f"\tCreated project '{project_remote.shortname}' ({project_remote.shortcode}).")
 
     # create the lists

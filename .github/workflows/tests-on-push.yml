@@ -19,10 +19,10 @@ jobs:
         with:
           python-version: 3.9
       - name: Install dependencies
-        run:
-          make install
-      - name: Run tests
-        run: |
-          make test-unittests
-          make test-end-to-end
-          poetry run mkdocs build   # build docs into the local 'site' folder
+        run: make install
+      - name: unittests
+        run: make test-unittests
+      - name: e2e tests
+        run: make test-end-to-end
+      - name: build docs
+        run: poetry run mkdocs build

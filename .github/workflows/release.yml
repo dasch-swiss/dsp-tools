@@ -1,17 +1,15 @@
-name: Release
+name: Release to PyPI
 
 on:
   release:
     types: [released]
 
-# set environment variables
 env:
   TOKEN: ${{ secrets.GH_TOKEN }}
   POETRY_HTTP_BASIC_PYPI_USERNAME: ${{ secrets.PYPI_USER }}
   POETRY_HTTP_BASIC_PYPI_PASSWORD: ${{ secrets.PYPI_PW }}
 
 jobs:
-  # release to PyPI
   release-pypi:
     name: Release to PyPI
     runs-on: ubuntu-latest
@@ -25,12 +23,12 @@ jobs:
         with:
           python-version: '3.9'
       - name: Install dependencies
-        run: |
+        run:
           make install
       - name: Release new version to PyPI
-        run: |
+        run:
           rm -rf dist/ build/
-	      poetry build      # generate distribution package
+          poetry build      # generate distribution package
           poetry publish    # upload distribution package to PyPI
 
   notification:

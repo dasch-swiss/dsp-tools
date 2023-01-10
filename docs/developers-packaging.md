@@ -128,7 +128,7 @@ steps below.
 Generate the distribution package:
 
 ```bash
-make dist
+poetry build
 ```
 
 You can install the package locally from the dist:
@@ -137,8 +137,8 @@ You can install the package locally from the dist:
 pip install dist/some_name.whl
 ```
 
-Upload package works also with `make`:
+Upload package:
 
 ```bash
-make upload
+poetry publish
 ```

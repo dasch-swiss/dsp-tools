@@ -7,33 +7,6 @@ CURRENT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 # Make targets for dsp-tools
 ############################
 
-.PHONY: dsp-stack
-dsp-stack: ## clone the dsp-api git repository and run the dsp-stack
-	@mkdir -p .tmp
-	@git clone --branch v24.0.8 --single-branch https://github.com/dasch-swiss/dsp-api.git .tmp/dsp-stack
-	$(MAKE) -C .tmp/dsp-stack env-file
-	$(MAKE) -C .tmp/dsp-stack init-db-test
-	$(MAKE) -C .tmp/dsp-stack stack-up
-	$(MAKE) -C .tmp/dsp-stack stack-logs-api-no-follow
-
-.PHONY: stack-down
-stack-down: ## stop dsp-stack and remove the cloned dsp-api repository
-	$(MAKE) -C .tmp/dsp-stack stack-down-delete-volumes
-	@test -x .tmp && rm -rf .tmp
-
-.PHONY: dist
-dist: ## generate distribution package
-	@rm -rf dist/ build/
-	poetry build
-
-.PHONY: upload
-upload: ## upload distribution package to PyPI
-	poetry publish
-
-.PHONY: docs-build
-docs-build: ## build docs into the local 'site' folder
-	poetry run mkdocs build
-
 .PHONY: docs-serve
 docs-serve: ## serve docs for local viewing
 	poetry run mkdocs serve --dev-addr=localhost:7979
@@ -44,26 +17,20 @@ install: ## install Poetry, which in turn installs the dependencies and makes an
 	poetry install
 
 .PHONY: test
-test: dsp-stack ## run all tests located in the "test" folder (intended for local usage)
-	-poetry run pytest test/	# ignore errors, continue anyway with stack-down (see https://www.gnu.org/software/make/manual/make.html#Errors)
-	$(MAKE) stack-down
+test: ## run all tests located in the "test" folder
+	@dsp-tools start-stack --no-prune
+	-poetry run pytest test/	# ignore errors, continue anyway with stop-stack (see https://www.gnu.org/software/make/manual/make.html#Errors)
+	@dsp-tools stop-stack
 
 .PHONY: test-no-stack
 test-no-stack: ## run all tests located in the "test" folder, without starting the stack (intended for local usage)
 	poetry run pytest test/
 
 .PHONY: test-end-to-end
-test-end-to-end: dsp-stack ## run e2e tests (intended for local usage)
-	-poetry run pytest test/e2e/	# ignore errors, continue anyway with stack-down (see https://www.gnu.org/software/make/manual/make.html#Errors)
-	$(MAKE) stack-down
-
-.PHONY: test-end-to-end-ci
-test-end-to-end-ci: dsp-stack ## run e2e tests (intended for GitHub CI, where it isn't possible nor necessary to remove .tmp)
-	poetry run pytest test/e2e/
-
-.PHONY: test-end-to-end-no-stack
-test-end-to-end-no-stack: ## run e2e tests without starting the dsp-stack (intended for local usage)
-	poetry run pytest test/e2e/
+test-end-to-end: ## run e2e tests
+	@dsp-tools start-stack --no-prune
+	-poetry run pytest test/e2e/	# ignore errors, continue anyway with stop-stack (see https://www.gnu.org/software/make/manual/make.html#Errors)
+	@dsp-tools stop-stack
 
 .PHONY: test-unittests
 test-unittests: ## run unit tests

@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target: [ 'test-end-to-end-ci', 'test-unittests', 'docs-build' ]
+        target: [ 'test-end-to-end', 'test-unittests' ]
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
@@ -28,6 +28,8 @@ jobs:
           python-version: 3.9
       - name: Install dependencies
         run: |
-            make install
+          make install
       - name: Run tests
-        run: make ${{ matrix.target }}
+        run:
+          make ${{ matrix.target }}
+          poetry run mkdocs build   # build docs into the local 'site' folder

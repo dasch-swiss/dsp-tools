@@ -32,6 +32,11 @@ test-end-to-end: ## run e2e tests
 	-poetry run pytest test/e2e/	# ignore errors, continue anyway with stop-stack (see https://www.gnu.org/software/make/manual/make.html#Errors)
 	poetry run dsp-tools stop-stack
 
+.PHONY: test-end-to-end-ci
+test-end-to-end-ci: ## run e2e tests (intended for GitHub CI, where the errors must not be ignored, and the stack doesn't have to be stopped)
+	poetry run dsp-tools start-stack --no-prune
+	poetry run pytest test/e2e/
+
 .PHONY: test-unittests
 test-unittests: ## run unit tests
 	poetry run pytest test/unittests/

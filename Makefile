@@ -18,9 +18,9 @@ install: ## install Poetry, which in turn installs the dependencies and makes an
 
 .PHONY: test
 test: ## run all tests located in the "test" folder
-	@dsp-tools start-stack --no-prune
+	poetry run dsp-tools start-stack --no-prune
 	-poetry run pytest test/	# ignore errors, continue anyway with stop-stack (see https://www.gnu.org/software/make/manual/make.html#Errors)
-	@dsp-tools stop-stack
+	poetry run dsp-tools stop-stack
 
 .PHONY: test-no-stack
 test-no-stack: ## run all tests located in the "test" folder, without starting the stack (intended for local usage)
@@ -28,9 +28,9 @@ test-no-stack: ## run all tests located in the "test" folder, without starting t
 
 .PHONY: test-end-to-end
 test-end-to-end: ## run e2e tests
-	@dsp-tools start-stack --no-prune
+	poetry run dsp-tools start-stack --no-prune
 	-poetry run pytest test/e2e/	# ignore errors, continue anyway with stop-stack (see https://www.gnu.org/software/make/manual/make.html#Errors)
-	@dsp-tools stop-stack
+	poetry run dsp-tools stop-stack
 
 .PHONY: test-unittests
 test-unittests: ## run unit tests

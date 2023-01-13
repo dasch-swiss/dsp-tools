@@ -57,6 +57,7 @@ dsp-tools = "dsp_tools.dsp_tools:main"
 [tool.poetry-exec-plugin.commands]
 # plugin (https://github.com/keattang/poetry-exec-plugin) to define commands available during development
 # e.g. poetry exec docs
+# has to be installed with `poetry self add poetry-exec-plugin`
 docs = "mkdocs serve --dev-addr=localhost:7979"
 
 

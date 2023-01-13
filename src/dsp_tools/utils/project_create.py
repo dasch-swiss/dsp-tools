@@ -369,66 +369,19 @@ def create_project(
 
     knora_api_prefix = "knora-api:"
     overall_success = True
-    success = True
 
     # create project
     ################
-    with open(input_file) as f:
-        project_json_str = f.read()
-    project_definition = json.loads(project_json_str)
-    print(f"Create project '{project_definition['project']['shortname']}' "
-          f"({project_definition['project']['shortcode']})...")
-
-    # expand all lists referenced in the "lists" section of the project, and add them to the project
-    new_lists, success = expand_lists_from_excel(project_definition["project"].get("lists", []))
-    if new_lists:
-        project_definition["project"]["lists"] = new_lists
+    con, context, success, project_definition, project_remote = _create_project(
+        input_file=input_file,
+        server=server,
+        user_mail=user_mail,
+        password=password,
+        verbose=verbose,
+        dump=dump
+    )
     if not success:
         overall_success = False
-
-    try:
-        validate_project(project_definition, expand_lists=False)
-        print('\tJSON project file is syntactically correct and passed validation.')
-    except BaseError as err:
-        print(f'=====================================\n'
-              f'{err.message}')
-        quit(0)
-
-    con = login(server=server, user=user_mail, password=password)
-    if dump:
-        con.start_logging()
-
-    # read the prefixes of external ontologies that may be used
-    context = Context(project_definition.get("prefixes") or {})
-
-    # if project exists, update it, otherwise create it
-    try:
-        project_local = Project(con=con, shortcode=project_definition["project"]["shortcode"])
-        project_remote: Project = try_network_action(
-            action=lambda: project_local.read(),
-            failure_msg=""
-        )
-        print(f"\tWARNING: Project '{project_remote.shortname}' ({project_remote.shortcode}) already exists on the DSP "
-              f"server. Updating it...")
-        overall_success = False
-        project_remote, success = _update_project(project=project_remote, project_definition=project_definition, verbose=verbose)
-    except BaseError:
-        project_local = Project(
-            con=con,
-            shortcode=project_definition["project"]["shortcode"],
-            shortname=project_definition["project"]["shortname"],
-            longname=project_definition["project"]["longname"],
-            description=LangString(project_definition["project"].get("descriptions")),
-            keywords=set(project_definition["project"].get("keywords")),
-            selfjoin=False,
-            status=True
-        )
-        project_remote = try_network_action(
-            action=lambda: project_local.create(),
-            failure_msg=f"ERROR: Cannot create project '{project_definition['project']['shortname']}' "
-                        f"({project_definition['project']['shortcode']}) on DSP server."
-        )
-        print(f"\tCreated project '{project_remote.shortname}' ({project_remote.shortcode}).")
 
     # create the lists
     ##################
@@ -656,3 +609,94 @@ def create_project(
               f"with its ontologies could be created, but during the creation process, some problems occurred. "
               f"Please carefully check the console output.")
     return overall_success
+
+
+def _create_project(
+        input_file: str,
+        server: str,
+        user_mail: str,
+        password: str,
+        verbose: bool,
+        dump: bool
+) -> Tuple[Connection, Context, dict[str, Any], Project, bool]:
+    """
+    Parses the JSON project file, expands the Excel files referenced in the "lists" section, validates the project
+    against the JSON schema, creates the project (or if it exists, updates it)
+
+    Args:
+        input_file: the path to the JSON file from which the project and its parts should be created
+        server: the URL of the DSP server on which the project should be created
+        user_mail: a username (e-mail) who has the permission to create a project
+        password: the user's password
+        verbose: prints more information if set to True
+        dump: dumps test files (JSON) for DSP API requests if set to True
+
+    Returns:
+        connection to the DSP server,
+        project context,
+        parsed JSON object,
+        created project,
+        success status (True if everything went smoothly, False otherwise)
+    """
+
+    overall_success = True
+
+    # parse the JSON project file
+    with open(input_file) as f:
+        project_json_str = f.read()
+    project_definition: dict[str, Any] = json.loads(project_json_str)
+    context = Context(project_definition.get("prefixes", {}))   # read prefixes of external ontologies
+    print(f"Create project '{project_definition['project']['shortname']}' "
+          f"({project_definition['project']['shortcode']})...")
+
+    # expand the Excel files referenced in the "lists" section of the project (if any), and add them to the project
+    new_lists, success = expand_lists_from_excel(project_definition["project"].get("lists", []))
+    if new_lists:
+        project_definition["project"]["lists"] = new_lists
+    if not success:
+        overall_success = False
+
+    # validate against JSON schema
+    try:
+        validate_project(project_definition, expand_lists=False)
+        print('\tJSON project file is syntactically correct and passed validation.')
+    except BaseError as err:
+        print(f'=====================================\n'
+              f'{err.message}')
+        quit(0)
+
+    # establish connection to DSP server
+    con = login(server=server, user=user_mail, password=password)
+    if dump:
+        con.start_logging()
+
+    # if project exists, update it, otherwise create it
+    try:
+        project_local = Project(con=con, shortcode=project_definition["project"]["shortcode"])
+        project_remote: Project = try_network_action(
+            action=lambda: project_local.read(),
+            failure_msg=""
+        )
+        print(f"\tWARNING: Project '{project_remote.shortname}' ({project_remote.shortcode}) already exists on the DSP "
+              f"server. Updating it...")
+        overall_success = False
+        project_remote, _ = _update_project(project=project_remote, project_definition=project_definition, verbose=verbose)
+    except BaseError:
+        project_local = Project(
+            con=con,
+            shortcode=project_definition["project"]["shortcode"],
+            shortname=project_definition["project"]["shortname"],
+            longname=project_definition["project"]["longname"],
+            description=LangString(project_definition["project"].get("descriptions")),
+            keywords=set(project_definition["project"].get("keywords")),
+            selfjoin=False,
+            status=True
+        )
+        project_remote = try_network_action(
+            action=lambda: project_local.create(),
+            failure_msg=f"ERROR: Cannot create project '{project_definition['project']['shortname']}' "
+                        f"({project_definition['project']['shortcode']}) on DSP server."
+        )
+        print(f"\tCreated project '{project_remote.shortname}' ({project_remote.shortcode}).")
+
+    return con, context, project_definition, project_remote, overall_success

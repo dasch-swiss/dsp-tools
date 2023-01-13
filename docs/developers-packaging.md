@@ -21,7 +21,7 @@ for all processes, and to keep the number of configuration files at a minimum.
 There are many configuration and metadata files that can be found on the top level of a Python repository. The ones 
 used in the DSP-TOOLS repository are:
 
-| file           | purpose                                                                        |
+| File           | Purpose                                                                        |
 |----------------|--------------------------------------------------------------------------------|
 | README.md      | Markdown-formatted infos for developers                                        |
 | pyproject.toml | Modern configuration/metadata file replacing the deprecated files listed below |
@@ -29,21 +29,21 @@ used in the DSP-TOOLS repository are:
 | .gitmodules    | DSP-TOOLS contains a Git submodule (more infos below)                          |
 | CHANGELOG.md   | Markdown-formatted release notes (must not be edited by hand)                  |
 | LICENSE        | Text file with the license how to use the source code of DSP-TOOLS             |
-| Makefile       | Definition of commands that can be executed with `make [command]`              |
 | poetry.lock    | Pinned versions of all (sub-)dependencies, allows a deterministic installation |
 | mkdocs.yml     | Configuration of `mkdocs`, used to build the documentation webpages            |
 
 In earlier times, there were some more configuration files, but thanks to poetry, they are not necessary anymore:
 
-| Deprecated file      | Replaced by                             | Replaced by                                          |
-|----------------------|-----------------------------------------|------------------------------------------------------|
-| MANIFEST.in          | files to include into distribution      | pyproject.toml: [tool.poetry.include]                |
-| setup.py             | project metadata, dependencies          | pyproject.toml                                       |
-| setup.cfg            | configuration for setuptools            | pyproject.toml                                       |
-| requirements.txt     | all (sub-)dependencies                  | pyproject.toml: [tool.poetry.dependencies]           |
-| dev-requirements.txt | additional dependencies for development | pyproject.toml: [tool.poetry.group.dev.dependencies] |
-| Pipfile              | direct dependencies                     | pyproject.toml: [tool.poetry.dependencies]           |
-| Pipfile.lock         | pinned dependencies                     | poetry.lock                                          |
+| Deprecated file      | Purpose                                             | Replaced by                                          |
+|----------------------|-----------------------------------------------------|------------------------------------------------------|
+| MANIFEST.in          | files to include into distribution                  | pyproject.toml: [tool.poetry.include]                |
+| setup.py             | project metadata, dependencies                      | pyproject.toml                                       |
+| setup.cfg            | configuration for setuptools                        | pyproject.toml                                       |
+| requirements.txt     | all (sub-)dependencies                              | pyproject.toml: [tool.poetry.dependencies]           |
+| dev-requirements.txt | additional dependencies for development             | pyproject.toml: [tool.poetry.group.dev.dependencies] |
+| Pipfile              | direct dependencies                                 | pyproject.toml: [tool.poetry.dependencies]           |
+| Pipfile.lock         | pinned dependencies                                 | poetry.lock                                          |
+| Makefile             | commands that can be executed with `make [command]` | pyproject.toml: [tool.poetry-exec-plugin.commands]   |
 
 
 

@@ -129,11 +129,11 @@ For formatting Markdown files (*.md) we use the default styling configuration pr
 ## Contributing to the documentation
 
 The documentation is a collection of [markdown](https://en.wikipedia.org/wiki/Markdown) files in the `docs` folder.  
-After updates of the files, build and check the result with the following command:
+After updating the files, build and check the result with the following command:
 
 ```bash
-make docs-serve 
+mkdocs serve
 ```
 
 The documentation is published on https://docs.dasch.swiss/latest/DSP-TOOLS. During the centralized release process of all
-components of the DSP software stack, the docs of dsp-tools get built from the main branch to https://docs.dasch.swiss.
+components of the DSP software stack, the docs of DSP-TOOLS get built from the main branch to https://docs.dasch.swiss.

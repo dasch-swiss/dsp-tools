@@ -54,6 +54,12 @@ types-requests = "^2.28.11.7"
 dsp-tools = "dsp_tools.dsp_tools:main"
 
 
+[tool.poetry-exec-plugin.commands]
+# plugin (https://github.com/keattang/poetry-exec-plugin) to define commands available during development
+# e.g. poetry exec docs
+docs = "mkdocs serve --dev-addr=localhost:7979"
+
+
 [build-system]
 # Tells “frontend” build tools (like pip, build, or poetry) what “backend” build tool to use (e.g. setuptools, poetry).
 # The "backend" doesn't need to be installed. It will be installed by the "frontend" in a temporary, isolated

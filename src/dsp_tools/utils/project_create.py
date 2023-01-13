@@ -463,7 +463,7 @@ def create_project(
 
     # create project
     ################
-    con, context, success, project_definition, project_remote = _create_project(
+    con, context, project_definition, project_remote, success = _create_project(
         input_file=input_file,
         server=server,
         user_mail=user_mail,

@@ -92,8 +92,8 @@ def start_stack(
         ("knora-ontologies/standoff-onto.ttl", "http://www.knora.org/ontology/standoff"),
         ("knora-ontologies/standoff-data.ttl", "http://www.knora.org/data/standoff"),
         ("knora-ontologies/salsah-gui.ttl", "http://www.knora.org/ontology/salsah-gui"),
-        ("test_data/all_data/admin-data-minimal.ttl", "http://www.knora.org/data/admin"),
-        ("test_data/all_data/permissions-data-minimal.ttl", "http://www.knora.org/data/permissions"),
+        ("test_data/all_data/admin-data.ttl", "http://www.knora.org/data/admin"),
+        ("test_data/all_data/permissions-data.ttl", "http://www.knora.org/data/permissions"),
         ("test_data/ontologies/anything-onto.ttl", "http://www.knora.org/ontology/0001/anything"),
         ("test_data/all_data/anything-data.ttl", "http://www.knora.org/data/0001/anything")
     ]

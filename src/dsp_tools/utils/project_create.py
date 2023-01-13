@@ -6,7 +6,7 @@ from typing import Any, cast, Tuple, Optional
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.group import Group
-from dsp_tools.models.helpers import BaseError, Cardinality, Context
+from dsp_tools.models.helpers import BaseError, Cardinality, Context, DateTimeStamp
 from dsp_tools.models.langstring import LangString
 from dsp_tools.models.ontology import Ontology
 from dsp_tools.models.project import Project
@@ -466,29 +466,29 @@ def _create_ontologies(
         action=lambda: Ontology.getAllOntologies(con=con),
         failure_msg="WARNING: Unable to retrieve remote ontologies. Cannot check if your ontology already exists."
     )
-    for ontology in project_definition.get("project", {}).get("ontologies"):
-        if ontology["name"] in [onto.name for onto in all_ontologies]:
-            print(f"\tWARNING: Ontology '{ontology['name']}' already exists on the DSP server. Skipping...")
+    for ontology_definition in project_definition.get("project", {}).get("ontologies"):
+        if ontology_definition["name"] in [onto.name for onto in all_ontologies]:
+            print(f"\tWARNING: Ontology '{ontology_definition['name']}' already exists on the DSP server. Skipping...")
             overall_success = False
             continue
 
         # create the ontology
-        print(f"Create ontology '{ontology['name']}'...")
+        print(f"Create ontology '{ontology_definition['name']}'...")
         ontology_local = Ontology(
             con=con,
             project=project_remote,
-            label=ontology["label"],
-            name=ontology["name"]
+            label=ontology_definition["label"],
+            name=ontology_definition["name"]
         )
         ontology_remote: Ontology = try_network_action(
             action=lambda: ontology_local.create(),
-            failure_msg=f"ERROR while trying to create ontology '{ontology['name']}'."
+            failure_msg=f"ERROR while trying to create ontology '{ontology_definition['name']}'."
         )
         context.add_context(ontology_remote.name,
                             ontology_remote.id + ('#' if not ontology_remote.id.endswith('#') else ''))
         last_modification_date = ontology_remote.lastModificationDate
         if verbose:
-            print(f"\tCreated ontology '{ontology['name']}'.")
+            print(f"\tCreated ontology '{ontology_definition['name']}'.")
 
         # add the prefixes defined in the JSON file
         for onto_prefix, onto_info in context:
@@ -496,40 +496,20 @@ def _create_ontologies(
                 onto_iri = onto_info.iri + ("#" if onto_info.hashtag else "")
                 ontology_remote.context.add_context(onto_prefix, onto_iri)
 
-        # create the empty resource classes
-        print("\tCreate resource classes...")
-        new_res_classes: dict[str, ResourceClass] = {}
-        sorted_resources = _sort_resources(ontology["resources"], ontology["name"])
-        for res_class in sorted_resources:
-            super_classes = res_class["super"]
-            if isinstance(super_classes, str):
-                super_classes = [super_classes]
-            res_class_local = ResourceClass(
-                con=con,
-                context=ontology_remote.context,
-                ontology_id=ontology_remote.id,
-                name=res_class["name"],
-                superclasses=super_classes,
-                label=LangString(res_class.get("labels")),
-                comment=LangString(res_class.get("comments")) if res_class.get("comments") else None
-            )
-            try:
-                last_modification_date, res_class_remote = try_network_action(
-                    action=lambda: res_class_local.create(last_modification_date=last_modification_date),
-                    failure_msg=f"WARNING: Unable to create resource class '{res_class['name']}'."
-                )
-                res_class_remote = cast(ResourceClass, res_class_remote)
-                new_res_classes[res_class_remote.id] = res_class_remote
-                ontology_remote.lastModificationDate = last_modification_date
-                if verbose:
-                    print(f"\tCreated resource class '{res_class['name']}'")
-            except BaseError as err:
-                print(err.message)
-                overall_success = False
+        # add the empty resource classes to the remote ontology
+        last_modification_date, new_res_classes, success = _add_empty_resource_classes_to_remote_ontology(
+            ontology_definition=ontology_definition,
+            ontology_remote=ontology_remote,
+            con=con,
+            last_modification_date=last_modification_date,
+            verbose=verbose
+        )
+        if not success:
+            overall_success = False
 
         # create the property classes
         print("\tCreate property classes...")
-        sorted_prop_classes = _sort_prop_classes(ontology["properties"], ontology["name"])
+        sorted_prop_classes = _sort_prop_classes(ontology_definition["properties"], ontology_definition["name"])
         new_prop_classes: dict[str, PropertyClass] = {}
         for prop_class in sorted_prop_classes:
 
@@ -600,7 +580,7 @@ def _create_ontologies(
             "1-n": Cardinality.C_1_n
         }
 
-        for res_class in ontology.get("resources"):
+        for res_class in ontology_definition.get("resources"):
             res_class_remote = new_res_classes.get(ontology_remote.id + "#" + res_class["name"])
             if not res_class_remote:
                 print(f"WARNING: Unable to add cardinalities to resource class '{res_class['name']}': This class "
@@ -639,6 +619,64 @@ def _create_ontologies(
                 ontology_remote.lastModificationDate = last_modification_date
 
     return overall_success
+
+
+def _add_empty_resource_classes_to_remote_ontology(
+        ontology_definition: dict[str, Any],
+        ontology_remote: Ontology,
+        con: Connection,
+        last_modification_date: DateTimeStamp,
+        verbose: bool
+) -> Tuple[DateTimeStamp, dict[str, ResourceClass], bool]:
+    """
+    Creates the resource classes (without cardinalities) defined in the "resources" section of an ontology. The
+    containing project and the containing ontology must already be existing on the DSP server.
+
+    Args:
+        ontology_definition: the part of the parsed JSON project file that contains the current ontology
+        ontology_remote: representation of the current ontology on the DSP server
+        con: connection to the DSP server
+        last_modification_date: last modification date of the ontology on the DSP server
+        verbose: verbose switch
+
+    Returns:
+        last modification date of the ontology,
+        new resource classes,
+        success status
+    """
+
+    overall_success = True
+    print("\tCreate resource classes...")
+    new_res_classes: dict[str, ResourceClass] = {}
+    sorted_resources = _sort_resources(ontology_definition["resources"], ontology_definition["name"])
+    for res_class in sorted_resources:
+        super_classes = res_class["super"]
+        if isinstance(super_classes, str):
+            super_classes = [super_classes]
+        res_class_local = ResourceClass(
+            con=con,
+            context=ontology_remote.context,
+            ontology_id=ontology_remote.id,
+            name=res_class["name"],
+            superclasses=super_classes,
+            label=LangString(res_class.get("labels")),
+            comment=LangString(res_class.get("comments")) if res_class.get("comments") else None
+        )
+        try:
+            last_modification_date, res_class_remote = try_network_action(
+                action=lambda: res_class_local.create(last_modification_date=last_modification_date),
+                failure_msg=f"WARNING: Unable to create resource class '{res_class['name']}'."
+            )
+            res_class_remote = cast(ResourceClass, res_class_remote)
+            new_res_classes[res_class_remote.id] = res_class_remote
+            ontology_remote.lastModificationDate = last_modification_date
+            if verbose:
+                print(f"\tCreated resource class '{res_class['name']}'")
+        except BaseError as err:
+            print(err.message)
+            overall_success = False
+
+    return last_modification_date, new_res_classes, overall_success
 
 
 def create_project(

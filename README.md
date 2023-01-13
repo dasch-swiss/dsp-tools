@@ -19,7 +19,7 @@ This README contains basic information for getting started. More details can be 
 Curious what poetry is and why we use it? Check out the 
 [developers documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers-packaging/).
 
-If you want to work on the code of DSP-TOOLS, you first have to do a `make install`, which will
+If you want to work on the code of DSP-TOOLS, you first have to do the following:
 
  - install poetry with `curl -sSL https://install.python-poetry.org | python3 -` (for Windows, see 
    [https://python-poetry.org/docs/](https://python-poetry.org/docs/))
@@ -87,14 +87,22 @@ Please ensure you have only one pull request per feature.
 
 ## Testing
 
-Please note that testing requires launching the complete DSP API stack which is based on docker images. 
-Therefore, we recommend installing the [docker desktop client](https://www.docker.com/products).  
-To run the complete test suite:
+The tests of this repository 
+are written in the [unittest](https://docs.python.org/3/library/unittest.html) framework 
+and executed with the [pytest](https://docs.pytest.org) framework.
+There are two groups of tests: 
+The ones in `test/unittests` can be run directly, 
+whereas the ones in `test/e2e` need a DSP stack running in the background.
+A DSP stack can be started with the command 
+[`dsp-tools start-stack`](https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-usage/#simple-way-dsp-tools-start-stack)
 
-```bash
-make test
-```
+It is possible to run all tests in a given folder: `pytest test/unittests`  
+Or only the tests inside a singe file: `pytest test/unittests/test_excel2xml.py`  
+Or even a certain method: `pytest test/unittests/test_excel2xml.py::TestExcel2xml::test_make_boolean_prop`  
 
+This is useful in combination with the debugging mode of your IDE, 
+if you want to examine why 
+a single line of code in a test method fails.
 
 
 ## Code style

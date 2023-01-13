@@ -17,6 +17,10 @@ jobs:
                 with:
                     python-version: 3.9
             -   name: Install dependencies
-                run: make install
+                run: |
+                    curl -sSL https://install.python-poetry.org | python3 -
+                    poetry install
             -   name: Run e2e tests
-                run: make test-end-to-end-ci
+                run: |
+                    poetry run dsp-tools start-stack --no-prune
+                    poetry run pytest test/e2e/

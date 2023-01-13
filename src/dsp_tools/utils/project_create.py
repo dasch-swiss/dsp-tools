@@ -143,7 +143,6 @@ def _update_project(
         return None, False
 
 
-
 def _create_groups(con: Connection, groups: list[dict[str, str]], project: Project) -> Tuple[dict[str, Group], bool]:
     """
     Creates groups on a DSP server from the "groups" section of a JSON project file. If a group cannot be created, it is
@@ -433,96 +432,47 @@ def _sort_prop_classes(unsorted_prop_classes: list[dict[str, Any]], onto_name: s
     return sorted_prop_classes
 
 
-def create_project(
-    input_file: str,
-    server: str,
-    user_mail: str,
-    password: str,
-    verbose: bool,
-    dump: bool
+def _create_ontologies(
+        con: Connection,
+        context: Context,
+        knora_api_prefix: str,
+        list_root_nodes: dict[str, Any],
+        project_definition: dict[str, Any],
+        project_remote: Project,
+        verbose: bool
 ) -> bool:
     """
-    Creates a project from a JSON project file on a DSP server. A project must contain at least one ontology, and it may
-    contain lists, users, and groups.
-    Returns True if everything went smoothly during the process, False if a warning or error occurred.
+    Iterates over the ontologies in a JSON project file and creates the ontologies that don't exist on the DSP server
+    yet. For every ontology, it first creates the resource classes, then the properties, and then adds the cardinalities
+    to the resource classes.
 
     Args:
-        input_file: the path to the JSON file from which the project and its parts should be created
-        server: the URL of the DSP server on which the project should be created
-        user_mail: a username (e-mail) who has the permission to create a project
-        password: the user's password
-        verbose: prints more information if set to True
-        dump: dumps test files (JSON) for DSP API requests if set to True
+        con: Connection to the DSP server
+        context: prefixes and the ontology IRIs they stand for
+        knora_api_prefix: the prefix that stands for the knora-api ontology
+        list_root_nodes: the IRIs of the list nodes that were already created and are now available on the DSP server
+        project_definition: the parsed JSON project file
+        project_remote: representation of the project on the DSP server
+        verbose: verbose switch
 
     Returns:
-        True if everything went smoothly, False if a warning or error occurred
+        True if everything went smoothly, False otherwise
     """
 
-    knora_api_prefix = "knora-api:"
     overall_success = True
 
-    # create project
-    ################
-    con, context, project_definition, project_remote, success = _create_project(
-        input_file=input_file,
-        server=server,
-        user_mail=user_mail,
-        password=password,
-        verbose=verbose,
-        dump=dump
-    )
-    if not success:
-        overall_success = False
-
-    # create the lists
-    ##################
-    list_root_nodes: dict[str, Any] = {}
-    if project_definition["project"].get("lists"):
-        print("Create lists...")
-        list_root_nodes, success = create_lists(server=server, user=user_mail, password=password, project_definition=project_definition)
-        if not success:
-            overall_success = False
-
-    # create the groups
-    ###################
-    current_project_groups: dict[str, Group] = {}
-    if project_definition["project"].get("groups"):
-        print("Create groups...")
-        current_project_groups, success = _create_groups(
-            con=con, 
-            groups=project_definition["project"]["groups"], 
-            project=project_remote
-        )
-        if not success:
-            overall_success = False
-
-    # create or update the users
-    ############################
-    if project_definition["project"].get("users"):
-        print("Create users...")
-        success = _create_users(
-            con=con, 
-            users=project_definition["project"]["users"], 
-            current_project_groups=current_project_groups, 
-            current_project=project_remote, 
-            verbose=verbose
-        )
-        if not success:
-            overall_success = False
-
-    # create the ontologies
-    #######################
     print("Create ontologies...")
     all_ontologies: list[Ontology] = try_network_action(
         action=lambda: Ontology.getAllOntologies(con=con),
         failure_msg="WARNING: Unable to retrieve remote ontologies. Cannot check if your ontology already exists."
     )
-    for ontology in project_definition.get("project").get("ontologies"):
+    for ontology in project_definition.get("project", {}).get("ontologies"):
         if ontology["name"] in [onto.name for onto in all_ontologies]:
             print(f"\tWARNING: Ontology '{ontology['name']}' already exists on the DSP server. Skipping...")
             overall_success = False
             continue
 
+        # create the ontology
         print(f"Create ontology '{ontology['name']}'...")
         ontology_local = Ontology(
             con=con,
@@ -534,12 +484,13 @@ def create_project(
             action=lambda: ontology_local.create(),
             failure_msg=f"ERROR while trying to create ontology '{ontology['name']}'."
         )
-        context.add_context(ontology_remote.name, ontology_remote.id + ('#' if not ontology_remote.id.endswith('#') else ''))
+        context.add_context(ontology_remote.name,
+                            ontology_remote.id + ('#' if not ontology_remote.id.endswith('#') else ''))
         last_modification_date = ontology_remote.lastModificationDate
         if verbose:
             print(f"\tCreated ontology '{ontology['name']}'.")
 
-        # add the prefixes defined in the json file
+        # add the prefixes defined in the JSON file
         for onto_prefix, onto_info in context:
             if onto_info and onto_prefix not in ontology_remote.context:
                 onto_iri = onto_info.iri + ("#" if onto_info.hashtag else "")
@@ -687,8 +638,94 @@ def create_project(
 
                 ontology_remote.lastModificationDate = last_modification_date
 
+    return overall_success
+
+
+def create_project(
+    input_file: str,
+    server: str,
+    user_mail: str,
+    password: str,
+    verbose: bool,
+    dump: bool
+) -> bool:
+    """
+    Creates a project from a JSON project file on a DSP server. A project must contain at least one ontology, and it may
+    contain lists, users, and groups.
+    Returns True if everything went smoothly during the process, False if a warning or error occurred.
+
+    Args:
+        input_file: the path to the JSON file from which the project and its parts should be created
+        server: the URL of the DSP server on which the project should be created
+        user_mail: a username (e-mail) who has the permission to create a project
+        password: the user's password
+        verbose: prints more information if set to True
+        dump: dumps test files (JSON) for DSP API requests if set to True
+
+    Returns:
+        True if everything went smoothly, False if a warning or error occurred
+    """
+
+    knora_api_prefix = "knora-api:"
+    overall_success = True
+
+    # create project
+    con, context, project_definition, project_remote, success = _create_project(
+        input_file=input_file,
+        server=server,
+        user_mail=user_mail,
+        password=password,
+        verbose=verbose,
+        dump=dump
+    )
+    if not success:
+        overall_success = False
+
+    # create the lists
+    list_root_nodes: dict[str, Any] = {}
+    if project_definition["project"].get("lists"):
+        print("Create lists...")
+        list_root_nodes, success = create_lists(server=server, user=user_mail, password=password, project_definition=project_definition)
+        if not success:
+            overall_success = False
+
+    # create the groups
+    current_project_groups: dict[str, Group] = {}
+    if project_definition["project"].get("groups"):
+        print("Create groups...")
+        current_project_groups, success = _create_groups(
+            con=con, 
+            groups=project_definition["project"]["groups"], 
+            project=project_remote
+        )
+        if not success:
+            overall_success = False
+
+    # create or update the users
+    if project_definition["project"].get("users"):
+        print("Create users...")
+        success = _create_users(
+            con=con, 
+            users=project_definition["project"]["users"], 
+            current_project_groups=current_project_groups, 
+            current_project=project_remote, 
+            verbose=verbose
+        )
+        if not success:
+            overall_success = False
+
+    # create the ontologies
+    success = _create_ontologies(
+        con=con,
+        context=context,
+        knora_api_prefix=knora_api_prefix,
+        list_root_nodes=list_root_nodes,
+        project_definition=project_definition,
+        project_remote=project_remote,
+        verbose=verbose
+    )
+
     # final steps
-    #############
     if overall_success:
         print("========================================================\n",
               f"Successfully created project '{project_definition['project']['shortname']}' "

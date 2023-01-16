@@ -2,7 +2,7 @@
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
 import json
 import re
-from typing import Any, cast, Tuple, Optional
+from typing import Any, cast, Tuple
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.group import Group
@@ -111,13 +111,14 @@ def _create_project(
 
 
 def _update_project(
-        project: Project, project_definition: dict[str, Any],
+        project: Project,
+        project_definition: dict[str, Any],
         verbose: bool
-) -> Tuple[Optional[Project], bool]:
+) -> Tuple[Project, bool]:
     """
     Updates a project on a DSP server from a JSON project file. Only the longname, description and keywords will be
-    updated. Returns the updated project (or None if not successful) and a boolean saying if the update was successful
-    or not. If the update was not successful, an error message is printed to stdout.
+    updated. Returns the updated project (or the unchanged project if not successful) and a boolean saying if the update
+    was successful or not. If the update was not successful, an error message is printed to stdout.
 
     Args:
         project: the project to be updated (must exist on the DSP server)
@@ -140,7 +141,7 @@ def _update_project(
         return project_remote, True
     except BaseError as err:
         print(err.message)
-        return None, False
+        return project, False
 
 
 def _create_groups(con: Connection, groups: list[dict[str, str]], project: Project) -> Tuple[dict[str, Group], bool]:
@@ -636,7 +637,7 @@ def _add_property_classes_to_remote_ontology(
         #   - if omitted, "knora-api:hasValue" is assumed
         if prop_class.get("super"):
             super_props = []
-            for super_class in prop_class.get("super"):
+            for super_class in prop_class.get("super"):  # type: ignore
                 if ":" in super_class:
                     prefix, _class = super_class.split(":")
                     super_props.append(super_class if prefix else f"{ontology_remote.name}:{_class}")
@@ -723,7 +724,7 @@ def _add_cardinalities_to_resource_classes(
         "0-n": Cardinality.C_0_n,
         "1-n": Cardinality.C_1_n
     }
-    for res_class in ontology_definition.get("resources"):
+    for res_class in ontology_definition.get("resources"):  # type: ignore
         res_class_remote = remote_res_classes.get(ontology_remote.id + "#" + res_class["name"])
         if not res_class_remote:
             print(f"WARNING: Unable to add cardinalities to resource class '{res_class['name']}': This class "

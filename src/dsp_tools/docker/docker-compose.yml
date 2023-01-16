@@ -12,8 +12,8 @@ services:
       - knora-net
 
   db:
-    image: daschswiss/apache-jena-fuseki:2.0.11  # after every deployment (fortnightly), check latest tag at
-                                                 # https://hub.docker.com/r/daschswiss/apache-jena-fuseki/tags
+    image: daschswiss/apache-jena-fuseki:2.0.11  # after every deployment (fortnightly), update to the tag
+                                                 # used in docker-compose.yml of the DSP-API repository
     ports:
       - "3030:3030"
     networks:
@@ -24,9 +24,7 @@ services:
       - JVM_ARGS=-Xmx3G
 
   sipi:
-    image: daschswiss/knora-sipi:26.0.0  # after every deployment (fortnightly), take the tag of
-                                         # https://hub.docker.com/r/daschswiss/knora-sipi/tags that corresponds to the
-                                         # version of DSP-API on https://admin.dasch.swiss/help
+    image: daschswiss/knora-sipi:26.0.0  # after every deployment (fortnightly), take the same tag as DSP-API
     ports:
       - "1024:1024"
     volumes:

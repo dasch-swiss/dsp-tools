@@ -39,9 +39,7 @@ def start_stack(
     # rationale to use importlib.resources: https://setuptools.pypa.io/en/latest/userguide/datafiles.html#accessing-data-files-at-runtime
     docker_path_of_distribution = importlib.resources.files("dsp_tools").joinpath("docker")
     for file in docker_path_of_distribution.iterdir():
-        dst = docker_path_of_user / file.name
-        if not dst.is_file():
-            shutil.copy(file, dst)
+        shutil.copy(file, docker_path_of_user / file.name)
 
     # get sipi.docker-config.lua
     commit_of_used_api_version = "9d58b520661601721b5d63d27153db135442562e"

@@ -1,42 +1,39 @@
-name: Release
+name: Publish to PyPI
 
 on:
   release:
     types: [released]
 
-# set environment variables
 env:
   TOKEN: ${{ secrets.GH_TOKEN }}
   POETRY_HTTP_BASIC_PYPI_USERNAME: ${{ secrets.PYPI_USER }}
   POETRY_HTTP_BASIC_PYPI_PASSWORD: ${{ secrets.PYPI_PW }}
 
 jobs:
-  # release to PyPI
-  release-pypi:
-    name: Release to PyPI
+  publish-to-pypi:
     runs-on: ubuntu-latest
     steps:
-      # check out repo
-      - uses: actions/checkout@v3
+      - name: Check out repo
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
-      # install python
-      - name: Set up Python
+      - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
-      # install python dependencies
+          python-version: 3.9
       - name: Install dependencies
         run: |
-          make install
-      # release new version to PyPI
-      - run: |
-          make dist
-          make upload
+          curl -sSL https://install.python-poetry.org | python3 -
+          poetry install
+      - name: publish new version to PyPI
+        run: |
+          rm -rf dist/ build/
+          poetry build      # generate distribution package
+          poetry publish    # upload distribution package to PyPI
 
   notification:
     name: Google chat notification about release and published version
-    needs: [release-pypi]
+    needs: [publish-to-pypi]
     runs-on: ubuntu-latest
     steps:
       - name: Send notification to google chat room "DSP releases"

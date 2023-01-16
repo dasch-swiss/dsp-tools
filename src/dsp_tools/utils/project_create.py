@@ -446,6 +446,8 @@ def _create_ontologies(
     Iterates over the ontologies in a JSON project file and creates the ontologies that don't exist on the DSP server
     yet. For every ontology, it first creates the resource classes, then the properties, and then adds the cardinalities
     to the resource classes.
+    If an error occurs during the creation of an ontology, the error is escalated. All other errors are printed, but the
+    process continues, and the success status will be false.
 
     Args:
         con: Connection to the DSP server
@@ -482,6 +484,7 @@ def _create_ontologies(
             label=ontology_definition["label"],
             name=ontology_definition["name"]
         )
+        # if ontology cannot be created, let the error escalate
         ontology_remote: Ontology = try_network_action(
             action=lambda: ontology_local.create(),
             failure_msg=f"ERROR while trying to create ontology '{ontology_definition['name']}'."
@@ -548,6 +551,8 @@ def _add_resource_classes_to_remote_ontology(
     """
     Creates the resource classes (without cardinalities) defined in the "resources" section of an ontology. The
     containing project and the containing ontology must already be existing on the DSP server.
+    If an error occurs during creation of a resource class, it is printed out, the process continues, but the success
+    status will be false.
 
     Args:
         ontology_definition: the part of the parsed JSON project file that contains the current ontology
@@ -608,6 +613,8 @@ def _add_property_classes_to_remote_ontology(
     """
     Creates the property classes defined in the "properties" section of an ontology. The
     containing project and the containing ontology must already be existing on the DSP server.
+    If an error occurs during creation of a property class, it is printed out, the process continues, but the success
+    status will be false.
 
     Args:
         ontology_definition: the part of the parsed JSON project file that contains the current ontology
@@ -703,6 +710,8 @@ def _add_cardinalities_to_resource_classes(
     """
     Iterates over the resource classes of an ontology of a JSON project definition, and adds the cardinalities to each 
     resource class. The resource classes and the properties must already be existing on the DSP server.
+    If an error occurs during creation of a cardinality, it is printed out, the process continues, but the success
+    status will be false.
 
     Args:
         ontology_definition: the part of the parsed JSON project file that contains the current ontology
@@ -848,6 +857,8 @@ def create_project(
         project_remote=project_remote,
         verbose=verbose
     )
+    if not success:
+        overall_success = False
 
     # final steps
     if overall_success:
@@ -860,4 +871,5 @@ def create_project(
               f"WARNING: The project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}) "
               f"with its ontologies could be created, but during the creation process, some problems occurred. "
               f"Please carefully check the console output.")
+
     return overall_success

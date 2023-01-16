@@ -3,14 +3,17 @@ version: '3.7'
 services:
 
   app:
-    image: daschswiss/dsp-app:v10.11.0  # after every deployment (fortnightly), check latest tag at https://hub.docker.com/r/daschswiss/dsp-app/tags
+    image: daschswiss/dsp-app:v10.11.2  # after every deployment (fortnightly), take the tag of
+                                        # https://hub.docker.com/r/daschswiss/dsp-app/tags that corresponds to the
+                                        # version on https://admin.dasch.swiss/help
     ports:
       - "4200:4200"
     networks:
       - knora-net
 
   db:
-    image: daschswiss/apache-jena-fuseki:2.0.8  # after every deployment (fortnightly), check latest tag at https://hub.docker.com/r/daschswiss/apache-jena-fuseki/tags
+    image: daschswiss/apache-jena-fuseki:2.0.11  # after every deployment (fortnightly), check latest tag at
+                                                 # https://hub.docker.com/r/daschswiss/apache-jena-fuseki/tags
     ports:
       - "3030:3030"
     networks:
@@ -21,7 +24,9 @@ services:
       - JVM_ARGS=-Xmx3G
 
   sipi:
-    image: daschswiss/knora-sipi:24.0.8  # after every deployment (fortnightly), check latest tag at https://hub.docker.com/r/daschswiss/knora-sipi/tags
+    image: daschswiss/knora-sipi:26.0.0  # after every deployment (fortnightly), take the tag of
+                                         # https://hub.docker.com/r/daschswiss/knora-sipi/tags that corresponds to the
+                                         # version of DSP-API on https://admin.dasch.swiss/help
     ports:
       - "1024:1024"
     volumes:
@@ -40,7 +45,9 @@ services:
     command: --config=/docker/sipi.docker-config.lua
 
   api:
-    image: daschswiss/knora-api:24.0.8  # after every deployment (fortnightly), check latest tag at https://hub.docker.com/r/daschswiss/knora-api/tags
+    image: daschswiss/knora-api:26.0.0  # after every deployment (fortnightly), take the tag of
+                                         # https://hub.docker.com/r/daschswiss/knora-api/tags that corresponds to the
+                                         # version on https://admin.dasch.swiss/help
     depends_on:
       - sipi
       - db

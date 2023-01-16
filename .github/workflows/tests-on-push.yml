@@ -6,28 +6,26 @@ on:
       - main
 
 jobs:
-  tests:
-    name: tests
+  tests-on-push:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        target: [ 'test-end-to-end-ci', 'test-unittests', 'docs-build' ]
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
         with:
           fetch-depth: 1
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: "temurin"
-          java-version: "17"
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
       - name: Install dependencies
         run: |
-            make install
-      - name: Run tests
-        run: make ${{ matrix.target }}
+          curl -sSL https://install.python-poetry.org | python3 -
+          poetry install
+      - name: build docs
+        run: poetry run mkdocs build
+      - name: unittests
+        run: poetry run pytest test/unittests/
+      - name: e2e tests
+        run: |
+          poetry run dsp-tools start-stack --no-prune
+          poetry run pytest test/e2e/

@@ -85,8 +85,7 @@ class TestOntology(unittest.TestCase):
         onto_list = Ontology.getProjectOntologies(self.con, self.test_project)
         onto_list_ids = [l.id for l in onto_list]
         self.assertIn('http://0.0.0.0:3333/ontology/0001/anything/v2', onto_list_ids)
-        self.assertIn('http://0.0.0.0:3333/ontology/0001/minimal/v2', onto_list_ids)
-        self.assertIn('http://0.0.0.0:3333/ontology/0001/something/v2', onto_list_ids)
+        self.assertIn('http://0.0.0.0:3333/ontology/0001/test_onto_create/v2', onto_list_ids)
 
     def tearDown(self) -> None:
         """

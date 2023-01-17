@@ -1,6 +1,6 @@
 [![DSP-TOOLS](https://img.shields.io/github/v/release/dasch-swiss/dsp-tools?include_prereleases&label=DSP-TOOLS)](https://github.com/dasch-swiss/dsp-tools)
 
-# DSP XML file format for importing data
+# The XML file format for importing data
 
 With DSP-TOOLS, data can be imported into a DSP repository (on a DSP server) from an XML file. The import file is a
 standard XML file as described on this page. After a successful upload of the data, an output file is written (called 
@@ -835,22 +835,6 @@ Example:
 Technical note: A `<link>` is in fact a `<resource restype="LinkObj">`. But it is mandatory to use the 
 shortcut, so that the XML file can be validated more precisely.
 
-
-## Incremental XML Upload
-
-After a successful upload of the data, an output file is written (called `id2iri_mapping_[timstamp].json`) with the 
-mapping of internal IDs used inside the XML and their corresponding IRIs which uniquely identify them inside DSP. This 
-file should be kept if data is later added with the `--incremental` option. 
-
-To do an incremental XML upload, one of the following procedures is recommended.
-
-- Incremental XML upload with use of internal IDs:
-     1. Initial XML upload with internal IDs.
-     2. The file `id2iri_mapping_[timestamp].json` is created.
-     3. Create new XML file(s) with resources referencing other resources by their internal IDs in `<resptr>` (using the same IDs as in the initial XML upload).
-     4. Run `dsp-tools id2iri new_data.xml id2iri_mapping_[timestamp].json` to replace the internal IDs in `new_data.xml` with IRIs. Only internal IDs inside the `<resptr>` tag are replaced.
-     5. Run `dsp-tools xmlupload --incremental new_data.xml` to upload the data to DSP.
-- Incremental XML Upload with the use of IRIs: Use IRIs in the XML to reference existing data on the DSP server.
 
 
 ## Complete example

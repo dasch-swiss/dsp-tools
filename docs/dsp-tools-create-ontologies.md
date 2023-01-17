@@ -1,6 +1,6 @@
 [![DSP-TOOLS](https://img.shields.io/github/v/release/dasch-swiss/dsp-tools?include_prereleases&label=DSP-TOOLS)](https://github.com/dasch-swiss/dsp-tools)
 
-# Ontologies
+# The "ontologies" section of a JSON project
 
 An ontology is a formal representation of a set of terms which represent real world objects.
 Dependencies, attributes and relations of and between the individual components of the set are recorded in a logical,
@@ -1081,7 +1081,7 @@ Example for a resource definition:
 For several fields, such as `super` in both `resources` and `properties` or `propname` in `cardinalities`
 it is necessary to reference entities that are defined elsewhere. The following cases are possible:
 
-- DSP API internals: They are referenced as such and do not have a leading colon.  
+- DSP-API internals: They are referenced as such and do not have a leading colon.  
   E.g. `Resource`, `DocumentRepresentation` or `hasValue`
 - An external ontology: The ontology must be defined in the [prefixes](dsp-tools-create.md#prefixes-object) section.
   The prefix can then be used for referencing the ontology.  

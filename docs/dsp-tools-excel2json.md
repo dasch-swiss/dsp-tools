@@ -1,6 +1,8 @@
 [![DSP-TOOLS](https://img.shields.io/github/v/release/dasch-swiss/dsp-tools?include_prereleases&label=DSP-TOOLS)](https://github.com/dasch-swiss/dsp-tools)
 
-# excel2json
+# Excel file format to generate a JSON project
+
+## The folder structure
 
 With DSP-TOOLS, a JSON project file can be created from Excel files. The command for this is documented 
 [here](./dsp-tools-usage.md#create-a-json-project-file-from-excel-files). 

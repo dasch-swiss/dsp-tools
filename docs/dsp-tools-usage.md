@@ -2,10 +2,11 @@
 
 # Installation and usage
 
-DSP-TOOLS is a Python package with a command line interface that helps you interact with a DSP server. The DSP server 
-you interact with can be on a remote server, or on your local machine. The following paragraphs give you an overview of 
-how to install and use DSP-TOOLS.
-
+DSP-TOOLS is a Python package with a command line interface 
+that helps you interact with a DSP server. 
+The DSP server you interact with can be on a remote server, 
+or on your local machine. 
+The following paragraphs give you an overview of how to install and use DSP-TOOLS.
 
 
 
@@ -25,8 +26,32 @@ pip3 install --upgrade dsp-tools
 
 
 
+## Before starting: Have in mind the URLs of a DSP server
+
+DaSCH follows some conventions when setting up our servers. 
+Most of the commands documented on this page 
+assume that you know how to address the subdomains of a DSP server.
+There are three relevant URLs you should know about:
+
+ - Subdomain `admin` stands for the DSP-APP frontend that you look at in your browser
+ - Subdomain `api` stands for the DSP-API (where DSP-TOOLS sends its data to) 
+ - Subdomain `iiif` stands for the SIPI-server interface (where DSP-TOOLS sends the multimedia files to)
+
+This means that for uploading data to a DSP server 
+on the domain `dasch.swiss`, 
+you have to type the following:
+
+```bash
+dsp-tools xmlupload -s https://api.dasch.swiss -u root@example.com -p test -S https://iiif.dasch.swiss xml_data_file.xml
+```
+
+
 
 ## Create a project on a DSP server
+
+This command reads the definition of a project with its data model(s) 
+(provided in a JSON file) 
+and creates it on a DSP server.
 
 ```bash
 dsp-tools create [options] project_definition.json
@@ -35,16 +60,24 @@ dsp-tools create [options] project_definition.json
 The following options are available:
 
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
-- `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP API 
-- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP API 
+- `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP-API 
+- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 
 - `-V` | `--validate-only` (optional): If set, only the validation of the JSON file is performed.
 - `-l` | `--lists-only` (optional): If set, only the lists are created. Please note that in this case the project must already exist.
 - `-v` | `--verbose` (optional): If set, more information about the progress is printed to the console.
 - `-d` | `--dump` (optional): If set, dump test files for DSP-API requests.
 
-The command is used to read the definition of a project with its data model(s) (provided in a JSON file) and create it 
-on the DSP server. The following example shows how to upload the project defined in `project_definition.json` to the DSP
-server `https://admin.dasch.swiss`:
+The defaults are intended for local testing: 
+
+```bash
+dsp-tools create project_definition.json
+```
+
+will create the project defined in `project_definition.json` on `localhost` for local viewing.
+
+In order to create the same project
+on the DSP server `https://admin.dasch.swiss`,
+it is necessary to specify the following options:
 
 ```bash
 dsp-tools create -s https://api.dasch.swiss -u root@example.com -p test project_definition.json
@@ -54,8 +87,13 @@ The expected JSON format is [documented here](./dsp-tools-create.md).
 
 
 
-
 ## Get a project from a DSP server
+
+This command retrieves the definition of a project with its data model(s) 
+from a DSP server 
+and writes it into a JSON file. 
+This JSON file can then be used 
+to create the same project on another DSP server. 
 
 ```bash
 dsp-tools get [options] output_file.json
@@ -64,15 +102,14 @@ dsp-tools get [options] output_file.json
 The following options are available:
 
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
-- `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP API 
-- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP API 
+- `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP-API 
+- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 
 - `-P` | `--project` (mandatory): shortcode, shortname or
   [IRI](https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier) of the project 
 - `-v` | `--verbose` (optional): If set, some information about the progress is printed to the console.
 
-The command is used to get the definition of a project with its data model(s) from a DSP server and write it into a JSON 
-file. This JSON file can then be used to create the same project on another DSP server. The following example shows how 
-to get a project from the DSP server `https://admin.dasch.swiss`.
+The following example shows 
+how to get a project from the DSP server `https://admin.dasch.swiss`:
 
 ```bash
 dsp-tools get -s https://api.dasch.swiss -u root@example.com -p test -P my_project output_file.json
@@ -82,8 +119,9 @@ The expected JSON format is [documented here](./dsp-tools-create.md).
 
 
 
-
 ## Upload data to a DSP server
+
+This command uploads data defined in an XML file onto a DSP server. 
 
 ```bash
 dsp-tools xmlupload [options] xml_data_file.xml
@@ -92,60 +130,50 @@ dsp-tools xmlupload [options] xml_data_file.xml
 The following options are available:
 
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
-- `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP API 
-- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP API
-- `-i` | `--imgdir` (optional, default: `.`): path to the directory where the bitstream objects are stored
+- `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP-API 
+- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
+- `-i` | `--imgdir` (optional, default: `.`): folder where the paths in the `<bitstream>` tags are evaluated from
 - `-S` | `--sipi` (optional, default: `http://0.0.0.0:1024`): URL of the SIPI IIIF server 
 - `-I` | `--incremental` (optional) : If set, IRIs instead of internal IDs are expected as reference to already existing resources on DSP
 - `-V` | `--validate` (optional): If set, the XML file will only be validated, but not uploaded.
 - `-v` | `--verbose` (optional): If set, more information about the process is printed to the console.
 - `-m` | `--metrics` (optional): If set, write metrics into a "metrics" folder in the current working directory
 
-The command is used to upload data defined in an XML file onto a DSP server. The defaults are intended for local 
-testing: 
+The defaults are intended for local testing: 
+
 ```bash
 dsp-tools xmlupload xml_data_file.xml
 ```
 
-will upload the XML file on `localhost` for local viewing. It assumes that DSP-API has been started up with the default 
-settings, and that potential `<bitstream>` tags contain file paths that are relative to the working directory from where 
-`dsp-tools` is called from.
+will upload the data defined in `xml_data_file.xml` on `localhost` for local viewing.
 
-When uploading data to a remote DSP server, there are three relevant URLs you should know about:
+In order to upload the same data 
+to the DSP server `https://admin.dasch.swiss`,
+it is necessary to specify the following options:
 
- - Subdomain `admin` stands for the DSP-APP frontend that you look at in your browser
- - Subdomain `api` stands for the DSP-API (where DSP-TOOLS sends its data to) 
- - Subdomain `iiif` stands for the SIPI-server interface (where DSP-TOOLS sends the multimedia files to)
-
-This means that for uploading data to a DSP server on the domain `dasch.swiss`, you have to type the following:
 ```bash
 dsp-tools xmlupload -s https://api.dasch.swiss -u root@example.com -p test -S https://iiif.dasch.swiss xml_data_file.xml
 ```
 
 The expected XML format is [documented here](./dsp-tools-xmlupload.md).
 
-An internal ID is used in the `<resptr>` tag of an XML file to reference resources inside the same XML file. Once data 
-is uploaded to DSP, it cannot be referenced by this internal ID anymore. Instead, the resource's IRI has to be used. 
-After a successful `xmlupload`, the mapping of internal IDs to their respective IRIs is written to a file
-called `id2iri_mapping_[timstamp].json`.
-See [`dsp-tools id2iri`](./dsp-tools-usage.md#replace-internal-ids-with-iris-in-xml-file) for more information about how
-to use this file to replace internal IDs in an existing XML file to reference existing resources.
-
-
 
 
 ## Create a JSON project file from Excel files
+
+This command creates a JSON project file from a nested folder structure with Excel files.
 
 ``` 
 dsp-tools excel2json data_model_files project.json
 ```
 
-The expected file and folder structures are described [here](./dsp-tools-excel2json.md).
-
+The expected Excel file format and the folder structure are documented [here](./dsp-tools-excel2json.md).
 
 
 
 ### Create the "lists" section of a JSON project file from Excel files
+
+This command creates the "lists" section of a JSON project file from an Excel file.
 
 ```bash
 dsp-tools excel2lists [options] folder output.json
@@ -155,47 +183,52 @@ The following options are available:
 
 - `-v` | `--verbose` (optional): If set, more information about the progress is printed to the console.
 
-The expected Excel format is [documented here](./dsp-tools-excel2json.md#lists-section).
+The expected Excel file format and the folder structure are documented [here](./dsp-tools-excel2json.md#lists-section).
 
-**Tip: The command [`excel2json`](#create-a-json-project-file-from-excel-files) might be more convenient to use.**
+| Hint                                                                                                      |
+|-----------------------------------------------------------------------------------------------------------|
+| The command [`excel2json`](#create-a-json-project-file-from-excel-files) might be more convenient to use. |
 
 
 
 ### Create the "resources" section of a JSON project file from an Excel file
 
+This command creates the "resources" section of a JSON project file from an Excel file.
+
 ```bash
 dsp-tools excel2resources excel_file.xlsx output_file.json
 ```
 
-The command is used to create the resources section of an ontology from an Excel file. Therefore, an Excel file has to
-be provided with the data in the first worksheet of the Excel file.
-
 The expected Excel format is [documented here](./dsp-tools-excel2json.md#resources-section).
 
-**Tip: The command [`excel2json`](#create-a-json-project-file-from-excel-files) might be more convenient to use.**
-
+| Hint                                                                                                      |
+|-----------------------------------------------------------------------------------------------------------|
+| The command [`excel2json`](#create-a-json-project-file-from-excel-files) might be more convenient to use. |
 
 
 
 ### Create the "properties" section of a JSON project file from an Excel file
 
+This command creates the "properties" section of a JSON project file from an Excel file.
+
 ```bash
 dsp-tools excel2properties excel_file.xlsx output_file.json
 ```
 
-The command is used to create the properties section of an ontology from an Excel file. Therefore, an Excel file has to
-be provided with the data in the first worksheet of the Excel file.
-
 The expected Excel format is [documented here](./dsp-tools-excel2json.md#properties-section).
 
-**Tip: The command [`excel2json`](#create-a-json-project-file-from-excel-files) might be more convenient to use.**
+| Hint                                                                                                      |
+|-----------------------------------------------------------------------------------------------------------|
+| The command [`excel2json`](#create-a-json-project-file-from-excel-files) might be more convenient to use. |
 
 
 
 ## Create an XML file from Excel/CSV
 
-If your data source is already structured according to the DSP specifications, but it is not in XML format yet, the 
-command `excel2xml` will transform it into XML. This is mostly used for DaSCH-interal data migration.
+This command converts a data source 
+that is already structured according to the DSP specifications 
+to XML.
+This is mostly used for DaSCH-internal data migration.
 
 ```bash
 dsp-tools excel2xml data-source.xlsx project_shortcode ontology_name
@@ -207,31 +240,28 @@ Arguments:
  - project_shortcode (mandatory): The four-digit hexadecimal shortcode of the project
  - ontology_name (mandatory): the name of the ontology that the data belongs to
 
-The Excel file must be structured as in this image:  
-![img-excel2xml.png](assets/images/img-excel2xml.png)
+The expected Excel format is [documented here](./dsp-tools-excel2xml-file-format.md).
 
-Some notes:
-
- - The special tags `<annotation>`, `<link>`, and `<region>` are represented as resources of restype `Annotation`, 
-`LinkObj`, and `Region`. 
- - The columns "ark", "iri", and "creation_date" are only used for DaSCH-internal data migration.
- - If `file` is provided, but no `file permissions`, an attempt will be started to deduce them from the resource 
-   permissions (`res-default` --> `prop-default` and `res-restricted` --> `prop-restricted`). If this attempt is not 
-   successful, a `BaseError` will be raised.
-
-If your data source is not yet structured according to the DSP specifications, you need a custom Python script for the 
-data transformation. For this, you might want to import the module `excel2xml` into your Python script, which is 
-described in the next paragraph.
+If your data source is not yet structured according to the DSP specifications, 
+you need a custom Python script for the data transformation. 
+For this, you might want to import the module `excel2xml` into your Python script, 
+which is described in the next paragraph.
 
 
 
 ## Use the module `excel2xml` to convert a data source to XML
 
-dsp-tools assists you in converting a data source in CSV/XLS(X) format to an XML file. Unlike the other features of 
-dsp-tools, this doesn't work via command line, but via helper methods that you can import into your own Python script. 
-Because every data source is different, there is no single algorithm to convert them to a DSP conform XML. Every user 
-has to deal with the specialties of his/her data source, but `excel2xml`'s helper methods can help a lot. Read more 
-about it [here](./dsp-tools-excel2xml.md).
+DSP-TOOLS assists you 
+in converting a data source in CSV/XLS(X) format 
+to an XML file. 
+Unlike the other features of DSP-TOOLS, 
+this doesn't work via command line, 
+but via helper methods that you can import into your own Python script. 
+Because every data source is different, 
+there is no single algorithm to convert them to a DSP conform XML. 
+Every user has to deal with the specialties of their data source, 
+but `excel2xml`'s helper methods can help a lot. 
+Read more about it [here](./dsp-tools-excel2xml.md).
 
 
 
@@ -254,6 +284,26 @@ Note that internal IDs and IRIs cannot be mixed. The input XML file has to be pr
 contains the mapping from internal IDs to IRIs. This JSON file is generated after each successful `xmlupload`.
 
 In order to upload data incrementally the procedure described [here](dsp-tools-xmlupload.md#incremental-xml-upload) is recommended.
+
+An internal ID is used in the `<resptr>` tag of an XML file to reference resources inside the same XML file. Once data 
+is uploaded to DSP, it cannot be referenced by this internal ID anymore. Instead, the resource's IRI has to be used. 
+After a successful `xmlupload`, the mapping of internal IDs to their respective IRIs is written to a file
+called `id2iri_mapping_[timstamp].json`.
+After a successful upload of the data, an output file is written (called `id2iri_mapping_[timstamp].json`) with the 
+mapping of internal IDs used inside the XML and their corresponding IRIs which uniquely identify them inside DSP. This 
+file should be kept if data is later added with the `--incremental` option. 
+
+To do an incremental XML upload, one of the following procedures is recommended.
+
+- Incremental XML upload with use of internal IDs:
+     1. Initial XML upload with internal IDs.
+     2. The file `id2iri_mapping_[timestamp].json` is created.
+     3. Create new XML file(s) with resources referencing other resources by their internal IDs in `<resptr>` (using the same IDs as in the initial XML upload).
+     4. Run `dsp-tools id2iri new_data.xml id2iri_mapping_[timestamp].json` to replace the internal IDs in `new_data.xml` with IRIs. Only internal IDs inside the `<resptr>` tag are replaced.
+     5. Run `dsp-tools xmlupload --incremental new_data.xml` to upload the data to DSP.
+- Incremental XML Upload with the use of IRIs: Use IRIs in the XML to reference existing data on the DSP server.
+
+
 
 
 

@@ -52,7 +52,7 @@ Continue reading the following paragraphs to learn more about the expected struc
 
 ## "resources" section
 
-With dsp-tools, the `resources` section used in a data model (JSON) can be created from an Excel file. The command for 
+With DSP-TOOLS, the `resources` section used in a data model (JSON) can be created from an Excel file. The command for 
 this is documented [here](./dsp-tools-usage.md#create-the-resources-section-of-a-json-project-file-from-an-excel-file). 
 Only `XLSX` files are allowed. The `resources` section can be inserted into the ontology file and then be uploaded onto 
 a DSP server.
@@ -95,7 +95,7 @@ For further information about resources, see [here](./dsp-tools-create-ontologie
 
 ## "properties" section
 
-With dsp-tools, the `properties` section used in a data model (JSON) can be created from an Excel file. The command for 
+With DSP-TOOLS, the `properties` section used in a data model (JSON) can be created from an Excel file. The command for 
 this is documented [here](./dsp-tools-usage.md#create-the-properties-section-of-a-json-project-file-from-an-excel-file). 
 Only the first worksheet of the Excel file is considered and only XLSX files are allowed. The `properties` section can 
 be inserted into the ontology file and then be uploaded onto a DSP server.
@@ -129,7 +129,7 @@ For further information about properties, see [here](./dsp-tools-create-ontologi
 
 ## "lists" section
 
-With dsp-tools, the `lists` section of a JSON project file can be created from one or several Excel files. The lists can 
+With DSP-TOOLS, the `lists` section of a JSON project file can be created from one or several Excel files. The lists can 
 then be inserted into a JSON project file and uploaded to a DSP server. The command for this is documented 
 [here](./dsp-tools-usage.md#create-the-lists-section-of-a-json-project-file-from-excel-files). 
 

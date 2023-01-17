@@ -25,7 +25,7 @@ have to take care not to forget rosetta.
 
 ## Passively using the contents of the submodule
 
-If you don't have a clone of dsp-tools yet, clone it with 
+If you don't have a clone of DSP-TOOLS yet, clone it with 
 
 ```bash
 git clone --recurse-submodules https://github.com/dasch-swiss/dsp-tools.git
@@ -40,7 +40,7 @@ git pull --recurse-submodules
 
 These two commands take care of the submodule, so that its contents are cloned/pulled as well. 
 
-In case you have an old clone of dsp-tools, without the submodule, and you want to update it, you have to proceed 
+In case you have an old clone of DSP-TOOLS, without the submodule, and you want to update it, you have to proceed 
 differently: 
 
 ```bash
@@ -54,7 +54,7 @@ Some notes:
  - `git pull --recurse-submodules` is shorthand for `git pull; git submodule update --init --recursive`
  - `--init` is necessary if you don't have the submodule `src/dsp_tools/import_scripts` yet. In all successive calls, 
    when the submodule is already on your machine, the flag `--init` can be omitted.
- - `--recursive` is optional, in case there would be more than one (nested) submodules inside dsp-tools. 
+ - `--recursive` is optional, in case there would be more than one (nested) submodules in the repository. 
  - Since Git 2.15, you can tell Git to use `--recurse-submodules` for all commands that support it (except `clone`), 
    with `git config submodule.recurse true`.
  - These explanations rely on [the Git Submodules documentation](https://git-scm.com/book/en/v2/Git-Tools-Submodules)

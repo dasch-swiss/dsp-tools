@@ -4,7 +4,7 @@
 
 DSP-TOOLS is a Python package with a command line interface that helps you interact with a DSP server. The DSP server 
 you interact with can be on a remote server, or on your local machine. The following paragraphs give you an overview of 
-how to install and use dsp-tools.
+how to install and use DSP-TOOLS.
 
 
 

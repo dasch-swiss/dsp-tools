@@ -198,7 +198,7 @@ Here's how the Docstrings assist you:
  - method signature: names of the parameters and accepted types
  - short explanation how the method behaves
  - usage examples
- - link to the dsp-tools documentation of this property
+ - link to the DSP-TOOLS documentation of this property
  - a short description for every parameter
  - short description of the returned object. 
      - Note: `etree._Element` is a type annotation of an underlying library. You don't have to care about it, as long as 

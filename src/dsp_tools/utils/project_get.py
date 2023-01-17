@@ -10,13 +10,13 @@ from dsp_tools.models.project import Project
 from dsp_tools.models.user import User
 
 
-def get_ontology(project_identifier: str, outfile: str, server: str, user: str, password: str, verbose: bool) -> None:
+def get_project(project_identifier: str, outfile_path: str, server: str, user: str, password: str, verbose: bool) -> None:
     """
-    This function returns the JSON ontology from a DSP server.
+    This function writes a project from a DSP server into a JSON file.
 
     Args:
         project_identifier : the project identifier, either shortcode, shortname or IRI of the project
-        outfile : the output file the JSON content should be written to
+        outfile_path : the output file the JSON content should be written to
         server : the DSP server where the data should be read from
         user : the user (e-mail) who sends the request
         password : the password of the user who sends the request
@@ -101,11 +101,11 @@ def get_ontology(project_identifier: str, outfile: str, server: str, user: str, 
         if verbose:
             print(f"\tGot ontology '{name}'")
 
-    ontology_json = {
+    outfile_content = {
         "prefixes": prefixes,
         "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/schemas/project.json",
         "project": project_obj
     }
 
-    with open(outfile, 'w', encoding='utf8') as outfile:
-        json.dump(ontology_json, outfile, indent=4, ensure_ascii=False)
+    with open(outfile_path, 'w', encoding='utf8') as f:
+        json.dump(outfile_content, f, indent=4, ensure_ascii=False)

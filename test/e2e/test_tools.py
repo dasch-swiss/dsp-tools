@@ -21,10 +21,10 @@ from dsp_tools.utils.excel_to_json_project import excel2json
 from dsp_tools.utils.excel_to_json_properties import excel2properties
 from dsp_tools.utils.excel_to_json_resources import excel2resources
 from dsp_tools.utils.id_to_iri import id_to_iri
-from dsp_tools.utils.onto_create_lists import create_lists
-from dsp_tools.utils.onto_create_ontology import create_project
-from dsp_tools.utils.onto_get import get_ontology
-from dsp_tools.utils.onto_validate import validate_project
+from dsp_tools.utils.project_create_lists import create_lists
+from dsp_tools.utils.project_create import create_project
+from dsp_tools.utils.project_get import get_project
+from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.xml_upload import xml_upload
 
@@ -128,12 +128,12 @@ class TestTools(unittest.TestCase):
         with open(self.test_project_systematic_file) as f:
             project_expected = json.load(f)
 
-        get_ontology(project_identifier="tp",
-                     outfile="testdata/tmp/_test-project-systematic.json",
-                     server=self.server,
-                     user=self.user,
-                     password="test",
-                     verbose=True)
+        get_project(project_identifier="tp",
+                    outfile_path="testdata/tmp/_test-project-systematic.json",
+                    server=self.server,
+                    user=self.user,
+                    password="test",
+                    verbose=True)
 
         with open("testdata/tmp/_test-project-systematic.json") as f:
             project_received = json.load(f)

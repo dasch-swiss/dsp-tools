@@ -6,7 +6,7 @@ from dsp_tools.models.helpers import BaseError
 from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.project import Project
 from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
-from dsp_tools.utils.onto_validate import validate_project
+from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import login, try_network_action
 
 

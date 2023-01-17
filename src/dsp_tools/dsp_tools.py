@@ -13,10 +13,10 @@ from dsp_tools.utils.excel_to_json_project import excel2json
 from dsp_tools.utils.excel_to_json_properties import excel2properties
 from dsp_tools.utils.excel_to_json_resources import excel2resources
 from dsp_tools.utils.id_to_iri import id_to_iri
-from dsp_tools.utils.onto_create_lists import create_lists
-from dsp_tools.utils.onto_create_ontology import create_project
-from dsp_tools.utils.onto_get import get_ontology
-from dsp_tools.utils.onto_validate import validate_project
+from dsp_tools.utils.project_create_lists import create_lists
+from dsp_tools.utils.project_create import create_project
+from dsp_tools.utils.project_get import get_project
+from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.stack_handling import start_stack, stop_stack
 from dsp_tools.utils.xml_upload import xml_upload
@@ -196,12 +196,12 @@ def program(user_args: list[str]) -> None:
                                verbose=args.verbose,
                                dump=args.dump if args.dump else False)
     elif args.action == 'get':
-        get_ontology(project_identifier=args.project,
-                     outfile=args.projectfile,
-                     server=args.server,
-                     user=args.user,
-                     password=args.password,
-                     verbose=args.verbose)
+        get_project(project_identifier=args.project,
+                    outfile_path=args.projectfile,
+                    server=args.server,
+                    user=args.user,
+                    password=args.password,
+                    verbose=args.verbose)
     elif args.action == 'xmlupload':
         if args.validate:
             validate_xml_against_schema(input_file=args.xmlfile)

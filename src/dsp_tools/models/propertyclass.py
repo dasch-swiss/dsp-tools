@@ -5,7 +5,7 @@ from urllib.parse import quote_plus
 
 from pystrict import strict
 
-from dsp_tools.utils.set_encoder import SetEncoder
+from dsp_tools.models.set_encoder import SetEncoder
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.helpers import Actions, BaseError, Context, DateTimeStamp, WithId
 from dsp_tools.models.langstring import Languages, LangString

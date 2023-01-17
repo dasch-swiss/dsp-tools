@@ -58,8 +58,7 @@ def validate_project(
                         f"{err.instance}")
 
     # cardinalities check for circular references
-    if _check_cardinalities_of_circular_references(project_definition):
-        return True
+    return _check_cardinalities_of_circular_references(project_definition)
 
 
 def _check_cardinalities_of_circular_references(project_definition: dict[Any, Any]) -> bool:
@@ -85,7 +84,7 @@ def _check_cardinalities_of_circular_references(project_definition: dict[Any, An
         error_message = \
             "ERROR: Your ontology contains properties derived from 'hasLinkTo' that allow circular references " \
             "between resources. This is not a problem in itself, but if you try to upload data that actually " \
-            "contains circular references, these 'hasLinkTo'' properties will be temporarily removed from the " \
+            "contains circular references, these 'hasLinkTo' properties will be temporarily removed from the " \
             "affected resources. Therefore, it is necessary that all involved 'hasLinkTo' properties have a " \
             "cardinality of 0-1 or 0-n. \n" \
             "Please make sure that the following properties have a cardinality of 0-1 or 0-n:"

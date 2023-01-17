@@ -241,7 +241,10 @@ class Group(Model):
 
     @staticmethod
     def getAllGroups(con: Connection) -> list[Group]:
-        result = con.get(Group.ROUTE)
+        try:
+            result = con.get(Group.ROUTE)
+        except BaseError:
+            return []
         return [Group.fromJsonObj(con, group_item) for group_item in result["groups"]]
 
     @staticmethod

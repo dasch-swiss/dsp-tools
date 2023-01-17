@@ -49,7 +49,7 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
     if verbose:
         print("Getting groups...")
     groups_obj = []
-    groups: Optional[list[Group]] = Group.getAllGroupsForProject(con=con, proj_shortcode=project.shortcode)
+    groups: Optional[list[Group]] = Group.getAllGroupsForProject(con=con, proj_iri=project.id)
     if groups:
         for group in groups:
             groups_obj.append(group.createDefinitionFileObj())

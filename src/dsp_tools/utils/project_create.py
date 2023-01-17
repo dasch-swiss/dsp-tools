@@ -125,7 +125,7 @@ def _update_project(
         project_definition: a parsed JSON project file with the same shortname and shortcode than the existing project
 
     Returns:
-        tuple of (updated project/None, success status)
+        tuple of (updated project, success status)
     """
     project.longname = project_definition["project"]["longname"]
     project.description = project_definition["project"].get("descriptions")

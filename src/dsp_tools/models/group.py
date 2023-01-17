@@ -242,8 +242,11 @@ class Group(Model):
     @staticmethod
     def getAllGroups(con: Connection) -> list[Group]:
         try:
+            # the try-except clause is a temporary workaround until https://dasch.atlassian.net/browse/DEV-1599 is fixed
+            # in DSP-API, a GET request to /admin/groups should not raise an error if there are no groups
             result = con.get(Group.ROUTE)
         except BaseError:
+            # there are no groups
             return []
         return [Group.fromJsonObj(con, group_item) for group_item in result["groups"]]
 

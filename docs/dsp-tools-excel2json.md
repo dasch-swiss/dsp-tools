@@ -2,7 +2,7 @@
 
 # excel2json
 
-With dsp-tools, a JSON project file can be created from Excel files. The command for this is documented 
+With DSP-TOOLS, a JSON project file can be created from Excel files. The command for this is documented 
 [here](./dsp-tools-usage.md#create-a-json-project-file-from-excel-files). 
 
 To put it simple, a JSON project consists of

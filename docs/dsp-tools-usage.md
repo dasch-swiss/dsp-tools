@@ -114,8 +114,8 @@ settings, and that potential `<bitstream>` tags contain file paths that are rela
 When uploading data to a remote DSP server, there are three relevant URLs you should know about:
 
  - Subdomain `admin` stands for the DSP-APP frontend that you look at in your browser
- - Subdomain `api` stands for the DSP-API (where dsp-tools sends its data to) 
- - Subdomain `iiif` stands for the SIPI-server interface (where dsp-tools sends the multimedia files to)
+ - Subdomain `api` stands for the DSP-API (where DSP-TOOLS sends its data to) 
+ - Subdomain `iiif` stands for the SIPI-server interface (where DSP-TOOLS sends the multimedia files to)
 
 This means that for uploading data to a DSP server on the domain `dasch.swiss`, you have to type the following:
 ```bash
@@ -273,7 +273,7 @@ Here's an overview of the two ways:
 |-----------------------------|-----------------------------|--------------------------------------------------------------------------|
 | target group                | researchers, RDU employees  | developers of DSP-API or DSP-APP                                         |
 | how it works                | run `dsp-tools start-stack` | execute commands from within locally cloned DSP-API/DSP-APP repositories |
-| software dependencies       | Docker, Python, dsp-tools   | XCode command line tools, Docker, sbt, Java, Angular, node, yarn         |
+| software dependencies       | Docker, Python, DSP-TOOLS   | XCode command line tools, Docker, sbt, Java, Angular, node, yarn         |
 | mechanism in the background | run pre-built Docker images | build DSP-API and DSP-APP from a branch in the repository                |
 | available versions          | latest released version     | any branch, or locally modified working tree                             |
 | caveats                     |                             | dependencies must be kept up to date                                     |
@@ -284,7 +284,7 @@ Here's an overview of the two ways:
 
 This command runs Docker images with the latest released versions of DSP-API and DSP-APP, i.e. the versions that are 
 running on [https://admin.dasch.swiss](https://admin.dasch.swiss). The only prerequisite for this is that Docker 
- is running, and that you have Python and dsp-tools installed. Just type:
+is running, and that you have Python and DSP-TOOLS installed. Just type:
 
 ```
 dsp-tools start-stack

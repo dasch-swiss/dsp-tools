@@ -16,6 +16,7 @@ nav:
         - Excel files to generate XML data: dsp-tools-excel2xml-file-format.md
   - Incremental xmlupload: dsp-tools-incremental-xmlupload.md
   - excel2xml module: dsp-tools-excel2xml.md
+  - Running DSP locally: dsp-tools-start-stack.md
   - Information for developers:
         - Developers documentation: developers-index.md
         - dependencies, packaging & distribution: developers-packaging.md

@@ -272,13 +272,13 @@ Read more about it [here](./dsp-tools-excel2xml.md).
 
 ## Replace internal IDs with IRIs in XML file
 
-```bash
-dsp-tools id2iri xml_file.xml mapping_file.json --outfile xml_file_replaced.xml
-```
-
 This command reads an XML file, 
 and replaces the internal IDs contained in its `<resptr>` tags
 by the respective IRIs from the JSON mapping file.
+
+```bash
+dsp-tools id2iri xml_file.xml mapping_file.json --outfile xml_file_replaced.xml
+```
 
 The following options are available:
 
@@ -291,41 +291,16 @@ that is documented [here](dsp-tools-incremental-xmlupload.md).
 
 
 
-## Start a DSP stack on your local machine 
+## Run a DSP stack on your local machine 
 
-DSP-API is the heart of the DaSCH service platform. It is a server application for storing data from the Humanities. 
-DSP-APP is a generic user interface for the user to look at and work with data stored in DSP-API. It's a server 
-application, too. For testing purposes, it is sometimes necessary to run DSP-API and DSP-APP on a local machine. 
-There are two ways to do this:
+This command runs DSP-API and DSP-APP for local testing.
 
- - simple: run `dsp-tools start-stack`
- - advanced: execute commands from within the DSP-API/DSP-APP repositories
-
-Here's an overview of the two ways:
-
-|                             | simple                      | advanced                                                                 |
-|-----------------------------|-----------------------------|--------------------------------------------------------------------------|
-| target group                | researchers, RDU employees  | developers of DSP-API or DSP-APP                                         |
-| how it works                | run `dsp-tools start-stack` | execute commands from within locally cloned DSP-API/DSP-APP repositories |
-| software dependencies       | Docker, Python, DSP-TOOLS   | XCode command line tools, Docker, sbt, Java, Angular, node, yarn         |
-| mechanism in the background | run pre-built Docker images | build DSP-API and DSP-APP from a branch in the repository                |
-| available versions          | latest released version     | any branch, or locally modified working tree                             |
-| caveats                     |                             | dependencies must be kept up to date                                     |
-
-
-
-### Simple way: `dsp-tools start-stack`
-
-This command runs Docker images with the latest released versions of DSP-API and DSP-APP, i.e. the versions that are 
-running on [https://admin.dasch.swiss](https://admin.dasch.swiss). The only prerequisite for this is that Docker 
-is running, and that you have Python and DSP-TOOLS installed. Just type:
-
-```
+```bash
 dsp-tools start-stack
 ```
 
-**dsp-tools will ask you for permission to clean Docker with a `docker system prune`. This will remove all unused 
-containers, networks and images. If you don't know what that means, just type `y` ("yes") and then `Enter`.**
+dsp-tools will ask you for permission to clean Docker with a `docker system prune`. This will remove all unused 
+containers, networks and images. If you don't know what that means, just type `y` ("yes") and then `Enter`.
 
 The following options are available:
 
@@ -333,46 +308,17 @@ The following options are available:
 - `--prune` (optional): if set, execute `docker system prune` without asking the user
 - `--no-prune` (optional): if set, don't execute `docker system prune` (and don't ask)
 
-Example: If you start the stack with `dsp-tools start-stack --max_file_size=1000`, it will be possible to upload files 
-that are up to 1 GB big. If a file bigger than `max_file_size` is uploaded, SIPI will reject it.
+Example: If you start the stack with `dsp-tools start-stack --max_file_size=1000`, 
+it will be possible to upload files that are up to 1 GB big. 
+If a file bigger than `max_file_size` is uploaded, 
+SIPI will reject it.
 
 When your work is done, shut down DSP-API and DSP-APP with
 
-```
+```bash
 dsp-tools stop-stack
 ```
 
-This command deletes all Docker volumes, and removes all data that was in the database.
+This deletes all Docker volumes, and removes all data that was in the database.
 
-Some notes:
-
- - As long as you want to keep the data in the database, don't execute `dsp-tools stop-stack`. 
- - It is possible to leave DSP-API up for a long time. If you want to save power, you can pause Docker. When you resume 
-   it, DSP-API will still be running, in the state how you left it.
- - You can also send your computer to sleep while the DSP stack is running. For this, you don't even need to pause 
-   Docker.
- - This command was developed for DaSCH-internal use only. We don't offer support or troubleshooting for it.
-
-
-#### When should I restart DSP-API?
-After creating a data model and adding some data in your local DSP stack, you can work on DSP as if it was the live 
-platform. But there are certain actions that are irreversible or can only be executed once, e.g. uploading the same JSON 
-project file. If you edit your data model in the JSON file, and then you want to upload it a second time, DSP-API will 
-refuse to create the same project again. So, you might want to restart the stack and start over again from a clean setup.
-
-It is possible, however, to modify the XML data file and upload it again and again. But after some uploads, DSP is 
-cluttered with data, so you might want to restart the stack.
-
-
-
-### Advanced way
-
-If you want to run a specific branch of DSP-API / DSP-APP, or to modify them yourself, you need to:
-
- - install the dependencies (check [https://github.com/dasch-swiss/dsp-api](https://github.com/dasch-swiss/dsp-api) and 
-   [https://github.com/dasch-swiss/dsp-app](https://github.com/dasch-swiss/dsp-app) how to do it)
- - keep the dependencies up to date (keep in mind that dependencies might be replaced over time)
- - clone the repositories from GitHub
- - keep them up to date with `git pull`
- - execute commands from within the repositories (`make` for DSP-API, `angular` for DSP-APP)
- - take care that the repositories don't get cluttered with old data over time
+More help for this command can be found [here](./dsp-tools-start-stack.md).

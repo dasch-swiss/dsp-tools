@@ -164,7 +164,7 @@ The following options are available:
 
 The expected Excel file format and the folder structure are documented [here](./dsp-tools-excel2json.md#lists-section).
 
-| Hint                                                                     |
+| <center>Hint</center>                                                    |
 |--------------------------------------------------------------------------|
 | The command [`excel2json`](#excel2json) might be more convenient to use. |
 
@@ -180,7 +180,7 @@ dsp-tools excel2resources excel_file.xlsx output_file.json
 
 The expected Excel format is [documented here](./dsp-tools-excel2json.md#resources-section).
 
-| Hint                                                                     |
+| <center>Hint</center>                                                    |
 |--------------------------------------------------------------------------|
 | The command [`excel2json`](#excel2json) might be more convenient to use. |
 
@@ -196,7 +196,7 @@ dsp-tools excel2properties excel_file.xlsx output_file.json
 
 The expected Excel format is [documented here](./dsp-tools-excel2json.md#properties-section).
 
-| Hint                                                                     |
+| <center>Hint</center>                                                    |
 |--------------------------------------------------------------------------|
 | The command [`excel2json`](#excel2json) might be more convenient to use. |
 

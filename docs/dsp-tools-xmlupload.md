@@ -5,9 +5,10 @@
 With DSP-TOOLS, data can be imported into a DSP repository (on a DSP server) from an XML file. The import file is a
 standard XML file as described on this page. After a successful upload of the data, an output file is written (called 
 `id2iri_mapping_[timstamp].json`) with the mapping from the internal IDs used inside the XML to their corresponding IRIs which
-uniquely identify them inside DSP. This file should be kept if data is later added with the `--incremental` [option](#incremental-xml-upload).
+uniquely identify them inside DSP. This file should be kept if data is later added with the 
+`--incremental` [option](./dsp-tools-incremental-xmlupload.md).
 
-The command to import an XML file on a DSP server is described [here](./dsp-tools-usage.md#upload-data-to-a-dsp-server).
+The command to import an XML file on a DSP server is described [here](./dsp-tools-usage.md#xmlupload).
 
 The import file must start with the standard XML header:
 
@@ -74,7 +75,7 @@ A group can have exactly one of these rights:
 - (no right): If no permission is defined for a certain group of users, these users cannot view any resources/values.
 - `RV` _restricted view permission_: Same as `V`, but if it is applied to an image, the image is shown with a reduced resolution or with a watermark overlay.
 - `V` _view permission_: The user can view a resource or a value, but cannot modify it.
-- `M` _modifiy permission_: The user can modify the element, but cannot mark it as deleted. The original resource or value will be preserved.
+- `M` _modify permission_: The user can modify the element, but cannot mark it as deleted. The original resource or value will be preserved.
 - `D` _delete permission_: The user is allowed to mark an element as deleted. The original resource or value will be preserved.
 - `CR` _change right permission_: The user can change the permission of a resource or value. The user is also allowed to permanently delete (erase) a resource.
 
@@ -208,7 +209,7 @@ Notes:
 - There is only _one_ `<bitstream>` element allowed per representation.
 - The `<bitstream>` element must be the first element.
 - By default, the path is relative to the working directory where `dsp-tools xmlupload` is executed in. This behaviour 
-  can be modified with the flag [`--imgdir`](./dsp-tools-usage.md#upload-data-to-a-dsp-server). If you keep the default,
+  can be modified with the flag [`--imgdir`](./dsp-tools-usage.md#xmlupload). If you keep the default,
   it is recommended to choose the project folder as working directory, `my_project` in the example below:
 
 ```

@@ -954,7 +954,7 @@ A name for the resource, e.g. "Book", "Manuscript", "Person". It should be in th
 a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). This means a string without blanks or special characters
 but `-` and `_` are allowed (although not as first character).
 
-By convention, resource names start with a upper case letter.
+By convention, resource names start with an upper case letter.
 
 
 

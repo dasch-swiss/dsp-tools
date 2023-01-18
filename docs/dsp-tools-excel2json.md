@@ -5,7 +5,7 @@
 ## The folder structure
 
 With DSP-TOOLS, a JSON project file can be created from Excel files. The command for this is documented 
-[here](./dsp-tools-usage.md#create-a-json-project-file-from-excel-files). 
+[here](./dsp-tools-usage.md#excel2json). 
 
 To put it simple, a JSON project consists of
 
@@ -55,7 +55,7 @@ Continue reading the following paragraphs to learn more about the expected struc
 ## "resources" section
 
 With DSP-TOOLS, the `resources` section used in a data model (JSON) can be created from an Excel file. The command for 
-this is documented [here](./dsp-tools-usage.md#create-the-resources-section-of-a-json-project-file-from-an-excel-file). 
+this is documented [here](./dsp-tools-usage.md#excel2resources). 
 Only `XLSX` files are allowed. The `resources` section can be inserted into the ontology file and then be uploaded onto 
 a DSP server.
 
@@ -98,7 +98,7 @@ For further information about resources, see [here](./dsp-tools-create-ontologie
 ## "properties" section
 
 With DSP-TOOLS, the `properties` section used in a data model (JSON) can be created from an Excel file. The command for 
-this is documented [here](./dsp-tools-usage.md#create-the-properties-section-of-a-json-project-file-from-an-excel-file). 
+this is documented [here](./dsp-tools-usage.md#excel2properties). 
 Only the first worksheet of the Excel file is considered and only XLSX files are allowed. The `properties` section can 
 be inserted into the ontology file and then be uploaded onto a DSP server.
 
@@ -133,7 +133,7 @@ For further information about properties, see [here](./dsp-tools-create-ontologi
 
 With DSP-TOOLS, the `lists` section of a JSON project file can be created from one or several Excel files. The lists can 
 then be inserted into a JSON project file and uploaded to a DSP server. The command for this is documented 
-[here](./dsp-tools-usage.md#create-the-lists-section-of-a-json-project-file-from-excel-files). 
+[here](./dsp-tools-usage.md#excel2lists). 
 
 The following example shows how to create the "lists" section from the two Excel files `de.xlsx` and `en.xlsx` which are located
 in a directory called `listfolder`:

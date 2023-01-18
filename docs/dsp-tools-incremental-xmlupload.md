@@ -64,7 +64,7 @@ It contains a mapping from `book_1` to `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmO
 
 As a first step, 
 a new file must be generated 
-with the [`id2iri` command](./dsp-tools-usage.md#replace-internal-ids-with-iris-in-xml-file),
+with the [`id2iri` command](./dsp-tools-usage.md#id2iri),
 like this:
 
 ```bash

@@ -1,6 +1,6 @@
 [![DSP-TOOLS](https://img.shields.io/github/v/release/dasch-swiss/dsp-tools?include_prereleases&label=DSP-TOOLS)](https://github.com/dasch-swiss/dsp-tools)
 
-# excel2xml
+# The excel2xml module
 
 ## Two use cases - two approaches
 
@@ -19,8 +19,7 @@ import the module `excel2xml` into your Python script.
 
 The second use case is less frequent: We migrate data DaSCH-internally from one server to another. In this case, the 
 data already has the correct structure, and can automatically be transformed to XML. This can be done with the CLI 
-command `dsp-tools excel2xml` which is documented 
-[here](./dsp-tools-usage.md#use-the-module-excel2xml-to-convert-a-data-source-to-xml).
+command `dsp-tools excel2xml` which is documented [here](./dsp-tools-usage.md#excel2xml).
 
 **This page deals only with the first use case, the module `excel2xml`** .
 
@@ -191,7 +190,7 @@ ID in a dict, so that you can retrieve it later. The example script contains an 
 ### 7. Append the properties
 
 For every property, there is a helper function that explains itself when you hover over it. So you don't need to worry 
-any more how to construct a certain XML value for a certain property. 
+anymore how to construct a certain XML value for a certain property. 
 
 Here's how the Docstrings assist you:
 

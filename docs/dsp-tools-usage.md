@@ -1,35 +1,11 @@
 [![DSP-TOOLS](https://img.shields.io/github/v/release/dasch-swiss/dsp-tools?include_prereleases&label=DSP-TOOLS)](https://github.com/dasch-swiss/dsp-tools)
 
-# Installation and usage
+# The CLI commands of DSP-TOOLS
 
-DSP-TOOLS is a Python package with a command line interface 
-that helps you interact with a DSP server. 
-The DSP server you interact with can be on a remote server, 
-or on your local machine. 
-The following paragraphs give you an overview of how to install and use DSP-TOOLS.
+## Before starting: Have in mind the subdomains of a DSP server
 
-
-
-## Installation
-
-To install the latest version, run:
-
-```bash
-pip3 install dsp-tools
-```
-
-To update to the latest version run:
-
-```bash
-pip3 install --upgrade dsp-tools
-```
-
-
-
-## Before starting: Have in mind the URLs of a DSP server
-
-DaSCH follows some conventions when setting up our servers. 
-Most of the commands documented on this page 
+DaSCH follows some conventions when setting up DSP servers. 
+Most of the commands documented on this page
 assume that you know how to address the subdomains of a DSP server.
 There are three relevant URLs you should know about:
 
@@ -47,10 +23,9 @@ dsp-tools xmlupload -s https://api.dasch.swiss -u root@example.com -p test -S ht
 
 
 
-## Create a project on a DSP server
+## `create`
 
-This command reads the definition of a project with its data model(s) 
-(provided in a JSON file) 
+This command reads a JSON project definition (containing one or more data models)
 and creates it on a DSP server.
 
 ```bash
@@ -87,10 +62,9 @@ The expected JSON format is [documented here](./dsp-tools-create.md).
 
 
 
-## Get a project from a DSP server
+## `get`
 
-This command retrieves the definition of a project with its data model(s) 
-from a DSP server 
+This command retrieves a project with its data model(s) from a DSP server 
 and writes it into a JSON file. 
 This JSON file can then be used 
 to create the same project on another DSP server. 
@@ -119,9 +93,9 @@ The expected JSON format is [documented here](./dsp-tools-create.md).
 
 
 
-## Upload data to a DSP server
+## `xmlupload`
 
-This command uploads data defined in an XML file onto a DSP server. 
+This command uploads data defined in an XML file to a DSP server. 
 
 ```bash
 dsp-tools xmlupload [options] xml_data_file.xml
@@ -164,7 +138,7 @@ The expected XML format is [documented here](./dsp-tools-xmlupload.md).
 
 
 
-## Create a JSON project file from Excel files
+## `excel2json`
 
 This command creates a JSON project file from a nested folder structure with Excel files.
 
@@ -176,9 +150,9 @@ The expected Excel file format and the folder structure are documented [here](./
 
 
 
-### Create the "lists" section of a JSON project file from Excel files
+### `excel2lists`
 
-This command creates the "lists" section of a JSON project file from an Excel file.
+This command creates the "lists" section of a JSON project file from Excel files.
 
 ```bash
 dsp-tools excel2lists [options] folder output.json
@@ -190,13 +164,13 @@ The following options are available:
 
 The expected Excel file format and the folder structure are documented [here](./dsp-tools-excel2json.md#lists-section).
 
-| Hint                                                                                                      |
-|-----------------------------------------------------------------------------------------------------------|
-| The command [`excel2json`](#create-a-json-project-file-from-excel-files) might be more convenient to use. |
+| Hint                                                                     |
+|--------------------------------------------------------------------------|
+| The command [`excel2json`](#excel2json) might be more convenient to use. |
 
 
 
-### Create the "resources" section of a JSON project file from an Excel file
+### `excel2resources`
 
 This command creates the "resources" section of a JSON project file from an Excel file.
 
@@ -206,13 +180,13 @@ dsp-tools excel2resources excel_file.xlsx output_file.json
 
 The expected Excel format is [documented here](./dsp-tools-excel2json.md#resources-section).
 
-| Hint                                                                                                      |
-|-----------------------------------------------------------------------------------------------------------|
-| The command [`excel2json`](#create-a-json-project-file-from-excel-files) might be more convenient to use. |
+| Hint                                                                     |
+|--------------------------------------------------------------------------|
+| The command [`excel2json`](#excel2json) might be more convenient to use. |
 
 
 
-### Create the "properties" section of a JSON project file from an Excel file
+### `excel2properties`
 
 This command creates the "properties" section of a JSON project file from an Excel file.
 
@@ -222,15 +196,15 @@ dsp-tools excel2properties excel_file.xlsx output_file.json
 
 The expected Excel format is [documented here](./dsp-tools-excel2json.md#properties-section).
 
-| Hint                                                                                                      |
-|-----------------------------------------------------------------------------------------------------------|
-| The command [`excel2json`](#create-a-json-project-file-from-excel-files) might be more convenient to use. |
+| Hint                                                                     |
+|--------------------------------------------------------------------------|
+| The command [`excel2json`](#excel2json) might be more convenient to use. |
 
 
 
-## Create an XML file from Excel/CSV
+## `excel2xml`
 
-This command converts a data source 
+This command converts an Excel/CSV file
 that is already structured according to the DSP specifications 
 to XML.
 This is mostly used for DaSCH-internal data migration.
@@ -250,27 +224,11 @@ The expected Excel format is [documented here](./dsp-tools-excel2xml-file-format
 If your data source is not yet structured according to the DSP specifications, 
 you need a custom Python script for the data transformation. 
 For this, you might want to import the module `excel2xml` into your Python script, 
-which is described in the next paragraph.
+which is described [here](./dsp-tools-excel2xml.md).
 
 
 
-## Use the module `excel2xml` to convert a data source to XML
-
-DSP-TOOLS assists you 
-in converting a data source in CSV/XLS(X) format 
-to an XML file. 
-Unlike the other features of DSP-TOOLS, 
-this doesn't work via command line, 
-but via helper methods that you can import into your own Python script. 
-Because every data source is different, 
-there is no single algorithm to convert them to a DSP conform XML. 
-Every user has to deal with the specialties of their data source, 
-but `excel2xml`'s helper methods can help a lot. 
-Read more about it [here](./dsp-tools-excel2xml.md).
-
-
-
-## Replace internal IDs with IRIs in XML file
+## `id2iri`
 
 This command reads an XML file, 
 and replaces the internal IDs contained in its `<resptr>` tags
@@ -291,9 +249,9 @@ that is documented [here](dsp-tools-incremental-xmlupload.md).
 
 
 
-## Run a DSP stack on your local machine 
+## `start-stack` / `stop-stack`
 
-This command runs DSP-API and DSP-APP for local testing.
+This command runs DSP-API and DSP-APP on a local machine.
 
 ```bash
 dsp-tools start-stack

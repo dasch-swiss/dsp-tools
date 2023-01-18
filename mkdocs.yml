@@ -7,21 +7,21 @@ copyright: "&copy; 2017 - <script>document.write(new Date().getFullYear())</scri
 
 nav:
   - Overview: index.md
-  - Installation and usage: dsp-tools-usage.md
+  - The CLI commands: dsp-tools-usage.md
   - File formats:
         - JSON project file - Overview: dsp-tools-create.md
         - JSON project file - Ontologies: dsp-tools-create-ontologies.md
         - XML data file: dsp-tools-xmlupload.md
-        - Excel files to generate JSON project: dsp-tools-excel2json.md
+        - Excel files to generate a JSON project: dsp-tools-excel2json.md
         - Excel files to generate XML data: dsp-tools-excel2xml-file-format.md
   - Incremental xmlupload: dsp-tools-incremental-xmlupload.md
-  - excel2xml module: dsp-tools-excel2xml.md
+  - The excel2xml module: dsp-tools-excel2xml.md
   - Running DSP locally: dsp-tools-start-stack.md
   - Information for developers:
         - Developers documentation: developers-index.md
         - dependencies, packaging & distribution: developers-packaging.md
         - git submodules: developers-git-submodules.md
-        - start-stack command: developers-start-stack-command.md
+        - Maintaining the start-stack command: developers-start-stack-command.md
         - user data: developers-user-data.md
   - Changelog: changelog.md
 

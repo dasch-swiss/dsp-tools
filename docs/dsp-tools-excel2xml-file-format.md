@@ -1,8 +1,11 @@
 [![DSP-TOOLS](https://img.shields.io/github/v/release/dasch-swiss/dsp-tools?include_prereleases&label=DSP-TOOLS)](https://github.com/dasch-swiss/dsp-tools)
 
-# XML data from Excel files
+# Excel file format to generate an XML data file
 
-The Excel file must be structured as in this image:  
+With DSP-TOOLS, an XML data file can be created from an Excel/CSV file. The command for this is documented 
+[here](./dsp-tools-usage.md#excel2xml). 
+
+The Excel/CSV file must be structured as in this image:  
 ![img-excel2xml.png](assets/images/img-excel2xml.png)
 
 Some notes:

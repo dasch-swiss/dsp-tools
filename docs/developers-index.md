@@ -2,4 +2,6 @@
 
 # Developers documentation
 
-These pages contain Architectural Decision Records.
+These pages contain important background information 
+for developers of the DSP-TOOLS code repository, 
+as well as Architectural Decision Records.

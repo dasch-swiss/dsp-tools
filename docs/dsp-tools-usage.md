@@ -139,6 +139,11 @@ The following options are available:
 - `-v` | `--verbose` (optional): If set, more information about the process is printed to the console.
 - `-m` | `--metrics` (optional): If set, write metrics into a "metrics" folder in the current working directory
 
+Output:
+
+- A file named `id2iri_mapping_[timestamp].json` is written to the current working directory.
+  This file should be kept if data is later added with the [`--incremental` option](./dsp-tools-incremental-xmlupload.md)
+
 The defaults are intended for local testing: 
 
 ```bash
@@ -268,41 +273,20 @@ Read more about it [here](./dsp-tools-excel2xml.md).
 ## Replace internal IDs with IRIs in XML file
 
 ```bash
-dsp-tools id2iri xml_file.xml mapping_file.json --outfile xml_out_file.xml
+dsp-tools id2iri xml_file.xml mapping_file.json --outfile xml_file_replaced.xml
 ```
 
-When uploading data with `dsp-tools xmlupload` an internal ID is used in the `<resptr>` tag of the XML file to reference
-resources inside the same XML file. Once data is uploaded to DSP it cannot be referenced by this internal ID anymore.
-Instead, the resource's IRI has to be used.
+This command reads an XML file, 
+and replaces the internal IDs contained in its `<resptr>` tags
+by the respective IRIs from the JSON mapping file.
 
-With `dsp-tools id2iri` internal IDs can be replaced with their corresponding IRIs within a provided XML. The output is
-written to a new XML file called `id2iri_replaced_[timestamp].xml` (the file path and name can be overwritten with
-option `--outfile`). If all internal IDs were replaced, the newly created XML can be used
-with `dsp-tools xmlupload --incremental id2iri_replaced_20211026_120247263754.xml` to upload the data.
+The following options are available:
 
-Note that internal IDs and IRIs cannot be mixed. The input XML file has to be provided as well as the JSON file which
-contains the mapping from internal IDs to IRIs. This JSON file is generated after each successful `xmlupload`.
+- `--outfile` (optional, default: `id2iri_replaced_[timestamp].xml`): path to the output file
 
-In order to upload data incrementally the procedure described [here](dsp-tools-xmlupload.md#incremental-xml-upload) is recommended.
-
-An internal ID is used in the `<resptr>` tag of an XML file to reference resources inside the same XML file. Once data 
-is uploaded to DSP, it cannot be referenced by this internal ID anymore. Instead, the resource's IRI has to be used. 
-After a successful `xmlupload`, the mapping of internal IDs to their respective IRIs is written to a file
-called `id2iri_mapping_[timstamp].json`.
-After a successful upload of the data, an output file is written (called `id2iri_mapping_[timstamp].json`) with the 
-mapping of internal IDs used inside the XML and their corresponding IRIs which uniquely identify them inside DSP. This 
-file should be kept if data is later added with the `--incremental` option. 
-
-To do an incremental XML upload, one of the following procedures is recommended.
-
-- Incremental XML upload with use of internal IDs:
-     1. Initial XML upload with internal IDs.
-     2. The file `id2iri_mapping_[timestamp].json` is created.
-     3. Create new XML file(s) with resources referencing other resources by their internal IDs in `<resptr>` (using the same IDs as in the initial XML upload).
-     4. Run `dsp-tools id2iri new_data.xml id2iri_mapping_[timestamp].json` to replace the internal IDs in `new_data.xml` with IRIs. Only internal IDs inside the `<resptr>` tag are replaced.
-     5. Run `dsp-tools xmlupload --incremental new_data.xml` to upload the data to DSP.
-- Incremental XML Upload with the use of IRIs: Use IRIs in the XML to reference existing data on the DSP server.
-
+This command cannot be used isolated, 
+because it is part of a bigger procedure 
+that is documented [here](dsp-tools-incremental-xmlupload.md).
 
 
 

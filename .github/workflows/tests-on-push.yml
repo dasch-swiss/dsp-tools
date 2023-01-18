@@ -23,6 +23,8 @@ jobs:
           poetry install
       - name: build docs
         run: poetry run mkdocs build --strict
+      - name: check docs
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
       - name: unittests
         run: poetry run pytest test/unittests/
       - name: e2e tests

@@ -422,7 +422,7 @@ Example:
 
 `"object": "GeonameValue"`
 
-Represents a location ID of [geonames.org](https://geonames.org). See the 
+Represents a location ID of [geonames.org](https://www.geonames.org). See the 
 [xmlupload documentation](./dsp-tools-xmlupload.md#geoname-prop) for more information.
 
 *gui_elements / gui_attributes*:

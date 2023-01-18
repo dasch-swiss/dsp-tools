@@ -128,12 +128,27 @@ For formatting Markdown files (*.md) we use the default styling configuration pr
 
 ## Contributing to the documentation
 
-The documentation is a collection of [markdown](https://en.wikipedia.org/wiki/Markdown) files in the `docs` folder.  
-After updating the files, build and check the result with the following command:
+The documentation is a collection of [markdown](https://en.wikipedia.org/wiki/Markdown) files in the `docs` folder.
+They are converted to HTML with [MkDocs](https://pypi.org/project/mkdocs/).
+We are gradually switching to [Semantic Line Breaks](https://sembr.org/),
+so don't be confused to see unexpected line breaks.
+
+The style can be adapted in the CSS file `docs/assets/style/theme.css`. 
+The navigation bar and other configurations can be configured in the `mkdocs.yml` file.
+
+After modifying the documentation, build and check the result with the following command:
 
 ```bash
 mkdocs serve
 ```
 
-The documentation is published on https://docs.dasch.swiss/latest/DSP-TOOLS. During the centralized release process of all
-components of the DSP software stack, the docs of DSP-TOOLS get built from the main branch to https://docs.dasch.swiss.
+This allows you to look at a preview of the documentation in a browser. 
+
+Please note that this is not the final form how the documentation will be published.
+Rather, they are published together with the docs of DSP-API and DSP-APP on https://docs.dasch.swiss/. 
+This happens by embedding all three repositories as git submodules 
+into the central [DSP-DOCS](https://github.com/dasch-swiss/dsp-docs) repository.
+If conflicting, the CSS and other configurations there will override the configurations of the DSP-TOOLS repository.
+
+During the centralized release process of all components of the DSP software stack, 
+the docs of DSP-TOOLS get built from the main branch to https://docs.dasch.swiss/latest/DSP-TOOLS.

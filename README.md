@@ -5,8 +5,8 @@
 DSP-TOOLS is a command line tool that helps you to interact with the DaSCH Service Platform API. This document is 
 intended for developers who want to work with the code of DSP-TOOLS. 
 
-| <center>Hint</center>                                                                                                                                        |
-|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|                                                                             Hint                                                                             |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | If you aren't a developer, you might find the [end user documentation](https://docs.dasch.swiss/latest/DSP-TOOLS) more helpful than this technical document. |
 
 This README contains basic information for getting started. More details can be found in the 
@@ -149,6 +149,29 @@ Rather, they are published together with the docs of DSP-API and DSP-APP on http
 This happens by embedding all three repositories as git submodules 
 into the central [DSP-DOCS](https://github.com/dasch-swiss/dsp-docs) repository.
 If conflicting, the CSS and other configurations there will override the configurations of the DSP-TOOLS repository.
+In rare cases, a certain syntax is correctly rendered locally, 
+but not on https://docs.dasch.swiss/latest/DSP-TOOLS. 
 
 During the centralized release process of all components of the DSP software stack, 
 the docs of DSP-TOOLS get built from the main branch to https://docs.dasch.swiss/latest/DSP-TOOLS.
+
+
+
+### Styling constraints in the documentation
+
+In our GitHub actions, we check PRs for dead links in the documentation. 
+Our tool markdown-link-validator is only able to check internal links
+if they start with `./`. For example:
+
+- `[prefixes](./dsp-tools-create.md#prefixes-object)` instead of `[prefixes](dsp-tools-create.md#prefixes-object)`
+- `![Colors_en](./assets/images/img-list-english-colors.png)` instead of `![Colors_en](assets/images/img-list-english-colors.png)`
+
+It is okay, however, to make an internal link to a title of the current document: `[prefixes](#prefixes-object)`
+
+Please follow this constraint, so that markdown-link-validator can check the internal links.
+
+|                                                                                            Hint                                                                                            |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| If your links are correct, but markdown-link-validator doesn't recognize them, it might be necessary to adapt the call to markdown-link-validator in `.github/workflows/tests-on-push.yml` |
+
+

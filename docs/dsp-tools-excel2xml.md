@@ -176,7 +176,7 @@ There are four kind of resources that can be created:
 | `LinkObj`    | `<link>`       | `make_link()`       |
 
 `<resource>` is the most frequent of them. The other three are [explained 
-here](./dsp-tools-xmlupload.md#dsp-base-resources--base-properties-to-be-used-directly-in-the-xml-file). 
+here](./dsp-tools-xmlupload.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file). 
 
 #### Resource ID
 

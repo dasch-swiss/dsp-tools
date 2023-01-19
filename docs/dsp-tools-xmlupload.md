@@ -626,7 +626,7 @@ The `<text>` element has the following attributes:
   at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-For the possible combinations of `encoding` with the `gui_element` [defined in the ontology](dsp-tools-create-ontologies.md#textvalue), 
+For the possible combinations of `encoding` with the `gui_element` [defined in the ontology](./dsp-tools-create-ontologies.md#textvalue), 
 see the table: 
 
 | `gui_element` (JSON ontology) | `encoding` (XML data) | How DSP-APP renders the whitespaces                                                                                            |
@@ -734,12 +734,12 @@ Example of a property with a public and a hidden URI:
 ```
 
 
-## DSP base resources / base properties to be used directly in the XML file
+## DSP base resources and base properties to be used directly in the XML file
 
 There is a number of base resources and base properties that must not be subclassed in a project ontology. They are 
 directly available in the XML data file. Please have in mind that built-in names of the knora-base ontology must be used 
 without prepended colon.  
-See also [the related part of the ontology documentation](dsp-tools-create-ontologies.md#dsp-base-resources--base-properties-to-be-used-directly-in-the-xml-file)
+See also [the related part of the JSON project documentation](./dsp-tools-create-ontologies.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file)
 
 
 ### `<annotation>`
@@ -803,7 +803,7 @@ Example:
 </region>
 ```
 
-More details about the `<geometry-prop>` are documented [here](#geometry-prop).
+More details about the `<geometry-prop>` are documented [here](./dsp-tools-xmlupload.md#geometry-prop).
 
 Technical note: A `<region>` is in fact a `<resource restype="Region">`. But it is mandatory to use the 
 shortcut, so that the XML file can be validated more precisely.

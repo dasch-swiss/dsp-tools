@@ -59,7 +59,7 @@ this is documented [here](./dsp-tools-usage.md#excel2resources).
 Only `XLSX` files are allowed. The `resources` section can be inserted into the ontology file and then be uploaded onto 
 a DSP server.
 
-**An Excel file template can be found [here](assets/data_model_templates/rosetta (rosetta)/resources.xlsx) or also in the 
+**An Excel file template can be found [here](./assets/data_model_templates/rosetta%20%28rosetta%29/resources.xlsx) or also in the 
 [`data_model_files` folder of `0123-import-scripts`](https://github.com/dasch-swiss/0123-import-scripts/tree/main/data_model_files).
 It is recommended to work from the template.** 
 
@@ -69,7 +69,7 @@ The expected worksheets of the Excel file are:
 - `class1`, `class2`,...: a table for each resource class named after its name
 
 The worksheet called `classes` must have the following structure:  
-![img-resources-example-1.png](assets/images/img-resources-example-1.png)
+![img-resources-example-1.png](./assets/images/img-resources-example-1.png)
 
 The expected columns are:
 
@@ -81,7 +81,7 @@ The expected columns are:
 The optional columns may be omitted in the Excel.
 
 All other worksheets, one for each resource class, have the following structure:  
-![img-resources-example-2.png](assets/images/img-resources-example-2.png)
+![img-resources-example-2.png](./assets/images/img-resources-example-2.png)
 
 The expected columns are:
 
@@ -102,12 +102,12 @@ this is documented [here](./dsp-tools-usage.md#excel2properties).
 Only the first worksheet of the Excel file is considered and only XLSX files are allowed. The `properties` section can 
 be inserted into the ontology file and then be uploaded onto a DSP server.
 
-**An Excel file template can be found [here](assets/data_model_templates/rosetta (rosetta)/properties.xlsx) or also in the 
+**An Excel file template can be found [here](./assets/data_model_templates/rosetta%20%28rosetta%29/properties.xlsx) or also in the 
 [`data_model_files` folder of `0123-import-scripts`](https://github.com/dasch-swiss/0123-import-scripts/tree/main/data_model_files). 
 It is recommended to work from the template.**
 
 The Excel sheet must have the following structure:  
-![img-properties-example.png](assets/images/img-properties-example.png)
+![img-properties-example.png](./assets/images/img-properties-example.png)
 
 The expected columns are:
 
@@ -143,9 +143,8 @@ dsp-tools excel2lists listfolder lists.json
 ```
 
 The Excel sheets must have the following structure:  
-![img-list-english-example.png](assets/images/img-list-english-example.png)  
-![img-list-german-example.png](assets/images/img-list-german-example.png)
-[img-list-german-example.jpg](assets/images/img-list-german-example.jpg)
+![img-list-english-example.png](./assets/images/img-list-english-example.png)  
+![img-list-german-example.png](./assets/images/img-list-german-example.png)
 
 Some notes:
 
@@ -163,8 +162,8 @@ Some notes:
 
 **It is recommended to work from the following templates:**  
 
- - [en.xlsx](assets/data_model_templates/lists/en.xlsx): File with the English labels  
- - [de.xlsx](assets/data_model_templates/lists/de.xlsx): File with the German labels
+ - [en.xlsx](./assets/data_model_templates/lists/en.xlsx): File with the English labels  
+ - [de.xlsx](./assets/data_model_templates/lists/de.xlsx): File with the German labels
  - or alternatively from the [`data_model_files` folder of `0123-import-scripts`](https://github.com/dasch-swiss/0123-import-scripts/tree/main/data_model_files)
 
 The output of the above command, with the template files, is:

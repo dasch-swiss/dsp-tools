@@ -244,7 +244,7 @@ The following options are available:
 
 This command cannot be used isolated, 
 because it is part of a bigger procedure 
-that is documented [here](dsp-tools-incremental-xmlupload.md).
+that is documented [here](./dsp-tools-incremental-xmlupload.md).
 
 
 

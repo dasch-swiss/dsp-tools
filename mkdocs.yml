@@ -23,6 +23,7 @@ nav:
         - git submodules: developers-git-submodules.md
         - Maintaining the start-stack command: developers-start-stack-command.md
         - user data: developers-user-data.md
+        - GitHub actions: developers-github-actions.md
   - Changelog: changelog.md
 
 theme:

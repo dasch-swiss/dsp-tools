@@ -6,7 +6,7 @@ With DSP-TOOLS, an XML data file can be created from an Excel/CSV file. The comm
 [here](./dsp-tools-usage.md#excel2xml). 
 
 The Excel/CSV file must be structured as in this image:  
-![img-excel2xml.png](assets/images/img-excel2xml.png)
+![img-excel2xml.png](./assets/images/img-excel2xml.png)
 
 Some notes:
 

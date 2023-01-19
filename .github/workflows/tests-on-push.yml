@@ -24,7 +24,9 @@ jobs:
       - name: build docs
         run: poetry run mkdocs build --strict
       - name: check external links in docs
-        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        run: |
+          npm install -g markdown-link-validator
+          markdown-link-validator ./docs -i \.assets\/.+ -i \.\/dsp\-tools\-xmlupload\.md\#.+\-prop -i \.\/dsp\-tools\-xmlupload\.md\#bitstream -i .+github\.com\/dasch\-swiss\/dsp-tools\/settings
       - name: unittests
         run: poetry run pytest test/unittests/
       - name: e2e tests

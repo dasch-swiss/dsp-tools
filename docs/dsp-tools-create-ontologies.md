@@ -1083,13 +1083,13 @@ it is necessary to reference entities that are defined elsewhere. The following 
 
 - DSP-API internals: They are referenced as such and do not have a leading colon.  
   E.g. `Resource`, `DocumentRepresentation` or `hasValue`
-- An external ontology: The ontology must be defined in the [prefixes](dsp-tools-create.md#prefixes-object) section.
+- An external ontology: The ontology must be defined in the [prefixes](./dsp-tools-create.md#prefixes-object) section.
   The prefix can then be used for referencing the ontology.  
   E.g. `foaf:familyName` or `sdo:Organization`
 - The current ontology: Within an ontology definition, references can be made by prepending a colon without a prefix.  
   E.g. `:hasName`
   Optionally, an explicit prefix can be used. In this case the ontology must be added to the
-  [prefixes](dsp-tools-create.md#prefixes-object) section and the prefix must be identical to the ontology's `name`.  
+  [prefixes](./dsp-tools-create.md#prefixes-object) section and the prefix must be identical to the ontology's `name`.  
 - A different ontology defined in the same file: Within one data model file, multiple ontologies can be defined.
   These will be created in the exact order they appear in the `ontologies` array. Once an ontology has been created,
   it can be referenced by the following ontologies by its name, e.g. `first-onto:hasName`. It is not necessary to add 
@@ -1098,21 +1098,21 @@ it is necessary to reference entities that are defined elsewhere. The following 
 
 
 
-## DSP base resources / base properties to be used directly in the XML file
+## DSP base resources and base properties to be used directly in the XML file
 
 There is a number of DSP base resources that must not be subclassed in a project ontology. They are directly available 
 in the XML data file:
 
 - `Annotation` is an annotation to another resource of any class. It can be used in the XML file with the 
-  [&lt;annotation&gt; tag](dsp-tools-xmlupload.md#annotation). It automatically has the following predefined properties:
+  [&lt;annotation&gt; tag](./dsp-tools-xmlupload.md#annotation). It automatically has the following predefined properties:
     - `hasComment` (1-n)
     - `isAnnotationOf` (1)
 - `LinkObj` is a resource linking together several other resources of different classes. It can be used in the XML file 
-  with the [&lt;link&gt; tag](dsp-tools-xmlupload.md#link). It automatically has the following predefined properties:
+  with the [&lt;link&gt; tag](./dsp-tools-xmlupload.md#link). It automatically has the following predefined properties:
     - `hasComment` (1-n)
     - `hasLinkTo` (1-n)
 - A `Region` resource defines a region of interest (ROI) in an image. It can be used in the XML file with the 
-  [&lt;region&gt; tag](dsp-tools-xmlupload.md#region). It automatically has the following predefined properties:
+  [&lt;region&gt; tag](./dsp-tools-xmlupload.md#region). It automatically has the following predefined properties:
     - `hasColor` (1)
     - `isRegionOf` (1)
     - `hasGeometry` (1)
@@ -1123,18 +1123,18 @@ subclassed and used in a resource class.
 
 - `hasLinkTo`: a link to another resource
     - can be subclassed ([hasLinkTo Property](#haslinkto-property))
-    - can be used directly in the XML data file in the [&lt;link&gt; tag](dsp-tools-xmlupload.md#link)
+    - can be used directly in the XML data file in the [&lt;link&gt; tag](./dsp-tools-xmlupload.md#link)
 - `hasColor`: Defines a color value. 
     - can be subclassed ([ColorValue](#colorvalue))
-    - can be used directly in the XML data file in the [&lt;region&gt; tag](dsp-tools-xmlupload.md#region)
+    - can be used directly in the XML data file in the [&lt;region&gt; tag](./dsp-tools-xmlupload.md#region)
 - `hasComment`: Defines a standard comment. 
     - can be subclassed ([hasComment Property](#hascomment-property))
-    - can be used directly in the XML data file in the [&lt;region&gt; tag](dsp-tools-xmlupload.md#region) or 
-      [&lt;link&gt; tag](dsp-tools-xmlupload.md#link)
+    - can be used directly in the XML data file in the [&lt;region&gt; tag](./dsp-tools-xmlupload.md#region) or 
+      [&lt;link&gt; tag](./dsp-tools-xmlupload.md#link)
 - `hasGeometry`: Defines a geometry value (a JSON describing a polygon, circle or rectangle). 
-    - must be used directly in the XML data file in the [&lt;region&gt; tag](dsp-tools-xmlupload.md#region)
+    - must be used directly in the XML data file in the [&lt;region&gt; tag](./dsp-tools-xmlupload.md#region)
 - `isRegionOf`: A special variant of `hasLinkTo`. It means that the given resource class is a region of interest in an image. 
-    - must be used directly in the XML data file in the [&lt;region&gt; tag](dsp-tools-xmlupload.md#region)
+    - must be used directly in the XML data file in the [&lt;region&gt; tag](./dsp-tools-xmlupload.md#region)
 - `isAnnotationOf`: A special variant of `hasLinkTo`. It means that the given resource class is an annotation to another
   resource class. 
-    - must be used directly in the XML data file in the [&lt;annotation&gt; tag](dsp-tools-xmlupload.md#annotation)
+    - must be used directly in the XML data file in the [&lt;annotation&gt; tag](./dsp-tools-xmlupload.md#annotation)

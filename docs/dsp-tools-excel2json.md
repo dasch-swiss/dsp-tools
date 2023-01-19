@@ -81,7 +81,7 @@ The expected columns are:
 The optional columns may be omitted in the Excel.
 
 All other worksheets, one for each resource class, have the following structure:  
-![img-resources-example-2.png](assets/images/img-resources-example-2.png){ width=30% }
+![img-resources-example-2.png](assets/images/img-resources-example-2.png)
 
 The expected columns are:
 
@@ -143,8 +143,8 @@ dsp-tools excel2lists listfolder lists.json
 ```
 
 The Excel sheets must have the following structure:  
-![img-list-english-example.png](assets/images/img-list-english-example.png){ width=60% }  
-![img-list-german-example.png](assets/images/img-list-german-example.png){ width=60% }
+![img-list-english-example.png](assets/images/img-list-english-example.png)  
+![img-list-german-example.png](assets/images/img-list-german-example.png)
 
 Some notes:
 

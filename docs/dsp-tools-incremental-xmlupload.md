@@ -10,7 +10,7 @@ the resources cannot be referenced by their internal ID anymore.
 Instead, the resource's IRI has to be used.
 After a successful `xmlupload`, 
 the mapping of internal IDs to their respective IRIs 
-is written to a file called `id2iri_mapping_[timstamp].json`.
+is written to a file called `id2iri_mapping_[timestamp].json`.
 
 What is this mapping used for?
 It can happen that at a later point of time,
@@ -68,7 +68,7 @@ with the [`id2iri` command](./dsp-tools-usage.md#id2iri),
 like this:
 
 ```bash
-dsp-tools id2iri additional_data.xml id2iri_mapping_[timstamp].json --outfile additional_data_replaced.xml
+dsp-tools id2iri additional_data.xml id2iri_mapping_[timestamp].json --outfile additional_data_replaced.xml
 ```
 
 | <center>Important</center>                                                                                                                                                              |

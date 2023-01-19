@@ -11,7 +11,7 @@ There are three relevant URLs you should know about:
 
  - Subdomain `admin` stands for the DSP-APP frontend that you look at in your browser
  - Subdomain `api` stands for the DSP-API (where DSP-TOOLS sends its data to) 
- - Subdomain `iiif` stands for the SIPI-server interface (where DSP-TOOLS sends the multimedia files to)
+ - Subdomain `iiif` stands for the SIPI server interface (where DSP-TOOLS sends the multimedia files to)
 
 This means that for uploading data to a DSP server 
 on the domain `dasch.swiss`, 

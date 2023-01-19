@@ -4,7 +4,7 @@
 
 With DSP-TOOLS, data can be imported into a DSP repository (on a DSP server) from an XML file. The import file is a
 standard XML file as described on this page. After a successful upload of the data, an output file is written (called 
-`id2iri_mapping_[timstamp].json`) with the mapping from the internal IDs used inside the XML to their corresponding IRIs which
+`id2iri_mapping_[timestamp].json`) with the mapping from the internal IDs used inside the XML to their corresponding IRIs which
 uniquely identify them inside DSP. This file should be kept if data is later added with the 
 `--incremental` [option](./dsp-tools-incremental-xmlupload.md).
 

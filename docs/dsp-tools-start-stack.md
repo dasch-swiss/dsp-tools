@@ -1,9 +1,9 @@
 [![DSP-TOOLS](https://img.shields.io/github/v/release/dasch-swiss/dsp-tools?include_prereleases&label=DSP-TOOLS)](https://github.com/dasch-swiss/dsp-tools)
 
-# Run a DSP stack on your local machine 
+# Run the DSP stack on your local machine 
 
 DSP-API is the heart of the DaSCH service platform. 
-It is a server application for storing data from the Humanities. 
+It is a server application for archiving data from the Humanities. 
 DSP-APP is a generic user interface for the user to look at and work with data stored in DSP-API. 
 It's a server application, too. 
 For testing purposes, it is sometimes necessary to run DSP-API and DSP-APP on a local machine. 
@@ -45,12 +45,12 @@ Some notes:
 
 #### When should I restart DSP-API?
 
-After creating a data model and adding some data in your local DSP stack, 
+After creating a data model and adding some data into your local DSP stack, 
 you can work on DSP as if it was the live platform. 
 But there are certain actions that are irreversible or can only be executed once, 
 e.g. uploading the same JSON project file. 
 If you edit your data model in the JSON file, 
-and then you want to upload it a second time, 
+and you want to upload it a second time, 
 DSP-API will refuse to create the same project again. 
 So, you might want to restart the stack and start over again from a clean setup.
 

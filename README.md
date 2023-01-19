@@ -128,7 +128,7 @@ For formatting Markdown files (*.md) we use the default styling configuration pr
 
 ## Contributing to the documentation
 
-The documentation is a collection of [markdown](https://en.wikipedia.org/wiki/Markdown) files in the `docs` folder.
+The documentation is a collection of [Markdown](https://en.wikipedia.org/wiki/Markdown) files in the `docs` folder.
 They are converted to HTML with [MkDocs](https://pypi.org/project/mkdocs/).
 We are gradually switching to [Semantic Line Breaks](https://sembr.org/),
 so don't be confused to see unexpected line breaks.

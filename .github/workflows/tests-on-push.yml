@@ -26,7 +26,7 @@ jobs:
       - name: check external links in docs
         run: |
           npm install -g markdown-link-validator
-          markdown-link-validator ./docs -i \.assets\/.+ -i \.\/dsp\-tools\-xmlupload\.md\#.+\-prop -i \.\/dsp\-tools\-xmlupload\.md\#bitstream -i .+github\.com\/dasch\-swiss\/dsp-tools\/settings
+          markdown-link-validator ./docs -i \.assets\/.+ -i \.\/dsp\-tools\-xmlupload\.md\#.+\-prop -i \.\/dsp\-tools\-xmlupload\.md\#bitstream -i \.\/dsp\-tools\-xmlupload\.md\#.+permissions\-element -i .+github\.com\/dasch\-swiss\/dsp-tools\/settings
       - name: unittests
         run: poetry run pytest test/unittests/
       - name: e2e tests

@@ -76,11 +76,14 @@ For example:
 
 The only choice we have is to follow the MkDocs requirement, and to ignore PyCharm and markdown-link-validator errors.
 For this reason, the code snippet below has the flags
-`-i \.\/dsp\-tools\-xmlupload\.md\#.+\-prop` and `-i \.\/dsp\-tools\-xmlupload\.md\#bitstream`
+
+- `-i \.\/dsp\-tools\-xmlupload\.md\#.+\-prop`
+- `-i \.\/dsp\-tools\-xmlupload\.md\#bitstream`
+- `-i \.\/dsp\-tools\-xmlupload\.md\#.+permissions\-element`
 
 As you can see in the regex, 
 the two flags only ignore such links if they start with `dsp-tools-xmlupload.md#`. 
-For this reason, titles inside that file cannot be referenced like this: `[link](#geometry-prop)`, 
+For this reason, titles inside that file cannot be referenced like this: `[link]‌(#geometry-prop)`, 
 but must be in the full form: `[link](./dsp-tools-xmlupload.md#geometry-prop)`.
 
 Thirdly, external links to private pages raise an error, even though they are correct. 
@@ -90,7 +93,7 @@ To make markdown-link-validator work, the following flag is necessary: `-i .+git
 So finally, the following call to markdown-link-validator works:
 
 ```bash
-markdown-link-validator ./docs -i \.assets\/.+ -i \.\/dsp\-tools\-xmlupload\.md\#.+\-prop -i \.\/dsp\-tools\-xmlupload\.md\#bitstream -i .+github\.com\/dasch\-swiss\/dsp-tools\/settings
+markdown-link-validator ./docs -i \.assets\/.+ -i \.\/dsp\-tools\-xmlupload\.md\#.+\-prop -i \.\/dsp\-tools\-xmlupload\.md\#bitstream -i \.\/dsp\-tools\-xmlupload\.md\#.+permissions\-element -i .+github\.com\/dasch\-swiss\/dsp-tools\/settings
 ```
 
 As the documentation grows, and new titles are added,

@@ -18,12 +18,12 @@ nav:
   - The excel2xml module: dsp-tools-excel2xml.md
   - Running DSP locally: dsp-tools-start-stack.md
   - Information for developers:
-        - Developers documentation: developers-index.md
-        - dependencies, packaging & distribution: developers-packaging.md
-        - git submodules: developers-git-submodules.md
-        - Maintaining the start-stack command: developers-start-stack-command.md
-        - user data: developers-user-data.md
-        - GitHub actions: developers-github-actions.md
+        - Developers documentation: developers/index.md
+        - Dependencies, packaging & distribution: developers/packaging.md
+        - Git submodules: developers/git-submodules.md
+        - Maintaining the start-stack command: developers/start-stack-command.md
+        - User data: developers/user-data.md
+        - GitHub actions: developers/github-actions.md
   - Changelog: changelog.md
 
 theme:

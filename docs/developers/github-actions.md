@@ -90,7 +90,7 @@ Thirdly, external links to private pages raise an error, even though they are co
 An example is the link to `https://github.com/dasch-swiss/dsp-tools/settings` above.
 To make markdown-link-validator work, the following flag is necessary: `-i .+github\.com\/dasch\-swiss\/dsp-tools\/settings`
 
-So finally, the following call to markdown-link-validator works:
+So finally, this is the call to markdown-link-validator:
 
 ```bash
 markdown-link-validator ./docs -i \.assets\/.+ -i \.\/dsp\-tools\-xmlupload\.md\#.+\-prop -i \.\/dsp\-tools\-xmlupload\.md\#bitstream -i \.\/dsp\-tools\-xmlupload\.md\#.+permissions\-element -i .+github\.com\/dasch\-swiss\/dsp-tools\/settings

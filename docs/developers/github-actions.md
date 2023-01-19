@@ -71,20 +71,21 @@ This is tricky, because some tools like PyCharm or markdown-link-validator requi
 For example:
 
 - Title: `### &lt;geometry-prop&gt;`
-- MkDocs requires: `[internal link](./dsp-tools-xmlupload.md#geometry-prop)`
-- markdown-link-validator requires: `[internal link](./dsp-tools-xmlupload.md#ltgeometry-propgt)`  
+- MkDocs requires: `[internal link](./xml-data-file.md#geometry-prop)`
+- markdown-link-validator requires: `[internal link](./xml-data-file.md#ltgeometry-propgt)`  
 
-The only choice we have is to follow the MkDocs requirement, and to ignore PyCharm and markdown-link-validator errors.
+The only choice we have is to follow the MkDocs requirement, 
+and to ignore errors from PyCharm and markdown-link-validator.
 For this reason, the code snippet below has the flags
 
-- `-i \.\/dsp\-tools\-xmlupload\.md\#.+\-prop`
-- `-i \.\/dsp\-tools\-xmlupload\.md\#bitstream`
-- `-i \.\/dsp\-tools\-xmlupload\.md\#.+permissions\-element`
+- `-i \.\/xml\-data\-file\.md\#.+\-prop`
+- `-i \.\/xml\-data\-file\.md\#bitstream`
+- `-i \.\/xml\-data\-file\.md\#.+permissions\-element`
 
 As you can see in the regex, 
-the two flags only ignore such links if they start with `dsp-tools-xmlupload.md#`. 
+the two flags only ignore such links if they start with `xml-data-file.md#`. 
 For this reason, titles inside that file cannot be referenced like this: `[link]‌(#geometry-prop)`, 
-but must be in the full form: `[link](./dsp-tools-xmlupload.md#geometry-prop)`.
+but must be in the full form: `[link](./xml-data-file.md#geometry-prop)`.
 
 Thirdly, external links to private pages raise an error, even though they are correct. 
 An example is the link to `https://github.com/dasch-swiss/dsp-tools/settings` above.
@@ -93,7 +94,7 @@ To make markdown-link-validator work, the following flag is necessary: `-i .+git
 So finally, this is the call to markdown-link-validator:
 
 ```bash
-markdown-link-validator ./docs -i \.assets\/.+ -i \.\/dsp\-tools\-xmlupload\.md\#.+\-prop -i \.\/dsp\-tools\-xmlupload\.md\#bitstream -i \.\/dsp\-tools\-xmlupload\.md\#.+permissions\-element -i .+github\.com\/dasch\-swiss\/dsp-tools\/settings
+markdown-link-validator ./docs -i \.assets\/.+ -i \.\/xml\-data\-file\.md\#.+\-prop -i \.\/xml\-data\-file\.md\#bitstream -i \.\/xml\-data\-file\.md\#.+permissions\-element -i .+github\.com\/dasch\-swiss\/dsp-tools\/settings
 ```
 
 As the documentation grows, and new titles are added,

@@ -6,9 +6,9 @@ With DSP-TOOLS, data can be imported into a DSP repository (on a DSP server) fro
 standard XML file as described on this page. After a successful upload of the data, an output file is written (called 
 `id2iri_mapping_[timestamp].json`) with the mapping from the internal IDs used inside the XML to their corresponding IRIs which
 uniquely identify them inside DSP. This file should be kept if data is later added with the 
-`--incremental` [option](./dsp-tools-incremental-xmlupload.md).
+`--incremental` [option](../incremental-xmlupload.md).
 
-The command to import an XML file on a DSP server is described [here](./dsp-tools-usage.md#xmlupload).
+The command to import an XML file on a DSP server is described [here](../cli-commands.md#xmlupload).
 
 The import file must start with the standard XML header:
 
@@ -65,7 +65,7 @@ permissions. There are **built-in groups** and **project specific groups**:
      - `Creator`: The user is the owner of the element (created the element).
      - `SystemAdmin`: The user is a system administrator.
  - **Project specific groups**: 
-     - can be defined in the [JSON project file](./dsp-tools-create.md#groups)
+     - can be defined in the [JSON project file](json-project-overview.md#groups)
 
 
 ### Rights
@@ -101,7 +101,7 @@ The `<permissions>` element defines which rights are given to which groups:
 </permissions>
 ```
 
-In addition to the DSP built-in groups, [project specific groups](./dsp-tools-create.md#groups) are supported as well.
+In addition to the DSP built-in groups, [project specific groups](json-project-overview.md#groups) are supported as well.
 A project specific group name has the form `project-shortname:groupname`.
 
 If you don't want a group to have access at all, leave it out. In the following example, resources or properties with 
@@ -209,7 +209,7 @@ Notes:
 - There is only _one_ `<bitstream>` element allowed per representation.
 - The `<bitstream>` element must be the first element.
 - By default, the path is relative to the working directory where `dsp-tools xmlupload` is executed in. This behaviour 
-  can be modified with the flag [`--imgdir`](./dsp-tools-usage.md#xmlupload). If you keep the default,
+  can be modified with the flag [`--imgdir`](../cli-commands.md#xmlupload). If you keep the default,
   it is recommended to choose the project folder as working directory, `my_project` in the example below:
 
 ```
@@ -456,7 +456,7 @@ Example:
 
 The underlying grid is a 0-1 normalized top left-anchored grid. The following coordinate system shows the three shapes
 that were defined above:  
-![grid-for-geometry-prop](./assets/images/grid-for-geometry-prop.png)
+![grid-for-geometry-prop](../assets/images/grid-for-geometry-prop.png)
 
 
 
@@ -626,7 +626,7 @@ The `<text>` element has the following attributes:
   at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-For the possible combinations of `encoding` with the `gui_element` [defined in the ontology](./dsp-tools-create-ontologies.md#textvalue), 
+For the possible combinations of `encoding` with the `gui_element` [defined in the ontology](./json-project-ontologies.md#textvalue), 
 see the table: 
 
 | `gui_element` (JSON ontology) | `encoding` (XML data) | How DSP-APP renders the whitespaces                                                                                            |
@@ -739,7 +739,7 @@ Example of a property with a public and a hidden URI:
 There is a number of base resources and base properties that must not be subclassed in a project ontology. They are 
 directly available in the XML data file. Please have in mind that built-in names of the knora-base ontology must be used 
 without prepended colon.  
-See also [the related part of the JSON project documentation](./dsp-tools-create-ontologies.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file)
+See also [the related part of the JSON project documentation](./json-project-ontologies.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file)
 
 
 ### `<annotation>`
@@ -803,7 +803,7 @@ Example:
 </region>
 ```
 
-More details about the `<geometry-prop>` are documented [here](./dsp-tools-xmlupload.md#geometry-prop).
+More details about the `<geometry-prop>` are documented [here](./xml-data-file.md#geometry-prop).
 
 Technical note: A `<region>` is in fact a `<resource restype="Region">`. But it is mandatory to use the 
 shortcut, so that the XML file can be validated more precisely.

@@ -23,6 +23,7 @@ If you want to work on the code of DSP-TOOLS, you first have to do the following
 
  - install poetry with `curl -sSL https://install.python-poetry.org | python3 -` (for Windows, see 
    [https://python-poetry.org/docs/](https://python-poetry.org/docs/))
+ - install the exec plugin with `poetry self add poetry-exec-plugin`
  - execute `poetry install`, which will: 
      - create a virtual environment (if there isn't already one) 
      - install all dependencies (dev and non-dev) from `poetry.lock`. If `poetry.lock` doesn't exist, it installs 

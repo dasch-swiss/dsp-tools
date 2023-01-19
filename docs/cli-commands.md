@@ -58,7 +58,7 @@ it is necessary to specify the following options:
 dsp-tools create -s https://api.dasch.swiss -u root@example.com -p test project_definition.json
 ```
 
-The expected JSON format is [documented here](./dsp-tools-create.md).
+The expected JSON format is [documented here](./file-formats/json-project-overview.md).
 
 
 
@@ -89,7 +89,7 @@ how to get a project from the DSP server `https://admin.dasch.swiss`:
 dsp-tools get -s https://api.dasch.swiss -u root@example.com -p test -P my_project output_file.json
 ```
 
-The expected JSON format is [documented here](./dsp-tools-create.md).
+The expected JSON format is [documented here](./file-formats/json-project-overview.md).
 
 
 
@@ -116,7 +116,7 @@ The following options are available:
 Output:
 
 - A file named `id2iri_mapping_[timestamp].json` is written to the current working directory.
-  This file should be kept if data is later added with the [`--incremental` option](./dsp-tools-incremental-xmlupload.md)
+  This file should be kept if data is later added with the [`--incremental` option](./incremental-xmlupload.md)
 
 The defaults are intended for local testing: 
 
@@ -134,7 +134,7 @@ it is necessary to specify the following options:
 dsp-tools xmlupload -s https://api.dasch.swiss -u root@example.com -p test -S https://iiif.dasch.swiss xml_data_file.xml
 ```
 
-The expected XML format is [documented here](./dsp-tools-xmlupload.md).
+The expected XML format is [documented here](./file-formats/xml-data-file.md).
 
 
 
@@ -146,7 +146,7 @@ This command creates a JSON project file from a nested folder structure with Exc
 dsp-tools excel2json data_model_files project.json
 ```
 
-The expected Excel file format and the folder structure are documented [here](./dsp-tools-excel2json.md).
+The expected Excel file format and the folder structure are documented [here](./file-formats/excel2json.md).
 
 
 
@@ -162,7 +162,7 @@ The following options are available:
 
 - `-v` | `--verbose` (optional): If set, more information about the progress is printed to the console.
 
-The expected Excel file format and the folder structure are documented [here](./dsp-tools-excel2json.md#lists-section).
+The expected Excel file format and the folder structure are documented [here](./file-formats/excel2json.md#lists-section).
 
 | <center>Hint</center>                                                    |
 |--------------------------------------------------------------------------|
@@ -178,7 +178,7 @@ This command creates the "resources" section of a JSON project file from an Exce
 dsp-tools excel2resources excel_file.xlsx output_file.json
 ```
 
-The expected Excel format is [documented here](./dsp-tools-excel2json.md#resources-section).
+The expected Excel format is [documented here](./file-formats/excel2json.md#resources-section).
 
 | <center>Hint</center>                                                    |
 |--------------------------------------------------------------------------|
@@ -194,7 +194,7 @@ This command creates the "properties" section of a JSON project file from an Exc
 dsp-tools excel2properties excel_file.xlsx output_file.json
 ```
 
-The expected Excel format is [documented here](./dsp-tools-excel2json.md#properties-section).
+The expected Excel format is [documented here](./file-formats/excel2json.md#properties-section).
 
 | <center>Hint</center>                                                    |
 |--------------------------------------------------------------------------|
@@ -219,12 +219,12 @@ Arguments:
  - project_shortcode (mandatory): The four-digit hexadecimal shortcode of the project
  - ontology_name (mandatory): the name of the ontology that the data belongs to
 
-The expected Excel format is [documented here](./dsp-tools-excel2xml-file-format.md).
+The expected Excel format is [documented here](./file-formats/excel2xml.md).
 
 If your data source is not yet structured according to the DSP specifications, 
 you need a custom Python script for the data transformation. 
 For this, you might want to import the module `excel2xml` into your Python script, 
-which is described [here](./dsp-tools-excel2xml.md).
+which is described [here](./excel2xml-module.md).
 
 
 
@@ -244,7 +244,7 @@ The following options are available:
 
 This command cannot be used isolated, 
 because it is part of a bigger procedure 
-that is documented [here](./dsp-tools-incremental-xmlupload.md).
+that is documented [here](./incremental-xmlupload.md).
 
 
 
@@ -279,4 +279,4 @@ dsp-tools stop-stack
 
 This deletes all Docker volumes, and removes all data that was in the database.
 
-More help for this command can be found [here](./dsp-tools-start-stack.md).
+More help for this command can be found [here](./start-stack.md).

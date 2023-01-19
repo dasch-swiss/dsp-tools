@@ -20,13 +20,14 @@ jobs:
       - name: Install dependencies
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
+          poetry self add poetry-exec-plugin
           poetry install
       - name: build docs
         run: poetry run mkdocs build --strict
       - name: check external links in docs
         run: |
           npm install -g markdown-link-validator
-          markdown-link-validator ./docs -i \.assets\/.+ -i \.\/dsp\-tools\-xmlupload\.md\#.+\-prop -i \.\/dsp\-tools\-xmlupload\.md\#bitstream -i \.\/dsp\-tools\-xmlupload\.md\#.+permissions\-element -i .+github\.com\/dasch\-swiss\/dsp-tools\/settings
+          poetry exec check-links
       - name: unittests
         run: poetry run pytest test/unittests/
       - name: e2e tests

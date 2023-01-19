@@ -19,7 +19,7 @@ import the module `excel2xml` into your Python script.
 
 The second use case is less frequent: We migrate data DaSCH-internally from one server to another. In this case, the 
 data already has the correct structure, and can automatically be transformed to XML. This can be done with the CLI 
-command `dsp-tools excel2xml` which is documented [here](./dsp-tools-usage.md#excel2xml).
+command `dsp-tools excel2xml` which is documented [here](./cli-commands.md#excel2xml).
 
 **This page deals only with the first use case, the module `excel2xml`** .
 
@@ -87,7 +87,7 @@ otherwise, all resources and properties get these permissions.
 
 With `excel2xml`, it is not possible to create resources/properties that don't have permissions, because they would be 
 invisible for all users except project admins and system admins. [Read more about permissions 
-here](./dsp-tools-xmlupload.md#using-permissions-with-the-permissions-attribute).
+here](./file-formats/xml-data-file.md#using-permissions-with-the-permissions-attribute).
 
 
 ## 4. Create list mappings
@@ -176,7 +176,7 @@ There are four kind of resources that can be created:
 | `LinkObj`    | `<link>`       | `make_link()`       |
 
 `<resource>` is the most frequent of them. The other three are [explained 
-here](./dsp-tools-xmlupload.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file). 
+here](./file-formats/xml-data-file.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file). 
 
 #### Resource ID
 

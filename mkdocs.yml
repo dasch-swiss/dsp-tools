@@ -41,6 +41,7 @@ extra_css:
 
 markdown_extensions:
   - attr_list
+  - admonition
 
 plugins:
   - search

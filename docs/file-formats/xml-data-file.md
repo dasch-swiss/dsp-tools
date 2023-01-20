@@ -197,7 +197,7 @@ The following property elements exist:
 - `<uri-prop>`: contains URI values
 
 
-### &lt;bitstream&gt;
+### `<bitstream>`
 
 The `<bitstream>` element is used for bitstream data. It contains the path to a bitstream object like an image file, a
 ZIP container, an audio file etc. It must only be used if the resource is a `StillImageRepresentation`, an
@@ -250,7 +250,7 @@ Example of a public image inside a `StillImageRepresentation`:
 ```
 
 
-### &lt;boolean-prop&gt;
+### `<boolean-prop>`
 
 The `<boolean-prop>` element is used for boolean values. It must contain exactly one `<boolean>` element.
 
@@ -259,7 +259,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;boolean&gt;
+#### `<boolean>`
 
 The `<boolean>` element must contain the string "true" or "false", or the numeral 1 (true) or 0 (false).
 
@@ -279,7 +279,7 @@ Example of a public and a hidden boolean property:
 ```
 
 
-### &lt;color-prop&gt;
+### `<color-prop>`
 
 The `<color-prop>` element is used for color values. It must contain at least one `<color>` element.
 
@@ -288,7 +288,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;color&gt;
+#### `<color>`
 
 The `<color>` element is used to indicate a color value. The color has to be given in web-notation, that is a `#`
 followed by 3 or 6 hex numerals.
@@ -307,7 +307,7 @@ Example of a property with a public and a hidden color value:
 ```
 
 
-### &lt;date-prop&gt;
+### `<date-prop>`
 
 The `<date-prop>` element is used for date values. It must contain at least one `<date>` element.
 
@@ -316,7 +316,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;date&gt;
+#### `<date>`
 
 the `<date>` element contains a DSP-specific date value. It has the following format:
 
@@ -356,7 +356,7 @@ Example of a property with a public and a hidden date value:
 ```
 
 
-### &lt;decimal-prop&gt;
+### `<decimal-prop>`
 
 The `<decimal-prop>` element is used for decimal values. It must contain at least one `<decimal>` element.
 
@@ -365,7 +365,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;decimal&gt;
+#### `<decimal>`
 
 The `<decimal>` element contains a decimal number.
 
@@ -383,7 +383,7 @@ Example of a property with a public and a hidden decimal value:
 ```
 
 
-### &lt;geometry-prop&gt;
+### `<geometry-prop>`
 
 The `<geometry-prop>` element is used for a geometric definition of a 2-D region (e.g. a region on an image). It must
 contain at least one `<geometry>` element. A `<geometry-prop>` can only be used inside a [`<region>` tag](#region). 
@@ -394,7 +394,7 @@ Attributes:
   the [`<region>` tag](#region).
 
 
-#### &lt;geometry&gt;
+#### `<geometry>`
 
 A geometry value is defined as a JSON object. It contains the following data:
 
@@ -460,7 +460,7 @@ that were defined above:
 
 
 
-### &lt;geoname-prop&gt;
+### `<geoname-prop>`
 
 The `<geoname-prop>` element is used for values that contain a [geonames.org](http://geonames.org) ID. It must contain
 at least one `<geoname>` element.
@@ -470,7 +470,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;geoname&gt;
+#### `<geoname>`
 
 Contains a valid [geonames.org](http://geonames.org) ID.
 
@@ -488,7 +488,7 @@ Example of a property with a public link to Vienna and a hidden link to Basel:
 ```
 
 
-### &lt;integer-prop&gt;
+### `<integer-prop>`
 
 The `<integer-prop>` element is used for integer values. It must contain at least one `<integer>` element.
 
@@ -497,7 +497,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;integer&gt;
+#### `<integer>`
 
 The `<integer>` element contains an integer value.
 
@@ -515,7 +515,7 @@ Example of a property with a public and a hidden integer value:
 ```
 
 
-### &lt;interval-prop&gt;
+### `<interval-prop>`
 
 The `<interval-prop>` element is used for intervals with a start and an end point on a timeline, e.g. relative to the beginning of an audio or video file. 
 An `<interval-prop>`  must contain at least one `<interval>` element.
@@ -525,7 +525,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;interval&gt;
+#### `<interval>`
 
 A time interval is represented by plain decimal numbers (=seconds), without a special notation for minutes and hours. 
 The `<interval>` element contains two decimals separated by a colon (`:`). The places before the decimal point are 
@@ -545,7 +545,7 @@ Example of a property with a public and a hidden interval value:
 ```
 
 
-### &lt;list-prop&gt;
+### `<list-prop>`
 
 The `<list-prop>` element is used as entry point into a list (list node). List nodes are identified by their `name`
 attribute that was given when creating the list nodes (which must be unique within each list!). It must contain at least
@@ -557,7 +557,7 @@ Attributes:
 - `list`: name of the list as defined in the ontology (required)
 
 
-#### &lt;list&gt;
+#### `<list>`
 
 The `<list>` element references a node in a (pull-down or hierarchical) list.
 
@@ -575,7 +575,7 @@ Example of a property with a public and a hidden list value:
 ```
 
 
-### &lt;resptr-prop&gt;
+### `<resptr-prop>`
 
 The `<resptr-prop>` element is used to link other resources within DSP. It must contain at least one `<resptr>` element.
 
@@ -584,7 +584,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;resptr&gt;
+#### `<resptr>`
 
 The `<resptr>` element contains either the internal ID of another resource inside the XML or the IRI of an already
 existing resource on DSP. Inside the same XML file, a mixture of the two is not possible. If referencing existing
@@ -604,7 +604,7 @@ Example of a property with a public link to `<resource id="res_1" ...>` and a hi
 ```
 
 
-### &lt;text-prop&gt;
+### `<text-prop>`
 
 The `<text-prop>` element is used for text values. It must contain at least one `<text>` element.
 
@@ -613,7 +613,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;text&gt;
+#### `<text>`
 
 The `<text>` element has the following attributes:
 
@@ -649,7 +649,7 @@ The second text above contains a link to the resource `obj_0003`, which is defin
 contains a link to  the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`, which already exists on the DSP server.
 
 
-### &lt;time-prop&gt;
+### `<time-prop>`
 
 The `<time-prop>` element is used for time values in the Gregorian calendar. It must contain at least one `<time>` element.
 
@@ -658,7 +658,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;time&gt;
+#### `<time>`
 
 The `<time>` element represents an exact datetime value in the form [xsd:dateTimeStamp](https://www.w3.org/TR/xmlschema11-2/#dateTimeStamp), 
 which is defined as `yyyy-mm-ddThh:mm:ss.sssssssssssszzzzzz`. The following abbreviations describe this form:
@@ -705,7 +705,7 @@ Example of a property with a public and a hidden time value:
 ```
 
 
-### &lt;uri-prop&gt;
+### `<uri-prop>`
 
 The `<uri-prop>` represents a [Uniform Resource Identifier](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier).
 It must contain at least one `<uri>` element.
@@ -715,7 +715,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;uri&gt;
+#### `<uri>`
 
 The `<uri>` element contains a syntactically valid URI.
 

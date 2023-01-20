@@ -61,40 +61,18 @@ but the only one which works for our purpose is
 There are some caveats, though:
 
 Firstly, markdown-link-validator doesn't recognize internal links to files in the `docs/assets` folder.
-These must be added as ignore patterns
-(cf. the flag `-i \.assets\/.+` in the code snippet below).
+These must be added as ignore patterns,
+cf. the flag `-i \.assets\/.+` in the code snippet below.
 
-Secondly, MkDocs requires that special characters (like `"` or `<`) in a title must be omitted 
-when referring the title in an internal link, 
-otherwise the link won't work on the rendered page. 
-This is tricky, because some tools like PyCharm or markdown-link-validator require a placeholder in the internal link.
-For example:
-
-- Title: `### &lt;geometry-prop&gt;`
-- MkDocs requires: `[internal link](./xml-data-file.md#geometry-prop)`
-- markdown-link-validator requires: `[internal link](./xml-data-file.md#ltgeometry-propgt)`  
-
-The only choice we have is to follow the MkDocs requirement, 
-and to ignore errors from PyCharm and markdown-link-validator.
-For this reason, the code snippet below has the flags
-
-- `-i \.\/xml\-data\-file\.md\#.+\-prop`
-- `-i \.\/xml\-data\-file\.md\#bitstream`
-- `-i \.\/xml\-data\-file\.md\#.+permissions\-element`
-
-As you can see in the regex, 
-the two flags only ignore such links if they start with `xml-data-file.md#`. 
-For this reason, titles inside that file cannot be referenced like this: `[link]‌(#geometry-prop)`, 
-but must be in the full form: `[link](./xml-data-file.md#geometry-prop)`.
-
-Thirdly, external links to private pages raise an error, even though they are correct. 
+Secondly, external links to private pages raise an error, even though they are correct. 
 An example is the link to `https://github.com/dasch-swiss/dsp-tools/settings` above.
-To make markdown-link-validator work, the following flag is necessary: `-i .+github\.com\/dasch\-swiss\/dsp-tools\/settings`
+To make markdown-link-validator work, the following flag is necessary: 
+`-i .+github\.com\/dasch\-swiss\/dsp-tools\/settings`
 
 So finally, this is the call to markdown-link-validator:
 
 ```bash
-markdown-link-validator ./docs -i \.assets\/.+ -i \.\/xml\-data\-file\.md\#.+\-prop -i \.\/xml\-data\-file\.md\#bitstream -i \.\/xml\-data\-file\.md\#.+permissions\-element -i .+github\.com\/dasch\-swiss\/dsp-tools\/settings
+markdown-link-validator ./docs -i \.assets\/.+ -i .+github\.com\/dasch\-swiss\/dsp-tools\/settings
 ```
 
 As the documentation grows, and new titles are added,

@@ -64,7 +64,7 @@ permissions. There are **built-in groups** and **project specific groups**:
      - `Creator`: The user is the owner of the element (created the element).
      - `SystemAdmin`: The user is a system administrator.
  - **Project specific groups**: 
-     - can be defined in the [JSON project file](json-project-overview.md#groups)
+     - can be defined in the [JSON project file](./json-project/overview.md#groups)
 
 
 ### Rights
@@ -81,7 +81,7 @@ A group can have exactly one of these rights:
 Every right of this row includes all previous rights.
 
 
-### Defining permissions with the &lt;permissions&gt; element
+### Defining permissions with the `<permissions>` element
 
 The `<permissions>` element defines a _permission ID_ that can subsequently be used in a 
 [permissions attribute](#using-permissions-with-the-permissions-attribute) of a `<resource>` or `<xyz-prop>` tag.
@@ -100,7 +100,7 @@ The `<permissions>` element defines which rights are given to which groups:
 </permissions>
 ```
 
-In addition to the DSP built-in groups, [project specific groups](json-project-overview.md#groups) are supported as well.
+In addition to the DSP built-in groups, [project specific groups](./json-project/overview.md#groups) are supported as well.
 A project specific group name has the form `project-shortname:groupname`.
 
 If you don't want a group to have access at all, leave it out. In the following example, resources or properties with 
@@ -625,7 +625,7 @@ The `<text>` element has the following attributes:
   at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-For the possible combinations of `encoding` with the `gui_element` [defined in the ontology](./json-project-ontologies.md#textvalue), 
+For the possible combinations of `encoding` with the `gui_element` [defined in the ontology](./json-project/ontologies.md#textvalue), 
 see the table: 
 
 | `gui_element` (JSON ontology) | `encoding` (XML data) | How DSP-APP renders the whitespaces                                                                                            |
@@ -738,7 +738,7 @@ Example of a property with a public and a hidden URI:
 There is a number of base resources and base properties that must not be subclassed in a project ontology. They are 
 directly available in the XML data file. Please have in mind that built-in names of the knora-base ontology must be used 
 without prepended colon.  
-See also [the related part of the JSON project documentation](./json-project-ontologies.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file)
+See also [the related part of the JSON project documentation](./json-project/ontologies.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file)
 
 
 ### `<annotation>`

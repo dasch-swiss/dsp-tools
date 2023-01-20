@@ -3,16 +3,17 @@
 # JSON project definition format
 
 This document describes the structure of a JSON project definition file that can be uploaded to a DSP server
-with the [`create`](../cli-commands.md#create) command.
+with the [`create`](../../cli-commands.md#create) command.
 
 A project on a DSP server is like a container for data. It defines some basic metadata, the data model(s) and optionally 
 the user(s) who will be able to access the data. After the creation of a project, data can be uploaded that conforms 
 with the data model(s).
 
-This documentation is divided into two parts:
+This documentation is divided into the following parts:
 
  - Overview of the project description file (this page)
- - The "ontologies" section [explained in detail](json-project-ontologies.md)
+ - [The "ontologies" section](./ontologies.md) explained in detail
+ - Some [caveats](./caveats.md) to have in mind
 
 
 
@@ -57,7 +58,7 @@ A complete project definition looks like this:
 
 
 
-### "prefixes" object
+### prefixes object
 
 (optional)
 
@@ -78,7 +79,7 @@ as `http://xmlns.com/foaf/0.1/familyName` one can simply write `foaf:familyName`
 ```
 
 It is not necessary to define prefixes for the ontologies that are defined in the same file. Ontologies in the same
-file can be referenced by their name. See [this section](json-project-ontologies.md#referencing-ontologies) for
+file can be referenced by their name. See [this section](./ontologies.md#referencing-ontologies) for
 more information about referencing ontologies.
 
 
@@ -182,11 +183,11 @@ Keywords are represented as an array of strings and are used to describe and/or 
 `"groups": [<group-definition>, <group-definition>,...]`
 
 The `groups` object contains **project specific** group definitions. As opposed to the 
-[**built-in** groups](xml-data-file.md#groups), the membership of the users to the project specific groups 
+[**built-in** groups](../xml-data-file.md#groups), the membership of the users to the project specific groups 
 can be freely chosen by the `ProjectAdmin`. A project may define several groups such as "student-assistant", 
 "editors", etc. in order to provide their members specific permissions.
 The groups that were created here are then available in the XML file in the 
-[&lt;permissions&gt; element](xml-data-file.md#defining-permissions-with-the-permissions-element).
+[&lt;permissions&gt; element](../xml-data-file.md#defining-permissions-with-the-permissions-element).
 
 A project specific group definition has the following elements:
 
@@ -286,7 +287,7 @@ the list. The children of the root node are the list nodes. If the list is hiera
 children, and these children can again have children, etc.
 
 When a project defines a list, resources can use the list values by defining a list property, e.g. a property with 
-[object "ListValue"](json-project-ontologies.md#listvalue).
+[object "ListValue"](./ontologies.md#listvalue).
 
 A node of a list may have the following elements:
 
@@ -499,10 +500,10 @@ example, the list "color" could be imported as follows:
 ```
 
 To do so, it would be necessary to place the following two files into the folder "path-to-folder":  
-![Colors_en](../assets/images/img-list-english-colors.png)  
-![Farben_de](../assets/images/img-list-german-colors.png)
+![Colors_en](../../assets/images/img-list-english-colors.png)  
+![Farben_de](../../assets/images/img-list-german-colors.png)
 
-The expected format of the Excel files is documented [here](excel2json.md#lists-section). The only 
+The expected format of the Excel files is documented [here](../excel2json.md#lists-section). The only 
 difference to the explanations there is that column A of the Excel worksheet is not interpreted as list name (root 
 node), but as node name of the first children level below the root node.
 
@@ -522,7 +523,7 @@ ontologies. It requires the following fields:
 - `properties`
 - `resources`
 
-The `ontologies` section is [documented here](json-project-ontologies.md)
+The `ontologies` section is [documented here](./ontologies.md)
 
 
 

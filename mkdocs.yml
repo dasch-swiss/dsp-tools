@@ -9,11 +9,13 @@ nav:
   - Overview: index.md
   - The CLI commands: cli-commands.md
   - File formats:
-        - JSON project file - Overview: file-formats/json-project-overview.md
-        - JSON project file - Ontologies: file-formats/json-project-ontologies.md
-        - XML data file: file-formats/xml-data-file.md
-        - excel2json: file-formats/excel2json.md
-        - excel2xml: file-formats/excel2xml.md
+      - JSON project file:
+          - Overview: file-formats/json-project/overview.md
+          - Ontologies: file-formats/json-project/ontologies.md
+          - Caveats: file-formats/json-project/caveats.md
+      - XML data file: file-formats/xml-data-file.md
+      - excel2json: file-formats/excel2json.md
+      - excel2xml: file-formats/excel2xml.md
   - Incremental xmlupload: incremental-xmlupload.md
   - The excel2xml module: excel2xml-module.md
   - Running DSP locally: start-stack.md

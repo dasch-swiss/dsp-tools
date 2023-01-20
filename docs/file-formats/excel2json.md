@@ -90,7 +90,7 @@ The expected columns are:
 
 The GUI order is given by the order in which the properties are listed in the Excel sheet.
 
-For further information about resources, see [here](json-project-ontologies.md#resources).
+For further information about resources, see [here](./json-project/ontologies.md#resources).
 
 
 
@@ -124,7 +124,7 @@ the `object` specifies the resource class that this property refers to.
 The optional columns may be omitted in the Excel.  
 For backwards compatibility, files containing a column `hlist` are valid, but deprecated.
 
-For further information about properties, see [here](json-project-ontologies.md#properties).
+For further information about properties, see [here](./json-project/ontologies.md#properties).
 
 
 

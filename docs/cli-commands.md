@@ -58,7 +58,7 @@ it is necessary to specify the following options:
 dsp-tools create -s https://api.dasch.swiss -u root@example.com -p test project_definition.json
 ```
 
-The expected JSON format is [documented here](./file-formats/json-project-overview.md).
+The expected JSON format is [documented here](./file-formats/json-project/overview.md).
 
 
 
@@ -89,7 +89,7 @@ how to get a project from the DSP server `https://admin.dasch.swiss`:
 dsp-tools get -s https://api.dasch.swiss -u root@example.com -p test -P my_project output_file.json
 ```
 
-The expected JSON format is [documented here](./file-formats/json-project-overview.md).
+The expected JSON format is [documented here](./file-formats/json-project/overview.md).
 
 
 

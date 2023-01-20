@@ -2,8 +2,8 @@
 
 # JSON project definition format
 
-This document describes the structure of a JSON project definition file that can be uploaded to a DSP server. The 
-command to do so is [documented here](../cli-commands.md#create).
+This document describes the structure of a JSON project definition file that can be uploaded to a DSP server
+with the [`create`](../cli-commands.md#create) command.
 
 A project on a DSP server is like a container for data. It defines some basic metadata, the data model(s) and optionally 
 the user(s) who will be able to access the data. After the creation of a project, data can be uploaded that conforms 

@@ -9,7 +9,7 @@ It's a server application, too.
 For testing purposes, it is sometimes necessary to run DSP-API and DSP-APP on a local machine. 
 There are two ways to do this:
 
- - simple: run `dsp-tools start-stack`
+ - simple: run [`dsp-tools start-stack`](./cli-commands.md#start-stack)
  - advanced: execute commands from within the DSP-API/DSP-APP repositories
 
 Here's an overview of the two ways:
@@ -27,7 +27,8 @@ Here's an overview of the two ways:
 
 ### Simple way: `dsp-tools start-stack`
 
-This command runs Docker images with the latest released versions of DSP-API and DSP-APP, 
+The [`start-stack`](./cli-commands.md#start-stack) command runs Docker images 
+with the latest released versions of DSP-API and DSP-APP, 
 i.e. the versions that are running on [https://admin.dasch.swiss](https://admin.dasch.swiss). 
 The only prerequisite for this is that Docker is running, 
 and that you have Python and DSP-TOOLS installed.

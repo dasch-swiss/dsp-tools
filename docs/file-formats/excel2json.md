@@ -4,8 +4,8 @@
 
 ## The folder structure
 
-With DSP-TOOLS, a JSON project file can be created from Excel files. The command for this is documented 
-[here](../cli-commands.md#excel2json). 
+With the [`excel2json`](../cli-commands.md#excel2json) command, 
+a JSON project file can be created from Excel files.
 
 To put it simple, a JSON project consists of
 
@@ -54,10 +54,10 @@ Continue reading the following paragraphs to learn more about the expected struc
 
 ## resources section
 
-With DSP-TOOLS, the `resources` section used in a data model (JSON) can be created from an Excel file. The command for 
-this is documented [here](../cli-commands.md#excel2resources). 
-Only `XLSX` files are allowed. The `resources` section can be inserted into the ontology file and then be uploaded onto 
-a DSP server.
+With the [`excel2resources`](../cli-commands.md#excel2resources) command, 
+the `resources` section used in a data model (JSON) can be created from an Excel file. 
+Only `XLSX` files are allowed. 
+The `resources` section can be inserted into the ontology file and then be uploaded onto a DSP server.
 
 **An Excel file template can be found [here](../assets/data_model_templates/rosetta%20(rosetta)/resources.xlsx) or also in the 
 [`data_model_files` folder of `0123-import-scripts`](https://github.com/dasch-swiss/0123-import-scripts/tree/main/data_model_files).
@@ -97,10 +97,10 @@ For further information about resources, see [here](json-project-ontologies.md#r
 
 ## properties section
 
-With DSP-TOOLS, the `properties` section used in a data model (JSON) can be created from an Excel file. The command for 
-this is documented [here](../cli-commands.md#excel2properties). 
-Only the first worksheet of the Excel file is considered and only XLSX files are allowed. The `properties` section can 
-be inserted into the ontology file and then be uploaded onto a DSP server.
+With the [`excel2properties`](../cli-commands.md#excel2properties) command, 
+the `properties` section used in a data model (JSON) can be created from an Excel file.
+Only the first worksheet of the Excel file is considered and only XLSX files are allowed. 
+The `properties` section can be inserted into the ontology file and then be uploaded onto a DSP server.
 
 **An Excel file template can be found [here](../assets/data_model_templates/rosetta%20(rosetta)/properties.xlsx) or also in the 
 [`data_model_files` folder of `0123-import-scripts`](https://github.com/dasch-swiss/0123-import-scripts/tree/main/data_model_files). 
@@ -131,9 +131,9 @@ For further information about properties, see [here](json-project-ontologies.md#
 
 ## lists section
 
-With DSP-TOOLS, the `lists` section of a JSON project file can be created from one or several Excel files. The lists can 
-then be inserted into a JSON project file and uploaded to a DSP server. The command for this is documented 
-[here](../cli-commands.md#excel2lists). 
+With the [`excel2lists`](../cli-commands.md#excel2lists) command, 
+the `lists` section of a JSON project file can be created from one or several Excel files. 
+The lists can then be inserted into a JSON project file and uploaded to a DSP server.
 
 The following example shows how to create the "lists" section from the two Excel files `de.xlsx` and `en.xlsx` which are located
 in a directory called `listfolder`:

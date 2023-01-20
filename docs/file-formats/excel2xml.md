@@ -2,8 +2,12 @@
 
 # Excel file format to generate an XML data file
 
-With DSP-TOOLS, an XML data file can be created from an Excel/CSV file. The command for this is documented 
-[here](../cli-commands.md#excel2xml). 
+| <center>Hint</center>                                                                                                            |
+|:---------------------------------------------------------------------------------------------------------------------------------|
+| If you want to convert customer data to XML, you need the [excel2xml module](../excel2xml-module.md) instead of the CLI command. |
+
+With the [`excel2xml`](../cli-commands.md#excel2xml) CLI command, 
+an XML data file can be created from an Excel/CSV file.
 
 The Excel/CSV file must be structured as in this image:  
 ![img-excel2xml.png](../assets/images/img-excel2xml.png)

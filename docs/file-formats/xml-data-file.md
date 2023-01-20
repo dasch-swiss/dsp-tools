@@ -2,13 +2,12 @@
 
 # The XML file format for importing data
 
-With DSP-TOOLS, data can be imported into a DSP repository (on a DSP server) from an XML file. The import file is a
+With the [`xmlupload`](../cli-commands.md#xmlupload) command, 
+data can be imported into a DSP repository (on a DSP server) from an XML file. The import file is a
 standard XML file as described on this page. After a successful upload of the data, an output file is written (called 
 `id2iri_mapping_[timestamp].json`) with the mapping from the internal IDs used inside the XML to their corresponding IRIs which
 uniquely identify them inside DSP. This file should be kept if data is later added with the 
 `--incremental` [option](../incremental-xmlupload.md).
-
-The command to import an XML file on a DSP server is described [here](../cli-commands.md#xmlupload).
 
 The import file must start with the standard XML header:
 

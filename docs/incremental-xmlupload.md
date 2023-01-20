@@ -2,7 +2,7 @@
 
 # Incremental xmlupload
 
-When uploading data with `dsp-tools xmlupload`,
+When uploading data with the [`xmlupload`](./cli-commands.md#xmlupload) command,
 resources can reference each other with an internal ID,
 e.g. in the `<resptr>` tag.
 Once the data is in DSP,

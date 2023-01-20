@@ -18,8 +18,8 @@ undefined state X into a DSP-conforming XML file that can be uploaded with `dsp-
 import the module `excel2xml` into your Python script.
 
 The second use case is less frequent: We migrate data DaSCH-internally from one server to another. In this case, the 
-data already has the correct structure, and can automatically be transformed to XML. This can be done with the CLI 
-command `dsp-tools excel2xml` which is documented [here](./cli-commands.md#excel2xml).
+data already has the correct structure, and can automatically be transformed to XML. 
+This can be done with the [CLI command `excel2xml`](./cli-commands.md#excel2xml).
 
 **This page deals only with the first use case, the module `excel2xml`** .
 

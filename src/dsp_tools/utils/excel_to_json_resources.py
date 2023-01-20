@@ -1,5 +1,5 @@
 import json
-import os
+import importlib.resources
 from typing import Any, Optional
 
 import jsonschema
@@ -21,9 +21,8 @@ def _validate_resources_with_schema(resources_list: list[dict[str, Any]]) -> boo
     Returns:
         True if the "resources" section passed validation. Otherwise, a BaseError with a detailed error report is raised.
     """
-    current_dir = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(current_dir, "../schemas/resources-only.json")) as schema:
-        resources_schema = json.load(schema)
+    with importlib.resources.files("dsp_tools").joinpath("schemas").joinpath("resources-only.json").open() as schema_file:
+        resources_schema = json.load(schema_file)
     try:
         jsonschema.validate(instance=resources_list, schema=resources_schema)
     except jsonschema.exceptions.ValidationError as err:

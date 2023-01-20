@@ -20,9 +20,14 @@ jobs:
       - name: Install dependencies
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
+          poetry self add poetry-exec-plugin
           poetry install
       - name: build docs
-        run: poetry run mkdocs build
+        run: poetry run mkdocs build --strict
+      - name: check external links in docs
+        run: |
+          npm install -g markdown-link-validator
+          poetry exec check-links
       - name: unittests
         run: poetry run pytest test/unittests/
       - name: e2e tests

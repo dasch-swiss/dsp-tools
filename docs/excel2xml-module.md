@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# excel2xml
+# The excel2xml module
 
 ## Two use cases - two approaches
 
@@ -18,9 +18,8 @@ undefined state X into a DSP-conforming XML file that can be uploaded with `dsp-
 import the module `excel2xml` into your Python script.
 
 The second use case is less frequent: We migrate data DaSCH-internally from one server to another. In this case, the 
-data already has the correct structure, and can automatically be transformed to XML. This can be done with the CLI 
-command `dsp-tools excel2xml` which is documented 
-[here](./dsp-tools-usage.md#use-the-module-excel2xml-to-convert-a-data-source-to-xml).
+data already has the correct structure, and can automatically be transformed to XML. 
+This can be done with the [CLI command `excel2xml`](./cli-commands.md#excel2xml).
 
 **This page deals only with the first use case, the module `excel2xml`** .
 
@@ -88,7 +87,7 @@ otherwise, all resources and properties get these permissions.
 
 With `excel2xml`, it is not possible to create resources/properties that don't have permissions, because they would be 
 invisible for all users except project admins and system admins. [Read more about permissions 
-here](./dsp-tools-xmlupload.md#using-permissions-with-the-permissions-attribute).
+here](./file-formats/xml-data-file.md#using-permissions-with-the-permissions-attribute).
 
 
 ## 4. Create list mappings
@@ -177,7 +176,7 @@ There are four kind of resources that can be created:
 | `LinkObj`    | `<link>`       | `make_link()`       |
 
 `<resource>` is the most frequent of them. The other three are [explained 
-here](./dsp-tools-xmlupload.md#dsp-base-resources--base-properties-to-be-used-directly-in-the-xml-file). 
+here](./file-formats/xml-data-file.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file). 
 
 #### Resource ID
 
@@ -191,7 +190,7 @@ ID in a dict, so that you can retrieve it later. The example script contains an 
 ### 7. Append the properties
 
 For every property, there is a helper function that explains itself when you hover over it. So you don't need to worry 
-any more how to construct a certain XML value for a certain property. 
+anymore how to construct a certain XML value for a certain property. 
 
 Here's how the Docstrings assist you:
 

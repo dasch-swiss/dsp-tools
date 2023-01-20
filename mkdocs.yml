@@ -3,23 +3,29 @@ site_url: https://docs.dasch.swiss/latest/DSP-TOOLS
 repo_url: https://github.com/dasch-swiss/dsp-tools
 repo_name: dasch-swiss/dsp-tools
 edit_uri: blob/main/docs/
-copyright: "&copy; 2017 - <script>document.write(new Date().getFullYear())</script> <a href='https://dasch.swiss' target='_blank'>Data and Service Center for the Humanities (DaSCH)</a>"
+copyright: "&copy; 2017 - <script>document.write(new Date().getFullYear())</script> <a href='https://dasch.swiss' target='_blank'>Swiss National Data and Service Center for the Humanities (DaSCH)</a>"
 
 nav:
   - Overview: index.md
-  - Installation and usage: dsp-tools-usage.md
-  - JSON project definition format:
-        - Overview: dsp-tools-create.md
-        - Ontologies: dsp-tools-create-ontologies.md
-  - Bulk data import: dsp-tools-xmlupload.md
-  - excel2json: dsp-tools-excel2json.md
-  - excel2xml: dsp-tools-excel2xml.md
+  - The CLI commands: cli-commands.md
+  - File formats:
+      - JSON project file:
+          - Overview: file-formats/json-project/overview.md
+          - Ontologies: file-formats/json-project/ontologies.md
+          - Caveats: file-formats/json-project/caveats.md
+      - XML data file: file-formats/xml-data-file.md
+      - excel2json: file-formats/excel2json.md
+      - excel2xml: file-formats/excel2xml.md
+  - Incremental xmlupload: incremental-xmlupload.md
+  - The excel2xml module: excel2xml-module.md
+  - Running DSP locally: start-stack.md
   - Information for developers:
-        - Developers documentation: developers-index.md
-        - dependencies, packaging & distribution: developers-packaging.md
-        - git submodules: developers-git-submodules.md
-        - start-stack command: developers-start-stack-command.md
-        - user data: developers-user-data.md
+        - Developers documentation: developers/index.md
+        - Dependencies, packaging & distribution: developers/packaging.md
+        - Git submodules: developers/git-submodules.md
+        - Maintaining the start-stack command: developers/start-stack-command.md
+        - User data: developers/user-data.md
+        - GitHub actions: developers/github-actions.md
   - Changelog: changelog.md
 
 theme:

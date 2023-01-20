@@ -1,13 +1,13 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# DSP XML file format for importing data
+# The XML file format for importing data
 
-With DSP-TOOLS, data can be imported into a DSP repository (on a DSP server) from an XML file. The import file is a
+With the [`xmlupload`](../cli-commands.md#xmlupload) command, 
+data can be imported into a DSP repository (on a DSP server) from an XML file. The import file is a
 standard XML file as described on this page. After a successful upload of the data, an output file is written (called 
-`id2iri_mapping_[timstamp].json`) with the mapping from the internal IDs used inside the XML to their corresponding IRIs which
-uniquely identify them inside DSP. This file should be kept if data is later added with the `--incremental` [option](#incremental-xml-upload).
-
-The command to import an XML file on a DSP server is described [here](./dsp-tools-usage.md#upload-data-to-a-dsp-server).
+`id2iri_mapping_[timestamp].json`) with the mapping from the internal IDs used inside the XML to their corresponding IRIs which
+uniquely identify them inside DSP. This file should be kept if data is later added with the 
+`--incremental` [option](../incremental-xmlupload.md).
 
 The import file must start with the standard XML header:
 
@@ -64,7 +64,7 @@ permissions. There are **built-in groups** and **project specific groups**:
      - `Creator`: The user is the owner of the element (created the element).
      - `SystemAdmin`: The user is a system administrator.
  - **Project specific groups**: 
-     - can be defined in the [JSON project file](./dsp-tools-create.md#groups)
+     - can be defined in the [JSON project file](./json-project/overview.md#groups)
 
 
 ### Rights
@@ -74,14 +74,14 @@ A group can have exactly one of these rights:
 - (no right): If no permission is defined for a certain group of users, these users cannot view any resources/values.
 - `RV` _restricted view permission_: Same as `V`, but if it is applied to an image, the image is shown with a reduced resolution or with a watermark overlay.
 - `V` _view permission_: The user can view a resource or a value, but cannot modify it.
-- `M` _modifiy permission_: The user can modify the element, but cannot mark it as deleted. The original resource or value will be preserved.
+- `M` _modify permission_: The user can modify the element, but cannot mark it as deleted. The original resource or value will be preserved.
 - `D` _delete permission_: The user is allowed to mark an element as deleted. The original resource or value will be preserved.
 - `CR` _change right permission_: The user can change the permission of a resource or value. The user is also allowed to permanently delete (erase) a resource.
 
 Every right of this row includes all previous rights.
 
 
-### Defining permissions with the &lt;permissions&gt; element
+### Defining permissions with the `<permissions>` element
 
 The `<permissions>` element defines a _permission ID_ that can subsequently be used in a 
 [permissions attribute](#using-permissions-with-the-permissions-attribute) of a `<resource>` or `<xyz-prop>` tag.
@@ -100,7 +100,7 @@ The `<permissions>` element defines which rights are given to which groups:
 </permissions>
 ```
 
-In addition to the DSP built-in groups, [project specific groups](./dsp-tools-create.md#groups) are supported as well.
+In addition to the DSP built-in groups, [project specific groups](./json-project/overview.md#groups) are supported as well.
 A project specific group name has the form `project-shortname:groupname`.
 
 If you don't want a group to have access at all, leave it out. In the following example, resources or properties with 
@@ -197,7 +197,7 @@ The following property elements exist:
 - `<uri-prop>`: contains URI values
 
 
-### &lt;bitstream&gt;
+### `<bitstream>`
 
 The `<bitstream>` element is used for bitstream data. It contains the path to a bitstream object like an image file, a
 ZIP container, an audio file etc. It must only be used if the resource is a `StillImageRepresentation`, an
@@ -208,7 +208,7 @@ Notes:
 - There is only _one_ `<bitstream>` element allowed per representation.
 - The `<bitstream>` element must be the first element.
 - By default, the path is relative to the working directory where `dsp-tools xmlupload` is executed in. This behaviour 
-  can be modified with the flag [`--imgdir`](./dsp-tools-usage.md#upload-data-to-a-dsp-server). If you keep the default,
+  can be modified with the flag [`--imgdir`](../cli-commands.md#xmlupload). If you keep the default,
   it is recommended to choose the project folder as working directory, `my_project` in the example below:
 
 ```
@@ -250,7 +250,7 @@ Example of a public image inside a `StillImageRepresentation`:
 ```
 
 
-### &lt;boolean-prop&gt;
+### `<boolean-prop>`
 
 The `<boolean-prop>` element is used for boolean values. It must contain exactly one `<boolean>` element.
 
@@ -259,7 +259,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;boolean&gt;
+#### `<boolean>`
 
 The `<boolean>` element must contain the string "true" or "false", or the numeral 1 (true) or 0 (false).
 
@@ -279,7 +279,7 @@ Example of a public and a hidden boolean property:
 ```
 
 
-### &lt;color-prop&gt;
+### `<color-prop>`
 
 The `<color-prop>` element is used for color values. It must contain at least one `<color>` element.
 
@@ -288,7 +288,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;color&gt;
+#### `<color>`
 
 The `<color>` element is used to indicate a color value. The color has to be given in web-notation, that is a `#`
 followed by 3 or 6 hex numerals.
@@ -307,7 +307,7 @@ Example of a property with a public and a hidden color value:
 ```
 
 
-### &lt;date-prop&gt;
+### `<date-prop>`
 
 The `<date-prop>` element is used for date values. It must contain at least one `<date>` element.
 
@@ -316,7 +316,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;date&gt;
+#### `<date>`
 
 the `<date>` element contains a DSP-specific date value. It has the following format:
 
@@ -356,7 +356,7 @@ Example of a property with a public and a hidden date value:
 ```
 
 
-### &lt;decimal-prop&gt;
+### `<decimal-prop>`
 
 The `<decimal-prop>` element is used for decimal values. It must contain at least one `<decimal>` element.
 
@@ -365,7 +365,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;decimal&gt;
+#### `<decimal>`
 
 The `<decimal>` element contains a decimal number.
 
@@ -383,7 +383,7 @@ Example of a property with a public and a hidden decimal value:
 ```
 
 
-### &lt;geometry-prop&gt;
+### `<geometry-prop>`
 
 The `<geometry-prop>` element is used for a geometric definition of a 2-D region (e.g. a region on an image). It must
 contain at least one `<geometry>` element. A `<geometry-prop>` can only be used inside a [`<region>` tag](#region). 
@@ -394,7 +394,7 @@ Attributes:
   the [`<region>` tag](#region).
 
 
-#### &lt;geometry&gt;
+#### `<geometry>`
 
 A geometry value is defined as a JSON object. It contains the following data:
 
@@ -455,12 +455,12 @@ Example:
 
 The underlying grid is a 0-1 normalized top left-anchored grid. The following coordinate system shows the three shapes
 that were defined above:  
-![grid-for-geometry-prop](./assets/images/grid-for-geometry-prop.png)
+![grid-for-geometry-prop](../assets/images/grid-for-geometry-prop.png)
 
 
 
 
-### &lt;geoname-prop&gt;
+### `<geoname-prop>`
 
 The `<geoname-prop>` element is used for values that contain a [geonames.org](http://geonames.org) ID. It must contain
 at least one `<geoname>` element.
@@ -470,7 +470,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;geoname&gt;
+#### `<geoname>`
 
 Contains a valid [geonames.org](http://geonames.org) ID.
 
@@ -488,7 +488,7 @@ Example of a property with a public link to Vienna and a hidden link to Basel:
 ```
 
 
-### &lt;integer-prop&gt;
+### `<integer-prop>`
 
 The `<integer-prop>` element is used for integer values. It must contain at least one `<integer>` element.
 
@@ -497,7 +497,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;integer&gt;
+#### `<integer>`
 
 The `<integer>` element contains an integer value.
 
@@ -515,7 +515,7 @@ Example of a property with a public and a hidden integer value:
 ```
 
 
-### &lt;interval-prop&gt;
+### `<interval-prop>`
 
 The `<interval-prop>` element is used for intervals with a start and an end point on a timeline, e.g. relative to the beginning of an audio or video file. 
 An `<interval-prop>`  must contain at least one `<interval>` element.
@@ -525,7 +525,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;interval&gt;
+#### `<interval>`
 
 A time interval is represented by plain decimal numbers (=seconds), without a special notation for minutes and hours. 
 The `<interval>` element contains two decimals separated by a colon (`:`). The places before the decimal point are 
@@ -545,7 +545,7 @@ Example of a property with a public and a hidden interval value:
 ```
 
 
-### &lt;list-prop&gt;
+### `<list-prop>`
 
 The `<list-prop>` element is used as entry point into a list (list node). List nodes are identified by their `name`
 attribute that was given when creating the list nodes (which must be unique within each list!). It must contain at least
@@ -557,7 +557,7 @@ Attributes:
 - `list`: name of the list as defined in the ontology (required)
 
 
-#### &lt;list&gt;
+#### `<list>`
 
 The `<list>` element references a node in a (pull-down or hierarchical) list.
 
@@ -575,7 +575,7 @@ Example of a property with a public and a hidden list value:
 ```
 
 
-### &lt;resptr-prop&gt;
+### `<resptr-prop>`
 
 The `<resptr-prop>` element is used to link other resources within DSP. It must contain at least one `<resptr>` element.
 
@@ -584,7 +584,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;resptr&gt;
+#### `<resptr>`
 
 The `<resptr>` element contains either the internal ID of another resource inside the XML or the IRI of an already
 existing resource on DSP. Inside the same XML file, a mixture of the two is not possible. If referencing existing
@@ -604,7 +604,7 @@ Example of a property with a public link to `<resource id="res_1" ...>` and a hi
 ```
 
 
-### &lt;text-prop&gt;
+### `<text-prop>`
 
 The `<text-prop>` element is used for text values. It must contain at least one `<text>` element.
 
@@ -613,19 +613,19 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;text&gt;
+#### `<text>`
 
 The `<text>` element has the following attributes:
 
 - `encoding` (required)
     - `utf8`: simple text without markup
     - `xml`: complex text with markup. It must follow the XML format as defined by the
-    [DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-apis/api-v2/xml-to-standoff-mapping/).
+    [DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/xml-to-standoff-mapping/).
 - `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions 
   at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-For the possible combinations of `encoding` with the `gui_element` [defined in the ontology](dsp-tools-create-ontologies.md#textvalue), 
+For the possible combinations of `encoding` with the `gui_element` [defined in the ontology](./json-project/ontologies.md#textvalue), 
 see the table: 
 
 | `gui_element` (JSON ontology) | `encoding` (XML data) | How DSP-APP renders the whitespaces                                                                                            |
@@ -649,7 +649,7 @@ The second text above contains a link to the resource `obj_0003`, which is defin
 contains a link to  the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`, which already exists on the DSP server.
 
 
-### &lt;time-prop&gt;
+### `<time-prop>`
 
 The `<time-prop>` element is used for time values in the Gregorian calendar. It must contain at least one `<time>` element.
 
@@ -658,7 +658,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;time&gt;
+#### `<time>`
 
 The `<time>` element represents an exact datetime value in the form [xsd:dateTimeStamp](https://www.w3.org/TR/xmlschema11-2/#dateTimeStamp), 
 which is defined as `yyyy-mm-ddThh:mm:ss.sssssssssssszzzzzz`. The following abbreviations describe this form:
@@ -705,7 +705,7 @@ Example of a property with a public and a hidden time value:
 ```
 
 
-### &lt;uri-prop&gt;
+### `<uri-prop>`
 
 The `<uri-prop>` represents a [Uniform Resource Identifier](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier).
 It must contain at least one `<uri>` element.
@@ -715,7 +715,7 @@ Attributes:
 - `name`: name of the property as defined in the ontology (required)
 
 
-#### &lt;uri&gt;
+#### `<uri>`
 
 The `<uri>` element contains a syntactically valid URI.
 
@@ -733,12 +733,12 @@ Example of a property with a public and a hidden URI:
 ```
 
 
-## DSP base resources / base properties to be used directly in the XML file
+## DSP base resources and base properties to be used directly in the XML file
 
 There is a number of base resources and base properties that must not be subclassed in a project ontology. They are 
 directly available in the XML data file. Please have in mind that built-in names of the knora-base ontology must be used 
 without prepended colon.  
-See also [the related part of the ontology documentation](dsp-tools-create-ontologies.md#dsp-base-resources--base-properties-to-be-used-directly-in-the-xml-file)
+See also [the related part of the JSON project documentation](./json-project/ontologies.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file)
 
 
 ### `<annotation>`
@@ -802,7 +802,7 @@ Example:
 </region>
 ```
 
-More details about the `<geometry-prop>` are documented [here](#geometry-prop).
+More details about the `<geometry-prop>` are documented [here](./xml-data-file.md#geometry-prop).
 
 Technical note: A `<region>` is in fact a `<resource restype="Region">`. But it is mandatory to use the 
 shortcut, so that the XML file can be validated more precisely.
@@ -835,22 +835,6 @@ Example:
 Technical note: A `<link>` is in fact a `<resource restype="LinkObj">`. But it is mandatory to use the 
 shortcut, so that the XML file can be validated more precisely.
 
-
-## Incremental XML Upload
-
-After a successful upload of the data, an output file is written (called `id2iri_mapping_[timstamp].json`) with the 
-mapping of internal IDs used inside the XML and their corresponding IRIs which uniquely identify them inside DSP. This 
-file should be kept if data is later added with the `--incremental` option. 
-
-To do an incremental XML upload, one of the following procedures is recommended.
-
-- Incremental XML upload with use of internal IDs:
-     1. Initial XML upload with internal IDs.
-     2. The file `id2iri_mapping_[timestamp].json` is created.
-     3. Create new XML file(s) with resources referencing other resources by their internal IDs in `<resptr>` (using the same IDs as in the initial XML upload).
-     4. Run `dsp-tools id2iri new_data.xml id2iri_mapping_[timestamp].json` to replace the internal IDs in `new_data.xml` with IRIs. Only internal IDs inside the `<resptr>` tag are replaced.
-     5. Run `dsp-tools xmlupload --incremental new_data.xml` to upload the data to DSP.
-- Incremental XML Upload with the use of IRIs: Use IRIs in the XML to reference existing data on the DSP server.
 
 
 ## Complete example

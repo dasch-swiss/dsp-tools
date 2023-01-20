@@ -3,8 +3,21 @@
 # DSP-TOOLS documentation
 
 DSP-TOOLS is a Python package with a command line interface that helps you interact with a DSP server. A DSP server 
-is a server or a local machine where the [DSP-API](https://github.com/dasch-swiss/dsp-api) is running on. The two main 
-tasks that DSP-TOOLS serves for are:
+is a remote server or a local machine where the [DSP-API](https://github.com/dasch-swiss/dsp-api) is running on. 
+
+To install the latest version, run:
+
+```bash
+pip3 install dsp-tools
+```
+
+To update to the latest version run:
+
+```bash
+pip3 install --upgrade dsp-tools
+```
+
+The two main tasks that DSP-TOOLS serves for are:
 
 - **Create a project with its data model(s), described in a JSON file, on a DSP server**  
   In order to archive your data on the DaSCH Service Platform, you need a data model that describes your data.

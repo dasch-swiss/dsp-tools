@@ -1,4 +1,6 @@
-# Ontologies
+[![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
+
+# The "ontologies" section of a JSON project
 
 An ontology is a formal representation of a set of terms which represent real world objects.
 Dependencies, attributes and relations of and between the individual components of the set are recorded in a logical,
@@ -293,7 +295,7 @@ These three are related as follows:
 
 `"object": "BooleanValue"`
 
-Represents a Boolean ("true" or "false"). See the [xmlupload documentation](./dsp-tools-xmlupload.md#boolean-prop)
+Represents a Boolean ("true" or "false"). See the [xmlupload documentation](../xml-data-file.md#boolean-prop)
 for more information.
 
 *gui_elements / gui_attributes*:
@@ -323,7 +325,7 @@ Example:
 `"object": "ColorValue"`
 
 A string representation of a color in the hexadecimal form. See the 
-[xmlupload documentation](./dsp-tools-xmlupload.md#color-prop) for more information.
+[xmlupload documentation](../xml-data-file.md#color-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -353,7 +355,7 @@ Example:
 `object": "DateValue"`  
 
 Represents a date. It's a string with the format `calendar:start:end`. See the 
-[xmlupload documentation](./dsp-tools-xmlupload.md#date-prop) for more information.
+[xmlupload documentation](../xml-data-file.md#date-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -381,7 +383,7 @@ Example:
 
 `"object": "DecimalValue"`
 
-A number with decimal point. See the [xmlupload documentation](./dsp-tools-xmlupload.md#decimal-prop) for more 
+A number with decimal point. See the [xmlupload documentation](../xml-data-file.md#decimal-prop) for more 
 information.
 
 *gui_elements / gui_attributes*:
@@ -420,8 +422,8 @@ Example:
 
 `"object": "GeonameValue"`
 
-Represents a location ID of [geonames.org](https://geonames.org). See the 
-[xmlupload documentation](./dsp-tools-xmlupload.md#geoname-prop) for more information.
+Represents a location ID of [geonames.org](https://www.geonames.org). See the 
+[xmlupload documentation](../xml-data-file.md#geoname-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -450,7 +452,7 @@ Example:
 
 `"object": "IntValue"`
 
-Represents an integer value. See the [xmlupload documentation](./dsp-tools-xmlupload.md#integer-prop) for more information.
+Represents an integer value. See the [xmlupload documentation](../xml-data-file.md#integer-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -488,18 +490,18 @@ Example:
 
 `"object": "ListValue"`
 
-Represents a node of a (possibly hierarchical) list. See the [xmlupload documentation](./dsp-tools-xmlupload.md#list-prop) 
+Represents a node of a (possibly hierarchical) list. See the [xmlupload documentation](../xml-data-file.md#list-prop) 
 for more information.
 
 *gui_elements / gui_attributes*:
 
 - `Radio`: A GUI element for *ListValue*. A set of radio buttons. This works only with flat lists.
     - *gui_attributes*:
-        - `hlist=<list-name>` (required): The name of a list defined in the ["lists" section](./dsp-tools-create.md#lists).
+        - `hlist=<list-name>` (required): The name of a list defined in the ["lists" section](./overview.md#lists).
 - `List`: A GUI element for *ListValue*. A dropdown to select a list node. This GUI element should be chosen for
   hierarchical lists or flat lists that could be expanded to hierarchical lists in the future.
     - *gui_attributes*:
-        - `hlist=<list-name>` (required): The name of a list defined in the ["lists" section](./dsp-tools-create.md#lists).
+        - `hlist=<list-name>` (required): The name of a list defined in the ["lists" section](./overview.md#lists).
 
 Example:
 
@@ -525,7 +527,7 @@ Example:
 
 `"object": "TextValue"`
 
-Represents a text that may contain standoff markup. See the [xmlupload documentation](./dsp-tools-xmlupload.md#text-prop) 
+Represents a text that may contain standoff markup. See the [xmlupload documentation](../xml-data-file.md#text-prop) 
 for more information.
 
 *gui_elements / gui_attributes*:
@@ -594,7 +596,7 @@ Example:
 `"object": "TimeValue"`
 
 A time value represents a precise moment in time in the Gregorian calendar. See the 
-[xmlupload documentation](./dsp-tools-xmlupload.md#time-prop) for more information.
+[xmlupload documentation](../xml-data-file.md#time-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -622,7 +624,7 @@ Example:
 
 `"object": "UriValue"`
 
-Represents an URI. See the [xmlupload documentation](./dsp-tools-xmlupload.md#uri-prop) for more information.
+Represents an URI. See the [xmlupload documentation](../xml-data-file.md#uri-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -705,7 +707,7 @@ A property pointing to the DSP base resource class `Representation`, which is th
 classes `StillImageRepresentation`, `AudioRepresentation`, `MovingImageRepresentation`, ... Has to be used in 
 combination with `"super": ["hasRepresentation"]`. 
 This generic property can point to any type of the aforementioned representations, or to a subclass of them. See the 
-[xmlupload documentation](./dsp-tools-xmlupload.md#resptr-prop) for more information.
+[xmlupload documentation](../xml-data-file.md#resptr-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -811,7 +813,7 @@ Example:
 
 This property can be attached to a `StillImageRepresentation`, together with `isPartOf`. The `seqnum` is then the page
 number of the image inside the compound object. Apart from this, `seqnum` is like an integer property. See the 
-[xmlupload documentation](./dsp-tools-xmlupload.md#integer-prop) for more information.
+[xmlupload documentation](../xml-data-file.md#integer-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -909,7 +911,7 @@ on a resource that represents the sequence. The `isSequenceOf` would then point 
 `hasSequenceBounds` would be the time interval of the sequence, represented as two decimal numbers.
 
 See the [`isSequenceOf` property](#issequenceof-property) or the 
-[xmlupload documentation](./dsp-tools-xmlupload.md#interval-prop) for more information.
+[xmlupload documentation](../xml-data-file.md#interval-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -952,7 +954,7 @@ A name for the resource, e.g. "Book", "Manuscript", "Person". It should be in th
 a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). This means a string without blanks or special characters
 but `-` and `_` are allowed (although not as first character).
 
-By convention, resource names start with a upper case letter.
+By convention, resource names start with an upper case letter.
 
 
 
@@ -995,7 +997,7 @@ used in all cases when your resource is none of the special cases below.
 - `TextRepresentation`: A resource representing a text
 
 **File Extensions**: An overview of the supported file types per representation can be found in the 
-[xmlupload documentation](./dsp-tools-xmlupload.md#bitstream).
+[xmlupload documentation](../xml-data-file.md#bitstream).
 
 
 
@@ -1079,15 +1081,15 @@ Example for a resource definition:
 For several fields, such as `super` in both `resources` and `properties` or `propname` in `cardinalities`
 it is necessary to reference entities that are defined elsewhere. The following cases are possible:
 
-- DSP API internals: They are referenced as such and do not have a leading colon.  
+- DSP-API internals: They are referenced as such and do not have a leading colon.  
   E.g. `Resource`, `DocumentRepresentation` or `hasValue`
-- An external ontology: The ontology must be defined in the [prefixes](dsp-tools-create.md#prefixes-object) section.
+- An external ontology: The ontology must be defined in the [prefixes](./overview.md#prefixes-object) section.
   The prefix can then be used for referencing the ontology.  
   E.g. `foaf:familyName` or `sdo:Organization`
-- The current ontology: Within an ontology definition, references can be made by prepending a colon without a prefix.  
-  E.g. `:hasName`
-  Optionally, an explicit prefix can be used. In this case the ontology must be added to the
-  [prefixes](dsp-tools-create.md#prefixes-object) section and the prefix must be identical to the ontology's `name`.  
+  - The current ontology: Within an ontology definition, references can be made by prepending a colon without a prefix.  
+    E.g. `:hasName`
+    Optionally, an explicit prefix can be used. In this case the ontology must be added to the
+    [prefixes](./overview.md#prefixes-object) section and the prefix must be identical to the ontology's `name`.  
 - A different ontology defined in the same file: Within one data model file, multiple ontologies can be defined.
   These will be created in the exact order they appear in the `ontologies` array. Once an ontology has been created,
   it can be referenced by the following ontologies by its name, e.g. `first-onto:hasName`. It is not necessary to add 
@@ -1096,21 +1098,21 @@ it is necessary to reference entities that are defined elsewhere. The following 
 
 
 
-## DSP base resources / base properties to be used directly in the XML file
+## DSP base resources and base properties to be used directly in the XML file
 
 There is a number of DSP base resources that must not be subclassed in a project ontology. They are directly available 
 in the XML data file:
 
 - `Annotation` is an annotation to another resource of any class. It can be used in the XML file with the 
-  [&lt;annotation&gt; tag](dsp-tools-xmlupload.md#annotation). It automatically has the following predefined properties:
+  [&lt;annotation&gt; tag](../xml-data-file.md#annotation). It automatically has the following predefined properties:
     - `hasComment` (1-n)
     - `isAnnotationOf` (1)
 - `LinkObj` is a resource linking together several other resources of different classes. It can be used in the XML file 
-  with the [&lt;link&gt; tag](dsp-tools-xmlupload.md#link). It automatically has the following predefined properties:
+  with the [&lt;link&gt; tag](../xml-data-file.md#link). It automatically has the following predefined properties:
     - `hasComment` (1-n)
     - `hasLinkTo` (1-n)
 - A `Region` resource defines a region of interest (ROI) in an image. It can be used in the XML file with the 
-  [&lt;region&gt; tag](dsp-tools-xmlupload.md#region). It automatically has the following predefined properties:
+  [&lt;region&gt; tag](../xml-data-file.md#region). It automatically has the following predefined properties:
     - `hasColor` (1)
     - `isRegionOf` (1)
     - `hasGeometry` (1)
@@ -1121,18 +1123,18 @@ subclassed and used in a resource class.
 
 - `hasLinkTo`: a link to another resource
     - can be subclassed ([hasLinkTo Property](#haslinkto-property))
-    - can be used directly in the XML data file in the [&lt;link&gt; tag](dsp-tools-xmlupload.md#link)
+    - can be used directly in the XML data file in the [&lt;link&gt; tag](../xml-data-file.md#link)
 - `hasColor`: Defines a color value. 
     - can be subclassed ([ColorValue](#colorvalue))
-    - can be used directly in the XML data file in the [&lt;region&gt; tag](dsp-tools-xmlupload.md#region)
+    - can be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#region)
 - `hasComment`: Defines a standard comment. 
     - can be subclassed ([hasComment Property](#hascomment-property))
-    - can be used directly in the XML data file in the [&lt;region&gt; tag](dsp-tools-xmlupload.md#region) or 
-      [&lt;link&gt; tag](dsp-tools-xmlupload.md#link)
+    - can be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#region) or 
+      [&lt;link&gt; tag](../xml-data-file.md#link)
 - `hasGeometry`: Defines a geometry value (a JSON describing a polygon, circle or rectangle). 
-    - must be used directly in the XML data file in the [&lt;region&gt; tag](dsp-tools-xmlupload.md#region)
+    - must be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#region)
 - `isRegionOf`: A special variant of `hasLinkTo`. It means that the given resource class is a region of interest in an image. 
-    - must be used directly in the XML data file in the [&lt;region&gt; tag](dsp-tools-xmlupload.md#region)
+    - must be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#region)
 - `isAnnotationOf`: A special variant of `hasLinkTo`. It means that the given resource class is an annotation to another
   resource class. 
-    - must be used directly in the XML data file in the [&lt;annotation&gt; tag](dsp-tools-xmlupload.md#annotation)
+    - must be used directly in the XML data file in the [&lt;annotation&gt; tag](../xml-data-file.md#annotation)

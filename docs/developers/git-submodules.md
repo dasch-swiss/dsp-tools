@@ -69,7 +69,7 @@ confused that the path to the submodule changed. If this doesn't help, it might 
 - the `gitdir` in `src/dsptools/import_scripts/.git`
 - the `path` in `.gitmodules`, and the name of the submodule in the title of that file
 - the `worktree` entry in `.git/modules/src/dsptools/import_scripts/config` and the affected folder names in 
-  the path containing that file)
+  the path containing that file
 
 
 
@@ -97,7 +97,7 @@ When switching between branches, there are two options:
   submodules will not be updated.
 2. If `submodule.recurse` has been set to true, OR if branches are switched with `git checkout <branch> 
     --recurse-submodules`, the contents of submodules will be updated according to the commit recorded in the 
-   superproject. If local modifications in a submodule would be overwritten, the checkout will fail.
+   super-project. If local modifications in a submodule would be overwritten, the checkout will fail.
 
 To quickly switch between branches when you have uncommitted work in the submodule, the first option might be 
 preferable. After merging a Pull Request and switching back to the main branch, the second option might be more 

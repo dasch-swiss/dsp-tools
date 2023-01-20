@@ -12,8 +12,8 @@ nav:
         - JSON project file - Overview: file-formats/json-project-overview.md
         - JSON project file - Ontologies: file-formats/json-project-ontologies.md
         - XML data file: file-formats/xml-data-file.md
-        - Excel files to generate a JSON project: file-formats/excel2json.md
-        - Excel files to generate XML data: file-formats/excel2xml.md
+        - excel2json: file-formats/excel2json.md
+        - excel2xml: file-formats/excel2xml.md
   - Incremental xmlupload: incremental-xmlupload.md
   - The excel2xml module: excel2xml-module.md
   - Running DSP locally: start-stack.md

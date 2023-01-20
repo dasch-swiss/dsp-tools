@@ -248,8 +248,7 @@ that is documented [here](./incremental-xmlupload.md).
 
 
 
-
-## `start-stack` / `stop-stack`
+## `start-stack`
 
 This command runs DSP-API and DSP-APP on a local machine.
 
@@ -271,6 +270,12 @@ it will be possible to upload files that are up to 1 GB big.
 If a file bigger than `max_file_size` is uploaded, 
 SIPI will reject it.
 
+More help for this command can be found [here](./start-stack.md).
+
+
+
+## `stop-stack`
+
 When your work is done, shut down DSP-API and DSP-APP with
 
 ```bash
@@ -278,5 +283,3 @@ dsp-tools stop-stack
 ```
 
 This deletes all Docker volumes, and removes all data that was in the database.
-
-More help for this command can be found [here](./start-stack.md).

@@ -3,8 +3,21 @@
 # DSP-TOOLS documentation
 
 DSP-TOOLS is a Python package with a command line interface that helps you interact with a DSP server. A DSP server 
-is a server or a local machine where the [DSP-API](https://github.com/dasch-swiss/dsp-api) is running on. The two main 
-tasks that DSP-TOOLS serves for are:
+is a remote server or a local machine where the [DSP-API](https://github.com/dasch-swiss/dsp-api) is running on. 
+
+To install the latest version, run:
+
+```bash
+pip3 install dsp-tools
+```
+
+To update to the latest version run:
+
+```bash
+pip3 install --upgrade dsp-tools
+```
+
+The two main tasks that DSP-TOOLS serves for are:
 
 - **Create a project with its data model(s), described in a JSON file, on a DSP server**  
   In order to archive your data on the DaSCH Service Platform, you need a data model that describes your data.
@@ -16,7 +29,7 @@ tasks that DSP-TOOLS serves for are:
   upload
   all data to the DSP server.
 
-All of DSP-TOOLS' functionality revolves around these two basic tasks. 
+All functionalities of DSP-TOOLS revolve around these two basic tasks. 
 
 DSP-TOOLS provides the following functionalities:
 
@@ -27,9 +40,8 @@ DSP-TOOLS provides the following functionalities:
 - [`dsp-tools xmlupload`](https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-usage/#upload-data-to-a-dsp-server) 
   uploads data from an XML file (bulk
   data import) and writes the mapping from internal IDs to IRIs into a local file.
-- [`dsp-tools excel2json`](https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-usage/#create-a-json-project-file-from
-  -excel-files) creates an entire JSON
-  project file from a folder with Excel files in it.
+- [`dsp-tools excel2json`](https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-usage/#create-a-json-project-file-from-excel-files) 
+  creates an entire JSON project file from a folder with Excel files in it.
     - [`dsp-tools excel2lists`](https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-usage/#create-the-lists-section-of-a-json-project-file-from-excel-files)
       creates the "lists" section of a JSON project file from one or several Excel files. The resulting section can be 
       integrated into a JSON project file and then be uploaded to a DSP server with `dsp-tools create`.
@@ -41,9 +53,8 @@ DSP-TOOLS provides the following functionalities:
       into a JSON project file and then be uploaded to a DSP server with `dsp-tools create`.
 - [`dsp-tools excel2xml`](https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-usage/#create-an-xml-file-from-excelcsv) 
   transforms a data source to XML if it is already structured according to the DSP specifications.
-- [The module `excel2xml`](https://docs.dasch.
-  swiss/latest/DSP-TOOLS/dsp-tools-usage/#use-the-module-excel2xml-to-convert-a-data-source-to-xml) provides helper
-  methods that can be used in a Python script to convert data from a tabular format into XML.
+- [The module `excel2xml`](https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-usage/#use-the-module-excel2xml-to-convert-a-data-source-to-xml) 
+  provides helper methods that can be used in a Python script to convert data from a tabular format into XML.
 - [`dsp-tools id2iri`](https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-usage/#replace-internal-ids-with-iris-in-xml-file)
   takes an XML file for bulk data import and replaces referenced internal IDs with IRIs. The mapping has to be provided
   with a JSON file.

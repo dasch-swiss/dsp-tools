@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.0.2](https://github.com/dasch-swiss/dsp-tools/compare/v2.0.1...v2.0.2) (2023-01-17)
+
+
+### Bug Fixes
+
+* get command fails if no groups are on the server (DEV-1622) ([#283](https://github.com/dasch-swiss/dsp-tools/issues/283)) ([d6bf458](https://github.com/dasch-swiss/dsp-tools/commit/d6bf4588484ed40618e67c152c88ebee55b5f690))
+
+
+### Documentation
+
+* fix broken links, make dsp-tools uppercase (DEV-1550) ([#284](https://github.com/dasch-swiss/dsp-tools/issues/284)) ([aa66109](https://github.com/dasch-swiss/dsp-tools/commit/aa66109bd55eb370138a7a6672cc647ae55e425e))
+
+## [2.0.1](https://github.com/dasch-swiss/dsp-tools/compare/v2.0.0...v2.0.1) (2023-01-17)
+
+
+### Maintenance
+
+* bump versions of start-stack, use dynamic project IRI in get command (DEV-1613) ([#282](https://github.com/dasch-swiss/dsp-tools/issues/282)) ([2ecf4f5](https://github.com/dasch-swiss/dsp-tools/commit/2ecf4f5c7ae7269f36bace5b6786975bb7088681))
+* refactor project creation (DEV-1165) ([#280](https://github.com/dasch-swiss/dsp-tools/issues/280)) ([5e662a6](https://github.com/dasch-swiss/dsp-tools/commit/5e662a6f59aeb6b6e84e4f56fd5f700eb12e93cb))
+* use start-stack command for e2e tests, replace Makefile by poetry-exec-plugin (DEV-1597) ([#279](https://github.com/dasch-swiss/dsp-tools/issues/279)) ([6b85d15](https://github.com/dasch-swiss/dsp-tools/commit/6b85d15660da052e374814414dd20bae6880f68a))
+
 ## [2.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v1.22.2...v2.0.0) (2023-01-09)
 
 

@@ -53,7 +53,7 @@ def program(user_args: list[str]) -> None:
 
     # create
     parser_create = subparsers.add_parser('create', help='Upload a project and/or list(s) from a JSON project file to '
-                                               'the DaSCH Service Platform')
+                                                         'the DaSCH Service Platform')
     parser_create.set_defaults(action='create')
     parser_create.add_argument('-s', '--server', type=str, default=default_localhost, help=url_text)
     parser_create.add_argument('-u', '--user', default=default_user, help=username_text)
@@ -217,7 +217,7 @@ def program(user_args: list[str]) -> None:
                        save_metrics=args.metrics)
     elif args.action == 'excel2json':
         excel2json(data_model_files=args.data_model_files,
-                      path_to_output_file=args.outfile)
+                   path_to_output_file=args.outfile)
     elif args.action == 'excel2lists':
         excel2lists(excelfolder=args.excelfolder,
                     path_to_output_file=args.outfile,

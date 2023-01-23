@@ -1,50 +1,98 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# User data in the folder `.dsp-tools`
+# User data in the user's home directory
 
-DSP-TOOLS saves user data in the user's home directory, in the folder `.dsp-tools`. Here is an overview of its 
-structure:
+DSP-TOOLS saves user data in the user's home directory, 
+in the folder `.dsp-tools`. 
+Here is an overview of its structure:
 
 | folder     | command using it | description                                  |
 |:-----------|:-----------------|:---------------------------------------------|
 | xmluploads | `xmlupload`      | saves id2iri mappings and error reports      |
 | docker     | `start-stack`    | files necessary to startup Docker containers |
 
-Typically, existing programs manipulate a package’s __file__ attribute in order to find the location of data files. For example, if you have a structure like this:
+Remark: Docker is normally not able to access files 
+stored in the `site-packages` of a Python installation.
+Therefore, it's necessary to copy the "docker" folder
+to the user's home directory.
 
-project_root_directory
-├── setup.py        # and/or setup.cfg, pyproject.toml
+
+
+## How to ship data files to the user
+
+Accessing non-Python files (a.k.a. resources, a.k.a data files) 
+in the code needs special attention.
+
+Firstly, the build tool must be told to include this folder/files in the distribution.
+In our case, this happens in `[tool.poetry.include]` in the `pyproject.toml` file.
+
+Secondly, when accessing the files on the customer's machine, 
+the files inside `site-packages` should be read-only 
+to avoid a series of common problems 
+(e.g. when multiple users share a common Python installation, 
+when the package is loaded from a zip file, 
+or when multiple instances of a Python application run in parallel).
+
+Thirdly, the files can neither be accessed 
+with a relative path from the referencing file,
+nor with a path relative to the root of the project.
+
+For example, if you have a structure like this:
+
+```
+dsp-tools
+├── pyproject.toml
 └── src
-    └── mypkg
-        ├── data
-        │   └── data1.txt
+    └── dsp_tools
+        ├── schemas
+        │   └── data.xsd
         ├── __init__.py
-        └── foo.py
+        └── dsp_tools.py
+```
 
-Then, in mypkg/foo.py, you may try something like this in order to access mypkg/data/data1.txt:
+it is not possible to do one of the following in dsp_tools/dsp_tools.py:
 
-import os
-data_path = os.path.join(os.path.dirname(__file__), 'data', 'data1.txt')
-with open(data_path, 'r') as data_file:
+```python
+with open('schemas/data.xsd') as data_file:
      ...
+with open('src/dsp_tools/schemas/data.xsd') as data_file:
+     ...
+```
 
-However, this manipulation isn’t compatible with PEP 302-based import hooks, including importing from zip files and Python Eggs. It is strongly recommended that, if you are using data files, you should use importlib.resources to access them. In this case, you would do something like this:
+The reason why these two approaches fail is 
+that the working directory on the user's machine 
+is determined by the directory where 
+DSP-TOOLS is called from - 
+not the directory where the distribution files are situated in.
 
+To circumvent this problem,
+it was once common to manipulate a package’s `__file__` attribute 
+in order to find the location of data files:
+
+```python
+import os
+data_path = os.path.join(os.path.dirname(__file__), 'schemas', 'data.xsd')
+with open(data_path) as data_file:
+     ...
+```
+
+However, this manipulation isn’t compatible with PEP 302-based import hooks, 
+including importing from zip files and Python Eggs.
+
+**The canonical way is to use [importlib.resources](https://docs.python.org/3/library/importlib.resources.html):** 
+
+```python
 from importlib.resources import files
-data_text = files('mypkg.data').joinpath('data1.txt').read_text()
+# address "schemas" directory in module syntax: needs __init__py
+data_text = files('dsp_tools.schemas').joinpath('data.xsd').read_text()
+# avoid module syntax when addressing "schemas" directory: no __init__.py necessary
+data_text = files('dsp_tools').joinpath('schemas').joinpath('data.xsd').read_text()
+```
 
+Note that depending on how the directory is addressed, 
+an `__init__.py` file is necessary or can be omitted.
 
-Files inside the package directory should be read-only to avoid a series of common problems (e.g. when multiple users share a common Python installation, when the package is loaded from a zip file, or when multiple instances of a Python application run in parallel).
-
-If your Python package needs to write to a file for shared data or configuration, you can use standard platform/OS-specific system directories, such as ~/.local/config/$appname or /usr/share/$appname/$version (Linux specific) [2]. A common approach is to add a read-only template file to the package directory that is then copied to the correct system directory if no pre-existing file is found.
-
-[tool.poetry]
-include = [
-    "src/dsp_tools/schemas/*",
-    "src/dsp_tools/docker/*"
-]
-
-Thanks to PEP 420, since Python 3.3 you don't need an __init__.py for a directory to be considered a package. 
-Therefore, it's not necessary to have an __init__.py inside a resources folder.
-
-But https://stackoverflow.com/a/58941536/14414188 claims that __init__.py is necessary?
+The information on this page is mainly based upon:
+ - https://stackoverflow.com/a/20885799/14414188
+ - https://stackoverflow.com/a/58941536/14414188
+ - https://setuptools.pypa.io/en/latest/userguide/datafiles.html#accessing-data-files-at-runtime

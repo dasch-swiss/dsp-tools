@@ -10,14 +10,14 @@ intended for developers who want to work with the code of DSP-TOOLS.
 | This technical document was written as a guide for developers. For the end user documentation, please consult [https://docs.dasch.swiss](https://docs.dasch.swiss/latest/DSP-TOOLS). |
 
 This README contains basic information for getting started. More details can be found in the 
-[developers documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers-index/).
+[developers documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/index/).
 
 
 
 ## Using poetry for dependency management
 
 Curious what poetry is and why we use it? Check out the 
-[developers documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers-packaging/).
+[developers documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/packaging/).
 
 If you want to work on the code of DSP-TOOLS, you first have to do the following:
 
@@ -69,7 +69,7 @@ the virtual environment, the code of your local clone will be executed.
 
 This repository embeds a git submodule that needs to be initialised before you can start working with a fresh clone. 
 Find more information in the 
-[developers documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers-git-submodules/).
+[developers documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/git-submodules/).
 
 
 
@@ -95,7 +95,7 @@ There are two groups of tests:
 The ones in `test/unittests` can be run directly, 
 whereas the ones in `test/e2e` need a DSP stack running in the background.
 A DSP stack can be started with the command 
-[`dsp-tools start-stack`](https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-usage/#simple-way-dsp-tools-start-stack)
+[`dsp-tools start-stack`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#start-stack)
 
 It is possible to run all tests in a given folder: `pytest test/unittests`  
 Or only the tests inside a singe file: `pytest test/unittests/test_excel2xml.py`  

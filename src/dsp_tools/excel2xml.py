@@ -122,7 +122,7 @@ def find_date_in_string(string: str) -> Optional[str]:
         >>> if find_date_in_string(row["Epoch"]):
         >>>     resource.append(make_date_prop(":hasDate", find_date_in_string(row["Epoch"]))
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#date-prop
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date-prop
     """
 
     # sanitize input, just in case that the method was called on an empty or N/A cell
@@ -285,7 +285,7 @@ def make_root(shortcode: str, default_ontology: str) -> etree._Element:
         >>> root = make_root(shortcode=shortcode, default_ontology=default_ontology)
         >>> root = append_permissions(root)
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#the-root-element-knora
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#the-root-element-knora
     """
 
     root = etree.Element(
@@ -318,7 +318,7 @@ def append_permissions(root_element: etree.Element) -> etree._Element:
         >>> root = make_root(shortcode=shortcode, default_ontology=default_ontology)
         >>> root = append_permissions(root)
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#describing-permissions-with-permissions-elements
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#describing-permissions-with-permissions-elements
     """
 
     PERMISSIONS = E.permissions
@@ -381,7 +381,7 @@ def make_resource(
         >>> resource.append(make_text_prop(...))
         >>> root.append(resource)
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#describing-resources-with-the-resource-element
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#describing-resources-with-the-resource-element
     """
 
     kwargs = {
@@ -435,7 +435,7 @@ def make_bitstream_prop(
         >>> resource.append(make_bitstream_prop("data/images/tree.jpg"))
         >>> root.append(resource)
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#bitstream
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#bitstream
     """
 
     if not os.path.isfile(path):
@@ -493,7 +493,7 @@ def make_boolean_prop(
                     <boolean permissions="prop-restricted" comment="example">true</boolean>
                 </boolean-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#boolean-prop
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#boolean-prop
     """
 
     # validate input
@@ -559,7 +559,7 @@ def make_color_prop(
                     <color permissions="prop-default">#000000</color>
                 </color-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#color-prop
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color-prop
     """
 
     # check the input: prepare a list with valid values
@@ -632,7 +632,7 @@ def make_date_prop(
                     </date>
                 </date-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#date-prop
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date-prop
     """
 
     # check the input: prepare a list with valid values
@@ -701,7 +701,7 @@ def make_decimal_prop(
                     <decimal permissions="prop-default">2.718</decimal>
                 </decimal-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#decimal-prop
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#decimal-prop
     """
 
     # check the input: prepare a list with valid values
@@ -770,7 +770,7 @@ def make_geometry_prop(
                     <geometry permissions="prop-default">{JSON}</geometry>
                 </geometry-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#geometry-prop
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry-prop
     """
 
     # check the input: prepare a list with valid values
@@ -841,7 +841,7 @@ def make_geoname_prop(
                     <geoname permissions="prop-default">1010101</geoname>
                 </geoname-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#geoname-prop
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geoname-prop
     """
 
     # check the input: prepare a list with valid values
@@ -909,7 +909,7 @@ def make_integer_prop(
                     <integer permissions="prop-default">1010101</integer>
                 </integer-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#integer-prop
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#integer-prop
     """
 
     # check the input: prepare a list with valid values
@@ -978,7 +978,7 @@ def make_interval_prop(
                     <interval permissions="prop-default">60.5:120.5</interval>
                 </interval-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#interval-prop
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#interval-prop
     """
 
     # check the input: prepare a list with valid values
@@ -1047,7 +1047,7 @@ def make_list_prop(
                     <list permissions="prop-default">second_node</list>
                 </list-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#list-prop
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#list-prop
     """
 
     # check the input: prepare a list with valid values
@@ -1115,7 +1115,7 @@ def make_resptr_prop(
                     <resptr permissions="prop-default">resource_2</resptr>
                 </resptr-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#resptr-prop
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#resptr-prop
     """
 
     # check the input: prepare a list with valid values
@@ -1182,7 +1182,7 @@ def make_text_prop(
                     <text encoding="utf8" permissions="prop-default">second text</text>
                 </text-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#text-prop
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text-prop
     """
 
     # check the input: prepare a list with valid values
@@ -1265,7 +1265,7 @@ def make_time_prop(
                     </time>
                 </time-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#time-prop
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#time-prop
     """
 
     # check the input: prepare a list with valid values
@@ -1332,7 +1332,7 @@ def make_uri_prop(
                     <uri permissions="prop-default">www.2.com</uri>
                 </uri-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#uri-prop
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#uri-prop
     """
 
     # check the input: prepare a list with valid values
@@ -1393,7 +1393,7 @@ def make_region(
         >>> region.append(make_geometry_prop("hasGeometry", "{...}"))
         >>> root.append(region)
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#region
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#region
     """
 
     kwargs = {
@@ -1448,7 +1448,7 @@ def make_annotation(
         >>> annotation.append(make_resptr_prop("isAnnotationOf", "resource_0"))
         >>> root.append(annotation)
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#annotation
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#annotation
     """
 
     kwargs = {
@@ -1503,7 +1503,7 @@ def make_link(
         >>> link.append(make_resptr_prop("hasLinkTo", ["resource_0", "resource_1"]))
         >>> root.append(link)
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/dsp-tools-xmlupload/#link
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#link
     """
 
     kwargs = {

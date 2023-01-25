@@ -36,10 +36,11 @@ def start_stack(
         raise BaseError('The arguments "--prune" and "--no-prune" are mutually exclusive')
 
     # copy contents of src/dsp_tools/docker to ~/.dsp-tools/docker
-    # rationale to use importlib.resources: https://setuptools.pypa.io/en/latest/userguide/datafiles.html#accessing-data-files-at-runtime
     docker_path_of_distribution = importlib.resources.files("dsp_tools").joinpath("docker")
     for file in docker_path_of_distribution.iterdir():
-        shutil.copy(file, docker_path_of_user / file.name)
+        with importlib.resources.as_file(file) as f:
+            file_path = Path(f)
+        shutil.copy(file_path, docker_path_of_user / file.name)
 
     # get sipi.docker-config.lua
     commit_of_used_api_version = "558b1c98ec7790118608c16d5dfaf5769a85457a"

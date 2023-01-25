@@ -1,4 +1,4 @@
-import os
+import importlib.resources
 import time
 import unicodedata
 from datetime import datetime
@@ -99,9 +99,8 @@ def validate_xml_against_schema(input_file: str) -> bool:
     Returns:
         True if the XML file is valid. Otherwise, a BaseError with a detailed error log is raised
     """
-    current_dir = os.path.dirname(os.path.realpath(__file__))
-    schema_file = os.path.join(current_dir, "../schemas/data.xsd")
-    xmlschema = etree.XMLSchema(etree.parse(schema_file))
+    with importlib.resources.files("dsp_tools").joinpath("schemas").joinpath("data.xsd").open() as schema_file:
+        xmlschema = etree.XMLSchema(etree.parse(schema_file))
     doc = etree.parse(input_file)
 
     if xmlschema.validate(doc):

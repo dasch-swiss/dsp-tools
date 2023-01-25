@@ -44,7 +44,6 @@ def program(user_args: list[str]) -> None:
     default_pw = 'test'
     dsp_tools_version = version('dsp-tools')
     now = datetime.datetime.now()
-    current_dir = os.path.dirname(os.path.realpath(__file__))
 
     # parse the arguments of the command line
     parser = argparse.ArgumentParser(description=f'dsp-tools (Version {dsp_tools_version}) DaSCH Service Platform data '

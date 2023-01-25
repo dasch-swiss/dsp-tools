@@ -1,5 +1,5 @@
+import importlib.resources
 import json
-import os
 import re
 from typing import Any, Optional
 
@@ -22,9 +22,8 @@ def _validate_properties_with_schema(properties_list: list[dict[str, Any]]) -> b
     Returns:
         True if the "properties" section passed validation. Otherwise, a BaseError with a detailed error report is raised.
     """
-    current_dir = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(current_dir, "../schemas/properties-only.json")) as schema:
-        properties_schema = json.load(schema)
+    with importlib.resources.files("dsp_tools").joinpath("schemas").joinpath("properties-only.json").open() as schema_file:
+        properties_schema = json.load(schema_file)
     try:
         jsonschema.validate(instance=properties_list, schema=properties_schema)
     except jsonschema.exceptions.ValidationError as err:

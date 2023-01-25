@@ -12,7 +12,7 @@ services:
       - knora-net
 
   db:
-    image: daschswiss/apache-jena-fuseki:  # after every deployment (fortnightly), update to the tag
+    image: daschswiss/apache-jena-fuseki:2.0.11  # after every deployment (fortnightly), update to the tag
                                                  # used in docker-compose.yml of the DSP-API repository
     ports:
       - "3030:3030"

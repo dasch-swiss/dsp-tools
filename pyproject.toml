@@ -57,11 +57,10 @@ dsp-tools = "dsp_tools.dsp_tools:main"
 [tool.poetry-exec-plugin.commands]
 # plugin (https://github.com/keattang/poetry-exec-plugin) to define commands available for the developers
 # e.g. `poetry exec docs-serve`
-# The plugin has to be installed with `poetry self add poetry-exec-plugin`
+check-links = "markdown-link-validator ./docs -i \\.\\/assets\\/.+ -i .+github\\.com\\/dasch\\-swiss\\/dsp-tools\\/settings"
 # `mkdocs serve` can normally be executed without custom port. This is only necessary on machines where the standard
 # port is taken already
 docs-serve = "mkdocs serve --dev-addr=localhost:7979"
-check-links = "markdown-link-validator ./docs -i \\.\\/assets\\/.+ -i .+github\\.com\\/dasch\\-swiss\\/dsp-tools\\/settings"
 
 
 [build-system]

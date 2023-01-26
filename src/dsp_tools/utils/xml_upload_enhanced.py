@@ -4,37 +4,29 @@ import threading
 from itertools import repeat
 import concurrent.futures
 import shutil
-import os
+from pathlib import Path
+import importlib.resources
 
 
-def copy_files(org_file, size, directories, files) -> None:
+def generate_testdata() -> None:
     """
-    This function takes an image and duplicates it.
-
-    Args:
-        org_file : the original file name ex. 50mb.tif
-        size : size in MB of the file
-        directories : amount of directories it should create
-        files : amount of files that should be created within a directory
+    Creates a test data folder in the user's current working directory.
 
     Returns:
         None
     """
-
-    for directory in range(1, directories + 1):
-
-        dir_name = f"images-{size}-{directory}"
-        dir_path = os.path.join("testdata/bitstreams/", dir_name)
-
-        for file in range(1, files + 1):
-
-            file_name = f"{file}_{size}mb.tif"
-
-            if not os.path.exists(dir_path):
-                os.mkdir(dir_path)
-
-            shutil.copy2(os.path.join("testdata/bitstreams/", org_file), os.path.join(dir_path, file_name))
-
+    ext_img = ["jpg", "jpeg", "tif", "tiff", "jp2", "png"]
+    importlib.resources
+    bitstreams_path = Path("testdata/bitstreams")
+    destinations = [
+        Path("testdata/enhanced-xmlupload/multimedia"),
+        Path("testdata/enhanced-xmlupload/multimedia/nested"),
+        Path("testdata/enhanced-xmlupload/multimedia/nested/subfolder")
+    ]
+    for dst in destinations:
+        for file in bitstreams_path.iterdir():
+            if file.suffix in [f".{ext}" for ext in ext_img]:
+                shutil.copy2(file, dst / file.name)
 
 def upload_image(port: int, image_num: int, size: int, folder_num: int = 1) -> None:
     """
@@ -96,6 +88,9 @@ def image_queue_to_thread(port: int, queue_size: int, amount_thread: int, size: 
     print(f'-------- image_queue_to_thread() ---------')
 
     start = time.perf_counter()
+    # at the moment, only 1 thread per folder. the user gives us 1 folder, we have to make 32 portions out of all images
+    # in it. and then distribute these 32 portions to the 32 threads.
+    # instead of a folder number, we will have 32 lists, each list containing image paths
     folder = [*range(1, amount_thread + 1, 1)]
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -107,7 +102,6 @@ def image_queue_to_thread(port: int, queue_size: int, amount_thread: int, size: 
 
 
 if __name__ == '__main__':
-    copy_files("test.tif", 300, 1, 50)
     # after starting up a SIPI container, copy the port number displayed in the container in Docker Desktop
     container_port = 52804
 

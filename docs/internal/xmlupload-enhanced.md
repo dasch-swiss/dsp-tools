@@ -8,9 +8,7 @@ The following data structure is expected:
 
 ```
 my_project
-├── files
-│   ├── data_model.json
-│   └── data_file.xml   (<bitstream>multimedia/dog.jpg</bitstream>)
+├── data.xml   (<bitstream>multimedia/dog.jpg</bitstream>)
 └── multimedia
     ├── dog.jpg
     ├── cat.mp3
@@ -66,9 +64,13 @@ First, you must start SIPI:
 ## Call to `enhanced-xmlupload`
 
 The command `enhanced-xmlupload` must be called from the project root.
-The first argument is the XML file,
-the second argument is the folder where to look for the multimedia files.
 
 ```bash
-dsp-tools enhanced-xmlupload files/data_file.xml --multimedia_folder=multimedia --sipi_port=12345
+dsp-tools enhanced-xmlupload data.xml --multimedia_folder=multimedia --sipi_port=12345
 ```
+
+Arguments and options:
+
+ - data file (optional, default: `data.xml`): path to xml file containing the data
+ - `--multimedia_folder` (optional, default: `multimedia`): name of the folder containing the multimedia files
+ - `--sipi_port` (mandatory): 5-digit port number that SIPI uses, can be fouind in the "Container" view of Docker Desktop

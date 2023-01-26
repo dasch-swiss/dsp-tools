@@ -3,7 +3,6 @@ The code in this file handles the arguments passed by the user from the command 
 """
 import argparse
 import datetime
-import os
 import sys
 from importlib.metadata import version
 
@@ -20,6 +19,8 @@ from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.stack_handling import start_stack, stop_stack
 from dsp_tools.utils.xml_upload import xml_upload
+from dsp_tools.utils.xml_upload_enhanced import generate_testdata, enhanced_xml_upload
+
 
 
 def program(user_args: list[str]) -> None:
@@ -157,10 +158,38 @@ def program(user_args: list[str]) -> None:
     parser_stackup.add_argument('--no-prune', action='store_true',
                                 help='if set, don\'t execute "docker system prune" (and don\'t ask)')
 
-    # shutdown DSP-API
+    # shutdown DSP stack
     parser_stackdown = subparsers.add_parser('stop-stack', help='Shut down the local instance of the DSP stack, and '
                                                                 'delete all data in it')
     parser_stackdown.set_defaults(action='stop-stack')
+
+    # enhanced xmlupload
+    parser_enhanced_xmlupload = subparsers.add_parser(
+        'enhanced-xmlupload',
+        help='DaSCH-internal command: Upload a very big project on a DSP server, after preprocessing it locally'
+    )
+    parser_enhanced_xmlupload.set_defaults(action='enhanced-xmlupload')
+    parser_enhanced_xmlupload.add_argument(
+        'xmlfile',
+        help='path to xml file containing the data',
+        default='data.xml'
+    )
+    parser_enhanced_xmlupload.add_argument(
+        '--multimedia_folder',
+        type=str,
+        default="multimedia",
+        help="name of the folder containing the multimedia files"
+    )
+    parser_enhanced_xmlupload.add_argument(
+        '--sipi_port',
+        type=int,
+        help="5-digit port number that SIPI uses, can be fouind in the 'Container' view of Docker Desktop"
+    )
+    parser_enhanced_xmlupload.add_argument(
+        '--generate-test-data',
+        action='store_true',
+        help="only generate a test data folder in the current working directory (no upload)"
+    )
 
 
     # call the requested action
@@ -242,7 +271,15 @@ def program(user_args: list[str]) -> None:
                     suppress_docker_system_prune=args.no_prune)
     elif args.action == 'stop-stack':
         stop_stack()
-
+    elif args.action == 'enhanced-xmlupload':
+        if args.generate_test_data:
+            generate_testdata()
+        else:
+            enhanced_xml_upload(
+                xmlfile=args.xmlfile,
+                multimedia_folder=args.multimedia_folder,
+                sipi_port=args.sipi_port
+            )
 
 
 def main() -> None:

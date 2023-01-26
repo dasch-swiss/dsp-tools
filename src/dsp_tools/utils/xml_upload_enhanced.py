@@ -3,9 +3,8 @@ import requests
 import threading
 from itertools import repeat
 import concurrent.futures
-import shutil
 from pathlib import Path
-import importlib.resources
+import os
 
 
 def generate_testdata() -> None:
@@ -15,18 +14,16 @@ def generate_testdata() -> None:
     Returns:
         None
     """
+    github_bitstreams_path = "https://github.com/dasch-swiss/dsp-tools/blob/main/testdata/bitstreams"
+    testproject = Path(os.getcwd()) / "enhanced-xmlupload-testproject"
+    multimedia_folder = testproject / "multimedia"
+    multimedia_folder.mkdir()
     ext_img = ["jpg", "jpeg", "tif", "tiff", "jp2", "png"]
-    importlib.resources
-    bitstreams_path = Path("testdata/bitstreams")
-    destinations = [
-        Path("testdata/enhanced-xmlupload/multimedia"),
-        Path("testdata/enhanced-xmlupload/multimedia/nested"),
-        Path("testdata/enhanced-xmlupload/multimedia/nested/subfolder")
-    ]
-    for dst in destinations:
-        for file in bitstreams_path.iterdir():
-            if file.suffix in [f".{ext}" for ext in ext_img]:
-                shutil.copy2(file, dst / file.name)
+    for ext in ext_img:
+        img = requests.get(f"{github_bitstreams_path}/test.{ext}?raw=true").content
+        with open(multimedia_folder / f"test.{ext}", "bw") as f:
+            f.write(img)
+
 
 def upload_image(port: int, image_num: int, size: int, folder_num: int = 1) -> None:
     """
@@ -71,21 +68,26 @@ def process_seq(port: int, queue_size: int, size: int, folder: int) -> None:
         upload_image(port, i, size, folder)
 
 
-def image_queue_to_thread(port: int, queue_size: int, amount_thread: int, size: int) -> None:
+def enhanced_xml_upload(
+    xmlfile: str,
+    multimedia_folder: str,
+    sipi_port: int
+) -> None:
     """
     This function manages an upload of certain queue size.
 
     Args:
-        port : port number
-        queue_size : size of the image queue that will be uploded
-        amount_thread : amount of threads
-        size : size in MB of the file
+        xmlfile: path to xml file containing the data
+        multimedia_folder: name of the folder containing the multimedia files
+        sipi_port: 5-digit port number that SIPI uses, can be fouind in the 'Container' view of Docker Desktop
 
     Returns:
         None
     """
 
-    print(f'-------- image_queue_to_thread() ---------')
+    queue_size = 50
+    amount_thread = 1
+    size = 300
 
     start = time.perf_counter()
     # at the moment, only 1 thread per folder. the user gives us 1 folder, we have to make 32 portions out of all images
@@ -94,15 +96,8 @@ def image_queue_to_thread(port: int, queue_size: int, amount_thread: int, size: 
     folder = [*range(1, amount_thread + 1, 1)]
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        executor.map(process_seq, repeat(port), repeat(queue_size), repeat(size), folder)
+        executor.map(process_seq, repeat(sipi_port), repeat(queue_size), repeat(size), folder)
     end = time.perf_counter()
 
     print(f'\n{queue_size} Files ({size} MB) waiting in a thread. In total {amount_thread} threads')
     print(f'Total time: {round(end - start, 3)} second(s)\n')
-
-
-if __name__ == '__main__':
-    # after starting up a SIPI container, copy the port number displayed in the container in Docker Desktop
-    container_port = 52804
-
-    image_queue_to_thread(port=container_port, queue_size=50, amount_thread=1, size=300)

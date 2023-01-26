@@ -16,7 +16,7 @@ This README contains basic information for getting started. More details can be 
 
 ## Using poetry for dependency management
 
-Curious what poetry is and why we use it? Check out the 
+Curious what poetry is and why we use it? Check out the respective section in the 
 [developers documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers-packaging/).
 
 If you want to work on the code of DSP-TOOLS, you first have to do the following:
@@ -174,5 +174,3 @@ Please follow this constraint, so that markdown-link-validator can check the int
 | <center>Hint</center>                                                                                                                                                                      |
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | If your links are correct, but markdown-link-validator doesn't recognize them, it might be necessary to adapt the call to markdown-link-validator in `.github/workflows/tests-on-push.yml` |
-
-

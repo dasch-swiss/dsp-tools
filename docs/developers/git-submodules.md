@@ -21,6 +21,10 @@ The example project [rosetta](https://github.com/dasch-swiss/082E-rosetta-script
 DSP-TOOLS sometimes need to be reflected in rosetta. But since rosetta is not embedded as submodule, the developers 
 have to take care not to forget rosetta.
 
+The contents of `src/dsp_tools/import_scripts` need not be part of the distribution, because the users of DSP-TOOLS 
+will access these files via GitHub, and not via the distributed code. For this reason, this folder is excluded in 
+`pyproject.toml`.
+
 
 
 ## Passively using the contents of the submodule

@@ -1,6 +1,5 @@
-import time
+from typing import Tuple
 import requests
-import threading
 from itertools import repeat
 import concurrent.futures
 from pathlib import Path
@@ -37,47 +36,52 @@ def generate_testdata() -> None:
     # TODO: generate an XML file that uses these files
 
 
-def upload_image(port: int, image_num: int, size: int, folder_num: int = 1) -> None:
+def check_multimedia_folder(
+    xmlfile: str,
+    multimedia_folder: str
+) -> bool:
     """
-    This function uploads an image to the upload route.
+    Verify that all multimedia files referenced in the XML file are contained in multimedia_folder
+    (or one of its subfolders), and that all files contained in multimedia_folder are referenced in the XML file.
+    """
+
+    # TODO
+    return True
+
+
+def make_batches(multimedia_folder: str) -> Tuple[list[list[Path]], int]:
+    """
+    Make 32 portions (batches) out of all images in the multimedia folder, one batch per thread.
+    A batch is a list of file paths.
+
+    Returns:
+        batches, batch size
+    """
+    # TODO: Vij is working on this. This is only a mock-up
+    batches = [
+        [x for x in Path(multimedia_folder).iterdir() if x.is_file()],
+        [x for x in Path(multimedia_folder + "/nested").iterdir() if x.is_file()],
+        [x for x in Path(multimedia_folder + "/nested/subfolder").iterdir() if x.is_file()]
+    ]
+    batch_size = 6
+    return batches, batch_size
+
+
+def process_seq(batch: list[Path], sipi_port: int, id: int) -> None:
+    """
+    Upload the images contained in one batch, sequentially.
 
     Args:
-        port : port number which is added to the url
-        image_num : number which is part of the file name
-        size : size in MB of the file
-        folder_num : number of the folder which is part of the directory path, if no number is provided the default value 1 is used
+        batch: list of paths to image files
+        sipi_port: port number of SIPI
 
     Returns:
         None
     """
-
-    print(f'{folder_num}-{image_num} - upload: start\nActive Threads: {threading.active_count()}')
-
-    url = f'http://localhost:{port}/upload'
-    files = {'file': open(f'testdata/bitstreams/images-{size}-{folder_num}/{image_num}_{size}mb.tif', 'rb')}
-    response = requests.post(url, files=files)
-    print(response)
-
-    print(f'{folder_num}-{image_num} - upload: end')
-
-
-def process_seq(port: int, queue_size: int, size: int, folder: int) -> None:
-    """
-    This is a helper function which does the image upload sequentially.
-
-    Args:
-        port : port number
-        queue_size : amount of images that should be uploaded
-        size : size in MB of the file
-        folder : folder number
-
-    Returns:
-        None
-    """
-
-    for i in range(1, queue_size + 1):
-        print(f"thread: {folder}", f'images-{size}-{folder}/{i}_{size}mb.tif')
-        upload_image(port, i, size, folder)
+    print(f"Process batch with ID {id}...")
+    for imgpath in batch:
+        response = requests.post(url=f'http://localhost:{sipi_port}/upload', files={'file': open(imgpath, 'rb')})
+        print(response.text)
 
 
 def enhanced_xml_upload(
@@ -97,19 +101,13 @@ def enhanced_xml_upload(
         None
     """
 
-    queue_size = 50
-    amount_thread = 1
-    size = 300
+    if not check_multimedia_folder(xmlfile=xmlfile, multimedia_folder=multimedia_folder):
+        print("The multimedia folder and the XML file don't contain the same files!")
+        exit(1)
 
-    start = time.perf_counter()
-    # at the moment, only 1 thread per folder. the user gives us 1 folder, we have to make 32 portions out of all images
-    # in it. and then distribute these 32 portions to the 32 threads.
-    # instead of a folder number, we will have 32 lists, each list containing image paths
-    folder = [*range(1, amount_thread + 1, 1)]
+    batches, batch_size = make_batches(multimedia_folder=multimedia_folder)
+
+    print(f"Handing over {len(batches)} batches to ThreadPoolExecutor")
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        executor.map(process_seq, repeat(sipi_port), repeat(queue_size), repeat(size), folder)
-    end = time.perf_counter()
-
-    print(f'\n{queue_size} Files ({size} MB) waiting in a thread. In total {amount_thread} threads')
-    print(f'Total time: {round(end - start, 3)} second(s)\n')
+        executor.map(process_seq, batches, repeat(sipi_port), range(len(batches)))

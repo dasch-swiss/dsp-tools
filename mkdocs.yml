@@ -20,7 +20,7 @@ nav:
   - The excel2xml module: excel2xml-module.md
   - Running DSP locally: start-stack.md
   - DaSCH-internal commands:
-        Improved Mass-Upload: internal/xmlupload-enhanced.md
+      - Improved Mass-Upload: internal/xmlupload-enhanced.md
   - Information for developers:
         - Developers documentation: developers/index.md
         - Dependencies, packaging & distribution: developers/packaging.md

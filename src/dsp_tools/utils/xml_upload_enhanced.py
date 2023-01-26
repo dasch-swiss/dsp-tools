@@ -14,15 +14,27 @@ def generate_testdata() -> None:
     Returns:
         None
     """
-    github_bitstreams_path = "https://github.com/dasch-swiss/dsp-tools/blob/main/testdata/bitstreams"
     testproject = Path(os.getcwd()) / "enhanced-xmlupload-testproject"
-    multimedia_folder = testproject / "multimedia"
-    multimedia_folder.mkdir()
+    if testproject.exists():
+        print("The test project folder is already existing.")
+        return
+    destinations = [
+        testproject / "multimedia",
+        testproject / "multimedia" / "nested",
+        testproject / "multimedia" / "nested" / "subfolder"
+    ]
+    for sub in destinations:
+        sub.mkdir(parents=True)
+    github_bitstreams_path = "https://github.com/dasch-swiss/dsp-tools/blob/main/testdata/bitstreams"
     ext_img = ["jpg", "jpeg", "tif", "tiff", "jp2", "png"]
     for ext in ext_img:
         img = requests.get(f"{github_bitstreams_path}/test.{ext}?raw=true").content
-        with open(multimedia_folder / f"test.{ext}", "bw") as f:
-            f.write(img)
+        for dst in destinations:
+            with open(dst / f"test.{ext}", "bw") as f:
+                f.write(img)
+    print(f"Successfully created folder {testproject}")
+
+    # TODO: generate an XML file that uses these files
 
 
 def upload_image(port: int, image_num: int, size: int, folder_num: int = 1) -> None:
@@ -79,7 +91,7 @@ def enhanced_xml_upload(
     Args:
         xmlfile: path to xml file containing the data
         multimedia_folder: name of the folder containing the multimedia files
-        sipi_port: 5-digit port number that SIPI uses, can be fouind in the 'Container' view of Docker Desktop
+        sipi_port: 5-digit port number that SIPI uses, can be found in the 'Container' view of Docker Desktop
 
     Returns:
         None

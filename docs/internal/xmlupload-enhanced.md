@@ -66,11 +66,11 @@ First, you must start SIPI:
 The command `enhanced-xmlupload` must be called from the project root.
 
 ```bash
-dsp-tools enhanced-xmlupload data.xml --multimedia_folder=multimedia --sipi_port=12345
+dsp-tools enhanced-xmlupload --xmlfile=data.xml --multimedia_folder=multimedia --sipi_port=12345
 ```
 
 Arguments and options:
 
- - data file (optional, default: `data.xml`): path to xml file containing the data
+ - `--xmlfile` (optional, default: `data.xml`): path to xml file containing the data
  - `--multimedia_folder` (optional, default: `multimedia`): name of the folder containing the multimedia files
- - `--sipi_port` (mandatory): 5-digit port number that SIPI uses, can be fouind in the "Container" view of Docker Desktop
+ - `--sipi_port` (mandatory): 5-digit port number that SIPI uses, can be found in the "Container" view of Docker Desktop

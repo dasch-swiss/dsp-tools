@@ -170,9 +170,10 @@ def program(user_args: list[str]) -> None:
     )
     parser_enhanced_xmlupload.set_defaults(action='enhanced-xmlupload')
     parser_enhanced_xmlupload.add_argument(
-        'xmlfile',
-        help='path to xml file containing the data',
-        default='data.xml'
+        '--xmlfile',
+        type=str,
+        default='data.xml',
+        help='path to xml file containing the data'
     )
     parser_enhanced_xmlupload.add_argument(
         '--multimedia_folder',
@@ -183,7 +184,7 @@ def program(user_args: list[str]) -> None:
     parser_enhanced_xmlupload.add_argument(
         '--sipi_port',
         type=int,
-        help="5-digit port number that SIPI uses, can be fouind in the 'Container' view of Docker Desktop"
+        help="5-digit port number that SIPI uses, can be found in the 'Container' view of Docker Desktop"
     )
     parser_enhanced_xmlupload.add_argument(
         '--generate-test-data',

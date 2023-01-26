@@ -39,7 +39,7 @@ dsp-tools enhanced-xmlupload --generate-test-data
 First, you must start SIPI: 
 
 - make a fresh clone of the [DSP-API repository](https://github.com/dasch-swiss/dsp-api)
-- rename it to "dsp-api-sipi-only"
+- do NOT rename it, its name must be "dsp-api"
 - execute `make env-file` inside it 
    - (This is only necessary if you have never started a stack from within that repo. It sets some environment variables.)
 - in `docker-compose.yml`, comment out the following sections:
@@ -48,6 +48,7 @@ First, you must start SIPI:
    - api
 - in `docker-compose.yml`, change the `ports` of sipi from "1024:1024" to "1024"
 - in `sipi/config/sipi.docker-config.lua`, change `nthreads` from 8 to 32
+- in `sipi/config/sipi.docker-config.lua`, change `imgroot` from '/sipi/images' to 
 - in `sipi/scripts/upload.lua`, comment out the following section:
   ```lua
   -- Check for a valid JSON Web Token from Knora.

@@ -4,6 +4,7 @@ from itertools import repeat
 import concurrent.futures
 from pathlib import Path
 import os
+import json
 
 
 def generate_testdata() -> None:
@@ -67,7 +68,7 @@ def make_batches(multimedia_folder: str) -> Tuple[list[list[Path]], int]:
     return batches, batch_size
 
 
-def process_seq(batch: list[Path], sipi_port: int, id: int) -> None:
+def process_seq(batch: list[Path], sipi_port: int, id: int) -> dict[Path, Tuple[str, str]]:
     """
     Upload the images contained in one batch, sequentially.
 
@@ -79,9 +80,18 @@ def process_seq(batch: list[Path], sipi_port: int, id: int) -> None:
         None
     """
     print(f"Process batch with ID {id}...")
+    res: dict[Path, Tuple[str, str]] = dict()
     for imgpath in batch:
-        response = requests.post(url=f'http://localhost:{sipi_port}/upload', files={'file': open(imgpath, 'rb')})
-        print(response.text)
+        response_raw = requests.post(
+            url=f'http://localhost:{sipi_port}/upload',
+            files={'file': open(imgpath, 'rb')}
+        )
+        response = json.loads(response_raw.text)
+        checksum = response["uploadedFiles"][0]["checksumDerivative"]
+        internal_filename = response["uploadedFiles"][0]["internalFilename"]
+        res[imgpath] = (internal_filename, checksum)
+
+    return res
 
 
 def enhanced_xml_upload(
@@ -106,8 +116,12 @@ def enhanced_xml_upload(
         exit(1)
 
     batches, batch_size = make_batches(multimedia_folder=multimedia_folder)
+    orig_filepath_to_internal_name = dict()
 
     print(f"Handing over {len(batches)} batches to ThreadPoolExecutor")
-
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        executor.map(process_seq, batches, repeat(sipi_port), range(len(batches)))
+        res = executor.map(process_seq, batches, repeat(sipi_port), range(len(batches)))
+        for _dict in res:
+            orig_filepath_to_internal_name.update(_dict)
+
+    print(orig_filepath_to_internal_name)

@@ -205,7 +205,7 @@ def _parse_xml_file(input_file: str) -> etree.ElementTree:
         the parsed etree.ElementTree
     """
     tree = etree.parse(input_file)
-    for elem in tree.getiterator():
+    for elem in tree.iter():
         if not (isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction)):
             # remove namespace URI in the element's name
             elem.tag = etree.QName(elem).localname

@@ -1,11 +1,14 @@
+import concurrent.futures
+import glob
+import json
 import shutil
 import warnings
-from typing import Tuple
-import requests
 from itertools import repeat
-import concurrent.futures
 from pathlib import Path
-import json
+from typing import Tuple
+
+import requests
+from lxml import etree
 
 from dsp_tools import excel2xml
 
@@ -66,9 +69,11 @@ def check_multimedia_folder(
     Verify that all multimedia files referenced in the XML file are contained in multimedia_folder
     (or one of its subfolders), and that all files contained in multimedia_folder are referenced in the XML file.
     """
-
-    # TODO
-    return True
+    tree = etree.parse(xmlfile)
+    bitstream_paths = [elem.text for elem in tree.iter() if etree.QName(elem).localname.endswith("bitstream")]
+    filesystem_paths = glob.glob(multimedia_folder + "/**/*.*", recursive=True)
+    result = bitstream_paths.sort() == filesystem_paths.sort()
+    return result
 
 
 def make_batches(multimedia_folder: str) -> Tuple[list[list[Path]], int]:
@@ -198,6 +203,7 @@ def enhanced_xml_upload(
     if not check_multimedia_folder(xmlfile=xmlfile, multimedia_folder=multimedia_folder):
         print("The multimedia folder and the XML file don't contain the same files!")
         exit(1)
+    print("Check passed: Your XML file contains the same multimedia files than your multimedia folder.")
 
     batches, batch_size = make_batches(multimedia_folder=multimedia_folder)
 

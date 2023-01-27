@@ -153,8 +153,13 @@ If conflicting, the CSS and other configurations there will override the configu
 In rare cases, a certain syntax is correctly rendered locally, 
 but not on https://docs.dasch.swiss/latest/DSP-TOOLS. 
 
-During the centralized release process of all components of the DSP software stack, 
-the docs of DSP-TOOLS get built from the main branch to https://docs.dasch.swiss/latest/DSP-TOOLS.
+During the centralized deployment process of all components of the DSP software stack,
+the docs of DSP-TOOLS get built from the latest release tag to https://docs.dasch.swiss/latest/DSP-TOOLS.
+This means that in order to modify the contents of https://docs.dasch.swiss/latest/DSP-TOOLS, 
+it is necessary to 
+
+- merge the modifications into the main branch of the DSP-TOOLS repository
+- release DSP-TOOLS
 
 
 

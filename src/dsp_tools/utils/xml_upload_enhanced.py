@@ -72,7 +72,7 @@ def make_batches(multimedia_folder: str) -> Tuple[list[list[Path]], int]:
 def make_preprocessing(
     batch: list[Path],
     sipi_port: int
-) -> Tuple[dict[Path, tuple[str, str]], list[str], list[Path]]:
+) -> Tuple[dict[str, list[str]], list[str], list[Path]]:
     """
     Sends the images contained in batch to the /upload route of SIPI,
     creates a mapping of the original filepath to the SIPI-internal filename and the checksum,
@@ -86,7 +86,7 @@ def make_preprocessing(
     Returns:
         mapping, internal_filename_stems, failed_batch_items
     """
-    mapping: dict[Path, Tuple[str, str]] = dict()
+    mapping: dict[str, list[str]] = dict()
     internal_filename_stems = list()
     failed_batch_items = list()
     for imgpath in batch:
@@ -101,7 +101,7 @@ def make_preprocessing(
         else:
             checksum = response["uploadedFiles"][0]["checksumDerivative"]
             internal_filename = response["uploadedFiles"][0]["internalFilename"]
-            mapping[imgpath] = (internal_filename, checksum)
+            mapping[str(imgpath)] = [internal_filename, checksum]
             internal_filename_stems.append(Path(internal_filename).stem)
 
     return mapping, internal_filename_stems, failed_batch_items

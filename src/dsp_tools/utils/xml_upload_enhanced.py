@@ -122,7 +122,7 @@ def process_seq(batch: list[Path], batch_id: int, sipi_port: int) -> None:
     Returns:
         None
     """
-    print(f"Pre-process batch with ID {batch_id}...")
+    print(f"Pre-process batch with ID {batch_id} ({len(batch)} elements)...")
     mapping, internal_filename_stems, failed_batch_items = make_preprocessing(
         batch=batch,
         sipi_port=sipi_port
@@ -139,7 +139,7 @@ def process_seq(batch: list[Path], batch_id: int, sipi_port: int) -> None:
     print(f"Packaging batch with ID {batch_id} into a ZIP...")
     zip_waiting_room = Path(f"ZIP/{batch_id}")
     zip_waiting_room.mkdir(parents=True)
-    for file in Path("tmp").iterdir():
+    for file in list(Path("tmp").iterdir()):                  # don't use generator directly (thread unsafe)
         if Path(file.stem).stem in internal_filename_stems:   # doubling necessary due to double extensions
             shutil.move(file, zip_waiting_room)
 

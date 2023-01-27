@@ -69,46 +69,87 @@ def make_batches(multimedia_folder: str) -> Tuple[list[list[Path]], int]:
     return batches, batch_size
 
 
-def process_seq(batch: list[Path], sipi_port: int, id: int) -> dict[Path, Tuple[str, str]]:
+def make_preprocessing(
+    batch: list[Path],
+    sipi_port: int
+) -> Tuple[dict[Path, tuple[str, str]], list[str], list[Path]]:
     """
-    Upload the images contained in one batch, sequentially.
+    Sends the images contained in batch to the /upload route of SIPI,
+    creates a mapping of the original filepath to the SIPI-internal filename and the checksum,
+    and returns the mapping for the successfully processed files,
+    together with a list of the failed original filepaths.
 
     Args:
         batch: list of paths to image files
         sipi_port: port number of SIPI
 
     Returns:
-        None
+        mapping, internal_filename_stems, failed_batch_items
     """
-    print(f"Pre-process batch with ID {id}...")
     mapping: dict[Path, Tuple[str, str]] = dict()
     internal_filename_stems = list()
+    failed_batch_items = list()
     for imgpath in batch:
         response_raw = requests.post(
             url=f'http://localhost:{sipi_port}/upload',
             files={'file': open(imgpath, 'rb')}
         )
         response = json.loads(response_raw.text)
-        if "uploadedFiles" not in response:
-            # TODO: Here we have an error sometimes
-            print("Response invalid: ")
-            print(response)
-            exit(1)
-        checksum = response["uploadedFiles"][0]["checksumDerivative"]
-        internal_filename = response["uploadedFiles"][0]["internalFilename"]
-        mapping[imgpath] = (internal_filename, checksum)
-        internal_filename_stems.append(Path(internal_filename).stem)
+        if response.get("message") == "server.fs.mkdir() failed: File exists":
+            # TODO: This happens sometimes. Probably a multithreading issue. I hope my handling of it is appropriate!
+            failed_batch_items.append(imgpath)
+        else:
+            checksum = response["uploadedFiles"][0]["checksumDerivative"]
+            internal_filename = response["uploadedFiles"][0]["internalFilename"]
+            mapping[imgpath] = (internal_filename, checksum)
+            internal_filename_stems.append(Path(internal_filename).stem)
 
-    print(f"Packaging batch with ID {id} into a ZIP...")
-    zip_waiting_room = Path(f"ZIP/{id}")
+    return mapping, internal_filename_stems, failed_batch_items
+
+
+def process_seq(batch: list[Path], batch_id: int, sipi_port: int) -> None:
+    """
+    Process the images contained in one batch:
+    create JP2 and sidecar files,
+    pack them into a ZIP together with the original files
+    (one ZIP per batch)
+
+    Args:
+        batch: list of paths to image files
+        batch_id: ID of the batch
+        sipi_port: port number of SIPI
+
+    Returns:
+        None
+    """
+    print(f"Pre-process batch with ID {batch_id}...")
+    mapping, internal_filename_stems, failed_batch_items = make_preprocessing(
+        batch=batch,
+        sipi_port=sipi_port
+    )
+    while len(failed_batch_items) != 0:
+        print(f"Handling the following failed_batch_items: {failed_batch_items}")
+        mapping_addition, internal_filename_stems_addition, failed_batch_items = make_preprocessing(
+            batch=batch,
+            sipi_port=sipi_port
+        )
+        mapping.update(mapping_addition)
+        internal_filename_stems.extend(internal_filename_stems_addition)
+
+    print(f"Packaging batch with ID {batch_id} into a ZIP...")
+    zip_waiting_room = Path(f"ZIP/{batch_id}")
     zip_waiting_room.mkdir(parents=True)
     for file in Path("tmp").iterdir():
-        if file.stem in internal_filename_stems:
+        if Path(file.stem).stem in internal_filename_stems:   # doubling necessary due to double extensions
             shutil.move(file, zip_waiting_room)
 
-    shutil.make_archive(base_name=f"ZIP/{id}", format="zip", root_dir=zip_waiting_room)
+    with open(zip_waiting_room / "mapping.json", "x") as f:
+        json.dump(mapping, f)
+    shutil.make_archive(base_name=f"ZIP/{batch_id}", format="zip", root_dir=zip_waiting_room)
 
-    return mapping
+    # shutil.rmtree(zip_waiting_room)
+
+    # TODO: send the ZIP to the DSP server
 
 
 def enhanced_xml_upload(
@@ -117,7 +158,10 @@ def enhanced_xml_upload(
     sipi_port: int
 ) -> None:
     """
-    This function manages an upload of certain queue size.
+    Given a project folder (current working directory)
+    with a big quantity of multimedia files referenced in an XML file,
+    and given a local SIPI instance, this method preprocesses the image files batch-wise in multithreading,
+    packs each batch into a ZIP, and sends it to a DSP server.
 
     Args:
         xmlfile: path to xml file containing the data
@@ -128,17 +172,17 @@ def enhanced_xml_upload(
         None
     """
 
+    shutil.rmtree("ZIP", ignore_errors=True)
+    shutil.rmtree("tmp", ignore_errors=True)
+
     if not check_multimedia_folder(xmlfile=xmlfile, multimedia_folder=multimedia_folder):
         print("The multimedia folder and the XML file don't contain the same files!")
         exit(1)
 
     batches, batch_size = make_batches(multimedia_folder=multimedia_folder)
-    orig_filepath_to_internal_name = dict()
 
     print(f"Handing over {len(batches)} batches to ThreadPoolExecutor")
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        res = executor.map(process_seq, batches, repeat(sipi_port), range(len(batches)))
-        for _dict in res:
-            orig_filepath_to_internal_name.update(_dict)
+        executor.map(process_seq, batches, range(len(batches), repeat(sipi_port)))
 
-    print(orig_filepath_to_internal_name)
+    shutil.rmtree("tmp")

@@ -25,6 +25,7 @@ Note:
 - Every multimedia file in `multimedia` must occur in the XML data file.
 - Every path referenced in a `<bitstream>` in the XML file must point to a file in `multimedia`.
 - The paths in the `<bitstream>` are relative to the project root.
+- Your project must not contain a folder named `ZIP` or `tmp` on the top level
 
 A folder with the above structure can be created with
 

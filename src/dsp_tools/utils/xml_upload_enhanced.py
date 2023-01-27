@@ -183,6 +183,6 @@ def enhanced_xml_upload(
 
     print(f"Handing over {len(batches)} batches to ThreadPoolExecutor")
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        executor.map(process_seq, batches, range(len(batches), repeat(sipi_port)))
+        executor.map(process_seq, batches, range(len(batches)), repeat(sipi_port))
 
-    shutil.rmtree("tmp")
+    # shutil.rmtree("tmp")

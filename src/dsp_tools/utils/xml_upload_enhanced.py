@@ -1,11 +1,13 @@
 import shutil
+import warnings
 from typing import Tuple
 import requests
 from itertools import repeat
 import concurrent.futures
 from pathlib import Path
-import os
 import json
+
+from dsp_tools import excel2xml
 
 
 def generate_testdata() -> None:
@@ -15,10 +17,14 @@ def generate_testdata() -> None:
     Returns:
         None
     """
-    testproject = Path(os.getcwd()) / "enhanced-xmlupload-testproject"
+    testproject = Path("enhanced-xmlupload-testproject")
     if testproject.exists():
         print("The test project folder is already existing.")
         return
+
+    all_paths = list()
+
+    # generate multimedia folder
     destinations = [
         testproject / "multimedia",
         testproject / "multimedia" / "nested",
@@ -31,11 +37,25 @@ def generate_testdata() -> None:
     for ext in ext_img:
         img = requests.get(f"{github_bitstreams_path}/test.{ext}?raw=true").content
         for dst in destinations:
-            with open(dst / f"test.{ext}", "bw") as f:
+            dst_file = dst / f"test.{ext}"
+            all_paths.append(str(dst_file.relative_to(testproject)))
+            with open(dst_file, "bw") as f:
                 f.write(img)
     print(f"Successfully created folder {testproject}")
 
-    # TODO: generate an XML file that uses these files
+    # generate an XML file that uses these files
+    root = excel2xml.make_root(shortcode="0123", default_ontology="import")
+    root = excel2xml.append_permissions(root)
+    for filepath in all_paths:
+        resource = excel2xml.make_resource(
+            label=filepath,
+            restype=":Image2D",
+            id=excel2xml.make_xsd_id_compatible(filepath)
+        )
+        warnings.filterwarnings("ignore")
+        resource.append(excel2xml.make_bitstream_prop(filepath))
+        root.append(resource)
+    excel2xml.write_xml(root, str(testproject / "data.xml"))
 
 
 def check_multimedia_folder(

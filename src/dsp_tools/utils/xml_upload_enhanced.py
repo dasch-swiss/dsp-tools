@@ -164,8 +164,8 @@ def process_seq(batch: list[Path], batch_id: int, sipi_port: int) -> None:
     print(f"Packaging batch with ID {batch_id} into a ZIP...")
     zip_waiting_room = Path(f"ZIP/{batch_id}")
     zip_waiting_room.mkdir(parents=True)
-    for file in list(Path("tmp").iterdir()):                  # don't use generator directly (thread unsafe)
-        if Path(file.stem).stem in internal_filename_stems:   # doubling necessary due to double extensions
+    for file in list(Path("tmp").iterdir()):  # don't use generator directly (thread unsafe)
+        if Path(file.stem).stem in internal_filename_stems:  # doubling necessary due to double extensions
             shutil.move(file, zip_waiting_room)
 
     with open(zip_waiting_room / "mapping.json", "x") as f:
@@ -210,5 +210,8 @@ def enhanced_xml_upload(
     print(f"Handing over {len(batches)} batches to ThreadPoolExecutor")
     with concurrent.futures.ThreadPoolExecutor() as executor:
         executor.map(process_seq, batches, range(len(batches)), repeat(sipi_port))
+
+    # TODO: sometimes, a zip_waiting_room of a batch contains dublettes, which were processed two times.
+    #  This must be a threading issue and must be investigated.
 
     # shutil.rmtree("tmp")

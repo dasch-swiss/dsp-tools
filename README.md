@@ -108,23 +108,39 @@ a single line of code in a test method fails.
 
 ## Code style
 
-When contributing to the project please make sure you use the same code style rules as we do. We use
-[autopep8](https://pypi.org/project/autopep8/) and [mypy](https://pypi.org/project/mypy/). The 
-configuration is defined in `pyproject.toml` in the root directory of the project.
+When contributing to the project please make sure you use the same code style rules as we do. 
+We use [autopep8](https://pypi.org/project/autopep8/) and [mypy](https://pypi.org/project/mypy/). 
+The configuration is defined in `pyproject.toml`.
 
 You can use the configuration with `autopep8 --global-config pyproject.toml [file path]` and 
 `mypy --config-file pyproject.toml [file path]`.
 
-If you are using PyCharm we recommend installing autopep8 as external tool. You can then use it with 
-right-click on the file > `External Tools` > `autopep8` to reformat files in-place. Due to compatibility 
-issues with VSCode, the argument  `--in-place=true` can not be declared in the `pyproject.toml` and 
-needs to be passed to the external tool in the PyCharm settings.  
-mypy is available as [plugin](https://plugins.jetbrains.com/plugin/11086-mypy).
+
+### VSCode
 
 In VSCode, both mypy and autopep8 can be set up as default linter and formatter through the python extension.
 
-For formatting Markdown files (*.md) we use the default styling configuration provided by PyCharm.
 
+### PyCharm
+
+In PyCharm, mypy is available as [plugin](https://plugins.jetbrains.com/plugin/11086-mypy), 
+and PEP8 checks can be enabled in Settings > Editor > Inspections > Python > PEP 8 coding style violation.
+Technically, the PEP8 checks will then not be powered by autopep8, but by https://pycodestyle.pycqa.org/.
+
+As an alternative/addition, it is also possible to install autopep8 as external tool:
+
+- `pip3 install autopep8`
+- In PyCharm Settings > Tools > External Tools, add a new tool by clicking on `+`
+- configure it as follows:
+   - Program：`autopep8`
+   - Arguments: `--in-place --aggressive --aggressive $FilePath$` 
+   - Working directory: `$ProjectFileDir$`
+   - Advanced Options > Output Filters: `$FILE_PATH$\:$LINE$\:$COLUMN$\:.*`
+
+You can then use it with right-click on the file > External Tools > autopep8 to reformat files in-place. 
+
+Due to compatibility issues with VSCode, the argument `--in-place=true` can not be declared in the `pyproject.toml` 
+and needs to be passed to the external tool in the PyCharm settings.
 
 
 ## Contributing to the documentation

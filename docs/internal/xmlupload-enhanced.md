@@ -47,8 +47,9 @@ First, you must start SIPI:
    - db
    - api
 - in `docker-compose.yml`, change the `ports` of sipi from "1024:1024" to "1024"
+- in `docker-compose.yml`, add to the `volumes` of sipi your project folder, in the form: `full/path:abbreviation:delegated`
+- in `sipi/config/sipi.docker-config.lua`, change `imgroot` from '/sipi/images' to the abbreviation of your project folder 
 - in `sipi/config/sipi.docker-config.lua`, change `nthreads` from 8 to 32
-- in `sipi/config/sipi.docker-config.lua`, change `imgroot` from '/sipi/images' to your project folder #TODO: Test if that works
 - in `sipi/scripts/upload.lua`, comment out the following section:
   ```lua
   -- Check for a valid JSON Web Token from Knora.

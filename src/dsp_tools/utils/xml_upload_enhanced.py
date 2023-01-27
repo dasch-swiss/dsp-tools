@@ -1,3 +1,4 @@
+import shutil
 from typing import Tuple
 import requests
 from itertools import repeat
@@ -79,19 +80,35 @@ def process_seq(batch: list[Path], sipi_port: int, id: int) -> dict[Path, Tuple[
     Returns:
         None
     """
-    print(f"Process batch with ID {id}...")
-    res: dict[Path, Tuple[str, str]] = dict()
+    print(f"Pre-process batch with ID {id}...")
+    mapping: dict[Path, Tuple[str, str]] = dict()
+    internal_filename_stems = list()
     for imgpath in batch:
         response_raw = requests.post(
             url=f'http://localhost:{sipi_port}/upload',
             files={'file': open(imgpath, 'rb')}
         )
         response = json.loads(response_raw.text)
+        if "uploadedFiles" not in response:
+            # TODO: Here we have an error sometimes
+            print("Response invalid: ")
+            print(response)
+            exit(1)
         checksum = response["uploadedFiles"][0]["checksumDerivative"]
         internal_filename = response["uploadedFiles"][0]["internalFilename"]
-        res[imgpath] = (internal_filename, checksum)
+        mapping[imgpath] = (internal_filename, checksum)
+        internal_filename_stems.append(Path(internal_filename).stem)
 
-    return res
+    print(f"Packaging batch with ID {id} into a ZIP...")
+    zip_waiting_room = Path(f"ZIP/{id}")
+    zip_waiting_room.mkdir(parents=True)
+    for file in Path("tmp").iterdir():
+        if file.stem in internal_filename_stems:
+            shutil.move(file, zip_waiting_room)
+
+    shutil.make_archive(base_name=f"ZIP/{id}", format="zip", root_dir=zip_waiting_room)
+
+    return mapping
 
 
 def enhanced_xml_upload(

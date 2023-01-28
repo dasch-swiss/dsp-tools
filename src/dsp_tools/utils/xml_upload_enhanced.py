@@ -209,8 +209,3 @@ def enhanced_xml_upload(
     print(f"Handing over {len(batches)} batches to ThreadPoolExecutor")
     with concurrent.futures.ThreadPoolExecutor() as executor:
         executor.map(preprocess_batch, batches, range(len(batches)), repeat(sipi_port))
-
-    # TODO: sometimes, a zip_waiting_room of a batch contains dublettes, which were processed two times.
-    #  This must be a threading issue and must be investigated.
-
-    # shutil.rmtree("tmp")

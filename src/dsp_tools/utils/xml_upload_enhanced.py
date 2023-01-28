@@ -121,7 +121,6 @@ def make_preprocessing(
         )
         response = json.loads(response_raw.text)
         if response.get("message") == "server.fs.mkdir() failed: File exists":
-            # TODO: This happens sometimes. Probably a multithreading issue. I hope my handling of it is appropriate!
             failed_batch_items.append(imgpath)
         else:
             checksum = response["uploadedFiles"][0]["checksumDerivative"]
@@ -132,7 +131,7 @@ def make_preprocessing(
     return mapping, internal_filename_stems, failed_batch_items
 
 
-def process_seq(batch: list[Path], batch_id: int, sipi_port: int) -> None:
+def preprocess_batch(batch: list[Path], batch_id: int, sipi_port: int) -> None:
     """
     Process the images contained in one batch:
     create JP2 and sidecar files,
@@ -155,13 +154,12 @@ def process_seq(batch: list[Path], batch_id: int, sipi_port: int) -> None:
     while len(failed_batch_items) != 0:
         print(f"Handling the following failed_batch_items: {failed_batch_items}")
         mapping_addition, internal_filename_stems_addition, failed_batch_items = make_preprocessing(
-            batch=batch,
+            batch=failed_batch_items,
             sipi_port=sipi_port
         )
         mapping.update(mapping_addition)
         internal_filename_stems.extend(internal_filename_stems_addition)
 
-    print(f"Packaging batch with ID {batch_id} into a ZIP...")
     zip_waiting_room = Path(f"ZIP/{batch_id}")
     zip_waiting_room.mkdir(parents=True)
     for file in list(Path("tmp").iterdir()):  # don't use generator directly (thread unsafe)
@@ -170,9 +168,10 @@ def process_seq(batch: list[Path], batch_id: int, sipi_port: int) -> None:
 
     with open(zip_waiting_room / "mapping.json", "x") as f:
         json.dump(mapping, f)
+    assert len(list(zip_waiting_room.iterdir())) == len(batch) * 3 + 1, \
+        f"Number of files in ZIP for batch {batch_id} is inconsistent with the original batch size"
     shutil.make_archive(base_name=f"ZIP/{batch_id}", format="zip", root_dir=zip_waiting_room)
-
-    # shutil.rmtree(zip_waiting_room)
+    shutil.rmtree(zip_waiting_room)
 
     # TODO: send the ZIP to the DSP server
 
@@ -209,7 +208,7 @@ def enhanced_xml_upload(
 
     print(f"Handing over {len(batches)} batches to ThreadPoolExecutor")
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        executor.map(process_seq, batches, range(len(batches)), repeat(sipi_port))
+        executor.map(preprocess_batch, batches, range(len(batches)), repeat(sipi_port))
 
     # TODO: sometimes, a zip_waiting_room of a batch contains dublettes, which were processed two times.
     #  This must be a threading issue and must be investigated.

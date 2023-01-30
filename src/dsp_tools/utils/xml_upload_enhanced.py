@@ -12,6 +12,9 @@ from lxml import etree
 
 from dsp_tools import excel2xml
 
+Batch = list[Path]
+Batchgroup = list[Batch]
+
 
 def generate_testdata() -> None:
     """
@@ -76,22 +79,38 @@ def check_multimedia_folder(
     return result
 
 
-def make_batches(multimedia_folder: str) -> Tuple[list[list[Path]], int]:
-    """
-    Make 32 portions (batches) out of all images in the multimedia folder, one batch per thread.
-    A batch is a list of file paths.
-
-    Returns:
-        batches, batch size
-    """
-    # TODO: Vij is working on this. This is only a mock-up
-    batches = [
+def make_batchgroups_mockup(multimedia_folder: str) -> list[Batchgroup]:
+    batchgroup1 = [
         [x for x in Path(multimedia_folder).iterdir() if x.is_file()],
         [x for x in Path(multimedia_folder + "/nested").iterdir() if x.is_file()],
         [x for x in Path(multimedia_folder + "/nested/subfolder").iterdir() if x.is_file()]
     ]
-    batch_size = 6
-    return batches, batch_size
+    batchgroups = [batchgroup1, ]
+    return batchgroups
+
+
+def make_batchgroups(multimedia_folder: str) -> list[Batchgroup]:
+    """
+    Read all multimedia files contained in multimedia_folder and subfolders,
+    take the images and divide them into groups of batches.
+    A batchgroup consists of 32 batches (because there are 32 threads available),
+    and a batch consists of 100 images.
+
+    The batchgroups will be handled sequentially by SIPI, one batchgroup after the other,
+    so that the ZIPs become available little by little,
+    and can be sent to the server as they become available.
+
+
+    Returns:
+        a list of Batchgroups, each group being a list of batches, each batch being a list of Paths
+    """
+    batchgroup1 = [
+        [x for x in Path(multimedia_folder).iterdir() if x.is_file()],
+        [x for x in Path(multimedia_folder + "/nested").iterdir() if x.is_file()],
+        [x for x in Path(multimedia_folder + "/nested/subfolder").iterdir() if x.is_file()]
+    ]
+    batchgroups = [batchgroup1, ]
+    return batchgroups
 
 
 def make_preprocessing(
@@ -204,8 +223,30 @@ def enhanced_xml_upload(
         exit(1)
     print("Check passed: Your XML file contains the same multimedia files than your multimedia folder.")
 
-    batches, batch_size = make_batches(multimedia_folder=multimedia_folder)
+    batchgroups = make_batchgroups_mockup(multimedia_folder=multimedia_folder)
 
-    print(f"Handing over {len(batches)} batches to ThreadPoolExecutor")
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        executor.map(preprocess_batch, batches, range(len(batches)), repeat(sipi_port))
+    for batchgroup in batchgroups:
+        print(f"Handing over {len(batchgroup)} batches to ThreadPoolExecutor")
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            executor.map(preprocess_batch, batchgroup, range(len(batchgroup)), repeat(sipi_port))
+
+# General question: Did you evaluate alternatives to concurrent.futures.ThreadPoolExecutor.map()?
+
+# Specific questions:
+#   - should we use the max_workers argument? See here:
+#     https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor:
+#     Default value of max_workers is changed to min(32, os.cpu_count() + 4).
+#     This default value preserves at least 5 workers for I/O bound tasks.
+#     It utilizes at most 32 CPU cores for CPU bound tasks which release the GIL.
+#     And it avoids using very large resources implicitly on many-core machines.
+#     ThreadPoolExecutor now reuses idle worker threads before starting max_workers worker threads too.
+
+#   - Should we use the chunksize argument? See here:
+#     https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.Executor.map:
+#     When using ProcessPoolExecutor,
+#     this method chops iterables into a number of chunks
+#     which it submits to the pool as separate tasks.
+#     The (approximate) size of these chunks can be specified by setting chunksize to a positive integer.
+#     For very long iterables,
+#     using a large value for chunksize can significantly improve performance compared to the default size of 1.
+#     With ThreadPoolExecutor, chunksize has no effect.

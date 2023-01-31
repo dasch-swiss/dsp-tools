@@ -73,15 +73,20 @@ def generate_testdata() -> None:
 def check_multimedia_folder(
     xmlfile: str,
     multimedia_folder: str
-) -> bool:
+) -> None:
     """
     Verify that all multimedia files referenced in the XML file are contained in multimedia_folder
     (or one of its subfolders), and that all files contained in multimedia_folder are referenced in the XML file.
     """
     tree = etree.parse(xmlfile)
-    bitstream_paths = [x.text for x in tree.iter() if etree.QName(x).localname.endswith("bitstream")]
+    bitstream_paths = [x.text for x in tree.iter()
+                       if etree.QName(x).localname.endswith("bitstream") and x.text is not None]
     filesystem_paths = [str(x) for x in Path().glob(f"{multimedia_folder}/**/*.*") if x.name != ".DS_Store"]
-    return sorted(bitstream_paths) == sorted(filesystem_paths)
+    if sorted(bitstream_paths) != sorted(filesystem_paths):
+        print("The multimedia folder and the XML file don't contain the same files!")
+        # exit(1)
+    else:
+        print("Check passed: Your XML file contains the same multimedia files than your multimedia folder.")
 
 
 def make_batchgroups(multimedia_folder: str, images_per_batch: int, batches_per_group: int) -> list[Batchgroup]:
@@ -258,11 +263,7 @@ def enhanced_xml_upload(
 
     shutil.rmtree("ZIP", ignore_errors=True)
 
-    if not check_multimedia_folder(xmlfile=xmlfile, multimedia_folder=multimedia_folder):
-        print("The multimedia folder and the XML file don't contain the same files!")
-        # exit(1)
-    else:
-        print("Check passed: Your XML file contains the same multimedia files than your multimedia folder.")
+    check_multimedia_folder(xmlfile=xmlfile, multimedia_folder=multimedia_folder)
 
     batchgroups = make_batchgroups(
         multimedia_folder=multimedia_folder,

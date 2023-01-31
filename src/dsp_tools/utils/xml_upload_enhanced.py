@@ -15,14 +15,11 @@ from dsp_tools import excel2xml
 
 Batch = list[Path]
 Batchgroup = list[Batch]
-# batchgroup = NewType("batchgroup", int)
-# batch = NewType("batch", int)
-# position_within_batch = NewType("position_within_batch", int)
-# NextBatchPlace = NewType("NextBatchPlace", Tuple[batchgroup, batch, position_within_batch])
-batchgroup = int
-batch = int
-position_within_batch = int
-NextBatchPlace = Tuple[batchgroup, batch, position_within_batch]
+
+BatchGroupIndex = int
+BatchIndex = int
+positionWithinBatchIndex = int
+NextBatchPlace = Tuple[BatchGroupIndex, BatchIndex, positionWithinBatchIndex]
 
 
 def generate_testdata() -> None:
@@ -122,13 +119,13 @@ def make_batchgroups(multimedia_folder: str) -> list[Batchgroup]:
     all_paths_generator = (x for x in all_paths)
     batchgroups: list[Batchgroup] = list()
     try:
-        for bg, b, pos in yield_next_batch_place():
+        for batchgroup_index, batch_index, position_within_batch_index in yield_next_batch_place():
             next_path = next(all_paths_generator)
-            if len(batchgroups) < bg + 1:
+            if len(batchgroups) < batchgroup_index + 1:
                 batchgroups.append(list())
-            if len(batchgroups[bg]) < b + 1:
-                batchgroups[bg].append(list())
-            batchgroups[bg][b].append(next_path)
+            if len(batchgroups[batchgroup_index]) < batch_index + 1:
+                batchgroups[batchgroup_index].append(list())
+            batchgroups[batchgroup_index][batch_index].append(next_path)
     except StopIteration:
         pass
 
@@ -146,10 +143,10 @@ def yield_next_batch_place() -> Generator[NextBatchPlace, None, None]:
     second, the position_within_batch goes from 0 to 99,
     third, the batchgroup goes from 0 to infinity.
     """
-    for _batchgroup in range(999999):
-        for _position_within_batch in range(100):
-            for _batch in range(32):
-                yield _batchgroup, _batch, _position_within_batch
+    for batchgroup in range(999999):
+        for position_within_batch in range(100):
+            for batch in range(32):
+                yield batchgroup, batch, position_within_batch
 
 
 def make_preprocessing(

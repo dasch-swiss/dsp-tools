@@ -290,7 +290,7 @@ def enhanced_xml_upload(
     for i, batchgroup in enumerate(batchgroups):
         print(f"Handing over Batchgroup no. {i} with {len(batchgroup)} batches to ThreadPoolExecutor.")
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            executor.map(preprocess_batch, batchgroup, range(len(batchgroup)), repeat(sipi_port))
+            executor.map(preprocess_batch, batchgroup, [f"{i}-{j}" for j in range(len(batchgroup))], repeat(sipi_port))
 
     print("Sucessfully finished!")
 

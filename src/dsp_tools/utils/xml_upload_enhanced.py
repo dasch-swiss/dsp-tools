@@ -1,6 +1,7 @@
 import concurrent.futures
 import glob
 import json
+import os
 import shutil
 import warnings
 from collections.abc import Generator
@@ -20,6 +21,8 @@ BatchGroupIndex = int
 BatchIndex = int
 positionWithinBatchIndex = int
 NextBatchPlace = Tuple[BatchGroupIndex, BatchIndex, positionWithinBatchIndex]
+
+image_extensions = ["jpg", "jpeg", "tif", "tiff", "jp2", "png"]
 
 
 def generate_testdata() -> None:
@@ -45,8 +48,7 @@ def generate_testdata() -> None:
     for sub in destinations:
         sub.mkdir(parents=True)
     github_bitstreams_path = "https://github.com/dasch-swiss/dsp-tools/blob/main/testdata/bitstreams"
-    ext_img = ["jpg", "jpeg", "tif", "tiff", "jp2", "png"]
-    for ext in ext_img:
+    for ext in image_extensions:
         img = requests.get(f"{github_bitstreams_path}/test.{ext}?raw=true").content
         for dst in destinations:
             dst_file = dst / f"test.{ext}"
@@ -113,7 +115,9 @@ def make_batchgroups(multimedia_folder: str) -> list[Batchgroup]:
         a list of Batchgroups, each group being a list of batches, each batch being a list of Paths
     """
     # collect all paths
-    all_paths = [Path("foo/bar/baz.jpg") for _ in range(100)]  # still a mockup
+    all_paths: list[Path] = list()
+    for img_type in image_extensions:
+        all_paths.extend(Path().glob(f"{multimedia_folder}/**/*.{img_type}"))
 
     # distribute the paths into batchgroups
     all_paths_generator = (x for x in all_paths)
@@ -207,7 +211,7 @@ def preprocess_batch(batch: list[Path], batch_id: int, sipi_port: int) -> None:
         sipi_port=sipi_port
     )
     while len(failed_batch_items) != 0:
-        print(f"\tHandling the following failed_batch_items: {failed_batch_items}")
+        print(f"\tRetry the following failed files: {[str(x) for x in failed_batch_items]}")
         mapping_addition, internal_filename_stems_addition, failed_batch_items = make_preprocessing(
             batch=failed_batch_items,
             sipi_port=sipi_port
@@ -225,7 +229,8 @@ def preprocess_batch(batch: list[Path], batch_id: int, sipi_port: int) -> None:
         json.dump(mapping, f)
     assert len(list(zip_waiting_room.iterdir())) == len(batch) * 3 + 1, \
         f"Number of files in ZIP for batch {batch_id} is inconsistent with the original batch size"
-    shutil.make_archive(base_name=f"ZIP/{batch_id}", format="zip", root_dir=zip_waiting_room)
+    zipped_batch = shutil.make_archive(base_name=f"ZIP/{batch_id}", format="zip", root_dir=zip_waiting_room)
+    print(f"\tBatch {batch_id} is ready to be sent to DSP server as {Path(zipped_batch).relative_to(os.getcwd())}")
     shutil.rmtree(zip_waiting_room)
 
     # TODO: send the ZIP to the DSP server
@@ -259,10 +264,12 @@ def enhanced_xml_upload(
         exit(1)
     print("Check passed: Your XML file contains the same multimedia files than your multimedia folder.")
 
-    batchgroups = make_batchgroups_mockup(multimedia_folder=multimedia_folder)
+    batchgroups = make_batchgroups(multimedia_folder=multimedia_folder)
+    print(f"There are {len(batchgroups)} batchgroups that will be preprocessed.")
 
     for i, batchgroup in enumerate(batchgroups):
-        print(f"Handing over Batchgroup no. {i} with {len(batchgroup)} batches to ThreadPoolExecutor")
+        print(f"Handing over Batchgroup no. {i} with {len(batchgroup)} batches to ThreadPoolExecutor. "
+              f"Length of each batch: {[len(x) for x in batchgroup]}")
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(preprocess_batch, batchgroup, range(len(batchgroup)), repeat(sipi_port))
 

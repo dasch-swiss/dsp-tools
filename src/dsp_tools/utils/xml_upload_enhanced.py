@@ -97,19 +97,15 @@ def make_batchgroups_mockup(multimedia_folder: str) -> list[Batchgroup]:
     return batchgroups
 
 
-def make_batchgroups(multimedia_folder: str) -> list[Batchgroup]:
+def make_batchgroups(multimedia_folder: str, images_per_batch: int, batches_per_group: int) -> list[Batchgroup]:
     """
     Read all multimedia files contained in multimedia_folder and its subfolders,
     take the images and divide them into groups of batches.
-    A batchgroup consists of up to 32 batches (because there are 32 threads available),
-    and a batch consists of up to 100 images.
-
-    The batchgroups will be handled sequentially by SIPI, one batchgroup after the other,
-    so that the ZIPs become available little by little,
-    and can be sent to the server as they become available.
 
     Args:
         multimedia_folder: path to the folder containing the multimedia files
+        images_per_batch: max. batch size (can be smaller if there are not enough images to fill it)
+        batches_per_group: max. batchgroup size (can be smaller if there are not enough images to fill it)
 
     Returns:
         a list of Batchgroups, each group being a list of batches, each batch being a list of Paths
@@ -123,7 +119,10 @@ def make_batchgroups(multimedia_folder: str) -> list[Batchgroup]:
     all_paths_generator = (x for x in all_paths)
     batchgroups: list[Batchgroup] = list()
     try:
-        for batchgroup_index, batch_index, position_within_batch_index in yield_next_batch_place():
+        for batchgroup_index, batch_index, position_within_batch_index in yield_next_batch_place(
+            images_per_batch=images_per_batch,
+            batches_per_group=batches_per_group
+        ):
             next_path = next(all_paths_generator)
             if len(batchgroups) < batchgroup_index + 1:
                 batchgroups.append(list())
@@ -133,23 +132,35 @@ def make_batchgroups(multimedia_folder: str) -> list[Batchgroup]:
     except StopIteration:
         pass
 
+    # verify that content of batches is equal to the originally found paths
+    paths_in_batches = list()
+    for batchgroup in batchgroups:
+        for batch in batchgroup:
+            paths_in_batches.extend(batch)
+    assert sorted(paths_in_batches) == sorted(all_paths)
+
+    print(f"Found {len(all_paths)} files in folder '{multimedia_folder}'. Prepare batches as follows: ")
+    for i, batchgroup in enumerate(batchgroups):
+        print(f"\tBatchgroup no. {i} with {len(batchgroup)} batches, "
+              f"size of each batch: {[len(x) for x in batchgroup]}")
+
     return batchgroups
 
 
-def yield_next_batch_place() -> Generator[NextBatchPlace, None, None]:
+def yield_next_batch_place(images_per_batch: int, batches_per_group: int) -> Generator[NextBatchPlace, None, None]:
     """
     This generator yields the place where to put the next image in.
-    First, we want to distribute the images over 1 batchgroup=32 batches, each batch containing 1 image.
+    First, we want to distribute the images over 1 batchgroup, each batch containing 1 image.
     Then we give every batch a second image, and so on, until the batchgroup is full.
     Then, we fill the next batchgroup.
-    For this purpose, this generator yields a tuple consisting of (batchgroup, batch, position_within_batch), where
-    first, the batch goes from 0 to 31,
-    second, the position_within_batch goes from 0 to 99,
-    third, the batchgroup goes from 0 to infinity.
+    For this purpose, this generator yields a tuple consisting of (batchgroup, batch, position_within_batch).
+    batch is the fastest growing index (going up to batches_per_group - 1),
+    position_within_batch the second fastest (going up to images_per_batch - 1),
+    and batchgroup the slowest growing index (going up to infinity)
     """
     for batchgroup in range(999999):
-        for position_within_batch in range(100):
-            for batch in range(32):
+        for position_within_batch in range(images_per_batch):
+            for batch in range(batches_per_group):
                 yield batchgroup, batch, position_within_batch
 
 
@@ -205,7 +216,7 @@ def preprocess_batch(batch: list[Path], batch_id: int, sipi_port: int) -> None:
     Returns:
         None
     """
-    print(f"\tPre-process batch with ID {batch_id} ({len(batch)} elements)...")
+    # print(f"\tPre-process batch with ID {batch_id} ({len(batch)} elements)...")
     mapping, internal_filename_stems, failed_batch_items = make_preprocessing(
         batch=batch,
         sipi_port=sipi_port
@@ -244,8 +255,10 @@ def enhanced_xml_upload(
     """
     Given a project folder (current working directory)
     with a big quantity of multimedia files referenced in an XML file,
-    and given a local SIPI instance, this method preprocesses the image files batch-wise in multithreading,
-    packs each batch into a ZIP, and sends it to a DSP server.
+    and given a local SIPI instance,
+    this method preprocesses the image files batch-wise in multithreading,
+    packs each batch into a ZIP,
+    and sends it to a DSP server.
 
     Args:
         xmlfile: path to xml file containing the data
@@ -261,18 +274,27 @@ def enhanced_xml_upload(
 
     if not check_multimedia_folder(xmlfile=xmlfile, multimedia_folder=multimedia_folder):
         print("The multimedia folder and the XML file don't contain the same files!")
-        exit(1)
-    print("Check passed: Your XML file contains the same multimedia files than your multimedia folder.")
+        # exit(1)
+    else:
+        print("Check passed: Your XML file contains the same multimedia files than your multimedia folder.")
 
-    batchgroups = make_batchgroups(multimedia_folder=multimedia_folder)
-    print(f"There are {len(batchgroups)} batchgroups that will be preprocessed.")
+    batchgroups = make_batchgroups(
+        multimedia_folder=multimedia_folder,
+        images_per_batch=10,
+        batches_per_group=32
+    )
 
+    # Preprocess images with SIPI, one batchgroup after the other,
+    # so that the ZIPs become available little by little,
+    # and can be sent to the server as they become available
     for i, batchgroup in enumerate(batchgroups):
-        print(f"Handing over Batchgroup no. {i} with {len(batchgroup)} batches to ThreadPoolExecutor. "
-              f"Length of each batch: {[len(x) for x in batchgroup]}")
+        print(f"Handing over Batchgroup no. {i} with {len(batchgroup)} batches to ThreadPoolExecutor.")
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(preprocess_batch, batchgroup, range(len(batchgroup)), repeat(sipi_port))
 
+    print("Sucessfully finished!")
+
+# Ideas how to improve the multithreading:
 #   - should we use the max_workers argument? See here:
 #     https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor:
 #     Default value of max_workers is changed to min(32, os.cpu_count() + 4).
@@ -280,6 +302,5 @@ def enhanced_xml_upload(
 #     It utilizes at most 32 CPU cores for CPU bound tasks which release the GIL.
 #     And it avoids using very large resources implicitly on many-core machines.
 #     ThreadPoolExecutor now reuses idle worker threads before starting max_workers worker threads too.
-
 #   - could we optimize it with
 #     https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.as_completed?

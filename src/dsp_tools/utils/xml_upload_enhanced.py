@@ -3,6 +3,7 @@ import glob
 import json
 import shutil
 import warnings
+from collections.abc import Generator
 from itertools import repeat
 from pathlib import Path
 from typing import Tuple
@@ -14,6 +15,14 @@ from dsp_tools import excel2xml
 
 Batch = list[Path]
 Batchgroup = list[Batch]
+# batchgroup = NewType("batchgroup", int)
+# batch = NewType("batch", int)
+# position_within_batch = NewType("position_within_batch", int)
+# NextBatchPlace = NewType("NextBatchPlace", Tuple[batchgroup, batch, position_within_batch])
+batchgroup = int
+batch = int
+position_within_batch = int
+NextBatchPlace = Tuple[batchgroup, batch, position_within_batch]
 
 
 def generate_testdata() -> None:
@@ -91,26 +100,56 @@ def make_batchgroups_mockup(multimedia_folder: str) -> list[Batchgroup]:
 
 def make_batchgroups(multimedia_folder: str) -> list[Batchgroup]:
     """
-    Read all multimedia files contained in multimedia_folder and subfolders,
+    Read all multimedia files contained in multimedia_folder and its subfolders,
     take the images and divide them into groups of batches.
-    A batchgroup consists of 32 batches (because there are 32 threads available),
-    and a batch consists of 100 images.
+    A batchgroup consists of up to 32 batches (because there are 32 threads available),
+    and a batch consists of up to 100 images.
 
     The batchgroups will be handled sequentially by SIPI, one batchgroup after the other,
     so that the ZIPs become available little by little,
     and can be sent to the server as they become available.
 
+    Args:
+        multimedia_folder: path to the folder containing the multimedia files
 
     Returns:
         a list of Batchgroups, each group being a list of batches, each batch being a list of Paths
     """
-    batchgroup1 = [
-        [x for x in Path(multimedia_folder).iterdir() if x.is_file()],
-        [x for x in Path(multimedia_folder + "/nested").iterdir() if x.is_file()],
-        [x for x in Path(multimedia_folder + "/nested/subfolder").iterdir() if x.is_file()]
-    ]
-    batchgroups = [batchgroup1, ]
+    # collect all paths
+    all_paths = [Path("foo/bar/baz.jpg") for _ in range(100)]  # still a mockup
+
+    # distribute the paths into batchgroups
+    all_paths_generator = (x for x in all_paths)
+    batchgroups: list[Batchgroup] = list()
+    try:
+        for bg, b, pos in yield_next_batch_place():
+            next_path = next(all_paths_generator)
+            if len(batchgroups) < bg + 1:
+                batchgroups.append(list())
+            if len(batchgroups[bg]) < b + 1:
+                batchgroups[bg].append(list())
+            batchgroups[bg][b].append(next_path)
+    except StopIteration:
+        pass
+
     return batchgroups
+
+
+def yield_next_batch_place() -> Generator[NextBatchPlace, None, None]:
+    """
+    This generator yields the place where to put the next image in.
+    First, we want to distribute the images over 1 batchgroup=32 batches, each batch containing 1 image.
+    Then we give every batch a second image, and so on, until the batchgroup is full.
+    Then, we fill the next batchgroup.
+    For this purpose, this generator yields a tuple consisting of (batchgroup, batch, position_within_batch), where
+    first, the batch goes from 0 to 31,
+    second, the position_within_batch goes from 0 to 99,
+    third, the batchgroup goes from 0 to infinity.
+    """
+    for _batchgroup in range(999999):
+        for _position_within_batch in range(100):
+            for _batch in range(32):
+                yield _batchgroup, _batch, _position_within_batch
 
 
 def make_preprocessing(
@@ -165,13 +204,13 @@ def preprocess_batch(batch: list[Path], batch_id: int, sipi_port: int) -> None:
     Returns:
         None
     """
-    print(f"Pre-process batch with ID {batch_id} ({len(batch)} elements)...")
+    print(f"\tPre-process batch with ID {batch_id} ({len(batch)} elements)...")
     mapping, internal_filename_stems, failed_batch_items = make_preprocessing(
         batch=batch,
         sipi_port=sipi_port
     )
     while len(failed_batch_items) != 0:
-        print(f"Handling the following failed_batch_items: {failed_batch_items}")
+        print(f"\tHandling the following failed_batch_items: {failed_batch_items}")
         mapping_addition, internal_filename_stems_addition, failed_batch_items = make_preprocessing(
             batch=failed_batch_items,
             sipi_port=sipi_port
@@ -225,14 +264,11 @@ def enhanced_xml_upload(
 
     batchgroups = make_batchgroups_mockup(multimedia_folder=multimedia_folder)
 
-    for batchgroup in batchgroups:
-        print(f"Handing over {len(batchgroup)} batches to ThreadPoolExecutor")
+    for i, batchgroup in enumerate(batchgroups):
+        print(f"Handing over Batchgroup no. {i} with {len(batchgroup)} batches to ThreadPoolExecutor")
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(preprocess_batch, batchgroup, range(len(batchgroup)), repeat(sipi_port))
 
-# General question: Did you evaluate alternatives to concurrent.futures.ThreadPoolExecutor.map()?
-
-# Specific questions:
 #   - should we use the max_workers argument? See here:
 #     https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor:
 #     Default value of max_workers is changed to min(32, os.cpu_count() + 4).
@@ -241,12 +277,5 @@ def enhanced_xml_upload(
 #     And it avoids using very large resources implicitly on many-core machines.
 #     ThreadPoolExecutor now reuses idle worker threads before starting max_workers worker threads too.
 
-#   - Should we use the chunksize argument? See here:
-#     https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.Executor.map:
-#     When using ProcessPoolExecutor,
-#     this method chops iterables into a number of chunks
-#     which it submits to the pool as separate tasks.
-#     The (approximate) size of these chunks can be specified by setting chunksize to a positive integer.
-#     For very long iterables,
-#     using a large value for chunksize can significantly improve performance compared to the default size of 1.
-#     With ThreadPoolExecutor, chunksize has no effect.
+#   - could we optimize it with
+#     https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.as_completed?

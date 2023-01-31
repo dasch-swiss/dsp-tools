@@ -1,5 +1,4 @@
 import concurrent.futures
-import glob
 import json
 import os
 import shutil
@@ -7,7 +6,6 @@ import warnings
 from collections.abc import Generator
 from itertools import repeat
 from pathlib import Path
-from typing import Tuple
 
 import requests
 from lxml import etree
@@ -20,7 +18,7 @@ Batchgroup = list[Batch]
 BatchGroupIndex = int
 BatchIndex = int
 positionWithinBatchIndex = int
-NextBatchPlace = Tuple[BatchGroupIndex, BatchIndex, positionWithinBatchIndex]
+NextBatchPlace = tuple[BatchGroupIndex, BatchIndex, positionWithinBatchIndex]
 
 image_extensions = ["jpg", "jpeg", "tif", "tiff", "jp2", "png"]
 
@@ -81,20 +79,9 @@ def check_multimedia_folder(
     (or one of its subfolders), and that all files contained in multimedia_folder are referenced in the XML file.
     """
     tree = etree.parse(xmlfile)
-    bitstream_paths = [elem.text for elem in tree.iter() if etree.QName(elem).localname.endswith("bitstream")]
-    filesystem_paths = glob.glob(multimedia_folder + "/**/*.*", recursive=True)
-    result = bitstream_paths.sort() == filesystem_paths.sort()
-    return result
-
-
-def make_batchgroups_mockup(multimedia_folder: str) -> list[Batchgroup]:
-    batchgroup1 = [
-        [x for x in Path(multimedia_folder).iterdir() if x.is_file()],
-        [x for x in Path(multimedia_folder + "/nested").iterdir() if x.is_file()],
-        [x for x in Path(multimedia_folder + "/nested/subfolder").iterdir() if x.is_file()]
-    ]
-    batchgroups = [batchgroup1, ]
-    return batchgroups
+    bitstream_paths = [x.text for x in tree.iter() if etree.QName(x).localname.endswith("bitstream")]
+    filesystem_paths = [str(x) for x in Path().glob(f"{multimedia_folder}/**/*.*") if x.name != ".DS_Store"]
+    return sorted(bitstream_paths) == sorted(filesystem_paths)
 
 
 def make_batchgroups(multimedia_folder: str, images_per_batch: int, batches_per_group: int) -> list[Batchgroup]:
@@ -141,8 +128,8 @@ def make_batchgroups(multimedia_folder: str, images_per_batch: int, batches_per_
 
     print(f"Found {len(all_paths)} files in folder '{multimedia_folder}'. Prepare batches as follows: ")
     for i, batchgroup in enumerate(batchgroups):
-        print(f"\tBatchgroup no. {i} with {len(batchgroup)} batches, "
-              f"size of each batch: {[len(x) for x in batchgroup]}")
+        batchsizes = [f"{len(x):2d}" for x in batchgroup]
+        print(f"\tBatchgroup no. {i} with {len(batchgroup)} batches, size of each batch: {batchsizes}")
 
     return batchgroups
 
@@ -167,7 +154,7 @@ def yield_next_batch_place(images_per_batch: int, batches_per_group: int) -> Gen
 def make_preprocessing(
     batch: list[Path],
     sipi_port: int
-) -> Tuple[dict[str, list[str]], list[str], list[Path]]:
+) -> tuple[dict[str, list[str]], list[str], list[Path]]:
     """
     Sends the images contained in batch to the /upload route of SIPI,
     creates a mapping of the original filepath to the SIPI-internal filename and the checksum,
@@ -270,7 +257,6 @@ def enhanced_xml_upload(
     """
 
     shutil.rmtree("ZIP", ignore_errors=True)
-    shutil.rmtree("tmp", ignore_errors=True)
 
     if not check_multimedia_folder(xmlfile=xmlfile, multimedia_folder=multimedia_folder):
         print("The multimedia folder and the XML file don't contain the same files!")
@@ -292,15 +278,18 @@ def enhanced_xml_upload(
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(preprocess_batch, batchgroup, [f"{i}-{j}" for j in range(len(batchgroup))], repeat(sipi_port))
 
+    assert len(list(Path("tmp").iterdir())) == 0
+    shutil.rmtree("tmp", ignore_errors=True)
     print("Sucessfully finished!")
 
 # Ideas how to improve the multithreading:
-#   - should we use the max_workers argument? See here:
-#     https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor:
-#     Default value of max_workers is changed to min(32, os.cpu_count() + 4).
-#     This default value preserves at least 5 workers for I/O bound tasks.
-#     It utilizes at most 32 CPU cores for CPU bound tasks which release the GIL.
-#     And it avoids using very large resources implicitly on many-core machines.
-#     ThreadPoolExecutor now reuses idle worker threads before starting max_workers worker threads too.
-#   - could we optimize it with
-#     https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.as_completed?
+# - should the images be distributed into groups according to size?
+# - could we optimize it with
+#   https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.as_completed?
+# - should we use the max_workers argument? See here:
+#   https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor:
+#   Default value of max_workers is changed to min(32, os.cpu_count() + 4).
+#   This default value preserves at least 5 workers for I/O bound tasks.
+#   It utilizes at most 32 CPU cores for CPU bound tasks which release the GIL.
+#   And it avoids using very large resources implicitly on many-core machines.
+#   ThreadPoolExecutor now reuses idle worker threads before starting max_workers worker threads too.

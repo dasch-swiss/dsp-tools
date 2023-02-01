@@ -89,6 +89,22 @@ def check_multimedia_folder(
         print("Check passed: Your XML file contains the same multimedia files than your multimedia folder.")
 
 
+def make_equally_sized_batches(multimedia_folder: str, optimal_batch_size_mb: int) -> list[Batch]:
+    """
+    Read all multimedia files contained in multimedia_folder and its subfolders,
+    take the images and divide them into batches.
+    A batch is filled with images until the optimal_batch_size_mb is reached.
+    """
+    # collect all paths
+    path_to_size: dict[Path, float] = dict()
+    for img_type in image_extensions:
+        for pth in Path().glob(f"{multimedia_folder}/**/*.{img_type}"):
+            path_to_size[pth] = round(pth.stat().st_size / 1_000_000, 1)
+    all_paths = sorted(path_to_size.keys(), key=lambda x: path_to_size[x])
+
+    # TODO: This is experimental
+
+
 def make_batchgroups(multimedia_folder: str, images_per_batch: int, batches_per_group: int) -> list[Batchgroup]:
     """
     Read all multimedia files contained in multimedia_folder and its subfolders,

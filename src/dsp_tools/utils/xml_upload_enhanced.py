@@ -265,10 +265,17 @@ def enhanced_xml_upload(
 
     check_multimedia_folder(xmlfile=xmlfile, multimedia_folder=multimedia_folder)
 
+    # concurrent.futures.ThreadPoolExecutor() works with min(32, os.cpu_count() + 4) threads
+    # (see https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor),
+    # so the ideal number of batches per group is equal to the number of available threads
+    num_of_available_threads = min(32, os.cpu_count() + 4)
+
+    make_equally_sized_batches(multimedia_folder=multimedia_folder, optimal_batch_size_mb=15)
+
     batchgroups = make_batchgroups(
         multimedia_folder=multimedia_folder,
         images_per_batch=10,
-        batches_per_group=32
+        batches_per_group=num_of_available_threads
     )
 
     # Preprocess images with SIPI, one batchgroup after the other,

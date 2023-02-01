@@ -30,7 +30,7 @@ Note:
 A folder with the above structure can be created with
 
 ```bash
-dsp-tools enhanced-xmlupload --generate-test-data
+dsp-tools preprocess-xmlupload --generate-test-data
 ```
 
 
@@ -64,12 +64,12 @@ First, you must start SIPI:
 
 
 
-## Call to `enhanced-xmlupload`
+## Call to `preprocess-xmlupload`
 
-The command `enhanced-xmlupload` must be called from the project root.
+The command `preprocess-xmlupload` must be called from the project root.
 
 ```bash
-dsp-tools enhanced-xmlupload --xmlfile=data.xml --multimedia_folder=multimedia --sipi_port=12345
+dsp-tools preprocess-xmlupload --xmlfile=data.xml --multimedia_folder=multimedia --sipi_port=12345
 ```
 
 Arguments and options:

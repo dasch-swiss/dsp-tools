@@ -12,15 +12,14 @@ from dsp_tools.utils.excel_to_json_project import excel2json
 from dsp_tools.utils.excel_to_json_properties import excel2properties
 from dsp_tools.utils.excel_to_json_resources import excel2resources
 from dsp_tools.utils.id_to_iri import id_to_iri
-from dsp_tools.utils.project_create_lists import create_lists
 from dsp_tools.utils.project_create import create_project
+from dsp_tools.utils.project_create_lists import create_lists
 from dsp_tools.utils.project_get import get_project
 from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.stack_handling import start_stack, stop_stack
 from dsp_tools.utils.xml_upload import xml_upload
-from dsp_tools.utils.xml_upload_enhanced import generate_testdata, enhanced_xml_upload
-
+from dsp_tools.utils.xml_upload_enhanced import generate_testdata, preprocess_xml_upload
 
 
 def program(user_args: list[str]) -> None:
@@ -49,7 +48,8 @@ def program(user_args: list[str]) -> None:
     # parse the arguments of the command line
     parser = argparse.ArgumentParser(description=f'dsp-tools (Version {dsp_tools_version}) DaSCH Service Platform data '
                                                  f'modelling tools (© {now.year} by DaSCH).')
-    subparsers = parser.add_subparsers(title='Subcommands', description='Valid subcommands are', help='sub-command help')
+    subparsers = parser.add_subparsers(title='Subcommands', description='Valid subcommands are',
+                                       help='sub-command help')
 
     # create
     parser_create = subparsers.add_parser('create', help='Upload a project and/or list(s) from a JSON project file to '
@@ -59,7 +59,7 @@ def program(user_args: list[str]) -> None:
     parser_create.add_argument('-u', '--user', default=default_user, help=username_text)
     parser_create.add_argument('-p', '--password', default=default_pw, help=password_text)
     parser_create.add_argument('-V', '--validate-only', action='store_true', help='Only validate the project against '
-                               'the JSON schema, without uploading it')
+                                                                                  'the JSON schema, without uploading it')
     parser_create.add_argument('-l', '--lists-only', action='store_true', help='Upload only the list(s)')
     parser_create.add_argument('-v', '--verbose', action='store_true', help=verbose_text)
     parser_create.add_argument('-d', '--dump', action='store_true', help='dump test files for DSP-API requests')
@@ -77,7 +77,8 @@ def program(user_args: list[str]) -> None:
                             default='project.json')
 
     # xmlupload
-    parser_upload = subparsers.add_parser('xmlupload', help='Upload data from an XML file to the DaSCH Service Platform.')
+    parser_upload = subparsers.add_parser('xmlupload',
+                                          help='Upload data from an XML file to the DaSCH Service Platform.')
     parser_upload.set_defaults(action='xmlupload')
     parser_upload.add_argument('-s', '--server', type=str, default=default_localhost, help=url_text)
     parser_upload.add_argument('-u', '--user', type=str, default=default_user, help=username_text)
@@ -116,14 +117,14 @@ def program(user_args: list[str]) -> None:
 
     # excel2resources
     parser_excel_resources = subparsers.add_parser('excel2resources', help='Create a JSON file from an Excel file '
-                                                   'containing resources for a DSP ontology. ')
+                                                                           'containing resources for a DSP ontology. ')
     parser_excel_resources.set_defaults(action='excel2resources')
     parser_excel_resources.add_argument('excelfile', help='Path to the Excel file containing the resources')
     parser_excel_resources.add_argument('outfile', help='Path to the output JSON file containing the resource data')
 
     # excel2properties
     parser_excel_properties = subparsers.add_parser('excel2properties', help='Create a JSON file from an Excel file '
-                                                    'containing properties for a DSP ontology. ')
+                                                                             'containing properties for a DSP ontology. ')
     parser_excel_properties.set_defaults(action='excel2properties')
     parser_excel_properties.add_argument('excelfile', help='Path to the Excel file containing the properties')
     parser_excel_properties.add_argument('outfile', help='Path to the output JSON file containing the properties data')
@@ -165,10 +166,10 @@ def program(user_args: list[str]) -> None:
 
     # enhanced xmlupload
     parser_enhanced_xmlupload = subparsers.add_parser(
-        'enhanced-xmlupload',
-        help='DaSCH-internal command: Upload a very big project on a DSP server, after preprocessing it locally'
+        'preprocess-xmlupload',
+        help='DaSCH-internal command: Before uploading a big project to a DSP server, preprocess it locally'
     )
-    parser_enhanced_xmlupload.set_defaults(action='enhanced-xmlupload')
+    parser_enhanced_xmlupload.set_defaults(action='preprocess-xmlupload')
     parser_enhanced_xmlupload.add_argument(
         '--xmlfile',
         type=str,
@@ -191,7 +192,6 @@ def program(user_args: list[str]) -> None:
         action='store_true',
         help="only generate a test data folder in the current working directory (no upload)"
     )
-
 
     # call the requested action
     args = parser.parse_args(user_args)
@@ -272,11 +272,11 @@ def program(user_args: list[str]) -> None:
                     suppress_docker_system_prune=args.no_prune)
     elif args.action == 'stop-stack':
         stop_stack()
-    elif args.action == 'enhanced-xmlupload':
+    elif args.action == 'preprocess-xmlupload':
         if args.generate_test_data:
             generate_testdata()
         else:
-            enhanced_xml_upload(
+            preprocess_xml_upload(
                 xmlfile=args.xmlfile,
                 multimedia_folder=args.multimedia_folder,
                 sipi_port=args.sipi_port

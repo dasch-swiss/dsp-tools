@@ -252,10 +252,8 @@ def preprocess_batch(batch: list[Path], batch_id: int, sipi_port: int) -> None:
     print(f"\tBatch {batch_id} is ready to be sent to DSP server as {Path(zipped_batch).relative_to(os.getcwd())}")
     shutil.rmtree(zip_waiting_room)
 
-    # TODO: send the ZIP to the DSP server
 
-
-def enhanced_xml_upload(
+def preprocess_xml_upload(
     xmlfile: str,
     multimedia_folder: str,
     sipi_port: int
@@ -264,9 +262,7 @@ def enhanced_xml_upload(
     Given a project folder (current working directory)
     with a big quantity of multimedia files referenced in an XML file,
     and given a local SIPI instance,
-    this method preprocesses the image files batch-wise in multithreading,
-    packs each batch into a ZIP,
-    and sends it to a DSP server.
+    this method preprocesses the image files batch-wise in multithreading.
 
     Args:
         xmlfile: path to xml file containing the data

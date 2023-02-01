@@ -73,7 +73,7 @@ def generate_testdata() -> None:
 def check_multimedia_folder(
     xmlfile: str,
     multimedia_folder: str
-) -> None:
+) -> etree.ElementTree:
     """
     Verify that all multimedia files referenced in the XML file are contained in multimedia_folder
     (or one of its subfolders), and that all files contained in multimedia_folder are referenced in the XML file.
@@ -88,21 +88,22 @@ def check_multimedia_folder(
     else:
         print("Check passed: Your XML file contains the same multimedia files than your multimedia folder.")
 
+    return tree
 
-def make_equally_sized_batches(multimedia_folder: str, optimal_batch_size_mb: int) -> list[Batch]:
-    """
-    Read all multimedia files contained in multimedia_folder and its subfolders,
-    take the images and divide them into batches.
-    A batch is filled with images until the optimal_batch_size_mb is reached.
-    """
-    # collect all paths
-    path_to_size: dict[Path, float] = dict()
-    for img_type in image_extensions:
-        for pth in Path().glob(f"{multimedia_folder}/**/*.{img_type}"):
-            path_to_size[pth] = round(pth.stat().st_size / 1_000_000, 1)
-    all_paths = sorted(path_to_size.keys(), key=lambda x: path_to_size[x])
 
-    # TODO: This is experimental
+# def make_equally_sized_batches(multimedia_folder: str, optimal_batch_size_mb: int) -> list[Batch]:
+#     """
+#     Read all multimedia files contained in multimedia_folder and its subfolders,
+#     take the images and divide them into batches.
+#     A batch is filled with images until the optimal_batch_size_mb is reached.
+#     """
+#     # collect all paths
+#     path_to_size: dict[Path, float] = dict()
+#     for img_type in image_extensions:
+#         for pth in Path().glob(f"{multimedia_folder}/**/*.{img_type}"):
+#             path_to_size[pth] = round(pth.stat().st_size / 1_000_000, 1)
+#     all_paths = sorted(path_to_size.keys(), key=lambda x: path_to_size[x])
+# TODO: This is experimental
 
 
 def make_batchgroups(multimedia_folder: str, images_per_batch: int, batches_per_group: int) -> list[Batchgroup]:
@@ -175,7 +176,7 @@ def yield_next_batch_place(images_per_batch: int, batches_per_group: int) -> Gen
 def make_preprocessing(
     batch: list[Path],
     sipi_port: int
-) -> tuple[dict[str, list[str]], list[str], list[Path]]:
+) -> tuple[dict[str, str], list[Path]]:
     """
     Sends the images contained in batch to the /upload route of SIPI,
     creates a mapping of the original filepath to the SIPI-internal filename and the checksum,
@@ -187,10 +188,9 @@ def make_preprocessing(
         sipi_port: port number of SIPI
 
     Returns:
-        mapping, internal_filename_stems, failed_batch_items
+        mapping, failed_batch_items
     """
-    mapping: dict[str, list[str]] = dict()
-    internal_filename_stems = list()
+    mapping: dict[str, str] = dict()
     failed_batch_items = list()
     for imgpath in batch:
         response_raw = requests.post(
@@ -201,15 +201,13 @@ def make_preprocessing(
         if response.get("message") == "server.fs.mkdir() failed: File exists":
             failed_batch_items.append(imgpath)
         else:
-            checksum = response["uploadedFiles"][0]["checksumDerivative"]
             internal_filename = response["uploadedFiles"][0]["internalFilename"]
-            mapping[str(imgpath)] = [internal_filename, checksum]
-            internal_filename_stems.append(Path(internal_filename).stem)
+            mapping[str(imgpath)] = internal_filename
 
-    return mapping, internal_filename_stems, failed_batch_items
+    return mapping, failed_batch_items
 
 
-def preprocess_batch(batch: list[Path], batch_id: int, sipi_port: int) -> None:
+def preprocess_batch(batch: list[Path], batch_id: int, sipi_port: int) -> dict[str, str]:
     """
     Process the images contained in one batch:
     create JP2 and sidecar files,
@@ -225,32 +223,32 @@ def preprocess_batch(batch: list[Path], batch_id: int, sipi_port: int) -> None:
         None
     """
     # print(f"\tPre-process batch with ID {batch_id} ({len(batch)} elements)...")
-    mapping, internal_filename_stems, failed_batch_items = make_preprocessing(
+    mapping, failed_batch_items = make_preprocessing(
         batch=batch,
         sipi_port=sipi_port
     )
     while len(failed_batch_items) != 0:
         print(f"\tRetry the following failed files: {[str(x) for x in failed_batch_items]}")
-        mapping_addition, internal_filename_stems_addition, failed_batch_items = make_preprocessing(
+        mapping_addition, failed_batch_items = make_preprocessing(
             batch=failed_batch_items,
             sipi_port=sipi_port
         )
         mapping.update(mapping_addition)
-        internal_filename_stems.extend(internal_filename_stems_addition)
 
     zip_waiting_room = Path(f"ZIP/{batch_id}")
     zip_waiting_room.mkdir(parents=True)
     for file in list(Path("tmp").iterdir()):  # don't use generator directly (thread unsafe)
-        if Path(file.stem).stem in internal_filename_stems:  # doubling necessary due to double extensions
+        uuids = [Path(x).stem for x in mapping.values()]
+        if Path(file.stem).stem in uuids:  # doubling necessary due to double extensions
             shutil.move(file, zip_waiting_room)
 
-    with open(zip_waiting_room / "mapping.json", "x") as f:
-        json.dump(mapping, f)
-    assert len(list(zip_waiting_room.iterdir())) == len(batch) * 3 + 1, \
+    assert len(list(zip_waiting_room.iterdir())) == len(batch) * 3, \
         f"Number of files in ZIP for batch {batch_id} is inconsistent with the original batch size"
     zipped_batch = shutil.make_archive(base_name=f"ZIP/{batch_id}", format="zip", root_dir=zip_waiting_room)
     print(f"\tBatch {batch_id} is ready to be sent to DSP server as {Path(zipped_batch).relative_to(os.getcwd())}")
     shutil.rmtree(zip_waiting_room)
+
+    return mapping
 
 
 def preprocess_xml_upload(
@@ -275,14 +273,14 @@ def preprocess_xml_upload(
 
     shutil.rmtree("ZIP", ignore_errors=True)
 
-    check_multimedia_folder(xmlfile=xmlfile, multimedia_folder=multimedia_folder)
+    xml_file_tree = check_multimedia_folder(xmlfile=xmlfile, multimedia_folder=multimedia_folder)
 
     # concurrent.futures.ThreadPoolExecutor() works with min(32, os.cpu_count() + 4) threads
     # (see https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor),
     # so the ideal number of batches per group is equal to the number of available threads
     num_of_available_threads = min(32, os.cpu_count() + 4)
 
-    make_equally_sized_batches(multimedia_folder=multimedia_folder, optimal_batch_size_mb=15)
+    # make_equally_sized_batches(multimedia_folder=multimedia_folder, optimal_batch_size_mb=15)
 
     batchgroups = make_batchgroups(
         multimedia_folder=multimedia_folder,
@@ -290,13 +288,31 @@ def preprocess_xml_upload(
         batches_per_group=num_of_available_threads
     )
 
+    mapping = dict()
+
     # Preprocess images with SIPI, one batchgroup after the other,
     # so that the ZIPs become available little by little,
     # and can be sent to the server as they become available
     for i, batchgroup in enumerate(batchgroups):
         print(f"Handing over Batchgroup no. {i} with {len(batchgroup)} batches to ThreadPoolExecutor.")
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            executor.map(preprocess_batch, batchgroup, [f"{i}-{j}" for j in range(len(batchgroup))], repeat(sipi_port))
+            mappings = executor.map(
+                preprocess_batch,
+                batchgroup,
+                [f"{i}-{j}" for j in range(len(batchgroup))],
+                repeat(sipi_port)
+            )
+        for mp in mappings:
+            mapping.update(mp)
+
+    # make a copy of the XML file with the filepaths replaced by the UUID
+    for elem in xml_file_tree.iter():
+        if elem.text in mapping:
+            elem.text = mapping[elem.text]
+    xml_string = etree.tostring(xml_file_tree, encoding="unicode", pretty_print=True)
+    xml_string = '<?xml version="1.0" encoding="UTF-8"?>\n' + xml_string
+    with open(f"{Path(xmlfile).stem}-preprocessed.xml", "x", encoding="utf-8") as f:
+        f.write(xml_string)
 
     assert len(list(Path("tmp").iterdir())) == 0
     shutil.rmtree("tmp", ignore_errors=True)

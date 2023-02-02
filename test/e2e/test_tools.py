@@ -21,8 +21,8 @@ from dsp_tools.utils.excel_to_json_project import excel2json
 from dsp_tools.utils.excel_to_json_properties import excel2properties
 from dsp_tools.utils.excel_to_json_resources import excel2resources
 from dsp_tools.utils.id_to_iri import id_to_iri
-from dsp_tools.utils.project_create_lists import create_lists
 from dsp_tools.utils.project_create import create_project
+from dsp_tools.utils.project_create_lists import create_lists
 from dsp_tools.utils.project_get import get_project
 from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import validate_xml_against_schema
@@ -54,10 +54,8 @@ class TestTools(unittest.TestCase):
         for file in [f for f in os.listdir(".") if re.search(r"id2iri_.+\.json", f)]:
             os.remove(file)
 
-
     def test_validate_lists_section_with_schema(self) -> None:
         self.assertTrue(validate_lists_section_with_schema(self.test_project_systematic_file))
-
 
     def test_create_lists(self) -> None:
         # the project must already exist, so let's create a project without lists
@@ -96,21 +94,21 @@ class TestTools(unittest.TestCase):
                                                    user=self.user,
                                                    password=self.password,
                                                    input_file="testdata/tmp/test_project_minimal_with_list_2.json")
-        
+
         # test that both lists have been correctly created
         self.assertTrue(success1)
         self.assertTrue(success2)
         name2iri_names_1 = [str(m.path) for m in jsonpath_ng.ext.parse("$..* where id").find(name2iri_mapping1)]
         name2iri_names_2 = [str(m.path) for m in jsonpath_ng.ext.parse("$..* where id").find(name2iri_mapping2)]
-        node_names_1 = [m.value for m in jsonpath_ng.ext.parse("$.project.lists[*]..name").find(test_project_minimal_with_list_1)]
-        node_names_2 = [m.value for m in jsonpath_ng.ext.parse("$.project.lists[*]..name").find(test_project_minimal_with_list_2)]
+        node_names_1 = [m.value for m in
+                        jsonpath_ng.ext.parse("$.project.lists[*]..name").find(test_project_minimal_with_list_1)]
+        node_names_2 = [m.value for m in
+                        jsonpath_ng.ext.parse("$.project.lists[*]..name").find(test_project_minimal_with_list_2)]
         self.assertListEqual(name2iri_names_1, node_names_1)
         self.assertListEqual(name2iri_names_2, node_names_2)
 
-
     def test_validate_project(self) -> None:
         self.assertTrue(validate_project(self.test_project_systematic_file))
-
 
     def test_create_project(self) -> None:
         result = create_project(
@@ -122,7 +120,6 @@ class TestTools(unittest.TestCase):
             dump=False
         )
         self.assertTrue(result)
-
 
     def test_get_ontology(self) -> None:
         with open(self.test_project_systematic_file) as f:
@@ -142,7 +139,8 @@ class TestTools(unittest.TestCase):
         self.assertEqual(project_expected["project"]["shortname"], project_received["project"]["shortname"])
         self.assertEqual(project_expected["project"]["longname"], project_received["project"]["longname"])
         self.assertEqual(project_expected["project"]["descriptions"], project_received["project"]["descriptions"])
-        self.assertEqual(sorted(project_expected["project"]["keywords"]), sorted(project_received["project"]["keywords"]))
+        self.assertEqual(sorted(project_expected["project"]["keywords"]),
+                         sorted(project_received["project"]["keywords"]))
 
         groups_expected = project_expected["project"]["groups"]
         groups_received = project_received["project"]["groups"]
@@ -237,10 +235,8 @@ class TestTools(unittest.TestCase):
 
         self.assertEqual(excel_list.get("comments"), excel_list_out.get("comments"))
 
-
     def test_validate_xml_against_schema(self) -> None:
         self.assertTrue(validate_xml_against_schema(self.test_data_systematic_file))
-
 
     def test_xml_upload(self) -> None:
         result_minimal = xml_upload(
@@ -252,7 +248,9 @@ class TestTools(unittest.TestCase):
             sipi=self.sipi,
             verbose=False,
             incremental=False,
-            save_metrics=False)
+            save_metrics=False,
+            preprocessing_done=False
+        )
         self.assertTrue(result_minimal)
 
         result_systematic = xml_upload(
@@ -264,7 +262,9 @@ class TestTools(unittest.TestCase):
             sipi=self.sipi,
             verbose=False,
             incremental=False,
-            save_metrics=False)
+            save_metrics=False,
+            preprocessing_done=False
+        )
         self.assertTrue(result_systematic)
 
         mapping_file = ""
@@ -290,7 +290,8 @@ class TestTools(unittest.TestCase):
             sipi=self.sipi,
             verbose=True,
             incremental=True,
-            save_metrics=False
+            save_metrics=False,
+            preprocessing_done=False
         )
         self.assertTrue(result_replaced)
         self.assertTrue(all([not f.name.startswith("stashed_text_properties_") for f in os.scandir(".")]))
@@ -298,7 +299,6 @@ class TestTools(unittest.TestCase):
 
         os.remove(mapping_file)
         os.remove(id2iri_replaced_xml_filename)
-
 
     def test_excel_to_json_project(self) -> None:
         excel2json(data_model_files="testdata/excel2json_files",
@@ -310,13 +310,11 @@ class TestTools(unittest.TestCase):
         self.assertDictEqual(output, output_expected)
         os.remove("testdata/tmp/_out_project.json")
 
-
     def test_excel_to_json_list(self) -> None:
         excel2lists(excelfolder="testdata/lists_multilingual",
                     path_to_output_file="testdata/tmp/_lists-out.json")
         self.assertTrue(os.path.isfile("testdata/tmp/_lists-out.json"))
         os.remove("testdata/tmp/_lists-out.json")
-
 
     def test_excel_to_json_resources(self) -> None:
         excel2resources(excelfile="testdata/excel2json_files/test-name (test_label)/resources.xlsx",
@@ -324,13 +322,11 @@ class TestTools(unittest.TestCase):
         self.assertTrue(os.path.isfile("testdata/tmp/_out_resources.json"))
         os.remove("testdata/tmp/_out_resources.json")
 
-
     def test_excel_to_json_properties(self) -> None:
         excel2properties(excelfile="testdata/excel2json_files/test-name (test_label)/properties.xlsx",
                          path_to_output_file="testdata/tmp/_out_properties.json")
         self.assertTrue(os.path.isfile("testdata/tmp/_out_properties.json"))
         os.remove("testdata/tmp/_out_properties.json")
-
 
     def test_id_to_iri(self) -> None:
         id_to_iri(xml_file="testdata/test-id2iri-data.xml",

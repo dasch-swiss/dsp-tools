@@ -3,9 +3,9 @@ import unittest
 
 import pytest
 
+from dsp_tools.excel2xml import _derandomize_xsd_id
 from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.xml_upload import xml_upload
-from dsp_tools.excel2xml import _derandomize_xsd_id
 
 
 class TestImportScripts(unittest.TestCase):
@@ -16,7 +16,6 @@ class TestImportScripts(unittest.TestCase):
         """
         if os.path.isfile("src/dsp_tools/import_scripts/data-processed.xml"):
             os.remove("src/dsp_tools/import_scripts/data-processed.xml")
-
 
     @pytest.mark.filterwarnings("ignore")
     def test_import_scripts(self) -> None:
@@ -63,7 +62,8 @@ class TestImportScripts(unittest.TestCase):
             sipi="http://0.0.0.0:1024",
             verbose=False,
             incremental=False,
-            save_metrics=False
+            save_metrics=False,
+            preprocessing_done=False
         )
         self.assertTrue(success_on_xmlupload)
 

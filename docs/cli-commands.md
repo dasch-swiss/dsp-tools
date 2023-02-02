@@ -112,6 +112,7 @@ The following options are available:
 - `-V` | `--validate` (optional): If set, the XML file will only be validated, but not uploaded.
 - `-v` | `--verbose` (optional): If set, more information about the process is printed to the console.
 - `-m` | `--metrics` (optional): If set, write metrics into a "metrics" folder in the current working directory
+- `-P` | `--preprocessing-done` (optional): If set, all multimedia files referenced in the XML file must already be on the server (for internal use only)
 
 Output:
 

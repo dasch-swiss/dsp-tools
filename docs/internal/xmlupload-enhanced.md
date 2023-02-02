@@ -1,8 +1,30 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Improved Mass-Upload
+# Enhanced Mass-Upload
 
-## Prepare your data
+For projects with a big quantity of multimedia files, 
+the `xmlupload` command is too slow.
+That's why we developed, for internal usage, an enhanced workflow. 
+It consists of two steps:
+
+First, the `preprocess-xmlupload` command 
+preprocesses the multimedia files locally (using a local SIPI instance), 
+uploads them to the server,
+and creates a copy of the XML file in which the `<bitstream>` tags don't contain file paths anymore, 
+but a reference to the internal filename on the server.
+This first step uses multithreading to speed up the process.
+
+The second step is done with the `xmlupload` command,
+using the `--preprocessing-done` flag.
+This second step takes much less time than a normal `xmlupload`,
+because it only creates the resources, 
+and doesn't have to deal with the multimedia files. 
+
+In order to use this enhanced workflow, 
+follow the steps described in this document.
+
+
+## 1. Prepare your data
 
 The following data structure is expected:
 
@@ -35,9 +57,9 @@ dsp-tools preprocess-xmlupload --generate-test-data
 
 
 
-## Start SIPI
+## 2. Start SIPI
 
-First, you must start SIPI: 
+Run a modified local instance of SIPI as follows: 
 
 - make a fresh clone of the [DSP-API repository](https://github.com/dasch-swiss/dsp-api)
 - do NOT rename it, its name must be "dsp-api"
@@ -48,7 +70,7 @@ First, you must start SIPI:
    - db
    - api
 - in `docker-compose.yml`, change the `ports` of sipi from "1024:1024" to "1024"
-- in `docker-compose.yml`, add to the `volumes` of sipi your project folder, in the form: `full/path:abbreviation:delegated`
+- in `docker-compose.yml`, add your project folder to the `sipi/volumes` list, in the form: `full/path:abbreviation:delegated`
 - in `sipi/config/sipi.docker-config.lua`, change `imgroot` from '/sipi/images' to the abbreviation of your project folder 
 - in `sipi/config/sipi.docker-config.lua`, change `nthreads` from 8 to 32
 - in `sipi/scripts/upload.lua`, comment out the following section:
@@ -64,7 +86,7 @@ First, you must start SIPI:
 
 
 
-## Call to `preprocess-xmlupload`
+## 3. Preprocess and upload the multimedia files with `preprocess-xmlupload`
 
 The command `preprocess-xmlupload` must be called from the project root.
 
@@ -77,3 +99,20 @@ Arguments and options:
  - `--xmlfile` (optional, default: `data.xml`): path to xml file containing the data
  - `--multimedia_folder` (optional, default: `multimedia`): name of the folder containing the multimedia files
  - `--sipi_port` (mandatory): 5-digit port number that SIPI uses, can be found in the "Container" view of Docker Desktop
+
+This command makes the preprocessing and sends the preprocessed files to the server.
+The output is an XML file 
+where all file paths inside the `<bitstream>` tags are replaced by the internal filename used on the server.
+
+
+
+## 4. Create the resources with `xmlupload --preprocessing-done`
+
+As last step, do
+
+```bash
+dsp-tools xmlupload data-preprocessed.xml --preprocessing-done
+```
+
+You can use the [usual flags](../cli-commands.md#xmlupload) that are available for this command, 
+except `--sipi`, which is not necessary.

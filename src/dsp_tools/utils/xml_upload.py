@@ -31,10 +31,10 @@ MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", 
 
 
 def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
-        tuple[list[XMLResource],
-              dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
-              dict[XMLResource, dict[XMLProperty, list[str]]]
-              ]:
+    tuple[list[XMLResource],
+    dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+    dict[XMLResource, dict[XMLProperty, list[str]]]
+    ]:
     """
     Temporarily removes problematic resource-references from a list of resources. A reference is problematic if
     it creates a circle (circular references).
@@ -254,11 +254,11 @@ def _check_consistency_with_ontology(
                 f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid resource type "
                 f"'{resource.restype}'. Is your syntax correct? Remember the rules:\n"
                 f" - DSP-API internals: <resource restype=\"restype\">         "
-                        f"(will be interpreted as 'knora-api:restype')\n"
+                f"(will be interpreted as 'knora-api:restype')\n"
                 f" - current ontology:  <resource restype=\":restype\">        "
-                        f"('restype' must be defined in the 'resources' section of your ontology)\n"
+                f"('restype' must be defined in the 'resources' section of your ontology)\n"
                 f" - other ontology:    <resource restype=\"other:restype\">   "
-                        f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)"
+                f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)"
             )
 
         # check that the property types are consistent with the ontology
@@ -270,18 +270,18 @@ def _check_consistency_with_ontology(
                     f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid property '{propname}'. "
                     f"Is your syntax correct? Remember the rules:\n"
                     f" - DSP-API internals: <text-prop name=\"propname\">         "
-                            f"(will be interpreted as 'knora-api:propname')\n"
+                    f"(will be interpreted as 'knora-api:propname')\n"
                     f" - current ontology:  <text-prop name=\":propname\">        "
-                            f"('propname' must be defined in the 'properties' section of your ontology)\n"
+                    f"('propname' must be defined in the 'properties' section of your ontology)\n"
                     f" - other ontology:    <text-prop name=\"other:propname\">   "
-                            f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)"
+                    f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)"
                 )
 
     print("Resource types and properties are consistent with the ontology.")
 
 
 def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
-               incremental: bool, save_metrics: bool) -> bool:
+               incremental: bool, save_metrics: bool, preprocessing_done: bool) -> bool:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
 
@@ -295,6 +295,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         verbose: verbose option for the command, if used more output is given to the user
         incremental: if set, IRIs instead of internal IDs are expected as resource pointers
         save_metrics: if true, saves time measurements into a "metrics" folder in the current working directory
+        preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
 
     Returns:
         True if all resources could be uploaded without errors; False if any resource (or part of it) could not be
@@ -347,7 +348,8 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     # get the project information and project ontology from the server
     res_inst_factory = try_network_action("", lambda: ResourceInstanceFactory(con, shortcode))
     permissions_lookup: dict[str, Permissions] = {s: perm.get_permission_instance() for s, perm in permissions.items()}
-    resclass_name_2_type: dict[str, type] = {s: res_inst_factory.get_resclass_type(s) for s in res_inst_factory.get_resclass_names()}
+    resclass_name_2_type: dict[str, type] = {s: res_inst_factory.get_resclass_type(s) for s in
+                                             res_inst_factory.get_resclass_names()}
 
     # check if the data in the XML is consistent with the ontology
     _check_consistency_with_ontology(
@@ -373,7 +375,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     try:
         id2iri_mapping, failed_uploads, metrics = _upload_resources(
             resources, imgdir, sipi_server, permissions_lookup, resclass_name_2_type, id2iri_mapping, con,
-            failed_uploads, metrics
+            failed_uploads, metrics, preprocessing_done
         )
     except BaseException as err:
         _handle_upload_error(
@@ -455,7 +457,8 @@ def _upload_resources(
     id2iri_mapping: dict[str, str],
     con: Connection,
     failed_uploads: list[str],
-    metrics: list[MetricRecord]
+    metrics: list[MetricRecord],
+    preprocessing_done: bool
 ) -> tuple[dict[str, str], list[str], list[MetricRecord]]:
     """
     Iterates through all resources and tries to upload them to DSP
@@ -476,44 +479,55 @@ def _upload_resources(
     """
 
     # If there are multimedia files: calculate their total size
-    bitstream_all_sizes_mb = [Path(Path(imgdir) / Path(res.bitstream.value)).stat().st_size / 1000000 if res.bitstream else 0.0 for res in resources]
-    if sum(bitstream_all_sizes_mb) > 0:
-        bitstream_size_total_mb = round(sum(bitstream_all_sizes_mb), 1)
-        bitstream_size_uploaded_mb = 0.0
-        print(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
+    if not preprocessing_done:
+        bitstream_all_sizes_mb = [
+            Path(Path(imgdir) / Path(res.bitstream.value)).stat().st_size / 1000000 if res.bitstream else 0.0 for res in
+            resources]
+        if sum(bitstream_all_sizes_mb) > 0:
+            bitstream_size_total_mb = round(sum(bitstream_all_sizes_mb), 1)
+            bitstream_size_uploaded_mb = 0.0
+            print(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
 
     for i, resource in enumerate(resources):
         resource_start = datetime.now()
         filetype = ""
-        filesize = round(bitstream_all_sizes_mb[i], 1)
-        bitstream_duration_ms = None
+        if not preprocessing_done:
+            filesize = round(bitstream_all_sizes_mb[i], 1)
+            bitstream_duration_ms = None
         resource_iri = resource.iri
         if resource.ark:
             resource_iri = _convert_ark_v0_to_resource_iri(resource.ark)
 
         # in case of a multimedia resource: upload the multimedia file
         resource_bitstream = None
-        if resource.bitstream:
+        if resource.bitstream and not preprocessing_done:
             try:
                 bitstream_start = datetime.now()
                 filetype = Path(resource.bitstream.value).suffix[1:]
                 img: Optional[dict[Any, Any]] = try_network_action(
-                    action=lambda: sipi_server.upload_bitstream(filepath=str(Path(imgdir) / Path(resource.bitstream.value))),  # type: ignore
+                    action=lambda: sipi_server.upload_bitstream(
+                        filepath=str(Path(imgdir) / Path(resource.bitstream.value))
+                    ),
                     failure_msg=f'ERROR while trying to upload file "{resource.bitstream.value}" of resource '
                                 f'"{resource.label}" ({resource.id}).'
                 )
                 bitstream_duration = datetime.now() - bitstream_start
                 bitstream_duration_ms = bitstream_duration.seconds * 1000 + int(bitstream_duration.microseconds / 1000)
                 mb_per_sec = round((filesize / bitstream_duration_ms) * 1000, 1)
-                metrics.append(MetricRecord(resource.id, filetype, filesize, "bitstream upload", bitstream_duration_ms, mb_per_sec))
+                metrics.append(MetricRecord(resource.id, filetype, filesize, "bitstream upload", bitstream_duration_ms,
+                                            mb_per_sec))
             except BaseError as err:
                 print(err.message)
                 failed_uploads.append(resource.id)
                 continue
             bitstream_size_uploaded_mb += bitstream_all_sizes_mb[i]
-            print(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")
+            print(
+                f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")
             internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']  # type: ignore
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
+
+        if preprocessing_done:
+            resource_bitstream = resource.get_bitstream(resource.bitstream.value, permissions_lookup)
 
         # create the resource in DSP
         resclass_type = resclass_name_2_type[resource.restype]
@@ -523,7 +537,7 @@ def _upload_resources(
                 con=con,
                 label=resource.label,
                 iri=resource_iri,
-                permissions=permissions_lookup.get(resource.permissions),  # type: ignore
+                permissions=permissions_lookup.get(resource.permissions),
                 creation_date=resource.creation_date,
                 bitstream=resource_bitstream,
                 values=properties
@@ -534,14 +548,16 @@ def _upload_resources(
                 failure_msg=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
             )
             resource_creation_duration = datetime.now() - resource_creation_start
-            resource_creation_duration_ms = resource_creation_duration.seconds * 1000 + int(resource_creation_duration.microseconds / 1000)
-            metrics.append(MetricRecord(resource.id, filetype, filesize, "resource creation", resource_creation_duration_ms, ""))
+            resource_creation_duration_ms = resource_creation_duration.seconds * 1000 + int(
+                resource_creation_duration.microseconds / 1000)
+            metrics.append(
+                MetricRecord(resource.id, filetype, filesize, "resource creation", resource_creation_duration_ms, ""))
         except BaseError as err:
             print(err.message)
             failed_uploads.append(resource.id)
             continue
         id2iri_mapping[resource.id] = created_resource.iri
-        print(f"Created resource {i+1}/{len(resources)}: '{created_resource.label}' (ID: '{resource.id}', IRI: "
+        print(f"Created resource {i + 1}/{len(resources)}: '{created_resource.label}' (ID: '{resource.id}', IRI: "
               f"'{created_resource.iri}')")
 
         resource_duration = datetime.now() - resource_start
@@ -820,7 +836,8 @@ def _handle_upload_error(
         print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
 
     if stashed_xml_texts:
-        stashed_xml_texts_serializable = {r.id: {p.name: xml for p, xml in rdict.items()} for r, rdict in stashed_xml_texts.items()}
+        stashed_xml_texts_serializable = {r.id: {p.name: xml for p, xml in rdict.items()} for r, rdict in
+                                          stashed_xml_texts.items()}
         xml_filename = f"{save_location_full}/{timestamp_str}_stashed_text_properties.json"
         with open(xml_filename, "x") as f:
             json.dump(stashed_xml_texts_serializable, f, ensure_ascii=False, indent=4, cls=KnoraStandoffXmlEncoder)
@@ -828,7 +845,8 @@ def _handle_upload_error(
               f"from. They were saved to {xml_filename}.")
 
     if stashed_resptr_props:
-        stashed_resptr_props_serializable = {r.id: {p.name: plist for p, plist in rdict.items()} for r, rdict in stashed_resptr_props.items()}
+        stashed_resptr_props_serializable = {r.id: {p.name: plist for p, plist in rdict.items()} for r, rdict in
+                                             stashed_resptr_props.items()}
         resptr_filename = f"{save_location_full}/{timestamp_str}_stashed_resptr_properties.json"
         with open(resptr_filename, "x") as f:
             json.dump(stashed_resptr_props_serializable, f, ensure_ascii=False, indent=4)

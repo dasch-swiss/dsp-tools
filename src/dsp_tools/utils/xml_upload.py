@@ -479,28 +479,28 @@ def _upload_resources(
     """
 
     # If there are multimedia files: calculate their total size
-    if not preprocessing_done:
-        bitstream_all_sizes_mb = [
-            Path(Path(imgdir) / Path(res.bitstream.value)).stat().st_size / 1000000 if res.bitstream else 0.0 for res in
-            resources]
-        if sum(bitstream_all_sizes_mb) > 0:
-            bitstream_size_total_mb = round(sum(bitstream_all_sizes_mb), 1)
-            bitstream_size_uploaded_mb = 0.0
-            print(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
+    bitstream_all_sizes_mb = [Path(Path(imgdir) / Path(res.bitstream.value)).stat().st_size / 1000000
+                              if res.bitstream and not preprocessing_done else 0.0
+                              for res in resources]
+    if sum(bitstream_all_sizes_mb) > 0:
+        bitstream_size_total_mb = round(sum(bitstream_all_sizes_mb), 1)
+        bitstream_size_uploaded_mb = 0.0
+        print(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
 
     for i, resource in enumerate(resources):
         resource_start = datetime.now()
         filetype = ""
-        if not preprocessing_done:
-            filesize = round(bitstream_all_sizes_mb[i], 1)
-            bitstream_duration_ms = None
+        filesize = round(bitstream_all_sizes_mb[i], 1)
+        bitstream_duration_ms = None
         resource_iri = resource.iri
         if resource.ark:
             resource_iri = _convert_ark_v0_to_resource_iri(resource.ark)
 
         # in case of a multimedia resource: upload the multimedia file
         resource_bitstream = None
-        if resource.bitstream and not preprocessing_done:
+        if preprocessing_done:
+            resource_bitstream = resource.get_bitstream(resource.bitstream.value, permissions_lookup)
+        elif resource.bitstream:
             try:
                 bitstream_start = datetime.now()
                 filetype = Path(resource.bitstream.value).suffix[1:]
@@ -525,9 +525,6 @@ def _upload_resources(
                 f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")
             internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']  # type: ignore
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
-
-        if preprocessing_done:
-            resource_bitstream = resource.get_bitstream(resource.bitstream.value, permissions_lookup)
 
         # create the resource in DSP
         resclass_type = resclass_name_2_type[resource.restype]

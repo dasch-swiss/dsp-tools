@@ -69,6 +69,14 @@ def generate_testdata() -> None:
         root.append(resource)
     excel2xml.write_xml(root, str(testproject / "data.xml"))
 
+    # download and adapt JSON project file from 0123-import-scripts
+    json_text = requests.get(
+        "https://github.com/dasch-swiss/0123-import-scripts/blob/main/import_project.json?raw=true").text
+    json_text = json_text.replace('"cardinality": "1"', '"cardinality": "0-n"')
+    json_text = json_text.replace('"cardinality": "1-n"', '"cardinality": "0-n"')
+    with open(testproject / "data_model.json", "x") as f:
+        f.write(json_text)
+
 
 def check_multimedia_folder(
     xmlfile: str,
@@ -311,7 +319,7 @@ def preprocess_xml_upload(
             elem.text = mapping[elem.text]
     xml_string = etree.tostring(xml_file_tree, encoding="unicode", pretty_print=True)
     xml_string = '<?xml version="1.0" encoding="UTF-8"?>\n' + xml_string
-    with open(f"{Path(xmlfile).stem}-preprocessed.xml", "x", encoding="utf-8") as f:
+    with open(f"{Path(xmlfile).stem}-preprocessed.xml", "w", encoding="utf-8") as f:
         f.write(xml_string)
 
     assert len(list(Path("tmp").iterdir())) == 0

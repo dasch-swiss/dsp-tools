@@ -1,7 +1,6 @@
 import concurrent.futures
 import json
 import os
-import shutil
 import warnings
 from collections.abc import Generator
 from itertools import repeat
@@ -85,6 +84,13 @@ def check_multimedia_folder(
     """
     Verify that all multimedia files referenced in the XML file are contained in multimedia_folder
     (or one of its subfolders), and that all files contained in multimedia_folder are referenced in the XML file.
+
+    Args:
+        xmlfile: path to the XML file
+        multimedia_folder: path to the multimedia folder
+
+    Returns:
+        lxml.etree.ElementTree of the XML file
     """
     tree = etree.parse(xmlfile)
     bitstream_paths = [x.text for x in tree.iter()
@@ -215,22 +221,17 @@ def make_preprocessing(
     return mapping, failed_batch_items
 
 
-def preprocess_batch(batch: list[Path], batch_id: int, sipi_port: int) -> dict[str, str]:
+def preprocess_batch(batch: list[Path], sipi_port: int) -> dict[str, str]:
     """
-    Process the images contained in one batch:
-    create JP2 and sidecar files,
-    pack them into a ZIP together with the original files
-    (one ZIP per batch)
+    Create JP2 and sidecar files of the images contained in one batch.
 
     Args:
         batch: list of paths to image files
-        batch_id: ID of the batch
         sipi_port: port number of SIPI
 
     Returns:
-        None
+        mapping of original filepaths to internal filenames
     """
-    # print(f"\tPre-process batch with ID {batch_id} ({len(batch)} elements)...")
     mapping, failed_batch_items = make_preprocessing(
         batch=batch,
         sipi_port=sipi_port
@@ -242,21 +243,27 @@ def preprocess_batch(batch: list[Path], batch_id: int, sipi_port: int) -> dict[s
             sipi_port=sipi_port
         )
         mapping.update(mapping_addition)
-
-    zip_waiting_room = Path(f"ZIP/{batch_id}")
-    zip_waiting_room.mkdir(parents=True)
-    for file in list(Path("tmp").iterdir()):  # don't use generator directly (thread unsafe)
-        uuids = [Path(x).stem for x in mapping.values()]
-        if Path(file.stem).stem in uuids:  # doubling necessary due to double extensions
-            shutil.move(file, zip_waiting_room)
-
-    assert len(list(zip_waiting_room.iterdir())) == len(batch) * 3, \
-        f"Number of files in ZIP for batch {batch_id} is inconsistent with the original batch size"
-    zipped_batch = shutil.make_archive(base_name=f"ZIP/{batch_id}", format="zip", root_dir=zip_waiting_room)
-    print(f"\tBatch {batch_id} is ready to be sent to DSP server as {Path(zipped_batch).relative_to(os.getcwd())}")
-    shutil.rmtree(zip_waiting_room)
-
     return mapping
+
+
+def write_preprocessed_xml_file(xml_file_tree: etree.ElementTree, mapping: dict[str, str], xmlfile: str) -> None:
+    """
+    Make a copy of the XML file with the filepaths replaced by the UUID.
+
+    Args:
+        xml_file_tree: etree representation of the original XML document
+        mapping: mapping from the original filepaths to the internal filenames
+
+    Returns:
+        None
+    """
+    for elem in xml_file_tree.iter():
+        if elem.text in mapping:
+            elem.text = mapping[elem.text]
+    xml_string = etree.tostring(xml_file_tree, encoding="unicode", pretty_print=True)
+    xml_string = '<?xml version="1.0" encoding="UTF-8"?>\n' + xml_string
+    with open(f"{Path(xmlfile).stem}-preprocessed.xml", "w", encoding="utf-8") as f:
+        f.write(xml_string)
 
 
 def preprocess_xml_upload(
@@ -278,9 +285,6 @@ def preprocess_xml_upload(
     Returns:
         None
     """
-
-    shutil.rmtree("ZIP", ignore_errors=True)
-
     xml_file_tree = check_multimedia_folder(xmlfile=xmlfile, multimedia_folder=multimedia_folder)
 
     # concurrent.futures.ThreadPoolExecutor() works with min(32, os.cpu_count() + 4) threads
@@ -298,32 +302,21 @@ def preprocess_xml_upload(
 
     mapping = dict()
 
-    # Preprocess images with SIPI, one batchgroup after the other,
-    # so that the ZIPs become available little by little,
-    # and can be sent to the server as they become available
     for i, batchgroup in enumerate(batchgroups):
         print(f"Handing over Batchgroup no. {i} with {len(batchgroup)} batches to ThreadPoolExecutor.")
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            mappings = executor.map(
+            batchgroup_mappings = executor.map(
                 preprocess_batch,
                 batchgroup,
-                [f"{i}-{j}" for j in range(len(batchgroup))],
                 repeat(sipi_port)
             )
-        for mp in mappings:
+        for mp in batchgroup_mappings:
             mapping.update(mp)
 
-    # make a copy of the XML file with the filepaths replaced by the UUID
-    for elem in xml_file_tree.iter():
-        if elem.text in mapping:
-            elem.text = mapping[elem.text]
-    xml_string = etree.tostring(xml_file_tree, encoding="unicode", pretty_print=True)
-    xml_string = '<?xml version="1.0" encoding="UTF-8"?>\n' + xml_string
-    with open(f"{Path(xmlfile).stem}-preprocessed.xml", "w", encoding="utf-8") as f:
-        f.write(xml_string)
+        # TODO: send_batch_to_server(batchgroup_mappings)
 
-    assert len(list(Path("tmp").iterdir())) == 0
-    shutil.rmtree("tmp", ignore_errors=True)
+    write_preprocessed_xml_file(xml_file_tree=xml_file_tree, mapping=mapping, xmlfile=xmlfile)
+
     print("Sucessfully finished!")
 
 # Ideas how to improve the multithreading:

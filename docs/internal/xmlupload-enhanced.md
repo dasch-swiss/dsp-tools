@@ -30,6 +30,7 @@ The following data structure is expected:
 
 ```
 my_project
+├── data_model.json
 ├── data.xml   (<bitstream>multimedia/dog.jpg</bitstream>)
 └── multimedia
     ├── dog.jpg
@@ -61,15 +62,29 @@ dsp-tools preprocess-xmlupload --generate-test-data
 
 Run a modified local instance of SIPI as follows: 
 
+Method 1: Start with a fresh clone:
+
 - make a fresh clone of the [DSP-API repository](https://github.com/dasch-swiss/dsp-api)
-- do NOT rename it, its name must be "dsp-api"
-- execute `make env-file` inside it 
-   - (This is only necessary if you have never started a stack from within that repo. It sets some environment variables.)
+- optional: rename the repository
+- execute `make env-file` inside it (this sets some environment variables)
+   - after setting the environment variables, or after executing a `make stack-up` in the DSP-API repository, 
+     every change of the repository's name must be updated in the `LOCAL_HOME` variable in the `.env` file
+- continue with the common steps below
+
+Method 2: Reuse an old clone:
+
+- you have executed `make stack-up` before, so the `.env` file exists
+- if you rename the repository, update `LOCAL_HOME` in the `.env` file
+- continue with the common steps below
+
+Common steps for methods 1 + 2:
+
 - in `docker-compose.yml`, comment out the following sections:
    - app
    - db
    - api
-- in `docker-compose.yml`, change the `ports` of sipi from "1024:1024" to "1024"
+- in `docker-compose.yml`, change the `ports` of sipi from "1024:1024" to "1023"
+- in `sipi/config/sipi.docker-config.lua`, change sipi/port from 1024 to 1023
 - in `docker-compose.yml`, add your project folder to the `sipi/volumes` list, in the form: `full/path:abbreviation:delegated`
 - in `sipi/config/sipi.docker-config.lua`, change `imgroot` from '/sipi/images' to the abbreviation of your project folder 
 - in `sipi/config/sipi.docker-config.lua`, change `nthreads` from 8 to 32
@@ -81,7 +96,7 @@ Run a modified local instance of SIPI as follows:
         return
     end
   ```
-- finally, execute `docker compose up --scale sipi=1`
+- finally, execute `docker compose -p local-sipi up --scale sipi=1`
 - find the 5-digit port number that SIPI uses, in the "Container" view of Docker Desktop
 
 

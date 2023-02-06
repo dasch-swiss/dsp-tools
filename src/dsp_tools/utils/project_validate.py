@@ -1,3 +1,4 @@
+import importlib.resources
 import json
 import os
 from typing import Any, Union
@@ -47,11 +48,10 @@ def validate_project(
             project_definition["project"]["lists"] = new_lists
 
     # validate the project definition against the schema
-    current_dir = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(current_dir, "../schemas/project.json")) as s:
-        schema = json.load(s)
+    with importlib.resources.files("dsp_tools").joinpath("schemas").joinpath("project.json").open() as schema_file:
+        project_schema = json.load(schema_file)
     try:
-        jsonschema.validate(instance=project_definition, schema=schema)
+        jsonschema.validate(instance=project_definition, schema=project_schema)
     except jsonschema.exceptions.ValidationError as err:
         raise BaseError(f"The JSON project file cannot be created due to the following validation error: {err.message}.\n"
                         f"The error occurred at {err.json_path}:\n"

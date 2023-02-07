@@ -9,10 +9,10 @@ a JSON project file can be created from Excel files.
 
 To put it simple, a JSON project consists of
 
- - 0-1 "lists" sections
- - 1-n ontologies, each containing
-     - 1 "properties" section
-     - 1 "resources" section
+- 0-1 "lists" sections
+- 1-n ontologies, each containing
+    - 1 "properties" section
+    - 1 "resources" section
 
 For each of these 3 sections, one or several Excel files are necessary. The Excel files and their format are described 
 below. If you want to convert the Excel files to JSON, it is possible to invoke a command for each of these sections 
@@ -20,6 +20,7 @@ separately (as described below).
 
 But it is more convenient to use the command that creates the entire JSON project file. In order to do so, put all 
 involved files into a folder with the following structure:
+
 ```
 data_model_files
 |-- lists
@@ -32,11 +33,12 @@ data_model_files
 
 Conventions for the folder names:
 
- - The "lists" folder must have exactly this name, if it exists. It can also be omitted.
- - Replace "onto_name" by your ontology's name, and "onto_label" by your ontology's label.
- - The only name that can be chosen freely is the name of the topmost folder ("data_model_files" in this example). 
+- The "lists" folder must have exactly this name, if it exists. It can also be omitted.
+- Replace "onto_name" by your ontology's name, and "onto_label" by your ontology's label.
+- The only name that can be chosen freely is the name of the topmost folder ("data_model_files" in this example).
 
 Then, use the following command:
+
 ```
 dsp-tools excel2json data_model_files project.json
 ```
@@ -59,7 +61,8 @@ the `resources` section used in a data model (JSON) can be created from an Excel
 Only `XLSX` files are allowed. 
 The `resources` section can be inserted into the ontology file and then be uploaded onto a DSP server.
 
-**An Excel file template can be found [here](../assets/data_model_templates/rosetta%20(rosetta)/resources.xlsx) or also in the 
+**An Excel file template can be found [here](../assets/data_model_templates/rosetta%20(rosetta)/resources.xlsx) 
+or also in the
 [`data_model_files` folder of `0123-import-scripts`](https://github.com/dasch-swiss/0123-import-scripts/tree/main/data_model_files).
 It is recommended to work from the template.** 
 
@@ -73,10 +76,12 @@ The worksheet called `classes` must have the following structure:
 
 The expected columns are:
 
-- `name` (mandatory): The name of the resource
-- `en`, `de`, `fr`, `it`, `rm`: The labels of the resource in different languages, at least one language has to be provided
-- `comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm` (optional): comments in the respective language 
-- `super` (mandatory): The base class(es) of the resource, separated by commas
+- [`name`](./json-project/ontologies.md#name_2) (mandatory): The name of the resource
+- [`en`, `de`, `fr`, `it`, `rm`](./json-project/ontologies.md#labels_1):
+  The labels of the resource in different languages. At least one language has to be provided.
+- [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#comments_1)
+  (optional): comments in the respective language
+- [`super`](./json-project/ontologies.md#super_1) (mandatory): The base class(es) of the resource, separated by commas
 
 The optional columns may be omitted in the Excel.
 
@@ -85,8 +90,9 @@ All other worksheets, one for each resource class, have the following structure:
 
 The expected columns are:
 
-- `Property` (mandatory): The name of the property
-- `Cardinality` (mandatory): The cardinality, one of: `1`, `0-1`, `1-n`, `0-n`
+- [`Property`](./json-project/ontologies.md#cardinalities) (mandatory): The name of the property
+- [`Cardinality`](./json-project/ontologies.md#cardinalities) (mandatory): 
+  The cardinality, one of: `1`, `0-1`, `1-n`, `0-n`
 
 The GUI order is given by the order in which the properties are listed in the Excel sheet.
 
@@ -102,7 +108,8 @@ the `properties` section used in a data model (JSON) can be created from an Exce
 Only the first worksheet of the Excel file is considered and only XLSX files are allowed. 
 The `properties` section can be inserted into the ontology file and then be uploaded onto a DSP server.
 
-**An Excel file template can be found [here](../assets/data_model_templates/rosetta%20(rosetta)/properties.xlsx) or also in the 
+**An Excel file template can be found [here](../assets/data_model_templates/rosetta%20(rosetta)/properties.xlsx) 
+or also in the
 [`data_model_files` folder of `0123-import-scripts`](https://github.com/dasch-swiss/0123-import-scripts/tree/main/data_model_files). 
 It is recommended to work from the template.**
 
@@ -111,15 +118,23 @@ The Excel sheet must have the following structure:
 
 The expected columns are:
 
-- `name` (mandatory): The name of the property
-- `super` (mandatory): The base property/ies of the property, separated by commas
-- `object` (mandatory): If the property is derived from `hasValue`, the type of the property must be further specified by the 
-object it takes, e.g. `TextValue`, `ListValue`, or `IntValue`. If the property is derived from `hasLinkTo`, 
-the `object` specifies the resource class that this property refers to.
-- `en`, `de`, `fr`, `it`, `rm`: The labels of the property in different languages, at least one language has to be provided
-- `comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm` (optional): comments in the respective language 
-- `gui_element` (mandatory): The GUI element for the property
-- `gui_attributes` (optional): The gui_attributes in the form "attr: value, attr: value". 
+- [`name`](./json-project/ontologies.md#name_1) (mandatory): The name of the property
+- [`super`](./json-project/ontologies.md#super) (mandatory): The base property/ies of the property, separated by commas
+- [`object`](./json-project/ontologies.md#object-gui_element-gui_attributes) (mandatory): 
+  If the property is derived from `hasValue`, 
+  the type of the property must be further specified
+  by the object it takes, 
+  e.g. `TextValue`, `ListValue`, or `IntValue`. 
+  If the property is derived from `hasLinkTo`, 
+  the `object` specifies the resource class that this property refers to.
+- [`en`, `de`, `fr`, `it`, `rm`](./json-project/ontologies.md#labels): 
+  The labels of the property in different languages. At least one language has to be provided.
+- [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#comments) 
+  (optional): comments in the respective language 
+- [`gui_element`](./json-project/ontologies.md#object-gui_element-gui_attributes) (mandatory): 
+  The GUI element for the property
+- [`gui_attributes`](./json-project/ontologies.md#object-gui_element-gui_attributes) (optional): 
+  The gui_attributes in the form "attr: value, attr: value". 
 
 The optional columns may be omitted in the Excel.  
 For backwards compatibility, files containing a column `hlist` are valid, but deprecated.
@@ -135,8 +150,9 @@ With the [`excel2lists`](../cli-commands.md#excel2lists) command,
 the `lists` section of a JSON project file can be created from one or several Excel files. 
 The lists can then be inserted into a JSON project file and uploaded to a DSP server.
 
-The following example shows how to create the "lists" section from the two Excel files `de.xlsx` and `en.xlsx` which are located
-in a directory called `listfolder`:
+The following example shows how to create the "lists" section 
+from the two Excel files `de.xlsx` and `en.xlsx` 
+which are located in a directory called `listfolder`:
 
 ```bash
 dsp-tools excel2lists listfolder lists.json
@@ -162,9 +178,10 @@ Some notes:
 
 **It is recommended to work from the following templates:**  
 
- - [en.xlsx](../assets/data_model_templates/lists/en.xlsx): File with the English labels  
- - [de.xlsx](../assets/data_model_templates/lists/de.xlsx): File with the German labels
- - or alternatively from the [`data_model_files` folder of `0123-import-scripts`](https://github.com/dasch-swiss/0123-import-scripts/tree/main/data_model_files)
+- [en.xlsx](../assets/data_model_templates/lists/en.xlsx): File with the English labels
+- [de.xlsx](../assets/data_model_templates/lists/de.xlsx): File with the German labels
+- or alternatively from the
+  [`data_model_files` folder of `0123-import-scripts`](https://github.com/dasch-swiss/0123-import-scripts/tree/main/data_model_files)
 
 The output of the above command, with the template files, is:
 

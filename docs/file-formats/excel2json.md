@@ -82,11 +82,11 @@ The expected columns are:
   (one language mandatory): Label of the resource class that will be displayed in DSP-APP. Should be rather short.
 - [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#comments_1)
   (optional): Description of the resource class. Can be longer than the label.
-- [`type`](./json-project/ontologies.md#super_1) 
-  (mandatory): The base resource class(es) that this resource class is derived from.
-  If more than one: separated by commas. 
+- [`super`](./json-project/ontologies.md#super_1) 
+  (mandatory): The type of this resource class, 
+  i.e. the base resource class(es) that this resource class is derived from.
   Must be one of the values listed in the documentation. 
-  (This is the super in the JSON file.) 
+  If more than one: separated by commas. 
 
 The optional columns may be omitted in the Excel.
 
@@ -136,11 +136,10 @@ The expected columns are:
   Should be rather short.
 - [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#comments)
   (optional): Description of the property. Can be longer than the label.
-- [`type`](./json-project/ontologies.md#super) 
-  (mandatory): The base property/ies that this property is derived from.
-  If more than one: separated by commas.
+- [`super`](./json-project/ontologies.md#super) 
+  (mandatory): The type of this property, i.e. the base property/ies that this property is derived from.
   Must be one of the values listed in the documentation.
-  (This is the `super` in the JSON file.) 
+  If more than one: separated by commas.
 - [`object`](./json-project/ontologies.md#object-gui_element-gui_attributes) 
   (mandatory): Target value of this property. 
   Must be one of the values listed in the documentation.

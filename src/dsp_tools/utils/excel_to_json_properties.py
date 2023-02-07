@@ -1,13 +1,24 @@
 import importlib.resources
 import json
 import re
+import warnings
 from typing import Any, Optional
+from unittest import mock
 
 import jsonschema
 import pandas as pd
 
 from dsp_tools.models.helpers import BaseError
 from dsp_tools.utils.shared import prepare_dataframe, check_notna
+
+# Pandas relies on openpyxl to parse XLSX files.
+# A strange behaviour of openpyxl prevents pandas from opening files with some formatting properties
+# (unclear which formatting properties exactly).
+# Apparently, the excel2json template files have one of the unsupported formatting properties.
+# The following two lines of code help out.
+# Credits: https://stackoverflow.com/a/70537454/14414188
+p = mock.patch('openpyxl.styles.fonts.Font.family.max', new=100)
+p.start()
 
 languages = ["en", "de", "fr", "it", "rm"]
 
@@ -49,7 +60,9 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
     name = row["name"]
     supers = [s.strip() for s in row["super"].split(",")]
     _object = row["object"]
-    labels = {lang: row[lang] for lang in languages if row.get(lang)}
+    labels = {lang: row[f"label_{lang}"] for lang in languages if row.get(f"label_{lang}")}
+    if not labels:
+        labels = {lang: row[lang] for lang in languages if row.get(lang)}
     comments = {lang: row[f"comment_{lang}"] for lang in languages if row.get(f"comment_{lang}")}
     gui_element = row["gui_element"]
     gui_attributes = dict()
@@ -110,6 +123,9 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
         for req in required:
             if not check_notna(row[req]):
                 raise BaseError(f"'{excelfile}' has a missing value in row {index + 2}, column '{req}'")
+    if any([df.get(lang) is not None for lang in languages]):
+        warnings.warn(f"The file {excelfile} uses {languages} as column titles, which is deprecated. "
+                      f"Please use {[f'label_{lang}' for lang in languages]}")
 
     # transform every row into a property
     props = [_row2prop(row, i, excelfile) for i, row in df.iterrows()]

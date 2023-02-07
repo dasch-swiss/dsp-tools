@@ -560,72 +560,72 @@
                             {
                                 "propname": ":hasAnthroponym",
                                 "cardinality": "1",
-                                "gui_order": 1
+                                "gui_order": 0
                             },
                             {
                                 "propname": ":isOwnerOf",
                                 "cardinality": "0-1",
-                                "gui_order": 2
+                                "gui_order": 1
                             },
                             {
                                 "propname": ":correspondsToGenericAnthroponym",
                                 "cardinality": "0-n",
-                                "gui_order": 3
+                                "gui_order": 2
                             },
                             {
                                 "propname": ":hasAlias",
                                 "cardinality": "1",
-                                "gui_order": 4
+                                "gui_order": 3
                             },
                             {
                                 "propname": ":hasGender",
                                 "cardinality": "0-n",
-                                "gui_order": 5
+                                "gui_order": 4
                             },
                             {
                                 "propname": ":isDesignatedAs",
                                 "cardinality": "0-1",
-                                "gui_order": 6
+                                "gui_order": 5
                             },
                             {
                                 "propname": ":hasTitle",
                                 "cardinality": "1-n",
-                                "gui_order": 7
+                                "gui_order": 6
                             },
                             {
                                 "propname": ":hasStatus",
                                 "cardinality": "0-1",
-                                "gui_order": 8
+                                "gui_order": 7
                             },
                             {
                                 "propname": ":hasFamilyRelationTo",
                                 "cardinality": "1-n",
-                                "gui_order": 9
+                                "gui_order": 8
                             },
                             {
                                 "propname": ":hasLifeYearAmount",
                                 "cardinality": "0-1",
-                                "gui_order": 10
+                                "gui_order": 9
                             },
                             {
                                 "propname": ":hasBirthDate",
                                 "cardinality": "0-1",
-                                "gui_order": 11
+                                "gui_order": 10
                             },
                             {
                                 "propname": ":hasDeathDate",
                                 "cardinality": "0-1",
-                                "gui_order": 12
+                                "gui_order": 11
                             },
                             {
                                 "propname": ":hasBibliography",
                                 "cardinality": "1-n",
-                                "gui_order": 13
+                                "gui_order": 12
                             },
                             {
                                 "propname": ":hasRemarks",
                                 "cardinality": "1-n",
-                                "gui_order": 14
+                                "gui_order": 13
                             }
                         ]
                     },
@@ -648,32 +648,32 @@
                             {
                                 "propname": ":isTitle",
                                 "cardinality": "1",
-                                "gui_order": 1
+                                "gui_order": 10
                             },
                             {
                                 "propname": ":isTitleInEnglish",
                                 "cardinality": "0-1",
-                                "gui_order": 2
+                                "gui_order": 1
                             },
                             {
                                 "propname": ":isTitleInFrench",
                                 "cardinality": "0-1",
-                                "gui_order": 3
+                                "gui_order": 9
                             },
                             {
                                 "propname": ":isTitleInGerman",
                                 "cardinality": "0-1",
-                                "gui_order": 4
+                                "gui_order": 2
                             },
                             {
                                 "propname": ":isEquivalentTo",
                                 "cardinality": "0-1",
-                                "gui_order": 5
+                                "gui_order": 8
                             },
                             {
                                 "propname": ":belongsToOccupationField",
                                 "cardinality": "0-1",
-                                "gui_order": 6
+                                "gui_order": 3
                             },
                             {
                                 "propname": ":isGodRelatedTo",
@@ -683,17 +683,17 @@
                             {
                                 "propname": ":isPlaceRelatedTo",
                                 "cardinality": "0-n",
-                                "gui_order": 8
+                                "gui_order": 4
                             },
                             {
                                 "propname": ":hasBibliography",
                                 "cardinality": "0-n",
-                                "gui_order": 9
+                                "gui_order": 6
                             },
                             {
                                 "propname": ":hasRemarks",
                                 "cardinality": "0-n",
-                                "gui_order": 10
+                                "gui_order": 5
                             }
                         ]
                     },

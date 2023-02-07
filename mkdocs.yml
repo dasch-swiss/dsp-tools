@@ -7,7 +7,7 @@ copyright: "&copy; 2017 - <script>document.write(new Date().getFullYear())</scri
 
 nav:
   - Overview: index.md
-  - The CLI commands: cli-commands.md
+  - CLI commands: cli-commands.md
   - File formats:
       - JSON project file:
           - Overview: file-formats/json-project/overview.md
@@ -17,7 +17,7 @@ nav:
       - excel2json: file-formats/excel2json.md
       - excel2xml: file-formats/excel2xml.md
   - Incremental xmlupload: incremental-xmlupload.md
-  - The excel2xml module: excel2xml-module.md
+  - excel2xml module: excel2xml-module.md
   - Running DSP locally: start-stack.md
   - DaSCH-internal commands:
       - Improved Mass-Upload: internal/xmlupload-enhanced.md

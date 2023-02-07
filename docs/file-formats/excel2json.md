@@ -118,19 +118,25 @@ The Excel sheet must have the following structure:
 
 The expected columns are:
 
-- [`name`](./json-project/ontologies.md#name_1) (mandatory): The name of the property
-- [`super`](./json-project/ontologies.md#super) (mandatory): The base property/ies of the property, separated by commas
-- [`object`](./json-project/ontologies.md#object-gui_element-gui_attributes) (mandatory): 
-  If the property is derived from `hasValue`, 
+- [`name`](./json-project/ontologies.md#name_1) 
+  (mandatory): unique identifier for the property
+- [`label_en`, `label_de`, `label_fr`, `label_it`, `label_rm`](./json-project/ontologies.md#labels): 
+  label of the property that will be displayed in DSP-APP. 
+  Should be rather short. 
+  At least one language has to be provided.
+- [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#comments)
+  (optional): description of the property. Can be longer than the label.
+- [`type`](./json-project/ontologies.md#super) 
+  (mandatory): The base property/ies that this property is derived from.
+  (This is the `super` in the JSON file.) 
+  If more than one: separated by commas.
+- [`object`](./json-project/ontologies.md#object-gui_element-gui_attributes) 
+  (mandatory): If the property is derived from `hasValue`, 
   the type of the property must be further specified
   by the object it takes, 
   e.g. `TextValue`, `ListValue`, or `IntValue`. 
   If the property is derived from `hasLinkTo`, 
   the `object` specifies the resource class that this property refers to.
-- [`en`, `de`, `fr`, `it`, `rm`](./json-project/ontologies.md#labels): 
-  The labels of the property in different languages. At least one language has to be provided.
-- [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#comments) 
-  (optional): comments in the respective language 
 - [`gui_element`](./json-project/ontologies.md#object-gui_element-gui_attributes) (mandatory): 
   The GUI element for the property
 - [`gui_attributes`](./json-project/ontologies.md#object-gui_element-gui_attributes) (optional): 

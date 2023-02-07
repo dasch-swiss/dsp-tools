@@ -1007,15 +1007,21 @@ used in all cases when your resource is none of the special cases below.
 
 `"cardinalities": [...]`
 
-An array that contains information about the relation between resources and properties. It tells what properties a
-resource can have as well as how many times the relation is established.
+An array that contains information about the relation between resources and properties. 
+It tells what properties a resource can have 
+as well as how many values a property can have.
 
-- `cardinalities`: Array of references to the properties that the resource may hold including the cardinality. A
-  cardinality has the following properties:
-    - `propname` (1): The name of the property. If it's used in the form `:my_propname`, the current ontology is referenced.
-      Otherwise, the prefix of the ontology the property is part of has to be used.
-    - `gui_order` (0-1): An integer number which will help the GUI to display the properties in the desired order (optional)
-    - `cardinality` (1): Indicates how often a given property may occur. The possible values are:
+- `cardinalities`: Array of references to the properties that the resource may hold.
+  A cardinality is defined as follows:
+    - `propname` (mandatory): The name of the property. 
+      If it's used in the form `:my_property`, the current ontology is referenced.
+      If the property was defined in another ontology, the prefix of that ontology must be provided.
+    - `gui_order` (optional): By default, DSP-APP displays the properties in the order 
+      how they are defined in the `cardinalities` array.
+      If you prefer another order, you can provide a positive integer here.
+      Example: You order the propnames alphabetically in the JSON file, 
+      but they should be displayed in another order in DSP-APP.
+    - `cardinality` (mandatory): Indicates how often a given property may occur. The possible values are:
         - `"1"`: exactly once (mandatory one value and only one)
         - `"0-1"`: The value may be omitted, but can occur only once.
         - `"1-n"`: At least one value must be present, but multiple values may be present.

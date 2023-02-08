@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Documentation with mkdocs
+# MkDocs and markdown-link-validator
 
 ## Styling constraints in the documentation
 
@@ -8,16 +8,25 @@ In our GitHub actions, we check PRs for dead links in the documentation.
 Our tool markdown-link-validator is only able to check internal links
 if they start with `./`. For example:
 
-- `[prefixes](./dsp-tools-create.md#prefixes-object)` instead of `[prefixes](dsp-tools-create.md#prefixes-object)`
-- `![Colors_en](./assets/images/img-list-english-colors.png)` instead of `![Colors_en](assets/images/img-list-english-colors.png)`
+- `[prefixes]⁣(./dsp-tools-create.md#prefixes-object)` instead of 
+  `[prefixes](dsp-tools-create.md#prefixes-object)`
+- `![Colors_en]⁣(./assets/images/img-list-english-colors.png)` instead of 
+  `![Colors_en](assets/images/img-list-english-colors.png)`
 
-It is okay, however, to make an internal link to a title of the current document: `[prefixes](#prefixes-object)`
+It is okay, however, to make an internal link to a title of the current document: 
+`[prefixes]⁣(#prefixes-object)`
 
 Please follow this constraint, so that markdown-link-validator can check the internal links.
 
-| <center>Hint</center>                                                                                                                                                                      |
-|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| If your links are correct, but markdown-link-validator doesn't recognize them, it might be necessary to adapt the call to markdown-link-validator in `.github/workflows/tests-on-push.yml` |
+
+
+## Handling false positives of markdown-link-validator
+
+What can be done if your links are correct, but markdown-link-validator doesn't recognize them?
+One solution is to add an ignore pattern 
+to the call to markdown-link-validator in `.github/workflows/tests-on-push.yml`.
+If your link is in a code block, and isn't intended to be used as link,
+you can also add an invisible Unicode character, like in the examples above.
 
 
 

@@ -26,7 +26,7 @@ nav:
         - Maintaining the start-stack command: developers/start-stack-command.md
         - User data: developers/user-data.md
         - GitHub actions: developers/github-actions.md
-        - Mkdocs: developers/mkdocs.md
+        - MkDocs and markdown-link-validator: developers/mkdocs.md
   - Changelog: changelog.md
 
 theme:

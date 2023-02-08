@@ -79,7 +79,7 @@ as `http://xmlns.com/foaf/0.1/familyName` one can simply write `foaf:familyName`
 ```
 
 It is not necessary to define prefixes for the ontologies that are defined in the same file. Ontologies in the same
-file can be referenced by their name. See [this section](./ontologies.md#referencing-ontologies) for
+file can be referenced by their name. See [this section](./caveats.md#referencing-ontologies) for
 more information about referencing ontologies.
 
 

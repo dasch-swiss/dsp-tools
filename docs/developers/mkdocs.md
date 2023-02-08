@@ -58,8 +58,8 @@ other-file.md:
 [Second Heading](file.md#heading-1)    <!--npm markdown-link-validator supports only this syntax-->
 ```
 
-VS Code supports both syntaxes, whereas PyCharm supports only the one with `heading-1`.
 By standard means, it is thus impossible to create links that work everywhere.
+VS Code supports both syntaxes, whereas PyCharm supports only the one with `heading-1`.
 The real danger is that mkdocs doesn't complain if you use the `heading-1` syntax, 
 not even when using the `--strict` flag.
 

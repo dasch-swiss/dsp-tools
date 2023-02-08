@@ -256,7 +256,7 @@ Example of a `properties` object:
 `"subject": "<resource-class>"`
 
 The `subject` defines the resource class the property can be used on. It has to be provided as prefixed name of the 
-resource class (see [below](#referencing-ontologies) on how prefixed names are used).
+resource class (see [here](./caveats.md#referencing-ontologies) on how prefixed names are used).
 
 
 

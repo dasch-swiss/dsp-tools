@@ -158,7 +158,9 @@ The expected columns are:
   Form: "attr: value, attr: value". 
 
 The optional columns may be omitted in the Excel.  
-For backwards compatibility, files containing a column `hlist` are valid, but deprecated.
+
+For backwards compatibility, 
+files with column titles `hlist`, `en`, `de`, `fr`, `it`, or `rm` are valid, but deprecated.
 
 
 

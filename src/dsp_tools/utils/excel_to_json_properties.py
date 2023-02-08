@@ -118,14 +118,18 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
         location_of_sheet=f"File '{excelfile}'"
     )
 
+    # validation
     required = ["super", "object", "gui_element"]
     for index, row in df.iterrows():
         for req in required:
             if not check_notna(row[req]):
                 raise BaseError(f"'{excelfile}' has a missing value in row {index + 2}, column '{req}'")
     if any([df.get(lang) is not None for lang in languages]):
-        warnings.warn(f"The file {excelfile} uses {languages} as column titles, which is deprecated. "
+        warnings.warn(f"The file '{excelfile}' uses {languages} as column titles, which is deprecated. "
                       f"Please use {[f'label_{lang}' for lang in languages]}")
+    if df.get("hlist"):
+        warnings.warn(f"The file '{excelfile}' has a column 'hlist', which is deprecated. "
+                      f"Please use the column 'gui_attributes' for the attribute 'hlist'.")
 
     # transform every row into a property
     props = [_row2prop(row, i, excelfile) for i, row in df.iterrows()]

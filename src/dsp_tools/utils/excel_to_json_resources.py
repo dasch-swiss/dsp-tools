@@ -69,16 +69,31 @@ def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
         required_columns=["Property", "Cardinality"],
         location_of_sheet=f"Sheet '{name}' in file '{excelfile}'"
     )
-    if len([x for x in details_df.get("gui_order", []) if x]) > 0:
-        for gui_order in details_df.get("gui_order"):
-            gui_order = regex.sub(r"\.0+", "", str(gui_order))
-            if not regex.search(r"^\d+$", gui_order):
-                raise BaseError(f"Sheet '{name}' in file '{excelfile}' has invalid content in column 'gui_order': "
-                                f"only positive integers allowed (or leave column empty altogether)")
+
+    # validation
+    # 4 cases:
+    #  - column gui_order absent
+    #  - column gui_order empty
+    #  - column gui_order present but not properly filled in (missing values / not integers)
+    #  - column gui_order present and properly filled in
+    all_gui_order_cells = [x for x in details_df.get("gui_order", []) if x]
+    validation_passed = True
+    if not all_gui_order_cells:  # column gui_order absent or empty
+        pass
+    elif len(all_gui_order_cells) == len(details_df["property"]):  # column gui_order filled in. try casting to int
+        try:
+            [int(float(x)) for x in details_df.get("gui_order")]
+        except ValueError:
+            validation_passed = False
+    else:  # column gui_order present but not properly filled in (missing values)
+        validation_passed = False
+    if not validation_passed:
+        raise BaseError(f"Sheet '{name}' in file '{excelfile}' has invalid content in column 'gui_order': "
+                        f"only positive integers allowed (or leave column empty altogether)")
 
     cards = []
     for j, detail_row in details_df.iterrows():
-        gui_order = str(detail_row.get("gui_order", ""))
+        gui_order = detail_row.get("gui_order", "")
         gui_order = regex.sub(r"\.0+", "", str(gui_order))
         property_ = {
             "propname": ":" + detail_row["property"],
@@ -121,6 +136,7 @@ def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -
         location_of_sheet=f"Sheet 'classes' in file '{excelfile}'"
     )
 
+    # validation
     for index, row in all_classes_df.iterrows():
         if not check_notna(row["super"]):
             raise BaseError(f"Sheet 'classes' of '{excelfile}' has a missing value in row {index + 2}, column 'super'")

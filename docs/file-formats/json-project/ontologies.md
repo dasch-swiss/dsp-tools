@@ -137,7 +137,7 @@ A detailed description of `resources` can be found [below](#properties-object-in
 
 
 
-### Name {#property-name}
+### Name <a id="property-name"></a>
 
 (required)
 
@@ -944,7 +944,7 @@ Example:
 
 ## Resources Object in Detail
 
-### Name {#resource-name}
+### Name <a id="resource-name"></a>
 
 (required)
 
@@ -958,7 +958,7 @@ By convention, resource names start with an upper case letter.
 
 
 
-### Labels {#resource-labels}
+### Labels <a id="resource-labels"></a>
 
 (required)
 
@@ -969,7 +969,7 @@ and "rm" are supported).
 
 
 
-### Super {#resource-super}
+### Super <a id="resource-super"></a>
 
 (required)
 
@@ -1029,7 +1029,7 @@ as well as how many values a property can have.
 
 
 
-### Comments {#resource-comments}
+### Comments <a id="resource-comments"></a>
 
 (optional)
 

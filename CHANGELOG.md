@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.0.3](https://github.com/dasch-swiss/dsp-tools/compare/v2.0.2...v2.0.3) (2023-02-07)
+
+
+### Documentation
+
+* restructure docs, add link-checking (DEV-1623) ([#286](https://github.com/dasch-swiss/dsp-tools/issues/286)) ([d65ff53](https://github.com/dasch-swiss/dsp-tools/commit/d65ff53ec2f4b368326234f5cb8516b209834341))
+
+
+### Maintenance
+
+* access data files correctly (DEV-1618) ([#288](https://github.com/dasch-swiss/dsp-tools/issues/288)) ([7a64a27](https://github.com/dasch-swiss/dsp-tools/commit/7a64a27a2af2a41a4b98bd545bbe36b046b5d27b))
+* bump start-stack to 2023.02.01 (DEV-1709) ([#292](https://github.com/dasch-swiss/dsp-tools/issues/292)) ([5fd58d2](https://github.com/dasch-swiss/dsp-tools/commit/5fd58d266d407c134f91ed527be4965c5336435c))
+* bump versions of start-stack to 2023.01.02 (DEV-1652) ([#290](https://github.com/dasch-swiss/dsp-tools/issues/290)) ([2889a20](https://github.com/dasch-swiss/dsp-tools/commit/2889a20d494c311205cdf425a12d3bc12a398579))
+* update links according to new structure of docs (DEV-1648) ([#289](https://github.com/dasch-swiss/dsp-tools/issues/289)) ([16d9c12](https://github.com/dasch-swiss/dsp-tools/commit/16d9c1234c404badc62f1882ab74001bee22b977))
+
 ## [2.0.2](https://github.com/dasch-swiss/dsp-tools/compare/v2.0.1...v2.0.2) (2023-01-17)
 
 

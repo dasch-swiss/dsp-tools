@@ -76,13 +76,13 @@ The worksheet called `classes` must have the following structure:
 
 The expected columns are:
 
-- [`name`](./json-project/ontologies.md#name_2) 
+- <a href="../json-project/ontologies#resource-name">`name`</a>
   (mandatory): Unique identifier for the resource class
-- [`label_en`, `label_de`, `label_fr`, `label_it`, `label_rm`](./json-project/ontologies.md#labels_1):
+- <a href="../json-project/ontologies#resource-labels">`label_en`, `label_de`, `label_fr`, `label_it`, `label_rm`</a>
   (one language mandatory): Label of the resource class that will be displayed in DSP-APP. Should be rather short.
-- [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#comments_1)
+- <a href="../json-project/ontologies#resource-comments">`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`</a>
   (optional): Description of the resource class. Can be longer than the label.
-- [`super`](./json-project/ontologies.md#super_1) 
+- <a href="../json-project/ontologies#resource-super">`super`</a>
   (mandatory): The type of this resource class, 
   i.e. the base resource class(es) that this resource class is derived from.
   Must be one of the values listed in the documentation. 
@@ -129,7 +129,7 @@ The Excel sheet must have the following structure:
 
 The expected columns are:
 
-- [`name`](./json-project/ontologies.md#name_1) 
+- <a href="../json-project/ontologies#property-name ">`name`</a>
   (mandatory): Unique identifier for the property
 - [`label_en`, `label_de`, `label_fr`, `label_it`, `label_rm`](./json-project/ontologies.md#labels):
   (one language mandatory): Label of the property that will be displayed in DSP-APP. 

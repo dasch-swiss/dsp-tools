@@ -676,7 +676,7 @@ from `hasLinkTo`. There are different groups of resource classes that can be the
      - `StillImageRepresentation`, `MovingImageRepresentation`, `TextRepresentation`, `AudioRepresentation`, 
        `DDDRepresentation`, `DocumentRepresentation`, or `ArchiveRepresentation`
 
-The syntax how to refer to these different groups of resources is described [here](#referencing-ontologies).
+The syntax how to refer to these different groups of resources is described [here](./caveats.md#referencing-ontologies).
 
 *gui_elements/gui_attributes*:
 
@@ -982,7 +982,7 @@ as super-resource:
  - resources defined in external ontologies
  - resources defined in the project ontology itself
 
-The syntax how to refer to these different groups of resources is described [here](#referencing-ontologies).
+The syntax how to refer to these different groups of resources is described [here](caveats.md#referencing-ontologies).
 
 The following base resources can be used as super-resource:
 

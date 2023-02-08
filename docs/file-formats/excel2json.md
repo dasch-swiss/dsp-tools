@@ -76,12 +76,12 @@ The worksheet called `classes` must have the following structure:
 
 The expected columns are:
 
-- [`name`](./json-project/ontologies.md#name_2) (mandatory): The name of the resource
-- [`en`, `de`, `fr`, `it`, `rm`](./json-project/ontologies.md#labels_1):
+- <a href="../json-project/ontologies#resource-name">`name`</a> (mandatory): The name of the resource
+- <a href="../json-project/ontologies#resource-labels">`label_en`, `label_de`, `label_fr`, `label_it`, `label_rm`</a>:
   The labels of the resource in different languages. At least one language has to be provided.
-- [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#comments_1)
+- <a href="../json-project/ontologies#resource-comments">`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`</a>
   (optional): comments in the respective language
-- [`super`](./json-project/ontologies.md#super_1) (mandatory): The base class(es) of the resource, separated by commas
+- <a href="../json-project/ontologies#resource-super">`super`</a> (mandatory): The base class(es) of the resource, separated by commas
 
 The optional columns may be omitted in the Excel.
 
@@ -118,7 +118,7 @@ The Excel sheet must have the following structure:
 
 The expected columns are:
 
-- [`name`](./json-project/ontologies.md#name_1) (mandatory): The name of the property
+- <a href="../json-project/ontologies#property-name ">`name`</a> (mandatory): The name of the property
 - [`super`](./json-project/ontologies.md#super) (mandatory): The base property/ies of the property, separated by commas
 - [`object`](./json-project/ontologies.md#object-gui_element-gui_attributes) (mandatory): 
   If the property is derived from `hasValue`, 

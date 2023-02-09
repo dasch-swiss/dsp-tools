@@ -180,8 +180,8 @@ dsp-tools excel2lists listfolder lists.json
 ```
 
 The Excel sheets must have the following structure:  
-![img-list-english-example.png](../assets/images/img-list-english-example.png)  
-![img-list-german-example.png](../assets/images/img-list-german-example.png)
+![img-excel2json-list-english.png](../assets/images/img-excel2json-list-english.png)  
+![img-excel2json-list-german.png](../assets/images/img-excel2json-list-german.png)
 
 Some notes:
 

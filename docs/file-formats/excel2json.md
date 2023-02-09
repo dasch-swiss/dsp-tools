@@ -72,7 +72,7 @@ The expected worksheets of the Excel file are:
 - `class1`, `class2`,...: a table for each resource class named after its name
 
 The worksheet called `classes` must have the following structure:  
-![img-resources-example-1.png](../assets/images/img-resources-example-1.png)
+![img-resources-example-1.png](../assets/images/img-excel2json-resources-overview.png)
 
 The expected columns are:
 
@@ -91,7 +91,7 @@ The expected columns are:
 The optional columns may be omitted in the Excel.
 
 All other worksheets, one for each resource class, have the following structure:  
-![img-resources-example-2.png](../assets/images/img-resources-example-2.png)
+![img-resources-example-2.png](../assets/images/img-excel2json-resources-details.png)
 
 The expected columns are:
 
@@ -105,7 +105,7 @@ The expected columns are:
     - `"0-n"`: The value may be omitted, but may also occur multiple times.
 - [`gui_order`](./json-project/ontologies.md#cardinalities) 
   (optional): By default, DSP-APP displays the properties in the order how they are listed in the Excel sheet.
-  If you prefer another order, you can provide a positive integer here.
+  If you prefer another order, you can make a numbering in this column.
   Example: You order the propnames alphabetically in the Excel, 
   but they should be displayed in another order in DSP-APP.
 
@@ -125,7 +125,7 @@ or also in the
 It is recommended to work from the template.**
 
 The Excel sheet must have the following structure:  
-![img-properties-example.png](../assets/images/img-properties-example.png)
+![img-properties-example.png](../assets/images/img-excel2json-properties.png)
 
 The expected columns are:
 

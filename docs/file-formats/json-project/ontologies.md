@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# The "ontologies" section of a JSON project
+# The "ontologies" array of a JSON project
 
 An ontology is a formal representation of a set of terms which represent real world objects.
 Dependencies, attributes and relations of and between the individual components of the set are recorded in a logical,
@@ -24,37 +24,24 @@ properties are assigned to the resources by defining "**cardinalities**". A card
 mandatory or can be omitted (e.g. if unknown), and if a property may be used several times on the same instance of a
 resource or not. The cardinality definitions are explained [further below](#cardinalities).
 
-Example of an `ontologies` object:
+
+
+## The ontology object in detail
+
+Example of an ontology object:
 
 ```
 {
-  "ontologies": [
-    {
-      "name": "seworon",
-      "label": "Secrets of the World Ontology",
-      "properties": [
-        ...
-      ],
-      "resources": [
-        ...
-      ]
-    },
-    {
-      second ontology
-    },
-    {
-      third ontology
-    }
+  "name": "seworon",
+  "label": "Secrets of the World Ontology",
+  "properties": [
+    ...
+  ],
+  "resources": [
+    ...
   ]
 }
 ```
-
-
-
-
-## Ontologies Object in Detail
-
-The following properties can occur within each object in `ontologies`.
 
 
 
@@ -133,7 +120,28 @@ A detailed description of `resources` can be found [below](#properties-object-in
 
 
 
-## Properties Object in Detail
+## The property object in detail
+
+```json
+{
+  "name": "id",
+  "subject": ":School",
+  "object": "TextValue",
+  "super": [
+      "hasValue"
+  ],
+  "labels": {
+    "en": "School ID",
+    "de": "ID der Schule",
+    "fr": "ID de l'école"
+  },
+  "gui_element": "SimpleText",
+  "gui_attributes": {
+    "size": 32,
+    "maxlength": 128
+  }
+}
+```
 
 
 
@@ -201,51 +209,6 @@ The following DSP base properties are available:
   of an audio/video resource.
 - `hasSequenceBounds`: This base property is used together with `isSequenceOf`. It denotes a time interval of an audio/
   video resource.
-
-Example of a `properties` object:
-
-```json
-{
-  "properties": [
-    {
-      "name": "id",
-      "subject": ":School",
-      "object": "TextValue",
-      "super": [
-          "hasValue"
-      ],
-      "labels": {
-        "en": "School ID",
-        "de": "ID der Schule",
-        "fr": "ID de l'école"
-      },
-      "gui_element": "SimpleText",
-      "gui_attributes": {
-        "size": 32,
-        "maxlength": 128
-      }
-    },
-    {
-      "name": "name",
-      "subject": ":School",
-      "object": "TextValue",
-      "super": [
-          "hasValue"
-      ],
-      "labels": {
-        "en": "Name of the school",
-        "de": "Name der Schule",
-        "fr": "Nom de l'école"
-      },
-      "gui_element": "SimpleText",
-      "gui_attributes": {
-        "size": 32,
-        "maxlength": 128
-      }
-    }
-  ]
-}
-```
 
 
 
@@ -942,7 +905,45 @@ Example:
 
 
 
-## Resources Object in Detail
+## The resource object in detail
+
+```json
+{
+  "name": "school",
+  "labels": {
+    "de": "Schule",
+    "en": "School",
+    "fr": "Ecole",
+    "it": "Scuola"
+  },
+  "super": "Resource",
+  "comments": {
+    "de": "Eine Bildungsinstitution für Grundbildung",
+    "en": "An education institution for basic education",
+    "fr": "Une institution de formation de base",
+    "it": "Un'istituzione educativa per l'istruzione di base"
+  },
+  "cardinalities": [
+    {
+      "propname": ":schulcode",
+      "gui_order": 1,
+      "cardinality": "1"
+    },
+    {
+      "propname": ":schulname",
+      "gui_order": 2,
+      "cardinality": "1"
+    },
+    {
+      "propname": ":bildungsgang",
+      "gui_order": 3,
+      "cardinality": "0-n"
+    }
+  ]
+}
+```
+
+
 
 ### Name <a id="resource-name"></a>
 
@@ -1030,45 +1031,3 @@ resource can have as well as how many times the relation is established.
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
 Comments with language tags. Currently, "de", "en", "fr", "it", and "rm" are supported. The `comments` element is optional.
-
-Example for a resource definition:
-
-```json
-{
-  "resources": [
-    {
-      "name": "Schule",
-      "labels": {
-        "de": "Schule",
-        "en": "School",
-        "fr": "Ecole",
-        "it": "Scuola"
-      },
-      "super": "Resource",
-      "comments": {
-        "de": "Ein Kommentar",
-        "en": "A comment",
-        "fr": "Une commentaire",
-        "it": "Un commento"
-      },
-      "cardinalities": [
-        {
-          "propname": ":schulcode",
-          "gui_order": 1,
-          "cardinality": "1"
-        },
-        {
-          "propname": ":schulname",
-          "gui_order": 2,
-          "cardinality": "1"
-        },
-        {
-          "propname": ":bildungsgang",
-          "gui_order": 3,
-          "cardinality": "1"
-        }
-      ]
-    }
-  ]
-}
-```

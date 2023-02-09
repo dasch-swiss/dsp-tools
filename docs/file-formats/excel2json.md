@@ -118,7 +118,7 @@ The Excel sheet must have the following structure:
 
 The expected columns are:
 
-- <a href="../json-project/ontologies#property-name ">`name`</a> (mandatory): The name of the property
+- <a href="../json-project/ontologies#property-name">`name`</a> (mandatory): The name of the property
 - [`super`](./json-project/ontologies.md#super) (mandatory): The base property/ies of the property, separated by commas
 - [`object`](./json-project/ontologies.md#object-gui_element-gui_attributes) (mandatory): 
   If the property is derived from `hasValue`, 

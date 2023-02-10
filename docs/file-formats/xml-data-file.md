@@ -455,7 +455,7 @@ Example:
 
 The underlying grid is a 0-1 normalized top left-anchored grid. The following coordinate system shows the three shapes
 that were defined above:  
-![grid-for-geometry-prop](../assets/images/grid-for-geometry-prop.png)
+![grid-for-geometry-prop](../assets/images/img-xml-grid-for-geometry-prop.png)
 
 
 
@@ -738,7 +738,7 @@ Example of a property with a public and a hidden URI:
 There is a number of base resources and base properties that must not be subclassed in a project ontology. They are 
 directly available in the XML data file. Please have in mind that built-in names of the knora-base ontology must be used 
 without prepended colon.  
-See also [the related part of the JSON project documentation](./json-project/ontologies.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file)
+See also [the related part of the JSON project documentation](./json-project/caveats.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file)
 
 
 ### `<annotation>`

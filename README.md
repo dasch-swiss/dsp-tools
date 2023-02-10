@@ -106,6 +106,7 @@ if you want to examine why
 a single line of code in a test method fails.
 
 
+
 ## Code style
 
 When contributing to the project please make sure you use the same code style rules as we do. 
@@ -143,6 +144,7 @@ Due to compatibility issues with VSCode, the argument `--in-place=true` can not 
 and needs to be passed to the external tool in the PyCharm settings.
 
 
+
 ## Contributing to the documentation
 
 The documentation is a collection of [Markdown](https://en.wikipedia.org/wiki/Markdown) files in the `docs` folder.
@@ -150,7 +152,6 @@ They are converted to HTML with [MkDocs](https://pypi.org/project/mkdocs/).
 We are gradually switching to [Semantic Line Breaks](https://sembr.org/),
 so don't be confused to see unexpected line breaks.
 
-The style can be adapted in the CSS file `docs/assets/style/theme.css`. 
 The navigation bar and other configurations can be configured in the `mkdocs.yml` file.
 
 After modifying the documentation, build and check the result with the following command:
@@ -164,10 +165,12 @@ This allows you to look at a preview of the documentation in a browser.
 Please note that this is not the final form how the documentation will be published.
 Rather, they are published together with the docs of DSP-API and DSP-APP on https://docs.dasch.swiss/. 
 This happens by embedding all three repositories as git submodules 
-into the central [DSP-DOCS](https://github.com/dasch-swiss/dsp-docs) repository.
-If conflicting, the CSS and other configurations there will override the configurations of the DSP-TOOLS repository.
+into the central [dsp-docs](https://github.com/dasch-swiss/dsp-docs) repository.
+If conflicting, the configurations of dsp-docs will override the configurations of the dsp-tools repository.
 In rare cases, a certain syntax is correctly rendered locally, 
 but not on https://docs.dasch.swiss/latest/DSP-TOOLS. 
+In order to keep this difference minimal, 
+`mkdocs.yml` of dsp-tools should be as similar as possible as `mkdocs.yml` of dsp-docs.
 
 During the centralized deployment process of all components of the DSP software stack,
 the docs of DSP-TOOLS get built from the latest release tag to https://docs.dasch.swiss/latest/DSP-TOOLS.
@@ -176,22 +179,3 @@ it is necessary to
 
 - merge the modifications into the main branch of the DSP-TOOLS repository
 - release DSP-TOOLS
-
-
-
-### Styling constraints in the documentation
-
-In our GitHub actions, we check PRs for dead links in the documentation. 
-Our tool markdown-link-validator is only able to check internal links
-if they start with `./`. For example:
-
-- `[prefixes](./dsp-tools-create.md#prefixes-object)` instead of `[prefixes](dsp-tools-create.md#prefixes-object)`
-- `![Colors_en](./assets/images/img-list-english-colors.png)` instead of `![Colors_en](assets/images/img-list-english-colors.png)`
-
-It is okay, however, to make an internal link to a title of the current document: `[prefixes](#prefixes-object)`
-
-Please follow this constraint, so that markdown-link-validator can check the internal links.
-
-| <center>Hint</center>                                                                                                                                                                      |
-|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| If your links are correct, but markdown-link-validator doesn't recognize them, it might be necessary to adapt the call to markdown-link-validator in `.github/workflows/tests-on-push.yml` |

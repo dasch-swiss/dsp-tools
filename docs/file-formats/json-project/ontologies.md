@@ -22,7 +22,7 @@ Within DSP, properties may be re-used for different resources. E.g. a property "
 called "image" as well as "movie". Therefore, the list of properties is separated from the list of resources. The
 properties are assigned to the resources by defining "**cardinalities**". A cardinality indicates if a property is
 mandatory or can be omitted (e.g. if unknown), and if a property may be used several times on the same instance of a
-resource or not. The cardinality definitions are explained [further below](#cardinalities).
+resource or not. The cardinality definitions are explained [further below](#resource-cardinalities).
 
 
 
@@ -45,7 +45,7 @@ Example of an ontology object:
 
 
 
-### Name
+### Ontology: Name
 
 (required)
 
@@ -56,7 +56,7 @@ means a string without blanks or special characters but `-` and `_` are allowed 
 
 
 
-### Label
+### Ontology: Label
 
 (required)
 
@@ -66,7 +66,7 @@ A string that provides the full name of the ontology.
 
 
 
-### Properties
+### Ontology: Properties
 
 (required)
 
@@ -89,11 +89,11 @@ The following fields are optional:
 - `subject`
 - `gui_attributes`
 
-A detailed description of `properties` can be found [below](#properties-object-in-detail).
+A detailed description of `properties` can be found [below](#the-property-object-in-detail).
 
 
 
-### Resources
+### Ontology: Resources
 
 (required)
 
@@ -115,7 +115,7 @@ The following field is optional:
 
 - `comments` 
 
-A detailed description of `resources` can be found [below](#properties-object-in-detail).
+A detailed description of `resources` can be found [below](#the-property-object-in-detail).
 
 
 
@@ -145,7 +145,7 @@ A detailed description of `resources` can be found [below](#properties-object-in
 
 
 
-### Name <a id="property-name"></a>
+### Property: Name
 
 (required)
 
@@ -159,7 +159,7 @@ By convention, property names start with a lower case letter.
 
 
 
-### Labels
+### Property: Labels
 
 (required)
 
@@ -170,7 +170,7 @@ and "rm" are supported).
 
 
 
-### Comments
+### Property: Comments
 
 (optional)
 
@@ -180,7 +180,7 @@ Comments with language tags. Currently, "de", "en", "fr", "it", and "rm" are sup
 
 
 
-### Super
+### Property: Super
 
 (required)
 
@@ -212,7 +212,7 @@ The following DSP base properties are available:
 
 
 
-### Subject
+### Property: Subject
 
 (optional)
 
@@ -223,7 +223,7 @@ resource class (see [here](./caveats.md#referencing-ontologies) on how prefixed 
 
 
 
-### Object / gui_element / gui_attributes
+### Property: object, gui_element, gui_attributes
 
 These three are related as follows:
 
@@ -945,7 +945,7 @@ Example:
 
 
 
-### Name <a id="resource-name"></a>
+### Resource: Name
 
 (required)
 
@@ -959,7 +959,7 @@ By convention, resource names start with an upper case letter.
 
 
 
-### Labels <a id="resource-labels"></a>
+### Resource: Labels
 
 (required)
 
@@ -970,7 +970,7 @@ and "rm" are supported).
 
 
 
-### Super <a id="resource-super"></a>
+### Resource: Super
 
 (required)
 
@@ -1002,7 +1002,7 @@ used in all cases when your resource is none of the special cases below.
 
 
 
-### Cardinalities
+### Resource: Cardinalities
 
 (required)
 
@@ -1024,7 +1024,7 @@ resource can have as well as how many times the relation is established.
 
 
 
-### Comments <a id="resource-comments"></a>
+### Resource: Comments
 
 (optional)
 

@@ -76,12 +76,12 @@ The worksheet called `classes` must have the following structure:
 
 The expected columns are:
 
-- [`name`](./json-project/ontologies.md#name_2) (mandatory): The name of the resource
-- [`en`, `de`, `fr`, `it`, `rm`](./json-project/ontologies.md#labels_1):
+- [`name`](./json-project/ontologies.md#resource-name) (mandatory): The name of the resource
+- [`en`, `de`, `fr`, `it`, `rm`](./json-project/ontologies.md#resource-labels):
   The labels of the resource in different languages. At least one language has to be provided.
-- [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#comments_1)
+- [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#resource-comments)
   (optional): comments in the respective language
-- [`super`](./json-project/ontologies.md#super_1) (mandatory): The base class(es) of the resource, separated by commas
+- [`super`](./json-project/ontologies.md#resource-super) (mandatory): The base class(es) of the resource, separated by commas
 
 The optional columns may be omitted in the Excel.
 
@@ -90,13 +90,13 @@ All other worksheets, one for each resource class, have the following structure:
 
 The expected columns are:
 
-- [`Property`](./json-project/ontologies.md#cardinalities) (mandatory): The name of the property
-- [`Cardinality`](./json-project/ontologies.md#cardinalities) (mandatory): 
+- [`Property`](./json-project/ontologies.md#resource-cardinalities) (mandatory): The name of the property
+- [`Cardinality`](./json-project/ontologies.md#resource-cardinalities) (mandatory): 
   The cardinality, one of: `1`, `0-1`, `1-n`, `0-n`
 
 The GUI order is given by the order in which the properties are listed in the Excel sheet.
 
-For further information about resources, see [here](./json-project/ontologies.md#resources).
+For further information about resources, see [here](./json-project/ontologies.md#the-resource-object-in-detail).
 
 
 
@@ -118,28 +118,28 @@ The Excel sheet must have the following structure:
 
 The expected columns are:
 
-- [`name`](./json-project/ontologies.md#name_1) (mandatory): The name of the property
-- [`super`](./json-project/ontologies.md#super) (mandatory): The base property/ies of the property, separated by commas
-- [`object`](./json-project/ontologies.md#object-gui_element-gui_attributes) (mandatory): 
+- [`name`](./json-project/ontologies.md#property-name) (mandatory): The name of the property
+- [`super`](./json-project/ontologies.md#property-super) (mandatory): The base property/ies of the property, separated by commas
+- [`object`](./json-project/ontologies.md#property-object-gui_element-gui_attributes) (mandatory): 
   If the property is derived from `hasValue`, 
   the type of the property must be further specified
   by the object it takes, 
   e.g. `TextValue`, `ListValue`, or `IntValue`. 
   If the property is derived from `hasLinkTo`, 
   the `object` specifies the resource class that this property refers to.
-- [`en`, `de`, `fr`, `it`, `rm`](./json-project/ontologies.md#labels): 
+- [`en`, `de`, `fr`, `it`, `rm`](./json-project/ontologies.md#property-labels): 
   The labels of the property in different languages. At least one language has to be provided.
-- [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#comments) 
+- [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#property-comments) 
   (optional): comments in the respective language 
-- [`gui_element`](./json-project/ontologies.md#object-gui_element-gui_attributes) (mandatory): 
+- [`gui_element`](./json-project/ontologies.md#property-object-gui_element-gui_attributes) (mandatory): 
   The GUI element for the property
-- [`gui_attributes`](./json-project/ontologies.md#object-gui_element-gui_attributes) (optional): 
+- [`gui_attributes`](./json-project/ontologies.md#property-object-gui_element-gui_attributes) (optional): 
   The gui_attributes in the form "attr: value, attr: value". 
 
 The optional columns may be omitted in the Excel.  
 For backwards compatibility, files containing a column `hlist` are valid, but deprecated.
 
-For further information about properties, see [here](./json-project/ontologies.md#properties).
+For further information about properties, see [here](./json-project/ontologies.md#the-property-object-in-detail).
 
 
 

@@ -26,23 +26,28 @@ nav:
         - Maintaining the start-stack command: developers/start-stack-command.md
         - User data: developers/user-data.md
         - GitHub actions: developers/github-actions.md
+        - MkDocs and markdown-link-validator: developers/mkdocs.md
   - Changelog: changelog.md
 
 theme:
   name: material
-  logo: "assets/images/dasch-icon-white.svg"
-  favicon: "assets/images/dasch-favicon.ico"
+  logo: "https://raw.githubusercontent.com/dasch-swiss/dsp-docs/main/docs/assets/images/logo_bw.svg"
+  favicon: "https://raw.githubusercontent.com/dasch-swiss/dsp-docs/main/docs/assets/images/logo_bw.svg"
   palette:
-    primary: "deep blue"
-    accent: "deep blue"
-  feature:
-    tabs: false
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - search.suggest
+    - search.highlight
 
 extra_css:
-  - "assets/style/theme.css"
-
-markdown_extensions:
-  - attr_list
+  - "https://raw.githubusercontent.com/dasch-swiss/dsp-docs/main/docs/assets/style/theme.css"
 
 plugins:
   - search

@@ -76,13 +76,13 @@ The worksheet called `classes` must have the following structure:
 
 The expected columns are:
 
-- <a href="../json-project/ontologies#resource-name">`name`</a>
+- [`name`](./json-project/ontologies.md#resource-name)
   (mandatory): Unique identifier for the resource class
-- <a href="../json-project/ontologies#resource-labels">`label_en`, `label_de`, `label_fr`, `label_it`, `label_rm`</a>
+- [`label_en`, `label_de`, `label_fr`, `label_it`, `label_rm`](./json-project/ontologies.md#resource-labels) 
   (one language mandatory): Label of the resource class that will be displayed in DSP-APP. Should be rather short.
-- <a href="../json-project/ontologies#resource-comments">`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`</a>
+- [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#resource-comments)
   (optional): Description of the resource class. Can be longer than the label.
-- <a href="../json-project/ontologies#resource-super">`super`</a>
+- [`super`](./json-project/ontologies.md#resource-super)
   (mandatory): The type of this resource class, 
   i.e. the base resource class(es) that this resource class is derived from.
   Must be one of the values listed in the documentation. 
@@ -95,20 +95,19 @@ All other worksheets, one for each resource class, have the following structure:
 
 The expected columns are:
 
-- [`Property`](./json-project/ontologies.md#cardinalities) 
+- [`Property`](./json-project/ontologies.md#resource-cardinalities) 
   (mandatory): The unique identifier of the property
-- [`Cardinality`](./json-project/ontologies.md#cardinalities) 
+- [`Cardinality`](./json-project/ontologies.md#resource-cardinalities) 
   (mandatory): Indicates how often the property may occur. The possible values are:
     - `"1"`: exactly once (mandatory one value and only one)
     - `"0-1"`: The value may be omitted, but can occur only once.
     - `"1-n"`: At least one value must be present, but multiple values may be present.
     - `"0-n"`: The value may be omitted, but may also occur multiple times.
-- [`gui_order`](./json-project/ontologies.md#cardinalities) 
+- [`gui_order`](./json-project/ontologies.md#resource-cardinalities) 
   (optional): By default, DSP-APP displays the properties in the order how they are listed in the Excel sheet.
   If you prefer another order, you can make a numbering in this column.
   Example: You order the propnames alphabetically in the Excel, 
   but they should be displayed in another order in DSP-APP.
-
 
 
 
@@ -129,18 +128,18 @@ The Excel sheet must have the following structure:
 
 The expected columns are:
 
-- <a href="../json-project/ontologies#property-name ">`name`</a>
+- [`name`](./json-project/ontologies.md#property-name)
   (mandatory): Unique identifier for the property
-- [`label_en`, `label_de`, `label_fr`, `label_it`, `label_rm`](./json-project/ontologies.md#labels):
+- [`label_en`, `label_de`, `label_fr`, `label_it`, `label_rm`](./json-project/ontologies.md#property-labels):
   (one language mandatory): Label of the property that will be displayed in DSP-APP. 
   Should be rather short.
-- [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#comments)
+- [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#property-comments)
   (optional): Description of the property. Can be longer than the label.
-- [`super`](./json-project/ontologies.md#super) 
+- [`super`](./json-project/ontologies.md#property-super) 
   (mandatory): The type of this property, i.e. the base property/ies that this property is derived from.
   Must be one of the values listed in the documentation.
   If more than one: separated by commas.
-- [`object`](./json-project/ontologies.md#object-gui_element-gui_attributes) 
+- [`object`](./json-project/ontologies.md#property-object-gui_element-gui_attributes) 
   (mandatory): Target value of this property. 
   Must be one of the values listed in the documentation.
      - If the property is derived from `hasValue`, 
@@ -148,11 +147,11 @@ The expected columns are:
        e.g. `TextValue`, `ListValue`, or `IntValue`. 
      - If the property is derived from `hasLinkTo`, 
        the `object` specifies the resource class that this property refers to.
-- [`gui_element`](./json-project/ontologies.md#object-gui_element-gui_attributes) 
+- [`gui_element`](./json-project/ontologies.md#property-object-gui_element-gui_attributes) 
   (mandatory): The graphic component, defines how this property should be displayed.
   Depends on the value of `object`: 
   Read the documentation of the respective `object` to learn which `gui_element` can be used.
-- [`gui_attributes`](./json-project/ontologies.md#object-gui_element-gui_attributes) 
+- [`gui_attributes`](./json-project/ontologies.md#property-object-gui_element-gui_attributes) 
   (only mandatory for lists): Some `gui_element`s need further specifications. 
   Read the documentation of the respective `object` to learn if your `gui_element` needs a `gui_attributes`.
   Form: "attr: value, attr: value". 
@@ -161,7 +160,6 @@ The optional columns may be omitted in the Excel.
 
 For backwards compatibility, 
 files with column titles `hlist`, `en`, `de`, `fr`, `it`, or `rm` are valid, but deprecated.
-
 
 
 

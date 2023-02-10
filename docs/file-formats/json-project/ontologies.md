@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# The "ontologies" section of a JSON project
+# The "ontologies" array of a JSON project
 
 An ontology is a formal representation of a set of terms which represent real world objects.
 Dependencies, attributes and relations of and between the individual components of the set are recorded in a logical,
@@ -22,43 +22,30 @@ Within DSP, properties may be re-used for different resources. E.g. a property "
 called "image" as well as "movie". Therefore, the list of properties is separated from the list of resources. The
 properties are assigned to the resources by defining "**cardinalities**". A cardinality indicates if a property is
 mandatory or can be omitted (e.g. if unknown), and if a property may be used several times on the same instance of a
-resource or not. The cardinality definitions are explained [further below](#cardinalities).
+resource or not. The cardinality definitions are explained [further below](#resource-cardinalities).
 
-Example of an `ontologies` object:
+
+
+## The ontology object in detail
+
+Example of an ontology object:
 
 ```
 {
-  "ontologies": [
-    {
-      "name": "seworon",
-      "label": "Secrets of the World Ontology",
-      "properties": [
-        ...
-      ],
-      "resources": [
-        ...
-      ]
-    },
-    {
-      second ontology
-    },
-    {
-      third ontology
-    }
+  "name": "seworon",
+  "label": "Secrets of the World Ontology",
+  "properties": [
+    ...
+  ],
+  "resources": [
+    ...
   ]
 }
 ```
 
 
 
-
-## Ontologies Object in Detail
-
-The following properties can occur within each object in `ontologies`.
-
-
-
-### Name
+### Ontology: Name
 
 (required)
 
@@ -69,7 +56,7 @@ means a string without blanks or special characters but `-` and `_` are allowed 
 
 
 
-### Label
+### Ontology: Label
 
 (required)
 
@@ -79,7 +66,7 @@ A string that provides the full name of the ontology.
 
 
 
-### Properties
+### Ontology: Properties
 
 (required)
 
@@ -102,11 +89,11 @@ The following fields are optional:
 - `subject`
 - `gui_attributes`
 
-A detailed description of `properties` can be found [below](#properties-object-in-detail).
+A detailed description of `properties` can be found [below](#the-property-object-in-detail).
 
 
 
-### Resources
+### Ontology: Resources
 
 (required)
 
@@ -128,16 +115,37 @@ The following field is optional:
 
 - `comments` 
 
-A detailed description of `resources` can be found [below](#properties-object-in-detail).
+A detailed description of `resources` can be found [below](#the-property-object-in-detail).
 
 
 
 
-## Properties Object in Detail
+## The property object in detail
+
+```json
+{
+  "name": "id",
+  "subject": ":School",
+  "object": "TextValue",
+  "super": [
+      "hasValue"
+  ],
+  "labels": {
+    "en": "School ID",
+    "de": "ID der Schule",
+    "fr": "ID de l'école"
+  },
+  "gui_element": "SimpleText",
+  "gui_attributes": {
+    "size": 32,
+    "maxlength": 128
+  }
+}
+```
 
 
 
-### Name <a id="property-name"></a>
+### Property: Name
 
 (required)
 
@@ -151,7 +159,7 @@ By convention, property names start with a lower case letter.
 
 
 
-### Labels
+### Property: Labels
 
 (required)
 
@@ -162,7 +170,7 @@ and "rm" are supported).
 
 
 
-### Comments
+### Property: Comments
 
 (optional)
 
@@ -172,7 +180,7 @@ Comments with language tags. Currently, "de", "en", "fr", "it", and "rm" are sup
 
 
 
-### Super
+### Property: Super
 
 (required)
 
@@ -185,7 +193,7 @@ super-property:
  - properties defined in external ontologies
  - properties defined in the project ontology itself
 
-The syntax how to refer to these different groups of properties is described [here](#referencing-ontologies).
+The syntax how to refer to these different groups of properties is described [here](./caveats.md#referencing-ontologies).
 
 The following DSP base properties are available:
 
@@ -202,65 +210,20 @@ The following DSP base properties are available:
 - `hasSequenceBounds`: This base property is used together with `isSequenceOf`. It denotes a time interval of an audio/
   video resource.
 
-Example of a `properties` object:
-
-```json
-{
-  "properties": [
-    {
-      "name": "id",
-      "subject": ":School",
-      "object": "TextValue",
-      "super": [
-          "hasValue"
-      ],
-      "labels": {
-        "en": "School ID",
-        "de": "ID der Schule",
-        "fr": "ID de l'école"
-      },
-      "gui_element": "SimpleText",
-      "gui_attributes": {
-        "size": 32,
-        "maxlength": 128
-      }
-    },
-    {
-      "name": "name",
-      "subject": ":School",
-      "object": "TextValue",
-      "super": [
-          "hasValue"
-      ],
-      "labels": {
-        "en": "Name of the school",
-        "de": "Name der Schule",
-        "fr": "Nom de l'école"
-      },
-      "gui_element": "SimpleText",
-      "gui_attributes": {
-        "size": 32,
-        "maxlength": 128
-      }
-    }
-  ]
-}
-```
 
 
-
-### Subject
+### Property: Subject
 
 (optional)
 
 `"subject": "<resource-class>"`
 
 The `subject` defines the resource class the property can be used on. It has to be provided as prefixed name of the 
-resource class (see [below](#referencing-ontologies) on how prefixed names are used).
+resource class (see [here](./caveats.md#referencing-ontologies) on how prefixed names are used).
 
 
 
-### Object / gui_element / gui_attributes
+### Property: object, gui_element, gui_attributes
 
 These three are related as follows:
 
@@ -676,7 +639,7 @@ from `hasLinkTo`. There are different groups of resource classes that can be the
      - `StillImageRepresentation`, `MovingImageRepresentation`, `TextRepresentation`, `AudioRepresentation`, 
        `DDDRepresentation`, `DocumentRepresentation`, or `ArchiveRepresentation`
 
-The syntax how to refer to these different groups of resources is described [here](#referencing-ontologies).
+The syntax how to refer to these different groups of resources is described [here](./caveats.md#referencing-ontologies).
 
 *gui_elements/gui_attributes*:
 
@@ -942,9 +905,47 @@ Example:
 
 
 
-## Resources Object in Detail
+## The resource object in detail
 
-### Name <a id="resource-name"></a>
+```json
+{
+  "name": "school",
+  "labels": {
+    "de": "Schule",
+    "en": "School",
+    "fr": "Ecole",
+    "it": "Scuola"
+  },
+  "super": "Resource",
+  "comments": {
+    "de": "Eine Bildungsinstitution für Grundbildung",
+    "en": "An education institution for basic education",
+    "fr": "Une institution de formation de base",
+    "it": "Un'istituzione educativa per l'istruzione di base"
+  },
+  "cardinalities": [
+    {
+      "propname": ":schulcode",
+      "gui_order": 1,
+      "cardinality": "1"
+    },
+    {
+      "propname": ":schulname",
+      "gui_order": 2,
+      "cardinality": "1"
+    },
+    {
+      "propname": ":bildungsgang",
+      "gui_order": 3,
+      "cardinality": "0-n"
+    }
+  ]
+}
+```
+
+
+
+### Resource: Name
 
 (required)
 
@@ -958,7 +959,7 @@ By convention, resource names start with an upper case letter.
 
 
 
-### Labels <a id="resource-labels"></a>
+### Resource: Labels
 
 (required)
 
@@ -969,7 +970,7 @@ and "rm" are supported).
 
 
 
-### Super <a id="resource-super"></a>
+### Resource: Super
 
 (required)
 
@@ -982,7 +983,7 @@ as super-resource:
  - resources defined in external ontologies
  - resources defined in the project ontology itself
 
-The syntax how to refer to these different groups of resources is described [here](#referencing-ontologies).
+The syntax how to refer to these different groups of resources is described [here](caveats.md#referencing-ontologies).
 
 The following base resources can be used as super-resource:
 
@@ -1001,7 +1002,7 @@ used in all cases when your resource is none of the special cases below.
 
 
 
-### Cardinalities
+### Resource: Cardinalities
 
 (required)
 
@@ -1029,118 +1030,10 @@ as well as how many values a property can have.
 
 
 
-### Comments <a id="resource-comments"></a>
+### Resource: Comments
 
 (optional)
 
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
 Comments with language tags. Currently, "de", "en", "fr", "it", and "rm" are supported. The `comments` element is optional.
-
-Example for a resource definition:
-
-```json
-{
-  "resources": [
-    {
-      "name": "Schule",
-      "labels": {
-        "de": "Schule",
-        "en": "School",
-        "fr": "Ecole",
-        "it": "Scuola"
-      },
-      "super": "Resource",
-      "comments": {
-        "de": "Ein Kommentar",
-        "en": "A comment",
-        "fr": "Une commentaire",
-        "it": "Un commento"
-      },
-      "cardinalities": [
-        {
-          "propname": ":schulcode",
-          "gui_order": 1,
-          "cardinality": "1"
-        },
-        {
-          "propname": ":schulname",
-          "gui_order": 2,
-          "cardinality": "1"
-        },
-        {
-          "propname": ":bildungsgang",
-          "gui_order": 3,
-          "cardinality": "1"
-        }
-      ]
-    }
-  ]
-}
-```
-
-
-
-
-## Referencing Ontologies
-
-For several fields, such as `super` in both `resources` and `properties` or `propname` in `cardinalities`
-it is necessary to reference entities that are defined elsewhere. The following cases are possible:
-
-- DSP-API internals: They are referenced as such and do not have a leading colon.  
-  E.g. `Resource`, `DocumentRepresentation` or `hasValue`
-- An external ontology: The ontology must be defined in the [prefixes](./overview.md#prefixes-object) section.
-  The prefix can then be used for referencing the ontology.  
-  E.g. `foaf:familyName` or `sdo:Organization`
-  - The current ontology: Within an ontology definition, references can be made by prepending a colon without a prefix.  
-    E.g. `:hasName`
-    Optionally, an explicit prefix can be used. In this case the ontology must be added to the
-    [prefixes](./overview.md#prefixes-object) section and the prefix must be identical to the ontology's `name`.  
-- A different ontology defined in the same file: Within one data model file, multiple ontologies can be defined.
-  These will be created in the exact order they appear in the `ontologies` array. Once an ontology has been created,
-  it can be referenced by the following ontologies by its name, e.g. `first-onto:hasName`. It is not necessary to add 
-  `first-onto` to the prefixes.
-
-
-
-
-## DSP base resources and base properties to be used directly in the XML file
-
-There is a number of DSP base resources that must not be subclassed in a project ontology. They are directly available 
-in the XML data file:
-
-- `Annotation` is an annotation to another resource of any class. It can be used in the XML file with the 
-  [&lt;annotation&gt; tag](../xml-data-file.md#annotation). It automatically has the following predefined properties:
-    - `hasComment` (1-n)
-    - `isAnnotationOf` (1)
-- `LinkObj` is a resource linking together several other resources of different classes. It can be used in the XML file 
-  with the [&lt;link&gt; tag](../xml-data-file.md#link). It automatically has the following predefined properties:
-    - `hasComment` (1-n)
-    - `hasLinkTo` (1-n)
-- A `Region` resource defines a region of interest (ROI) in an image. It can be used in the XML file with the 
-  [&lt;region&gt; tag](../xml-data-file.md#region). It automatically has the following predefined properties:
-    - `hasColor` (1)
-    - `isRegionOf` (1)
-    - `hasGeometry` (1)
-    - `hasComment` (1-n)
-
-There are some DSP base properties that are used directly in the above resource classes. Some of them can also be 
-subclassed and used in a resource class.
-
-- `hasLinkTo`: a link to another resource
-    - can be subclassed ([hasLinkTo Property](#haslinkto-property))
-    - can be used directly in the XML data file in the [&lt;link&gt; tag](../xml-data-file.md#link)
-- `hasColor`: Defines a color value. 
-    - can be subclassed ([ColorValue](#colorvalue))
-    - can be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#region)
-- `hasComment`: Defines a standard comment. 
-    - can be subclassed ([hasComment Property](#hascomment-property))
-    - can be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#region) or 
-      [&lt;link&gt; tag](../xml-data-file.md#link)
-- `hasGeometry`: Defines a geometry value (a JSON describing a polygon, circle or rectangle). 
-    - must be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#region)
-- `isRegionOf`: A special variant of `hasLinkTo`. It means that the given resource class is a region of interest in an image. 
-    - must be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#region)
-- `isAnnotationOf`: A special variant of `hasLinkTo`. It means that the given resource class is an annotation to another
-  resource class. 
-    - must be used directly in the XML data file in the [&lt;annotation&gt; tag](../xml-data-file.md#annotation)

@@ -2,18 +2,23 @@
 
 # MkDocs and markdown-link-validator
 
+The documentation of DSP-TOOLS is built with MkDocs (see [README](https://github.com/dasch-swiss/dsp-tools#readme)).
+Please consider the following caveats:
+
+
+
 ## Styling constraints in the documentation
 
 In our GitHub actions, we check PRs for dead links in the documentation. 
-Our tool markdown-link-validator is only able to check internal links
+Our tool [markdown-link-validator](https://github.com/webhintio/markdown-link-validator) is only able to check internal links
 if they start with `./`. For example:
 
-- `[prefixes]⁣(./dsp-tools-create.md#prefixes-object)` instead of 
+- `[prefixes]⁣(./dsp-tools-create.md#prefixes-object)` instead of  
   `[prefixes](dsp-tools-create.md#prefixes-object)`
-- `![Colors_en]⁣(./assets/images/img-list-english-colors.png)` instead of 
+- `![Colors_en]⁣(./assets/images/img-list-english-colors.png)` instead of  
   `![Colors_en](assets/images/img-list-english-colors.png)`
 
-It is okay, however, to make an internal link to a title of the current document: 
+It is okay, however, to make an internal link to a title of the current document:
 `[prefixes]⁣(#prefixes-object)`
 
 Please follow this constraint, so that markdown-link-validator can check the internal links.
@@ -25,53 +30,54 @@ Please follow this constraint, so that markdown-link-validator can check the int
 What can be done if your links are correct, but markdown-link-validator doesn't recognize them?
 One solution is to add an ignore pattern 
 to the call to markdown-link-validator in `.github/workflows/tests-on-push.yml`.
+
 If your link is in a code block, and isn't intended to be used as link,
 you can also add an invisible Unicode character, like in the examples above.
 
 
 
-## Internal links to headings that appear twice in the same document
+## No duplicate headings, no special characters in headings
 
-The documentation of DSP-TOOLS contains a constellation which is slightly suboptimal:
-Documents that contain the same heading several times.
-The file `docs/file-formats/json-project/ontologies.md`, for example, 
-contains 3 times a `### Name`.
+When linking to a heading, the name heading is slugified.
+Unfortunately, there are different flavors of Markdown, and different slug algorithms.
+As long as the heading is unique in the document, and doesn't contain special characters, there is no problem.
 
-This becomes problematic when making an internal link to one of these headings.
-Different implementations of Markdown have incompatible solutions, 
-as can be seen in this example:
+But consider a document like this:
 
-file.md:
-
-```
-# Heading
+```markdown
+# Heading / Title
 First heading with this name
 
-# Heading
+# Heading / Title
 Second heading with this name
+
+# Further down in the document
+[link to second heading]⁣(#heading-title_1)    <!--mkdocs supports only this syntax-->
+[link to second heading]⁣(#heading--title-1)   <!--npm markdown-link-validator supports only this syntax-->
 ```
 
-other-file.md:
+To make things worse, different IDEs use different slug algorithms, too, 
+which might lead to misleading hints from the IDE.
 
-```
-[Second Heading](file.md#heading_1)    <!--mkdocs supports only this syntax-->
-[Second Heading](file.md#heading-1)    <!--npm markdown-link-validator supports only this syntax-->
-```
+The real danger lies within MkDocs: while it doesn't support the `heading--title-1` syntax, 
+it doesn't complain if you use it, not even when using the `--strict` flag.
+This can lead to broken links on [https://docs.dasch.swiss/](https://docs.dasch.swiss/), 
+without anyone noticing.
 
-VS Code supports both syntaxes, whereas PyCharm supports only the one with `heading-1`.
-By standard means, it is thus impossible to create links that work everywhere.
-The real danger is that mkdocs doesn't complain if you use the `heading-1` syntax, 
-not even when using the `--strict` flag.
+**The best solution how to deal with this is**
 
-The solution is to add an anchor to the problematic headings:
+- **to give a unique name to every heading within the same document**
+- **not to use special characters**
 
-```
-# Heading <a id="id"></a>
-Second heading with this name, with HTML anchor
+A short overview of Markdown tools and slug algorithms:
 
-<a href="file#id1">heading</a>
-```
+- MkDocs uses [Python Markdown](https://python-markdown.github.io/) to translate Markdown files into HTML
+  (see [here](https://www.mkdocs.org/user-guide/configuration/#markdown_extensions)).
+- Python Markdown's default slugify used to strip out all Unicode chars
+  (see [here](https://facelessuser.github.io/pymdown-extensions/extras/slugs/)).
+- markdown-link-validator uses [uslug](https://www.npmjs.com/package/uslug) to create the slugs 
+  (see [here](https://github.com/webhintio/markdown-link-validator/blob/main/src/lib/mdfile.ts)).
+- VS Code targets the CommonMark Markdown specification using the [markdown-it](https://github.com/markdown-it/markdown-it) library
+  (see [here](https://code.visualstudio.com/docs/languages/markdown#_does-vs-code-support-github-flavored-markdown)). 
 
-| <center>LOOK OUT!</center>                                                                                                         |
-|:-----------------------------------------------------------------------------------------------------------------------------------|
-| Developers might get lured into using the `heading-1` syntax, which will pass on GitHub CI, but break on https://docs.dasch.swiss! |
+Another useful reading is [here](https://github.com/yzhang-gh/vscode-markdown/issues/807).

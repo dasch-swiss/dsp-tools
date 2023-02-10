@@ -52,8 +52,8 @@ First heading with this name
 Second heading with this name
 
 # Further down in the document
-[link to second heading](#heading-title_1)    <!--mkdocs supports only this syntax-->
-[link to second heading](#heading--title-1)   <!--npm markdown-link-validator supports only this syntax-->
+[link to second heading]⁣(#heading-title_1)    <!--mkdocs supports only this syntax-->
+[link to second heading]⁣(#heading--title-1)   <!--npm markdown-link-validator supports only this syntax-->
 ```
 
 To make things worse, different IDEs use different slug algorithms, too, 

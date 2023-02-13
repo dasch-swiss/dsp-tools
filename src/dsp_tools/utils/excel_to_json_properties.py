@@ -3,22 +3,12 @@ import json
 import re
 import warnings
 from typing import Any, Optional
-from unittest import mock
 
 import jsonschema
 import pandas as pd
 
 from dsp_tools.models.helpers import BaseError
 from dsp_tools.utils.shared import prepare_dataframe, check_notna
-
-# Pandas relies on openpyxl to parse XLSX files.
-# A strange behaviour of openpyxl prevents pandas from opening files with some formatting properties
-# (unclear which formatting properties exactly).
-# Apparently, the excel2json test files have one of the unsupported formatting properties.
-# The following two lines of code help out.
-# Credits: https://stackoverflow.com/a/70537454/14414188
-p = mock.patch('openpyxl.styles.fonts.Font.family.max', new=100)
-p.start()
 
 languages = ["en", "de", "fr", "it", "rm"]
 
@@ -111,7 +101,19 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
     """
     
     # load file
-    df: pd.DataFrame = pd.read_excel(excelfile)
+    try:
+        df: pd.DataFrame = pd.read_excel(excelfile)
+    except ValueError:
+        # Pandas relies on openpyxl to parse XLSX files.
+        # A strange behaviour of openpyxl prevents pandas from opening files with some formatting properties
+        # (unclear which formatting properties exactly).
+        # Apparently, the excel2json test files have one of the unsupported formatting properties.
+        # The following two lines of code help out.
+        # Credits: https://stackoverflow.com/a/70537454/14414188
+        from unittest import mock
+        p = mock.patch('openpyxl.styles.fonts.Font.family.max', new=100)
+        p.start()
+        df = pd.read_excel(excelfile)
     df = prepare_dataframe(
         df=df,
         required_columns=["name"],

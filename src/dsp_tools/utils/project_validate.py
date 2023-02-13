@@ -13,6 +13,11 @@ from dsp_tools.models.helpers import BaseError
 from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 
 
+def check_for_undefined_cardinalities(project_definition: dict[str, Any]):
+    for onto in project_definition["project"].get("ontologies"):
+        propnames = [prop["name"] for prop in onto["properties"]]
+
+
 def validate_project(
     input_file_or_json: Union[dict[str, Any], str],
     expand_lists: bool = True
@@ -56,6 +61,9 @@ def validate_project(
         raise BaseError(f"The JSON project file cannot be created due to the following validation error: {err.message}.\n"
                         f"The error occurred at {err.json_path}:\n"
                         f"{err.instance}")
+
+    # make sure that every cardinality was defined in the properties section
+    check_for_undefined_cardinalities(project_definition)
 
     # cardinalities check for circular references
     return _check_cardinalities_of_circular_references(project_definition)

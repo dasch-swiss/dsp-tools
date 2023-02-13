@@ -34,7 +34,7 @@
               restype=":TestThing2"
               id="test_thing_0"
               creation_date="2019-01-09T15:45:54.502951Z">
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text encoding="utf8">Dies ist ein TestThing ohne Angabe von permissions</text>
         </text-prop>
         <resptr-prop name=":hasTestThing">
@@ -59,9 +59,13 @@
               restype=":TestThing"
               id="test_thing_1"
               permissions="res-default">
-        <text-prop name=":hasText">
-            <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup mit <strong>Tags</strong>, die aber nicht geparst werden.</text>
-            <text permissions="prop-restricted" encoding="xml">Nochmals ein einfacher Text, <strong>dessen Tags geparst werden</strong></text>
+        <text-prop name=":hasSimpleText">
+            <text permissions="prop-default" encoding="utf8">
+                SimpleText: UTF-8: Dies ist ein einfacher Text ohne Markup mit &lt;strong&gt;Tags&lt;/strong&gt;, &lt;em&gt;die geparst werden.&lt;/em&gt;
+            </text>
+            <text permissions="prop-restricted" encoding="xml">
+                SimpleText: XML: Dies ist ein einfacher Text ohne Markup mit &lt;strong&gt;Tags&lt;/strong&gt;, &lt;em&gt;die geparst werden.&lt;/em&gt;
+            </text>
             <text encoding="utf8"> </text>
             <text encoding="utf8">_</text>
             <text encoding="utf8">!</text>
@@ -70,6 +74,12 @@
             <text encoding="utf8">œ</text>
         </text-prop>
         <text-prop name=":hasRichtext">
+            <text permissions="prop-default" encoding="utf8">
+                Richtext: UTF-8: Dies ist ein einfacher Text ohne Markup mit &lt;strong&gt;Tags&lt;/strong&gt;, &lt;em&gt;die geparst werden.&lt;/em&gt;
+            </text>
+            <text permissions="prop-restricted" encoding="xml">
+                Richtext: XML: Dies ist ein einfacher Text ohne Markup mit &lt;strong&gt;Tags&lt;/strong&gt;, &lt;em&gt;die geparst werden.&lt;/em&gt;
+            </text>
             <text permissions="prop-default" encoding="xml">
                 This is <em>bold and <strong>strong</strong></em> text! It contains links to all resources:
                 <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
@@ -163,7 +173,7 @@
               restype=":TestThing"
               id="test_thing_2"
               permissions="res-default">
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
             <text permissions="prop-restricted" encoding="xml">Ein XML-formatierter Text <strong>mit Markup</strong></text>
         </text-prop>
@@ -249,7 +259,7 @@
               id="image_thing_0"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.tif</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Imagething as TIF</text>
         </text-prop>
     </resource>
@@ -259,7 +269,7 @@
               id="image_thing_1"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.tiff</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Imagething as TIFF</text>
         </text-prop>
     </resource>
@@ -269,7 +279,7 @@
               id="image_thing_2"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.jp2</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Imagething as JP2</text>
         </text-prop>
     </resource>
@@ -279,7 +289,7 @@
               id="image_thing_3"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.jpeg</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Imagething as JPEG</text>
         </text-prop>
     </resource>
@@ -289,7 +299,7 @@
               id="image_thing_4"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.jpg</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Imagething as JPG</text>
         </text-prop>
     </resource>
@@ -299,7 +309,7 @@
               id="image_thing_5"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.png</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Imagething as PNG</text>
         </text-prop>
     </resource>
@@ -339,7 +349,7 @@
               restype=":CompoundThing"
               id="compound_thing_0"
               permissions="res-default">
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Compoundthing</text>
         </text-prop>
     </resource>
@@ -348,7 +358,7 @@
               restype=":CompoundThing"
               id="compound_thing_1"
               permissions="res-default">
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Compoundthing</text>
         </text-prop>
     </resource>
@@ -410,7 +420,7 @@
               id="document_thing_1"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.pdf</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Documentthing as PDF</text>
         </text-prop>
     </resource>
@@ -420,7 +430,7 @@
               id="document_thing_2"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.xls</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Documentthing as XLS</text>
         </text-prop>
     </resource>
@@ -430,7 +440,7 @@
               id="document_thing_3"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.xlsx</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Documentthing as XLSX</text>
         </text-prop>
     </resource>
@@ -440,7 +450,7 @@
               id="document_thing_4"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.doc</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Documentthing as DOC</text>
         </text-prop>
     </resource>
@@ -450,7 +460,7 @@
               id="document_thing_5"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.docx</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Documentthing as DOCX</text>
         </text-prop>
     </resource>
@@ -460,7 +470,7 @@
               id="document_thing_6"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.ppt</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Documentthing as PPT</text>
         </text-prop>
     </resource>
@@ -470,7 +480,7 @@
               id="document_thing_7"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.pptx</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Documentthing as PPTX</text>
         </text-prop>
     </resource>
@@ -480,7 +490,7 @@
               id="text_thing_1"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.csv</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Textthing as CSV</text>
         </text-prop>
     </resource>
@@ -490,7 +500,7 @@
               id="text_thing_2"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.txt</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Textthing as TXT</text>
         </text-prop>
     </resource>
@@ -500,7 +510,7 @@
               id="text_thing_3"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.xml</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Textthing as XML</text>
         </text-prop>
     </resource>
@@ -510,7 +520,7 @@
               id="text_thing_4"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.xsl</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Textthing as XSL</text>
         </text-prop>
     </resource>
@@ -520,7 +530,7 @@
               id="text_thing_5"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.xsd</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Textthing as XSD</text>
         </text-prop>
     </resource>
@@ -530,7 +540,7 @@
               id="zip_thing_1"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.zip</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Zipthing as ZIP</text>
         </text-prop>
     </resource>
@@ -540,7 +550,7 @@
               id="zip_thing_2"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.7z</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Zipthing as 7Z</text>
         </text-prop>
     </resource>
@@ -550,7 +560,7 @@
               id="zip_thing_3"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.gzip</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Zipthing as gzip</text>
         </text-prop>
     </resource>
@@ -560,7 +570,7 @@
               id="zip_thing_4"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.tar.gz</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Zipthing as tar.gz</text>
         </text-prop>
     </resource>
@@ -570,7 +580,7 @@
               id="zip_thing_5"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.tar</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Zipthing as tar</text>
         </text-prop>
     </resource>
@@ -580,7 +590,7 @@
               id="zip_thing_6"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.tgz</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Zipthing as tgz</text>
         </text-prop>
     </resource>
@@ -590,7 +600,7 @@
               id="zip_thing_7"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.z</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Zipthing as z</text>
         </text-prop>
     </resource>
@@ -600,7 +610,7 @@
               id="zip_thing_8"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.gz</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Zipthing as gz</text>
         </text-prop>
     </resource>
@@ -610,7 +620,7 @@
               id="audio_thing_1"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.wav</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Audiothing as WAV</text>
         </text-prop>
     </resource>
@@ -620,7 +630,7 @@
               id="audio_thing_2"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.mp3</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Audiothing as MP3</text>
         </text-prop>
     </resource>
@@ -632,7 +642,7 @@
               id="video_thing_1"
               permissions="res-restricted">
         <bitstream>testdata/bitstreams/test.mp4</bitstream>
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text encoding="utf8" permissions="prop-default">Dummy video with music</text>
         </text-prop>
     </resource>

@@ -1,9 +1,11 @@
-import json
 import importlib.resources
+import json
+import warnings
 from typing import Any, Optional
 
 import jsonschema
 import pandas as pd
+import regex
 
 from dsp_tools.models.helpers import BaseError
 from dsp_tools.utils.shared import prepare_dataframe, check_notna
@@ -44,24 +46,62 @@ def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
     """
 
     name = row["name"]
-    labels = {lang: row[lang] for lang in languages if row.get(lang)}
+    labels = {lang: row[f"label_{lang}"] for lang in languages if row.get(f"label_{lang}")}
+    if not labels:
+        labels = {lang: row[lang] for lang in languages if row.get(lang)}
     comments = {lang: row[f"comment_{lang}"] for lang in languages if row.get(f"comment_{lang}")}
     supers = [s.strip() for s in row["super"].split(",")]
 
     # load the cardinalities of this resource
-    details_df = pd.read_excel(excelfile, sheet_name=name)
+    try:
+        details_df = pd.read_excel(excelfile, sheet_name=name)
+    except ValueError:
+        # Pandas relies on openpyxl to parse XLSX files.
+        # A strange behaviour of openpyxl prevents pandas from opening files with some formatting properties
+        # (unclear which formatting properties exactly).
+        # Apparently, the excel2json test files have one of the unsupported formatting properties.
+        # The following two lines of code help out.
+        # Credits: https://stackoverflow.com/a/70537454/14414188
+        from unittest import mock
+        p = mock.patch('openpyxl.styles.fonts.Font.family.max', new=100)
+        p.start()
+        details_df = pd.read_excel(excelfile, sheet_name=name)
+        p.stop()
     details_df = prepare_dataframe(
         df=details_df,
         required_columns=["Property", "Cardinality"],
         location_of_sheet=f"Sheet '{name}' in file '{excelfile}'"
     )
 
+    # validation
+    # 4 cases:
+    #  - column gui_order absent
+    #  - column gui_order empty
+    #  - column gui_order present but not properly filled in (missing values / not integers)
+    #  - column gui_order present and properly filled in
+    all_gui_order_cells = [x for x in details_df.get("gui_order", []) if x]
+    validation_passed = True
+    if not all_gui_order_cells:  # column gui_order absent or empty
+        pass
+    elif len(all_gui_order_cells) == len(details_df["property"]):  # column gui_order filled in. try casting to int
+        try:
+            [int(float(x)) for x in details_df.get("gui_order")]
+        except ValueError:
+            validation_passed = False
+    else:  # column gui_order present but not properly filled in (missing values)
+        validation_passed = False
+    if not validation_passed:
+        raise BaseError(f"Sheet '{name}' in file '{excelfile}' has invalid content in column 'gui_order': "
+                        f"only positive integers allowed (or leave column empty altogether)")
+
     cards = []
     for j, detail_row in details_df.iterrows():
+        gui_order = detail_row.get("gui_order", "")
+        gui_order = regex.sub(r"\.0+", "", str(gui_order))
         property_ = {
             "propname": ":" + detail_row["property"],
             "cardinality": detail_row["cardinality"].lower(),
-            "gui_order": j + 1  # gui_order is equal to order in the sheet
+            "gui_order": int(gui_order or j + 1)  # if gui_order not given: take sheet order
         }
         cards.append(property_)
 
@@ -92,16 +132,33 @@ def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -
     """
 
     # load file
-    all_classes_df: pd.DataFrame = pd.read_excel(excelfile)
+    try:
+        all_classes_df: pd.DataFrame = pd.read_excel(excelfile)
+    except ValueError:
+        # Pandas relies on openpyxl to parse XLSX files.
+        # A strange behaviour of openpyxl prevents pandas from opening files with some formatting properties
+        # (unclear which formatting properties exactly).
+        # Apparently, the excel2json test files have one of the unsupported formatting properties.
+        # The following two lines of code help out.
+        # Credits: https://stackoverflow.com/a/70537454/14414188
+        from unittest import mock
+        p = mock.patch('openpyxl.styles.fonts.Font.family.max', new=100)
+        p.start()
+        all_classes_df = pd.read_excel(excelfile)
+        p.stop()
     all_classes_df = prepare_dataframe(
         df=all_classes_df,
         required_columns=["name"],
         location_of_sheet=f"Sheet 'classes' in file '{excelfile}'"
     )
 
+    # validation
     for index, row in all_classes_df.iterrows():
         if not check_notna(row["super"]):
             raise BaseError(f"Sheet 'classes' of '{excelfile}' has a missing value in row {index + 2}, column 'super'")
+    if any([all_classes_df.get(lang) is not None for lang in languages]):
+        warnings.warn(f"The file {excelfile} uses {languages} as column titles, which is deprecated. "
+                      f"Please use {[f'label_{lang}' for lang in languages]}")
 
     # transform every row into a resource
     resources = [_row2resource(row, excelfile) for i, row in all_classes_df.iterrows()]

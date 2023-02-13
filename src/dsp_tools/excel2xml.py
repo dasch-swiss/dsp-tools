@@ -1,3 +1,4 @@
+from __future__ import annotations
 import dataclasses
 import datetime
 import difflib
@@ -414,7 +415,7 @@ def make_resource(
 
 
 def make_bitstream_prop(
-    path: str,
+    path: Union[str, os.PathLike],
     permissions: str = "prop-default",
     calling_resource: str = ""
 ) -> etree._Element:
@@ -444,7 +445,7 @@ def make_bitstream_prop(
                       stacklevel=2)
     prop_ = etree.Element("{%s}bitstream" % (xml_namespace_map[None]), permissions=permissions,
                           nsmap=xml_namespace_map)
-    prop_.text = path
+    prop_.text = str(path)
     return prop_
 
 
@@ -1698,8 +1699,6 @@ def write_xml(root: etree.Element, filepath: str) -> None:
     etree.indent(root, space="    ")
     xml_string = etree.tostring(root, encoding="unicode", pretty_print=True)
     xml_string = '<?xml version="1.0" encoding="UTF-8"?>\n' + xml_string
-    xml_string = xml_string.replace("&lt;", "<")
-    xml_string = xml_string.replace("&gt;", ">")
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(xml_string)
     try:

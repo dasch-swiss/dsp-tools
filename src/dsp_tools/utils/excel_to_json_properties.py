@@ -14,7 +14,7 @@ from dsp_tools.utils.shared import prepare_dataframe, check_notna
 # Pandas relies on openpyxl to parse XLSX files.
 # A strange behaviour of openpyxl prevents pandas from opening files with some formatting properties
 # (unclear which formatting properties exactly).
-# Apparently, the excel2json template files have one of the unsupported formatting properties.
+# Apparently, the excel2json test files have one of the unsupported formatting properties.
 # The following two lines of code help out.
 # Credits: https://stackoverflow.com/a/70537454/14414188
 p = mock.patch('openpyxl.styles.fonts.Font.family.max', new=100)

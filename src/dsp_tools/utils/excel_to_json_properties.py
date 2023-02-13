@@ -1,6 +1,7 @@
 import importlib.resources
 import json
 import re
+import warnings
 from typing import Any, Optional
 
 import jsonschema
@@ -49,7 +50,9 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
     name = row["name"]
     supers = [s.strip() for s in row["super"].split(",")]
     _object = row["object"]
-    labels = {lang: row[lang] for lang in languages if row.get(lang)}
+    labels = {lang: row[f"label_{lang}"] for lang in languages if row.get(f"label_{lang}")}
+    if not labels:
+        labels = {lang: row[lang] for lang in languages if row.get(lang)}
     comments = {lang: row[f"comment_{lang}"] for lang in languages if row.get(f"comment_{lang}")}
     gui_element = row["gui_element"]
     gui_attributes = dict()
@@ -98,18 +101,38 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
     """
     
     # load file
-    df: pd.DataFrame = pd.read_excel(excelfile)
+    try:
+        df: pd.DataFrame = pd.read_excel(excelfile)
+    except ValueError:
+        # Pandas relies on openpyxl to parse XLSX files.
+        # A strange behaviour of openpyxl prevents pandas from opening files with some formatting properties
+        # (unclear which formatting properties exactly).
+        # Apparently, the excel2json test files have one of the unsupported formatting properties.
+        # The following two lines of code help out.
+        # Credits: https://stackoverflow.com/a/70537454/14414188
+        from unittest import mock
+        p = mock.patch('openpyxl.styles.fonts.Font.family.max', new=100)
+        p.start()
+        df = pd.read_excel(excelfile)
+        p.stop()
     df = prepare_dataframe(
         df=df,
         required_columns=["name"],
         location_of_sheet=f"File '{excelfile}'"
     )
 
+    # validation
     required = ["super", "object", "gui_element"]
     for index, row in df.iterrows():
         for req in required:
             if not check_notna(row[req]):
                 raise BaseError(f"'{excelfile}' has a missing value in row {index + 2}, column '{req}'")
+    if any([df.get(lang) is not None for lang in languages]):
+        warnings.warn(f"The file '{excelfile}' uses {languages} as column titles, which is deprecated. "
+                      f"Please use {[f'label_{lang}' for lang in languages]}")
+    if df.get("hlist"):
+        warnings.warn(f"The file '{excelfile}' has a column 'hlist', which is deprecated. "
+                      f"Please use the column 'gui_attributes' for the attribute 'hlist'.")
 
     # transform every row into a property
     props = [_row2prop(row, i, excelfile) for i, row in df.iterrows()]

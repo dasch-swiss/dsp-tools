@@ -114,6 +114,7 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
         p = mock.patch('openpyxl.styles.fonts.Font.family.max', new=100)
         p.start()
         df = pd.read_excel(excelfile)
+        p.stop()
     df = prepare_dataframe(
         df=df,
         required_columns=["name"],

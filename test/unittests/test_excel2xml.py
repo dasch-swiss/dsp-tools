@@ -105,8 +105,7 @@ def run_test(
         xml_returned = method(**kwargs_to_generate_xml)
         xml_returned = etree.tostring(xml_returned, encoding="unicode")
         xml_returned = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned)  # remove all xml namespace declarations
-        xml_returned = xml_returned.replace("&lt;", "<")
-        xml_returned = xml_returned.replace("&gt;", ">")
+        xml_returned = excel2xml._unescape_html_tags(xml_returned)
         testcase.assertEqual(xml_expected, xml_returned,
                              msg=f"Method {method.__name__} failed with kwargs {kwargs_to_generate_xml}")
 

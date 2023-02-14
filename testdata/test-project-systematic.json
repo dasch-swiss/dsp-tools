@@ -934,7 +934,7 @@
                                 "cardinality": "0-n"
                             },
                             {
-                                "propname": "testonto:hasText",
+                                "propname": "testonto:hasSimpleText",
                                 "gui_order": 2,
                                 "cardinality": "0-n"
                             }

@@ -123,6 +123,73 @@ def run_test(
 
 class TestExcel2xml(unittest.TestCase):
 
+    def test_unescape_html_tags(self) -> None:
+        original_text = """
+        <resource label="First Testthing" restype=":TestThing" id="test_thing_1" permissions="res-default">
+            <text-prop name=":hasRichtext">
+                <text encoding="xml">Text with &lt;strong&gt;escaped&lt;/strong&gt; HTML-Tags and &lt;Non-HTML usage of tags&gt;</text>
+                <text encoding="xml" permissions="prop-default">
+                    &lt;h1&gt;Heading 1&lt;/h1&gt;
+                    &lt;h2&gt;Heading 2&lt;/h2&gt;
+                    &lt;h3&gt;Heading 3&lt;/h3&gt;
+                    &lt;h4&gt;Heading 4&lt;/h4&gt;
+                    &lt;h5&gt;Heading 5&lt;/h5&gt;
+                    &lt;h6&gt;Heading 6&lt;/h6&gt;
+                    This is &lt;u&gt;underlined and &lt;strong&gt;strong&lt;/strong&gt;&lt;/u&gt; text! It contains links to all resources:&lt;br&gt;&lt;br/&gt;
+                    &lt;a class="salsah-link" href="IRI:test_thing_0:IRI"&gt;test_thing_0&lt;/a&gt;
+                    &lt;a class="salsah-link" href="IRI:test_thing_1:IRI"&gt;test_thing_1&lt;/a&gt;
+                    This is &lt;a&gt; an anchor.
+                    &lt;em&gt;em-Tag&lt;/em&gt;
+                    &lt;strike&gt;This is stroken through&lt;/strike&gt;
+                    &lt;ol&gt;
+                        &lt;li&gt;Coffee&lt;/li&gt;
+                        &lt;li&gt;Tea&lt;/li&gt;
+                    &lt;/ol&gt;
+                    &lt;ul&gt;
+                        &lt;li&gt;Coffee&lt;/li&gt;
+                        &lt;li&gt;Tea&lt;/li&gt;
+                    &lt;/ul&gt;
+                    &lt;p&gt;Text that is &lt;sup&gt;supralinear&lt;/sup&gt; and &lt;sub&gt;sublinear&lt;/sub&gt;&lt;/p&gt;
+                    &lt;b&gt; &lt;b is not a supported HTML-Tag&gt;
+                </text>
+            </text-prop>
+        </resource>
+        """
+        expected_text = """
+        <resource label="First Testthing" restype=":TestThing" id="test_thing_1" permissions="res-default">
+            <text-prop name=":hasRichtext">
+                <text encoding="xml">Text with <strong>escaped</strong> HTML-Tags and &lt;Non-HTML usage of tags&gt;</text>
+                <text encoding="xml" permissions="prop-default">
+                    <h1>Heading 1</h1>
+                    <h2>Heading 2</h2>
+                    <h3>Heading 3</h3>
+                    <h4>Heading 4</h4>
+                    <h5>Heading 5</h5>
+                    <h6>Heading 6</h6>
+                    This is <u>underlined and <strong>strong</strong></u> text! It contains links to all resources:<br><br/>
+                    <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
+                    <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>
+                    This is <a> an anchor.
+                    <em>em-Tag</em>
+                    <strike>This is stroken through</strike>
+                    <ol>
+                        <li>Coffee</li>
+                        <li>Tea</li>
+                    </ol>
+                    <ul>
+                        <li>Coffee</li>
+                        <li>Tea</li>
+                    </ul>
+                    <p>Text that is <sup>supralinear</sup> and <sub>sublinear</sub></p>
+                    &lt;b&gt; &lt;b is not a supported HTML-Tag&gt;
+                </text>
+            </text-prop>
+        </resource>
+        """
+        unescaped_text = excel2xml._unescape_html_tags(original_text)
+        self.assertEqual(unescaped_text, expected_text)
+
+
     def test_make_xsd_id_compatible(self) -> None:
         teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠"
 

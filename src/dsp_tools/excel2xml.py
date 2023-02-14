@@ -1685,6 +1685,25 @@ def _name_label_mapper_iterator(json_subset: list[dict[str, Any]], language_labe
             # the actual values of the name and the label
 
 
+def _unescape_html_tags(xml_string: str) -> str:
+    """
+    In Richtext fields (encoding="xml"), &gt; and &lt; should be unescaped, so that the XML standoff formatting tags are not destroyed.
+    In all other places, it is better to leave the escape sequences in place
+    """
+    tags = {
+        r"&lt;a(.*?)&gt;": r"<a\1>",
+        r"&lt;(/)?a&gt;": r"<\1a>",
+        r"&lt;br(/?)&gt;": r"<br\1>"
+    }
+    for tag in ["strong", "u", "em", "strike", "ol", "ul", "li", "sup", "sub", "p", "h1", "h2", "h3", "h4", "h5", "h6"]:
+        tags[fr"&lt;(/)?{tag}&gt;"] = fr"<\1{tag}>"
+
+    for pattern, repl in tags.items():
+        xml_string = regex.sub(pattern, repl, xml_string)
+
+    return xml_string
+
+
 def write_xml(root: etree.Element, filepath: str) -> None:
     """
     Write the finished XML to a file
@@ -1699,6 +1718,7 @@ def write_xml(root: etree.Element, filepath: str) -> None:
     etree.indent(root, space="    ")
     xml_string = etree.tostring(root, encoding="unicode", pretty_print=True)
     xml_string = '<?xml version="1.0" encoding="UTF-8"?>\n' + xml_string
+    xml_string = _unescape_html_tags(xml_string)
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(xml_string)
     try:

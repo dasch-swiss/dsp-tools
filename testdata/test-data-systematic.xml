@@ -60,36 +60,13 @@
               id="test_thing_1"
               permissions="res-default">
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">
-                SimpleText: UTF-8: Dies ist ein Text mit &lt;strong&gt;Tags&lt;/strong&gt;, &lt;em&gt;die geparst werden.&lt;/em&gt;
-            </text>
-            <text permissions="prop-restricted" encoding="xml">
-                SimpleText: XML: Dies ist ein Text mit &lt;strong&gt;Tags&lt;/strong&gt;, &lt;em&gt;die geparst werden.&lt;/em&gt;
-            </text>
-            <text encoding="utf8"> </text>
-            <text encoding="utf8">_</text>
-            <text encoding="utf8">!</text>
-            <text encoding="utf8">?</text>
-            <text encoding="utf8">-</text>
-            <text encoding="utf8">œ</text>
+            <text encoding="utf8">Text with &lt;strong&gt;escaped&lt;/strong&gt; and <strong>unescaped</strong> HTML-Tags</text>
         </text-prop>
         <text-prop name=":hasTextArea">
-            <text encoding="utf8">
-                TextArea: UTF-8: Dies ist ein Text mit &lt;strong&gt;Tags&lt;/strong&gt;, &lt;em&gt;die geparst werden.&lt;/em&gt;
-            </text>
-            <text encoding="xml">
-                TextArea: XML: Dies ist ein Text mit &lt;strong&gt;Tags&lt;/strong&gt;, &lt;em&gt;die geparst werden.&lt;/em&gt;
-            </text>
+            <text encoding="utf8">Text with &lt;strong&gt;escaped&lt;/strong&gt; and <strong>unescaped</strong> HTML-Tags</text>
         </text-prop>
-
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="utf8">
-                Richtext: UTF-8: Dies ist ein Text mit &lt;strong&gt;Tags&lt;/strong&gt;, &lt;em&gt;die geparst werden.&lt;/em&gt;
-            </text>
-            <text permissions="prop-restricted" encoding="xml">
-                Richtext: XML: Dies ist ein Text mit &lt;strong&gt;Tags&lt;/strong&gt;, &lt;em&gt;die geparst werden.&lt;/em&gt;
-                Richtext: XML: Realtags: Dies ist ein Text mit <strong>Tags</strong>, <em>die geparst werden.</em>
-            </text>
+            <text encoding="xml">Text with &lt;strong&gt;escaped&lt;/strong&gt; and <strong>unescaped</strong> HTML-Tags</text>
             <text permissions="prop-default" encoding="xml">
                 This is <em>bold and <strong>strong</strong></em> text! It contains links to all resources:
                 <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
@@ -186,6 +163,12 @@
         <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
             <text permissions="prop-restricted" encoding="xml">Ein XML-formatierter Text <strong>mit Markup</strong></text>
+            <text encoding="utf8"> </text>
+            <text encoding="utf8">_</text>
+            <text encoding="utf8">!</text>
+            <text encoding="utf8">?</text>
+            <text encoding="utf8">-</text>
+            <text encoding="utf8">œ</text>
         </text-prop>
         <text-prop name=":hasRichtext">
             <text encoding="xml">

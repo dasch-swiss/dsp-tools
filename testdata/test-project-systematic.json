@@ -535,15 +535,18 @@
                         "cardinalities": [
                             {
                                 "propname": "testonto:hasSimpleText",
-                                "cardinality": "1-n"
+                                "cardinality": "1-n",
+                                "gui_order": 1
                             },
                             {
                                 "propname": ":hasTextArea",
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 2
                             },
                             {
                                 "propname": ":hasRichtext",
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 3
                             },
                             {
                                 "propname": ":hasUri",

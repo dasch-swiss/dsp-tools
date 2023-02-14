@@ -1,0 +1,65 @@
+{
+    "$schema": "../../src/dsp_tools/schemas/project.json",
+    "project": {
+        "shortcode": "4123",
+        "shortname": "tp",
+        "longname": "test project",
+        "descriptions": {
+            "en": "A systematic test project"
+        },
+        "keywords": [
+            "test"
+        ],
+        "ontologies": [
+            {
+                "name": "testonto",
+                "label": "Test ontology",
+                "properties": [
+                    {
+                        "name": "hasSimpleText",
+                        "super": [
+                            ":hasText"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "hasSimpleText"
+                        },
+                        "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "hasRichtext",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "hasRichtext"
+                        },
+                        "gui_element": "Richtext"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "TestThing",
+                        "super": [
+                            "Resource"
+                        ],
+                        "labels": {
+                            "en": "TestThing"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "cardinality": "1-n"
+                            },
+                            {
+                                "propname": ":hasRichtext",
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

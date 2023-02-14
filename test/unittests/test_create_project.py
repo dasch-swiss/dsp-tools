@@ -6,7 +6,7 @@ from typing import Any
 from dsp_tools.models.helpers import BaseError
 from dsp_tools.utils.project_create import _sort_resources, _sort_prop_classes
 from dsp_tools.utils.project_validate import _collect_link_properties, _identify_problematic_cardinalities, \
-    validate_project
+    validate_project, check_for_undefined_cardinalities, check_for_undefined_superproperty
 
 
 class TestProjectCreation(unittest.TestCase):
@@ -70,6 +70,28 @@ class TestProjectCreation(unittest.TestCase):
             ("testonto:TestThing3", "testonto:linkToResource")
         ]
         self.assertListEqual(sorted(errors), sorted(expected_errors))
+
+
+    def test_check_for_undefined_cardinalities(self) -> None:
+        with open("testdata/invalid_testdata/test-project-cardinalities-that-were-not-defined-in-properties-section.json") as f:
+            project_definition = json.load(f)
+        with self.assertRaisesRegex(
+            BaseError, 
+            r"Your data model contains cardinalities with invalid propnames:\n"
+            r" - Ontology 'testonto', resource 'TestThing': \[':hasText'\]"
+        ):
+            check_for_undefined_cardinalities(project_definition)
+
+
+    def test_check_for_undefined_superproperty(self) -> None:
+        with open("testdata/invalid_testdata/test-project-super-property-that-was-not-defined-in-properties-section.json") as f:
+            project_definition = json.load(f)
+        with self.assertRaisesRegex(
+            BaseError, 
+            r"Your data model contains properties that are derived from an invalid super-property:\n"
+            r" - Ontology 'testonto', property 'hasSimpleText': \[':hasText'\]"
+        ):
+            check_for_undefined_superproperty(project_definition)
 
 
 if __name__ == "__main__":

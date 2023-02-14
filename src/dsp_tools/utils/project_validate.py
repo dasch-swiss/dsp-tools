@@ -13,9 +13,100 @@ from dsp_tools.models.helpers import BaseError
 from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 
 
-def check_for_undefined_cardinalities(project_definition: dict[str, Any]):
-    for onto in project_definition["project"].get("ontologies"):
+def  check_for_undefined_superproperty(project_definition: dict[str, Any]) -> bool:
+    """
+    Check if the properties referenced in "super" of each property actually point to a property 
+    (DSP base properties and properties from other ontologies are not considered.)
+
+    Args:
+        project_definition: parsed JSON project definition
+
+    Raises:
+        BaseError: detailed error message
+
+    Returns:
+        True if the superproperties are valid
+    """
+    errors: dict[str, list[str]] = dict()
+    for onto in project_definition["project"]["ontologies"]:
+        ontoname = onto["name"]
+        propnames = [p["name"] for p in onto["properties"]]
+        for prop in onto["properties"]:
+            supers = prop["super"]
+            # form of supers:
+            #  - isSequenceOf  # DSP base property
+            #  - other:prop    # other onto
+            #  - same:prop     # same onto
+            #  - :prop         # same onto (short form)
+            
+            # filter out DSP base properties
+            supers = [s for s in supers if ":" in s]
+            # extend short form
+            supers = [regex.sub(r"^:", f"{ontoname}:", s) for s in supers]
+            # filter out other ontos
+            supers = [s for s in supers if regex.search(f"^{ontoname}:", s)]
+            # convert to short form
+            supers = [regex.sub(ontoname, "", s) for s in supers]
+
+            invalid_references = [s for s in supers if regex.sub(":", "", s) not in propnames]
+            if invalid_references:
+                errors[f"Ontology '{ontoname}', property '{prop['name']}'"] = invalid_references
+    
+    if errors:
+        err_msg = "Your data model contains properties that are derived from an invalid super-property:"
+        for loc, invalids in errors.items():
+            err_msg = err_msg + f"\n - {loc}: {invalids}"
+        raise BaseError(err_msg)
+    else:
+        return True
+
+
+def check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bool:
+    """
+    Check if the propnames that are used in the cardinalities of each resource are defined in the "properties" 
+    section. (DSP base properties and properties from other ontologies are not considered.)
+
+    Args:
+        project_definition: parsed JSON project definition
+
+    Raises:
+        BaseError: detailed error message
+
+    Returns:
+        True if all cardinalities are defined in the "properties" section
+    """
+    errors: dict[str, list[str]] = dict()
+    for onto in project_definition["project"]["ontologies"]:
+        ontoname = onto["name"]
         propnames = [prop["name"] for prop in onto["properties"]]
+        for res in onto["resources"]:
+            cardnames = [card["propname"] for card in res["cardinalities"]]
+            # form of the cardnames:
+            #  - isSequenceOf  # DSP base property
+            #  - other:prop    # other onto
+            #  - same:prop     # same onto
+            #  - :prop         # same onto (short form)
+            
+            # filter out DSP base properties
+            cardnames = [card for card in cardnames if ":" in card]
+            # extend short form
+            cardnames = [regex.sub(r"^:", f"{ontoname}:", card) for card in cardnames]
+            # filter out other ontos
+            cardnames = [card for card in cardnames if regex.search(f"^{ontoname}:", card)]
+            # convert to short form
+            cardnames = [regex.sub(ontoname, "", card) for card in cardnames]
+            
+            invalid_cardnames = [card for card in cardnames if regex.sub(":", "", card) not in propnames]
+            if invalid_cardnames:
+                errors[f"Ontology '{ontoname}', resource '{res['name']}'"] = invalid_cardnames
+    
+    if errors:
+        err_msg = "Your data model contains cardinalities with invalid propnames:"
+        for loc, invalids in errors.items():
+            err_msg = err_msg + f"\n - {loc}: {invalids}"
+        raise BaseError(err_msg)
+    else:
+        return True
 
 
 def validate_project(
@@ -62,6 +153,9 @@ def validate_project(
                         f"The error occurred at {err.json_path}:\n"
                         f"{err.instance}")
 
+    # make sure that there is no undefined superproperty
+    check_for_undefined_superproperty(project_definition)
+
     # make sure that every cardinality was defined in the properties section
     check_for_undefined_cardinalities(project_definition)
 
@@ -80,7 +174,7 @@ def _check_cardinalities_of_circular_references(project_definition: dict[Any, An
 
     Returns:
         True if no circle was detected, or if all elements of all circles are of cardinality "0-1" or "0-n".
-        False if there is a circle with at least one element that has a cardinality of "1" or "1-n".
+        Raises a BaseError if there is a circle with at least one element that has a cardinality of "1" or "1-n".
     """
 
     link_properties = _collect_link_properties(project_definition)

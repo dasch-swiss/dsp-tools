@@ -18,13 +18,24 @@
                     {
                         "name": "hasSimpleText",
                         "super": [
-                            "hasValue"
+                            ":hasText"
                         ],
                         "object": "TextValue",
                         "labels": {
                             "en": "hasSimpleText"
                         },
                         "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "hasRichtext",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "hasRichtext"
+                        },
+                        "gui_element": "Richtext"
                     }
                 ],
                 "resources": [
@@ -38,11 +49,11 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasText",
+                                "propname": ":hasSimpleText",
                                 "cardinality": "1-n"
                             },
                             {
-                                "propname": ":hasSimpleText",
+                                "propname": ":hasRichtext",
                                 "cardinality": "0-n"
                             }
                         ]

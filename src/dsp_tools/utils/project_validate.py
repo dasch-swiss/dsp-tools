@@ -15,14 +15,15 @@ from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 
 def  check_for_undefined_superproperty(project_definition: dict[str, Any]) -> bool:
     """
-    Check if the properties referenced in "super" of each property actually point to a property 
+    Check the superproperties that claim to point to a property defined in the same JSON project.
+    Check if the property they point to actually exists.
     (DSP base properties and properties from other ontologies are not considered.)
 
     Args:
         project_definition: parsed JSON project definition
 
     Raises:
-        BaseError: detailed error message
+        BaseError: detailed error message if a superproperty is not existent
 
     Returns:
         True if the superproperties are valid
@@ -68,7 +69,7 @@ def check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> boo
         project_definition: parsed JSON project definition
 
     Raises:
-        BaseError: detailed error message
+        BaseError: detailed error message if a cardinality is used that is not defined
 
     Returns:
         True if all cardinalities are defined in the "properties" section
@@ -120,8 +121,11 @@ def validate_project(
         input_file_or_json: the project to be validated, can either be a file path or a parsed JSON file
         expand_lists: if True, the Excel file references in the "lists" section will be expanded
 
+    Raises:
+        BaseError: detailed error report if the validation doesn't pass
+
     Returns:
-        True if the project passed validation. Otherwise, a BaseError with a detailed error report is raised.
+        True if the project passed validation. 
     """
 
     if isinstance(input_file_or_json, dict) and "project" in input_file_or_json:
@@ -144,7 +148,7 @@ def validate_project(
         project_schema = json.load(schema_file)
     try:
         jsonschema.validate(instance=project_definition, schema=project_schema)
-    except jsonschema.exceptions.ValidationError as err:
+    except jsonschema.ValidationError as err:
         raise BaseError(f"The JSON project file cannot be created due to the following validation error: {err.message}.\n"
                         f"The error occurred at {err.json_path}:\n"
                         f"{err.instance}")
@@ -167,10 +171,12 @@ def _check_cardinalities_of_circular_references(project_definition: dict[Any, An
 
     Args:
         project_definition: dictionary with a DSP project (as defined in a JSON project file)
+    
+    Raises:
+        BaseError: if there is a circle with at least one element that has a cardinality of "1" or "1-n"
 
     Returns:
         True if no circle was detected, or if all elements of all circles are of cardinality "0-1" or "0-n".
-        Raises a BaseError if there is a circle with at least one element that has a cardinality of "1" or "1-n".
     """
 
     link_properties = _collect_link_properties(project_definition)

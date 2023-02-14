@@ -538,6 +538,10 @@
                                 "cardinality": "1-n"
                             },
                             {
+                                "propname": ":hasTextArea",
+                                "cardinality": "0-n"
+                            },
+                            {
                                 "propname": ":hasRichtext",
                                 "cardinality": "0-n"
                             },

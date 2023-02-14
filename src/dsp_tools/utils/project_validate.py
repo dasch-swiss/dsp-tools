@@ -53,12 +53,10 @@ def  check_for_undefined_superproperty(project_definition: dict[str, Any]) -> bo
                 errors[f"Ontology '{ontoname}', property '{prop['name']}'"] = invalid_references
     
     if errors:
-        err_msg = "Your data model contains properties that are derived from an invalid super-property:"
-        for loc, invalids in errors.items():
-            err_msg = err_msg + f"\n - {loc}: {invalids}"
+        err_msg = "Your data model contains properties that are derived from an invalid super-property:\n"
+        err_msg += "\n".join(f" - {loc}: {invalids}" for loc, invalids in errors.items())
         raise BaseError(err_msg)
-    else:
-        return True
+    return True
 
 
 def check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bool:
@@ -101,12 +99,10 @@ def check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> boo
                 errors[f"Ontology '{ontoname}', resource '{res['name']}'"] = invalid_cardnames
     
     if errors:
-        err_msg = "Your data model contains cardinalities with invalid propnames:"
-        for loc, invalids in errors.items():
-            err_msg = err_msg + f"\n - {loc}: {invalids}"
+        err_msg = "Your data model contains cardinalities with invalid propnames:\n"
+        err_msg += "\n".join(f" - {loc}: {invalids}" for loc, invalids in errors.items())
         raise BaseError(err_msg)
-    else:
-        return True
+    return True
 
 
 def validate_project(

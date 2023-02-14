@@ -523,7 +523,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasText",
+                                "propname": "testonto:hasText",
                                 "cardinality": "1-n"
                             },
                             {
@@ -913,6 +913,11 @@
                             {
                                 "propname": ":hasText",
                                 "gui_order": 1,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": "testonto:hasText",
+                                "gui_order": 2,
                                 "cardinality": "0-n"
                             }
                         ]

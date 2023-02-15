@@ -207,10 +207,8 @@ def make_preprocessing(
     mapping: dict[str, str] = dict()
     failed_batch_items = list()
     for imgpath in batch:
-        response_raw = requests.post(
-            url=f'http://localhost:{sipi_port}/upload',
-            files={'file': open(imgpath, 'rb')}
-        )
+        with open(imgpath, 'rb') as bitstream:
+            response_raw = requests.post(url=f'http://localhost:{sipi_port}/upload', files={'file': bitstream})
         response = json.loads(response_raw.text)
         if response.get("message") == "server.fs.mkdir() failed: File exists":
             failed_batch_items.append(imgpath)

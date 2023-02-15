@@ -230,16 +230,10 @@ def preprocess_batch(batch: list[Path], sipi_port: int) -> dict[str, str]:
     Returns:
         mapping of original filepaths to internal filenames
     """
-    mapping, failed_batch_items = make_preprocessing(
-        batch=batch,
-        sipi_port=sipi_port
-    )
+    mapping, failed_batch_items = make_preprocessing(batch=batch,sipi_port=sipi_port)
     while len(failed_batch_items) != 0:
         print(f"\tRetry the following failed files: {[str(x) for x in failed_batch_items]}")
-        mapping_addition, failed_batch_items = make_preprocessing(
-            batch=failed_batch_items,
-            sipi_port=sipi_port
-        )
+        mapping_addition, failed_batch_items = make_preprocessing(batch=failed_batch_items, sipi_port=sipi_port)
         mapping.update(mapping_addition)
     return mapping
 
@@ -303,11 +297,7 @@ def preprocess_xml_upload(
     for i, batchgroup in enumerate(batchgroups):
         print(f"Handing over Batchgroup no. {i} with {len(batchgroup)} batches to ThreadPoolExecutor.")
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            batchgroup_mappings = executor.map(
-                preprocess_batch,
-                batchgroup,
-                repeat(sipi_port)
-            )
+            batchgroup_mappings = executor.map(preprocess_batch, batchgroup, repeat(sipi_port))
         for mp in batchgroup_mappings:
             mapping.update(mp)
 

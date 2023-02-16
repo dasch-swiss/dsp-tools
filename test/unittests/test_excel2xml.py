@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import re
 import time
 import unittest
@@ -246,6 +247,22 @@ class TestExcel2xml(unittest.TestCase):
 
         values_output = excel2xml.prepare_value([excel2xml.PropertyElement(x) for x in values_with_nas])
         self.assertEqual([x.value for x in values_output], values_with_nas)
+
+
+    def test_make_bitstream_prop(self) -> None:
+        path_string = "foo/bar/baz.txt"
+        path_path = Path(path_string)
+        test_cases = [
+            ('<bitstream permissions="prop-default">foo/bar/baz.txt</bitstream>', lambda: excel2xml.make_bitstream_prop(path_string)),
+            ('<bitstream permissions="prop-default">foo/bar/baz.txt</bitstream>', lambda: excel2xml.make_bitstream_prop(path_path)),
+            ('<bitstream permissions="prop-restricted">foo/bar/baz.txt</bitstream>', lambda: excel2xml.make_bitstream_prop(path_string, "prop-restricted")),
+            ('<bitstream permissions="prop-restricted">foo/bar/baz.txt</bitstream>', lambda: excel2xml.make_bitstream_prop(path_path, "prop-restricted"))
+        ]
+        for expected, method_call in test_cases:
+            with self.assertWarnsRegex(UserWarning, ".*Failed validation in bitstream tag.*"):
+                result = etree.tostring(method_call(), encoding="unicode")
+                result = re.sub(r" xmlns(:.+?)?=\".+?\"", "", result)
+                self.assertEqual(result, expected)
 
 
     def test_make_boolean_prop(self) -> None:

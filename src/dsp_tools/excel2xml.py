@@ -1217,7 +1217,13 @@ def make_text_prop(
             **kwargs,
             nsmap=xml_namespace_map
         )
-        value_.text = val.value
+        if kwargs["encoding"] == "utf8":
+            value_.text = str(val.value)
+        else:
+            value_.text = "replace-me"
+            content = etree.tostring(value_, encoding="unicode")
+            content = content.replace("replace-me", str(val.value))
+            value_ = etree.fromstring(content)            
         prop_.append(value_)
 
     return prop_
@@ -1683,25 +1689,6 @@ def _name_label_mapper_iterator(json_subset: list[dict[str, Any]], language_labe
         if "name" in node:
             yield (node["labels"][language_label], node["name"])
             # the actual values of the name and the label
-
-
-def _unescape_html_tags(xml_string: str) -> str:
-    """
-    In Richtext fields (encoding="xml"), &gt; and &lt; should be unescaped, so that the XML standoff formatting tags are not destroyed.
-    In all other places, it is better to leave the escape sequences in place
-    """
-    tags = {
-        r"&lt;a(.*?)&gt;": r"<a\1>",
-        r"&lt;(/)?a&gt;": r"<\1a>",
-        r"&lt;br(/?)&gt;": r"<br\1>"
-    }
-    for tag in ["strong", "u", "em", "strike", "ol", "ul", "li", "sup", "sub", "p", "h1", "h2", "h3", "h4", "h5", "h6"]:
-        tags[fr"&lt;(/)?{tag}&gt;"] = fr"<\1{tag}>"
-
-    for pattern, repl in tags.items():
-        xml_string = regex.sub(pattern, repl, xml_string)
-
-    return xml_string
 
 
 def write_xml(root: etree.Element, filepath: str) -> None:

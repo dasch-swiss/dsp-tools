@@ -20,6 +20,8 @@ positionWithinBatchIndex = int
 NextBatchPlace = tuple[BatchGroupIndex, BatchIndex, positionWithinBatchIndex]
 
 image_extensions = ["jpg", "jpeg", "tif", "tiff", "jp2", "png"]
+video_extensions = ["mp4"]
+all_extensions = [*image_extensions, *video_extensions]
 
 
 def generate_testdata() -> None:
@@ -45,7 +47,7 @@ def generate_testdata() -> None:
     for sub in destinations:
         sub.mkdir(parents=True)
     github_bitstreams_path = "https://github.com/dasch-swiss/dsp-tools/blob/main/testdata/bitstreams"
-    for ext in image_extensions:
+    for ext in all_extensions:
         img = requests.get(f"{github_bitstreams_path}/test.{ext}?raw=true").content
         for dst in destinations:
             dst_file = dst / f"test.{ext}"
@@ -105,6 +107,21 @@ def check_multimedia_folder(
     return tree
 
 
+def make_keyframe_extraction(
+    video_path: Path,
+    sipi_port: int,
+    internal_filename: str
+) -> None:
+    data = {
+        "knora-data": {
+            "permission": "StoreFile",
+            "prefix": "1234",
+            "filename": internal_filename
+        }
+    }
+    requests.post(url=f"http://localhost:{sipi_port}/store", data=data)
+
+
 # def make_equally_sized_batches(multimedia_folder: str, optimal_batch_size_mb: int) -> list[Batch]:
 #     """
 #     Read all multimedia files contained in multimedia_folder and its subfolders,
@@ -135,7 +152,7 @@ def make_batchgroups(multimedia_folder: str, images_per_batch: int, batches_per_
     """
     # collect all paths
     all_paths: list[Path] = list()
-    for img_type in image_extensions:
+    for img_type in all_extensions:
         all_paths.extend(Path().glob(f"{multimedia_folder}/**/*.{img_type}"))
 
     # distribute the paths into batchgroups
@@ -206,15 +223,17 @@ def make_preprocessing(
     """
     mapping: dict[str, str] = dict()
     failed_batch_items = list()
-    for imgpath in batch:
-        with open(imgpath, 'rb') as bitstream:
+    for pth in batch:
+        with open(pth, 'rb') as bitstream:
             response_raw = requests.post(url=f'http://localhost:{sipi_port}/upload', files={'file': bitstream})
         response = json.loads(response_raw.text)
         if response.get("message") == "server.fs.mkdir() failed: File exists":
-            failed_batch_items.append(imgpath)
+            failed_batch_items.append(pth)
         else:
             internal_filename = response["uploadedFiles"][0]["internalFilename"]
-            mapping[str(imgpath)] = internal_filename
+            mapping[str(pth)] = internal_filename
+            if pth.suffix in video_extensions:
+                make_keyframe_extraction(video_path=pth, sipi_port=sipi_port, internal_filename=internal_filename)
 
     return mapping, failed_batch_items
 

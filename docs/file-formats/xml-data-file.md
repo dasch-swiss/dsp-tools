@@ -639,14 +639,46 @@ Example of a public and a hidden text:
 The second text above contains a link to the resource `obj_0003`, which is defined in the same XML file. It also 
 contains a link to  the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`, which already exists on the DSP server.
 
-For the possible combinations of `encoding` with the `gui_element` [defined in the ontology](./json-project/ontologies.md#textvalue), 
-see the table: 
+#### `encoding` and `gui_element`
+
+`encoding` can be combined with
+`gui_element` [defined in the ontology](./json-project/ontologies.md#textvalue)
+as follows:
 
 | `gui_element`<br/>(JSON ontology) | `encoding`<br/>(XML data) | How DSP-APP renders the whitespaces                                                                                            |
 | --------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | `SimpleText`                      | `utf8`                    | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                  |
 | `Textarea`                        | `utf8`                    | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                  |
 | `Richtext`                        | `xml`                     | Pretty-print whitespaces and newlines from the XML are removed. If you want a newline in the text field, use `<br />` instead. |
+
+
+#### Simple text
+
+Behaviour of simple text (`SimpleText`/`Textarea` + `utf8`)
+
+| input to `excel2xml` | XML file                    | DSP-APP |                               |
+| -------------------- | --------------------------- | ------- | ----------------------------- |
+| `<`                  | `&lt;`                      | &lt;    |                               |
+| `&lt;`               | `&amp;lt;`                  | &lt;    | bug in DSP-APP?               |
+| `&`                  | `&amp;`                     | &amp;   |                               |
+| `&amp;`              | `&amp;amp;`                 | &amp;   | bug in DSP-APP?               |
+| `<em>text</em>`      | `&lt;em&gt;text&lt;/em&gt;` | *text*  | bug in DSP-APP?               |
+| `<not a tag>`        | `&lt;not a tag&gt;`         | --      |                               |
+| --                   | `<em>text</em>`             | text    | should DSP-TOOLS forbid this? |
+
+
+#### Text with markup
+
+Behaviour of text with markup (`Richtext` + `xml`)
+
+| input to `excel2xml` | XML file        | DSP-APP |
+| -------------------- | --------------- | ------- |
+| `<`                  | --              | --      |
+| `&lt;`               | `&lt;`          | &lt;    |
+| `&`                  | --              | --      |
+| `&amp;`              | `&amp;`         | &       |
+| `<em>text</em>`      | `<em>text</em>` | *text*  |
+| `<not a tag>`        | --              | --      |
 
 
 ### `<time-prop>`

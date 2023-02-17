@@ -246,6 +246,36 @@
             <list>second subnode</list>
         </list-prop>
     </resource>
+
+    <resource label="Third Testthing"
+              restype=":TestThing"
+              id="test_thing_3"
+              permissions="res-default">
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8">&lt;</text>
+            <text encoding="utf8">&amp;lt;</text>
+            <text encoding="utf8">&amp;</text>
+            <text encoding="utf8">&amp;amp;</text>
+            <text encoding="utf8">&lt;em&gt;text&lt;/em&gt;</text>
+            <text encoding="utf8"><em>text</em></text>
+        </text-prop>
+        <text-prop name=":hasTextArea">
+            <text encoding="utf8">&lt;</text>
+            <text encoding="utf8">&amp;lt;</text>
+            <text encoding="utf8">&amp;</text>
+            <text encoding="utf8">&amp;amp;</text>
+            <text encoding="utf8">&lt;em&gt;text&lt;/em&gt;</text>
+            <text encoding="utf8"><em>text</em></text>
+        </text-prop>
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">&lt;</text>
+            <text encoding="xml">&amp;</text>
+            <text encoding="xml"><em>text</em></text>
+        </text-prop>
+        <boolean-prop name=":hasBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+    </resource>
   
     <resource label="Imagething-tif"
               restype=":ImageThing"

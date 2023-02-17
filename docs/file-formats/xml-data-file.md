@@ -228,7 +228,7 @@ my_project % dsp-tools xmlupload files/data_file.xml
 Supported file extensions:
 
 | Representation              | Supported formats                      |
-|-----------------------------|----------------------------------------|
+| --------------------------- | -------------------------------------- |
 | `ArchiveRepresentation`     | ZIP, TAR, GZ, Z, TAR.GZ, TGZ, GZIP, 7Z |
 | `AudioRepresentation`       | MP3, WAV                               |
 | `DocumentRepresentation`    | PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX   |
@@ -625,15 +625,6 @@ The `<text>` element has the following attributes:
   at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-For the possible combinations of `encoding` with the `gui_element` [defined in the ontology](./json-project/ontologies.md#textvalue), 
-see the table: 
-
-| `gui_element` (JSON ontology) | `encoding` (XML data) | How DSP-APP renders the whitespaces                                                                                            |
-|-------------------------------|-----------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| `SimpleText`                  | `utf8`                | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                  |
-| `Textarea`                    | `utf8`                | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                  |
-| `Richtext`                    | `xml`                 | Pretty-print whitespaces and newlines from the XML are removed. If you want a newline in the text field, use `<br />` instead. |
-
 Example of a public and a hidden text:
 ```xml
 <text-prop name=":hasDescription">
@@ -647,6 +638,15 @@ Example of a public and a hidden text:
 
 The second text above contains a link to the resource `obj_0003`, which is defined in the same XML file. It also 
 contains a link to  the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`, which already exists on the DSP server.
+
+For the possible combinations of `encoding` with the `gui_element` [defined in the ontology](./json-project/ontologies.md#textvalue), 
+see the table: 
+
+| `gui_element`<br/>(JSON ontology) | `encoding`<br/>(XML data) | How DSP-APP renders the whitespaces                                                                                            |
+| --------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `SimpleText`                      | `utf8`                    | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                  |
+| `Textarea`                        | `utf8`                    | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                  |
+| `Richtext`                        | `xml`                     | Pretty-print whitespaces and newlines from the XML are removed. If you want a newline in the text field, use `<br />` instead. |
 
 
 ### `<time-prop>`

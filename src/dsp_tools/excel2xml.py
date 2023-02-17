@@ -1220,10 +1220,13 @@ def make_text_prop(
         if kwargs["encoding"] == "utf8":
             value_.text = str(val.value)
         else:
-            value_.text = "replace-me"
-            content = etree.tostring(value_, encoding="unicode")
-            content = content.replace("replace-me", str(val.value))
-            value_ = etree.fromstring(content)            
+            try:
+                value_.text = "replace-me"
+                content = etree.tostring(value_, encoding="unicode")
+                content = content.replace("replace-me", str(val.value))
+                value_ = etree.fromstring(content)
+            except etree.XMLSyntaxError:
+                value_.text = str(val.value)
         prop_.append(value_)
 
     return prop_
@@ -1705,7 +1708,6 @@ def write_xml(root: etree.Element, filepath: str) -> None:
     etree.indent(root, space="    ")
     xml_string = etree.tostring(root, encoding="unicode", pretty_print=True)
     xml_string = '<?xml version="1.0" encoding="UTF-8"?>\n' + xml_string
-    xml_string = _unescape_html_tags(xml_string)
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(xml_string)
     try:

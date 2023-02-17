@@ -1,3 +1,4 @@
+from __future__ import annotations
 import dataclasses
 import datetime
 import difflib
@@ -414,7 +415,7 @@ def make_resource(
 
 
 def make_bitstream_prop(
-    path: str,
+    path: Union[str, os.PathLike],
     permissions: str = "prop-default",
     calling_resource: str = ""
 ) -> etree._Element:
@@ -444,7 +445,7 @@ def make_bitstream_prop(
                       stacklevel=2)
     prop_ = etree.Element("{%s}bitstream" % (xml_namespace_map[None]), permissions=permissions,
                           nsmap=xml_namespace_map)
-    prop_.text = path
+    prop_.text = str(path)
     return prop_
 
 

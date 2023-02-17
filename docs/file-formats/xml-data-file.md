@@ -656,29 +656,55 @@ as follows:
 
 Behaviour of simple text (`SimpleText`/`Textarea` + `utf8`)
 
-| input to `excel2xml` | XML file                    | DSP-APP |                               |
-| -------------------- | --------------------------- | ------- | ----------------------------- |
-| `<`                  | `&lt;`                      | &lt;    |                               |
-| `&lt;`               | `&amp;lt;`                  | &lt;    | bug in DSP-APP?               |
-| `&`                  | `&amp;`                     | &amp;   |                               |
-| `&amp;`              | `&amp;amp;`                 | &amp;   | bug in DSP-APP?               |
-| `<em>text</em>`      | `&lt;em&gt;text&lt;/em&gt;` | *text*  | bug in DSP-APP?               |
-| `<not a tag>`        | `&lt;not a tag&gt;`         | --      |                               |
-| --                   | `<em>text</em>`             | text    | should DSP-TOOLS forbid this? |
+| input to `excel2xml` | XML file                    | DSP-APP |                                                                             |
+| -------------------- | --------------------------- | ------- | --------------------------------------------------------------------------- |
+| `<`                  | `&lt;`                      | &lt;    |                                                                             |
+| `>`                  | `&gt;`                      | &gt;    |                                                                             |
+|                      | `<`                         | --      | invalid XML                                                                 |
+|                      | `>`                         | &gt;    | discouraged by XML standard, but possible                                   |
+| `&lt;`               | `&amp;lt;`                  | &lt;    | bug in DSP-APP?                                                             |
+| `&`                  | `&amp;`                     | &amp;   |                                                                             |
+| --                   | `&`                         | --      | invalid XML                                                                 |
+| `&amp;`              | `&amp;amp;`                 | &amp;   | bug in DSP-APP?                                                             |
+| `<em>text</em>`      | `&lt;em&gt;text&lt;/em&gt;` | *text*  | **soon forbidden by DSP-TOOLS**                                             |
+| `<not a tag>`        | `&lt;not a tag&gt;`         |         | blank, because interpreded as unclosed tag. **soon forbidden by DSP-TOOLS** |
+| --                   | `<em>text</em>`             | text    | **soon forbidden by DSP-TOOLS**                                             |
 
 
 #### Text with markup
 
 Behaviour of text with markup (`Richtext` + `xml`)
 
-| input to `excel2xml` | XML file        | DSP-APP |
-| -------------------- | --------------- | ------- |
-| `<`                  | --              | --      |
-| `&lt;`               | `&lt;`          | &lt;    |
-| `&`                  | --              | --      |
-| `&amp;`              | `&amp;`         | &       |
-| `<em>text</em>`      | `<em>text</em>` | *text*  |
-| `<not a tag>`        | --              | --      |
+| input to `excel2xml`  | XML file            | DSP-APP       |                                           |
+| --------------------- | ------------------- | ------------- | ----------------------------------------- |
+| `<`                   | --                  | --            |                                           |
+| `>`                   | --                  | --            |                                           |
+|                       | `<`                 | --            | invalid XML                               |
+|                       | `>`                 | &gt;          | discouraged by XML standard, but possible |
+| `&lt;`                | `&lt;`              | &lt;          |                                           |
+| `&gt;`                | `&gt;`              | &gt;          |                                           |
+| `&`                   | --                  | --            | invalid XML                               |
+| --                    | `&`                 | --            | invalid XML                               |
+| `&amp;`               | `&amp;`             | &             |                                           |
+| `<em>text</em>`       | `<em>text</em>`     | *text*        |                                           |
+| `unclosed <tag> text` | --                  | --            | invalid XML                               |
+|                       | `&lt;not a tag&gt;` | `<not a tag>` |                                           |
+
+
+#### Conclusion
+
+For input of excel2xml:
+
+- Simple text: Don't use HTML-escape sequences.
+- Simple text: Don't use tags (mathematical comparisons with `<>`) are allowed.
+- Rich text: The XML contained in it must be valid.
+- Rich text: The special characters `<`, `>` and `&` can only be used to construct a valid HTML-tag.
+- Rich text: HTML-escape sequences can be freely used.
+
+If you write an XML file by hand:
+
+- Simple text: Use HTML-escape sequences for the reserved characters `<`, `>`, and `&` --> what is with &?
+- Rich text: The special characters `<`, `>` and `&` must be escaped.
 
 
 ### `<time-prop>`

@@ -421,7 +421,7 @@ class TestExcel2xml(unittest.TestCase):
         all_outputs += " ".join([output for input, output in testcases_xml])
         testcases_xml.append([all_inputs, all_outputs])
         
-        invalid_xml_texts = ["text with <", "text with &", "<unescaped tag>"]
+        invalid_xml_texts = ["text with <", "text with >", "text with &", "text <unclosed> tag", "text <unclosed tag> text"]
 
         for orig, exp in testcases_xml:
             received = etree.tostring(excel2xml.make_text_prop(":test", excel2xml.PropertyElement(orig, encoding="xml")))

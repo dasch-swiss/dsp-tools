@@ -60,13 +60,29 @@
               id="test_thing_1"
               permissions="res-default">
         <text-prop name=":hasSimpleText">
-            <text encoding="utf8">Text with &lt;strong&gt;escaped&lt;/strong&gt; and <strong>unescaped</strong> HTML-Tags</text>
+            <text encoding="utf8">&lt;</text>
+            <text encoding="utf8">&amp;lt;</text>
+            <text encoding="utf8">&amp;</text>
+            <text encoding="utf8">&amp;amp;</text>
+            <!-- <text encoding="utf8">&lt;em&gt;text&lt;/em&gt;</text>
+            <text encoding="utf8"><em>text</em></text>
+            <text encoding="utf8">&lt;not a tag&gt;</text>  -->
         </text-prop>
         <text-prop name=":hasTextArea">
-            <text encoding="utf8">Text with &lt;strong&gt;escaped&lt;/strong&gt; and <strong>unescaped</strong> HTML-Tags</text>
+            <text encoding="utf8">&lt;</text>
+            <text encoding="utf8">&amp;lt;</text>
+            <text encoding="utf8">&amp;</text>
+            <text encoding="utf8">&amp;amp;</text>
+            <!-- <text encoding="utf8">&lt;em&gt;text&lt;/em&gt;</text>
+            <text encoding="utf8"><em>text</em></text>
+            <text encoding="utf8">&lt;not a tag&gt;</text>  -->
         </text-prop>
         <text-prop name=":hasRichtext">
-            <text encoding="xml">Text with &lt;strong&gt;escaped&lt;/strong&gt; and <strong>unescaped</strong> HTML-Tags</text>
+            <text encoding="xml">&lt;</text>
+            <text encoding="xml">&gt;</text>
+            <text encoding="xml">&amp;</text>
+            <text encoding="xml"><em>text</em></text>
+            <text encoding="xml">text &lt;not a tag&gt; text</text>
             <text permissions="prop-default" encoding="xml">
                 This is <em>bold and <strong>strong</strong></em> text! It contains links to all resources:
                 <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
@@ -81,12 +97,6 @@
                 <a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a>
                 <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>
                 <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                Another text without salsah-links
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                Another text without salsah-links
             </text>
         </text-prop>
         <uri-prop name=":hasUri">
@@ -245,36 +255,6 @@
         <list-prop list="testlist" name=":hasListItem">
             <list>second subnode</list>
         </list-prop>
-    </resource>
-
-    <resource label="Third Testthing"
-              restype=":TestThing"
-              id="test_thing_3"
-              permissions="res-default">
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8">&lt;</text>
-            <text encoding="utf8">&amp;lt;</text>
-            <text encoding="utf8">&amp;</text>
-            <text encoding="utf8">&amp;amp;</text>
-            <text encoding="utf8">&lt;em&gt;text&lt;/em&gt;</text>
-            <text encoding="utf8"><em>text</em></text>
-        </text-prop>
-        <text-prop name=":hasTextArea">
-            <text encoding="utf8">&lt;</text>
-            <text encoding="utf8">&amp;lt;</text>
-            <text encoding="utf8">&amp;</text>
-            <text encoding="utf8">&amp;amp;</text>
-            <text encoding="utf8">&lt;em&gt;text&lt;/em&gt;</text>
-            <text encoding="utf8"><em>text</em></text>
-        </text-prop>
-        <text-prop name=":hasRichtext">
-            <text encoding="xml">&lt;</text>
-            <text encoding="xml">&amp;</text>
-            <text encoding="xml"><em>text</em></text>
-        </text-prop>
-        <boolean-prop name=":hasBoolean">
-            <boolean>true</boolean>
-        </boolean-prop>
     </resource>
   
     <resource label="Imagething-tif"
@@ -817,12 +797,9 @@
         </interval-prop>
     </resource>
 
-    <!-- reference a resource class from another ontology defined in the same JSON project file than default-ontology-->
-    <!-- Will work when DEV-1381 is resolved
     <resource label="TestThingPermissions 1" restype="testontoPermissions:TestThingPermissions" id="testthingpermissions_1">
         <text-prop name="testontoPermissions:hasText">
             <text encoding="utf8">Hello!</text>
         </text-prop>
     </resource>
-    -->
 </knora>

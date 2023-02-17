@@ -744,11 +744,6 @@ def _add_cardinalities_to_resource_classes(
             if ":" in card_info["propname"]:
                 prefix, prop = card_info["propname"].split(":")
                 qualified_propname = card_info["propname"] if prefix else f"{ontology_remote.name}:{prop}"
-                if not remote_prop_classes.get(ontology_remote.id + "#" + prop):
-                    print(f"WARNING: Unable to add cardinality '{card_info['propname']}' to resource class "
-                          f"'{res_class['name']}': This property class doesn't exist on the DSP server.")
-                    overall_success = False
-                    continue
             else:
                 qualified_propname = knora_api_prefix + card_info["propname"]
 

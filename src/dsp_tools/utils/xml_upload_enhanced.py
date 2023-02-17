@@ -18,10 +18,14 @@ BatchGroupIndex = int
 BatchIndex = int
 positionWithinBatchIndex = int
 NextBatchPlace = tuple[BatchGroupIndex, BatchIndex, positionWithinBatchIndex]
-
+ 
 image_extensions = ["jpg", "jpeg", "tif", "tiff", "jp2", "png"]
 video_extensions = ["mp4"]
-all_extensions = [*image_extensions, *video_extensions]
+archive_extensions = ["7z", "gz", "gzip", "tar", "tar.gz", "tgz", "z", "zip"]
+text_extensions = ["csv", "txt", "xml", "xsd", "xsl"]
+document_extensions = ["doc", "docx", "pdf", "ppt", "pptx", "xls", "xlsx"]
+audio_extensions = ["mp3", "wav"]
+all_extensions = [*image_extensions, *video_extensions, *archive_extensions, *text_extensions, *document_extensions, *audio_extensions]
 
 
 def generate_testdata() -> None:
@@ -107,21 +111,6 @@ def check_multimedia_folder(
     return tree
 
 
-def make_keyframe_extraction(
-    video_path: Path,
-    sipi_port: int,
-    internal_filename: str
-) -> None:
-    data = {
-        "knora-data": {
-            "permission": "StoreFile",
-            "prefix": "1234",
-            "filename": internal_filename
-        }
-    }
-    requests.post(url=f"http://localhost:{sipi_port}/store", data=data)
-
-
 # def make_equally_sized_batches(multimedia_folder: str, optimal_batch_size_mb: int) -> list[Batch]:
 #     """
 #     Read all multimedia files contained in multimedia_folder and its subfolders,
@@ -152,8 +141,8 @@ def make_batchgroups(multimedia_folder: str, images_per_batch: int, batches_per_
     """
     # collect all paths
     all_paths: list[Path] = list()
-    for img_type in all_extensions:
-        all_paths.extend(Path().glob(f"{multimedia_folder}/**/*.{img_type}"))
+    for ext in all_extensions:
+        all_paths.extend(Path().glob(f"{multimedia_folder}/**/*.{ext}"))
 
     # distribute the paths into batchgroups
     all_paths_generator = (x for x in all_paths)
@@ -232,8 +221,6 @@ def make_preprocessing(
         else:
             internal_filename = response["uploadedFiles"][0]["internalFilename"]
             mapping[str(pth)] = internal_filename
-            if pth.suffix in video_extensions:
-                make_keyframe_extraction(video_path=pth, sipi_port=sipi_port, internal_filename=internal_filename)
 
     return mapping, failed_batch_items
 

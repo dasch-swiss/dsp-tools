@@ -1,31 +1,30 @@
 import concurrent.futures
+import copy
 import json
 import os
 import warnings
-from collections.abc import Generator
 from itertools import repeat
 from pathlib import Path
+import regex
 
 import requests
 from lxml import etree
 
 from dsp_tools import excel2xml
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.helpers import BaseError
+from dsp_tools.utils.shared import try_network_action
+from dsp_tools.utils.xml_upload import xml_upload
 
-Batch = list[Path]
-Batchgroup = list[Batch]
-
-BatchGroupIndex = int
-BatchIndex = int
-positionWithinBatchIndex = int
-NextBatchPlace = tuple[BatchGroupIndex, BatchIndex, positionWithinBatchIndex]
- 
-image_extensions = ["jpg", "jpeg", "tif", "tiff", "jp2", "png"]
-video_extensions = ["mp4"]
-archive_extensions = ["7z", "gz", "gzip", "tar", "tar.gz", "tgz", "z", "zip"]
-text_extensions = ["csv", "txt", "xml", "xsd", "xsl"]
-document_extensions = ["doc", "docx", "pdf", "ppt", "pptx", "xls", "xlsx"]
-audio_extensions = ["mp3", "wav"]
-all_extensions = [*image_extensions, *video_extensions, *archive_extensions, *text_extensions, *document_extensions, *audio_extensions]
+extensions: dict[str, list[str]] = dict()
+extensions["image"] = [".jpg", ".jpeg", ".tif", ".tiff", ".jp2", ".png"]
+# extensions["video"] = ["mp4"]
+extensions["archive"] = [".7z", ".gz", ".gzip", ".tar", ".tar.gz", ".tgz", ".z", ".zip"]
+extensions["text"] = [".csv", ".txt", ".xml", ".xsd", ".xsl"]
+extensions["document"] = [".doc", ".docx", ".pdf", ".ppt", ".pptx", ".xls", ".xlsx"]
+extensions["audio"] = [".mp3", ".wav"]
+all_extensions: list[str] = list()
+[all_extensions.extend(ext) for ext in extensions.values()]
 
 
 def generate_testdata() -> None:
@@ -52,12 +51,12 @@ def generate_testdata() -> None:
         sub.mkdir(parents=True)
     github_bitstreams_path = "https://github.com/dasch-swiss/dsp-tools/blob/main/testdata/bitstreams"
     for ext in all_extensions:
-        img = requests.get(f"{github_bitstreams_path}/test.{ext}?raw=true").content
+        file = requests.get(f"{github_bitstreams_path}/test{ext}?raw=true").content
         for dst in destinations:
-            dst_file = dst / f"test.{ext}"
+            dst_file = dst / f"test{ext}"
             all_paths.append(str(dst_file.relative_to(testproject)))
             with open(dst_file, "bw") as f:
-                f.write(img)
+                f.write(file)
     print(f"Successfully created folder {testproject}")
 
     # generate an XML file that uses these files
@@ -83,12 +82,12 @@ def generate_testdata() -> None:
         f.write(json_text)
 
 
-def check_multimedia_folder(
+def parse_and_check_xml_file(
     xmlfile: str,
     multimedia_folder: str
-) -> etree.ElementTree:
+) -> etree.ElementTree:   # type: ignore
     """
-    Verify that all multimedia files referenced in the XML file are contained in multimedia_folder
+    Parse XML file and verify that all multimedia files referenced in it are contained in multimedia_folder
     (or one of its subfolders), and that all files contained in multimedia_folder are referenced in the XML file.
 
     Args:
@@ -111,101 +110,77 @@ def check_multimedia_folder(
     return tree
 
 
-# def make_equally_sized_batches(multimedia_folder: str, optimal_batch_size_mb: int) -> list[Batch]:
-#     """
-#     Read all multimedia files contained in multimedia_folder and its subfolders,
-#     take the images and divide them into batches.
-#     A batch is filled with images until the optimal_batch_size_mb is reached.
-#     """
-#     # collect all paths
-#     path_to_size: dict[Path, float] = dict()
-#     for img_type in image_extensions:
-#         for pth in Path().glob(f"{multimedia_folder}/**/*.{img_type}"):
-#             path_to_size[pth] = round(pth.stat().st_size / 1_000_000, 1)
-#     all_paths = sorted(path_to_size.keys(), key=lambda x: path_to_size[x])
-# TODO: This is experimental
-
-
-def make_batchgroups(multimedia_folder: str, images_per_batch: int, batches_per_group: int) -> list[Batchgroup]:
+def make_batches(multimedia_folder: str) -> list[list[Path]]:
     """
     Read all multimedia files contained in multimedia_folder and its subfolders,
-    take the images and divide them into groups of batches.
+    take the images and divide them into batches.
 
     Args:
         multimedia_folder: path to the folder containing the multimedia files
-        images_per_batch: max. batch size (can be smaller if there are not enough images to fill it)
-        batches_per_group: max. batchgroup size (can be smaller if there are not enough images to fill it)
 
     Returns:
-        a list of Batchgroups, each group being a list of batches, each batch being a list of Paths
+        a list of batches, each batch being a list of Paths
     """
     # collect all paths
-    all_paths: list[Path] = list()
-    for ext in all_extensions:
-        all_paths.extend(Path().glob(f"{multimedia_folder}/**/*.{ext}"))
+    path_to_size: dict[Path, float] = dict()
+    for pth in Path().glob(f"{multimedia_folder}/**/*.*"):
+        path_to_size[pth] = round(pth.stat().st_size / 1_000_000, 1)
+    all_paths = sorted(path_to_size.keys(), key=lambda x: path_to_size[x])
 
-    # distribute the paths into batchgroups
-    all_paths_generator = (x for x in all_paths)
-    batchgroups: list[Batchgroup] = list()
-    try:
-        for batchgroup_index, batch_index, position_within_batch_index in yield_next_batch_place(
-            images_per_batch=images_per_batch,
-            batches_per_group=batches_per_group
-        ):
-            next_path = next(all_paths_generator)
-            if len(batchgroups) < batchgroup_index + 1:
-                batchgroups.append(list())
-            if len(batchgroups[batchgroup_index]) < batch_index + 1:
-                batchgroups[batchgroup_index].append(list())
-            batchgroups[batchgroup_index][batch_index].append(next_path)
-    except StopIteration:
-        pass
+    # concurrent.futures.ThreadPoolExecutor() works with min(32, os.cpu_count() + 4) threads
+    # (see https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor),
+    # so the ideal number of batches is equal to the number of available threads
+    num_of_batches = min(32, os.cpu_count() + 4, len(all_paths))  # type: ignore
+
+    # make batches
+    average_batch_size = sum(path_to_size.values()) / num_of_batches
+    undistributed_paths = copy.copy(all_paths)
+    batches: list[tuple[list[Path], float]] = [(([]), 0.0) for _ in range(num_of_batches)]
+    for i in range(num_of_batches):
+        next_path = all_paths[i]
+        batches[i] = ([next_path, ], path_to_size[next_path])
+        undistributed_paths.remove(next_path)
+    i=0
+    while undistributed_paths:
+        if batches[i][1] < average_batch_size:
+            next_path = undistributed_paths[0]
+            pathlist, size = batches[i]
+            pathlist.append(next_path)
+            size += path_to_size[next_path]
+            batches[i] = (pathlist, size)
+            undistributed_paths.remove(next_path)
+        i = (i + 1) % num_of_batches
 
     # verify that content of batches is equal to the originally found paths
+    finished_batches = [batch[0] for batch in batches]
     paths_in_batches = list()
-    for batchgroup in batchgroups:
-        for batch in batchgroup:
-            paths_in_batches.extend(batch)
+    [paths_in_batches.extend(batch) for batch in finished_batches]
     assert sorted(paths_in_batches) == sorted(all_paths)
 
-    print(f"Found {len(all_paths)} files in folder '{multimedia_folder}'. Prepare batches as follows: ")
-    for i, batchgroup in enumerate(batchgroups):
-        batchsizes = [f"{len(x):2d}" for x in batchgroup]
-        print(f"\tBatchgroup no. {i} with {len(batchgroup)} batches, size of each batch: {batchsizes}")
+    print(f"Found {len(all_paths)} files in folder '{multimedia_folder}'. Prepared {num_of_batches} batches as follows:")
+    for number, batch in enumerate(batches):
+        pathlist, size = batch
+        print(f" - Batch no. {number + 1:2d}: {len(pathlist)} files with a total size of {size:.1f} MB")
 
-    return batchgroups
-
-
-def yield_next_batch_place(images_per_batch: int, batches_per_group: int) -> Generator[NextBatchPlace, None, None]:
-    """
-    This generator yields the place where to put the next image in.
-    First, we want to distribute the images over 1 batchgroup, each batch containing 1 image.
-    Then we give every batch a second image, and so on, until the batchgroup is full.
-    Then, we fill the next batchgroup.
-    For this purpose, this generator yields a tuple consisting of (batchgroup, batch, position_within_batch).
-    batch is the fastest growing index (going up to batches_per_group - 1),
-    position_within_batch the second fastest (going up to images_per_batch - 1),
-    and batchgroup the slowest growing index (going up to infinity)
-    """
-    for batchgroup in range(999999):
-        for position_within_batch in range(images_per_batch):
-            for batch in range(batches_per_group):
-                yield batchgroup, batch, position_within_batch
+    return finished_batches
 
 
 def make_preprocessing(
     batch: list[Path],
-    sipi_port: int
+    local_sipi_port: int,
+    remote_sipi_server: str,
+    con: Connection
 ) -> tuple[dict[str, str], list[Path]]:
     """
-    Sends the images contained in batch to the /upload route of SIPI,
+    Sends the multimedia files contained in batch to the /upload route of the local SIPI instance,
     creates a mapping of the original filepath to the SIPI-internal filename and the checksum,
     and returns the mapping for the successfully processed files,
     together with a list of the failed original filepaths.
 
     Args:
         batch: list of paths to image files
-        sipi_port: port number of SIPI
+        local_sipi_port: port number of SIPI
+        remote_sipi_server: str
 
     Returns:
         mapping, failed_batch_items
@@ -213,38 +188,49 @@ def make_preprocessing(
     mapping: dict[str, str] = dict()
     failed_batch_items = list()
     for pth in batch:
-        with open(pth, 'rb') as bitstream:
-            response_raw = requests.post(url=f'http://localhost:{sipi_port}/upload', files={'file': bitstream})
+        with open(pth, "rb") as bitstream:
+            response_raw = requests.post(url=f"http://localhost:{local_sipi_port}/upload", files={"file": bitstream})
         response = json.loads(response_raw.text)
         if response.get("message") == "server.fs.mkdir() failed: File exists":
             failed_batch_items.append(pth)
-        else:
-            internal_filename = response["uploadedFiles"][0]["internalFilename"]
-            mapping[str(pth)] = internal_filename
+            continue
+        internal_filename = response["uploadedFiles"][0]["internalFilename"]
+        mapping[str(pth)] = internal_filename
+        original_extension = pth.suffix
+        deriv = ".jp2" if original_extension in extensions["image"] else original_extension
+        for ext in [".info", deriv, f"{original_extension}.orig"]:
+            upload_candidate = f"tmp/{Path(internal_filename).stem}{ext}"
+            with open(upload_candidate, "rb") as bitstream:
+                response_upload = requests.post(url=f"{regex.sub(r'/$', '', remote_sipi_server)}/upload_without_transcoding?token={con.get_token()}", files={"file": bitstream})
+            if not response_upload.json().get("uploadedFiles"):
+                raise BaseError(f"File {upload_candidate} ({pth!s}) could not be uploaded. The API response was: {response_upload.text}")
+        print(f"Uploaded {pth!s}")
 
     return mapping, failed_batch_items
 
 
-def preprocess_batch(batch: list[Path], sipi_port: int) -> dict[str, str]:
+def preprocess_batch(batch: list[Path], local_sipi_port: int, remote_sipi_server: str, con: Connection) -> dict[str, str]:
     """
     Create JP2 and sidecar files of the images contained in one batch.
 
     Args:
         batch: list of paths to image files
-        sipi_port: port number of SIPI
+        local_sipi_port: port number of SIPI
+        remote_sipi_server: the DSP server where the data should be imported
+        con: connection to the remote DSP server
 
     Returns:
         mapping of original filepaths to internal filenames
     """
-    mapping, failed_batch_items = make_preprocessing(batch=batch,sipi_port=sipi_port)
+    mapping, failed_batch_items = make_preprocessing(batch=batch,local_sipi_port=local_sipi_port, remote_sipi_server=remote_sipi_server, con=con)
     while len(failed_batch_items) != 0:
         print(f"\tRetry the following failed files: {[str(x) for x in failed_batch_items]}")
-        mapping_addition, failed_batch_items = make_preprocessing(batch=failed_batch_items, sipi_port=sipi_port)
+        mapping_addition, failed_batch_items = make_preprocessing(batch=failed_batch_items, local_sipi_port=local_sipi_port, remote_sipi_server=remote_sipi_server, con=con)
         mapping.update(mapping_addition)
     return mapping
 
 
-def write_preprocessed_xml_file(xml_file_tree: etree.ElementTree, mapping: dict[str, str], xmlfile: str) -> None:
+def write_preprocessed_xml_file(xml_file_tree: etree.ElementTree, mapping: dict[str, str], xmlfile: str) -> None:   # type: ignore
     """
     Make a copy of the XML file with the filepaths replaced by the UUID.
 
@@ -255,7 +241,7 @@ def write_preprocessed_xml_file(xml_file_tree: etree.ElementTree, mapping: dict[
     Returns:
         None
     """
-    for elem in xml_file_tree.iter():
+    for elem in xml_file_tree.iter():  # type: ignore
         if elem.text in mapping:
             elem.text = mapping[elem.text]
     xml_string = etree.tostring(xml_file_tree, encoding="unicode", pretty_print=True)
@@ -264,54 +250,65 @@ def write_preprocessed_xml_file(xml_file_tree: etree.ElementTree, mapping: dict[
         f.write(xml_string)
 
 
-def preprocess_xml_upload(
-    xmlfile: str,
+def enhanced_xml_upload(
     multimedia_folder: str,
-    sipi_port: int
+    local_sipi_port: int,
+    server: str,
+    user: str,
+    password: str,
+    remote_sipi_server: str,
+    verbose: bool,
+    incremental: bool,
+    xmlfile: str
 ) -> None:
     """
-    Given a project folder (current working directory)
-    with a big quantity of multimedia files referenced in an XML file,
-    and given a local SIPI instance,
-    this method preprocesses the image files batch-wise in multithreading.
+    Before starting the regular xmlupload, 
+    preprocess the multimedia files with a local SIPI instance in multithreading, 
+    and send the preprocessed files to the DSP server.
 
     Args:
-        xmlfile: path to xml file containing the data
         multimedia_folder: name of the folder containing the multimedia files
-        sipi_port: 5-digit port number that SIPI uses, can be found in the 'Container' view of Docker Desktop
+        local_sipi_port: 5-digit port number of the local SIPI instance, can be found in the "Container" view of Docker Desktop
+        server: the DSP server where the data should be imported
+        user: username used for authentication with the DSP-API
+        password: password used for authentication with the DSP-API
+        remote_sipi_server: URL of the remote SIPI IIIF server
+        verbose: If set, more information about the process is printed to the console.
+        incremental: If set, IRIs instead of internal IDs are expected as reference to already existing resources on DSP
+        xmlfile: path to xml file containing the data
 
     Returns:
         None
     """
-    xml_file_tree = check_multimedia_folder(xmlfile=xmlfile, multimedia_folder=multimedia_folder)
+    xml_file_tree = parse_and_check_xml_file(xmlfile=xmlfile, multimedia_folder=multimedia_folder)
 
-    # concurrent.futures.ThreadPoolExecutor() works with min(32, os.cpu_count() + 4) threads
-    # (see https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor),
-    # so the ideal number of batches per group is equal to the number of available threads
-    num_of_available_threads = min(32, os.cpu_count() + 4)
+    batches = make_batches(multimedia_folder=multimedia_folder)
 
-    # make_equally_sized_batches(multimedia_folder=multimedia_folder, optimal_batch_size_mb=15)
-
-    batchgroups = make_batchgroups(
-        multimedia_folder=multimedia_folder,
-        images_per_batch=10,
-        batches_per_group=num_of_available_threads
-    )
+    con = Connection(server)
+    try_network_action(failure_msg="Unable to login to DSP server", action=lambda: con.login(user, password))
 
     mapping = dict()
-
-    for i, batchgroup in enumerate(batchgroups):
-        print(f"Handing over Batchgroup no. {i} with {len(batchgroup)} batches to ThreadPoolExecutor.")
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            batchgroup_mappings = executor.map(preprocess_batch, batchgroup, repeat(sipi_port))
-        for mp in batchgroup_mappings:
-            mapping.update(mp)
-
-        # TODO: send_batch_to_server(batchgroup_mappings)
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        batchgroup_mappings = executor.map(preprocess_batch, batches, repeat(local_sipi_port), repeat(remote_sipi_server), repeat(con))
+    for mp in batchgroup_mappings:
+        mapping.update(mp)
 
     write_preprocessed_xml_file(xml_file_tree=xml_file_tree, mapping=mapping, xmlfile=xmlfile)
 
-    print("Sucessfully finished!")
+    print("Preprocessing sucessfully finished! Start with regular xmlupload...")
+
+    xml_upload(
+        input_file=f"{Path(xmlfile).stem}-preprocessed.xml",
+        server=server,
+        user=user,
+        password=password,
+        imgdir=".",
+        sipi=remote_sipi_server,
+        verbose=verbose,
+        incremental=incremental,
+        save_metrics=False,
+        preprocessing_done=True
+    )
 
 # Ideas how to improve the multithreading:
 # - should the images be distributed into groups according to size?

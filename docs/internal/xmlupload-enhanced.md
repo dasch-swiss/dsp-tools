@@ -5,23 +5,16 @@
 For projects with a big quantity of multimedia files, 
 the `xmlupload` command is too slow.
 That's why we developed, for internal usage, an enhanced workflow. 
-It consists of two steps:
+It consists of the steps described in this document:
 
-First, the `preprocess-xmlupload` command 
-preprocesses the multimedia files locally (using a local SIPI instance), 
-uploads them to the server,
-and creates a copy of the XML file in which the `<bitstream>` tags don't contain file paths anymore, 
-but a reference to the internal filename on the server.
+First, prepare your data as explained below.
+Then, startup a local SIPI instance.
+Finally, use the `enhanced-xmlupload` command 
+to preprocess the multimedia files locally, 
+upload them to the server,
+and create the resources of the XML file on the DSP server.
 This first step uses multithreading to speed up the process.
 
-The second step is done with the `xmlupload` command,
-using the `--preprocessing-done` flag.
-This second step takes much less time than a normal `xmlupload`,
-because it only creates the resources, 
-and doesn't have to deal with the multimedia files. 
-
-In order to use this enhanced workflow, 
-follow the steps described in this document.
 
 
 ## 1. Prepare your data
@@ -53,7 +46,7 @@ Note:
 A folder with the above structure can be created with
 
 ```bash
-dsp-tools preprocess-xmlupload --generate-test-data
+dsp-tools enhanced-xmlupload --generate-test-data data.xml
 ```
 
 
@@ -101,33 +94,25 @@ Common steps for methods 1 + 2:
 
 
 
-## 3. Preprocess and upload the multimedia files with `preprocess-xmlupload`
+## 3. `enhanced-xmlupload`
 
-The command `preprocess-xmlupload` must be called from the project root.
+The command `enhanced-xmlupload` must be called from the project root.
 
 ```bash
-dsp-tools preprocess-xmlupload --xmlfile=data.xml --multimedia_folder=multimedia --sipi_port=12345
+dsp-tools enhanced-xmlupload [options] xmlfile
 ```
 
 Arguments and options:
 
- - `--xmlfile` (optional, default: `data.xml`): path to xml file containing the data
- - `--multimedia_folder` (optional, default: `multimedia`): name of the folder containing the multimedia files
- - `--sipi_port` (mandatory): 5-digit port number that SIPI uses, can be found in the "Container" view of Docker Desktop
+- `--multimedia-folder` (optional, default: `multimedia`): name of the folder containing the multimedia files
+- `--local-sipi-port` (required): 5-digit port number of the local SIPI instance, can be found in the "Container" view of Docker Desktop
+- `--generate-test-data`: If set, only generate a test data folder in the current working directory (no upload).
+- `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server
+- `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP-API
+- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
+- `-S` | `--remote-sipi-server` (optional, default: `http://0.0.0.0:1024`): URL of the remote SIPI IIIF server
+- `-I` | `--incremental` (optional) : If set, IRIs instead of internal IDs are expected as reference to already existing resources on DSP
+- `-v` | `--verbose` (optional): If set, more information about the process is printed to the console.
+- `xmlfile` (required): path to XML file containing the data
 
-This command makes the preprocessing and sends the preprocessed files to the server.
-The output is an XML file 
-where all file paths inside the `<bitstream>` tags are replaced by the internal filename used on the server.
-
-
-
-## 4. Create the resources with `xmlupload --preprocessing-done`
-
-As last step, do
-
-```bash
-dsp-tools xmlupload data-preprocessed.xml --preprocessing-done
-```
-
-You can use the [usual flags](../cli-commands.md#xmlupload) that are available for this command, 
-except `--sipi`, which is not necessary.
+This command makes the preprocessing, sends the preprocessed files to the server, and creates the resources of the XML file.

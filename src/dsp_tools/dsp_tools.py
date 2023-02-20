@@ -19,7 +19,7 @@ from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.stack_handling import start_stack, stop_stack
 from dsp_tools.utils.xml_upload import xml_upload
-from dsp_tools.utils.xml_upload_enhanced import generate_testdata, preprocess_xml_upload
+from dsp_tools.utils.xml_upload_enhanced import generate_testdata, enhanced_xml_upload
 
 
 def program(user_args: list[str]) -> None:
@@ -91,9 +91,25 @@ def program(user_args: list[str]) -> None:
     parser_upload.add_argument('-I', '--incremental', action='store_true', help='Incremental XML upload')
     parser_upload.add_argument('-m', '--metrics', action='store_true', help='Write metrics into a "metrics" folder in '
                                                                             'the current working directory')
-    parser_upload.add_argument('-P', '--preprocessing-done', action='store_true', help='For internal use only: '
-                                                                                       'If set, all multimedia files referenced in the XML file must already be on the server')
     parser_upload.add_argument('xmlfile', help='path to xml file containing the data', default='data.xml')
+
+    # enhanced-xmlupload
+    parser_enhanced_xmlupload = subparsers.add_parser(
+        name='enhanced-xmlupload',
+        help='For internal use only: Upload data from an XML file to the DaSCH Service Platform. '
+        'Preprocess the data locally first.'
+    )
+    parser_enhanced_xmlupload.set_defaults(action='enhanced-xmlupload')
+    parser_enhanced_xmlupload.add_argument('--multimedia-folder', type=str, default='multimedia', help='Path to folder containing the multimedia files')
+    parser_enhanced_xmlupload.add_argument('--local-sipi-port', type=int, help='5-digit port number of the local SIPI instance, can be found in the "Container" view of Docker Desktop')
+    parser_enhanced_xmlupload.add_argument('--generate-test-data', action='store_true', help="only generate a test data folder in the current working directory (no upload)")
+    parser_enhanced_xmlupload.add_argument('-s', '--server', type=str, default=default_localhost, help=url_text)
+    parser_enhanced_xmlupload.add_argument('-u', '--user', type=str, default=default_user, help=username_text)
+    parser_enhanced_xmlupload.add_argument('-p', '--password', type=str, default=default_pw, help=password_text)
+    parser_enhanced_xmlupload.add_argument('-S', '--remote-sipi-server', type=str, default='http://0.0.0.0:1024', help='URL of the remote SIPI server')
+    parser_enhanced_xmlupload.add_argument('-v', '--verbose', action='store_true', help=verbose_text)
+    parser_enhanced_xmlupload.add_argument('-I', '--incremental', action='store_true', help='Incremental XML upload')
+    parser_enhanced_xmlupload.add_argument('xmlfile', type=str, help='path to xml file containing the data')
 
     # excel2json
     parser_excel2json = subparsers.add_parser(
@@ -166,35 +182,6 @@ def program(user_args: list[str]) -> None:
                                                                 'delete all data in it')
     parser_stackdown.set_defaults(action='stop-stack')
 
-    # enhanced xmlupload
-    parser_enhanced_xmlupload = subparsers.add_parser(
-        'preprocess-xmlupload',
-        help='DaSCH-internal command: Before uploading a big project to a DSP server, preprocess it locally'
-    )
-    parser_enhanced_xmlupload.set_defaults(action='preprocess-xmlupload')
-    parser_enhanced_xmlupload.add_argument(
-        '--xmlfile',
-        type=str,
-        default='data.xml',
-        help='path to xml file containing the data'
-    )
-    parser_enhanced_xmlupload.add_argument(
-        '--multimedia_folder',
-        type=str,
-        default="multimedia",
-        help="name of the folder containing the multimedia files"
-    )
-    parser_enhanced_xmlupload.add_argument(
-        '--sipi_port',
-        type=int,
-        help="5-digit port number that SIPI uses, can be found in the 'Container' view of Docker Desktop"
-    )
-    parser_enhanced_xmlupload.add_argument(
-        '--generate-test-data',
-        action='store_true',
-        help="only generate a test data folder in the current working directory (no upload)"
-    )
-
     # call the requested action
     args = parser.parse_args(user_args)
 
@@ -247,6 +234,21 @@ def program(user_args: list[str]) -> None:
                        incremental=args.incremental,
                        save_metrics=args.metrics,
                        preprocessing_done=args.preprocessing_done)
+    elif args.action == 'enhanced-xmlupload':
+        if args.generate_test_data:
+            generate_testdata()
+        else:
+            enhanced_xml_upload(
+                multimedia_folder=args.multimedia_folder,
+                local_sipi_port=args.local_sipi_port,
+                server=args.server,
+                user=args.user,
+                password=args.password,
+                remote_sipi_server=args.remote_sipi_server,
+                verbose=args.verbose,
+                incremental=args.incremental,
+                xmlfile=args.xmlfile
+            )
     elif args.action == 'excel2json':
         excel2json(data_model_files=args.data_model_files,
                    path_to_output_file=args.outfile)
@@ -275,15 +277,6 @@ def program(user_args: list[str]) -> None:
                     suppress_docker_system_prune=args.no_prune)
     elif args.action == 'stop-stack':
         stop_stack()
-    elif args.action == 'preprocess-xmlupload':
-        if args.generate_test_data:
-            generate_testdata()
-        else:
-            preprocess_xml_upload(
-                xmlfile=args.xmlfile,
-                multimedia_folder=args.multimedia_folder,
-                sipi_port=args.sipi_port
-            )
 
 
 def main() -> None:

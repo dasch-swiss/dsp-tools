@@ -703,8 +703,8 @@ For input of excel2xml:
 
 If you write an XML file by hand:
 
-- Simple text: Use HTML-escape sequences for the reserved characters `<`, `>`, and `&` --> what is with &?
-- Rich text: The special characters `<`, `>` and `&` must be escaped.
+- Simple text: The special characters `<`, `>` and `&` must be escaped.
+- Rich text: The special characters `<`, `>` and `&` must be escaped if they are not part of a valid HTML tag.
 
 
 ### `<time-prop>`

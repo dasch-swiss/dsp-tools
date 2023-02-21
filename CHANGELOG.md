@@ -1,5 +1,31 @@
 # Changelog
 
+## [2.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v2.0.3...v2.1.0) (2023-02-21)
+
+
+### Bug Fixes
+
+* **create:** improve validation to prevent endless loop if properties are undefined (DEV-1720) ([#297](https://github.com/dasch-swiss/dsp-tools/issues/297)) ([ee3e446](https://github.com/dasch-swiss/dsp-tools/commit/ee3e4469dde19790841617f4aab76e673e0ef3f2))
+* **create:** property from other ontology not found (DEV-1381) [#299](https://github.com/dasch-swiss/dsp-tools/issues/299) ([d1345ec](https://github.com/dasch-swiss/dsp-tools/commit/d1345ecce816b220a142e570fa2d824325b089ea))
+
+
+### Documentation
+
+* fix identical heading problem, assimilate mkdocs config to dsp-docs (DEV-1713) ([#294](https://github.com/dasch-swiss/dsp-tools/issues/294)) ([c235ff3](https://github.com/dasch-swiss/dsp-tools/commit/c235ff341a54a44b38e8f579a3791245f749517f))
+
+
+### Enhancements
+
+* **excel2json:** add support for gui_order, make templates better understandable (DEV-1711) ([#293](https://github.com/dasch-swiss/dsp-tools/issues/293)) ([3b5304f](https://github.com/dasch-swiss/dsp-tools/commit/3b5304fb0dd52515ae7d9595a969e2364358a4ec))
+
+
+### Maintenance
+
+* bump start-stack to 2023.02.02 (DEV-1732) [#302](https://github.com/dasch-swiss/dsp-tools/issues/302) ([b97a696](https://github.com/dasch-swiss/dsp-tools/commit/b97a6964ae86756642dfb657d6bebd2b6b61f6e5))
+* enhanced xmlupload: add test onto (DEV-1760) [#300](https://github.com/dasch-swiss/dsp-tools/issues/300) ([ca32842](https://github.com/dasch-swiss/dsp-tools/commit/ca32842f07d1b72cb9960d979de0906d14d24516))
+* **excel2xml:** allow PathLike for bitstream-prop (DEV-1729) [#298](https://github.com/dasch-swiss/dsp-tools/issues/298) ([ab9386f](https://github.com/dasch-swiss/dsp-tools/commit/ab9386fae84d9b91f627a474c072c9413ca19009))
+* remove temporary workaround in GET groups (DEV-1733) [#301](https://github.com/dasch-swiss/dsp-tools/issues/301) ([7ead9de](https://github.com/dasch-swiss/dsp-tools/commit/7ead9dea33eb75711693f4b31a4ebafbe5eef874))
+
 ## [2.0.3](https://github.com/dasch-swiss/dsp-tools/compare/v2.0.2...v2.0.3) (2023-02-07)
 
 

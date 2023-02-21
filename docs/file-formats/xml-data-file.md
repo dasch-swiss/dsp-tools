@@ -695,11 +695,11 @@ Behaviour of text with markup (`Richtext` + `xml`)
 
 For input of excel2xml:
 
-- Simple text: Don't use HTML-escape sequences.
-- Simple text: Don't use tags (mathematical comparisons with `<>`) are allowed.
-- Rich text: The XML contained in it must be valid.
-- Rich text: The special characters `<`, `>` and `&` can only be used to construct a valid HTML-tag.
-- Rich text: HTML-escape sequences can be freely used.
+- Simple text: Don't use HTML escape sequences.
+- Simple text: Don't use tags. (Mathematical comparisons with `<>` are allowed).
+- Rich text: The special characters `<`, `>` and `&` are only allowed to construct a tag.
+- Rich text: If tags are used, they must result in well-formed XML.
+- Rich text: HTML escape sequences can be freely used.
 
 If you write an XML file by hand:
 

@@ -380,19 +380,17 @@ class TestExcel2xml(unittest.TestCase):
         # encoding="utf8"
         testcases_utf8 = [
             [
-                "Text with < and & and <pseudo-tag> and &lt;",
-                "Text with &lt; and &amp; and &lt;pseudo-tag&gt; and &amp;lt;"
+                "Text with < and & text",
+                "Text with &lt; and &amp; text"
             ],
             [
                 "<>",
                 "&lt;&gt;"
             ]
         ]
-        # mention in docs that HTML-escape sequences don't work in utf8
-        # mention in docs that <, <, & must be escaped in xml
         for orig, exp in testcases_utf8:
-            received = etree.tostring(excel2xml.make_text_prop(":test", excel2xml.PropertyElement(orig, encoding="utf8")))
-            received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", str(received))
+            received = etree.tostring(excel2xml.make_text_prop(":test", excel2xml.PropertyElement(orig, encoding="utf8")), encoding="unicode")
+            received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", received)
             expected = '<text-prop name=":test"><text permissions="prop-default" encoding="utf8">' + exp + '</text></text-prop>'
             self.assertEqual(received, expected)
         
@@ -420,17 +418,20 @@ class TestExcel2xml(unittest.TestCase):
         all_inputs += " ".join([input for input, output in testcases_xml])
         all_outputs += " ".join([output for input, output in testcases_xml])
         testcases_xml.append([all_inputs, all_outputs])
-        
-        invalid_xml_texts = ["text with <", "text with >", "text with &", "text <unclosed> tag", "text <unclosed tag> text"]
 
         for orig, exp in testcases_xml:
-            received = etree.tostring(excel2xml.make_text_prop(":test", excel2xml.PropertyElement(orig, encoding="xml")))
-            received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", str(received))
+            received = etree.tostring(excel2xml.make_text_prop(":test", excel2xml.PropertyElement(orig, encoding="xml")), encoding="unicode")
+            received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", received)
             expected = '<text-prop name=":test"><text permissions="prop-default" encoding="xml">' + exp + '</text></text-prop>'
             self.assertEqual(received, expected)
 
+        invalid_xml_texts = ["text < text", "text & text", "text <unclosed> tag", 'text <unclosed tag="tag"> text']
         for inv in invalid_xml_texts:
-            with self.assertRaises(Exception):
+            with self.assertRaisesRegex(
+                BaseError, 
+                r"The XML tags contained in a richtext property \(encoding=xml\) must be well-formed", 
+                msg=f"Failed with '{inv}'"
+            ):
                 excel2xml.make_text_prop(":test", excel2xml.PropertyElement(inv, encoding="xml"))
 
 

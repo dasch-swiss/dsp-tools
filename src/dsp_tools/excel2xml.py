@@ -1218,15 +1218,18 @@ def make_text_prop(
             nsmap=xml_namespace_map
         )
         if kwargs["encoding"] == "utf8":
+            # write the text into the tag, without validation
             value_.text = str(val.value)
         else:
+            # enforce that the text is well-formed XML: serialize tag, insert text, and parse it again
+            value_.text = "replace-me_8(1-)replace-me"
+            content = etree.tostring(value_, encoding="unicode")
+            content = content.replace("replace-me_8(1-)replace-me", str(val.value))
             try:
-                value_.text = "replace-me"
-                content = etree.tostring(value_, encoding="unicode")
-                content = content.replace("replace-me", str(val.value))
                 value_ = etree.fromstring(content)
             except etree.XMLSyntaxError:
-                value_.text = str(val.value)
+                raise BaseError("The XML tags contained in a richtext property (encoding=xml) must be well-formed. "
+                                "The special characters <, > and & are only allowed to construct a tag.") from None
         prop_.append(value_)
 
     return prop_
@@ -1705,7 +1708,6 @@ def write_xml(root: etree.Element, filepath: str) -> None:
     Returns:
         None
     """
-    etree.indent(root, space="    ")
     xml_string = etree.tostring(root, encoding="unicode", pretty_print=True)
     xml_string = '<?xml version="1.0" encoding="UTF-8"?>\n' + xml_string
     with open(filepath, "w", encoding="utf-8") as f:

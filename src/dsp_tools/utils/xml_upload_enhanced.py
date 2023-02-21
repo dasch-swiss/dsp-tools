@@ -2,6 +2,7 @@ import concurrent.futures
 import copy
 import json
 import os
+import shutil
 import warnings
 from itertools import repeat
 from pathlib import Path
@@ -25,6 +26,23 @@ extensions["document"] = [".doc", ".docx", ".pdf", ".ppt", ".pptx", ".xls", ".xl
 extensions["audio"] = [".mp3", ".wav"]
 all_extensions: list[str] = list()
 [all_extensions.extend(ext) for ext in extensions.values()]
+extension2restype = dict()
+for ext in all_extensions:
+    if ext in extensions.get("image", []):
+        restype = ":ImageThing"
+    elif ext in extensions.get("video", []):
+        restype = ":MovieThing"
+    elif ext in extensions.get("archive", []):
+        restype = ":ZipThing"
+    elif ext in extensions.get("text", []):
+        restype = ":TextThing"
+    elif ext in extensions.get("document", []):
+        restype = ":DocumentThing"
+    elif ext in extensions.get("audio", []):
+        restype = ":AudioThing"
+    else:
+        raise BaseError("Invalid extension")
+    extension2restype[ext] = restype
 
 
 def generate_testdata() -> None:
@@ -39,7 +57,7 @@ def generate_testdata() -> None:
         print("The test project folder is already existing.")
         return
 
-    all_paths = list()
+    all_paths: list[Path] = list()
 
     # generate multimedia folder
     destinations = [
@@ -54,28 +72,28 @@ def generate_testdata() -> None:
         file = requests.get(f"{github_bitstreams_path}/test{ext}?raw=true").content
         for dst in destinations:
             dst_file = dst / f"test{ext}"
-            all_paths.append(str(dst_file.relative_to(testproject)))
+            all_paths.append(dst_file.relative_to(testproject))
             with open(dst_file, "bw") as f:
                 f.write(file)
     print(f"Successfully created folder {testproject}")
 
     # generate an XML file that uses these files
-    root = excel2xml.make_root(shortcode="0123", default_ontology="import")
+    root = excel2xml.make_root(shortcode="4123", default_ontology="testonto")
     root = excel2xml.append_permissions(root)
     for filepath in all_paths:
         resource = excel2xml.make_resource(
-            label=filepath,
-            restype=":Image2D",
-            id=excel2xml.make_xsd_id_compatible(filepath)
+            label=str(filepath),
+            restype=extension2restype[filepath.suffix],
+            id=excel2xml.make_xsd_id_compatible(str(filepath))
         )
         warnings.filterwarnings("ignore")
         resource.append(excel2xml.make_bitstream_prop(filepath))
         root.append(resource)
     excel2xml.write_xml(root, str(testproject / "data.xml"))
 
-    # download and adapt JSON project file from 0123-import-scripts
+    # download and adapt JSON project file from dsp-tools testdata
     json_text = requests.get(
-        "https://github.com/dasch-swiss/0123-import-scripts/blob/main/import_project.json?raw=true").text
+        "https://github.com/dasch-swiss/dsp-tools/blob/main/testdata/test-project-systematic.json?raw=true").text
     json_text = json_text.replace('"cardinality": "1"', '"cardinality": "0-n"')
     json_text = json_text.replace('"cardinality": "1-n"', '"cardinality": "0-n"')
     with open(testproject / "data_model.json", "x") as f:
@@ -309,6 +327,9 @@ def enhanced_xml_upload(
         save_metrics=False,
         preprocessing_done=True
     )
+
+    shutil.rmtree("tmp", ignore_errors=True)
+    Path(f"{Path(xmlfile).stem}-preprocessed.xml").unlink()
 
 # Ideas how to improve the multithreading:
 # - should the images be distributed into groups according to size?

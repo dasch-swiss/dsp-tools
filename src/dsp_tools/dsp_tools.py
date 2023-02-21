@@ -233,7 +233,7 @@ def program(user_args: list[str]) -> None:
                        verbose=args.verbose,
                        incremental=args.incremental,
                        save_metrics=args.metrics,
-                       preprocessing_done=args.preprocessing_done)
+                       preprocessing_done=False)
     elif args.action == 'enhanced-xmlupload':
         if args.generate_test_data:
             generate_testdata()

@@ -78,7 +78,7 @@ def generate_testdata() -> None:
     print(f"Successfully created folder {testproject}")
 
     # generate an XML file that uses these files
-    root = excel2xml.make_root(shortcode="4123", default_ontology="testonto")
+    root = excel2xml.make_root(shortcode="00E0", default_ontology="testonto")
     root = excel2xml.append_permissions(root)
     for filepath in all_paths:
         resource = excel2xml.make_resource(
@@ -93,7 +93,7 @@ def generate_testdata() -> None:
 
     # download and adapt JSON project file from dsp-tools testdata
     json_text = requests.get(
-        "https://github.com/dasch-swiss/dsp-tools/blob/main/testdata/test-project-systematic.json?raw=true").text
+        "https://github.com/dasch-swiss/dsp-tools/blob/main/testdata/test-project-enhanced-xmlupload.json?raw=true").text
     json_text = json_text.replace('"cardinality": "1"', '"cardinality": "0-n"')
     json_text = json_text.replace('"cardinality": "1-n"', '"cardinality": "0-n"')
     with open(testproject / "data_model.json", "x") as f:
@@ -242,7 +242,7 @@ def preprocess_batch(batch: list[Path], local_sipi_port: int, remote_sipi_server
     """
     mapping, failed_batch_items = make_preprocessing(batch=batch,local_sipi_port=local_sipi_port, remote_sipi_server=remote_sipi_server, con=con)
     while len(failed_batch_items) != 0:
-        print(f"\tRetry the following failed files: {[str(x) for x in failed_batch_items]}")
+        print(f"Retry the following failed files: {[str(x) for x in failed_batch_items]}")
         mapping_addition, failed_batch_items = make_preprocessing(batch=failed_batch_items, local_sipi_port=local_sipi_port, remote_sipi_server=remote_sipi_server, con=con)
         mapping.update(mapping_addition)
     return mapping

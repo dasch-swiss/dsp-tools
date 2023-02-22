@@ -65,7 +65,6 @@
             <text encoding="utf8">&amp;</text>
             <text encoding="utf8">&amp;amp;</text>
             <!-- <text encoding="utf8">&lt;em&gt;text&lt;/em&gt;</text>
-            <text encoding="utf8"><em>text</em></text>
             <text encoding="utf8">&lt;not a tag&gt;</text>  -->
         </text-prop>
         <text-prop name=":hasTextArea">
@@ -74,7 +73,6 @@
             <text encoding="utf8">&amp;</text>
             <text encoding="utf8">&amp;amp;</text>
             <!-- <text encoding="utf8">&lt;em&gt;text&lt;/em&gt;</text>
-            <text encoding="utf8"><em>text</em></text>
             <text encoding="utf8">&lt;not a tag&gt;</text>  -->
         </text-prop>
         <text-prop name=":hasRichtext">
@@ -797,6 +795,7 @@
         </interval-prop>
     </resource>
 
+    <!-- reference a resource class from another ontology defined in the same JSON project file than default-ontology-->
     <resource label="TestThingPermissions 1" restype="testontoPermissions:TestThingPermissions" id="testthingpermissions_1">
         <text-prop name="testontoPermissions:hasText">
             <text encoding="utf8">Hello!</text>

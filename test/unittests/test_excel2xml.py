@@ -380,12 +380,24 @@ class TestExcel2xml(unittest.TestCase):
         # encoding="utf8"
         testcases_utf8 = [
             [
-                "Text with < and & text",
-                "Text with &lt; and &amp; text"
+                "text < text/>",
+                "text &lt; text/&gt;"
             ],
             [
-                "<>",
-                "&lt;&gt;"
+                "text < text> & text",
+                "text &lt; text&gt; &amp; text"
+            ],
+            [
+                "text <text text > text",
+                "text &lt;text text &gt; text"
+            ],
+            [
+                'text < text text="text"> text',
+                'text &lt; text text="text"&gt; text'
+            ],
+            [
+                'text <text text="text" > text',
+                'text &lt;text text="text" &gt; text'
             ]
         ]
         for orig, exp in testcases_utf8:

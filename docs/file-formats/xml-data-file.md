@@ -677,6 +677,7 @@ Behaviour of simple text (`SimpleText`/`Textarea` + `utf8`):
 |                      | `&`      | ⛔      | invalid XML                                  |
 | `&gt;`               | ⛔       |         | discouraged: The leading `&` will be escaped |
 | `<tag>`              | ⛔       |         | discouraged: Simple text is not rich text    |
+|                      | `<tag>`  | ⛔      | forbidden: Simple text is not rich text      |
 
 
 Behaviour of text with markup (`Richtext` + `xml`):
@@ -713,6 +714,7 @@ For input of excel2xml:
 If you write an XML file by hand:
 
 - Simple text: The special characters `<`, `>` and `&` must be escaped.
+- Simple text: Don't use tags. (Mathematical comparisons with `<>` are allowed).
 - Rich text: The special characters `<`, `>` and `&` must be escaped if they are not part of a valid HTML tag.
 
 

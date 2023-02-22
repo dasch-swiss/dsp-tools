@@ -1708,6 +1708,7 @@ def write_xml(root: etree.Element, filepath: str) -> None:
     Returns:
         None
     """
+    etree.indent(root, space="    ")
     xml_string = etree.tostring(root, encoding="unicode", pretty_print=True)
     xml_string = '<?xml version="1.0" encoding="UTF-8"?>\n' + xml_string
     with open(filepath, "w", encoding="utf-8") as f:

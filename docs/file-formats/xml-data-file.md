@@ -228,7 +228,7 @@ my_project % dsp-tools xmlupload files/data_file.xml
 Supported file extensions:
 
 | Representation              | Supported formats                      |
-|-----------------------------|----------------------------------------|
+| --------------------------- | -------------------------------------- |
 | `ArchiveRepresentation`     | ZIP, TAR, GZ, Z, TAR.GZ, TGZ, GZIP, 7Z |
 | `AudioRepresentation`       | MP3, WAV                               |
 | `DocumentRepresentation`    | PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX   |
@@ -625,15 +625,6 @@ The `<text>` element has the following attributes:
   at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-For the possible combinations of `encoding` with the `gui_element` [defined in the ontology](./json-project/ontologies.md#textvalue), 
-see the table: 
-
-| `gui_element` (JSON ontology) | `encoding` (XML data) | How DSP-APP renders the whitespaces                                                                                            |
-|-------------------------------|-----------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| `SimpleText`                  | `utf8`                | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                  |
-| `Textarea`                    | `utf8`                | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                  |
-| `Richtext`                    | `xml`                 | Pretty-print whitespaces and newlines from the XML are removed. If you want a newline in the text field, use `<br />` instead. |
-
 Example of a public and a hidden text:
 ```xml
 <text-prop name=":hasDescription">
@@ -647,6 +638,84 @@ Example of a public and a hidden text:
 
 The second text above contains a link to the resource `obj_0003`, which is defined in the same XML file. It also 
 contains a link to  the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`, which already exists on the DSP server.
+
+#### `encoding` and `gui_element`
+
+`encoding` can be combined with
+`gui_element` ([defined in the ontology](./json-project/ontologies.md#textvalue))
+as follows:
+
+| `gui_element`<br/>(JSON ontology) | `encoding`<br/>(XML data) | How DSP-APP renders the whitespaces                                                                                            |
+| --------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `SimpleText`                      | `utf8`                    | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                  |
+| `Textarea`                        | `utf8`                    | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                  |
+| `Richtext`                        | `xml`                     | Pretty-print whitespaces and newlines from the XML are removed. If you want a newline in the text field, use `<br />` instead. |
+
+
+#### Special characters: Overview
+
+Depending on the encoding of your text,
+special characters behave differently.
+There are two places where this must be taken into account:
+
+- When a string is passed to [`excel2xml.make_text_prop()`](../excel2xml-module.md#special-characters-in-text-properties)
+- When a string is written by hand into an XML file
+
+In the tables below,
+the second column is the output of the first column,
+and the third column is how DSP-APP displays the second column.
+
+Behaviour of simple text (`SimpleText`/`Textarea` + `utf8`):
+
+| input to `excel2xml` | XML file | DSP-APP | Remarks                                      |
+| -------------------- | -------- | ------- | -------------------------------------------- |
+| `<`                  | `&lt;`   | &lt;    |                                              |
+| `>`                  | `&gt;`   | &gt;    |                                              |
+|                      | `<`      | ⛔      | invalid XML                                  |
+|                      | `>`      | &gt;    | discouraged by XML standard, but possible    |
+| `&`                  | `&amp;`  | &amp;   |                                              |
+|                      | `&`      | ⛔      | invalid XML                                  |
+| `&gt;`               | ⛔       |         | discouraged: The leading `&` will be escaped |
+| `<tag>`              | ⛔       |         | discouraged: Simple text is not rich text    |
+|                      | `<tag>`  | ⛔      | forbidden: Simple text is not rich text      |
+
+
+Behaviour of text with markup (`Richtext` + `xml`):
+
+| input to `excel2xml`  | XML file            | DSP-APP       | Remarks                                   |
+| --------------------- | ------------------- | ------------- | ----------------------------------------- |
+| `<`                   | ⛔                  |               | invalid XML                               |
+| `>`                   | `&gt;`              | &gt;          | discouraged by XML standard, but possible |
+|                       | `<`                 | ⛔            | invalid XML                               |
+|                       | `>`                 | &gt;          | discouraged by XML standard, but possible |
+| `&lt;`                | `&lt;`              | &lt;          |                                           |
+| `&gt;`                | `&gt;`              | &gt;          |                                           |
+| `&`                   | ⛔                  |               | invalid XML                               |
+|                       | `&`                 | ⛔            | invalid XML                               |
+| `&amp;`               | `&amp;`             | &             |                                           |
+| `<em>text</em>`       | `<em>text</em>`     | *text*        |                                           |
+| `unclosed <tag> text` | ⛔                  |               | invalid XML                               |
+|                       | `&lt;not a tag&gt;` | `<not a tag>` |                                           |
+
+
+#### Special characters: Rules
+
+From the systematic analysis above, 
+the following rules can be derived:
+
+For input of excel2xml:
+
+- Simple text: Don't use HTML escape sequences.
+- Simple text: Don't use tags. (Mathematical comparisons with `<>` are allowed).
+- Rich text: The special characters `<`, `>` and `&` are only allowed to construct a tag.
+- Rich text: If tags are used, they must result in well-formed XML.
+- Rich text: HTML escape sequences can be freely used.
+
+If you write an XML file by hand:
+
+- Simple text: The special characters `<`, `>` and `&` must be escaped.
+- Simple text: Don't use tags. (Mathematical comparisons with `<>` are allowed).
+- Rich text: The special characters `<`, `>` and `&` must be escaped if they are not part of a valid HTML tag.
 
 
 ### `<time-prop>`

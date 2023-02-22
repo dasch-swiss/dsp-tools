@@ -206,9 +206,12 @@ def _parse_xml_file(input_file: str) -> etree.ElementTree:
     """
     tree = etree.parse(input_file)
     for elem in tree.getiterator():
-        if not (isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction)):
-            # remove namespace URI in the element's name
-            elem.tag = etree.QName(elem).localname
+        if isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction):
+            # properties that are commented out would break the the constructor of the class XMLProperty, if they are not removed here.
+            elem.getparent().remove(elem)
+        else:
+            elem.tag = etree.QName(elem).localname   # remove namespace URI in the element's name
+        
         if elem.tag == "annotation":
             elem.attrib["restype"] = "Annotation"
             elem.tag = "resource"

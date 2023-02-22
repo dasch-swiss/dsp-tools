@@ -1,3 +1,4 @@
+import copy
 import importlib.resources
 import time
 import unicodedata
@@ -96,12 +97,34 @@ def validate_xml_against_schema(input_file: str) -> bool:
     Args:
         input_file: path to the XML file to be validated
 
+    Raises:
+        BaseError with a detailed error log if the XML file is invalid
+    
     Returns:
-        True if the XML file is valid. Otherwise, a BaseError with a detailed error log is raised
+        True if the XML file is valid
     """
     with importlib.resources.files("dsp_tools").joinpath("schemas").joinpath("data.xsd").open() as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
-    doc = etree.parse(input_file)
+    try:
+        doc = etree.parse(input_file)
+    except etree.XMLSyntaxError as err:
+        raise BaseError(f"The XML file contains the following syntax error: {err.msg}") from None
+
+    # remove namespaces
+    doc_without_namespace = copy.deepcopy(doc)
+    for elem in doc_without_namespace.getiterator():
+        if not (isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction)):
+            elem.tag = etree.QName(elem).localname
+    
+    # make sure there are no XML tags in simple texts
+    lines_with_illegal_xml_tags = list()
+    for text in doc_without_namespace.findall(path="resource/text-prop/text"):
+        if text.attrib["encoding"] == "utf8":
+            if regex.search(r'<([a-zA-Z/"]+|\S.*\S)>', str(text.text)) or len(text.getchildren()) > 0:
+                lines_with_illegal_xml_tags.append(text.sourceline)
+    if lines_with_illegal_xml_tags:
+        raise BaseError(f"XML-tags are not allowed in text properties with encoding=utf8. "
+                        f"The following lines of your XML file are affected: {lines_with_illegal_xml_tags}")
 
     if xmlschema.validate(doc):
         print("The XML file is syntactically correct and passed validation.")

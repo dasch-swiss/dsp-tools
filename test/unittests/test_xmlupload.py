@@ -71,7 +71,7 @@ class TestXMLUpload(unittest.TestCase):
                     '                <a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a>\n'
                     '                <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>\n'
                     '                <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>\n'
-                    '            \n            '
+                    '            \n        '
                 ]
             },
             'test_thing_2': {

@@ -29,7 +29,7 @@ def _validate_resources_with_schema(resources_list: list[dict[str, Any]]) -> boo
         jsonschema.validate(instance=resources_list, schema=resources_schema)
     except jsonschema.exceptions.ValidationError as err:
         raise BaseError(f'"resources" section did not pass validation. The error message is: {err.message}\n'
-                        f'The error occurred at {err.json_path}')
+                        f'The error occurred at {err.json_path}') from None
     return True
 
 

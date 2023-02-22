@@ -269,7 +269,7 @@ def validate_lists_section_with_schema(
         jsonschema.validate(instance={"lists": lists_section}, schema=lists_schema)
     except jsonschema.exceptions.ValidationError as err:
         raise BaseError(f'"lists" section did not pass validation. The error message is: {err.message}\n'
-                        f'The error occurred at {err.json_path}')
+                        f'The error occurred at {err.json_path}') from None
     return True
 
 

@@ -404,7 +404,7 @@ def make_resource(
             DateTimeStamp(creation_date)
         except BaseError:
             raise BaseError(f"The resource '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. Did "
-                            f"you perhaps forget the timezone?")
+                            f"you perhaps forget the timezone?") from None
         kwargs["creation_date"] = creation_date
 
     resource_ = etree.Element(
@@ -714,7 +714,7 @@ def make_decimal_prop(
             float(val.value)
         except ValueError:
             raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                            f"'{val.value}' is not a valid decimal number.")
+                            f"'{val.value}' is not a valid decimal number.") from None
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -785,7 +785,7 @@ def make_geometry_prop(
             assert isinstance(value_as_dict["points"], list)
         except (json.JSONDecodeError, TypeError, IndexError, KeyError, AssertionError):
             raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                            f"'{val.value}' is not a valid JSON geometry object.")
+                            f"'{val.value}' is not a valid JSON geometry object.") from None
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -922,7 +922,7 @@ def make_integer_prop(
             int(val.value)
         except ValueError:
             raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                            f"'{val.value}' is not a valid integer.")
+                            f"'{val.value}' is not a valid integer.") from None
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1358,7 +1358,7 @@ def make_uri_prop(
             UriValue(str(val.value))
         except BaseError:
             raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                            f"'{val.value}' is not a valid URI.")
+                            f"'{val.value}' is not a valid URI.") from None
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1428,7 +1428,7 @@ def make_region(
             DateTimeStamp(creation_date)
         except BaseError:
             raise BaseError(f"The region '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. Did "
-                            f"you perhaps forget the timezone?")
+                            f"you perhaps forget the timezone?") from None
         kwargs["creation_date"] = creation_date
 
     region_ = etree.Element(
@@ -1483,7 +1483,7 @@ def make_annotation(
             DateTimeStamp(creation_date)
         except BaseError:
             raise BaseError(f"The annotation '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. Did "
-                            f"you perhaps forget the timezone?")
+                            f"you perhaps forget the timezone?") from None
         kwargs["creation_date"] = creation_date
 
     annotation_ = etree.Element(
@@ -1538,7 +1538,7 @@ def make_link(
             DateTimeStamp(creation_date)
         except BaseError:
             raise BaseError(f"The link '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. Did "
-                            f"you perhaps forget the timezone?")
+                            f"you perhaps forget the timezone?") from None
         kwargs["creation_date"] = creation_date
 
     link_ = etree.Element(

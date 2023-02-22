@@ -37,7 +37,7 @@ The following options are available:
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
 - `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 
-- `-V` | `--validate-only` (optional): If set, only the validation of the JSON file is performed.
+- `-V` | `--validate-only` (optional): If set, the JSON file will only be validated, but not created on the DSP server.
 - `-l` | `--lists-only` (optional): If set, only the lists are created. Please note that in this case the project must already exist.
 - `-v` | `--verbose` (optional): If set, more information about the progress is printed to the console.
 - `-d` | `--dump` (optional): If set, dump test files for DSP-API requests.
@@ -109,7 +109,7 @@ The following options are available:
 - `-i` | `--imgdir` (optional, default: `.`): folder where the paths in the `<bitstream>` tags are evaluated from
 - `-S` | `--sipi` (optional, default: `http://0.0.0.0:1024`): URL of the SIPI IIIF server 
 - `-I` | `--incremental` (optional) : If set, IRIs instead of internal IDs are expected as reference to already existing resources on DSP
-- `-V` | `--validate` (optional): If set, the XML file will only be validated, but not uploaded.
+- `-V` | `--validate-only` (optional): If set, the XML file will only be validated, but not uploaded.
 - `-v` | `--verbose` (optional): If set, more information about the process is printed to the console.
 - `-m` | `--metrics` (optional): If set, write metrics into a "metrics" folder in the current working directory
 

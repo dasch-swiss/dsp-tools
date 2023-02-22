@@ -33,7 +33,7 @@
     <resource label="TestThing2Incremental"
               restype=":TestThing2"
               id="TestThing2Incremental">
-        <text-prop name=":hasText">
+        <text-prop name=":hasSimpleText">
             <text encoding="xml">Text</text>
         </text-prop>
         <resptr-prop name=":hasTestThing">

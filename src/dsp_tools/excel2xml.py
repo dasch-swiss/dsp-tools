@@ -404,7 +404,7 @@ def make_resource(
             DateTimeStamp(creation_date)
         except BaseError:
             raise BaseError(f"The resource '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. Did "
-                            f"you perhaps forget the timezone?")
+                            f"you perhaps forget the timezone?") from None
         kwargs["creation_date"] = creation_date
 
     resource_ = etree.Element(
@@ -714,7 +714,7 @@ def make_decimal_prop(
             float(val.value)
         except ValueError:
             raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                            f"'{val.value}' is not a valid decimal number.")
+                            f"'{val.value}' is not a valid decimal number.") from None
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -785,7 +785,7 @@ def make_geometry_prop(
             assert isinstance(value_as_dict["points"], list)
         except (json.JSONDecodeError, TypeError, IndexError, KeyError, AssertionError):
             raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                            f"'{val.value}' is not a valid JSON geometry object.")
+                            f"'{val.value}' is not a valid JSON geometry object.") from None
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -922,7 +922,7 @@ def make_integer_prop(
             int(val.value)
         except ValueError:
             raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                            f"'{val.value}' is not a valid integer.")
+                            f"'{val.value}' is not a valid integer.") from None
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1217,7 +1217,20 @@ def make_text_prop(
             **kwargs,
             nsmap=xml_namespace_map
         )
-        value_.text = val.value
+        if kwargs["encoding"] == "utf8":
+            # write the text into the tag, without validation
+            value_.text = str(val.value)
+        else:
+            # enforce that the text is well-formed XML: serialize tag ...
+            content = etree.tostring(value_, encoding="unicode")
+            # ... insert text at the very end of the string, and add an ending tag to the previously single <text/> tag ...
+            content = re.sub(r"/>$", f">{val.value}</text>", content)
+            # ... try to parse it again
+            try:
+                value_ = etree.fromstring(content)
+            except etree.XMLSyntaxError:
+                raise BaseError("The XML tags contained in a richtext property (encoding=xml) must be well-formed. "
+                                "The special characters <, > and & are only allowed to construct a tag.") from None
         prop_.append(value_)
 
     return prop_
@@ -1345,7 +1358,7 @@ def make_uri_prop(
             UriValue(str(val.value))
         except BaseError:
             raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                            f"'{val.value}' is not a valid URI.")
+                            f"'{val.value}' is not a valid URI.") from None
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1415,7 +1428,7 @@ def make_region(
             DateTimeStamp(creation_date)
         except BaseError:
             raise BaseError(f"The region '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. Did "
-                            f"you perhaps forget the timezone?")
+                            f"you perhaps forget the timezone?") from None
         kwargs["creation_date"] = creation_date
 
     region_ = etree.Element(
@@ -1470,7 +1483,7 @@ def make_annotation(
             DateTimeStamp(creation_date)
         except BaseError:
             raise BaseError(f"The annotation '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. Did "
-                            f"you perhaps forget the timezone?")
+                            f"you perhaps forget the timezone?") from None
         kwargs["creation_date"] = creation_date
 
     annotation_ = etree.Element(
@@ -1525,7 +1538,7 @@ def make_link(
             DateTimeStamp(creation_date)
         except BaseError:
             raise BaseError(f"The link '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. Did "
-                            f"you perhaps forget the timezone?")
+                            f"you perhaps forget the timezone?") from None
         kwargs["creation_date"] = creation_date
 
     link_ = etree.Element(
@@ -1697,10 +1710,8 @@ def write_xml(root: etree.Element, filepath: str) -> None:
         None
     """
     etree.indent(root, space="    ")
-    xml_string = etree.tostring(root, encoding="unicode", pretty_print=True)
-    xml_string = '<?xml version="1.0" encoding="UTF-8"?>\n' + xml_string
-    xml_string = xml_string.replace("&lt;", "<")
-    xml_string = xml_string.replace("&gt;", ">")
+    xml_string = etree.tostring(root, encoding="unicode", pretty_print=True, doctype='<?xml version="1.0" encoding="UTF-8"?>')
+    xml_string = xml_string.replace("\'", "'")
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(xml_string)
     try:

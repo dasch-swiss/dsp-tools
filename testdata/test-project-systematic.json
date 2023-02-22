@@ -227,7 +227,7 @@
                     {
                         "name": "hasTextChild1",
                         "super": [
-                            ":hasText"
+                            ":hasSimpleText"
                         ],
                         "object": "TextValue",
                         "labels": {
@@ -236,7 +236,7 @@
                         "gui_element": "SimpleText"
                     },
                     {
-                        "name": "hasText",
+                        "name": "hasSimpleText",
                         "super": [
                             "hasValue",
                             "foaf:name",
@@ -244,7 +244,7 @@
                         ],
                         "object": "TextValue",
                         "labels": {
-                            "en": "Text"
+                            "en": "hasSimpleText"
                         },
                         "comments": {
                             "en": "properties can optionally have comments",
@@ -264,9 +264,20 @@
                         ],
                         "object": "TextValue",
                         "labels": {
-                            "en": "Text"
+                            "en": "hasRichtext"
                         },
                         "gui_element": "Richtext"
+                    },
+                    {
+                        "name": "hasTextArea",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "hasTextArea"
+                        },
+                        "gui_element": "Textarea"
                     },
                     {
                         "name": "hasUri",
@@ -523,12 +534,19 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": "testonto:hasText",
-                                "cardinality": "1-n"
+                                "propname": "testonto:hasSimpleText",
+                                "cardinality": "1-n",
+                                "gui_order": 1
+                            },
+                            {
+                                "propname": ":hasTextArea",
+                                "cardinality": "0-n",
+                                "gui_order": 2
                             },
                             {
                                 "propname": ":hasRichtext",
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 3
                             },
                             {
                                 "propname": ":hasUri",
@@ -624,7 +642,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasText",
+                                "propname": ":hasSimpleText",
                                 "gui_order": 1,
                                 "cardinality": "1"
                             },
@@ -647,7 +665,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasText",
+                                "propname": ":hasSimpleText",
                                 "gui_order": 1,
                                 "cardinality": "1"
                             }
@@ -664,7 +682,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasText",
+                                "propname": ":hasSimpleText",
                                 "gui_order": 1,
                                 "cardinality": "1"
                             }
@@ -682,7 +700,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasText",
+                                "propname": ":hasSimpleText",
                                 "gui_order": 1,
                                 "cardinality": "1"
                             }
@@ -699,7 +717,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasText",
+                                "propname": ":hasSimpleText",
                                 "gui_order": 1,
                                 "cardinality": "1"
                             }
@@ -716,7 +734,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasText",
+                                "propname": ":hasSimpleText",
                                 "gui_order": 1,
                                 "cardinality": "1"
                             }
@@ -733,7 +751,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasText",
+                                "propname": ":hasSimpleText",
                                 "gui_order": 1,
                                 "cardinality": "1"
                             }
@@ -750,7 +768,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasText",
+                                "propname": ":hasSimpleText",
                                 "gui_order": 1,
                                 "cardinality": "1"
                             }
@@ -809,7 +827,7 @@
                         "super": "Resource",
                         "cardinalities": [
                             {
-                                "propname": ":hasText",
+                                "propname": ":hasSimpleText",
                                 "cardinality": "0-1"
                             },
                             {
@@ -832,7 +850,7 @@
                         "super": "Resource",
                         "cardinalities": [
                             {
-                                "propname": ":hasText",
+                                "propname": ":hasSimpleText",
                                 "cardinality": "0-1"
                             },
                             {
@@ -859,7 +877,7 @@
                         "super": "Resource",
                         "cardinalities": [
                             {
-                                "propname": ":hasText",
+                                "propname": ":hasSimpleText",
                                 "cardinality": "0-1"
                             },
                             {
@@ -916,7 +934,7 @@
                                 "cardinality": "0-n"
                             },
                             {
-                                "propname": "testonto:hasText",
+                                "propname": "testonto:hasSimpleText",
                                 "gui_order": 2,
                                 "cardinality": "0-n"
                             }

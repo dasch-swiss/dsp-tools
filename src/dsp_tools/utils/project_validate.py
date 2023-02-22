@@ -151,7 +151,7 @@ def validate_project(
     except jsonschema.ValidationError as err:
         raise BaseError(f"The JSON project file cannot be created due to the following validation error: {err.message}.\n"
                         f"The error occurred at {err.json_path}:\n"
-                        f"{err.instance}")
+                        f"{err.instance}") from None
 
     # make sure that there is no undefined superproperty
     check_for_undefined_superproperty(project_definition)

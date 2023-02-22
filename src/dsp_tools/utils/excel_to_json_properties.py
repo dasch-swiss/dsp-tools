@@ -29,7 +29,7 @@ def _validate_properties_with_schema(properties_list: list[dict[str, Any]]) -> b
         jsonschema.validate(instance=properties_list, schema=properties_schema)
     except jsonschema.exceptions.ValidationError as err:
         raise BaseError(f'"properties" section did not pass validation. The error message is: {err.message}\n'
-                        f'The error occurred at {err.json_path}')
+                        f'The error occurred at {err.json_path}') from None
     return True
 
 

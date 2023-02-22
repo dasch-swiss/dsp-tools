@@ -642,7 +642,7 @@ contains a link to  the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`, w
 #### `encoding` and `gui_element`
 
 `encoding` can be combined with
-`gui_element` [defined in the ontology](./json-project/ontologies.md#textvalue)
+`gui_element` ([defined in the ontology](./json-project/ontologies.md#textvalue))
 as follows:
 
 | `gui_element`<br/>(JSON ontology) | `encoding`<br/>(XML data) | How DSP-APP renders the whitespaces                                                                                            |
@@ -652,46 +652,55 @@ as follows:
 | `Richtext`                        | `xml`                     | Pretty-print whitespaces and newlines from the XML are removed. If you want a newline in the text field, use `<br />` instead. |
 
 
-#### Simple text
+#### Special characters: Overview
 
-Behaviour of simple text (`SimpleText`/`Textarea` + `utf8`)
+Depending on the encoding of your text,
+special characters behave differently.
+There are two places where this must be taken into account:
 
-| input to `excel2xml` | XML file                    | DSP-APP |                                                                             |
-| -------------------- | --------------------------- | ------- | --------------------------------------------------------------------------- |
-| `<`                  | `&lt;`                      | &lt;    |                                                                             |
-| `>`                  | `&gt;`                      | &gt;    |                                                                             |
-|                      | `<`                         | --      | invalid XML                                                                 |
-|                      | `>`                         | &gt;    | discouraged by XML standard, but possible                                   |
-| `&lt;`               | `&amp;lt;`                  | &lt;    | bug in DSP-APP?                                                             |
-| `&`                  | `&amp;`                     | &amp;   |                                                                             |
-| --                   | `&`                         | --      | invalid XML                                                                 |
-| `&amp;`              | `&amp;amp;`                 | &amp;   | bug in DSP-APP?                                                             |
-| `<em>text</em>`      | `&lt;em&gt;text&lt;/em&gt;` | *text*  | **soon forbidden by DSP-TOOLS**                                             |
-| `<not a tag>`        | `&lt;not a tag&gt;`         |         | blank, because interpreded as unclosed tag. **soon forbidden by DSP-TOOLS** |
-| --                   | `<em>text</em>`             | text    | **soon forbidden by DSP-TOOLS**                                             |
+- When a string is passed to [`excel2xml.make_text_prop()`](../excel2xml-module.md#supported-text-values)
+- When a string is written by hand into an XML file
+
+In the tables below,
+the second column is the output of the first column,
+and the third column is how DSP-APP displays the second column.
+
+Behaviour of simple text (`SimpleText`/`Textarea` + `utf8`):
+
+| input to `excel2xml` | XML file | DSP-APP | Remarks                                      |
+| -------------------- | -------- | ------- | -------------------------------------------- |
+| `<`                  | `&lt;`   | &lt;    |                                              |
+| `>`                  | `&gt;`   | &gt;    |                                              |
+|                      | `<`      | ⛔      | invalid XML                                  |
+|                      | `>`      | &gt;    | discouraged by XML standard, but possible    |
+| `&`                  | `&amp;`  | &amp;   |                                              |
+|                      | `&`      | ⛔      | invalid XML                                  |
+| `&gt;`               | ⛔       |         | discouraged: The leading `&` will be escaped |
+| `<tag>`              | ⛔       |         | discouraged: Simple text is not rich text    |
 
 
-#### Text with markup
+Behaviour of text with markup (`Richtext` + `xml`):
 
-Behaviour of text with markup (`Richtext` + `xml`)
-
-| input to `excel2xml`  | XML file            | DSP-APP       |                                           |
+| input to `excel2xml`  | XML file            | DSP-APP       | Remarks                                   |
 | --------------------- | ------------------- | ------------- | ----------------------------------------- |
-| `<`                   | --                  | --            |                                           |
-| `>`                   | --                  | --            |                                           |
-|                       | `<`                 | --            | invalid XML                               |
+| `<`                   | ⛔                  |               | invalid XML                               |
+| `>`                   | `&gt;`              | &gt;          | discouraged by XML standard, but possible |
+|                       | `<`                 | ⛔            | invalid XML                               |
 |                       | `>`                 | &gt;          | discouraged by XML standard, but possible |
 | `&lt;`                | `&lt;`              | &lt;          |                                           |
 | `&gt;`                | `&gt;`              | &gt;          |                                           |
-| `&`                   | --                  | --            | invalid XML                               |
-| --                    | `&`                 | --            | invalid XML                               |
+| `&`                   | ⛔                  |               | invalid XML                               |
+|                       | `&`                 | ⛔            | invalid XML                               |
 | `&amp;`               | `&amp;`             | &             |                                           |
 | `<em>text</em>`       | `<em>text</em>`     | *text*        |                                           |
-| `unclosed <tag> text` | --                  | --            | invalid XML                               |
+| `unclosed <tag> text` | ⛔                  |               | invalid XML                               |
 |                       | `&lt;not a tag&gt;` | `<not a tag>` |                                           |
 
 
-#### Conclusion
+#### Special characters: Rules
+
+From the systematic analysis above, 
+the following rules can be derived:
 
 For input of excel2xml:
 

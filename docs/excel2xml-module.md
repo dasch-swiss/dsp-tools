@@ -258,23 +258,11 @@ else:
     excel2xml.make_boolean_prop(":hasBoolean", False)
 ```
 
-#### Supported text values 
+#### Special characters in text properties
 
-DSP's only restriction on text-properties is that the string must be longer than 0. It is, for example, possible to 
-upload the following property:
-```xml
-<text-prop name=":hasText">
-    <text encoding="utf8"> </text>
-    <text encoding="utf8">-</text>
-</text-prop>
-```
-
-`excel2xml` allows to create such a property, but text values that don't meet the requirements of 
-[`excel2xml.check_notna()`](#check-if-a-cell-contains-a-usable-value) will trigger a warning, for example:
-```
-excel2xml.make_text_prop(":hasText", " ")   # OK, but triggers a warning
-excel2xml.make_text_prop(":hasText", "-")   # OK, but triggers a warning
-```
+Depending on the encoding of your text, special characters behave differently. 
+Please consult the systematic overview [here](./file-formats/xml-data-file.md#special-characters-overview) 
+to fully understand the implications.
 
 
 ### 8. Append the resource to root

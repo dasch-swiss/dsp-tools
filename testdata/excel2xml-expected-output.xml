@@ -70,10 +70,10 @@
     <resource label="Iliad Prooem" restype=":Image2D" id="img_obj_6" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.jpg</bitstream>
         <text-prop name=":hasTitle">
-            <text permissions="prop-default" encoding="utf8">Iliad Prooem</text>
+            <text permissions="prop-default" encoding="utf8">Iliad Prooem ' and a single quote in utf8</text>
         </text-prop>
         <text-prop name=":hasDescription">
-            <text permissions="prop-default" encoding="xml">This page shows the prooem of the Iliad in Greek manuscript 1397 in St. Catherine's Monastery on Mount Sinai.</text>
+            <text permissions="prop-default" encoding="xml">Iliad Prooem ' and a single quote in xml</text>
         </text-prop>
         <text-prop name=":hasCopyright">
             <text permissions="prop-default" encoding="xml">© Library of Congress Collection of Manuscripts in St. Catherine's Monastery, Mt. Sinai.</text>

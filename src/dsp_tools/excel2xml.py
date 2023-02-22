@@ -1221,10 +1221,11 @@ def make_text_prop(
             # write the text into the tag, without validation
             value_.text = str(val.value)
         else:
-            # enforce that the text is well-formed XML: serialize tag, insert text, and parse it again
-            value_.text = "replace-me_8(1-)replace-me"
+            # enforce that the text is well-formed XML: serialize tag ...
             content = etree.tostring(value_, encoding="unicode")
-            content = content.replace("replace-me_8(1-)replace-me", str(val.value))
+            # ... insert text at the very end of the string, and add an ending tag to the previously single <text/> tag ...
+            content = re.sub(r"/>$", f">{val.value}</text>", content)
+            # ... try to parse it again
             try:
                 value_ = etree.fromstring(content)
             except etree.XMLSyntaxError:

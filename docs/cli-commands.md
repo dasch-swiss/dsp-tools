@@ -78,8 +78,7 @@ The following options are available:
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
 - `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 
-- `-P` | `--project` (mandatory): shortcode, shortname or
-  [IRI](https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier) of the project 
+- `-P` | `--project` (mandatory): shortcode, shortname or IRI of the project 
 - `-v` | `--verbose` (optional): print more information about the progress to the console
 
 The following example shows 
@@ -103,15 +102,16 @@ dsp-tools xmlupload [options] xml_data_file.xml
 
 The following options are available:
 
-- `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
+- `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server where DSP-TOOLS sends the data to
 - `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
-- `-i` | `--imgdir` (optional, default: `.`): folder where the paths in the `<bitstream>` tags are evaluated from
-- `-S` | `--sipi` (optional, default: `http://0.0.0.0:1024`): URL of the SIPI IIIF server 
-- `-I` | `--incremental` (optional) : If set, IRIs instead of internal IDs are expected as reference to already existing resources on DSP
-- `-V` | `--validate` (optional): If set, the XML file will only be validated, but not uploaded.
-- `-v` | `--verbose` (optional): If set, more information about the process is printed to the console.
-- `-m` | `--metrics` (optional): If set, write metrics into a "metrics" folder in the current working directory
+- `-S` | `--sipi` (optional, default: `http://0.0.0.0:1024`): URL of the SIPI server where DSP-TOOLS sends the multimedia files to 
+- `-i` | `--imgdir` (optional, default: `.`): folder from where the paths in the `<bitstream>` tags are evaluated
+- `-I` | `--incremental` (optional) : The links in the XML file point to IRIs (on the server) 
+                                      instead of IDs (in the same XML file).
+- `-V` | `--validate` (optional): validate the XML file without uploading it
+- `-v` | `--verbose` (optional): print more information about the progress to the console
+- `-m` | `--metrics` (optional): write metrics into a 'metrics' folder
 
 Output:
 
@@ -140,10 +140,10 @@ The expected XML format is [documented here](./file-formats/xml-data-file.md).
 
 ## `excel2json`
 
-This command creates a JSON project file from a nested folder structure with Excel files.
+This command creates a JSON project definition file from a nested folder structure with Excel files.
 
 ``` 
-dsp-tools excel2json data_model_files project.json
+dsp-tools excel2json excelfolder project_definition.json
 ```
 
 The expected Excel file format and the folder structure are documented [here](./file-formats/excel2json.md).
@@ -155,12 +155,12 @@ The expected Excel file format and the folder structure are documented [here](./
 This command creates the "lists" section of a JSON project file from Excel files.
 
 ```bash
-dsp-tools excel2lists [options] folder output.json
+dsp-tools excel2lists [options] excelfolder lists_section.json
 ```
 
 The following options are available:
 
-- `-v` | `--verbose` (optional): If set, more information about the progress is printed to the console.
+- `-v` | `--verbose` (optional): print more information about the progress to the console
 
 The expected Excel file format and the folder structure are documented [here](./file-formats/excel2json.md#lists-section).
 
@@ -175,7 +175,7 @@ The expected Excel file format and the folder structure are documented [here](./
 This command creates the "resources" section of a JSON project file from an Excel file.
 
 ```bash
-dsp-tools excel2resources excel_file.xlsx output_file.json
+dsp-tools excel2resources resources.xlsx resources_section.json
 ```
 
 The expected Excel format is [documented here](./file-formats/excel2json.md#resources-section).
@@ -191,7 +191,7 @@ The expected Excel format is [documented here](./file-formats/excel2json.md#reso
 This command creates the "properties" section of a JSON project file from an Excel file.
 
 ```bash
-dsp-tools excel2properties excel_file.xlsx output_file.json
+dsp-tools excel2properties properties.xlsx properties_section.json
 ```
 
 The expected Excel format is [documented here](./file-formats/excel2json.md#properties-section).
@@ -204,20 +204,19 @@ The expected Excel format is [documented here](./file-formats/excel2json.md#prop
 
 ## `excel2xml`
 
-This command converts an Excel/CSV file
-that is already structured according to the DSP specifications 
-to XML.
+This command creates an XML file
+from an Excel/CSV file that is already structured according to the DSP specifications.
 This is mostly used for DaSCH-internal data migration.
 
 ```bash
-dsp-tools excel2xml data-source.xlsx project_shortcode ontology_name
+dsp-tools excel2xml data_source.xlsx project_shortcode ontology_name
 ```
 
 Arguments:
 
- - data-source.xlsx (mandatory): An Excel/CSV file that is structured as explained below
- - project_shortcode (mandatory): The four-digit hexadecimal shortcode of the project
- - ontology_name (mandatory): the name of the ontology that the data belongs to
+ - data_source.xlsx (mandatory): path to the CSV or XLS(X) file containing the data
+ - project_shortcode (mandatory): shortcode of the project that this data belongs to
+ - ontology_name (mandatory): name of the ontology that the data belongs to
 
 The expected Excel format is [documented here](./file-formats/excel2xml.md).
 
@@ -230,17 +229,17 @@ which is described [here](./excel2xml-module.md).
 
 ## `id2iri`
 
-This command reads an XML file, 
-and replaces the internal IDs contained in its `<resptr>` tags
-by the respective IRIs from the JSON mapping file.
+This command replaces internal IDs contained in the `<resptr>` tags of an XML file
+by IRIs provided in a mapping file.
 
 ```bash
-dsp-tools id2iri xml_file.xml mapping_file.json --outfile xml_file_replaced.xml
+dsp-tools id2iri xmlfile.xml mapping.json
 ```
 
 The following options are available:
 
 - `--outfile` (optional, default: `id2iri_replaced_[timestamp].xml`): path to the output file
+- `-v` | `--verbose` (optional): print more information about the progress to the console
 
 This command cannot be used isolated, 
 because it is part of a bigger procedure 
@@ -250,7 +249,7 @@ that is documented [here](./incremental-xmlupload.md).
 
 ## `start-stack`
 
-This command runs DSP-API and DSP-APP on a local machine.
+This command runs a local instance of DSP-API and DSP-APP.
 
 ```bash
 dsp-tools start-stack
@@ -262,8 +261,8 @@ containers, networks and images. If you don't know what that means, just type `y
 The following options are available:
 
 - `--max_file_size=int` (optional, default: `250`): max. multimedia file size allowed by SIPI, in MB (max: 100'000)
-- `--prune` (optional): if set, execute `docker system prune` without asking the user
-- `--no-prune` (optional): if set, don't execute `docker system prune` (and don't ask)
+- `--prune` (optional): execute `docker system prune` without asking
+- `--no-prune` (optional): don't execute `docker system prune` (and don't ask)
 
 Example: If you start the stack with `dsp-tools start-stack --max_file_size=1000`, 
 it will be possible to upload files that are up to 1 GB big. 

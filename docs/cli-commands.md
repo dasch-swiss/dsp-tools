@@ -109,7 +109,7 @@ The following options are available:
 - `-i` | `--imgdir` (optional, default: `.`): folder where the paths in the `<bitstream>` tags are evaluated from
 - `-S` | `--sipi` (optional, default: `http://0.0.0.0:1024`): URL of the SIPI IIIF server 
 - `-I` | `--incremental` (optional) : If set, IRIs instead of internal IDs are expected as reference to already existing resources on DSP
-- `-V` | `--validate-only` (optional): If set, the XML file will only be validated, but not uploaded.
+- `-V` | `--validate` (optional): If set, the XML file will only be validated, but not uploaded.
 - `-v` | `--verbose` (optional): If set, more information about the process is printed to the console.
 - `-m` | `--metrics` (optional): If set, write metrics into a "metrics" folder in the current working directory
 

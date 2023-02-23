@@ -35,12 +35,12 @@ dsp-tools create [options] project_definition.json
 The following options are available:
 
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
-- `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP-API 
+- `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 
-- `-V` | `--validate-only` (optional): If set, the JSON file will only be validated, but not created on the DSP server.
-- `-l` | `--lists-only` (optional): If set, only the lists are created. Please note that in this case the project must already exist.
-- `-v` | `--verbose` (optional): If set, more information about the progress is printed to the console.
-- `-d` | `--dump` (optional): If set, dump test files for DSP-API requests.
+- `-V` | `--validate-only` (optional): validate the JSON file without creating it on the DSP server
+- `-l` | `--lists-only` (optional): create only the lists (prerequisite: the project exists on the server)
+- `-v` | `--verbose` (optional): print more information about the progress to the console
+- `-d` | `--dump` (optional): dump test files for DSP-API requests
 
 The defaults are intended for local testing: 
 
@@ -70,7 +70,7 @@ This JSON file can then be used
 to create the same project on another DSP server. 
 
 ```bash
-dsp-tools get [options] output_file.json
+dsp-tools get [options] project_definition.json
 ```
 
 The following options are available:
@@ -80,13 +80,13 @@ The following options are available:
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 
 - `-P` | `--project` (mandatory): shortcode, shortname or
   [IRI](https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier) of the project 
-- `-v` | `--verbose` (optional): If set, some information about the progress is printed to the console.
+- `-v` | `--verbose` (optional): print more information about the progress to the console
 
 The following example shows 
 how to get a project from the DSP server `https://admin.dasch.swiss`:
 
 ```bash
-dsp-tools get -s https://api.dasch.swiss -u root@example.com -p test -P my_project output_file.json
+dsp-tools get -s https://api.dasch.swiss -u root@example.com -p test -P my_project project_definition.json
 ```
 
 The expected JSON format is [documented here](./file-formats/json-project/overview.md).

@@ -32,10 +32,10 @@ def program(user_args: list[str]) -> None:
         None
     """
     # help texts
-    username_text = "Username (e-mail) for DSP server"
-    password_text = "The password for login"
+    username_text = "username (e-mail) used for authentication with the DSP-API "
+    password_text = "password used for authentication with the DSP-API "
     url_text = "URL of the DSP server"
-    verbose_text = "Verbose feedback"
+    verbose_text = "print more information about the progress to the console"
 
     # default values
     default_localhost = "http://0.0.0.0:3333"
@@ -58,21 +58,21 @@ def program(user_args: list[str]) -> None:
     parser_create.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_create.add_argument("-p", "--password", default=default_pw, help=password_text)
     parser_create.add_argument("-V", "--validate-only", action="store_true", 
-                               help="Validate the JSON file without creating it on the DSP server")
-    parser_create.add_argument("-l", "--lists-only", action="store_true", help="Upload only the list(s)")
+                               help="validate the JSON file without creating it on the DSP server")
+    parser_create.add_argument("-l", "--lists-only", action="store_true", help="create only the lists (prerequisite: the project exists on the server)")
     parser_create.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
     parser_create.add_argument("-d", "--dump", action="store_true", help="dump test files for DSP-API requests")
-    parser_create.add_argument("projectfile", help="path to the JSON project file")
+    parser_create.add_argument("project_definition.json", help="path to the JSON project file")
 
     # get
-    parser_get = subparsers.add_parser(name="get", help="Retrieve a project from a DSP server")
+    parser_get = subparsers.add_parser(name="get", help="Retrieve a project with its data model(s) from a DSP server and write it into a JSON file")
     parser_get.set_defaults(action="get")
+    parser_get.add_argument("-s", "--server", default=default_localhost, help=url_text)
     parser_get.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_get.add_argument("-p", "--password", default=default_pw, help=password_text)
-    parser_get.add_argument("-s", "--server", default=default_localhost, help=url_text)
-    parser_get.add_argument("-P", "--project", help="Shortcode, shortname or iri of project", required=True)
+    parser_get.add_argument("-P", "--project", help="shortcode, shortname or IRI of the project", required=True)
     parser_get.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
-    parser_get.add_argument("projectfile", help="Path to the file the project should be written to")
+    parser_get.add_argument("project_definition.json", help="Path to the file the project should be written to")
 
     # xmlupload
     parser_upload = subparsers.add_parser(name="xmlupload", help="Upload data from an XML file to a DSP server")

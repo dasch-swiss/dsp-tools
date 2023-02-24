@@ -275,6 +275,68 @@ def _get_group_iris_for_user(
     return group_iris, sysadmin, success
 
 
+def _get_projects_where_user_is_admin(
+    json_user_definition: dict[str, str], 
+    current_project: Project, 
+    con: Connection, 
+    verbose: bool
+) -> tuple[dict[str, bool], bool]:
+    """
+    Create a dict that tells for every project if the user is administrator in that project or not.
+
+    Args:
+        json_user_definition: the section of the JSON file that defines a user
+        current_project: the Project object
+        con: connection to the DSP server
+        verbose: verbose switch
+
+    Returns:
+        a tuple consisting of a dict in the form {project IRI: isAdmin}, and the success status
+    """
+    success = True
+    username = json_user_definition["username"]
+    project_info: dict[str, bool] = {}
+    remote_projects: list[Project] = []
+    for full_project_name in json_user_definition.get("projects", []):
+        # full_project_name has the form '[project_name]:member' or '[project_name]:admin'
+        if ":" not in full_project_name:
+            print(f"\tWARNING: Provided project '{full_project_name}' for user '{username}' is not valid. "
+                    f"Skipping...")
+            success = False
+            continue
+
+        project_name, project_role = full_project_name.split(":")
+        if not project_name:
+            # full_project_name refers to the current project
+            in_project = current_project
+        else:
+            # full_project_name refers to an already existing project on DSP
+            try:
+                # "remote_projects" might be available from a previous loop cycle
+                remote_projects = remote_projects or try_network_action(
+                    action=lambda: current_project.getAllProjects(con=con),
+                    failure_msg=f"\tWARNING: User '{username}' cannot be added to the projects {json_user_definition['projects']} "
+                                f"because the projects cannot be retrieved from the DSP server."
+                )
+            except BaseError as err:
+                print(err.message)
+                success = False
+                continue
+            in_project_list = [p for p in remote_projects if p.shortname == project_name]
+            if not in_project_list:
+                print(f"\tWARNING: Provided project '{full_project_name}' for user '{username}' is not valid. "
+                        f"Skipping...")
+                success = False
+                continue
+            in_project = in_project_list[0]
+
+        project_info[in_project.id] = bool(project_role == "admin")
+        if verbose:
+            print(f"\tAdded user '{username}' as {project_role} to project '{in_project.shortname}'.")
+        
+    return project_info, success
+
+
 def _create_users(
     con: Connection,
     users_section: list[dict[str, str]],
@@ -283,8 +345,8 @@ def _create_users(
     verbose: bool
 ) -> bool:
     """
-    Creates users on a DSP server from the "users" section of a JSON project file. If a user cannot be created, a
-    warning is printed and the user is skipped.
+    Creates users on a DSP server from the "users" section of a JSON project file. 
+    If a user cannot be created, a warning is printed and the user is skipped.
 
     Args:
         con: connection instance to connect to the DSP server
@@ -302,6 +364,7 @@ def _create_users(
 
         # skip the user if he already exists
         try:
+            # the normal case is that this try block fails
             try_network_action(
                 action=lambda: User(con, email=json_user_definition["email"]).read(),
                 failure_msg=""
@@ -323,45 +386,15 @@ def _create_users(
         if not success:
             overall_success = False
 
-        # if "projects" is provided, add user to the project(s)
-        project_info: dict[str, bool] = {}
-        remote_projects: list[Project] = []
-        for full_project_name in json_user_definition.get("projects", []):
-            # full_project_name has the form '[project_name]:member' or '[project_name]:admin'
-            if ":" not in full_project_name:
-                print(f"\tWARNING: Provided project '{full_project_name}' for user '{username}' is not valid. "
-                      f"Skipping...")
-                overall_success = False
-                continue
-
-            project_name, project_role = full_project_name.split(":")
-            if not project_name:
-                # full_project_name refers to the current project
-                in_project = current_project
-            else:
-                # full_project_name refers to an already existing project on DSP
-                try:
-                    # "remote_projects" might be available from a previous loop cycle
-                    remote_projects = remote_projects or try_network_action(
-                        action=lambda: current_project.getAllProjects(con=con),
-                        failure_msg=f"\tWARNING: User '{username}' cannot be added to the projects {json_user_definition['projects']} "
-                                    f"because the projects cannot be retrieved from the DSP server."
-                    )
-                except BaseError as err:
-                    print(err.message)
-                    overall_success = False
-                    continue
-                in_project_list = [p for p in remote_projects if p.shortname == project_name]
-                if not in_project_list:
-                    print(f"\tWARNING: Provided project '{full_project_name}' for user '{username}' is not valid. "
-                          f"Skipping...")
-                    overall_success = False
-                    continue
-                in_project = in_project_list[0]
-
-            project_info[in_project.id] = bool(project_role == "admin")
-            if verbose:
-                print(f"\tAdded user '{username}' as {project_role} to project '{in_project.shortname}'.")
+        # add user to the project(s)
+        project_info, success = _get_projects_where_user_is_admin(
+            json_user_definition=json_user_definition,
+            current_project=current_project,
+            con=con,
+            verbose=verbose
+        )
+        if not success:
+            overall_success = False
 
         # create the user
         user_local = User(

@@ -1,8 +1,9 @@
 """This module handles the ontology creation, update and upload to a DSP server. This includes the creation and update
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
 import json
+from pathlib import Path
 import re
-from typing import Any, cast, Tuple
+from typing import Any, Union, cast
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.group import Group
@@ -19,67 +20,51 @@ from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import login, try_network_action
 
 
-def _create_project(
-        input_file: str,
-        server: str,
-        user_mail: str,
-        password: str,
-        verbose: bool,
-        dump: bool
-) -> Tuple[Connection, Context, dict[str, Any], Project, bool]:
+def _parse_input(project_file_as_path_or_parsed: Union[str, dict[str, Any]]) -> tuple[dict[str, Any], Context]:
     """
-    Parses the JSON project file, expands the Excel files referenced in the "lists" section, validates the project
-    against the JSON schema, creates the project (or if it exists, updates it)
+    Check the input: If it is parsed already, create the context and return input (unchanged) and context.
+    If the input is a file path, parse it first.
 
     Args:
-        input_file: the path to the JSON file from which the project and its parts should be created
-        server: the URL of the DSP server on which the project should be created
-        user_mail: a username (e-mail) who has the permission to create a project
-        password: the user's password
-        verbose: prints more information if set to True
-        dump: dumps test files (JSON) for DSP API requests if set to True
+        project_file_as_path_or_parsed: path to the JSON project definition, or parsed JSON object
 
     Returns:
-        connection to the DSP server,
-        project context,
-        parsed JSON object,
-        created project,
-        success status (True if everything went smoothly, False otherwise)
+        a tuple of the parsed JSON object and the project context
     """
-
-    overall_success = True
-
-    # parse the JSON project file
-    with open(input_file) as f:
-        project_json_str = f.read()
-    project_definition: dict[str, Any] = json.loads(project_json_str)
+    if isinstance(project_file_as_path_or_parsed, str) and Path(project_file_as_path_or_parsed).exists():
+        with open(project_file_as_path_or_parsed) as f:
+            project_json_str = f.read()
+        try:
+            project_definition: dict[str, Any] = json.loads(project_json_str)
+        except:
+            raise BaseError(f"The input file '{project_file_as_path_or_parsed}' cannot be parsed to a JSON object.")
+    elif isinstance(project_file_as_path_or_parsed, dict) and project_file_as_path_or_parsed.get("project"):
+        project_definition = project_file_as_path_or_parsed
+    else:
+        raise BaseError(f"Invalid input: The input must be a path to a JSON file or a parsed JSON object.")
     context = Context(project_definition.get("prefixes", {}))   # read prefixes of external ontologies
-    print(f"Create project '{project_definition['project']['shortname']}' "
-          f"({project_definition['project']['shortcode']})...")
+    print(f"Create project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']})...")
+    return project_definition, context
 
-    # expand the Excel files referenced in the "lists" section of the project (if any), and add them to the project
-    new_lists, success = expand_lists_from_excel(project_definition["project"].get("lists", []))
-    if new_lists:
-        project_definition["project"]["lists"] = new_lists
-    if not success:
-        overall_success = False
 
-    # validate against JSON schema
+def _create_project_on_server(
+    project_definition: dict[str, Any],
+    con: Connection,
+    verbose: bool
+) -> tuple[Project, bool]:
+    """
+    Create the project on the DSP server. If it already exists: update it.
+
+    Args:
+        project_definition: parsed JSON project definition
+        con: connection to the DSP server
+        verbose: verbose switch
+
+    Returns:
+        a tuple of the remote project and the success status (True if everything went smoothly, False otherwise)
+    """
     try:
-        validate_project(project_definition, expand_lists=False)
-        print('\tJSON project file is syntactically correct and passed validation.')
-    except BaseError as err:
-        print(f'=====================================\n'
-              f'{err.message}')
-        quit(0)
-
-    # establish connection to DSP server
-    con = login(server=server, user=user_mail, password=password)
-    if dump:
-        con.start_logging()
-
-    # if project exists, update it, otherwise create it
-    try:
+        # the normal, expected case is that this try block fails
         project_local = Project(con=con, shortcode=project_definition["project"]["shortcode"])
         project_remote: Project = try_network_action(
             action=lambda: project_local.read(),
@@ -87,9 +72,10 @@ def _create_project(
         )
         print(f"\tWARNING: Project '{project_remote.shortname}' ({project_remote.shortcode}) already exists on the DSP "
               f"server. Updating it...")
-        overall_success = False
+        success = False
         project_remote, _ = _update_project(project=project_remote, project_definition=project_definition, verbose=verbose)
     except BaseError:
+        success = True
         project_local = Project(
             con=con,
             shortcode=project_definition["project"]["shortcode"],
@@ -107,14 +93,14 @@ def _create_project(
         )
         print(f"\tCreated project '{project_remote.shortname}' ({project_remote.shortcode}).")
 
-    return con, context, project_definition, project_remote, overall_success
+    return project_remote, success
 
 
 def _update_project(
         project: Project,
         project_definition: dict[str, Any],
         verbose: bool
-) -> Tuple[Project, bool]:
+) -> tuple[Project, bool]:
     """
     Updates a project on a DSP server from a JSON project file. Only the longname, description and keywords will be
     updated. Returns the updated project (or the unchanged project if not successful) and a boolean saying if the update
@@ -144,7 +130,7 @@ def _update_project(
         return project, False
 
 
-def _create_groups(con: Connection, groups: list[dict[str, str]], project: Project) -> Tuple[dict[str, Group], bool]:
+def _create_groups(con: Connection, groups: list[dict[str, str]], project: Project) -> tuple[dict[str, Group], bool]:
     """
     Creates groups on a DSP server from the "groups" section of a JSON project file. If a group cannot be created, it is
     skipped and a warning is printed, but such a group will still be part of the returned dict.
@@ -210,9 +196,88 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
     return current_project_groups, overall_success
 
 
+def _get_group_iris_for_user(
+    json_user_definition: dict[str, str], 
+    current_project: Project, 
+    current_project_groups: dict[str, Group], 
+    con: Connection, 
+    verbose: bool
+) -> tuple[set[str], bool, bool]:
+    """
+    Retrieve the IRIs of the groups that the user belongs to.
+
+    Args:
+        json_user_definition: the section of the JSON file that defines a user
+        current_project: the Project object
+        current_project_groups: dict of the form ``{group name: group object}`` with the groups that exist on the DSP server
+        con: connection to the DSP server
+        verbose: verbose switch
+
+    Returns:
+        a tuple consisting of the group IRIs, 
+        the system admin status (True if the user is sysadmin, False otherwise), 
+        and the success status (True if everything went well)
+    """
+    success = True
+    username = json_user_definition["username"]
+    group_iris: set[str] = set()
+    sysadmin = False
+    remote_groups: list[Group] = []
+    for full_group_name in json_user_definition.get("groups", []):
+        # full_group_name has the form '[project_shortname]:group_name' or 'SystemAdmin'
+        if ":" not in full_group_name and full_group_name != "SystemAdmin":
+            print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because such a "
+                    f"group doesn't exist.")
+            success = False
+            continue
+
+        if full_group_name == "SystemAdmin":
+            sysadmin = True
+            if verbose:
+                print(f"\tAdded user '{username}' to group 'SystemAdmin'.")
+            continue
+
+        # all other cases (":" in full_group_name)
+        project_shortname, group_name = full_group_name.split(":")
+        if not project_shortname:
+            # full_group_name refers to a group inside the same project
+            if group_name not in current_project_groups:
+                print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because "
+                        f"such a group doesn't exist.")
+                success = False
+                continue
+            group = current_project_groups[group_name]
+        else:
+            # full_group_name refers to an already existing group on DSP
+            try:
+                # "remote_groups" might be available from a previous loop cycle
+                remote_groups = remote_groups or try_network_action(
+                    action=lambda: Group.getAllGroups(con=con),
+                    failure_msg=f"\tWARNING: User '{username}' is referring to the group {full_group_name} that "
+                                f"exists on the DSP server, but no groups could be retrieved from the DSP server."
+                )
+            except BaseError as err:
+                print(err.message)
+                success = False
+                continue
+            existing_group = [g for g in remote_groups if g.project == current_project.id and g.name == group_name]
+            if not existing_group:
+                print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because "
+                        f"such a group doesn't exist.")
+                success = False
+                continue
+            group = existing_group[0]
+
+        group_iris.add(group.id)
+        if verbose:
+            print(f"\tAdded user '{username}' to group '{full_group_name}'.")
+
+    return group_iris, sysadmin, success
+
+
 def _create_users(
     con: Connection,
-    users: list[dict[str, str]],
+    users_section: list[dict[str, str]],
     current_project_groups: dict[str, Group],
     current_project: Project,
     verbose: bool
@@ -223,7 +288,7 @@ def _create_users(
 
     Args:
         con: connection instance to connect to the DSP server
-        users: "users" section of a parsed JSON project file
+        users_section: "users" section of a parsed JSON project file
         current_project_groups: groups defined in the current project (dict of the form {group name - group object}). These groups must exist on the DSP server.
         current_project: "project" object of the current project (must exist on DSP server)
         verbose: Prints more information if set to True
@@ -232,13 +297,13 @@ def _create_users(
         True if all users could be created without any problems. False if a warning/error occurred.
     """
     overall_success = True
-    for user in users:
-        username = user["username"]
+    for json_user_definition in users_section:
+        username = json_user_definition["username"]
 
         # skip the user if he already exists
         try:
             try_network_action(
-                action=lambda: User(con, email=user["email"]).read(),
+                action=lambda: User(con, email=json_user_definition["email"]).read(),
                 failure_msg=""
             )
             print(f"\tWARNING: User '{username}' already exists on the DSP server. Skipping...")
@@ -247,63 +312,21 @@ def _create_users(
         except BaseError:
             pass
 
-        # if "groups" is provided, add user to the group(s)
-        group_ids: set[str] = set()
-        sysadmin = False
-        remote_groups: list[Group] = []
-        for full_group_name in user.get("groups", []):
-            # full_group_name has the form '[project_shortname]:group_name' or 'SystemAdmin'
-            if ":" not in full_group_name and full_group_name != "SystemAdmin":
-                print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because such a "
-                      f"group doesn't exist.")
-                overall_success = False
-                continue
-
-            if full_group_name == "SystemAdmin":
-                sysadmin = True
-                if verbose:
-                    print(f"\tAdded user '{username}' to group 'SystemAdmin'.")
-                continue
-
-            # all other cases (":" in full_group_name)
-            project_shortname, group_name = full_group_name.split(":")
-            if not project_shortname:
-                # full_group_name refers to a group inside the same project
-                if group_name not in current_project_groups:
-                    print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because "
-                          f"such a group doesn't exist.")
-                    overall_success = False
-                    continue
-                group = current_project_groups[group_name]
-            else:
-                # full_group_name refers to an already existing group on DSP
-                try:
-                    # "remote_groups" might be available from a previous loop cycle
-                    remote_groups = remote_groups or try_network_action(
-                        action=lambda: Group.getAllGroups(con=con),
-                        failure_msg=f"\tWARNING: User '{username}' is referring to the group {full_group_name} that "
-                                    f"exists on the DSP server, but no groups could be retrieved from the DSP server."
-                    )
-                except BaseError as err:
-                    print(err.message)
-                    overall_success = False
-                    continue
-                existing_group = [g for g in remote_groups if g.project == current_project.id and g.name == group_name]
-                if not existing_group:
-                    print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because "
-                          f"such a group doesn't exist.")
-                    overall_success = False
-                    continue
-                group = existing_group[0]
-
-            group_ids.add(group.id)
-            if verbose:
-                print(f"\tAdded user '{username}' to group '{full_group_name}'.")
+        # add user to the group(s)
+        group_iris, sysadmin, success = _get_group_iris_for_user(
+            json_user_definition=json_user_definition,
+            current_project=current_project,
+            current_project_groups=current_project_groups,
+            con=con,
+            verbose=verbose
+        )
+        if not success:
+            overall_success = False
 
         # if "projects" is provided, add user to the project(s)
         project_info: dict[str, bool] = {}
         remote_projects: list[Project] = []
-        for full_project_name in user.get("projects", []):
+        for full_project_name in json_user_definition.get("projects", []):
             # full_project_name has the form '[project_name]:member' or '[project_name]:admin'
             if ":" not in full_project_name:
                 print(f"\tWARNING: Provided project '{full_project_name}' for user '{username}' is not valid. "
@@ -321,7 +344,7 @@ def _create_users(
                     # "remote_projects" might be available from a previous loop cycle
                     remote_projects = remote_projects or try_network_action(
                         action=lambda: current_project.getAllProjects(con=con),
-                        failure_msg=f"\tWARNING: User '{username}' cannot be added to the projects {user['projects']} "
+                        failure_msg=f"\tWARNING: User '{username}' cannot be added to the projects {json_user_definition['projects']} "
                                     f"because the projects cannot be retrieved from the DSP server."
                     )
                 except BaseError as err:
@@ -343,16 +366,16 @@ def _create_users(
         # create the user
         user_local = User(
             con=con,
-            username=user["username"],
-            email=user["email"],
-            givenName=user["givenName"],
-            familyName=user["familyName"],
-            password=user["password"],
-            status=user.get("status", True),
-            lang=user.get("lang", "en"),
+            username=json_user_definition["username"],
+            email=json_user_definition["email"],
+            givenName=json_user_definition["givenName"],
+            familyName=json_user_definition["familyName"],
+            password=json_user_definition["password"],
+            status=json_user_definition.get("status", True),
+            lang=json_user_definition.get("lang", "en"),
             sysadmin=sysadmin,
             in_projects=project_info,
-            in_groups=group_ids
+            in_groups=group_iris
         )
         try:
             try_network_action(
@@ -547,7 +570,7 @@ def _add_resource_classes_to_remote_ontology(
         con: Connection,
         last_modification_date: DateTimeStamp,
         verbose: bool
-) -> Tuple[DateTimeStamp, dict[str, ResourceClass], bool]:
+) -> tuple[DateTimeStamp, dict[str, ResourceClass], bool]:
     """
     Creates the resource classes (without cardinalities) defined in the "resources" section of an ontology. The
     containing project and the containing ontology must already be existing on the DSP server.
@@ -609,7 +632,7 @@ def _add_property_classes_to_remote_ontology(
         last_modification_date: DateTimeStamp,
         knora_api_prefix: str,
         verbose: bool
-) -> Tuple[DateTimeStamp, dict[str, PropertyClass], bool]:
+) -> tuple[DateTimeStamp, dict[str, PropertyClass], bool]:
     """
     Creates the property classes defined in the "properties" section of an ontology. The
     containing project and the containing ontology must already be existing on the DSP server.
@@ -770,7 +793,7 @@ def _add_cardinalities_to_resource_classes(
 
 
 def create_project(
-    input_file: str,
+    project_file_as_path_or_parsed: Union[str, dict[str, Any]],
     server: str,
     user_mail: str,
     password: str,
@@ -783,7 +806,7 @@ def create_project(
     Returns True if everything went smoothly during the process, False if a warning or error occurred.
 
     Args:
-        input_file: the path to the JSON file from which the project and its parts should be created
+        project_file_as_path_or_parsed: path to the JSON project definition, or parsed JSON object
         server: the URL of the DSP server on which the project should be created
         user_mail: a username (e-mail) who has the permission to create a project
         password: the user's password
@@ -797,14 +820,34 @@ def create_project(
     knora_api_prefix = "knora-api:"
     overall_success = True
 
-    # create project
-    con, context, project_definition, project_remote, success = _create_project(
-        input_file=input_file,
-        server=server,
-        user_mail=user_mail,
-        password=password,
-        verbose=verbose,
-        dump=dump
+    project_definition, context = _parse_input(project_file_as_path_or_parsed)
+
+    # expand the Excel files referenced in the "lists" section of the project (if any), and add them to the project
+    new_lists, success = expand_lists_from_excel(project_definition["project"].get("lists", []))
+    if new_lists:
+        project_definition["project"]["lists"] = new_lists
+    if not success:
+        overall_success = False
+
+    # validate against JSON schema
+    try:
+        validate_project(project_definition, expand_lists=False)
+        print('\tJSON project file is syntactically correct and passed validation.')
+    except BaseError as err:
+        print(f'=====================================\n'
+              f'{err.message}')
+        quit(0)
+
+    # establish connection to DSP server
+    con = login(server=server, user=user_mail, password=password)
+    if dump:
+        con.start_logging()
+
+    # create project on DSP server
+    project_remote, success = _create_project_on_server(
+        project_definition=project_definition,
+        con=con,
+        verbose=verbose
     )
     if not success:
         overall_success = False
@@ -834,7 +877,7 @@ def create_project(
         print("Create users...")
         success = _create_users(
             con=con, 
-            users=project_definition["project"]["users"], 
+            users_section=project_definition["project"]["users"], 
             current_project_groups=current_project_groups, 
             current_project=project_remote, 
             verbose=verbose

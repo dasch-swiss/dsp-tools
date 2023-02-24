@@ -569,7 +569,7 @@ def _create_ontologies(
             overall_success = False
 
         # add the property classes to the remote ontology
-        last_modification_date, remote_prop_classes, success = _add_property_classes_to_remote_ontology(
+        last_modification_date, success = _add_property_classes_to_remote_ontology(
             ontology_definition=ontology_definition,
             ontology_remote=ontology_remote,
             list_root_nodes=list_root_nodes,
@@ -586,7 +586,6 @@ def _create_ontologies(
             ontology_definition=ontology_definition,
             ontology_remote=ontology_remote,
             remote_res_classes=remote_res_classes,
-            remote_prop_classes=remote_prop_classes,
             last_modification_date=last_modification_date,
             knora_api_prefix=knora_api_prefix,
             verbose=verbose
@@ -665,7 +664,7 @@ def _add_property_classes_to_remote_ontology(
         last_modification_date: DateTimeStamp,
         knora_api_prefix: str,
         verbose: bool
-) -> tuple[DateTimeStamp, dict[str, PropertyClass], bool]:
+) -> tuple[DateTimeStamp, bool]:
     """
     Creates the property classes defined in the "properties" section of an ontology. The
     containing project and the containing ontology must already be existing on the DSP server.
@@ -682,14 +681,11 @@ def _add_property_classes_to_remote_ontology(
         verbose: verbose switch
 
     Returns:
-        last modification date of the ontology,
-        new property classes,
-        success status
+        a tuple consisting of the last modification date of the ontology, and the success status
     """
     overall_success = True
     print("\tCreate property classes...")
     sorted_prop_classes = _sort_prop_classes(ontology_definition["properties"], ontology_definition["name"])
-    new_prop_classes: dict[str, PropertyClass] = {}
     for prop_class in sorted_prop_classes:
 
         # get the super-property/ies, valid forms are:
@@ -700,7 +696,7 @@ def _add_property_classes_to_remote_ontology(
         #   - if omitted, "knora-api:hasValue" is assumed
         if prop_class.get("super"):
             super_props = []
-            for super_class in prop_class.get("super"):  # type: ignore
+            for super_class in prop_class["super"]:
                 if ":" in super_class:
                     prefix, _class = super_class.split(":")
                     super_props.append(super_class if prefix else f"{ontology_remote.name}:{_class}")
@@ -742,8 +738,6 @@ def _add_property_classes_to_remote_ontology(
                 action=lambda: prop_class_local.create(last_modification_date=last_modification_date),
                 failure_msg=f"WARNING: Unable to create property class '{prop_class['name']}'."
             )
-            prop_class_remote = cast(PropertyClass, prop_class_remote)
-            new_prop_classes[prop_class_remote.id] = prop_class_remote
             ontology_remote.lastModificationDate = last_modification_date
             if verbose:
                 print(f"\tCreated property class '{prop_class['name']}'")
@@ -751,14 +745,13 @@ def _add_property_classes_to_remote_ontology(
             print(err.message)
             overall_success = False
 
-    return last_modification_date, new_prop_classes, overall_success
+    return last_modification_date, overall_success
 
 
 def _add_cardinalities_to_resource_classes(
         ontology_definition: dict[str, Any],
         ontology_remote: Ontology,
         remote_res_classes: dict[str, ResourceClass],
-        remote_prop_classes: dict[str, PropertyClass],
         last_modification_date: DateTimeStamp,
         knora_api_prefix: str,
         verbose: bool
@@ -773,7 +766,6 @@ def _add_cardinalities_to_resource_classes(
         ontology_definition: the part of the parsed JSON project file that contains the current ontology
         ontology_remote: representation of the current ontology on the DSP server
         remote_res_classes: representations of the resource classes on the DSP server
-        remote_prop_classes: representations of the property classes on the DSP server
         last_modification_date: last modification date of the ontology on the DSP server
         knora_api_prefix: the prefix that stands for the knora-api ontology
         verbose: verbose switch
@@ -789,7 +781,7 @@ def _add_cardinalities_to_resource_classes(
         "0-n": Cardinality.C_0_n,
         "1-n": Cardinality.C_1_n
     }
-    for res_class in ontology_definition.get("resources"):  # type: ignore
+    for res_class in ontology_definition.get("resources", []): 
         res_class_remote = remote_res_classes.get(ontology_remote.id + "#" + res_class["name"])
         if not res_class_remote:
             print(f"WARNING: Unable to add cardinalities to resource class '{res_class['name']}': This class "

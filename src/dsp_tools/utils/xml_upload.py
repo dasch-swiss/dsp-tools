@@ -381,31 +381,16 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     preparation_duration_ms = preparation_duration.seconds * 1000 + int(preparation_duration.microseconds / 1000)
     metrics.append(MetricRecord("", "", "", "xml upload preparation", preparation_duration_ms, ""))
 
-    # upload all resources
+    # upload all resources, then update the resources with the stashed XML texts and resptrs
     id2iri_mapping: dict[str, str] = {}
     failed_uploads: list[str] = []
+    nonapplied_resptr_props = {}
+    nonapplied_xml_texts = {}
     try:
         id2iri_mapping, failed_uploads, metrics = _upload_resources(
             resources, imgdir, sipi_server, permissions_lookup, resclass_name_2_type, id2iri_mapping, con,
             failed_uploads, metrics
         )
-    except BaseException as err:
-        _handle_upload_error(
-            err=err,
-            id2iri_mapping=id2iri_mapping,
-            failed_uploads=failed_uploads,
-            stashed_xml_texts=stashed_xml_texts,
-            stashed_resptr_props=stashed_resptr_props,
-            proj_shortcode=shortcode,
-            onto_name=default_ontology,
-            server_as_foldername=server_as_foldername,
-            save_location=save_location
-        )
-
-    # update the resources with the stashed XML texts and resptrs
-    nonapplied_resptr_props = stashed_resptr_props
-    nonapplied_xml_texts = stashed_xml_texts
-    try:
         if stashed_xml_texts:
             nonapplied_xml_texts = _upload_stashed_xml_texts(verbose, id2iri_mapping, con, stashed_xml_texts) 
         if stashed_resptr_props:
@@ -417,8 +402,8 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
             err=err,
             id2iri_mapping=id2iri_mapping,
             failed_uploads=failed_uploads,
-            stashed_xml_texts=nonapplied_xml_texts,
-            stashed_resptr_props=nonapplied_resptr_props,
+            stashed_xml_texts=nonapplied_xml_texts or stashed_xml_texts,
+            stashed_resptr_props=nonapplied_resptr_props or stashed_resptr_props,
             proj_shortcode=shortcode,
             onto_name=default_ontology,
             server_as_foldername=server_as_foldername,

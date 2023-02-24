@@ -205,15 +205,17 @@ def program(user_args: list[str]) -> None:
         if args.validate:
             validate_xml_against_schema(input_file=args.xmlfile)
         else:
-            xml_upload(input_file=args.xmlfile,
-                       server=args.server,
-                       user=args.user,
-                       password=args.password,
-                       imgdir=args.imgdir,
-                       sipi=args.sipi,
-                       verbose=args.verbose,
-                       incremental=args.incremental,
-                       save_metrics=args.metrics)
+            success = xml_upload(input_file=args.xmlfile,
+                                 server=args.server,
+                                 user=args.user,
+                                 password=args.password,
+                                 imgdir=args.imgdir,
+                                 sipi=args.sipi,
+                                 verbose=args.verbose,
+                                 incremental=args.incremental,
+                                 save_metrics=args.metrics)
+            if not success: 
+                exit(1)
     elif args.action == 'excel2json':
         excel2json(data_model_files=args.data_model_files,
                    path_to_output_file=args.outfile)

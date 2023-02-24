@@ -32,6 +32,9 @@ def excel2json(
         data_model_files: path to the folder (called "data_model_files" in the example)
         path_to_output_file: path to the file where the output JSON file will be saved
 
+    Raises:
+        BaseError if something went wrong
+
     Returns:
         None
     """
@@ -76,7 +79,7 @@ def excel2json(
 
     ontologies = []
     for onto_folder in onto_folders:
-        name, label = re.search(r"([\w.-]+) \(([\w.\- ]+)\)", onto_folder.name).groups()
+        name, label = re.search(r"([\w.-]+) \(([\w.\- ]+)\)", onto_folder.name).groups()  # type: ignore
         ontologies.append({
             "name": name,
             "label": label,
@@ -102,8 +105,8 @@ def excel2json(
         }
     }
     if lists:
-        project["project"]["lists"] = lists
-    project["project"]["ontologies"] = ontologies
+        project["project"]["lists"] = lists        # type: ignore
+    project["project"]["ontologies"] = ontologies  # type: ignore
 
     with open(path_to_output_file, "w") as f:
         json.dump(project, f, indent=4, ensure_ascii=False)

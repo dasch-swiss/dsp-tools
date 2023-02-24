@@ -34,16 +34,14 @@ class TestExcelToJSONList(unittest.TestCase):
         # version stored in the testdata folder
         with open("testdata/test-project-systematic.json") as f:
             lists_with_excel_reference = json.load(f)["project"]["lists"]
-        lists_with_excel_reference_output, success1 = e2l.expand_lists_from_excel(lists_with_excel_reference)
+        lists_with_excel_reference_output = e2l.expand_lists_from_excel(lists_with_excel_reference)
         with open("testdata/lists_section_expanded.json") as f:
             lists_with_excel_reference_output_expected = json.load(f)["expanded lists section of test-project-systematic.json"]
-        self.assertTrue(success1)
         self.assertListEqual(lists_with_excel_reference_output, lists_with_excel_reference_output_expected)
 
         # take the expanded version, and make sure that it is returned unchanged
         lists_without_excel_reference = lists_with_excel_reference_output_expected
-        lists_without_excel_reference_output, success2 = e2l.expand_lists_from_excel(lists_without_excel_reference)
-        self.assertTrue(success2)
+        lists_without_excel_reference_output = e2l.expand_lists_from_excel(lists_without_excel_reference)
         self.assertListEqual(lists_without_excel_reference, lists_without_excel_reference_output)
 
 

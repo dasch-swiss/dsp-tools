@@ -43,6 +43,9 @@ def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> 
         resources: list of resources that possibly contain circular references
         verbose: verbose output if True
 
+    Raises:
+        BaseError
+
     Returns:
         list: list of cleaned resources
         stashed_xml_texts: dict with the stashed XML texts
@@ -108,6 +111,10 @@ def _stash_circular_references(
     dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
     dict[XMLResource, dict[XMLProperty, list[str]]]
 ]:
+    """
+    Raises:
+        BaseError
+    """
     for res in nok_resources.copy():
         for link_prop in res.get_props_with_links():
             if link_prop.valtype == 'text':
@@ -166,6 +173,9 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
         number, '080c' being the project shortcode, '779b9990a0c3f' being an ID derived from the object's Salsah ID and
         '6e' being check digits
 
+    Raises:
+        BaseError if the ARK is invalid
+
     Returns:
         Resource IRI (str) of the form http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q
     """
@@ -205,7 +215,7 @@ def _parse_xml_file(input_file: str) -> etree.ElementTree:
         the parsed etree.ElementTree
     """
     tree = etree.parse(input_file)
-    for elem in tree.getiterator():
+    for elem in tree.iter():
         if isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction):
             # properties that are commented out would break the the constructor of the class XMLProperty, if they are not removed here.
             elem.getparent().remove(elem)
@@ -241,8 +251,11 @@ def _check_consistency_with_ontology(
         resclass_name_2_type: infos about the resource classes that exist on the DSP server for the current ontology
         verbose: verbose switch
 
+    Raises:
+        BaseError with a detailed error message if there is an inconsistency between the ontology and the data
+
     Returns:
-        None if everything went well. Raises a BaseError if there is a problem.
+        None if everything is okay
     """
     if verbose:
         print("Check if the resource types and properties are consistent with the ontology...")
@@ -299,21 +312,19 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         incremental: if set, IRIs instead of internal IDs are expected as resource pointers
         save_metrics: if true, saves time measurements into a "metrics" folder in the current working directory
 
+    Raises:
+        BaseError if the XML file is invalid, or in case of permanent network or software failure
+    
     Returns:
-        True if all resources could be uploaded without errors; False if any resource (or part of it) could not be
-        successfully uploaded
+        True if all resources could be uploaded without errors; False if one of the resources could not be
+        uploaded because there is an error in it
     """
 
     metrics: list[MetricRecord] = []
     preparation_start = datetime.now()
 
     # Validate the input XML file
-    try:
-        validate_xml_against_schema(input_file)
-    except BaseError as err:
-        print(f"=====================================\n"
-              f"{err.message}")
-        quit(0)
+    validate_xml_against_schema(input_file)
 
     save_location = Path.home() / Path(".dsp-tools")
     server_as_foldername = server
@@ -396,7 +407,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         try:
             nonapplied_xml_texts = _upload_stashed_xml_texts(verbose, id2iri_mapping, con, stashed_xml_texts)
             if len(nonapplied_xml_texts) > 0:
-                raise BaseError(f"Error while trying to upload the stashed xml texts")
+                raise BaseError(f"Error while trying to upload the stashed xml texts")  # TODO: sollte nicht in der methode drin der error geworfen werden? wird die info in nonapplied_xml_texts anschliessend sinnvoll weiterverarbeitet?
         except BaseException as err:
             _handle_upload_error(
                 err=err,
@@ -583,7 +594,7 @@ def _upload_stashed_xml_texts(
         try:
             existing_resource = try_network_action(
                 action=lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'),
-                failure_msg=f'  ERROR while retrieving resource "{resource.id}" from DSP server.'
+                failure_msg=f'  Unable to upload XML texts of resource "{resource.id}", because the resource cannot be found on the DSP server.'
             )
         except BaseError as err:
             print(err.message)

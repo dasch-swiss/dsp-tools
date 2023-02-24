@@ -27,6 +27,9 @@ def start_stack(
         max_file_size: max. multimedia file size allowed by SIPI, in MB (max: 100'000)
         enforce_docker_system_prune: if True, prune Docker without asking the user
         suppress_docker_system_prune: if True, don't prune Docker (and don't ask)
+    
+    Raises:
+        BaseError if the stack cannot be started with the parameters passed by the user
     """
     # validate input
     if max_file_size is not None:

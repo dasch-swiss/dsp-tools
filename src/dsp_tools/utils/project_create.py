@@ -58,11 +58,9 @@ def _create_project(
           f"({project_definition['project']['shortcode']})...")
 
     # expand the Excel files referenced in the "lists" section of the project (if any), and add them to the project
-    new_lists, success = expand_lists_from_excel(project_definition["project"].get("lists", []))
+    new_lists = expand_lists_from_excel(project_definition["project"].get("lists", []))
     if new_lists:
         project_definition["project"]["lists"] = new_lists
-    if not success:
-        overall_success = False
 
     # validate against JSON schema
     try:

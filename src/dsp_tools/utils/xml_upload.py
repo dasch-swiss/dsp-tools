@@ -398,6 +398,8 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         if nonapplied_resptr_props or nonapplied_xml_texts:
             raise BaseError("Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server.")
     except BaseException as err:
+        # The forseeable errors are already handled by the variables failed_uploads, nonapplied_xml_texts, and nonapplied_resptr_props.
+        # Here we catch the unforseeable exceptions, hence BaseException (=the base class of all exceptions)
         _handle_upload_error(
             err=err,
             id2iri_mapping=id2iri_mapping,
@@ -494,8 +496,8 @@ def _upload_resources(
                 print(err.message)
                 failed_uploads.append(resource.id)
                 continue
-            bitstream_size_uploaded_mb += bitstream_all_sizes_mb[i]
-            print(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")
+            bitstream_size_uploaded_mb += bitstream_all_sizes_mb[i]  # type: ignore
+            print(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")  # type: ignore
             internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']  # type: ignore
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 

@@ -151,7 +151,7 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
     current_project_groups: dict[str, Group] = {}
     try:
         remote_groups: list[Group] = try_network_action(
-            action=lambda: Group.getAllGroupsForProject(con=con, proj_iri=project.id),
+            action=lambda: Group.getAllGroupsForProject(con=con, proj_iri=project.id),  # type: ignore
             failure_msg="WARNING: Unable to check if group names are already existing on DSP server, because it is "
                         "not possible to retrieve the remote groups from DSP server."
         )
@@ -177,8 +177,8 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
             name=group_name,
             descriptions=LangString(group["descriptions"]),
             project=project,
-            status=group.get("status", True),
-            selfjoin=group.get("selfjoin", False)
+            status=bool(group.get("status", True)),  
+            selfjoin=bool(group.get("selfjoin", False))
         )
         try:
             group_remote: Group = try_network_action(
@@ -190,7 +190,7 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
             overall_success = False
             continue
 
-        current_project_groups[group_remote.name] = group_remote
+        current_project_groups[group_remote.name] = group_remote  # type: ignore
         print(f"\tCreated group '{group_name}'.")
 
     return current_project_groups, overall_success
@@ -268,7 +268,7 @@ def _get_group_iris_for_user(
                 continue
             group = existing_group[0]
 
-        group_iris.add(group.id)
+        group_iris.add(group.id)  # type: ignore
         if verbose:
             print(f"\tAdded user '{username}' to group '{full_group_name}'.")
 
@@ -330,7 +330,7 @@ def _get_projects_where_user_is_admin(
                 continue
             in_project = in_project_list[0]
 
-        project_info[in_project.id] = bool(project_role == "admin")
+        project_info[in_project.id] = bool(project_role == "admin")  # type: ignore
         if verbose:
             print(f"\tAdded user '{username}' as {project_role} to project '{in_project.shortname}'.")
         
@@ -404,7 +404,7 @@ def _create_users(
             givenName=json_user_definition["givenName"],
             familyName=json_user_definition["familyName"],
             password=json_user_definition["password"],
-            status=json_user_definition.get("status", True),
+            status=bool(json_user_definition.get("status", True)),
             lang=json_user_definition.get("lang", "en"),
             sysadmin=sysadmin,
             in_projects=project_info,
@@ -525,7 +525,7 @@ def _create_ontologies(
         action=lambda: Ontology.getAllOntologies(con=con),
         failure_msg="WARNING: Unable to retrieve remote ontologies. Cannot check if your ontology already exists."
     )
-    for ontology_definition in project_definition.get("project", {}).get("ontologies"):
+    for ontology_definition in project_definition.get("project", {}).get("ontologies", {}):
         ontology_definition = cast(dict[str, Any], ontology_definition)
         if ontology_definition["name"] in [onto.name for onto in all_ontologies]:
             print(f"\tWARNING: Ontology '{ontology_definition['name']}' already exists on the DSP server. Skipping...")
@@ -805,7 +805,7 @@ def _add_cardinalities_to_resource_classes(
 
             try:
                 last_modification_date = try_network_action(
-                    action=lambda: res_class_remote.addProperty(
+                    action=lambda: res_class_remote.addProperty(  # type: ignore
                         property_id=qualified_propname,
                         cardinality=switcher[card_info["cardinality"]],
                         gui_order=card_info.get("gui_order"),

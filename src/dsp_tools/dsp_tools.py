@@ -182,7 +182,7 @@ def program(user_args: list[str]) -> None:
                 validate_project(args.projectfile)
                 print("JSON project file is syntactically correct and passed validation.")
             else:
-                create_project(input_file=args.projectfile,
+                create_project(project_file_as_path_or_parsed=args.projectfile,
                                server=args.server,
                                user_mail=args.user,
                                password=args.password,

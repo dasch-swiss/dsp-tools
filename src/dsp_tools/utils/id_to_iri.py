@@ -5,7 +5,6 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
-import warnings
 
 from lxml import etree
 
@@ -29,6 +28,7 @@ def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> bo
     Returns:
         True if everything went well, False otherwise
     """
+    success = True
 
     # check that provided files exist
     if not os.path.isfile(xml_file):
@@ -68,7 +68,8 @@ def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> bo
                 if verbose:
                     print(f"Skipping '{value_before}'")
             else:
-                warnings.warn(f"WARNING Could not find internal ID '{value_before}' in mapping file {json_file}. Skipping...")
+                print(f"WARNING Could not find internal ID '{value_before}' in mapping file {json_file}. Skipping...")
+                success = False
 
     # write xml with replaced IDs to file with timestamp
     if not out_file:
@@ -82,4 +83,4 @@ def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> bo
     et.write(out_file, pretty_print=True)
     print(f"XML with replaced IDs was written to file {out_file}.")
 
-    return True
+    return success

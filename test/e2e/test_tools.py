@@ -60,7 +60,7 @@ class TestTools(unittest.TestCase):
     def test_create_lists(self) -> None:
         # the project must already exist, so let's create a project without lists
         create_project(
-            input_file=self.test_project_minimal_file,
+            project_file_as_path_or_parsed=self.test_project_minimal_file,
             server=self.server,
             user_mail=self.user,
             password="test",
@@ -112,7 +112,7 @@ class TestTools(unittest.TestCase):
 
     def test_create_project(self) -> None:
         result = create_project(
-            input_file=self.test_project_systematic_file,
+            project_file_as_path_or_parsed=self.test_project_systematic_file,
             server=self.server,
             user_mail=self.user,
             password="test",

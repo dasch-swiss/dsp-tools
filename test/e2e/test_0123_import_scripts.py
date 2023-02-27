@@ -44,7 +44,7 @@ class TestImportScripts(unittest.TestCase):
 
         # create the JSON project file, and upload the XML
         success_on_creation = create_project(
-            input_file="src/dsp_tools/import_scripts/import_project.json",
+            project_file_as_path_or_parsed="src/dsp_tools/import_scripts/import_project.json",
             server="http://0.0.0.0:3333",
             user_mail="root@example.com",
             password="test",

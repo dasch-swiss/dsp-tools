@@ -29,6 +29,9 @@ def _parse_input(project_file_as_path_or_parsed: Union[str, dict[str, Any]]) -> 
     Args:
         project_file_as_path_or_parsed: path to the JSON project definition, or parsed JSON object
 
+    Raises:
+        BaseError: if the input is invalid
+
     Returns:
         a tuple of the parsed JSON object and the project context
     """
@@ -52,7 +55,8 @@ def _create_project_on_server(
     verbose: bool
 ) -> tuple[Project, bool]:
     """
-    Create the project on the DSP server. If it already exists: update it.
+    Create the project on the DSP server. 
+    If it already exists: update its longname, description and keywords.
 
     Args:
         project_definition: parsed JSON project definition
@@ -72,7 +76,10 @@ def _create_project_on_server(
         print(f"\tWARNING: Project '{project_remote.shortname}' ({project_remote.shortcode}) already exists on the DSP "
               f"server. Updating it...")
         success = False
-        project_remote, _ = _update_project(project=project_remote, project_definition=project_definition, verbose=verbose)
+        # try to update the basic info
+        project_remote, _ = _update_basic_info_of_project(project=project_remote, project_definition=project_definition, verbose=verbose)
+        # It doesn't matter if the update is successful or not: continue anyway, because success is already false. 
+        # There are other things from this file that can be created on the server, e.g. the groups and users, so the process must continue.
     except BaseError:
         success = True
         project_local = Project(
@@ -95,15 +102,15 @@ def _create_project_on_server(
     return project_remote, success
 
 
-def _update_project(
+def _update_basic_info_of_project(
         project: Project,
         project_definition: dict[str, Any],
         verbose: bool
 ) -> tuple[Project, bool]:
     """
-    Updates a project on a DSP server from a JSON project file. Only the longname, description and keywords will be
-    updated. Returns the updated project (or the unchanged project if not successful) and a boolean saying if the update
-    was successful or not. If the update was not successful, an error message is printed to stdout.
+    Updates the longname, description and keywords of a project on a DSP server. 
+    Returns the updated project (or the unchanged project if not successful) and a boolean saying if the update was successful or not. 
+    If the update was not successful, an error message is printed to stdout.
 
     Args:
         project: the project to be updated (must exist on the DSP server)
@@ -501,8 +508,6 @@ def _create_ontologies(
     Iterates over the ontologies in a JSON project file and creates the ontologies that don't exist on the DSP server
     yet. For every ontology, it first creates the resource classes, then the properties, and then adds the cardinalities
     to the resource classes.
-    If an error occurs during the creation of an ontology, the error is escalated. All other errors are printed, but the
-    process continues, and the success status will be false.
 
     Args:
         con: Connection to the DSP server
@@ -512,6 +517,10 @@ def _create_ontologies(
         project_definition: the parsed JSON project file
         project_remote: representation of the project on the DSP server
         verbose: verbose switch
+
+    Raises:
+        BaseError if an error occurs during the creation of an ontology. 
+        All other errors are printed, the process continues, but the success status will be false.
 
     Returns:
         True if everything went smoothly, False otherwise
@@ -827,7 +836,6 @@ def create_project(
     """
     Creates a project from a JSON project file on a DSP server. A project must contain at least one ontology, and it may
     contain lists, users, and groups.
-    Returns True if everything went smoothly during the process, False if a warning or error occurred.
 
     Args:
         project_file_as_path_or_parsed: path to the JSON project definition, or parsed JSON object
@@ -836,6 +844,14 @@ def create_project(
         password: the user's password
         verbose: prints more information if set to True
         dump: dumps test files (JSON) for DSP API requests if set to True
+
+    Raises:
+        BaseError: 
+           - if the input is invalid
+           - if an Excel file referenced in the "lists" section cannot be expanded
+           - if the validation doesn't pass
+           - if the login fails
+           - if an error occurs during the creation of an ontology
 
     Returns:
         True if everything went smoothly, False if a warning or error occurred
@@ -852,14 +868,9 @@ def create_project(
         project_definition["project"]["lists"] = new_lists
 
     # validate against JSON schema
-    try:
-        validate_project(project_definition, expand_lists=False)
-        print('\tJSON project file is syntactically correct and passed validation.')
-        print(f"Create project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']})...")
-    except BaseError as err:
-        print(f'=====================================\n'
-              f'{err.message}')
-        quit(0)
+    validate_project(project_definition, expand_lists=False)
+    print('\tJSON project file is syntactically correct and passed validation.')
+    print(f"Create project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']})...")
 
     # establish connection to DSP server
     con = login(server=server, user=user_mail, password=password)

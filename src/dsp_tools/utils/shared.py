@@ -1,9 +1,11 @@
 import copy
 import importlib.resources
+import json
+from pathlib import Path
 import time
 import unicodedata
 from datetime import datetime
-from typing import Callable, Any, Optional
+from typing import Callable, Any, Optional, Union
 
 import pandas as pd
 import regex
@@ -239,3 +241,28 @@ def check_notna(value: Optional[Any]) -> bool:
         ])
     else:
         return False
+
+
+def parse_json_input(project_file_as_path_or_parsed: Union[str, dict[str, Any]]) -> dict[str, Any]:
+    """
+    Check the input for a method that expects a JSON project definition, either as file path or as parsed JSON object: 
+    If it is parsed already, return it unchanged.
+    If the input is a file path, parse it.
+
+    Args:
+        project_file_as_path_or_parsed: path to the JSON project definition, or parsed JSON object
+
+    Returns:
+        a tuple of the parsed JSON object and the project context
+    """
+    if isinstance(project_file_as_path_or_parsed, str) and Path(project_file_as_path_or_parsed).exists():
+        with open(project_file_as_path_or_parsed) as f:
+            try:
+                project_definition: dict[str, Any] = json.load(f)
+            except:
+                raise BaseError(f"The input file '{project_file_as_path_or_parsed}' cannot be parsed to a JSON object.")
+    elif isinstance(project_file_as_path_or_parsed, dict):
+        project_definition = project_file_as_path_or_parsed
+    else:
+        raise BaseError(f"Invalid input: The input must be a path to a JSON file or a parsed JSON object.")
+    return project_definition

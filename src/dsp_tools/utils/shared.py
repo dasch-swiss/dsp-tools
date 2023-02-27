@@ -262,6 +262,9 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, dict[str, Any]])
     Args:
         project_file_as_path_or_parsed: path to the JSON project definition, or parsed JSON object
 
+    Raises:
+        BaseError: if the input is invalid
+
     Returns:
         the parsed JSON object
     """

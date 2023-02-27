@@ -32,6 +32,9 @@ def _create_project_on_server(
         con: connection to the DSP server
         verbose: verbose switch
 
+    Raises:
+        BaseError: if the project cannot be created on the DSP server
+
     Returns:
         a tuple of the remote project and the success status (True if everything went smoothly, False otherwise)
     """
@@ -803,8 +806,11 @@ def create_project(
     dump: bool
 ) -> bool:
     """
-    Creates a project from a JSON project file on a DSP server. A project must contain at least one ontology, and it may
-    contain lists, users, and groups.
+    Creates a project from a JSON project file on a DSP server. 
+    A project must contain at least one ontology, 
+    and it may contain lists, users, and groups.
+    Severe errors lead to a BaseError, 
+    while other errors are printed without interrupting the process.
 
     Args:
         project_file_as_path_or_parsed: path to the JSON project definition, or parsed JSON object
@@ -820,7 +826,8 @@ def create_project(
            - if an Excel file referenced in the "lists" section cannot be expanded
            - if the validation doesn't pass
            - if the login fails
-           - if an error occurs during the creation of an ontology
+           - if the project cannot be created
+           - if an ontology cannot be created
 
     Returns:
         True if everything went smoothly, False if a warning or error occurred

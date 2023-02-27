@@ -190,7 +190,7 @@ def program(user_args: list[str]) -> None:
                 validate_lists_section_with_schema(path_to_json_project_file=args.projectfile)
                 print("'Lists' section of the JSON project file is syntactically correct and passed validation.")
             else:
-                create_lists(input_file=args.projectfile,
+                create_lists(project_file_as_path_or_parsed=args.projectfile,
                              server=args.server,
                              user=args.user,
                              password=args.password,

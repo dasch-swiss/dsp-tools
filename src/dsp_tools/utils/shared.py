@@ -253,7 +253,7 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, dict[str, Any]])
         project_file_as_path_or_parsed: path to the JSON project definition, or parsed JSON object
 
     Returns:
-        a tuple of the parsed JSON object and the project context
+        the parsed JSON object
     """
     if isinstance(project_file_as_path_or_parsed, str) and Path(project_file_as_path_or_parsed).exists():
         with open(project_file_as_path_or_parsed) as f:

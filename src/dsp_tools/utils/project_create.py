@@ -1,7 +1,5 @@
 """This module handles the ontology creation, update and upload to a DSP server. This includes the creation and update
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
-import json
-from pathlib import Path
 import re
 from typing import Any, Union, cast
 
@@ -15,38 +13,9 @@ from dsp_tools.models.propertyclass import PropertyClass
 from dsp_tools.models.resourceclass import ResourceClass
 from dsp_tools.models.user import User
 from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
-from dsp_tools.utils.project_create_lists import create_lists
+from dsp_tools.utils.project_create_lists import create_lists_on_server
 from dsp_tools.utils.project_validate import validate_project
-from dsp_tools.utils.shared import login, try_network_action
-
-
-def _parse_input(project_file_as_path_or_parsed: Union[str, dict[str, Any]]) -> tuple[dict[str, Any], Context]:
-    """
-    Check the input: 
-    If it is parsed already, create the context and return the unchanged input together with the context.
-    If the input is a file path, parse it first.
-
-    Args:
-        project_file_as_path_or_parsed: path to the JSON project definition, or parsed JSON object
-
-    Raises:
-        BaseError: if the input is invalid
-
-    Returns:
-        a tuple of the parsed JSON object and the project context
-    """
-    if isinstance(project_file_as_path_or_parsed, str) and Path(project_file_as_path_or_parsed).exists():
-        with open(project_file_as_path_or_parsed) as f:
-            try:
-                project_definition: dict[str, Any] = json.load(f)
-            except:
-                raise BaseError(f"The input file '{project_file_as_path_or_parsed}' cannot be parsed to a JSON object.")
-    elif isinstance(project_file_as_path_or_parsed, dict):
-        project_definition = project_file_as_path_or_parsed
-    else:
-        raise BaseError(f"Invalid input: The input must be a path to a JSON file or a parsed JSON object.")
-    context = Context(project_definition.get("prefixes", {}))
-    return project_definition, context
+from dsp_tools.utils.shared import login, parse_json_input, try_network_action
 
 
 def _create_project_on_server(
@@ -860,7 +829,8 @@ def create_project(
     knora_api_prefix = "knora-api:"
     overall_success = True
 
-    project_definition, context = _parse_input(project_file_as_path_or_parsed)
+    project_definition = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)
+    context = Context(project_definition.get("prefixes", {}))
 
     # expand the Excel files referenced in the "lists" section of the project (if any), and add them to the project
     new_lists = expand_lists_from_excel(project_definition.get("project", {}).get("lists", []))
@@ -890,7 +860,7 @@ def create_project(
     list_root_nodes: dict[str, Any] = {}
     if project_definition["project"].get("lists"):
         print("Create lists...")
-        list_root_nodes, success = create_lists(server=server, user=user_mail, password=password, project_definition=project_definition)
+        list_root_nodes, success = create_lists_on_server(lists_to_create=project_definition["project"]["lists"], con=con, project_remote=project_remote)
         if not success:
             overall_success = False
 

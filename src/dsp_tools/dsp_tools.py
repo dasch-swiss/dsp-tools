@@ -91,21 +91,20 @@ def program(user_args: list[str]) -> None:
 
     # enhanced-xmlupload
     parser_enhanced_xmlupload = subparsers.add_parser(
-        name='enhanced-xmlupload',
-        help='For internal use only: Upload data from an XML file to the DaSCH Service Platform. '
-        'Preprocess the data locally first.'
+        name="enhanced-xmlupload",
+        help="For internal use only: Upload data from an XML file to the DaSCH Service Platform. Preprocess the data locally first."
     )
-    parser_enhanced_xmlupload.set_defaults(action='enhanced-xmlupload')
-    parser_enhanced_xmlupload.add_argument('--multimedia-folder', type=str, default='multimedia', help='Path to folder containing the multimedia files')
-    parser_enhanced_xmlupload.add_argument('--local-sipi-port', type=int, help='5-digit port number of the local SIPI instance, can be found in the "Container" view of Docker Desktop')
-    parser_enhanced_xmlupload.add_argument('--generate-test-data', action='store_true', help="only generate a test data folder in the current working directory (no upload)")
-    parser_enhanced_xmlupload.add_argument('-s', '--server', type=str, default=default_localhost, help=url_text)
-    parser_enhanced_xmlupload.add_argument('-u', '--user', type=str, default=default_user, help=username_text)
-    parser_enhanced_xmlupload.add_argument('-p', '--password', type=str, default=default_pw, help=password_text)
-    parser_enhanced_xmlupload.add_argument('-S', '--remote-sipi-server', type=str, default='http://0.0.0.0:1024', help='URL of the remote SIPI server')
-    parser_enhanced_xmlupload.add_argument('-v', '--verbose', action='store_true', help=verbose_text)
-    parser_enhanced_xmlupload.add_argument('-I', '--incremental', action='store_true', help='Incremental XML upload')
-    parser_enhanced_xmlupload.add_argument('xmlfile', type=str, help='path to xml file containing the data')
+    parser_enhanced_xmlupload.set_defaults(action="enhanced-xmlupload")
+    parser_enhanced_xmlupload.add_argument("--multimedia-folder", default="multimedia", help="Path to folder containing the multimedia files")
+    parser_enhanced_xmlupload.add_argument("--local-sipi-port", type=int, help="5-digit port number of the local SIPI instance, can be found in the 'Container' view of Docker Desktop")
+    parser_enhanced_xmlupload.add_argument("--generate-test-data", action="store_true", help="only generate a test data folder in the current working directory (no upload)")
+    parser_enhanced_xmlupload.add_argument("-s", "--server", default=default_localhost, help=url_text)
+    parser_enhanced_xmlupload.add_argument("-u", "--user", default=default_user, help=username_text)
+    parser_enhanced_xmlupload.add_argument("-p", "--password", default=default_pw, help=password_text)
+    parser_enhanced_xmlupload.add_argument("-S", "--remote-sipi-server", default="http://0.0.0.0:1024", help="URL of the remote SIPI server")
+    parser_enhanced_xmlupload.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
+    parser_enhanced_xmlupload.add_argument("-I", "--incremental", action="store_true", help="Incremental XML upload")
+    parser_enhanced_xmlupload.add_argument("xmlfile", help="path to xml file containing the data")
 
     # excel2json
     parser_excel2json = subparsers.add_parser(

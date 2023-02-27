@@ -12,7 +12,7 @@ from lxml import etree
 from dsp_tools.models.helpers import BaseError
 
 
-def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> None:
+def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> bool:
     """
     This function replaces all occurrences of internal IDs with their respective IRIs inside an XML file. It gets the
     mapping from the JSON file provided as parameter for this function.
@@ -27,7 +27,7 @@ def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> No
         BaseError if one of the two input files is not a valid file
     
     Returns:
-        None
+        True if everything went well, False otherwise
     """
 
     # check that provided files exist
@@ -81,3 +81,5 @@ def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> No
     et = etree.ElementTree(tree.getroot())
     et.write(out_file, pretty_print=True)
     print(f"XML with replaced IDs was written to file {out_file}.")
+
+    return True

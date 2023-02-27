@@ -126,7 +126,7 @@ def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
     return resource
 
 
-def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -> list[dict[str, Any]]:
+def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -> tuple[list[dict[str, Any]], bool]:
     """
     Converts resources described in an Excel file into a "resources" section which can be inserted into a JSON
     project file.
@@ -139,7 +139,7 @@ def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -
         BaseError if something went wrong
 
     Returns:
-        the "resources" section as Python list
+        a tuple consisting of the "resources" section as Python list, and the success status (True if everything went well)
     """
 
     # load file
@@ -181,4 +181,4 @@ def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -
             json.dump(resources, file, indent=4, ensure_ascii=False)
             print('"resources" section was created successfully and written to file:', path_to_output_file)
 
-    return resources
+    return resources, True

@@ -11,7 +11,7 @@ from dsp_tools.models.project import Project
 from dsp_tools.models.user import User
 
 
-def get_project(project_identifier: str, outfile_path: str, server: str, user: str, password: str, verbose: bool) -> None:
+def get_project(project_identifier: str, outfile_path: str, server: str, user: str, password: str, verbose: bool) -> bool:
     """
     This function writes a project from a DSP server into a JSON file.
 
@@ -27,7 +27,7 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
         BaseError if something went wrong
     
     Returns:
-        None
+        True if the process finishes without errors
     """
     con = Connection(server)
     if user and password:
@@ -111,3 +111,5 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
 
     with open(outfile_path, 'w', encoding='utf8') as f:
         json.dump(outfile_content, f, indent=4, ensure_ascii=False)
+
+    return True

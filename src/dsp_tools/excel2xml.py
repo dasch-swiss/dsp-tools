@@ -1722,7 +1722,7 @@ def write_xml(root: etree.Element, filepath: str) -> None:
                       f"error(s) occurred: {err.message}")
 
 
-def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
+def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
     """
     This is a method that is called from the command line. It isn't intended to be used in a Python script. It takes a
     tabular data source in CSV/XLS(X) format that is formatted according to the specifications, and transforms it to DSP-
@@ -1737,8 +1737,11 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
         shortcode: shortcode of the project that this data belongs to
         default_ontology: name of the ontology that this data belongs to
 
+    Raises:
+        BaseError if something went wrong
+    
     Returns:
-        None
+        True if everything went well, False otherwise
     """
 
     # general preparation
@@ -1906,3 +1909,4 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
     # ----------
     write_xml(root, f"{default_ontology}-data.xml")
     print(f"XML file successfully created at {default_ontology}-data.xml")
+    return True

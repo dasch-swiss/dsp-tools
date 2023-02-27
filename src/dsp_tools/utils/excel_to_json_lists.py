@@ -316,7 +316,7 @@ def excel2lists(
     excelfolder: str,
     path_to_output_file: Optional[str] = None,
     verbose: bool = False
-) -> list[dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], bool]:
     """
     Converts lists described in Excel files into a "lists" section that can be inserted into a JSON project file.
 
@@ -329,7 +329,7 @@ def excel2lists(
         BaseError if something went wrong
 
     Returns:
-        the "lists" section as Python list
+        a tuple consisting of the "lists" section as Python list, and the success status (True if everything went well)
     """
     # read the data
     excel_file_paths = _extract_excel_file_paths(excelfolder)
@@ -347,4 +347,4 @@ def excel2lists(
             json.dump(finished_lists, fp, indent=4, ensure_ascii=False)
             print('"lists" section was created successfully and written to file:', path_to_output_file)
 
-    return finished_lists
+    return finished_lists, True

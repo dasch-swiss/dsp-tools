@@ -106,7 +106,7 @@ class TestExcelToJSONList(unittest.TestCase):
             input_df.dropna(axis="index", how="all", inplace=True)
             excelfolder = f"testdata/lists_{mode}"
             outfile = f"testdata/tmp/lists_output_{mode}.json"
-            output_from_method = e2l.excel2lists(excelfolder=excelfolder, path_to_output_file=outfile)
+            output_from_method, _ = e2l.excel2lists(excelfolder=excelfolder, path_to_output_file=outfile)
 
             # check that output from file and from method are equal
             with open(outfile) as f:

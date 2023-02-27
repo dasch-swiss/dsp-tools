@@ -93,7 +93,7 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
     return _property
 
 
-def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) -> list[dict[str, Any]]:
+def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) -> tuple[list[dict[str, Any]], bool]:
     """
     Converts properties described in an Excel file into a "properties" section which can be inserted into a JSON
     project file.
@@ -106,7 +106,7 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
         BaseError if something went wrong
 
     Returns:
-        the "properties" section as Python list
+        a tuple consisting of the "properties" section as Python list, and the success status (True if everything went well)
     """
     
     # load file
@@ -153,4 +153,4 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
             json.dump(props, file, indent=4, ensure_ascii=False)
             print('"properties" section was created successfully and written to file:', path_to_output_file)
 
-    return props
+    return props, True

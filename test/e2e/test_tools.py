@@ -91,11 +91,11 @@ class TestTools(unittest.TestCase):
         name2iri_mapping1, success1 = create_lists(server=self.server,
                                                    user=self.user,
                                                    password=self.password,
-                                                   project_definition=test_project_minimal_with_list_1)
+                                                   project_file_as_path_or_parsed=test_project_minimal_with_list_1)
         name2iri_mapping2, success2 = create_lists(server=self.server,
                                                    user=self.user,
                                                    password=self.password,
-                                                   input_file="testdata/tmp/test_project_minimal_with_list_2.json")
+                                                   project_file_as_path_or_parsed="testdata/tmp/test_project_minimal_with_list_2.json")
         
         # test that both lists have been correctly created
         self.assertTrue(success1)

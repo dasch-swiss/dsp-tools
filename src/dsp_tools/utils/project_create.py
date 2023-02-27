@@ -22,7 +22,8 @@ from dsp_tools.utils.shared import login, try_network_action
 
 def _parse_input(project_file_as_path_or_parsed: Union[str, dict[str, Any]]) -> tuple[dict[str, Any], Context]:
     """
-    Check the input: If it is parsed already, create the context and return input (unchanged) and context.
+    Check the input: 
+    If it is parsed already, create the context and return the unchanged input together with the context.
     If the input is a file path, parse it first.
 
     Args:
@@ -33,17 +34,15 @@ def _parse_input(project_file_as_path_or_parsed: Union[str, dict[str, Any]]) -> 
     """
     if isinstance(project_file_as_path_or_parsed, str) and Path(project_file_as_path_or_parsed).exists():
         with open(project_file_as_path_or_parsed) as f:
-            project_json_str = f.read()
-        try:
-            project_definition: dict[str, Any] = json.loads(project_json_str)
-        except:
-            raise BaseError(f"The input file '{project_file_as_path_or_parsed}' cannot be parsed to a JSON object.")
-    elif isinstance(project_file_as_path_or_parsed, dict) and project_file_as_path_or_parsed.get("project"):
+            try:
+                project_definition: dict[str, Any] = json.load(f)
+            except:
+                raise BaseError(f"The input file '{project_file_as_path_or_parsed}' cannot be parsed to a JSON object.")
+    elif isinstance(project_file_as_path_or_parsed, dict):
         project_definition = project_file_as_path_or_parsed
     else:
         raise BaseError(f"Invalid input: The input must be a path to a JSON file or a parsed JSON object.")
-    context = Context(project_definition.get("prefixes", {}))   # read prefixes of external ontologies
-    print(f"Create project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']})...")
+    context = Context(project_definition.get("prefixes", {}))
     return project_definition, context
 
 
@@ -848,7 +847,7 @@ def create_project(
     project_definition, context = _parse_input(project_file_as_path_or_parsed)
 
     # expand the Excel files referenced in the "lists" section of the project (if any), and add them to the project
-    new_lists, success = expand_lists_from_excel(project_definition["project"].get("lists", []))
+    new_lists, success = expand_lists_from_excel(project_definition.get("project", {}).get("lists", []))
     if new_lists:
         project_definition["project"]["lists"] = new_lists
     if not success:
@@ -858,6 +857,7 @@ def create_project(
     try:
         validate_project(project_definition, expand_lists=False)
         print('\tJSON project file is syntactically correct and passed validation.')
+        print(f"Create project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']})...")
     except BaseError as err:
         print(f'=====================================\n'
               f'{err.message}')

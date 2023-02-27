@@ -4,7 +4,7 @@ import unittest
 from typing import Any
 
 from dsp_tools.models.helpers import BaseError
-from dsp_tools.utils.project_create import _sort_resources, _sort_prop_classes
+from dsp_tools.utils.project_create import _sort_resources, _sort_prop_classes, _parse_input
 from dsp_tools.utils.project_validate import _collect_link_properties, _identify_problematic_cardinalities, \
     validate_project, check_for_undefined_cardinalities, check_for_undefined_superproperty
 
@@ -27,6 +27,19 @@ class TestProjectCreation(unittest.TestCase):
     test_project_undefined_super_property_file = "testdata/invalid_testdata/test-project-super-property-that-was-not-defined-in-properties-section.json"
     with open(test_project_undefined_super_property_file) as json_file:
         test_project_undefined_super_property = json.load(json_file)
+
+    def test_parse_input(self) -> None:
+        parsed_proj_from_filepath, _ = _parse_input(project_file_as_path_or_parsed=self.test_project_systematic_file)
+        parsed_proj_from_json_obj, _ = _parse_input(project_file_as_path_or_parsed=self.test_project_systematic)
+        self.assertDictEqual(parsed_proj_from_filepath, parsed_proj_from_json_obj)
+
+        invalid = [
+            ("foo/bar", r"The input must be a path to a JSON file or a parsed JSON object"), 
+            ("testdata/test-data-systematic.xml", r"cannot be parsed to a JSON object"),
+        ]
+        for inv, err_msg in invalid:
+            with self.assertRaisesRegex(BaseError, err_msg):
+                _parse_input(inv)
 
 
     def test_sort_resources(self) -> None:

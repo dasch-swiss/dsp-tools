@@ -40,10 +40,6 @@ class TestProjectCreation(unittest.TestCase):
         for inv, err_msg in invalid:
             with self.assertRaisesRegex(BaseError, err_msg):
                 _parse_input(inv)
-        # test path to JSON
-        # test invalid path to JSON
-        # test parsed JSON
-        # test invalid parsed JSON
 
 
     def test_sort_resources(self) -> None:

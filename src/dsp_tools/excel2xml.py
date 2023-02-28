@@ -1775,7 +1775,7 @@ def write_xml(root: etree.Element, filepath: str) -> None:  # type: ignore
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(xml_string)
     try:
-        validate_xml_against_schema(filepath)
+        validate_xml_against_schema(xml_file_as_path_or_parsed=filepath)
         print(f"The XML file was successfully saved to {filepath}")
     except BaseError as err:
         warnings.warn(f"The XML file was successfully saved to {filepath}, but the following Schema validation "

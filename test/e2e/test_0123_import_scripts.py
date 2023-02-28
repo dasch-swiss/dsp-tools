@@ -55,7 +55,7 @@ class TestImportScripts(unittest.TestCase):
         self.assertTrue(success_on_creation)
 
         success_on_xmlupload = xml_upload(
-            input_file="src/dsp_tools/import_scripts/data-processed.xml",
+            xml_file_as_path_or_parsed="src/dsp_tools/import_scripts/data-processed.xml",
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",

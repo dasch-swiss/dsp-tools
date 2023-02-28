@@ -1,3 +1,4 @@
+from __future__ import annotations
 import copy
 import importlib.resources
 import json
@@ -98,12 +99,12 @@ def try_network_action(
     raise BaseError(failure_msg)
 
 
-def validate_xml_against_schema(input_file: str) -> bool:
+def validate_xml_against_schema(xml_file_as_path_or_parsed: Union[str, etree.ElementTree]) -> bool:  # type: ignore
     """
-    Validates an XML file against an XSD schema
+    Validates an XML file against the DSP XSD schema.
 
     Args:
-        input_file: path to the XML file to be validated
+        xml_file_as_path_or_parsed: path to the XML file to be validated, or parsed ElementTree
 
     Raises:
         BaseError with a detailed error log if the XML file is invalid
@@ -113,10 +114,13 @@ def validate_xml_against_schema(input_file: str) -> bool:
     """
     with importlib.resources.files("dsp_tools").joinpath("schemas").joinpath("data.xsd").open() as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
-    try:
-        doc = etree.parse(input_file)
-    except etree.XMLSyntaxError as err:
-        raise BaseError(f"The XML file contains the following syntax error: {err.msg}") from None
+    if isinstance(xml_file_as_path_or_parsed, str):
+        try:
+            doc = etree.parse(source=xml_file_as_path_or_parsed)
+        except etree.XMLSyntaxError as err:
+            raise BaseError(f"The XML file contains the following syntax error: {err.msg}") from None
+    else:
+        doc = xml_file_as_path_or_parsed
 
     # remove namespaces
     doc_without_namespace = copy.deepcopy(doc)

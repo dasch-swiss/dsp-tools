@@ -239,12 +239,12 @@ class TestTools(unittest.TestCase):
 
 
     def test_validate_xml_against_schema(self) -> None:
-        self.assertTrue(validate_xml_against_schema(self.test_data_systematic_file))
+        self.assertTrue(validate_xml_against_schema(xml_file_as_path_or_parsed=self.test_data_systematic_file))
 
 
     def test_xml_upload(self) -> None:
         result_minimal = xml_upload(
-            input_file=self.test_data_minimal_file,
+            xml_file_as_path_or_parsed=self.test_data_minimal_file,
             server=self.server,
             user=self.user,
             password=self.password,
@@ -256,7 +256,7 @@ class TestTools(unittest.TestCase):
         self.assertTrue(result_minimal)
 
         result_systematic = xml_upload(
-            input_file=self.test_data_systematic_file,
+            xml_file_as_path_or_parsed=self.test_data_systematic_file,
             server=self.server,
             user=self.user,
             password=self.password,
@@ -282,7 +282,7 @@ class TestTools(unittest.TestCase):
         self.assertTrue(os.path.isfile(id2iri_replaced_xml_filename))
 
         result_replaced = xml_upload(
-            input_file=id2iri_replaced_xml_filename,
+            xml_file_as_path_or_parsed=id2iri_replaced_xml_filename,
             server=self.server,
             user=self.user,
             password=self.password,

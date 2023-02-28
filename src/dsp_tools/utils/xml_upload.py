@@ -1,6 +1,7 @@
 """
 This module handles the import of XML data into the DSP platform.
 """
+from __future__ import annotations
 import base64
 import json
 import os
@@ -9,7 +10,7 @@ import uuid
 from collections import namedtuple
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, cast, Tuple, Any
+from typing import Optional, Union, cast, Tuple, Any
 from urllib.parse import quote_plus
 
 import pandas as pd
@@ -202,23 +203,23 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
 
 
-def _parse_xml_file(input_file: str) -> etree.ElementTree:
+def _parse_xml_file(input_file: Union[str, etree.ElementTree]) -> etree.ElementTree:  # type: ignore
     """
     Parse an XML file with DSP-conform data, remove namespace URI from the elements' names, and transform the special
     tags <annotation>, <region>, and <link> to their technically correct form <resource restype="Annotation">,
     <resource restype="Region">, and <resource restype="LinkObj">.
 
     Args:
-        input_file: path to the XML file
+        input_file: path to the XML file, or parsed ElementTree
 
     Returns:
         the parsed etree.ElementTree
     """
-    tree = etree.parse(input_file)
+    tree = etree.parse(source=input_file) if isinstance(input_file, str) else input_file
     for elem in tree.iter():
         if isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction):
             # properties that are commented out would break the the constructor of the class XMLProperty, if they are not removed here.
-            elem.getparent().remove(elem)
+            elem.getparent().remove(elem)  # type: ignore
         else:
             elem.tag = etree.QName(elem).localname   # remove namespace URI in the element's name
         
@@ -296,13 +297,23 @@ def _check_consistency_with_ontology(
     print("Resource types and properties are consistent with the ontology.")
 
 
-def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: str, sipi: str, verbose: bool,
-               incremental: bool, save_metrics: bool) -> bool:
+def xml_upload(
+    xml_file_as_path_or_parsed: Union[str, etree.ElementTree],  # type: ignore
+    server: str, 
+    user: str, 
+    password: str, 
+    imgdir: str, 
+    sipi: str, 
+    verbose: bool,
+    incremental: bool, 
+    save_metrics: bool
+) -> bool:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
 
     Args:
-        input_file: the XML with the data to be imported onto the DSP server
+        
+        xml_file_as_path_or_parsed: path to the XML file or parsed ElementTree
         server: the DSP server where the data should be imported
         user: the user (e-mail) with which the data should be imported
         password: the password of the user with which the data should be imported
@@ -324,7 +335,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     preparation_start = datetime.now()
 
     # Validate the input XML file
-    validate_xml_against_schema(input_file)
+    validate_xml_against_schema(xml_file_as_path_or_parsed=xml_file_as_path_or_parsed)
 
     save_location = Path.home() / Path(".dsp-tools")
     server_as_foldername = server
@@ -345,8 +356,8 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     sipi_server = Sipi(sipi, con.get_token())
 
     # parse the XML file
-    tree = _parse_xml_file(input_file)
-    root = tree.getroot()
+    tree = _parse_xml_file(input_file=xml_file_as_path_or_parsed)
+    root = tree.getroot()  # type: ignore
     default_ontology = root.attrib['default-ontology']
     shortcode = root.attrib['shortcode']
     resources: list[XMLResource] = []
@@ -415,7 +426,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     # write log files
     success = True
     timestamp_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    id2iri_mapping_file = f"id2iri_{Path(input_file).stem}_mapping_{timestamp_str}.json"
+    id2iri_mapping_file = f"id2iri_{Path(xml_file_as_path_or_parsed).stem}_mapping_{timestamp_str}.json"
     with open(id2iri_mapping_file, "x") as f:
         json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
         print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
@@ -425,7 +436,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     if save_metrics:
         os.makedirs("metrics", exist_ok=True)
         df = pd.DataFrame(metrics)
-        df.to_csv(f"metrics/{timestamp_str}_metrics_{server_as_foldername}_{Path(input_file).stem}.csv")
+        df.to_csv(f"metrics/{timestamp_str}_metrics_{server_as_foldername}_{Path(xml_file_as_path_or_parsed).stem}.csv")
     if success:
         print("All resources have successfully been uploaded.")
 

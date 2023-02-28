@@ -8,8 +8,10 @@ from pathlib import Path
 
 from lxml import etree
 
+from dsp_tools.models.helpers import BaseError
 
-def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> None:
+
+def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> bool:
     """
     This function replaces all occurrences of internal IDs with their respective IRIs inside an XML file. It gets the
     mapping from the JSON file provided as parameter for this function.
@@ -20,18 +22,20 @@ def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> No
         out_file: path to the output XML file with replaced IDs (optional), default: "id2iri_replaced_" + timestamp + ".xml"
         verbose: verbose feedback if set to True
 
+    Raises:
+        BaseError if one of the two input files is not a valid file
+    
     Returns:
-        None
+        True if everything went well, False otherwise
     """
+    success = True
 
     # check that provided files exist
     if not os.path.isfile(xml_file):
-        print(f"File {xml_file} could not be found.")
-        exit(1)
+        raise BaseError(f"File {xml_file} could not be found.")
 
     if not os.path.isfile(json_file):
-        print(f"File {json_file} could not be found.")
-        exit(1)
+        raise BaseError(f"File {json_file} could not be found.")
 
     # load JSON from provided json file to dict
     with open(json_file, encoding="utf-8", mode='r') as file:
@@ -41,7 +45,7 @@ def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> No
     tree = etree.parse(xml_file)
 
     # iterate through all XML elements and remove namespace declarations
-    for elem in tree.getiterator():
+    for elem in tree.iter():
         # skip comments and processing instructions as they do not have namespaces
         if not (
             isinstance(elem, etree._Comment)
@@ -64,8 +68,8 @@ def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> No
                 if verbose:
                     print(f"Skipping '{value_before}'")
             else:
-                print(f"WARNING Could not find internal ID '{value_before}' in mapping file {json_file}. "
-                      f"Skipping...")
+                print(f"WARNING Could not find internal ID '{value_before}' in mapping file {json_file}. Skipping...")
+                success = False
 
     # write xml with replaced IDs to file with timestamp
     if not out_file:
@@ -78,3 +82,5 @@ def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> No
     et = etree.ElementTree(tree.getroot())
     et.write(out_file, pretty_print=True)
     print(f"XML with replaced IDs was written to file {out_file}.")
+
+    return success

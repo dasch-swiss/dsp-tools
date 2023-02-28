@@ -11,7 +11,7 @@ from dsp_tools.utils.excel_to_json_resources import excel2resources
 def excel2json(
     data_model_files: str,
     path_to_output_file: str
-) -> None:
+) -> bool:
     """
     Converts a folder containing Excel files into a JSON data model file. The folder must be structured like this:
 
@@ -32,9 +32,14 @@ def excel2json(
         data_model_files: path to the folder (called "data_model_files" in the example)
         path_to_output_file: path to the file where the output JSON file will be saved
 
+    Raises:
+        BaseError if something went wrong
+
     Returns:
-        None
+        True if everything went well
     """
+
+    overall_success = True
 
     # validate input
     # --------------
@@ -72,16 +77,22 @@ def excel2json(
 
     # create output
     # -------------
-    lists = excel2lists(f"{data_model_files}/lists") if listfolder else None
+    lists, success = excel2lists(excelfolder=f"{data_model_files}/lists") if listfolder else (None, True)
+    if not success:
+        overall_success = False
 
     ontologies = []
     for onto_folder in onto_folders:
-        name, label = re.search(r"([\w.-]+) \(([\w.\- ]+)\)", onto_folder.name).groups()
+        name, label = re.search(r"([\w.-]+) \(([\w.\- ]+)\)", onto_folder.name).groups()  # type: ignore
+        resources, success1 = excel2resources(f"{data_model_files}/{onto_folder.name}/resources.xlsx")
+        properties, success2 = excel2properties(f"{data_model_files}/{onto_folder.name}/properties.xlsx")
+        if not success1 or not success2:
+            overall_success = False
         ontologies.append({
             "name": name,
             "label": label,
-            "properties": excel2properties(f"{data_model_files}/{onto_folder.name}/properties.xlsx"),
-            "resources": excel2resources(f"{data_model_files}/{onto_folder.name}/resources.xlsx")
+            "properties": properties,
+            "resources": resources
         })
 
     project = {
@@ -102,10 +113,12 @@ def excel2json(
         }
     }
     if lists:
-        project["project"]["lists"] = lists
-    project["project"]["ontologies"] = ontologies
+        project["project"]["lists"] = lists        # type: ignore
+    project["project"]["ontologies"] = ontologies  # type: ignore
 
     with open(path_to_output_file, "w") as f:
         json.dump(project, f, indent=4, ensure_ascii=False)
 
     print(f"JSON project file successfully saved at {path_to_output_file}")
+
+    return overall_success

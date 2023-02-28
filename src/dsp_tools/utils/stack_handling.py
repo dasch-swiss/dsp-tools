@@ -18,7 +18,7 @@ def start_stack(
     max_file_size: Optional[int] = None,
     enforce_docker_system_prune: bool = False,
     suppress_docker_system_prune: bool = False
-) -> None:
+) -> bool:
     """
     Start the Docker containers of DSP-API and DSP-APP, and load some basic data models and data. After startup, ask
     user if Docker should be pruned or not.
@@ -27,6 +27,12 @@ def start_stack(
         max_file_size: max. multimedia file size allowed by SIPI, in MB (max: 100'000)
         enforce_docker_system_prune: if True, prune Docker without asking the user
         suppress_docker_system_prune: if True, don't prune Docker (and don't ask)
+    
+    Raises:
+        BaseError if the stack cannot be started with the parameters passed by the user
+
+    Returns:
+        True if everything went well, False otherwise
     """
     # validate input
     if max_file_size is not None:
@@ -122,10 +128,16 @@ def start_stack(
                                  "Docker clean. If you are unsure what that means, just type y and press Enter. [y/n]")
     if prune_docker == "y":
         subprocess.run("docker system prune -f", shell=True, cwd=docker_path_of_user)
+    
+    return True
 
 
-def stop_stack() -> None:
+def stop_stack() -> bool:
     """
     Shut down the Docker containers of your local DSP stack and delete all data that is in it.
+
+    Returns:
+        True if everything went well, False otherwise
     """
     subprocess.run("docker compose down --volumes", shell=True, cwd=docker_path_of_user)
+    return True

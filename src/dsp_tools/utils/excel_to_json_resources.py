@@ -20,14 +20,17 @@ def _validate_resources_with_schema(resources_list: list[dict[str, Any]]) -> boo
     Args:
         resources_list: the "resources" section of a JSON project as a list of dicts
 
+    Raises:
+        BaseError with a detailed error report if the validation fails
+
     Returns:
-        True if the "resources" section passed validation. Otherwise, a BaseError with a detailed error report is raised.
+        True if the "resources" section passed validation
     """
     with importlib.resources.files("dsp_tools").joinpath("schemas").joinpath("resources-only.json").open() as schema_file:
         resources_schema = json.load(schema_file)
     try:
         jsonschema.validate(instance=resources_list, schema=resources_schema)
-    except jsonschema.exceptions.ValidationError as err:
+    except jsonschema.ValidationError as err:
         raise BaseError(f'"resources" section did not pass validation. The error message is: {err.message}\n'
                         f'The error occurred at {err.json_path}') from None
     return True
@@ -35,11 +38,16 @@ def _validate_resources_with_schema(resources_list: list[dict[str, Any]]) -> boo
 
 def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
     """
-    Method that takes a row from a pandas DataFrame, reads its content, and returns a dict object of the resource
+    Method that reads one row from the "classes" DataFrame, 
+    opens the corresponding details DataFrame, 
+    and builds a dict object of the resource.
 
     Args:
-        row: row from a pandas DataFrame that defines a resource
+        row: row from the "classes" DataFrame
         excelfile: Excel file where the data comes from
+    
+    Raises:
+        BaseError if the row or the details sheet contains invalid data
 
     Returns:
         dict object of the resource
@@ -118,17 +126,20 @@ def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
     return resource
 
 
-def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -> list[dict[str, Any]]:
+def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -> tuple[list[dict[str, Any]], bool]:
     """
     Converts resources described in an Excel file into a "resources" section which can be inserted into a JSON
     project file.
 
     Args:
         excelfile: path to the Excel file containing the resources
-        path_to_output_file: if provided, the output is written into this JSON file
+        path_to_output_file: if provided, the output is written into this JSON file (otherwise, it's only returned as return value)
+
+    Raises:
+        BaseError if something went wrong
 
     Returns:
-        the "resources" section as Python list
+        a tuple consisting of the "resources" section as Python list, and the success status (True if everything went well)
     """
 
     # load file
@@ -170,4 +181,4 @@ def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -
             json.dump(resources, file, indent=4, ensure_ascii=False)
             print('"resources" section was created successfully and written to file:', path_to_output_file)
 
-    return resources
+    return resources, True

@@ -13,7 +13,7 @@ from dsp_tools.models.helpers import BaseError
 from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 
 
-def  check_for_undefined_superproperty(project_definition: dict[str, Any]) -> bool:
+def check_for_undefined_superproperty(project_definition: dict[str, Any]) -> bool:
     """
     Check the superproperties that claim to point to a property defined in the same JSON project.
     Check if the property they point to actually exists.
@@ -139,7 +139,7 @@ def validate_project(
     if expand_lists:
         # expand all lists referenced in the "lists" section of the project definition, and add them to the project
         # definition
-        new_lists, _ = expand_lists_from_excel(project_definition["project"].get("lists", []))
+        new_lists = expand_lists_from_excel(project_definition["project"].get("lists", []))
         if new_lists:
             project_definition["project"]["lists"] = new_lists
 
@@ -199,8 +199,13 @@ def _check_cardinalities_of_circular_references(project_definition: dict[Any, An
 
 def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, list[str]]:
     """
-    map the properties derived from hasLinkTo to the resource classes they point to, for example:
-    link_properties = {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}
+    Maps the properties derived from hasLinkTo to the resource classes they point to.
+    
+    Args:
+        project_definition: parsed JSON file
+    
+    Returns:
+        A (possibly empty) dictionary in the form {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}
     """
     ontos = project_definition["project"]["ontologies"]
     hasLinkTo_props = {"hasLinkTo", "isPartOf", "isRegionOf", "isAnnotationOf"}
@@ -238,9 +243,19 @@ def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, li
     return link_properties
 
 
-def _identify_problematic_cardinalities(project_definition: dict[Any, Any], link_properties: dict[str, list[str]]) -> list[tuple[str, str]]:
+def _identify_problematic_cardinalities(
+    project_definition: dict[Any, Any], 
+    link_properties: dict[str, list[str]]
+) -> list[tuple[str, str]]:
     """
-    make an error list with all cardinalities that are part of a circle but have a cardinality of "1" or "1-n"
+    Make an error list with all cardinalities that are part of a circle but have a cardinality of "1" or "1-n".
+
+    Args:
+        project_definition: parsed JSON file
+        link_properties: mapping of hasLinkTo-properties to classes they point to, e.g. {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}
+
+    Returns:
+        a (possibly empty) list of (resource, problematic_cardinality) tuples
     """
     # make 2 dicts of the following form:
     # dependencies = {"rosetta:Text": {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}}

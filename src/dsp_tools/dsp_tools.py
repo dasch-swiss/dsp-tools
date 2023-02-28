@@ -166,77 +166,82 @@ def program(user_args: list[str]) -> None:
     args = parser.parse_args(user_args)
     if not hasattr(args, "action"):
         parser.print_help(sys.stderr)
+        exit(1)
     elif args.action == "create":
         if args.lists_only:
             if args.validate_only:
-                validate_lists_section_with_schema(path_to_json_project_file=args.projectfile)
+                success = validate_lists_section_with_schema(path_to_json_project_file=args.projectfile)
                 print("'Lists' section of the JSON project file is syntactically correct and passed validation.")
             else:
-                create_lists(project_file_as_path_or_parsed=args.projectfile,
-                             server=args.server,
-                             user=args.user,
-                             password=args.password,
-                             dump=args.dump)
+                _, success = create_lists(project_file_as_path_or_parsed=args.projectfile,
+                                          server=args.server,
+                                          user=args.user,
+                                          password=args.password,
+                                          dump=args.dump)
         else:
             if args.validate_only:
-                validate_project(args.projectfile)
+                success = validate_project(args.projectfile)
                 print("JSON project file is syntactically correct and passed validation.")
             else:
-                create_project(project_file_as_path_or_parsed=args.projectfile,
-                               server=args.server,
-                               user_mail=args.user,
-                               password=args.password,
-                               verbose=args.verbose,
-                               dump=args.dump if args.dump else False)
+                success = create_project(project_file_as_path_or_parsed=args.projectfile,
+                                         server=args.server,
+                                         user_mail=args.user,
+                                         password=args.password,
+                                         verbose=args.verbose,
+                                         dump=args.dump if args.dump else False)
     elif args.action == "get":
-        get_project(project_identifier=args.project,
-                    outfile_path=args.projectfile,
-                    server=args.server,
-                    user=args.user,
-                    password=args.password,
-                    verbose=args.verbose)
+        success = get_project(project_identifier=args.project,
+                              outfile_path=args.projectfile,
+                              server=args.server,
+                              user=args.user,
+                              password=args.password,
+                              verbose=args.verbose)
     elif args.action == "xmlupload":
         if args.validate:
-            validate_xml_against_schema(input_file=args.xmlfile)
+            success = validate_xml_against_schema(input_file=args.xmlfile)
         else:
-            xml_upload(input_file=args.xmlfile,
-                       server=args.server,
-                       user=args.user,
-                       password=args.password,
-                       imgdir=args.imgdir,
-                       sipi=args.sipi,
-                       verbose=args.verbose,
-                       incremental=args.incremental,
-                       save_metrics=args.metrics)
+            success = xml_upload(input_file=args.xmlfile,
+                                 server=args.server,
+                                 user=args.user,
+                                 password=args.password,
+                                 imgdir=args.imgdir,
+                                 sipi=args.sipi,
+                                 verbose=args.verbose,
+                                 incremental=args.incremental,
+                                 save_metrics=args.metrics)
     elif args.action == "excel2json":
-        excel2json(data_model_files=args.data_model_files,
-                   path_to_output_file=args.outfile)
+        success = excel2json(data_model_files=args.data_model_files,
+                             path_to_output_file=args.outfile)
     elif args.action == "excel2lists":
-        excel2lists(excelfolder=args.excelfolder,
-                    path_to_output_file=args.outfile,
-                    verbose=args.verbose)
+        _, success = excel2lists(excelfolder=args.excelfolder,
+                                 path_to_output_file=args.outfile,
+                                 verbose=args.verbose)
     elif args.action == "excel2resources":
-        excel2resources(excelfile=args.excelfile,
-                        path_to_output_file=args.outfile)
+        _, success = excel2resources(excelfile=args.excelfile,
+                                     path_to_output_file=args.outfile)
     elif args.action == "excel2properties":
-        excel2properties(excelfile=args.excelfile,
-                         path_to_output_file=args.outfile)
+        _, success = excel2properties(excelfile=args.excelfile,
+                                      path_to_output_file=args.outfile)
     elif args.action == "id2iri":
-        id_to_iri(xml_file=args.xmlfile,
-                  json_file=args.jsonfile,
-                  out_file=args.outfile,
-                  verbose=args.verbose)
+        success = id_to_iri(xml_file=args.xmlfile,
+                            json_file=args.jsonfile,
+                            out_file=args.outfile,
+                            verbose=args.verbose)
     elif args.action == "excel2xml":
-        excel2xml(datafile=args.datafile,
-                  shortcode=args.shortcode,
-                  default_ontology=args.default_ontology)
+        success = excel2xml(datafile=args.datafile,
+                            shortcode=args.shortcode,
+                            default_ontology=args.default_ontology)
     elif args.action == "start-stack":
-        start_stack(max_file_size=args.max_file_size,
-                    enforce_docker_system_prune=args.prune,
-                    suppress_docker_system_prune=args.no_prune)
+        success = start_stack(max_file_size=args.max_file_size,
+                              enforce_docker_system_prune=args.prune,
+                              suppress_docker_system_prune=args.no_prune)
     elif args.action == "stop-stack":
-        stop_stack()
+        success = stop_stack()
+    else:
+        success = False
 
+    if not success: 
+        exit(1)
 
 
 def main() -> None:

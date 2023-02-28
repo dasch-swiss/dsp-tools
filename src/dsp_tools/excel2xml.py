@@ -39,6 +39,9 @@ def make_xsd_id_compatible(string: str) -> str:
     Args:
         string: input string
 
+    Raises:
+        BaseError: if the input cannot be transformed to an xsd:ID
+
     Returns:
         an xsd:ID based on the input string
     """
@@ -68,6 +71,9 @@ def _derandomize_xsd_id(string: str, multiple_occurrences: bool = False) -> str:
     Args:
         string: the output of make_xsd_id_compatible()
         multiple_occurrences: If true, string can be an entire XML document, and all occurrences will be removed
+
+    Raises:
+        BaseError: if the input cannot be derandomized
 
     Returns:
         the derandomized string
@@ -289,7 +295,7 @@ def make_root(shortcode: str, default_ontology: str) -> etree._Element:
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#the-root-element-knora
     """
 
-    root = etree.Element(
+    root = etree.Element(  # type: ignore
         _tag="{%s}knora" % (xml_namespace_map[None]),
         attrib={
             str(etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation")):
@@ -303,7 +309,7 @@ def make_root(shortcode: str, default_ontology: str) -> etree._Element:
     return root
 
 
-def append_permissions(root_element: etree.Element) -> etree._Element:
+def append_permissions(root_element: etree.Element) -> etree._Element:  # type: ignore
     """
     After having created a root element, call this method to append the four permissions "res-default",
     "res-restricted", "prop-default", and "prop-restricted" to it. These four permissions are a good basis to
@@ -333,13 +339,13 @@ def append_permissions(root_element: etree.Element) -> etree._Element:
     res_default.append(ALLOW("D", group="ProjectMember"))
     res_default.append(ALLOW("CR", group="ProjectAdmin"))
     res_default.append(ALLOW("CR", group="Creator"))
-    root_element.append(res_default)
+    root_element.append(res_default)  # type: ignore
 
     res_restricted = PERMISSIONS(id="res-restricted")
     res_restricted.append(ALLOW("M", group="ProjectMember"))
     res_restricted.append(ALLOW("CR", group="ProjectAdmin"))
     res_restricted.append(ALLOW("CR", group="Creator"))
-    root_element.append(res_restricted)
+    root_element.append(res_restricted)  # type: ignore
 
     prop_default = PERMISSIONS(id="prop-default")
     prop_default.append(ALLOW("V", group="UnknownUser"))
@@ -347,13 +353,13 @@ def append_permissions(root_element: etree.Element) -> etree._Element:
     prop_default.append(ALLOW("D", group="ProjectMember"))
     prop_default.append(ALLOW("CR", group="ProjectAdmin"))
     prop_default.append(ALLOW("CR", group="Creator"))
-    root_element.append(prop_default)
+    root_element.append(prop_default)  # type: ignore
 
     prop_restricted = PERMISSIONS(id="prop-restricted")
     prop_restricted.append(ALLOW("M", group="ProjectMember"))
     prop_restricted.append(ALLOW("CR", group="ProjectAdmin"))
     prop_restricted.append(ALLOW("CR", group="Creator"))
-    root_element.append(prop_restricted)
+    root_element.append(prop_restricted)  # type: ignore
 
     return root_element
 
@@ -376,6 +382,10 @@ def make_resource(
     Returns:
         The resource element, without any children, but with the attributes
         ``<resource label=label restype=restype id=id permissions=permissions ark=ark iri=iri></resource>``
+
+    Raises:
+        Warning: if both an ARK and an IRI are provided
+        BaseError: if the creation date is invalid
 
     Examples:
         >>> resource = make_resource(...)
@@ -409,24 +419,26 @@ def make_resource(
 
     resource_ = etree.Element(
         "{%s}resource" % (xml_namespace_map[None]),
-        **kwargs
+        **kwargs  # type: ignore
     )
     return resource_
 
 
 def make_bitstream_prop(
-    path: Union[str, os.PathLike],
+    path: Union[str, os.PathLike],  # type: ignore
     permissions: str = "prop-default",
     calling_resource: str = ""
 ) -> etree._Element:
     """
-    Creates a bitstream element that points to "path". If "path" doesn't point to a valid file, a warning will be
-    printed to the console, but the script will continue.
+    Creates a bitstream element that points to "path".
 
     Args:
         path: path to a valid file that will be uploaded
         permissions: permissions string
         calling_resource: the name of the parent resource (for better error messages)
+
+    Raises:
+        Warning: if the path doesn't point to an existing file
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -450,6 +462,20 @@ def make_bitstream_prop(
 
 
 def _format_bool(unformatted: Union[bool, str, int], name: str, calling_resource: str) -> str:
+    """
+    This method takes an unformatted boolean-like value, and transforms it into the string values "true" or "false".
+
+    Args:
+        unformatted: boolean-like value
+        name: property name, for better error messages
+        calling_resource: resource name, for better error messages
+
+    Raises:
+        BaseError: if the input cannot be transformed into "true"/"false"
+
+    Returns:
+        "true" if the input is in (True, "true", "1", 1, "yes"); "false" if input is in (False, "false", "0", 0, "no")
+    """
     if isinstance(unformatted, str):
         unformatted = unformatted.lower()
     if unformatted in (False, "false", "0", 0, "no"):
@@ -472,14 +498,15 @@ def make_boolean_prop(
      - true: (True, "true", "True", "1", 1, "yes", "Yes")
      - false: (False, "false", "False", "0", 0, "no", "No")
 
-    If the value is not a valid boolean, a BaseError will be raised.
-
     Unless provided as PropertyElement, the permissions of the value default to "prop-default".
 
     Args:
         name: the name of this property as defined in the onto
         value: a boolean value as str/bool/int, or as str/bool/int inside a PropertyElement
         calling_resource: the name of the parent resource (for better error messages)
+
+    Raises:
+        BaseError: if the value is not a valid boolean
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -499,7 +526,7 @@ def make_boolean_prop(
 
     # validate input
     if isinstance(value, PropertyElement):
-        value_new = dataclasses.replace(value, value=_format_bool(value.value, name, calling_resource))
+        value_new = dataclasses.replace(value, value=_format_bool(value.value, name, calling_resource))  # type: ignore
     elif isinstance(value, str) or isinstance(value, bool) or isinstance(value, int):
         value_new = PropertyElement(_format_bool(value, name, calling_resource))
     else:
@@ -514,13 +541,13 @@ def make_boolean_prop(
     )
     kwargs = {"permissions": value_new.permissions}
     if check_notna(value_new.comment):
-        kwargs["comment"] = value_new.comment
+        kwargs["comment"] = value_new.comment  # type: ignore
     value_ = etree.Element(
         "{%s}boolean" % (xml_namespace_map[None]),
-        **kwargs,
+        **kwargs,  # type: ignore
         nsmap=xml_namespace_map
     )
-    value_.text = value_new.value
+    value_.text = value_new.value  # type: ignore
     prop_.append(value_)
 
     return prop_
@@ -535,12 +562,13 @@ def make_color_prop(
     Make a <color-prop> from one or more colors. The color(s) can be provided as string or as PropertyElement with a
     string inside. If provided as string, the permissions default to "prop-default".
 
-    If the value is not a valid color, a BaseError will be raised.
-
     Args:
         name: the name of this property as defined in the onto
         value: one or more DSP color(s), as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
+
+    Raises:
+        BaseError: If the value is not a valid color
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -581,10 +609,10 @@ def make_color_prop(
     for val in values:
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
-            kwargs["comment"] = val.comment
+            kwargs["comment"] = val.comment  # type: ignore
         value_ = etree.Element(
             "{%s}color" % (xml_namespace_map[None]),
-            **kwargs,
+            **kwargs,  # type: ignore
             nsmap=xml_namespace_map
         )
         value_.text = str(val.value).strip()
@@ -602,12 +630,13 @@ def make_date_prop(
     Make a <date-prop> from one or more dates/date ranges. The date(s) can be provided as string or as PropertyElement
     with a string inside. If provided as string, the permissions default to "prop-default".
 
-    If the value is not a valid DSP date, a BaseError will be raised.
-
     Args:
         name: the name of this property as defined in the onto
         value: one or more DSP dates, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
+
+    Raises:
+        BaseError: If the value is not a valid DSP date
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -655,10 +684,10 @@ def make_date_prop(
     for val in values:
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
-            kwargs["comment"] = val.comment
+            kwargs["comment"] = val.comment  # type: ignore
         value_ = etree.Element(
             "{%s}date" % (xml_namespace_map[None]),
-            **kwargs,
+            **kwargs,  # type: ignore
             nsmap=xml_namespace_map
         )
         value_.text = str(val.value).strip()
@@ -677,12 +706,13 @@ def make_decimal_prop(
     PropertyElement with a string/float inside. If provided as string/float, the permissions default to
     "prop-default".
 
-    If the value is not a valid decimal number, a BaseError will be raised.
-
     Args:
         name: the name of this property as defined in the onto
         value: one or more decimal numbers, as string/float/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
+
+    Raises:
+        BaseError: If the value is not a valid decimal number
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -725,10 +755,10 @@ def make_decimal_prop(
     for val in values:
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
-            kwargs["comment"] = val.comment
+            kwargs["comment"] = val.comment  # type: ignore
         value_ = etree.Element(
             "{%s}decimal" % (xml_namespace_map[None]),
-            **kwargs,
+            **kwargs,  # type: ignore
             nsmap=xml_namespace_map
         )
         value_.text = str(float(val.value))
@@ -746,12 +776,13 @@ def make_geometry_prop(
     Make a <geometry-prop> from one or more areas of an image. The area(s) can be provided as JSON-string or as
     PropertyElement with the JSON-string inside. If provided as string, the permissions default to "prop-default".
 
-    If the value is not a valid JSON geometry object, a BaseError is raised.
-
     Args:
         name: the name of this property as defined in the onto
         value: one or more JSON geometry objects, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
+
+    Raises:
+        BaseError: If the value is not a valid JSON geometry object
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -780,7 +811,7 @@ def make_geometry_prop(
     # check value type
     for val in values:
         try:
-            value_as_dict = json.loads(val.value)
+            value_as_dict = json.loads(val.value)  # type: ignore
             assert value_as_dict["type"] in ["rectangle", "circle", "polygon"]
             assert isinstance(value_as_dict["points"], list)
         except (json.JSONDecodeError, TypeError, IndexError, KeyError, AssertionError):
@@ -796,10 +827,10 @@ def make_geometry_prop(
     for val in values:
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
-            kwargs["comment"] = val.comment
+            kwargs["comment"] = val.comment  # type: ignore
         value_ = etree.Element(
             "{%s}geometry" % (xml_namespace_map[None]),
-            **kwargs,
+            **kwargs,  # type: ignore
             nsmap=xml_namespace_map
         )
         value_.text = str(val.value)
@@ -817,12 +848,13 @@ def make_geoname_prop(
     PropertyElement with a string/integer inside. If provided as string/integer, the permissions default to
     "prop-default".
 
-    If the value is not a valid geonames.org identifier, a BaseError will be raised.
-
     Args:
         name: the name of this property as defined in the onto
         value: one or more geonames.org IDs, as string/int/PropertyElement, or as iterable of strings/ints/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
+
+    Raises:
+        BaseError: If the value is not a valid geonames.org identifier
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -863,10 +895,10 @@ def make_geoname_prop(
     for val in values:
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
-            kwargs["comment"] = val.comment
+            kwargs["comment"] = val.comment  # type: ignore
         value_ = etree.Element(
             "{%s}geoname" % (xml_namespace_map[None]),
-            **kwargs,
+            **kwargs,  # type: ignore
             nsmap=xml_namespace_map
         )
         value_.text = str(val.value)
@@ -885,12 +917,13 @@ def make_integer_prop(
     PropertyElement with a string/integer inside. If provided as string/integer, the permissions default to
     "prop-default".
 
-    If the value is not a valid integer, a BaseError will be raised.
-
     Args:
         name: the name of this property as defined in the onto
         value: one or more integers, as string/int/PropertyElement, or as iterable of strings/ints/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
+
+    Raises:
+        BaseError: If the value is not a valid integer
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -933,10 +966,10 @@ def make_integer_prop(
     for val in values:
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
-            kwargs["comment"] = val.comment
+            kwargs["comment"] = val.comment  # type: ignore
         value_ = etree.Element(
             "{%s}integer" % (xml_namespace_map[None]),
-            **kwargs,
+            **kwargs,  # type: ignore
             nsmap=xml_namespace_map
         )
         value_.text = str(int(val.value))
@@ -954,12 +987,13 @@ def make_interval_prop(
     Make a <interval-prop> from one or more DSP intervals. The interval(s) can be provided as string or as
     PropertyElement with a string inside. If provided as string, the permissions default to "prop-default".
 
-    If the value is not a valid DSP interval, a BaseError will be raised.
-
     Args:
         name: the name of this property as defined in the onto
         value: one or more DSP intervals, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
+
+    Raises:
+        BaseError: If the value is not a valid DSP interval
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -1000,13 +1034,13 @@ def make_interval_prop(
     for val in values:
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
-            kwargs["comment"] = val.comment
+            kwargs["comment"] = val.comment  # type: ignore
         value_ = etree.Element(
             "{%s}interval" % (xml_namespace_map[None]),
-            **kwargs,
+            **kwargs,  # type: ignore
             nsmap=xml_namespace_map
         )
-        value_.text = val.value
+        value_.text = val.value  # type: ignore
         prop_.append(value_)
 
     return prop_
@@ -1022,13 +1056,14 @@ def make_list_prop(
     Make a <list-prop> from one or more list nodes. The name(s) of the list node(s) can be provided as string or as
     PropertyElement with a string inside. If provided as string, the permissions default to "prop-default".
 
-    If the name of one of the list nodes is not a valid string, a BaseError will be raised.
-
     Args:
         list_name: the name of the list as defined in the onto
         name: the name of this property as defined in the onto
         value: one or more node names, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
+
+    Raises:
+        BaseError: If the name of one of the list nodes is not a valid string
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -1070,13 +1105,13 @@ def make_list_prop(
     for val in values:
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
-            kwargs["comment"] = val.comment
+            kwargs["comment"] = val.comment  # type: ignore
         value_ = etree.Element(
             "{%s}list" % (xml_namespace_map[None]),
-            **kwargs,
+            **kwargs,  # type: ignore
             nsmap=xml_namespace_map
         )
-        value_.text = val.value
+        value_.text = val.value  # type: ignore
         prop_.append(value_)
 
     return prop_
@@ -1091,12 +1126,13 @@ def make_resptr_prop(
     Make a <resptr-prop> from one or more IDs of other resources. The ID(s) can be provided as string or as
     PropertyElement with a string inside. If provided as string, the permissions default to "prop-default".
 
-    If the ID of one of the target resources is not a valid string, a BaseError will be raised.
-
     Args:
         name: the name of this property as defined in the onto
         value: one or more resource identifiers, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
+
+    Raises:
+        BaseError: If the ID of one of the target resources is not a valid string
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -1137,13 +1173,13 @@ def make_resptr_prop(
     for val in values:
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
-            kwargs["comment"] = val.comment
+            kwargs["comment"] = val.comment  # type: ignore
         value_ = etree.Element(
             "{%s}resptr" % (xml_namespace_map[None]),
-            **kwargs,
+            **kwargs,  # type: ignore
             nsmap=xml_namespace_map
         )
-        value_.text = val.value
+        value_.text = val.value  # type: ignore
         prop_.append(value_)
 
     return prop_
@@ -1158,12 +1194,14 @@ def make_text_prop(
     Make a <text-prop> from one or more strings. The string(s) can be provided as string or as PropertyElement with a
     string inside. If provided as string, the encoding defaults to utf8, and the permissions to "prop-default".
 
-    If the value is not a valid string, a BaseError will be raised.
-
     Args:
         name: the name of this property as defined in the onto
         value: one or more strings, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
+
+    Raises:
+        BaseError: if one of the values is not a valid string, or if the XML tags in a richtext property (encoding=xml) are not well-formed
+        Warning: if one of the values doesn't look like a reasonable string (e.g. "<NA>" is a valid string, but probably not intended)
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -1207,14 +1245,14 @@ def make_text_prop(
     for val in values:
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
-            kwargs["comment"] = val.comment
+            kwargs["comment"] = val.comment  # type: ignore
         if check_notna(val.encoding):
-            kwargs["encoding"] = val.encoding
+            kwargs["encoding"] = val.encoding  # type: ignore
         else:
             kwargs["encoding"] = "utf8"
         value_ = etree.Element(
             "{%s}text" % (xml_namespace_map[None]),
-            **kwargs,
+            **kwargs,  # type: ignore
             nsmap=xml_namespace_map
         )
         if kwargs["encoding"] == "utf8":
@@ -1246,12 +1284,13 @@ def make_time_prop(
     provided as string or as PropertyElement with a string inside. If provided as string, the permissions default to
     "prop-default".
 
-    If one of the values is not a valid DSP time string, a BaseError will be raised.
-
     Args:
         name: the name of this property as defined in the onto
         value: one or more DSP times, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
+
+    Raises:
+        BaseError: If one of the values is not a valid DSP time string
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -1300,13 +1339,13 @@ def make_time_prop(
     for val in values:
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
-            kwargs["comment"] = val.comment
+            kwargs["comment"] = val.comment  # type: ignore
         value_ = etree.Element(
             "{%s}time" % (xml_namespace_map[None]),
-            **kwargs,
+            **kwargs,  # type: ignore
             nsmap=xml_namespace_map
         )
-        value_.text = val.value
+        value_.text = val.value  # type: ignore
         prop_.append(value_)
 
     return prop_
@@ -1321,12 +1360,13 @@ def make_uri_prop(
     Make an <uri-prop> from one or more URIs. The URI(s) can be provided as string or as PropertyElement with a string
     inside. If provided as string, the permissions default to "prop-default".
 
-    If one of the values is not a valid URI, a BaseError will be raised.
-
     Args:
         name: the name of this property as defined in the onto
         value: one or more URIs, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
+
+    Raises:
+        BaseError: If one of the values is not a valid URI
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -1369,13 +1409,13 @@ def make_uri_prop(
     for val in values:
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
-            kwargs["comment"] = val.comment
+            kwargs["comment"] = val.comment  # type: ignore
         value_ = etree.Element(
             "{%s}uri" % (xml_namespace_map[None]),
-            **kwargs,
+            **kwargs,  # type: ignore
             nsmap=xml_namespace_map
         )
-        value_.text = val.value
+        value_.text = val.value  # type: ignore
         prop_.append(value_)
 
     return prop_
@@ -1394,6 +1434,10 @@ def make_region(
 
     Args:
         The arguments correspond 1:1 to the attributes of the <region> element.
+
+    Raises:
+        Warning: if both an ARK and an IRI are provided
+        BaseError: if the creation date is invalid
 
     Returns:
         The region element, without any children, but with the attributes:
@@ -1433,7 +1477,7 @@ def make_region(
 
     region_ = etree.Element(
         "{%s}region" % (xml_namespace_map[None]),
-        **kwargs
+        **kwargs  # type: ignore
     )
     return region_
 
@@ -1451,6 +1495,10 @@ def make_annotation(
 
     Args:
         The arguments correspond 1:1 to the attributes of the <annotation> element.
+
+    Raises:
+        Warning: if both an ARK and an IRI are provided
+        BaseError: if the creation date is invalid
 
     Returns:
         The annotation element, without any children, but with the attributes:
@@ -1488,7 +1536,7 @@ def make_annotation(
 
     annotation_ = etree.Element(
         "{%s}annotation" % (xml_namespace_map[None]),
-        **kwargs
+        **kwargs  # type: ignore
     )
     return annotation_
 
@@ -1506,6 +1554,10 @@ def make_link(
 
     Args:
         The arguments correspond 1:1 to the attributes of the <link> element.
+
+    Raises:
+        Warning: if both an ARK and an IRI are provided
+        BaseError: if the creation date is invalid
 
     Returns:
         The link element, without any children, but with the attributes:
@@ -1543,7 +1595,7 @@ def make_link(
 
     link_ = etree.Element(
         "{%s}link" % (xml_namespace_map[None]),
-        **kwargs
+        **kwargs  # type: ignore
     )
     return link_
 
@@ -1571,6 +1623,10 @@ def create_json_excel_list_mapping(
         excel_values: the Excel column (e.g. as list) with the list values in it
         sep: separator string, if the cells in the Excel contain more than one list entry
         corrections: dict with wrong entries, each pointing to its correct counterpart
+
+    Raises:
+        Warning: if there is an Excel value that couldn't be matched
+        Exception: if the path doesn't point to a JSON project file
 
     Returns:
         dict of the form {excel_value: list_node_name}. Every excel_value is stripped, and also present in a lowercase form.
@@ -1631,11 +1687,12 @@ def create_json_excel_list_mapping(
 
 
 def _nested_dict_values_iterator(dicts: list[dict[str, Any]]) -> Iterable[str]:
-    """ This function accepts a list of nested dictionaries as argument
-        and iterates over all values. It yields the values iteratively.
-        Credits: https://thispointer.com/python-iterate-loop-over-all-nested-dictionary-values/
     """
-
+    This function accepts a list of nested dictionaries as argument
+    and iterates over all values. 
+    It yields the values iteratively.
+    """
+    # Credits: https://thispointer.com/python-iterate-loop-over-all-nested-dictionary-values/
     for dict in dicts:
         if "nodes" in dict:
             for value in _nested_dict_values_iterator(dict["nodes"]):
@@ -1698,13 +1755,16 @@ def _name_label_mapper_iterator(json_subset: list[dict[str, Any]], language_labe
             # the actual values of the name and the label
 
 
-def write_xml(root: etree.Element, filepath: str) -> None:
+def write_xml(root: etree.Element, filepath: str) -> None:  # type: ignore
     """
     Write the finished XML to a file
 
     Args:
         root: etree Element with the entire XML document
         filepath: where to save the file
+
+    Raises:
+        Warning: if the XML is not valid according to the schema
 
     Returns:
         None
@@ -1722,7 +1782,7 @@ def write_xml(root: etree.Element, filepath: str) -> None:
                       f"error(s) occurred: {err.message}")
 
 
-def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
+def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
     """
     This is a method that is called from the command line. It isn't intended to be used in a Python script. It takes a
     tabular data source in CSV/XLS(X) format that is formatted according to the specifications, and transforms it to DSP-
@@ -1737,12 +1797,16 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
         shortcode: shortcode of the project that this data belongs to
         default_ontology: name of the ontology that this data belongs to
 
+    Raises:
+        BaseError if something went wrong
+    
     Returns:
-        None
+        True if everything went well, False otherwise
     """
 
     # general preparation
     # -------------------
+    success = True
     proptype_2_function = {
         "bitstream": make_bitstream_prop,
         "boolean-prop": make_boolean_prop,
@@ -1774,7 +1838,7 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
     main_df.dropna(axis="columns", how="all", inplace=True)
     # remove empty rows, to prevent them from being processed and raising an error
     main_df.dropna(axis="index", how="all", inplace=True)
-    max_prop_count = int(list(main_df)[-1].split("_")[0])
+    max_prop_count = int(str(list(main_df)[-1]).split("_")[0])
     root = make_root(shortcode=shortcode, default_ontology=default_ontology)
     root = append_permissions(root)
     resource_id: str = ""
@@ -1802,10 +1866,12 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
             resource_restype = row.get("restype")
             if not check_notna(resource_restype):
                 raise BaseError(f"Missing restype for resource {resource_id}")
+            if check_notna(row.get("ark")) and check_notna(row.get("iri")):
+                raise BaseError(f"Both ARK and IRI were provided for resource '{resource_label}' ({resource_id}). The ARK will override the IRI.")
             # previous resource is finished, now a new resource begins. in all cases (except for
             # the very first iteration), a previous resource exists. if it exists, append it to root.
             if "resource" in locals():
-                root.append(resource)
+                root.append(resource)  # type: ignore
             kwargs_resource = {
                 "label": resource_label,
                 "permissions": resource_permissions,
@@ -1833,7 +1899,7 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
                                             f"permissions failed.")
                     resource.append(make_bitstream_prop(
                         path=str(row["file"]),
-                        permissions=file_permissions,
+                        permissions=str(file_permissions),
                         calling_resource=resource_id
                     ))
             elif resource_restype == "Region":
@@ -1897,12 +1963,17 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> None:
             if check_notna(row.get("prop list")):
                 kwargs_propfunc["list_name"] = str(row["prop list"])
 
-            resource.append(make_prop_function(**kwargs_propfunc))
+            resource.append(make_prop_function(**kwargs_propfunc))  # type: ignore
 
     # append the resource of the very last iteration of the for loop
     root.append(resource)
 
     # write file
     # ----------
-    write_xml(root, f"{default_ontology}-data.xml")
+    with warnings.catch_warnings(record=True) as w:
+        write_xml(root, f"{default_ontology}-data.xml")
+        if len(w) > 0:
+            success = False
     print(f"XML file successfully created at {default_ontology}-data.xml")
+
+    return success

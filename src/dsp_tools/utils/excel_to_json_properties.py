@@ -19,15 +19,18 @@ def _validate_properties_with_schema(properties_list: list[dict[str, Any]]) -> b
 
     Args:
         properties_list: the "properties" section of a JSON project as a list of dicts
+    
+    Raises:
+        BaseError with a detailed error report if the validation fails
 
     Returns:
-        True if the "properties" section passed validation. Otherwise, a BaseError with a detailed error report is raised.
+        True if the "properties" section passed validation
     """
     with importlib.resources.files("dsp_tools").joinpath("schemas").joinpath("properties-only.json").open() as schema_file:
         properties_schema = json.load(schema_file)
     try:
         jsonschema.validate(instance=properties_list, schema=properties_schema)
-    except jsonschema.exceptions.ValidationError as err:
+    except jsonschema.ValidationError as err:
         raise BaseError(f'"properties" section did not pass validation. The error message is: {err.message}\n'
                         f'The error occurred at {err.json_path}') from None
     return True
@@ -41,6 +44,9 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
         row: row from a pandas DataFrame that defines a property
         row_count: row number of Excel file
         excelfile: name of the original Excel file
+
+    Raises:
+        BaseError if the row contains invalid data
 
     Returns:
         dict object of the property
@@ -62,7 +68,7 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
         pairs = row["gui_attributes"].split(",")
         for pair in pairs:
             if pair.count(":") != 1:
-                raise ValueError(f"Row {row_count} of Excel file {excelfile} contains invalid data in column "
+                raise BaseError(f"Row {row_count} of Excel file {excelfile} contains invalid data in column "
                                  f"'gui_attributes'. The expected format is 'attribute: value[, attribute: value]'.")
             attr, val = [x.strip() for x in pair.split(":")]
             if re.search(r"^\d+\.\d+$", val):
@@ -87,7 +93,7 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
     return _property
 
 
-def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) -> list[dict[str, Any]]:
+def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) -> tuple[list[dict[str, Any]], bool]:
     """
     Converts properties described in an Excel file into a "properties" section which can be inserted into a JSON
     project file.
@@ -96,8 +102,11 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
         excelfile: path to the Excel file containing the properties
         path_to_output_file: if provided, the output is written into this JSON file
 
+    Raises:
+        BaseError if something went wrong
+
     Returns:
-        the "properties" section as Python list
+        a tuple consisting of the "properties" section as Python list, and the success status (True if everything went well)
     """
     
     # load file
@@ -144,4 +153,4 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
             json.dump(props, file, indent=4, ensure_ascii=False)
             print('"properties" section was created successfully and written to file:', path_to_output_file)
 
-    return props
+    return props, True

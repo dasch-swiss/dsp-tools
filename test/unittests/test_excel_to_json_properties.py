@@ -27,7 +27,7 @@ class TestExcelToProperties(unittest.TestCase):
     def test_excel2properties(self) -> None:
         excelfile = "testdata/excel2json_files/test-name (test_label)/properties.xlsx"
         outfile = "testdata/tmp/_out_properties.json"
-        output_from_method = e2j.excel2properties(excelfile, outfile)
+        output_from_method, _ = e2j.excel2properties(excelfile, outfile)
 
         # define the expected values from the excel file
         excel_names = ["correspondsToGenericAnthroponym", "hasAnthroponym", "hasGender", "isDesignatedAs", "hasTitle",

@@ -214,10 +214,10 @@ def make_preprocessing(
             continue
         internal_filename = response["uploadedFiles"][0]["internalFilename"]
         mapping[str(pth)] = internal_filename
-        original_extension = pth.suffix
-        deriv = ".jp2" if original_extension in extensions["image"] else original_extension
-        for ext in [".info", deriv, f"{original_extension}.orig"]:
-            upload_candidate = f"tmp/{Path(internal_filename).stem}{ext}"
+        upload_candidates: list[Path] = []
+        upload_candidates.extend(Path().glob(f"tmp/{Path(internal_filename).stem}/**/*.*"))
+        upload_candidates.extend(Path().glob(f"tmp/{Path(internal_filename).stem}*.*"))
+        for upload_candidate in upload_candidates:
             with open(upload_candidate, "rb") as bitstream:
                 response_upload = requests.post(url=f"{regex.sub(r'/$', '', remote_sipi_server)}/upload_without_transcoding?token={con.get_token()}", files={"file": bitstream})
             if not response_upload.json().get("uploadedFiles"):

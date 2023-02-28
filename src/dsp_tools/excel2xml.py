@@ -39,6 +39,9 @@ def make_xsd_id_compatible(string: str) -> str:
     Args:
         string: input string
 
+    Raises:
+        BaseError: if the input cannot be transformed to an xsd:ID
+
     Returns:
         an xsd:ID based on the input string
     """
@@ -68,6 +71,9 @@ def _derandomize_xsd_id(string: str, multiple_occurrences: bool = False) -> str:
     Args:
         string: the output of make_xsd_id_compatible()
         multiple_occurrences: If true, string can be an entire XML document, and all occurrences will be removed
+
+    Raises:
+        BaseError: if the input cannot be derandomized
 
     Returns:
         the derandomized string
@@ -377,6 +383,10 @@ def make_resource(
         The resource element, without any children, but with the attributes
         ``<resource label=label restype=restype id=id permissions=permissions ark=ark iri=iri></resource>``
 
+    Raises:
+        Warning: if both an ARK and an IRI are provided
+        BaseError: if the creation date is invalid
+
     Examples:
         >>> resource = make_resource(...)
         >>> resource.append(make_text_prop(...))
@@ -428,6 +438,9 @@ def make_bitstream_prop(
         permissions: permissions string
         calling_resource: the name of the parent resource (for better error messages)
 
+    Raises:
+        Warning: if the path doesn't point to an existing file
+
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
@@ -450,6 +463,20 @@ def make_bitstream_prop(
 
 
 def _format_bool(unformatted: Union[bool, str, int], name: str, calling_resource: str) -> str:
+    """
+    This method takes an unformatted boolean-like value, and transformes it into the string values "true" or "false".
+
+    Args:
+        unformatted: boolean-like value
+        name: property name, for better error messages
+        calling_resource: resource name, for better error messages
+
+    Raises:
+        BaseError: if there is no valid boolean
+
+    Returns:
+        "true" if the input is in (True, "true", "1", 1, "yes"); "false" if input is in (False, "false", "0", 0, "no")
+    """
     if isinstance(unformatted, str):
         unformatted = unformatted.lower()
     if unformatted in (False, "false", "0", 0, "no"):
@@ -1165,6 +1192,10 @@ def make_text_prop(
         value: one or more strings, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
+    Raises:
+        BaseError: if one of the values is not a valid string
+        Warning: if one of the values doesn't look like a reasonable string (e.g. "<NA>" is a valid string, but probably not intended)
+
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
@@ -1395,6 +1426,9 @@ def make_region(
     Args:
         The arguments correspond 1:1 to the attributes of the <region> element.
 
+    Raises:
+        Warning: if both an ARK and an IRI are provided
+
     Returns:
         The region element, without any children, but with the attributes:
         <region label=label id=id permissions=permissions ark=ark iri=iri></region>
@@ -1452,6 +1486,9 @@ def make_annotation(
     Args:
         The arguments correspond 1:1 to the attributes of the <annotation> element.
 
+    Raises:
+        Warning: if both an ARK and an IRI are provided
+
     Returns:
         The annotation element, without any children, but with the attributes:
         <annotation label=label id=id permissions=permissions ark=ark iri=iri></annotation>
@@ -1506,6 +1543,9 @@ def make_link(
 
     Args:
         The arguments correspond 1:1 to the attributes of the <link> element.
+
+    Raises:
+        Warning: if both an ARK and an IRI are provided
 
     Returns:
         The link element, without any children, but with the attributes:
@@ -1571,6 +1611,9 @@ def create_json_excel_list_mapping(
         excel_values: the Excel column (e.g. as list) with the list values in it
         sep: separator string, if the cells in the Excel contain more than one list entry
         corrections: dict with wrong entries, each pointing to its correct counterpart
+
+    Raises:
+        Warning: if there is an Excel value that couldn't be matched
 
     Returns:
         dict of the form {excel_value: list_node_name}. Every excel_value is stripped, and also present in a lowercase form.
@@ -1705,6 +1748,9 @@ def write_xml(root: etree.Element, filepath: str) -> None:
     Args:
         root: etree Element with the entire XML document
         filepath: where to save the file
+
+    Raises:
+        Warning: if the XML is not valid according to the schema
 
     Returns:
         None

@@ -463,7 +463,7 @@ def make_bitstream_prop(
 
 def _format_bool(unformatted: Union[bool, str, int], name: str, calling_resource: str) -> str:
     """
-    This method takes an unformatted boolean-like value, and transformes it into the string values "true" or "false".
+    This method takes an unformatted boolean-like value, and transforms it into the string values "true" or "false".
 
     Args:
         unformatted: boolean-like value

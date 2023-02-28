@@ -166,7 +166,7 @@ def program(user_args: list[str]) -> None:
     args = parser.parse_args(user_args)
     if not hasattr(args, "action"):
         parser.print_help(sys.stderr)
-        success = False
+        exit(1)
     elif args.action == "create":
         if args.lists_only:
             if args.validate_only:

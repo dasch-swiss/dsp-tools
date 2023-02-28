@@ -535,7 +535,7 @@ def _create_ontologies(
         for onto_prefix, onto_info in context:
             if onto_info and onto_prefix not in ontology_remote.context:
                 onto_iri = onto_info.iri + ("#" if onto_info.hashtag else "")
-                ontology_remote.context.add_context(onto_prefix, onto_iri)
+                ontology_remote.context.add_context(prefix=str(onto_prefix), iri=onto_iri)
 
         # add the empty resource classes to the remote ontology
         last_modification_date, remote_res_classes, success = _add_resource_classes_to_remote_ontology(
@@ -625,7 +625,7 @@ def _add_resource_classes_to_remote_ontology(
                 failure_msg=f"WARNING: Unable to create resource class '{res_class['name']}'."
             )
             res_class_remote = cast(ResourceClass, res_class_remote)
-            new_res_classes[res_class_remote.id] = res_class_remote
+            new_res_classes[str(res_class_remote.id)] = res_class_remote
             ontology_remote.lastModificationDate = last_modification_date
             if verbose:
                 print(f"\tCreated resource class '{res_class['name']}'")

@@ -24,7 +24,7 @@ list_of_previous_node_names: list[str] = []
 
 def expand_lists_from_excel(
     lists_section: list[dict[str, Union[str, dict[str, Any]]]]
-) -> Tuple[list[dict[str, Any]], bool]:
+) -> list[dict[str, Any]]:
     """
     Checks if the "lists" section of a JSON project file contains references to Excel files. Expands all Excel files to
     JSON, and returns the expanded "lists" section. If there are no references to Excel files, the "lists" section is
@@ -34,12 +34,13 @@ def expand_lists_from_excel(
 
     Args:
         lists_section: the "lists" section of a parsed JSON project file. If this is an empty list, an empty list will be returned.
+    
+    Raises:
+        BaseError: if a problem occurred while trying to expand the Excel files
 
     Returns:
         the same "lists" section, but without references to Excel files
-        True if all lists could be expanded correctly, False if a problem occurred
     """
-    overall_success = True
     new_lists = []
     for _list in lists_section:
         if "folder" not in _list["nodes"]:
@@ -47,7 +48,7 @@ def expand_lists_from_excel(
             new_lists.append(_list)
         else:
             # this is a reference to a folder with Excel files
-            foldername = _list["nodes"]["folder"]
+            foldername = _list["nodes"]["folder"]   # type: ignore
             excel_file_paths = _extract_excel_file_paths(foldername)
             try:
                 returned_lists_section = _make_json_lists_from_excel(excel_file_paths, verbose=False)
@@ -59,12 +60,11 @@ def expand_lists_from_excel(
                 print(f"\tThe list '{_list['name']}' contains a reference to the folder '{foldername}'. The Excel "
                       f"files therein have been temporarily expanded into the 'lists' section of your project.")
             except BaseError as err:
-                print(f"\tWARNING: The list '{_list['name']}' contains a reference to the folder '{foldername}', but a "
+                raise BaseError(f"\tWARNING: The list '{_list['name']}' contains a reference to the folder '{foldername}', but a "
                       f"problem occurred while trying to expand the Excel files therein into the 'lists' section of "
-                      f"your project: {err.message}")
-                overall_success = False
+                      f"your project: {err.message}") from None
 
-    return new_lists, overall_success
+    return new_lists
 
 
 def _get_values_from_excel(
@@ -88,6 +88,9 @@ def _get_values_from_excel(
         col: The index of the current column of the Excel sheet
         preval: List of previous values, needed to check the consistency of the list hierarchy
         verbose: verbose switch
+
+    Raises:
+        BaseError: if one of the Excel files contains invalid data
 
     Returns:
         int: Row index for the next loop (current row index minus 1)
@@ -188,6 +191,9 @@ def _make_json_lists_from_excel(excel_file_paths: list[str], verbose: bool = Fal
         excel_file_paths: Excel files to be processed
         verbose: verbose switch
 
+    Raises:
+        BaseError: if one of the Excel files contains invalid data
+
     Returns:
         The finished "lists" section
     """
@@ -249,11 +255,15 @@ def validate_lists_section_with_schema(
         path_to_json_project_file: path to the JSON project file that contains the "lists" section to validate
         lists_section: the "lists" section as Python object
 
+    Raises:
+        BaseError with a detailed error report if the validation fails
+
     Returns:
-        True if the "lists" section passed validation. Otherwise, a BaseError with a detailed error report is raised
+        True if the "lists" section passed validation
     """
     if bool(path_to_json_project_file) == bool(lists_section):
         raise BaseError("Validation of the 'lists' section works only if exactly one of the two arguments is given.")
+    
     with importlib.resources.files("dsp_tools").joinpath("schemas").joinpath("lists-only.json").open() as schema_file:
         lists_schema = json.load(schema_file)
 
@@ -267,9 +277,10 @@ def validate_lists_section_with_schema(
 
     try:
         jsonschema.validate(instance={"lists": lists_section}, schema=lists_schema)
-    except jsonschema.exceptions.ValidationError as err:
+    except jsonschema.ValidationError as err:
         raise BaseError(f'"lists" section did not pass validation. The error message is: {err.message}\n'
                         f'The error occurred at {err.json_path}') from None
+    
     return True
 
 
@@ -280,6 +291,9 @@ def _extract_excel_file_paths(excelfolder: str) -> list[str]:
 
     Args:
         excelfolder: path to the folder containing the Excel file(s)
+
+    Raises:
+        BaseError: if excelfolder is not a directory, or if one of the files in it has an invalid name
 
     Returns:
         list of the Excel file paths to process
@@ -302,7 +316,7 @@ def excel2lists(
     excelfolder: str,
     path_to_output_file: Optional[str] = None,
     verbose: bool = False
-) -> list[dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], bool]:
     """
     Converts lists described in Excel files into a "lists" section that can be inserted into a JSON project file.
 
@@ -311,8 +325,11 @@ def excel2lists(
         path_to_output_file: if provided, the output is written into this JSON file
         verbose: verbose switch
 
+    Raises:
+        BaseError if something went wrong
+
     Returns:
-        the "lists" section as Python list
+        a tuple consisting of the "lists" section as Python list, and the success status (True if everything went well)
     """
     # read the data
     excel_file_paths = _extract_excel_file_paths(excelfolder)
@@ -330,4 +347,4 @@ def excel2lists(
             json.dump(finished_lists, fp, indent=4, ensure_ascii=False)
             print('"lists" section was created successfully and written to file:', path_to_output_file)
 
-    return finished_lists
+    return finished_lists, True

@@ -5,21 +5,22 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 from lxml import etree
 
 from dsp_tools.models.helpers import BaseError
 
+def id_to_iri(xml_file: str, json_file: str, out_file: Optional[str], verbose: bool) -> bool:
 
-def id_to_iri(xml_file: str, json_file: str, out_file: str, verbose: bool) -> bool:
     """
     This function replaces all occurrences of internal IDs with their respective IRIs inside an XML file. It gets the
     mapping from the JSON file provided as parameter for this function.
 
     Args:
-        xml_file : the XML file with the data to be replaced
-        json_file : the JSON file with the mapping (dict) of internal IDs to IRIs
-        out_file: path to the output XML file with replaced IDs (optional), default: "id2iri_replaced_" + timestamp + ".xml"
+        xml_file: the XML file with the data to be replaced
+        json_file: the JSON file with the mapping (dict) of internal IDs to IRIs
+        out_file: path to the output XML file with replaced IDs (optional), default "id2iri_replaced_" + timestamp + ".xml"
         verbose: verbose feedback if set to True
 
     Raises:

@@ -61,7 +61,7 @@ def program(user_args: list[str]) -> None:
     parser_create.add_argument("-l", "--lists-only", action="store_true", help="create only the lists (prerequisite: the project exists on the server)")
     parser_create.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
     parser_create.add_argument("-d", "--dump", action="store_true", help="dump test files for DSP-API requests")
-    parser_create.add_argument("project_definition.json", help="path to the JSON project file")
+    parser_create.add_argument("project_definition", help="path to the JSON project file")
 
     # get
     parser_get = subparsers.add_parser(name="get", help="Retrieve a project with its data model(s) from a DSP server and write it into a JSON file")
@@ -71,7 +71,7 @@ def program(user_args: list[str]) -> None:
     parser_get.add_argument("-p", "--password", default=default_pw, help=password_text)
     parser_get.add_argument("-P", "--project", help="shortcode, shortname or IRI of the project", required=True)
     parser_get.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
-    parser_get.add_argument("project_definition.json", help="path to the file the project should be written to")
+    parser_get.add_argument("project_definition", help="path to the file the project should be written to")
 
     # xmlupload
     parser_upload = subparsers.add_parser(name="xmlupload", help="Upload data defined in an XML file to a DSP server")
@@ -86,7 +86,7 @@ def program(user_args: list[str]) -> None:
     parser_upload.add_argument("-V", "--validate", action="store_true", help="validate the XML file without uploading it")
     parser_upload.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
     parser_upload.add_argument("-m", "--metrics", action="store_true", help="write metrics into a 'metrics' folder")
-    parser_upload.add_argument("xml_data_file.xml", help="path to the XML file containing the data")
+    parser_upload.add_argument("xmlfile", help="path to the XML file containing the data")
 
     # excel2json
     parser_excel2json = subparsers.add_parser(
@@ -95,7 +95,7 @@ def program(user_args: list[str]) -> None:
     )
     parser_excel2json.set_defaults(action="excel2json")
     parser_excel2json.add_argument("excelfolder", help="path to the folder containing the Excel files")
-    parser_excel2json.add_argument("project_definition.json", help="path to the output JSON file")
+    parser_excel2json.add_argument("project_definition", help="path to the output JSON file")
 
     # excel2lists
     parser_excel_lists = subparsers.add_parser(
@@ -105,7 +105,7 @@ def program(user_args: list[str]) -> None:
     parser_excel_lists.set_defaults(action="excel2lists")
     parser_excel_lists.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
     parser_excel_lists.add_argument("excelfolder", help="path to the folder containing the Excel file(s)")
-    parser_excel_lists.add_argument("lists_section.json", help="path to the output JSON file containing the 'lists' section")
+    parser_excel_lists.add_argument("lists_section", help="path to the output JSON file containing the 'lists' section")
 
     # excel2resources
     parser_excel_resources = subparsers.add_parser(
@@ -113,8 +113,8 @@ def program(user_args: list[str]) -> None:
         help="Create the 'resources' section of a JSON project file from one or multiple Excel files"
     )
     parser_excel_resources.set_defaults(action="excel2resources")
-    parser_excel_resources.add_argument("resources.xlsx", help="path to the Excel file containing the resources")
-    parser_excel_resources.add_argument("resources_section.json", help="path to the output JSON file containing the 'resources' section")
+    parser_excel_resources.add_argument("excelfile", help="path to the Excel file containing the resources")
+    parser_excel_resources.add_argument("resources_section", help="path to the output JSON file containing the 'resources' section")
 
     # excel2properties
     parser_excel_properties = subparsers.add_parser(
@@ -122,8 +122,8 @@ def program(user_args: list[str]) -> None:
         help="Create the 'properties' section of a JSON project file from one or multiple Excel files"
     )
     parser_excel_properties.set_defaults(action="excel2properties")
-    parser_excel_properties.add_argument("properties.xlsx", help="path to the Excel file containing the properties")
-    parser_excel_properties.add_argument("properties_section.json", help="path to the output JSON file containing the 'properties' section")
+    parser_excel_properties.add_argument("excelfile", help="path to the Excel file containing the properties")
+    parser_excel_properties.add_argument("properties_section", help="path to the output JSON file containing the 'properties' section")
 
     # excel2xml
     parser_excel2xml = subparsers.add_parser(
@@ -131,7 +131,7 @@ def program(user_args: list[str]) -> None:
         help="Create an XML file from an Excel/CSV file that is already structured according to the DSP specifications"
     )
     parser_excel2xml.set_defaults(action="excel2xml")
-    parser_excel2xml.add_argument("data_source.xlsx", help="path to the CSV or XLS(X) file containing the data")
+    parser_excel2xml.add_argument("data_source", help="path to the CSV or XLS(X) file containing the data")
     parser_excel2xml.add_argument("project_shortcode", help="shortcode of the project that this data belongs to")
     parser_excel2xml.add_argument("ontology_name", help="name of the ontology that this data belongs to")
 
@@ -143,8 +143,8 @@ def program(user_args: list[str]) -> None:
     parser_id2iri.set_defaults(action="id2iri")
     parser_id2iri.add_argument("--outfile", help="path to the XML output file containing the replaced IDs")
     parser_id2iri.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
-    parser_id2iri.add_argument("xmlfile.xml", help="path to the XML file containing the data to be replaced")
-    parser_id2iri.add_argument("mapping.json", help="path to the JSON file containing the mapping of IDs to IRIs")
+    parser_id2iri.add_argument("xmlfile", help="path to the XML file containing the data to be replaced")
+    parser_id2iri.add_argument("mapping", help="path to the JSON file containing the mapping of IDs to IRIs")
 
     # startup DSP stack
     parser_stackup = subparsers.add_parser(name="start-stack", help="Run a local instance of DSP-API and DSP-APP")
@@ -170,20 +170,20 @@ def program(user_args: list[str]) -> None:
     elif args.action == "create":
         if args.lists_only:
             if args.validate_only:
-                success = validate_lists_section_with_schema(path_to_json_project_file=args.projectfile)
+                success = validate_lists_section_with_schema(path_to_json_project_file=args.project_definition)
                 print("'Lists' section of the JSON project file is syntactically correct and passed validation.")
             else:
-                _, success = create_lists(project_file_as_path_or_parsed=args.projectfile,
+                _, success = create_lists(project_file_as_path_or_parsed=args.project_definition,
                                           server=args.server,
                                           user=args.user,
                                           password=args.password,
                                           dump=args.dump)
         else:
             if args.validate_only:
-                success = validate_project(args.projectfile)
+                success = validate_project(args.project_definition)
                 print("JSON project file is syntactically correct and passed validation.")
             else:
-                success = create_project(project_file_as_path_or_parsed=args.projectfile,
+                success = create_project(project_file_as_path_or_parsed=args.project_definition,
                                          server=args.server,
                                          user_mail=args.user,
                                          password=args.password,
@@ -191,7 +191,7 @@ def program(user_args: list[str]) -> None:
                                          dump=args.dump if args.dump else False)
     elif args.action == "get":
         success = get_project(project_identifier=args.project,
-                              outfile_path=args.projectfile,
+                              outfile_path=args.project_definition,
                               server=args.server,
                               user=args.user,
                               password=args.password,
@@ -210,27 +210,27 @@ def program(user_args: list[str]) -> None:
                                  incremental=args.incremental,
                                  save_metrics=args.metrics)
     elif args.action == "excel2json":
-        success = excel2json(data_model_files=args.data_model_files,
-                             path_to_output_file=args.outfile)
+        success = excel2json(data_model_files=args.excelfolder,
+                             path_to_output_file=args.project_definition)
     elif args.action == "excel2lists":
         _, success = excel2lists(excelfolder=args.excelfolder,
-                                 path_to_output_file=args.outfile,
+                                 path_to_output_file=args.lists_section,
                                  verbose=args.verbose)
     elif args.action == "excel2resources":
         _, success = excel2resources(excelfile=args.excelfile,
-                                     path_to_output_file=args.outfile)
+                                     path_to_output_file=args.resources_section)
     elif args.action == "excel2properties":
         _, success = excel2properties(excelfile=args.excelfile,
-                                      path_to_output_file=args.outfile)
+                                      path_to_output_file=args.properties_section)
     elif args.action == "id2iri":
         success = id_to_iri(xml_file=args.xmlfile,
-                            json_file=args.jsonfile,
+                            json_file=args.mapping,
                             out_file=args.outfile,
                             verbose=args.verbose)
     elif args.action == "excel2xml":
-        success = excel2xml(datafile=args.datafile,
-                            shortcode=args.shortcode,
-                            default_ontology=args.default_ontology)
+        success = excel2xml(datafile=args.data_source,
+                            shortcode=args.project_shortcode,
+                            default_ontology=args.ontology_name)
     elif args.action == "start-stack":
         success = start_stack(max_file_size=args.max_file_size,
                               enforce_docker_system_prune=args.prune,

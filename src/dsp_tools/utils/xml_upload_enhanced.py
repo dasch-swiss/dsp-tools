@@ -19,7 +19,7 @@ from dsp_tools.utils.xml_upload import xml_upload
 
 extensions: dict[str, list[str]] = dict()
 extensions["image"] = [".jpg", ".jpeg", ".tif", ".tiff", ".jp2", ".png"]
-# extensions["video"] = ["mp4"]
+extensions["video"] = [".mp4"]
 extensions["archive"] = [".7z", ".gz", ".gzip", ".tar", ".tar.gz", ".tgz", ".z", ".zip"]
 extensions["text"] = [".csv", ".txt", ".xml", ".xsd", ".xsl"]
 extensions["document"] = [".doc", ".docx", ".pdf", ".ppt", ".pptx", ".xls", ".xlsx"]

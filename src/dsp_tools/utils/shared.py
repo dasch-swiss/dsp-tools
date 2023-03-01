@@ -122,13 +122,20 @@ def validate_xml_against_schema(xml_file_as_path_or_parsed: Union[str, etree.Ele
     else:
         doc = xml_file_as_path_or_parsed
 
-    # remove namespaces
+    if not xmlschema.validate(doc):
+        error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
+        for error in xmlschema.error_log:
+            error_msg = error_msg + f"\n  Line {error.line}: {error.message}"
+        raise BaseError(error_msg)
+    
+    # make sure there are no XML tags in simple texts
+    # first: remove namespaces
     doc_without_namespace = copy.deepcopy(doc)
     for elem in doc_without_namespace.iter():
         if not (isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction)):
             elem.tag = etree.QName(elem).localname
     
-    # make sure there are no XML tags in simple texts
+    # then: make the test
     lines_with_illegal_xml_tags = list()
     for text in doc_without_namespace.findall(path="resource/text-prop/text"):
         if text.attrib["encoding"] == "utf8":
@@ -138,14 +145,8 @@ def validate_xml_against_schema(xml_file_as_path_or_parsed: Union[str, etree.Ele
         raise BaseError(f"XML-tags are not allowed in text properties with encoding=utf8. "
                         f"The following lines of your XML file are affected: {lines_with_illegal_xml_tags}")
 
-    if xmlschema.validate(doc):
-        print("The XML file is syntactically correct and passed validation.")
-        return True
-    else:
-        error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
-        for error in xmlschema.error_log:
-            error_msg = error_msg + f"\n  Line {error.line}: {error.message}"
-        raise BaseError(error_msg)
+    print("The XML file is syntactically correct and passed validation.")
+    return True
 
 
 def prepare_dataframe(df: pd.DataFrame, required_columns: list[str], location_of_sheet: str) -> pd.DataFrame:

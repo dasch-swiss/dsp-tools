@@ -2,6 +2,7 @@ import unittest
 
 import numpy as np
 import pandas as pd
+from lxml import etree
 
 from dsp_tools.models.helpers import BaseError
 from dsp_tools.models.propertyelement import PropertyElement
@@ -12,7 +13,7 @@ class TestShared(unittest.TestCase):
 
     def test_validate_xml_against_schema(self) -> None:
         self.assertTrue(shared.validate_xml_against_schema(xml_file_as_path_or_parsed="testdata/test-data-systematic.xml"))
-        self.assertTrue(shared.validate_xml_against_schema(xml_file_as_path_or_parsed="testdata/test-data-minimal.xml"))
+        self.assertTrue(shared.validate_xml_against_schema(xml_file_as_path_or_parsed=etree.parse(source="testdata/test-data-minimal.xml")))
         
         with self.assertRaisesRegex(
             BaseError,
@@ -22,9 +23,9 @@ class TestShared(unittest.TestCase):
             shared.validate_xml_against_schema(xml_file_as_path_or_parsed="testdata/invalid_testdata/test-data-invalid-resource-tag.xml")
         
         with self.assertRaisesRegex(
-                BaseError, 
-                r"XML-tags are not allowed in text properties with encoding=utf8\. "
-                r"The following lines of your XML file are affected: \[13, 14, 15, 16\]" 
+            BaseError, 
+            r"XML-tags are not allowed in text properties with encoding=utf8\. "
+            r"The following lines of your XML file are affected: \[13, 14, 15, 16\]" 
         ):
             shared.validate_xml_against_schema(xml_file_as_path_or_parsed="testdata/invalid_testdata/test-data-utf8-text-with-xml-tags.xml")
 

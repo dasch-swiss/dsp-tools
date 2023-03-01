@@ -3,6 +3,7 @@ This module handles the import of XML data into the DSP platform.
 """
 from __future__ import annotations
 import base64
+import copy
 import json
 import os
 import re
@@ -205,9 +206,12 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
 
 def _parse_xml_file(input_file: Union[str, etree.ElementTree]) -> etree.ElementTree:  # type: ignore
     """
-    Parse an XML file with DSP-conform data, remove namespace URI from the elements' names, and transform the special
-    tags <annotation>, <region>, and <link> to their technically correct form <resource restype="Annotation">,
-    <resource restype="Region">, and <resource restype="LinkObj">.
+    Parse an XML file with DSP-conform data, 
+    remove namespace URI from the elements' names, 
+    and transform the special tags <annotation>, <region>, and <link> 
+    to their technically correct form 
+    <resource restype="Annotation">, <resource restype="Region">, and <resource restype="LinkObj">.
+    If the input is already parsed, it won't be modified, but a copy of it will be returned.
 
     Args:
         input_file: path to the XML file, or parsed ElementTree
@@ -215,7 +219,7 @@ def _parse_xml_file(input_file: Union[str, etree.ElementTree]) -> etree.ElementT
     Returns:
         the parsed etree.ElementTree
     """
-    tree = etree.parse(source=input_file) if isinstance(input_file, str) else input_file
+    tree = etree.parse(source=input_file) if isinstance(input_file, str) else copy.deepcopy(input_file)  # type: ignore
     for elem in tree.iter():
         if isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction):
             # properties that are commented out would break the the constructor of the class XMLProperty, if they are not removed here.
@@ -331,12 +335,14 @@ def xml_upload(
         uploaded because there is an error in it
     """
 
+    # Validate the input XML file
+    validate_xml_against_schema(xml_file_as_path_or_parsed=xml_file_as_path_or_parsed)
+    
+    # start metrics
     metrics: list[MetricRecord] = []
     preparation_start = datetime.now()
 
-    # Validate the input XML file
-    validate_xml_against_schema(xml_file_as_path_or_parsed=xml_file_as_path_or_parsed)
-
+    # figure out where to save the state of an interrupted xmlupload
     save_location = Path.home() / Path(".dsp-tools")
     server_as_foldername = server
     server_substitutions = {

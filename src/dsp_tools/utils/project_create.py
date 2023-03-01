@@ -32,6 +32,9 @@ def _create_project_on_server(
         con: connection to the DSP server
         verbose: verbose switch
 
+    Raises:
+        BaseError: if the project cannot be created on the DSP server
+
     Returns:
         a tuple of the remote project and the success status (True if everything went smoothly, False otherwise)
     """
@@ -477,8 +480,6 @@ def _create_ontologies(
     Iterates over the ontologies in a JSON project file and creates the ontologies that don't exist on the DSP server
     yet. For every ontology, it first creates the resource classes, then the properties, and then adds the cardinalities
     to the resource classes.
-    If an error occurs during the creation of an ontology, the error is escalated. All other errors are printed, but the
-    process continues, and the success status will be false.
 
     Args:
         con: Connection to the DSP server
@@ -488,6 +489,10 @@ def _create_ontologies(
         project_definition: the parsed JSON project file
         project_remote: representation of the project on the DSP server
         verbose: verbose switch
+
+    Raises:
+        BaseError if an error occurs during the creation of an ontology. 
+        All other errors are printed, the process continues, but the success status will be false.
 
     Returns:
         True if everything went smoothly, False otherwise
@@ -530,7 +535,7 @@ def _create_ontologies(
         for onto_prefix, onto_info in context:
             if onto_info and onto_prefix not in ontology_remote.context:
                 onto_iri = onto_info.iri + ("#" if onto_info.hashtag else "")
-                ontology_remote.context.add_context(onto_prefix, onto_iri)
+                ontology_remote.context.add_context(prefix=str(onto_prefix), iri=onto_iri)
 
         # add the empty resource classes to the remote ontology
         last_modification_date, remote_res_classes, success = _add_resource_classes_to_remote_ontology(
@@ -620,7 +625,7 @@ def _add_resource_classes_to_remote_ontology(
                 failure_msg=f"WARNING: Unable to create resource class '{res_class['name']}'."
             )
             res_class_remote = cast(ResourceClass, res_class_remote)
-            new_res_classes[res_class_remote.id] = res_class_remote
+            new_res_classes[str(res_class_remote.id)] = res_class_remote
             ontology_remote.lastModificationDate = last_modification_date
             if verbose:
                 print(f"\tCreated resource class '{res_class['name']}'")
@@ -801,9 +806,11 @@ def create_project(
     dump: bool
 ) -> bool:
     """
-    Creates a project from a JSON project file on a DSP server. A project must contain at least one ontology, and it may
-    contain lists, users, and groups.
-    Returns True if everything went smoothly during the process, False if a warning or error occurred.
+    Creates a project from a JSON project file on a DSP server. 
+    A project must contain at least one ontology, 
+    and it may contain lists, users, and groups.
+    Severe errors lead to a BaseError, 
+    while other errors are printed without interrupting the process.
 
     Args:
         project_file_as_path_or_parsed: path to the JSON project definition, or parsed JSON object
@@ -812,6 +819,15 @@ def create_project(
         password: the user's password
         verbose: prints more information if set to True
         dump: dumps test files (JSON) for DSP API requests if set to True
+
+    Raises:
+        BaseError: 
+           - if the input is invalid
+           - if an Excel file referenced in the "lists" section cannot be expanded
+           - if the validation doesn't pass
+           - if the login fails
+           - if the project cannot be created
+           - if an ontology cannot be created
 
     Returns:
         True if everything went smoothly, False if a warning or error occurred
@@ -824,21 +840,14 @@ def create_project(
     context = Context(project_definition.get("prefixes", {}))
 
     # expand the Excel files referenced in the "lists" section of the project (if any), and add them to the project
-    new_lists, success = expand_lists_from_excel(project_definition.get("project", {}).get("lists", []))
+    new_lists = expand_lists_from_excel(project_definition.get("project", {}).get("lists", []))
     if new_lists:
         project_definition["project"]["lists"] = new_lists
-    if not success:
-        overall_success = False
 
     # validate against JSON schema
-    try:
-        validate_project(project_definition, expand_lists=False)
-        print('\tJSON project file is syntactically correct and passed validation.')
-        print(f"Create project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']})...")
-    except BaseError as err:
-        print(f'=====================================\n'
-              f'{err.message}')
-        quit(0)
+    validate_project(project_definition, expand_lists=False)
+    print('\tJSON project file is syntactically correct and passed validation.')
+    print(f"Create project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']})...")
 
     # establish connection to DSP server
     con = login(server=server, user=user_mail, password=password)

@@ -4,13 +4,14 @@ from typing import Optional
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.group import Group
+from dsp_tools.models.helpers import BaseError
 from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.ontology import Ontology
 from dsp_tools.models.project import Project
 from dsp_tools.models.user import User
 
 
-def get_project(project_identifier: str, outfile_path: str, server: str, user: str, password: str, verbose: bool) -> None:
+def get_project(project_identifier: str, outfile_path: str, server: str, user: str, password: str, verbose: bool) -> bool:
     """
     This function writes a project from a DSP server into a JSON file.
 
@@ -22,8 +23,11 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
         password : the password of the user who sends the request
         verbose : verbose option for the command, if used more output is given to the user
 
+    Raises:
+        BaseError if something went wrong
+    
     Returns:
-        None
+        True if the process finishes without errors
     """
     con = Connection(server)
     if user and password:
@@ -37,9 +41,7 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
     elif re.match("^(http)s?://([\\w\\.\\-~]+:?\\d{,4})(/[\\w\\-~]+)+$", project_identifier):  # iri
         project = Project(con=con, shortname=project_identifier)
     else:
-        print(
-            f"ERROR Invalid project identifier '{project_identifier}'. Use the project's shortcode, shortname or IRI.")
-        exit(1)
+        raise BaseError(f"ERROR Invalid project identifier '{project_identifier}'. Use the project's shortcode, shortname or IRI.")
 
     project = project.read()
 
@@ -109,3 +111,5 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
 
     with open(outfile_path, 'w', encoding='utf8') as f:
         json.dump(outfile_content, f, indent=4, ensure_ascii=False)
+
+    return True

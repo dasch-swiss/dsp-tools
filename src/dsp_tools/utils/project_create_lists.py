@@ -18,8 +18,7 @@ def _create_list_node(
 ) -> tuple[dict[str, Any], bool]:
     """
     Creates a list node on the DSP server, recursively scanning through all its subnodes, creating them as well.
-    Returns a tuple consisting of a dict and a bool. The dict contains the IRIs of the created list nodes. The bool
-    indicates if all nodes could be created or not.
+    If a node cannot be created, an error message is printed, but the process continues.
 
     Args:
         con: connection to the DSP server
@@ -28,8 +27,12 @@ def _create_list_node(
         parent_node: parent node of the node to be created (optional)
 
     Returns:
-        dict of the form ``{nodename: {"id": node IRI, "nodes": {...}}}`` with the created list nodes, nested according to their hierarchy structure
-        True if all nodes could be created, False if any node could not be created
+        Returns a tuple consisting of a dict and a bool. 
+        The dict contains the IRIs of the created list nodes,
+        nested according to their hierarchy structure,
+        i.e. ``{nodename: {"id": IRI, "nodes": {...}}}``.
+        The bool is True if all nodes could be created, 
+        False if any node could not be created.
     """
     new_node = ListNode(
         con=con,
@@ -135,6 +138,14 @@ def create_lists(
         password: Password of the user
         dump: if True, the request is dumped as JSON (used for testing)
 
+    Raises:
+        BaseError: 
+           - if the input is invalid
+           - if a problem occurred while trying to expand the Excel files
+           - if the JSON file is invalid according to the schema
+           - if the connection to the DSP server cannot be established
+           - if the project cannot be read from the server
+
     Returns:
         Returns a tuple consisting of a dict and a bool. 
         The dict contains the IRIs of the created list nodes,
@@ -152,9 +163,7 @@ def create_lists(
     project_definition = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)
     if not project_definition.get("project", {}).get("lists"):
         return {}, True
-    lists_to_create, success = expand_lists_from_excel(project_definition["project"]["lists"])
-    if not success:
-        overall_success = False
+    lists_to_create = expand_lists_from_excel(project_definition["project"]["lists"])
     project_definition["project"]["lists"] = lists_to_create
     validate_project(project_definition, expand_lists=False)
     print('JSON project file is syntactically correct and passed validation.')

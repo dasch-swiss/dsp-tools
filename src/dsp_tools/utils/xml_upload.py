@@ -43,6 +43,9 @@ def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> 
         resources: list of resources that possibly contain circular references
         verbose: verbose output if True
 
+    Raises:
+        BaseError
+
     Returns:
         list: list of cleaned resources
         stashed_xml_texts: dict with the stashed XML texts
@@ -108,6 +111,10 @@ def _stash_circular_references(
     dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
     dict[XMLResource, dict[XMLProperty, list[str]]]
 ]:
+    """
+    Raises:
+        BaseError
+    """
     for res in nok_resources.copy():
         for link_prop in res.get_props_with_links():
             if link_prop.valtype == 'text':
@@ -165,6 +172,9 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
         ark: an ARK version 0 of the form ark:/72163/080c-779b9990a0c3f-6e, '72163' being the Name Assigning Authority
         number, '080c' being the project shortcode, '779b9990a0c3f' being an ID derived from the object's Salsah ID and
         '6e' being check digits
+
+    Raises:
+        BaseError if the ARK is invalid
 
     Returns:
         Resource IRI (str) of the form http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q
@@ -241,8 +251,11 @@ def _check_consistency_with_ontology(
         resclass_name_2_type: infos about the resource classes that exist on the DSP server for the current ontology
         verbose: verbose switch
 
+    Raises:
+        BaseError with a detailed error message if there is an inconsistency between the ontology and the data
+
     Returns:
-        None if everything went well. Raises a BaseError if there is a problem.
+        None if everything is okay
     """
     if verbose:
         print("Check if the resource types and properties are consistent with the ontology...")
@@ -300,21 +313,19 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
         save_metrics: if true, saves time measurements into a "metrics" folder in the current working directory
         preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
 
+    Raises:
+        BaseError if the XML file is invalid, or in case of permanent network or software failure
+    
     Returns:
-        True if all resources could be uploaded without errors; False if any resource (or part of it) could not be
-        successfully uploaded
+        True if all resources could be uploaded without errors; False if one of the resources could not be
+        uploaded because there is an error in it
     """
 
     metrics: list[MetricRecord] = []
     preparation_start = datetime.now()
 
     # Validate the input XML file
-    try:
-        validate_xml_against_schema(input_file)
-    except BaseError as err:
-        print(f"=====================================\n"
-              f"{err.message}")
-        quit(0)
+    validate_xml_against_schema(input_file)
 
     save_location = Path.home() / Path(".dsp-tools")
     server_as_foldername = server
@@ -372,65 +383,37 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     preparation_duration_ms = preparation_duration.seconds * 1000 + int(preparation_duration.microseconds / 1000)
     metrics.append(MetricRecord("", "", "", "xml upload preparation", preparation_duration_ms, ""))
 
-    # upload all resources
+    # upload all resources, then update the resources with the stashed XML texts and resptrs
     id2iri_mapping: dict[str, str] = {}
     failed_uploads: list[str] = []
+    nonapplied_resptr_props = {}
+    nonapplied_xml_texts = {}
     try:
         id2iri_mapping, failed_uploads, metrics = _upload_resources(
             resources, imgdir, sipi_server, permissions_lookup, resclass_name_2_type, id2iri_mapping, con,
             failed_uploads, metrics, preprocessing_done
         )
+        if stashed_xml_texts:
+            nonapplied_xml_texts = _upload_stashed_xml_texts(verbose, id2iri_mapping, con, stashed_xml_texts) 
+        if stashed_resptr_props:
+            nonapplied_resptr_props = _upload_stashed_resptr_props(verbose, id2iri_mapping, con, stashed_resptr_props)
+        if nonapplied_resptr_props or nonapplied_xml_texts:
+            raise BaseError("Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server.")
     except BaseException as err:
+        # The forseeable errors are already handled by the variables failed_uploads, nonapplied_xml_texts, and nonapplied_resptr_props.
+        # Here we catch the unforseeable exceptions, hence BaseException (=the base class of all exceptions)
         _handle_upload_error(
             err=err,
             id2iri_mapping=id2iri_mapping,
             failed_uploads=failed_uploads,
-            stashed_xml_texts=stashed_xml_texts,
-            stashed_resptr_props=stashed_resptr_props,
+            stashed_xml_texts=nonapplied_xml_texts or stashed_xml_texts,
+            stashed_resptr_props=nonapplied_resptr_props or stashed_resptr_props,
             proj_shortcode=shortcode,
             onto_name=default_ontology,
             server_as_foldername=server_as_foldername,
             save_location=save_location
         )
-
-    # update the resources with the stashed XML texts
-    if len(stashed_xml_texts) > 0:
-        try:
-            nonapplied_xml_texts = _upload_stashed_xml_texts(verbose, id2iri_mapping, con, stashed_xml_texts)
-            if len(nonapplied_xml_texts) > 0:
-                raise BaseError(f"Error while trying to upload the stashed xml texts")
-        except BaseException as err:
-            _handle_upload_error(
-                err=err,
-                id2iri_mapping=id2iri_mapping,
-                failed_uploads=failed_uploads,
-                stashed_xml_texts=stashed_xml_texts,
-                stashed_resptr_props=stashed_resptr_props,
-                proj_shortcode=shortcode,
-                onto_name=default_ontology,
-                server_as_foldername=server_as_foldername,
-                save_location=save_location
-            )
-
-    # update the resources with the stashed resptrs
-    if len(stashed_resptr_props) > 0:
-        try:
-            nonapplied_resptr_props = _upload_stashed_resptr_props(verbose, id2iri_mapping, con, stashed_resptr_props)
-            if len(nonapplied_resptr_props) > 0:
-                raise BaseError(f"Error while trying to upload the stashed resptr props")
-        except BaseException as err:
-            _handle_upload_error(
-                err=err,
-                id2iri_mapping=id2iri_mapping,
-                failed_uploads=failed_uploads,
-                stashed_xml_texts=stashed_xml_texts,
-                stashed_resptr_props=stashed_resptr_props,
-                proj_shortcode=shortcode,
-                onto_name=default_ontology,
-                server_as_foldername=server_as_foldername,
-                save_location=save_location
-            )
-
+    
     # write log files
     success = True
     timestamp_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
@@ -523,9 +506,8 @@ def _upload_resources(
                 print(err.message)
                 failed_uploads.append(resource.id)
                 continue
-            bitstream_size_uploaded_mb += bitstream_all_sizes_mb[i]
-            print(
-                f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")
+            bitstream_size_uploaded_mb += bitstream_all_sizes_mb[i]  # type: ignore
+            print(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")  # type: ignore
             internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']  # type: ignore
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 
@@ -588,17 +570,21 @@ def _upload_stashed_xml_texts(
     """
 
     print('Upload the stashed XML texts...')
-    for resource, link_props in stashed_xml_texts.copy().items():
+    nonapplied_xml_texts = stashed_xml_texts.copy()
+    for resource, link_props in stashed_xml_texts.items():
         if resource.id not in id2iri_mapping:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
+            # no action necessary: this resource will remain in nonapplied_xml_texts, which will be handled by the caller
             continue
         res_iri = id2iri_mapping[resource.id]
         try:
             existing_resource = try_network_action(
                 action=lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'),
-                failure_msg=f'  ERROR while retrieving resource "{resource.id}" from DSP server.'
+                failure_msg=f'  Unable to upload XML texts of resource "{resource.id}", because the resource cannot be retrieved from the DSP server.'
             )
         except BaseError as err:
+            # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
+            # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
             print(err.message)
             continue
         print(f'  Upload XML text(s) of resource "{resource.id}"...')
@@ -609,6 +595,7 @@ def _upload_stashed_xml_texts(
             for existing_value in existing_values:
                 old_xmltext = existing_value.get("knora-api:textValueAsXml")
                 if not old_xmltext:
+                    # no action necessary: this property will remain in nonapplied_xml_texts, which will be handled by the caller
                     continue
 
                 # strip all xml tags from the old xmltext, so that the pure text itself remains
@@ -617,6 +604,7 @@ def _upload_stashed_xml_texts(
                 # if the pure text is a hash, the replacement must be made. This hash originates from
                 # _stash_circular_references(), and identifies the XML texts
                 if pure_text not in hash_to_value:
+                    # no action necessary: this property will remain in nonapplied_xml_texts, which will be handled by the caller
                     continue
                 new_xmltext = hash_to_value[pure_text]
 
@@ -647,14 +635,16 @@ def _upload_stashed_xml_texts(
                         failure_msg=f'    ERROR while uploading the xml text of "{link_prop.name}" of resource "{resource.id}"'
                     )
                 except BaseError as err:
+                    # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
+                    # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
                     print(err.message)
                     continue
-                stashed_xml_texts[resource][link_prop].pop(pure_text)
+                nonapplied_xml_texts[resource][link_prop].pop(pure_text)
                 if verbose:
                     print(f'  Successfully uploaded xml text of "{link_prop.name}"\n')
 
-    # make a purged version of stashed_xml_texts, without empty entries
-    nonapplied_xml_texts = _purge_stashed_xml_texts(stashed_xml_texts, id2iri_mapping)
+    # make a purged version of nonapplied_xml_texts, without empty entries
+    nonapplied_xml_texts = _purge_stashed_xml_texts(stashed_xml_texts=nonapplied_xml_texts, id2iri_mapping=id2iri_mapping)
     return nonapplied_xml_texts
 
 
@@ -708,17 +698,21 @@ def _upload_stashed_resptr_props(
     """
 
     print('Upload the stashed resptrs...')
-    for resource, prop_2_resptrs in stashed_resptr_props.copy().items():
+    nonapplied_resptr_props = stashed_resptr_props.copy()
+    for resource, prop_2_resptrs in stashed_resptr_props.items():
         if resource.id not in id2iri_mapping:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
+            # no action necessary: this resource will remain in nonapplied_resptr_props, which will be handled by the caller
             continue
         res_iri = id2iri_mapping[resource.id]
         try:
             existing_resource = try_network_action(
                 action=lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'),
-                failure_msg=f'  ERROR while retrieving resource "{resource.id}" from DSP server'
+                failure_msg=f'  Unable to upload resptrs of resource "{resource.id}", because the resource cannot be retrieved from the DSP server'
             )
         except BaseError as err:
+            # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
+            # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
             print(err.message)
             continue
         print(f'  Upload resptrs of resource "{resource.id}"...')
@@ -744,15 +738,17 @@ def _upload_stashed_resptr_props(
                         failure_msg=f'    ERROR while uploading the resptr prop of "{link_prop.name}" of resource "{resource.id}"'
                     )
                 except BaseError as err:
+                    # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
+                    # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
                     print(err.message)
                     continue
-                stashed_resptr_props[resource][link_prop].remove(resptr)
+                nonapplied_resptr_props[resource][link_prop].remove(resptr)
                 if verbose:
                     print(f'  Successfully uploaded resptr-prop of "{link_prop.name}"\n'
                           f'    Value: {resptr}')
 
-    # make a purged version of stashed_resptr_props, without empty entries
-    nonapplied_resptr_props = _purge_stashed_resptr_props(stashed_resptr_props, id2iri_mapping)
+    # make a purged version of nonapplied_resptr_props, without empty entries
+    nonapplied_resptr_props = _purge_stashed_resptr_props(stashed_resptr_props=nonapplied_resptr_props, id2iri_mapping=id2iri_mapping)
     return nonapplied_resptr_props
 
 

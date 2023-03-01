@@ -19,12 +19,15 @@ from dsp_tools.models.propertyelement import PropertyElement
 
 def login(server: str, user: str, password: str) -> Connection:
     """
-    Logs in and returns the active connection. Raises a BaseError if the login fails.
+    Logs in and returns the active connection.
 
     Args:
         server: URL of the DSP server to connect to
         user: Username (e-mail)
         password: Password of the user
+
+    Raises:
+        BaseError if the login fails
 
     Return:
         Connection instance
@@ -54,6 +57,9 @@ def try_network_action(
     Args:
         failure_msg: message of the raised BaseError if action cannot be executed
         action: a lambda with the code to be executed
+
+    Raises:
+        BaseError if action fails permanently
 
     Returns:
         the return value of action
@@ -114,7 +120,7 @@ def validate_xml_against_schema(input_file: str) -> bool:
 
     # remove namespaces
     doc_without_namespace = copy.deepcopy(doc)
-    for elem in doc_without_namespace.getiterator():
+    for elem in doc_without_namespace.iter():
         if not (isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction)):
             elem.tag = etree.QName(elem).localname
     
@@ -122,7 +128,7 @@ def validate_xml_against_schema(input_file: str) -> bool:
     lines_with_illegal_xml_tags = list()
     for text in doc_without_namespace.findall(path="resource/text-prop/text"):
         if text.attrib["encoding"] == "utf8":
-            if regex.search(r'<([a-zA-Z/"]+|\S.*\S)>', str(text.text)) or len(text.getchildren()) > 0:
+            if regex.search(r'<([a-zA-Z/"]+|\S.*\S)>', str(text.text)) or len(list(text.iterchildren())) > 0:
                 lines_with_illegal_xml_tags.append(text.sourceline)
     if lines_with_illegal_xml_tags:
         raise BaseError(f"XML-tags are not allowed in text properties with encoding=utf8. "
@@ -140,15 +146,19 @@ def validate_xml_against_schema(input_file: str) -> bool:
 
 def prepare_dataframe(df: pd.DataFrame, required_columns: list[str], location_of_sheet: str) -> pd.DataFrame:
     """
-    Takes a pandas DataFrame, strips the column headers from whitespaces and transforms them to lowercase,
-    strips every cell from whitespaces and inserts "" if there is no string in it, and deletes the rows that don't have
-    a value in one of the required cells.
+    Takes a pandas DataFrame, 
+    strips the column headers from whitespaces and transforms them to lowercase,
+    strips every cell from whitespaces and inserts "" if there is no string in it, 
+    and deletes the rows that don't have a value in one of the required cells.
 
     Args:
         df: pandas DataFrame
         required_columns: headers of the columns where a value is required
         location_of_sheet: for better error messages, provide this information of the caller
 
+    Raises:
+        BaseError if one of the required columns doesn't exist, or if the resulting DataFrame would be empty
+    
     Returns:
         prepared DataFrame
     """
@@ -162,11 +172,11 @@ def prepare_dataframe(df: pd.DataFrame, required_columns: list[str], location_of
     # delete rows that don't have the required columns
     for req in required_columns:
         if req not in new_df:
-            raise ValueError(f"{location_of_sheet} requires a column named '{req}'")
+            raise BaseError(f"{location_of_sheet} requires a column named '{req}'")
         new_df = new_df[pd.notna(new_df[req])]
         new_df = new_df[[bool(regex.search(r"[\w\p{L}]", x, flags=regex.U)) for x in new_df[req]]]
     if len(new_df) < 1:
-        raise ValueError(f"{location_of_sheet} requires at least one row")
+        raise BaseError(f"{location_of_sheet} requires at least one row")
     return new_df
 
 
@@ -251,6 +261,9 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, dict[str, Any]])
 
     Args:
         project_file_as_path_or_parsed: path to the JSON project definition, or parsed JSON object
+
+    Raises:
+        BaseError: if the input is invalid
 
     Returns:
         the parsed JSON object

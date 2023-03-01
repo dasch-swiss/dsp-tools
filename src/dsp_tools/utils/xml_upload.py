@@ -316,7 +316,6 @@ def xml_upload(
     This function reads an XML file and imports the data described in it onto the DSP server.
 
     Args:
-        
         xml_file_as_path_or_parsed: path to the XML file or parsed ElementTree
         server: the DSP server where the data should be imported
         user: the user (e-mail) with which the data should be imported

@@ -362,8 +362,7 @@ def xml_upload(input_file: str, server: str, user: str, password: str, imgdir: s
     # get the project information and project ontology from the server
     res_inst_factory = try_network_action("", lambda: ResourceInstanceFactory(con, shortcode))
     permissions_lookup: dict[str, Permissions] = {s: perm.get_permission_instance() for s, perm in permissions.items()}
-    resclass_name_2_type: dict[str, type] = {s: res_inst_factory.get_resclass_type(s) for s in
-                                             res_inst_factory.get_resclass_names()}
+    resclass_name_2_type: dict[str, type] = {s: res_inst_factory.get_resclass_type(s) for s in res_inst_factory.get_resclass_names()}
 
     # check if the data in the XML is consistent with the ontology
     _check_consistency_with_ontology(
@@ -491,17 +490,14 @@ def _upload_resources(
                 bitstream_start = datetime.now()
                 filetype = Path(resource.bitstream.value).suffix[1:]
                 img: Optional[dict[Any, Any]] = try_network_action(
-                    action=lambda: sipi_server.upload_bitstream(
-                        filepath=str(Path(imgdir) / Path(resource.bitstream.value))
-                    ),
+                    action=lambda: sipi_server.upload_bitstream(filepath=str(Path(imgdir) / Path(resource.bitstream.value))),  # type: ignore
                     failure_msg=f'ERROR while trying to upload file "{resource.bitstream.value}" of resource '
                                 f'"{resource.label}" ({resource.id}).'
                 )
                 bitstream_duration = datetime.now() - bitstream_start
                 bitstream_duration_ms = bitstream_duration.seconds * 1000 + int(bitstream_duration.microseconds / 1000)
                 mb_per_sec = round((filesize / bitstream_duration_ms) * 1000, 1)
-                metrics.append(MetricRecord(resource.id, filetype, filesize, "bitstream upload", bitstream_duration_ms,
-                                            mb_per_sec))
+                metrics.append(MetricRecord(resource.id, filetype, filesize, "bitstream upload", bitstream_duration_ms, mb_per_sec))
             except BaseError as err:
                 print(err.message)
                 failed_uploads.append(resource.id)
@@ -519,7 +515,7 @@ def _upload_resources(
                 con=con,
                 label=resource.label,
                 iri=resource_iri,
-                permissions=permissions_lookup.get(resource.permissions),
+                permissions=permissions_lookup.get(resource.permissions),  # type: ignore
                 creation_date=resource.creation_date,
                 bitstream=resource_bitstream,
                 values=properties
@@ -530,16 +526,14 @@ def _upload_resources(
                 failure_msg=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
             )
             resource_creation_duration = datetime.now() - resource_creation_start
-            resource_creation_duration_ms = resource_creation_duration.seconds * 1000 + int(
-                resource_creation_duration.microseconds / 1000)
-            metrics.append(
-                MetricRecord(resource.id, filetype, filesize, "resource creation", resource_creation_duration_ms, ""))
+            resource_creation_duration_ms = resource_creation_duration.seconds * 1000 + int(resource_creation_duration.microseconds / 1000)
+            metrics.append(MetricRecord(resource.id, filetype, filesize, "resource creation", resource_creation_duration_ms, ""))
         except BaseError as err:
             print(err.message)
             failed_uploads.append(resource.id)
             continue
         id2iri_mapping[resource.id] = created_resource.iri
-        print(f"Created resource {i + 1}/{len(resources)}: '{created_resource.label}' (ID: '{resource.id}', IRI: "
+        print(f"Created resource {i+1}/{len(resources)}: '{created_resource.label}' (ID: '{resource.id}', IRI: "
               f"'{created_resource.iri}')")
 
         resource_duration = datetime.now() - resource_start
@@ -832,8 +826,7 @@ def _handle_upload_error(
         print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
 
     if stashed_xml_texts:
-        stashed_xml_texts_serializable = {r.id: {p.name: xml for p, xml in rdict.items()} for r, rdict in
-                                          stashed_xml_texts.items()}
+        stashed_xml_texts_serializable = {r.id: {p.name: xml for p, xml in rdict.items()} for r, rdict in stashed_xml_texts.items()}
         xml_filename = f"{save_location_full}/{timestamp_str}_stashed_text_properties.json"
         with open(xml_filename, "x") as f:
             json.dump(stashed_xml_texts_serializable, f, ensure_ascii=False, indent=4, cls=KnoraStandoffXmlEncoder)
@@ -841,8 +834,7 @@ def _handle_upload_error(
               f"from. They were saved to {xml_filename}.")
 
     if stashed_resptr_props:
-        stashed_resptr_props_serializable = {r.id: {p.name: plist for p, plist in rdict.items()} for r, rdict in
-                                             stashed_resptr_props.items()}
+        stashed_resptr_props_serializable = {r.id: {p.name: plist for p, plist in rdict.items()} for r, rdict in stashed_resptr_props.items()}
         resptr_filename = f"{save_location_full}/{timestamp_str}_stashed_resptr_properties.json"
         with open(resptr_filename, "x") as f:
             json.dump(stashed_resptr_props_serializable, f, ensure_ascii=False, indent=4)

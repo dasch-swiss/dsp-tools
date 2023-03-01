@@ -204,7 +204,7 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
 
 
-def _parse_xml_file(input_file: Union[str, etree.ElementTree]) -> etree.ElementTree:  # type: ignore
+def _parse_xml_file(input_file: Union[str, etree._ElementTree[Any]]) -> etree._ElementTree[Any]:
     """
     Parse an XML file with DSP-conform data, 
     remove namespace URI from the elements' names, 
@@ -302,7 +302,7 @@ def _check_consistency_with_ontology(
 
 
 def xml_upload(
-    xml_file_as_path_or_parsed: Union[str, etree.ElementTree],  # type: ignore
+    xml_file_as_path_or_parsed: Union[str, etree._ElementTree[Any]],  
     server: str, 
     user: str, 
     password: str, 

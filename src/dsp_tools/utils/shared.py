@@ -99,7 +99,7 @@ def try_network_action(
     raise BaseError(failure_msg)
 
 
-def validate_xml_against_schema(xml_file_as_path_or_parsed: Union[str, etree.ElementTree]) -> bool:  # type: ignore
+def validate_xml_against_schema(xml_file_as_path_or_parsed: Union[str, etree._ElementTree[Any]]) -> bool:
     """
     Validates an XML file against the DSP XSD schema.
 

@@ -31,10 +31,10 @@ MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", 
 
 
 def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
-    tuple[list[XMLResource],
-    dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
-    dict[XMLResource, dict[XMLProperty, list[str]]]
-    ]:
+        tuple[list[XMLResource],
+              dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+              dict[XMLResource, dict[XMLProperty, list[str]]]
+              ]:
     """
     Temporarily removes problematic resource-references from a list of resources. A reference is problematic if
     it creates a circle (circular references).
@@ -270,11 +270,11 @@ def _check_consistency_with_ontology(
                 f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid resource type "
                 f"'{resource.restype}'. Is your syntax correct? Remember the rules:\n"
                 f" - DSP-API internals: <resource restype=\"restype\">         "
-                f"(will be interpreted as 'knora-api:restype')\n"
+                        f"(will be interpreted as 'knora-api:restype')\n"
                 f" - current ontology:  <resource restype=\":restype\">        "
-                f"('restype' must be defined in the 'resources' section of your ontology)\n"
+                        f"('restype' must be defined in the 'resources' section of your ontology)\n"
                 f" - other ontology:    <resource restype=\"other:restype\">   "
-                f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)"
+                        f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)"
             )
 
         # check that the property types are consistent with the ontology
@@ -286,11 +286,11 @@ def _check_consistency_with_ontology(
                     f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid property '{propname}'. "
                     f"Is your syntax correct? Remember the rules:\n"
                     f" - DSP-API internals: <text-prop name=\"propname\">         "
-                    f"(will be interpreted as 'knora-api:propname')\n"
+                            f"(will be interpreted as 'knora-api:propname')\n"
                     f" - current ontology:  <text-prop name=\":propname\">        "
-                    f"('propname' must be defined in the 'properties' section of your ontology)\n"
+                            f"('propname' must be defined in the 'properties' section of your ontology)\n"
                     f" - other ontology:    <text-prop name=\"other:propname\">   "
-                    f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)"
+                            f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)"
                 )
 
     print("Resource types and properties are consistent with the ontology.")

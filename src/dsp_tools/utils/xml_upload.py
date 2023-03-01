@@ -219,7 +219,7 @@ def _parse_xml_file(input_file: Union[str, etree._ElementTree[Any]]) -> etree._E
     Returns:
         the parsed etree.ElementTree
     """
-    tree = etree.parse(source=input_file) if isinstance(input_file, str) else copy.deepcopy(input_file)  # type: ignore
+    tree = etree.parse(source=input_file) if isinstance(input_file, str) else copy.deepcopy(input_file)
     for elem in tree.iter():
         if isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction):
             # properties that are commented out would break the the constructor of the class XMLProperty, if they are not removed here.
@@ -362,7 +362,7 @@ def xml_upload(
 
     # parse the XML file
     tree = _parse_xml_file(input_file=xml_file_as_path_or_parsed)
-    root = tree.getroot()  # type: ignore
+    root = tree.getroot()
     default_ontology = root.attrib['default-ontology']
     shortcode = root.attrib['shortcode']
     resources: list[XMLResource] = []
@@ -428,20 +428,27 @@ def xml_upload(
             save_location=save_location
         )
     
-    # write log files
-    success = True
+    # determine names of log files
     timestamp_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    id2iri_mapping_file = f"id2iri_{Path(xml_file_as_path_or_parsed).stem}_mapping_{timestamp_str}.json"
-    with open(id2iri_mapping_file, "x") as f:
+    if isinstance(xml_file_as_path_or_parsed, str):
+        id2iri_filename = f"{Path(xml_file_as_path_or_parsed).stem}_id2iri_mapping_{timestamp_str}.json"
+        metrics_filename = f"{timestamp_str}_metrics_{server_as_foldername}_{Path(xml_file_as_path_or_parsed).stem}.csv"
+    else:
+        id2iri_filename = f"{timestamp_str}_id2iri_mapping.json"
+        metrics_filename = f"{timestamp_str}_metrics_{server_as_foldername}.csv"
+    
+    # write log files and print info
+    success = True
+    with open(id2iri_filename, "x") as f:
         json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
-        print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
+        print(f"The mapping of internal IDs to IRIs was written to {id2iri_filename}")
     if failed_uploads:
         print(f"\nWARNING: Could not upload the following resources: {failed_uploads}\n")
         success = False
     if save_metrics:
         os.makedirs("metrics", exist_ok=True)
         df = pd.DataFrame(metrics)
-        df.to_csv(f"metrics/{timestamp_str}_metrics_{server_as_foldername}_{Path(xml_file_as_path_or_parsed).stem}.csv")
+        df.to_csv(f"metrics/{metrics_filename}")
     if success:
         print("All resources have successfully been uploaded.")
 

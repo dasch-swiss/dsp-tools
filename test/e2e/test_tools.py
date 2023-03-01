@@ -239,7 +239,7 @@ class TestTools(unittest.TestCase):
 
 
     def test_validate_xml_against_schema(self) -> None:
-        self.assertTrue(validate_xml_against_schema(xml_file_as_path_or_parsed=self.test_data_systematic_file))
+        self.assertTrue(validate_xml_against_schema(input_file=self.test_data_systematic_file))
 
 
     def test_xml_upload(self) -> None:

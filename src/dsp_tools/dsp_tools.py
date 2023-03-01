@@ -198,7 +198,7 @@ def program(user_args: list[str]) -> None:
                               verbose=args.verbose)
     elif args.action == "xmlupload":
         if args.validate:
-            success = validate_xml_against_schema(xml_file_as_path_or_parsed=args.xmlfile)
+            success = validate_xml_against_schema(input_file=args.xmlfile)
         else:
             success = xml_upload(input_file=args.xmlfile,
                                  server=args.server,

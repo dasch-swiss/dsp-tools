@@ -99,12 +99,12 @@ def try_network_action(
     raise BaseError(failure_msg)
 
 
-def validate_xml_against_schema(xml_file_as_path_or_parsed: Union[str, etree._ElementTree[Any]]) -> bool:
+def validate_xml_against_schema(input_file: Union[str, etree._ElementTree[Any]]) -> bool:
     """
     Validates an XML file against the DSP XSD schema.
 
     Args:
-        xml_file_as_path_or_parsed: path to the XML file to be validated, or parsed ElementTree
+        input_file: path to the XML file to be validated, or parsed ElementTree
 
     Raises:
         BaseError with a detailed error log if the XML file is invalid
@@ -114,13 +114,13 @@ def validate_xml_against_schema(xml_file_as_path_or_parsed: Union[str, etree._El
     """
     with importlib.resources.files("dsp_tools").joinpath("schemas").joinpath("data.xsd").open() as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
-    if isinstance(xml_file_as_path_or_parsed, str):
+    if isinstance(input_file, str):
         try:
-            doc = etree.parse(source=xml_file_as_path_or_parsed)
+            doc = etree.parse(source=input_file)
         except etree.XMLSyntaxError as err:
             raise BaseError(f"The XML file contains the following syntax error: {err.msg}") from None
     else:
-        doc = xml_file_as_path_or_parsed
+        doc = input_file
 
     if not xmlschema.validate(doc):
         error_msg = "The XML file cannot be uploaded due to the following validation error(s):"

@@ -335,7 +335,7 @@ def xml_upload(
     """
 
     # Validate the input XML file
-    validate_xml_against_schema(xml_file_as_path_or_parsed=input_file)
+    validate_xml_against_schema(input_file=input_file)
     
     # start metrics
     metrics: list[MetricRecord] = []

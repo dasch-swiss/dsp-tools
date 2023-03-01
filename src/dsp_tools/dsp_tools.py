@@ -200,7 +200,7 @@ def program(user_args: list[str]) -> None:
         if args.validate:
             success = validate_xml_against_schema(xml_file_as_path_or_parsed=args.xmlfile)
         else:
-            success = xml_upload(xml_file_as_path_or_parsed=args.xmlfile,
+            success = xml_upload(input_file=args.xmlfile,
                                  server=args.server,
                                  user=args.user,
                                  password=args.password,

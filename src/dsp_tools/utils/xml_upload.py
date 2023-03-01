@@ -302,7 +302,7 @@ def _check_consistency_with_ontology(
 
 
 def xml_upload(
-    xml_file_as_path_or_parsed: Union[str, etree._ElementTree[Any]],  
+    input_file: Union[str, etree._ElementTree[Any]],  
     server: str, 
     user: str, 
     password: str, 
@@ -316,7 +316,7 @@ def xml_upload(
     This function reads an XML file and imports the data described in it onto the DSP server.
 
     Args:
-        xml_file_as_path_or_parsed: path to the XML file or parsed ElementTree
+        input_file: path to the XML file or parsed ElementTree
         server: the DSP server where the data should be imported
         user: the user (e-mail) with which the data should be imported
         password: the password of the user with which the data should be imported
@@ -335,7 +335,7 @@ def xml_upload(
     """
 
     # Validate the input XML file
-    validate_xml_against_schema(xml_file_as_path_or_parsed=xml_file_as_path_or_parsed)
+    validate_xml_against_schema(xml_file_as_path_or_parsed=input_file)
     
     # start metrics
     metrics: list[MetricRecord] = []
@@ -361,7 +361,7 @@ def xml_upload(
     sipi_server = Sipi(sipi, con.get_token())
 
     # parse the XML file
-    tree = _parse_xml_file(input_file=xml_file_as_path_or_parsed)
+    tree = _parse_xml_file(input_file=input_file)
     root = tree.getroot()
     default_ontology = root.attrib['default-ontology']
     shortcode = root.attrib['shortcode']
@@ -430,9 +430,9 @@ def xml_upload(
     
     # determine names of log files
     timestamp_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    if isinstance(xml_file_as_path_or_parsed, str):
-        id2iri_filename = f"{Path(xml_file_as_path_or_parsed).stem}_id2iri_mapping_{timestamp_str}.json"
-        metrics_filename = f"{timestamp_str}_metrics_{server_as_foldername}_{Path(xml_file_as_path_or_parsed).stem}.csv"
+    if isinstance(input_file, str):
+        id2iri_filename = f"{Path(input_file).stem}_id2iri_mapping_{timestamp_str}.json"
+        metrics_filename = f"{timestamp_str}_metrics_{server_as_foldername}_{Path(input_file).stem}.csv"
     else:
         id2iri_filename = f"{timestamp_str}_id2iri_mapping.json"
         metrics_filename = f"{timestamp_str}_metrics_{server_as_foldername}.csv"

@@ -137,7 +137,7 @@ def generate_testdata() -> bool:
     return True
 
 
-def parse_and_check_xml_file(
+def _parse_and_check_xml_file(
     xmlfile: str,
     multimedia_folder: str
 ) -> etree.ElementTree:   # type: ignore
@@ -157,18 +157,17 @@ def parse_and_check_xml_file(
                        if etree.QName(x).localname.endswith("bitstream") and x.text is not None]
     filesystem_paths = [str(x) for x in Path().glob(f"{multimedia_folder}/**/*.*") if x.name != ".DS_Store"]
     if sorted(bitstream_paths) != sorted(filesystem_paths):
-        print("The multimedia folder and the XML file don't contain the same files!")
-        # exit(1)
+        raise BaseError("The multimedia folder and the XML file don't contain the same files!")
     else:
         print("Check passed: Your XML file contains the same multimedia files than your multimedia folder.")
 
     return tree
 
 
-def make_batches(multimedia_folder: str) -> list[list[Path]]:
+def _make_batches(multimedia_folder: str) -> list[list[Path]]:
     """
     Read all multimedia files contained in multimedia_folder and its subfolders,
-    take the images and divide them into batches.
+    and divide them into batches.
 
     Args:
         multimedia_folder: path to the folder containing the multimedia files
@@ -187,16 +186,17 @@ def make_batches(multimedia_folder: str) -> list[list[Path]]:
     # so the ideal number of batches is equal to the number of available threads
     num_of_batches = min(32, os.cpu_count() + 4, len(all_paths))  # type: ignore
 
-    # make batches
+    # prepare batches
     average_batch_size = sum(path_to_size.values()) / num_of_batches
     undistributed_paths = copy.copy(all_paths)
-    # the batches must record their size
-    batches: list[tuple[list[Path], float]] = [(([]), 0.0) for _ in range(num_of_batches)]
+    batches: list[tuple[list[Path], float]] = [(([]), 0.0) for _ in range(num_of_batches)]  # the batches must record their size
+    
     # initialize every batch with 1 image; start with the biggest images
     for i in range(num_of_batches):
         next_path = all_paths[i]
         batches[i] = ([next_path, ], path_to_size[next_path])
         undistributed_paths.remove(next_path)
+    
     # fill batches; start with the biggest images
     i=0
     while undistributed_paths:
@@ -215,6 +215,7 @@ def make_batches(multimedia_folder: str) -> list[list[Path]]:
     [paths_in_batches.extend(batch) for batch in finished_batches]
     assert sorted(paths_in_batches) == sorted(all_paths)
 
+    # print feedback
     print(f"Found {len(all_paths)} files in folder '{multimedia_folder}'. Prepared {num_of_batches} batches ({average_batch_size:.1f} MB each) as follows:")
     for number, batch in enumerate(batches):
         pathlist, size = batch
@@ -223,7 +224,7 @@ def make_batches(multimedia_folder: str) -> list[list[Path]]:
     return finished_batches
 
 
-def make_preprocessing(
+def preprocess_and_upload(
     batch: list[Path],
     local_sipi_port: int,
     remote_sipi_server: str,
@@ -231,7 +232,8 @@ def make_preprocessing(
 ) -> tuple[dict[str, str], list[Path]]:
     """
     Sends the multimedia files contained in batch to the /upload route of the local SIPI instance,
-    creates a mapping of the original filepath to the SIPI-internal filename and the checksum,
+    uploads all resulting files to the remote SIPI server,
+    creates a mapping of the original filepath to the SIPI-internal filename,
     and returns the mapping for the successfully processed files,
     together with a list of the failed original filepaths.
 
@@ -246,6 +248,7 @@ def make_preprocessing(
     mapping: dict[str, str] = dict()
     failed_batch_items = list()
     for pth in batch:
+        # preprocess
         with open(pth, "rb") as bitstream:
             response_raw = requests.post(url=f"http://localhost:{local_sipi_port}/upload", files={"file": bitstream})
         response = json.loads(response_raw.text)
@@ -256,6 +259,8 @@ def make_preprocessing(
             raise BaseError(f"File {pth} couldn't be handled by the /upload route of the local SIPI. Error message: {response['message']}")
         internal_filename = response["uploadedFiles"][0]["internalFilename"]
         mapping[str(pth)] = internal_filename
+        
+        # upload
         upload_candidates: list[Path] = []
         upload_candidates.extend(Path().glob(f"tmp/{Path(internal_filename).stem}/**/*.*"))
         upload_candidates.extend(Path().glob(f"tmp/{Path(internal_filename).stem}*.*"))
@@ -269,9 +274,15 @@ def make_preprocessing(
     return mapping, failed_batch_items
 
 
-def preprocess_batch(batch: list[Path], local_sipi_port: int, remote_sipi_server: str, con: Connection) -> dict[str, str]:
+def _preprocess_batch(
+    batch: list[Path], 
+    local_sipi_port: int, 
+    remote_sipi_server: str, 
+    con: Connection
+) -> dict[str, str]:
     """
-    Create JP2 and sidecar files of the images contained in one batch.
+    Make the entire preprocessing (create derivates + sidecar files) of the multimedia files contained in one batch.
+    Then, upload all derivates + sidecars to the remote SIPI server.
 
     Args:
         batch: list of paths to image files
@@ -282,10 +293,10 @@ def preprocess_batch(batch: list[Path], local_sipi_port: int, remote_sipi_server
     Returns:
         mapping of original filepaths to internal filenames
     """
-    mapping, failed_batch_items = make_preprocessing(batch=batch,local_sipi_port=local_sipi_port, remote_sipi_server=remote_sipi_server, con=con)
+    mapping, failed_batch_items = preprocess_and_upload(batch=batch,local_sipi_port=local_sipi_port, remote_sipi_server=remote_sipi_server, con=con)
     while len(failed_batch_items) != 0:
         print(f"Retry the following failed files: {[str(x) for x in failed_batch_items]}")
-        mapping_addition, failed_batch_items = make_preprocessing(batch=failed_batch_items, local_sipi_port=local_sipi_port, remote_sipi_server=remote_sipi_server, con=con)
+        mapping_addition, failed_batch_items = preprocess_and_upload(batch=failed_batch_items, local_sipi_port=local_sipi_port, remote_sipi_server=remote_sipi_server, con=con)
         mapping.update(mapping_addition)
     return mapping
 
@@ -322,16 +333,16 @@ def enhanced_xml_upload(
     """
     start_time = datetime.now()
 
-    xml_file_tree = parse_and_check_xml_file(xmlfile=xmlfile, multimedia_folder=multimedia_folder)
+    xml_file_tree = _parse_and_check_xml_file(xmlfile=xmlfile, multimedia_folder=multimedia_folder)
 
-    batches = make_batches(multimedia_folder=multimedia_folder)
+    batches = _make_batches(multimedia_folder=multimedia_folder)
 
     con = Connection(server)
     try_network_action(failure_msg="Unable to login to DSP server", action=lambda: con.login(user, password))
 
     orig_filepath_2_uuid: dict[str, str] = dict()
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        batchgroup_mappings = executor.map(preprocess_batch, batches, repeat(local_sipi_port), repeat(remote_sipi_server), repeat(con))
+        batchgroup_mappings = executor.map(_preprocess_batch, batches, repeat(local_sipi_port), repeat(remote_sipi_server), repeat(con))
     for mp in batchgroup_mappings:
         orig_filepath_2_uuid.update(mp)
 
@@ -354,8 +365,7 @@ def enhanced_xml_upload(
         preprocessing_done=True
     )
 
-    stop_time = datetime.now()
-    duration = stop_time - start_time
+    duration = datetime.now() - start_time
     print(f"Total time of enhanced xmlupload: {duration.seconds} seconds")
 
     shutil.rmtree("tmp", ignore_errors=True)

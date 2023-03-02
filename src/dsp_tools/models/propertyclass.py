@@ -271,6 +271,7 @@ class PropertyClass(Model):
         gui_element = None
         if json_obj.get(salsah_gui + ':guiElement') is not None:
             gui_element = WithId(json_obj.get(salsah_gui + ':guiElement')).str()
+            gui_element = gui_element.replace("Pulldown", "List")
         gui_attributes_list = json_obj.get(salsah_gui + ':guiAttribute')
         gui_attributes: Union[None, dict[str, str]] = None
         if gui_attributes_list is not None:

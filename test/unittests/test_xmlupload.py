@@ -1,14 +1,42 @@
 """Unit tests for xmlupload"""
 
 import unittest
+
+import regex
 from lxml import etree
 
 from dsp_tools.models.helpers import BaseError
-from dsp_tools.utils.xml_upload import _convert_ark_v0_to_resource_iri, _remove_circular_references, _parse_xml_file
 from dsp_tools.models.xmlresource import XMLResource
+from dsp_tools.utils.xml_upload import (_convert_ark_v0_to_resource_iri,
+                                        _parse_xml_file,
+                                        _remove_circular_references)
 
 
 class TestXMLUpload(unittest.TestCase):
+
+    def test_parse_xml_file(self) -> None:
+        test_data_systematic_tree = etree.parse("testdata/test-data-systematic.xml")
+        output1 = _parse_xml_file("testdata/test-data-systematic.xml")
+        output2 = _parse_xml_file(test_data_systematic_tree)
+        self.assertEqual(etree.tostring(output1), etree.tostring(output2), msg="The output must be equal, regardless if the input is a path or parsed.")
+
+        annotations_regions_links_before = [e for e in test_data_systematic_tree.iter() if regex.search("annotation|region|link", str(e.tag))]
+        annotations_regions_links_after = [e for e in output1.iter() if regex.search("annotation|region|link", str(e.tag))]
+        self.assertGreater(len(annotations_regions_links_before), 0)
+        self.assertEqual(
+            len(annotations_regions_links_after), 
+            0, 
+            msg="The tags <annotation>, <region>, and <link> must be transformed to their technically correct form "
+                '<resource restype="Annotation/Region/LinkObj">'
+        )
+
+        comments = [e for e in output1.iter() if isinstance(e, etree._Comment)]
+        self.assertEqual(
+            len(comments), 
+            0, 
+            msg="properties that are commented out would break the the constructor of the class XMLProperty, if they are not removed in the parsing process"
+        )
+
 
     def test_convert_ark_v0_to_resource_iri(self) -> None:
         ark = "ark:/72163/080c-779b9990a0c3f-6e"
@@ -34,8 +62,8 @@ class TestXMLUpload(unittest.TestCase):
 
     def test_remove_circular_references(self) -> None:
         # create a list of XMLResources from the test data file
-        tree = _parse_xml_file('testdata/test-data-systematic.xml')
-        resources = [XMLResource(x, 'testonto') for x in tree.getroot() if x.tag == "resource"]
+        tree = _parse_xml_file("testdata/test-data-systematic.xml")
+        resources = [XMLResource(x, "testonto") for x in tree.getroot() if x.tag == "resource"]
 
         # get the purged resources and the stashes from the function to be tested
         resources, stashed_xml_texts_original, stashed_resptr_props_original = _remove_circular_references(resources, False)
@@ -113,5 +141,5 @@ class TestXMLUpload(unittest.TestCase):
                 self.assertListEqual(stashed_hashes, purged_hashes)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

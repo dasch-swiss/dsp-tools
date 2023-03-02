@@ -143,6 +143,7 @@ class TestExcel2xml(unittest.TestCase):
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, " ")
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, ".")
 
+        # test that the special characters in the "Label" row of excel2xml-testdata-special-characters.xlsx are replaced
         special_characters_df = pd.read_excel("testdata/excel2xml-testdata-special-characters.xlsx")
         root = excel2xml.make_root("0123", "test")
         root = excel2xml.append_permissions(root)
@@ -154,6 +155,7 @@ class TestExcel2xml(unittest.TestCase):
                     id=excel2xml.make_xsd_id_compatible(row["Label"])
                 )
             )
+        # schema validation inside the write_xml() checks if the ids of the resources are valid as xsd:ID
         excel2xml.write_xml(root, "special-characters.xml")
         Path("special-characters.xml").unlink()
 

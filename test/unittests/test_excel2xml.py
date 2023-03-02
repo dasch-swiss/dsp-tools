@@ -6,6 +6,7 @@ import unittest
 from typing import Callable, Sequence, Union, Optional, Any
 
 import numpy as np
+import pandas as pd
 import pytest
 from lxml import etree
 
@@ -124,7 +125,7 @@ class TestExcel2xml(unittest.TestCase):
 
 
     def test_make_xsd_id_compatible(self) -> None:
-        teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠"
+        teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠₂₃āṇśṣr̥ṁñἄ𝝺𝝲𝛆’الشعرُאדםПопрыгуньяşğ"
 
         # test that the results are distinct from each other
         results = {excel2xml.make_xsd_id_compatible(teststring) for _ in range(10)}
@@ -141,6 +142,20 @@ class TestExcel2xml(unittest.TestCase):
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, "")
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, " ")
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, ".")
+
+        special_characters_df = pd.read_excel("testdata/excel2xml-testdata-special-characters.xlsx")
+        root = excel2xml.make_root("0123", "test")
+        root = excel2xml.append_permissions(root)
+        for i, row in special_characters_df.iterrows():
+            root.append(
+                excel2xml.make_resource(
+                    label=row["Label"],
+                    restype=":xyz",
+                    id=excel2xml.make_xsd_id_compatible(row["Label"])
+                )
+            )
+        excel2xml.write_xml(root, "special-characters.xml")
+        Path("special-characters.xml").unlink()
 
 
     def test_derandomize_xsd_id(self) -> None:

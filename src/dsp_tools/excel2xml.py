@@ -57,7 +57,7 @@ def make_xsd_id_compatible(string: str) -> str:
     res = f"{res}_{_uuid}"
 
     # replace all illegal characters by underscore
-    res = re.sub(r"[^\d\w_\-.]", "_", res)
+    res = re.sub(r"[^A-Za-z0-9_\-.]", "_", res)
 
     return res
 

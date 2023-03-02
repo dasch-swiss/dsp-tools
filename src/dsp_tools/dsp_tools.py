@@ -230,9 +230,9 @@ def program(user_args: list[str]) -> None:
                                  preprocessing_done=False)
     elif args.action == "enhanced-xmlupload":
         if args.generate_test_data:
-            generate_testdata()
+            success = generate_testdata()
         else:
-            enhanced_xml_upload(
+            success = enhanced_xml_upload(
                 multimedia_folder=args.multimedia_folder,
                 local_sipi_port=args.local_sipi_port,
                 server=args.server,

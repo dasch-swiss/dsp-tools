@@ -45,12 +45,12 @@ for ext in all_extensions:
     extension2restype[ext] = restype
 
 
-def generate_testdata() -> None:
+def generate_testdata() -> bool:
     """
     Creates a test data folder in the user's current working directory.
 
     Returns:
-        None
+        success status
     """
     testproject = Path("enhanced-xmlupload-testproject")
     if testproject.exists():
@@ -67,6 +67,35 @@ def generate_testdata() -> None:
     ]
     for sub in destinations:
         sub.mkdir(parents=True)
+    
+    big_videos = {
+        "https://filesamples.com/samples/video/mp4/sample_960x400_ocean_with_audio.mp4": 16.71,
+        "https://filesamples.com/samples/video/mp4/sample_1280x720_surfing_with_audio.mp4": 68.43
+    }
+    big_audios = {
+        "https://filesamples.com/samples/audio/mp3/Symphony%20No.6%20(1st%20movement).mp3": 11.11,
+        "https://filesamples.com/samples/audio/mp3/sample4.mp3": 3.73,
+        "https://filesamples.com/samples/audio/mp3/sample3.mp3": 1.61
+    }
+    big_documents = {
+        "https://filesamples.com/samples/document/pdf/sample3.pdf": 1.2
+    }
+    big_images = {
+        "https://file-examples.com/storage/fe6850826763ff98b9da71e/2017/10/file_example_PNG_3MB.png": 3,
+        "https://file-examples.com/storage/fe6850826763ff98b9da71e/2017/10/file_example_PNG_2100kB.png": 2.1,
+        "https://file-examples.com/storage/fe6850826763ff98b9da71e/2017/10/file_example_PNG_1MB.png": 1
+
+    }
+    big_files: dict[str, float] = dict()
+    [big_files.update(_dict) for _dict in [big_videos, big_audios, big_documents, big_images]]
+    for url, size in big_files.items():
+        file = requests.get(url).content
+        for dst in destinations:
+            dst_file = dst / f"big_file_{size}_mb{url[-4:]}"
+            all_paths.append(dst_file.relative_to(testproject))
+            with open(dst_file, "bw") as f:
+                f.write(file)
+
     github_bitstreams_path = "https://github.com/dasch-swiss/dsp-tools/blob/main/testdata/bitstreams"
     for ext in all_extensions:
         file = requests.get(f"{github_bitstreams_path}/test{ext}?raw=true").content
@@ -98,6 +127,8 @@ def generate_testdata() -> None:
     json_text = json_text.replace('"cardinality": "1-n"', '"cardinality": "0-n"')
     with open(testproject / "data_model.json", "x") as f:
         f.write(json_text)
+    
+    return True
 
 
 def parse_and_check_xml_file(
@@ -152,6 +183,7 @@ def make_batches(multimedia_folder: str) -> list[list[Path]]:
 
     # make batches
     average_batch_size = sum(path_to_size.values()) / num_of_batches
+    print(f"Try to distribute images into batches. Target size of each batch: {average_batch_size:.1f} MB")
     undistributed_paths = copy.copy(all_paths)
     batches: list[tuple[list[Path], float]] = [(([]), 0.0) for _ in range(num_of_batches)]
     for i in range(num_of_batches):
@@ -212,6 +244,8 @@ def make_preprocessing(
         if response.get("message") == "server.fs.mkdir() failed: File exists":
             failed_batch_items.append(pth)
             continue
+        elif not response_raw.ok:
+            raise BaseError(f"File {pth} couldn't be handled by the /upload route of the local SIPI. Error message: {response['message']}")
         internal_filename = response["uploadedFiles"][0]["internalFilename"]
         mapping[str(pth)] = internal_filename
         upload_candidates: list[Path] = []
@@ -248,26 +282,6 @@ def preprocess_batch(batch: list[Path], local_sipi_port: int, remote_sipi_server
     return mapping
 
 
-def write_preprocessed_xml_file(xml_file_tree: etree.ElementTree, mapping: dict[str, str], xmlfile: str) -> None:   # type: ignore
-    """
-    Make a copy of the XML file with the filepaths replaced by the UUID.
-
-    Args:
-        xml_file_tree: etree representation of the original XML document
-        mapping: mapping from the original filepaths to the internal filenames
-
-    Returns:
-        None
-    """
-    for elem in xml_file_tree.iter():  # type: ignore
-        if elem.text in mapping:
-            elem.text = mapping[elem.text]
-    xml_string = etree.tostring(xml_file_tree, encoding="unicode", pretty_print=True)
-    xml_string = '<?xml version="1.0" encoding="UTF-8"?>\n' + xml_string
-    with open(f"{Path(xmlfile).stem}-preprocessed.xml", "w", encoding="utf-8") as f:
-        f.write(xml_string)
-
-
 def enhanced_xml_upload(
     multimedia_folder: str,
     local_sipi_port: int,
@@ -278,7 +292,7 @@ def enhanced_xml_upload(
     verbose: bool,
     incremental: bool,
     xmlfile: str
-) -> None:
+) -> bool:
     """
     Before starting the regular xmlupload, 
     preprocess the multimedia files with a local SIPI instance in multithreading, 
@@ -296,7 +310,7 @@ def enhanced_xml_upload(
         xmlfile: path to xml file containing the data
 
     Returns:
-        None
+        success status
     """
     xml_file_tree = parse_and_check_xml_file(xmlfile=xmlfile, multimedia_folder=multimedia_folder)
 
@@ -311,12 +325,14 @@ def enhanced_xml_upload(
     for mp in batchgroup_mappings:
         mapping.update(mp)
 
-    write_preprocessed_xml_file(xml_file_tree=xml_file_tree, mapping=mapping, xmlfile=xmlfile)
+    for elem in xml_file_tree.iter():
+        if elem.text in mapping:
+            elem.text = mapping[elem.text]
 
     print("Preprocessing sucessfully finished! Start with regular xmlupload...")
 
     xml_upload(
-        input_file=f"{Path(xmlfile).stem}-preprocessed.xml",
+        input_file=xml_file_tree,
         server=server,
         user=user,
         password=password,
@@ -329,7 +345,8 @@ def enhanced_xml_upload(
     )
 
     shutil.rmtree("tmp", ignore_errors=True)
-    Path(f"{Path(xmlfile).stem}-preprocessed.xml").unlink()
+
+    return True
 
 # Ideas how to improve the multithreading:
 # - should the images be distributed into groups according to size?

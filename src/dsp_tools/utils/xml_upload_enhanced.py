@@ -1,5 +1,6 @@
 import concurrent.futures
 import copy
+from datetime import datetime
 import json
 import os
 import shutil
@@ -68,34 +69,38 @@ def generate_testdata() -> bool:
     for sub in destinations:
         sub.mkdir(parents=True)
     
-    big_videos = {
-        "https://filesamples.com/samples/video/mp4/sample_960x400_ocean_with_audio.mp4": 16.71,
-        "https://filesamples.com/samples/video/mp4/sample_1280x720_surfing_with_audio.mp4": 68.43
-    }
-    big_audios = {
-        "https://filesamples.com/samples/audio/mp3/Symphony%20No.6%20(1st%20movement).mp3": 11.11,
-        "https://filesamples.com/samples/audio/mp3/sample4.mp3": 3.73,
-        "https://filesamples.com/samples/audio/mp3/sample3.mp3": 1.61
-    }
-    big_documents = {
-        "https://filesamples.com/samples/document/pdf/sample3.pdf": 1.2
-    }
-    big_images = {
-        "https://file-examples.com/storage/fe6850826763ff98b9da71e/2017/10/file_example_PNG_3MB.png": 3,
-        "https://file-examples.com/storage/fe6850826763ff98b9da71e/2017/10/file_example_PNG_2100kB.png": 2.1,
-        "https://file-examples.com/storage/fe6850826763ff98b9da71e/2017/10/file_example_PNG_1MB.png": 1
-
+    # download big files of some few file types
+    big_files_dict = {
+        "videos": {
+            "https://filesamples.com/samples/video/mp4/sample_960x400_ocean_with_audio.mp4": 16.71,
+            "https://filesamples.com/samples/video/mp4/sample_1280x720_surfing_with_audio.mp4": 68.43
+        },
+        "audios": {
+            "https://filesamples.com/samples/audio/mp3/Symphony%20No.6%20(1st%20movement).mp3": 11.11,
+            "https://filesamples.com/samples/audio/mp3/sample4.mp3": 3.73,
+            "https://filesamples.com/samples/audio/mp3/sample3.mp3": 1.61
+        },
+        "documents": {
+            "https://filesamples.com/samples/document/pdf/sample3.pdf": 1.2
+        },
+        "images": {
+            "https://file-examples.com/storage/fe6850826763ff98b9da71e/2017/10/file_example_PNG_3MB.png": 3,
+            "https://file-examples.com/storage/fe6850826763ff98b9da71e/2017/10/file_example_PNG_2100kB.png": 2.1,
+            "https://file-examples.com/storage/fe6850826763ff98b9da71e/2017/10/file_example_PNG_1MB.png": 1
+        }
     }
     big_files: dict[str, float] = dict()
-    [big_files.update(_dict) for _dict in [big_videos, big_audios, big_documents, big_images]]
+    [big_files.update(_dict) for _dict in big_files_dict.values()]
     for url, size in big_files.items():
         file = requests.get(url).content
-        for dst in destinations:
-            dst_file = dst / f"big_file_{size}_mb{url[-4:]}"
-            all_paths.append(dst_file.relative_to(testproject))
-            with open(dst_file, "bw") as f:
-                f.write(file)
+        for i in range(2):
+            for dst in destinations:
+                dst_file = dst / f"big_file_{size}_mb_{i}_{url[-4:]}"
+                all_paths.append(dst_file.relative_to(testproject))
+                with open(dst_file, "bw") as f:
+                    f.write(file)
 
+    # download small samples of every supported file type
     github_bitstreams_path = "https://github.com/dasch-swiss/dsp-tools/blob/main/testdata/bitstreams"
     for ext in all_extensions:
         file = requests.get(f"{github_bitstreams_path}/test{ext}?raw=true").content
@@ -104,7 +109,7 @@ def generate_testdata() -> bool:
             all_paths.append(dst_file.relative_to(testproject))
             with open(dst_file, "bw") as f:
                 f.write(file)
-    print(f"Successfully created folder {testproject}")
+    print(f"Successfully created folder {testproject}/multimedia")
 
     # generate an XML file that uses these files
     root = excel2xml.make_root(shortcode="00E0", default_ontology="testonto")
@@ -127,6 +132,7 @@ def generate_testdata() -> bool:
     json_text = json_text.replace('"cardinality": "1-n"', '"cardinality": "0-n"')
     with open(testproject / "data_model.json", "x") as f:
         f.write(json_text)
+    print("Successfully created data_model.json")
     
     return True
 
@@ -174,7 +180,7 @@ def make_batches(multimedia_folder: str) -> list[list[Path]]:
     path_to_size: dict[Path, float] = dict()
     for pth in Path().glob(f"{multimedia_folder}/**/*.*"):
         path_to_size[pth] = round(pth.stat().st_size / 1_000_000, 1)
-    all_paths = sorted(path_to_size.keys(), key=lambda x: path_to_size[x])
+    all_paths = sorted(path_to_size.keys(), key=lambda x: path_to_size[x], reverse=True)
 
     # concurrent.futures.ThreadPoolExecutor() works with min(32, os.cpu_count() + 4) threads
     # (see https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor),
@@ -183,13 +189,15 @@ def make_batches(multimedia_folder: str) -> list[list[Path]]:
 
     # make batches
     average_batch_size = sum(path_to_size.values()) / num_of_batches
-    print(f"Try to distribute images into batches. Target size of each batch: {average_batch_size:.1f} MB")
     undistributed_paths = copy.copy(all_paths)
+    # the batches must record their size
     batches: list[tuple[list[Path], float]] = [(([]), 0.0) for _ in range(num_of_batches)]
+    # initialize every batch with 1 image; start with the biggest images
     for i in range(num_of_batches):
         next_path = all_paths[i]
         batches[i] = ([next_path, ], path_to_size[next_path])
         undistributed_paths.remove(next_path)
+    # fill batches; start with the biggest images
     i=0
     while undistributed_paths:
         if batches[i][1] < average_batch_size:
@@ -207,7 +215,7 @@ def make_batches(multimedia_folder: str) -> list[list[Path]]:
     [paths_in_batches.extend(batch) for batch in finished_batches]
     assert sorted(paths_in_batches) == sorted(all_paths)
 
-    print(f"Found {len(all_paths)} files in folder '{multimedia_folder}'. Prepared {num_of_batches} batches as follows:")
+    print(f"Found {len(all_paths)} files in folder '{multimedia_folder}'. Prepared {num_of_batches} batches ({average_batch_size:.1f} MB each) as follows:")
     for number, batch in enumerate(batches):
         pathlist, size = batch
         print(f" - Batch no. {number + 1:2d}: {len(pathlist)} files with a total size of {size:.1f} MB")
@@ -312,6 +320,8 @@ def enhanced_xml_upload(
     Returns:
         success status
     """
+    start_time = datetime.now()
+
     xml_file_tree = parse_and_check_xml_file(xmlfile=xmlfile, multimedia_folder=multimedia_folder)
 
     batches = make_batches(multimedia_folder=multimedia_folder)
@@ -319,15 +329,15 @@ def enhanced_xml_upload(
     con = Connection(server)
     try_network_action(failure_msg="Unable to login to DSP server", action=lambda: con.login(user, password))
 
-    mapping = dict()
+    orig_filepath_2_uuid: dict[str, str] = dict()
     with concurrent.futures.ThreadPoolExecutor() as executor:
         batchgroup_mappings = executor.map(preprocess_batch, batches, repeat(local_sipi_port), repeat(remote_sipi_server), repeat(con))
     for mp in batchgroup_mappings:
-        mapping.update(mp)
+        orig_filepath_2_uuid.update(mp)
 
-    for elem in xml_file_tree.iter():
-        if elem.text in mapping:
-            elem.text = mapping[elem.text]
+    for tag in xml_file_tree.iter():
+        if tag.text in orig_filepath_2_uuid:
+            tag.text = orig_filepath_2_uuid[tag.text]
 
     print("Preprocessing sucessfully finished! Start with regular xmlupload...")
 
@@ -343,6 +353,10 @@ def enhanced_xml_upload(
         save_metrics=False,
         preprocessing_done=True
     )
+
+    stop_time = datetime.now()
+    duration = stop_time - start_time
+    print(f"Total time of enhanced xmlupload: {duration.seconds} seconds")
 
     shutil.rmtree("tmp", ignore_errors=True)
 

@@ -451,6 +451,7 @@ def xml_upload(
         os.makedirs("metrics", exist_ok=True)
         df = pd.DataFrame(metrics)
         df.to_csv(f"metrics/{metrics_filename}")
+        print(f"Total time of xmlupload: {sum([int(record.duration_ms) for record in metrics]) / 1000:.1f} seconds")
     if success:
         print("All resources have successfully been uploaded.")
 

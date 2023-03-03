@@ -1,6 +1,7 @@
 import concurrent.futures
 import copy
 from datetime import datetime
+import glob
 import json
 import os
 import shutil
@@ -17,6 +18,10 @@ from dsp_tools.models.connection import Connection
 from dsp_tools.models.helpers import BaseError
 from dsp_tools.utils.shared import try_network_action
 from dsp_tools.utils.xml_upload import xml_upload
+
+
+tmp_location = Path.home() / Path(".dsp-tools")
+tmp_location.mkdir(exist_ok=True)
 
 extensions: dict[str, list[str]] = dict()
 extensions["image"] = [".jpg", ".jpeg", ".tif", ".tiff", ".jp2", ".png"]
@@ -260,9 +265,12 @@ def preprocess_and_upload(
         mapping[str(pth)] = internal_filename
         
         # upload
-        upload_candidates: list[Path] = []
-        upload_candidates.extend(Path().glob(f"tmp/{Path(internal_filename).stem}/**/*.*"))
-        upload_candidates.extend(Path().glob(f"tmp/{Path(internal_filename).stem}*.*"))
+        upload_candidates: list[str] = []
+        upload_candidates.extend(glob.glob(f"{tmp_location}/tmp/{Path(internal_filename).stem}/**/*.*"))
+        upload_candidates.extend(glob.glob(f"{tmp_location}/tmp/{Path(internal_filename).stem}*.*"))
+        min_num_of_candidates = 5 if pth.suffix == "mp4" else 3
+        if len(upload_candidates) < min_num_of_candidates:
+            raise BaseError(f"Local SIPI created only the following files for {pth}, which is too less: {upload_candidates}")
         for upload_candidate in upload_candidates:
             with open(upload_candidate, "rb") as bitstream:
                 response_upload = requests.post(url=f"{regex.sub(r'/$', '', remote_sipi_server)}/upload_without_transcoding?token={con.get_token()}", files={"file": bitstream})
@@ -367,7 +375,7 @@ def enhanced_xml_upload(
     duration = datetime.now() - start_time
     print(f"Total time of enhanced xmlupload: {duration.seconds} seconds")
 
-    shutil.rmtree("tmp", ignore_errors=True)
+    shutil.rmtree(tmp_location / "tmp", ignore_errors=True)
 
     return True
 

@@ -73,14 +73,15 @@ Method 2: Reuse an old clone:
 Common steps for methods 1 + 2:
 
 - in `docker-compose.yml`, comment out the following sections:
-   - app
-   - db
-   - api
-- in `docker-compose.yml`, change the `ports` of sipi from "1024:1024" to "1023"
-- in `sipi/config/sipi.docker-config.lua`, change sipi/port from 1024 to 1023
-- in `docker-compose.yml`, add your project folder to the `sipi/volumes` list, in the form: `full/path:abbreviation:delegated`
-- in `sipi/config/sipi.docker-config.lua`, change `imgroot` from '/sipi/images' to the abbreviation of your project folder 
-- in `sipi/config/sipi.docker-config.lua`, change `nthreads` from 8 to 32
+  - app
+  - db
+  - api
+- in `docker-compose.yml`, change `sipi/ports` from 1024:1024 to 1023
+- in `docker-compose.yml`, change `sipi/environment/SIPI_EXTERNAL_PORT` from 1024 to 1023
+- in `docker-compose.yml`, add the following line to the `sipi/volumes` list: `~/.dsp-tools:/dsp-tools-home-folder:delegated`
+- in `sipi/config/sipi.docker-config.lua`, change `sipi/port` from 1024 to 1023
+- in `sipi/config/sipi.docker-config.lua`, change `sipi/nthreads` from 8 to 32
+- in `sipi/config/sipi.docker-config.lua`, change `sipi/imgroot` from `/sipi/images` to `/dsp-tools-home-folder`
 - in `sipi/scripts/upload.lua`, comment out the following section:
   ```lua
   -- Check for a valid JSON Web Token from Knora.

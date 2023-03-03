@@ -177,6 +177,8 @@ def _make_batches(multimedia_folder: str) -> list[list[Path]]:
     """
     Read all multimedia files contained in multimedia_folder and its subfolders,
     and divide them into batches.
+    The number of batches is optimized 
+    according to the number of CPU cores on the machine where this code is running.
 
     Args:
         multimedia_folder: path to the folder containing the multimedia files
@@ -391,7 +393,7 @@ def enhanced_xml_upload(
 # Ideas how to improve the multithreading:
 # - should the images be distributed into groups according to size?
 # - could we optimize it with
-#   https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.as_completed?
+#   https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.as_completed ?
 # - should we use the max_workers argument? See here:
 #   https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor:
 #   Default value of max_workers is changed to min(32, os.cpu_count() + 4).

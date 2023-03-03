@@ -56,7 +56,7 @@ def generate_testdata() -> bool:
     testproject = Path("enhanced-xmlupload-testproject")
     if testproject.exists():
         print("The test project folder is already existing.")
-        return
+        return False
 
     all_paths: list[Path] = list()
 
@@ -84,9 +84,8 @@ def generate_testdata() -> bool:
             "https://filesamples.com/samples/document/pdf/sample3.pdf": 1.2
         },
         "images": {
-            "https://file-examples.com/storage/fe6850826763ff98b9da71e/2017/10/file_example_PNG_3MB.png": 3,
-            "https://file-examples.com/storage/fe6850826763ff98b9da71e/2017/10/file_example_PNG_2100kB.png": 2.1,
-            "https://file-examples.com/storage/fe6850826763ff98b9da71e/2017/10/file_example_PNG_1MB.png": 1
+            "https://www.sampledocs.in/DownloadFiles/SampleFile?filename=sampleDocs%20tree%20background%20image&ext=jpg": 10,
+            "https://www.sampledocs.in/DownloadFiles/SampleFile?filename=Doctors-Image-22&ext=jpg": 1
         }
     }
     big_files: dict[str, float] = dict()
@@ -95,7 +94,7 @@ def generate_testdata() -> bool:
         file = requests.get(url).content
         for i in range(2):
             for dst in destinations:
-                dst_file = dst / f"big_file_{size}_mb_{i}_{url[-4:]}"
+                dst_file = dst / f"big_file_{size}_mb_{i}.{url[-3:]}"
                 all_paths.append(dst_file.relative_to(testproject))
                 with open(dst_file, "bw") as f:
                     f.write(file)

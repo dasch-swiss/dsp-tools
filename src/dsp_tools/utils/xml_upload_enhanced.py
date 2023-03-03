@@ -1,3 +1,4 @@
+from asyncio import as_completed
 import concurrent.futures
 import copy
 from datetime import datetime
@@ -173,149 +174,72 @@ def _parse_and_check_xml_file(
     return tree
 
 
-def _make_batches(multimedia_folder: str) -> list[list[Path]]:
+def _collect_all_paths(multimedia_folder: str) -> list[Path]:
     """
     Read all multimedia files contained in multimedia_folder and its subfolders,
-    and divide them into batches.
-    The number of batches is optimized 
-    according to the number of CPU cores on the machine where this code is running.
+    and return all paths,
+    sorted by size (biggest file first).
 
     Args:
         multimedia_folder: path to the folder containing the multimedia files
 
     Returns:
-        a list of batches, each batch being a list of Paths
+        a list of all paths
     """
     # collect all paths
     path_to_size: dict[Path, float] = dict()
     for pth in Path().glob(f"{multimedia_folder}/**/*.*"):
         path_to_size[pth] = round(pth.stat().st_size / 1_000_000, 1)
     all_paths = sorted(path_to_size.keys(), key=lambda x: path_to_size[x], reverse=True)
-
-    # concurrent.futures.ThreadPoolExecutor() works with min(32, os.cpu_count() + 4) threads
-    # (see https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor),
-    # so the ideal number of batches is equal to the number of available threads
-    num_of_batches = min(32, os.cpu_count() + 4, len(all_paths))  # type: ignore
-
-    # prepare batches
-    average_batch_size = sum(path_to_size.values()) / num_of_batches
-    undistributed_paths = copy.copy(all_paths)
-    batches: list[tuple[list[Path], float]] = [(([]), 0.0) for _ in range(num_of_batches)]  # the batches must record their size
-    
-    # initialize every batch with 1 image; start with the biggest images
-    for i in range(num_of_batches):
-        next_path = all_paths[i]
-        batches[i] = ([next_path, ], path_to_size[next_path])
-        undistributed_paths.remove(next_path)
-    
-    # fill batches; start with the biggest images
-    i=0
-    while undistributed_paths:
-        if batches[i][1] < average_batch_size:
-            next_path = undistributed_paths[0]
-            pathlist, size = batches[i]
-            pathlist.append(next_path)
-            size += path_to_size[next_path]
-            batches[i] = (pathlist, size)
-            undistributed_paths.remove(next_path)
-        i = (i + 1) % num_of_batches
-
-    # verify that content of batches is equal to the originally found paths
-    finished_batches = [batch[0] for batch in batches]
-    paths_in_batches = list()
-    [paths_in_batches.extend(batch) for batch in finished_batches]
-    assert sorted(paths_in_batches) == sorted(all_paths)
-
-    # print feedback
-    print(f"Found {len(all_paths)} files in folder '{multimedia_folder}'. Prepared {num_of_batches} batches with a target size of {average_batch_size:.1f} MB each:")
-    for number, batch in enumerate(batches):
-        pathlist, size = batch
-        print(f" - Batch no. {number + 1:2d}: {len(pathlist)} files with a total size of {size:.1f} MB")
-
-    return finished_batches
+    return all_paths
 
 
-def preprocess_and_upload(
-    batch: list[Path],
-    local_sipi_port: int,
+def _upload_derivates(
+    orig_path: Path, 
+    internal_filename: str,
     remote_sipi_server: str,
     con: Connection
-) -> tuple[dict[str, str], list[Path]]:
+) -> None:
+    upload_candidates: list[str] = []
+    upload_candidates.extend(glob.glob(f"{tmp_location}/tmp/{Path(internal_filename).stem}/**/*.*"))
+    upload_candidates.extend(glob.glob(f"{tmp_location}/tmp/{Path(internal_filename).stem}*.*"))
+    min_num_of_candidates = 5 if orig_path.suffix == "mp4" else 3
+    if len(upload_candidates) < min_num_of_candidates:
+        raise BaseError(f"Local SIPI created only the following files for {orig_path}, which is too less: {upload_candidates}")
+    for upload_candidate in upload_candidates:
+        with open(upload_candidate, "rb") as bitstream:
+            response_upload = requests.post(
+                url=f"{regex.sub(r'/$', '', remote_sipi_server)}/upload_without_transcoding?token={con.get_token()}", 
+                files={"file": bitstream}
+            )
+        if not response_upload.json().get("uploadedFiles"):
+            raise BaseError(f"File {upload_candidate} ({orig_path!s}) could not be uploaded. The API response was: {response_upload.text}")
+    print(f" - Uploaded {len(upload_candidates)} derivates of {orig_path!s}")
+
+
+def _preprocess_file(
+    path: Path,
+    local_sipi_port: int,
+) -> tuple[Path, str]:
     """
-    Sends the multimedia files contained in batch to the /upload route of the local SIPI instance,
-    uploads all resulting files to the remote SIPI server,
-    creates a mapping of the original filepath to the SIPI-internal filename,
-    and returns the mapping for the successfully processed files,
-    together with a list of the failed original filepaths.
+    Sends a multimedia file to the /upload route of the local SIPI instance.
 
     Args:
         batch: list of paths to image files
         local_sipi_port: port number of SIPI
-        remote_sipi_server: str
 
     Returns:
-        mapping, failed_batch_items
+        tuple consisting of the original path and the SIPI-internal filename
     """
-    mapping: dict[str, str] = dict()
-    failed_batch_items = list()
-    for pth in batch:
-        # preprocess
-        with open(pth, "rb") as bitstream:
-            response_raw = requests.post(url=f"http://localhost:{local_sipi_port}/upload", files={"file": bitstream})
-        response = json.loads(response_raw.text)
-        if response.get("message") == "server.fs.mkdir() failed: File exists":
-            failed_batch_items.append(pth)
-            continue
-        elif not response_raw.ok:
-            raise BaseError(f"File {pth} couldn't be handled by the /upload route of the local SIPI. Error message: {response['message']}")
-        internal_filename = response["uploadedFiles"][0]["internalFilename"]
-        mapping[str(pth)] = internal_filename
-        
-        # upload
-        upload_candidates: list[str] = []
-        upload_candidates.extend(glob.glob(f"{tmp_location}/tmp/{Path(internal_filename).stem}/**/*.*"))
-        upload_candidates.extend(glob.glob(f"{tmp_location}/tmp/{Path(internal_filename).stem}*.*"))
-        min_num_of_candidates = 5 if pth.suffix == "mp4" else 3
-        if len(upload_candidates) < min_num_of_candidates:
-            raise BaseError(f"Local SIPI created only the following files for {pth}, which is too less: {upload_candidates}")
-        for upload_candidate in upload_candidates:
-            with open(upload_candidate, "rb") as bitstream:
-                response_upload = requests.post(
-                    url=f"{regex.sub(r'/$', '', remote_sipi_server)}/upload_without_transcoding?token={con.get_token()}", 
-                    files={"file": bitstream}
-                )
-            if not response_upload.json().get("uploadedFiles"):
-                raise BaseError(f"File {upload_candidate} ({pth!s}) could not be uploaded. The API response was: {response_upload.text}")
-        print(f" - Uploaded {len(upload_candidates)} derivates of {pth!s}")
-
-    return mapping, failed_batch_items
-
-
-def _preprocess_batch(
-    batch: list[Path], 
-    local_sipi_port: int, 
-    remote_sipi_server: str, 
-    con: Connection
-) -> dict[str, str]:
-    """
-    Make the entire preprocessing (create derivates + sidecar files) of the multimedia files contained in one batch.
-    Then, upload all derivates + sidecars to the remote SIPI server.
-
-    Args:
-        batch: list of paths to image files
-        local_sipi_port: port number of SIPI
-        remote_sipi_server: the DSP server where the data should be imported
-        con: connection to the remote DSP server
-
-    Returns:
-        mapping of original filepaths to internal filenames
-    """
-    mapping, failed_batch_items = preprocess_and_upload(batch=batch,local_sipi_port=local_sipi_port, remote_sipi_server=remote_sipi_server, con=con)
-    while len(failed_batch_items) != 0:
-        print(f" - Retry the following failed files: {[str(x) for x in failed_batch_items]}")
-        mapping_addition, failed_batch_items = preprocess_and_upload(batch=failed_batch_items, local_sipi_port=local_sipi_port, remote_sipi_server=remote_sipi_server, con=con)
-        mapping.update(mapping_addition)
-    return mapping
+    with open(path, "rb") as bitstream:
+        response_raw = requests.post(url=f"http://localhost:{local_sipi_port}/upload", files={"file": bitstream})
+    response = json.loads(response_raw.text)
+    if response.get("message") == "server.fs.mkdir() failed: File exists":
+        _preprocess_file(path=path, local_sipi_port=local_sipi_port)
+    elif not response_raw.ok:
+        raise BaseError(f"File {path} couldn't be handled by the /upload route of the local SIPI. Error message: {response['message']}")
+    internal_filename: str = response["uploadedFiles"][0]["internalFilename"]
+    return path, internal_filename
 
 
 def enhanced_xml_upload(
@@ -352,7 +276,7 @@ def enhanced_xml_upload(
 
     xml_file_tree = _parse_and_check_xml_file(xmlfile=xmlfile, multimedia_folder=multimedia_folder)
 
-    batches = _make_batches(multimedia_folder=multimedia_folder)
+    all_paths = _collect_all_paths(multimedia_folder=multimedia_folder)
 
     con = Connection(server)
     try_network_action(failure_msg="Unable to login to DSP server", action=lambda: con.login(user, password))
@@ -360,9 +284,22 @@ def enhanced_xml_upload(
     print("Start preprocessing and uploading the multimedia files...")
     orig_filepath_2_uuid: dict[str, str] = dict()
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        batchgroup_mappings = executor.map(_preprocess_batch, batches, repeat(local_sipi_port), repeat(remote_sipi_server), repeat(con))
-    for mp in batchgroup_mappings:
-        orig_filepath_2_uuid.update(mp)
+        futures = list()
+        for path in all_paths:
+            futures.append(executor.submit(
+                _preprocess_file, 
+                path=path, 
+                local_sipi_port=local_sipi_port, 
+            ))
+    for future in concurrent.futures.as_completed(futures):
+        orig_path, internal_filename = future.result()
+        orig_filepath_2_uuid[str(orig_path)] = internal_filename
+        _upload_derivates(
+            orig_path=orig_path, 
+            internal_filename=internal_filename,
+            remote_sipi_server=remote_sipi_server,
+            con=con
+        )
 
     for tag in xml_file_tree.iter():
         if tag.text in orig_filepath_2_uuid:

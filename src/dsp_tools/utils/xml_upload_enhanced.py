@@ -51,9 +51,12 @@ for ext in all_extensions:
     extension2restype[ext] = restype
 
 
-def generate_testdata() -> bool:
+def generate_testdata(size: str) -> bool:
     """
     Creates a test data folder in the user's current working directory.
+
+    Args:
+        size: size of test data set: small/medium/big
 
     Returns:
         success status
@@ -73,36 +76,6 @@ def generate_testdata() -> bool:
     ]
     for sub in destinations:
         sub.mkdir(parents=True)
-    
-    # download big files of some few file types
-    big_files_dict = {
-        "videos": {
-            "https://filesamples.com/samples/video/mp4/sample_960x400_ocean_with_audio.mp4": 16.71,
-            "https://filesamples.com/samples/video/mp4/sample_1280x720_surfing_with_audio.mp4": 68.43
-        },
-        "audios": {
-            "https://filesamples.com/samples/audio/mp3/Symphony%20No.6%20(1st%20movement).mp3": 11.11,
-            "https://filesamples.com/samples/audio/mp3/sample4.mp3": 3.73,
-            "https://filesamples.com/samples/audio/mp3/sample3.mp3": 1.61
-        },
-        "documents": {
-            "https://filesamples.com/samples/document/pdf/sample3.pdf": 1.2
-        },
-        "images": {
-            "https://www.sampledocs.in/DownloadFiles/SampleFile?filename=sampleDocs%20tree%20background%20image&ext=jpg": 10,
-            "https://www.sampledocs.in/DownloadFiles/SampleFile?filename=Doctors-Image-22&ext=jpg": 1
-        }
-    }
-    big_files: dict[str, float] = dict()
-    [big_files.update(_dict) for _dict in big_files_dict.values()]
-    for url, size in big_files.items():
-        file = requests.get(url).content
-        for i in range(2):
-            for dst in destinations:
-                dst_file = dst / f"big_file_{size}_mb_{i}.{url[-3:]}"
-                all_paths.append(dst_file.relative_to(testproject))
-                with open(dst_file, "bw") as f:
-                    f.write(file)
 
     # download small samples of every supported file type
     github_bitstreams_path = "https://github.com/dasch-swiss/dsp-tools/blob/main/testdata/bitstreams"
@@ -114,6 +87,38 @@ def generate_testdata() -> bool:
             with open(dst_file, "bw") as f:
                 f.write(file)
     print(f"Successfully created folder {testproject}/multimedia")
+    
+    # download big files of some few file types
+    if size != "small":
+        big_files_dict = {
+            "videos": {
+                "https://filesamples.com/samples/video/mp4/sample_960x400_ocean_with_audio.mp4": 16.71,
+                "https://filesamples.com/samples/video/mp4/sample_1280x720_surfing_with_audio.mp4": 68.43
+            },
+            "audios": {
+                "https://filesamples.com/samples/audio/mp3/Symphony%20No.6%20(1st%20movement).mp3": 11.11,
+                "https://filesamples.com/samples/audio/mp3/sample4.mp3": 3.73,
+                "https://filesamples.com/samples/audio/mp3/sample3.mp3": 1.61
+            },
+            "documents": {
+                "https://filesamples.com/samples/document/pdf/sample3.pdf": 1.2
+            },
+            "images": {
+                "https://www.sampledocs.in/DownloadFiles/SampleFile?filename=sampleDocs%20tree%20background%20image&ext=jpg": 10,
+                "https://www.sampledocs.in/DownloadFiles/SampleFile?filename=Doctors-Image-22&ext=jpg": 1
+            }
+        }
+        big_files: dict[str, float] = dict()
+        [big_files.update(_dict) for _dict in big_files_dict.values()]
+        for url, filesize in big_files.items():
+            file = requests.get(url).content
+            multiplication_rate = 2 if size == "big" else 1
+            for i in range(multiplication_rate):
+                for dst in destinations:
+                    dst_file = dst / f"big_file_{filesize}_mb_{i}.{url[-3:]}"
+                    all_paths.append(dst_file.relative_to(testproject))
+                    with open(dst_file, "bw") as f:
+                        f.write(file)
 
     # generate an XML file that uses these files
     root = excel2xml.make_root(shortcode="00E0", default_ontology="testonto")

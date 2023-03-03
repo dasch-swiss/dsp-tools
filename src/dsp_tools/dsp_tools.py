@@ -98,6 +98,7 @@ def program(user_args: list[str]) -> None:
     parser_enhanced_xmlupload.add_argument("--multimedia-folder", default="multimedia", help="Path to folder containing the multimedia files")
     parser_enhanced_xmlupload.add_argument("--local-sipi-port", type=int, help="5-digit port number of the local SIPI instance, can be found in the 'Container' view of Docker Desktop")
     parser_enhanced_xmlupload.add_argument("--generate-test-data", action="store_true", help="only generate a test data folder in the current working directory (no upload)")
+    parser_enhanced_xmlupload.add_argument("--size", default="small", help="size of test data set: small/medium/big")
     parser_enhanced_xmlupload.add_argument("-s", "--server", default=default_localhost, help=url_text)
     parser_enhanced_xmlupload.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_enhanced_xmlupload.add_argument("-p", "--password", default=default_pw, help=password_text)
@@ -230,7 +231,7 @@ def program(user_args: list[str]) -> None:
                                  preprocessing_done=False)
     elif args.action == "enhanced-xmlupload":
         if args.generate_test_data:
-            success = generate_testdata()
+            success = generate_testdata(size=args.size)
         else:
             success = enhanced_xml_upload(
                 multimedia_folder=args.multimedia_folder,

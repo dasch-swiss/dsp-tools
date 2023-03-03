@@ -278,7 +278,10 @@ def preprocess_and_upload(
             raise BaseError(f"Local SIPI created only the following files for {pth}, which is too less: {upload_candidates}")
         for upload_candidate in upload_candidates:
             with open(upload_candidate, "rb") as bitstream:
-                response_upload = requests.post(url=f"{regex.sub(r'/$', '', remote_sipi_server)}/upload_without_transcoding?token={con.get_token()}", files={"file": bitstream})
+                response_upload = requests.post(
+                    url=f"{regex.sub(r'/$', '', remote_sipi_server)}/upload_without_transcoding?token={con.get_token()}", 
+                    files={"file": bitstream}
+                )
             if not response_upload.json().get("uploadedFiles"):
                 raise BaseError(f"File {upload_candidate} ({pth!s}) could not be uploaded. The API response was: {response_upload.text}")
         print(f" - Uploaded {len(upload_candidates)} derivates of {pth!s}")

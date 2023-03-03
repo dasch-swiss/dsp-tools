@@ -220,7 +220,7 @@ def _make_batches(multimedia_folder: str) -> list[list[Path]]:
     assert sorted(paths_in_batches) == sorted(all_paths)
 
     # print feedback
-    print(f"Found {len(all_paths)} files in folder '{multimedia_folder}'. Prepared {num_of_batches} batches ({average_batch_size:.1f} MB each) as follows:")
+    print(f"Found {len(all_paths)} files in folder '{multimedia_folder}'. Prepared {num_of_batches} batches with a target size of {average_batch_size:.1f} MB each:")
     for number, batch in enumerate(batches):
         pathlist, size = batch
         print(f" - Batch no. {number + 1:2d}: {len(pathlist)} files with a total size of {size:.1f} MB")
@@ -276,7 +276,7 @@ def preprocess_and_upload(
                 response_upload = requests.post(url=f"{regex.sub(r'/$', '', remote_sipi_server)}/upload_without_transcoding?token={con.get_token()}", files={"file": bitstream})
             if not response_upload.json().get("uploadedFiles"):
                 raise BaseError(f"File {upload_candidate} ({pth!s}) could not be uploaded. The API response was: {response_upload.text}")
-        print(f"Uploaded {pth!s}")
+        print(f" - Uploaded {len(upload_candidates)} derivates of {pth!s}")
 
     return mapping, failed_batch_items
 
@@ -302,7 +302,7 @@ def _preprocess_batch(
     """
     mapping, failed_batch_items = preprocess_and_upload(batch=batch,local_sipi_port=local_sipi_port, remote_sipi_server=remote_sipi_server, con=con)
     while len(failed_batch_items) != 0:
-        print(f"Retry the following failed files: {[str(x) for x in failed_batch_items]}")
+        print(f" - Retry the following failed files: {[str(x) for x in failed_batch_items]}")
         mapping_addition, failed_batch_items = preprocess_and_upload(batch=failed_batch_items, local_sipi_port=local_sipi_port, remote_sipi_server=remote_sipi_server, con=con)
         mapping.update(mapping_addition)
     return mapping
@@ -347,6 +347,7 @@ def enhanced_xml_upload(
     con = Connection(server)
     try_network_action(failure_msg="Unable to login to DSP server", action=lambda: con.login(user, password))
 
+    print("Start preprocessing and uploading the multimedia files...")
     orig_filepath_2_uuid: dict[str, str] = dict()
     with concurrent.futures.ThreadPoolExecutor() as executor:
         batchgroup_mappings = executor.map(_preprocess_batch, batches, repeat(local_sipi_port), repeat(remote_sipi_server), repeat(con))

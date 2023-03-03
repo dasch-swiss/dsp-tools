@@ -6,6 +6,7 @@ import glob
 import json
 import os
 import shutil
+from typing import Any
 import warnings
 from itertools import repeat
 from pathlib import Path
@@ -234,11 +235,13 @@ def _preprocess_file(
     with open(path, "rb") as bitstream:
         response_raw = requests.post(url=f"http://localhost:{local_sipi_port}/upload", files={"file": bitstream})
     response = json.loads(response_raw.text)
-    if response.get("message") == "server.fs.mkdir() failed: File exists":
-        _preprocess_file(path=path, local_sipi_port=local_sipi_port)
-    elif not response_raw.ok:
+    if response.get("uploadedFiles", [{}])[0].get("internalFilename"):
+        internal_filename: str = response["uploadedFiles"][0]["internalFilename"]
+        print(f" - Successfully preprocessed {path}")
+    elif response.get("message") == "server.fs.mkdir() failed: File exists":
+        _, internal_filename = _preprocess_file(path=path, local_sipi_port=local_sipi_port)
+    else:
         raise BaseError(f"File {path} couldn't be handled by the /upload route of the local SIPI. Error message: {response['message']}")
-    internal_filename: str = response["uploadedFiles"][0]["internalFilename"]
     return path, internal_filename
 
 
@@ -284,22 +287,22 @@ def enhanced_xml_upload(
     print("Start preprocessing and uploading the multimedia files...")
     orig_filepath_2_uuid: dict[str, str] = dict()
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = list()
+        futures: list[concurrent.futures.Future[Any]] = list()
         for path in all_paths:
             futures.append(executor.submit(
                 _preprocess_file, 
                 path=path, 
                 local_sipi_port=local_sipi_port, 
             ))
-    for future in concurrent.futures.as_completed(futures):
-        orig_path, internal_filename = future.result()
-        orig_filepath_2_uuid[str(orig_path)] = internal_filename
-        _upload_derivates(
-            orig_path=orig_path, 
-            internal_filename=internal_filename,
-            remote_sipi_server=remote_sipi_server,
-            con=con
-        )
+        for future in concurrent.futures.as_completed(futures):
+            orig_path, internal_filename = future.result()
+            orig_filepath_2_uuid[str(orig_path)] = internal_filename
+            _upload_derivates(
+                orig_path=orig_path, 
+                internal_filename=internal_filename,
+                remote_sipi_server=remote_sipi_server,
+                con=con
+            )
 
     for tag in xml_file_tree.iter():
         if tag.text in orig_filepath_2_uuid:
@@ -326,15 +329,3 @@ def enhanced_xml_upload(
     shutil.rmtree(tmp_location / "tmp", ignore_errors=True)
 
     return True
-
-# Ideas how to improve the multithreading:
-# - should the images be distributed into groups according to size?
-# - could we optimize it with
-#   https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.as_completed ?
-# - should we use the max_workers argument? See here:
-#   https://docs.python.org/3.10/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor:
-#   Default value of max_workers is changed to min(32, os.cpu_count() + 4).
-#   This default value preserves at least 5 workers for I/O bound tasks.
-#   It utilizes at most 32 CPU cores for CPU bound tasks which release the GIL.
-#   And it avoids using very large resources implicitly on many-core machines.
-#   ThreadPoolExecutor now reuses idle worker threads before starting max_workers worker threads too.

@@ -79,6 +79,8 @@ Common steps for methods 1 + 2:
 - in `docker-compose.yml`, change `sipi/ports` from 1024:1024 to 1023
 - in `docker-compose.yml`, change `sipi/environment/SIPI_EXTERNAL_PORT` from 1024 to 1023
 - in `docker-compose.yml`, add the following line to the `sipi/volumes` list: `~/.dsp-tools:/dsp-tools-home-folder:delegated`
+- in `docker-compose.yml`, change `sipi/networks` from `knora-net` to `knora-net-local`
+- in `docker-compose.yml`, change `networks/knora-net/name: knora-net` to `networkds/knora-net-local/name: knora-net-local`
 - in `sipi/config/sipi.docker-config.lua`, change `sipi/port` from 1024 to 1023
 - in `sipi/config/sipi.docker-config.lua`, change `sipi/nthreads` from 8 to 32
 - in `sipi/config/sipi.docker-config.lua`, change `sipi/imgroot` from `/sipi/images` to `/dsp-tools-home-folder`

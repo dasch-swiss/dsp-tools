@@ -163,7 +163,7 @@ class TestExcel2xml(unittest.TestCase):
     def test_derandomize_xsd_id(self) -> None:
         teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠"
         id_1 = excel2xml.make_xsd_id_compatible(teststring)
-        time.sleep(1)
+        time.sleep(0.1)
         id_2 = excel2xml.make_xsd_id_compatible(teststring)
         id_1_derandom = excel2xml._derandomize_xsd_id(id_1)
         id_2_derandom = excel2xml._derandomize_xsd_id(id_2)

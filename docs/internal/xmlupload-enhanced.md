@@ -46,13 +46,8 @@ Note:
 A folder with the above structure can be created with
 
 ```bash
-dsp-tools enhanced-xmlupload --generate-test-data --size=big data.xml
+dsp-tools enhanced-xmlupload --generate-test-data --size=small/medium/big data.xml
 ```
-
-Flags:
-
-- `--size`: size of test data set: small/medium/big
-
 
 
 ## 2. Start SIPI
@@ -114,6 +109,7 @@ Arguments and options:
 - `--multimedia-folder` (optional, default: `multimedia`): name of the folder containing the multimedia files
 - `--local-sipi-port` (required): 5-digit port number of the local SIPI instance, can be found in the "Container" view of Docker Desktop
 - `--generate-test-data`: If set, only generate a test data folder in the current working directory (no upload).
+  - `--size`: size of test data set: small/medium/big
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server
 - `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP-API
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API

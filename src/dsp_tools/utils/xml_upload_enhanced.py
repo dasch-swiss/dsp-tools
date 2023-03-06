@@ -290,15 +290,19 @@ def enhanced_xml_upload(
     with concurrent.futures.ThreadPoolExecutor(max_workers=32) as executor:
         futures: list[concurrent.futures.Future[Any]] = list()
         for path in all_paths:
-            futures.append(executor.submit(
-                _preprocess_file, 
-                path=path, 
-                local_sipi_port=local_sipi_port, 
-            ))
+            futures.append(
+                executor.submit(
+                    _preprocess_file, 
+                    path=path, 
+                    local_sipi_port=local_sipi_port, 
+                )
+            )
+    with concurrent.futures.ThreadPoolExecutor(max_workers=32) as executor2:
         for future in concurrent.futures.as_completed(futures):
             orig_path, internal_filename = future.result()
             orig_filepath_2_uuid[str(orig_path)] = internal_filename
-            _upload_derivates(
+            executor2.submit(
+                _upload_derivates,
                 orig_path=orig_path, 
                 internal_filename=internal_filename,
                 remote_sipi_server=remote_sipi_server,

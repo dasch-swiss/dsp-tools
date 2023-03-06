@@ -285,6 +285,7 @@ def enhanced_xml_upload(
     try_network_action(failure_msg="Unable to login to DSP server", action=lambda: con.login(user, password))
 
     print("Start preprocessing and uploading the multimedia files...")
+    start_multithreading_time = datetime.now()
     orig_filepath_2_uuid: dict[str, str] = dict()
     with concurrent.futures.ThreadPoolExecutor(max_workers=32) as executor:
         futures: list[concurrent.futures.Future[Any]] = list()
@@ -303,6 +304,7 @@ def enhanced_xml_upload(
                 remote_sipi_server=remote_sipi_server,
                 con=con
             )
+    end_multithreading_time = datetime.now()
 
     for tag in xml_file_tree.iter():
         if tag.text in orig_filepath_2_uuid:
@@ -324,7 +326,9 @@ def enhanced_xml_upload(
     )
 
     duration = datetime.now() - start_time
+    multithreading_duration = end_multithreading_time - start_multithreading_time
     print(f"Total time of enhanced xmlupload: {duration.seconds} seconds")
+    print(f"Time of multithreading: {multithreading_duration.seconds} seconds")
 
     shutil.rmtree(tmp_location / "tmp", ignore_errors=True)
 

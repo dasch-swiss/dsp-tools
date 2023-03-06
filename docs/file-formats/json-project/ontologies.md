@@ -235,7 +235,7 @@ These three are related as follows:
 
 | DSP base property (`super`) | `object`                                                            | `gui_element`                        |
 |-----------------------------|---------------------------------------------------------------------|--------------------------------------|
-| hasValue                    | BooleanValue                                                        | CheckBox                             |
+| hasValue                    | BooleanValue                                                        | Checkbox                             |
 | hasColor                    | ColorValue                                                          | Colorpicker                          |
 | hasValue                    | DateValue                                                           | Date                                 |
 | hasValue                    | DecimalValue                                                        | Slider, <br>SimpleText               |

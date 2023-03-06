@@ -126,7 +126,7 @@ class TestExcel2xml(unittest.TestCase):
 
     def test_make_xsd_id_compatible(self) -> None:
         teststring =  "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠₂₃āṇśṣr̥ṁñἄ𝝺𝝲𝛆’الشعرُאדםПопрыгуньяşğ"
-        expected   = "_0a_Z______1234567890________________________________r______________________________"
+        expected   = "_0a_Z__-___1234567890_____.__________________________r______________________________"
 
         # test that the results are distinct from each other
         results = {excel2xml.make_xsd_id_compatible(teststring) for _ in range(10)}

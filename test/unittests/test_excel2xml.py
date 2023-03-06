@@ -125,11 +125,14 @@ class TestExcel2xml(unittest.TestCase):
 
 
     def test_make_xsd_id_compatible(self) -> None:
-        teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠₂₃āṇśṣr̥ṁñἄ𝝺𝝲𝛆’الشعرُאדםПопрыгуньяşğ"
+        teststring =  "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠₂₃āṇśṣr̥ṁñἄ𝝺𝝲𝛆’الشعرُאדםПопрыгуньяşğ"
+        expected   = "_0a_Z______1234567890________________________________r______________________________"
 
         # test that the results are distinct from each other
         results = {excel2xml.make_xsd_id_compatible(teststring) for _ in range(10)}
         self.assertTrue(len(results) == 10)
+        for res in results:
+            self.assertTrue(res.startswith(expected))
 
         # test that the results are valid xsd:ids
         for result in results:
@@ -163,7 +166,6 @@ class TestExcel2xml(unittest.TestCase):
     def test_derandomize_xsd_id(self) -> None:
         teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠"
         id_1 = excel2xml.make_xsd_id_compatible(teststring)
-        time.sleep(0.1)
         id_2 = excel2xml.make_xsd_id_compatible(teststring)
         id_1_derandom = excel2xml._derandomize_xsd_id(id_1)
         id_2_derandom = excel2xml._derandomize_xsd_id(id_2)

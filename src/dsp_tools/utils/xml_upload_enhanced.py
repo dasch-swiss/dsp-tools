@@ -286,7 +286,7 @@ def enhanced_xml_upload(
 
     print("Start preprocessing and uploading the multimedia files...")
     orig_filepath_2_uuid: dict[str, str] = dict()
-    with concurrent.futures.ThreadPoolExecutor() as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=32) as executor:
         futures: list[concurrent.futures.Future[Any]] = list()
         for path in all_paths:
             futures.append(executor.submit(

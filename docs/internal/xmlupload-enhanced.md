@@ -46,8 +46,12 @@ Note:
 A folder with the above structure can be created with
 
 ```bash
-dsp-tools enhanced-xmlupload --generate-test-data data.xml
+dsp-tools enhanced-xmlupload --generate-test-data --size=big data.xml
 ```
+
+Flags:
+
+- `--size`: size of test data set: small/medium/big
 
 
 

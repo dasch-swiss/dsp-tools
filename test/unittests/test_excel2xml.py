@@ -6,6 +6,7 @@ import unittest
 from typing import Callable, Sequence, Union, Optional, Any
 
 import numpy as np
+import pandas as pd
 import pytest
 from lxml import etree
 
@@ -124,11 +125,14 @@ class TestExcel2xml(unittest.TestCase):
 
 
     def test_make_xsd_id_compatible(self) -> None:
-        teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠"
+        teststring =  "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠₂₃āṇśṣr̥ṁñἄ𝝺𝝲𝛆’الشعرُאדםПопрыгуньяşğ"
+        expected   = "_0a_Z__-___1234567890_____.__________________________r______________________________"
 
         # test that the results are distinct from each other
         results = {excel2xml.make_xsd_id_compatible(teststring) for _ in range(10)}
         self.assertTrue(len(results) == 10)
+        for res in results:
+            self.assertTrue(res.startswith(expected))
 
         # test that the results are valid xsd:ids
         for result in results:
@@ -142,11 +146,26 @@ class TestExcel2xml(unittest.TestCase):
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, " ")
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, ".")
 
+        # test that the special characters in the "Label" row of excel2xml-testdata-special-characters.xlsx are replaced
+        special_characters_df = pd.read_excel("testdata/excel2xml-testdata-special-characters.xlsx")
+        root = excel2xml.make_root("0123", "test")
+        root = excel2xml.append_permissions(root)
+        for i, row in special_characters_df.iterrows():
+            root.append(
+                excel2xml.make_resource(
+                    label=row["Label"],
+                    restype=":xyz",
+                    id=excel2xml.make_xsd_id_compatible(row["Label"])
+                )
+            )
+        # schema validation inside the write_xml() checks if the ids of the resources are valid as xsd:ID
+        excel2xml.write_xml(root, "special-characters.xml")
+        Path("special-characters.xml").unlink()
+
 
     def test_derandomize_xsd_id(self) -> None:
         teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠"
         id_1 = excel2xml.make_xsd_id_compatible(teststring)
-        time.sleep(1)
         id_2 = excel2xml.make_xsd_id_compatible(teststring)
         id_1_derandom = excel2xml._derandomize_xsd_id(id_1)
         id_2_derandom = excel2xml._derandomize_xsd_id(id_2)

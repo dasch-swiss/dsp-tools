@@ -5,6 +5,7 @@ import warnings
 from typing import Any, Optional
 
 import jsonschema
+import jsonpath_ng.ext
 import pandas as pd
 
 from dsp_tools.models.helpers import BaseError
@@ -31,6 +32,12 @@ def _validate_properties_with_schema(properties_list: list[dict[str, Any]]) -> b
     try:
         jsonschema.validate(instance=properties_list, schema=properties_schema)
     except jsonschema.ValidationError as err:
+        # from jsonpath_ng.jsonpath import Parent, Fields
+        json_path_to_property = re.search(r"^\$\[(\d+)\]", err.json_path)
+        if json_path_to_property:
+            wrong_property = jsonpath_ng.ext.parse(json_path_to_property.group(0)).find(properties_list)[0].value
+            # find out if it is "super", "object", ...
+            excel_line = int(json_path_to_property.group(0)) + 2
         raise BaseError(f'"properties" section did not pass validation. The error message is: {err.message}\n'
                         f'The error occurred at {err.json_path}') from None
     return True

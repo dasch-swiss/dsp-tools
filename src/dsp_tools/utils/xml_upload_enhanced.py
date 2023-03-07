@@ -1,17 +1,13 @@
-from asyncio import as_completed
 import concurrent.futures
-import copy
-from datetime import datetime
 import glob
 import json
-import os
 import shutil
-from typing import Any
 import warnings
-from itertools import repeat
+from datetime import datetime
 from pathlib import Path
-import regex
+from typing import Any
 
+import regex
 import requests
 from lxml import etree
 
@@ -20,7 +16,6 @@ from dsp_tools.models.connection import Connection
 from dsp_tools.models.helpers import BaseError
 from dsp_tools.utils.shared import try_network_action
 from dsp_tools.utils.xml_upload import xml_upload
-
 
 tmp_location = Path.home() / Path(".dsp-tools")
 tmp_location.mkdir(exist_ok=True)

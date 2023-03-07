@@ -279,7 +279,7 @@ def enhanced_xml_upload(
     con = Connection(server)
     try_network_action(failure_msg="Unable to login to DSP server", action=lambda: con.login(user, password))
 
-    print("Start preprocessing and uploading the multimedia files...")
+    print(f"{datetime.now()}: Start preprocessing and uploading the multimedia files...")
     start_multithreading_time = datetime.now()
     orig_filepath_2_uuid: dict[str, str] = dict()
     with concurrent.futures.ThreadPoolExecutor(max_workers=32) as executor:
@@ -292,18 +292,20 @@ def enhanced_xml_upload(
                     local_sipi_port=local_sipi_port, 
                 )
             )
-    with concurrent.futures.ThreadPoolExecutor(max_workers=32) as executor2:
-        for future in concurrent.futures.as_completed(futures):
-            orig_path, internal_filename = future.result()
-            orig_filepath_2_uuid[str(orig_path)] = internal_filename
-            executor2.submit(
-                _upload_derivates,
-                orig_path=orig_path, 
-                internal_filename=internal_filename,
-                remote_sipi_server=remote_sipi_server,
-                con=con
-            )
+        with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor2:
+            for future in concurrent.futures.as_completed(futures):
+                orig_path, internal_filename = future.result()
+                orig_filepath_2_uuid[str(orig_path)] = internal_filename
+                executor2.submit(
+                    _upload_derivates,
+                    orig_path=orig_path, 
+                    internal_filename=internal_filename,
+                    remote_sipi_server=remote_sipi_server,
+                    con=con
+                )
     end_multithreading_time = datetime.now()
+    multithreading_duration = end_multithreading_time - start_multithreading_time
+    print(f"Time of multithreading: {multithreading_duration.seconds} seconds")
 
     for tag in xml_file_tree.iter():
         if tag.text in orig_filepath_2_uuid:
@@ -325,7 +327,6 @@ def enhanced_xml_upload(
     )
 
     duration = datetime.now() - start_time
-    multithreading_duration = end_multithreading_time - start_multithreading_time
     print(f"Total time of enhanced xmlupload: {duration.seconds} seconds")
     print(f"Time of multithreading: {multithreading_duration.seconds} seconds")
 

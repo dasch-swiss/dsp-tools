@@ -71,7 +71,7 @@ class TestTools(unittest.TestCase):
         )
 
         # open a "lists" section and the project that was created
-        with open("testdata/lists_multilingual_output_expected.json") as f:
+        with open("testdata/lists/lists_multilingual_output_expected.json") as f:
             lists_section = json.load(f)
         with open(self.test_project_minimal_file) as f:
             test_project_minimal = json.load(f)
@@ -312,7 +312,7 @@ class TestTools(unittest.TestCase):
 
 
     def test_excel_to_json_list(self) -> None:
-        excel2lists(excelfolder="testdata/lists_multilingual",
+        excel2lists(excelfolder="testdata/lists/lists_multilingual",
                     path_to_output_file="testdata/tmp/_lists-out.json")
         self.assertTrue(os.path.isfile("testdata/tmp/_lists-out.json"))
         os.remove("testdata/tmp/_lists-out.json")

@@ -39,13 +39,16 @@ def _validate_resources_with_schema(resources_list: list[dict[str, Any]]) -> boo
             affected_field = regex.search(r"name|labels|comments|super|cardinalities\[(\d+)\]", err.json_path)
             if affected_field and affected_field.group(0) in ["name", "labels", "comments", "super"]:
                 excel_row = int(json_path_to_resource.group(1)) + 2
-                err_msg += f"The problem is that the Excel sheet 'classes' contains an invalid value for resource '{wrong_resource_name}', in row {excel_row}, column '{affected_field.group(0)}': {err.message}"
+                err_msg += f"The problem is that the Excel sheet 'classes' contains an invalid value for resource '{wrong_resource_name}', " \
+                           f"in row {excel_row}, column '{affected_field.group(0)}': {err.message}"
             elif affected_field and "cardinalities" in affected_field.group(0):
                 excel_row = int(affected_field.group(1)) + 2
                 if err.json_path.endswith("cardinality"):
-                    err_msg += f"The problem is that the Excel sheet '{wrong_resource_name}' contains an invalid value in row {excel_row}, column 'Cardinality': {err.message}"
+                    err_msg += f"The problem is that the Excel sheet '{wrong_resource_name}' contains an invalid value " \
+                               f"in row {excel_row}, column 'Cardinality': {err.message}"
                 elif err.json_path.endswith("propname"):
-                    err_msg += f"The problem is that the Excel sheet '{wrong_resource_name}' contains an invalid value in row {excel_row}, column 'Property': {err.message}"
+                    err_msg += f"The problem is that the Excel sheet '{wrong_resource_name}' contains an invalid value " \
+                               f"in row {excel_row}, column 'Property': {err.message}"
         else:
             err_msg += f"The error message is: {err.message}\nThe error occurred at {err.json_path}"
         raise BaseError(err_msg) from None

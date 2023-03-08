@@ -301,7 +301,7 @@ class TestTools(unittest.TestCase):
 
 
     def test_excel_to_json_project(self) -> None:
-        excel2json(data_model_files="testdata/excel2json_files",
+        excel2json(data_model_files="testdata/excel2json/excel2json_files",
                    path_to_output_file="testdata/tmp/_out_project.json")
         with open("testdata/excel2json-expected-output.json") as f:
             output_expected = json.load(f)
@@ -319,14 +319,14 @@ class TestTools(unittest.TestCase):
 
 
     def test_excel_to_json_resources(self) -> None:
-        excel2resources(excelfile="testdata/excel2json_files/test-name (test_label)/resources.xlsx",
+        excel2resources(excelfile="testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx",
                         path_to_output_file="testdata/tmp/_out_resources.json")
         self.assertTrue(os.path.isfile("testdata/tmp/_out_resources.json"))
         os.remove("testdata/tmp/_out_resources.json")
 
 
     def test_excel_to_json_properties(self) -> None:
-        excel2properties(excelfile="testdata/excel2json_files/test-name (test_label)/properties.xlsx",
+        excel2properties(excelfile="testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx",
                          path_to_output_file="testdata/tmp/_out_properties.json")
         self.assertTrue(os.path.isfile("testdata/tmp/_out_properties.json"))
         os.remove("testdata/tmp/_out_properties.json")

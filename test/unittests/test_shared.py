@@ -20,14 +20,14 @@ class TestShared(unittest.TestCase):
             "Line 12: Element '{https://dasch.swiss/schema}resource', attribute 'invalidtag': "
             "The attribute 'invalidtag' is not allowed"
         ):
-            shared.validate_xml_against_schema(input_file="testdata/invalid_testdata/test-data-invalid-resource-tag.xml")
+            shared.validate_xml_against_schema(input_file="testdata/invalid_testdata/xml-data/invalid-resource-tag.xml")
         
         with self.assertRaisesRegex(
             BaseError, 
             r"XML-tags are not allowed in text properties with encoding=utf8\. "
             r"The following lines of your XML file are affected: \[13, 14, 15, 16\]" 
         ):
-            shared.validate_xml_against_schema(input_file="testdata/invalid_testdata/test-data-utf8-text-with-xml-tags.xml")
+            shared.validate_xml_against_schema(input_file="testdata/invalid_testdata/xml-data/utf8-text-with-xml-tags.xml")
 
 
     def test_prepare_dataframe(self) -> None:

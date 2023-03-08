@@ -342,7 +342,7 @@ class TestTools(unittest.TestCase):
 
     @pytest.mark.filterwarnings("ignore")
     def test_excel2xml(self) -> None:
-        excel2xml("testdata/excel2xml-testdata.xlsx", "1234", "excel2xml-output")
+        excel2xml("testdata/excel2xml/excel2xml-testdata.xlsx", "1234", "excel2xml-output")
         self.assertTrue(os.path.isfile("excel2xml-output-data.xml"))
         os.remove("excel2xml-output-data.xml")
 

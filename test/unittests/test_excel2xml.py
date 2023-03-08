@@ -147,7 +147,7 @@ class TestExcel2xml(unittest.TestCase):
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, ".")
 
         # test that the special characters in the "Label" row of excel2xml-testdata-special-characters.xlsx are replaced
-        special_characters_df = pd.read_excel("testdata/excel2xml-testdata-special-characters.xlsx")
+        special_characters_df = pd.read_excel("testdata/excel2xml/excel2xml-testdata-special-characters.xlsx")
         root = excel2xml.make_root("0123", "test")
         root = excel2xml.append_permissions(root)
         for i, row in special_characters_df.iterrows():
@@ -612,10 +612,10 @@ class TestExcel2xml(unittest.TestCase):
     @pytest.mark.filterwarnings("ignore")
     def test_excel2xml(self) -> None:
         # test the valid files, 3 times identical, but in the three formats XLSX, XLS, and CSV
-        with open("testdata/excel2xml-expected-output.xml") as f:
+        with open("testdata/excel2xml/excel2xml-expected-output.xml") as f:
             expected = f.read()
         for ext in ["xlsx", "xls", "csv"]:
-            excel2xml.excel2xml(f"testdata/excel2xml-testdata.{ext}", "1234", "excel2xml-output")
+            excel2xml.excel2xml(f"testdata/excel2xml/excel2xml-testdata.{ext}", "1234", "excel2xml-output")
             with open("excel2xml-output-data.xml") as f:
                 returned = f.read()
                 self.assertEqual(returned, expected, msg=f"Failed with extension {ext}")

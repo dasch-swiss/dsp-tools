@@ -37,7 +37,7 @@ class TestImportScripts(unittest.TestCase):
             os.chdir(old_working_directory)
 
         # check the output XML (but before, remove random components from resource IDs and resptr targets)
-        with open("testdata/0123-data-processed-expected.xml") as f:
+        with open("testdata/excel2xml/0123-data-processed-expected.xml") as f:
             xml_expected = _derandomize_xsd_id(f.read(), multiple_occurrences=True)
         with open("src/dsp_tools/import_scripts/data-processed.xml") as f:
             xml_returned = _derandomize_xsd_id(f.read(), multiple_occurrences=True)

@@ -12,7 +12,7 @@ from dsp_tools.utils.project_validate import _collect_link_properties, _identify
 
 class TestProjectCreation(unittest.TestCase):
     
-    test_project_systematic_file = "testdata/test-project-systematic.json"
+    test_project_systematic_file = "testdata/json-project/test-project-systematic.json"
     with open(test_project_systematic_file) as json_file:
         test_project_systematic: dict[str, Any] = json.load(json_file)
         test_project_systematic_ontology: dict[str, Any] = test_project_systematic["project"]["ontologies"][0]
@@ -36,7 +36,7 @@ class TestProjectCreation(unittest.TestCase):
 
         invalid = [
             ("foo/bar", r"The input must be a path to a JSON file or a parsed JSON object"), 
-            ("testdata/test-data-systematic.xml", r"cannot be parsed to a JSON object"),
+            ("testdata/xml-data/test-data-systematic.xml", r"cannot be parsed to a JSON object"),
         ]
         for inv, err_msg in invalid:
             with self.assertRaisesRegex(BaseError, err_msg):

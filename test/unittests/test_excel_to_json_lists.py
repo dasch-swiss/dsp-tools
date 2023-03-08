@@ -32,11 +32,11 @@ class TestExcelToJSONList(unittest.TestCase):
     def test_expand_lists_from_excel(self) -> None:
         # take the "lists" section of the systematic test project, expand it, and check if it is equal to the expanded
         # version stored in the testdata folder
-        with open("testdata/test-project-systematic.json") as f:
+        with open("testdata/json-project/test-project-systematic.json") as f:
             lists_with_excel_reference = json.load(f)["project"]["lists"]
         lists_with_excel_reference_output = e2l.expand_lists_from_excel(lists_with_excel_reference)
         with open("testdata/lists/lists_section_expanded.json") as f:
-            lists_with_excel_reference_output_expected = json.load(f)["expanded lists section of test-project-systematic.json"]
+            lists_with_excel_reference_output_expected = json.load(f)["expanded lists section of json-project/test-project-systematic.json"]
         self.assertListEqual(lists_with_excel_reference_output, lists_with_excel_reference_output_expected)
 
         # take the expanded version, and make sure that it is returned unchanged
@@ -84,7 +84,7 @@ class TestExcelToJSONList(unittest.TestCase):
             "Validation of the 'lists' section works only if exactly one of the two arguments is given."
         ):
             e2l.validate_lists_section_with_schema(
-                path_to_json_project_file="testdata/test-project-systematic.json",
+                path_to_json_project_file="testdata/json-project/test-project-systematic.json",
                 lists_section=lists_section_valid
             )
         with self.assertRaisesRegex(
@@ -95,7 +95,7 @@ class TestExcelToJSONList(unittest.TestCase):
 
         # pass a file that doesn't have a "lists" section
         with self.assertRaisesRegex(BaseError, "there is no \"lists\" section"):
-            e2l.validate_lists_section_with_schema(path_to_json_project_file="testdata/test-project-minimal.json")
+            e2l.validate_lists_section_with_schema(path_to_json_project_file="testdata/json-project/test-project-minimal.json")
 
 
     def test_excel2lists(self) -> None:

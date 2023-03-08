@@ -35,10 +35,10 @@ class TestTools(unittest.TestCase):
     password = "test"
     imgdir = "."
     sipi = "http://0.0.0.0:1024"
-    test_project_systematic_file = "testdata/test-project-systematic.json"
-    test_project_minimal_file = "testdata/test-project-minimal.json"
-    test_data_systematic_file = "testdata/test-data-systematic.xml"
-    test_data_minimal_file = "testdata/test-data-minimal.xml"
+    test_project_systematic_file = "testdata/json-project/test-project-systematic.json"
+    test_project_minimal_file = "testdata/json-project/test-project-minimal.json"
+    test_data_systematic_file = "testdata/xml-data/test-data-systematic.xml"
+    test_data_minimal_file = "testdata/xml-data/test-data-minimal.xml"
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -129,13 +129,13 @@ class TestTools(unittest.TestCase):
             project_expected = json.load(f)
 
         get_project(project_identifier="tp",
-                    outfile_path="testdata/tmp/_test-project-systematic.json",
+                    outfile_path="testdata/tmp/_json-project/test-project-systematic.json",
                     server=self.server,
                     user=self.user,
                     password="test",
                     verbose=True)
 
-        with open("testdata/tmp/_test-project-systematic.json") as f:
+        with open("testdata/tmp/_json-project/test-project-systematic.json") as f:
             project_received = json.load(f)
 
         self.assertEqual(project_expected["project"]["shortcode"], project_received["project"]["shortcode"])
@@ -275,7 +275,7 @@ class TestTools(unittest.TestCase):
         self.assertNotEqual(mapping_file, "")
 
         id2iri_replaced_xml_filename = "testdata/tmp/_test-id2iri-replaced.xml"
-        id_to_iri(xml_file="testdata/test-id2iri-data.xml",
+        id_to_iri(xml_file="testdata/id2iri/test-id2iri-data.xml",
                   json_file=mapping_file,
                   out_file=id2iri_replaced_xml_filename,
                   verbose=True)
@@ -333,8 +333,8 @@ class TestTools(unittest.TestCase):
 
 
     def test_id_to_iri(self) -> None:
-        id_to_iri(xml_file="testdata/test-id2iri-data.xml",
-                  json_file="testdata/test-id2iri-mapping.json",
+        id_to_iri(xml_file="testdata/id2iri/test-id2iri-data.xml",
+                  json_file="testdata/id2iri/test-id2iri-mapping.json",
                   out_file="testdata/tmp/test-id2iri-out.xml",
                   verbose=True)
         self.assertTrue(os.path.isfile("testdata/tmp/test-id2iri-out.xml"))

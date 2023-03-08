@@ -570,7 +570,7 @@ class TestExcel2xml(unittest.TestCase):
         ]
         corrections = {"completely wrong spelling variant of 'first subnode' that needs manual correction": "first subnode"}
         testlist_mapping_returned = excel2xml.create_json_excel_list_mapping(
-            path_to_json="testdata/test-project-systematic.json",
+            path_to_json="testdata/json-project/test-project-systematic.json",
             list_name="testlist",
             excel_values=excel_column,
             sep=",",
@@ -590,7 +590,7 @@ class TestExcel2xml(unittest.TestCase):
 
     def test_create_json_list_mapping(self) -> None:
         testlist_mapping_returned = excel2xml.create_json_list_mapping(
-            path_to_json="testdata/test-project-systematic.json",
+            path_to_json="testdata/json-project/test-project-systematic.json",
             list_name="testlist",
             language_label="en"
         )

@@ -12,8 +12,8 @@ from dsp_tools.utils import shared
 class TestShared(unittest.TestCase):
 
     def test_validate_xml_against_schema(self) -> None:
-        self.assertTrue(shared.validate_xml_against_schema(input_file="testdata/test-data-systematic.xml"))
-        self.assertTrue(shared.validate_xml_against_schema(input_file=etree.parse(source="testdata/test-data-minimal.xml")))
+        self.assertTrue(shared.validate_xml_against_schema(input_file="testdata/xml-data/test-data-systematic.xml"))
+        self.assertTrue(shared.validate_xml_against_schema(input_file=etree.parse(source="testdata/xml-data/test-data-minimal.xml")))
         
         with self.assertRaisesRegex(
             BaseError,

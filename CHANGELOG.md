@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.1.1](https://github.com/dasch-swiss/dsp-tools/compare/v2.1.0...v2.1.1) (2023-03-08)
+
+
+### Bug Fixes
+
+* **excel2json:** add missing comments in the resources template (DEV-1765) [#303](https://github.com/dasch-swiss/dsp-tools/issues/303) ([b2532e4](https://github.com/dasch-swiss/dsp-tools/commit/b2532e47e6020db39fde74db62cd8b74e55f02de))
+* **excel2xml:** make_xsd_id_compatible() does now replace all special characters (DEV-1792) ([#313](https://github.com/dasch-swiss/dsp-tools/issues/313)) ([b87f903](https://github.com/dasch-swiss/dsp-tools/commit/b87f903080ffd053c858b3b63e493e7911b7f7f7))
+* **excel2xml:** proper handling of special characters in text properties, depending on the encoding (DEV-1719) ([#296](https://github.com/dasch-swiss/dsp-tools/issues/296)) ([c8f1e7a](https://github.com/dasch-swiss/dsp-tools/commit/c8f1e7ac01319460eb008fb3205fc62fb59344e2))
+* **get:** prevent invalid gui_element "Pulldown" (DEV-1781) [#312](https://github.com/dasch-swiss/dsp-tools/issues/312) ([c5d355e](https://github.com/dasch-swiss/dsp-tools/commit/c5d355e362cb99537557702630fd46d8d39bf49d))
+* invalid argument names in CLI entrypoint (DEV-1776) [#310](https://github.com/dasch-swiss/dsp-tools/issues/310) ([6e1a6fb](https://github.com/dasch-swiss/dsp-tools/commit/6e1a6fb921ee2214c450e629e04f715638980b76))
+
+
+### Maintenance
+
+* allow input of xmlupload to be parsed (DEV-1780) ([#311](https://github.com/dasch-swiss/dsp-tools/issues/311)) ([abc167f](https://github.com/dasch-swiss/dsp-tools/commit/abc167f0881878800dfd7253b06de6e5f4aa53c5))
+* beautify stack traces (DEV-1766) [#305](https://github.com/dasch-swiss/dsp-tools/issues/305) ([17b6f2f](https://github.com/dasch-swiss/dsp-tools/commit/17b6f2f1b75e7e0e5a156d12f367c3f6a7cd1579))
+* bump start-stack to 2023.03.01 (DEV-1802) ([#316](https://github.com/dasch-swiss/dsp-tools/issues/316)) ([3d3f476](https://github.com/dasch-swiss/dsp-tools/commit/3d3f476410bc75719fe2bb9c9e9aa373766d9da4))
+* harmonize CLI help texts with the CLI commands documentation (DEV-1767) ([#306](https://github.com/dasch-swiss/dsp-tools/issues/306)) ([f9e4dca](https://github.com/dasch-swiss/dsp-tools/commit/f9e4dca1fce76f1f411ac46632fc4905b42a98d3))
+* new error handling strategy (DEV-1773) ([#307](https://github.com/dasch-swiss/dsp-tools/issues/307)) ([4c02e18](https://github.com/dasch-swiss/dsp-tools/commit/4c02e180db7bec024c843bccbfde1a1357eeb228))
+* refactor list creation (DEV-1775) ([#309](https://github.com/dasch-swiss/dsp-tools/issues/309)) ([78a8488](https://github.com/dasch-swiss/dsp-tools/commit/78a848812d48f2a49e568350471ff023b1a724e9))
+* refactor onto creation (DEV-1774) ([#308](https://github.com/dasch-swiss/dsp-tools/issues/308)) ([f5a16e4](https://github.com/dasch-swiss/dsp-tools/commit/f5a16e4f938c2607d092e15d7bfc7bf3a5a41554))
+
 ## [2.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v2.0.3...v2.1.0) (2023-02-21)
 
 

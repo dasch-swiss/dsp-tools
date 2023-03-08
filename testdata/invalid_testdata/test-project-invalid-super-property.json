@@ -12,8 +12,8 @@
         ],
         "ontologies": [
             {
-                "name": "minimalOnto",
-                "label": "minimal onto",
+                "name": "testonto",
+                "label": "Test ontology",
                 "properties": [
                     {
                         "name": "hasText",

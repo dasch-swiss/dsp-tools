@@ -501,13 +501,13 @@ def _create_ontologies(
     overall_success = True
 
     print("Create ontologies...")
-    all_ontologies: list[Ontology] = try_network_action(
-        action=lambda: Ontology.getAllOntologies(con=con),
+    project_ontologies: list[Ontology] = try_network_action(
+        action=lambda: Ontology.getProjectOntologies(con=con, project_id=project_remote.id),  # type: ignore
         failure_msg="WARNING: Unable to retrieve remote ontologies. Cannot check if your ontology already exists."
     )
     for ontology_definition in project_definition.get("project", {}).get("ontologies", {}):
         ontology_definition = cast(dict[str, Any], ontology_definition)
-        if ontology_definition["name"] in [onto.name for onto in all_ontologies]:
+        if ontology_definition["name"] in [onto.name for onto in project_ontologies]:
             print(f"\tWARNING: Ontology '{ontology_definition['name']}' already exists on the DSP server. Skipping...")
             overall_success = False
             continue

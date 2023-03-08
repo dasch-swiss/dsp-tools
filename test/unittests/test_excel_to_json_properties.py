@@ -13,11 +13,6 @@ from dsp_tools.utils import excel_to_json_properties as e2j
 
 class TestExcelToProperties(unittest.TestCase):
 
-    excelfile_valid = "testdata/excel2json_files/test-name (test_label)/properties.xlsx"
-    excelfile_invalid_super = "testdata/invalid_testdata/excel2json_properties_invalid_super.xlsx"
-    excelfile_invalid_object = "testdata/invalid_testdata/excel2json_properties_invalid_object.xlsx"
-    excelfile_invalid_gui_element = "testdata/invalid_testdata/excel2json_properties_invalid_gui_element.xlsx"
-    excelfile_invalid_gui_attribute = "testdata/invalid_testdata/excel2json_properties_invalid_gui_attribute.xlsx"
     outfile = "testdata/tmp/_out_properties.json"
 
     @classmethod
@@ -33,7 +28,7 @@ class TestExcelToProperties(unittest.TestCase):
         os.rmdir('testdata/tmp')
 
     def test_excel2properties(self) -> None:
-        output_from_method, _ = e2j.excel2properties(self.excelfile_valid, self.outfile)
+        output_from_method, _ = e2j.excel2properties("testdata/excel2json_files/test-name (test_label)/properties.xlsx", self.outfile)
 
         # define the expected values from the excel file
         excel_names = ["correspondsToGenericAnthroponym", "hasAnthroponym", "hasGender", "isDesignatedAs", "hasTitle",
@@ -135,24 +130,24 @@ class TestExcelToProperties(unittest.TestCase):
     def test_validate_properties_with_schema(self) -> None:
         testcases = [
             (
-                self.excelfile_invalid_super, 
+                "testdata/invalid_testdata/excel2json_properties_invalid_super.xlsx", 
                 "'properties' section did not pass validation. The problematic property is 'hasGeoname' in Excel row 3. "
                 "The problem is that the column 'super' has an invalid value: 'GeonameValue' is not valid under any of the given schemas"
             ),
             (
-                self.excelfile_invalid_object,
+                "testdata/invalid_testdata/excel2json_properties_invalid_object.xlsx",
                 "'properties' section did not pass validation. The problematic property is 'hasBoolean' in Excel row 2. "
                 "The problem is that the column 'object' has an invalid value: 'hasValue' is not valid under any of the given schemas"
             ),
             (
-                self.excelfile_invalid_gui_element,
+                "testdata/invalid_testdata/excel2json_properties_invalid_gui_element.xlsx",
                 "'properties' section did not pass validation. The problematic property is 'hasInterval' in Excel row 4. "
                 r"The problem is that the column 'gui_element' has an invalid value: 'Geonames' is not one of \['Interval', 'SimpleText'\]"
             ),
             (
-                self.excelfile_invalid_gui_attribute,
+                "testdata/invalid_testdata/excel2json_properties_invalid_gui_attribute.xlsx",
                 "'properties' section did not pass validation. The problematic property is 'hasInterval' in Excel row 4. "
-                "The problem is that the column 'gui_attributes' has an invalid value: Additional properties are not allowed ('rows' was unexpected)"
+                r"The problem is that the column 'gui_attributes' has an invalid value: Additional properties are not allowed \('rows' was unexpected\)"
             )
         ]
         

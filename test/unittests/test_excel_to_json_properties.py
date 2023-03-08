@@ -128,6 +128,9 @@ class TestExcelToProperties(unittest.TestCase):
 
 
     def test_validate_properties_with_schema(self) -> None:
+        # it is not possible to call the method to be tested directly. So let's make a reference to it, so that it can be found by the usage search
+        lambda x: e2j._validate_properties_with_schema([])
+        
         testcases = [
             (
                 "testdata/invalid_testdata/excel2json_properties_invalid_super.xlsx", 

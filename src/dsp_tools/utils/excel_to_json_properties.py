@@ -1,12 +1,12 @@
 import importlib.resources
 import json
+import re
 import warnings
 from typing import Any, Optional
 
 import jsonschema
 import jsonpath_ng.ext
 import pandas as pd
-import regex
 
 from dsp_tools.models.helpers import BaseError
 from dsp_tools.utils.shared import prepare_dataframe, check_notna
@@ -33,12 +33,12 @@ def _validate_properties_with_schema(properties_list: list[dict[str, Any]]) -> b
         jsonschema.validate(instance=properties_list, schema=properties_schema)
     except jsonschema.ValidationError as err:
         err_msg = f"'properties' section did not pass validation. "
-        json_path_to_property = regex.search(r"^\$\[(\d+)\]", err.json_path)
+        json_path_to_property = re.search(r"^\$\[(\d+)\]", err.json_path)
         if json_path_to_property:
             wrong_property_name = jsonpath_ng.ext.parse(json_path_to_property.group(0)).find(properties_list)[0].value["name"]
             excel_row = int(json_path_to_property.group(1)) + 2
             err_msg += f"The problematic property is '{wrong_property_name}' in Excel row {excel_row}. "
-            affected_field = regex.search(r"name|labels|comments|super|subject|object|gui_element|gui_attributes", err.json_path)
+            affected_field = re.search(r"name|labels|comments|super|subject|object|gui_element|gui_attributes", err.json_path)
             if affected_field:
                 err_msg += f"The problem is that the column '{affected_field.group(0)}' has an invalid value: {err.message}"
         else:
@@ -82,9 +82,9 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
                 raise BaseError(f"Row {row_count} of Excel file {excelfile} contains invalid data in column "
                                  f"'gui_attributes'. The expected format is 'attribute: value[, attribute: value]'.")
             attr, val = [x.strip() for x in pair.split(":")]
-            if regex.search(r"^\d+\.\d+$", val):
+            if re.search(r"^\d+\.\d+$", val):
                 val = float(val)
-            elif regex.search(r"^\d+$", val):
+            elif re.search(r"^\d+$", val):
                 val = int(val)
             gui_attributes[attr] = val
 

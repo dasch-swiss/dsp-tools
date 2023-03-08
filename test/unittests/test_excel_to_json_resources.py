@@ -108,7 +108,8 @@ class TestExcelToResource(unittest.TestCase):
         testcases = [
             (
                 "testdata/invalid_testdata/excel2json/resources_invalid_super.xlsx", 
-                "'resources' section did not pass validation. The problem is that the Excel sheet 'classes' contains an invalid value for resource 'Title', in row 3, column 'super': 'fantasy' is not valid under any of the given schemas"
+                "'resources' section did not pass validation. The problem is that the Excel sheet 'classes' contains an invalid value "
+                "for resource 'Title', in row 3, column 'super': 'fantasy' is not valid under any of the given schemas"
             ),
             (
                 "testdata/invalid_testdata/excel2json/resources_invalid_missing_sheet.xlsx",
@@ -116,11 +117,13 @@ class TestExcelToResource(unittest.TestCase):
             ),
             (
                 "testdata/invalid_testdata/excel2json/resources_invalid_cardinality.xlsx",
-                "'resources' section did not pass validation. The problem is that the Excel sheet 'Owner' contains an invalid value in row 3, column 'Cardinality': '0-2' is not one of ['1', '0-1', '1-n', '0-n']"
+                "'resources' section did not pass validation. The problem is that the Excel sheet 'Owner' contains an invalid value "
+                "in row 3, column 'Cardinality': '0-2' is not one of ['1', '0-1', '1-n', '0-n']"
             ),
             (
                 "testdata/invalid_testdata/excel2json/resources_invalid_property.xlsx",
-                "'resources' section did not pass validation. The problem is that the Excel sheet 'FamilyMember' contains an invalid value in row 7, column 'Property': ':fan:ta:sy' does not match "
+                "'resources' section did not pass validation. The problem is that the Excel sheet 'FamilyMember' contains an invalid value "
+                "in row 7, column 'Property': ':fan:ta:sy' does not match "
             )
         ]
         

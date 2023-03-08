@@ -49,7 +49,7 @@ def start_stack(
         shutil.copy(file_path, docker_path_of_user / file.name)
 
     # get sipi.docker-config.lua
-    commit_of_used_api_version = "ddaa9b642676c3ae1edec44de5488a6b5c849e40"
+    commit_of_used_api_version = "d573a9efafc2b0f8864f4d3c64963cd1e9f6fb65"
     url_prefix = f"https://github.com/dasch-swiss/dsp-api/raw/{commit_of_used_api_version}/"
     docker_config_lua_text = requests.get(f"{url_prefix}sipi/config/sipi.docker-config.lua").text
     if max_file_size:

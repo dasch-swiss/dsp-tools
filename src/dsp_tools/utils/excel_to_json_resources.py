@@ -192,9 +192,9 @@ def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -
 
     # transform every row into a resource
     resources = [_row2resource(row, excelfile) for i, row in all_classes_df.iterrows()]
-    _validate_resources_with_schema(resources)
 
     # write final "resources" section into a JSON file
+    _validate_resources_with_schema(resources)
     if path_to_output_file:
         with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
             json.dump(resources, file, indent=4, ensure_ascii=False)

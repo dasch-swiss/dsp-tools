@@ -38,7 +38,6 @@ Note:
 - Your project must contain one XML data file, anywhere.
 - Your project must contain one sub-folder that contains all multimedia files (here: `multimedia`).
 - The multimedia files in `multimedia` may be arbitrarily nested.
-- Every multimedia file in `multimedia` must occur in the XML data file.
 - Every path referenced in a `<bitstream>` in the XML file must point to a file in `multimedia`.
 - The paths in the `<bitstream>` are relative to the project root.
 - Your project must not contain a folder named `ZIP` or `tmp` on the top level
@@ -106,7 +105,6 @@ dsp-tools enhanced-xmlupload [options] xmlfile
 
 Arguments and options:
 
-- `--multimedia-folder` (optional, default: `multimedia`): name of the folder containing the multimedia files
 - `--local-sipi-port` (required): 5-digit port number of the local SIPI instance, can be found in the "Container" view of Docker Desktop
 - `--generate-test-data`: If set, only generate a test data folder in the current working directory (no upload).
   - `--size`: size of test data set: small/medium/big

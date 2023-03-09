@@ -143,51 +143,20 @@ def generate_testdata(size: str) -> bool:
     return True
 
 
-def _parse_and_check_xml_file(
-    xmlfile: str,
-    multimedia_folder: str
-) -> etree.ElementTree:   # type: ignore
+def _parse_xml_file(xmlfile: str) -> tuple[etree._ElementTree, list[Path]]:
     """
-    Parse XML file and verify that all multimedia files referenced in it are contained in multimedia_folder
-    (or one of its subfolders), and that all files contained in multimedia_folder are referenced in the XML file.
+    Parse XML file 
 
     Args:
         xmlfile: path to the XML file
-        multimedia_folder: path to the multimedia folder
 
     Returns:
-        lxml.etree.ElementTree of the XML file
+        tuple consisting of the lxml.etree.ElementTree of the XML file, and the list of all paths in the <bistream> tags
     """
-    tree = etree.parse(xmlfile)
+    tree: etree._ElementTree = etree.parse(xmlfile)
     bitstream_paths = [x.text for x in tree.iter()
                        if etree.QName(x).localname.endswith("bitstream") and x.text is not None]
-    filesystem_paths = [str(x) for x in Path().glob(f"{multimedia_folder}/**/*.*") if x.name != ".DS_Store"]
-    if sorted(bitstream_paths) != sorted(filesystem_paths):
-        raise BaseError("The multimedia folder and the XML file don't contain the same files!")
-    else:
-        print("Check passed: Your XML file contains the same multimedia files than your multimedia folder.")
-
-    return tree
-
-
-def _collect_all_paths(multimedia_folder: str) -> list[Path]:
-    """
-    Read all multimedia files contained in multimedia_folder and its subfolders,
-    and return all paths,
-    sorted by size (biggest file first).
-
-    Args:
-        multimedia_folder: path to the folder containing the multimedia files
-
-    Returns:
-        a list of all paths
-    """
-    # collect all paths
-    path_to_size: dict[Path, float] = dict()
-    for pth in Path().glob(f"{multimedia_folder}/**/*.*"):
-        path_to_size[pth] = round(pth.stat().st_size / 1_000_000, 1)
-    all_paths = sorted(path_to_size.keys(), key=lambda x: path_to_size[x], reverse=True)
-    return all_paths
+    return tree, bitstream_paths
 
 
 def _upload_derivates(
@@ -241,7 +210,6 @@ def _preprocess_file(
 
 
 def enhanced_xml_upload(
-    multimedia_folder: str,
     local_sipi_port: int,
     server: str,
     user: str,
@@ -257,7 +225,6 @@ def enhanced_xml_upload(
     and send the preprocessed files to the DSP server.
 
     Args:
-        multimedia_folder: name of the folder containing the multimedia files
         local_sipi_port: 5-digit port number of the local SIPI instance, can be found in the "Container" view of Docker Desktop
         server: the DSP server where the data should be imported
         user: username used for authentication with the DSP-API
@@ -272,9 +239,7 @@ def enhanced_xml_upload(
     """
     start_time = datetime.now()
 
-    xml_file_tree = _parse_and_check_xml_file(xmlfile=xmlfile, multimedia_folder=multimedia_folder)
-
-    all_paths = _collect_all_paths(multimedia_folder=multimedia_folder)
+    xml_file_tree, all_paths = _parse_xml_file(xmlfile=xmlfile)
 
     con = Connection(server)
     try_network_action(failure_msg="Unable to login to DSP server", action=lambda: con.login(user, password))

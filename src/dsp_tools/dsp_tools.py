@@ -95,7 +95,6 @@ def program(user_args: list[str]) -> None:
         help="For internal use only: Upload data from an XML file to the DaSCH Service Platform. Preprocess the data locally first."
     )
     parser_enhanced_xmlupload.set_defaults(action="enhanced-xmlupload")
-    parser_enhanced_xmlupload.add_argument("--multimedia-folder", default="multimedia", help="Path to folder containing the multimedia files")
     parser_enhanced_xmlupload.add_argument("--local-sipi-port", type=int, help="5-digit port number of the local SIPI instance, can be found in the 'Container' view of Docker Desktop")
     parser_enhanced_xmlupload.add_argument("--generate-test-data", action="store_true", help="only generate a test data folder in the current working directory (no upload)")
     parser_enhanced_xmlupload.add_argument("--size", default="small", help="size of test data set: small/medium/big")
@@ -234,7 +233,6 @@ def program(user_args: list[str]) -> None:
             success = generate_testdata(size=args.size)
         else:
             success = enhanced_xml_upload(
-                multimedia_folder=args.multimedia_folder,
                 local_sipi_port=args.local_sipi_port,
                 server=args.server,
                 user=args.user,

@@ -87,14 +87,14 @@ def try_network_action(
             else:
                 err_message = str(err).replace('\n', ' ')
                 err_message = err_message[:150] if len(err_message) > 150 else err_message
-            raise BaseError(f"{failure_msg} Error message: {err_message}")
+            raise UserError(f"{failure_msg}.\nOriginal error message for diagnostic purposes:\n{err_message}") from None
         except Exception as exc:
             if hasattr(exc, 'message'):
                 exc_message = exc.message
             else:
                 exc_message = str(exc).replace('\n', ' ')
                 exc_message = exc_message[:150] if len(exc_message) > 150 else exc_message
-            raise BaseError(f"{failure_msg} Error message: {exc_message}")
+            raise UserError(f"{failure_msg}.\nOriginal error message for diagnostic purposes:\n{exc_message}") from None
 
     raise BaseError(failure_msg)
 

@@ -623,7 +623,7 @@ class TestExcel2xml(unittest.TestCase):
                 os.remove("excel2xml-output-data.xml")
 
         # test the invalid files
-        invalid_prefix = "testdata/invalid_testdata/excel2xml"
+        invalid_prefix = "testdata/invalid-testdata/excel2xml"
         invalid_cases = [
             (f"{invalid_prefix}/boolean-prop-two-values.xlsx",           "A <boolean-prop> can only have a single value"),
             (f"{invalid_prefix}/empty-property.xlsx",                    "At least one value per property is required"),

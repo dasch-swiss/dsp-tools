@@ -35,7 +35,7 @@ class TestExcelToJSONList(unittest.TestCase):
         with open("testdata/json-project/test-project-systematic.json") as f:
             lists_with_excel_reference = json.load(f)["project"]["lists"]
         lists_with_excel_reference_output = e2l.expand_lists_from_excel(lists_with_excel_reference)
-        with open("testdata/lists/lists_section_expanded.json") as f:
+        with open("testdata/excel2json/lists-section-expanded.json") as f:
             lists_with_excel_reference_output_expected = json.load(f)["expanded lists section of json-project/test-project-systematic.json"]
         self.assertListEqual(lists_with_excel_reference_output, lists_with_excel_reference_output_expected)
 
@@ -46,15 +46,15 @@ class TestExcelToJSONList(unittest.TestCase):
 
 
     def test_make_json_lists_from_excel(self) -> None:
-        lists_multilingual = [f"testdata/lists/lists_multilingual/{lang}.xlsx" for lang in ["de", "en", "fr"]]
+        lists_multilingual = [f"testdata/excel2json/lists-multilingual/{lang}.xlsx" for lang in ["de", "en", "fr"]]
         lists_multilingual_output = e2l._make_json_lists_from_excel(lists_multilingual)
-        with open("testdata/lists/lists_multilingual_output_expected.json") as f:
+        with open("testdata/excel2json/lists-multilingual-output-expected.json") as f:
             lists_multilingual_output_expected = json.load(f)
         self.assertListEqual(lists_multilingual_output, lists_multilingual_output_expected)
 
 
     def test_validate_lists_section_with_schema(self) -> None:
-        with open("testdata/lists/lists_multilingual_output_expected.json") as f:
+        with open("testdata/excel2json/lists-multilingual-output-expected.json") as f:
             lists_section_valid = json.load(f)
 
         # validate the valid "lists" section in a correct way
@@ -101,10 +101,10 @@ class TestExcelToJSONList(unittest.TestCase):
     def test_excel2lists(self) -> None:
         for mode in ["monolingual", "multilingual"]:
             # create output files
-            input_df = pd.read_excel(f"testdata/lists/lists_{mode}/de.xlsx", header=None, dtype='str')
+            input_df = pd.read_excel(f"testdata/excel2json/lists-{mode}/de.xlsx", header=None, dtype='str')
             input_df = input_df.applymap(lambda x: x if pd.notna(x) and regex.search(r"\p{L}", str(x), flags=regex.UNICODE) else pd.NA)
             input_df.dropna(axis="index", how="all", inplace=True)
-            excelfolder = f"testdata/lists/lists_{mode}"
+            excelfolder = f"testdata/excel2json/lists-{mode}"
             outfile = f"testdata/tmp/lists_output_{mode}.json"
             output_from_method, _ = e2l.excel2lists(excelfolder=excelfolder, path_to_output_file=outfile)
 

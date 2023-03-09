@@ -140,9 +140,9 @@ class TestExcelToJSONList(unittest.TestCase):
 
         # make sure that the invalid lists raise an Error
         with self.assertRaisesRegex(BaseError, r"Found duplicate in column 2, row 9"):
-            e2l.excel2lists(excelfolder="testdata/invalid_testdata/lists_invalid_1", path_to_output_file=outfile)
+            e2l.excel2lists(excelfolder="testdata/invalid_testdata/lists-invalid-1", path_to_output_file=outfile)
         with self.assertRaisesRegex(BaseError, r"The Excel file with the language code 'de' should have a value in row 10, column 2"):
-            e2l.excel2lists(excelfolder="testdata/invalid_testdata/lists_invalid_2", path_to_output_file=outfile)
+            e2l.excel2lists(excelfolder="testdata/invalid_testdata/lists-invalid-2", path_to_output_file=outfile)
 
 
 if __name__ == '__main__':

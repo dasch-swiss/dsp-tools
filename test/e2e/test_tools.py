@@ -129,13 +129,13 @@ class TestTools(unittest.TestCase):
             project_expected = json.load(f)
 
         get_project(project_identifier="tp",
-                    outfile_path="testdata/tmp/_json-project/test-project-systematic.json",
+                    outfile_path="testdata/tmp/_test-project-systematic.json",
                     server=self.server,
                     user=self.user,
                     password="test",
                     verbose=True)
 
-        with open("testdata/tmp/_json-project/test-project-systematic.json") as f:
+        with open("testdata/tmp/_test-project-systematic.json") as f:
             project_received = json.load(f)
 
         self.assertEqual(project_expected["project"]["shortcode"], project_received["project"]["shortcode"])
@@ -303,7 +303,7 @@ class TestTools(unittest.TestCase):
     def test_excel_to_json_project(self) -> None:
         excel2json(data_model_files="testdata/excel2json/excel2json_files",
                    path_to_output_file="testdata/tmp/_out_project.json")
-        with open("testdata/excel2json-expected-output.json") as f:
+        with open("testdata/excel2json/excel2json-expected-output.json") as f:
             output_expected = json.load(f)
         with open("testdata/tmp/_out_project.json") as f:
             output = json.load(f)

@@ -211,13 +211,15 @@ def _preprocess_file(
 
 def enhanced_xml_upload(
     local_sipi_port: int,
-    server: str,
+    remote_dsp_server: str,
+    remote_sipi_server: str,
+    num_of_threads_for_preprocessing: int,
+    num_of_threads_for_uploading: int,
     user: str,
     password: str,
-    remote_sipi_server: str,
+    xmlfile: str,
     verbose: bool,
-    incremental: bool,
-    xmlfile: str
+    incremental: bool
 ) -> bool:
     """
     Before starting the regular xmlupload, 
@@ -226,13 +228,15 @@ def enhanced_xml_upload(
 
     Args:
         local_sipi_port: 5-digit port number of the local SIPI instance, can be found in the "Container" view of Docker Desktop
-        server: the DSP server where the data should be imported
+        remote_dsp_server: the DSP server where the data should be imported
+        remote_sipi_server: URL of the remote SIPI IIIF server
+        num_of_threads_for_preprocessing: number of threads used for sending requests to the local SIPI
+        num_of_threads_for_uploading: number of threads used for uploading the preprocessed files to the remote SIPI
         user: username used for authentication with the DSP-API
         password: password used for authentication with the DSP-API
-        remote_sipi_server: URL of the remote SIPI IIIF server
-        verbose: If set, more information about the process is printed to the console.
-        incremental: If set, IRIs instead of internal IDs are expected as reference to already existing resources on DSP
         xmlfile: path to xml file containing the data
+        verbose: If set, more information about the process is printed to the console.
+        incremental: If true, IRIs instead of internal IDs are expected as reference to already existing resources on DSP
 
     Returns:
         success status
@@ -241,13 +245,13 @@ def enhanced_xml_upload(
 
     xml_file_tree, all_paths = _parse_xml_file(xmlfile=xmlfile)
 
-    con = Connection(server)
+    con = Connection(remote_dsp_server)
     try_network_action(failure_msg="Unable to login to DSP server", action=lambda: con.login(user, password))
 
     print(f"{datetime.now()}: Start preprocessing and uploading the multimedia files...")
     start_multithreading_time = datetime.now()
     orig_filepath_2_uuid: dict[str, str] = dict()
-    with concurrent.futures.ThreadPoolExecutor(max_workers=32) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=num_of_threads_for_preprocessing) as executor:
         futures: list[concurrent.futures.Future[Any]] = list()
         for path in all_paths:
             futures.append(
@@ -257,7 +261,7 @@ def enhanced_xml_upload(
                     local_sipi_port=local_sipi_port, 
                 )
             )
-        with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor2:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=num_of_threads_for_uploading) as executor2:
             for future in concurrent.futures.as_completed(futures):
                 orig_path, internal_filename = future.result()
                 orig_filepath_2_uuid[str(orig_path)] = internal_filename
@@ -280,7 +284,7 @@ def enhanced_xml_upload(
 
     xml_upload(
         input_file=xml_file_tree,
-        server=server,
+        server=remote_dsp_server,
         user=user,
         password=password,
         imgdir=".",

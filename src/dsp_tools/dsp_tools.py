@@ -95,13 +95,15 @@ def program(user_args: list[str]) -> None:
         help="For internal use only: Upload data from an XML file to the DaSCH Service Platform. Preprocess the data locally first."
     )
     parser_enhanced_xmlupload.set_defaults(action="enhanced-xmlupload")
-    parser_enhanced_xmlupload.add_argument("--local-sipi-port", type=int, help="5-digit port number of the local SIPI instance, can be found in the 'Container' view of Docker Desktop")
     parser_enhanced_xmlupload.add_argument("--generate-test-data", action="store_true", help="only generate a test data folder in the current working directory (no upload)")
     parser_enhanced_xmlupload.add_argument("--size", default="small", help="size of test data set: small/medium/big")
-    parser_enhanced_xmlupload.add_argument("-s", "--server", default=default_localhost, help=url_text)
+    parser_enhanced_xmlupload.add_argument("-P", "--local-sipi-port", type=int, help="5-digit port number of the local SIPI instance, can be found in the 'Container' view of Docker Desktop")
+    parser_enhanced_xmlupload.add_argument("-s", "--remote-dsp-server", default=default_localhost, help=url_text)
+    parser_enhanced_xmlupload.add_argument("-S", "--remote-sipi-server", default="http://0.0.0.0:1024", help="URL of the remote SIPI server")
+    parser_enhanced_xmlupload.add_argument("-t", "--num-of-threads-for-preprocessing", type=int, default=32, help="number of threads used for sending requests to the local SIPI")
+    parser_enhanced_xmlupload.add_argument("-T", "--num-of-threads-for-uploading", type=int, default=8, help="number of threads used for uploading the preprocessed files to the remote SIPI")
     parser_enhanced_xmlupload.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_enhanced_xmlupload.add_argument("-p", "--password", default=default_pw, help=password_text)
-    parser_enhanced_xmlupload.add_argument("-S", "--remote-sipi-server", default="http://0.0.0.0:1024", help="URL of the remote SIPI server")
     parser_enhanced_xmlupload.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
     parser_enhanced_xmlupload.add_argument("-I", "--incremental", action="store_true", help="Incremental XML upload")
     parser_enhanced_xmlupload.add_argument("xmlfile", help="path to xml file containing the data")
@@ -234,13 +236,15 @@ def program(user_args: list[str]) -> None:
         else:
             success = enhanced_xml_upload(
                 local_sipi_port=args.local_sipi_port,
-                server=args.server,
+                remote_dsp_server=args.remote_dsp_server,
+                remote_sipi_server=args.remote_sipi_server,
+                num_of_threads_for_preprocessing=args.num_of_threads_for_preprocessing,
+                num_of_threads_for_uploading=args.num_of_threads_for_uploading,
                 user=args.user,
                 password=args.password,
-                remote_sipi_server=args.remote_sipi_server,
+                xmlfile=args.xmlfile,
                 verbose=args.verbose,
-                incremental=args.incremental,
-                xmlfile=args.xmlfile
+                incremental=args.incremental
             )
     elif args.action == "excel2json":
         success = excel2json(data_model_files=args.excelfolder,

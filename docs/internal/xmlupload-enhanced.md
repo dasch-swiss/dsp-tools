@@ -105,13 +105,15 @@ dsp-tools enhanced-xmlupload [options] xmlfile
 
 Arguments and options:
 
-- `--local-sipi-port` (required): 5-digit port number of the local SIPI instance, can be found in the "Container" view of Docker Desktop
 - `--generate-test-data`: If set, only generate a test data folder in the current working directory (no upload).
   - `--size`: size of test data set: small/medium/big
-- `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server
+- `-P` | `--local-sipi-port` (required): 5-digit port number of the local SIPI instance, can be found in the "Container" view of Docker Desktop
+- `-s` | `--remote-dsp-server` (optional, default: `0.0.0.0:3333`): URL of the DSP server
+- `-S` | `--remote-sipi-server` (optional, default: `http://0.0.0.0:1024`): URL of the remote SIPI IIIF server
+- `-t` | `--num-of-threads-for-preprocessing` (optional, default: 32): number of threads used for sending requests to the local SIPI
+- `-T` | `--num-of-threads-for-uploading` (optional, default: 8): number of threads used for uploading the preprocessed files to the remote SIPI
 - `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP-API
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
-- `-S` | `--remote-sipi-server` (optional, default: `http://0.0.0.0:1024`): URL of the remote SIPI IIIF server
 - `-I` | `--incremental` (optional) : If set, IRIs instead of internal IDs are expected as reference to already existing resources on DSP
 - `-v` | `--verbose` (optional): If set, more information about the process is printed to the console.
 - `xmlfile` (required): path to XML file containing the data

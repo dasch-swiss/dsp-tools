@@ -18,7 +18,7 @@ on the domain `dasch.swiss`,
 you have to type the following:
 
 ```bash
-dsp-tools xmlupload -s https://api.dasch.swiss -u root@example.com -p test -S https://iiif.dasch.swiss xml_data_file.xml
+dsp-tools xmlupload -s https://api.dasch.swiss -u root@example.com -p 'test' -S https://iiif.dasch.swiss xml_data_file.xml
 ```
 
 
@@ -55,7 +55,7 @@ on the DSP server `https://admin.dasch.swiss`,
 it is necessary to specify the following options:
 
 ```bash
-dsp-tools create -s https://api.dasch.swiss -u root@example.com -p test project_definition.json
+dsp-tools create -s https://api.dasch.swiss -u root@example.com -p 'test' project_definition.json
 ```
 
 The expected JSON format is [documented here](./file-formats/json-project/overview.md).
@@ -85,7 +85,7 @@ The following example shows
 how to get a project from the DSP server `https://admin.dasch.swiss`:
 
 ```bash
-dsp-tools get -s https://api.dasch.swiss -u root@example.com -p test -P my_project project_definition.json
+dsp-tools get -s https://api.dasch.swiss -u root@example.com -p 'test' -P my_project project_definition.json
 ```
 
 The expected JSON format is [documented here](./file-formats/json-project/overview.md).
@@ -131,7 +131,7 @@ to the DSP server `https://admin.dasch.swiss`,
 it is necessary to specify the following options:
 
 ```bash
-dsp-tools xmlupload -s https://api.dasch.swiss -u root@example.com -p test -S https://iiif.dasch.swiss xml_data_file.xml
+dsp-tools xmlupload -s https://api.dasch.swiss -u root@example.com -p 'test' -S https://iiif.dasch.swiss xml_data_file.xml
 ```
 
 The expected XML format is [documented here](./file-formats/xml-data-file.md).

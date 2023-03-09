@@ -28,7 +28,7 @@ class TestExcelToProperties(unittest.TestCase):
         os.rmdir('testdata/tmp')
 
     def test_excel2properties(self) -> None:
-        excelfile = "testdata/excel2json_files/test-name (test_label)/properties.xlsx"
+        excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx"
         output_from_method, _ = e2j.excel2properties(excelfile, self.outfile)
 
         # define the expected values from the excel file

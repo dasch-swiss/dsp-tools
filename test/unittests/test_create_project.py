@@ -12,20 +12,20 @@ from dsp_tools.utils.project_validate import _collect_link_properties, _identify
 
 class TestProjectCreation(unittest.TestCase):
     
-    test_project_systematic_file = "testdata/test-project-systematic.json"
+    test_project_systematic_file = "testdata/json-project/test-project-systematic.json"
     with open(test_project_systematic_file) as json_file:
         test_project_systematic: dict[str, Any] = json.load(json_file)
         test_project_systematic_ontology: dict[str, Any] = test_project_systematic["project"]["ontologies"][0]
     
-    test_project_circular_ontology_file = "testdata/invalid_testdata/test-project-circular-ontology.json"
+    test_project_circular_ontology_file = "testdata/invalid_testdata/json-project/circular-ontology.json"
     with open(test_project_circular_ontology_file) as json_file:
         test_project_circular_ontology: dict[str, Any] = json.load(json_file)
     
-    test_project_undefined_cardinality_file = "testdata/invalid_testdata/test-project-cardinalities-that-were-not-defined-in-properties-section.json"
+    test_project_undefined_cardinality_file = "testdata/invalid_testdata/json-project/cardinalities-that-were-not-defined-in-properties-section.json"
     with open(test_project_undefined_cardinality_file) as json_file:
         test_project_undefined_cardinality = json.load(json_file)
     
-    test_project_undefined_super_property_file = "testdata/invalid_testdata/test-project-super-property-that-was-not-defined-in-properties-section.json"
+    test_project_undefined_super_property_file = "testdata/invalid_testdata/json-project/super-property-that-was-not-defined-in-properties-section.json"
     with open(test_project_undefined_super_property_file) as json_file:
         test_project_undefined_super_property = json.load(json_file)
 
@@ -36,7 +36,7 @@ class TestProjectCreation(unittest.TestCase):
 
         invalid = [
             ("foo/bar", r"The input must be a path to a JSON file or a parsed JSON object"), 
-            ("testdata/test-data-systematic.xml", r"cannot be parsed to a JSON object"),
+            ("testdata/xml-data/test-data-systematic.xml", r"cannot be parsed to a JSON object"),
         ]
         for inv, err_msg in invalid:
             with self.assertRaisesRegex(BaseError, err_msg):
@@ -81,7 +81,7 @@ class TestProjectCreation(unittest.TestCase):
         with self.assertRaisesRegex(BaseError, r"Input 'fantasy.xyz' is neither a file path nor a JSON object."):
             validate_project("fantasy.xyz")
         with self.assertRaisesRegex(BaseError, r"validation error: 'hasColor' does not match"):
-            validate_project("testdata/invalid_testdata/test-project-invalid-super-property.json")
+            validate_project("testdata/invalid_testdata/json-project/invalid-super-property.json")
         with self.assertRaisesRegex(BaseError, r"ERROR: Your ontology contains properties derived from 'hasLinkTo'"):
             validate_project(self.test_project_circular_ontology)
 

@@ -29,7 +29,7 @@ class TestExcelToResource(unittest.TestCase):
 
 
     def test_excel2resources(self) -> None:
-        excelfile = "testdata/excel2json_files/test-name (test_label)/resources.xlsx"
+        excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx"
         output_from_method, _ = e2j.excel2resources(excelfile, self.outfile)
 
         # define the expected values from the excel file

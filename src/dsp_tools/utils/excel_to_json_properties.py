@@ -5,6 +5,7 @@ import warnings
 from typing import Any, Optional
 
 import jsonschema
+import jsonpath_ng.ext
 import pandas as pd
 
 from dsp_tools.models.helpers import BaseError
@@ -31,8 +32,18 @@ def _validate_properties_with_schema(properties_list: list[dict[str, Any]]) -> b
     try:
         jsonschema.validate(instance=properties_list, schema=properties_schema)
     except jsonschema.ValidationError as err:
-        raise BaseError(f'"properties" section did not pass validation. The error message is: {err.message}\n'
-                        f'The error occurred at {err.json_path}') from None
+        err_msg = f"'properties' section did not pass validation. "
+        json_path_to_property = re.search(r"^\$\[(\d+)\]", err.json_path)
+        if json_path_to_property:
+            wrong_property_name = jsonpath_ng.ext.parse(json_path_to_property.group(0)).find(properties_list)[0].value["name"]
+            excel_row = int(json_path_to_property.group(1)) + 2
+            err_msg += f"The problematic property is '{wrong_property_name}' in Excel row {excel_row}. "
+            affected_field = re.search(r"name|labels|comments|super|subject|object|gui_element|gui_attributes", err.json_path)
+            if affected_field:
+                err_msg += f"The problem is that the column '{affected_field.group(0)}' has an invalid value: {err.message}"
+        else:
+            err_msg += f"The error message is: {err.message}\nThe error occurred at {err.json_path}"
+        raise BaseError(err_msg) from None
     return True
 
 
@@ -130,7 +141,7 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
         location_of_sheet=f"File '{excelfile}'"
     )
 
-    # validation
+    # validation of input
     required = ["super", "object", "gui_element"]
     for index, row in df.iterrows():
         for req in required:
@@ -145,9 +156,9 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
 
     # transform every row into a property
     props = [_row2prop(row, i, excelfile) for i, row in df.iterrows()]
-    _validate_properties_with_schema(props)
 
     # write final JSON file
+    _validate_properties_with_schema(props)
     if path_to_output_file:
         with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
             json.dump(props, file, indent=4, ensure_ascii=False)

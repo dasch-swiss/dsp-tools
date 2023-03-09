@@ -6,11 +6,14 @@ from typing import Any
 
 import jsonpath_ng
 import jsonpath_ng.ext
+from dsp_tools.models.helpers import BaseError
 
 from dsp_tools.utils import excel_to_json_resources as e2j
 
 
 class TestExcelToResource(unittest.TestCase):
+    
+    outfile = "testdata/tmp/_out_resources.json"
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -27,8 +30,7 @@ class TestExcelToResource(unittest.TestCase):
 
     def test_excel2resources(self) -> None:
         excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx"
-        outfile = "testdata/tmp/_out_resources.json"
-        output_from_method, _ = e2j.excel2resources(excelfile, outfile)
+        output_from_method, _ = e2j.excel2resources(excelfile, self.outfile)
 
         # define the expected values from the excel file
         excel_names = ["Owner", "Title", "GenericAnthroponym", "FamilyMember", "MentionedPerson", "Alias", "Image",
@@ -59,7 +61,7 @@ class TestExcelToResource(unittest.TestCase):
                                            "0-1", "1-n", "1-n"]
 
         # read json file
-        with open(outfile) as f:
+        with open(self.outfile) as f:
             output_from_file: list[dict[str, Any]] = json.load(f)
 
         # check that output from file and from method are equal
@@ -97,6 +99,37 @@ class TestExcelToResource(unittest.TestCase):
         self.assertDictEqual(excel_comments_of_image, json_comments_of_image)
         self.assertListEqual(excel_first_class_properties, json_first_class_properties)
         self.assertListEqual(excel_first_class_cardinalities, json_first_class_cardinalities)
+
+
+    def test_validate_resources_with_schema(self) -> None:
+        # it is not possible to call the method to be tested directly. So let's make a reference to it, so that it can be found by the usage search
+        lambda x: e2j._validate_resources_with_schema([])
+
+        testcases = [
+            (
+                "testdata/invalid-testdata/excel2json/resources-invalid-super.xlsx", 
+                "'resources' section did not pass validation. The problem is that the Excel sheet 'classes' contains an invalid value "
+                "for resource 'Title', in row 3, column 'super': 'fantasy' is not valid under any of the given schemas"
+            ),
+            (
+                "testdata/invalid-testdata/excel2json/resources-invalid-missing-sheet.xlsx",
+                "Worksheet named 'GenericAnthroponym' not found"
+            ),
+            (
+                "testdata/invalid-testdata/excel2json/resources-invalid-cardinality.xlsx",
+                "'resources' section did not pass validation. The problem is that the Excel sheet 'Owner' contains an invalid value "
+                "in row 3, column 'Cardinality': '0-2' is not one of ['1', '0-1', '1-n', '0-n']"
+            ),
+            (
+                "testdata/invalid-testdata/excel2json/resources-invalid-property.xlsx",
+                "'resources' section did not pass validation. The problem is that the Excel sheet 'FamilyMember' contains an invalid value "
+                "in row 7, column 'Property': ':fan:ta:sy' does not match "
+            )
+        ]
+        
+        for file, message in testcases:
+            with self.assertRaisesRegex(BaseError, message):
+                e2j.excel2resources(file, self.outfile)
 
 
 if __name__ == "__main__":

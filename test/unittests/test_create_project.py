@@ -17,15 +17,15 @@ class TestProjectCreation(unittest.TestCase):
         test_project_systematic: dict[str, Any] = json.load(json_file)
         test_project_systematic_ontology: dict[str, Any] = test_project_systematic["project"]["ontologies"][0]
     
-    test_project_circular_ontology_file = "testdata/invalid_testdata/json-project/circular-ontology.json"
+    test_project_circular_ontology_file = "testdata/invalid-testdata/json-project/circular-ontology.json"
     with open(test_project_circular_ontology_file) as json_file:
         test_project_circular_ontology: dict[str, Any] = json.load(json_file)
     
-    test_project_undefined_cardinality_file = "testdata/invalid_testdata/json-project/cardinalities-that-were-not-defined-in-properties-section.json"
+    test_project_undefined_cardinality_file = "testdata/invalid-testdata/json-project/cardinalities-that-were-not-defined-in-properties-section.json"
     with open(test_project_undefined_cardinality_file) as json_file:
         test_project_undefined_cardinality = json.load(json_file)
     
-    test_project_undefined_super_property_file = "testdata/invalid_testdata/json-project/super-property-that-was-not-defined-in-properties-section.json"
+    test_project_undefined_super_property_file = "testdata/invalid-testdata/json-project/super-property-that-was-not-defined-in-properties-section.json"
     with open(test_project_undefined_super_property_file) as json_file:
         test_project_undefined_super_property = json.load(json_file)
 
@@ -81,7 +81,7 @@ class TestProjectCreation(unittest.TestCase):
         with self.assertRaisesRegex(BaseError, r"Input 'fantasy.xyz' is neither a file path nor a JSON object."):
             validate_project("fantasy.xyz")
         with self.assertRaisesRegex(BaseError, r"validation error: 'hasColor' does not match"):
-            validate_project("testdata/invalid_testdata/json-project/invalid-super-property.json")
+            validate_project("testdata/invalid-testdata/json-project/invalid-super-property.json")
         with self.assertRaisesRegex(BaseError, r"ERROR: Your ontology contains properties derived from 'hasLinkTo'"):
             validate_project(self.test_project_circular_ontology)
 

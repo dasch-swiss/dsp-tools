@@ -35,10 +35,10 @@ class TestTools(unittest.TestCase):
     password = "test"
     imgdir = "."
     sipi = "http://0.0.0.0:1024"
-    test_project_systematic_file = "testdata/test-project-systematic.json"
-    test_project_minimal_file = "testdata/test-project-minimal.json"
-    test_data_systematic_file = "testdata/test-data-systematic.xml"
-    test_data_minimal_file = "testdata/test-data-minimal.xml"
+    test_project_systematic_file = "testdata/json-project/test-project-systematic.json"
+    test_project_minimal_file = "testdata/json-project/test-project-minimal.json"
+    test_data_systematic_file = "testdata/xml-data/test-data-systematic.xml"
+    test_data_minimal_file = "testdata/xml-data/test-data-minimal.xml"
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -71,7 +71,7 @@ class TestTools(unittest.TestCase):
         )
 
         # open a "lists" section and the project that was created
-        with open("testdata/lists_multilingual_output_expected.json") as f:
+        with open("testdata/excel2json/lists-multilingual-output-expected.json") as f:
             lists_section = json.load(f)
         with open(self.test_project_minimal_file) as f:
             test_project_minimal = json.load(f)
@@ -275,7 +275,7 @@ class TestTools(unittest.TestCase):
         self.assertNotEqual(mapping_file, "")
 
         id2iri_replaced_xml_filename = "testdata/tmp/_test-id2iri-replaced.xml"
-        id_to_iri(xml_file="testdata/test-id2iri-data.xml",
+        id_to_iri(xml_file="testdata/id2iri/test-id2iri-data.xml",
                   json_file=mapping_file,
                   out_file=id2iri_replaced_xml_filename,
                   verbose=True)
@@ -301,9 +301,9 @@ class TestTools(unittest.TestCase):
 
 
     def test_excel_to_json_project(self) -> None:
-        excel2json(data_model_files="testdata/excel2json_files",
+        excel2json(data_model_files="testdata/excel2json/excel2json_files",
                    path_to_output_file="testdata/tmp/_out_project.json")
-        with open("testdata/excel2json-expected-output.json") as f:
+        with open("testdata/excel2json/excel2json-expected-output.json") as f:
             output_expected = json.load(f)
         with open("testdata/tmp/_out_project.json") as f:
             output = json.load(f)
@@ -312,29 +312,29 @@ class TestTools(unittest.TestCase):
 
 
     def test_excel_to_json_list(self) -> None:
-        excel2lists(excelfolder="testdata/lists_multilingual",
+        excel2lists(excelfolder="testdata/excel2json/lists-multilingual",
                     path_to_output_file="testdata/tmp/_lists-out.json")
         self.assertTrue(os.path.isfile("testdata/tmp/_lists-out.json"))
         os.remove("testdata/tmp/_lists-out.json")
 
 
     def test_excel_to_json_resources(self) -> None:
-        excel2resources(excelfile="testdata/excel2json_files/test-name (test_label)/resources.xlsx",
+        excel2resources(excelfile="testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx",
                         path_to_output_file="testdata/tmp/_out_resources.json")
         self.assertTrue(os.path.isfile("testdata/tmp/_out_resources.json"))
         os.remove("testdata/tmp/_out_resources.json")
 
 
     def test_excel_to_json_properties(self) -> None:
-        excel2properties(excelfile="testdata/excel2json_files/test-name (test_label)/properties.xlsx",
+        excel2properties(excelfile="testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx",
                          path_to_output_file="testdata/tmp/_out_properties.json")
         self.assertTrue(os.path.isfile("testdata/tmp/_out_properties.json"))
         os.remove("testdata/tmp/_out_properties.json")
 
 
     def test_id_to_iri(self) -> None:
-        id_to_iri(xml_file="testdata/test-id2iri-data.xml",
-                  json_file="testdata/test-id2iri-mapping.json",
+        id_to_iri(xml_file="testdata/id2iri/test-id2iri-data.xml",
+                  json_file="testdata/id2iri/test-id2iri-mapping.json",
                   out_file="testdata/tmp/test-id2iri-out.xml",
                   verbose=True)
         self.assertTrue(os.path.isfile("testdata/tmp/test-id2iri-out.xml"))
@@ -342,7 +342,7 @@ class TestTools(unittest.TestCase):
 
     @pytest.mark.filterwarnings("ignore")
     def test_excel2xml(self) -> None:
-        excel2xml("testdata/excel2xml-testdata.xlsx", "1234", "excel2xml-output")
+        excel2xml("testdata/excel2xml/excel2xml-testdata.xlsx", "1234", "excel2xml-output")
         self.assertTrue(os.path.isfile("excel2xml-output-data.xml"))
         os.remove("excel2xml-output-data.xml")
 

@@ -147,7 +147,7 @@ class TestExcel2xml(unittest.TestCase):
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, ".")
 
         # test that the special characters in the "Label" row of excel2xml-testdata-special-characters.xlsx are replaced
-        special_characters_df = pd.read_excel("testdata/excel2xml-testdata-special-characters.xlsx")
+        special_characters_df = pd.read_excel("testdata/excel2xml/excel2xml-testdata-special-characters.xlsx")
         root = excel2xml.make_root("0123", "test")
         root = excel2xml.append_permissions(root)
         for i, row in special_characters_df.iterrows():
@@ -570,7 +570,7 @@ class TestExcel2xml(unittest.TestCase):
         ]
         corrections = {"completely wrong spelling variant of 'first subnode' that needs manual correction": "first subnode"}
         testlist_mapping_returned = excel2xml.create_json_excel_list_mapping(
-            path_to_json="testdata/test-project-systematic.json",
+            path_to_json="testdata/json-project/test-project-systematic.json",
             list_name="testlist",
             excel_values=excel_column,
             sep=",",
@@ -590,7 +590,7 @@ class TestExcel2xml(unittest.TestCase):
 
     def test_create_json_list_mapping(self) -> None:
         testlist_mapping_returned = excel2xml.create_json_list_mapping(
-            path_to_json="testdata/test-project-systematic.json",
+            path_to_json="testdata/json-project/test-project-systematic.json",
             list_name="testlist",
             language_label="en"
         )
@@ -612,10 +612,10 @@ class TestExcel2xml(unittest.TestCase):
     @pytest.mark.filterwarnings("ignore")
     def test_excel2xml(self) -> None:
         # test the valid files, 3 times identical, but in the three formats XLSX, XLS, and CSV
-        with open("testdata/excel2xml-expected-output.xml") as f:
+        with open("testdata/excel2xml/excel2xml-expected-output.xml") as f:
             expected = f.read()
         for ext in ["xlsx", "xls", "csv"]:
-            excel2xml.excel2xml(f"testdata/excel2xml-testdata.{ext}", "1234", "excel2xml-output")
+            excel2xml.excel2xml(f"testdata/excel2xml/excel2xml-testdata.{ext}", "1234", "excel2xml-output")
             with open("excel2xml-output-data.xml") as f:
                 returned = f.read()
                 self.assertEqual(returned, expected, msg=f"Failed with extension {ext}")
@@ -623,19 +623,19 @@ class TestExcel2xml(unittest.TestCase):
                 os.remove("excel2xml-output-data.xml")
 
         # test the invalid files
-        invalid_prefix = "testdata/invalid_testdata/excel2xml-testdata-invalid"
+        invalid_prefix = "testdata/invalid_testdata/excel2xml"
         invalid_cases = [
-            (f"{invalid_prefix}-boolean-prop-two-values.xlsx",           "A <boolean-prop> can only have a single value"),
-            (f"{invalid_prefix}-empty-property.xlsx",                    "At least one value per property is required"),
-            (f"{invalid_prefix}-id-propname-both.xlsx",                  "Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry"),
-            (f"{invalid_prefix}-id-propname-none.xlsx",                  "Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry"),
-            (f"{invalid_prefix}-missing-prop-permissions.xlsx",          "Missing permissions for value .+ of property"),
-            (f"{invalid_prefix}-missing-resource-label.xlsx",            "Missing label for resource"),
-            (f"{invalid_prefix}-missing-resource-permissions.xlsx",      "Missing permissions for resource"),
-            (f"{invalid_prefix}-missing-restype.xlsx",                   "Missing restype"),
-            (f"{invalid_prefix}-no-bitstream-permissions.xlsx",          "'file permissions' missing"),
-            (f"{invalid_prefix}-nonexisting-proptype.xlsx",              "Invalid prop type"),
-            (f"{invalid_prefix}-single-invalid-value-for-property.xlsx", "has an entry in column \\d+_permissions, but not in \\d+_value")
+            (f"{invalid_prefix}/boolean-prop-two-values.xlsx",           "A <boolean-prop> can only have a single value"),
+            (f"{invalid_prefix}/empty-property.xlsx",                    "At least one value per property is required"),
+            (f"{invalid_prefix}/id-propname-both.xlsx",                  "Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry"),
+            (f"{invalid_prefix}/id-propname-none.xlsx",                  "Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry"),
+            (f"{invalid_prefix}/missing-prop-permissions.xlsx",          "Missing permissions for value .+ of property"),
+            (f"{invalid_prefix}/missing-resource-label.xlsx",            "Missing label for resource"),
+            (f"{invalid_prefix}/missing-resource-permissions.xlsx",      "Missing permissions for resource"),
+            (f"{invalid_prefix}/missing-restype.xlsx",                   "Missing restype"),
+            (f"{invalid_prefix}/no-bitstream-permissions.xlsx",          "'file permissions' missing"),
+            (f"{invalid_prefix}/nonexisting-proptype.xlsx",              "Invalid prop type"),
+            (f"{invalid_prefix}/single-invalid-value-for-property.xlsx", "has an entry in column \\d+_permissions, but not in \\d+_value")
         ]
         for file, _regex in invalid_cases:
             with self.assertRaisesRegex(BaseError, _regex, msg=f"Failed with file '{file}'"):

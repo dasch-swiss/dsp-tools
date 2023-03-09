@@ -15,8 +15,8 @@ from dsp_tools.utils.xml_upload import (_convert_ark_v0_to_resource_iri,
 class TestXMLUpload(unittest.TestCase):
 
     def test_parse_xml_file(self) -> None:
-        test_data_systematic_tree = etree.parse("testdata/test-data-systematic.xml")
-        output1 = _parse_xml_file("testdata/test-data-systematic.xml")
+        test_data_systematic_tree = etree.parse("testdata/xml-data/test-data-systematic.xml")
+        output1 = _parse_xml_file("testdata/xml-data/test-data-systematic.xml")
         output2 = _parse_xml_file(test_data_systematic_tree)
         self.assertEqual(etree.tostring(output1), etree.tostring(output2), msg="The output must be equal, regardless if the input is a path or parsed.")
 
@@ -62,7 +62,7 @@ class TestXMLUpload(unittest.TestCase):
 
     def test_remove_circular_references(self) -> None:
         # create a list of XMLResources from the test data file
-        tree = _parse_xml_file("testdata/test-data-systematic.xml")
+        tree = _parse_xml_file("testdata/xml-data/test-data-systematic.xml")
         resources = [XMLResource(x, "testonto") for x in tree.getroot() if x.tag == "resource"]
 
         # get the purged resources and the stashes from the function to be tested

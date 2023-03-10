@@ -8,7 +8,7 @@ from typing import Optional
 
 import requests
 
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 
 docker_path_of_user = Path.home() / Path(".dsp-tools/docker")
 docker_path_of_user.mkdir(parents=True, exist_ok=True)

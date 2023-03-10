@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Union, Optional
 
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 
 
 @dataclass(frozen=True)

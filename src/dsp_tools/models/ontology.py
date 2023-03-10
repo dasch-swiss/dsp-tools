@@ -7,23 +7,13 @@ from urllib.parse import quote_plus
 from pystrict import strict
 
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.helpers import Actions, BaseError, Context, DateTimeStamp, OntoIri, WithId
+from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.model import Model
 from dsp_tools.models.project import Project
 from dsp_tools.models.propertyclass import PropertyClass
 from dsp_tools.models.resourceclass import ResourceClass
-
-
-class SetEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, set):
-            return list(obj)
-        elif isinstance(obj, Context):
-            return obj.toJsonObj()
-        elif isinstance(obj, OntoIri):
-            return {"iri": obj.iri, "hashtag": obj.hashtag}
-        return json.JSONEncoder.default(self, obj)
-
+from dsp_tools.models.set_encoder import SetEncoder
 
 """
 This model implements the handling of ontologies. It is to note that ResourceClasses, PropertyClasses

@@ -11,7 +11,7 @@ import pytest
 from lxml import etree
 
 from dsp_tools import excel2xml
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 
 
 def run_test(

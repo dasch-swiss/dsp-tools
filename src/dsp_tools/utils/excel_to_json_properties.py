@@ -8,7 +8,7 @@ import jsonschema
 import jsonpath_ng.ext
 import pandas as pd
 
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.shared import prepare_dataframe, check_notna
 
 languages = ["en", "de", "fr", "it", "rm"]

@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from lxml import etree
 
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.propertyelement import PropertyElement
 from dsp_tools.utils import shared
 
@@ -16,14 +16,14 @@ class TestShared(unittest.TestCase):
         self.assertTrue(shared.validate_xml_against_schema(input_file=etree.parse(source="testdata/xml-data/test-data-minimal.xml")))
         
         with self.assertRaisesRegex(
-            BaseError,
+            UserError,
             "Line 12: Element '{https://dasch.swiss/schema}resource', attribute 'invalidtag': "
             "The attribute 'invalidtag' is not allowed"
         ):
             shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/invalid-resource-tag.xml")
         
         with self.assertRaisesRegex(
-            BaseError, 
+            UserError, 
             r"XML-tags are not allowed in text properties with encoding=utf8\. "
             r"The following lines of your XML file are affected: \[13, 14, 15, 16\]" 
         ):

@@ -5,7 +5,7 @@ from typing import Optional, Union, Any
 import requests
 from pystrict import strict
 
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 
 
 @strict

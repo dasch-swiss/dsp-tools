@@ -2,7 +2,7 @@
 
 import unittest
 import os
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 
 from dsp_tools.utils.xml_upload import _parse_xml_file
 from dsp_tools.utils.id_to_iri import id_to_iri

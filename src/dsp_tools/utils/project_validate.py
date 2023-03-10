@@ -9,7 +9,7 @@ import jsonschema
 import networkx as nx
 import regex
 
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 
 

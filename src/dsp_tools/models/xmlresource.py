@@ -2,7 +2,8 @@ from typing import Optional, Union
 
 from lxml import etree
 
-from dsp_tools.models.helpers import BaseError, DateTimeStamp
+from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.helpers import DateTimeStamp
 from dsp_tools.models.permission import Permissions
 from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.models.xmlbitstream import XMLBitstream

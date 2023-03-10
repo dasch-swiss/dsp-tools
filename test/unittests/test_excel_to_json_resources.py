@@ -6,7 +6,7 @@ from typing import Any
 
 import jsonpath_ng
 import jsonpath_ng.ext
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 
 from dsp_tools.utils import excel_to_json_resources as e2j
 

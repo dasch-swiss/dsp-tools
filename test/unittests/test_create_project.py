@@ -3,7 +3,7 @@ import json
 import unittest
 from typing import Any
 
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.shared import parse_json_input
 from dsp_tools.utils.project_create import _sort_resources, _sort_prop_classes
 from dsp_tools.utils.project_validate import _collect_link_properties, _identify_problematic_cardinalities, \

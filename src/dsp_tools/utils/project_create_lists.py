@@ -1,7 +1,7 @@
 from typing import Any, Optional, Union
 
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.project import Project
 from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel

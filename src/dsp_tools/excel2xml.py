@@ -15,7 +15,8 @@ import regex
 from lxml import etree
 from lxml.builder import E
 
-from dsp_tools.models.helpers import BaseError, DateTimeStamp
+from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.helpers import DateTimeStamp
 from dsp_tools.models.propertyelement import PropertyElement
 from dsp_tools.models.value import UriValue
 from dsp_tools.utils.shared import simplify_name, check_notna, validate_xml_against_schema

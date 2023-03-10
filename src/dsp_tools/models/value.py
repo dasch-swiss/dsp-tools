@@ -4,7 +4,8 @@ from typing import Optional, Any, Union
 import regex
 from pystrict import strict
 
-from dsp_tools.models.helpers import IriTest, Actions, BaseError
+from dsp_tools.models.helpers import IriTest, Actions
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.langstring import LangString
 from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.permission import PermissionValue, Permissions

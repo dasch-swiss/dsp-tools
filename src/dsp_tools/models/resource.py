@@ -9,7 +9,8 @@ from pystrict import strict
 
 from dsp_tools.models.bitstream import Bitstream
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.helpers import OntoIri, Actions, BaseError, Cardinality, Context, DateTimeStamp
+from dsp_tools.models.helpers import OntoIri, Actions, Cardinality, Context, DateTimeStamp
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.model import Model
 from dsp_tools.models.ontology import Ontology

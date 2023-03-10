@@ -7,7 +7,8 @@ from urllib.parse import quote_plus
 from pystrict import strict
 
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.helpers import Actions, BaseError, Context, DateTimeStamp, WithId
+from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.model import Model
 from dsp_tools.models.project import Project
 from dsp_tools.models.propertyclass import PropertyClass

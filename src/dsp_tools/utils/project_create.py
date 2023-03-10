@@ -5,7 +5,8 @@ from typing import Any, Union, cast
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.group import Group
-from dsp_tools.models.helpers import BaseError, Cardinality, Context, DateTimeStamp
+from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.helpers import Cardinality, Context, DateTimeStamp
 from dsp_tools.models.langstring import LangString
 from dsp_tools.models.ontology import Ontology
 from dsp_tools.models.project import Project

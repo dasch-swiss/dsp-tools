@@ -2,7 +2,7 @@
 import unittest
 
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 
 
 class TestConnection(unittest.TestCase):

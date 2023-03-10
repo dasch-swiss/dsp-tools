@@ -18,7 +18,7 @@ import pandas as pd
 from lxml import etree
 
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.permission import Permissions
 from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.models.resource import ResourceInstanceFactory, ResourceInstance, KnoraStandoffXmlEncoder

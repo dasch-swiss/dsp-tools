@@ -12,7 +12,7 @@ from openpyxl import load_workbook
 from openpyxl.cell import Cell
 from openpyxl.worksheet.worksheet import Worksheet
 
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.shared import simplify_name
 
 list_of_lists_of_previous_cell_values: list[list[str]] = []

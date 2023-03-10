@@ -5,7 +5,7 @@ import unittest
 import regex
 from lxml import etree
 
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.xml_upload import (_convert_ark_v0_to_resource_iri,
                                         _parse_xml_file,

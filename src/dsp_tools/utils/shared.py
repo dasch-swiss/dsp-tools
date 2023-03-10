@@ -28,39 +28,33 @@ def login(server: str, user: str, password: str) -> Connection:
         password: Password of the user
 
     Raises:
-        BaseError if the login fails
+        UserError if the login fails
 
     Return:
         Connection instance
     """
     con = Connection(server)
-    try_network_action(
-        action=lambda: con.login(email=user, password=password),
-        failure_msg="ERROR: Cannot login to DSP server"
-    )
+    try:
+        try_network_action(lambda: con.login(email=user, password=password))
+    except BaseError:
+        raise UserError("Cannot login to DSP server") from None
     return con
 
 
-def try_network_action(
-    failure_msg: str,
-    action: Callable[..., Any]
-) -> Any:
+def try_network_action(action: Callable[..., Any]) -> Any:
     """
-    Helper method that tries 7 times to execute an action. Each time, it catches ConnectionError and
-    requests.exceptions.RequestException, which lead to a waiting time and a retry. The waiting times are 1,
-    2, 4, 8, 16, 32, 64 seconds.
-
-    In case of a BaseError or Exception, a BaseError is raised with failure_msg, followed by the original
-    error message.
-
-    If there is no success at the end, a BaseError with failure_msg is raised.
+    Helper method that tries 7 times to execute an action. 
+    If a ConnectionError or requests.exceptions.RequestException occors, 
+    it waits and retries. 
+    The waiting times are 1, 2, 4, 8, 16, 32, 64 seconds.
+    If a BaseError or unexpected exception occurs, 
+    the details are logged and a BaseError with a short standard message is raised.
 
     Args:
-        failure_msg: message of the raised BaseError if action cannot be executed
         action: a lambda with the code to be executed
 
     Raises:
-        BaseError if action fails permanently
+        BaseError if the action fails permanently
 
     Returns:
         the return value of action
@@ -70,33 +64,27 @@ def try_network_action(
         try:
             return action()
         except ConnectionError:
-            print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...')
+            print(f"{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...")
             time.sleep(2 ** i)
             continue
         except RequestException:
-            print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...')
+            print(f"{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...")
             time.sleep(2 ** i)
             continue
         except BaseError as err:
-            if regex.search(r'try again later', err.message) or regex.search(r'status code=5\d\d', err.message):
-                print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...')
+            if regex.search(r"try again later", err.message) or regex.search(r"status code=5\d\d", err.message):
+                print(f"{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...")
                 time.sleep(2 ** i)
                 continue
-            if hasattr(err, 'message'):
-                err_message = err.message
             else:
-                err_message = str(err).replace('\n', ' ')
-                err_message = err_message[:150] if len(err_message) > 150 else err_message
-            raise BaseError(f"{failure_msg} Error message: {err_message}")
+                logger.info(err.message)
+                raise BaseError("Permanently unable to execute the network action")
         except Exception as exc:
-            if hasattr(exc, 'message'):
-                exc_message = exc.message
-            else:
-                exc_message = str(exc).replace('\n', ' ')
-                exc_message = exc_message[:150] if len(exc_message) > 150 else exc_message
-            raise BaseError(f"{failure_msg} Error message: {exc_message}")
+            exc_message = exc.message if hasattr(exc, 'message') else str(exc).replace('\n', ' ')
+            logger.info(exc_message)
+            raise BaseError("Permanently unable to execute the network action")
 
-    raise BaseError(failure_msg)
+    raise BaseError("Permanently unable to execute the network action")
 
 
 def validate_xml_against_schema(input_file: Union[str, etree._ElementTree[Any]]) -> bool:

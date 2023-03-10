@@ -18,7 +18,7 @@ import pandas as pd
 from lxml import etree
 
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.permission import Permissions
 from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.models.resource import ResourceInstanceFactory, ResourceInstance, KnoraStandoffXmlEncoder
@@ -257,7 +257,7 @@ def _check_consistency_with_ontology(
         verbose: verbose switch
 
     Raises:
-        BaseError with a detailed error message if there is an inconsistency between the ontology and the data
+        UserError with a detailed error message if there is an inconsistency between the ontology and the data
 
     Returns:
         None if everything is okay
@@ -270,7 +270,7 @@ def _check_consistency_with_ontology(
 
         # check that the resource type is consistent with the ontology
         if resource.restype not in resclass_name_2_type:
-            raise BaseError(
+            raise UserError(
                 f"=========================\n"
                 f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid resource type "
                 f"'{resource.restype}'. Is your syntax correct? Remember the rules:\n"
@@ -286,7 +286,7 @@ def _check_consistency_with_ontology(
         resource_properties = resclass_name_2_type[resource.restype].properties.keys()  # type: ignore
         for propname in [prop.name for prop in resource.properties]:
             if propname not in knora_properties and propname not in resource_properties:
-                raise BaseError(
+                raise UserError(
                     f"=========================\n"
                     f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid property '{propname}'. "
                     f"Is your syntax correct? Remember the rules:\n"
@@ -327,7 +327,8 @@ def xml_upload(
         save_metrics: if true, saves time measurements into a "metrics" folder in the current working directory
 
     Raises:
-        BaseError if the XML file is invalid, or in case of permanent network or software failure
+        BaseError in case of permanent network or software failure
+        UserError if the XML file is invalid
     
     Returns:
         True if all resources could be uploaded without errors; False if one of the resources could not be
@@ -467,7 +468,9 @@ def _upload_resources(
     metrics: list[MetricRecord]
 ) -> tuple[dict[str, str], list[str], list[MetricRecord]]:
     """
-    Iterates through all resources and tries to upload them to DSP
+    Iterates through all resources and tries to upload them to DSP.
+    If a temporary exception occurs, the action is repeated until success,
+    and if a permanent exception occurs, the resource is skipped.
 
     Args:
         resources: list of XMLResources to upload to DSP

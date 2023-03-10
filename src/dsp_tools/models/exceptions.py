@@ -1,7 +1,3 @@
-from pystrict import strict
-
-
-@strict
 class BaseError(Exception):
     """
     A basic error class for DSP-TOOLS

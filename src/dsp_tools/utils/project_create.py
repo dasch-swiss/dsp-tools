@@ -519,7 +519,8 @@ def _create_ontologies(
             con=con,
             project=project_remote,
             label=ontology_definition["label"],
-            name=ontology_definition["name"]
+            name=ontology_definition["name"],
+            comment=ontology_definition.get("comment")
         )
         # if ontology cannot be created, let the error escalate
         ontology_remote: Ontology = try_network_action(

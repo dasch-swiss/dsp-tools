@@ -27,7 +27,7 @@ from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.models.xmlpermission import XmlPermission
 from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
-from dsp_tools.utils.shared import try_network_action, validate_xml_against_schema
+from dsp_tools.utils.shared import try_network_action, validate_xml_against_schema, login
 
 MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "duration_ms", "mb_per_sec"])
 
@@ -327,7 +327,7 @@ def xml_upload(
         save_metrics: if true, saves time measurements into a "metrics" folder in the current working directory
 
     Raises:
-        BaseError in case of permanent network or software failure
+        BaseError or UserError in case of permanent network or software failure
         UserError if the XML file is invalid
     
     Returns:
@@ -355,10 +355,11 @@ def xml_upload(
         server_as_foldername = re.sub(pattern, repl, server_as_foldername)
 
     # Connect to the DaSCH Service Platform API and get the project context
-    con = Connection(server)
-    try_network_action(failure_msg="Unable to login to DSP server", action=lambda: con.login(user, password))
-    proj_context = try_network_action(failure_msg="Unable to retrieve project context from DSP server",
-                                      action=lambda: ProjectContext(con=con))
+    con = login(server=server, user=user, password=password)
+    try:
+        proj_context = try_network_action(lambda: ProjectContext(con=con))
+    except BaseError:
+        raise UserError("Unable to retrieve project context from DSP server") from None
     sipi_server = Sipi(sipi, con.get_token())
 
     # parse the XML file
@@ -376,7 +377,7 @@ def xml_upload(
             resources.append(XMLResource(child, default_ontology))
 
     # get the project information and project ontology from the server
-    res_inst_factory = try_network_action("", lambda: ResourceInstanceFactory(con, shortcode))
+    res_inst_factory = try_network_action(lambda: ResourceInstanceFactory(con, shortcode))
     permissions_lookup: dict[str, Permissions] = {s: perm.get_permission_instance() for s, perm in permissions.items()}
     resclass_name_2_type: dict[str, type] = {s: res_inst_factory.get_resclass_type(s) for s in res_inst_factory.get_resclass_names()}
 
@@ -510,16 +511,14 @@ def _upload_resources(
                 bitstream_start = datetime.now()
                 filetype = Path(resource.bitstream.value).suffix[1:]
                 img: Optional[dict[Any, Any]] = try_network_action(
-                    action=lambda: sipi_server.upload_bitstream(filepath=str(Path(imgdir) / Path(resource.bitstream.value))),  # type: ignore
-                    failure_msg=f'ERROR while trying to upload file "{resource.bitstream.value}" of resource '
-                                f'"{resource.label}" ({resource.id}).'
+                    lambda: sipi_server.upload_bitstream(filepath=str(Path(imgdir) / Path(resource.bitstream.value))),  # type: ignore
                 )
                 bitstream_duration = datetime.now() - bitstream_start
                 bitstream_duration_ms = bitstream_duration.seconds * 1000 + int(bitstream_duration.microseconds / 1000)
                 mb_per_sec = round((filesize / bitstream_duration_ms) * 1000, 1)
                 metrics.append(MetricRecord(resource.id, filetype, filesize, "bitstream upload", bitstream_duration_ms, mb_per_sec))
-            except BaseError as err:
-                print(err.message)
+            except BaseError:
+                print(f'ERROR while trying to upload file "{resource.bitstream.value}" of resource "{resource.label}" ({resource.id}).')
                 failed_uploads.append(resource.id)
                 continue
             bitstream_size_uploaded_mb += bitstream_all_sizes_mb[i]  # type: ignore
@@ -541,15 +540,12 @@ def _upload_resources(
                 values=properties
             )
             resource_creation_start = datetime.now()
-            created_resource: ResourceInstance = try_network_action(
-                action=lambda: resource_instance.create(),
-                failure_msg=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
-            )
+            created_resource: ResourceInstance = try_network_action(lambda: resource_instance.create())
             resource_creation_duration = datetime.now() - resource_creation_start
             resource_creation_duration_ms = resource_creation_duration.seconds * 1000 + int(resource_creation_duration.microseconds / 1000)
             metrics.append(MetricRecord(resource.id, filetype, filesize, "resource creation", resource_creation_duration_ms, ""))
-        except BaseError as err:
-            print(err.message)
+        except BaseError:
+            print(f"ERROR while trying to create resource '{resource.label}' ({resource.id}).")
             failed_uploads.append(resource.id)
             continue
         id2iri_mapping[resource.id] = created_resource.iri
@@ -592,14 +588,11 @@ def _upload_stashed_xml_texts(
             continue
         res_iri = id2iri_mapping[resource.id]
         try:
-            existing_resource = try_network_action(
-                action=lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'),
-                failure_msg=f'  Unable to upload XML texts of resource "{resource.id}", because the resource cannot be retrieved from the DSP server.'
-            )
-        except BaseError as err:
+            existing_resource = try_network_action(lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'))
+        except BaseError:
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
             # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
-            print(err.message)
+            print(f'  Unable to upload XML texts of resource "{resource.id}", because the resource cannot be retrieved from the DSP server.')
             continue
         print(f'  Upload XML text(s) of resource "{resource.id}"...')
         for link_prop, hash_to_value in link_props.items():
@@ -644,14 +637,11 @@ def _upload_stashed_xml_texts(
 
                 # execute API call
                 try:
-                    try_network_action(
-                        action=lambda: con.put(path='/v2/values', jsondata=jsondata),
-                        failure_msg=f'    ERROR while uploading the xml text of "{link_prop.name}" of resource "{resource.id}"'
-                    )
-                except BaseError as err:
+                    try_network_action(lambda: con.put(path='/v2/values', jsondata=jsondata))
+                except BaseError:
                     # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
                     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
-                    print(err.message)
+                    print(f'    ERROR while uploading the xml text of "{link_prop.name}" of resource "{resource.id}"')
                     continue
                 nonapplied_xml_texts[resource][link_prop].pop(pure_text)
                 if verbose:
@@ -720,14 +710,11 @@ def _upload_stashed_resptr_props(
             continue
         res_iri = id2iri_mapping[resource.id]
         try:
-            existing_resource = try_network_action(
-                action=lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'),
-                failure_msg=f'  Unable to upload resptrs of resource "{resource.id}", because the resource cannot be retrieved from the DSP server'
-            )
-        except BaseError as err:
+            existing_resource = try_network_action(lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'))
+        except BaseError:
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
             # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
-            print(err.message)
+            print(f'  Unable to upload resptrs of resource "{resource.id}", because the resource cannot be retrieved from the DSP server')
             continue
         print(f'  Upload resptrs of resource "{resource.id}"...')
         for link_prop, resptrs in prop_2_resptrs.items():
@@ -747,14 +734,11 @@ def _upload_stashed_resptr_props(
                 }
                 jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '))
                 try:
-                    try_network_action(
-                        action=lambda: con.post(path='/v2/values', jsondata=jsondata),
-                        failure_msg=f'    ERROR while uploading the resptr prop of "{link_prop.name}" of resource "{resource.id}"'
-                    )
-                except BaseError as err:
+                    try_network_action(lambda: con.post(path='/v2/values', jsondata=jsondata))
+                except BaseError:
                     # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
                     # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
-                    print(err.message)
+                    print(f'    ERROR while uploading the resptr prop of "{link_prop.name}" of resource "{resource.id}"')
                     continue
                 nonapplied_resptr_props[resource][link_prop].remove(resptr)
                 if verbose:

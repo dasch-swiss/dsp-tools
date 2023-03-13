@@ -20,7 +20,9 @@ from dsp_tools.models.propertyelement import PropertyElement
 
 def login(server: str, user: str, password: str) -> Connection:
     """
-    Logs in and returns the active connection.
+    Creates a connection, 
+    makes a login (handling temporary network interruptions),
+    and returns the active connection.
 
     Args:
         server: URL of the DSP server to connect to
@@ -28,7 +30,7 @@ def login(server: str, user: str, password: str) -> Connection:
         password: Password of the user
 
     Raises:
-        UserError if the login fails
+        UserError if the login fails permanently
 
     Return:
         Connection instance

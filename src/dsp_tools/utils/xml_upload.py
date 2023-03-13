@@ -32,6 +32,28 @@ from dsp_tools.utils.shared import try_network_action, validate_xml_against_sche
 MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "duration_ms", "mb_per_sec"])
 
 
+def _transform_server_to_foldername(server: str) -> str:
+    """
+    Take the servername and transform it so that it can be used as foldername.
+
+    Args:
+        server: server, e.g. "https://api.test.dasch.swiss/" or "http://0.0.0.0:3333"
+
+    Returns:
+        simplified version, e.g. "test.dasch.swiss" or "localhost"
+    """
+    server_substitutions = {
+        r"https?://": "",
+        r"^api\.": "",
+        r":\d{2,5}/?$": "",
+        r"/$": "",
+        r"0.0.0.0": "localhost"
+    }
+    for pattern, repl in server_substitutions.items():
+        server = re.sub(pattern, repl, server)
+    return server
+
+
 def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
         tuple[list[XMLResource],
               dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
@@ -344,15 +366,7 @@ def xml_upload(
 
     # figure out where to save the state of an interrupted xmlupload
     save_location = Path.home() / Path(".dsp-tools")
-    server_as_foldername = server
-    server_substitutions = {
-        r"https?://": "",
-        r"^api\..+": "",
-        r":\d{4}/?$": "",
-        r"0.0.0.0": "localhost"
-    }
-    for pattern, repl in server_substitutions.items():
-        server_as_foldername = re.sub(pattern, repl, server_as_foldername)
+    server_as_foldername = _transform_server_to_foldername(server)
 
     # Connect to the DaSCH Service Platform API and get the project context
     con = Connection(server)

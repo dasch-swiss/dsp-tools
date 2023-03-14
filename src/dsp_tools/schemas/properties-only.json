@@ -84,6 +84,7 @@
                 "Interval",
                 "List",
                 "Radio",
+                "Pulldown",
                 "Richtext",
                 "Searchbox",
                 "SimpleText",
@@ -620,8 +621,9 @@
                                     }
                                 },
                                 "enum": [
+                                    "List",
                                     "Radio",
-                                    "List"
+                                    "Pulldown"
                                 ]
                             }
                         }
@@ -783,8 +785,9 @@
                         "properties": {
                             "gui_element": {
                                 "enum": [
+                                    "List",
                                     "Radio",
-                                    "List"
+                                    "Pulldown"
                                 ]
                             }
                         }

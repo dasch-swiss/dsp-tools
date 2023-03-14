@@ -69,7 +69,7 @@
         <xs:sequence>
             <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="encoding" type="encoding_types" use="required" default="utf8"/>
+        <xs:attribute name="encoding" type="encoding_types" use="required"/>
         <xs:attribute name="resrefs" type="resrefs_type"/>
         <xs:attribute name="comment" type="xs:string"/>
         <xs:attribute name="permissions" type="xs:NCName" use="optional" default="prop-default"/>

@@ -33,13 +33,7 @@
                         "super": "Resource",
                         "labels": {
                             "en": "Minimal Resource"
-                        },
-                        "cardinalities": [
-                            {
-                                "propname": ":hasText",
-                                "cardinality": "0-n"
-                            }
-                        ]
+                        }
                     }
                 ]
             }

@@ -1087,8 +1087,7 @@
             "required": [
                 "name",
                 "super",
-                "labels",
-                "cardinalities"
+                "labels"
             ],
             "additionalProperties": false
         }

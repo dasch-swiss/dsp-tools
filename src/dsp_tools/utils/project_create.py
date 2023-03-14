@@ -769,7 +769,7 @@ def _add_cardinalities_to_resource_classes(
                   f"doesn't exist on the DSP server.")
             overall_success = False
             continue
-        for card_info in res_class.get("cardinalities"):
+        for card_info in res_class.get("cardinalities", []):
             if ":" in card_info["propname"]:
                 prefix, prop = card_info["propname"].split(":")
                 qualified_propname = card_info["propname"] if prefix else f"{ontology_remote.name}:{prop}"

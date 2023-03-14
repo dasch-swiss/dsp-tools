@@ -69,10 +69,10 @@
         <xs:sequence>
             <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="encoding" type="encoding_types" use="required"/>
+        <xs:attribute name="encoding" type="encoding_types" use="required" default="utf8"/>
         <xs:attribute name="resrefs" type="resrefs_type"/>
         <xs:attribute name="comment" type="xs:string"/>
-        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+        <xs:attribute name="permissions" type="xs:NCName" use="optional" default="prop-default"/>
     </xs:complexType>
 
     <!-- color value type -->
@@ -80,7 +80,7 @@
         <xs:simpleContent>
             <xs:extension base="knoracolor_type">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional" default="prop-default"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -90,7 +90,7 @@
         <xs:simpleContent>
             <xs:extension base="knoradate_type">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional" default="prop-default"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -100,7 +100,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:float">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional" default="prop-default"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -110,7 +110,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional" default="prop-default"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -120,7 +120,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional" default="prop-default"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -130,7 +130,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional" default="prop-default"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -140,7 +140,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:integer">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional" default="prop-default"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -150,7 +150,7 @@
         <xs:simpleContent>
             <xs:extension base="knorainterval_type">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional" default="prop-default"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -160,7 +160,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional" default="prop-default"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -170,7 +170,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional" default="prop-default"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -180,7 +180,7 @@
         <xs:simpleContent>
             <xs:extension base="knoratime_type">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional" default="prop-default"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -190,7 +190,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:decimal">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional" default="prop-default"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -200,7 +200,7 @@
         <xs:simpleContent>
             <xs:extension base="knorauri_type">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional" default="prop-default"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -210,7 +210,7 @@
     <xs:simpleContent>
         <xs:extension base="xs:boolean">
             <xs:attribute name="comment" type="xs:string"/>
-            <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+            <xs:attribute name="permissions" type="xs:NCName" use="optional" default="prop-default"/>
         </xs:extension>
     </xs:simpleContent>
     </xs:complexType>
@@ -380,7 +380,7 @@
     <xs:complexType name="bitstream_type">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional" default="prop-default"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -410,7 +410,7 @@
         <xs:attribute name="label" type="xs:string" use="required"/>
         <xs:attribute name="restype" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
-        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+        <xs:attribute name="permissions" type="xs:NCName" use="optional" default="res-default"/>
         <xs:attribute name="iri" type="xs:string" use="optional"/>
         <xs:attribute name="ark" type="xs:string" use="optional"/>
         <xs:attribute name="creation_date" type="xs:dateTime" use="optional"/>
@@ -424,7 +424,7 @@
         </xs:all>
         <xs:attribute name="label" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
-        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+        <xs:attribute name="permissions" type="xs:NCName" use="optional" default="res-default"/>
         <xs:attribute name="iri" type="xs:string" use="optional"/>
         <xs:attribute name="ark" type="xs:string" use="optional"/>
         <xs:attribute name="creation_date" type="xs:dateTime" use="optional"/>
@@ -440,7 +440,7 @@
         </xs:all>
         <xs:attribute name="label" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
-        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+        <xs:attribute name="permissions" type="xs:NCName" use="optional" default="res-default"/>
         <xs:attribute name="iri" type="xs:string" use="optional"/>
         <xs:attribute name="ark" type="xs:string" use="optional"/>
         <xs:attribute name="creation_date" type="xs:dateTime" use="optional"/>
@@ -454,7 +454,7 @@
         </xs:all>
         <xs:attribute name="label" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
-        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+        <xs:attribute name="permissions" type="xs:NCName" use="optional" default="res-default"/>
         <xs:attribute name="iri" type="xs:string" use="optional"/>
         <xs:attribute name="ark" type="xs:string" use="optional"/>
         <xs:attribute name="creation_date" type="xs:dateTime" use="optional"/>
@@ -540,4 +540,3 @@
         </xs:keyref>
     </xs:element>
 </xs:schema>
-

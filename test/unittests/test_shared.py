@@ -17,7 +17,7 @@ class TestShared(unittest.TestCase):
         
         with self.assertRaisesRegex(
             UserError,
-            "Line 12: Element '{https://dasch.swiss/schema}resource', attribute 'invalidtag': "
+            "Line 12: Element 'resource', attribute 'invalidtag': "
             "The attribute 'invalidtag' is not allowed"
         ):
             shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/invalid-resource-tag.xml")

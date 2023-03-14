@@ -237,8 +237,8 @@
                 "label": {
                     "type": "string"
                 },
-                "comments": {
-                    "$ref": "#/definitions/langstring"
+                "comment": {
+                    "type": "string"
                 },
                 "properties": {
                     "type": "array",
@@ -1087,8 +1087,7 @@
             "required": [
                 "name",
                 "super",
-                "labels",
-                "cardinalities"
+                "labels"
             ],
             "additionalProperties": false
         }

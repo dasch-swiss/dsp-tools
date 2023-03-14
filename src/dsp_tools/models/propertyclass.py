@@ -3,7 +3,6 @@ import re
 from typing import Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
 
-from pystrict import strict
 
 from dsp_tools.models.set_encoder import SetEncoder
 from dsp_tools.models.connection import Connection
@@ -14,7 +13,6 @@ from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.model import Model
 
 
-@strict
 class PropertyClass(Model):
     ROUTE: str = "/v2/ontologies/properties"
 

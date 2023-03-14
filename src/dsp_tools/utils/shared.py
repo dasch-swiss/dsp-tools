@@ -116,6 +116,7 @@ def validate_xml_against_schema(input_file: Union[str, etree._ElementTree[Any]])
         error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
         for error in xmlschema.error_log:
             error_msg = error_msg + f"\n  Line {error.line}: {error.message}"
+        error_msg = error_msg.replace("{https://dasch.swiss/schema}", "")
         raise UserError(error_msg)
     
     # make sure there are no XML tags in simple texts

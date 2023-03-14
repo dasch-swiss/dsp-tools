@@ -32,9 +32,9 @@ from dsp_tools.utils.shared import try_network_action, validate_xml_against_sche
 MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "duration_ms", "mb_per_sec"])
 
 
-def _transform_server_to_foldername(server: str) -> str:
+def _transform_server_url_to_foldername(server: str) -> str:
     """
-    Take the servername and transform it so that it can be used as foldername.
+    Take the server URL and transform it so that it can be used as foldername.
 
     Args:
         server: server, e.g. "https://api.test.dasch.swiss/" or "http://0.0.0.0:3333"
@@ -54,16 +54,79 @@ def _transform_server_to_foldername(server: str) -> str:
     return server
 
 
-def _initialize_logs(
+def _determine_save_location_of_logs(
     server: str,
     proj_shortcode: str,
     onto_name: str
 ) -> tuple[Path, str, str]:
-    server_as_foldername = _transform_server_to_foldername(server)
+    """
+    Determine the save location for the logs that will be used if the xmlupload is interrupted.
+    They are going to be stored in ~/.dsp-tools/xmluploads/server/shortcode/ontoname.
+    This path is computed and created.
+
+    Args:
+        server: URL of the DSP server where the data is uploaded to
+        proj_shortcode: 4-digit hexadecimal shortcode of the project
+        onto_name: name of the ontology that the data belongs to
+
+    Returns:
+        a tuple consisting of the absolute full path to the storage location, 
+        a version of the server URL that can be used as foldername,
+        and the timestamp string that can be used as component of file names 
+        (so that different log files of the same xmlupload have the same timestamp)
+    """
+    server_as_foldername = _transform_server_url_to_foldername(server)
     timestamp_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
     save_location = Path.home() / Path(".dsp-tools") / "xmluploads" / server_as_foldername / proj_shortcode / onto_name
     save_location.mkdir(parents=True, exist_ok=True)
     return save_location, server_as_foldername, timestamp_str
+
+
+def _write_log_files_and_metrics(
+    id2iri_mapping: dict[str, str],
+    metrics: Optional[list[MetricRecord]], 
+    failed_uploads: list[str],
+    input_file: Union[str, etree._ElementTree[Any]],
+    timestamp_str: str,
+    server_as_foldername: str
+) -> bool:
+    """
+    Writes the id2iri mapping and the metrics into the current working directory,
+    and prints the failed uploads (if applicable).
+
+    Args:
+        id2iri_mapping: mapping of ids from the XML file to IRIs in DSP (initially empty, gets filled during the upload)
+        metrics: list with the metric records collected until now (gets filled during the upload)
+        failed_uploads: ids of resources that could not be uploaded (initially empty, gets filled during the upload)
+        input_file: path to the XML file or parsed ElementTree
+        timestamp_str: timestamp for the name of the log files
+        server_as_foldername: simplified version of the server URL that can be used as folder name
+
+    Returns:
+        True if there are no failed_uploads, False otherwise
+    """
+    # determine names of log files
+    if isinstance(input_file, str):
+        id2iri_filename = f"{Path(input_file).stem}_id2iri_mapping_{timestamp_str}.json"
+        metrics_filename = f"{timestamp_str}_metrics_{server_as_foldername}_{Path(input_file).stem}.csv"
+    else:
+        id2iri_filename = f"{timestamp_str}_id2iri_mapping.json"
+        metrics_filename = f"{timestamp_str}_metrics_{server_as_foldername}.csv"
+    
+    # write log files and print info
+    success = True
+    with open(id2iri_filename, "x") as f:
+        json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
+        print(f"The mapping of internal IDs to IRIs was written to {id2iri_filename}")
+    if failed_uploads:
+        print(f"\nWARNING: Could not upload the following resources: {failed_uploads}\n")
+        success = False
+    if metrics:
+        os.makedirs("metrics", exist_ok=True)
+        df = pd.DataFrame(metrics)
+        df.to_csv(f"metrics/{metrics_filename}")
+
+    return success
 
 
 def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
@@ -376,8 +439,8 @@ def xml_upload(
     default_ontology = root.attrib['default-ontology']
     shortcode = root.attrib['shortcode']
 
-    # initialize logs
-    save_location, server_as_foldername, timestamp_str = _initialize_logs(
+    # determine save location that will be used for logs if the xmlupload is interrupted
+    save_location, server_as_foldername, timestamp_str = _determine_save_location_of_logs(
         server=server,
         proj_shortcode=shortcode,
         onto_name=default_ontology
@@ -456,29 +519,17 @@ def xml_upload(
             timestamp_str=timestamp_str
         )
     
-    # determine names of log files
-    if isinstance(input_file, str):
-        id2iri_filename = f"{Path(input_file).stem}_id2iri_mapping_{timestamp_str}.json"
-        metrics_filename = f"{timestamp_str}_metrics_{server_as_foldername}_{Path(input_file).stem}.csv"
-    else:
-        id2iri_filename = f"{timestamp_str}_id2iri_mapping.json"
-        metrics_filename = f"{timestamp_str}_metrics_{server_as_foldername}.csv"
-    
-    # write log files and print info
-    success = True
-    with open(id2iri_filename, "x") as f:
-        json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
-        print(f"The mapping of internal IDs to IRIs was written to {id2iri_filename}")
-    if failed_uploads:
-        print(f"\nWARNING: Could not upload the following resources: {failed_uploads}\n")
-        success = False
-    if save_metrics:
-        os.makedirs("metrics", exist_ok=True)
-        df = pd.DataFrame(metrics)
-        df.to_csv(f"metrics/{metrics_filename}")
+    # write regular log files, metrics, and print some final info
+    success = _write_log_files_and_metrics(
+        id2iri_mapping=id2iri_mapping,
+        failed_uploads=failed_uploads,
+        metrics=metrics,
+        input_file=input_file,
+        timestamp_str=timestamp_str,
+        server_as_foldername=server_as_foldername
+    )
     if success:
         print("All resources have successfully been uploaded.")
-
     return success
 
 

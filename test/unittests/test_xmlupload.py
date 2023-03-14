@@ -10,12 +10,12 @@ from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.xml_upload import (_convert_ark_v0_to_resource_iri,
                                         _parse_xml_file,
                                         _remove_circular_references,
-                                        _transform_server_to_foldername)
+                                        _transform_server_url_to_foldername)
 
 
 class TestXMLUpload(unittest.TestCase):
 
-    def test_transform_server_to_foldername(self) -> None:
+    def test_transform_server_url_to_foldername(self) -> None:
         testcases: list[tuple[str, str]] = [
             ("https://api.test.dasch.swiss/", "test.dasch.swiss"),
             ("http://api.082e-test-server.dasch.swiss/", "082e-test-server.dasch.swiss"),
@@ -23,7 +23,7 @@ class TestXMLUpload(unittest.TestCase):
             ("https://0.0.0.0:80/", "localhost")
         ]
         for input, expected_output in testcases:
-            actual_output = _transform_server_to_foldername(input)
+            actual_output = _transform_server_url_to_foldername(input)
             self.assertEqual(actual_output, expected_output)
 
 

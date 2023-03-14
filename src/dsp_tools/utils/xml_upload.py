@@ -61,9 +61,9 @@ def _initialize_logs(
 ) -> tuple[Path, str, str]:
     server_as_foldername = _transform_server_to_foldername(server)
     timestamp_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    save_location_full = Path.home() / Path(".dsp-tools") / "xmluploads" / server_as_foldername / proj_shortcode / onto_name
-    save_location_full.mkdir(parents=True, exist_ok=True)
-    return save_location_full, server_as_foldername, timestamp_str
+    save_location = Path.home() / Path(".dsp-tools") / "xmluploads" / server_as_foldername / proj_shortcode / onto_name
+    save_location.mkdir(parents=True, exist_ok=True)
+    return save_location, server_as_foldername, timestamp_str
 
 
 def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
@@ -377,7 +377,7 @@ def xml_upload(
     shortcode = root.attrib['shortcode']
 
     # initialize logs
-    save_location_full, server_as_foldername, timestamp_str = _initialize_logs(
+    save_location, server_as_foldername, timestamp_str = _initialize_logs(
         server=server,
         proj_shortcode=shortcode,
         onto_name=default_ontology
@@ -452,7 +452,7 @@ def xml_upload(
             failed_uploads=failed_uploads,
             stashed_xml_texts=nonapplied_xml_texts or stashed_xml_texts,
             stashed_resptr_props=nonapplied_resptr_props or stashed_resptr_props,
-            save_location_full=save_location_full,
+            save_location=save_location,
             timestamp_str=timestamp_str
         )
     
@@ -828,7 +828,7 @@ def _handle_upload_error(
     failed_uploads: list[str],
     stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
-    save_location_full: Path,
+    save_location: Path,
     timestamp_str: str
 ) -> None:
     """
@@ -843,7 +843,7 @@ def _handle_upload_error(
         failed_uploads: resources that caused an error when uploading to DSP
         stashed_xml_texts: all xml texts that have been stashed
         stashed_resptr_props: all resptr props that have been stashed
-        save_location_full: path where to save the logs
+        save_location: path where to save the logs
         timestamp_str: timestamp for the name of the log files
 
     Returns:
@@ -858,14 +858,14 @@ def _handle_upload_error(
     stashed_resptr_props = _purge_stashed_resptr_props(stashed_resptr_props, id2iri_mapping)
 
     if id2iri_mapping:
-        id2iri_mapping_file = f"{save_location_full}/{timestamp_str}_id2iri_mapping.json"
+        id2iri_mapping_file = f"{save_location}/{timestamp_str}_id2iri_mapping.json"
         with open(id2iri_mapping_file, "x") as f:
             json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
         print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
 
     if stashed_xml_texts:
         stashed_xml_texts_serializable = {r.id: {p.name: xml for p, xml in rdict.items()} for r, rdict in stashed_xml_texts.items()}
-        xml_filename = f"{save_location_full}/{timestamp_str}_stashed_text_properties.json"
+        xml_filename = f"{save_location}/{timestamp_str}_stashed_text_properties.json"
         with open(xml_filename, "x") as f:
             json.dump(stashed_xml_texts_serializable, f, ensure_ascii=False, indent=4, cls=KnoraStandoffXmlEncoder)
         print(f"There are stashed text properties that could not be reapplied to the resources they were stripped "
@@ -873,7 +873,7 @@ def _handle_upload_error(
 
     if stashed_resptr_props:
         stashed_resptr_props_serializable = {r.id: {p.name: plist for p, plist in rdict.items()} for r, rdict in stashed_resptr_props.items()}
-        resptr_filename = f"{save_location_full}/{timestamp_str}_stashed_resptr_properties.json"
+        resptr_filename = f"{save_location}/{timestamp_str}_stashed_resptr_properties.json"
         with open(resptr_filename, "x") as f:
             json.dump(stashed_resptr_props_serializable, f, ensure_ascii=False, indent=4)
         print(

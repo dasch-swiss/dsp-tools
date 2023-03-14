@@ -54,6 +54,18 @@ def _transform_server_to_foldername(server: str) -> str:
     return server
 
 
+def _initialize_logs(
+    server: str,
+    proj_shortcode: str,
+    onto_name: str
+) -> tuple[Path, str, str]:
+    server_as_foldername = _transform_server_to_foldername(server)
+    timestamp_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+    save_location_full = Path.home() / Path(".dsp-tools") / "xmluploads" / server_as_foldername / proj_shortcode / onto_name
+    save_location_full.mkdir(parents=True, exist_ok=True)
+    return save_location_full, server_as_foldername, timestamp_str
+
+
 def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
         tuple[list[XMLResource],
               dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
@@ -357,16 +369,23 @@ def xml_upload(
         uploaded because there is an error in it
     """
 
-    # Validate the input XML file
+    # parse the XML file
     validate_xml_against_schema(input_file=input_file)
+    tree = _parse_xml_file(input_file=input_file)
+    root = tree.getroot()
+    default_ontology = root.attrib['default-ontology']
+    shortcode = root.attrib['shortcode']
+
+    # initialize logs
+    save_location_full, server_as_foldername, timestamp_str = _initialize_logs(
+        server=server,
+        proj_shortcode=shortcode,
+        onto_name=default_ontology
+    )
     
     # start metrics
     metrics: list[MetricRecord] = []
     preparation_start = datetime.now()
-
-    # figure out where to save the state of an interrupted xmlupload
-    save_location = Path.home() / Path(".dsp-tools")
-    server_as_foldername = _transform_server_to_foldername(server)
 
     # Connect to the DaSCH Service Platform API and get the project context
     con = Connection(server)
@@ -375,11 +394,7 @@ def xml_upload(
                                       action=lambda: ProjectContext(con=con))
     sipi_server = Sipi(sipi, con.get_token())
 
-    # parse the XML file
-    tree = _parse_xml_file(input_file=input_file)
-    root = tree.getroot()
-    default_ontology = root.attrib['default-ontology']
-    shortcode = root.attrib['shortcode']
+    # make Python object representations of the XML file
     resources: list[XMLResource] = []
     permissions: dict[str, XmlPermission] = {}
     for child in root:
@@ -437,14 +452,11 @@ def xml_upload(
             failed_uploads=failed_uploads,
             stashed_xml_texts=nonapplied_xml_texts or stashed_xml_texts,
             stashed_resptr_props=nonapplied_resptr_props or stashed_resptr_props,
-            proj_shortcode=shortcode,
-            onto_name=default_ontology,
-            server_as_foldername=server_as_foldername,
-            save_location=save_location
+            save_location_full=save_location_full,
+            timestamp_str=timestamp_str
         )
     
     # determine names of log files
-    timestamp_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
     if isinstance(input_file, str):
         id2iri_filename = f"{Path(input_file).stem}_id2iri_mapping_{timestamp_str}.json"
         metrics_filename = f"{timestamp_str}_metrics_{server_as_foldername}_{Path(input_file).stem}.csv"
@@ -816,10 +828,8 @@ def _handle_upload_error(
     failed_uploads: list[str],
     stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
-    proj_shortcode: str,
-    onto_name: str,
-    server_as_foldername: str,
-    save_location: Path
+    save_location_full: Path,
+    timestamp_str: str
 ) -> None:
     """
     In case the xmlupload must be interrupted, e.g. because of an error that could not be handled, or due to keyboard
@@ -833,10 +843,8 @@ def _handle_upload_error(
         failed_uploads: resources that caused an error when uploading to DSP
         stashed_xml_texts: all xml texts that have been stashed
         stashed_resptr_props: all resptr props that have been stashed
-        proj_shortcode: shortcode of the project the data belongs to
-        onto_name: name of the ontology the data references
-        server_as_foldername: the server which the data is uploaded onto (in a form that can be used as folder name)
-        save_location: path where to save the logs
+        save_location_full: path where to save the logs
+        timestamp_str: timestamp for the name of the log files
 
     Returns:
         None
@@ -844,10 +852,6 @@ def _handle_upload_error(
 
     print(f'\n=========================================='
           f'\nxmlupload must be aborted because of an error')
-    timestamp_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-
-    save_location_full = save_location / "xmluploads" / server_as_foldername / proj_shortcode / onto_name
-    save_location_full.mkdir(parents=True, exist_ok=True)
 
     # only stashed properties of resources that already exist in DSP are of interest
     stashed_xml_texts = _purge_stashed_xml_texts(stashed_xml_texts, id2iri_mapping)

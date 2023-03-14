@@ -4,7 +4,6 @@ from enum import Enum
 from typing import Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
 
-from pystrict import strict
 
 from dsp_tools.models.set_encoder import SetEncoder
 from dsp_tools.models.connection import Connection
@@ -21,7 +20,6 @@ This model implements the handling of resource classes. It contains two classes 
 """
 
 
-@strict
 class HasProperty(Model):
     ROUTE: str = "/v2/ontologies/cardinalities"
 
@@ -297,7 +295,6 @@ class HasProperty(Model):
         print(f'{blank:>{offset + 2}}Resclass: {self._resclass_id}')
 
 
-@strict
 class ResourceClass(Model):
     """
     This class represents a knora resource class

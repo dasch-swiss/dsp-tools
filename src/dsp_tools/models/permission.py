@@ -2,7 +2,6 @@ import re
 from enum import Enum, unique
 from typing import Optional, Union
 
-from pystrict import strict
 
 
 @unique
@@ -24,7 +23,6 @@ class PermissionValue(Enum):
         return tmp[self.value]
 
 
-@strict
 class PermissionsIterator:
     _permissions: 'Permissions'
     _group: list[str]
@@ -45,7 +43,6 @@ class PermissionsIterator:
             raise StopIteration
 
 
-@strict
 class Permissions:
     _permissions: Union[dict[PermissionValue, list[str]], None]
 

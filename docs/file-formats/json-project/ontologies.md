@@ -247,14 +247,14 @@ These three are related as follows:
 #### Overview
 
 | DSP base property (`super`) | `object`                                                            | `gui_element`                        |
-|-----------------------------|---------------------------------------------------------------------|--------------------------------------|
+| --------------------------- | ------------------------------------------------------------------- | ------------------------------------ |
 | hasValue                    | BooleanValue                                                        | Checkbox                             |
 | hasColor                    | ColorValue                                                          | Colorpicker                          |
 | hasValue                    | DateValue                                                           | Date                                 |
 | hasValue                    | DecimalValue                                                        | Slider, <br>SimpleText               |
 | hasValue                    | GeonameValue                                                        | Geonames                             |
 | hasValue                    | IntValue                                                            | Spinbox, <br>SimpleText              |
-| hasValue                    | ListValue                                                           | Radio, List                          |
+| hasValue                    | ListValue                                                           | List                                 |
 | hasValue                    | TextValue                                                           | SimpleText,<br>Textarea,<br>Richtext |
 | hasComment                  | TextValue                                                           | SimpleText                           |
 | hasValue                    | TimeValue                                                           | TimeStamp                            |
@@ -471,13 +471,12 @@ for more information.
 
 *gui_elements / gui_attributes*:
 
-- `Radio`: A GUI element for *ListValue*. A set of radio buttons. This works only with flat lists.
-    - *gui_attributes*:
-        - `hlist=<list-name>` (required): The name of a list defined in the ["lists" section](./overview.md#lists).
 - `List`: A GUI element for *ListValue*. A dropdown to select a list node. This GUI element should be chosen for
   hierarchical lists or flat lists that could be expanded to hierarchical lists in the future.
     - *gui_attributes*:
         - `hlist=<list-name>` (required): The name of a list defined in the ["lists" section](./overview.md#lists).
+- `Radio` and `Pulldown` are allowed, too, but they don't have a different behaviour than `List`. It is recommended to use `List`.
+
 
 Example:
 

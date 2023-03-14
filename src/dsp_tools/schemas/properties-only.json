@@ -84,6 +84,7 @@
                 "Interval",
                 "List",
                 "Radio",
+                "Pulldown",
                 "Richtext",
                 "Searchbox",
                 "SimpleText",

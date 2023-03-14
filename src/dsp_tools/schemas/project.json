@@ -98,8 +98,7 @@
                 "TextValue",
                 "TimeValue",
                 "UriValue"
-            ],
-            "default": "TextValue"
+            ]
         },
         "gui_element": {
             "type": "string",
@@ -118,8 +117,7 @@
                 "Spinbox",
                 "Textarea",
                 "TimeStamp"
-            ],
-            "default": "SimpleText"
+            ]
         },
         "groupdef": {
             "type": "string",
@@ -300,8 +298,7 @@
                         {
                             "$ref": "#/definitions/prefixedname"
                         }
-                    ],
-                    "default": "TextValue"
+                    ]
                 },
                 "subject": {
                     "$ref": "#/definitions/prefixedname"
@@ -310,8 +307,7 @@
                     "$ref": "#/definitions/langstring"
                 },
                 "gui_element": {
-                    "$ref": "#/definitions/gui_element",
-                    "default": "SimpleText"
+                    "$ref": "#/definitions/gui_element"
                 },
                 "gui_attributes": {
                     "type": "object",

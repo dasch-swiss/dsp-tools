@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from enum import Enum, unique
 from typing import NewType, Optional, Any, Tuple, Union, Pattern
 
-from pystrict import strict
 
 from dsp_tools.models.exceptions import BaseError
 
@@ -33,7 +32,6 @@ def LINE() -> int:
     return sys._getframe(1).f_lineno
 
 
-@strict
 class IriTest:
     __iri_regexp = re.compile("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?")
 
@@ -59,7 +57,6 @@ class Cardinality(Enum):
     C_0_n = "0-n"
 
 
-@strict
 class ContextIterator:
     _context: 'Context'
     _prefixes: list[str]
@@ -81,7 +78,6 @@ class ContextIterator:
             raise StopIteration
 
 
-@strict
 class Context:
     """
     This class holds a JSON-LD context with the ontology IRI's and the associated prefixes

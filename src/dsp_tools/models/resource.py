@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from typing import Optional, Any, Union, Type
 from urllib.parse import quote_plus
 
-from pystrict import strict
 
 from dsp_tools.models.bitstream import Bitstream
 from dsp_tools.models.connection import Connection
@@ -42,7 +41,6 @@ class Propinfo:
     attributes: Optional[str] = None
 
 
-@strict
 class ResourceInstance(Model):
     """
     Represents a resource instance
@@ -340,7 +338,6 @@ class ResourceInstance(Model):
                 print(name, ':', str(val))
 
 
-@strict
 class ResourceInstanceFactory:
     _con: Connection
     _project: Project

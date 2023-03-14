@@ -343,6 +343,8 @@ def _parse_xml_file(input_file: Union[str, etree._ElementTree[Any]]) -> etree._E
 def _check_consistency_with_ontology(
     resources: list[XMLResource],
     resclass_name_2_type: dict[str, type],
+    shortcode: str,
+    ontoname: str,
     verbose: bool = False
 ) -> None:
     """
@@ -351,6 +353,8 @@ def _check_consistency_with_ontology(
     Args:
         resources: a list of parsed XMLResources
         resclass_name_2_type: infos about the resource classes that exist on the DSP server for the current ontology
+        shortcode: the shortcode of the project as referenced in the attribute "shortcode" of the <knora> tag of the XML file
+        ontoname: the name of the ontology as referenced in the attribute "default-ontology" of the <knora> tag of the XML file
         verbose: verbose switch
 
     Raises:
@@ -361,6 +365,11 @@ def _check_consistency_with_ontology(
     """
     if verbose:
         print("Check if the resource types and properties are consistent with the ontology...")
+    if not any([x.startswith(ontoname) for x in resclass_name_2_type.keys()]):
+        raise UserError(
+            f"The <knora> tag of your XML file references the ontology '{ontoname}', "
+            f"but the project {shortcode} on the DSP server doesn't contain an ontology with this name."
+        )
     knora_properties = resclass_name_2_type[resources[0].restype].knora_properties  # type: ignore
 
     for resource in resources:
@@ -468,7 +477,10 @@ def xml_upload(
             resources.append(XMLResource(child, default_ontology))
 
     # get the project information and project ontology from the server
-    res_inst_factory = try_network_action("", lambda: ResourceInstanceFactory(con, shortcode))
+    res_inst_factory = try_network_action(
+        failure_msg=f"A project with shortcode {shortcode} could not be found on the DSP server", 
+        action=lambda: ResourceInstanceFactory(con, shortcode)
+    )
     permissions_lookup: dict[str, Permissions] = {s: perm.get_permission_instance() for s, perm in permissions.items()}
     resclass_name_2_type: dict[str, type] = {s: res_inst_factory.get_resclass_type(s) for s in res_inst_factory.get_resclass_names()}
 
@@ -476,6 +488,8 @@ def xml_upload(
     _check_consistency_with_ontology(
         resources=resources,
         resclass_name_2_type=resclass_name_2_type,
+        shortcode=shortcode,
+        ontoname=default_ontology,
         verbose=verbose
     )
 

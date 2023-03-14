@@ -1,12 +1,10 @@
 from typing import Optional, Any
 
-from pystrict import strict
 
 from dsp_tools.models.helpers import Actions
 from dsp_tools.models.permission import Permissions
 
 
-@strict
 class Bitstream:
     """
     Represents a bitstream object (file) which is attached to a resource

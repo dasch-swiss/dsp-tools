@@ -4,7 +4,6 @@ import re
 from typing import Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
 
-from pystrict import strict
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
@@ -43,7 +42,6 @@ DELETE
 """
 
 
-@strict
 class Ontology(Model):
     ROUTE: str = '/v2/ontologies'
     METADATA: str = '/metadata/'

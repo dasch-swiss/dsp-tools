@@ -6,7 +6,6 @@ import urllib.parse
 from typing import Optional, Any, Union
 from urllib.parse import quote_plus
 
-from pystrict import strict
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.group import Group
@@ -48,7 +47,6 @@ In addition there is a static methods ``getAllProjects`` which returns a list of
 """
 
 
-@strict
 class User(Model):
     """
     This class represents a user in Knora.

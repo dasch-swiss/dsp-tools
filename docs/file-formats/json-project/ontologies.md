@@ -34,6 +34,7 @@ Example of an ontology object:
 {
   "name": "seworon",
   "label": "Secrets of the World Ontology",
+  "comment": "This is an example ontology",
   "properties": [
     ...
   ],
@@ -63,6 +64,16 @@ means a string without blanks or special characters but `-` and `_` are allowed 
 `"label": "<string>"`
 
 A string that provides the full name of the ontology.
+
+
+
+### Ontology: Comment
+
+(optional)
+
+`"comment": "<string>"`
+
+A string that provides a comment to the ontology.
 
 
 

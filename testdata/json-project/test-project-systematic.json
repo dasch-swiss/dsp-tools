@@ -211,6 +211,7 @@
             {
                 "name": "testonto",
                 "label": "Test ontology",
+                "comment": "This is the main ontology of this project. Further down, another one is defined.",
                 "properties": [
                     {
                         "name": "hasTextChild2",

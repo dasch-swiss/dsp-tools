@@ -120,14 +120,16 @@ A resource object needs to have the following fields:
 - `name`
 - `labels`
 - `super`
-- `cardinalities`
+- `cardinalities`*
 
 The following field is optional:
 
 - `comments` 
 
-A detailed description of `resources` can be found [below](#the-property-object-in-detail).
+A detailed description of `resources` can be found [below](#the-resource-object-in-detail).
 
+(*It is technically possible to have a resource without cardinalities,
+but in most cases it doesn't make sense to omit them.)
 
 
 
@@ -1015,7 +1017,7 @@ used in all cases when your resource is none of the special cases below.
 
 ### Resource: Cardinalities
 
-(required)
+(required*)
 
 `"cardinalities": [...]`
 
@@ -1038,6 +1040,9 @@ as well as how many values a property can have.
         - `"0-1"`: The value may be omitted, but can occur only once.
         - `"1-n"`: At least one value must be present, but multiple values may be present.
         - `"0-n"`: The value may be omitted, but may also occur multiple times.
+
+(*It is technically possible to have a resource without cardinalities,
+but in most cases it doesn't make sense to omit them.)
 
 
 

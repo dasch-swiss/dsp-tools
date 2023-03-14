@@ -794,7 +794,8 @@ class ResourceClass(Model):
                     continue
                 if hp.ptype == HasProperty.Ptype.other:
                     cardinalities.append(hp.createDefinitionFileObj(context, shortname))
-            resource["cardinalities"] = cardinalities
+            if cardinalities:
+                resource["cardinalities"] = cardinalities
 
         return resource
 

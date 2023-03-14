@@ -274,14 +274,17 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, 
     Returns:
         the parsed JSON object
     """
-    if isinstance(project_file_as_path_or_parsed, str) or isinstance(project_file_as_path_or_parsed, Path) and Path(project_file_as_path_or_parsed).exists():
+    if isinstance(project_file_as_path_or_parsed, dict):
+        project_definition: dict[str, Any] = project_file_as_path_or_parsed
+    elif all([
+        isinstance(project_file_as_path_or_parsed, str) or isinstance(project_file_as_path_or_parsed, Path),
+        Path(project_file_as_path_or_parsed).exists()
+    ]):
         with open(project_file_as_path_or_parsed) as f:
             try:
-                project_definition: dict[str, Any] = json.load(f)
+                project_definition = json.load(f)
             except:
                 raise BaseError(f"The input file '{project_file_as_path_or_parsed}' cannot be parsed to a JSON object.")
-    elif isinstance(project_file_as_path_or_parsed, dict):
-        project_definition = project_file_as_path_or_parsed
     else:
         raise BaseError(f"Invalid input: The input must be a path to a JSON file or a parsed JSON object.")
     return project_definition

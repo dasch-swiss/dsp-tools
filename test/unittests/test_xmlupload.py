@@ -9,10 +9,49 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.xml_upload import (_convert_ark_v0_to_resource_iri,
                                         _parse_xml_file,
-                                        _remove_circular_references)
+                                        _remove_circular_references,
+                                        _transform_server_url_to_foldername,
+                                        _determine_save_location_of_logs)
 
 
 class TestXMLUpload(unittest.TestCase):
+
+    def test_transform_server_url_to_foldername(self) -> None:
+        testcases: list[tuple[str, str]] = [
+            ("https://api.test.dasch.swiss/", "test.dasch.swiss"),
+            ("http://api.082e-test-server.dasch.swiss/", "082e-test-server.dasch.swiss"),
+            ("http://0.0.0.0:12345", "localhost"),
+            ("https://0.0.0.0:80/", "localhost")
+        ]
+        for input, expected_output in testcases:
+            actual_output = _transform_server_url_to_foldername(input)
+            self.assertEqual(actual_output, expected_output)
+
+
+
+    def test_determine_save_location_of_logs(self) -> None:
+        shortcode = "082E"
+        onto_name = "rosetta"
+        testcases: list[tuple[str, str]] = [
+            ("https://api.test.dasch.swiss/", f"/.dsp-tools/xmluploads/test.dasch.swiss/{shortcode}/{onto_name}"),
+            ("http://api.082e-test-server.dasch.swiss/", f"/.dsp-tools/xmluploads/082e-test-server.dasch.swiss/{shortcode}/{onto_name}")
+        ]
+        for server, expected_path in testcases:
+            save_location, _, _ = _determine_save_location_of_logs(
+                server=server,
+                proj_shortcode=shortcode,
+                onto_name=onto_name
+            )
+            self.assertTrue(str(save_location).endswith(expected_path))
+            self.assertTrue(save_location.is_dir())
+            try:
+                save_location.rmdir()
+                save_location.parent.rmdir()
+                save_location.parent.parent.rmdir()
+            except OSError:
+                # there was already stuff in the folder before this test: do nothing
+                pass
+
 
     def test_parse_xml_file(self) -> None:
         test_data_systematic_tree = etree.parse("testdata/xml-data/test-data-systematic.xml")

@@ -417,11 +417,12 @@ class Ontology(Model):
         ontology = {
             "name": self.name,
             "label": self.label,
+            "comment": self.comment,
             "properties": [],
             "resources": []
         }
-        if self.comment:
-            ontology["comment"] = self.comment
+        if not self.comment:
+            ontology.pop("comment")
         for prop in self.property_classes:
             if "knora-api:hasLinkToValue" in prop.superproperties:
                 self.skiplist.append(self.name + ":" + prop.name)

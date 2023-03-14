@@ -519,7 +519,8 @@ def _create_ontologies(
             con=con,
             project=project_remote,
             label=ontology_definition["label"],
-            name=ontology_definition["name"]
+            name=ontology_definition["name"],
+            comment=ontology_definition.get("comment")
         )
         # if ontology cannot be created, let the error escalate
         ontology_remote: Ontology = try_network_action(
@@ -769,7 +770,7 @@ def _add_cardinalities_to_resource_classes(
                   f"doesn't exist on the DSP server.")
             overall_success = False
             continue
-        for card_info in res_class.get("cardinalities"):
+        for card_info in res_class.get("cardinalities", []):
             if ":" in card_info["propname"]:
                 prefix, prop = card_info["propname"].split(":")
                 qualified_propname = card_info["propname"] if prefix else f"{ontology_remote.name}:{prop}"

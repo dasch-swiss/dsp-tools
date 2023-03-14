@@ -1,5 +1,6 @@
 """unit tests for ontology creation"""
 import json
+from pathlib import Path
 import unittest
 from typing import Any
 
@@ -31,6 +32,7 @@ class TestProjectCreation(unittest.TestCase):
 
     def test_parse_json_input(self) -> None:
         parsed_proj_from_filepath = parse_json_input(project_file_as_path_or_parsed=self.test_project_systematic_file)
+        parsed_proj_from_filepath = parse_json_input(project_file_as_path_or_parsed=Path(self.test_project_systematic_file))
         parsed_proj_from_json_obj = parse_json_input(project_file_as_path_or_parsed=self.test_project_systematic)
         self.assertDictEqual(parsed_proj_from_filepath, parsed_proj_from_json_obj)
 

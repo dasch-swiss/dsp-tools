@@ -99,7 +99,7 @@ def try_network_action(
     raise BaseError(failure_msg)
 
 
-def validate_xml_against_schema(input_file: Union[str, etree._ElementTree[Any]]) -> bool:
+def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:
     """
     Validates an XML file against the DSP XSD schema.
 
@@ -259,7 +259,7 @@ def check_notna(value: Optional[Any]) -> bool:
         return False
 
 
-def parse_json_input(project_file_as_path_or_parsed: Union[str, dict[str, Any]]) -> dict[str, Any]:
+def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, Any]]) -> dict[str, Any]:
     """
     Check the input for a method that expects a JSON project definition, either as file path or as parsed JSON object: 
     If it is parsed already, return it unchanged.
@@ -274,7 +274,7 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, dict[str, Any]])
     Returns:
         the parsed JSON object
     """
-    if isinstance(project_file_as_path_or_parsed, str) and Path(project_file_as_path_or_parsed).exists():
+    if isinstance(project_file_as_path_or_parsed, str) or isinstance(project_file_as_path_or_parsed, Path) and Path(project_file_as_path_or_parsed).exists():
         with open(project_file_as_path_or_parsed) as f:
             try:
                 project_definition: dict[str, Any] = json.load(f)

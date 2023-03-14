@@ -621,8 +621,9 @@
                                     }
                                 },
                                 "enum": [
+                                    "List",
                                     "Radio",
-                                    "List"
+                                    "Pulldown"
                                 ]
                             }
                         }
@@ -784,8 +785,9 @@
                         "properties": {
                             "gui_element": {
                                 "enum": [
+                                    "List",
                                     "Radio",
-                                    "List"
+                                    "Pulldown"
                                 ]
                             }
                         }

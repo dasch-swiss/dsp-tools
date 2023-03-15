@@ -133,7 +133,7 @@ def generate_testdata(size: str) -> bool:
 
     # download and adapt JSON project file from dsp-tools testdata
     json_text = requests.get(
-        "https://github.com/dasch-swiss/dsp-tools/blob/main/testdata/test-project-enhanced-xmlupload.json?raw=true").text
+        "https://github.com/dasch-swiss/dsp-tools/blob/main/testdata/json-project/test-project-enhanced-xmlupload.json?raw=true").text
     json_text = json_text.replace('"cardinality": "1"', '"cardinality": "0-n"')
     json_text = json_text.replace('"cardinality": "1-n"', '"cardinality": "0-n"')
     with open(testproject / "data_model.json", "x") as f:

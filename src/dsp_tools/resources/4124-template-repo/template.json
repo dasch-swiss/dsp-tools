@@ -1,0 +1,49 @@
+{
+    "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/schemas/project.json",
+    "project": {
+        "shortcode": "4124",
+        "shortname": "minimal-tp",
+        "longname": "minimal test project",
+        "descriptions": {
+            "en": "A minimal test project"
+        },
+        "keywords": [
+            "minimal"
+        ],
+        "ontologies": [
+            {
+                "name": "testonto",
+                "label": "Test ontology",
+                "properties": [
+                    {
+                        "name": "hasText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "hasText"
+                        },
+                        "gui_element": "SimpleText"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "minimalResource",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Minimal Resource"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "gui_order": 1,
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

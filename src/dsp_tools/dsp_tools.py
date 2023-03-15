@@ -20,6 +20,7 @@ from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.stack_handling import start_stack, stop_stack
 from dsp_tools.utils.xml_upload import xml_upload
+from dsp_tools.utils.generate_templates import generate_template_repo
 
 
 def make_parser() -> argparse.ArgumentParser:
@@ -159,6 +160,13 @@ def make_parser() -> argparse.ArgumentParser:
     )
     parser_stackdown.set_defaults(action="stop-stack")
 
+    # create template repo with minimal JSON and XML files
+    parser_template = subparsers.add_parser(
+        name="template", 
+        help="Create a template repository with a minimal JSON and XML file"
+    )
+    parser_template.set_defaults(action="template")
+
     return parser
 
 
@@ -277,6 +285,8 @@ def call_requested_action(
         )
     elif args.action == "stop-stack":
         success = stop_stack()
+    elif args.action == "template":
+        success = generate_template_repo()
     else:
         success = False
 

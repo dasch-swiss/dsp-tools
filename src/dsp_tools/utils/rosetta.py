@@ -7,6 +7,94 @@ from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.xml_upload import xml_upload
 
 
+def _update_possibly_existing_repo(rosetta_folder: Path) -> bool:
+    """
+    Makes an attempt to pull the latest version of rosetta from GitHub.
+
+    Args:
+        rosetta_folder: path to the (possibly existing) clone of the repo
+
+    Returns:
+        True if the repo exists and could be updated, False if the repo doesn't exist or couldn't be updated
+    """
+    is_rosetta_up_to_date = True
+    if rosetta_folder.is_dir():
+        print(f"Make 'git pull' in {rosetta_folder}...")
+        completed_process = subprocess.run("git pull", shell=True, cwd=rosetta_folder)
+        if not completed_process or completed_process.returncode != 0:
+            print(f"'git pull' failed. Remove '{rosetta_folder}'...")
+            shutil.rmtree(rosetta_folder, ignore_errors=True)
+            is_rosetta_up_to_date = False
+    else:
+        is_rosetta_up_to_date = False
+    
+    return is_rosetta_up_to_date
+    
+
+def _clone_repo(rosetta_folder: Path, enclosing_folder: Path) -> None:
+    """
+    Clones the rosetta repo into the enclosing folder.
+
+    Args:
+        rosetta_folder: path to the (not yet existing) clone 
+        enclosing_folder: path to the (existing) destination where rosetta should be cloned into
+
+    Raises:
+        UserError: If rosetta cannot be cloned
+    """
+    print(f"Clone into {rosetta_folder}...")
+    completed_process = subprocess.run("git clone https://github.com/dasch-swiss/082E-rosetta-scripts.git", shell=True, cwd=enclosing_folder)
+    if not completed_process or completed_process.returncode != 0:
+        raise UserError("There was a problem while cloning the rosetta test project")
+
+    
+def _create_json(rosetta_folder: Path) -> bool:
+    """
+    Creates the rosetta project on the locally running DSP stack.
+
+    Args:
+        rosetta_folder: path to the clone
+
+    Returns:
+        True if the project could be created without problems, False if something went wrong during the creation process
+    """
+    print("Execute 'dsp-tools create rosetta.json'...")
+    success = create_project(
+        project_file_as_path_or_parsed=rosetta_folder/"rosetta.json",
+        server="http://0.0.0.0:3333",
+        user_mail="root@example.com",
+        password="test",
+        verbose=False,
+        dump=False
+    )
+    return success
+
+
+def _upload_xml(rosetta_folder: Path) -> bool:
+    """
+    Uplaod the rosetta data on the locally running DSP stack.
+
+    Args:
+        rosetta_folder: path to the clone
+
+    Returns:
+        True if all data could be uploaded without problems, False if something went wrong during the upload process
+    """
+    print("Execute 'dsp-tools xmlupload rosetta.xml'...")
+    success = xml_upload(
+        input_file=rosetta_folder/"rosetta.xml",
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        imgdir=".",
+        sipi="http://0.0.0.0:1024",
+        verbose=False,
+        incremental=False,
+        save_metrics=False
+    )
+    return success
+
+
 def upload_rosetta() -> bool:
     """
     This method clones https://github.com/dasch-swiss/082E-rosetta-scripts
@@ -24,45 +112,12 @@ def upload_rosetta() -> bool:
     enclosing_folder = Path.home() / Path(".dsp-tools/rosetta")
     enclosing_folder.mkdir(parents=True, exist_ok=True)
     rosetta_folder = enclosing_folder / "082E-rosetta-scripts"
-    
-    if rosetta_folder.is_dir():
-        cloning_necessary = False
-        print(f"Make 'git pull' in {rosetta_folder}...")
-        completed_process = subprocess.run("git pull", shell=True, cwd=rosetta_folder)
-        if not completed_process or completed_process.returncode != 0:
-            print(f"'git pull' failed. Remove '{rosetta_folder}'...")
-            shutil.rmtree(rosetta_folder, ignore_errors=True)
-            cloning_necessary = True
-    else:
-        cloning_necessary = True
-    
-    if cloning_necessary:
-        print(f"Clone into {rosetta_folder}...")
-        completed_process = subprocess.run("git clone https://github.com/dasch-swiss/082E-rosetta-scripts.git", shell=True, cwd=enclosing_folder)
-        if not completed_process or completed_process.returncode != 0:
-            raise UserError("There was a problem while cloning the rosetta test project")
-    
-    print("Execute 'dsp-tools create rosetta.json'...")
-    success1 = create_project(
-        project_file_as_path_or_parsed=rosetta_folder/"rosetta.json",
-        server="http://0.0.0.0:3333",
-        user_mail="root@example.com",
-        password="test",
-        verbose=False,
-        dump=False
-    )
 
-    print("Execute 'dsp-tools xmlupload rosetta.xml'...")
-    success2 = xml_upload(
-        input_file=rosetta_folder/"rosetta.xml",
-        server="http://0.0.0.0:3333",
-        user="root@example.com",
-        password="test",
-        imgdir=".",
-        sipi="http://0.0.0.0:1024",
-        verbose=False,
-        incremental=False,
-        save_metrics=False
-    )
+    is_rosetta_up_to_date = _update_possibly_existing_repo(rosetta_folder=rosetta_folder)
+    if not is_rosetta_up_to_date:
+        _clone_repo(rosetta_folder=rosetta_folder, enclosing_folder=enclosing_folder)
+    
+    success1 = _create_json(rosetta_folder=rosetta_folder)
+    success2 = _upload_xml(rosetta_folder=rosetta_folder)
     
     return success1 and success2

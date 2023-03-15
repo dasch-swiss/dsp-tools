@@ -1,11 +1,11 @@
-import concurrent.futures
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import os
 import glob
 import json
 import shutil
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 import regex
 import requests
@@ -84,7 +84,7 @@ def generate_testdata(size: str) -> bool:
             with open(dst_file, "bw") as f:
                 f.write(file)
     print(f"Successfully created folder {testproject}/multimedia")
-    
+
     # download big files of some few file types
     if size != "small":
         big_files_dict = {
@@ -139,11 +139,11 @@ def generate_testdata(size: str) -> bool:
     with open(testproject / "data_model.json", "x") as f:
         f.write(json_text)
     print("Successfully created data_model.json")
-    
+
     return True
 
 
-def _parse_xml_file(xmlfile: str) -> tuple[etree._ElementTree, list[Path]]:
+def _parse_xml_file(xmlfile: str) -> tuple[etree._ElementTree, list[str]]:
     """
     Parse XML file 
 
@@ -159,67 +159,77 @@ def _parse_xml_file(xmlfile: str) -> tuple[etree._ElementTree, list[Path]]:
     return tree, bitstream_paths
 
 
-def _upload_derivates(
-    orig_path: Path, 
-    internal_filename: str,
-    remote_sipi_server: str,
-    con: Connection
-) -> None:
+def __upload_derivative(
+        sipi_processed_path: str,
+        orig_file: str,
+        internal_filename: str,
+        remote_sipi_server: str,
+        con: Connection
+) -> tuple[int, str]:
     upload_candidates: list[str] = []
-    upload_candidates.extend(glob.glob(f"{tmp_location}/tmp/{Path(internal_filename).stem}/**/*.*"))
-    upload_candidates.extend(glob.glob(f"{tmp_location}/tmp/{Path(internal_filename).stem}*.*"))
-    min_num_of_candidates = 5 if orig_path.suffix == "mp4" else 3
+    upload_candidates.extend(glob.glob(f"{Path(sipi_processed_path)}/{Path(internal_filename).stem}/**/*.*"))
+    upload_candidates.extend(glob.glob(f"{Path(sipi_processed_path)}/{Path(internal_filename).stem}*.*"))
+
+    orig_file_path = Path(orig_file)
+    min_num_of_candidates = 5 if orig_file_path.suffix == ".mp4" else 3
     if len(upload_candidates) < min_num_of_candidates:
-        raise BaseError(f"Local SIPI created only the following files for {orig_path}, which is too less: {upload_candidates}")
-    for upload_candidate in upload_candidates:
-        with open(upload_candidate, "rb") as bitstream:
+        raise BaseError(f"Local SIPI created only the following files for {orig_file_path}, which is too less: {upload_candidates}")
+
+    for candidate in upload_candidates:
+        with open(candidate, "rb") as bitstream:
             response_upload = requests.post(
-                url=f"{regex.sub(r'/$', '', remote_sipi_server)}/upload_without_processing?token={con.get_token()}", 
+                url=f"{regex.sub(r'/$', '', remote_sipi_server)}/upload_without_processing?token={con.get_token()}",
                 files={"file": bitstream}
             )
         if not response_upload.json().get("uploadedFiles"):
-            raise BaseError(f"File {upload_candidate} ({orig_path!s}) could not be uploaded. The API response was: {response_upload.text}")
-    print(f" - Uploaded {len(upload_candidates)} derivates of {orig_path!s}")
+            raise BaseError(f"File {candidate} ({orig_file_path!s}) could not be uploaded. The API response was: {response_upload.text}")
+
+    print(f" - Uploaded {len(upload_candidates)} derivatives of {orig_file}")
+    return len(upload_candidates), str(orig_file_path)
 
 
-def _preprocess_file(
-    path: Path,
-    local_sipi_port: int,
+def __preprocess_file(
+        orig_file: str,
+        local_sipi_server: str,
 ) -> tuple[Path, str]:
     """
-    Sends a multimedia file to the /upload route of the local SIPI instance.
+    Sends a multimedia file to the SIPI /upload_for_processing route of the
+    local DSP stack.
 
     Args:
-        batch: list of paths to image files
-        local_sipi_port: port number of SIPI
+        orig_file: file to process
+        local_sipi_server: URL of the local SIPI IIIF server
 
     Returns:
         tuple consisting of the original path and the SIPI-internal filename
     """
-    with open(path, "rb") as bitstream:
-        response_raw = requests.post(url=f"http://localhost:{local_sipi_port}/upload", files={"file": bitstream})
+
+    with open(orig_file, "rb") as bitstream:
+        response_raw = requests.post(
+            url=f"{local_sipi_server}/upload_for_processing",
+            files={"file": bitstream})
     response = json.loads(response_raw.text)
     if response.get("uploadedFiles", [{}])[0].get("internalFilename"):
         internal_filename: str = response["uploadedFiles"][0]["internalFilename"]
-        print(f" - Successfully preprocessed {path}")
     elif response.get("message") == "server.fs.mkdir() failed: File exists":
-        _, internal_filename = _preprocess_file(path=path, local_sipi_port=local_sipi_port)
+        _, internal_filename = __preprocess_file(path=orig_file, local_sipi_server=local_sipi_server)
     else:
-        raise BaseError(f"File {path} couldn't be handled by the /upload route of the local SIPI. Error message: {response['message']}")
-    return path, internal_filename
+        raise BaseError(f"File {orig_file} couldn't be handled by the /upload_for_processing route of the local SIPI. Error message: {response['message']}")
+    return orig_file, internal_filename
 
 
 def enhanced_xml_upload(
-    local_sipi_port: int,
-    remote_dsp_server: str,
-    remote_sipi_server: str,
-    num_of_threads_for_preprocessing: int,
-    num_of_threads_for_uploading: int,
-    user: str,
-    password: str,
-    xmlfile: str,
-    verbose: bool,
-    incremental: bool
+        local_sipi_server: str,
+        sipi_processed_path: str,
+        remote_dsp_server: str,
+        remote_sipi_server: str,
+        processing_threads: int,
+        uploading_threads: int,
+        user: str,
+        password: str,
+        xmlfile: str,
+        verbose: bool,
+        incremental: bool
 ) -> bool:
     """
     Before starting the regular xmlupload, 
@@ -227,11 +237,12 @@ def enhanced_xml_upload(
     and send the preprocessed files to the DSP server.
 
     Args:
-        local_sipi_port: 5-digit port number of the local SIPI instance, can be found in the "Container" view of Docker Desktop
+        local_sipi_server: URL of the local SIPI IIIF server
+        sipi_processed_path: Path to folder containing the processed  files
         remote_dsp_server: the DSP server where the data should be imported
         remote_sipi_server: URL of the remote SIPI IIIF server
-        num_of_threads_for_preprocessing: number of threads used for sending requests to the local SIPI
-        num_of_threads_for_uploading: number of threads used for uploading the preprocessed files to the remote SIPI
+        processing_threads: number of threads used for sending requests to the local SIPI
+        uploading_threads: number of threads used for uploading the preprocessed files to the remote SIPI
         user: username used for authentication with the DSP-API
         password: password used for authentication with the DSP-API
         xmlfile: path to xml file containing the data
@@ -246,32 +257,50 @@ def enhanced_xml_upload(
     xml_file_tree, all_paths = _parse_xml_file(xmlfile=xmlfile)
 
     con = Connection(remote_dsp_server)
-    try_network_action(failure_msg="Unable to login to DSP server", action=lambda: con.login(user, password))
+    try_network_action(failure_msg="Unable to login to DSP server",
+                       action=lambda: con.login(user, password))
 
     print(f"{datetime.now()}: Start preprocessing and uploading the multimedia files...")
     start_multithreading_time = datetime.now()
     orig_filepath_2_uuid: dict[str, str] = dict()
-    with concurrent.futures.ThreadPoolExecutor(max_workers=num_of_threads_for_preprocessing) as executor:
-        futures: list[concurrent.futures.Future[Any]] = list()
-        for path in all_paths:
-            futures.append(
-                executor.submit(
-                    _preprocess_file, 
-                    path=path, 
-                    local_sipi_port=local_sipi_port, 
-                )
-            )
-        with concurrent.futures.ThreadPoolExecutor(max_workers=num_of_threads_for_uploading) as executor2:
-            for future in concurrent.futures.as_completed(futures):
-                orig_path, internal_filename = future.result()
-                orig_filepath_2_uuid[str(orig_path)] = internal_filename
-                executor2.submit(
-                    _upload_derivates,
-                    orig_path=orig_path, 
-                    internal_filename=internal_filename,
-                    remote_sipi_server=remote_sipi_server,
-                    con=con
-                )
+
+    # create processing thread pool
+    with ThreadPoolExecutor(processing_threads, 'processing') as e1:
+        # add processing jobs to pool
+        processing_jobs = [e1.submit(
+            __preprocess_file,
+            orig_file,
+            local_sipi_server
+        ) for orig_file in all_paths]
+
+        with ThreadPoolExecutor(uploading_threads, 'upload') as e2:
+            # wait for a processing job to complete and add upload job to pool
+            uploading_jobs = []
+            for processed in as_completed(processing_jobs):
+                try:
+                    orig_file, internal_filename = processed.result()
+                    orig_filepath_2_uuid[orig_file] = internal_filename
+                    uploading_jobs.append(
+                        e2.submit(
+                            __upload_derivative,
+                            sipi_processed_path,
+                            orig_file,
+                            internal_filename,
+                            remote_sipi_server,
+                            con
+                        )
+                    )
+                except Exception as ex:
+                    print(f"processing generated an exception: {ex}")
+                else:
+                    print(f" - Successfully preprocessed {orig_file} with internal filename: {internal_filename}")
+
+    for uploaded in as_completed(uploading_jobs):
+        try:
+            uploaded.result()
+        except Exception as ex:
+            print(f"upload generated an exception: {ex}")
+
     end_multithreading_time = datetime.now()
     multithreading_duration = end_multithreading_time - start_multithreading_time
     print(f"Time of multithreading: {multithreading_duration.seconds} seconds")
@@ -280,7 +309,7 @@ def enhanced_xml_upload(
         if tag.text in orig_filepath_2_uuid:
             tag.text = orig_filepath_2_uuid[tag.text]
 
-    print("Preprocessing sucessfully finished! Start with regular xmlupload...")
+    print("Preprocessing successfully finished! Start with regular xmlupload...")
 
     xml_upload(
         input_file=xml_file_tree,
@@ -299,6 +328,14 @@ def enhanced_xml_upload(
     print(f"Total time of enhanced xmlupload: {duration.seconds} seconds")
     print(f"Time of multithreading: {multithreading_duration.seconds} seconds")
 
-    shutil.rmtree(tmp_location / "tmp", ignore_errors=True)
+    for filename in os.listdir(sipi_processed_path):
+        file_path = os.path.join(sipi_processed_path, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print('Failed to delete %s. Reason: %s' % (file_path, e))
 
     return True

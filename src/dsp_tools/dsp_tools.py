@@ -35,11 +35,11 @@ def program(user_args: list[str]) -> None:
     # help texts
     username_text = "username (e-mail) used for authentication with the DSP-API "
     password_text = "password used for authentication with the DSP-API "
-    url_text = "URL of the DSP server"
+    remote_dsp_api_server_text = "URL of the DSP server"
     verbose_text = "print more information about the progress to the console"
 
     # default values
-    default_localhost = "http://0.0.0.0:3333"
+    default_dsp_api_url = "http://0.0.0.0:3333"
     default_user = "root@example.com"
     default_pw = "test"
 
@@ -54,7 +54,7 @@ def program(user_args: list[str]) -> None:
              "A project can consist of lists, groups, users, and ontologies (data models)."
     )
     parser_create.set_defaults(action="create")
-    parser_create.add_argument("-s", "--server", default=default_localhost, help=url_text)
+    parser_create.add_argument("-s", "--server", default=default_dsp_api_url, help=remote_dsp_api_server_text)
     parser_create.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_create.add_argument("-p", "--password", default=default_pw, help=password_text)
     parser_create.add_argument("-V", "--validate-only", action="store_true", 
@@ -67,7 +67,7 @@ def program(user_args: list[str]) -> None:
     # get
     parser_get = subparsers.add_parser(name="get", help="Retrieve a project with its data model(s) from a DSP server and write it into a JSON file")
     parser_get.set_defaults(action="get")
-    parser_get.add_argument("-s", "--server", default=default_localhost, help=url_text)
+    parser_get.add_argument("-s", "--server", default=default_dsp_api_url, help=remote_dsp_api_server_text)
     parser_get.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_get.add_argument("-p", "--password", default=default_pw, help=password_text)
     parser_get.add_argument("-P", "--project", help="shortcode, shortname or IRI of the project", required=True)
@@ -77,7 +77,7 @@ def program(user_args: list[str]) -> None:
     # xmlupload
     parser_upload = subparsers.add_parser(name="xmlupload", help="Upload data defined in an XML file to a DSP server")
     parser_upload.set_defaults(action="xmlupload")
-    parser_upload.add_argument("-s", "--server", default=default_localhost, help="URL of the DSP server where DSP-TOOLS sends the data to")
+    parser_upload.add_argument("-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to")
     parser_upload.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_upload.add_argument("-p", "--password", default=default_pw, help=password_text)
     parser_upload.add_argument("-S", "--sipi", default="http://0.0.0.0:1024", help="URL of the SIPI server where DSP-TOOLS sends the multimedia files to")
@@ -95,13 +95,15 @@ def program(user_args: list[str]) -> None:
         help="For internal use only: Upload data from an XML file to the DaSCH Service Platform. Preprocess the data locally first."
     )
     parser_enhanced_xmlupload.set_defaults(action="enhanced-xmlupload")
+    parser_enhanced_xmlupload.add_argument("--multimedia-folder", default="multimedia", help="Path to folder containing the multimedia files")
+    parser_enhanced_xmlupload.add_argument("--local-sipi-server", default="http://0.0.0.0:1024", help="URL of the local SIPI IIIF server")
+    parser_enhanced_xmlupload.add_argument("--sipi-processed-path", help="Path to folder containing the processed multimedia files")
     parser_enhanced_xmlupload.add_argument("--generate-test-data", action="store_true", help="only generate a test data folder in the current working directory (no upload)")
     parser_enhanced_xmlupload.add_argument("--size", default="small", help="size of test data set: small/medium/big")
-    parser_enhanced_xmlupload.add_argument("-P", "--local-sipi-port", type=int, help="5-digit port number of the local SIPI instance, can be found in the 'Container' view of Docker Desktop")
-    parser_enhanced_xmlupload.add_argument("-s", "--remote-dsp-server", default=default_localhost, help=url_text)
-    parser_enhanced_xmlupload.add_argument("-S", "--remote-sipi-server", default="http://0.0.0.0:1024", help="URL of the remote SIPI server")
-    parser_enhanced_xmlupload.add_argument("-t", "--num-of-threads-for-preprocessing", type=int, default=32, help="number of threads used for sending requests to the local SIPI")
-    parser_enhanced_xmlupload.add_argument("-T", "--num-of-threads-for-uploading", type=int, default=8, help="number of threads used for uploading the preprocessed files to the remote SIPI")
+    parser_enhanced_xmlupload.add_argument("-s", "--remote-dsp-server", default=default_dsp_api_url, help=remote_dsp_api_server_text)
+    parser_enhanced_xmlupload.add_argument("-S", "--remote-sipi-server", default="http://0.0.0.0:1024", help="URL of the remote SIPI IIIF server (for testing purposes, can be the same as `--local-sipi-server`)")
+    parser_enhanced_xmlupload.add_argument("-t", "--num-of-threads-for-processing", type=int, default=8, help="number of threads used for sending requests to the local SIPI")
+    parser_enhanced_xmlupload.add_argument("-T", "--num-of-threads-for-uploading", type=int, default=4, help="number of threads used for uploading the preprocessed files to the remote SIPI")
     parser_enhanced_xmlupload.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_enhanced_xmlupload.add_argument("-p", "--password", default=default_pw, help=password_text)
     parser_enhanced_xmlupload.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
@@ -235,11 +237,12 @@ def program(user_args: list[str]) -> None:
             success = generate_testdata(size=args.size)
         else:
             success = enhanced_xml_upload(
-                local_sipi_port=args.local_sipi_port,
+                local_sipi_server=args.local_sipi_server,
+                sipi_processed_path=args.sipi_processed_path,
                 remote_dsp_server=args.remote_dsp_server,
                 remote_sipi_server=args.remote_sipi_server,
-                num_of_threads_for_preprocessing=args.num_of_threads_for_preprocessing,
-                num_of_threads_for_uploading=args.num_of_threads_for_uploading,
+                processing_threads=args.num_of_threads_for_processing,
+                uploading_threads=args.num_of_threads_for_uploading,
                 user=args.user,
                 password=args.password,
                 xmlfile=args.xmlfile,

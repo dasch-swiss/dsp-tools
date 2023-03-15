@@ -73,3 +73,4 @@ src/dsp_tools/docker/sipi.docker-config.lua
 
 # for testing in development
 tmp/
+/out/

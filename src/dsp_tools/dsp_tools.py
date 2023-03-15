@@ -257,6 +257,7 @@ def call_requested_action(
                 incremental=args.incremental,
                 save_metrics=args.metrics,
                 preprocessing_done=False
+            )
     elif args.action == "enhanced-xmlupload":
         if args.generate_test_data:
             success = generate_testdata(size=args.size)

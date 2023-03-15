@@ -114,7 +114,7 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
     """
     with importlib.resources.files("dsp_tools").joinpath("schemas").joinpath("data.xsd").open() as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
-    if isinstance(input_file, str):
+    if isinstance(input_file, str) or isinstance(input_file, Path):
         try:
             doc = etree.parse(source=input_file)
         except etree.XMLSyntaxError as err:

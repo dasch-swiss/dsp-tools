@@ -19,7 +19,7 @@ def _update_possibly_existing_repo(rosetta_folder: Path) -> bool:
     """
     is_rosetta_up_to_date = True
     if rosetta_folder.is_dir():
-        print(f"Make 'git pull' in {rosetta_folder}...")
+        print(f"Execute 'git pull' in {rosetta_folder}...")
         completed_process = subprocess.run("git pull", shell=True, cwd=rosetta_folder)
         if not completed_process or completed_process.returncode != 0:
             print(f"'git pull' failed. Remove '{rosetta_folder}'...")
@@ -86,7 +86,7 @@ def _upload_xml(rosetta_folder: Path) -> bool:
         server="http://0.0.0.0:3333",
         user="root@example.com",
         password="test",
-        imgdir=".",
+        imgdir=str(rosetta_folder),
         sipi="http://0.0.0.0:1024",
         verbose=False,
         incremental=False,

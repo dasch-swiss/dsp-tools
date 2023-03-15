@@ -52,14 +52,10 @@ dsp-tools enhanced-xmlupload --generate-test-data --size=small/medium/big data.x
 ## 2. Start DSP stack
 
 - if not already available, make a clone of the [DSP-API repository](https://github.com/dasch-swiss/dsp-api)
+- as long as it is not merged yet, use the branch "feature/dev-1828-optimize-local-setup"
 - `make init-db-test`
 - `make stack-up`
 
-Method 2: Reuse an old clone:
-
-- you have executed `make stack-up` before, so the `.env` file exists
-- if you rename the repository, update `LOCAL_HOME` in the `.env` file
-- continue with the common steps below
 
 ## 3. `enhanced-xmlupload`
 
@@ -74,7 +70,7 @@ Arguments and options:
 - `--generate-test-data`: If set, only generate a test data folder in the current working directory (no upload).
   - `--size`: size of test data set: small/medium/big
 - `--local-sipi-server` (optional, default: `http://0.0.0.0:1024`): URL of the local SIPI IIIF server
-- `--sipi-processed-path`: Path to folder containing the processed multimedia files
+- `--sipi-processed-path`: Path to folder containing the processed multimedia files (dsp-api/sipi/images/processed)
 - `-s` | `--remote-dsp-server` (optional, default: `http://0.0.0.0:3333`): URL of the DSP server
 - `-S` | `--remote-sipi-server` (optional, default: `http://0.0.0.0:1024`): URL of the remote SIPI IIIF server (for testing purposes, can be the same as `--local-sipi-server`)
 - `-t` | `--num-of-threads-for-preprocessing` (optional, default: 32): number of threads used for sending requests to the local SIPI

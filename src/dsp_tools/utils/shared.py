@@ -7,6 +7,7 @@ import time
 import unicodedata
 from datetime import datetime
 from typing import Callable, Any, Optional, Union
+from functools import singledispatch
 
 import pandas as pd
 import regex
@@ -99,12 +100,13 @@ def try_network_action(
     raise BaseError(failure_msg)
 
 
-def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:
+@singledispatch
+def validate_xml_against_schema(parsed_xml: etree._ElementTree[Any]) -> bool:
     """
     Validates an XML file against the DSP XSD schema.
 
     Args:
-        input_file: path to the XML file to be validated, or parsed ElementTree
+        parsed_xml: parsed XML file as ElementTree
 
     Raises:
         UserError with a detailed error log if the XML file is invalid
@@ -114,15 +116,8 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
     """
     with importlib.resources.files("dsp_tools").joinpath("schemas").joinpath("data.xsd").open() as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
-    if isinstance(input_file, str) or isinstance(input_file, Path):
-        try:
-            doc = etree.parse(source=input_file)
-        except etree.XMLSyntaxError as err:
-            raise UserError(f"The XML file contains the following syntax error: {err.msg}") from None
-    else:
-        doc = input_file
 
-    if not xmlschema.validate(doc):
+    if not xmlschema.validate(parsed_xml):
         error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
         for error in xmlschema.error_log:
             error_msg = error_msg + f"\n  Line {error.line}: {error.message}"
@@ -131,14 +126,14 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
     
     # make sure there are no XML tags in simple texts
     # first: remove namespaces
-    doc_without_namespace = copy.deepcopy(doc)
-    for elem in doc_without_namespace.iter():
+    parsed_xml_without_namespace = copy.deepcopy(parsed_xml)
+    for elem in parsed_xml_without_namespace.iter():
         if not (isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction)):
             elem.tag = etree.QName(elem).localname
     
     # then: make the test
     lines_with_illegal_xml_tags = list()
-    for text in doc_without_namespace.findall(path="resource/text-prop/text"):
+    for text in parsed_xml_without_namespace.findall(path="resource/text-prop/text"):
         if text.attrib["encoding"] == "utf8":
             if regex.search(r'<([a-zA-Z/"]+|\S.*\S)>', str(text.text)) or len(list(text.iterchildren())) > 0:
                 lines_with_illegal_xml_tags.append(text.sourceline)
@@ -148,6 +143,27 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
 
     print("The XML file is syntactically correct and passed validation.")
     return True
+
+
+@validate_xml_against_schema.register
+def _(input_file: Union[str, Path]) -> bool:
+    """
+    Validates an XML file against the DSP XSD schema.
+
+    Args:
+        input_file: path to the XML file to be validated
+
+    Raises:
+        UserError with a detailed error log if the XML file contains a syntax error or if it is invalid
+    
+    Returns:
+        True if the XML file is valid
+    """
+    try:
+        parsed_xml = etree.parse(source=input_file)
+    except etree.XMLSyntaxError as err:
+        raise UserError(f"The XML file contains the following syntax error: {err.msg}") from None
+    return validate_xml_against_schema(parsed_xml=parsed_xml)
 
 
 def prepare_dataframe(df: pd.DataFrame, required_columns: list[str], location_of_sheet: str) -> pd.DataFrame:

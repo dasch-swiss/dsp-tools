@@ -8,7 +8,7 @@ from dsp_tools.utils.xml_upload import xml_upload
 
 def upload_rosetta() -> bool:
     """
-    This method clones https://github.com/dasch-swiss/082e-rosetta-scripts
+    This method clones https://github.com/dasch-swiss/082E-rosetta-scripts
     into ~/.dsp-tools/rosetta.
     If the repository is already there, it pulls instead of cloning.
     Then, rosetta.json is created and rosetta.xml uploaded.
@@ -37,11 +37,11 @@ def upload_rosetta() -> bool:
     
     if cloning_necessary:
         print(f"Clone into {rosetta_folder}...")
-        completed_process = subprocess.run("git clone https://github.com/dasch-swiss/082e-rosetta-scripts.git", shell=True, cwd=enclosing_folder)
+        completed_process = subprocess.run("git clone https://github.com/dasch-swiss/082E-rosetta-scripts.git", shell=True, cwd=enclosing_folder)
         if not completed_process or completed_process.returncode != 0:
             raise UserError("There was a problem while cloning the rosetta test project")
     
-    print("Execute 'dsp-tools create rosetta.json...")
+    print("Execute 'dsp-tools create rosetta.json'...")
     success1 = create_project(
         project_file_as_path_or_parsed=rosetta_folder/"rosetta.json",
         server="http://0.0.0.0:3333",
@@ -51,7 +51,7 @@ def upload_rosetta() -> bool:
         dump=False
     )
 
-    print("Execute 'dsp-tools xmlupload rosetta.xml...")
+    print("Execute 'dsp-tools xmlupload rosetta.xml'...")
     success2 = xml_upload(
         input_file=rosetta_folder/"rosetta.xml",
         server="http://0.0.0.0:3333",

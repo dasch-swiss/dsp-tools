@@ -1,10 +1,11 @@
-from pathlib import Path
 import shutil
 import subprocess
+from pathlib import Path
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.xml_upload import xml_upload
+
 
 def upload_rosetta() -> bool:
     """

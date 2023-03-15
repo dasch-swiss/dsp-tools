@@ -3,17 +3,16 @@ import re
 from typing import Tuple, Optional, Any, Union
 from urllib.parse import quote_plus
 
-from pystrict import strict
 
 from dsp_tools.models.set_encoder import SetEncoder
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.helpers import Actions, BaseError, Context, DateTimeStamp, WithId
+from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.langstring import Languages, LangString
 from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.model import Model
 
 
-@strict
 class PropertyClass(Model):
     ROUTE: str = "/v2/ontologies/properties"
 
@@ -272,6 +271,7 @@ class PropertyClass(Model):
         if json_obj.get(salsah_gui + ':guiElement') is not None:
             gui_element = WithId(json_obj.get(salsah_gui + ':guiElement')).str()
             gui_element = gui_element.replace("Pulldown", "List")
+            gui_element = gui_element.replace("Radio", "List")
         gui_attributes_list = json_obj.get(salsah_gui + ':guiAttribute')
         gui_attributes: Union[None, dict[str, str]] = None
         if gui_attributes_list is not None:

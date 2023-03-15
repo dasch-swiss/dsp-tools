@@ -4,11 +4,11 @@ import json
 from typing import Optional, Any, Union
 from urllib.parse import quote_plus
 
-from pystrict import strict
 
 from dsp_tools.models.langstring import LangString
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.helpers import Actions, BaseError
+from dsp_tools.models.helpers import Actions
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.model import Model
 from dsp_tools.models.project import Project
 
@@ -36,7 +36,6 @@ DELETE
 """
 
 
-@strict
 class Group(Model):
     """
     This class represents a Knora group

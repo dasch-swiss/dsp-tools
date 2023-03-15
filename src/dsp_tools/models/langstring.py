@@ -1,7 +1,7 @@
 from enum import Enum, unique
 from typing import Tuple, Optional, Any, Union
 
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 
 
 @unique

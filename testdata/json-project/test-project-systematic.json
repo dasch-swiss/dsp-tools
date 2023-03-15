@@ -4,7 +4,7 @@
         "externalOnto": "http://otherOntology.com/onto/",
         "dcterms": "http://purl.org/dc/terms/"
     },
-    "$schema": "../src/dsp_tools/schemas/project.json",
+    "$schema": "../../src/dsp_tools/schemas/project.json",
     "project": {
         "shortcode": "4123",
         "shortname": "tp",
@@ -77,7 +77,7 @@
                     "fr": "un commentaire"
                 },
                 "nodes": {
-                    "folder": "testdata/list_single"
+                    "folder": "testdata/excel2json/list-single"
                 }
             },
             {
@@ -211,6 +211,7 @@
             {
                 "name": "testonto",
                 "label": "Test ontology",
+                "comment": "This is the main ontology of this project. Further down, another one is defined.",
                 "properties": [
                     {
                         "name": "hasTextChild2",

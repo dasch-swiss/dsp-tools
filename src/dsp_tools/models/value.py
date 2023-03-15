@@ -2,15 +2,14 @@ import re
 from typing import Optional, Any, Union
 
 import regex
-from pystrict import strict
 
-from dsp_tools.models.helpers import IriTest, Actions, BaseError
+from dsp_tools.models.helpers import IriTest, Actions
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.langstring import LangString
 from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.permission import PermissionValue, Permissions
 
 
-@strict
 class KnoraStandoffXml:
     """Used to handle XML strings for standoff markup"""
 
@@ -33,7 +32,6 @@ class KnoraStandoffXml:
         self.__xmlstr = re.sub(pattern=repr(pattern)[1:-1], repl=repl, string=self.__xmlstr)
 
 
-@strict
 class Value:
     """
     Represents a value
@@ -139,7 +137,6 @@ class Value:
         }
 
 
-@strict
 class TextValue(Value):
     _value: Union[str, KnoraStandoffXml]
     _mapping: str
@@ -199,7 +196,6 @@ class TextValue(Value):
         return str(self._value)
 
 
-@strict
 class ColorValue(Value):
     _value: str
 
@@ -246,7 +242,6 @@ class ColorValue(Value):
         return self._value + ' ' + super().__str__()
 
 
-@strict
 class DateValue(Value):
     _calendar: str
     _e1: str
@@ -388,7 +383,6 @@ class DateValue(Value):
         return datestr + ' ' + super().__str__()
 
 
-@strict
 class DecimalValue(Value):
     _value: float
 
@@ -444,7 +438,6 @@ class DecimalValue(Value):
         return str(self._value) + ' ' + super().__str__()
 
 
-@strict
 class GeomValue(Value):
     _value: str
 
@@ -485,7 +478,6 @@ class GeomValue(Value):
         return self._value + ' ' + super().__str__()
 
 
-@strict
 class GeonameValue(Value):
     _value: str
 
@@ -526,7 +518,6 @@ class GeonameValue(Value):
         return self._value + ' ' + super().__str__()
 
 
-@strict
 class IntValue(Value):
     _value: int
 
@@ -574,7 +565,6 @@ class IntValue(Value):
         return str(self._value) + ' ' + super().__str__()
 
 
-@strict
 class BooleanValue(Value):
     _value: bool
 
@@ -625,7 +615,6 @@ class BooleanValue(Value):
         return str(self._value) + ' ' + super().__str__()
 
 
-@strict
 class UriValue(Value):
     _value: str
 
@@ -680,7 +669,6 @@ class UriValue(Value):
         return self._value + ' ' + super().__str__()
 
 
-@strict
 class TimeValue(Value):
     _value: str
 
@@ -733,7 +721,6 @@ class TimeValue(Value):
         return self._value + ' ' + super().__str__()
 
 
-@strict
 class IntervalValue(Value):
     _iv_start: str
     _iv_end: str
@@ -803,7 +790,6 @@ class IntervalValue(Value):
         return interval + ' ' + super().__str__()
 
 
-@strict
 class ListValue(Value):
     _value: str
 
@@ -884,7 +870,6 @@ class ListValue(Value):
         return self._value + ' ' + super().__str__()
 
 
-@strict
 class LinkValue(Value):
     _value: str
     _restype: str

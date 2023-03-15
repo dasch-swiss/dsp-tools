@@ -7,6 +7,7 @@ import sys
 from importlib.metadata import version
 
 from dsp_tools.excel2xml import excel2xml
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
 from dsp_tools.utils.excel_to_json_project import excel2json
 from dsp_tools.utils.excel_to_json_properties import excel2properties
@@ -22,15 +23,12 @@ from dsp_tools.utils.xml_upload import xml_upload
 from dsp_tools.utils.xml_upload_enhanced import generate_testdata, enhanced_xml_upload
 
 
-def program(user_args: list[str]) -> None:
+def make_parser() -> argparse.ArgumentParser:
     """
-    The program parses the command line arguments and calls the requested action
-
-    Args:
-        user_args: list of arguments passed by the user from the command line
+    Create a parser for the command line arguments
 
     Returns:
-        None
+        parser
     """
     # help texts
     username_text = "username (e-mail) used for authentication with the DSP-API "
@@ -43,7 +41,7 @@ def program(user_args: list[str]) -> None:
     default_user = "root@example.com"
     default_pw = "test"
 
-    # parse the arguments of the command line
+    # make a parser
     parser = argparse.ArgumentParser(description=f"DSP-TOOLS (version {version('dsp-tools')}, © {datetime.datetime.now().year} by DaSCH)")
     subparsers = parser.add_subparsers(title="Subcommands", description="Valid subcommands are", help="sub-command help")
 
@@ -183,8 +181,28 @@ def program(user_args: list[str]) -> None:
     )
     parser_stackdown.set_defaults(action="stop-stack")
 
+    return parser
 
-    # call the requested action
+
+def call_requested_action(
+    user_args: list[str], 
+    parser: argparse.ArgumentParser
+) -> bool:
+    """
+    With the help of the parser, parse the user arguments and call the appropriate method of DSP-TOOLS.
+
+    Args:
+        user_args: list of arguments passed by the user from the command line
+        parser: parser to parse the user arguments
+
+    Raises:
+        BaseError from the called methods
+        UserError from the called methods
+        unexpected errors from the called methods and underlying libraries
+    
+    Returns:
+        success status
+    """
     args = parser.parse_args(user_args)
     if not hasattr(args, "action"):
         parser.print_help(sys.stderr)
@@ -195,43 +213,50 @@ def program(user_args: list[str]) -> None:
                 success = validate_lists_section_with_schema(path_to_json_project_file=args.project_definition)
                 print("'Lists' section of the JSON project file is syntactically correct and passed validation.")
             else:
-                _, success = create_lists(project_file_as_path_or_parsed=args.project_definition,
-                                          server=args.server,
-                                          user=args.user,
-                                          password=args.password,
-                                          dump=args.dump)
+                _, success = create_lists(
+                    project_file_as_path_or_parsed=args.project_definition,
+                    server=args.server,
+                    user=args.user,
+                    password=args.password,
+                    dump=args.dump
+                )
         else:
             if args.validate_only:
                 success = validate_project(args.project_definition)
                 print("JSON project file is syntactically correct and passed validation.")
             else:
-                success = create_project(project_file_as_path_or_parsed=args.project_definition,
-                                         server=args.server,
-                                         user_mail=args.user,
-                                         password=args.password,
-                                         verbose=args.verbose,
-                                         dump=args.dump if args.dump else False)
+                success = create_project(
+                    project_file_as_path_or_parsed=args.project_definition,
+                    server=args.server,
+                    user_mail=args.user,
+                    password=args.password,
+                    verbose=args.verbose,
+                    dump=args.dump
+                )
     elif args.action == "get":
-        success = get_project(project_identifier=args.project,
-                              outfile_path=args.project_definition,
-                              server=args.server,
-                              user=args.user,
-                              password=args.password,
-                              verbose=args.verbose)
+        success = get_project(
+            project_identifier=args.project,
+            outfile_path=args.project_definition,
+            server=args.server,
+            user=args.user,
+            password=args.password,
+            verbose=args.verbose
+        )
     elif args.action == "xmlupload":
         if args.validate:
             success = validate_xml_against_schema(input_file=args.xmlfile)
         else:
-            success = xml_upload(input_file=args.xmlfile,
-                                 server=args.server,
-                                 user=args.user,
-                                 password=args.password,
-                                 imgdir=args.imgdir,
-                                 sipi=args.sipi,
-                                 verbose=args.verbose,
-                                 incremental=args.incremental,
-                                 save_metrics=args.metrics,
-                                 preprocessing_done=False)
+            success = xml_upload(
+                input_file=args.xmlfile,
+                server=args.server,
+                user=args.user,
+                password=args.password,
+                imgdir=args.imgdir,
+                sipi=args.sipi,
+                verbose=args.verbose,
+                incremental=args.incremental,
+                save_metrics=args.metrics,
+                preprocessing_done=False
     elif args.action == "enhanced-xmlupload":
         if args.generate_test_data:
             success = generate_testdata(size=args.size)
@@ -250,44 +275,66 @@ def program(user_args: list[str]) -> None:
                 incremental=args.incremental
             )
     elif args.action == "excel2json":
-        success = excel2json(data_model_files=args.excelfolder,
-                             path_to_output_file=args.project_definition)
+        success = excel2json(
+            data_model_files=args.excelfolder,
+            path_to_output_file=args.project_definition
+        )
     elif args.action == "excel2lists":
-        _, success = excel2lists(excelfolder=args.excelfolder,
-                                 path_to_output_file=args.lists_section,
-                                 verbose=args.verbose)
+        _, success = excel2lists(
+            excelfolder=args.excelfolder,
+            path_to_output_file=args.lists_section,
+            verbose=args.verbose
+        )
     elif args.action == "excel2resources":
-        _, success = excel2resources(excelfile=args.excelfile,
-                                     path_to_output_file=args.resources_section)
+        _, success = excel2resources(
+            excelfile=args.excelfile,
+            path_to_output_file=args.resources_section
+        )
     elif args.action == "excel2properties":
-        _, success = excel2properties(excelfile=args.excelfile,
-                                      path_to_output_file=args.properties_section)
+        _, success = excel2properties(
+            excelfile=args.excelfile,
+            path_to_output_file=args.properties_section
+        )
     elif args.action == "id2iri":
-        success = id_to_iri(xml_file=args.xmlfile,
-                            json_file=args.mapping,
-                            out_file=args.outfile,
-                            verbose=args.verbose)
+        success = id_to_iri(
+            xml_file=args.xmlfile,
+            json_file=args.mapping,
+            out_file=args.outfile,
+            verbose=args.verbose
+        )
     elif args.action == "excel2xml":
-        success = excel2xml(datafile=args.data_source,
-                            shortcode=args.project_shortcode,
-                            default_ontology=args.ontology_name)
+        success = excel2xml(
+            datafile=args.data_source,
+            shortcode=args.project_shortcode,
+            default_ontology=args.ontology_name
+        )
     elif args.action == "start-stack":
-        success = start_stack(max_file_size=args.max_file_size,
-                              enforce_docker_system_prune=args.prune,
-                              suppress_docker_system_prune=args.no_prune)
+        success = start_stack(
+            max_file_size=args.max_file_size,
+            enforce_docker_system_prune=args.prune,
+            suppress_docker_system_prune=args.no_prune
+        )
     elif args.action == "stop-stack":
         success = stop_stack()
     else:
         success = False
 
-    if not success: 
-        exit(1)
+    return success
+    
 
 
 def main() -> None:
     """Main entry point of the program as referenced in pyproject.toml"""
-    program(sys.argv[1:])
+    parser = make_parser()
+    try:
+        success = call_requested_action(user_args=sys.argv[1:], parser=parser)
+    except UserError as err:
+        print(err.message)
+        exit(1)
+    # let BaseError and all unexpected errors escalate, so that a stack trace is printed
 
+    if not success: 
+        exit(1)
 
 if __name__ == "__main__":
-    program(sys.argv[1:])
+    main()

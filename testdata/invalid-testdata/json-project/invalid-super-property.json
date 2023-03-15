@@ -1,14 +1,14 @@
 {
-    "$schema": "../../src/dsp_tools/schemas/project.json",
+    "$schema": "../../../src/dsp_tools/schemas/project.json",
     "project": {
-        "shortcode": "4123",
-        "shortname": "tp",
-        "longname": "test project",
+        "shortcode": "4124",
+        "shortname": "minimal-tp",
+        "longname": "minimal test project",
         "descriptions": {
-            "en": "A systematic test project"
+            "en": "A minimal test project"
         },
         "keywords": [
-            "test"
+            "minimal"
         ],
         "ontologies": [
             {
@@ -16,33 +16,27 @@
                 "label": "Test ontology",
                 "properties": [
                     {
-                        "name": "hasSimpleText",
+                        "name": "hasText",
                         "super": [
-                            "hasValue"
+                            "hasColor"
                         ],
                         "object": "TextValue",
                         "labels": {
-                            "en": "hasSimpleText"
+                            "en": "Text"
                         },
                         "gui_element": "SimpleText"
                     }
                 ],
                 "resources": [
                     {
-                        "name": "TestThing",
-                        "super": [
-                            "Resource"
-                        ],
+                        "name": "minimalResource",
+                        "super": "Resource",
                         "labels": {
-                            "en": "TestThing"
+                            "en": "Minimal Resource"
                         },
                         "cardinalities": [
                             {
                                 "propname": ":hasText",
-                                "cardinality": "1-n"
-                            },
-                            {
-                                "propname": ":hasSimpleText",
                                 "cardinality": "0-n"
                             }
                         ]

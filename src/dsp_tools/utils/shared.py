@@ -14,7 +14,7 @@ from lxml import etree
 from requests import RequestException
 
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.propertyelement import PropertyElement
 
 
@@ -87,14 +87,14 @@ def try_network_action(
             else:
                 err_message = str(err).replace('\n', ' ')
                 err_message = err_message[:150] if len(err_message) > 150 else err_message
-            raise BaseError(f"{failure_msg} Error message: {err_message}")
+            raise UserError(f"{failure_msg}.\nOriginal error message for diagnostic purposes:\n{err_message}") from None
         except Exception as exc:
             if hasattr(exc, 'message'):
                 exc_message = exc.message
             else:
                 exc_message = str(exc).replace('\n', ' ')
                 exc_message = exc_message[:150] if len(exc_message) > 150 else exc_message
-            raise BaseError(f"{failure_msg} Error message: {exc_message}")
+            raise UserError(f"{failure_msg}.\nOriginal error message for diagnostic purposes:\n{exc_message}") from None
 
     raise BaseError(failure_msg)
 
@@ -107,7 +107,7 @@ def validate_xml_against_schema(input_file: Union[str, etree._ElementTree[Any]])
         input_file: path to the XML file to be validated, or parsed ElementTree
 
     Raises:
-        BaseError with a detailed error log if the XML file is invalid
+        UserError with a detailed error log if the XML file is invalid
     
     Returns:
         True if the XML file is valid
@@ -118,7 +118,7 @@ def validate_xml_against_schema(input_file: Union[str, etree._ElementTree[Any]])
         try:
             doc = etree.parse(source=input_file)
         except etree.XMLSyntaxError as err:
-            raise BaseError(f"The XML file contains the following syntax error: {err.msg}") from None
+            raise UserError(f"The XML file contains the following syntax error: {err.msg}") from None
     else:
         doc = input_file
 
@@ -126,7 +126,8 @@ def validate_xml_against_schema(input_file: Union[str, etree._ElementTree[Any]])
         error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
         for error in xmlschema.error_log:
             error_msg = error_msg + f"\n  Line {error.line}: {error.message}"
-        raise BaseError(error_msg)
+        error_msg = error_msg.replace("{https://dasch.swiss/schema}", "")
+        raise UserError(error_msg)
     
     # make sure there are no XML tags in simple texts
     # first: remove namespaces
@@ -142,7 +143,7 @@ def validate_xml_against_schema(input_file: Union[str, etree._ElementTree[Any]])
             if regex.search(r'<([a-zA-Z/"]+|\S.*\S)>', str(text.text)) or len(list(text.iterchildren())) > 0:
                 lines_with_illegal_xml_tags.append(text.sourceline)
     if lines_with_illegal_xml_tags:
-        raise BaseError(f"XML-tags are not allowed in text properties with encoding=utf8. "
+        raise UserError(f"XML-tags are not allowed in text properties with encoding=utf8. "
                         f"The following lines of your XML file are affected: {lines_with_illegal_xml_tags}")
 
     print("The XML file is syntactically correct and passed validation.")

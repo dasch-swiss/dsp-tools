@@ -3,11 +3,11 @@ from pprint import pprint
 from typing import List, Optional, Any, Union
 from urllib.parse import quote_plus
 
-from pystrict import strict
 
 from dsp_tools.models.set_encoder import SetEncoder
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.helpers import Actions, BaseError
+from dsp_tools.models.helpers import Actions
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.langstring import Languages, LangString
 from dsp_tools.models.model import Model
 from dsp_tools.models.project import Project
@@ -59,7 +59,6 @@ def list_creator(con: Connection,
     return nodelist
 
 
-@strict
 class ListNode(Model):
     """
     This class represents a list node

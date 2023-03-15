@@ -12,13 +12,13 @@
         ],
         "ontologies": [
             {
-                "name": "minimalOnto",
-                "label": "minimal onto",
+                "name": "testonto",
+                "label": "Test ontology",
                 "properties": [
                     {
                         "name": "hasText",
                         "super": [
-                            "hasColor"
+                            "hasValue"
                         ],
                         "object": "TextValue",
                         "labels": {
@@ -33,13 +33,7 @@
                         "super": "Resource",
                         "labels": {
                             "en": "Minimal Resource"
-                        },
-                        "cardinalities": [
-                            {
-                                "propname": ":hasText",
-                                "cardinality": "0-n"
-                            }
-                        ]
+                        }
                     }
                 ]
             }

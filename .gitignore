@@ -64,12 +64,13 @@ venv.bak/
 # created files
 lists.json
 out.json
-id2iri_*
+*id2iri_mapping*
 stashed*
 **/~$*.*
 testdata/tmp/
 testdata/test-list.json
 src/dsp_tools/docker/sipi.docker-config.lua
+metrics/
 
 # for testing in development
 tmp/

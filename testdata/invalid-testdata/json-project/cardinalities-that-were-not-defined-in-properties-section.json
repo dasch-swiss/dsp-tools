@@ -1,42 +1,48 @@
 {
-    "$schema": "../src/dsp_tools/schemas/project.json",
+    "$schema": "../../../src/dsp_tools/schemas/project.json",
     "project": {
-        "shortcode": "4124",
-        "shortname": "minimal-tp",
-        "longname": "minimal test project",
+        "shortcode": "4123",
+        "shortname": "tp",
+        "longname": "test project",
         "descriptions": {
-            "en": "A minimal test project"
+            "en": "A systematic test project"
         },
         "keywords": [
-            "minimal"
+            "test"
         ],
         "ontologies": [
             {
-                "name": "minimalOnto",
-                "label": "minimal onto",
+                "name": "testonto",
+                "label": "Test ontology",
                 "properties": [
                     {
-                        "name": "hasText",
+                        "name": "hasSimpleText",
                         "super": [
                             "hasValue"
                         ],
                         "object": "TextValue",
                         "labels": {
-                            "en": "Text"
+                            "en": "hasSimpleText"
                         },
                         "gui_element": "SimpleText"
                     }
                 ],
                 "resources": [
                     {
-                        "name": "minimalResource",
-                        "super": "Resource",
+                        "name": "TestThing",
+                        "super": [
+                            "Resource"
+                        ],
                         "labels": {
-                            "en": "Minimal Resource"
+                            "en": "TestThing"
                         },
                         "cardinalities": [
                             {
                                 "propname": ":hasText",
+                                "cardinality": "1-n"
+                            },
+                            {
+                                "propname": ":hasSimpleText",
                                 "cardinality": "0-n"
                             }
                         ]

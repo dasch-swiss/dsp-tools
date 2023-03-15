@@ -6,11 +6,14 @@ from typing import Any
 
 import jsonpath_ng
 import jsonpath_ng.ext
+from dsp_tools.models.exceptions import BaseError
 
 from dsp_tools.utils import excel_to_json_properties as e2j
 
 
 class TestExcelToProperties(unittest.TestCase):
+
+    outfile = "testdata/tmp/_out_properties.json"
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -25,9 +28,8 @@ class TestExcelToProperties(unittest.TestCase):
         os.rmdir('testdata/tmp')
 
     def test_excel2properties(self) -> None:
-        excelfile = "testdata/excel2json_files/test-name (test_label)/properties.xlsx"
-        outfile = "testdata/tmp/_out_properties.json"
-        output_from_method, _ = e2j.excel2properties(excelfile, outfile)
+        excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx"
+        output_from_method, _ = e2j.excel2properties(excelfile, self.outfile)
 
         # define the expected values from the excel file
         excel_names = ["correspondsToGenericAnthroponym", "hasAnthroponym", "hasGender", "isDesignatedAs", "hasTitle",
@@ -87,7 +89,7 @@ class TestExcelToProperties(unittest.TestCase):
         excel_gui_attributes_hasDecimal = {"min": 0.0, "max": 100.0}
 
         # read json file
-        with open(outfile) as f:
+        with open(self.outfile) as f:
             output_from_file: list[dict[str, Any]] = json.load(f)
 
         # check that output from file and from method are equal
@@ -124,6 +126,38 @@ class TestExcelToProperties(unittest.TestCase):
         self.assertDictEqual(excel_gui_attributes_hasGND, json_gui_attributes_hasGND)
         self.assertDictEqual(excel_gui_attributes_hasDecimal, json_gui_attributes_hasDecimal)
         self.assertDictEqual(excel_gui_attributes_hasGender, json_gui_attributes_hasGender)
+
+
+    def test_validate_properties_with_schema(self) -> None:
+        # it is not possible to call the method to be tested directly. So let's make a reference to it, so that it can be found by the usage search
+        lambda x: e2j._validate_properties_with_schema([])
+        
+        testcases = [
+            (
+                "testdata/invalid-testdata/excel2json/properties-invalid-super.xlsx", 
+                "'properties' section did not pass validation. The problematic property is 'hasGeoname' in Excel row 3. "
+                "The problem is that the column 'super' has an invalid value: 'GeonameValue' is not valid under any of the given schemas"
+            ),
+            (
+                "testdata/invalid-testdata/excel2json/properties-invalid-object.xlsx",
+                "'properties' section did not pass validation. The problematic property is 'hasBoolean' in Excel row 2. "
+                "The problem is that the column 'object' has an invalid value: 'hasValue' is not valid under any of the given schemas"
+            ),
+            (
+                "testdata/invalid-testdata/excel2json/properties-invalid-gui_element.xlsx",
+                "'properties' section did not pass validation. The problematic property is 'hasInterval' in Excel row 4. "
+                r"The problem is that the column 'gui_element' has an invalid value: 'Geonames' is not one of \['Interval', 'SimpleText'\]"
+            ),
+            (
+                "testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute.xlsx",
+                "'properties' section did not pass validation. The problematic property is 'hasInterval' in Excel row 4. "
+                r"The problem is that the column 'gui_attributes' has an invalid value: Additional properties are not allowed \('rows' was unexpected\)"
+            )
+        ]
+        
+        for file, message in testcases:
+            with self.assertRaisesRegex(BaseError, message):
+                e2j.excel2properties(file, self.outfile)
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ import jsonschema
 import networkx as nx
 import regex
 
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 
 
@@ -79,7 +79,7 @@ def check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> boo
         ontoname = onto["name"]
         propnames = [prop["name"] for prop in onto["properties"]]
         for res in onto["resources"]:
-            cardnames = [card["propname"] for card in res["cardinalities"]]
+            cardnames = [card["propname"] for card in res.get("cardinalities", [])]
             # form of the cardnames:
             #  - isSequenceOf  # DSP base property
             #  - other:prop    # other onto
@@ -265,7 +265,7 @@ def _identify_problematic_cardinalities(
     for onto in project_definition["project"]["ontologies"]:
         for resource in onto["resources"]:
             resname: str = onto["name"] + ":" + resource["name"]
-            for card in resource["cardinalities"]:
+            for card in resource.get("cardinalities", []):
                 # make the cardinality a fully qualified name (with the ontology's name prefixed)
                 cardname = regex.sub(r"^(:?)([^:]+)$", f"{onto['name']}:\\2", card["propname"])
                 if cardname in link_properties:

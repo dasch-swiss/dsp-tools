@@ -9,7 +9,7 @@ from typing import Optional
 
 from lxml import etree
 
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 
 def id_to_iri(xml_file: str, json_file: str, out_file: Optional[str], verbose: bool) -> bool:
 

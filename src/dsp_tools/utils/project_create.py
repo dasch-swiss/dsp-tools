@@ -5,7 +5,8 @@ from typing import Any, Union, cast
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.group import Group
-from dsp_tools.models.helpers import BaseError, Cardinality, Context, DateTimeStamp
+from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.helpers import Cardinality, Context, DateTimeStamp
 from dsp_tools.models.langstring import LangString
 from dsp_tools.models.ontology import Ontology
 from dsp_tools.models.project import Project
@@ -501,13 +502,13 @@ def _create_ontologies(
     overall_success = True
 
     print("Create ontologies...")
-    all_ontologies: list[Ontology] = try_network_action(
-        action=lambda: Ontology.getAllOntologies(con=con),
+    project_ontologies: list[Ontology] = try_network_action(
+        action=lambda: Ontology.getProjectOntologies(con=con, project_id=project_remote.id),  # type: ignore
         failure_msg="WARNING: Unable to retrieve remote ontologies. Cannot check if your ontology already exists."
     )
     for ontology_definition in project_definition.get("project", {}).get("ontologies", {}):
         ontology_definition = cast(dict[str, Any], ontology_definition)
-        if ontology_definition["name"] in [onto.name for onto in all_ontologies]:
+        if ontology_definition["name"] in [onto.name for onto in project_ontologies]:
             print(f"\tWARNING: Ontology '{ontology_definition['name']}' already exists on the DSP server. Skipping...")
             overall_success = False
             continue
@@ -518,7 +519,8 @@ def _create_ontologies(
             con=con,
             project=project_remote,
             label=ontology_definition["label"],
-            name=ontology_definition["name"]
+            name=ontology_definition["name"],
+            comment=ontology_definition.get("comment")
         )
         # if ontology cannot be created, let the error escalate
         ontology_remote: Ontology = try_network_action(
@@ -768,7 +770,7 @@ def _add_cardinalities_to_resource_classes(
                   f"doesn't exist on the DSP server.")
             overall_success = False
             continue
-        for card_info in res_class.get("cardinalities"):
+        for card_info in res_class.get("cardinalities", []):
             if ":" in card_info["propname"]:
                 prefix, prop = card_info["propname"].split(":")
                 qualified_propname = card_info["propname"] if prefix else f"{ontology_remote.name}:{prop}"

@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from lxml import etree
 
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.propertyelement import PropertyElement
 from dsp_tools.utils import shared
 
@@ -12,22 +12,22 @@ from dsp_tools.utils import shared
 class TestShared(unittest.TestCase):
 
     def test_validate_xml_against_schema(self) -> None:
-        self.assertTrue(shared.validate_xml_against_schema(input_file="testdata/test-data-systematic.xml"))
-        self.assertTrue(shared.validate_xml_against_schema(input_file=etree.parse(source="testdata/test-data-minimal.xml")))
+        self.assertTrue(shared.validate_xml_against_schema(input_file="testdata/xml-data/test-data-systematic.xml"))
+        self.assertTrue(shared.validate_xml_against_schema(input_file=etree.parse(source="testdata/xml-data/test-data-minimal.xml")))
         
         with self.assertRaisesRegex(
-            BaseError,
-            "Line 12: Element '{https://dasch.swiss/schema}resource', attribute 'invalidtag': "
+            UserError,
+            "Line 12: Element 'resource', attribute 'invalidtag': "
             "The attribute 'invalidtag' is not allowed"
         ):
-            shared.validate_xml_against_schema(input_file="testdata/invalid_testdata/test-data-invalid-resource-tag.xml")
+            shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/invalid-resource-tag.xml")
         
         with self.assertRaisesRegex(
-            BaseError, 
+            UserError, 
             r"XML-tags are not allowed in text properties with encoding=utf8\. "
             r"The following lines of your XML file are affected: \[13, 14, 15, 16\]" 
         ):
-            shared.validate_xml_against_schema(input_file="testdata/invalid_testdata/test-data-utf8-text-with-xml-tags.xml")
+            shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/utf8-text-with-xml-tags.xml")
 
 
     def test_prepare_dataframe(self) -> None:

@@ -2,9 +2,9 @@
 
 <knora xmlns="https://dasch.swiss/schema"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="https://dasch.swiss/schema ../../src/dsp_tools/schemas/data.xsd"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/schemas/data.xsd"
        shortcode="4124"
-       default-ontology="minimalOnto">
+       default-ontology="testonto">
 
     <resource label="The only resource"
               restype=":minimalResource"

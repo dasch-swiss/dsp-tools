@@ -5,11 +5,11 @@ from dataclasses import dataclass
 from typing import Optional, Any, Union, Type
 from urllib.parse import quote_plus
 
-from pystrict import strict
 
 from dsp_tools.models.bitstream import Bitstream
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.helpers import OntoIri, Actions, BaseError, Cardinality, Context, DateTimeStamp
+from dsp_tools.models.helpers import OntoIri, Actions, Cardinality, Context, DateTimeStamp
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.model import Model
 from dsp_tools.models.ontology import Ontology
@@ -41,7 +41,6 @@ class Propinfo:
     attributes: Optional[str] = None
 
 
-@strict
 class ResourceInstance(Model):
     """
     Represents a resource instance
@@ -339,7 +338,6 @@ class ResourceInstance(Model):
                 print(name, ':', str(val))
 
 
-@strict
 class ResourceInstanceFactory:
     _con: Connection
     _project: Project

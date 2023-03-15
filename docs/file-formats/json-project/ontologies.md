@@ -34,6 +34,7 @@ Example of an ontology object:
 {
   "name": "seworon",
   "label": "Secrets of the World Ontology",
+  "comment": "This is an example ontology",
   "properties": [
     ...
   ],
@@ -63,6 +64,16 @@ means a string without blanks or special characters but `-` and `_` are allowed 
 `"label": "<string>"`
 
 A string that provides the full name of the ontology.
+
+
+
+### Ontology: Comment
+
+(optional)
+
+`"comment": "<string>"`
+
+A string that provides a comment to the ontology.
 
 
 
@@ -109,14 +120,16 @@ A resource object needs to have the following fields:
 - `name`
 - `labels`
 - `super`
-- `cardinalities`
+- `cardinalities`*
 
 The following field is optional:
 
 - `comments` 
 
-A detailed description of `resources` can be found [below](#the-property-object-in-detail).
+A detailed description of `resources` can be found [below](#the-resource-object-in-detail).
 
+(*It is technically possible to have a resource without cardinalities,
+but in most cases it doesn't make sense to omit them.)
 
 
 
@@ -234,14 +247,14 @@ These three are related as follows:
 #### Overview
 
 | DSP base property (`super`) | `object`                                                            | `gui_element`                        |
-|-----------------------------|---------------------------------------------------------------------|--------------------------------------|
+| --------------------------- | ------------------------------------------------------------------- | ------------------------------------ |
 | hasValue                    | BooleanValue                                                        | Checkbox                             |
 | hasColor                    | ColorValue                                                          | Colorpicker                          |
 | hasValue                    | DateValue                                                           | Date                                 |
 | hasValue                    | DecimalValue                                                        | Slider, <br>SimpleText               |
 | hasValue                    | GeonameValue                                                        | Geonames                             |
 | hasValue                    | IntValue                                                            | Spinbox, <br>SimpleText              |
-| hasValue                    | ListValue                                                           | Radio, List                          |
+| hasValue                    | ListValue                                                           | List                                 |
 | hasValue                    | TextValue                                                           | SimpleText,<br>Textarea,<br>Richtext |
 | hasComment                  | TextValue                                                           | SimpleText                           |
 | hasValue                    | TimeValue                                                           | TimeStamp                            |
@@ -458,13 +471,12 @@ for more information.
 
 *gui_elements / gui_attributes*:
 
-- `Radio`: A GUI element for *ListValue*. A set of radio buttons. This works only with flat lists.
-    - *gui_attributes*:
-        - `hlist=<list-name>` (required): The name of a list defined in the ["lists" section](./overview.md#lists).
 - `List`: A GUI element for *ListValue*. A dropdown to select a list node. This GUI element should be chosen for
   hierarchical lists or flat lists that could be expanded to hierarchical lists in the future.
     - *gui_attributes*:
         - `hlist=<list-name>` (required): The name of a list defined in the ["lists" section](./overview.md#lists).
+- `Radio` and `Pulldown` are allowed, too, but they don't have a different behaviour than `List`. It is recommended to use `List`.
+
 
 Example:
 
@@ -1004,7 +1016,7 @@ used in all cases when your resource is none of the special cases below.
 
 ### Resource: Cardinalities
 
-(required)
+(required*)
 
 `"cardinalities": [...]`
 
@@ -1027,6 +1039,9 @@ as well as how many values a property can have.
         - `"0-1"`: The value may be omitted, but can occur only once.
         - `"1-n"`: At least one value must be present, but multiple values may be present.
         - `"0-n"`: The value may be omitted, but may also occur multiple times.
+
+(*It is technically possible to have a resource without cardinalities,
+but in most cases it doesn't make sense to omit them.)
 
 
 

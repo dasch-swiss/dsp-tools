@@ -5,11 +5,11 @@ from pprint import pprint
 from typing import Optional, Any, Union
 from urllib.parse import quote_plus
 
-from pystrict import strict
 
 from dsp_tools.models.set_encoder import SetEncoder
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.helpers import Actions, BaseError
+from dsp_tools.models.helpers import Actions
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.langstring import Languages, LangString
 from dsp_tools.models.model import Model
 
@@ -38,7 +38,6 @@ In addition there is a static methods ``getAllProjects`` which returns a list of
 """
 
 
-@strict
 class Project(Model):
     """
     This class represents a project in Knora.

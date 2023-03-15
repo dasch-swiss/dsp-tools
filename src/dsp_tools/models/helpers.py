@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from enum import Enum, unique
 from typing import NewType, Optional, Any, Tuple, Union, Pattern
 
-from pystrict import strict
 
+from dsp_tools.models.exceptions import BaseError
 
 #
 # here we do some data typing that should help
@@ -32,7 +32,6 @@ def LINE() -> int:
     return sys._getframe(1).f_lineno
 
 
-@strict
 class IriTest:
     __iri_regexp = re.compile("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?")
 
@@ -40,33 +39,6 @@ class IriTest:
     def test(cls, val: str) -> bool:
         m = cls.__iri_regexp.match(val)
         return m.span()[1] == len(val) if m else False
-
-
-@strict
-class BaseError(Exception):
-    """
-    A basic error class
-    """
-    _message: str
-
-    def __init__(self, message: str) -> None:
-        """
-        Constructor for error message
-        :param message: error message string
-        """
-        super().__init__()
-        self._message = message
-
-    def __str__(self) -> str:
-        """
-        Convert to string
-        :return: stringyfied error message
-        """
-        return self._message
-
-    @property
-    def message(self) -> str:
-        return self._message
 
 
 @unique
@@ -85,7 +57,6 @@ class Cardinality(Enum):
     C_0_n = "0-n"
 
 
-@strict
 class ContextIterator:
     _context: 'Context'
     _prefixes: list[str]
@@ -107,7 +78,6 @@ class ContextIterator:
             raise StopIteration
 
 
-@strict
 class Context:
     """
     This class holds a JSON-LD context with the ontology IRI's and the associated prefixes

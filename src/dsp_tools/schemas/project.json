@@ -108,6 +108,7 @@
                 "Interval",
                 "List",
                 "Radio",
+                "Pulldown",
                 "Richtext",
                 "Searchbox",
                 "SimpleText",
@@ -237,8 +238,8 @@
                 "label": {
                     "type": "string"
                 },
-                "comments": {
-                    "$ref": "#/definitions/langstring"
+                "comment": {
+                    "type": "string"
                 },
                 "properties": {
                     "type": "array",
@@ -790,8 +791,9 @@
                                     }
                                 },
                                 "enum": [
+                                    "List",
                                     "Radio",
-                                    "List"
+                                    "Pulldown"
                                 ]
                             }
                         }
@@ -953,8 +955,9 @@
                         "properties": {
                             "gui_element": {
                                 "enum": [
+                                    "List",
                                     "Radio",
-                                    "List"
+                                    "Pulldown"
                                 ]
                             }
                         }
@@ -1087,8 +1090,7 @@
             "required": [
                 "name",
                 "super",
-                "labels",
-                "cardinalities"
+                "labels"
             ],
             "additionalProperties": false
         }

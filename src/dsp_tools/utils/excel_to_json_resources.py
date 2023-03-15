@@ -4,10 +4,11 @@ import warnings
 from typing import Any, Optional
 
 import jsonschema
+import jsonpath_ng.ext
 import pandas as pd
 import regex
 
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.shared import prepare_dataframe, check_notna
 
 languages = ["en", "de", "fr", "it", "rm"]
@@ -31,8 +32,26 @@ def _validate_resources_with_schema(resources_list: list[dict[str, Any]]) -> boo
     try:
         jsonschema.validate(instance=resources_list, schema=resources_schema)
     except jsonschema.ValidationError as err:
-        raise BaseError(f'"resources" section did not pass validation. The error message is: {err.message}\n'
-                        f'The error occurred at {err.json_path}') from None
+        err_msg = f"'resources' section did not pass validation. "
+        json_path_to_resource = regex.search(r"^\$\[(\d+)\]", err.json_path)
+        if json_path_to_resource:
+            wrong_resource_name = jsonpath_ng.ext.parse(json_path_to_resource.group(0)).find(resources_list)[0].value["name"]
+            affected_field = regex.search(r"name|labels|comments|super|cardinalities\[(\d+)\]", err.json_path)
+            if affected_field and affected_field.group(0) in ["name", "labels", "comments", "super"]:
+                excel_row = int(json_path_to_resource.group(1)) + 2
+                err_msg += f"The problem is that the Excel sheet 'classes' contains an invalid value for resource '{wrong_resource_name}', " \
+                           f"in row {excel_row}, column '{affected_field.group(0)}': {err.message}"
+            elif affected_field and "cardinalities" in affected_field.group(0):
+                excel_row = int(affected_field.group(1)) + 2
+                if err.json_path.endswith("cardinality"):
+                    err_msg += f"The problem is that the Excel sheet '{wrong_resource_name}' contains an invalid value " \
+                               f"in row {excel_row}, column 'Cardinality': {err.message}"
+                elif err.json_path.endswith("propname"):
+                    err_msg += f"The problem is that the Excel sheet '{wrong_resource_name}' contains an invalid value " \
+                               f"in row {excel_row}, column 'Property': {err.message}"
+        else:
+            err_msg += f"The error message is: {err.message}\nThe error occurred at {err.json_path}"
+        raise BaseError(err_msg) from None
     return True
 
 
@@ -73,7 +92,10 @@ def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
         from unittest import mock
         p = mock.patch('openpyxl.styles.fonts.Font.family.max', new=100)
         p.start()
-        details_df = pd.read_excel(excelfile, sheet_name=name)
+        try:
+            details_df = pd.read_excel(excelfile, sheet_name=name)
+        except ValueError as err:
+            raise BaseError(str(err)) from None
         p.stop()
     details_df = prepare_dataframe(
         df=details_df,
@@ -173,9 +195,9 @@ def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -
 
     # transform every row into a resource
     resources = [_row2resource(row, excelfile) for i, row in all_classes_df.iterrows()]
-    _validate_resources_with_schema(resources)
 
     # write final "resources" section into a JSON file
+    _validate_resources_with_schema(resources)
     if path_to_output_file:
         with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
             json.dump(resources, file, indent=4, ensure_ascii=False)

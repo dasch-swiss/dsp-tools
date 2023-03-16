@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd"
+       shortcode="0100"
+       default-ontology="minimal">
+
+    <permissions id="res-default">
+        <allow group="UnknownUser">RV</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="ProjectMember">M</allow>
+        <allow group="ProjectAdmin">D</allow>
+        <allow group="Creator">CR</allow>
+        <allow group="SystemAdmin">CR</allow>
+    </permissions>
+    <permissions id="prop-default">
+        <allow group="SystemAdmin">CR</allow>
+    </permissions>
+
+    <resource label="res_0" restype=":MinimalResource" id="res_0" permissions="res-default">
+        <text-prop name=":hasText">
+            <text encoding="utf8" permissions="prop-default">Hello!</text>
+        </text-prop>
+    </resource>
+
+</knora>

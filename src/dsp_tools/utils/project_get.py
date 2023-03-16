@@ -105,7 +105,7 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
 
     outfile_content = {
         "prefixes": prefixes,
-        "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/schemas/project.json",
+        "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
         "project": project_obj
     }
 

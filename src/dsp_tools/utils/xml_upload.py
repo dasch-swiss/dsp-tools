@@ -308,7 +308,7 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
 
 
-def _parse_xml_file(input_file: Union[str, etree._ElementTree[Any]]) -> etree._ElementTree[Any]:
+def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._ElementTree[Any]:
     """
     Parse an XML file with DSP-conform data, 
     remove namespace URI from the elements' names, 
@@ -323,7 +323,7 @@ def _parse_xml_file(input_file: Union[str, etree._ElementTree[Any]]) -> etree._E
     Returns:
         the parsed etree.ElementTree
     """
-    tree = etree.parse(source=input_file) if isinstance(input_file, str) else copy.deepcopy(input_file)
+    tree = etree.parse(source=input_file) if isinstance(input_file, str) or isinstance(input_file, Path) else copy.deepcopy(input_file)
     for elem in tree.iter():
         if isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction):
             # properties that are commented out would break the the constructor of the class XMLProperty, if they are not removed here.
@@ -415,7 +415,7 @@ def _check_consistency_with_ontology(
 
 
 def xml_upload(
-    input_file: Union[str, etree._ElementTree[Any]],  
+    input_file: Union[str, Path, etree._ElementTree[Any]],  
     server: str, 
     user: str, 
     password: str, 
@@ -548,7 +548,7 @@ def xml_upload(
     success = _write_id2iri_mapping_and_metrics(
         id2iri_mapping=id2iri_mapping,
         failed_uploads=failed_uploads,
-        metrics=metrics,
+        metrics=metrics if save_metrics else None,
         input_file=input_file,
         timestamp_str=timestamp_str,
         server_as_foldername=server_as_foldername

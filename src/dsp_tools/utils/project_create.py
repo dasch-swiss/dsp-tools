@@ -1,5 +1,6 @@
 """This module handles the ontology creation, update and upload to a DSP server. This includes the creation and update
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
+from pathlib import Path
 import re
 from typing import Any, Union, cast
 
@@ -800,7 +801,7 @@ def _add_cardinalities_to_resource_classes(
 
 
 def create_project(
-    project_file_as_path_or_parsed: Union[str, dict[str, Any]],
+    project_file_as_path_or_parsed: Union[str, Path, dict[str, Any]],
     server: str,
     user_mail: str,
     password: str,

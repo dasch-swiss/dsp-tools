@@ -66,3 +66,8 @@ DSP-TOOLS provides the following functionalities:
   The mapping has to be provided with a JSON file.
 - [`dsp-tools start-stack / stop-stack`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#start-stack)
   assist you in running a DSP stack on your local machine.
+- [`dsp-tools template`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#template)
+  creates a template repository with a minimal JSON and XML file.
+- [`dsp-tools rosetta`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#rosetta)
+  clones the most up to data rosetta repository,
+  creates the data model and uploads the data.

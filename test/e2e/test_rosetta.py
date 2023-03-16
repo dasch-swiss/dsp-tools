@@ -1,3 +1,4 @@
+import shutil
 import unittest
 from pathlib import Path
 
@@ -23,3 +24,4 @@ class TestRosetta(unittest.TestCase):
         success2 = rosetta._upload_xml(rosetta_folder=rosetta_folder)
         self.assertTrue(success2)
 
+        shutil.rmtree("tmp", ignore_errors=True)

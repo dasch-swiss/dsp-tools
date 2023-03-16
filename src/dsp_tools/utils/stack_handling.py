@@ -10,7 +10,7 @@ import requests
 
 from dsp_tools.models.exceptions import BaseError
 
-docker_path_of_user = Path.home() / Path(".dsp-tools/docker")
+docker_path_of_user = Path.home() / Path(".dsp-tools/start-stack")
 docker_path_of_user.mkdir(parents=True, exist_ok=True)
 
 
@@ -41,8 +41,8 @@ def start_stack(
     if enforce_docker_system_prune and suppress_docker_system_prune:
         raise BaseError('The arguments "--prune" and "--no-prune" are mutually exclusive')
 
-    # copy contents of src/dsp_tools/docker to ~/.dsp-tools/docker
-    docker_path_of_distribution = importlib.resources.files("dsp_tools").joinpath("docker")
+    # copy contents of src/dsp_tools/resources/start-stack to ~/.dsp-tools/start-stack
+    docker_path_of_distribution = importlib.resources.files("dsp_tools").joinpath("resources/start-stack")
     for file in docker_path_of_distribution.iterdir():
         with importlib.resources.as_file(file) as f:
             file_path = Path(f)

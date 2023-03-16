@@ -537,7 +537,7 @@ def xml_upload(
     success = _write_log_files_and_metrics(
         id2iri_mapping=id2iri_mapping,
         failed_uploads=failed_uploads,
-        metrics=metrics,
+        metrics=metrics if save_metrics else None,
         input_file=input_file,
         timestamp_str=timestamp_str,
         server_as_foldername=server_as_foldername

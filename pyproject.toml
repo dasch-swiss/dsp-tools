@@ -16,8 +16,7 @@ documentation = "https://docs.dasch.swiss/latest/DSP-TOOLS/"
 homepage = "https://www.dasch.swiss/"
 repository = "https://github.com/dasch-swiss/dsp-tools"
 include = [
-    "src/dsp_tools/schemas/*",
-    "src/dsp_tools/docker/*"
+    "src/dsp_tools/resources/*"
 ]
 exclude = [
     "src/dsp_tools/import_scripts/*"

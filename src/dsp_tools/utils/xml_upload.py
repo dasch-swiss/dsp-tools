@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import copy
 import json
+import logging
 import os
 import re
 import uuid
@@ -31,6 +32,12 @@ from dsp_tools.utils.shared import try_network_action, validate_xml_against_sche
 
 MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "duration_ms", "mb_per_sec"])
 
+logging.basicConfig(
+    filename=Path.home() / Path(".dsp-tools") / "logging.log", 
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
+
 
 def _transform_server_url_to_foldername(server: str) -> str:
     """
@@ -54,13 +61,13 @@ def _transform_server_url_to_foldername(server: str) -> str:
     return server
 
 
-def _determine_save_location_of_logs(
+def _determine_save_location_of_diagnostic_info(
     server: str,
     proj_shortcode: str,
     onto_name: str
 ) -> tuple[Path, str, str]:
     """
-    Determine the save location for the logs that will be used if the xmlupload is interrupted.
+    Determine the save location for diagnostic info that will be used if the xmlupload is interrupted.
     They are going to be stored in ~/.dsp-tools/xmluploads/server/shortcode/ontoname.
     This path is computed and created.
 
@@ -73,7 +80,7 @@ def _determine_save_location_of_logs(
         a tuple consisting of the absolute full path to the storage location, 
         a version of the server URL that can be used as foldername,
         and the timestamp string that can be used as component of file names 
-        (so that different log files of the same xmlupload have the same timestamp)
+        (so that different diagnostic files of the same xmlupload have the same timestamp)
     """
     server_as_foldername = _transform_server_url_to_foldername(server)
     timestamp_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
@@ -82,7 +89,7 @@ def _determine_save_location_of_logs(
     return save_location, server_as_foldername, timestamp_str
 
 
-def _write_log_files_and_metrics(
+def _write_id2iri_mapping_and_metrics(
     id2iri_mapping: dict[str, str],
     metrics: Optional[list[MetricRecord]], 
     failed_uploads: list[str],
@@ -105,7 +112,7 @@ def _write_log_files_and_metrics(
     Returns:
         True if there are no failed_uploads, False otherwise
     """
-    # determine names of log files
+    # determine names of files
     if isinstance(input_file, str):
         id2iri_filename = f"{Path(input_file).stem}_id2iri_mapping_{timestamp_str}.json"
         metrics_filename = f"{timestamp_str}_metrics_{server_as_foldername}_{Path(input_file).stem}.csv"
@@ -113,7 +120,7 @@ def _write_log_files_and_metrics(
         id2iri_filename = f"{timestamp_str}_id2iri_mapping.json"
         metrics_filename = f"{timestamp_str}_metrics_{server_as_foldername}.csv"
     
-    # write log files and print info
+    # write files and print info
     success = True
     with open(id2iri_filename, "x") as f:
         json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
@@ -441,15 +448,19 @@ def xml_upload(
         uploaded because there is an error in it
     """
 
+    logger.info(f"Method call xml_upload(input_file='{input_file}', server='{server}', user='{user}', imgdir='{imgdir}', "
+                f"sipi='{sipi}', verbose={verbose}, incremental={incremental}, save_metrics={save_metrics})")
+
     # parse the XML file
     validate_xml_against_schema(input_file=input_file)
     tree = _parse_xml_file(input_file=input_file)
     root = tree.getroot()
-    default_ontology = root.attrib['default-ontology']
     shortcode = root.attrib['shortcode']
+    default_ontology = root.attrib['default-ontology']
+    logger.info(f"Validated and parsed the XML file. Shortcode='{shortcode}' and default_ontology='{default_ontology}'")
 
-    # determine save location that will be used for logs if the xmlupload is interrupted
-    save_location, server_as_foldername, timestamp_str = _determine_save_location_of_logs(
+    # determine save location that will be used for diagnostic info if the xmlupload is interrupted
+    save_location, server_as_foldername, timestamp_str = _determine_save_location_of_diagnostic_info(
         server=server,
         proj_shortcode=shortcode,
         onto_name=default_ontology
@@ -533,8 +544,8 @@ def xml_upload(
             timestamp_str=timestamp_str
         )
     
-    # write regular log files, metrics, and print some final info
-    success = _write_log_files_and_metrics(
+    # write id2iri mapping, metrics, and print some final info
+    success = _write_id2iri_mapping_and_metrics(
         id2iri_mapping=id2iri_mapping,
         failed_uploads=failed_uploads,
         metrics=metrics,
@@ -897,8 +908,12 @@ def _handle_upload_error(
     timestamp_str: str
 ) -> None:
     """
-    In case the xmlupload must be interrupted, e.g. because of an error that could not be handled, or due to keyboard
-    interrupt, this method ensures that all information about what is already in DSP is written into log files.
+    In case the xmlupload must be interrupted, 
+    e.g. because of an error that could not be handled, 
+    or due to keyboard interrupt, 
+    this method ensures 
+    that all information about what is already in DSP 
+    is written into diagnostic files.
 
     It then re-raises the original error.
 
@@ -908,8 +923,8 @@ def _handle_upload_error(
         failed_uploads: resources that caused an error when uploading to DSP
         stashed_xml_texts: all xml texts that have been stashed
         stashed_resptr_props: all resptr props that have been stashed
-        save_location: path where to save the logs
-        timestamp_str: timestamp for the name of the log files
+        save_location: path where to save the diagnostic info
+        timestamp_str: timestamp for the name of the diagnostic files
 
     Returns:
         None

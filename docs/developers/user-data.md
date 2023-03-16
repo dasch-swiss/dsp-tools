@@ -85,9 +85,9 @@ including importing from zip files and Python Eggs.
 ```python
 from importlib.resources import files
 # address "schemas" directory in module syntax: needs __init__.py
-data_text = files('dsp_tools.schemas').joinpath('data.xsd').read_text()
+data_text = files('dsp_tools.resources.schema').joinpath('data.xsd').read_text()
 # avoid module syntax when addressing "schemas" directory: no __init__.py necessary
-data_text = files('dsp_tools').joinpath('schemas').joinpath('data.xsd').read_text()
+data_text = files('dsp_tools').joinpath('resources/schema/data.xsd').read_text()
 ```
 
 Note that depending on how the directory is addressed, 

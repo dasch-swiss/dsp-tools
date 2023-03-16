@@ -112,7 +112,7 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
     Returns:
         True if the XML file is valid
     """
-    with importlib.resources.files("dsp_tools").joinpath("schemas").joinpath("data.xsd").open() as schema_file:
+    with importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd").open() as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
     if isinstance(input_file, str) or isinstance(input_file, Path):
         try:

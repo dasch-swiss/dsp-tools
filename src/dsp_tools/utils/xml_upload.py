@@ -32,11 +32,6 @@ from dsp_tools.utils.shared import try_network_action, validate_xml_against_sche
 
 MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "duration_ms", "mb_per_sec"])
 
-logging.basicConfig(
-    format="%(asctime)s %(filename)s %(levelname)s\t\t%(message)s",
-    filename=Path.home() / Path(".dsp-tools") / "logging.log", 
-    level=logging.INFO
-)
 logger = logging.getLogger(__name__)
 
 

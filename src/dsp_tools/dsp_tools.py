@@ -3,6 +3,7 @@ The code in this file handles the arguments passed by the user from the command 
 """
 import argparse
 import datetime
+import logging
 from pathlib import Path
 import sys
 from importlib.metadata import version
@@ -307,6 +308,12 @@ def call_requested_action(
 
 def main() -> None:
     """Main entry point of the program as referenced in pyproject.toml"""
+    logging.basicConfig(
+        format="{asctime}   {filename: <20} {levelname: <8} {message}",
+        style="{",
+        filename=Path.home() / Path(".dsp-tools") / "logging.log", 
+        level=logging.INFO
+    )
     trim_log_file(path_to_log_file=Path.home() / Path(".dsp-tools") / "logging.log")
     parser = make_parser()
     try:

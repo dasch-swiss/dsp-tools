@@ -125,8 +125,10 @@ def _write_id2iri_mapping_and_metrics(
     with open(id2iri_filename, "x") as f:
         json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
         print(f"The mapping of internal IDs to IRIs was written to {id2iri_filename}")
+        logger.info(f"The mapping of internal IDs to IRIs was written to {id2iri_filename}")
     if failed_uploads:
         print(f"\nWARNING: Could not upload the following resources: {failed_uploads}\n")
+        logger.warning(f"Could not upload the following resources: {failed_uploads}")
         success = False
     if metrics:
         os.makedirs("metrics", exist_ok=True)
@@ -160,6 +162,7 @@ def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> 
 
     if verbose:
         print("Checking resources for unresolvable references...")
+        logger.info("Checking resources for unresolvable references...")
 
     stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]] = {}
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]] = {}
@@ -201,6 +204,7 @@ def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> 
         cnt += 1
         if verbose:
             print(f'{cnt}. ordering pass finished.')
+            logger.info(f'{cnt}. ordering pass finished.')
     return ok_resources, stashed_xml_texts, stashed_resptr_props
 
 
@@ -372,6 +376,7 @@ def _check_consistency_with_ontology(
     """
     if verbose:
         print("Check if the resource types and properties are consistent with the ontology...")
+        logger.info("Check if the resource types and properties are consistent with the ontology...")
     if not any([x.startswith(ontoname) for x in resclass_name_2_type.keys()]):
         raise UserError(
             f"The <knora> tag of your XML file references the ontology '{ontoname}', "
@@ -412,6 +417,7 @@ def _check_consistency_with_ontology(
                 )
 
     print("Resource types and properties are consistent with the ontology.")
+    logger.info("Resource types and properties are consistent with the ontology.")
 
 
 def xml_upload(
@@ -465,6 +471,7 @@ def xml_upload(
         proj_shortcode=shortcode,
         onto_name=default_ontology
     )
+    logger.info(f"save_location='{save_location}'")
     
     # start metrics
     metrics: list[MetricRecord] = []
@@ -555,6 +562,7 @@ def xml_upload(
     )
     if success:
         print("All resources have successfully been uploaded.")
+        logger.info("All resources have successfully been uploaded.")
     return success
 
 
@@ -595,6 +603,7 @@ def _upload_resources(
         bitstream_size_total_mb = round(sum(bitstream_all_sizes_mb), 1)
         bitstream_size_uploaded_mb = 0.0
         print(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
+        logger.info(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
 
     for i, resource in enumerate(resources):
         resource_start = datetime.now()
@@ -622,10 +631,12 @@ def _upload_resources(
                 metrics.append(MetricRecord(resource.id, filetype, filesize, "bitstream upload", bitstream_duration_ms, mb_per_sec))
             except BaseError as err:
                 print(err.message)
+                logger.info(err.message)
                 failed_uploads.append(resource.id)
                 continue
             bitstream_size_uploaded_mb += bitstream_all_sizes_mb[i]  # type: ignore
             print(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")  # type: ignore
+            logger.info(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")  # type: ignore
             internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']  # type: ignore
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 
@@ -652,12 +663,12 @@ def _upload_resources(
             metrics.append(MetricRecord(resource.id, filetype, filesize, "resource creation", resource_creation_duration_ms, ""))
         except BaseError as err:
             print(err.message)
+            logger.info(err.message)
             failed_uploads.append(resource.id)
             continue
         id2iri_mapping[resource.id] = created_resource.iri
-        print(f"Created resource {i+1}/{len(resources)}: '{created_resource.label}' (ID: '{resource.id}', IRI: "
-              f"'{created_resource.iri}')")
-
+        print(f"Created resource {i+1}/{len(resources)}: '{created_resource.label}' (ID: '{resource.id}', IRI: '{created_resource.iri}')")
+        logger.info(f"Created resource {i+1}/{len(resources)}: '{created_resource.label}' (ID: '{resource.id}', IRI: '{created_resource.iri}')")
         resource_duration = datetime.now() - resource_start
         resource_duration_ms = resource_duration.seconds * 1000 + int(resource_duration.microseconds / 1000)
         looping_overhead_ms = resource_duration_ms - resource_creation_duration_ms - (bitstream_duration_ms or 0)
@@ -686,6 +697,7 @@ def _upload_stashed_xml_texts(
     """
 
     print('Upload the stashed XML texts...')
+    logger.info('Upload the stashed XML texts...')
     nonapplied_xml_texts = stashed_xml_texts.copy()
     for resource, link_props in stashed_xml_texts.items():
         if resource.id not in id2iri_mapping:
@@ -704,6 +716,7 @@ def _upload_stashed_xml_texts(
             print(err.message)
             continue
         print(f'  Upload XML text(s) of resource "{resource.id}"...')
+        logger.info(f'  Upload XML text(s) of resource "{resource.id}"...')
         for link_prop, hash_to_value in link_props.items():
             existing_values = existing_resource[link_prop.name]
             if not isinstance(existing_values, list):
@@ -754,10 +767,12 @@ def _upload_stashed_xml_texts(
                     # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
                     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
                     print(err.message)
+                    logger.info(err.message)
                     continue
                 nonapplied_xml_texts[resource][link_prop].pop(pure_text)
                 if verbose:
                     print(f'  Successfully uploaded xml text of "{link_prop.name}"\n')
+                    logger.info(f'  Successfully uploaded xml text of "{link_prop.name}"\n')
 
     # make a purged version of nonapplied_xml_texts, without empty entries
     nonapplied_xml_texts = _purge_stashed_xml_texts(stashed_xml_texts=nonapplied_xml_texts, id2iri_mapping=id2iri_mapping)
@@ -814,6 +829,7 @@ def _upload_stashed_resptr_props(
     """
 
     print('Upload the stashed resptrs...')
+    logger.info('Upload the stashed resptrs...')
     nonapplied_resptr_props = stashed_resptr_props.copy()
     for resource, prop_2_resptrs in stashed_resptr_props.items():
         if resource.id not in id2iri_mapping:
@@ -830,8 +846,10 @@ def _upload_stashed_resptr_props(
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
             # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
             print(err.message)
+            logger.info(err.message)
             continue
         print(f'  Upload resptrs of resource "{resource.id}"...')
+        logger.info(f'  Upload resptrs of resource "{resource.id}"...')
         for link_prop, resptrs in prop_2_resptrs.items():
             for resptr in resptrs.copy():
                 jsonobj = {
@@ -860,8 +878,8 @@ def _upload_stashed_resptr_props(
                     continue
                 nonapplied_resptr_props[resource][link_prop].remove(resptr)
                 if verbose:
-                    print(f'  Successfully uploaded resptr-prop of "{link_prop.name}"\n'
-                          f'    Value: {resptr}')
+                    print(f'  Successfully uploaded resptr-prop of "{link_prop.name}". Value: {resptr}')
+                    logger.info(f'  Successfully uploaded resptr-prop of "{link_prop.name}". Value: {resptr}')
 
     # make a purged version of nonapplied_resptr_props, without empty entries
     nonapplied_resptr_props = _purge_stashed_resptr_props(stashed_resptr_props=nonapplied_resptr_props, id2iri_mapping=id2iri_mapping)
@@ -930,8 +948,9 @@ def _handle_upload_error(
         None
     """
 
-    print(f'\n=========================================='
-          f'\nxmlupload must be aborted because of an error')
+    print("\n=========================================="
+          "\nxmlupload must be aborted because of an error")
+    logger.info("xmlupload must be aborted because of an error")
 
     # only stashed properties of resources that already exist in DSP are of interest
     stashed_xml_texts = _purge_stashed_xml_texts(stashed_xml_texts, id2iri_mapping)
@@ -942,6 +961,7 @@ def _handle_upload_error(
         with open(id2iri_mapping_file, "x") as f:
             json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
         print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
+        logger.info(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
 
     if stashed_xml_texts:
         stashed_xml_texts_serializable = {r.id: {p.name: xml for p, xml in rdict.items()} for r, rdict in stashed_xml_texts.items()}
@@ -950,24 +970,28 @@ def _handle_upload_error(
             json.dump(stashed_xml_texts_serializable, f, ensure_ascii=False, indent=4, cls=KnoraStandoffXmlEncoder)
         print(f"There are stashed text properties that could not be reapplied to the resources they were stripped "
               f"from. They were saved to {xml_filename}.")
+        logger.info(f"There are stashed text properties that could not be reapplied to the resources they were stripped "
+                    f"from. They were saved to {xml_filename}.")
 
     if stashed_resptr_props:
         stashed_resptr_props_serializable = {r.id: {p.name: plist for p, plist in rdict.items()} for r, rdict in stashed_resptr_props.items()}
         resptr_filename = f"{save_location}/{timestamp_str}_stashed_resptr_properties.json"
         with open(resptr_filename, "x") as f:
             json.dump(stashed_resptr_props_serializable, f, ensure_ascii=False, indent=4)
-        print(
-            f"There are stashed resptr properties that could not be reapplied to the resources they were stripped "
-            f"from. They were saved to {resptr_filename}")
+        print(f"There are stashed resptr properties that could not be reapplied to the resources they were stripped "
+              f"from. They were saved to {resptr_filename}")
+        logger.info(f"There are stashed resptr properties that could not be reapplied to the resources they were stripped "
+                    f"from. They were saved to {resptr_filename}")
 
     # print the resources that threw an error when they were tried to be uploaded
     if failed_uploads:
-        print(f"Independently of this error, there were some resources that could not be uploaded: "
-              f"{failed_uploads}")
+        print(f"Independently of this error, there were some resources that could not be uploaded: {failed_uploads}")
+        logger.info(f"Independently of this error, there were some resources that could not be uploaded: {failed_uploads}")
 
     if isinstance(err, KeyboardInterrupt):
         exit(1)
     else:
-        print('The error will now be raised again:\n'
-              '==========================================\n')
+        print("The error will now be raised again:\n"
+              "==========================================\n")
+        logger.info("The error will now be raised again")
         raise err

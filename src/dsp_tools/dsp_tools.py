@@ -3,6 +3,7 @@ The code in this file handles the arguments passed by the user from the command 
 """
 import argparse
 import datetime
+from pathlib import Path
 import sys
 from importlib.metadata import version
 
@@ -17,7 +18,7 @@ from dsp_tools.utils.project_create_lists import create_lists
 from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.project_get import get_project
 from dsp_tools.utils.project_validate import validate_project
-from dsp_tools.utils.shared import validate_xml_against_schema
+from dsp_tools.utils.shared import trim_log_file, validate_xml_against_schema
 from dsp_tools.utils.stack_handling import start_stack, stop_stack
 from dsp_tools.utils.xml_upload import xml_upload
 from dsp_tools.utils.generate_templates import generate_template_repo
@@ -306,6 +307,7 @@ def call_requested_action(
 
 def main() -> None:
     """Main entry point of the program as referenced in pyproject.toml"""
+    trim_log_file(path_to_log_file=Path.home() / Path(".dsp-tools") / "logging.log")
     parser = make_parser()
     try:
         success = call_requested_action(user_args=sys.argv[1:], parser=parser)

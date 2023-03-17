@@ -288,3 +288,27 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, 
     else:
         raise BaseError(f"Invalid input: The input must be a path to a JSON file or a parsed JSON object.")
     return project_definition
+
+
+def trim_log_file(path_to_log_file: Path) -> None:
+    """
+    Makes sure that the logging file in ~/.dsp-tools doesn't grow too big.
+    If it is bigger than 5 MB, 
+    delete the oldest 5000 entries.
+    (Assumption: 1 MB = 5000 lines)
+
+    Args:
+        path_to_log_file: path to the log file
+    """
+    if not path_to_log_file.exists():
+        return None
+    size_mb = path_to_log_file.stat().st_size / 1_000_000
+    if size_mb < 5:
+        return None
+
+    with open(path_to_log_file) as f:
+        lines = f.readlines()
+        most_recent_lines = lines[5_000:]
+        
+    with open(path_to_log_file, "w") as f:
+        f.writelines(most_recent_lines)

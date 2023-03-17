@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -63,6 +64,28 @@ class TestShared(unittest.TestCase):
         for notna_value in notna_values:
             self.assertTrue(shared.check_notna(notna_value), msg=f"Failed notna_value: {notna_value}")
 
+
+    def test_trim_log_file(self) -> None:
+        # create a fictive log file that is bigger than 5 MB
+        path_to_log_file = Path("logging_test.log")
+        initial_num_of_lines = 40_000
+        with open(path_to_log_file, "x") as f:
+            dummy_entry = " ".join(["Fictive log entry!"] * 7)
+            dummy_entries = [dummy_entry + "\n"] * initial_num_of_lines
+            f.writelines(dummy_entries)
+        size_mb = path_to_log_file.stat().st_size / 1_000_000
+        self.assertTrue(size_mb > 5)
+        
+        # call the method to be tested
+        shared.trim_log_file(path_to_log_file=path_to_log_file)
+
+        # make sure that the file contains 5000 lines less than at the beginning
+        with open(path_to_log_file) as f:
+            lines = f.readlines()
+        self.assertEqual(len(lines), initial_num_of_lines - 5_000)
+
+        # delete the fictive log file
+        path_to_log_file.unlink()
 
 if __name__ == '__main__':
     unittest.main()

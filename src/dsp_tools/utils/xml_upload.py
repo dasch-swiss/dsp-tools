@@ -256,8 +256,8 @@ def _stash_circular_references(
                                 stashed_resptr_props[res][link_prop].append(str(value.value))
                         link_prop.values.remove(value)
             else:
-                raise BaseError(f'ERROR in remove_circular_references(): link_prop.valtype is '
-                                f'neither text nor resptr.')
+                logger.exception("ERROR in remove_circular_references(): link_prop.valtype is neither text nor resptr.")
+                raise BaseError("ERROR in remove_circular_references(): link_prop.valtype is neither text nor resptr.")
 
             if len(link_prop.values) == 0:
                 # if all values of a link property have been stashed, the property needs to be removed
@@ -296,13 +296,16 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
 
     # get the salsah resource ID from the ARK and convert it to a UUID version 5 (base64 encoded)
     if ark.count("-") != 2:
+        logger.exception(f"while converting ARK '{ark}'. The ARK seems to be invalid")
         raise BaseError(f"while converting ARK '{ark}'. The ARK seems to be invalid")
     project_id, resource_id, _ = ark.split("-")
     _, project_id = project_id.rsplit("/", 1)
     project_id = project_id.upper()
     if not re.match("^[0-9a-fA-F]{4}$", project_id):
+        logger.exception(f"while converting ARK '{ark}'. Invalid project shortcode '{project_id}'")
         raise BaseError(f"while converting ARK '{ark}'. Invalid project shortcode '{project_id}'")
     if not re.match("^[0-9A-Za-z]+$", resource_id):
+        logger.exception(f"while converting ARK '{ark}'. Invalid Salsah ID '{resource_id}'")
         raise BaseError(f"while converting ARK '{ark}'. Invalid Salsah ID '{resource_id}'")
 
     # make a UUID v5 from the namespace created above (which is a UUID itself) and the resource ID and encode it to base64
@@ -379,43 +382,43 @@ def _check_consistency_with_ontology(
         print("Check if the resource types and properties are consistent with the ontology...")
         logger.info("Check if the resource types and properties are consistent with the ontology...")
     if not any([x.startswith(ontoname) for x in resclass_name_2_type.keys()]):
-        raise UserError(
-            f"The <knora> tag of your XML file references the ontology '{ontoname}', "
-            f"but the project {shortcode} on the DSP server doesn't contain an ontology with this name."
-        )
+        err_msg = f"The <knora> tag of your XML file references the ontology '{ontoname}', " \
+                  f"but the project {shortcode} on the DSP server doesn't contain an ontology with this name."
+        logger.exception(err_msg)
+        raise UserError(err_msg)
     knora_properties = resclass_name_2_type[resources[0].restype].knora_properties  # type: ignore
 
     for resource in resources:
 
         # check that the resource type is consistent with the ontology
         if resource.restype not in resclass_name_2_type:
-            raise UserError(
-                f"=========================\n"
-                f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid resource type "
-                f"'{resource.restype}'. Is your syntax correct? Remember the rules:\n"
-                f" - DSP-API internals: <resource restype=\"restype\">         "
-                        f"(will be interpreted as 'knora-api:restype')\n"
-                f" - current ontology:  <resource restype=\":restype\">        "
-                        f"('restype' must be defined in the 'resources' section of your ontology)\n"
-                f" - other ontology:    <resource restype=\"other:restype\">   "
-                        f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)"
-            )
+            err_msg = f"=========================\n" \
+                      f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid resource type " \
+                      f"'{resource.restype}'. Is your syntax correct? Remember the rules:\n" \
+                      f" - DSP-API internals: <resource restype=\"restype\">         " \
+                              f"(will be interpreted as 'knora-api:restype')\n" \
+                      f" - current ontology:  <resource restype=\":restype\">        " \
+                              f"('restype' must be defined in the 'resources' section of your ontology)\n" \
+                      f" - other ontology:    <resource restype=\"other:restype\">   " \
+                              f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)" 
+            logger.exception(err_msg)
+            raise UserError(err_msg)
 
         # check that the property types are consistent with the ontology
         resource_properties = resclass_name_2_type[resource.restype].properties.keys()  # type: ignore
         for propname in [prop.name for prop in resource.properties]:
             if propname not in knora_properties and propname not in resource_properties:
-                raise UserError(
-                    f"=========================\n"
-                    f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid property '{propname}'. "
-                    f"Is your syntax correct? Remember the rules:\n"
-                    f" - DSP-API internals: <text-prop name=\"propname\">         "
-                            f"(will be interpreted as 'knora-api:propname')\n"
-                    f" - current ontology:  <text-prop name=\":propname\">        "
-                            f"('propname' must be defined in the 'properties' section of your ontology)\n"
-                    f" - other ontology:    <text-prop name=\"other:propname\">   "
-                            f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)"
-                )
+                err_msg = f"=========================\n" \
+                          f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid property '{propname}'. " \
+                          f"Is your syntax correct? Remember the rules:\n" \
+                          f" - DSP-API internals: <text-prop name=\"propname\">         " \
+                                  f"(will be interpreted as 'knora-api:propname')\n" \
+                          f" - current ontology:  <text-prop name=\":propname\">        " \
+                                  f"('propname' must be defined in the 'properties' section of your ontology)\n" \
+                          f" - other ontology:    <text-prop name=\"other:propname\">   " \
+                                  f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)" 
+                logger.exception(err_msg)
+                raise UserError(err_msg)
 
     print("Resource types and properties are consistent with the ontology.")
     logger.info("Resource types and properties are consistent with the ontology.")
@@ -537,6 +540,7 @@ def xml_upload(
         if stashed_resptr_props:
             nonapplied_resptr_props = _upload_stashed_resptr_props(verbose, id2iri_mapping, con, stashed_resptr_props)
         if nonapplied_resptr_props or nonapplied_xml_texts:
+            logger.exception("Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server.")
             raise BaseError("Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server.")
     except BaseException as err:
         # The forseeable errors are already handled by the variables failed_uploads, nonapplied_xml_texts, and nonapplied_resptr_props.

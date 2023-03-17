@@ -92,6 +92,7 @@ def try_network_action(
             logger.exception(failure_msg)
             raise UserError(f"{failure_msg}") from None
 
+    logger.exception(failure_msg)
     raise BaseError(failure_msg)
 
 
@@ -114,6 +115,7 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
         try:
             doc = etree.parse(source=input_file)
         except etree.XMLSyntaxError as err:
+            logger.exception(f"The XML file contains the following syntax error: {err.msg}")
             raise UserError(f"The XML file contains the following syntax error: {err.msg}") from None
     else:
         doc = input_file
@@ -123,6 +125,7 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
         for error in xmlschema.error_log:
             error_msg = error_msg + f"\n  Line {error.line}: {error.message}"
         error_msg = error_msg.replace("{https://dasch.swiss/schema}", "")
+        logger.error(error_msg)
         raise UserError(error_msg)
     
     # make sure there are no XML tags in simple texts
@@ -139,9 +142,12 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
             if regex.search(r'<([a-zA-Z/"]+|\S.*\S)>', str(text.text)) or len(list(text.iterchildren())) > 0:
                 lines_with_illegal_xml_tags.append(text.sourceline)
     if lines_with_illegal_xml_tags:
+        logger.exception(f"XML-tags are not allowed in text properties with encoding=utf8. "
+                         f"The following lines of your XML file are affected: {lines_with_illegal_xml_tags}")
         raise UserError(f"XML-tags are not allowed in text properties with encoding=utf8. "
                         f"The following lines of your XML file are affected: {lines_with_illegal_xml_tags}")
 
+    logger.info("The XML file is syntactically correct and passed validation.")
     print("The XML file is syntactically correct and passed validation.")
     return True
 

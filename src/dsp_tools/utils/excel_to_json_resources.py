@@ -27,7 +27,7 @@ def _validate_resources_with_schema(resources_list: list[dict[str, Any]]) -> boo
     Returns:
         True if the "resources" section passed validation
     """
-    with importlib.resources.files("dsp_tools").joinpath("schemas").joinpath("resources-only.json").open() as schema_file:
+    with importlib.resources.files("dsp_tools").joinpath("resources/schema/resources-only.json").open() as schema_file:
         resources_schema = json.load(schema_file)
     try:
         jsonschema.validate(instance=resources_list, schema=resources_schema)

@@ -27,7 +27,7 @@ def _validate_properties_with_schema(properties_list: list[dict[str, Any]]) -> b
     Returns:
         True if the "properties" section passed validation
     """
-    with importlib.resources.files("dsp_tools").joinpath("schemas").joinpath("properties-only.json").open() as schema_file:
+    with importlib.resources.files("dsp_tools").joinpath("resources/schema/properties-only.json").open() as schema_file:
         properties_schema = json.load(schema_file)
     try:
         jsonschema.validate(instance=properties_list, schema=properties_schema)

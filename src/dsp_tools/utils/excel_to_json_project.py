@@ -99,7 +99,7 @@ def excel2json(
         "prefixes": {
             "": ""
         },
-        "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/schemas/project.json",
+        "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
         "project": {
             "shortcode": "",
             "shortname": "",

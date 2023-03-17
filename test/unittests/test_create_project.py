@@ -98,8 +98,8 @@ class TestProjectCreation(unittest.TestCase):
         link_properties = _collect_link_properties(self.test_project_circular_ontology)
         errors = _identify_problematic_cardinalities(self.test_project_circular_ontology, link_properties)
         expected_errors = [
-            ("testonto:AnyResource", "testonto:linkToTestThing1"),
-            ("testonto:TestThing3", "testonto:linkToResource")
+            ("circular-onto:AnyResource", "circular-onto:linkToTestThing1"),
+            ("circular-onto:TestThing3", "circular-onto:linkToResource")
         ]
         self.assertListEqual(sorted(errors), sorted(expected_errors))
 
@@ -109,7 +109,7 @@ class TestProjectCreation(unittest.TestCase):
         with self.assertRaisesRegex(
             BaseError, 
             r"Your data model contains cardinalities with invalid propnames:\n"
-            r" - Ontology 'testonto', resource 'TestThing': \[':CardinalityThatWasNotDefinedInPropertiesSection'\]"
+            r" - Ontology 'nonexisting-cardinality-onto', resource 'TestThing': \[':CardinalityThatWasNotDefinedInPropertiesSection'\]"
         ):
             check_for_undefined_cardinalities(self.test_project_nonexisting_cardinality)
 
@@ -119,7 +119,7 @@ class TestProjectCreation(unittest.TestCase):
         with self.assertRaisesRegex(
             BaseError, 
             r"Your data model contains properties that are derived from an invalid super-property:\n"
-            r" - Ontology 'testonto', property 'hasSimpleText': \[':hasText'\]"
+            r" - Ontology 'nonexisting-super-property-onto', property 'hasSimpleText': \[':SuperPropertyThatWasNotDefined'\]"
         ):
             check_for_undefined_super_property(self.test_project_nonexisting_super_property)
 
@@ -129,7 +129,7 @@ class TestProjectCreation(unittest.TestCase):
         with self.assertRaisesRegex(
             BaseError, 
             r"Your data model contains resources that are derived from an invalid super-resource:\n"
-            r" - Ontology 'testonto', resource 'TestThing2': \[':SuperResourceThatWasNotDefined'\]"
+            r" - Ontology 'nonexisting-super-resource-onto', resource 'TestThing2': \[':SuperResourceThatWasNotDefined'\]"
         ):
             check_for_undefined_super_resource(self.test_project_nonexisting_super_resource)
 

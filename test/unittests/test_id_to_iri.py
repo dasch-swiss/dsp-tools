@@ -43,9 +43,9 @@ class TestIdToIri(unittest.TestCase):
                   out_file=self.out_file,
                   verbose=True)
 
-        tree = _parse_xml_file(self.out_file)
+        root = _parse_xml_file(self.out_file)
 
-        resource_elements = tree.xpath("/knora/resource/resptr-prop/resptr")
+        resource_elements = root.xpath("/knora/resource/resptr-prop/resptr")
         result = []
         for resptr_prop in resource_elements:
             result.append(resptr_prop.text)

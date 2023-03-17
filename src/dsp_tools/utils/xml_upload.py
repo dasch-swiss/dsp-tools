@@ -93,7 +93,7 @@ def _write_id2iri_mapping_and_metrics(
     id2iri_mapping: dict[str, str],
     metrics: Optional[list[MetricRecord]], 
     failed_uploads: list[str],
-    input_file: Union[str, etree._ElementTree[Any]],
+    input_file: Union[str, Path, etree._ElementTree[Any]],
     timestamp_str: str,
     server_as_foldername: str
 ) -> bool:
@@ -113,7 +113,7 @@ def _write_id2iri_mapping_and_metrics(
         True if there are no failed_uploads, False otherwise
     """
     # determine names of files
-    if isinstance(input_file, str):
+    if isinstance(input_file, str) or isinstance(input_file, Path):
         id2iri_filename = f"{Path(input_file).stem}_id2iri_mapping_{timestamp_str}.json"
         metrics_filename = f"{timestamp_str}_metrics_{server_as_foldername}_{Path(input_file).stem}.csv"
     else:
@@ -312,7 +312,7 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
 
 
-def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._ElementTree[Any]:
+def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._Element[Any]:
     """
     Parse an XML file with DSP-conform data, 
     remove namespace URI from the elements' names, 
@@ -325,7 +325,7 @@ def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> et
         input_file: path to the XML file, or parsed ElementTree
 
     Returns:
-        the parsed etree.ElementTree
+        the root element of the parsed XML file
     """
     tree = etree.parse(source=input_file) if isinstance(input_file, str) or isinstance(input_file, Path) else copy.deepcopy(input_file)
     for elem in tree.iter():
@@ -348,7 +348,7 @@ def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> et
     # remove unused namespace declarations
     etree.cleanup_namespaces(tree)
 
-    return tree
+    return tree.getroot()
 
 
 def _check_consistency_with_ontology(
@@ -459,8 +459,7 @@ def xml_upload(
 
     # parse the XML file
     validate_xml_against_schema(input_file=input_file)
-    tree = _parse_xml_file(input_file=input_file)
-    root = tree.getroot()
+    root = _parse_xml_file(input_file=input_file)
     shortcode = root.attrib['shortcode']
     default_ontology = root.attrib['default-ontology']
     logger.info(f"Validated and parsed the XML file. Shortcode='{shortcode}' and default_ontology='{default_ontology}'")

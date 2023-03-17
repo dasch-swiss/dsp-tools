@@ -47,7 +47,9 @@ theme:
     - search.highlight
 
 extra_css:
-  - "https://raw.githubusercontent.com/dasch-swiss/dsp-docs/main/docs/assets/style/theme.css"
+# using the one from https://github.com/dasch-swiss/dsp-docs/blob/main/docs/assets/style/theme.css directly is not possible
+# use a local copy instead
+  - "assets/style/theme.css"
 
 plugins:
   - search

@@ -86,7 +86,7 @@ def _write_log_files_and_metrics(
     id2iri_mapping: dict[str, str],
     metrics: Optional[list[MetricRecord]], 
     failed_uploads: list[str],
-    input_file: Union[str, etree._ElementTree[Any]],
+    input_file: Union[str, Path, etree._ElementTree[Any]],
     timestamp_str: str,
     server_as_foldername: str
 ) -> bool:
@@ -106,7 +106,7 @@ def _write_log_files_and_metrics(
         True if there are no failed_uploads, False otherwise
     """
     # determine names of log files
-    if isinstance(input_file, str):
+    if isinstance(input_file, str) or isinstance(input_file, Path):
         id2iri_filename = f"{Path(input_file).stem}_id2iri_mapping_{timestamp_str}.json"
         metrics_filename = f"{timestamp_str}_metrics_{server_as_foldername}_{Path(input_file).stem}.csv"
     else:
@@ -301,7 +301,7 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
 
 
-def _parse_xml_file(input_file: Union[str, etree._ElementTree[Any]]) -> etree._ElementTree[Any]:
+def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._Element[Any]:
     """
     Parse an XML file with DSP-conform data, 
     remove namespace URI from the elements' names, 
@@ -314,9 +314,9 @@ def _parse_xml_file(input_file: Union[str, etree._ElementTree[Any]]) -> etree._E
         input_file: path to the XML file, or parsed ElementTree
 
     Returns:
-        the parsed etree.ElementTree
+        the root element of the parsed XML file
     """
-    tree = etree.parse(source=input_file) if isinstance(input_file, str) else copy.deepcopy(input_file)
+    tree = etree.parse(source=input_file) if isinstance(input_file, str) or isinstance(input_file, Path) else copy.deepcopy(input_file)
     for elem in tree.iter():
         if isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction):
             # properties that are commented out would break the the constructor of the class XMLProperty, if they are not removed here.
@@ -337,7 +337,7 @@ def _parse_xml_file(input_file: Union[str, etree._ElementTree[Any]]) -> etree._E
     # remove unused namespace declarations
     etree.cleanup_namespaces(tree)
 
-    return tree
+    return tree.getroot()
 
 
 def _check_consistency_with_ontology(
@@ -408,7 +408,7 @@ def _check_consistency_with_ontology(
 
 
 def xml_upload(
-    input_file: Union[str, etree._ElementTree[Any]],  
+    input_file: Union[str, Path, etree._ElementTree[Any]],  
     server: str, 
     user: str, 
     password: str, 
@@ -443,8 +443,7 @@ def xml_upload(
 
     # parse the XML file
     validate_xml_against_schema(input_file=input_file)
-    tree = _parse_xml_file(input_file=input_file)
-    root = tree.getroot()
+    root = _parse_xml_file(input_file=input_file)
     default_ontology = root.attrib['default-ontology']
     shortcode = root.attrib['shortcode']
 
@@ -538,7 +537,7 @@ def xml_upload(
     success = _write_log_files_and_metrics(
         id2iri_mapping=id2iri_mapping,
         failed_uploads=failed_uploads,
-        metrics=metrics,
+        metrics=metrics if save_metrics else None,
         input_file=input_file,
         timestamp_str=timestamp_str,
         server_as_foldername=server_as_foldername

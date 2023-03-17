@@ -1,9 +1,9 @@
 {
-    "$schema": "../../../src/dsp_tools/schemas/project.json",
+    "$schema": "../../../src/dsp_tools/resources/schema/project.json",
     "project": {
         "shortcode": "1233",
-        "shortname": "test",
-        "longname": "test",
+        "shortname": "circular-onto-project",
+        "longname": "circular-onto-project",
         "descriptions": {
             "en": "test"
         },
@@ -13,8 +13,8 @@
         ],
         "ontologies": [
             {
-                "name": "testonto",
-                "label": "Test ontology",
+                "name": "circular-onto",
+                "label": "circular-onto",
                 "properties": [
                     {
                         "name": "linkToResource",

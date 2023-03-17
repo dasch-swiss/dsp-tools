@@ -89,7 +89,7 @@ def try_network_action(action: Callable[..., Any]) -> Any:
     raise BaseError("Permanently unable to execute the network action")
 
 
-def validate_xml_against_schema(input_file: Union[str, etree._ElementTree[Any]]) -> bool:
+def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:
     """
     Validates an XML file against the DSP XSD schema.
 
@@ -102,9 +102,9 @@ def validate_xml_against_schema(input_file: Union[str, etree._ElementTree[Any]])
     Returns:
         True if the XML file is valid
     """
-    with importlib.resources.files("dsp_tools").joinpath("schemas").joinpath("data.xsd").open() as schema_file:
+    with importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd").open() as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
-    if isinstance(input_file, str):
+    if isinstance(input_file, str) or isinstance(input_file, Path):
         try:
             doc = etree.parse(source=input_file)
         except etree.XMLSyntaxError as err:
@@ -249,7 +249,7 @@ def check_notna(value: Optional[Any]) -> bool:
         return False
 
 
-def parse_json_input(project_file_as_path_or_parsed: Union[str, dict[str, Any]]) -> dict[str, Any]:
+def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, Any]]) -> dict[str, Any]:
     """
     Check the input for a method that expects a JSON project definition, either as file path or as parsed JSON object: 
     If it is parsed already, return it unchanged.
@@ -264,14 +264,17 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, dict[str, Any]])
     Returns:
         the parsed JSON object
     """
-    if isinstance(project_file_as_path_or_parsed, str) and Path(project_file_as_path_or_parsed).exists():
+    if isinstance(project_file_as_path_or_parsed, dict):
+        project_definition: dict[str, Any] = project_file_as_path_or_parsed
+    elif all([
+        isinstance(project_file_as_path_or_parsed, str) or isinstance(project_file_as_path_or_parsed, Path),
+        Path(project_file_as_path_or_parsed).exists()
+    ]):
         with open(project_file_as_path_or_parsed) as f:
             try:
-                project_definition: dict[str, Any] = json.load(f)
+                project_definition = json.load(f)
             except:
                 raise BaseError(f"The input file '{project_file_as_path_or_parsed}' cannot be parsed to a JSON object.")
-    elif isinstance(project_file_as_path_or_parsed, dict):
-        project_definition = project_file_as_path_or_parsed
     else:
         raise BaseError(f"Invalid input: The input must be a path to a JSON file or a parsed JSON object.")
     return project_definition

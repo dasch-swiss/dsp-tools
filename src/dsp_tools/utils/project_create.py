@@ -1,5 +1,6 @@
 """This module handles the ontology creation, update and upload to a DSP server. This includes the creation and update
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
+from pathlib import Path
 import re
 from typing import Any, Union, cast
 
@@ -417,16 +418,16 @@ def _sort_resources(unsorted_resources: list[dict[str, Any]], onto_name: str) ->
 
 def _sort_prop_classes(unsorted_prop_classes: list[dict[str, Any]], onto_name: str) -> list[dict[str, Any]]:
     """
-        In case of inheritance, parent properties must be uploaded before their children. This method sorts the
-        properties.
+    In case of inheritance, parent properties must be uploaded before their children. This method sorts the
+    properties.
 
-        Args:
-            unsorted_prop_classes: list of properties from a parsed JSON project file
-            onto_name: name of the onto
+    Args:
+        unsorted_prop_classes: list of properties from a parsed JSON project file
+        onto_name: name of the onto
 
-        Returns:
-            sorted list of properties
-        """
+    Returns:
+        sorted list of properties
+    """
 
     # do not modify the original unsorted_prop_classes, which points to the original JSON project file
     prop_classes_to_sort = unsorted_prop_classes.copy()
@@ -781,7 +782,7 @@ def _add_cardinalities_to_resource_classes(
 
 
 def create_project(
-    project_file_as_path_or_parsed: Union[str, dict[str, Any]],
+    project_file_as_path_or_parsed: Union[str, Path, dict[str, Any]],
     server: str,
     user_mail: str,
     password: str,

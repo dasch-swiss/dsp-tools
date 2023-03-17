@@ -2,6 +2,7 @@ from __future__ import annotations
 import copy
 import importlib.resources
 import json
+import logging
 from pathlib import Path
 import time
 import unicodedata
@@ -16,6 +17,9 @@ from requests import RequestException
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.propertyelement import PropertyElement
+
+
+logger = logging.getLogger(__name__)
 
 
 def login(server: str, user: str, password: str) -> Connection:
@@ -82,19 +86,11 @@ def try_network_action(
                 print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...')
                 time.sleep(2 ** i)
                 continue
-            if hasattr(err, 'message'):
-                err_message = err.message
-            else:
-                err_message = str(err).replace('\n', ' ')
-                err_message = err_message[:150] if len(err_message) > 150 else err_message
-            raise UserError(f"{failure_msg}.\nOriginal error message for diagnostic purposes:\n{err_message}") from None
-        except Exception as exc:
-            if hasattr(exc, 'message'):
-                exc_message = exc.message
-            else:
-                exc_message = str(exc).replace('\n', ' ')
-                exc_message = exc_message[:150] if len(exc_message) > 150 else exc_message
-            raise UserError(f"{failure_msg}.\nOriginal error message for diagnostic purposes:\n{exc_message}") from None
+            logger.exception(failure_msg)
+            raise UserError(f"{failure_msg}") from None
+        except Exception:
+            logger.exception(failure_msg)
+            raise UserError(f"{failure_msg}") from None
 
     raise BaseError(failure_msg)
 

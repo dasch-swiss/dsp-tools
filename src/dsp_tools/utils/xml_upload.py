@@ -33,6 +33,7 @@ from dsp_tools.utils.shared import try_network_action, validate_xml_against_sche
 MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "duration_ms", "mb_per_sec"])
 
 logging.basicConfig(
+    format="%(asctime)s %(filename)s %(levelname)s\t\t%(message)s",
     filename=Path.home() / Path(".dsp-tools") / "logging.log", 
     level=logging.INFO
 )
@@ -630,7 +631,7 @@ def _upload_resources(
                 metrics.append(MetricRecord(resource.id, filetype, filesize, "bitstream upload", bitstream_duration_ms, mb_per_sec))
             except BaseError as err:
                 print(err.message)
-                logger.info(err.message)
+                logger.exception(err.message)
                 failed_uploads.append(resource.id)
                 continue
             bitstream_size_uploaded_mb += bitstream_all_sizes_mb[i]  # type: ignore
@@ -662,7 +663,7 @@ def _upload_resources(
             metrics.append(MetricRecord(resource.id, filetype, filesize, "resource creation", resource_creation_duration_ms, ""))
         except BaseError as err:
             print(err.message)
-            logger.info(err.message)
+            logger.exception(err.message)
             failed_uploads.append(resource.id)
             continue
         id2iri_mapping[resource.id] = created_resource.iri
@@ -766,7 +767,7 @@ def _upload_stashed_xml_texts(
                     # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
                     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
                     print(err.message)
-                    logger.info(err.message)
+                    logger.exception(err.message)
                     continue
                 nonapplied_xml_texts[resource][link_prop].pop(pure_text)
                 if verbose:
@@ -845,7 +846,7 @@ def _upload_stashed_resptr_props(
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
             # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
             print(err.message)
-            logger.info(err.message)
+            logger.exception(err.message)
             continue
         print(f'  Upload resptrs of resource "{resource.id}"...')
         logger.info(f'  Upload resptrs of resource "{resource.id}"...')

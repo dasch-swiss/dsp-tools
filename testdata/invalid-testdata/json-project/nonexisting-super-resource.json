@@ -2,40 +2,29 @@
     "$schema": "../../../src/dsp_tools/resources/schema/project.json",
     "project": {
         "shortcode": "4123",
-        "shortname": "tp",
-        "longname": "test project",
+        "shortname": "nonexisting-super-resource-project",
+        "longname": "nonexisting-super-resource-project",
         "descriptions": {
-            "en": "A systematic test project"
+            "en": "nonexisting-super-resource-project"
         },
         "keywords": [
             "test"
         ],
         "ontologies": [
             {
-                "name": "testonto",
-                "label": "Test ontology",
+                "name": "nonexisting-super-resource-onto",
+                "label": "nonexisting-super-resource-onto",
                 "properties": [
                     {
                         "name": "hasSimpleText",
                         "super": [
-                            ":hasText"
+                            "hasValue"
                         ],
                         "object": "TextValue",
                         "labels": {
                             "en": "hasSimpleText"
                         },
                         "gui_element": "SimpleText"
-                    },
-                    {
-                        "name": "hasRichtext",
-                        "super": [
-                            "hasValue"
-                        ],
-                        "object": "TextValue",
-                        "labels": {
-                            "en": "hasRichtext"
-                        },
-                        "gui_element": "Richtext"
                     }
                 ],
                 "resources": [
@@ -50,10 +39,21 @@
                         "cardinalities": [
                             {
                                 "propname": ":hasSimpleText",
-                                "cardinality": "1-n"
-                            },
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "TestThing2",
+                        "super": [
+                            ":SuperResourceThatWasNotDefined"
+                        ],
+                        "labels": {
+                            "en": "TestThing2"
+                        },
+                        "cardinalities": [
                             {
-                                "propname": ":hasRichtext",
+                                "propname": ":hasSimpleText",
                                 "cardinality": "0-n"
                             }
                         ]

@@ -438,16 +438,16 @@ def _sort_resources(unsorted_resources: list[dict[str, Any]], onto_name: str) ->
 
 def _sort_prop_classes(unsorted_prop_classes: list[dict[str, Any]], onto_name: str) -> list[dict[str, Any]]:
     """
-        In case of inheritance, parent properties must be uploaded before their children. This method sorts the
-        properties.
+    In case of inheritance, parent properties must be uploaded before their children. This method sorts the
+    properties.
 
-        Args:
-            unsorted_prop_classes: list of properties from a parsed JSON project file
-            onto_name: name of the onto
+    Args:
+        unsorted_prop_classes: list of properties from a parsed JSON project file
+        onto_name: name of the onto
 
-        Returns:
-            sorted list of properties
-        """
+    Returns:
+        sorted list of properties
+    """
 
     # do not modify the original unsorted_prop_classes, which points to the original JSON project file
     prop_classes_to_sort = unsorted_prop_classes.copy()

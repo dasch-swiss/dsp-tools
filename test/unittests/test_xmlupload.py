@@ -11,7 +11,7 @@ from dsp_tools.utils.xml_upload import (_convert_ark_v0_to_resource_iri,
                                         _parse_xml_file,
                                         _remove_circular_references,
                                         _transform_server_url_to_foldername,
-                                        _determine_save_location_of_logs)
+                                        _determine_save_location_of_diagnostic_info)
 
 
 class TestXMLUpload(unittest.TestCase):
@@ -37,7 +37,7 @@ class TestXMLUpload(unittest.TestCase):
             ("http://api.082e-test-server.dasch.swiss/", f"/.dsp-tools/xmluploads/082e-test-server.dasch.swiss/{shortcode}/{onto_name}")
         ]
         for server, expected_path in testcases:
-            save_location, _, _ = _determine_save_location_of_logs(
+            save_location, _, _ = _determine_save_location_of_diagnostic_info(
                 server=server,
                 proj_shortcode=shortcode,
                 onto_name=onto_name

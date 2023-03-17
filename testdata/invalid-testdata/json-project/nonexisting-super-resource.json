@@ -38,9 +38,20 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasText",
-                                "cardinality": "1-n"
-                            },
+                                "propname": ":hasSimpleText",
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "TestThing2",
+                        "super": [
+                            ":SuperResourceThatWasNotDefined"
+                        ],
+                        "labels": {
+                            "en": "TestThing2"
+                        },
+                        "cardinalities": [
                             {
                                 "propname": ":hasSimpleText",
                                 "cardinality": "0-n"

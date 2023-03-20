@@ -62,6 +62,7 @@
         <text-prop name=":hasSimpleText">
             <text encoding="utf8">&lt;</text>
             <text encoding="utf8">&amp;lt;</text>
+            <text encoding="utf8">(&lt;2cm) (&gt;10cm)</text>
             <text encoding="utf8">&amp;</text>
             <text encoding="utf8">&amp;amp;</text>
             <!-- <text encoding="utf8">&lt;em&gt;text&lt;/em&gt;</text>

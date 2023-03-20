@@ -1,5 +1,6 @@
 """end to end tests for user class"""
 import unittest
+import pytest
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.langstring import Languages
@@ -135,6 +136,7 @@ class TestUser(unittest.TestCase):
         self.assertFalse(updated_user.status)
         self.assertFalse(updated_user.sysadmin)
 
+    @pytest.mark.skip(reason="error in DSP-API, try to unignore at next deployment")
     def test_user_update_password(self) -> None:
         user_email = 'wilee.coyote5@canyon.com'
         user_new_pw = 'BeepBeep5.2'

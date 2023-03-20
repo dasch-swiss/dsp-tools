@@ -282,3 +282,28 @@ dsp-tools stop-stack
 ```
 
 This deletes all Docker volumes, and removes all data that was in the database.
+
+
+
+## `template`
+
+This command creates a template repository with a minimal JSON and XML file.
+
+```bash
+dsp-tools template
+```
+
+
+
+## `rosetta`
+
+Clone the most up to date [rosetta repository](https://github.com/dasch-swiss/082e-rosetta-scripts)
+from GitHub into ~/.dsp-tools,
+create its data model
+and upload its XML file.
+
+```bash
+dsp-tools rosetta
+```
+
+A DSP stack must be running before executing this command.

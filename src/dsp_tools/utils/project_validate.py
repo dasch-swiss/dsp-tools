@@ -13,7 +13,54 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 
 
-def check_for_undefined_superproperty(project_definition: dict[str, Any]) -> bool:
+def check_for_undefined_super_resource(project_definition: dict[str, Any]) -> bool:
+    """
+    Check the superresources that claim to point to a resource defined in the same JSON project.
+    Check if the resource they point to actually exists.
+    (DSP base resources and resources from other ontologies are not considered.)
+
+    Args:
+        project_definition: parsed JSON project definition
+
+    Raises:
+        BaseError: detailed error message if a superresource is not existent
+
+    Returns:
+        True if the superresource are valid
+    """
+    errors: dict[str, list[str]] = dict()
+    for onto in project_definition["project"]["ontologies"]:
+        ontoname = onto["name"]
+        resnames = [r["name"] for r in onto["resources"]]
+        for res in onto["resources"]:
+            supers = res["super"] if isinstance(res["super"], list) else [res["super"],]
+            # form of supers:
+            #  - Resource      # DSP base resource
+            #  - other:res     # other onto
+            #  - same:res      # same onto
+            #  - :res          # same onto (short form)
+            
+            # filter out DSP base resources
+            supers = [s for s in supers if ":" in s]
+            # extend short form
+            supers = [regex.sub(r"^:", f"{ontoname}:", s) for s in supers]
+            # filter out other ontos
+            supers = [s for s in supers if regex.search(f"^{ontoname}:", s)]
+            # convert to short form
+            supers = [regex.sub(f"^{ontoname}", "", s) for s in supers]
+
+            invalid_references = [s for s in supers if regex.sub(":", "", s) not in resnames]
+            if invalid_references:
+                errors[f"Ontology '{ontoname}', resource '{res['name']}'"] = invalid_references
+    
+    if errors:
+        err_msg = "Your data model contains resources that are derived from an invalid super-resource:\n"
+        err_msg += "\n".join(f" - {loc}: {invalids}" for loc, invalids in errors.items())
+        raise BaseError(err_msg)
+    return True
+
+
+def check_for_undefined_super_property(project_definition: dict[str, Any]) -> bool:
     """
     Check the superproperties that claim to point to a property defined in the same JSON project.
     Check if the property they point to actually exists.
@@ -47,7 +94,7 @@ def check_for_undefined_superproperty(project_definition: dict[str, Any]) -> boo
             # filter out other ontos
             supers = [s for s in supers if regex.search(f"^{ontoname}:", s)]
             # convert to short form
-            supers = [regex.sub(ontoname, "", s) for s in supers]
+            supers = [regex.sub(f"^{ontoname}", "", s) for s in supers]
 
             invalid_references = [s for s in supers if regex.sub(":", "", s) not in propnames]
             if invalid_references:
@@ -144,7 +191,7 @@ def validate_project(
             project_definition["project"]["lists"] = new_lists
 
     # validate the project definition against the schema
-    with importlib.resources.files("dsp_tools").joinpath("schemas").joinpath("project.json").open() as schema_file:
+    with importlib.resources.files("dsp_tools").joinpath("resources/schema/project.json").open() as schema_file:
         project_schema = json.load(schema_file)
     try:
         jsonschema.validate(instance=project_definition, schema=project_schema)
@@ -153,8 +200,9 @@ def validate_project(
                         f"The error occurred at {err.json_path}:\n"
                         f"{err.instance}") from None
 
-    # make sure that there is no undefined superproperty
-    check_for_undefined_superproperty(project_definition)
+    # make sure that there is no undefined superproperty or superresource
+    check_for_undefined_super_property(project_definition)
+    check_for_undefined_super_resource(project_definition)
 
     # make sure that every cardinality was defined in the properties section
     check_for_undefined_cardinalities(project_definition)

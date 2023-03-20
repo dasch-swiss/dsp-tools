@@ -4,6 +4,7 @@ The code in this file handles the arguments passed by the user from the command 
 import argparse
 import datetime
 import logging
+import logging.handlers
 from pathlib import Path
 import sys
 from importlib.metadata import version
@@ -19,7 +20,7 @@ from dsp_tools.utils.project_create_lists import create_lists
 from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.project_get import get_project
 from dsp_tools.utils.project_validate import validate_project
-from dsp_tools.utils.shared import trim_log_file, validate_xml_against_schema
+from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.stack_handling import start_stack, stop_stack
 from dsp_tools.utils.xml_upload import xml_upload
 from dsp_tools.utils.generate_templates import generate_template_repo
@@ -311,10 +312,16 @@ def main() -> None:
     logging.basicConfig(
         format="{asctime}   {filename: <20} {levelname: <8} {message}",
         style="{",
-        filename=Path.home() / Path(".dsp-tools") / "logging.log", 
-        level=logging.INFO
+        level=logging.INFO,
+        handlers=[
+            logging.handlers.RotatingFileHandler(
+                filename=Path.home() / Path(".dsp-tools") / "logging.log",
+                maxBytes=3*1024*1024,
+                backupCount=1
+            )
+        ]
     )
-    trim_log_file(path_to_log_file=Path.home() / Path(".dsp-tools") / "logging.log")
+    
     parser = make_parser()
     try:
         success = call_requested_action(user_args=sys.argv[1:], parser=parser)

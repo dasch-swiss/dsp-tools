@@ -911,7 +911,7 @@ shortcut, so that the XML file can be validated more precisely.
 DaSCH provides you with two example repositories that contain everything which is necessary to create a project and 
 upload data. Both of them also contain an XML data file. You can find them here:
 
-- [https://github.com/dasch-swiss/0123-import-scripts](https://github.com/dasch-swiss/0123-import-scripts)
+- [https://github.com/dasch-swiss/00A1-import-scripts](https://github.com/dasch-swiss/00A1-import-scripts)
 - [https://github.com/dasch-swiss/082E-rosetta-scripts](https://github.com/dasch-swiss/082E-rosetta-scripts)
 
 In addition, there is another complete example of an XML data file here:

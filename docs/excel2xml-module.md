@@ -26,14 +26,14 @@ This can be done with the [CLI command `excel2xml`](./cli-commands.md#excel2xml)
 
 ## Module `excel2xml`: Convert a data source to XML
 
-To demonstrate the usage of the `excel2xml` module, there is a GitHub repository named `0123-import-scripts`. It 
+To demonstrate the usage of the `excel2xml` module, there is a GitHub repository named `00A1-import-scripts`. It 
 contains:
 
 - a sample JSON project file
 - sample data that fits the data model of the JSON project file
 - a sample Python script that demonstrates how to use the module `excel2xml`.
 
-Navigate to [https://github.com/dasch-swiss/0123-import-scripts](https://github.com/dasch-swiss/0123-import-scripts) and 
+Navigate to [https://github.com/dasch-swiss/00A1-import-scripts](https://github.com/dasch-swiss/00A1-import-scripts) and 
 follow the steps described there. The README will teach you some basics that will be necessary to work with `excel2xml`. 
 Once you are familiar with the basics, return to this page to learn how the sample Python script works. 
 
@@ -97,7 +97,7 @@ instead of the "name" which is needed for the `dsp-tools xmlupload`. You need a 
 If your data source uses the labels correctly, this is an easy task: The method `create_json_list_mapping()` creates a
 dictionary that maps the labels to the names:  
 
-The list "category" in `0123-import-scripts/import_project.json` looks as follows:
+The list "category" in `00A1-import-scripts/import_project.json` looks as follows:
 ```json
 {
   "name": "category",
@@ -142,7 +142,7 @@ If, however, your data source has spelling variants, you need the more sophistic
 correct JSON project node name. This happens based on string similarity. Please carefully check the result if there are
 no false matches!
 
-The column "Category" in `0123-import-scripts/data_raw.csv` has spelling mistakes:  
+The column "Category" in `00A1-import-scripts/data_raw.csv` has spelling mistakes:  
 ![column category](./assets/images/img-excel2xml-raw-data-category.png)
 
 The dictionary that results if you call `create_json_excel_list_mapping()`:

@@ -532,7 +532,7 @@ The `ontologies` array is [documented here](./ontologies.md)
 DaSCH provides you with two example repositories that contain everything which is necessary to create a project and 
 upload data. Both of them also contain a JSON project definition file. You can find them here:
 
-- [https://github.com/dasch-swiss/0123-import-scripts](https://github.com/dasch-swiss/0123-import-scripts)
+- [https://github.com/dasch-swiss/00A1-import-scripts](https://github.com/dasch-swiss/00A1-import-scripts)
 - [https://github.com/dasch-swiss/082E-rosetta-scripts](https://github.com/dasch-swiss/082E-rosetta-scripts)
 
 In addition, there is another complete example of a JSON project file here:

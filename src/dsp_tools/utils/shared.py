@@ -54,8 +54,7 @@ def try_network_action(
     requests.exceptions.RequestException, which lead to a waiting time and a retry. The waiting times are 1,
     2, 4, 8, 16, 32, 64 seconds.
 
-    In case of a BaseError or Exception, a BaseError is raised with failure_msg, followed by the original
-    error message.
+    In case of a BaseError or Exception, a BaseError is raised with failure_msg.
 
     If there is no success at the end, a BaseError with failure_msg is raised.
 
@@ -87,12 +86,12 @@ def try_network_action(
                 time.sleep(2 ** i)
                 continue
             logger.exception(failure_msg)
-            raise UserError(f"{failure_msg}") from None
+            raise BaseError(failure_msg) from None
         except Exception:
             logger.exception(failure_msg)
-            raise UserError(f"{failure_msg}") from None
+            raise BaseError(failure_msg) from None
 
-    logger.exception(failure_msg)
+    logger.error(failure_msg)
     raise BaseError(failure_msg)
 
 

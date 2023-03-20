@@ -8,7 +8,7 @@ There are a number of tasks necessary to develop and distribute a Python package
 these processes. The [Python Packaging User Guide](https://packaging.python.org) lists the following, among others:
 
 | Task                   | poetry | Hatch | pipenv | venv | build | setuptools | flit | twine |
-|------------------------|--------|-------|--------|------|-------|------------|------|-------|
+| ---------------------- | ------ | ----- | ------ | ---- | ----- | ---------- | ---- | ----- |
 | Dependency management  | X      |       | X      |      |       |            |      |       |
 | Virtual environment    | X      | X     | X      | X    |       |            |      |       |
 | Build frontend         | X      | X     |        |      | X     |            |      |       |
@@ -22,7 +22,7 @@ There are many configuration and metadata files that can be found on the top lev
 used in the DSP-TOOLS repository are:
 
 | File           | Purpose                                                                        |
-|----------------|--------------------------------------------------------------------------------|
+| -------------- | ------------------------------------------------------------------------------ |
 | README.md      | Markdown-formatted infos for developers                                        |
 | pyproject.toml | Modern configuration/metadata file replacing the deprecated files listed below |
 | .gitignore     | List of files not under version control (won't be uploaded to GitHub)          |
@@ -34,16 +34,16 @@ used in the DSP-TOOLS repository are:
 
 In earlier times, there were some more configuration files, but thanks to poetry, they are not necessary anymore:
 
-| Deprecated file      | Purpose                                             | Replaced by                                          |
-|----------------------|-----------------------------------------------------|------------------------------------------------------|
-| MANIFEST.in          | files to include into distribution                  | pyproject.toml: [tool.poetry.include]                |
-| setup.py             | project metadata, dependencies                      | pyproject.toml                                       |
-| setup.cfg            | configuration for setuptools                        | pyproject.toml                                       |
-| requirements.txt     | all (sub-)dependencies                              | pyproject.toml: [tool.poetry.dependencies]           |
-| dev-requirements.txt | additional dependencies for development             | pyproject.toml: [tool.poetry.group.dev.dependencies] |
-| Pipfile              | direct dependencies                                 | pyproject.toml: [tool.poetry.dependencies]           |
-| Pipfile.lock         | pinned dependencies                                 | poetry.lock                                          |
-| Makefile             | commands that can be executed with `make [command]` | pyproject.toml: [tool.poetry-exec-plugin.commands]   |
+| Deprecated file      | Purpose                                             | Replaced by                                            |
+| -------------------- | --------------------------------------------------- | ------------------------------------------------------ |
+| MANIFEST.in          | files to include into distribution                  | pyproject.toml: `[tool.poetry.include]`                |
+| setup.py             | project metadata, dependencies                      | pyproject.toml                                         |
+| setup.cfg            | configuration for setuptools                        | pyproject.toml                                         |
+| requirements.txt     | all (sub-)dependencies                              | pyproject.toml: `[tool.poetry.dependencies]`           |
+| dev-requirements.txt | additional dependencies for development             | pyproject.toml: `[tool.poetry.group.dev.dependencies]` |
+| Pipfile              | direct dependencies                                 | pyproject.toml: `[tool.poetry.dependencies]`           |
+| Pipfile.lock         | pinned dependencies                                 | poetry.lock                                            |
+| Makefile             | commands that can be executed with `make [command]` | pyproject.toml: `[tool.poetry-exec-plugin.commands]`   |
 
 
 
@@ -104,20 +104,20 @@ the developer's machine is more similar to the user's setup.
 
 The advantages of the src layout are:
 
-- import parity
-- The tests run against the package as it will be installed by the user - not against the situation in the 
-  developer's repository.
-- It is obvious to both humans and tools if a folder is a package to be distributed, or not.
-- The editable installation is only able to import modules that will also be importable in a regular installation.
-- For the developer, the working directory is the root of the repository, so the root will implicitly be included in 
-  `sys.path`. Users will never have the same current working directory than the developer. So, removing the packages 
-  from the root by putting them into `src` prevents some practices that will not work on the user's machine. 
+  - import parity
+  - The tests run against the package as it will be installed by the user - not against the situation in the 
+    developer's repository.
+  - It is obvious to both humans and tools if a folder is a package to be distributed, or not.
+  - The editable installation is only able to import modules that will also be importable in a regular installation.
+  - For the developer, the working directory is the root of the repository, so the root will implicitly be included in 
+    `sys.path`. Users will never have the same current working directory than the developer. So, removing the packages 
+    from the root by putting them into `src` prevents some practices that will not work on the user's machine. 
 
 For more in-depth explanations, please visit the following pages:
 
-- [https://blog.ionelmc.ro/2014/05/25/python-packaging](https://blog.ionelmc.ro/2014/05/25/python-packaging)
-- [https://hynek.me/articles/testing-packaging](https://hynek.me/articles/testing-packaging)
-- [https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout](https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout)
+  - [https://blog.ionelmc.ro/2014/05/25/python-packaging](https://blog.ionelmc.ro/2014/05/25/python-packaging)
+  - [https://hynek.me/articles/testing-packaging](https://hynek.me/articles/testing-packaging)
+  - [https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout](https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout)
 
 
 ## Publishing and distribution

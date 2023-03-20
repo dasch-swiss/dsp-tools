@@ -7,8 +7,8 @@ if a certain event happens.
 Actions are defined in YML files in the `.github/workflows` folder.
 The YML files define 
 
-- by what event an action is triggered
-- what the action should do
+  - by what event an action is triggered
+  - what the action should do
 
 The syntax of the YML files is documented 
 on the [GitHub actions documentation page](https://docs.github.com/en/actions).
@@ -48,10 +48,10 @@ In the settings of the DSP-TOOLS repository,
 these tests are configured to be mandatory to pass before a PR can be merged.
 Basically, this action checks that
 
-- the docs can be built without errors or warnings
-- there are no dead links in the docs
-- the unit tests run without errors
-- the end-to-end tests run without errors
+  - the docs can be built without errors or warnings
+  - there are no dead links in the docs
+  - the unit tests run without errors
+  - the end-to-end tests run without errors
 
 Checking dead links is a non-trivial task. 
 There are several tools for it, 

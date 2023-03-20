@@ -2,6 +2,7 @@ from __future__ import annotations
 import copy
 import importlib.resources
 import json
+import logging
 from pathlib import Path
 import time
 import unicodedata
@@ -16,6 +17,9 @@ from requests import RequestException
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.propertyelement import PropertyElement
+
+
+logger = logging.getLogger(__name__)
 
 
 def login(server: str, user: str, password: str) -> Connection:
@@ -50,8 +54,7 @@ def try_network_action(
     requests.exceptions.RequestException, which lead to a waiting time and a retry. The waiting times are 1,
     2, 4, 8, 16, 32, 64 seconds.
 
-    In case of a BaseError or Exception, a BaseError is raised with failure_msg, followed by the original
-    error message.
+    In case of a BaseError or Exception, a BaseError is raised with failure_msg.
 
     If there is no success at the end, a BaseError with failure_msg is raised.
 
@@ -82,20 +85,13 @@ def try_network_action(
                 print(f'{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...')
                 time.sleep(2 ** i)
                 continue
-            if hasattr(err, 'message'):
-                err_message = err.message
-            else:
-                err_message = str(err).replace('\n', ' ')
-                err_message = err_message[:150] if len(err_message) > 150 else err_message
-            raise UserError(f"{failure_msg}.\nOriginal error message for diagnostic purposes:\n{err_message}") from None
-        except Exception as exc:
-            if hasattr(exc, 'message'):
-                exc_message = exc.message
-            else:
-                exc_message = str(exc).replace('\n', ' ')
-                exc_message = exc_message[:150] if len(exc_message) > 150 else exc_message
-            raise UserError(f"{failure_msg}.\nOriginal error message for diagnostic purposes:\n{exc_message}") from None
+            logger.exception(failure_msg)
+            raise BaseError(failure_msg) from None
+        except Exception:
+            logger.exception(failure_msg)
+            raise BaseError(failure_msg) from None
 
+    logger.error(failure_msg)
     raise BaseError(failure_msg)
 
 
@@ -118,6 +114,7 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
         try:
             doc = etree.parse(source=input_file)
         except etree.XMLSyntaxError as err:
+            logger.exception(f"The XML file contains the following syntax error: {err.msg}")
             raise UserError(f"The XML file contains the following syntax error: {err.msg}") from None
     else:
         doc = input_file
@@ -127,6 +124,7 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
         for error in xmlschema.error_log:
             error_msg = error_msg + f"\n  Line {error.line}: {error.message}"
         error_msg = error_msg.replace("{https://dasch.swiss/schema}", "")
+        logger.error(error_msg)
         raise UserError(error_msg)
     
     # make sure there are no XML tags in simple texts
@@ -143,9 +141,12 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
             if regex.search(r'<([a-zA-Z/"]+|\S.*\S)>', str(text.text)) or len(list(text.iterchildren())) > 0:
                 lines_with_illegal_xml_tags.append(text.sourceline)
     if lines_with_illegal_xml_tags:
+        logger.exception(f"XML-tags are not allowed in text properties with encoding=utf8. "
+                         f"The following lines of your XML file are affected: {lines_with_illegal_xml_tags}")
         raise UserError(f"XML-tags are not allowed in text properties with encoding=utf8. "
                         f"The following lines of your XML file are affected: {lines_with_illegal_xml_tags}")
 
+    logger.info("The XML file is syntactically correct and passed validation.")
     print("The XML file is syntactically correct and passed validation.")
     return True
 

@@ -24,10 +24,49 @@ class TestShared(unittest.TestCase):
         
         with self.assertRaisesRegex(
             UserError, 
-            r"XML-tags are not allowed in text properties with encoding=utf8\. "
-            r"The following lines of your XML file are affected: \[13, 14, 15, 16\]" 
+            r"XML-tags are not allowed in text properties with encoding=utf8\. The following resources of your XML file violate this rule:"
+            r"\n.+line 13.+" 
+            r"\n.+line 14.+" 
+            r"\n.+line 15.+" 
+            r"\n.+line 16.+" 
         ):
             shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/utf8-text-with-xml-tags.xml")
+
+        utf8_texts_with_allowed_html_escapes = [
+            "(&lt;2cm) (&gt;10cm)",
+            "text &lt; text/&gt;",
+            "text &lt; text&gt; &amp; text",
+            "text &lt;text text &gt; text",
+            'text &lt; text text="text"&gt; text',
+            'text &lt;text text="text" &gt; text'
+        ]
+        utf8_texts_with_allowed_html_escapes = [
+            f'<knora shortcode="4123" default-ontology="testonto" xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">' +
+            f'<resource label="label" restype=":restype" id="id">' + 
+            f'<text-prop name=":name">' + 
+            f'<text encoding="utf8">{txt}' + 
+            f'</text></text-prop></resource></knora>' 
+            for txt in utf8_texts_with_allowed_html_escapes
+        ]
+        for xml in utf8_texts_with_allowed_html_escapes:
+            self.assertTrue(shared.validate_xml_against_schema(input_file=etree.fromstring(xml)))
+
+        utf8_texts_with_forbidden_html_escapes = [
+            f"&lt;tag s=\"t\"&gt;", 
+            "&lt;em&gt;text&lt;/em&gt;"
+        ]
+        utf8_texts_with_forbidden_html_escapes = [
+            f'<knora shortcode="4123" default-ontology="testonto" xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">' +
+            f'<resource label="label" restype=":restype" id="id">' + 
+            f'<text-prop name=":name">' + 
+            f'<text encoding="utf8">{txt}' + 
+            f'</text></text-prop></resource></knora>' 
+            for txt in utf8_texts_with_forbidden_html_escapes
+        ]
+        for xml in utf8_texts_with_forbidden_html_escapes:
+            with self.assertRaisesRegex(UserError, "XML-tags are not allowed in text properties with encoding=utf8"):
+                shared.validate_xml_against_schema(input_file=etree.fromstring(xml))
+
 
 
     def test_prepare_dataframe(self) -> None:

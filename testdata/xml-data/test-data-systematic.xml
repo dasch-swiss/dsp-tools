@@ -62,11 +62,13 @@
         <text-prop name=":hasSimpleText">
             <text encoding="utf8">&lt;</text>
             <text encoding="utf8">&amp;lt;</text>
-            <text encoding="utf8">(&lt;2cm) (&gt;10cm)</text>
+            <text encoding="utf8">text (&lt;2cm) text</text>
+            <text encoding="utf8">text (&lt;2cm) text (&gt;10cm) text</text>
+            <text encoding="utf8">Bei AU1026 handelt es sich um weissgrauen Sand mit einigen mittelgrossen (&lt;10cm) sowie auch wenigen grossen Kalkbruchsteinen (&gt;10cm), die zumeist scharfkantig sind.</text>
             <text encoding="utf8">&amp;</text>
             <text encoding="utf8">&amp;amp;</text>
             <!-- <text encoding="utf8">&lt;em&gt;text&lt;/em&gt;</text>
-            <text encoding="utf8">&lt;not a tag&gt;</text>  -->
+            <text encoding="utf8">&lt;tag s=\"t\"&gt;</text> -->
         </text-prop>
         <text-prop name=":hasTextArea">
             <text encoding="utf8">&lt;</text>
@@ -74,7 +76,7 @@
             <text encoding="utf8">&amp;</text>
             <text encoding="utf8">&amp;amp;</text>
             <!-- <text encoding="utf8">&lt;em&gt;text&lt;/em&gt;</text>
-            <text encoding="utf8">&lt;not a tag&gt;</text>  -->
+            <text encoding="utf8">&lt;tag s=\"t\"&gt;</text>  -->
         </text-prop>
         <text-prop name=":hasRichtext">
             <text encoding="xml">&lt;</text>

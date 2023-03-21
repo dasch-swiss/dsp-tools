@@ -140,7 +140,7 @@ def _validate_xml_tags_in_text_properties(doc: etree._ElementTree[Any]) -> bool:
     Makes sure that there are no XML tags in simple texts.
     This can only be done with a regex, 
     because even if the simple text contains some XML tags, the simple text itself is not valid XML that could be parsed.
-    The extra challenge is that lxml transforms "pebble (&lt;2cm) and  boulder (&gt;20cm)" into "pebble (<2cm) and boulder (>20cm)" (but only if &gt; follows &lt;).
+    The extra challenge is that lxml transforms "pebble (&lt;2cm) and boulder (&gt;20cm)" into "pebble (<2cm) and boulder (>20cm)" (but only if &gt; follows &lt;).
     This forces us to write a regex that carefully distinguishes between a real tag (which is not allowed) and a false-positive-tag.
 
     Args:

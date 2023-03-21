@@ -85,11 +85,11 @@ def try_network_action(action: Callable[..., Any]) -> Any:
             else:
                 logger.exception("Permanently unable to execute the network action. See logs for more details.")
                 raise BaseError("Permanently unable to execute the network action. See logs for more details.") from None
-        except Exception as exc:
+        except Exception:
             logger.exception("Permanently unable to execute the network action. See logs for more details.")
             raise BaseError("Permanently unable to execute the network action. See logs for more details.") from None
 
-    logger.error(failure_msg)
+    logger.error("Permanently unable to execute the network action.")
     raise BaseError("Permanently unable to execute the network action. See logs for more details.")
 
 

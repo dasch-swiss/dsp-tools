@@ -318,7 +318,6 @@ def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> et
     and transform the special tags <annotation>, <region>, and <link> 
     to their technically correct form 
     <resource restype="Annotation">, <resource restype="Region">, and <resource restype="LinkObj">.
-    If the input is already parsed, it won't be modified, but a copy of it will be returned.
 
     Args:
         input_file: path to the XML file, or parsed ElementTree

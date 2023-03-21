@@ -32,6 +32,8 @@ class TestShared(unittest.TestCase):
         ):
             shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/utf8-text-with-xml-tags.xml")
 
+
+    def test_validate_xml_tags_in_text_properties(self) -> None:
         utf8_texts_with_allowed_html_escapes = [
             "(&lt;2cm) (&gt;10cm)",
             "text &lt; text/&gt;",
@@ -49,7 +51,7 @@ class TestShared(unittest.TestCase):
             for txt in utf8_texts_with_allowed_html_escapes
         ]
         for xml in utf8_texts_with_allowed_html_escapes:
-            self.assertTrue(shared.validate_xml_against_schema(input_file=etree.fromstring(xml)))
+            self.assertTrue(shared._validate_xml_tags_in_text_properties(doc=etree.fromstring(xml)))
 
         utf8_texts_with_forbidden_html_escapes = [
             f"&lt;tag s=\"t\"&gt;", 
@@ -65,7 +67,7 @@ class TestShared(unittest.TestCase):
         ]
         for xml in utf8_texts_with_forbidden_html_escapes:
             with self.assertRaisesRegex(UserError, "XML-tags are not allowed in text properties with encoding=utf8"):
-                shared.validate_xml_against_schema(input_file=etree.fromstring(xml))
+                shared._validate_xml_tags_in_text_properties(doc=etree.fromstring(xml))
 
 
 

@@ -128,6 +128,30 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
         raise UserError(error_msg)
     
     # make sure there are no XML tags in simple texts
+    _validate_xml_tags_in_text_properties(doc)    
+
+    logger.info("The XML file is syntactically correct and passed validation.")
+    print("The XML file is syntactically correct and passed validation.")
+    return True
+
+
+def _validate_xml_tags_in_text_properties(doc: etree._ElementTree[Any]) -> bool:
+    """
+    Makes sure that there are no XML tags in simple texts.
+    This can only be done with a regex, 
+    because even if the simple text contains some XML tags, the simple text itself is not valid XML that could be parsed.
+    The extra challenge is that lxml transforms "pebble (&lt;2cm) and  boulder (&gt;20cm)" into "pebble (<2cm) and boulder (>20cm)" (but only if &gt; follows &lt;).
+    This forces us to write a regex that carefully distinguishes between a real tag (which is not allowed) and a false-positive-tag.
+
+    Args:
+        doc: parsed XML file
+
+    Raises:
+        UserError: if there is an XML tag in one of the simple texts
+
+    Returns:
+        True if there are no XML tags in the simple texts
+    """
     # first: remove namespaces
     doc_without_namespace = copy.deepcopy(doc)
     for elem in doc_without_namespace.iter():
@@ -148,9 +172,7 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
         err_msg += "\n".join(resources_with_illegal_xml_tags)
         logger.exception(err_msg)
         raise UserError(err_msg)
-
-    logger.info("The XML file is syntactically correct and passed validation.")
-    print("The XML file is syntactically correct and passed validation.")
+    
     return True
 
 

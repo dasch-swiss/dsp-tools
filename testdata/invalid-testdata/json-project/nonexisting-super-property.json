@@ -1,0 +1,65 @@
+{
+    "$schema": "../../../src/dsp_tools/resources/schema/project.json",
+    "project": {
+        "shortcode": "4123",
+        "shortname": "nonexisting-super-property-project",
+        "longname": "nonexisting-super-property-project",
+        "descriptions": {
+            "en": "nonexisting-super-property-project"
+        },
+        "keywords": [
+            "test"
+        ],
+        "ontologies": [
+            {
+                "name": "nonexisting-super-property-onto",
+                "label": "nonexisting-super-property-onto",
+                "properties": [
+                    {
+                        "name": "hasSimpleText",
+                        "super": [
+                            ":SuperPropertyThatWasNotDefined"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "hasSimpleText"
+                        },
+                        "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "hasRichtext",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "hasRichtext"
+                        },
+                        "gui_element": "Richtext"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "TestThing",
+                        "super": [
+                            "Resource"
+                        ],
+                        "labels": {
+                            "en": "TestThing"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "cardinality": "1-n"
+                            },
+                            {
+                                "propname": ":hasRichtext",
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

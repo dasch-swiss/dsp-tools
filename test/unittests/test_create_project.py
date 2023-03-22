@@ -8,7 +8,7 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.shared import parse_json_input
 from dsp_tools.utils.project_create import _sort_resources, _sort_prop_classes
 from dsp_tools.utils.project_validate import _collect_link_properties, _identify_problematic_cardinalities, \
-    validate_project, check_for_undefined_cardinalities, check_for_undefined_superproperty
+    validate_project, check_for_undefined_cardinalities, check_for_undefined_super_property, check_for_undefined_super_resource
 
 
 class TestProjectCreation(unittest.TestCase):
@@ -22,13 +22,18 @@ class TestProjectCreation(unittest.TestCase):
     with open(test_project_circular_ontology_file) as json_file:
         test_project_circular_ontology: dict[str, Any] = json.load(json_file)
     
-    test_project_undefined_cardinality_file = "testdata/invalid-testdata/json-project/cardinalities-that-were-not-defined-in-properties-section.json"
-    with open(test_project_undefined_cardinality_file) as json_file:
-        test_project_undefined_cardinality = json.load(json_file)
+    test_project_nonexisting_cardinality_file = "testdata/invalid-testdata/json-project/nonexisting-cardinality.json"
+    with open(test_project_nonexisting_cardinality_file) as json_file:
+        test_project_nonexisting_cardinality = json.load(json_file)
     
-    test_project_undefined_super_property_file = "testdata/invalid-testdata/json-project/super-property-that-was-not-defined-in-properties-section.json"
-    with open(test_project_undefined_super_property_file) as json_file:
-        test_project_undefined_super_property = json.load(json_file)
+    test_project_nonexisting_super_property_file = "testdata/invalid-testdata/json-project/nonexisting-super-property.json"
+    with open(test_project_nonexisting_super_property_file) as json_file:
+        test_project_nonexisting_super_property = json.load(json_file)
+    
+    test_project_nonexisting_super_resource_file = "testdata/invalid-testdata/json-project/nonexisting-super-resource.json"
+    with open(test_project_nonexisting_super_resource_file) as json_file:
+        test_project_nonexisting_super_resource = json.load(json_file)
+    
 
     def test_parse_json_input(self) -> None:
         parsed_proj_from_str_path = parse_json_input(project_file_as_path_or_parsed=self.test_project_systematic_file)
@@ -93,8 +98,8 @@ class TestProjectCreation(unittest.TestCase):
         link_properties = _collect_link_properties(self.test_project_circular_ontology)
         errors = _identify_problematic_cardinalities(self.test_project_circular_ontology, link_properties)
         expected_errors = [
-            ("testonto:AnyResource", "testonto:linkToTestThing1"),
-            ("testonto:TestThing3", "testonto:linkToResource")
+            ("circular-onto:AnyResource", "circular-onto:linkToTestThing1"),
+            ("circular-onto:TestThing3", "circular-onto:linkToResource")
         ]
         self.assertListEqual(sorted(errors), sorted(expected_errors))
 
@@ -104,19 +109,29 @@ class TestProjectCreation(unittest.TestCase):
         with self.assertRaisesRegex(
             BaseError, 
             r"Your data model contains cardinalities with invalid propnames:\n"
-            r" - Ontology 'testonto', resource 'TestThing': \[':hasText'\]"
+            r" - Ontology 'nonexisting-cardinality-onto', resource 'TestThing': \[':CardinalityThatWasNotDefinedInPropertiesSection'\]"
         ):
-            check_for_undefined_cardinalities(self.test_project_undefined_cardinality)
+            check_for_undefined_cardinalities(self.test_project_nonexisting_cardinality)
 
 
-    def test_check_for_undefined_superproperty(self) -> None:
-        self.assertTrue(check_for_undefined_superproperty(self.test_project_systematic))
+    def test_check_for_undefined_super_property(self) -> None:
+        self.assertTrue(check_for_undefined_super_property(self.test_project_systematic))
         with self.assertRaisesRegex(
             BaseError, 
             r"Your data model contains properties that are derived from an invalid super-property:\n"
-            r" - Ontology 'testonto', property 'hasSimpleText': \[':hasText'\]"
+            r" - Ontology 'nonexisting-super-property-onto', property 'hasSimpleText': \[':SuperPropertyThatWasNotDefined'\]"
         ):
-            check_for_undefined_superproperty(self.test_project_undefined_super_property)
+            check_for_undefined_super_property(self.test_project_nonexisting_super_property)
+
+
+    def test_check_for_undefined_super_resource(self) -> None:
+        self.assertTrue(check_for_undefined_super_resource(self.test_project_systematic))
+        with self.assertRaisesRegex(
+            BaseError, 
+            r"Your data model contains resources that are derived from an invalid super-resource:\n"
+            r" - Ontology 'nonexisting-super-resource-onto', resource 'TestThing2': \[':SuperResourceThatWasNotDefined'\]"
+        ):
+            check_for_undefined_super_resource(self.test_project_nonexisting_super_resource)
 
 
 if __name__ == "__main__":

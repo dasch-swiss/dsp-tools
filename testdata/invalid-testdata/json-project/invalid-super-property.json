@@ -2,18 +2,18 @@
     "$schema": "../../../src/dsp_tools/resources/schema/project.json",
     "project": {
         "shortcode": "4124",
-        "shortname": "minimal-tp",
-        "longname": "minimal test project",
+        "shortname": "invalid-super-property-project",
+        "longname": "invalid-super-property-project",
         "descriptions": {
-            "en": "A minimal test project"
+            "en": "invalid-super-property-project"
         },
         "keywords": [
             "minimal"
         ],
         "ontologies": [
             {
-                "name": "testonto",
-                "label": "Test ontology",
+                "name": "invalid-super-property-onto",
+                "label": "invalid-super-property-onto",
                 "properties": [
                     {
                         "name": "hasText",

@@ -1,5 +1,46 @@
 # Changelog
 
+## [2.2.0](https://github.com/dasch-swiss/dsp-tools/compare/v2.1.1...v2.2.0) (2023-03-21)
+
+
+### Bug Fixes
+
+* allow Pulldown, Radio, and List as gui_elements for lists (DEV-1810) ([#330](https://github.com/dasch-swiss/dsp-tools/issues/330)) ([5ff1aac](https://github.com/dasch-swiss/dsp-tools/commit/5ff1aac9df3f875c754ba76c876e8fceeb29180a))
+* correct broken schema references in test data files (DEV-1832) [#323](https://github.com/dasch-swiss/dsp-tools/issues/323) ([512de36](https://github.com/dasch-swiss/dsp-tools/commit/512de3641726dc08f4d83a27e35fee1391cdad86))
+* **create, get:** handle comment to ontology (DEV-1852) [#326](https://github.com/dasch-swiss/dsp-tools/issues/326) ([5af3f19](https://github.com/dasch-swiss/dsp-tools/commit/5af3f19e214774ddfa9fa7ad8e7337d07893ed52))
+* **create:** allow identical onto names if they belong to different projects (DEV-1777) ([#314](https://github.com/dasch-swiss/dsp-tools/issues/314)) ([7139f67](https://github.com/dasch-swiss/dsp-tools/commit/7139f67d9fa010e1e2c4335bc77e8752ee6ed0b7))
+* **create:** prevent infinite loop when super-resource is not existing (DEV-1886) ([#338](https://github.com/dasch-swiss/dsp-tools/issues/338)) ([b176b7c](https://github.com/dasch-swiss/dsp-tools/commit/b176b7ce09e52fe21223160a37c1f04aff1ee047))
+* **xmlupload:** legitimate html-escapes in utf8-texts don't raise a validation error any more (DEV-1936) ([#341](https://github.com/dasch-swiss/dsp-tools/issues/341)) ([cf90269](https://github.com/dasch-swiss/dsp-tools/commit/cf902690e59edc492a742e3d1f252486cec0b01a))
+* **xmlupload:** write metrics only when requested to do so (DEV-1883) [#334](https://github.com/dasch-swiss/dsp-tools/issues/334) ([5c1196f](https://github.com/dasch-swiss/dsp-tools/commit/5c1196fd1749498e6df8f5c3c3f886dd18642ed1))
+
+
+### Enhancements
+
+* check out rosetta and upload it on local stack (DEV-1842) ([#332](https://github.com/dasch-swiss/dsp-tools/issues/332)) ([d067cc1](https://github.com/dasch-swiss/dsp-tools/commit/d067cc14f028fd0d1dbf2becb279f7588310fa71))
+* **create:** create a resource class without cardinalities (DEV-1853) [#327](https://github.com/dasch-swiss/dsp-tools/issues/327) ([2d1cee0](https://github.com/dasch-swiss/dsp-tools/commit/2d1cee011b980ba0c6dacd7661467f52d72e5835))
+* new command to generate template repo, move schema files (DEV-1839) ([#333](https://github.com/dasch-swiss/dsp-tools/issues/333)) ([9ea3a4f](https://github.com/dasch-swiss/dsp-tools/commit/9ea3a4f9b882ac9c931ed6e58df9801fd47e3e38))
+
+
+### Documentation
+
+* replace outdated screenshot, use local copy of CSS of dsp-docs (DEV-1896) ([#337](https://github.com/dasch-swiss/dsp-tools/issues/337)) ([c22c5e4](https://github.com/dasch-swiss/dsp-tools/commit/c22c5e47c250f6d3c8789b1d5dee752fe08646df))
+* use single quotes around passwords to prevent problems with special characters (DEV-1825) [#320](https://github.com/dasch-swiss/dsp-tools/issues/320) ([ca2bf1a](https://github.com/dasch-swiss/dsp-tools/commit/ca2bf1a6c4fef12d709aed29181590dbde2b0005))
+
+
+### Maintenance
+
+* adapt shortcode of import scripts (DEV-1925) ([#340](https://github.com/dasch-swiss/dsp-tools/issues/340)) ([f440bda](https://github.com/dasch-swiss/dsp-tools/commit/f440bda058e9ae54d545a1848c71333b8eb68948))
+* bump start-stack to 2023.03.02 (DEV-1819) ([#317](https://github.com/dasch-swiss/dsp-tools/issues/317)) ([54a4514](https://github.com/dasch-swiss/dsp-tools/commit/54a4514af12182bd6d2645d0cff1a389b278a5f9))
+* **excel2json:** improve error messages of excel2json (DEV-1789) ([#315](https://github.com/dasch-swiss/dsp-tools/issues/315)) ([36a1209](https://github.com/dasch-swiss/dsp-tools/commit/36a120990a0ea2f4456ca63ed8c42a6b453f1c3d))
+* implement logging system (DEV-132) ([#335](https://github.com/dasch-swiss/dsp-tools/issues/335)) ([c92e943](https://github.com/dasch-swiss/dsp-tools/commit/c92e9438e20b9af704f9d145a4a50039c47d4cb3))
+* merge dublette class into one class (DEV-1831) [#322](https://github.com/dasch-swiss/dsp-tools/issues/322) ([e5cddf5](https://github.com/dasch-swiss/dsp-tools/commit/e5cddf5ef73425ebf1f408d58930f76d759c1c7b))
+* minor improvements (DEV-1912) [#336](https://github.com/dasch-swiss/dsp-tools/issues/336) ([91664a9](https://github.com/dasch-swiss/dsp-tools/commit/91664a99a8d4a46e72659284036b0de833976d52))
+* new error handling strategy (DEV-1770) ([#324](https://github.com/dasch-swiss/dsp-tools/issues/324)) ([f2aa4b0](https://github.com/dasch-swiss/dsp-tools/commit/f2aa4b077cd071edf9623f956c1f3385e110decf))
+* remove pystrict dependency (DEV-1843) [#329](https://github.com/dasch-swiss/dsp-tools/issues/329) ([2111d21](https://github.com/dasch-swiss/dsp-tools/commit/2111d217764fbde8c763d6cce47fba172ddf9f8a))
+* save location for log files (DEV-1856) ([#328](https://github.com/dasch-swiss/dsp-tools/issues/328)) ([30f914d](https://github.com/dasch-swiss/dsp-tools/commit/30f914df808c2b78b31eef5fab9d546436f01a5c))
+* tidy up testdata folder (DEV-1822) ([#319](https://github.com/dasch-swiss/dsp-tools/issues/319)) ([b5fe9fd](https://github.com/dasch-swiss/dsp-tools/commit/b5fe9fd8f1cdc9ee536230303dfa3369512df022))
+* **xmlupload:** improve user feedback when shortcode or onto are inexistent (DEV-1827) ([#321](https://github.com/dasch-swiss/dsp-tools/issues/321)) ([f21a64e](https://github.com/dasch-swiss/dsp-tools/commit/f21a64e6198cca805db3281a1f3fefe5b7363e0f))
+
 ## [2.1.1](https://github.com/dasch-swiss/dsp-tools/compare/v2.1.0...v2.1.1) (2023-03-08)
 
 

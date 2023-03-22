@@ -3,6 +3,9 @@ The code in this file handles the arguments passed by the user from the command 
 """
 import argparse
 import datetime
+import logging
+import logging.handlers
+from pathlib import Path
 import sys
 from importlib.metadata import version
 
@@ -306,6 +309,19 @@ def call_requested_action(
 
 def main() -> None:
     """Main entry point of the program as referenced in pyproject.toml"""
+    logging.basicConfig(
+        format="{asctime}   {filename: <20} {levelname: <8} {message}",
+        style="{",
+        level=logging.INFO,
+        handlers=[
+            logging.handlers.RotatingFileHandler(
+                filename=Path.home() / Path(".dsp-tools") / "logging.log",
+                maxBytes=3*1024*1024,
+                backupCount=1
+            )
+        ]
+    )
+    
     parser = make_parser()
     try:
         success = call_requested_action(user_args=sys.argv[1:], parser=parser)

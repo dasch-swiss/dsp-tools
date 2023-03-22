@@ -63,7 +63,7 @@ The `resources` section can be inserted into the ontology file and then be uploa
 
 **An Excel file template can be found [here](../assets/data_model_templates/rosetta%20(rosetta)/resources.xlsx) 
 or also in the
-[`data_model_files` folder of `0123-import-scripts`](https://github.com/dasch-swiss/0123-import-scripts/tree/main/data_model_files).
+[`data_model_files` folder of `00A1-import-scripts`](https://github.com/dasch-swiss/00A1-import-scripts/tree/main/data_model_files).
 It is recommended to work from the template.** 
 
 The expected worksheets of the Excel file are:
@@ -120,7 +120,7 @@ The `properties` section can be inserted into the ontology file and then be uplo
 
 **An Excel file template can be found [here](../assets/data_model_templates/rosetta%20(rosetta)/properties.xlsx) 
 or also in the
-[`data_model_files` folder of `0123-import-scripts`](https://github.com/dasch-swiss/0123-import-scripts/tree/main/data_model_files). 
+[`data_model_files` folder of `00A1-import-scripts`](https://github.com/dasch-swiss/00A1-import-scripts/tree/main/data_model_files). 
 It is recommended to work from the template.**
 
 The Excel sheet must have the following structure:  
@@ -200,7 +200,7 @@ Some notes:
 - [en.xlsx](../assets/data_model_templates/lists/en.xlsx): File with the English labels
 - [de.xlsx](../assets/data_model_templates/lists/de.xlsx): File with the German labels
 - or alternatively from the
-  [`data_model_files` folder of `0123-import-scripts`](https://github.com/dasch-swiss/0123-import-scripts/tree/main/data_model_files)
+  [`data_model_files` folder of `00A1-import-scripts`](https://github.com/dasch-swiss/00A1-import-scripts/tree/main/data_model_files)
 
 The output of the above command, with the template files, is:
 

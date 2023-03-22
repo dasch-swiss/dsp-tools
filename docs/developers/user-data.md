@@ -6,11 +6,13 @@ DSP-TOOLS saves user data in the user's home directory,
 in the folder `.dsp-tools`. 
 Here is an overview of its structure:
 
-| folder     | command using it | description                                                                                |
-| :--------- | :--------------- | :----------------------------------------------------------------------------------------- |
-| xmluploads | `xmlupload`      | saves id2iri mappings and error reports                                                    |
-| docker     | `start-stack`    | files necessary to startup Docker containers                                               |
-| rosetta    | `rosetta`        | a clone of [the rosetta test project](https://github.com/dasch-swiss/082e-rosetta-scripts) |
+| file/folder                | command using it | description                                                                                |
+| :------------------------- | :--------------- | :----------------------------------------------------------------------------------------- |
+| xmluploads                 | `xmlupload`      | saves id2iri mappings and error reports                                                    |
+| docker                     | `start-stack`    | files necessary to startup Docker containers                                               |
+| rosetta                    | `rosetta`        | a clone of [the rosetta test project](https://github.com/dasch-swiss/082e-rosetta-scripts) |
+| logging.log, logging.log.1 | several ones     | These two grow up to 3MB, then the oldest entries are deleted                              |
+
 
 Remark: Docker is normally not able to access files 
 stored in the `site-packages` of a Python installation.

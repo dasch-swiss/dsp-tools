@@ -148,7 +148,7 @@ class TestExcel2xml(unittest.TestCase):
 
         # test that the special characters in the "Label" row of excel2xml-testdata-special-characters.xlsx are replaced
         special_characters_df = pd.read_excel("testdata/excel2xml/excel2xml-testdata-special-characters.xlsx")
-        root = excel2xml.make_root("0123", "test")
+        root = excel2xml.make_root("00A1", "test")
         root = excel2xml.append_permissions(root)
         for i, row in special_characters_df.iterrows():
             root.append(

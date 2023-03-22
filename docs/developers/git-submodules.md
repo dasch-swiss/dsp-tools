@@ -2,20 +2,20 @@
 
 # Git submodules
 
-This repository embeds [https://github.com/dasch-swiss/0123-import-scripts](https://github.com/dasch-swiss/0123-import-scripts) 
+This repository embeds [https://github.com/dasch-swiss/00A1-import-scripts](https://github.com/dasch-swiss/00A1-import-scripts) 
 as a Git submodule in `src/dsp_tools/import_scripts`. That means that `src/dsp_tools/import_scripts` has no contents, but
-only a reference to a certain commit in the main branch of `0123-import-scripts`. When you clone DSP-TOOLS from GitHub 
+only a reference to a certain commit in the main branch of `00A1-import-scripts`. When you clone DSP-TOOLS from GitHub 
 as usual, `src/dsp_tools/import_scripts` will be empty.
 
 
 
 ## Rationale to use a git submodule
 
-The code of the `0123-import-scripts` repository is closely related to the documentation of the `excel2xml` module. 
+The code of the `00A1-import-scripts` repository is closely related to the documentation of the `excel2xml` module. 
 When something changes in `excel2xml`, the changes need not only be reflected in the docs, but also in 
-`0123-import-scripts`. This can easily be forgotten. The decision to embed it as a submodule is meant to bring 
-`0123-import-scripts` closer to the attention of the developers of DSP-TOOLS. For example, a repo-wide search for a 
-string or the usage of a method will also yield results from `0123-import-scripts`.
+`00A1-import-scripts`. This can easily be forgotten. The decision to embed it as a submodule is meant to bring 
+`00A1-import-scripts` closer to the attention of the developers of DSP-TOOLS. For example, a repo-wide search for a 
+string or the usage of a method will also yield results from `00A1-import-scripts`.
 
 The example project [rosetta](https://github.com/dasch-swiss/082E-rosetta-scripts) is a similar case. Changes in 
 DSP-TOOLS sometimes need to be reflected in rosetta. But since rosetta is not embedded as submodule, the developers 
@@ -85,11 +85,11 @@ committing to it, the `main` branch needs to be checked out. The order how to pr
 
 ```bash
 cd src/dsp_tools/import_scripts
-git checkout main                     # check out main branch of 0123-import-scripts
+git checkout main                     # check out main branch of 00A1-import-scripts
 # (modify contents of submodule)
 git add .
 git commit -m "modify submodule"
-git push origin main                  # push to origin of 0123-import-scripts
+git push origin main                  # push to origin of 00A1-import-scripts
 cd ../../..
 git add src/dsp_tools/import_scripts
 git commit -m "modify submodule"

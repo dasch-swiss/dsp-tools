@@ -701,7 +701,7 @@ def _add_property_classes_to_remote_ontology(
             comment=LangString(prop_class["comments"]) if prop_class.get("comments") else None
         )
         try:
-            last_modification_date = try_network_action(
+            last_modification_date, _ = try_network_action(
                 lambda: prop_class_local.create(last_modification_date=last_modification_date)
             )
             ontology_remote.lastModificationDate = last_modification_date

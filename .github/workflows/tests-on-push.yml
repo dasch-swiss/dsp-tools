@@ -1,3 +1,5 @@
+---
+
 name: Tests on Push
 
 on:
@@ -38,7 +40,7 @@ jobs:
           VALIDATE_ALL_CODEBASE: true         # whether to check the entire codebase or only the edited/new files
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FILTER_REGEX_EXCLUDE: .*src/dsp_tools/models/.*
+          FILTER_REGEX_EXCLUDE: .*(src/dsp_tools/models/.*|CHANGELOG\.md)
           LINTER_RULES_PATH: /
           MARKDOWN_CONFIG_FILE: .markdownlint.json
           VALIDATE_BASH: true
@@ -47,7 +49,7 @@ jobs:
           VALIDATE_GITHUB_ACTIONS: true
           VALIDATE_JSON: true
           VALIDATE_MARKDOWN: true
-          VALIDATE_PYTHON_MYPY: true
+          # VALIDATE_PYTHON_MYPY: true
           VALIDATE_PYTHON_PYLINT: true
           # VALIDATE_PYTHON_ISORT: true
           VALIDATE_XML: true

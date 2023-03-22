@@ -43,6 +43,7 @@ def login(server: str, user: str, password: str) -> Connection:
     try:
         try_network_action(lambda: con.login(email=user, password=password))
     except BaseError:
+        logger.error("Cannot login to DSP server", exc_info=True)
         raise UserError("Cannot login to DSP server") from None
     return con
 
@@ -50,17 +51,16 @@ def login(server: str, user: str, password: str) -> Connection:
 def try_network_action(action: Callable[..., Any]) -> Any:
     """
     Helper method that tries 7 times to execute an action. 
-    If a ConnectionError or requests.exceptions.RequestException occors, 
+    If a ConnectionError, a requests.exceptions.RequestException, or a non-permanent BaseError occors, 
     it waits and retries. 
     The waiting times are 1, 2, 4, 8, 16, 32, 64 seconds.
-    If a BaseError or unexpected exception occurs, 
-    the details are logged and a BaseError with a short standard message is raised.
+    If another exception occurs, it escalates.
 
     Args:
         action: a lambda with the code to be executed
 
     Raises:
-        BaseError if the action fails permanently
+        BaseError or unexpected exception if the action fails permanently
 
     Returns:
         the return value of action
@@ -69,27 +69,21 @@ def try_network_action(action: Callable[..., Any]) -> Any:
     for i in range(7):
         try:
             return action()
-        except ConnectionError:
+        except (ConnectionError, RequestException):
             print(f"{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...")
-            time.sleep(2 ** i)
-            continue
-        except RequestException:
-            print(f"{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...")
+            logger.error(f"Try reconnecting to DSP server, next attempt in {2 ** i} seconds...", exc_info=True)
             time.sleep(2 ** i)
             continue
         except BaseError as err:
             if regex.search(r"try again later", err.message) or regex.search(r"status code=5\d\d", err.message):
                 print(f"{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...")
+                logger.error(f"Try reconnecting to DSP server, next attempt in {2 ** i} seconds...", exc_info=True)
                 time.sleep(2 ** i)
                 continue
             else:
-                logger.exception("Permanently unable to execute the network action. See logs for more details.")
-                raise BaseError("Permanently unable to execute the network action. See logs for more details.") from None
-        except Exception:
-            logger.exception("Permanently unable to execute the network action. See logs for more details.")
-            raise BaseError("Permanently unable to execute the network action. See logs for more details.") from None
+                raise err
 
-    logger.error("Permanently unable to execute the network action.")
+    logger.error("Permanently unable to execute the network action. See logs for more details.")
     raise BaseError("Permanently unable to execute the network action. See logs for more details.")
 
 
@@ -112,7 +106,7 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
         try:
             doc = etree.parse(source=input_file)
         except etree.XMLSyntaxError as err:
-            logger.exception(f"The XML file contains the following syntax error: {err.msg}")
+            logger.error(f"The XML file contains the following syntax error: {err.msg}", exc_info=True)
             raise UserError(f"The XML file contains the following syntax error: {err.msg}") from None
     else:
         doc = input_file
@@ -168,7 +162,7 @@ def _validate_xml_tags_in_text_properties(doc: etree._ElementTree[Any]) -> bool:
     if resources_with_illegal_xml_tags:
         err_msg = f"XML-tags are not allowed in text properties with encoding=utf8. The following resources of your XML file violate this rule:\n" 
         err_msg += "\n".join(resources_with_illegal_xml_tags)
-        logger.exception(err_msg)
+        logger.error(err_msg, exc_info=True)
         raise UserError(err_msg)
     
     return True

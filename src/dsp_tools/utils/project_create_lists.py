@@ -1,4 +1,5 @@
 from typing import Any, Optional, Union
+import logging
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
@@ -8,6 +9,8 @@ from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 from dsp_tools.utils.shared import parse_json_input
 from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import login, try_network_action
+
+logger = logging.getLogger(__name__)
 
 
 def _create_list_node(
@@ -45,7 +48,8 @@ def _create_list_node(
     try:
         new_node = try_network_action(lambda: new_node.create())
     except BaseError:
-        print(f"ERROR while trying to create list node '{node['name']}'.")
+        print(f"WARNING: Cannot create list node '{node['name']}'.")
+        logger.warning("Cannot create list node '{node['name']}'.", exc_info=True)
         return {}, False
 
     # if node has child nodes, call the method recursively
@@ -90,6 +94,7 @@ def create_lists_on_server(
         )
     except BaseError:
         print("WARNING: Unable to retrieve existing lists on DSP server. Cannot check if your lists are already existing.")
+        logger.warning("Unable to retrieve existing lists on DSP server. Cannot check if your lists are already existing.", exc_info=True)
         existing_lists = []
         overall_success = False
     
@@ -176,9 +181,9 @@ def create_lists(
     try:
         project_remote = try_network_action(lambda: project_local.read())
     except BaseError:
-        raise UserError(
-            f"Unable to create the lists: The project {project_definition['project']['shortcode']} cannot be found on the DSP server."
-        ) from None
+        err_msg = f"Unable to create the lists: The project {project_definition['project']['shortcode']} cannot be found on the DSP server."
+        logger.error(err_msg, exc_info=True)
+        raise UserError(err_msg) from None
 
     # create new lists
     current_project_lists, success = create_lists_on_server(lists_to_create=lists_to_create, con=con, project_remote=project_remote)

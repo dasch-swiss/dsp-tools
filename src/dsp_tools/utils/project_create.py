@@ -3,6 +3,7 @@ of the project, the creation of groups, users, lists, resource classes, properti
 from pathlib import Path
 import re
 from typing import Any, Union, cast
+import logging
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.group import Group
@@ -18,6 +19,9 @@ from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 from dsp_tools.utils.project_create_lists import create_lists_on_server
 from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import login, parse_json_input, try_network_action
+
+
+logger = logging.getLogger(__name__)
 
 
 def _create_project_on_server(
@@ -44,8 +48,8 @@ def _create_project_on_server(
         # the normal, expected case is that this try block fails
         project_local = Project(con=con, shortcode=project_definition["project"]["shortcode"])
         project_remote: Project = try_network_action(lambda: project_local.read())
-        print(f"\tWARNING: Project '{project_remote.shortname}' ({project_remote.shortcode}) already exists on the DSP "
-              f"server. Updating it...")
+        print(f"\tWARNING: Project '{project_remote.shortname}' ({project_remote.shortcode}) already exists on the DSP server. Updating it...")
+        logger.warning(f"Project '{project_remote.shortname}' ({project_remote.shortcode}) already exists on the DSP server. Updating it...")
         # try to update the basic info
         project_remote, _ = _update_basic_info_of_project(project=project_remote, project_definition=project_definition, verbose=verbose)
         # It doesn't matter if the update is successful or not: continue anyway, because success is anyways false. 
@@ -68,18 +72,18 @@ def _create_project_on_server(
     try:
         project_remote = try_network_action(lambda: project_local.create())
     except BaseError:
-        raise UserError(
-            f"ERROR: Cannot create project '{project_definition['project']['shortname']}' "
-            f"({project_definition['project']['shortcode']}) on DSP server."
-        ) from None
+        err_msg = f"Cannot create project '{project_definition['project']['shortname']}' " \
+                  f"({project_definition['project']['shortcode']}) on DSP server."
+        logger.error(err_msg, exc_info=True)
+        raise UserError(err_msg) from None
     print(f"\tCreated project '{project_remote.shortname}' ({project_remote.shortcode}).")
     return project_remote, success
 
 
 def _update_basic_info_of_project(
-        project: Project,
-        project_definition: dict[str, Any],
-        verbose: bool
+    project: Project,
+    project_definition: dict[str, Any],
+    verbose: bool
 ) -> tuple[Project, bool]:
     """
     Updates the longname, description and keywords of a project on a DSP server. 
@@ -100,9 +104,11 @@ def _update_basic_info_of_project(
         project_remote: Project = try_network_action(lambda: project.update())
         if verbose:
             print(f"\tUpdated project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}).")
+        logger.info(f"Updated project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}).")
         return project_remote, True
     except BaseError:
         print(f"WARNING: Could not update project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}).")
+        logger.warning(f"Could not update project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}).", exc_info=True)
         return project, False
 
 
@@ -130,8 +136,10 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
             lambda: Group.getAllGroupsForProject(con=con, proj_iri=project.id)  # type: ignore
         )
     except BaseError:
-        print("WARNING: Unable to check if group names are already existing on DSP server, because it is "
-              "not possible to retrieve the remote groups from the DSP server.")
+        err_msg = "Unable to check if group names are already existing on DSP server, because it is " \
+                  "not possible to retrieve the remote groups from the DSP server."
+        print(f"WARNING: {err_msg}")
+        logger.warning(err_msg, exc_info=True)
         remote_groups = []
         overall_success = False
         
@@ -159,6 +167,7 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
             group_remote: Group = try_network_action(lambda: group_local.create())
         except BaseError:
             print(f"\tWARNING: Unable to create group '{group_name}'.")
+            logger.warning(f"Unable to create group '{group_name}'.", exc_info=True)
             overall_success = False
             continue
 
@@ -225,8 +234,10 @@ def _get_group_iris_for_user(
                 # "remote_groups" might be available from a previous loop cycle
                 remote_groups = remote_groups or try_network_action(lambda: Group.getAllGroups(con=con))
             except BaseError:
-                print(f"\tWARNING: User '{username}' is referring to the group {full_group_name} that "
-                      f"exists on the DSP server, but no groups could be retrieved from the DSP server.")
+                err_msg = f"User '{username}' is referring to the group {full_group_name} that " \
+                          f"exists on the DSP server, but no groups could be retrieved from the DSP server."
+                print(f"\tWARNING: {err_msg}")
+                logger.warning(err_msg, exc_info=True)
                 success = False
                 continue
             existing_group = [g for g in remote_groups if g.project == current_project.id and g.name == group_name]
@@ -284,8 +295,10 @@ def _get_projects_where_user_is_admin(
                 # "remote_projects" might be available from a previous loop cycle
                 remote_projects = remote_projects or try_network_action(lambda: current_project.getAllProjects(con=con))
             except BaseError:
-                print(f"\tWARNING: User '{username}' cannot be added to the projects {json_user_definition['projects']} "
-                      f"because the projects cannot be retrieved from the DSP server.")
+                err_msg = f"User '{username}' cannot be added to the projects {json_user_definition['projects']} " \
+                          f"because the projects cannot be retrieved from the DSP server."
+                print(f"\tWARNING: {err_msg}")
+                logger.warning(err_msg, exc_info=True)
                 success = False
                 continue
             in_project_list = [p for p in remote_projects if p.shortname == project_name]
@@ -333,6 +346,7 @@ def _create_users(
             # the normal case is that this try block fails
             try_network_action(lambda: User(con, email=json_user_definition["email"]).read())
             print(f"\tWARNING: User '{username}' already exists on the DSP server. Skipping...")
+            logger.warning(f"User '{username}' already exists on the DSP server. Skipping...")
             overall_success = False
             continue
         except BaseError:
@@ -377,6 +391,7 @@ def _create_users(
             try_network_action(lambda: user_local.create())
         except BaseError:
             print(f"\tWARNING: Unable to create user '{username}'.")
+            logger.warning(f"Unable to create user '{username}'.", exc_info=True)
             overall_success = False
             continue
         print(f"\tCreated user '{username}'.")
@@ -489,6 +504,7 @@ def _create_ontologies(
         )
     except BaseError:
         print("WARNING: Unable to retrieve remote ontologies. Cannot check if your ontology already exists.")
+        logger.warning("Unable to retrieve remote ontologies. Cannot check if your ontology already exists.", exc_info=True)
         project_ontologies = []
     for ontology_definition in project_definition.get("project", {}).get("ontologies", {}):
         ontology_definition = cast(dict[str, Any], ontology_definition)
@@ -510,6 +526,7 @@ def _create_ontologies(
         try:
             ontology_remote: Ontology = try_network_action(lambda: ontology_local.create())
         except BaseError:
+            logger.error(f"ERROR while trying to create ontology '{ontology_definition['name']}'.", exc_info=True)
             raise UserError(f"ERROR while trying to create ontology '{ontology_definition['name']}'. Find more info in the logs.") from None
         context.add_context(
             ontology_remote.name,
@@ -618,6 +635,7 @@ def _add_resource_classes_to_remote_ontology(
                 print(f"\tCreated resource class '{res_class['name']}'")
         except BaseError:
             print(f"WARNING: Unable to create resource class '{res_class['name']}'.")
+            logger.warning(f"Unable to create resource class '{res_class['name']}'.", exc_info=True)
             overall_success = False
 
     return last_modification_date, new_res_classes, overall_success
@@ -709,6 +727,7 @@ def _add_property_classes_to_remote_ontology(
                 print(f"\tCreated property class '{prop_class['name']}'")
         except BaseError:
             print(f"WARNING: Unable to create property class '{prop_class['name']}'.")
+            logger.warning(f"Unable to create property class '{prop_class['name']}'.", exc_info=True)
             overall_success = False
 
     return last_modification_date, overall_success
@@ -774,6 +793,7 @@ def _add_cardinalities_to_resource_classes(
                     print(f"\tAdded cardinality '{card_info['propname']}' to resource class '{res_class['name']}'")
             except BaseError:
                 print(f"WARNING: Unable to add cardinality '{qualified_propname}' to resource class {res_class['name']}.")
+                logger.warning(f"Unable to add cardinality '{qualified_propname}' to resource class {res_class['name']}.", exc_info=True)
                 overall_success = False
 
             ontology_remote.lastModificationDate = last_modification_date

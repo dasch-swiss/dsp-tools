@@ -527,7 +527,7 @@ def _create_ontologies(
             ontology_remote: Ontology = try_network_action(lambda: ontology_local.create())
         except BaseError:
             logger.error(f"ERROR while trying to create ontology '{ontology_definition['name']}'.", exc_info=True)
-            raise UserError(f"ERROR while trying to create ontology '{ontology_definition['name']}'. Find more info in the logs.") from None
+            raise UserError(f"ERROR while trying to create ontology '{ontology_definition['name']}'.") from None
         context.add_context(
             ontology_remote.name,
             ontology_remote.id + ('#' if not ontology_remote.id.endswith('#') else '')

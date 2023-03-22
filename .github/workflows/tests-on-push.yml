@@ -38,7 +38,7 @@ jobs:
           VALIDATE_ALL_CODEBASE: true         # whether to check the entire codebase or only the edited/new files
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FILTER_REGEX_EXCLUDE: src/dsp_tools/models/.+|CHANGELOG\.md|\.gitmodules|LICENSE|\.github/.+
+          FILTER_REGEX_EXCLUDE: .*(src/dsp_tools/models/.+|CHANGELOG\.md|\.gitmodules|LICENSE|\.github/.+)
           LINTER_RULES_PATH: /
           MARKDOWN_CONFIG_FILE: .markdownlint.json
           VALIDATE_BASH: true

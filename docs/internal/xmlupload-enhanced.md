@@ -52,8 +52,8 @@ dsp-tools enhanced-xmlupload --generate-test-data --size=small/medium/big data.x
 ## 2. Start DSP stack
 
 - if not already available, make a clone of the [DSP-API repository](https://github.com/dasch-swiss/dsp-api)
-- as long as it is not merged yet, use the branch "feature/dev-1828-optimize-local-setup"
-- `make init-db-test`
+- use the main branch
+- `make init-db-test-minimal`
 - `make stack-up`
 
 

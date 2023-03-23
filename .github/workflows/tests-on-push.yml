@@ -34,7 +34,7 @@ jobs:
         run: |
           npm install -g markdown-link-validator
           poetry exec check-links
-      - name: Lint Code Base
+      - name: Lint Code Base                  # GitHub's super-linter: https://github.com/github/super-linter
         uses: github/super-linter/slim@v4
         env:
           VALIDATE_ALL_CODEBASE: true         # whether to check the entire codebase or only the edited/new files
@@ -43,17 +43,22 @@ jobs:
           FILTER_REGEX_EXCLUDE: .*(src/dsp_tools/models/.*|CHANGELOG\.md)
           LINTER_RULES_PATH: /
           MARKDOWN_CONFIG_FILE: .markdownlint.json
+
           VALIDATE_BASH: true
-          VALIDATE_DOCKERFILE_HADOLINT: true
-          # VALIDATE_EDITORCONFIG: true
-          VALIDATE_GITHUB_ACTIONS: true
-          VALIDATE_JSON: true
-          VALIDATE_MARKDOWN: true
+          VALIDATE_DOCKERFILE_HADOLINT: true    # https://github.com/hadolint/hadolint
+          VALIDATE_GITHUB_ACTIONS: true         # https://github.com/rhysd/actionlint
+          VALIDATE_JSON: true                   # https://www.npmjs.com/package/eslint-plugin-json
+          VALIDATE_MARKDOWN: true               # https://github.com/igorshubovych/markdownlint-cli
+          VALIDATE_XML: true                    # http://xmlsoft.org/
+          VALIDATE_YAML: true                   # https://github.com/adrienverge/yamllint
+          VALIDATE_PYTHON_PYLINT: true          # https://pylint.pycqa.org/
           # VALIDATE_PYTHON_MYPY: true
-          VALIDATE_PYTHON_PYLINT: true
-          # VALIDATE_PYTHON_ISORT: true
-          VALIDATE_XML: true
-          VALIDATE_YAML: true
+          # VALIDATE_PYTHON_ISORT: true         # https://pypi.org/project/isort/
+          # VALIDATE_EDITORCONFIG: true         # https://github.com/editorconfig-checker/editorconfig-checker
+          # VALIDATE_JSCPD: true                # https://github.com/kucherenko/jscpd
+          # VALIDATE_JSCPD_ALL_CODEBASE: true   # lint the whole codebase. If false: lint files one by one
+          # VALIDATE_NATURAL_LANGUAGE: true     # https://textlint.github.io/
+          # VALIDATE_GITLEAKS: true             # https://github.com/gitleaks/gitleaks
       - name: unittests
         run: poetry run pytest test/unittests/
       - name: e2e tests

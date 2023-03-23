@@ -190,7 +190,7 @@ class ListNode(Model):
             self._parent = str(parent) if parent else None
         self._isRootNode = isRootNode
         if children:
-            if isinstance(children, List) and len(children) > 0 and isinstance(children[0], ListNode):
+            if isinstance(children, list) and len(children) > 0 and isinstance(children[0], ListNode):
                 self._children = children
             else:
                 raise BaseError('ERROR Children must be list of ListNodes!')

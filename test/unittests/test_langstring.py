@@ -1,7 +1,7 @@
 """unit tests for langstrings"""
 import unittest
 
-from dsp_tools.models.langstring import Languages, LangString
+from dsp_tools.models.langstring import LangString, Languages
 
 
 class TestLangString(unittest.TestCase):

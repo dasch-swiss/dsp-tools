@@ -1,14 +1,16 @@
 """unit tests for ontology creation"""
 import json
-from pathlib import Path
 import unittest
+from pathlib import Path
 from typing import Any
 
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.utils.project_create import _sort_prop_classes, _sort_resources
+from dsp_tools.utils.project_validate import (
+    _collect_link_properties, _identify_problematic_cardinalities,
+    check_for_undefined_cardinalities, check_for_undefined_super_property,
+    check_for_undefined_super_resource, validate_project)
 from dsp_tools.utils.shared import parse_json_input
-from dsp_tools.utils.project_create import _sort_resources, _sort_prop_classes
-from dsp_tools.utils.project_validate import _collect_link_properties, _identify_problematic_cardinalities, \
-    validate_project, check_for_undefined_cardinalities, check_for_undefined_super_property, check_for_undefined_super_resource
 
 
 class TestProjectCreation(unittest.TestCase):

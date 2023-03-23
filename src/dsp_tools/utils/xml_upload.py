@@ -2,6 +2,7 @@
 This module handles the import of XML data into the DSP platform.
 """
 from __future__ import annotations
+
 import base64
 import copy
 import json
@@ -12,7 +13,7 @@ import uuid
 from collections import namedtuple
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Union, cast, Tuple, Any
+from typing import Any, Optional, Union, cast
 from urllib.parse import quote_plus
 
 import pandas as pd
@@ -22,13 +23,16 @@ from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.permission import Permissions
 from dsp_tools.models.projectContext import ProjectContext
-from dsp_tools.models.resource import ResourceInstanceFactory, ResourceInstance, KnoraStandoffXmlEncoder
+from dsp_tools.models.resource import (KnoraStandoffXmlEncoder,
+                                       ResourceInstance,
+                                       ResourceInstanceFactory)
 from dsp_tools.models.sipi import Sipi
 from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.models.xmlpermission import XmlPermission
 from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
-from dsp_tools.utils.shared import try_network_action, validate_xml_against_schema, login
+from dsp_tools.utils.shared import (login, try_network_action,
+                                    validate_xml_against_schema)
 
 MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "duration_ms", "mb_per_sec"])
 
@@ -210,7 +214,7 @@ def _stash_circular_references(
     ok_resources: list[XMLResource],
     stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]]
-) -> Tuple[
+) -> tuple[
     list[XMLResource],
     list[str],
     list[XMLResource],

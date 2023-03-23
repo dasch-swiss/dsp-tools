@@ -1,13 +1,16 @@
 from typing import Any, Optional, Union
+import logging
 
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.project import Project
 from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 from dsp_tools.utils.shared import parse_json_input
 from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import login, try_network_action
+
+logger = logging.getLogger(__name__)
 
 
 def _create_list_node(
@@ -43,12 +46,10 @@ def _create_list_node(
         parent=parent_node
     )
     try:
-        new_node = try_network_action(
-            action=lambda: new_node.create(),
-            failure_msg=f"ERROR while trying to create list node '{node['name']}'."
-        )
-    except BaseError as err:
-        print(err.message)
+        new_node = try_network_action(lambda: new_node.create())
+    except BaseError:
+        print(f"WARNING: Cannot create list node '{node['name']}'.")
+        logger.warning("Cannot create list node '{node['name']}'.", exc_info=True)
         return {}, False
 
     # if node has child nodes, call the method recursively
@@ -73,6 +74,7 @@ def create_lists_on_server(
     """
     Creates the "lists" section of a JSON project definition on a DSP server.
     If a list with the same name is already existing in this project on the DSP server, this list is skipped.
+    If a node or an entire list cannot be created, an error message is printed, but the process continues.
 
     Args:
         lists_to_create: "lists" section of a JSON project definition
@@ -88,11 +90,11 @@ def create_lists_on_server(
     # retrieve existing lists
     try:
         existing_lists: list[ListNode] = try_network_action(
-            action=lambda: ListNode.getAllLists(con=con, project_iri=project_remote.id),
-            failure_msg="WARNING: Unable to retrieve existing lists on DSP server. Cannot check if your lists are already existing."
+            lambda: ListNode.getAllLists(con=con, project_iri=project_remote.id)
         )
-    except BaseError as err:
-        print(err.message)
+    except BaseError:
+        print("WARNING: Unable to retrieve existing lists on DSP server. Cannot check if your lists are already existing.")
+        logger.warning("Unable to retrieve existing lists on DSP server. Cannot check if your lists are already existing.", exc_info=True)
         existing_lists = []
         overall_success = False
     
@@ -139,12 +141,13 @@ def create_lists(
         dump: if True, the request is dumped as JSON (used for testing)
 
     Raises:
+        UserError:
+           - if the project cannot be read from the server
+           - if the connection to the DSP server cannot be established
         BaseError: 
            - if the input is invalid
            - if a problem occurred while trying to expand the Excel files
            - if the JSON file is invalid according to the schema
-           - if the connection to the DSP server cannot be established
-           - if the project cannot be read from the server
 
     Returns:
         Returns a tuple consisting of a dict and a bool. 
@@ -175,10 +178,12 @@ def create_lists(
 
     # retrieve the project
     project_local = Project(con=con, shortcode=project_definition["project"]["shortcode"])
-    project_remote = try_network_action(
-        action=lambda: project_local.read(),
-        failure_msg="ERROR while trying to create the lists: Project couldn't be read from the DSP server."
-    )
+    try:
+        project_remote = try_network_action(lambda: project_local.read())
+    except BaseError:
+        err_msg = f"Unable to create the lists: The project {project_definition['project']['shortcode']} cannot be found on the DSP server."
+        logger.error(err_msg, exc_info=True)
+        raise UserError(err_msg) from None
 
     # create new lists
     current_project_lists, success = create_lists_on_server(lists_to_create=lists_to_create, con=con, project_remote=project_remote)

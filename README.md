@@ -1,5 +1,4 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
-[![GitHub Super-Linter](https://github.com/dasch-swiss/dsp-tools/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
 
 # DSP-TOOLS - DaSCH Service Platform Tools
 

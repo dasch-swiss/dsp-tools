@@ -2,22 +2,25 @@ import json
 import re
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Optional, Any, Union, Type
+from typing import Any, Optional, Type, Union
 from urllib.parse import quote_plus
-
 
 from dsp_tools.models.bitstream import Bitstream
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.helpers import OntoIri, Actions, Cardinality, Context, DateTimeStamp
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.helpers import (Actions, Cardinality, Context,
+                                      DateTimeStamp, OntoIri)
 from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.model import Model
 from dsp_tools.models.ontology import Ontology
-from dsp_tools.models.permission import PermissionValue, Permissions
+from dsp_tools.models.permission import Permissions, PermissionValue
 from dsp_tools.models.project import Project
 from dsp_tools.models.resourceclass import HasProperty
-from dsp_tools.models.value import KnoraStandoffXml, Value, TextValue, ColorValue, DateValue, DecimalValue, GeomValue, GeonameValue, \
-    IntValue, BooleanValue, UriValue, TimeValue, IntervalValue, ListValue, LinkValue, fromJsonLdObj
+from dsp_tools.models.value import (BooleanValue, ColorValue, DateValue,
+                                    DecimalValue, GeomValue, GeonameValue,
+                                    IntervalValue, IntValue, KnoraStandoffXml,
+                                    LinkValue, ListValue, TextValue, TimeValue,
+                                    UriValue, Value, fromJsonLdObj)
 
 
 class KnoraStandoffXmlEncoder(json.JSONEncoder):

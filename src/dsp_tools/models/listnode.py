@@ -1,6 +1,6 @@
 import json
 from pprint import pprint
-from typing import List, Optional, Any, Union
+from typing import Optional, Any, Union
 from urllib.parse import quote_plus
 
 

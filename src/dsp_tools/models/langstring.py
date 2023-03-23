@@ -1,5 +1,5 @@
 from enum import Enum, unique
-from typing import Tuple, Optional, Any, Union
+from typing import Any, Optional, Union
 
 from dsp_tools.models.exceptions import BaseError
 
@@ -59,7 +59,7 @@ class LangString:
 
     def __init__(self, initvalue: LangStringParam = None):
 
-        def mymapper(p: Tuple[Union[Languages, str], str]) -> Tuple[Languages, str]:
+        def mymapper(p: tuple[Union[Languages, str], str]) -> tuple[Languages, str]:
             lmap = dict(map(lambda a: (a.value, a), Languages))
             if isinstance(p[0], str) and p[0] in lmap:
                 lang = lmap[p[0].lower()]

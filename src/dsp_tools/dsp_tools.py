@@ -28,7 +28,10 @@ from dsp_tools.utils.rosetta import upload_rosetta
 from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.stack_handling import start_stack, stop_stack
 from dsp_tools.utils.xml_upload import xml_upload
-from dsp_tools.utils.xml_upload_enhanced import generate_testdata, enhanced_xml_upload
+from dsp_tools.utils.xml_upload_enhanced import (
+    enhanced_xml_upload,
+    generate_testdata
+)
 
 
 def make_parser() -> argparse.ArgumentParser:

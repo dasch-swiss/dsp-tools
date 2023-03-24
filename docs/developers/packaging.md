@@ -104,20 +104,20 @@ the developer's machine is more similar to the user's setup.
 
 The advantages of the src layout are:
 
-  - import parity
-  - The tests run against the package as it will be installed by the user - not against the situation in the 
-    developer's repository.
-  - It is obvious to both humans and tools if a folder is a package to be distributed, or not.
-  - The editable installation is only able to import modules that will also be importable in a regular installation.
-  - For the developer, the working directory is the root of the repository, so the root will implicitly be included in 
-    `sys.path`. Users will never have the same current working directory than the developer. So, removing the packages 
-    from the root by putting them into `src` prevents some practices that will not work on the user's machine. 
+- import parity
+- The tests run against the package as it will be installed by the user - not against the situation in the 
+  developer's repository.
+- It is obvious to both humans and tools if a folder is a package to be distributed, or not.
+- The editable installation is only able to import modules that will also be importable in a regular installation.
+- For the developer, the working directory is the root of the repository, so the root will implicitly be included in 
+  `sys.path`. Users will never have the same current working directory than the developer. So, removing the packages 
+  from the root by putting them into `src` prevents some practices that will not work on the user's machine. 
 
 For more in-depth explanations, please visit the following pages:
 
-  - [https://blog.ionelmc.ro/2014/05/25/python-packaging](https://blog.ionelmc.ro/2014/05/25/python-packaging)
-  - [https://hynek.me/articles/testing-packaging](https://hynek.me/articles/testing-packaging)
-  - [https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout](https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout)
+- [https://blog.ionelmc.ro/2014/05/25/python-packaging](https://blog.ionelmc.ro/2014/05/25/python-packaging)
+- [https://hynek.me/articles/testing-packaging](https://hynek.me/articles/testing-packaging)
+- [https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout](https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout)
 
 
 ## Publishing and distribution

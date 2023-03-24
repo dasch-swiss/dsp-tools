@@ -11,9 +11,9 @@ with the data model(s).
 
 This documentation is divided into the following parts:
 
-  - Overview of the project description file (this page)
-  - [The "ontologies" section](./ontologies.md) explained in detail
-  - Some [caveats](./caveats.md) to have in mind
+- Overview of the project description file (this page)
+- [The "ontologies" section](./ontologies.md) explained in detail
+- Some [caveats](./caveats.md) to have in mind
 
 
 
@@ -102,18 +102,18 @@ The `$schema` object refers to the JSON schema for DSP data model definitions an
 
 The `project` object contains the basic metadata about the project. The following fields are required:
 
-  - shortcode
-  - shortname
-  - longname
-  - keywords
-  - ontologies
+- shortcode
+- shortname
+- longname
+- keywords
+- ontologies
 
 The following fields are optional (if one or more of these fields are not used, they should be omitted):
 
-  - descriptions
-  - lists
-  - groups
-  - users
+- descriptions
+- lists
+- groups
+- users
 
 
 
@@ -191,12 +191,12 @@ The groups that were created here are then available in the XML file in the
 
 A project specific group definition has the following elements:
 
-  - _name_ (mandatory): name of the group
-  - _descriptions_ (mandatory): description of the group with language tags in the form `"descriptions": {"<lang>": 
-    "<string>", ...}` (currently, "en", "de", "fr", "it", and "rm" are supported)
-  - _selfjoin_ (optional): true if users are allowed to join the group themselves, false (default) if a `ProjectAdmin` has 
-    to add them
-  - _status_ (optional): true (default) if the group is active, false if the group is inactive
+- _name_ (mandatory): name of the group
+- _descriptions_ (mandatory): description of the group with language tags in the form `"descriptions": {"<lang>": 
+  "<string>", ...}` (currently, "en", "de", "fr", "it", and "rm" are supported)
+- _selfjoin_ (optional): true if users are allowed to join the group themselves, 
+  false (default) if a `ProjectAdmin` has to add them
+- _status_ (optional): true (default) if the group is active, false if the group is inactive
 
 Example:
 
@@ -223,23 +223,23 @@ Example:
 
 This object contains user definitions. A user has the following elements:
 
-  - _username_: username used for login
-  - _email_: email that identifies the user, has to be unique within DSP
-  - _givenName_: first name of the user
-  - _familyName_: surname of the user
-  - _password_: password of the user
-  - _lang_: the default language of the user: "en", "de", "fr", "it", "rm" (optional, default: "en")
-  - _groups_ (optional): List of groups the user belongs to. The group names must be provided in one of the following forms:
-    - `other_project_shortname:groupname`
-    - `:groupname` (for groups defined in the current JSON project file)
-    - `SystemAdmin` (the most powerful group, built-in into DSP)
-  - _projects_ (optional): List of projects the user belongs to. The project name has to be followed by a `:` and either 
-    `member` or `admin`. This indicates if the new user has admin rights in the given project or is an ordinary
-    user. `myproject:admin` would add the user as admin to the project `myproject`. The project defined in the same
-    JSON project file can be omitted, so only `:admin` or `:member` is enough. Note that in order to give a user `:admin` 
-    rights, he also needs to be a `:member` of the project.
-    - If _projects_ is omitted, the user won't be part in any project.
-  - _status_ (optional): true (default) if the user is active, false if the user is deleted/inactive
+- _username_: username used for login
+- _email_: email that identifies the user, has to be unique within DSP
+- _givenName_: first name of the user
+- _familyName_: surname of the user
+- _password_: password of the user
+- _lang_: the default language of the user: "en", "de", "fr", "it", "rm" (optional, default: "en")
+- _groups_ (optional): List of groups the user belongs to. The group names must be provided in one of the following forms:
+  - `other_project_shortname:groupname`
+  - `:groupname` (for groups defined in the current JSON project file)
+  - `SystemAdmin` (the most powerful group, built-in into DSP)
+- _projects_ (optional): List of projects the user belongs to. The project name has to be followed by a `:` and either 
+  `member` or `admin`. This indicates if the new user has admin rights in the given project or is an ordinary
+  user. `myproject:admin` would add the user as admin to the project `myproject`. The project defined in the same
+  JSON project file can be omitted, so only `:admin` or `:member` is enough. Note that in order to give a user `:admin` 
+  rights, he also needs to be a `:member` of the project.
+  - If _projects_ is omitted, the user won't be part in any project.
+- _status_ (optional): true (default) if the user is active, false if the user is deleted/inactive
 
 Example:
 
@@ -291,12 +291,12 @@ When a project defines a list, resources can use the list values by defining a l
 
 A node of a list may have the following elements:
 
-  - `name` (mandatory): Name of the node. Has to be unique within the entire "lists" section.
-  - `labels` (mandatory): Label with language tags in the form `{"<lang>": "<label>", "<lang>": "<label>", ... }`. 
-    At least one language needs to be specified. Currently, "de", "en", "fr", "it", and "rm" are supported.
-  - `comments` (mandatory for root node, optional for all other nodes): Comment with language tags in the form 
-    `{"<lang>": "<comment>", "<lang>": "<comment>", ... }`. Currently, "de", "en", "fr", "it", and "rm" are supported. 
-  - `nodes` (optional): Array of sub-nodes.
+- `name` (mandatory): Name of the node. Has to be unique within the entire "lists" section.
+- `labels` (mandatory): Label with language tags in the form `{"<lang>": "<label>", "<lang>": "<label>", ... }`. 
+  At least one language needs to be specified. Currently, "de", "en", "fr", "it", and "rm" are supported.
+- `comments` (mandatory for root node, optional for all other nodes): Comment with language tags in the form 
+  `{"<lang>": "<comment>", "<lang>": "<comment>", ... }`. Currently, "de", "en", "fr", "it", and "rm" are supported. 
+- `nodes` (optional): Array of sub-nodes.
 
 Example of a "lists" section that contains the two lists "color" and "category":
 
@@ -518,10 +518,10 @@ node), but as node name of the first children level below the root node.
 Inside the `ontologies` array, a project may have multiple ontology definitions. 
 An ontology definition consists of the following fields:
 
-  - `name`
-  - `label`
-  - `properties`
-  - `resources`
+- `name`
+- `label`
+- `properties`
+- `resources`
 
 The `ontologies` array is [documented here](./ontologies.md)
 
@@ -532,8 +532,8 @@ The `ontologies` array is [documented here](./ontologies.md)
 DaSCH provides you with two example repositories that contain everything which is necessary to create a project and 
 upload data. Both of them also contain a JSON project definition file. You can find them here:
 
-  - [https://github.com/dasch-swiss/00A1-import-scripts](https://github.com/dasch-swiss/00A1-import-scripts)
-  - [https://github.com/dasch-swiss/082E-rosetta-scripts](https://github.com/dasch-swiss/082E-rosetta-scripts)
+- [https://github.com/dasch-swiss/00A1-import-scripts](https://github.com/dasch-swiss/00A1-import-scripts)
+- [https://github.com/dasch-swiss/082E-rosetta-scripts](https://github.com/dasch-swiss/082E-rosetta-scripts)
 
 In addition, there is another complete example of a JSON project file here:
 

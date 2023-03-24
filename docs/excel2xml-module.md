@@ -29,9 +29,9 @@ This can be done with the [CLI command `excel2xml`](./cli-commands.md#excel2xml)
 To demonstrate the usage of the `excel2xml` module, there is a GitHub repository named `00A1-import-scripts`. It 
 contains:
 
-  - a sample JSON project file
-  - sample data that fits the data model of the JSON project file
-  - a sample Python script that demonstrates how to use the module `excel2xml`.
+- a sample JSON project file
+- sample data that fits the data model of the JSON project file
+- a sample Python script that demonstrates how to use the module `excel2xml`.
 
 Navigate to [https://github.com/dasch-swiss/00A1-import-scripts](https://github.com/dasch-swiss/00A1-import-scripts) and 
 follow the steps described there. The README will teach you some basics that will be necessary to work with `excel2xml`. 
@@ -198,14 +198,14 @@ anymore how to construct a certain XML value for a certain property.
 
 Here's how the Docstrings assist you:
 
-  - method signature: names of the parameters and accepted types
-  - short explanation how the method behaves
-  - usage examples
-  - link to the DSP-TOOLS documentation of this property
-  - a short description for every parameter
-  - short description of the returned object. 
-    - Note: `etree._Element` is a type annotation of an underlying library. You don't have to care about it, as long as 
-      you proceed as described (append the returned object to the parent resource).
+- method signature: names of the parameters and accepted types
+- short explanation how the method behaves
+- usage examples
+- link to the DSP-TOOLS documentation of this property
+- a short description for every parameter
+- short description of the returned object. 
+  - Note: `etree._Element` is a type annotation of an underlying library. You don't have to care about it, as long as 
+    you proceed as described (append the returned object to the parent resource).
 
 ![docstring example](./assets/images/img-excel2xml-module-docstring.png)
 
@@ -251,8 +251,8 @@ make_text_prop(
 
 For `make_boolean_prop(cell)`, the following formats are supported:
 
-  - true: True, "true", "True", "1", 1, "yes", "Yes"
-  - false: False, "false", "False", "0", 0, "no", "No"
+- true: True, "true", "True", "1", 1, "yes", "Yes"
+- false: False, "false", "False", "0", 0, "no", "No"
 
 N/A-like values will raise an Error. So if your cell is empty, this method will not count it as false, but will raise an 
 Error. If you want N/A-like values to be counted as false, you may use a construct like this:
@@ -290,11 +290,11 @@ At the very end, save the file under a name that you can choose yourself.
 The method `check_notna(cell)` checks a value if it is usable in the context of data archiving. A value is considered 
 usable if it is
 
-  - a number (integer or float, but not numpy.nan)
-  - a boolean
-  - a string with at least one Unicode letter (matching the regex ``\\p{L}``) or number, or at least one _, !, or ?
-    (The strings "None", "<NA>", "N/A", and "-" are considered invalid.)
-  - a PropertyElement whose "value" fulfills the above criteria
+- a number (integer or float, but not numpy.nan)
+- a boolean
+- a string with at least one Unicode letter (matching the regex ``\\p{L}``) or number, or at least one _, !, or ?
+  (The strings "None", "<NA>", "N/A", and "-" are considered invalid.)
+- a PropertyElement whose "value" fulfills the above criteria
 
 Examples:
 
@@ -344,11 +344,11 @@ returns the DSP-formatted date string.
 
 Notes:
 
-  - The date can be embedded in text. 
-  - Only the first date found is returned.
-  - By default, dates are interpreted as CE (Christian era) in the Gregorian calendar.
-  - The years 0000-2999 are supported, in 4-digit form.
-  - Dates written with slashes are always interpreted in a European manner: 5/11/2021 is the 5th of November.
+- The date can be embedded in text. 
+- Only the first date found is returned.
+- By default, dates are interpreted as CE (Christian era) in the Gregorian calendar.
+- The years 0000-2999 are supported, in 4-digit form.
+- Dates written with slashes are always interpreted in a European manner: 5/11/2021 is the 5th of November.
 
 Currently supported date formats:
 

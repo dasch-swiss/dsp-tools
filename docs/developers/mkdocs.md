@@ -13,9 +13,9 @@ In our GitHub actions, we check PRs for dead links in the documentation.
 Our tool [markdown-link-validator](https://github.com/webhintio/markdown-link-validator) is only able to check internal links
 if they start with `./`. For example:
 
-  - `[prefixes]⁣(./dsp-tools-create.md#prefixes-object)` instead of  
+- `[prefixes]⁣(./dsp-tools-create.md#prefixes-object)` instead of  
   `[prefixes](dsp-tools-create.md#prefixes-object)`
-  - `![Colors_en]⁣(./assets/images/img-list-english-colors.png)` instead of  
+- `![Colors_en]⁣(./assets/images/img-list-english-colors.png)` instead of  
   `![Colors_en](assets/images/img-list-english-colors.png)`
 
 It is okay, however, to make an internal link to a title of the current document:
@@ -67,19 +67,19 @@ without anyone noticing.
 
 ### The best solution how to deal with this
 
-  - **give a unique name to every heading within the same document**
-  - **don't use special characters in headings**
+- **give a unique name to every heading within the same document**
+- **don't use special characters in headings**
 
 
 ### A short overview of Markdown tools and slug algorithms
 
-  - MkDocs uses [Python Markdown](https://python-markdown.github.io/) to translate Markdown files into HTML
+- MkDocs uses [Python Markdown](https://python-markdown.github.io/) to translate Markdown files into HTML
   (see [here](https://www.mkdocs.org/user-guide/configuration/#markdown_extensions)).
-  - Python Markdown's default slugify used to strip out all Unicode chars
+- Python Markdown's default slugify used to strip out all Unicode chars
   (see [here](https://facelessuser.github.io/pymdown-extensions/extras/slugs/)).
-  - markdown-link-validator uses [uslug](https://www.npmjs.com/package/uslug) to create the slugs 
+- markdown-link-validator uses [uslug](https://www.npmjs.com/package/uslug) to create the slugs 
   (see [here](https://github.com/webhintio/markdown-link-validator/blob/main/src/lib/mdfile.ts)).
-  - VS Code targets the CommonMark Markdown specification using the [markdown-it](https://github.com/markdown-it/markdown-it) library
+- VS Code targets the CommonMark Markdown specification using the [markdown-it](https://github.com/markdown-it/markdown-it) library
   (see [here](https://code.visualstudio.com/docs/languages/markdown#_does-vs-code-support-github-flavored-markdown)). 
 
 Another useful reading is [here](https://github.com/yzhang-gh/vscode-markdown/issues/807).

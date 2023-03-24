@@ -97,6 +97,6 @@ an `__init__.py` file is necessary or can be omitted.
 
 The information on this page is mainly based upon:
 
-  - <https://stackoverflow.com/a/20885799/14414188>
-  - <https://stackoverflow.com/a/58941536/14414188>
-  - <https://setuptools.pypa.io/en/latest/userguide/datafiles.html#accessing-data-files-at-runtime>
+- <https://stackoverflow.com/a/20885799/14414188>
+- <https://stackoverflow.com/a/58941536/14414188>
+- <https://setuptools.pypa.io/en/latest/userguide/datafiles.html#accessing-data-files-at-runtime>

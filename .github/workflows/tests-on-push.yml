@@ -34,10 +34,11 @@ jobs:
         run: |
           npm install -g markdown-link-validator
           poetry exec check-links
-      - name: Lint Code Base                  # GitHub's super-linter: https://github.com/github/super-linter
-        uses: github/super-linter/slim@v4
+      - name: Lint Code Base
+        uses: github/super-linter/slim@v4       # GitHub's super-linter: https://github.com/github/super-linter
         env:
-          VALIDATE_ALL_CODEBASE: true         # whether to check the entire codebase or only the edited/new files
+          VALIDATE_ALL_CODEBASE: false          # whether to check the entire codebase or only the edited/new files
+                                                # if a new linter is activated, set to true until all errors are resolved, then set back to false
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FILTER_REGEX_EXCLUDE: .*(src/dsp_tools/models/.*|CHANGELOG\.md)

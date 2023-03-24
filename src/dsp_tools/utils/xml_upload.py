@@ -2,6 +2,7 @@
 This module handles the import of XML data into the DSP platform.
 """
 from __future__ import annotations
+
 import base64
 import copy
 import json
@@ -12,7 +13,7 @@ import uuid
 from collections import namedtuple
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Union, cast, Tuple, Any
+from typing import Any, Optional, Union, cast
 from urllib.parse import quote_plus
 
 import pandas as pd
@@ -22,13 +23,21 @@ from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.permission import Permissions
 from dsp_tools.models.projectContext import ProjectContext
-from dsp_tools.models.resource import ResourceInstanceFactory, ResourceInstance, KnoraStandoffXmlEncoder
+from dsp_tools.models.resource import (
+    KnoraStandoffXmlEncoder,
+    ResourceInstance,
+    ResourceInstanceFactory
+)
 from dsp_tools.models.sipi import Sipi
 from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.models.xmlpermission import XmlPermission
 from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
-from dsp_tools.utils.shared import try_network_action, validate_xml_against_schema
+from dsp_tools.utils.shared import (
+    login,
+    try_network_action,
+    validate_xml_against_schema
+)
 
 MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "duration_ms", "mb_per_sec"])
 
@@ -211,7 +220,7 @@ def _stash_circular_references(
     ok_resources: list[XMLResource],
     stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]]
-) -> Tuple[
+) -> tuple[
     list[XMLResource],
     list[str],
     list[XMLResource],
@@ -252,7 +261,7 @@ def _stash_circular_references(
                                 stashed_resptr_props[res][link_prop].append(str(value.value))
                         link_prop.values.remove(value)
             else:
-                logger.exception("ERROR in remove_circular_references(): link_prop.valtype is neither text nor resptr.")
+                logger.error("ERROR in remove_circular_references(): link_prop.valtype is neither text nor resptr.")
                 raise BaseError("ERROR in remove_circular_references(): link_prop.valtype is neither text nor resptr.")
 
             if len(link_prop.values) == 0:
@@ -292,16 +301,16 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
 
     # get the salsah resource ID from the ARK and convert it to a UUID version 5 (base64 encoded)
     if ark.count("-") != 2:
-        logger.exception(f"while converting ARK '{ark}'. The ARK seems to be invalid")
+        logger.error(f"while converting ARK '{ark}'. The ARK seems to be invalid")
         raise BaseError(f"while converting ARK '{ark}'. The ARK seems to be invalid")
     project_id, resource_id, _ = ark.split("-")
     _, project_id = project_id.rsplit("/", 1)
     project_id = project_id.upper()
     if not re.match("^[0-9a-fA-F]{4}$", project_id):
-        logger.exception(f"while converting ARK '{ark}'. Invalid project shortcode '{project_id}'")
+        logger.error(f"while converting ARK '{ark}'. Invalid project shortcode '{project_id}'")
         raise BaseError(f"while converting ARK '{ark}'. Invalid project shortcode '{project_id}'")
     if not re.match("^[0-9A-Za-z]+$", resource_id):
-        logger.exception(f"while converting ARK '{ark}'. Invalid Salsah ID '{resource_id}'")
+        logger.error(f"while converting ARK '{ark}'. Invalid Salsah ID '{resource_id}'")
         raise BaseError(f"while converting ARK '{ark}'. Invalid Salsah ID '{resource_id}'")
 
     # make a UUID v5 from the namespace created above (which is a UUID itself) and the resource ID and encode it to base64
@@ -379,7 +388,7 @@ def _check_consistency_with_ontology(
     if not any([x.startswith(ontoname) for x in resclass_name_2_type.keys()]):
         err_msg = f"The <knora> tag of your XML file references the ontology '{ontoname}', " \
                   f"but the project {shortcode} on the DSP server doesn't contain an ontology with this name."
-        logger.exception(err_msg)
+        logger.error(err_msg)
         raise UserError(err_msg)
     knora_properties = resclass_name_2_type[resources[0].restype].knora_properties  # type: ignore
 
@@ -396,7 +405,7 @@ def _check_consistency_with_ontology(
                               f"('restype' must be defined in the 'resources' section of your ontology)\n" \
                       f" - other ontology:    <resource restype=\"other:restype\">   " \
                               f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)" 
-            logger.exception(err_msg)
+            logger.error(err_msg)
             raise UserError(err_msg)
 
         # check that the property types are consistent with the ontology
@@ -412,7 +421,7 @@ def _check_consistency_with_ontology(
                                   f"('propname' must be defined in the 'properties' section of your ontology)\n" \
                           f" - other ontology:    <text-prop name=\"other:propname\">   " \
                                   f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)" 
-                logger.exception(err_msg)
+                logger.error(err_msg)
                 raise UserError(err_msg)
 
     print("Resource types and properties are consistent with the ontology.")
@@ -447,7 +456,7 @@ def xml_upload(
         preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
 
     Raises:
-        BaseError in case of permanent network or software failure
+        BaseError or UserError in case of permanent network or software failure
         UserError if the XML file is invalid
     
     Returns:
@@ -478,10 +487,12 @@ def xml_upload(
     preparation_start = datetime.now()
 
     # Connect to the DaSCH Service Platform API and get the project context
-    con = Connection(server)
-    try_network_action(failure_msg="Unable to login to DSP server", action=lambda: con.login(user, password))
-    proj_context = try_network_action(failure_msg="Unable to retrieve project context from DSP server",
-                                      action=lambda: ProjectContext(con=con))
+    con = login(server=server, user=user, password=password)
+    try:
+        proj_context = try_network_action(lambda: ProjectContext(con=con))
+    except BaseError:
+        logger.error("Unable to retrieve project context from DSP server", exc_info=True)
+        raise UserError("Unable to retrieve project context from DSP server") from None
     sipi_server = Sipi(sipi, con.get_token())
 
     # make Python object representations of the XML file
@@ -495,10 +506,11 @@ def xml_upload(
             resources.append(XMLResource(child, default_ontology))
 
     # get the project information and project ontology from the server
-    res_inst_factory = try_network_action(
-        failure_msg=f"A project with shortcode {shortcode} could not be found on the DSP server", 
-        action=lambda: ResourceInstanceFactory(con, shortcode)
-    )
+    try:
+        res_inst_factory = try_network_action(lambda: ResourceInstanceFactory(con, shortcode))
+    except BaseError:
+        logger.error(f"A project with shortcode {shortcode} could not be found on the DSP server", exc_info=True)
+        raise UserError(f"A project with shortcode {shortcode} could not be found on the DSP server") from None
     permissions_lookup: dict[str, Permissions] = {s: perm.get_permission_instance() for s, perm in permissions.items()}
     resclass_name_2_type: dict[str, type] = {s: res_inst_factory.get_resclass_type(s) for s in res_inst_factory.get_resclass_names()}
 
@@ -537,7 +549,7 @@ def xml_upload(
         if stashed_resptr_props:
             nonapplied_resptr_props = _upload_stashed_resptr_props(verbose, id2iri_mapping, con, stashed_resptr_props)
         if nonapplied_resptr_props or nonapplied_xml_texts:
-            logger.exception("Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server.")
+            logger.error("Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server.")
             raise BaseError("Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server.")
     except BaseException as err:
         # The forseeable errors are already handled by the variables failed_uploads, nonapplied_xml_texts, and nonapplied_resptr_props.
@@ -627,17 +639,15 @@ def _upload_resources(
                 bitstream_start = datetime.now()
                 filetype = Path(resource.bitstream.value).suffix[1:]
                 img: Optional[dict[Any, Any]] = try_network_action(
-                    action=lambda: sipi_server.upload_bitstream(filepath=str(Path(imgdir) / Path(resource.bitstream.value))),  # type: ignore
-                    failure_msg=f'ERROR while trying to upload file "{resource.bitstream.value}" of resource '
-                                f'"{resource.label}" ({resource.id}).'
+                    lambda: sipi_server.upload_bitstream(filepath=str(Path(imgdir) / Path(resource.bitstream.value))),  # type: ignore
                 )
                 bitstream_duration = datetime.now() - bitstream_start
                 bitstream_duration_ms = bitstream_duration.seconds * 1000 + int(bitstream_duration.microseconds / 1000)
                 mb_per_sec = round((filesize / bitstream_duration_ms) * 1000, 1)
                 metrics.append(MetricRecord(resource.id, filetype, filesize, "bitstream upload", bitstream_duration_ms, mb_per_sec))
-            except BaseError as err:
-                print(err.message)
-                logger.exception(err.message)
+            except BaseError:
+                print(f'WARNING: Unable to upload file "{resource.bitstream.value}" of resource "{resource.label}" ({resource.id}).')
+                logger.warning(f'Unable to upload file "{resource.bitstream.value}" of resource "{resource.label}" ({resource.id}).', exc_info=True)
                 failed_uploads.append(resource.id)
                 continue
             bitstream_size_uploaded_mb += bitstream_all_sizes_mb[i]  # type: ignore
@@ -660,16 +670,13 @@ def _upload_resources(
                 values=properties
             )
             resource_creation_start = datetime.now()
-            created_resource: ResourceInstance = try_network_action(
-                action=lambda: resource_instance.create(),
-                failure_msg=f"ERROR while trying to create resource '{resource.label}' ({resource.id})."
-            )
+            created_resource: ResourceInstance = try_network_action(lambda: resource_instance.create())
             resource_creation_duration = datetime.now() - resource_creation_start
             resource_creation_duration_ms = resource_creation_duration.seconds * 1000 + int(resource_creation_duration.microseconds / 1000)
             metrics.append(MetricRecord(resource.id, filetype, filesize, "resource creation", resource_creation_duration_ms, ""))
-        except BaseError as err:
-            print(err.message)
-            logger.exception(err.message)
+        except BaseError:
+            print(f"WARNING: Unable to create resource '{resource.label}' ({resource.id}).")
+            logger.warning(f"Unable to create resource '{resource.label}' ({resource.id}).", exc_info=True)
             failed_uploads.append(resource.id)
             continue
         id2iri_mapping[resource.id] = created_resource.iri
@@ -712,14 +719,12 @@ def _upload_stashed_xml_texts(
             continue
         res_iri = id2iri_mapping[resource.id]
         try:
-            existing_resource = try_network_action(
-                action=lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'),
-                failure_msg=f'  Unable to upload XML texts of resource "{resource.id}", because the resource cannot be retrieved from the DSP server.'
-            )
-        except BaseError as err:
+            existing_resource = try_network_action(lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'))
+        except BaseError:
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
             # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
-            print(err.message)
+            print(f'  WARNING: Unable to upload XML texts of resource "{resource.id}", because the resource cannot be retrieved from the DSP server.')
+            logger.warning(f'Unable to upload XML texts of resource "{resource.id}", because the resource cannot be retrieved from the DSP server.', exc_info=True)
             continue
         print(f'  Upload XML text(s) of resource "{resource.id}"...')
         logger.info(f'  Upload XML text(s) of resource "{resource.id}"...')
@@ -765,15 +770,12 @@ def _upload_stashed_xml_texts(
 
                 # execute API call
                 try:
-                    try_network_action(
-                        action=lambda: con.put(path='/v2/values', jsondata=jsondata),
-                        failure_msg=f'    ERROR while uploading the xml text of "{link_prop.name}" of resource "{resource.id}"'
-                    )
-                except BaseError as err:
+                    try_network_action(lambda: con.put(path='/v2/values', jsondata=jsondata))
+                except BaseError:
                     # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
                     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
-                    print(err.message)
-                    logger.exception(err.message)
+                    print(f'    WARNING: Unable to upload the xml text of "{link_prop.name}" of resource "{resource.id}"')
+                    logger.warning(f'Unable to upload the xml text of "{link_prop.name}" of resource "{resource.id}"', exc_info=True)
                     continue
                 nonapplied_xml_texts[resource][link_prop].pop(pure_text)
                 if verbose:
@@ -844,15 +846,12 @@ def _upload_stashed_resptr_props(
             continue
         res_iri = id2iri_mapping[resource.id]
         try:
-            existing_resource = try_network_action(
-                action=lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'),
-                failure_msg=f'  Unable to upload resptrs of resource "{resource.id}", because the resource cannot be retrieved from the DSP server'
-            )
-        except BaseError as err:
+            existing_resource = try_network_action(lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'))
+        except BaseError:
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
             # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
-            print(err.message)
-            logger.exception(err.message)
+            print(f'  WARNING: Unable to upload resptrs of resource "{resource.id}", because the resource cannot be retrieved from the DSP server')
+            logger.warning(f'Unable to upload resptrs of resource "{resource.id}", because the resource cannot be retrieved from the DSP server', exc_info=True)
             continue
         print(f'  Upload resptrs of resource "{resource.id}"...')
         logger.info(f'  Upload resptrs of resource "{resource.id}"...')
@@ -873,19 +872,17 @@ def _upload_stashed_resptr_props(
                 }
                 jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '))
                 try:
-                    try_network_action(
-                        action=lambda: con.post(path='/v2/values', jsondata=jsondata),
-                        failure_msg=f'    ERROR while uploading the resptr prop of "{link_prop.name}" of resource "{resource.id}"'
-                    )
-                except BaseError as err:
+                    try_network_action(lambda: con.post(path='/v2/values', jsondata=jsondata))
+                except BaseError:
                     # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
                     # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
-                    print(err.message)
+                    print(f'    WARNING: Unable to upload the resptr prop of "{link_prop.name}" of resource "{resource.id}"')
+                    logger.warning(f'Unable to upload the resptr prop of "{link_prop.name}" of resource "{resource.id}"', exc_info=True)
                     continue
                 nonapplied_resptr_props[resource][link_prop].remove(resptr)
                 if verbose:
                     print(f'  Successfully uploaded resptr-prop of "{link_prop.name}". Value: {resptr}')
-                    logger.info(f'  Successfully uploaded resptr-prop of "{link_prop.name}". Value: {resptr}')
+                    logger.info(f'Successfully uploaded resptr-prop of "{link_prop.name}". Value: {resptr}')
 
     # make a purged version of nonapplied_resptr_props, without empty entries
     nonapplied_resptr_props = _purge_stashed_resptr_props(stashed_resptr_props=nonapplied_resptr_props, id2iri_mapping=id2iri_mapping)

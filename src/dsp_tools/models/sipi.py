@@ -1,6 +1,8 @@
 import os
-import requests
 from typing import Any
+
+import requests
+
 from dsp_tools.models.exceptions import BaseError
 
 

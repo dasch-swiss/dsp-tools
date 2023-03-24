@@ -21,28 +21,28 @@ Curious what poetry is and why we use it? Check out the respective section in th
 
 If you want to work on the code of DSP-TOOLS, you first have to do the following:
 
- - install poetry with `curl -sSL https://install.python-poetry.org | python3 -` (for Windows, see 
-   [https://python-poetry.org/docs/](https://python-poetry.org/docs/))
- - install the exec plugin with `poetry self add poetry-exec-plugin`
- - execute `poetry install`, which will: 
-     - create a virtual environment (if there isn't already one) 
-     - install all dependencies (dev and non-dev) from `poetry.lock`. If `poetry.lock` doesn't exist, it installs 
-       the dependencies from `pyproject.toml`, and creates a new `poetry.lock`.
-     - make an editable installation of DSP-TOOLS inside the virtual environment
+- install poetry with `curl -sSL https://install.python-poetry.org | python3 -` (for Windows, see 
+  [https://python-poetry.org/docs/](https://python-poetry.org/docs/))
+- install the exec plugin with `poetry self add poetry-exec-plugin`
+- execute `poetry install`, which will: 
+  - create a virtual environment (if there isn't already one) 
+  - install all dependencies (dev and non-dev) from `poetry.lock`. If `poetry.lock` doesn't exist, it installs 
+    the dependencies from `pyproject.toml`, and creates a new `poetry.lock`.
+  - make an editable installation of DSP-TOOLS inside the virtual environment
 
 There are two files defining the dependencies:
 
- - `pyproject.toml` lists the direct dependencies, ordered in two sections:
-   - `[tool.poetry.dependencies]` lists the dependencies used to run the software.
-   - `[tool.poetry.group.dev.dependencies]` lists the dependencies used for developing and testing.
- - `poetry.lock` enables deterministic installations, by exactly pinning the versions of all (sub-)dependencies. 
-   This is done automatically, you must not edit `poetry.lock`.
+- `pyproject.toml` lists the direct dependencies, ordered in two sections:
+  - `[tool.poetry.dependencies]` lists the dependencies used to run the software.
+  - `[tool.poetry.group.dev.dependencies]` lists the dependencies used for developing and testing.
+- `poetry.lock` enables deterministic installations, by exactly pinning the versions of all (sub-)dependencies. 
+  This is done automatically, you must not edit `poetry.lock`.
 
 If you want to install a new package, install it with `poetry add package`. This 
 
- - installs the package (incl. sub-dependencies) in your virtual environment
- - adds the package to the section `[tool.poetry.dependencies]` of `pyproject.toml`
- - adds the pinned versions of the package and all sub-dependencies to `poetry.lock`
+- installs the package (incl. sub-dependencies) in your virtual environment
+- adds the package to the section `[tool.poetry.dependencies]` of `pyproject.toml`
+- adds the pinned versions of the package and all sub-dependencies to `poetry.lock`
 
 If a package is only needed for development, please install it with `poetry add package --group dev`,
 so it will be added to the `[tool.poetry.group.dev.dependencies]` section of `pyproject.toml`.
@@ -116,6 +116,10 @@ The configuration is defined in `pyproject.toml`.
 You can use the configuration with `autopep8 --global-config pyproject.toml [file path]` and 
 `mypy --config-file pyproject.toml [file path]`.
 
+For Markdown files, we use [markdownlint](https://github.com/DavidAnson/markdownlint),
+but with a custom configuration specified in `.markdownlint.json`,
+which is targeted at the VS Code extension [DavidAnson.vscode-markdownlint](https://marketplace.visualstudio.com/items?itemName=DavidAnson.vscode-markdownlint).
+
 
 ### VSCode
 
@@ -126,17 +130,17 @@ In VSCode, both mypy and autopep8 can be set up as default linter and formatter 
 
 In PyCharm, mypy is available as [plugin](https://plugins.jetbrains.com/plugin/11086-mypy), 
 and PEP8 checks can be enabled in Settings > Editor > Inspections > Python > PEP 8 coding style violation.
-Technically, the PEP8 checks will then not be powered by autopep8, but by https://pycodestyle.pycqa.org/.
+Technically, the PEP8 checks will then not be powered by autopep8, but by <https://pycodestyle.pycqa.org/>.
 
 As an alternative/addition, it is also possible to install autopep8 as external tool:
 
 - `pip3 install autopep8`
 - In PyCharm Settings > Tools > External Tools, add a new tool by clicking on `+`
 - configure it as follows:
-   - Program：`autopep8`
-   - Arguments: `--in-place --aggressive --aggressive $FilePath$` 
-   - Working directory: `$ProjectFileDir$`
-   - Advanced Options > Output Filters: `$FILE_PATH$\:$LINE$\:$COLUMN$\:.*`
+  - Program: `autopep8`
+  - Arguments: `--in-place --aggressive --aggressive $FilePath$` 
+  - Working directory: `$ProjectFileDir$`
+  - Advanced Options > Output Filters: `$FILE_PATH$\:$LINE$\:$COLUMN$\:.*`
 
 You can then use it with right-click on the file > External Tools > autopep8 to reformat files in-place. 
 
@@ -163,18 +167,18 @@ mkdocs serve
 This allows you to look at a preview of the documentation in a browser. 
 
 Please note that this is not the final form how the documentation will be published.
-Rather, they are published together with the docs of DSP-API and DSP-APP on https://docs.dasch.swiss/. 
+Rather, they are published together with the docs of DSP-API and DSP-APP on <https://docs.dasch.swiss/>. 
 This happens by embedding all three repositories as git submodules 
 into the central [dsp-docs](https://github.com/dasch-swiss/dsp-docs) repository.
 If conflicting, the configurations of dsp-docs will override the configurations of the dsp-tools repository.
 In rare cases, a certain syntax is correctly rendered locally, 
-but not on https://docs.dasch.swiss/latest/DSP-TOOLS. 
+but not on <https://docs.dasch.swiss/latest/DSP-TOOLS>. 
 In order to keep this difference minimal, 
 `mkdocs.yml` of dsp-tools should be as similar as possible as `mkdocs.yml` of dsp-docs.
 
 During the centralized deployment process of all components of the DSP software stack,
-the docs of DSP-TOOLS get built from the latest release tag to https://docs.dasch.swiss/latest/DSP-TOOLS.
-This means that in order to modify the contents of https://docs.dasch.swiss/latest/DSP-TOOLS, 
+the docs of DSP-TOOLS get built from the latest release tag to <https://docs.dasch.swiss/latest/DSP-TOOLS>.
+This means that in order to modify the contents of <https://docs.dasch.swiss/latest/DSP-TOOLS>, 
 it is necessary to 
 
 - merge the modifications into the main branch of the DSP-TOOLS repository

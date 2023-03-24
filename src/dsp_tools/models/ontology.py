@@ -1,13 +1,12 @@
 import copy
 import json
 import re
-from typing import Tuple, Optional, Any, Union
+from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
-
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
 from dsp_tools.models.model import Model
 from dsp_tools.models.project import Project
 from dsp_tools.models.propertyclass import PropertyClass
@@ -147,7 +146,7 @@ class Ontology(Model):
     def resource_classes(self, value: list[ResourceClass]) -> None:
         self._resource_classes = value
 
-    def addResourceClass(self, resourceclass: ResourceClass, create: bool = False) -> Tuple[int, ResourceClass]:
+    def addResourceClass(self, resourceclass: ResourceClass, create: bool = False) -> tuple[int, ResourceClass]:
         if create:
             print('Calling resourceclass.create in Ontology.addResourceClass')
             lmd, resourceclass = resourceclass.create(self._lastModificationDate)
@@ -176,7 +175,7 @@ class Ontology(Model):
     def property_classes(self, value: list[PropertyClass]):
         self._property_classes = value
 
-    def addPropertyClass(self, propclass: PropertyClass, create: bool = False) -> Tuple[int, ResourceClass]:
+    def addPropertyClass(self, propclass: PropertyClass, create: bool = False) -> tuple[int, ResourceClass]:
         if create:
             lmd, resourceclass = propclass.create(self._lastModificationDate)
             self._lastModificationDate = lmd

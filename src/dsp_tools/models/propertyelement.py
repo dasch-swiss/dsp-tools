@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Union, Optional
+from typing import Optional, Union
 
 from dsp_tools.models.exceptions import BaseError
 

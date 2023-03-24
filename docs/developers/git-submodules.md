@@ -54,14 +54,15 @@ git submodule update --init --recursive
 ```
 
 Some notes:
- - `git clone --recurse-submodules <repo>` is shorthand for `git clone <repo>; cd <repo>; git submodule update --init --recursive`
- - `git pull --recurse-submodules` is shorthand for `git pull; git submodule update --init --recursive`
- - `--init` is necessary if you don't have the submodule `src/dsp_tools/import_scripts` yet. In all successive calls, 
-   when the submodule is already on your machine, the flag `--init` can be omitted.
- - `--recursive` is optional, in case there would be more than one (nested) submodules in the repository. 
- - Since Git 2.15, you can tell Git to use `--recurse-submodules` for all commands that support it (except `clone`), 
-   with `git config submodule.recurse true`.
- - These explanations rely on [the Git Submodules documentation](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
+
+- `git clone --recurse-submodules <repo>` is shorthand for `git clone <repo>; cd <repo>; git submodule update --init --recursive`
+- `git pull --recurse-submodules` is shorthand for `git pull; git submodule update --init --recursive`
+- `--init` is necessary if you don't have the submodule `src/dsp_tools/import_scripts` yet. In all successive calls, 
+  when the submodule is already on your machine, the flag `--init` can be omitted.
+- `--recursive` is optional, in case there would be more than one (nested) submodules in the repository. 
+- Since Git 2.15, you can tell Git to use `--recurse-submodules` for all commands that support it (except `clone`), 
+  with `git config submodule.recurse true`.
+- These explanations rely on [the Git Submodules documentation](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
 
 
 
@@ -98,7 +99,7 @@ git push origin feature-branch        # push to origin of dsp-tools
 When switching between branches, there are two options:
 
 1. By default (`submodule.recurse` is false AND branches are switched with `git checkout <branch>`), the contents of 
-  submodules will not be updated.
+   submodules will not be updated.
 2. If `submodule.recurse` has been set to true, OR if branches are switched with `git checkout <branch> 
     --recurse-submodules`, the contents of submodules will be updated according to the commit recorded in the 
    super-project. If local modifications in a submodule would be overwritten, the checkout will fail.

@@ -9,7 +9,7 @@ import jsonschema
 import networkx as nx
 import regex
 
-from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 
 
@@ -21,7 +21,7 @@ def _check_for_dublette_names(project_definition: dict[str, Any]) -> bool:
         project_definition: parsed JSON project definition
 
     Raises:
-        UserError: detailed error message if there is a dublette resource name / property name
+        BaseError: detailed error message if there is a dublette resource name / property name
 
     Returns:
         True if the resource/property names are unique
@@ -58,7 +58,7 @@ def _check_for_dublette_names(project_definition: dict[str, Any]) -> bool:
         for prop_dublette in prop_dublettes:
             err_msg += f"Property '{prop_dublette}' appears multiple times in the ontology '{ontoname}'.\n" 
         
-    raise UserError(err_msg)
+    raise BaseError(err_msg)
     
 
 

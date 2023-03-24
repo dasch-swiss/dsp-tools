@@ -111,14 +111,14 @@ class TestProjectCreation(unittest.TestCase):
 
     def test_check_for_dublette_names(self) -> None:
         with self.assertRaisesRegex(
-            UserError, 
+            BaseError, 
             r"Resource names and property names must be unique inside every ontology\.\n"
             r"Resource 'minimalResource' appears multiple times in the ontology 'testonto'\.\n"
             r"Resource 'anotherResource' appears multiple times in the ontology 'testonto'\.\n"
         ):
             _check_for_dublette_names(self.test_project_dublette_resource)
         with self.assertRaisesRegex(
-            UserError, 
+            BaseError, 
             r"Resource names and property names must be unique inside every ontology\.\n"
             r"Property 'hasText' appears multiple times in the ontology 'testonto'\.\n"
             r"Property 'hasInt' appears multiple times in the ontology 'testonto'\.\n"

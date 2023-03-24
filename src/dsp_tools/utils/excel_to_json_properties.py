@@ -147,15 +147,30 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
         for req in required:
             if not check_notna(row[req]):
                 raise BaseError(f"'{excelfile}' has a missing value in row {index + 2}, column '{req}'")
+    
+    all_names = list(df["name"])
+    duplicates: dict[int, str] = dict()
+    for index, propname in enumerate(df["name"]):
+        if all_names.count(propname) > 1:
+            duplicates[index+2] = propname
+    if duplicates:
+        err_msg = "Property names must be unique inside every ontology, but your Excel file contains dublettes:\n"
+        for row_no, propname in duplicates.items():
+            err_msg += f" - Row {row_no}: {propname}\n"
+        raise BaseError(err_msg)
+    
     if any([df.get(lang) is not None for lang in languages]):
         warnings.warn(f"The file '{excelfile}' uses {languages} as column titles, which is deprecated. "
                       f"Please use {[f'label_{lang}' for lang in languages]}")
+    
     if df.get("hlist"):
         warnings.warn(f"The file '{excelfile}' has a column 'hlist', which is deprecated. "
                       f"Please use the column 'gui_attributes' for the attribute 'hlist'.")
 
+
     # transform every row into a property
     props = [_row2prop(row, i, excelfile) for i, row in df.iterrows()]
+
 
     # write final JSON file
     _validate_properties_with_schema(props)
@@ -163,5 +178,6 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
         with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
             json.dump(props, file, indent=4, ensure_ascii=False)
             print('"properties" section was created successfully and written to file:', path_to_output_file)
+
 
     return props, True

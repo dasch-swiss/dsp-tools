@@ -50,7 +50,7 @@ def _check_for_dublette_names(project_definition: dict[str, Any]) -> bool:
     if not resnames_dublettes and not propnames_dublettes:
         return True
     
-    err_msg = f"Resource names and property names must be unique inside every ontology.\n"
+    err_msg = "Resource names and property names must be unique inside every ontology.\n"
     for ontoname, res_dublettes in resnames_dublettes.items():
         for res_dublette in res_dublettes:
             err_msg += f"Resource '{res_dublette}' appears multiple times in the ontology '{ontoname}'.\n" 

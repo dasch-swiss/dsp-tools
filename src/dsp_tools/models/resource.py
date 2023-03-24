@@ -8,19 +8,37 @@ from urllib.parse import quote_plus
 from dsp_tools.models.bitstream import Bitstream
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.helpers import (Actions, Cardinality, Context,
-                                      DateTimeStamp, OntoIri)
+from dsp_tools.models.helpers import (
+    Actions,
+    Cardinality,
+    Context,
+    DateTimeStamp,
+    OntoIri
+)
 from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.model import Model
 from dsp_tools.models.ontology import Ontology
 from dsp_tools.models.permission import Permissions, PermissionValue
 from dsp_tools.models.project import Project
 from dsp_tools.models.resourceclass import HasProperty
-from dsp_tools.models.value import (BooleanValue, ColorValue, DateValue,
-                                    DecimalValue, GeomValue, GeonameValue,
-                                    IntervalValue, IntValue, KnoraStandoffXml,
-                                    LinkValue, ListValue, TextValue, TimeValue,
-                                    UriValue, Value, fromJsonLdObj)
+from dsp_tools.models.value import (
+    BooleanValue,
+    ColorValue,
+    DateValue,
+    DecimalValue,
+    GeomValue,
+    GeonameValue,
+    IntervalValue,
+    IntValue,
+    KnoraStandoffXml,
+    LinkValue,
+    ListValue,
+    TextValue,
+    TimeValue,
+    UriValue,
+    Value,
+    fromJsonLdObj
+)
 
 
 class KnoraStandoffXmlEncoder(json.JSONEncoder):

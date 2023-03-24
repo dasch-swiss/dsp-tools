@@ -6,8 +6,12 @@ from urllib.parse import quote_plus
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.helpers import (Actions, Cardinality, Context,
-                                      DateTimeStamp)
+from dsp_tools.models.helpers import (
+    Actions,
+    Cardinality,
+    Context,
+    DateTimeStamp
+)
 from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.models.model import Model
 from dsp_tools.models.set_encoder import SetEncoder

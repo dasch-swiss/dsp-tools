@@ -12,7 +12,9 @@ from pathlib import Path
 from dsp_tools.excel2xml import excel2xml
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.excel_to_json_lists import (
-    excel2lists, validate_lists_section_with_schema)
+    excel2lists,
+    validate_lists_section_with_schema
+)
 from dsp_tools.utils.excel_to_json_project import excel2json
 from dsp_tools.utils.excel_to_json_properties import excel2properties
 from dsp_tools.utils.excel_to_json_resources import excel2resources

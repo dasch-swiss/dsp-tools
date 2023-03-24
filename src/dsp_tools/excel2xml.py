@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import dataclasses
 import datetime
 import difflib
@@ -19,7 +20,11 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import DateTimeStamp
 from dsp_tools.models.propertyelement import PropertyElement
 from dsp_tools.models.value import UriValue
-from dsp_tools.utils.shared import simplify_name, check_notna, validate_xml_against_schema
+from dsp_tools.utils.shared import (
+    check_notna,
+    simplify_name,
+    validate_xml_against_schema
+)
 
 xml_namespace_map = {
     None: "https://dasch.swiss/schema",

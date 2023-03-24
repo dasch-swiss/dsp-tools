@@ -21,28 +21,28 @@ Curious what poetry is and why we use it? Check out the respective section in th
 
 If you want to work on the code of DSP-TOOLS, you first have to do the following:
 
-  - install poetry with `curl -sSL https://install.python-poetry.org | python3 -` (for Windows, see 
-    [https://python-poetry.org/docs/](https://python-poetry.org/docs/))
-  - install the exec plugin with `poetry self add poetry-exec-plugin`
-  - execute `poetry install`, which will: 
-    - create a virtual environment (if there isn't already one) 
-    - install all dependencies (dev and non-dev) from `poetry.lock`. If `poetry.lock` doesn't exist, it installs 
-      the dependencies from `pyproject.toml`, and creates a new `poetry.lock`.
-    - make an editable installation of DSP-TOOLS inside the virtual environment
+- install poetry with `curl -sSL https://install.python-poetry.org | python3 -` (for Windows, see 
+  [https://python-poetry.org/docs/](https://python-poetry.org/docs/))
+- install the exec plugin with `poetry self add poetry-exec-plugin`
+- execute `poetry install`, which will: 
+  - create a virtual environment (if there isn't already one) 
+  - install all dependencies (dev and non-dev) from `poetry.lock`. If `poetry.lock` doesn't exist, it installs 
+    the dependencies from `pyproject.toml`, and creates a new `poetry.lock`.
+  - make an editable installation of DSP-TOOLS inside the virtual environment
 
 There are two files defining the dependencies:
 
-  - `pyproject.toml` lists the direct dependencies, ordered in two sections:
-    - `[tool.poetry.dependencies]` lists the dependencies used to run the software.
-    - `[tool.poetry.group.dev.dependencies]` lists the dependencies used for developing and testing.
-  - `poetry.lock` enables deterministic installations, by exactly pinning the versions of all (sub-)dependencies. 
-    This is done automatically, you must not edit `poetry.lock`.
+- `pyproject.toml` lists the direct dependencies, ordered in two sections:
+  - `[tool.poetry.dependencies]` lists the dependencies used to run the software.
+  - `[tool.poetry.group.dev.dependencies]` lists the dependencies used for developing and testing.
+- `poetry.lock` enables deterministic installations, by exactly pinning the versions of all (sub-)dependencies. 
+  This is done automatically, you must not edit `poetry.lock`.
 
 If you want to install a new package, install it with `poetry add package`. This 
 
-  - installs the package (incl. sub-dependencies) in your virtual environment
-  - adds the package to the section `[tool.poetry.dependencies]` of `pyproject.toml`
-  - adds the pinned versions of the package and all sub-dependencies to `poetry.lock`
+- installs the package (incl. sub-dependencies) in your virtual environment
+- adds the package to the section `[tool.poetry.dependencies]` of `pyproject.toml`
+- adds the pinned versions of the package and all sub-dependencies to `poetry.lock`
 
 If a package is only needed for development, please install it with `poetry add package --group dev`,
 so it will be added to the `[tool.poetry.group.dev.dependencies]` section of `pyproject.toml`.
@@ -134,13 +134,13 @@ Technically, the PEP8 checks will then not be powered by autopep8, but by <https
 
 As an alternative/addition, it is also possible to install autopep8 as external tool:
 
-  - `pip3 install autopep8`
-  - In PyCharm Settings > Tools > External Tools, add a new tool by clicking on `+`
-  - configure it as follows:
-    - Program: `autopep8`
-    - Arguments: `--in-place --aggressive --aggressive $FilePath$` 
-    - Working directory: `$ProjectFileDir$`
-    - Advanced Options > Output Filters: `$FILE_PATH$\:$LINE$\:$COLUMN$\:.*`
+- `pip3 install autopep8`
+- In PyCharm Settings > Tools > External Tools, add a new tool by clicking on `+`
+- configure it as follows:
+  - Program: `autopep8`
+  - Arguments: `--in-place --aggressive --aggressive $FilePath$` 
+  - Working directory: `$ProjectFileDir$`
+  - Advanced Options > Output Filters: `$FILE_PATH$\:$LINE$\:$COLUMN$\:.*`
 
 You can then use it with right-click on the file > External Tools > autopep8 to reformat files in-place. 
 
@@ -181,5 +181,5 @@ the docs of DSP-TOOLS get built from the latest release tag to <https://docs.das
 This means that in order to modify the contents of <https://docs.dasch.swiss/latest/DSP-TOOLS>, 
 it is necessary to 
 
-  - merge the modifications into the main branch of the DSP-TOOLS repository
-  - release DSP-TOOLS
+- merge the modifications into the main branch of the DSP-TOOLS repository
+- release DSP-TOOLS

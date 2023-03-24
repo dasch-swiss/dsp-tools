@@ -4,12 +4,12 @@ import re
 import warnings
 from typing import Any, Optional
 
-import jsonschema
 import jsonpath_ng.ext
+import jsonschema
 import pandas as pd
 
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.shared import prepare_dataframe, check_notna
+from dsp_tools.utils.shared import check_notna, prepare_dataframe
 
 languages = ["en", "de", "fr", "it", "rm"]
 

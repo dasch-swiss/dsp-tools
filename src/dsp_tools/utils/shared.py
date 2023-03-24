@@ -1,13 +1,14 @@
 from __future__ import annotations
+
 import copy
 import importlib.resources
 import json
 import logging
-from pathlib import Path
 import time
 import unicodedata
 from datetime import datetime
-from typing import Callable, Any, Optional, Union
+from pathlib import Path
+from typing import Any, Callable, Optional, Union
 
 import pandas as pd
 import regex
@@ -17,7 +18,6 @@ from requests import RequestException
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.propertyelement import PropertyElement
-
 
 logger = logging.getLogger(__name__)
 

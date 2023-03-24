@@ -1,5 +1,6 @@
 """end to end tests for user class"""
 import unittest
+
 import pytest
 
 from dsp_tools.models.connection import Connection

@@ -1,13 +1,13 @@
 """This module handles the ontology creation, update and upload to a DSP server. This includes the creation and update
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
-from pathlib import Path
-import re
-from typing import Any, Union, cast
 import logging
+import re
+from pathlib import Path
+from typing import Any, Union, cast
 
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.group import Group
 from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.models.group import Group
 from dsp_tools.models.helpers import Cardinality, Context, DateTimeStamp
 from dsp_tools.models.langstring import LangString
 from dsp_tools.models.ontology import Ontology
@@ -19,7 +19,6 @@ from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 from dsp_tools.utils.project_create_lists import create_lists_on_server
 from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import login, parse_json_input, try_network_action
-
 
 logger = logging.getLogger(__name__)
 

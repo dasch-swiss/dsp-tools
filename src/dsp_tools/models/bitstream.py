@@ -1,5 +1,4 @@
-from typing import Optional, Any
-
+from typing import Any, Optional
 
 from dsp_tools.models.helpers import Actions
 from dsp_tools.models.permission import Permissions

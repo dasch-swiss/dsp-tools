@@ -2,7 +2,7 @@
 import unittest
 
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.langstring import Languages, LangString
+from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.models.ontology import Ontology
 from dsp_tools.models.resourceclass import ResourceClass
 

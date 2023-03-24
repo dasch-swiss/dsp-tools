@@ -3,7 +3,7 @@ import unittest
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.helpers import DateTimeStamp
-from dsp_tools.models.permission import PermissionValue, Permissions
+from dsp_tools.models.permission import Permissions, PermissionValue
 from dsp_tools.models.resource import ResourceInstanceFactory
 from dsp_tools.models.sipi import Sipi
 from dsp_tools.models.value import KnoraStandoffXml, make_value

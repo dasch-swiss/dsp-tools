@@ -1,16 +1,15 @@
 import json
 import re
-from typing import Tuple, Optional, Any, Union
+from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
-
-from dsp_tools.models.set_encoder import SetEncoder
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.langstring import Languages, LangString
+from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
+from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.model import Model
+from dsp_tools.models.set_encoder import SetEncoder
 
 
 class PropertyClass(Model):
@@ -380,14 +379,14 @@ class PropertyClass(Model):
 
         return tmp
 
-    def create(self, last_modification_date: DateTimeStamp) -> Tuple[DateTimeStamp, 'PropertyClass']:
+    def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, 'PropertyClass']:
         jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=2)
         result = self._con.post(PropertyClass.ROUTE, jsondata)
         last_modification_date = DateTimeStamp(result['knora-api:lastModificationDate'])
         return last_modification_date, PropertyClass.fromJsonObj(self._con, self._context, result['@graph'])
 
-    def update(self, last_modification_date: DateTimeStamp) -> Tuple[DateTimeStamp, 'ResourceClass']:
+    def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, 'ResourceClass']:
         #
         # Note: Knora is able to change only one thing per call, either label or comment!
         #

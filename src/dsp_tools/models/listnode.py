@@ -1,16 +1,15 @@
 import json
 from pprint import pprint
-from typing import List, Optional, Any, Union
+from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
-
-from dsp_tools.models.set_encoder import SetEncoder
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.helpers import Actions
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.langstring import Languages, LangString
+from dsp_tools.models.helpers import Actions
+from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.models.model import Model
 from dsp_tools.models.project import Project
+from dsp_tools.models.set_encoder import SetEncoder
 
 """
 This module implements the handling (CRUD) of list nodes and adds some function to read whole lists.
@@ -190,7 +189,7 @@ class ListNode(Model):
             self._parent = str(parent) if parent else None
         self._isRootNode = isRootNode
         if children:
-            if isinstance(children, List) and len(children) > 0 and isinstance(children[0], ListNode):
+            if isinstance(children, list) and len(children) > 0 and isinstance(children[0], ListNode):
                 self._children = children
             else:
                 raise BaseError('ERROR Children must be list of ListNodes!')

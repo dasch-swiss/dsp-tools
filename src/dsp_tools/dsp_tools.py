@@ -5,26 +5,29 @@ import argparse
 import datetime
 import logging
 import logging.handlers
-from pathlib import Path
 import sys
 from importlib.metadata import version
+from pathlib import Path
 
 from dsp_tools.excel2xml import excel2xml
 from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
+from dsp_tools.utils.excel_to_json_lists import (
+    excel2lists,
+    validate_lists_section_with_schema
+)
 from dsp_tools.utils.excel_to_json_project import excel2json
 from dsp_tools.utils.excel_to_json_properties import excel2properties
 from dsp_tools.utils.excel_to_json_resources import excel2resources
+from dsp_tools.utils.generate_templates import generate_template_repo
 from dsp_tools.utils.id_to_iri import id_to_iri
-from dsp_tools.utils.project_create_lists import create_lists
 from dsp_tools.utils.project_create import create_project
+from dsp_tools.utils.project_create_lists import create_lists
 from dsp_tools.utils.project_get import get_project
 from dsp_tools.utils.project_validate import validate_project
+from dsp_tools.utils.rosetta import upload_rosetta
 from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.stack_handling import start_stack, stop_stack
 from dsp_tools.utils.xml_upload import xml_upload
-from dsp_tools.utils.generate_templates import generate_template_repo
-from dsp_tools.utils.rosetta import upload_rosetta
 
 
 def make_parser() -> argparse.ArgumentParser:

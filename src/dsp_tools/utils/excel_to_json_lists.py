@@ -1,10 +1,10 @@
 """This module handles all the operations which are used for the creation of JSON lists from Excel files."""
-import importlib.resources
 import glob
+import importlib.resources
 import json
 import os
 import re
-from typing import Any, Union, Optional, Tuple
+from typing import Any, Optional, Union
 
 import jsonschema
 import regex

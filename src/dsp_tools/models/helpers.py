@@ -2,8 +2,7 @@ import re
 import sys
 from dataclasses import dataclass
 from enum import Enum, unique
-from typing import NewType, Optional, Any, Tuple, Union, Pattern
-
+from typing import Any, NewType, Optional, Pattern, Union
 
 from dsp_tools.models.exceptions import BaseError
 
@@ -67,7 +66,7 @@ class ContextIterator:
         self._prefixes = [x for x in self._context.context]
         self._index = 0
 
-    def __next__(self) -> Tuple[Optional[str], Optional[OntoIri]]:
+    def __next__(self) -> tuple[Optional[str], Optional[OntoIri]]:
         if len(self._context.context) == 0 and self._index == 0:
             return None, None
         elif self._index < len(self._context.context):

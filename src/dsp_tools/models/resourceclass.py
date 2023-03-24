@@ -1,16 +1,20 @@
 import json
 import re
 from enum import Enum
-from typing import Tuple, Optional, Any, Union
+from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
-
-from dsp_tools.models.set_encoder import SetEncoder
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.helpers import Actions, Context, Cardinality, DateTimeStamp
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.langstring import Languages, LangString
+from dsp_tools.models.helpers import (
+    Actions,
+    Cardinality,
+    Context,
+    DateTimeStamp
+)
+from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.models.model import Model
+from dsp_tools.models.set_encoder import SetEncoder
 
 """
 This model implements the handling of resource classes. It contains two classes that work closely together:
@@ -113,7 +117,7 @@ class HasProperty(Model):
         return self._ptype
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, context: Context, jsonld_obj: Any) -> Tuple[str, 'HasProperty']:
+    def fromJsonObj(cls, con: Connection, context: Context, jsonld_obj: Any) -> tuple[str, 'HasProperty']:
         if not isinstance(con, Connection):
             raise BaseError('"con"-parameter must be an instance of Connection')
         if not isinstance(context, Context):
@@ -239,7 +243,7 @@ class HasProperty(Model):
                 tmp["@graph"][0]["rdfs:subClassOf"]["salsah-gui:guiOrder"] = self._gui_order
         return tmp
 
-    def create(self, last_modification_date: DateTimeStamp) -> Tuple[DateTimeStamp, 'ResourceClass']:
+    def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, 'ResourceClass']:
         if self._ontology_id is None:
             raise BaseError("Ontology id required")
         if self._property_id is None:
@@ -253,7 +257,7 @@ class HasProperty(Model):
         last_modification_date = DateTimeStamp(result['knora-api:lastModificationDate'])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result['@graph'])
 
-    def update(self, last_modification_date: DateTimeStamp) -> Tuple[DateTimeStamp, 'ResourceClass']:
+    def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, 'ResourceClass']:
         if self._ontology_id is None:
             raise BaseError("Ontology id required")
         if self._property_id is None:
@@ -734,14 +738,14 @@ class ResourceClass(Model):
                     tmp['@graph'][0]['rdfs:comment'] = self._comment.toJsonLdObj()
         return tmp
 
-    def create(self, last_modification_date: DateTimeStamp) -> Tuple[DateTimeStamp, 'ResourceClass']:
+    def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, 'ResourceClass']:
         jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
         result = self._con.post(ResourceClass.ROUTE, jsondata)
         last_modification_date = DateTimeStamp(result['knora-api:lastModificationDate'])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result['@graph'])
 
-    def update(self, last_modification_date: DateTimeStamp) -> Tuple[DateTimeStamp, 'ResourceClass']:
+    def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, 'ResourceClass']:
         #
         # Note: Knora is able to change only one thing per call, either label or comment!
         #

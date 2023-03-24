@@ -4,14 +4,15 @@ import unittest
 from pathlib import Path
 from typing import Any
 
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.project_create import _sort_prop_classes, _sort_resources
 from dsp_tools.utils.project_validate import (
+    _check_for_dublette_names,
+    _check_for_undefined_cardinalities,
+    _check_for_undefined_super_property,
+    _check_for_undefined_super_resource,
     _collect_link_properties,
     _identify_problematic_cardinalities,
-    check_for_undefined_cardinalities,
-    check_for_undefined_super_property,
-    check_for_undefined_super_resource,
     validate_project
 )
 from dsp_tools.utils.shared import parse_json_input
@@ -30,15 +31,23 @@ class TestProjectCreation(unittest.TestCase):
     
     test_project_nonexisting_cardinality_file = "testdata/invalid-testdata/json-project/nonexisting-cardinality.json"
     with open(test_project_nonexisting_cardinality_file) as json_file:
-        test_project_nonexisting_cardinality = json.load(json_file)
+        test_project_nonexisting_cardinality: dict[str, Any] = json.load(json_file)
     
     test_project_nonexisting_super_property_file = "testdata/invalid-testdata/json-project/nonexisting-super-property.json"
     with open(test_project_nonexisting_super_property_file) as json_file:
-        test_project_nonexisting_super_property = json.load(json_file)
+        test_project_nonexisting_super_property: dict[str, Any] = json.load(json_file)
     
     test_project_nonexisting_super_resource_file = "testdata/invalid-testdata/json-project/nonexisting-super-resource.json"
     with open(test_project_nonexisting_super_resource_file) as json_file:
-        test_project_nonexisting_super_resource = json.load(json_file)
+        test_project_nonexisting_super_resource: dict[str, Any] = json.load(json_file)
+    
+    test_project_dublette_property_file = "testdata/invalid-testdata/json-project/dublette-property.json"
+    with open(test_project_dublette_property_file) as json_file:
+        test_project_dublette_property: dict[str, Any] = json.load(json_file)
+
+    test_project_dublette_resource_file = "testdata/invalid-testdata/json-project/dublette-resource.json"
+    with open(test_project_dublette_resource_file) as json_file:
+        test_project_dublette_resource: dict[str, Any] = json.load(json_file)
     
 
     def test_parse_json_input(self) -> None:
@@ -100,6 +109,23 @@ class TestProjectCreation(unittest.TestCase):
             validate_project(self.test_project_circular_ontology)
 
 
+    def test_check_for_dublette_names(self) -> None:
+        with self.assertRaisesRegex(
+            UserError, 
+            r"Resource names and property names must be unique inside every ontology\.\n"
+            r"Resource 'minimalResource' appears multiple times in the ontology 'testonto'\.\n"
+            r"Resource 'anotherResource' appears multiple times in the ontology 'testonto'\.\n"
+        ):
+            _check_for_dublette_names(self.test_project_dublette_resource)
+        with self.assertRaisesRegex(
+            UserError, 
+            r"Resource names and property names must be unique inside every ontology\.\n"
+            r"Property 'hasText' appears multiple times in the ontology 'testonto'\.\n"
+            r"Property 'hasInt' appears multiple times in the ontology 'testonto'\.\n"
+        ):
+            _check_for_dublette_names(self.test_project_dublette_property)
+
+
     def test_circular_references_in_onto(self) -> None:
         link_properties = _collect_link_properties(self.test_project_circular_ontology)
         errors = _identify_problematic_cardinalities(self.test_project_circular_ontology, link_properties)
@@ -111,33 +137,33 @@ class TestProjectCreation(unittest.TestCase):
 
 
     def test_check_for_undefined_cardinalities(self) -> None:
-        self.assertTrue(check_for_undefined_cardinalities(self.test_project_systematic))
+        self.assertTrue(_check_for_undefined_cardinalities(self.test_project_systematic))
         with self.assertRaisesRegex(
             BaseError, 
             r"Your data model contains cardinalities with invalid propnames:\n"
             r" - Ontology 'nonexisting-cardinality-onto', resource 'TestThing': \[':CardinalityThatWasNotDefinedInPropertiesSection'\]"
         ):
-            check_for_undefined_cardinalities(self.test_project_nonexisting_cardinality)
+            _check_for_undefined_cardinalities(self.test_project_nonexisting_cardinality)
 
 
     def test_check_for_undefined_super_property(self) -> None:
-        self.assertTrue(check_for_undefined_super_property(self.test_project_systematic))
+        self.assertTrue(_check_for_undefined_super_property(self.test_project_systematic))
         with self.assertRaisesRegex(
             BaseError, 
             r"Your data model contains properties that are derived from an invalid super-property:\n"
             r" - Ontology 'nonexisting-super-property-onto', property 'hasSimpleText': \[':SuperPropertyThatWasNotDefined'\]"
         ):
-            check_for_undefined_super_property(self.test_project_nonexisting_super_property)
+            _check_for_undefined_super_property(self.test_project_nonexisting_super_property)
 
 
     def test_check_for_undefined_super_resource(self) -> None:
-        self.assertTrue(check_for_undefined_super_resource(self.test_project_systematic))
+        self.assertTrue(_check_for_undefined_super_resource(self.test_project_systematic))
         with self.assertRaisesRegex(
             BaseError, 
             r"Your data model contains resources that are derived from an invalid super-resource:\n"
             r" - Ontology 'nonexisting-super-resource-onto', resource 'TestThing2': \[':SuperResourceThatWasNotDefined'\]"
         ):
-            check_for_undefined_super_resource(self.test_project_nonexisting_super_resource)
+            _check_for_undefined_super_resource(self.test_project_nonexisting_super_resource)
 
 
 if __name__ == "__main__":

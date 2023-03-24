@@ -9,11 +9,60 @@ import jsonschema
 import networkx as nx
 import regex
 
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 
 
-def check_for_undefined_super_resource(project_definition: dict[str, Any]) -> bool:
+def _check_for_dublette_names(project_definition: dict[str, Any]) -> bool:
+    """
+    Check that the resource names and property names are unique.
+
+    Args:
+        project_definition: parsed JSON project definition
+
+    Raises:
+        UserError: detailed error message if there is a dublette resource name / property name
+
+    Returns:
+        True if the resource/property names are unique
+    """
+    resnames_dublettes: dict[str, set[str]] = dict()
+    propnames_dublettes: dict[str, set[str]] = dict()
+    for onto in project_definition["project"]["ontologies"]:
+        resnames = [r["name"] for r in onto["resources"]]
+        if len(set(resnames)) != len(resnames):
+            for elem in resnames:
+                if resnames.count(elem) > 1:
+                    if not resnames_dublettes.get(onto["name"]):
+                        resnames_dublettes[onto["name"]] = {elem,}
+                    else:
+                        resnames_dublettes[onto["name"]].add(elem)
+        
+        propnames = [p["name"] for p in onto["properties"]]
+        if len(set(propnames)) != len(propnames):
+            for elem in propnames:
+                if propnames.count(elem) > 1:
+                    if not propnames_dublettes.get(onto["name"]):
+                        propnames_dublettes[onto["name"]] = {elem,}
+                    else:
+                        propnames_dublettes[onto["name"]].add(elem)
+        
+    if not resnames_dublettes and not propnames_dublettes:
+        return True
+    
+    err_msg = f"Resource names and property names must be unique inside every ontology.\n"
+    for ontoname, res_dublettes in resnames_dublettes.items():
+        for res_dublette in res_dublettes:
+            err_msg += f"Resource '{res_dublette}' appears multiple times in the ontology '{ontoname}'.\n" 
+    for ontoname, prop_dublettes in propnames_dublettes.items():
+        for prop_dublette in prop_dublettes:
+            err_msg += f"Property '{prop_dublette}' appears multiple times in the ontology '{ontoname}'.\n" 
+        
+    raise UserError(err_msg)
+    
+
+
+def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> bool:
     """
     Check the superresources that claim to point to a resource defined in the same JSON project.
     Check if the resource they point to actually exists.
@@ -60,7 +109,7 @@ def check_for_undefined_super_resource(project_definition: dict[str, Any]) -> bo
     return True
 
 
-def check_for_undefined_super_property(project_definition: dict[str, Any]) -> bool:
+def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> bool:
     """
     Check the superproperties that claim to point to a property defined in the same JSON project.
     Check if the property they point to actually exists.
@@ -107,7 +156,7 @@ def check_for_undefined_super_property(project_definition: dict[str, Any]) -> bo
     return True
 
 
-def check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bool:
+def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bool:
     """
     Check if the propnames that are used in the cardinalities of each resource are defined in the "properties" 
     section. (DSP base properties and properties from other ontologies are not considered.)
@@ -200,12 +249,11 @@ def validate_project(
                         f"The error occurred at {err.json_path}:\n"
                         f"{err.instance}") from None
 
-    # make sure that there is no undefined superproperty or superresource
-    check_for_undefined_super_property(project_definition)
-    check_for_undefined_super_resource(project_definition)
-
-    # make sure that every cardinality was defined in the properties section
-    check_for_undefined_cardinalities(project_definition)
+    # make some checks that are too complex for JSON schema
+    _check_for_undefined_super_property(project_definition)
+    _check_for_undefined_super_resource(project_definition)
+    _check_for_undefined_cardinalities(project_definition)
+    _check_for_dublette_names(project_definition)
 
     # cardinalities check for circular references
     return _check_cardinalities_of_circular_references(project_definition)

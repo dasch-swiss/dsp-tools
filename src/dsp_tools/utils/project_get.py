@@ -37,7 +37,7 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
     if re.match("[0-9A-F]{4}", project_identifier):  # shortcode
         project = Project(con=con, shortcode=project_identifier)
     elif re.match("^[\\w-]+$", project_identifier):  # shortname
-        project = Project(con=con, shortname=project_identifier)
+        project = Project(con=con, shortname=project_identifier.lower())
     elif re.match("^(http)s?://([\\w\\.\\-~]+:?\\d{,4})(/[\\w\\-~]+)+$", project_identifier):  # iri
         project = Project(con=con, shortname=project_identifier)
     else:

@@ -1260,14 +1260,24 @@ def make_text_prop(
             # write the text into the tag, without validation
             value_.text = str(val.value)
         else:
+            # ... replace <URL> by &lt;URL&gt; ...
+            text_value = str(val.value)
+            potential_texts_between_tags = re.findall(r"<(.+?)>", text_value)
+            if potential_texts_between_tags:
+                for txt in potential_texts_between_tags:
+                    try:
+                        UriValue(txt)
+                        text_value = re.sub(rf"<{txt}>", f"&lt;{txt}&gt;", text_value)
+                    except BaseError:
+                        pass
             # enforce that the text is well-formed XML: serialize tag ...
-            content = etree.tostring(value_, encoding="unicode")
+            serialized_text_tag = etree.tostring(value_, encoding="unicode")
             # ... insert text at the very end of the string, and add an ending tag to the previously single <text/> tag ...
-            content = re.sub(r"/>$", f">{val.value}</text>", content)
+            serialized_text_tag = re.sub(r"/>$", f">{text_value}</text>", serialized_text_tag)
             # ... try to parse it again
             try:
-                value_ = etree.fromstring(content)
-            except etree.XMLSyntaxError:
+                value_ = etree.fromstring(serialized_text_tag)
+            except etree.XMLSyntaxError as err:
                 raise BaseError("The XML tags contained in a richtext property (encoding=xml) must be well-formed. "
                                 "The special characters <, > and & are only allowed to construct a tag.") from None
         prop_.append(value_)

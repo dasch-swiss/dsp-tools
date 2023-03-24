@@ -123,9 +123,9 @@ class TestXMLUpload(unittest.TestCase):
         # hardcode the expected values
         stashed_xml_texts_expected = {
             'test_thing_1': {
-                'testonto:hasRichtext': [
-                    '\n                This is <em>bold and <strong>strong</strong></em> text! It contains links to all '
-                    'resources:\n'
+                'testonto:hasRichtext': ['\n'
+                    '                This is <em>bold and <strong>strong</strong></em> text!\n'
+                    '                It contains salsah-links to all resources:\n'
                     '                <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>\n'
                     '                <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>\n'
                     '                <a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a>\n'

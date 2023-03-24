@@ -153,12 +153,21 @@ def _validate_xml_tags_in_text_properties(doc: etree._ElementTree[Any]) -> bool:
     # then: make the test
     resources_with_illegal_xml_tags = list()
     for text in doc_without_namespace.findall(path="resource/text-prop/text"):
-        if text.attrib["encoding"] == "utf8":
-            if regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(text.text)) or len(list(text.iterchildren())) > 0:
-                sourceline = f" line {text.sourceline}: " if text.sourceline else " "
-                propname = text.getparent().attrib["name"]
-                resname = text.getparent().getparent().attrib["id"]
-                resources_with_illegal_xml_tags.append(f" -{sourceline}resource '{resname}', property '{propname}'")
+        if text.attrib["encoding"] == "xml":
+            continue
+        potential_tag = regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(text.text))
+        if potential_tag:
+            try:
+                UriValue(potential_tag.group(0)[1:-1])
+                continue
+            except BaseError:
+                pass
+        num_of_children = len(list(text.iterchildren()))
+        if potential_tag or num_of_children:
+            sourceline = f" line {text.sourceline}: " if text.sourceline else " "
+            propname = text.getparent().attrib["name"]
+            resname = text.getparent().getparent().attrib["id"]
+            resources_with_illegal_xml_tags.append(f" -{sourceline}resource '{resname}', property '{propname}'")
     if resources_with_illegal_xml_tags:
         err_msg = f"XML-tags are not allowed in text properties with encoding=utf8. The following resources of your XML file violate this rule:\n" 
         err_msg += "\n".join(resources_with_illegal_xml_tags)

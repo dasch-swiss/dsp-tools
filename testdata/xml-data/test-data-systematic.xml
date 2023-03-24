@@ -67,6 +67,8 @@
             <text encoding="utf8">Bei AU1026 handelt es sich um weissgrauen Sand mit einigen mittelgrossen (&lt;10cm) sowie auch wenigen grossen Kalkbruchsteinen (&gt;10cm), die zumeist scharfkantig sind.</text>
             <text encoding="utf8">&amp;</text>
             <text encoding="utf8">&amp;amp;</text>
+            <text encoding="utf8">Bare URLs recognised as URL by DSP-APP https://dasch.swiss. It is displayed as link.</text>
+            <text encoding="utf8">If surrounded by escaped tags like this: &lt;https://dasch.swiss&gt;, the tags are displayed, and the URL still displayed as link.</text>
             <!-- <text encoding="utf8">&lt;em&gt;text&lt;/em&gt;</text>
             <text encoding="utf8">&lt;tag s=\"t\"&gt;</text> -->
         </text-prop>
@@ -84,8 +86,14 @@
             <text encoding="xml">&amp;</text>
             <text encoding="xml"><em>text</em></text>
             <text encoding="xml">text &lt;not a tag&gt; text</text>
+            <text encoding="xml">
+                Bare URLs are not displayed as links by DSP-APP: https://dasch.swiss URL.
+                Embedding them in escaped HTML-sequences doesn't help either: &lt;https://dasch.swiss&gt;
+                It's necessary to use an HTML-link like this: <a href="https://dasch.swiss">https://dasch.swiss</a>
+            </text>
             <text permissions="prop-default" encoding="xml">
-                This is <em>bold and <strong>strong</strong></em> text! It contains links to all resources:
+                This is <em>bold and <strong>strong</strong></em> text!
+                It contains salsah-links to all resources:
                 <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
                 <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>
                 <a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a>

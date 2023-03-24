@@ -417,6 +417,14 @@ class TestExcel2xml(unittest.TestCase):
             [
                 'text <text text="text" > text',
                 'text &lt;text text="text" &gt; text'
+            ],
+            [
+                'text https://dasch.swiss/ text',
+                'text https://dasch.swiss/ text'
+            ],
+            [
+                'text <https://dasch.swiss/> text',
+                'text &lt;https://dasch.swiss/&gt; text'
             ]
         ]
         for orig, exp in testcases_utf8:
@@ -442,6 +450,18 @@ class TestExcel2xml(unittest.TestCase):
             [
                 "&lt;escaped tag&gt;",
                 "&lt;escaped tag&gt;"
+            ],
+            [
+                'text https://dasch.swiss/ text',
+                'text https://dasch.swiss/ text'
+            ],
+            [
+                'text <https://dasch.swiss/> text',
+                'text &lt;https://dasch.swiss/&gt; text'
+            ],
+            [
+                '<a href="https://dasch.swiss">https://dasch.swiss</a>',
+                '<a href="https://dasch.swiss">https://dasch.swiss</a>'
             ]
         ]
         all_inputs = ""

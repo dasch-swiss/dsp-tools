@@ -679,35 +679,41 @@ and the third column is how DSP-APP displays the second column.
 
 Behaviour of simple text (`SimpleText`/`Textarea` + `utf8`):
 
-| input to `excel2xml` | XML file | DSP-APP | Remarks                                      |
-| -------------------- | -------- | ------- | -------------------------------------------- |
-| `<`                  | `&lt;`   | &lt;    |                                              |
-| `>`                  | `&gt;`   | &gt;    |                                              |
-|                      | `<`      | ⛔      | invalid XML                                  |
-|                      | `>`      | &gt;    | discouraged by XML standard, but possible    |
-| `&`                  | `&amp;`  | &amp;   |                                              |
-|                      | `&`      | ⛔      | invalid XML                                  |
-| `&gt;`               | ⛔       |         | discouraged: The leading `&` will be escaped |
-| `<tag>`              | ⛔       |         | discouraged: Simple text is not rich text    |
-|                      | `<tag>`  | ⛔      | forbidden: Simple text is not rich text      |
+| input to `excel2xml`     | XML file                       | DSP-APP                                            | Remarks                                      |
+| ------------------------ | ------------------------------ | -------------------------------------------------- | -------------------------------------------- |
+| `<`                      | `&lt;`                         | &lt;                                               |                                              |
+| `>`                      | `&gt;`                         | &gt;                                               |                                              |
+|                          | `<`                            | ⛔                                                 | invalid XML                                  |
+|                          | `>`                            | &gt;                                               | discouraged by XML standard, but possible    |
+| `&`                      | `&amp;`                        | &amp;                                              |                                              |
+|                          | `&`                            | ⛔                                                 | invalid XML                                  |
+| `&gt;`                   | ⛔                             |                                                    | discouraged: The leading `&` will be escaped |
+| `<tag>`                  | ⛔                             |                                                    | discouraged: Simple text is not rich text    |
+|                          | `<tag>`                        | ⛔                                                 | forbidden: Simple text is not rich text      |
+| `https://dasch.swiss`    | `https://dasch.swiss`          | [https://dasch.swiss](https://dasch.swiss)         |                                              |
+| `<https://dasch.swiss/>` | `&lt;https://dasch.swiss/&gt;` | &lt;[https://dasch.swiss](https://dasch.swiss)&gt; |                                              |
 
 
 Behaviour of text with markup (`Richtext` + `xml`):
 
-| input to `excel2xml`  | XML file            | DSP-APP       | Remarks                                   |
-| --------------------- | ------------------- | ------------- | ----------------------------------------- |
-| `<`                   | ⛔                  |               | invalid XML                               |
-| `>`                   | `&gt;`              | &gt;          | discouraged by XML standard, but possible |
-|                       | `<`                 | ⛔            | invalid XML                               |
-|                       | `>`                 | &gt;          | discouraged by XML standard, but possible |
-| `&lt;`                | `&lt;`              | &lt;          |                                           |
-| `&gt;`                | `&gt;`              | &gt;          |                                           |
-| `&`                   | ⛔                  |               | invalid XML                               |
-|                       | `&`                 | ⛔            | invalid XML                               |
-| `&amp;`               | `&amp;`             | &             |                                           |
-| `<em>text</em>`       | `<em>text</em>`     | _text_        |                                           |
-| `unclosed <tag> text` | ⛔                  |               | invalid XML                               |
-|                       | `&lt;not a tag&gt;` | `<not a tag>` |                                           |
+| input to `excel2xml`                                    | XML file                                                | DSP-APP                                    | Remarks                                   |
+| ------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------ | ----------------------------------------- |
+| `<`                                                     | ⛔                                                      |                                            | invalid XML                               |
+| `>`                                                     | `&gt;`                                                  | &gt;                                       | discouraged by XML standard, but possible |
+|                                                         | `<`                                                     | ⛔                                         | invalid XML                               |
+|                                                         | `>`                                                     | &gt;                                       | discouraged by XML standard, but possible |
+| `&lt;`                                                  | `&lt;`                                                  | &lt;                                       |                                           |
+| `&gt;`                                                  | `&gt;`                                                  | &gt;                                       |                                           |
+| `&`                                                     | ⛔                                                      |                                            | invalid XML                               |
+|                                                         | `&`                                                     | ⛔                                         | invalid XML                               |
+| `&amp;`                                                 | `&amp;`                                                 | &                                          |                                           |
+| `<em>text</em>`                                         | `<em>text</em>`                                         | _text_                                     |                                           |
+| `unclosed <tag> text`                                   | ⛔                                                      |                                            | invalid XML                               |
+|                                                         | `&lt;not a tag&gt;`                                     | `<not a tag>`                              |                                           |
+| `https://dasch.swiss`                                   | `https://dasch.swiss`                                   | `https://dasch.swiss`                      |                                           |
+| `<a href="https://dasch.swiss">https://dasch.swiss</a>` | `<a href="https://dasch.swiss">https://dasch.swiss</a>` | [https://dasch.swiss](https://dasch.swiss) |                                           |
+| `<https://dasch.swiss/>`                                | `&lt;https://dasch.swiss/&gt;`                          | `<https://dasch.swiss>`                    |                                           |
+
 
 
 #### Special characters: Rules

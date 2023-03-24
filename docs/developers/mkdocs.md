@@ -64,12 +64,14 @@ it doesn't complain if you use it, not even when using the `--strict` flag.
 This can lead to broken links on [https://docs.dasch.swiss/](https://docs.dasch.swiss/), 
 without anyone noticing.
 
-**The best solution how to deal with this is**
 
-- **to give a unique name to every heading within the same document**
-- **not to use special characters**
+### The best solution how to deal with this
 
-A short overview of Markdown tools and slug algorithms:
+- **give a unique name to every heading within the same document**
+- **don't use special characters in headings**
+
+
+### A short overview of Markdown tools and slug algorithms
 
 - MkDocs uses [Python Markdown](https://python-markdown.github.io/) to translate Markdown files into HTML
   (see [here](https://www.mkdocs.org/user-guide/configuration/#markdown_extensions)).

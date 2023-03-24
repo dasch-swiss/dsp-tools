@@ -11,8 +11,8 @@ To put it simple, a JSON project consists of
 
 - 0-1 "lists" sections
 - 1-n ontologies, each containing
-    - 1 "properties" section
-    - 1 "resources" section
+  - 1 "properties" section
+  - 1 "resources" section
 
 For each of these 3 sections, one or several Excel files are necessary. The Excel files and their format are described 
 below. If you want to convert the Excel files to JSON, it is possible to invoke a command for each of these sections 
@@ -21,7 +21,7 @@ separately (as described below).
 But it is more convenient to use the command that creates the entire JSON project file. In order to do so, put all 
 involved files into a folder with the following structure:
 
-```
+```text
 data_model_files
 |-- lists
 |   |-- de.xlsx
@@ -39,7 +39,7 @@ Conventions for the folder names:
 
 Then, use the following command:
 
-```
+```bash
 dsp-tools excel2json data_model_files project.json
 ```
 
@@ -99,10 +99,10 @@ The expected columns are:
   (mandatory): The unique identifier of the property
 - [`Cardinality`](./json-project/ontologies.md#resource-cardinalities) 
   (mandatory): Indicates how often the property may occur. The possible values are:
-    - `"1"`: exactly once (mandatory one value and only one)
-    - `"0-1"`: The value may be omitted, but can occur only once.
-    - `"1-n"`: At least one value must be present, but multiple values may be present.
-    - `"0-n"`: The value may be omitted, but may also occur multiple times.
+  - `"1"`: exactly once (mandatory one value and only one)
+  - `"0-1"`: The value may be omitted, but can occur only once.
+  - `"1-n"`: At least one value must be present, but multiple values may be present.
+  - `"0-n"`: The value may be omitted, but may also occur multiple times.
 - [`gui_order`](./json-project/ontologies.md#resource-cardinalities) 
   (optional): By default, DSP-APP displays the properties in the order how they are listed in the Excel sheet.
   If you prefer another order, you can make a numbering in this column.
@@ -142,11 +142,11 @@ The expected columns are:
 - [`object`](./json-project/ontologies.md#property-object-gui_element-gui_attributes) 
   (mandatory): Target value of this property. 
   Must be one of the values listed in the documentation.
-     - If the property is derived from `hasValue`, 
-       the type of the property must be further specified by the object it takes, 
-       e.g. `TextValue`, `ListValue`, or `IntValue`. 
-     - If the property is derived from `hasLinkTo`, 
-       the `object` specifies the resource class that this property refers to.
+  - If the property is derived from `hasValue`, 
+      the type of the property must be further specified by the object it takes, 
+      e.g. `TextValue`, `ListValue`, or `IntValue`. 
+  - If the property is derived from `hasLinkTo`, 
+      the `object` specifies the resource class that this property refers to.
 - [`gui_element`](./json-project/ontologies.md#property-object-gui_element-gui_attributes) 
   (mandatory): The graphic component, defines how this property should be displayed.
   Depends on the value of `object`: 
@@ -204,7 +204,7 @@ Some notes:
 
 The output of the above command, with the template files, is:
 
-```JSON
+```json
 {
     "lists": [
         {

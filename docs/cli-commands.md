@@ -9,9 +9,9 @@ Most of the commands documented on this page
 assume that you know how to address the subdomains of a DSP server.
 There are three relevant URLs you should know about:
 
- - Subdomain `admin` stands for the DSP-APP frontend that you look at in your browser
- - Subdomain `api` stands for the DSP-API (where DSP-TOOLS sends its data to) 
- - Subdomain `iiif` stands for the SIPI server interface (where DSP-TOOLS sends the multimedia files to)
+- Subdomain `admin` stands for the DSP-APP frontend that you look at in your browser
+- Subdomain `api` stands for the DSP-API (where DSP-TOOLS sends its data to) 
+- Subdomain `iiif` stands for the SIPI server interface (where DSP-TOOLS sends the multimedia files to)
 
 This means that for uploading data to a DSP server 
 on the domain `dasch.swiss`, 
@@ -108,7 +108,7 @@ The following options are available:
 - `-S` | `--sipi` (optional, default: `http://0.0.0.0:1024`): URL of the SIPI server where DSP-TOOLS sends the multimedia files to 
 - `-i` | `--imgdir` (optional, default: `.`): folder from where the paths in the `<bitstream>` tags are evaluated
 - `-I` | `--incremental` (optional) : The links in the XML file point to IRIs (on the server) 
-                                      instead of IDs (in the same XML file).
+                                    instead of IDs (in the same XML file).
 - `-V` | `--validate` (optional): validate the XML file without uploading it
 - `-v` | `--verbose` (optional): print more information about the progress to the console
 - `-m` | `--metrics` (optional): write metrics into a 'metrics' folder
@@ -142,7 +142,7 @@ The expected XML format is [documented here](./file-formats/xml-data-file.md).
 
 This command creates a JSON project definition file from a nested folder structure with Excel files.
 
-``` 
+```bash
 dsp-tools excel2json excelfolder project_definition.json
 ```
 
@@ -214,9 +214,9 @@ dsp-tools excel2xml data_source.xlsx project_shortcode ontology_name
 
 Arguments:
 
- - data_source.xlsx (mandatory): path to the CSV or XLS(X) file containing the data
- - project_shortcode (mandatory): shortcode of the project that this data belongs to
- - ontology_name (mandatory): name of the ontology that the data belongs to
+- data_source.xlsx (mandatory): path to the CSV or XLS(X) file containing the data
+- project_shortcode (mandatory): shortcode of the project that this data belongs to
+- ontology_name (mandatory): name of the ontology that the data belongs to
 
 The expected Excel format is [documented here](./file-formats/excel2xml.md).
 

@@ -8,7 +8,7 @@ There are a number of tasks necessary to develop and distribute a Python package
 these processes. The [Python Packaging User Guide](https://packaging.python.org) lists the following, among others:
 
 | Task                   | poetry | Hatch | pipenv | venv | build | setuptools | flit | twine |
-|------------------------|--------|-------|--------|------|-------|------------|------|-------|
+| ---------------------- | ------ | ----- | ------ | ---- | ----- | ---------- | ---- | ----- |
 | Dependency management  | X      |       | X      |      |       |            |      |       |
 | Virtual environment    | X      | X     | X      | X    |       |            |      |       |
 | Build frontend         | X      | X     |        |      | X     |            |      |       |
@@ -22,7 +22,7 @@ There are many configuration and metadata files that can be found on the top lev
 used in the DSP-TOOLS repository are:
 
 | File           | Purpose                                                                        |
-|----------------|--------------------------------------------------------------------------------|
+| -------------- | ------------------------------------------------------------------------------ |
 | README.md      | Markdown-formatted infos for developers                                        |
 | pyproject.toml | Modern configuration/metadata file replacing the deprecated files listed below |
 | .gitignore     | List of files not under version control (won't be uploaded to GitHub)          |
@@ -34,16 +34,16 @@ used in the DSP-TOOLS repository are:
 
 In earlier times, there were some more configuration files, but thanks to poetry, they are not necessary anymore:
 
-| Deprecated file      | Purpose                                             | Replaced by                                          |
-|----------------------|-----------------------------------------------------|------------------------------------------------------|
-| MANIFEST.in          | files to include into distribution                  | pyproject.toml: [tool.poetry.include]                |
-| setup.py             | project metadata, dependencies                      | pyproject.toml                                       |
-| setup.cfg            | configuration for setuptools                        | pyproject.toml                                       |
-| requirements.txt     | all (sub-)dependencies                              | pyproject.toml: [tool.poetry.dependencies]           |
-| dev-requirements.txt | additional dependencies for development             | pyproject.toml: [tool.poetry.group.dev.dependencies] |
-| Pipfile              | direct dependencies                                 | pyproject.toml: [tool.poetry.dependencies]           |
-| Pipfile.lock         | pinned dependencies                                 | poetry.lock                                          |
-| Makefile             | commands that can be executed with `make [command]` | pyproject.toml: [tool.poetry-exec-plugin.commands]   |
+| Deprecated file      | Purpose                                             | Replaced by                                            |
+| -------------------- | --------------------------------------------------- | ------------------------------------------------------ |
+| MANIFEST.in          | files to include into distribution                  | pyproject.toml: `[tool.poetry.include]`                |
+| setup.py             | project metadata, dependencies                      | pyproject.toml                                         |
+| setup.cfg            | configuration for setuptools                        | pyproject.toml                                         |
+| requirements.txt     | all (sub-)dependencies                              | pyproject.toml: `[tool.poetry.dependencies]`           |
+| dev-requirements.txt | additional dependencies for development             | pyproject.toml: `[tool.poetry.group.dev.dependencies]` |
+| Pipfile              | direct dependencies                                 | pyproject.toml: `[tool.poetry.dependencies]`           |
+| Pipfile.lock         | pinned dependencies                                 | poetry.lock                                            |
+| Makefile             | commands that can be executed with `make [command]` | pyproject.toml: `[tool.poetry-exec-plugin.commands]`   |
 
 
 

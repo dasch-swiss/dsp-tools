@@ -11,7 +11,7 @@ uniquely identify them inside DSP. This file should be kept if data is later add
 
 The import file must start with the standard XML header:
 
-```
+```xml
 <?xml version='1.0' encoding='utf-8'?>
 ```
 
@@ -22,8 +22,7 @@ The `<knora>` element describes all resources that should be imported. It has th
 
 - `xmlns`: `"https://dasch.swiss/schema"` (required)
 - `xmlns:xsi`: `"http://www.w3.org/2001/XMLSchema-instance"` (required)
-- `xsi:schemaLocation`: `"https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd"` (
-  required)
+- `xsi:schemaLocation`: `"https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_toolresources/schema/data.xsd"` (required)
 - `shortcode`: project shortcode, e.g. "0801" (required)
 - `default-ontology`: name of the ontology (required)
 
@@ -56,15 +55,15 @@ The DSP server provides access control for every resource and every property.
 The user doesn't hold the permissions directly, but belongs to an arbitrary number of groups which hold the
 permissions. There are **built-in groups** and **project specific groups**:
 
- - **Built-in groups**: Every user is automatically in at least one of the following built-in groups:
-     - `UnknownUser`: The user is not known to DSP (not logged in).
-     - `KnownUser`: The user is logged in, but not a member of the project the data element belongs to.
-     - `ProjectMember`: The user belongs to the same project as the data element.
-     - `ProjectAdmin`: The user is project administrator in the project the data element belongs to.
-     - `Creator`: The user is the owner of the element (created the element).
-     - `SystemAdmin`: The user is a system administrator.
- - **Project specific groups**: 
-     - can be defined in the [JSON project file](./json-project/overview.md#groups)
+- **Built-in groups**: Every user is automatically in at least one of the following built-in groups:
+  - `UnknownUser`: The user is not known to DSP (not logged in).
+  - `KnownUser`: The user is logged in, but not a member of the project the data element belongs to.
+  - `ProjectMember`: The user belongs to the same project as the data element.
+  - `ProjectAdmin`: The user is project administrator in the project the data element belongs to.
+  - `Creator`: The user is the owner of the element (created the element).
+  - `SystemAdmin`: The user is a system administrator.
+- **Project specific groups**: 
+  - can be defined in the [JSON project file](./json-project/overview.md#groups)
 
 
 ### Rights
@@ -119,7 +118,7 @@ Once defined, the permission IDs can be used as `permissions` attribute in the `
 important to note that a resource doesn't inherit its permissions to its properties. Each property must have its own 
 permissions. So, in the following example, the bitstreams don't inherit the permissions from their resource:
 
-```
+```xml
 <resource ...>
     <bitstream permissions="prop-default">images/EURUS015a.jpg</bitstream>
 </resource>
@@ -133,10 +132,10 @@ permissions. So, in the following example, the bitstreams don't inherit the perm
 
 To take as example `KnownUser`, i.e. a logged-in user who is not member of the project:
 
- - With `permissions="prop-default"`, he has `V` rights on the image: Normal view.
- - With `permissions="prop-restricted"`, he has `RV` rights on the image: Blurred image.
- - With a blank `<bitstream>` tag, he has no rights on the image: No view possible. Only users from `ProjectAdmin` 
-   upwards are able to look at the image.
+- With `permissions="prop-default"`, he has `V` rights on the image: Normal view.
+- With `permissions="prop-restricted"`, he has `RV` rights on the image: Blurred image.
+- With a blank `<bitstream>` tag, he has no rights on the image: No view possible. Only users from `ProjectAdmin` 
+  upwards are able to look at the image.
 
 
 ## Describing resources with the &lt;resource&gt; element
@@ -148,12 +147,12 @@ A `<resource>` element contains all necessary information to create a resource. 
 - `id` (required): a unique, arbitrary string providing a unique ID to the resource in order to be referencable by other 
   resources; the ID is only used during the import process and later replaced by the IRI used internally by DSP 
 - `permissions` (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not 
-  even view rights): a reference to a permission ID
+    even view rights): a reference to a permission ID
 - `iri` (optional): a custom IRI, used when migrating existing resources (DaSCH-internal only)
 - `ark` (optional): a version 0 ARK, used when migrating existing resources. It is not possible 
   to use `iri` and `ark` in the same resource. When `ark` is used, it overrides `iri` (DaSCH-internal only).
-- `creation_date` (optional): the creation date of the resource, used when migrating existing resources
-  . It must be formatted according to the constraints of [xsd:dateTimeStamp](https://www.w3.org/TR/xmlschema11-2/#dateTimeStamp), 
+- `creation_date` (optional): the creation date of the resource, used when migrating existing resources.
+  It must be formatted according to the constraints of [xsd:dateTimeStamp](https://www.w3.org/TR/xmlschema11-2/#dateTimeStamp), 
   which means that the timezone is required, e.g.: `2005-10-23T13:45:12.502951+02:00` (DaSCH-internal only)
 
 A complete `<resource>` element may look as follows:
@@ -171,6 +170,7 @@ For every property that the ontology requires, the `<resource>` element contains
 element (e.g. `<integer-prop name="property_name>`). The property element contains one or more values.
 
 Example of a property element of type integer with two values:
+
 ```xml
 <integer-prop name=":hasInteger">
     <integer permissions="prop-default">4711</integer>
@@ -211,7 +211,7 @@ Notes:
   can be modified with the flag [`--imgdir`](../cli-commands.md#xmlupload). If you keep the default,
   it is recommended to choose the project folder as working directory, `my_project` in the example below:
 
-```
+```text
 my_project
 ├── files
 │   ├── data_model.json
@@ -221,7 +221,7 @@ my_project
     └── cat.jpg
 ```
 
-```
+```bash
 my_project % dsp-tools xmlupload files/data_file.xml
 ```
 
@@ -243,6 +243,7 @@ Attributes:
 - `permissions` : Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 
 Example of a public image inside a `StillImageRepresentation`:
+
 ```xml
 <resource restype=":Image" id="image_1" label="image_1" permissions="res-default">
     <bitstream permissions="prop-default">postcards/images/EURUS015a.jpg</bitstream>
@@ -269,7 +270,8 @@ Attributes:
 - `comment`: a comment for this specific value (optional)
 
 Example of a public and a hidden boolean property:
-```
+
+```xml
 <boolean-prop name=":hasBoolean">
   <boolean permissions="prop-default">true</boolean>
 </boolean-prop>
@@ -299,6 +301,7 @@ Attributes:
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden color value:
+
 ```xml
 <color-prop name=":hasColor">
     <color permissions="prop-default">#00ff66</color>
@@ -320,7 +323,7 @@ Attributes:
 
 the `<date>` element contains a DSP-specific date value. It has the following format:
 
-```
+```text
 calendar:epoch:yyyy-mm-dd:epoch:yyyy-mm-dd
 ```
 
@@ -337,10 +340,10 @@ Notes:
 - If start and end date match, it's an exact date. 
 - If start and end date don't match, it's a range.
 - If the end date is omitted, it's a range from the earliest possible beginning of the start date to the latest possible 
-  end of the start date. For example:
-    - "1893" will be expanded to a range from January 1st 1893 to December 31st 1893.
-    - "1893-01" will be expanded to a range from January 1st 1893 to January 31st 1893.
-    - "1893-01-01" will be expanded to the exact date January 1st 1893 to January 1st 1893 (technically also a range).
+end of the start date. For example:
+  - "1893" will be expanded to a range from January 1st 1893 to December 31st 1893.
+  - "1893-01" will be expanded to a range from January 1st 1893 to January 31st 1893.
+  - "1893-01-01" will be expanded to the exact date January 1st 1893 to January 1st 1893 (technically also a range).
 
 Attributes:
 
@@ -348,6 +351,7 @@ Attributes:
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden date value:
+
 ```xml
 <date-prop name=":hasDate">
   <date permissions="prop-default">GREGORIAN:CE:2014-01-31</date>
@@ -375,6 +379,7 @@ Attributes:
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden decimal value:
+
 ```xml
 <decimal-prop name=":hasDecimal">
     <decimal permissions="prop-default">3.14159</decimal>
@@ -414,7 +419,8 @@ Attributes:
 - `comment`: a comment for this specific value (optional)
 
 Example:
-```
+
+```xml
 <geometry-prop name="hasGeometry">
     <geometry permissions="prop-default">
         {
@@ -480,6 +486,7 @@ Attributes:
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public link to Vienna and a hidden link to Basel:
+
 ```xml
 <geoname-prop name=":hasLocation">
     <geoname permissions="prop-default">2761369</geoname>
@@ -507,6 +514,7 @@ Attributes:
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden integer value:
+
 ```xml
 <integer-prop name=":hasInteger">
     <integer permissions="prop-default">4711</integer>
@@ -537,6 +545,7 @@ Attributes:
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden interval value:
+
 ```xml
 <interval-prop name=":hasInterval">
     <interval permissions="prop-default">60.5:120.5</interval>   <!-- 0:01:00.5 - 0:02:00.5 -->
@@ -567,6 +576,7 @@ Attributes:
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden list value:
+
 ```xml
 <list-prop list="category" name=":hasCategory">
     <list permissions="prop-default">physics</list>
@@ -596,6 +606,7 @@ Attributes:
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public link to `<resource id="res_1" ...>` and a hidden link to and `<resource id="res_2" ...>`:
+
 ```xml
 <resptr-prop name=":hasReferenceTo">
     <resptr permissions="prop-default">res_1</resptr>
@@ -618,14 +629,15 @@ Attributes:
 The `<text>` element has the following attributes:
 
 - `encoding` (required)
-    - `utf8`: simple text without markup
-    - `xml`: complex text with markup. It must follow the XML format as defined by the
-    [DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/xml-to-standoff-mapping/).
+  - `utf8`: simple text without markup
+  - `xml`: complex text with markup. It must follow the XML format as defined by the
+  [DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/xml-to-standoff-mapping/).
 - `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions 
   at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a public and a hidden text:
+
 ```xml
 <text-prop name=":hasDescription">
     <text encoding="xml" permissions="prop-default">Probe bei "Wimberger". Lokal in Wien?</text>
@@ -693,7 +705,7 @@ Behaviour of text with markup (`Richtext` + `xml`):
 | `&`                   | ⛔                  |               | invalid XML                               |
 |                       | `&`                 | ⛔            | invalid XML                               |
 | `&amp;`               | `&amp;`             | &             |                                           |
-| `<em>text</em>`       | `<em>text</em>`     | *text*        |                                           |
+| `<em>text</em>`       | `<em>text</em>`     | _text_        |                                           |
 | `unclosed <tag> text` | ⛔                  |               | invalid XML                               |
 |                       | `&lt;not a tag&gt;` | `<not a tag>` |                                           |
 
@@ -750,13 +762,13 @@ For example, the day value can never be 32 and cannot be 29 for month 02 and yea
 The timezone is defined as follows:
 
 - A plus (+) or minus (-) sign that is followed by hh:mm:
-    - `+`: Indicates that the specified time instant is in a time zone that is ahead of the UTC time by hh hours and mm
-      minutes.
-    - `-`: Indicates that the specified time instant is in a time zone that is behind UTC time by hh hours and mm
-      minutes.
-    - `hh`: a two-digit numeral (with leading zeros as required) that represents the hours. The value must be between
-      -14 and +14, inclusive.
-    - `mm`: a two-digit numeral that represents the minutes. The value must be zero when hh is equal to 14.
+  - `+`: Indicates that the specified time instant is in a time zone that is ahead of the UTC time by hh hours and mm
+    minutes.
+  - `-`: Indicates that the specified time instant is in a time zone that is behind UTC time by hh hours and mm
+    minutes.
+  - `hh`: a two-digit numeral (with leading zeros as required) that represents the hours. The value must be between
+    -14 and +14, inclusive.
+  - `mm`: a two-digit numeral that represents the minutes. The value must be zero when hh is equal to 14.
 - Z: The literal Z, which represents the time in UTC (Z represents Zulu time, which is equivalent to UTC). Specifying Z
   for the time zone is equivalent to specifying +00:00 or -00:00.
 
@@ -766,6 +778,7 @@ Attributes:
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden time value:
+
 ```xml
 <time-prop name=":hasTime">
     <time permissions="prop-default">2019-10-23T13:45:12Z</time>
@@ -794,6 +807,7 @@ Attributes:
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden URI:
+
 ```xml
 <uri-prop name=":hasURI">
     <uri permissions="prop-default">http://www.groove-t-gang.ch</uri>
@@ -818,6 +832,7 @@ See also [the related part of the JSON project documentation](./json-project/cav
 - `isAnnotationOf` (1)
 
 Example:
+
 ```xml
 <annotation label="Annotation to another resource" id="annotation_0" permissions="res-default">
     <text-prop name="hasComment">
@@ -843,6 +858,7 @@ A `<region>` resource defines a region of interest (ROI) in an image. It must ha
 - `hasComment` (1-n)
 
 Example:
+
 ```xml
 <region label="Rectangle in image" id="region_0" permissions="res-default">
     <color-prop name="hasColor">
@@ -886,6 +902,7 @@ predefined properties:
 - `hasLinkTo` (1-n)
 
 Example:
+
 ```xml
 <link label="Link between three resources" id="link_obj_0" permissions="res-default">
     <text-prop name="hasComment">

@@ -54,7 +54,7 @@ jobs:
           VALIDATE_YAML: true                   # https://github.com/adrienverge/yamllint
           VALIDATE_PYTHON_PYLINT: true          # https://pylint.pycqa.org/
           VALIDATE_PYTHON_ISORT: true           # https://pypi.org/project/isort/
-          VALIDATE_GITLEAKS: true             # https://github.com/gitleaks/gitleaks
+          VALIDATE_GITLEAKS: true               # https://github.com/gitleaks/gitleaks
           # VALIDATE_PYTHON_MYPY: true
           # VALIDATE_EDITORCONFIG: true         # https://github.com/editorconfig-checker/editorconfig-checker
           # VALIDATE_JSCPD: true                # https://github.com/kucherenko/jscpd

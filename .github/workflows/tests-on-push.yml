@@ -37,7 +37,7 @@ jobs:
       - name: Lint Code Base
         uses: github/super-linter/slim@v4       # GitHub's super-linter: https://github.com/github/super-linter
         env:
-          VALIDATE_ALL_CODEBASE: false          # whether to check the entire codebase or only the edited/new files
+          VALIDATE_ALL_CODEBASE: true           # whether to check the entire codebase or only the edited/new files
                                                 # if a new linter is activated, set to true until all errors are resolved, then set back to false
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -53,8 +53,8 @@ jobs:
           VALIDATE_XML: true                    # http://xmlsoft.org/
           VALIDATE_YAML: true                   # https://github.com/adrienverge/yamllint
           VALIDATE_PYTHON_PYLINT: true          # https://pylint.pycqa.org/
+          VALIDATE_PYTHON_ISORT: true           # https://pypi.org/project/isort/
           # VALIDATE_PYTHON_MYPY: true
-          # VALIDATE_PYTHON_ISORT: true         # https://pypi.org/project/isort/
           # VALIDATE_EDITORCONFIG: true         # https://github.com/editorconfig-checker/editorconfig-checker
           # VALIDATE_JSCPD: true                # https://github.com/kucherenko/jscpd
           # VALIDATE_JSCPD_ALL_CODEBASE: true   # lint the whole codebase. If false: lint files one by one

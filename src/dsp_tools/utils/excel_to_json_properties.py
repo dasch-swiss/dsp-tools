@@ -54,7 +54,7 @@ def _validate_properties_with_schema(properties_list: list[dict[str, Any]], exce
         if all_names.count(propdef["name"]) > 1:
             duplicates[index+2] = propdef["name"]
     if duplicates:
-        err_msg = f"Property names must be unique inside every ontology, but your Excel file '{excelfile}' contains dublettes:\n"
+        err_msg = f"Property names must be unique inside every ontology, but your Excel file '{excelfile}' contains duplicates:\n"
         for row_no, propname in duplicates.items():
             err_msg += f" - Row {row_no}: {propname}\n"
         raise BaseError(err_msg)

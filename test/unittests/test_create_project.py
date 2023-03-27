@@ -7,7 +7,7 @@ from typing import Any
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.project_create import _sort_prop_classes, _sort_resources
 from dsp_tools.utils.project_validate import (
-    _check_for_dublette_names,
+    _check_for_duplicate_names,
     _check_for_undefined_cardinalities,
     _check_for_undefined_super_property,
     _check_for_undefined_super_resource,
@@ -41,13 +41,13 @@ class TestProjectCreation(unittest.TestCase):
     with open(test_project_nonexisting_super_resource_file) as json_file:
         test_project_nonexisting_super_resource: dict[str, Any] = json.load(json_file)
     
-    test_project_dublette_property_file = "testdata/invalid-testdata/json-project/dublette-property.json"
-    with open(test_project_dublette_property_file) as json_file:
-        test_project_dublette_property: dict[str, Any] = json.load(json_file)
+    test_project_duplicate_property_file = "testdata/invalid-testdata/json-project/duplicate-property.json"
+    with open(test_project_duplicate_property_file) as json_file:
+        test_project_duplicate_property: dict[str, Any] = json.load(json_file)
 
-    test_project_dublette_resource_file = "testdata/invalid-testdata/json-project/dublette-resource.json"
-    with open(test_project_dublette_resource_file) as json_file:
-        test_project_dublette_resource: dict[str, Any] = json.load(json_file)
+    test_project_duplicate_resource_file = "testdata/invalid-testdata/json-project/duplicate-resource.json"
+    with open(test_project_duplicate_resource_file) as json_file:
+        test_project_duplicate_resource: dict[str, Any] = json.load(json_file)
     
 
     def test_parse_json_input(self) -> None:
@@ -109,21 +109,21 @@ class TestProjectCreation(unittest.TestCase):
             validate_project(self.test_project_circular_ontology)
 
 
-    def test_check_for_dublette_names(self) -> None:
+    def test_check_for_duplicate_names(self) -> None:
         with self.assertRaisesRegex(
             BaseError, 
             r"Resource names and property names must be unique inside every ontology\.\n"
-            r"Resource 'minimalResource' appears multiple times in the ontology 'testonto'\.\n"
             r"Resource 'anotherResource' appears multiple times in the ontology 'testonto'\.\n"
+            r"Resource 'minimalResource' appears multiple times in the ontology 'testonto'\.\n"
         ):
-            _check_for_dublette_names(self.test_project_dublette_resource)
+            _check_for_duplicate_names(self.test_project_duplicate_resource)
         with self.assertRaisesRegex(
             BaseError, 
             r"Resource names and property names must be unique inside every ontology\.\n"
-            r"Property 'hasText' appears multiple times in the ontology 'testonto'\.\n"
             r"Property 'hasInt' appears multiple times in the ontology 'testonto'\.\n"
+            r"Property 'hasText' appears multiple times in the ontology 'testonto'\.\n"
         ):
-            _check_for_dublette_names(self.test_project_dublette_property)
+            _check_for_duplicate_names(self.test_project_duplicate_property)
 
 
     def test_circular_references_in_onto(self) -> None:

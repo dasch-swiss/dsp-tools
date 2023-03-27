@@ -62,7 +62,7 @@ def _validate_resources_with_schema(resources_list: list[dict[str, Any]], excelf
         if all_names.count(resdef["name"]) > 1:
             duplicates[index+2] = resdef["name"]
     if duplicates:
-        err_msg = f"Resource names must be unique inside every ontology, but your Excel file '{excelfile}' contains dublettes:\n"
+        err_msg = f"Resource names must be unique inside every ontology, but your Excel file '{excelfile}' contains duplicates:\n"
         for row_no, resname in duplicates.items():
             err_msg += f" - Row {row_no}: {resname}\n"
         raise BaseError(err_msg)

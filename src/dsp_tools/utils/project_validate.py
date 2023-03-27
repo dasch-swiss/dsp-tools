@@ -13,7 +13,7 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 
 
-def _check_for_dublette_names(project_definition: dict[str, Any]) -> bool:
+def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
     """
     Check that the resource names and property names are unique.
 
@@ -21,42 +21,42 @@ def _check_for_dublette_names(project_definition: dict[str, Any]) -> bool:
         project_definition: parsed JSON project definition
 
     Raises:
-        BaseError: detailed error message if there is a dublette resource name / property name
+        BaseError: detailed error message if there is a duplicate resource name / property name
 
     Returns:
         True if the resource/property names are unique
     """
-    resnames_dublettes: dict[str, set[str]] = dict()
-    propnames_dublettes: dict[str, set[str]] = dict()
+    resnames_duplicates: dict[str, set[str]] = dict()
+    propnames_duplicates: dict[str, set[str]] = dict()
     for onto in project_definition["project"]["ontologies"]:
         resnames = [r["name"] for r in onto["resources"]]
         if len(set(resnames)) != len(resnames):
             for elem in resnames:
                 if resnames.count(elem) > 1:
-                    if not resnames_dublettes.get(onto["name"]):
-                        resnames_dublettes[onto["name"]] = {elem,}
+                    if not resnames_duplicates.get(onto["name"]):
+                        resnames_duplicates[onto["name"]] = {elem,}
                     else:
-                        resnames_dublettes[onto["name"]].add(elem)
+                        resnames_duplicates[onto["name"]].add(elem)
         
         propnames = [p["name"] for p in onto["properties"]]
         if len(set(propnames)) != len(propnames):
             for elem in propnames:
                 if propnames.count(elem) > 1:
-                    if not propnames_dublettes.get(onto["name"]):
-                        propnames_dublettes[onto["name"]] = {elem,}
+                    if not propnames_duplicates.get(onto["name"]):
+                        propnames_duplicates[onto["name"]] = {elem,}
                     else:
-                        propnames_dublettes[onto["name"]].add(elem)
+                        propnames_duplicates[onto["name"]].add(elem)
         
-    if not resnames_dublettes and not propnames_dublettes:
+    if not resnames_duplicates and not propnames_duplicates:
         return True
     
     err_msg = "Resource names and property names must be unique inside every ontology.\n"
-    for ontoname, res_dublettes in resnames_dublettes.items():
-        for res_dublette in res_dublettes:
-            err_msg += f"Resource '{res_dublette}' appears multiple times in the ontology '{ontoname}'.\n" 
-    for ontoname, prop_dublettes in propnames_dublettes.items():
-        for prop_dublette in prop_dublettes:
-            err_msg += f"Property '{prop_dublette}' appears multiple times in the ontology '{ontoname}'.\n" 
+    for ontoname, res_duplicates in resnames_duplicates.items():
+        for res_duplicate in res_duplicates:
+            err_msg += f"Resource '{res_duplicate}' appears multiple times in the ontology '{ontoname}'.\n" 
+    for ontoname, prop_duplicates in propnames_duplicates.items():
+        for prop_duplicate in prop_duplicates:
+            err_msg += f"Property '{prop_duplicate}' appears multiple times in the ontology '{ontoname}'.\n" 
         
     raise BaseError(err_msg)
     
@@ -253,7 +253,7 @@ def validate_project(
     _check_for_undefined_super_property(project_definition)
     _check_for_undefined_super_resource(project_definition)
     _check_for_undefined_cardinalities(project_definition)
-    _check_for_dublette_names(project_definition)
+    _check_for_duplicate_names(project_definition)
 
     # cardinalities check for circular references
     return _check_cardinalities_of_circular_references(project_definition)

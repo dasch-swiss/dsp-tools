@@ -154,8 +154,8 @@ class TestExcelToProperties(unittest.TestCase):
                 r"The problem is that the column 'gui_attributes' has an invalid value: Additional properties are not allowed \('rows' was unexpected\)"
             ),
             (
-                "testdata/invalid-testdata/excel2json/properties-dublette-name.xlsx",
-                "Property names must be unique inside every ontology, but your Excel file '.+' contains dublettes:\n"
+                "testdata/invalid-testdata/excel2json/properties-duplicate-name.xlsx",
+                "Property names must be unique inside every ontology, but your Excel file '.+' contains duplicates:\n"
                 r" - Row 3: hasGender\n - Row 4: hasGender\n - Row 5: isDesignatedAs\n - Row 6: isDesignatedAs"
             )
         ]

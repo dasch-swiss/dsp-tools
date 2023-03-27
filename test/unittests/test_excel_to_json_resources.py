@@ -126,8 +126,8 @@ class TestExcelToResource(unittest.TestCase):
                 "in row 7, column 'Property': ':fan:ta:sy' does not match "
             ),
             (
-                "testdata/invalid-testdata/excel2json/resources-dublette-name.xlsx",
-                "Resource names must be unique inside every ontology, but your Excel file '.+' contains dublettes:\n"
+                "testdata/invalid-testdata/excel2json/resources-duplicate-name.xlsx",
+                "Resource names must be unique inside every ontology, but your Excel file '.+' contains duplicates:\n"
                 r" - Row 3: MentionedPerson\n - Row 4: MentionedPerson"
             )
         ]

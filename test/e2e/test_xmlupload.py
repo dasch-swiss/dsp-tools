@@ -3,6 +3,7 @@ import unittest
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.xml_upload import xml_upload
 
+
 class TestTools(unittest.TestCase):
 
     server = "http://0.0.0.0:3333"

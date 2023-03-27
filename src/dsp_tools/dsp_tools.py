@@ -185,15 +185,13 @@ def make_parser() -> argparse.ArgumentParser:
 
 
 def call_requested_action(
-    user_args: list[str], 
-    parser: argparse.ArgumentParser
+    args: argparse.Namespace, 
 ) -> bool:
     """
     With the help of the parser, parse the user arguments and call the appropriate method of DSP-TOOLS.
 
     Args:
-        user_args: list of arguments passed by the user from the command line
-        parser: parser to parse the user arguments
+        args: arguments passed by the user from the command line, parsed by argparse
 
     Raises:
         BaseError from the called methods
@@ -203,11 +201,7 @@ def call_requested_action(
     Returns:
         success status
     """
-    args = parser.parse_args(user_args)
-    if not hasattr(args, "action"):
-        parser.print_help(sys.stderr)
-        exit(1)
-    elif args.action == "create":
+    if args.action == "create":
         if args.lists_only:
             if args.validate_only:
                 success = validate_lists_section_with_schema(path_to_json_project_file=args.project_definition)
@@ -309,6 +303,17 @@ def call_requested_action(
     return success
     
 
+def validate_args(
+    args: argparse.Namespace,
+    parser: argparse.ArgumentParser
+) -> argparse.Namespace:
+
+    if not hasattr(args, "action"):
+        parser.print_help(sys.stderr)
+        exit(1)
+    
+    return args
+
 
 def main() -> None:
     """Main entry point of the program as referenced in pyproject.toml"""
@@ -326,8 +331,10 @@ def main() -> None:
     )
     
     parser = make_parser()
+    parsed_args = parser.parse_args(sys.argv[1:])
+    validated_args = validate_args(args=parsed_args, parser=parser)
     try:
-        success = call_requested_action(user_args=sys.argv[1:], parser=parser)
+        success = call_requested_action(validated_args)
     except UserError as err:
         print(err.message)
         exit(1)

@@ -14,12 +14,13 @@ from dsp_tools.utils.shared import check_notna, prepare_dataframe
 languages = ["en", "de", "fr", "it", "rm"]
 
 
-def _validate_properties_with_schema(properties_list: list[dict[str, Any]]) -> bool:
+def _validate_properties_with_schema(properties_list: list[dict[str, Any]], excelfile: str) -> bool:
     """
     This function checks if the "properties" section of a JSON project file is valid according to the schema.
 
     Args:
         properties_list: the "properties" section of a JSON project as a list of dicts
+        excelfile: path to the Excel file containing the properties
     
     Raises:
         BaseError with a detailed error report if the validation fails
@@ -44,6 +45,18 @@ def _validate_properties_with_schema(properties_list: list[dict[str, Any]]) -> b
         else:
             err_msg += f"The error message is: {err.message}\nThe error occurred at {err.json_path}"
         raise BaseError(err_msg) from None
+    
+    all_names = [p["name"] for p in properties_list]
+    duplicates: dict[int, str] = dict()
+    for index, propdef in enumerate(properties_list):
+        if all_names.count(propdef["name"]) > 1:
+            duplicates[index+2] = propdef["name"]
+    if duplicates:
+        err_msg = f"Property names must be unique inside every ontology, but your Excel file '{excelfile}' contains dublettes:\n"
+        for row_no, propname in duplicates.items():
+            err_msg += f" - Row {row_no}: {propname}\n"
+        raise BaseError(err_msg)
+    
     return True
 
 
@@ -147,22 +160,9 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
         for req in required:
             if not check_notna(row[req]):
                 raise BaseError(f"'{excelfile}' has a missing value in row {index + 2}, column '{req}'")
-    
-    all_names = list(df["name"])
-    duplicates: dict[int, str] = dict()
-    for index, propname in enumerate(df["name"]):
-        if all_names.count(propname) > 1:
-            duplicates[index+2] = propname
-    if duplicates:
-        err_msg = "Property names must be unique inside every ontology, but your Excel file contains dublettes:\n"
-        for row_no, propname in duplicates.items():
-            err_msg += f" - Row {row_no}: {propname}\n"
-        raise BaseError(err_msg)
-    
     if any([df.get(lang) is not None for lang in languages]):
         warnings.warn(f"The file '{excelfile}' uses {languages} as column titles, which is deprecated. "
                       f"Please use {[f'label_{lang}' for lang in languages]}")
-    
     if df.get("hlist"):
         warnings.warn(f"The file '{excelfile}' has a column 'hlist', which is deprecated. "
                       f"Please use the column 'gui_attributes' for the attribute 'hlist'.")
@@ -173,7 +173,7 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
 
 
     # write final JSON file
-    _validate_properties_with_schema(props)
+    _validate_properties_with_schema(properties_list=props, excelfile=excelfile)
     if path_to_output_file:
         with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
             json.dump(props, file, indent=4, ensure_ascii=False)

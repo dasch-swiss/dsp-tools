@@ -16,7 +16,8 @@ languages = ["en", "de", "fr", "it", "rm"]
 
 def _validate_properties_with_schema(properties_list: list[dict[str, Any]], excelfile: str) -> bool:
     """
-    This function checks if the "properties" section of a JSON project file is valid according to the schema.
+    This function checks if the "properties" section of a JSON project file is valid according to the schema,
+    and if the property names are unique.
 
     Args:
         properties_list: the "properties" section of a JSON project as a list of dicts
@@ -46,6 +47,7 @@ def _validate_properties_with_schema(properties_list: list[dict[str, Any]], exce
             err_msg += f"The error message is: {err.message}\nThe error occurred at {err.json_path}"
         raise BaseError(err_msg) from None
     
+    # check if property names are unique
     all_names = [p["name"] for p in properties_list]
     duplicates: dict[int, str] = dict()
     for index, propdef in enumerate(properties_list):

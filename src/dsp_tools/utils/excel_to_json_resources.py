@@ -16,7 +16,8 @@ languages = ["en", "de", "fr", "it", "rm"]
 
 def _validate_resources_with_schema(resources_list: list[dict[str, Any]], excelfile: str) -> bool:
     """
-    This function checks if the "resources" section of a JSON project file is valid according to the schema.
+    This function checks if the "resources" section of a JSON project file is valid according to the schema,
+    and if the resource names are unique.
 
     Args:
         resources_list: the "resources" section of a JSON project as a list of dicts
@@ -54,6 +55,7 @@ def _validate_resources_with_schema(resources_list: list[dict[str, Any]], excelf
             err_msg += f"The error message is: {err.message}\nThe error occurred at {err.json_path}"
         raise BaseError(err_msg) from None
     
+    # check if resource names are unique
     all_names = [r["name"] for r in resources_list]
     duplicates: dict[int, str] = dict()
     for index, resdef in enumerate(resources_list):

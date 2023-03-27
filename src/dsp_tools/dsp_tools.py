@@ -9,6 +9,8 @@ import sys
 from importlib.metadata import version
 from pathlib import Path
 
+import regex
+
 from dsp_tools.excel2xml import excel2xml
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.excel_to_json_lists import (
@@ -182,13 +184,48 @@ def make_parser() -> argparse.ArgumentParser:
     parser_rosetta.set_defaults(action="rosetta")
 
     return parser
+    
+
+
+def validate_args(
+    args: argparse.Namespace,
+    parser: argparse.ArgumentParser
+) -> bool:
+    """
+    Validate the arguments of the command line.
+
+    Args:
+        args: arguments from the command line
+        parser: argparse parser
+
+    Raises:
+        UserError: if a DSP server is addressed by its "admin" subdomain
+
+    Returns:
+        True if the validation passes
+    """
+
+    if not hasattr(args, "action"):
+        parser.print_help(sys.stderr)
+        exit(1)
+
+    if hasattr(args, "server"):
+        if regex.search(r"https?://admin\.", args.server):
+            raise UserError(
+                "You try to address the subdomain 'admin' of a DSP server, "
+                "but DSP servers must be addressed on their 'api' subdomain, e.g. https://api.dasch.swiss. "
+                "See also https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#before-starting-have-in-mind-the-subdomains-of-a-dsp-server"
+            )
+    
+    return True
+
 
 
 def call_requested_action(
     args: argparse.Namespace, 
 ) -> bool:
     """
-    With the help of the parser, parse the user arguments and call the appropriate method of DSP-TOOLS.
+    Call the appropriate method of DSP-TOOLS.
 
     Args:
         args: arguments passed by the user from the command line, parsed by argparse
@@ -301,22 +338,13 @@ def call_requested_action(
         success = False
 
     return success
-    
 
-def validate_args(
-    args: argparse.Namespace,
-    parser: argparse.ArgumentParser
-) -> argparse.Namespace:
-
-    if not hasattr(args, "action"):
-        parser.print_help(sys.stderr)
-        exit(1)
-    
-    return args
 
 
 def main() -> None:
-    """Main entry point of the program as referenced in pyproject.toml"""
+    """
+    Main entry point of DSP-TOOLS as referenced in pyproject.toml, [tool.poetry.scripts].
+    """
     logging.basicConfig(
         format="{asctime}   {filename: <20} {levelname: <8} {message}",
         style="{",
@@ -331,10 +359,10 @@ def main() -> None:
     )
     
     parser = make_parser()
-    parsed_args = parser.parse_args(sys.argv[1:])
-    validated_args = validate_args(args=parsed_args, parser=parser)
+    args = parser.parse_args(sys.argv[1:])
     try:
-        success = call_requested_action(validated_args)
+        validate_args(args=args, parser=parser)
+        success = call_requested_action(args)
     except UserError as err:
         print(err.message)
         exit(1)
@@ -342,6 +370,8 @@ def main() -> None:
 
     if not success: 
         exit(1)
+
+
 
 if __name__ == "__main__":
     main()

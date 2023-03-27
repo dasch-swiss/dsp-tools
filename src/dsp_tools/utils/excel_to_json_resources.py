@@ -189,6 +189,18 @@ def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -
     for index, row in all_classes_df.iterrows():
         if not check_notna(row["super"]):
             raise BaseError(f"Sheet 'classes' of '{excelfile}' has a missing value in row {index + 2}, column 'super'")
+    
+    all_names = list(all_classes_df["name"])
+    duplicates: dict[int, str] = dict()
+    for index, resname in enumerate(all_classes_df["name"]):
+        if all_names.count(resname) > 1:
+            duplicates[index+2] = resname
+    if duplicates:
+        err_msg = "Resource names must be unique inside every ontology, but your Excel file contains dublettes:\n"
+        for row_no, resname in duplicates.items():
+            err_msg += f" - Row {row_no}: {resname}\n"
+        raise BaseError(err_msg)
+    
     if any([all_classes_df.get(lang) is not None for lang in languages]):
         warnings.warn(f"The file {excelfile} uses {languages} as column titles, which is deprecated. "
                       f"Please use {[f'label_{lang}' for lang in languages]}")

@@ -34,7 +34,7 @@ def _validate_properties_with_schema(properties_list: list[dict[str, Any]], exce
     try:
         jsonschema.validate(instance=properties_list, schema=properties_schema)
     except jsonschema.ValidationError as err:
-        err_msg = f"'properties' section did not pass validation. "
+        err_msg = f"The 'properties' section defined in the Excel file '{excelfile}' did not pass validation. "
         json_path_to_property = re.search(r"^\$\[(\d+)\]", err.json_path)
         if json_path_to_property:
             wrong_property_name = jsonpath_ng.ext.parse(json_path_to_property.group(0)).find(properties_list)[0].value["name"]

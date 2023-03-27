@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from typing import Any
 
-from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.project_create import _sort_prop_classes, _sort_resources
 from dsp_tools.utils.project_validate import (
     _check_for_duplicate_names,

@@ -18,6 +18,7 @@ from requests import RequestException
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.propertyelement import PropertyElement
+from dsp_tools.models.value import UriValue
 
 logger = logging.getLogger(__name__)
 

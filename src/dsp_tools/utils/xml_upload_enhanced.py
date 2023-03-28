@@ -303,7 +303,7 @@ def enhanced_xml_upload(
 
     end_multithreading_time = datetime.now()
     multithreading_duration = end_multithreading_time - start_multithreading_time
-    print(f"Time of multithreading: {multithreading_duration.seconds} seconds")
+    print(f"Time of multithreading (with {processing_threads} threads for preprocessing and {uploading_threads} threads for uploading): {multithreading_duration.seconds} seconds")
 
     for tag in xml_file_tree.iter():
         if tag.text in orig_filepath_2_uuid:

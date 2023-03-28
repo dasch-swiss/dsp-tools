@@ -160,11 +160,11 @@ def _parse_xml_file(xmlfile: str) -> tuple[etree._ElementTree, list[str]]:
 
 
 def __upload_derivative(
-        sipi_processed_path: str,
-        orig_file: str,
-        internal_filename: str,
-        remote_sipi_server: str,
-        con: Connection
+    sipi_processed_path: str,
+    orig_file: str,
+    internal_filename: str,
+    remote_sipi_server: str,
+    con: Connection
 ) -> tuple[int, str]:
     upload_candidates: list[str] = []
     upload_candidates.extend(glob.glob(f"{Path(sipi_processed_path)}/{Path(internal_filename).stem}/**/*.*"))
@@ -189,8 +189,8 @@ def __upload_derivative(
 
 
 def __preprocess_file(
-        orig_file: str,
-        local_sipi_server: str,
+    orig_file: str,
+    local_sipi_server: str,
 ) -> tuple[Path, str]:
     """
     Sends a multimedia file to the SIPI /upload_for_processing route of the
@@ -207,29 +207,30 @@ def __preprocess_file(
     with open(orig_file, "rb") as bitstream:
         response_raw = requests.post(
             url=f"{local_sipi_server}/upload_for_processing",
-            files={"file": bitstream})
+            files={"file": bitstream}
+        )
     response = json.loads(response_raw.text)
     if response.get("uploadedFiles", [{}])[0].get("internalFilename"):
         internal_filename: str = response["uploadedFiles"][0]["internalFilename"]
     elif response.get("message") == "server.fs.mkdir() failed: File exists":
-        _, internal_filename = __preprocess_file(path=orig_file, local_sipi_server=local_sipi_server)
+        _, internal_filename = __preprocess_file(orig_file=orig_file, local_sipi_server=local_sipi_server)
     else:
         raise BaseError(f"File {orig_file} couldn't be handled by the /upload_for_processing route of the local SIPI. Error message: {response['message']}")
     return orig_file, internal_filename
 
 
 def enhanced_xml_upload(
-        local_sipi_server: str,
-        sipi_processed_path: str,
-        remote_dsp_server: str,
-        remote_sipi_server: str,
-        processing_threads: int,
-        uploading_threads: int,
-        user: str,
-        password: str,
-        xmlfile: str,
-        verbose: bool,
-        incremental: bool
+    local_sipi_server: str,
+    sipi_processed_path: str,
+    remote_dsp_server: str,
+    remote_sipi_server: str,
+    processing_threads: int,
+    uploading_threads: int,
+    user: str,
+    password: str,
+    xmlfile: str,
+    verbose: bool,
+    incremental: bool
 ) -> bool:
     """
     Before starting the regular xmlupload, 

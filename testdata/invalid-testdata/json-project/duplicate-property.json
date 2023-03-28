@@ -1,0 +1,75 @@
+{
+    "$schema": "../../../src/dsp_tools/resources/schema/project.json",
+    "project": {
+        "shortcode": "4124",
+        "shortname": "minimal-tp",
+        "longname": "minimal test project",
+        "descriptions": {
+            "en": "A minimal test project"
+        },
+        "keywords": [
+            "minimal"
+        ],
+        "ontologies": [
+            {
+                "name": "testonto",
+                "label": "Test ontology",
+                "properties": [
+                    {
+                        "name": "hasText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "hasText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text with another label"
+                        },
+                        "gui_element": "Richtext"
+                    },
+                    {
+                        "name": "hasInt",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "IntValue",
+                        "labels": {
+                            "en": "Int"
+                        },
+                        "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "hasInt",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "IntValue",
+                        "labels": {
+                            "en": "Int with another label"
+                        },
+                        "gui_element": "SimpleText"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "minimalResource",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Minimal Resource"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

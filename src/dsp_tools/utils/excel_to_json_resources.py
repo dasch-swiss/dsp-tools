@@ -14,12 +14,14 @@ from dsp_tools.utils.shared import check_notna, prepare_dataframe
 languages = ["en", "de", "fr", "it", "rm"]
 
 
-def _validate_resources_with_schema(resources_list: list[dict[str, Any]]) -> bool:
+def _validate_resources(resources_list: list[dict[str, Any]], excelfile: str) -> bool:
     """
-    This function checks if the "resources" section of a JSON project file is valid according to the schema.
+    This function checks if the "resources" section of a JSON project file is valid according to the JSON schema,
+    and if the resource names are unique.
 
     Args:
         resources_list: the "resources" section of a JSON project as a list of dicts
+        excelfile: path to the Excel file containing the resources
 
     Raises:
         BaseError with a detailed error report if the validation fails
@@ -32,7 +34,7 @@ def _validate_resources_with_schema(resources_list: list[dict[str, Any]]) -> boo
     try:
         jsonschema.validate(instance=resources_list, schema=resources_schema)
     except jsonschema.ValidationError as err:
-        err_msg = f"'resources' section did not pass validation. "
+        err_msg = f"The 'resources' section defined in the Excel file '{excelfile}' did not pass validation. "
         json_path_to_resource = regex.search(r"^\$\[(\d+)\]", err.json_path)
         if json_path_to_resource:
             wrong_resource_name = jsonpath_ng.ext.parse(json_path_to_resource.group(0)).find(resources_list)[0].value["name"]
@@ -52,6 +54,19 @@ def _validate_resources_with_schema(resources_list: list[dict[str, Any]]) -> boo
         else:
             err_msg += f"The error message is: {err.message}\nThe error occurred at {err.json_path}"
         raise BaseError(err_msg) from None
+    
+    # check if resource names are unique
+    all_names = [r["name"] for r in resources_list]
+    duplicates: dict[int, str] = dict()
+    for index, resdef in enumerate(resources_list):
+        if all_names.count(resdef["name"]) > 1:
+            duplicates[index+2] = resdef["name"]
+    if duplicates:
+        err_msg = f"Resource names must be unique inside every ontology, but your Excel file '{excelfile}' contains duplicates:\n"
+        for row_no, resname in duplicates.items():
+            err_msg += f" - Row {row_no}: {resname}\n"
+        raise BaseError(err_msg)
+    
     return True
 
 
@@ -197,7 +212,7 @@ def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -
     resources = [_row2resource(row, excelfile) for i, row in all_classes_df.iterrows()]
 
     # write final "resources" section into a JSON file
-    _validate_resources_with_schema(resources)
+    _validate_resources(resources_list=resources, excelfile=excelfile)
     if path_to_output_file:
         with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
             json.dump(resources, file, indent=4, ensure_ascii=False)

@@ -130,28 +130,33 @@ class TestExcelToProperties(unittest.TestCase):
 
     def test_validate_properties_with_schema(self) -> None:
         # it is not possible to call the method to be tested directly. So let's make a reference to it, so that it can be found by the usage search
-        lambda x: e2j._validate_properties_with_schema([])
+        lambda x: e2j._validate_properties([])
         
         testcases = [
             (
                 "testdata/invalid-testdata/excel2json/properties-invalid-super.xlsx", 
-                "'properties' section did not pass validation. The problematic property is 'hasGeoname' in Excel row 3. "
+                "did not pass validation. The problematic property is 'hasGeoname' in Excel row 3. "
                 "The problem is that the column 'super' has an invalid value: 'GeonameValue' is not valid under any of the given schemas"
             ),
             (
                 "testdata/invalid-testdata/excel2json/properties-invalid-object.xlsx",
-                "'properties' section did not pass validation. The problematic property is 'hasBoolean' in Excel row 2. "
+                "did not pass validation. The problematic property is 'hasBoolean' in Excel row 2. "
                 "The problem is that the column 'object' has an invalid value: 'hasValue' is not valid under any of the given schemas"
             ),
             (
                 "testdata/invalid-testdata/excel2json/properties-invalid-gui_element.xlsx",
-                "'properties' section did not pass validation. The problematic property is 'hasInterval' in Excel row 4. "
+                "did not pass validation. The problematic property is 'hasInterval' in Excel row 4. "
                 r"The problem is that the column 'gui_element' has an invalid value: 'Geonames' is not one of \['Interval', 'SimpleText'\]"
             ),
             (
                 "testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute.xlsx",
-                "'properties' section did not pass validation. The problematic property is 'hasInterval' in Excel row 4. "
+                "did not pass validation. The problematic property is 'hasInterval' in Excel row 4. "
                 r"The problem is that the column 'gui_attributes' has an invalid value: Additional properties are not allowed \('rows' was unexpected\)"
+            ),
+            (
+                "testdata/invalid-testdata/excel2json/properties-duplicate-name.xlsx",
+                "Property names must be unique inside every ontology, but your Excel file '.+' contains duplicates:\n"
+                r" - Row 3: hasGender\n - Row 4: hasGender\n - Row 5: isDesignatedAs\n - Row 6: isDesignatedAs"
             )
         ]
         

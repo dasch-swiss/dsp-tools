@@ -13,7 +13,56 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 
 
-def check_for_undefined_super_resource(project_definition: dict[str, Any]) -> bool:
+def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
+    """
+    Check that the resource names and property names are unique.
+
+    Args:
+        project_definition: parsed JSON project definition
+
+    Raises:
+        BaseError: detailed error message if there is a duplicate resource name / property name
+
+    Returns:
+        True if the resource/property names are unique
+    """
+    resnames_duplicates: dict[str, set[str]] = dict()
+    propnames_duplicates: dict[str, set[str]] = dict()
+    for onto in project_definition["project"]["ontologies"]:
+        resnames = [r["name"] for r in onto["resources"]]
+        if len(set(resnames)) != len(resnames):
+            for elem in resnames:
+                if resnames.count(elem) > 1:
+                    if not resnames_duplicates.get(onto["name"]):
+                        resnames_duplicates[onto["name"]] = {elem,}
+                    else:
+                        resnames_duplicates[onto["name"]].add(elem)
+        
+        propnames = [p["name"] for p in onto["properties"]]
+        if len(set(propnames)) != len(propnames):
+            for elem in propnames:
+                if propnames.count(elem) > 1:
+                    if not propnames_duplicates.get(onto["name"]):
+                        propnames_duplicates[onto["name"]] = {elem,}
+                    else:
+                        propnames_duplicates[onto["name"]].add(elem)
+        
+    if not resnames_duplicates and not propnames_duplicates:
+        return True
+    
+    err_msg = "Resource names and property names must be unique inside every ontology.\n"
+    for ontoname, res_duplicates in resnames_duplicates.items():
+        for res_duplicate in sorted(res_duplicates):
+            err_msg += f"Resource '{res_duplicate}' appears multiple times in the ontology '{ontoname}'.\n" 
+    for ontoname, prop_duplicates in propnames_duplicates.items():
+        for prop_duplicate in sorted(prop_duplicates):
+            err_msg += f"Property '{prop_duplicate}' appears multiple times in the ontology '{ontoname}'.\n" 
+        
+    raise BaseError(err_msg)
+    
+
+
+def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> bool:
     """
     Check the superresources that claim to point to a resource defined in the same JSON project.
     Check if the resource they point to actually exists.
@@ -60,7 +109,7 @@ def check_for_undefined_super_resource(project_definition: dict[str, Any]) -> bo
     return True
 
 
-def check_for_undefined_super_property(project_definition: dict[str, Any]) -> bool:
+def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> bool:
     """
     Check the superproperties that claim to point to a property defined in the same JSON project.
     Check if the property they point to actually exists.
@@ -107,7 +156,7 @@ def check_for_undefined_super_property(project_definition: dict[str, Any]) -> bo
     return True
 
 
-def check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bool:
+def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bool:
     """
     Check if the propnames that are used in the cardinalities of each resource are defined in the "properties" 
     section. (DSP base properties and properties from other ontologies are not considered.)
@@ -158,11 +207,21 @@ def validate_project(
     expand_lists: bool = True
 ) -> bool:
     """
-    Validates a JSON project definition file. First, the Excel file references in the "lists" section are expanded
-    (unless this behaviour is disabled). Then, the project is validated against the JSON schema. At last, a check is
-    performed if this project's ontologies contain properties derived from hasLinkTo that form a circular reference. If
-    so, these properties must have the cardinality 0-1 or 0-n, because during the xmlupload process, these values
-    are temporarily removed.
+    Validates a JSON project definition file. 
+
+    First, the Excel file references in the "lists" section are expanded
+    (unless this behaviour is disabled). 
+
+    Then, the project is validated against the JSON schema. 
+
+    Next, some checks are performed that are too complex for JSON schema.
+    
+    At last, a check is performed
+    if this project's ontologies contain properties derived from hasLinkTo 
+    that form a circular reference.
+    If so, these properties must have the cardinality 0-1 or 0-n, 
+    because during the xmlupload process, 
+    these values are temporarily removed.
 
     Args:
         input_file_or_json: the project to be validated, can either be a file path or a parsed JSON file
@@ -175,6 +234,7 @@ def validate_project(
         True if the project passed validation. 
     """
 
+    # parse input
     if isinstance(input_file_or_json, dict) and "project" in input_file_or_json:
         project_definition = input_file_or_json
     elif isinstance(input_file_or_json, str) and os.path.isfile(input_file_or_json) and regex.search(r"\.json$", input_file_or_json):
@@ -183,9 +243,8 @@ def validate_project(
     else:
         raise BaseError(f"Input '{input_file_or_json}' is neither a file path nor a JSON object.")
 
+    # expand all lists referenced in the "lists" section of the project definition, and add them to the project definition
     if expand_lists:
-        # expand all lists referenced in the "lists" section of the project definition, and add them to the project
-        # definition
         new_lists = expand_lists_from_excel(project_definition["project"].get("lists", []))
         if new_lists:
             project_definition["project"]["lists"] = new_lists
@@ -200,12 +259,11 @@ def validate_project(
                         f"The error occurred at {err.json_path}:\n"
                         f"{err.instance}") from None
 
-    # make sure that there is no undefined superproperty or superresource
-    check_for_undefined_super_property(project_definition)
-    check_for_undefined_super_resource(project_definition)
-
-    # make sure that every cardinality was defined in the properties section
-    check_for_undefined_cardinalities(project_definition)
+    # make some checks that are too complex for JSON schema
+    _check_for_undefined_super_property(project_definition)
+    _check_for_undefined_super_resource(project_definition)
+    _check_for_undefined_cardinalities(project_definition)
+    _check_for_duplicate_names(project_definition)
 
     # cardinalities check for circular references
     return _check_cardinalities_of_circular_references(project_definition)

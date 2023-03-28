@@ -258,8 +258,7 @@ def enhanced_xml_upload(
     xml_file_tree, all_paths = _parse_xml_file(xmlfile=xmlfile)
 
     con = Connection(remote_dsp_server)
-    try_network_action(failure_msg="Unable to login to DSP server",
-                       action=lambda: con.login(user, password))
+    try_network_action(lambda: con.login(user, password))
 
     print(f"{datetime.now()}: Start preprocessing and uploading the multimedia files...")
     start_multithreading_time = datetime.now()

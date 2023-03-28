@@ -2,13 +2,13 @@
 
 # Enhanced Mass-Upload
 
-For projects with a big quantity of multimedia files, 
-the `xmlupload` command is too slow.
+For projects with a big number of multimedia files, 
+the [`xmlupload`](../cli-commands.md#xmlupload) command is too slow.
 That's why we developed, for internal usage, an enhanced workflow. 
 It consists of the steps described in this document:
 
-First, prepare your data as explained below.
-Then, startup a local DSP stack.
+1. prepare your data as explained below.
+2. startup a local DSP stack.
 Finally, use the `enhanced-xmlupload` command 
 to preprocess the multimedia files locally, 
 upload them to the server (local or remote),

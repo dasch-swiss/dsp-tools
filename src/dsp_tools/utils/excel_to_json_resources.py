@@ -14,9 +14,9 @@ from dsp_tools.utils.shared import check_notna, prepare_dataframe
 languages = ["en", "de", "fr", "it", "rm"]
 
 
-def _validate_resources_with_schema(resources_list: list[dict[str, Any]], excelfile: str) -> bool:
+def _validate_resources(resources_list: list[dict[str, Any]], excelfile: str) -> bool:
     """
-    This function checks if the "resources" section of a JSON project file is valid according to the schema,
+    This function checks if the "resources" section of a JSON project file is valid according to the JSON schema,
     and if the resource names are unique.
 
     Args:
@@ -212,7 +212,7 @@ def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -
     resources = [_row2resource(row, excelfile) for i, row in all_classes_df.iterrows()]
 
     # write final "resources" section into a JSON file
-    _validate_resources_with_schema(resources_list=resources, excelfile=excelfile)
+    _validate_resources(resources_list=resources, excelfile=excelfile)
     if path_to_output_file:
         with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
             json.dump(resources, file, indent=4, ensure_ascii=False)

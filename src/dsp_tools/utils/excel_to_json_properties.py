@@ -14,9 +14,9 @@ from dsp_tools.utils.shared import check_notna, prepare_dataframe
 languages = ["en", "de", "fr", "it", "rm"]
 
 
-def _validate_properties_with_schema(properties_list: list[dict[str, Any]], excelfile: str) -> bool:
+def _validate_properties(properties_list: list[dict[str, Any]], excelfile: str) -> bool:
     """
-    This function checks if the "properties" section of a JSON project file is valid according to the schema,
+    This function checks if the "properties" section of a JSON project file is valid according to the JSON schema,
     and if the property names are unique.
 
     Args:
@@ -173,7 +173,7 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
     props = [_row2prop(row, i, excelfile) for i, row in df.iterrows()]
 
     # write final JSON file
-    _validate_properties_with_schema(properties_list=props, excelfile=excelfile)
+    _validate_properties(properties_list=props, excelfile=excelfile)
     if path_to_output_file:
         with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
             json.dump(props, file, indent=4, ensure_ascii=False)

@@ -7,13 +7,14 @@ the [`xmlupload`](../cli-commands.md#xmlupload) command is too slow.
 That's why we developed, for internal usage, an enhanced workflow. 
 It consists of the steps described in this document:
 
-1. prepare your data as explained below.
-2. startup a local DSP stack.
-Finally, use the `enhanced-xmlupload` command 
-to preprocess the multimedia files locally, 
-upload them to the server (local or remote),
-and create the resources of the XML file on the DSP server.
-This first step uses multithreading to speed up the process.
+1. prepare your data as explained below
+2. start a local DSP stack
+3. use the `enhanced-xmlupload` command 
+
+The enhanced xmlupload uses multithreading 
+to preprocess the multimedia files with the local DSP stack 
+and to upload the preprocessed files to the server (local or remote).
+Then, it creates the resources of the XML file on the DSP server.
 
 
 
@@ -21,7 +22,7 @@ This first step uses multithreading to speed up the process.
 
 The following data structure is expected:
 
-```
+```text
 my_project
 ├── data_model.json
 ├── data.xml   (<bitstream>multimedia/dog.jpg</bitstream>)
@@ -40,7 +41,6 @@ Note:
 - The multimedia files in `multimedia` may be arbitrarily nested.
 - Every path referenced in a `<bitstream>` in the XML file must point to a file in `multimedia`.
 - The paths in the `<bitstream>` are relative to the project root.
-- Your project must not contain a folder named `ZIP` or `tmp` on the top level
 
 A folder with the above structure can be created with
 
@@ -49,12 +49,13 @@ dsp-tools enhanced-xmlupload --generate-test-data --size=small/medium/big data.x
 ```
 
 
-## 2. Start DSP stack
+## 2. Assign CPUs to Docker and start DSP stack
 
-- if not already available, make a clone of the [DSP-API repository](https://github.com/dasch-swiss/dsp-api)
-- use the main branch
-- `make init-db-test-minimal`
-- `make stack-up`
+- The local DSP stack needs as many CPUs as possible. 
+  In Docker > Settings > Resources, assign as many CPUs as you afford to Docker.
+  - `--num-of-threads-for-preprocessing` (see below) will be dependent on the number of cores that you assign to Docker.
+- If not already available, make a clone of the [DSP-API repository](https://github.com/dasch-swiss/dsp-api).
+- On the main branch, execute `make init-db-test-minimal` and then `make stack-up`.
 
 
 ## 3. `enhanced-xmlupload`
@@ -70,11 +71,14 @@ Arguments and options:
 - `--generate-test-data`: If set, only generate a test data folder in the current working directory (no upload).
   - `--size`: size of test data set: small/medium/big
 - `--local-sipi-server` (optional, default: `http://0.0.0.0:1024`): URL of the local SIPI IIIF server
-- `--sipi-processed-path`: Path to folder containing the processed multimedia files (dsp-api/sipi/images/processed)
-- `-s` | `--remote-dsp-server` (optional, default: `http://0.0.0.0:3333`): URL of the DSP server
-- `-S` | `--remote-sipi-server` (optional, default: `http://0.0.0.0:1024`): URL of the remote SIPI IIIF server (for testing purposes, can be the same as `--local-sipi-server`)
-- `-t` | `--num-of-threads-for-preprocessing` (optional, default: 32): number of threads used for sending requests to the local SIPI
+- `--sipi-processed-path`: Path to folder containing the processed multimedia files. This must be the `sipi/images/processed` folder of your local clone of DSP-API
+- `-s` | `--remote-dsp-server` (optional, default: `http://0.0.0.0:3333`): URL of the DSP server where your data should be uploaded to, e.g. `https://api.dasch.swiss`
+- `-S` | `--remote-sipi-server` (optional, default: `http://0.0.0.0:1024`): URL of the remote SIPI IIIF server, e.g. `https://iiif.dasch.swiss`
+- `-t` | `--num-of-threads-for-preprocessing` (optional, default: 32): number of threads used for sending requests to the local SIPI 
+  - depends on the number of cores that you assign to Docker
+  - must be fine-tuned and optimized on every individual machine
 - `-T` | `--num-of-threads-for-uploading` (optional, default: 8): number of threads used for uploading the preprocessed files to the remote SIPI
+  - depends on the number of cores available on the remote server
 - `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP-API
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 - `-I` | `--incremental` (optional) : If set, IRIs instead of internal IDs are expected as reference to already existing resources on DSP

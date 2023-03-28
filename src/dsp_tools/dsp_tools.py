@@ -34,7 +34,7 @@ from dsp_tools.utils.xml_upload import xml_upload
 
 def make_parser() -> argparse.ArgumentParser:
     """
-    Create a parser for the command line arguments
+    Create a parser for the command line arguments.
 
     Returns:
         parser
@@ -210,7 +210,7 @@ def validate_args(
         exit(1)
 
     if hasattr(args, "server"):
-        if regex.search(r"https?://admin\.", args.server):
+        if regex.search(r"https?://admin\.(.+\.)*dasch\.swiss", args.server):
             raise UserError(
                 "You try to address the subdomain 'admin' of a DSP server, "
                 "but DSP servers must be addressed on their 'api' subdomain, e.g. https://api.dasch.swiss. "
@@ -344,6 +344,15 @@ def call_requested_action(
 def main() -> None:
     """
     Main entry point of DSP-TOOLS as referenced in pyproject.toml, [tool.poetry.scripts].
+
+    This method configures the logger,
+    creates a parser,
+    parses the command line arguments,
+    validates them,
+    and calls the appropriate method of DSP-TOOLS.
+
+    This method catches UserErrors, prints them nicely (without stacktrace), and then exits with code=1.
+    It lets all other errors escalate, so that a stack trace is printed.
     """
     logging.basicConfig(
         format="{asctime}   {filename: <20} {levelname: <8} {message}",

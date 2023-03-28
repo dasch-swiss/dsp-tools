@@ -1,7 +1,6 @@
 import subprocess
 import unittest
 
-from dsp_tools.models.exceptions import UserError
 
 class TestCLI(unittest.TestCase):
 
@@ -14,10 +13,12 @@ class TestCLI(unittest.TestCase):
             "http://admin.082e-test-server.dasch.swiss"
         ]
         for server in wrong_servers:
-            # TODO: doesn't work, because UserError is caught and printed. Watch stderr/stdout instead
-            with self.assertRaisesRegex(
-                UserError, 
-                r"You try to address the subdomain 'admin' of a DSP server, "
-                r"but DSP servers must be addressed on their 'api' subdomain, e\.g\. https://api\.dasch\.swiss\."
-            ):
-                subprocess.run(f"dsp-tools create -s {server} -u hans@muster.ch -p 1234 data_model.json", shell=True)
+            completed_process = subprocess.run(f"dsp-tools create -s {server} -u hans@muster.ch -p 1234 data_model.json", shell=True, capture_output=True)
+            stdout = completed_process.stdout.decode("utf-8")
+            self.assertRegex(
+                text=stdout,
+                expected_regex=
+                    r"You try to address the subdomain 'admin' of a DSP server, "
+                    r"but DSP servers must be addressed on their 'api' subdomain, e\.g\. https://api\.dasch\.swiss\."
+            )
+                

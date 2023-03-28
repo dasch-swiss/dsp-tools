@@ -52,8 +52,8 @@ dsp-tools enhanced-xmlupload --generate-test-data --size=small/medium/big data.x
 ## 2. Assign CPUs to Docker and start DSP stack
 
 - If not already available, make a clone of the [DSP-API repository](https://github.com/dasch-swiss/dsp-api).
-- In Docker > Settings > Resources, assign as many CPUs as you afford to Docker. (???)
-- In `dsp-api/sipi/config/sipi.docker-config.lua`, set nthreads to 32 (???)
+- In Docker > Settings > Resources, assign as many CPUs as you afford to Docker. Not all, because some CPUs should remain for the OS.
+- In `dsp-api/sipi/config/sipi.docker-config.lua`, set nthreads to a number slightly lesser than the number of CPUs assigned to Docker.
   - `--num-of-threads-for-preprocessing` (see below) will be dependent on the number of CPUs assigned to Docker and the number of threads of SIPI (???)
 - On the main branch, execute `make init-db-test-minimal` and then `make stack-up`.
 
@@ -66,10 +66,15 @@ The command `enhanced-xmlupload` must be called from the project root.
 dsp-tools enhanced-xmlupload [options] xmlfile
 ```
 
-Arguments and options:
+### Arguments and options
+
+To generate test data:
 
 - `--generate-test-data`: If set, only generate a test data folder in the current working directory (no upload).
   - `--size`: size of test data set: small/medium/big
+
+For the actual command:
+
 - `--local-sipi-server` (optional, default: `http://0.0.0.0:1024`): URL of the local SIPI IIIF server
 - `--sipi-processed-path`: Path to folder containing the processed multimedia files. This must be the `sipi/images/processed` folder of your local clone of DSP-API
 - `-s` | `--remote-dsp-server` (optional, default: `http://0.0.0.0:3333`): URL of the DSP server where your data should be uploaded to, e.g. `https://api.dasch.swiss`

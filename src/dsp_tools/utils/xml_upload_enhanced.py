@@ -178,7 +178,7 @@ def __upload_derivative(
     for candidate in upload_candidates:
         with open(candidate, "rb") as bitstream:
             response_upload = requests.post(
-                url=f"{regex.sub(r'/$', '', remote_sipi_server)}/upload_without_processing?token={con.get_token()}",
+                url=f"{regex.sub(r"/$", "", remote_sipi_server)}/upload_without_processing?token={con.get_token()}",
                 files={"file": bitstream}
             )
         if not response_upload.json().get("uploadedFiles"):
@@ -265,7 +265,7 @@ def enhanced_xml_upload(
     orig_filepath_2_uuid: dict[str, str] = dict()
 
     # create processing thread pool
-    with ThreadPoolExecutor(processing_threads, 'processing') as e1:
+    with ThreadPoolExecutor(processing_threads, "processing") as e1:
         # add processing jobs to pool
         processing_jobs = [e1.submit(
             __preprocess_file,
@@ -273,7 +273,7 @@ def enhanced_xml_upload(
             local_sipi_server
         ) for orig_file in all_paths]
 
-        with ThreadPoolExecutor(uploading_threads, 'upload') as e2:
+        with ThreadPoolExecutor(uploading_threads, "upload") as e2:
             # wait for a processing job to complete and add upload job to pool
             uploading_jobs = []
             for processed in as_completed(processing_jobs):
@@ -336,6 +336,6 @@ def enhanced_xml_upload(
             elif os.path.isdir(file_path):
                 shutil.rmtree(file_path)
         except Exception as e:
-            print('Failed to delete %s. Reason: %s' % (file_path, e))
+            print("Failed to delete %s. Reason: %s" % (file_path, e))
 
     return True

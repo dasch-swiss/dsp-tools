@@ -51,10 +51,10 @@ dsp-tools enhanced-xmlupload --generate-test-data --size=small/medium/big data.x
 
 ## 2. Assign CPUs to Docker and start DSP stack
 
-- The local DSP stack needs as many CPUs as possible. 
-  In Docker > Settings > Resources, assign as many CPUs as you afford to Docker.
-  - `--num-of-threads-for-preprocessing` (see below) will be dependent on the number of cores that you assign to Docker.
 - If not already available, make a clone of the [DSP-API repository](https://github.com/dasch-swiss/dsp-api).
+- In Docker > Settings > Resources, assign as many CPUs as you afford to Docker. (???)
+- In `dsp-api/sipi/config/sipi.docker-config.lua`, set nthreads to 32 (???)
+  - `--num-of-threads-for-preprocessing` (see below) will be dependent on the number of CPUs assigned to Docker and the number of threads of SIPI (???)
 - On the main branch, execute `make init-db-test-minimal` and then `make stack-up`.
 
 
@@ -75,7 +75,7 @@ Arguments and options:
 - `-s` | `--remote-dsp-server` (optional, default: `http://0.0.0.0:3333`): URL of the DSP server where your data should be uploaded to, e.g. `https://api.dasch.swiss`
 - `-S` | `--remote-sipi-server` (optional, default: `http://0.0.0.0:1024`): URL of the remote SIPI IIIF server, e.g. `https://iiif.dasch.swiss`
 - `-t` | `--num-of-threads-for-preprocessing` (optional, default: 32): number of threads used for sending requests to the local SIPI 
-  - depends on the number of cores that you assign to Docker
+  - depends on the number of CPUs assigned to Docker and the number of threads of SIPI (see above)
   - must be fine-tuned and optimized on every individual machine
 - `-T` | `--num-of-threads-for-uploading` (optional, default: 8): number of threads used for uploading the preprocessed files to the remote SIPI
   - depends on the number of cores available on the remote server

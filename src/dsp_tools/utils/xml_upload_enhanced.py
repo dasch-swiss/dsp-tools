@@ -178,7 +178,7 @@ def __upload_derivative(
     for candidate in upload_candidates:
         with open(candidate, "rb") as bitstream:
             response_upload = requests.post(
-                url=f"{regex.sub(r"/$", "", remote_sipi_server)}/upload_without_processing?token={con.get_token()}",
+                url=f"{regex.sub(r'/$', '', remote_sipi_server)}/upload_without_processing?token={con.get_token()}",
                 files={"file": bitstream}
             )
         if not response_upload.json().get("uploadedFiles"):

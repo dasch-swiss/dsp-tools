@@ -1,0 +1,77 @@
+{
+    "$schema": "../../../src/dsp_tools/resources/schema/project.json",
+    "project": {
+        "shortcode": "4124",
+        "shortname": "minimal-tp",
+        "longname": "minimal test project",
+        "descriptions": {
+            "en": "A minimal test project"
+        },
+        "keywords": [
+            "minimal"
+        ],
+        "ontologies": [
+            {
+                "name": "testonto",
+                "label": "Test ontology",
+                "properties": [
+                    {
+                        "name": "hasText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "minimalResource",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Minimal Resource"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "cardinality": "1",
+                                "gui_order": 0
+                            }
+                        ]
+                    },
+                    {
+                        "name": "minimalResource",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Minimal Resource with another label"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "cardinality": "0-1",
+                                "gui_order": 0
+                            }
+                        ]
+                    },
+                    {
+                        "name": "anotherResource",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Another Resource"
+                        }
+                    },
+                    {
+                        "name": "anotherResource",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Another Resource with another label"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

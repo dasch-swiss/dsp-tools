@@ -14,12 +14,14 @@ from dsp_tools.utils.shared import check_notna, prepare_dataframe
 languages = ["en", "de", "fr", "it", "rm"]
 
 
-def _validate_properties_with_schema(properties_list: list[dict[str, Any]]) -> bool:
+def _validate_properties(properties_list: list[dict[str, Any]], excelfile: str) -> bool:
     """
-    This function checks if the "properties" section of a JSON project file is valid according to the schema.
+    This function checks if the "properties" section of a JSON project file is valid according to the JSON schema,
+    and if the property names are unique.
 
     Args:
         properties_list: the "properties" section of a JSON project as a list of dicts
+        excelfile: path to the Excel file containing the properties
     
     Raises:
         BaseError with a detailed error report if the validation fails
@@ -32,7 +34,7 @@ def _validate_properties_with_schema(properties_list: list[dict[str, Any]]) -> b
     try:
         jsonschema.validate(instance=properties_list, schema=properties_schema)
     except jsonschema.ValidationError as err:
-        err_msg = f"'properties' section did not pass validation. "
+        err_msg = f"The 'properties' section defined in the Excel file '{excelfile}' did not pass validation. "
         json_path_to_property = re.search(r"^\$\[(\d+)\]", err.json_path)
         if json_path_to_property:
             wrong_property_name = jsonpath_ng.ext.parse(json_path_to_property.group(0)).find(properties_list)[0].value["name"]
@@ -44,6 +46,19 @@ def _validate_properties_with_schema(properties_list: list[dict[str, Any]]) -> b
         else:
             err_msg += f"The error message is: {err.message}\nThe error occurred at {err.json_path}"
         raise BaseError(err_msg) from None
+    
+    # check if property names are unique
+    all_names = [p["name"] for p in properties_list]
+    duplicates: dict[int, str] = dict()
+    for index, propdef in enumerate(properties_list):
+        if all_names.count(propdef["name"]) > 1:
+            duplicates[index+2] = propdef["name"]
+    if duplicates:
+        err_msg = f"Property names must be unique inside every ontology, but your Excel file '{excelfile}' contains duplicates:\n"
+        for row_no, propname in duplicates.items():
+            err_msg += f" - Row {row_no}: {propname}\n"
+        raise BaseError(err_msg)
+    
     return True
 
 
@@ -158,10 +173,11 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
     props = [_row2prop(row, i, excelfile) for i, row in df.iterrows()]
 
     # write final JSON file
-    _validate_properties_with_schema(props)
+    _validate_properties(properties_list=props, excelfile=excelfile)
     if path_to_output_file:
         with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
             json.dump(props, file, indent=4, ensure_ascii=False)
             print('"properties" section was created successfully and written to file:', path_to_output_file)
+
 
     return props, True

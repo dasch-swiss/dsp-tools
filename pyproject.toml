@@ -45,7 +45,6 @@ mypy = "^0.991"
 autopep8 = "^2.0.1"
 pytest = "^7.2.0"
 types-requests = "^2.28.11.7"
-types-lxml = "^2022.11.8"
 
 
 [tool.poetry.scripts]
@@ -56,10 +55,11 @@ dsp-tools = "dsp_tools.dsp_tools:main"
 [tool.poetry-exec-plugin.commands]
 # plugin (https://github.com/keattang/poetry-exec-plugin) to define commands available for the developers
 # e.g. `poetry exec docs-serve`
-check-links = "markdown-link-validator ./docs -i \\.\\/assets\\/.+ -i .+github\\.com\\/dasch\\-swiss\\/dsp-tools\\/settings"
+# The plugin has to be installed with `poetry self add poetry-exec-plugin`
 # `mkdocs serve` can normally be executed without custom port. This is only necessary on machines where the standard
 # port is taken already
 docs-serve = "mkdocs serve --dev-addr=localhost:7979"
+check-links = "markdown-link-validator ./docs -i \\.\\/assets\\/.+ -i .+github\\.com\\/dasch\\-swiss\\/dsp-tools\\/settings"
 
 
 [build-system]

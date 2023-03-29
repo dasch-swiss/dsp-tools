@@ -1152,24 +1152,6 @@ files = [
 ]
 
 [[package]]
-name = "types-lxml"
-version = "2022.11.8"
-description = "Type annotations for lxml striving for completeness"
-category = "dev"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "types-lxml-2022.11.8.tar.gz", hash = "sha256:858b7873b8e3936aec31b31a2ddd6f638e24938b5a1bb5b4343bab6975288622"},
-    {file = "types_lxml-2022.11.8-py3-none-any.whl", hash = "sha256:7a56fa6452bac06fe5b0c61d44c1e8a7084d32778dd7bcb876ac976a3f2f7d4f"},
-]
-
-[package.dependencies]
-lxml = "*"
-
-[package.extras]
-extra = ["types-beautifulsoup4", "types-html5lib"]
-
-[[package]]
 name = "types-requests"
 version = "2.28.11.7"
 description = "Typing stubs for requests"

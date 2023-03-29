@@ -54,7 +54,7 @@ dsp-tools enhanced-xmlupload --generate-test-data --size=small/medium/big data.x
 - If not already available, make a clone of the [DSP-API repository](https://github.com/dasch-swiss/dsp-api).
 - In Docker > Settings > Resources, assign as many CPUs as you afford to Docker. Not all, because some CPUs should remain for the OS.
 - In `dsp-api/sipi/config/sipi.docker-config.lua`, set nthreads to a number slightly lesser than the number of CPUs assigned to Docker.
-  - `--num-of-threads-for-preprocessing` (see below) will be dependent on the number of CPUs assigned to Docker and the number of threads of SIPI (???)
+  - `--num-of-threads-for-preprocessing` (see below) will be dependent on the number of CPUs assigned to Docker and the number of threads of SIPI
 - On the main branch, execute `make init-db-test-minimal` and then `make stack-up`.
 
 

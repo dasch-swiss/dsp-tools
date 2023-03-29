@@ -14,7 +14,7 @@ from lxml import etree
 from dsp_tools import excel2xml
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.helpers import BaseError
-from dsp_tools.utils.shared import try_network_action
+from dsp_tools.utils.shared import login
 from dsp_tools.utils.xml_upload import xml_upload
 
 tmp_location = Path.home() / Path(".dsp-tools")
@@ -28,7 +28,8 @@ extensions["text"] = [".csv", ".txt", ".xml", ".xsd", ".xsl"]
 extensions["document"] = [".doc", ".docx", ".pdf", ".ppt", ".pptx", ".xls", ".xlsx"]
 extensions["audio"] = [".mp3", ".wav"]
 all_extensions: list[str] = list()
-[all_extensions.extend(ext) for ext in extensions.values()]
+for extension in extensions.values():
+    all_extensions.extend(extension)
 extension2restype = dict()
 for ext in all_extensions:
     if ext in extensions.get("image", []):
@@ -87,7 +88,7 @@ def generate_testdata(size: str) -> bool:
 
     # download big files of some few file types
     if size != "small":
-        big_files_dict = {
+        big_files_dict: dict[str, dict[str, float]] = {
             "videos": {
                 "https://filesamples.com/samples/video/mp4/sample_960x400_ocean_with_audio.mp4": 16.71,
                 "https://filesamples.com/samples/video/mp4/sample_1280x720_surfing_with_audio.mp4": 68.43
@@ -143,7 +144,7 @@ def generate_testdata(size: str) -> bool:
     return True
 
 
-def _parse_xml_file(xmlfile: str) -> tuple[etree._ElementTree, list[str]]:
+def _parse_xml_file(xmlfile: str) -> tuple[etree._ElementTree, list[Path]]:
     """
     Parse XML file 
 
@@ -154,27 +155,42 @@ def _parse_xml_file(xmlfile: str) -> tuple[etree._ElementTree, list[str]]:
         tuple consisting of the lxml.etree.ElementTree of the XML file, and the list of all paths in the <bistream> tags
     """
     tree: etree._ElementTree = etree.parse(xmlfile)
-    bitstream_paths = [x.text for x in tree.iter()
+    bitstream_paths = [Path(x.text) for x in tree.iter()
                        if etree.QName(x).localname.endswith("bitstream") and x.text is not None]
     return tree, bitstream_paths
 
 
 def __upload_derivative(
     sipi_processed_path: str,
-    orig_file: str,
+    orig_file_path: Path,
     internal_filename: str,
     remote_sipi_server: str,
     con: Connection
-) -> tuple[int, str]:
+) -> None:
+    """
+    Given an internal filename, retrieve all derivatives, and send them to the remote SIPI.
+
+    Args:
+        sipi_processed_path: Path to folder containing the processed  files
+        orig_file_path: original filepath (for error messages and print statements)
+        internal_filename: SIPI internal filename, given by SIPI during preprocessing
+        remote_sipi_server: URL of the remote SIPI IIIF server
+        con: connection to the remote server
+
+    Raises:
+        BaseError: If the number of derivatives is not plausible, or if a derivative could not be uploaded
+    """
+    # retrieve list of all derivatives
     upload_candidates: list[str] = []
     upload_candidates.extend(glob.glob(f"{Path(sipi_processed_path)}/{Path(internal_filename).stem}/**/*.*"))
     upload_candidates.extend(glob.glob(f"{Path(sipi_processed_path)}/{Path(internal_filename).stem}*.*"))
 
-    orig_file_path = Path(orig_file)
+    # make a plausibility check
     min_num_of_candidates = 5 if orig_file_path.suffix == ".mp4" else 3
     if len(upload_candidates) < min_num_of_candidates:
         raise BaseError(f"Local SIPI created only the following files for {orig_file_path}, which is too less: {upload_candidates}")
 
+    # send every derivative to the remote SIPI
     for candidate in upload_candidates:
         with open(candidate, "rb") as bitstream:
             response_upload = requests.post(
@@ -184,12 +200,11 @@ def __upload_derivative(
         if not response_upload.json().get("uploadedFiles"):
             raise BaseError(f"File {candidate} ({orig_file_path!s}) could not be uploaded. The API response was: {response_upload.text}")
 
-    print(f" - Uploaded {len(upload_candidates)} derivatives of {orig_file}")
-    return len(upload_candidates), str(orig_file_path)
+    print(f" - Uploaded {len(upload_candidates)} derivatives of {orig_file_path}")
 
 
 def __preprocess_file(
-    orig_file: str,
+    orig_file_path: Path,
     local_sipi_server: str,
 ) -> tuple[Path, str]:
     """
@@ -197,14 +212,14 @@ def __preprocess_file(
     local DSP stack.
 
     Args:
-        orig_file: file to process
+        orig_file_path: file to process
         local_sipi_server: URL of the local SIPI IIIF server
 
     Returns:
         tuple consisting of the original path and the SIPI-internal filename
     """
 
-    with open(orig_file, "rb") as bitstream:
+    with open(orig_file_path, "rb") as bitstream:
         response_raw = requests.post(
             url=f"{local_sipi_server}/upload_for_processing",
             files={"file": bitstream}
@@ -213,10 +228,10 @@ def __preprocess_file(
     if response.get("uploadedFiles", [{}])[0].get("internalFilename"):
         internal_filename: str = response["uploadedFiles"][0]["internalFilename"]
     elif response.get("message") == "server.fs.mkdir() failed: File exists":
-        _, internal_filename = __preprocess_file(orig_file=orig_file, local_sipi_server=local_sipi_server)
+        _, internal_filename = __preprocess_file(orig_file_path=orig_file_path, local_sipi_server=local_sipi_server)
     else:
-        raise BaseError(f"File {orig_file} couldn't be handled by the /upload_for_processing route of the local SIPI. Error message: {response['message']}")
-    return orig_file, internal_filename
+        raise BaseError(f"File {orig_file_path} couldn't be handled by the /upload_for_processing route of the local SIPI. Error message: {response['message']}")
+    return orig_file_path, internal_filename
 
 
 def enhanced_xml_upload(
@@ -257,34 +272,33 @@ def enhanced_xml_upload(
 
     xml_file_tree, all_paths = _parse_xml_file(xmlfile=xmlfile)
 
-    con = Connection(remote_dsp_server)
-    try_network_action(lambda: con.login(user, password))
+    con = login(remote_dsp_server, user, password)
 
-    print(f"{datetime.now()}: Start preprocessing and uploading the multimedia files...")
     start_multithreading_time = datetime.now()
-    orig_filepath_2_uuid: dict[str, str] = dict()
+    print(f"{start_multithreading_time}: Start preprocessing and uploading the multimedia files...")
+    orig_filepath_2_uuid: dict[Path, str] = dict()
 
     # create processing thread pool
-    with ThreadPoolExecutor(processing_threads, "processing") as e1:
+    with ThreadPoolExecutor(max_workers=processing_threads, thread_name_prefix="processing") as e1:
         # add processing jobs to pool
         processing_jobs = [e1.submit(
             __preprocess_file,
-            orig_file,
+            orig_file_path,
             local_sipi_server
-        ) for orig_file in all_paths]
+        ) for orig_file_path in all_paths]
 
-        with ThreadPoolExecutor(uploading_threads, "upload") as e2:
+        with ThreadPoolExecutor(max_workers=uploading_threads, thread_name_prefix="upload") as e2:
             # wait for a processing job to complete and add upload job to pool
             uploading_jobs = []
             for processed in as_completed(processing_jobs):
                 try:
-                    orig_file, internal_filename = processed.result()
-                    orig_filepath_2_uuid[orig_file] = internal_filename
+                    orig_file_path, internal_filename = processed.result()
+                    orig_filepath_2_uuid[orig_file_path] = internal_filename
                     uploading_jobs.append(
                         e2.submit(
                             __upload_derivative,
                             sipi_processed_path,
-                            orig_file,
+                            orig_file_path,
                             internal_filename,
                             remote_sipi_server,
                             con
@@ -293,8 +307,9 @@ def enhanced_xml_upload(
                 except Exception as ex:
                     print(f"processing generated an exception: {ex}")
                 else:
-                    print(f" - Successfully preprocessed {orig_file} with internal filename: {internal_filename}")
+                    print(f" - Successfully preprocessed '{orig_file_path}' with internal filename '{internal_filename}'")
 
+    # retrieve results of upload jobs, see if there was an exception
     for uploaded in as_completed(uploading_jobs):
         try:
             uploaded.result()
@@ -305,6 +320,7 @@ def enhanced_xml_upload(
     multithreading_duration = end_multithreading_time - start_multithreading_time
     print(f"Time of multithreading (with {processing_threads} threads for preprocessing and {uploading_threads} threads for uploading): {multithreading_duration.seconds} seconds")
 
+    # in the XML, replace the original file paths with the internal filenames
     for tag in xml_file_tree.iter():
         if tag.text in orig_filepath_2_uuid:
             tag.text = orig_filepath_2_uuid[tag.text]
@@ -328,6 +344,7 @@ def enhanced_xml_upload(
     print(f"Total time of enhanced xmlupload: {duration.seconds} seconds")
     print(f"Time of multithreading: {multithreading_duration.seconds} seconds")
 
+    # tidy up the folder with the preprocessed files
     for filename in os.listdir(sipi_processed_path):
         file_path = os.path.join(sipi_processed_path, filename)
         try:

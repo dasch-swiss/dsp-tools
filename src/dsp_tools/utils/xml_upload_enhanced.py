@@ -180,7 +180,7 @@ def __upload_derivative(
     Raises:
         BaseError: If the number of derivatives is not plausible, or if a derivative could not be uploaded
     """
-    # retrieve list of all derivatives
+    # retrieve list of all derivatives 
     upload_candidates: list[str] = []
     upload_candidates.extend(glob.glob(f"{Path(sipi_processed_path)}/{Path(internal_filename).stem}/**/*.*"))
     upload_candidates.extend(glob.glob(f"{Path(sipi_processed_path)}/{Path(internal_filename).stem}*.*"))

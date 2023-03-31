@@ -111,7 +111,7 @@ def make_parser() -> argparse.ArgumentParser:
     parser_enhanced_xmlupload.add_argument("--sipi-processed-path", help="Path to folder containing the processed multimedia files")
     parser_enhanced_xmlupload.add_argument("-s", "--remote-dsp-server", default=default_dsp_api_url, help=remote_dsp_api_server_text)
     parser_enhanced_xmlupload.add_argument("-S", "--remote-sipi-server", default="http://0.0.0.0:1024", help="URL of the remote SIPI IIIF server")
-    parser_enhanced_xmlupload.add_argument("-t", "--num-of-threads-for-processing", type=int, default=32, help="number of threads used for sending requests to the local SIPI")
+    parser_enhanced_xmlupload.add_argument("-t", "--num-of-threads-for-preprocessing", type=int, default=32, help="number of threads used for sending requests to the local SIPI")
     parser_enhanced_xmlupload.add_argument("-T", "--num-of-threads-for-uploading", type=int, default=8, help="number of threads used for uploading the preprocessed files to the remote SIPI")
     parser_enhanced_xmlupload.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_enhanced_xmlupload.add_argument("-p", "--password", default=default_pw, help=password_text)
@@ -292,8 +292,8 @@ def call_requested_action(
                 sipi_processed_path=args.sipi_processed_path,
                 remote_dsp_server=args.remote_dsp_server,
                 remote_sipi_server=args.remote_sipi_server,
-                processing_threads=args.num_of_threads_for_processing,
-                uploading_threads=args.num_of_threads_for_uploading,
+                num_of_threads_for_preprocessing=args.num_of_threads_for_preprocessing,
+                num_of_threads_for_uploading=args.num_of_threads_for_uploading,
                 user=args.user,
                 password=args.password,
                 xmlfile=args.xmlfile,

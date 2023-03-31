@@ -239,8 +239,8 @@ def enhanced_xml_upload(
     sipi_processed_path: str,
     remote_dsp_server: str,
     remote_sipi_server: str,
-    processing_threads: int,
-    uploading_threads: int,
+    num_of_threads_for_preprocessing: int,
+    num_of_threads_for_uploading: int,
     user: str,
     password: str,
     xmlfile: str,
@@ -257,8 +257,8 @@ def enhanced_xml_upload(
         sipi_processed_path: Path to folder containing the processed  files
         remote_dsp_server: the DSP server where the data should be imported
         remote_sipi_server: URL of the remote SIPI IIIF server
-        processing_threads: number of threads used for sending requests to the local SIPI
-        uploading_threads: number of threads used for uploading the preprocessed files to the remote SIPI
+        num_of_threads_for_preprocessing: number of threads used for sending requests to the local SIPI
+        num_of_threads_for_uploading: number of threads used for uploading the preprocessed files to the remote SIPI
         user: username used for authentication with the DSP-API
         password: password used for authentication with the DSP-API
         xmlfile: path to xml file containing the data
@@ -279,7 +279,7 @@ def enhanced_xml_upload(
     orig_filepath_2_uuid: dict[Path, str] = dict()
 
     # create processing thread pool
-    with ThreadPoolExecutor(max_workers=processing_threads, thread_name_prefix="processing") as e1:
+    with ThreadPoolExecutor(max_workers=num_of_threads_for_preprocessing, thread_name_prefix="processing") as e1:
         # add processing jobs to pool
         processing_jobs = [e1.submit(
             __preprocess_file,
@@ -287,7 +287,7 @@ def enhanced_xml_upload(
             local_sipi_server
         ) for orig_file_path in all_paths]
 
-        with ThreadPoolExecutor(max_workers=uploading_threads, thread_name_prefix="upload") as e2:
+        with ThreadPoolExecutor(max_workers=num_of_threads_for_uploading, thread_name_prefix="upload") as e2:
             # wait for a processing job to complete and add upload job to pool
             uploading_jobs = []
             for processed in as_completed(processing_jobs):
@@ -318,7 +318,7 @@ def enhanced_xml_upload(
 
     end_multithreading_time = datetime.now()
     multithreading_duration = end_multithreading_time - start_multithreading_time
-    print(f"Time of multithreading (with {processing_threads} threads for preprocessing and {uploading_threads} threads for uploading): {multithreading_duration.seconds} seconds")
+    print(f"Time of multithreading (with {num_of_threads_for_preprocessing} threads for preprocessing and {num_of_threads_for_uploading} threads for uploading): {multithreading_duration.seconds} seconds")
 
     # in the XML, replace the original file paths with the internal filenames
     for tag in xml_file_tree.iter():

@@ -35,6 +35,7 @@ networkx = "^2.8.8"
 pandas = "^1.5.2"
 xlrd = ">=1.0.0"            # without this, pandas raises an ImportError: Missing optional dependency 'xlrd'
 regex = "^2022.10.31"
+docker = "^6.0.1"
 
 
 [tool.poetry.group.dev.dependencies]

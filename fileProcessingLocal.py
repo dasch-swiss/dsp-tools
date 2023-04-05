@@ -7,7 +7,7 @@ import subprocess
 import uuid
 from datetime import datetime
 from pathlib import Path, PurePath
-from typing import Union, Any
+from typing import Union, Any, Tuple
 
 import docker
 from docker.models.resource import Model
@@ -248,7 +248,7 @@ def extract_key_frames(file: Path):
 def process_file(
     in_file: Path,
     out_dir: Path
-) -> tuple[Path, Path]:
+) -> tuple[Path, str]:
     """
     Sends a file to SIPI to convert it. Creates a derivative, an original file and a sidecar file.
 
@@ -289,7 +289,7 @@ def process_file(
     else:
         raise BaseError(f"Unexpected file category: {file_category}")
 
-    return in_file, converted_file
+    return in_file, converted_file_basename
 
 
 def main():

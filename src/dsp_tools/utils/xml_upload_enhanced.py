@@ -181,7 +181,7 @@ def __upload_derivative(
     min_num_of_candidates = 5 if orig_file_path.suffix == ".mp4" else 3
     if len(upload_candidates) < min_num_of_candidates:
         raise BaseError(
-            f"Local SIPI created the following files for {orig_file_path}, but more were expected: {upload_candidates}")
+            f"SIPI created the following files for {orig_file_path}, but more were expected: {upload_candidates}")
 
     for candidate in upload_candidates:
         with open(candidate, "rb") as bitstream:
@@ -193,7 +193,7 @@ def __upload_derivative(
             raise BaseError(
                 f"File {candidate} ({orig_file_path!s}) could not be uploaded. The API response was: {response_upload.text}")
 
-    print(f" - Uploaded {len(upload_candidates)} derivatives of {orig_file}")
+    print(f" - Uploaded {len(upload_candidates)} files for {orig_file}")
     return len(upload_candidates), str(orig_file_path)
 
 
@@ -279,45 +279,45 @@ def enhanced_xml_upload(
     con = Connection(remote_dsp_server)
     try_network_action(lambda: con.login(user, password))
 
-    print(f"{datetime.now()}: Start preprocessing and uploading the multimedia files...")
+    print(f"{datetime.now()}: Start local file processing...")
     start_multithreading_time = datetime.now()
     orig_filepath_2_uuid: dict[str, str] = dict()
 
     # create processing thread pool
     with ThreadPoolExecutor(processing_threads, "processing") as e1:
         # add processing jobs to pool
-        # processing_jobs = [e1.submit(
-        #     __preprocess_file,
-        #     orig_file,
-        #     local_sipi_server
-        # ) for orig_file in all_paths]
+        #processing_jobs = [e1.submit(
+        #    __preprocess_file,
+        #    orig_file,
+        #    local_sipi_server
+        #) for orig_file in all_paths]
         processing_jobs = [e1.submit(
             __preprocess_file_2,
             Path(orig_file),
             Path(sipi_processed_path)
         ) for orig_file in all_paths]
 
-        with ThreadPoolExecutor(uploading_threads, "upload") as e2:
-            # wait for a processing job to complete and add upload job to pool
-            uploading_jobs = []
-            for processed in as_completed(processing_jobs):
-                try:
-                    orig_file, internal_filename = processed.result()
-                    orig_filepath_2_uuid[orig_file] = str(internal_filename)
-                    uploading_jobs.append(
-                        e2.submit(
-                            __upload_derivative,
-                            sipi_processed_path,
-                            orig_file,
-                            str(internal_filename),
-                            remote_sipi_server,
-                            con
-                        )
+    print(f"{datetime.now()}: Start uploading files...")
+    with ThreadPoolExecutor(uploading_threads, "upload") as e2:
+        uploading_jobs = []
+        for processed in as_completed(processing_jobs):
+            try:
+                orig_file, internal_filename = processed.result()
+                orig_filepath_2_uuid[orig_file] = str(internal_filename)
+                uploading_jobs.append(
+                    e2.submit(
+                        __upload_derivative,
+                        sipi_processed_path,
+                        orig_file,
+                        str(internal_filename),
+                        remote_sipi_server,
+                        con
                     )
-                except Exception as ex:
-                    print(f"processing generated an exception: {ex}")
-                else:
-                    print(f" - Successfully preprocessed {orig_file} with internal filename: {internal_filename}")
+                )
+            except Exception as ex:
+                print(f"processing generated an exception: {ex}")
+            else:
+                print(f" - Successfully preprocessed {orig_file} with internal filename: {internal_filename}")
 
     for uploaded in as_completed(uploading_jobs):
         try:
@@ -334,7 +334,7 @@ def enhanced_xml_upload(
         if tag.text in orig_filepath_2_uuid:
             tag.text = orig_filepath_2_uuid[tag.text]
 
-    print("Preprocessing successfully finished! Start with regular xmlupload...")
+    print("Preprocessing successfully finished! Start with regular xml upload...")
 
     xml_upload(
         input_file=xml_file_tree,
@@ -599,7 +599,7 @@ def extract_key_frames(file: Path):
 def process_file(
     in_file: Path,
     out_dir: Path
-) -> tuple[Path, Path]:
+) -> tuple[Path, str]:
     """
     Sends a file to SIPI to convert it. Creates a derivative, an original file and a sidecar file.
 
@@ -640,4 +640,4 @@ def process_file(
     else:
         raise BaseError(f"Unexpected file category: {file_category}")
 
-    return in_file, converted_file
+    return in_file, converted_file_basename

@@ -1,4 +1,5 @@
-import glob
+"""This module handles processing of files referenced in the bitstream tags of an XML file."""
+
 import hashlib
 import json
 import mimetypes
@@ -10,77 +11,13 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path, PurePath
 from typing import Union, Any
+from uuid import UUID
 
 import docker
-import regex
-import requests
 from docker.models.resource import Model
 from lxml import etree
 
-from dsp_tools.models.connection import Connection
 from dsp_tools.models.helpers import BaseError
-
-tmp_location = Path.home() / Path(".dsp-tools")
-tmp_location.mkdir(exist_ok=True)
-
-extensions: dict[str, list[str]] = dict()
-extensions["image"] = [".jpg", ".jpeg", ".tif", ".tiff", ".jp2", ".png"]
-extensions["video"] = [".mp4"]
-extensions["archive"] = [".7z", ".gz", ".gzip", ".tar", ".tar.gz", ".tgz", ".z", ".zip"]
-extensions["text"] = [".csv", ".txt", ".xml", ".xsd", ".xsl"]
-extensions["document"] = [".doc", ".docx", ".pdf", ".ppt", ".pptx", ".xls", ".xlsx"]
-extensions["audio"] = [".mp3", ".wav"]
-all_extensions: list[str] = list()
-[all_extensions.extend(ext) for ext in extensions.values()]
-extension2restype = dict()
-for ext in all_extensions:
-    if ext in extensions.get("image", []):
-        restype = ":ImageThing"
-    elif ext in extensions.get("video", []):
-        restype = ":MovieThing"
-    elif ext in extensions.get("archive", []):
-        restype = ":ZipThing"
-    elif ext in extensions.get("text", []):
-        restype = ":TextThing"
-    elif ext in extensions.get("document", []):
-        restype = ":DocumentThing"
-    elif ext in extensions.get("audio", []):
-        restype = ":AudioThing"
-    else:
-        raise BaseError("Invalid extension")
-    extension2restype[ext] = restype
-
-
-
-def __upload_derivative(
-    sipi_processed_path: str,
-    orig_file: str,
-    internal_filename: str,
-    remote_sipi_server: str,
-    con: Connection
-) -> tuple[int, str]:
-    upload_candidates: list[str] = []
-    upload_candidates.extend(glob.glob(f"{Path(sipi_processed_path)}/{Path(internal_filename).stem}/**/*.*"))
-    upload_candidates.extend(glob.glob(f"{Path(sipi_processed_path)}/{Path(internal_filename).stem}*.*"))
-
-    orig_file_path = Path(orig_file)
-    min_num_of_candidates = 5 if orig_file_path.suffix == ".mp4" else 3
-    if len(upload_candidates) < min_num_of_candidates:
-        raise BaseError(
-            f"SIPI created the following files for {orig_file_path}, but more were expected: {upload_candidates}")
-
-    for candidate in upload_candidates:
-        with open(candidate, "rb") as bitstream:
-            response_upload = requests.post(
-                url=f"{regex.sub(r'/$', '', remote_sipi_server)}/upload_without_processing?token={con.get_token()}",
-                files={"file": bitstream}
-            )
-        if not response_upload.json().get("uploadedFiles"):
-            raise BaseError(
-                f"File {candidate} ({orig_file_path!s}) could not be uploaded. The API response was: {response_upload.text}")
-
-    print(f" - Uploaded {len(upload_candidates)} files for {orig_file}")
-    return len(upload_candidates), str(orig_file_path)
 
 
 def process_files(
@@ -96,97 +33,31 @@ def process_files(
     Returns:
         success status
     """
-    start_time = datetime.now()
 
-    all_paths = _get_file_paths_from_xml(xml_file=Path(xml_file))
+    all_paths: list[Path] = _get_file_paths_from_xml(xml_file=Path(xml_file))
 
     print(f"{datetime.now()}: Start local file processing...")
 
     orig_filepath_2_uuid: dict[str, str] = dict()
 
+    start_time = datetime.now()
     # create processing thread pool
     with ThreadPoolExecutor() as e1:
         processing_jobs = [e1.submit(
             _process_file,
-            Path(orig_file),
+            orig_file,
             Path(out_dir)
         ) for orig_file in all_paths]
 
-    result = []
+    result: list[tuple[Path, Path]] = []
     for processed in as_completed(processing_jobs):
         result.append(processed.result())
-    print(result)
-    print("TIME PROCESSING FILES:", datetime.now() - start_time)
-    # print(f"{datetime.now()}: Start uploading files...")
-    # with ThreadPoolExecutor(uploading_threads, "upload") as e2:
-    #     uploading_jobs = []
-    #     for processed in as_completed(processing_jobs):
-    #         try:
-    #             orig_file, internal_filename = processed.result()
-    #             orig_filepath_2_uuid[orig_file] = str(internal_filename)
-    #             uploading_jobs.append(
-    #                 e2.submit(
-    #                     __upload_derivative,
-    #                     sipi_processed_path,
-    #                     orig_file,
-    #                     str(internal_filename),
-    #                     remote_sipi_server,
-    #                     con
-    #                 )
-    #             )
-    #         except Exception as ex:
-    #             print(f"processing generated an exception: {ex}")
-    #         else:
-    #             print(f" - Successfully preprocessed {orig_file} with internal filename: {internal_filename}")
-    #
-    # for uploaded in as_completed(uploading_jobs):
-    #     try:
-    #         uploaded.result()
-    #     except Exception as ex:
-    #         print(f"upload generated an exception: {ex}")
-
-    # end_multithreading_time = datetime.now()
-    # multithreading_duration = end_multithreading_time - start_multithreading_time
-    # print(
-    #     f"Time of multithreading (with {processing_threads} threads for preprocessing and {uploading_threads} threads for uploading): {multithreading_duration.seconds} seconds")
-    #
-    # for tag in xml_file_tree.iter():
-    #     if tag.text in orig_filepath_2_uuid:
-    #         tag.text = orig_filepath_2_uuid[tag.text]
-    #
-    # print("Preprocessing successfully finished! Start with regular xml upload...")
-    #
-    # xml_upload(
-    #     input_file=xml_file_tree,
-    #     server=remote_dsp_server,
-    #     user=user,
-    #     password=password,
-    #     imgdir=".",
-    #     sipi=remote_sipi_server,
-    #     verbose=verbose,
-    #     incremental=incremental,
-    #     save_metrics=False,
-    #     preprocessing_done=True
-    # )
-    #
-    # duration = datetime.now() - start_time
-    # print(f"Total time of enhanced xmlupload: {duration.seconds} seconds")
-    # print(f"Time of multithreading: {multithreading_duration.seconds} seconds")
-    #
-    # for filename in os.listdir(sipi_processed_path):
-    #     file_path = os.path.join(sipi_processed_path, filename)
-    #     try:
-    #         if os.path.isfile(file_path) or os.path.islink(file_path):
-    #             os.unlink(file_path)
-    #         elif os.path.isdir(file_path):
-    #             shutil.rmtree(file_path)
-    #     except Exception as e:
-    #         print("Failed to delete %s. Reason: %s" % (file_path, e))
+    print("Processing files took:", datetime.now() - start_time)
 
     return True
 
 
-def _get_file_paths_from_xml(xml_file: Path) -> list[str]:
+def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
     """
     Parse XML file to get all file paths.
 
@@ -197,26 +68,32 @@ def _get_file_paths_from_xml(xml_file: Path) -> list[str]:
         list of all paths in the <bitstream> tags
     """
     tree: etree._ElementTree = etree.parse(xml_file)
-    bitstream_paths = [x.text for x in tree.iter()
-                       if etree.QName(x).localname.endswith("bitstream") and x.text is not None]
+    bitstream_paths: [Path] = []
+    for x in tree.iter():
+        if x.text and etree.QName(x).localname.endswith("bitstream"):
+            bitstream_paths.append(Path(x.text))
+
     return bitstream_paths
 
 
-def get_sipi_container() -> Union[Model, Any]:
+def _get_sipi_container() -> Union[Model, Any]:
     """
-    Checks the locally running containers and returns the Sipi container
+    Finds the locally running Sipi container and returns its Model
 
     Returns:
-        the sipi container
+        the reference to the Sipi container
     """
     docker_client = docker.from_env()
     containers = docker_client.containers.list()
+    sipi_container = None
     for c in containers:
         if "sipi" in c.name:
             return c
+    if not sipi_container:
+        raise BaseError("Couldn't find a running Sipi container.")
 
 
-def compute_sha256(file: Path):
+def _compute_sha256(file: Path):
     """
     Calculates SHA256 checksum of a file
 
@@ -233,22 +110,21 @@ def compute_sha256(file: Path):
     return hash_sha256.hexdigest()
 
 
-def convert_file_with_sipi(in_file_local_path, out_file_local_path) -> bool:
+def _convert_file_with_sipi(in_file_local_path, out_file_local_path) -> bool:
     """
     Converts a file by calling a locally running Sipi container
 
     Args:
-        in_file_local_path: input file
-        out_file_local_path: output file
+        in_file_local_path: path to input file
+        out_file_local_path: path to output file
     """
-    mounted_path_on_sipi = "images/tmp/"
+    mounted_path_on_sipi = "images/"
     out_dir_sipi = "processed/"
-    in_file_sipi_path = mounted_path_on_sipi + os.path.basename(in_file_local_path)  # images/tmp/test.tif
-    out_file_sipi_path = mounted_path_on_sipi + out_dir_sipi + os.path.basename(
-        out_file_local_path)  # images/tmp/processed/76c99684-354f-4e8c-9c20-2b25901a1862.jp2
-    sipi_container = get_sipi_container()
+    in_file_sipi_path = mounted_path_on_sipi + os.path.basename(in_file_local_path)
+    out_file_sipi_path = mounted_path_on_sipi + out_dir_sipi + os.path.basename(out_file_local_path)
+    sipi_container = _get_sipi_container()
     # result = sipi_container.exec_run(f"/sipi/sipi --topleft {in_file_sipi_path} {out_file_sipi_path}")
-    result = sipi_container.exec_run(f"/sipi/sipi {in_file_sipi_path} {out_file_sipi_path}")
+    result = sipi_container.exec_run(f"/sipi/sipi -t 8 {in_file_sipi_path} {out_file_sipi_path}")
     if result.exit_code != 0:
         print("Sipi image conversion failed:", result)
         return False
@@ -270,7 +146,7 @@ def _create_orig_file(in_file, random_file_name, out_dir):
     shutil.copyfile(in_file, orig_file_full_path)
 
 
-def get_video_metadata_with_ffprobe(file_path):
+def _get_video_metadata_with_ffprobe(file_path):
     command_array = ["ffprobe",
                      "-v",
                      "error",
@@ -285,19 +161,17 @@ def get_video_metadata_with_ffprobe(file_path):
     return video_metadata
 
 
-def create_sidecar_file(
-    orig_file: Path,
-    converted_file: Path,
-    out_dir: Path,
-    file_category: str):
+def _create_sidecar_file(orig_file: Path,
+                         converted_file: Path,
+                         out_dir: Path,
+                         file_category: str):
     if file_category not in ("IMAGE", "VIDEO", "OTHER"):
         raise BaseError(f"Unexpected file category {file_category}")
 
-    original_filename = PurePath(orig_file).name  # test.tif
+    checksum_original = _compute_sha256(orig_file)
+    checksum_derivative = _compute_sha256(converted_file)
 
-    checksum_original = compute_sha256(orig_file)
-    checksum_derivative = compute_sha256(converted_file)
-
+    original_filename = PurePath(orig_file).name
     internal_filename = PurePath(converted_file).name
     random_part_of_filename = PurePath(converted_file).stem
     original_extension = PurePath(orig_file).suffix
@@ -308,8 +182,9 @@ def create_sidecar_file(
                     "internalFilename": internal_filename,
                     "originalInternalFilename": original_internal_filename}
 
+    # add video specific metadata to sidecar file
     if file_category == "VIDEO":
-        video_metadata = get_video_metadata_with_ffprobe(converted_file)
+        video_metadata = _get_video_metadata_with_ffprobe(converted_file)
         sidecar_dict["width"] = video_metadata["width"]
         sidecar_dict["height"] = video_metadata["height"]
         sidecar_dict["duration"] = float(video_metadata["duration"])
@@ -318,83 +193,72 @@ def create_sidecar_file(
         fps = nb_frames / duration
         sidecar_dict["fps"] = fps
 
-    sidecar_json = json.dumps(sidecar_dict, indent=4)
-
     sidecar_file_basename = f"{random_part_of_filename}.info"
     sidecar_file = PurePath(out_dir, sidecar_file_basename)
 
     with open(sidecar_file, "w") as f:
+        sidecar_json = json.dumps(sidecar_dict, indent=4)
         f.write(sidecar_json)
 
 
-def get_file_category(file: Path):
-    IMAGE_JP2 = "image/jp2"
-    IMAGE_JPX = "image/jpx"
-    IMAGE_TIFF = "image/tiff"
-    IMAGE_PNG = "image/png"
-    IMAGE_JPG = "image/jpeg"
-    APPLICATION_XML = "application/xml"
-    TEXT_XML = "text/xml"
-    TEXT_PLAIN = "text/plain"
-    TEXT_CSV = "text/csv"
-    AUDIO_MP3 = "audio/mpeg"
-    AUDIO_WAV = "audio/wav"
-    AUDIO_X_WAV = "audio/x-wav"
-    AUDIO_VND_WAVE = "audio/vnd.wave"
-    APPLICATION_CSV = "application/csv"
-    APPLICATION_PDF = "application/pdf"
-    APPLICATION_DOC = "application/msword"
-    APPLICATION_DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    APPLICATION_XLS = "application/vnd.ms-excel"
-    APPLICATION_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    APPLICATION_PPT = "application/vnd.ms-powerpoint"
-    APPLICATION_PPTX = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-    APPLICATION_ZIP = "application/zip"
-    APPLICATION_TAR = "application/x-tar"
-    APPLICATION_GZIP = "application/gzip"
-    APPLICATION_7Z = "application/x-7z-compressed"
-    APPLICATION_TGZ = "application/x-compress"
-    APPLICATION_Z = "application/x-compress"
-    VIDEO_MP4 = "video/mp4"
+def _get_file_category_from_mimetype(file: Path):
+    image_jp2 = "image/jp2"
+    image_jpx = "image/jpx"
+    image_tiff = "image/tiff"
+    image_png = "image/png"
+    image_jpg = "image/jpeg"
+    application_xml = "application/xml"
+    text_xml = "text/xml"
+    text_plain = "text/plain"
+    text_csv = "text/csv"
+    audio_mp3 = "audio/mpeg"
+    audio_wav = "audio/wav"
+    audio_x_wav = "audio/x-wav"
+    audio_vnd_wave = "audio/vnd.wave"
+    application_csv = "application/csv"
+    application_pdf = "application/pdf"
+    application_doc = "application/msword"
+    application_docx = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    application_xls = "application/vnd.ms-excel"
+    application_xlsx = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    application_ppt = "application/vnd.ms-powerpoint"
+    application_pptx = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+    application_zip = "application/zip"
+    application_tar = "application/x-tar"
+    application_gzip = "application/gzip"
+    application_7_z = "application/x-7z-compressed"
+    application_tgz = "application/x-compress"
+    application_z = "application/x-compress"
+    video_mp4 = "video/mp4"
 
-    image_mimetypes = [IMAGE_JP2,
-                       IMAGE_JPG,
-                       IMAGE_JPX,
-                       IMAGE_PNG,
-                       IMAGE_TIFF]
-    video_mimetypes = [VIDEO_MP4]
-    other_mimetypes = [AUDIO_MP3,
-                       AUDIO_VND_WAVE,
-                       AUDIO_WAV,
-                       AUDIO_X_WAV,
-                       APPLICATION_CSV,
-                       APPLICATION_XML,
-                       TEXT_CSV,
-                       TEXT_PLAIN,
-                       TEXT_XML,
-                       APPLICATION_DOC,
-                       APPLICATION_DOCX,
-                       APPLICATION_PDF,
-                       APPLICATION_PPT,
-                       APPLICATION_PPTX,
-                       APPLICATION_XLS,
-                       APPLICATION_XLSX,
-                       APPLICATION_7Z,
-                       APPLICATION_GZIP,
-                       APPLICATION_TAR,
-                       APPLICATION_TGZ,
-                       APPLICATION_Z,
-                       APPLICATION_ZIP
-                       ]
-
-    # image_extensions = []
-    # video_extensions = ["mp4"]
-    # other_extensions = ["mp3", "wav", "csv",
-    #                     "odd", "rng", "txt",
-    #                     "xml", "xsd", "xsl", "doc",
-    #                     "docx", "pdf", "ppt", "pptx",
-    #                     "xls", "xlsx", "7z", "gz",
-    #                     "gzip", "tar", "tgz", "z", "zip"]
+    image_mimetypes = [image_jp2,
+                       image_jpg,
+                       image_jpx,
+                       image_png,
+                       image_tiff]
+    video_mimetypes = [video_mp4]
+    other_mimetypes = [audio_mp3,
+                       audio_vnd_wave,
+                       audio_wav,
+                       audio_x_wav,
+                       application_csv,
+                       application_xml,
+                       text_csv,
+                       text_plain,
+                       text_xml,
+                       application_doc,
+                       application_docx,
+                       application_pdf,
+                       application_ppt,
+                       application_pptx,
+                       application_xls,
+                       application_xlsx,
+                       application_7_z,
+                       application_gzip,
+                       application_tar,
+                       application_tgz,
+                       application_z,
+                       application_zip]
 
     mimetype, _ = mimetypes.guess_type(file)
 
@@ -409,13 +273,13 @@ def get_file_category(file: Path):
     return category
 
 
-def extract_key_frames(file: Path):
-    result = subprocess.call(['sh', '/Users/irina/GitHub/dsp-tools/export-moving-image-frames.sh', '-i', file])
+def _extract_key_frames(file: Path):
+    result = subprocess.call(['sh', 'export-moving-image-frames.sh', '-i', file])
     if result != 0:
         raise BaseError(f"Something happened while extracting frames from: {file}")
 
 
-def _create_random_uuid() -> uuid.UUID:
+def _create_random_uuid() -> UUID:
     return uuid.uuid4()
 
 
@@ -445,32 +309,33 @@ def _process_file(
     # ensure the output directory exists, create it if not
     _ensure_path_exists(out_dir)
 
-    random_uuid = _create_random_uuid
+    # get random UUID for internal file handling
+    random_uuid = _create_random_uuid()
 
     # create .orig file
     _create_orig_file(in_file, random_uuid, out_dir)
 
     # convert file (create derivative) and create sidecar file based on category (image, video or other)
-    file_category = get_file_category(in_file)
+    file_category = _get_file_category_from_mimetype(in_file)
     if file_category == "OTHER":
         ext = PurePath(in_file).suffix
         converted_file_basename = str(random_uuid) + ext
         converted_file_full_path = out_dir / converted_file_basename
         shutil.copyfile(in_file, converted_file_full_path)
-        create_sidecar_file(in_file, converted_file_full_path, out_dir, file_category)
+        _create_sidecar_file(in_file, converted_file_full_path, out_dir, file_category)
     elif file_category == "IMAGE":
         ext = ".jp2"
         converted_file_basename = str(random_uuid) + ext
         converted_file_full_path = out_dir / converted_file_basename
-        convert_file_with_sipi(in_file, converted_file_full_path)
-        create_sidecar_file(in_file, converted_file_full_path, out_dir, file_category)
+        _convert_file_with_sipi(in_file, converted_file_full_path)
+        _create_sidecar_file(in_file, converted_file_full_path, out_dir, file_category)
     elif file_category == "VIDEO":
         ext = PurePath(in_file).suffix
         converted_file_basename = str(random_uuid) + ext
         converted_file_full_path = out_dir / converted_file_basename
         shutil.copyfile(in_file, converted_file_full_path)
-        extract_key_frames(converted_file_full_path)
-        create_sidecar_file(in_file, converted_file_full_path, out_dir, file_category)
+        _extract_key_frames(converted_file_full_path)
+        _create_sidecar_file(in_file, converted_file_full_path, out_dir, file_category)
     else:
         raise BaseError(f"Unexpected file category: {file_category}")
 

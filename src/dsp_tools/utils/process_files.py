@@ -4,6 +4,7 @@ import hashlib
 import json
 import mimetypes
 import os
+import pickle
 import shutil
 import subprocess
 import uuid
@@ -53,19 +54,30 @@ def process_files(
     with ThreadPoolExecutor() as e1:
         processing_jobs = [e1.submit(
             _process_file,
-            orig_file,
+            input_file,
             input_dir,
             out_dir
-        ) for orig_file in all_paths]
+        ) for input_file in all_paths]
 
-    orig_filepath_2_uuid: list[tuple[Path, Path]] = []
+    orig_filepath_2_uuid: list[tuple[str, str]] = []
 
     for processed in as_completed(processing_jobs):
         orig_filepath_2_uuid.append(processed.result())
 
     print("Processing files took:", datetime.now() - start_time)
 
+    try:
+        _write_result_to_pkl_file(orig_filepath_2_uuid)
+    except:
+        print(f"An error occurred while writing the result to the pickle file. The result was: {orig_filepath_2_uuid}")
+
     return True
+
+
+def _write_result_to_pkl_file(result: list[tuple[str, str]]):
+    filename = "file_processing_result_" + datetime.now().strftime("%m%d%Y_%H%M%S") + ".pkl"
+    with open(filename, 'wb') as pkl_file:
+        pickle.dump(result, pkl_file)
 
 
 def _check_params(input_dir: str, out_dir: str, xml_file: str) -> tuple[Path, Path, Path]:
@@ -353,34 +365,35 @@ def _process_file(
     Returns:
         tuple consisting of the original path and the internal filename
     """
-
-    # ensure the output directory exists, create it if not
-    _ensure_path_exists(out_dir)
+    # ensure that input file exists
+    if not in_file.is_file():
+        print(f"{datetime.now()}: '{in_file}' does not exist. Skipping...")
+        return in_file, in_file
 
     # get random UUID for internal file handling
-    random_uuid = _create_random_uuid()
+    internal_filename = _create_random_uuid()
 
     # create .orig file
-    _create_orig_file(in_file, random_uuid, out_dir)
+    _create_orig_file(in_file, internal_filename, out_dir)
 
     # convert file (create derivative) and create sidecar file based on category (image, video or other)
     file_category = _get_file_category_from_mimetype(in_file)
     if file_category == "OTHER":
         ext = PurePath(in_file).suffix
-        converted_file_basename = str(random_uuid) + ext
+        converted_file_basename = str(internal_filename) + ext
         converted_file_full_path = out_dir / converted_file_basename
         shutil.copyfile(in_file, converted_file_full_path)
         _create_sidecar_file(in_file, converted_file_full_path, out_dir, file_category)
     elif file_category == "IMAGE":
         ext = ".jp2"
-        converted_file_basename = str(random_uuid) + ext
+        converted_file_basename = str(internal_filename) + ext
         converted_file_full_path = out_dir / converted_file_basename
         in_file_sipi_path = os.path.relpath(in_file, input_dir)
         _convert_file_with_sipi(in_file_sipi_path, converted_file_full_path)
         _create_sidecar_file(in_file, converted_file_full_path, out_dir, file_category)
     elif file_category == "VIDEO":
         ext = PurePath(in_file).suffix
-        converted_file_basename = str(random_uuid) + ext
+        converted_file_basename = str(internal_filename) + ext
         converted_file_full_path = out_dir / converted_file_basename
         shutil.copyfile(in_file, converted_file_full_path)
         _extract_key_frames(converted_file_full_path)

@@ -109,7 +109,11 @@ def make_parser() -> argparse.ArgumentParser:
         help="For internal use only: process all files referenced in an XML file"
     )
     parser_process_files.set_defaults(action="process-files")
+    parser_process_files.add_argument("--input-dir",
+                                      help="path to the input directory where the files should be read from")
     parser_process_files.add_argument("--out-dir", help="path to the output directory where the files should be written to")
+    parser_process_files.add_argument("--sipi-image",
+                                      help="the specified version of the Sipi image that should be used", default="daschswiss/sipi:3.8.1")
     parser_process_files.add_argument("xml_file", help="path to XML file containing the data")
 
     # excel2json
@@ -282,8 +286,10 @@ def call_requested_action(
 
     elif args.action == "process-files":
         success = process_files(
+            input_dir=args.input_dir,
             out_dir=args.out_dir,
-            xml_file=args.xml_file
+            xml_file=args.xml_file,
+            sipi_image=args.sipi_image
         )
     elif args.action == "excel2json":
         success = excel2json(

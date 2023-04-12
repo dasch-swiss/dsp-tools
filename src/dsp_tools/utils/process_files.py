@@ -21,40 +21,85 @@ from dsp_tools.models.helpers import BaseError
 
 
 def process_files(
+    input_dir: str,
     out_dir: str,
-    xml_file: str
+    xml_file: str,
+    sipi_image: str = "daschswiss/sipi:3.8.1"
 ) -> bool:
     """
     Process the files referenced in the given XML file.
 
     Args:
+        input_dir: path to the directory where the files should be read from
         out_dir: path to the directory where the transformed / created files should be written to
         xml_file: path to xml file containing the data
+        sipi_image: the sipi image that should be used
     Returns:
         success status
     """
 
-    all_paths: list[Path] = _get_file_paths_from_xml(xml_file=Path(xml_file))
+    input_dir, out_dir, xml_file = _check_params(input_dir, out_dir, xml_file)
+
+    print(f"{datetime.now()}: Start Sipi container...")
+
+    _start_sipi_container_and_mount_volumes(input_dir, out_dir, sipi_image)
+
+    all_paths: list[Path] = _get_file_paths_from_xml(xml_file=xml_file)
 
     print(f"{datetime.now()}: Start local file processing...")
 
-    orig_filepath_2_uuid: dict[str, str] = dict()
-
     start_time = datetime.now()
-    # create processing thread pool
+
     with ThreadPoolExecutor() as e1:
         processing_jobs = [e1.submit(
             _process_file,
             orig_file,
-            Path(out_dir)
+            out_dir
         ) for orig_file in all_paths]
 
-    result: list[tuple[Path, Path]] = []
+    orig_filepath_2_uuid: list[tuple[Path, Path]] = []
+
     for processed in as_completed(processing_jobs):
-        result.append(processed.result())
+        orig_filepath_2_uuid.append(processed.result())
+
     print("Processing files took:", datetime.now() - start_time)
 
     return True
+
+
+def _check_params(input_dir: str, out_dir: str, xml_file: str) -> tuple[Path, Path, Path]:
+    input_dir = Path(input_dir)
+    out_dir = Path(out_dir)
+    xml_file = Path(xml_file)
+
+    _ensure_path_exists(out_dir)
+
+    if not input_dir.is_dir():
+        raise BaseError("input_dir is not a directory")
+    if not out_dir.is_dir():
+        raise BaseError("out_dir is not a directory")
+    if not xml_file.is_file():
+        raise BaseError("xml_file is not a file")
+
+    return input_dir, out_dir, xml_file
+
+
+def _start_sipi_container_and_mount_volumes(input_dir: Path,
+                                            output_dir: Path,
+                                            image: str
+                                            ):
+    container_name = "sipi"
+    volumes = [f"{input_dir.absolute()}:/sipi/processing-input",
+               f"{output_dir.absolute()}:/sipi/processing-output"]
+    entrypoint = ["tail", "-f", "/dev/null"]
+    client = docker.from_env()
+
+    try:
+        client.containers.get(container_name)
+    except docker.errors.NotFound:
+        print(f"{datetime.now()}: Starting Sipi container...")
+        client.containers.run(image=image, name=container_name, volumes=volumes,
+                              entrypoint=entrypoint, detach=True)
 
 
 def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
@@ -118,13 +163,13 @@ def _convert_file_with_sipi(in_file_local_path, out_file_local_path) -> bool:
         in_file_local_path: path to input file
         out_file_local_path: path to output file
     """
-    mounted_path_on_sipi = "images/"
-    out_dir_sipi = "processed/"
-    in_file_sipi_path = mounted_path_on_sipi + os.path.basename(in_file_local_path)
-    out_file_sipi_path = mounted_path_on_sipi + out_dir_sipi + os.path.basename(out_file_local_path)
+    input_dir_sipi = Path("processing-input")
+    out_dir_sipi = Path("processing-output")
+    in_file_sipi_path = input_dir_sipi / os.path.basename(in_file_local_path)
+    out_file_sipi_path = out_dir_sipi / os.path.basename(out_file_local_path)
     sipi_container = _get_sipi_container()
     # result = sipi_container.exec_run(f"/sipi/sipi --topleft {in_file_sipi_path} {out_file_sipi_path}")
-    result = sipi_container.exec_run(f"/sipi/sipi -t 8 {in_file_sipi_path} {out_file_sipi_path}")
+    result = sipi_container.exec_run(f"/sipi/sipi {in_file_sipi_path} {out_file_sipi_path}")
     if result.exit_code != 0:
         print("Sipi image conversion failed:", result)
         return False

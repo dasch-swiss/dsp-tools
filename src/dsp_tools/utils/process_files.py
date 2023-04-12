@@ -41,8 +41,6 @@ def process_files(
 
     input_dir, out_dir, xml_file = _check_params(input_dir, out_dir, xml_file)
 
-    print(f"{datetime.now()}: Start Sipi container...")
-
     _start_sipi_container_and_mount_volumes(input_dir, out_dir, sipi_image)
 
     all_paths: list[Path] = _get_file_paths_from_xml(xml_file=xml_file)
@@ -64,20 +62,23 @@ def process_files(
     for processed in as_completed(processing_jobs):
         orig_filepath_2_uuid.append(processed.result())
 
-    print("Processing files took:", datetime.now() - start_time)
+    print(f"{datetime.now()}: Processing files took: {datetime.now() - start_time}")
 
     try:
         _write_result_to_pkl_file(orig_filepath_2_uuid)
     except:
         print(f"An error occurred while writing the result to the pickle file. The result was: {orig_filepath_2_uuid}")
 
+    print(f"{datetime.now()}: The result was: {orig_filepath_2_uuid}")
+
     return True
 
 
 def _write_result_to_pkl_file(result: list[tuple[str, str]]):
-    filename = "file_processing_result_" + datetime.now().strftime("%m%d%Y_%H%M%S") + ".pkl"
+    filename = "file_processing_result_" + datetime.now().strftime("%Y%m%d_%H%M%S") + ".pkl"
     with open(filename, 'wb') as pkl_file:
         pickle.dump(result, pkl_file)
+    print(f"{datetime.now()}: The result was written to: {filename}")
 
 
 def _check_params(input_dir: str, out_dir: str, xml_file: str) -> tuple[Path, Path, Path]:
@@ -109,10 +110,11 @@ def _start_sipi_container_and_mount_volumes(input_dir: Path,
 
     try:
         client.containers.get(container_name)
+        print(f"{datetime.now()}: Found running Sipi container '{container_name}'.")
     except docker.errors.NotFound:
-        print(f"{datetime.now()}: Starting Sipi container...")
         client.containers.run(image=image, name=container_name, volumes=volumes,
                               entrypoint=entrypoint, detach=True)
+        print(f"{datetime.now()}: Started Sipi container '{container_name}'.")
 
 
 def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
@@ -134,7 +136,7 @@ def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
     return bitstream_paths
 
 
-def _get_sipi_container() -> Union[Model, Any]:
+def _get_sipi_container() -> Union[Model, Any, None]:
     """
     Finds the locally running Sipi container (searches for container name "sipi") and returns its Model
 
@@ -148,10 +150,11 @@ def _get_sipi_container() -> Union[Model, Any]:
         if c.name == "sipi":
             return c
     if not sipi_container:
-        raise BaseError("Couldn't find a running Sipi container.")
+        print("Couldn't find a running Sipi container.")
+        return None
 
 
-def _compute_sha256(file: Path):
+def _compute_sha256(file: Path) -> Union[str, None]:
     """
     Calculates SHA256 checksum of a file
 
@@ -161,6 +164,9 @@ def _compute_sha256(file: Path):
     Returns:
         the checksum
     """
+    if not file.is_file():
+        print(f"Couldn't calculate checksum for {file}")
+        return None
     hash_sha256 = hashlib.sha256()
     with open(file, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
@@ -182,6 +188,8 @@ def _convert_file_with_sipi(in_file, out_file_local_path) -> bool:
     out_file_sipi_path = out_dir_sipi / os.path.basename(out_file_local_path)
 
     sipi_container = _get_sipi_container()
+    if not sipi_container:
+        return False
     # result = sipi_container.exec_run(f"/sipi/sipi --topleft {in_file_sipi_path} {out_file_sipi_path}")
     result = sipi_container.exec_run(f"/sipi/sipi {in_file_sipi_path} {out_file_sipi_path}")
     if result.exit_code != 0:
@@ -205,7 +213,7 @@ def _create_orig_file(in_file, file_name, out_dir):
     shutil.copyfile(in_file, orig_file_full_path)
 
 
-def _get_video_metadata_with_ffprobe(file_path):
+def _get_video_metadata_with_ffprobe(file_path) -> Union[object, None]:
     command_array = ["ffprobe",
                      "-v",
                      "error",
@@ -215,7 +223,10 @@ def _get_video_metadata_with_ffprobe(file_path):
                      "-print_format", "json",
                      "-i",
                      file_path]
-    result = subprocess.run(command_array, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    try:
+        result = subprocess.run(command_array, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    except:
+        return None
     video_metadata = json.loads(result.stdout)['streams'][0]  # get first stream
     return video_metadata
 
@@ -223,12 +234,18 @@ def _get_video_metadata_with_ffprobe(file_path):
 def _create_sidecar_file(orig_file: Path,
                          converted_file: Path,
                          out_dir: Path,
-                         file_category: str):
+                         file_category: str) -> bool:
     if file_category not in ("IMAGE", "VIDEO", "OTHER"):
-        raise BaseError(f"Unexpected file category {file_category}")
+        print(f"Unexpected file category {file_category}")
+        return False
 
     checksum_original = _compute_sha256(orig_file)
+    if not checksum_original:
+        return False
+
     checksum_derivative = _compute_sha256(converted_file)
+    if not checksum_derivative:
+        return False
 
     original_filename = PurePath(orig_file).name
     internal_filename = PurePath(converted_file).name
@@ -244,6 +261,8 @@ def _create_sidecar_file(orig_file: Path,
     # add video specific metadata to sidecar file
     if file_category == "VIDEO":
         video_metadata = _get_video_metadata_with_ffprobe(converted_file)
+        if not video_metadata:
+            return False
         sidecar_dict["width"] = video_metadata["width"]
         sidecar_dict["height"] = video_metadata["height"]
         sidecar_dict["duration"] = float(video_metadata["duration"])
@@ -260,7 +279,7 @@ def _create_sidecar_file(orig_file: Path,
         f.write(sidecar_json)
 
 
-def _get_file_category_from_mimetype(file: Path):
+def _get_file_category_from_mimetype(file: Path) -> Union[str, None]:
     image_jp2 = "image/jp2"
     image_jpx = "image/jpx"
     image_tiff = "image/tiff"
@@ -332,10 +351,12 @@ def _get_file_category_from_mimetype(file: Path):
     return category
 
 
-def _extract_key_frames(file: Path):
+def _extract_key_frames(file: Path) -> bool:
     result = subprocess.call(['sh', 'export-moving-image-frames.sh', '-i', file])
     if result != 0:
-        raise BaseError(f"Something happened while extracting frames from: {file}")
+        return False
+    else:
+        return True
 
 
 def _create_random_uuid() -> UUID:
@@ -363,7 +384,8 @@ def _process_file(
         out_dir: target location of created files
 
     Returns:
-        tuple consisting of the original path and the internal filename
+        tuple consisting of the original path and the internal filename, if there was an error, a tuple with twice the
+        original path is returned
     """
     # ensure that input file exists
     if not in_file.is_file():
@@ -374,31 +396,65 @@ def _process_file(
     internal_filename = _create_random_uuid()
 
     # create .orig file
-    _create_orig_file(in_file, internal_filename, out_dir)
+    try:
+        _create_orig_file(in_file, internal_filename, out_dir)
+    except:
+        print(f"Couldn't create .orig file for {in_file}")
+        return in_file, in_file
 
     # convert file (create derivative) and create sidecar file based on category (image, video or other)
     file_category = _get_file_category_from_mimetype(in_file)
+    if not file_category:
+        print(f"Couldn't get category for {in_file}")
+        return in_file, in_file
+    
     if file_category == "OTHER":
         ext = PurePath(in_file).suffix
         converted_file_basename = str(internal_filename) + ext
         converted_file_full_path = out_dir / converted_file_basename
-        shutil.copyfile(in_file, converted_file_full_path)
-        _create_sidecar_file(in_file, converted_file_full_path, out_dir, file_category)
+        try:
+            shutil.copyfile(in_file, converted_file_full_path)
+        except:
+            print(f"Couldn't process file of category OTHER: {in_file}")
+            return in_file, in_file
+        try:
+            _create_sidecar_file(in_file, converted_file_full_path, out_dir, file_category)
+        except:
+            print(f"Couldn't create sidecar file for: {in_file}")
     elif file_category == "IMAGE":
         ext = ".jp2"
         converted_file_basename = str(internal_filename) + ext
         converted_file_full_path = out_dir / converted_file_basename
         in_file_sipi_path = os.path.relpath(in_file, input_dir)
-        _convert_file_with_sipi(in_file_sipi_path, converted_file_full_path)
-        _create_sidecar_file(in_file, converted_file_full_path, out_dir, file_category)
+        sipi_result = _convert_file_with_sipi(in_file_sipi_path, converted_file_full_path)
+        if not sipi_result:
+            print(f"Couldn't process file of category IMAGE: {in_file}")
+            return in_file, in_file
+        try:
+            _create_sidecar_file(in_file, converted_file_full_path, out_dir, file_category)
+        except:
+            print(f"Couldn't create sidecar file for: {in_file}")
+            return in_file, in_file
     elif file_category == "VIDEO":
         ext = PurePath(in_file).suffix
         converted_file_basename = str(internal_filename) + ext
         converted_file_full_path = out_dir / converted_file_basename
-        shutil.copyfile(in_file, converted_file_full_path)
-        _extract_key_frames(converted_file_full_path)
-        _create_sidecar_file(in_file, converted_file_full_path, out_dir, file_category)
+        try:
+            shutil.copyfile(in_file, converted_file_full_path)
+        except:
+            print(f"Couldn't process file of category VIDEO: {in_file}")
+            return in_file, in_file
+        key_frames_result = _extract_key_frames(converted_file_full_path)
+        if not key_frames_result:
+            print(f"Couldn't process file of category VIDEO: {in_file}")
+            return in_file, in_file
+        try:
+            _create_sidecar_file(in_file, converted_file_full_path, out_dir, file_category)
+        except:
+            print(f"Couldn't create sidecar file for: {in_file}")
+            return in_file, in_file
     else:
-        raise BaseError(f"Unexpected file category: {file_category}")
+        print(f"Unexpected file category: {file_category}")
+        return in_file, in_file
 
     return in_file, converted_file_full_path

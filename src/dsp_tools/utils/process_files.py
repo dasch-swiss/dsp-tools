@@ -54,6 +54,7 @@ def process_files(
         processing_jobs = [e1.submit(
             _process_file,
             orig_file,
+            input_dir,
             out_dir
         ) for orig_file in all_paths]
 
@@ -123,7 +124,7 @@ def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
 
 def _get_sipi_container() -> Union[Model, Any]:
     """
-    Finds the locally running Sipi container and returns its Model
+    Finds the locally running Sipi container (searches for container name "sipi") and returns its Model
 
     Returns:
         the reference to the Sipi container
@@ -132,7 +133,7 @@ def _get_sipi_container() -> Union[Model, Any]:
     containers = docker_client.containers.list()
     sipi_container = None
     for c in containers:
-        if "sipi" in c.name:
+        if c.name == "sipi":
             return c
     if not sipi_container:
         raise BaseError("Couldn't find a running Sipi container.")
@@ -155,18 +156,19 @@ def _compute_sha256(file: Path):
     return hash_sha256.hexdigest()
 
 
-def _convert_file_with_sipi(in_file_local_path, out_file_local_path) -> bool:
+def _convert_file_with_sipi(in_file, out_file_local_path) -> bool:
     """
-    Converts a file by calling a locally running Sipi container
+    Converts a file by calling a locally running Sipi container.
 
     Args:
-        in_file_local_path: path to input file
-        out_file_local_path: path to output file
+        in_file: path to input file, has to be relative to the Sipi executable inside the container
+        out_file_local_path: path to output file, has to be relative to the Sipi executable inside the container
     """
     input_dir_sipi = Path("processing-input")
     out_dir_sipi = Path("processing-output")
-    in_file_sipi_path = input_dir_sipi / os.path.basename(in_file_local_path)
+    in_file_sipi_path = input_dir_sipi / in_file
     out_file_sipi_path = out_dir_sipi / os.path.basename(out_file_local_path)
+
     sipi_container = _get_sipi_container()
     # result = sipi_container.exec_run(f"/sipi/sipi --topleft {in_file_sipi_path} {out_file_sipi_path}")
     result = sipi_container.exec_run(f"/sipi/sipi {in_file_sipi_path} {out_file_sipi_path}")
@@ -176,17 +178,17 @@ def _convert_file_with_sipi(in_file_local_path, out_file_local_path) -> bool:
     return True
 
 
-def _create_orig_file(in_file, random_file_name, out_dir):
+def _create_orig_file(in_file, file_name, out_dir):
     """
     Creates the .orig file expected by the API.
 
     Args:
-        in_file ():
-        random_file_name ():
-        out_dir ():
+        in_file: the input file from which the .orig should be crated
+        file_name: the filename which should be used for the .orig file
+        out_dir: the directory which the .orig file should be written to
     """
     orig_ext = PurePath(in_file).suffix  # .tif
-    orig_file_basename = f"{random_file_name}{orig_ext}.orig"
+    orig_file_basename = f"{file_name}{orig_ext}.orig"
     orig_file_full_path = PurePath(out_dir, orig_file_basename)
     shutil.copyfile(in_file, orig_file_full_path)
 
@@ -334,6 +336,7 @@ def _ensure_path_exists(path: Path) -> None:
 
 def _process_file(
     in_file: Path,
+    input_dir: Path,
     out_dir: Path
 ) -> tuple[Path, Path]:
     """
@@ -372,7 +375,8 @@ def _process_file(
         ext = ".jp2"
         converted_file_basename = str(random_uuid) + ext
         converted_file_full_path = out_dir / converted_file_basename
-        _convert_file_with_sipi(in_file, converted_file_full_path)
+        in_file_sipi_path = os.path.relpath(in_file, input_dir)
+        _convert_file_with_sipi(in_file_sipi_path, converted_file_full_path)
         _create_sidecar_file(in_file, converted_file_full_path, out_dir, file_category)
     elif file_category == "VIDEO":
         ext = PurePath(in_file).suffix

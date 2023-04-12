@@ -187,7 +187,7 @@ def _create_orig_file(in_file, file_name, out_dir):
         file_name: the filename which should be used for the .orig file
         out_dir: the directory which the .orig file should be written to
     """
-    orig_ext = PurePath(in_file).suffix  # .tif
+    orig_ext = PurePath(in_file).suffix
     orig_file_basename = f"{file_name}{orig_ext}.orig"
     orig_file_full_path = PurePath(out_dir, orig_file_basename)
     shutil.copyfile(in_file, orig_file_full_path)

@@ -20,6 +20,8 @@ from lxml import etree
 
 from dsp_tools.models.helpers import BaseError
 
+global sipi_container
+
 
 def process_files(
     input_dir: str,
@@ -42,6 +44,9 @@ def process_files(
     input_dir, out_dir, xml_file = _check_params(input_dir, out_dir, xml_file)
 
     _start_sipi_container_and_mount_volumes(input_dir, out_dir, sipi_image)
+
+    global sipi_container
+    sipi_container = _get_sipi_container()
 
     all_paths: list[Path] = _get_file_paths_from_xml(xml_file=xml_file)
 
@@ -69,7 +74,7 @@ def process_files(
     except:
         print(f"An error occurred while writing the result to the pickle file. The result was: {orig_filepath_2_uuid}")
 
-    print(f"{datetime.now()}: The result was: {orig_filepath_2_uuid}")
+    # print(f"{datetime.now()}: The result was: {orig_filepath_2_uuid}")
 
     return True
 
@@ -109,12 +114,16 @@ def _start_sipi_container_and_mount_volumes(input_dir: Path,
     client = docker.from_env()
 
     try:
-        client.containers.get(container_name)
-        print(f"{datetime.now()}: Found running Sipi container '{container_name}'.")
+        container = client.containers.get(container_name)
+        if not container.attrs["State"]["Running"]:
+            container.restart()
+            print(f"{datetime.now()}: Started existing Sipi container '{container_name}'.")
+        else:
+            print(f"{datetime.now()}: Found running Sipi container '{container_name}'.")
     except docker.errors.NotFound:
         client.containers.run(image=image, name=container_name, volumes=volumes,
                               entrypoint=entrypoint, detach=True)
-        print(f"{datetime.now()}: Started Sipi container '{container_name}'.")
+        print(f"{datetime.now()}: Created and started Sipi container '{container_name}'.")
 
 
 def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
@@ -187,7 +196,6 @@ def _convert_file_with_sipi(in_file, out_file_local_path) -> bool:
     in_file_sipi_path = input_dir_sipi / in_file
     out_file_sipi_path = out_dir_sipi / os.path.basename(out_file_local_path)
 
-    sipi_container = _get_sipi_container()
     if not sipi_container:
         return False
     # result = sipi_container.exec_run(f"/sipi/sipi --topleft {in_file_sipi_path} {out_file_sipi_path}")
@@ -381,6 +389,7 @@ def _process_file(
 
     Args:
         in_file: path to file
+        input_dir: root directory of the input files
         out_dir: target location of created files
 
     Returns:
@@ -407,7 +416,7 @@ def _process_file(
     if not file_category:
         print(f"Couldn't get category for {in_file}")
         return in_file, in_file
-    
+
     if file_category == "OTHER":
         ext = PurePath(in_file).suffix
         converted_file_basename = str(internal_filename) + ext

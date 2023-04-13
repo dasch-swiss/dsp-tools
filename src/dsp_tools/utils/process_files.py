@@ -11,7 +11,7 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path, PurePath
-from typing import Union, Any, Optional, Tuple
+from typing import Union, Any, Optional, Dict
 from uuid import UUID
 
 import docker
@@ -66,6 +66,17 @@ def process_files(
 
 
 def _process_files_in_parallel(paths: list[Path], input_dir: Path, out_dir: Path) -> list[tuple[str, str]]:
+    """
+    Creates a thread pool and executes the file processing in parallel.
+
+    Args:
+        paths: a list of all paths to the files that should be processed
+        input_dir: the root directory of the input files
+        out_dir: the directory where the processed files should be written to
+
+    Returns:
+        a list of tuples with the original file path and the path to the processed file
+    """
     with ThreadPoolExecutor() as e1:
         processing_jobs = [e1.submit(
             _process_file,
@@ -83,6 +94,15 @@ def _process_files_in_parallel(paths: list[Path], input_dir: Path, out_dir: Path
 
 
 def _write_result_to_pkl_file(result: list[tuple[str, str]]) -> bool:
+    """
+    Writes the processing result to a pickle file.
+
+    Args:
+        result: the result of the file processing
+
+    Returns:
+        true if successful, false otherwise
+    """
     filename = "file_processing_result_" + datetime.now().strftime("%Y%m%d_%H%M%S") + ".pkl"
     try:
         with open(filename, 'wb') as pkl_file:
@@ -125,7 +145,18 @@ def _check_params(input_dir: str, out_dir: str, xml_file: str) -> Optional[tuple
     return input_dir, out_dir, xml_file
 
 
-def _start_sipi_container(input_dir: Path, output_dir: Path, image: str):
+def _start_sipi_container(input_dir: Path, output_dir: Path, image: str) -> Optional[Model]:
+    """
+    Creates and runs the Sipi container. If it exists already, it checks if it is running. It starts it if not.
+
+    Args:
+        input_dir: the root directory of the input files, mounts it into the container
+        output_dir: the output directory where the processed files should be written to, mounts it into the container
+        image: the image which the container should be creted from
+
+    Returns:
+        the reference to the running container
+    """
     _start_sipi_container_and_mount_volumes(input_dir, output_dir, image)
     return _get_sipi_container()
 
@@ -152,6 +183,15 @@ def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
 def _start_sipi_container_and_mount_volumes(input_dir: Path,
                                             output_dir: Path,
                                             image: str) -> None:
+    """
+    Creates and starts a Sipi container from the provided image. Checks first if it already exists and if yes, if it is
+    already running.
+
+    Args:
+        input_dir: the root directory of the images that should be processed, is mounted into the container
+        output_dir: the output directory where the processed files should be written to, is mounted into the container
+        image: the image which the container should be created from
+    """
     container_name = "sipi"
     volumes = [f"{input_dir.absolute()}:/sipi/processing-input",
                f"{output_dir.absolute()}:/sipi/processing-output"]
@@ -172,7 +212,7 @@ def _start_sipi_container_and_mount_volumes(input_dir: Path,
 
 def _get_sipi_container() -> Union[Model, Any, None]:
     """
-    Finds the locally running Sipi container (searches for container name "sipi") and returns its Model
+    Finds the locally running Sipi container (searches for container name "sipi")
 
     Returns:
         the reference to the Sipi container
@@ -188,7 +228,7 @@ def _get_sipi_container() -> Union[Model, Any, None]:
         return None
 
 
-def _compute_sha256(file: Path) -> Union[str, None]:
+def _compute_sha256(file: Path) -> Optional[str]:
     """
     Calculates SHA256 checksum of a file
 
@@ -196,7 +236,7 @@ def _compute_sha256(file: Path) -> Union[str, None]:
         file: path of the file
 
     Returns:
-        the checksum
+        the calculated checksum
     """
     if not file.is_file():
         print(f"Couldn't calculate checksum for {file}")
@@ -250,7 +290,16 @@ def _create_orig_file(in_file, file_name, out_dir) -> bool:
         return False
 
 
-def _get_video_metadata_with_ffprobe(file_path) -> Optional[object]:
+def _get_video_metadata_with_ffprobe(file_path: Path):
+    """
+    Gets video metadata by running ffprobe
+
+    Args:
+        file_path: path to the file which the metadata should be extracted from
+
+    Returns:
+        the metadata object as json
+    """
     command_array = ["ffprobe",
                      "-v",
                      "error",
@@ -272,6 +321,18 @@ def _create_sidecar_file(orig_file: Path,
                          converted_file: Path,
                          out_dir: Path,
                          file_category: str) -> bool:
+    """
+    Creates the sidecar file for a given file. Depending on the file category, it adds category specific metadata.
+
+    Args:
+        orig_file: path to the original file
+        converted_file: path to the converted file
+        out_dir: output directory where the sidecar file should be written to
+        file_category: the file category, either IMAGE, VIDEO or OTHER
+
+    Returns:
+        true if successful, false otherwise
+    """
     if file_category not in ("IMAGE", "VIDEO", "OTHER"):
         print(f"Unexpected file category {file_category}")
         return False
@@ -289,11 +350,11 @@ def _create_sidecar_file(orig_file: Path,
     random_part_of_filename = PurePath(converted_file).stem
     original_extension = PurePath(orig_file).suffix
     original_internal_filename = f"{random_part_of_filename}{original_extension}.orig"
-    sidecar_dict = {"originalFilename": original_filename,
-                    "checksumOriginal": checksum_original,
-                    "checksumDerivative": checksum_derivative,
-                    "internalFilename": internal_filename,
-                    "originalInternalFilename": original_internal_filename}
+    sidecar_dict: dict[str, Union[str, float]] = {"originalFilename": original_filename,
+                                                  "checksumOriginal": checksum_original,
+                                                  "checksumDerivative": checksum_derivative,
+                                                  "internalFilename": internal_filename,
+                                                  "originalInternalFilename": original_internal_filename}
 
     # add video specific metadata to sidecar file
     if file_category == "VIDEO":
@@ -319,6 +380,15 @@ def _create_sidecar_file(orig_file: Path,
 
 
 def _get_file_category_from_mimetype(file: Path) -> Optional[str]:
+    """
+    Gets the file category of a file according to its mimetype.
+
+    Args:
+        file: file which the category should be got from
+
+    Returns:
+        the file category, either IMAGE, VIDEO or OTHER (or None)
+    """
     image_jp2 = "image/jp2"
     image_jpx = "image/jpx"
     image_tiff = "image/tiff"
@@ -391,6 +461,15 @@ def _get_file_category_from_mimetype(file: Path) -> Optional[str]:
 
 
 def _extract_key_frames(file: Path) -> bool:
+    """
+    Extracts the key frames of a video file and writes them to disk.
+
+    Args:
+        file: the video file which the key frames should be extracted from
+
+    Returns:
+        true if successful, false otherwise
+    """
     result = subprocess.call(['sh', 'export-moving-image-frames.sh', '-i', file])
     if result != 0:
         return False
@@ -464,11 +543,33 @@ def _process_file(
 
 
 def _get_path_for_converted_file(ext: str, internal_filename, out_dir) -> Path:
+    """
+    Creates the path for the converted file
+
+    Args:
+        ext: the file extension for the converted file
+        internal_filename: the string that should be used for the internal filename
+        out_dir: the output directory where the converted file should be written to
+
+    Returns:
+        the path to the converted file
+    """
     converted_file_basename = internal_filename + ext
     return out_dir / converted_file_basename
 
 
 def _process_other_file(in_file: Path, internal_filename: str, out_dir: Path) -> tuple[Path, Path]:
+    """
+    Processes a file of file category OTHER
+
+    Args:
+        in_file: the input file that should be processed
+        internal_filename: the internal filename that should be used for the output file
+        out_dir: the output directory where the processed file should be written to
+
+    Returns:
+        a tuple of the original file path and the path to the processed file
+    """
     converted_file_full_path = _get_path_for_converted_file(PurePath(in_file).suffix, internal_filename, out_dir)
     try:
         shutil.copyfile(in_file, converted_file_full_path)
@@ -482,6 +583,17 @@ def _process_other_file(in_file: Path, internal_filename: str, out_dir: Path) ->
 
 
 def _process_image_file(in_file: Path, internal_filename: str, out_dir: Path, input_dir: Path) -> tuple[Path, Path]:
+    """
+    Processes a file of file category IMAGE
+
+    Args:
+        in_file: the input file that should be processed
+        internal_filename: the internal filename that should be used for the output file
+        out_dir: the output directory where the processed file should be written to
+
+    Returns:
+        a tuple of the original file path and the path to the processed file
+    """
     converted_file_full_path = _get_path_for_converted_file(".jp2", internal_filename, out_dir)
     in_file_sipi_path = os.path.relpath(in_file, input_dir)
     sipi_result = _convert_file_with_sipi(in_file_sipi_path, converted_file_full_path)
@@ -495,6 +607,17 @@ def _process_image_file(in_file: Path, internal_filename: str, out_dir: Path, in
 
 
 def _process_video_file(in_file: Path, internal_filename: str, out_dir: Path) -> tuple[Path, Path]:
+    """
+    Processes a file of file category VIDEO
+
+    Args:
+        in_file: the input file that should be processed
+        internal_filename: the internal filename that should be used for the output file
+        out_dir: the output directory where the processed file should be written to
+
+    Returns:
+        a tuple of the original file path and the path to the processed file
+    """
     converted_file_full_path = _get_path_for_converted_file(PurePath(in_file).suffix, internal_filename, out_dir)
     try:
         shutil.copyfile(in_file, converted_file_full_path)

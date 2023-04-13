@@ -11,7 +11,7 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path, PurePath
-from typing import Union, Any, Optional
+from typing import Union, Any, Optional, Tuple
 from uuid import UUID
 
 import docker
@@ -41,7 +41,11 @@ def process_files(
         success status
     """
 
-    input_dir, out_dir, xml_file = _check_params(input_dir, out_dir, xml_file)
+    param_check_result = _check_params(input_dir, out_dir, xml_file)
+    if param_check_result:
+        input_dir, out_dir, xml_file = param_check_result
+    else:
+        raise BaseError("Error reading the input parameters. Please check them.")
 
     global sipi_container
     sipi_container = _start_sipi_container(input_dir, out_dir, sipi_image)
@@ -56,7 +60,7 @@ def process_files(
     if not _write_result_to_pkl_file(result):
         print(f"An error occurred while writing the result to the pickle file. The result was: {result}")
 
-    # print(f"{datetime.now()}: The result was: {orig_filepath_2_uuid}")
+    # print(f"{datetime.now()}: The result was: {result}")
 
     return True
 
@@ -89,20 +93,34 @@ def _write_result_to_pkl_file(result: list[tuple[str, str]]) -> bool:
         return False
 
 
+def _check_params(input_dir: str, out_dir: str, xml_file: str) -> Optional[tuple[Path, Path, Path]]:
+    """
+    Checks the input parameters provided by the user and transforms them into the expected types.
 
-def _check_params(input_dir: str, out_dir: str, xml_file: str) -> tuple[Path, Path, Path]:
+    Args:
+        input_dir: the root directory of the input files
+        out_dir: the output directory where the created files should be written to
+        xml_file: the XML file the paths are extracted from
+
+    Returns:
+        A tuple with the Path objects of the input strings
+    """
     input_dir = Path(input_dir)
     out_dir = Path(out_dir)
     xml_file = Path(xml_file)
 
-    _ensure_path_exists(out_dir)
+    if not _ensure_path_exists(out_dir):
+        return None
 
     if not input_dir.is_dir():
-        raise BaseError("input_dir is not a directory")
+        print("input_dir is not a directory")
+        return None
     if not out_dir.is_dir():
-        raise BaseError("out_dir is not a directory")
+        print("out_dir is not a directory")
+        return None
     if not xml_file.is_file():
-        raise BaseError("xml_file is not a file")
+        print("xml_file is not a file")
+        return None
 
     return input_dir, out_dir, xml_file
 
@@ -384,8 +402,12 @@ def _create_random_uuid() -> UUID:
     return uuid.uuid4()
 
 
-def _ensure_path_exists(path: Path) -> None:
-    path.mkdir(parents=True, exist_ok=True)
+def _ensure_path_exists(path: Path) -> bool:
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+        return True
+    except:
+        return False
 
 
 def _process_file(

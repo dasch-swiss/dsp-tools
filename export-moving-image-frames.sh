@@ -78,8 +78,7 @@ frame_rate=$(ffprobe -v 0 -of csv=p=0 -select_streams v:0 -show_entries stream=r
 IFS="/" read -ra array <<<"$frame_rate"
 numerator="${array[0]}"
 denumerator="${array[1]}"
-
-fps=$(expr "scale=2;${numerator}/${denumerator}" | bc)
+fps=$(bc <<< "scale=2; $numerator/$denumerator")
 
 # --
 # read aspect ratio from input file
@@ -98,7 +97,7 @@ fi
 # --
 # calculate frame width, height and size
 framewidth='256'
-frameheight=$(($framewidth * $aspectH / $aspectW))
+frameheight=$((framewidth * aspectH / aspectW))
 framesize=${framewidth}'x'${frameheight}
 
 # --
@@ -154,28 +153,28 @@ readonly interim=$(echo "${calcmatrix}+1"|bc)
 readonly nummatrix=${interim%.*}
 
 t=0
-while [ ${t} -lt ${nummatrix} ]; do
+while [ ${t} -lt "${nummatrix}" ]; do
   firstframe=$(echo "scale=0; ${t}*360+1" | bc)
   MATRIX=$(find *_${firstframe}.jpg)' '
 
   c=1
   while [ ${c} -lt 36 ]; do
     sec=$(echo "scale=0; ${firstframe}+(${c}*10)" | bc)
-    if [ $sec -lt $number_of_frame_files ]; then
+    if [ "${sec}" -lt "${number_of_frame_files}" ]; then
       img="${name}_f_${sec}.jpg"
-      if [ -f ${img} ]; then
+      if [ -f "${img}" ]; then
         MATRIX+=${img}' '
       fi
     fi
 
-    let c=c+1
+    (( c=c+1 ))
   done
 
   # here we make the montage of every matrix file
   # montage -size 320x180 DB_4_5.jpg DB_4_15.jpg DB_4_25.jpg DB_4_35.jpg -geometry +0+0 montage1.jpg
-  # $(echo "montage -size ${matrix_size} ${MATRIX} -tile 6x6 -geometry +0+0 -resize ${frame_size} ../matrix/${name}'_m_'${t}'.jpg'")
-  montage -size ${matrix_size} ${MATRIX} -tile 6x6 -geometry +0+0 -resize ${frame_size} ../${name}'_m_'${t}'.jpg' 2>&1
+  output_file="../${name}_m_${t}.jpg"
+  montage -size ${matrix_size} ${MATRIX} -tile 6x6 -geometry +0+0 -resize ${frame_size} ${output_file} 2>&1
 
-  let t=t+1
+  (( t=t+1 ))
 
 done

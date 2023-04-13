@@ -86,7 +86,7 @@ fps=$(expr "scale=2;${numerator}/${denumerator}" | bc)
 aspect=$(ffprobe -v error -select_streams v:0 -show_entries stream=display_aspect_ratio -of csv=s=x:p=0 ../"${file}")
 
 # if aspect ratio does not exist in video file metadata
-if [ ! -z {$aspect} ]; then
+if [ -n {$aspect} ]; then
   # get aspect ratio from video dimension (width and height)
   aspectW=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=s=x:p=0 ../"${file}")
   aspectH=$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of csv=s=x:p=0 ../"${file}")

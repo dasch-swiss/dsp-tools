@@ -116,7 +116,8 @@ ffmpeg -i ../"${file}" -hide_banner -loglevel error -an -ss 0 -f image2 -s ${fra
 cd frames
 # Get the number of files: one image = one second of movie
 # number_of_frame_files is equivalent to the movie duration (in seconds)
-readonly number_of_frame_files=$(find . -type f | wc -l)
+number_of_frame_files=$(find . -type f | wc -l)
+readonly number_of_frame_files
 
 image="${name}_f_1.jpg"
 
@@ -149,8 +150,10 @@ frame_size="${frame_width}x${frame_height}"
 calcmatrix=$(echo "scale=4; (${number_of_frame_files}/10)/36" | bc)
 # Round the exact fraction to the to the next highest integer
 # for the number of matrix files to  create 'nummatrix'
-readonly interim=$(echo "${calcmatrix}+1"|bc)
-readonly nummatrix=${interim%.*}
+interim=$(echo "${calcmatrix}+1"|bc)
+readonly interim
+nummatrix=${interim%.*}
+readonly nummatrix
 
 t=0
 while [ ${t} -lt "${nummatrix}" ]; do

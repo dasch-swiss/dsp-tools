@@ -11,7 +11,7 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path, PurePath
-from typing import Union, Any, Optional, Dict
+from typing import Union, Any, Optional
 from uuid import UUID
 
 import docker

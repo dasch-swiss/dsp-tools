@@ -89,7 +89,7 @@ if [ -n "$aspect" ]; then
   aspectW=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=s=x:p=0 ../"${file}")
   aspectH=$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of csv=s=x:p=0 ../"${file}")
 else
-  IFS=':' read -a array <<<"$aspect"
+  IFS=':' read -a -r array <<<"$aspect"
   aspectW="${array[0]}"
   aspectH="${array[1]}"
 fi
@@ -158,7 +158,7 @@ readonly nummatrix
 t=0
 while [ ${t} -lt "${nummatrix}" ]; do
   firstframe=$(echo "scale=0; ${t}*360+1" | bc)
-  MATRIX=$(find *_${firstframe}.jpg)' '
+  MATRIX=$(find -- *_"${firstframe}.jpg")' '
 
   c=1
   while [ ${c} -lt 36 ]; do
@@ -176,7 +176,8 @@ while [ ${t} -lt "${nummatrix}" ]; do
   # here we make the montage of every matrix file
   # montage -size 320x180 DB_4_5.jpg DB_4_15.jpg DB_4_25.jpg DB_4_35.jpg -geometry +0+0 montage1.jpg
   output_file="../${name}_m_${t}.jpg"
-  montage -size ${matrix_size} ${MATRIX} -tile 6x6 -geometry +0+0 -resize ${frame_size} ${output_file} 2>&1
+  # shellcheck disable=SC2086
+  montage -size "${matrix_size}" ${MATRIX} -tile 6x6 -geometry +0+0 -resize "${frame_size}" "${output_file}" 2>&1
 
   (( t=t+1 ))
 

@@ -59,7 +59,7 @@ def process_files(
 
     if not _write_result_to_pkl_file(result):
         print(f"An error occurred while writing the result to the pickle file. The result was: {result}")
-    # print(f"{datetime.now()}: The result was: {result}")
+    print(f"{datetime.now()}: The result was: {result}")
     return True
 
 
@@ -75,8 +75,8 @@ def _process_files_in_parallel(paths: list[Path], input_dir: Path, out_dir: Path
     Returns:
         a list of tuples with the original file path and the path to the processed file
     """
-    with ThreadPoolExecutor() as e1:
-        processing_jobs = [e1.submit(
+    with ThreadPoolExecutor() as pool:
+        processing_jobs = [pool.submit(
             _process_file,
             input_file,
             input_dir,

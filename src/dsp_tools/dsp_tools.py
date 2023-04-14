@@ -10,6 +10,8 @@ from importlib.metadata import version
 from pathlib import Path
 
 from dsp_tools.excel2xml import excel2xml
+from dsp_tools.fast_upload.process_files import process_files
+from dsp_tools.fast_upload.upload_files import upload_files
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.excel_to_json_lists import (
     excel2lists,
@@ -20,7 +22,6 @@ from dsp_tools.utils.excel_to_json_properties import excel2properties
 from dsp_tools.utils.excel_to_json_resources import excel2resources
 from dsp_tools.utils.generate_templates import generate_template_repo
 from dsp_tools.utils.id_to_iri import id_to_iri
-from dsp_tools.utils.process_files import process_files
 from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.project_create_lists import create_lists
 from dsp_tools.utils.project_get import get_project
@@ -43,11 +44,13 @@ def make_parser() -> argparse.ArgumentParser:
     password_text = "password used for authentication with the DSP-API "
     remote_dsp_api_server_text = "URL of the DSP server"
     verbose_text = "print more information about the progress to the console"
+    sipi_text = "URL of the Sipi server"
 
     # default values
     default_dsp_api_url = "http://0.0.0.0:3333"
     default_user = "root@example.com"
     default_pw = "test"
+    default_sipi = "http://localhost:1024"
 
     # make a parser
     parser = argparse.ArgumentParser(
@@ -111,10 +114,26 @@ def make_parser() -> argparse.ArgumentParser:
     parser_process_files.set_defaults(action="process-files")
     parser_process_files.add_argument("--input-dir",
                                       help="path to the input directory where the files should be read from")
-    parser_process_files.add_argument("--out-dir", help="path to the output directory where the files should be written to")
+    parser_process_files.add_argument("--out-dir",
+                                      help="path to the output directory where the files should be written to")
     parser_process_files.add_argument("--sipi-image",
-                                      help="the specified version of the Sipi image that should be used", default="daschswiss/sipi:3.8.1")
+                                      help="the specified version of the Sipi image that should be used",
+                                      default="daschswiss/sipi:3.8.1")
     parser_process_files.add_argument("xml_file", help="path to XML file containing the data")
+
+    # upload-files
+    parser_upload_files = subparsers.add_parser(
+        name="upload-files",
+        help="For internal use only: upload already processed files"
+    )
+    parser_upload_files.set_defaults(action="upload-files")
+    parser_upload_files.add_argument("--paths-file"),
+    parser_upload_files.add_argument("--processed-dir",
+                                     help="path to the input directory where the files should be read from")
+    parser_upload_files.add_argument("-s", "--server", default=default_dsp_api_url, help=remote_dsp_api_server_text)
+    parser_upload_files.add_argument("-u", "--user", default=default_user, help=username_text)
+    parser_upload_files.add_argument("-p", "--password", default=default_pw, help=password_text)
+    parser_upload_files.add_argument("--sipi-url", default=default_sipi, help=sipi_text)
 
     # excel2json
     parser_excel2json = subparsers.add_parser(
@@ -290,6 +309,15 @@ def call_requested_action(
             out_dir=args.out_dir,
             xml_file=args.xml_file,
             sipi_image=args.sipi_image
+        )
+    elif args.action == "upload-files":
+        success = upload_files(
+            paths_file=args.paths_file,
+            processed_dir=args.processed_dir,
+            user=args.user,
+            password=args.password,
+            dsp_url=args.server,
+            sipi_url=args.sipi_url
         )
     elif args.action == "excel2json":
         success = excel2json(

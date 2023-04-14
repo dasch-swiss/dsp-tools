@@ -88,7 +88,6 @@ def _get_paths_from_pkl_file(pkl_file: Path) -> list[Path]:
     for orig_processed in orig_paths_2_processed_paths:
         processed_paths.append(orig_processed[1])
 
-    print(f"Found {len(processed_paths)} files.")
     return processed_paths
 
 
@@ -107,10 +106,10 @@ def _check_params(paths_file: str, processed_dir: str) -> Optional[tuple[Path, P
     processed_dir = Path(processed_dir)
 
     if not paths_file.is_file():
-        print("paths_file is not a file")
+        print(f"{paths_file} is not a file")
         return None
     if not processed_dir.is_dir():
-        print("processed_dir is not a directory")
+        print(f"{processed_dir} is not a directory")
         return None
 
     return paths_file, processed_dir

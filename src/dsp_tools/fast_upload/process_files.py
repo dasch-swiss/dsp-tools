@@ -1,6 +1,7 @@
 """This module handles processing of files referenced in the bitstream tags of an XML file."""
 
 import hashlib
+import importlib
 import json
 import mimetypes
 import os
@@ -468,7 +469,8 @@ def _extract_key_frames(file: Path) -> bool:
     Returns:
         true if successful, false otherwise
     """
-    result = subprocess.call(['sh', 'export-moving-image-frames.sh', '-i', file])
+    export_moving_image_frames_script = importlib.resources.files("dsp_tools").joinpath("resources/export-moving-image-frames.sh")
+    result = subprocess.call(["sh", f"{export_moving_image_frames_script}", "-i", f"{file}"])
     if result != 0:
         return False
     else:

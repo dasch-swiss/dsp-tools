@@ -135,11 +135,10 @@ def _upload_files_in_parallel(processed_dir: Path,
     return result
 
 
-def _check_result(result: list[tuple[Path, bool]]):
-    print("Checking result...")
+def _print_files_with_errors(result: list[tuple[Path, bool]]) -> None:
     for path, res in result:
         if not res:
-            print(f"Something went wrong with uploading {path}. Please check.")
+            print(f"The following file could not be uploaded: {path}")
 
 
 def upload_files(paths_file: str,
@@ -180,8 +179,7 @@ def upload_files(paths_file: str,
     result: list[tuple[Path, bool]] = _upload_files_in_parallel(processed_dir, paths, sipi_url, con)
     print(f"{datetime.now()}: Uploading files took {datetime.now() - start_time}")
 
-    _check_result(result)
-    print(f"The result was: {result}")
+    _print_files_with_errors(result)
 
     return True
 

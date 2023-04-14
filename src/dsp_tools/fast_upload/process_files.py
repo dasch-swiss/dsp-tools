@@ -55,13 +55,21 @@ def process_files(
 
     print(f"{datetime.now()}: Start local file processing...")
     start_time = datetime.now()
-    result = _process_files_in_parallel(all_paths, input_dir, out_dir)
+    result: list[tuple[Path, Path]] = _process_files_in_parallel(all_paths, input_dir, out_dir)
     print(f"{datetime.now()}: Processing files took: {datetime.now() - start_time}")
+
+    _print_files_with_errors(result)
 
     if not _write_result_to_pkl_file(result):
         print(f"An error occurred while writing the result to the pickle file. The result was: {result}")
-    print(f"{datetime.now()}: The result was: {result}")
+
     return True
+
+
+def _print_files_with_errors(result: list[tuple[Path, Path]]) -> None:
+    for input_file, output_file in result:
+        if input_file == output_file:
+            print(f"The following file could not be processed: {input_file}")
 
 
 def _process_files_in_parallel(paths: list[Path], input_dir: Path, out_dir: Path) -> list[tuple[Path, Path]]:
@@ -469,7 +477,8 @@ def _extract_key_frames(file: Path) -> bool:
     Returns:
         true if successful, false otherwise
     """
-    export_moving_image_frames_script = importlib.resources.files("dsp_tools").joinpath("resources/export-moving-image-frames.sh")
+    export_moving_image_frames_script = importlib.resources.files("dsp_tools").joinpath(
+        "resources/export-moving-image-frames.sh")
     result = subprocess.call(["sh", f"{export_moving_image_frames_script}", "-i", f"{file}"])
     if result != 0:
         return False

@@ -44,8 +44,8 @@ To upload the files, the user has to provide the URL to the Sipi server as well 
 (e-mail and password).
 
 
-## 3. `dsp-tools fast-xml-upload`
+## 3. dsp-tools fast-xml-upload
 
 ```bash
-dsp-tools enhanced-xmlupload [options] xmlfile
+dsp-tools fast-xml-upload ...
 ```

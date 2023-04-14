@@ -50,7 +50,7 @@ def process_files(
     global sipi_container
     sipi_container = _start_sipi_container(input_dir, out_dir, sipi_image)
 
-    all_paths: list[Path] = _get_file_paths_from_xml(xml_file=xml_file)
+    all_paths: list[Path] = _get_file_paths_from_xml(xml_file)
 
     print(f"{datetime.now()}: Start local file processing...")
     start_time = datetime.now()
@@ -59,13 +59,11 @@ def process_files(
 
     if not _write_result_to_pkl_file(result):
         print(f"An error occurred while writing the result to the pickle file. The result was: {result}")
-
     # print(f"{datetime.now()}: The result was: {result}")
-
     return True
 
 
-def _process_files_in_parallel(paths: list[Path], input_dir: Path, out_dir: Path) -> list[tuple[str, str]]:
+def _process_files_in_parallel(paths: list[Path], input_dir: Path, out_dir: Path) -> list[tuple[Path, Path]]:
     """
     Creates a thread pool and executes the file processing in parallel.
 
@@ -85,7 +83,7 @@ def _process_files_in_parallel(paths: list[Path], input_dir: Path, out_dir: Path
             out_dir
         ) for input_file in paths]
 
-    orig_filepath_2_uuid: list[tuple[str, str]] = []
+    orig_filepath_2_uuid: list[tuple[Path, Path]] = []
 
     for processed in as_completed(processing_jobs):
         orig_filepath_2_uuid.append(processed.result())
@@ -93,7 +91,7 @@ def _process_files_in_parallel(paths: list[Path], input_dir: Path, out_dir: Path
     return orig_filepath_2_uuid
 
 
-def _write_result_to_pkl_file(result: list[tuple[str, str]]) -> bool:
+def _write_result_to_pkl_file(result: list[tuple[Path, Path]]) -> bool:
     """
     Writes the processing result to a pickle file.
 

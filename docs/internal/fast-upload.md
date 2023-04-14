@@ -9,7 +9,7 @@ It consists of the steps described in this document:
 
 1. create the XLM file as usual
 2. prepare one root directory with the files that are referenced in the XML file
-3. get the latest Sipi image from docker hub (https://hub.docker.com/r/daschswiss/sipi)
+3. get the latest Sipi image from [docker hub](https://hub.docker.com/r/daschswiss/sipi)
 4. process the files locally with `dsp-tools process-files`
 5. upload the files to DSP with `dsp-tools upload-files`
 6. create the resources on DSP with `dsp-tools fast-xml-upload`

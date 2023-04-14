@@ -85,3 +85,4 @@ def fast_xml_upload(xml_file: str,
     )
 
     print(f"Total time of fast xml upload: {datetime.now() - start_time}")
+    return True

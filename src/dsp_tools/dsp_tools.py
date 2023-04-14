@@ -10,6 +10,7 @@ from importlib.metadata import version
 from pathlib import Path
 
 from dsp_tools.excel2xml import excel2xml
+from dsp_tools.fast_upload.fast_xml_upload import fast_xml_upload
 from dsp_tools.fast_upload.process_files import process_files
 from dsp_tools.fast_upload.upload_files import upload_files
 from dsp_tools.models.exceptions import UserError
@@ -134,6 +135,20 @@ def make_parser() -> argparse.ArgumentParser:
     parser_upload_files.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_upload_files.add_argument("-p", "--password", default=default_pw, help=password_text)
     parser_upload_files.add_argument("--sipi-url", default=default_sipi, help=sipi_text)
+
+    # fast-xml-upload
+    parser_fast_xml_upload_files = subparsers.add_parser(
+        name="fast-xml-upload",
+        help="For internal use only: create resources with already uploaded files"
+    )
+    parser_fast_xml_upload_files.set_defaults(action="fast-xml-upload")
+    parser_fast_xml_upload_files.add_argument("--paths-file"),
+    parser_fast_xml_upload_files.add_argument("-u", "--user", default=default_user, help=username_text)
+    parser_fast_xml_upload_files.add_argument("-p", "--password", default=default_pw, help=password_text)
+    parser_fast_xml_upload_files.add_argument("-s", "--server", default=default_dsp_api_url,
+                                              help=remote_dsp_api_server_text)
+    parser_fast_xml_upload_files.add_argument("--sipi-url", default=default_sipi, help=sipi_text)
+    parser_fast_xml_upload_files.add_argument("xml_file", help="path to XML file containing the data")
 
     # excel2json
     parser_excel2json = subparsers.add_parser(
@@ -314,6 +329,15 @@ def call_requested_action(
         success = upload_files(
             paths_file=args.paths_file,
             processed_dir=args.processed_dir,
+            user=args.user,
+            password=args.password,
+            dsp_url=args.server,
+            sipi_url=args.sipi_url
+        )
+    elif args.action == "fast-xml-upload":
+        success = fast_xml_upload(
+            xml_file=args.xml_file,
+            paths_file=args.paths_file,
             user=args.user,
             password=args.password,
             dsp_url=args.server,

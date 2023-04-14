@@ -182,37 +182,3 @@ def upload_files(paths_file: str,
     _print_files_with_errors(result)
 
     return True
-
-    # for tag in xml_file_tree.iter():
-    #     if tag.text in orig_filepath_2_uuid:
-    #         tag.text = orig_filepath_2_uuid[tag.text]
-    #
-    # print("Preprocessing successfully finished! Start with regular xml upload...")
-    #
-    # xml_upload(
-    #     input_file=xml_file_tree,
-    #     server=remote_dsp_server,
-    #     user=user,
-    #     password=password,
-    #     imgdir=".",
-    #     sipi=remote_sipi_server,
-    #     verbose=verbose,
-    #     incremental=incremental,
-    #     save_metrics=False,
-    #     preprocessing_done=True
-    # )
-    #
-    # duration = datetime.now() - start_time
-    # print(f"Total time of enhanced xmlupload: {duration.seconds} seconds")
-    # print(f"Time of multithreading: {multithreading_duration.seconds} seconds")
-    #
-    # for filename in os.listdir(sipi_processed_path):
-    #     file_path = os.path.join(sipi_processed_path, filename)
-    #     try:
-    #         if os.path.isfile(file_path) or os.path.islink(file_path):
-    #             os.unlink(file_path)
-    #         elif os.path.isdir(file_path):
-    #             shutil.rmtree(file_path)
-    #     except Exception as e:
-    #         print("Failed to delete %s. Reason: %s" % (file_path, e))
-

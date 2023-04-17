@@ -47,15 +47,18 @@ def process_files(
     else:
         raise BaseError("Error reading the input parameters. Please check them.")
 
+    _start_sipi_container_and_mount_volumes(input_dir_path, out_dir_path, sipi_image)
     global sipi_container
-    sipi_container = _start_sipi_container(input_dir_path, out_dir_path, sipi_image)
-
+    sipi_container = _get_sipi_container()
     all_paths = _get_file_paths_from_xml(xml_file_path)
 
-    print(f"{datetime.now()}: Start local file processing...")
     start_time = datetime.now()
+    print(f"{start_time}: Start local file processing...")
+
     result: list[tuple[Path, Path]] = _process_files_in_parallel(all_paths, input_dir_path, out_dir_path)
-    print(f"{datetime.now()}: Processing files took: {datetime.now() - start_time}")
+
+    end_time = datetime.now()
+    print(f"{end_time}: Processing files took: {end_time - start_time}")
 
     _print_files_with_errors(result)
 
@@ -71,7 +74,11 @@ def _print_files_with_errors(result: list[tuple[Path, Path]]) -> None:
             print(f"The following file could not be processed: {input_file}")
 
 
-def _process_files_in_parallel(paths: list[Path], input_dir: Path, out_dir: Path) -> list[tuple[Path, Path]]:
+def _process_files_in_parallel(
+    paths: list[Path], 
+    input_dir: Path, 
+    out_dir: Path
+) -> list[tuple[Path, Path]]:
     """
     Creates a thread pool and executes the file processing in parallel.
 
@@ -119,7 +126,11 @@ def _write_result_to_pkl_file(result: list[tuple[Path, Path]]) -> bool:
         return False
 
 
-def _check_params(input_dir: str, out_dir: str, xml_file: str) -> Optional[tuple[Path, Path, Path]]:
+def _check_params(
+    input_dir: str, 
+    out_dir: str, 
+    xml_file: str
+) -> Optional[tuple[Path, Path, Path]]:
     """
     Checks the input parameters provided by the user and transforms them into the expected types.
 
@@ -151,22 +162,6 @@ def _check_params(input_dir: str, out_dir: str, xml_file: str) -> Optional[tuple
     return input_dir_path, out_dir_path, xml_file_path
 
 
-def _start_sipi_container(input_dir: Path, output_dir: Path, image: str) -> Optional[Model]:
-    """
-    Creates and runs the Sipi container. If it exists already, it checks if it is running. It starts it if not.
-
-    Args:
-        input_dir: the root directory of the input files, mounts it into the container
-        output_dir: the output directory where the processed files should be written to, mounts it into the container
-        image: the image which the container should be creted from
-
-    Returns:
-        the reference to the running container
-    """
-    _start_sipi_container_and_mount_volumes(input_dir, output_dir, image)
-    return _get_sipi_container()
-
-
 def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
     """
     Parse XML file to get all file paths.
@@ -186,9 +181,11 @@ def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
     return bitstream_paths
 
 
-def _start_sipi_container_and_mount_volumes(input_dir: Path,
-                                            output_dir: Path,
-                                            image: str) -> None:
+def _start_sipi_container_and_mount_volumes(
+    input_dir: Path,
+    output_dir: Path,
+    image: str
+) -> None:
     """
     Creates and starts a Sipi container from the provided image. Checks first if it already exists and if yes, if it is
     already running.
@@ -254,7 +251,10 @@ def _compute_sha256(file: Path) -> Optional[str]:
     return hash_sha256.hexdigest()
 
 
-def _convert_file_with_sipi(in_file: str, out_file_local_path: Path) -> bool:
+def _convert_file_with_sipi(
+    in_file: str, 
+    out_file_local_path: Path
+) -> bool:
     """
     Converts a file by calling a locally running Sipi container.
 
@@ -277,7 +277,11 @@ def _convert_file_with_sipi(in_file: str, out_file_local_path: Path) -> bool:
     return True
 
 
-def _create_orig_file(in_file: Path, file_name: str, out_dir: Path) -> bool:
+def _create_orig_file(
+    in_file: Path, 
+    file_name: str, 
+    out_dir: Path
+) -> bool:
     """
     Creates the .orig file expected by the API.
 
@@ -306,15 +310,17 @@ def _get_video_metadata_with_ffprobe(file_path: Path) -> Optional[dict[str, Any]
     Returns:
         the metadata object as json
     """
-    command_array = ["ffprobe",
-                     "-v",
-                     "error",
-                     "-select_streams", "v:0",
-                     "-show_entries",
-                     "stream=width,height,bit_rate,duration,nb_frames,r_frame_rate",
-                     "-print_format", "json",
-                     "-i",
-                     str(file_path)]
+    command_array = [
+        "ffprobe",
+        "-v",
+        "error",
+        "-select_streams", "v:0",
+        "-show_entries",
+        "stream=width,height,bit_rate,duration,nb_frames,r_frame_rate",
+        "-print_format", "json",
+        "-i",
+        str(file_path)
+    ]
     try:
         result = subprocess.run(command_array, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     except:
@@ -323,10 +329,12 @@ def _get_video_metadata_with_ffprobe(file_path: Path) -> Optional[dict[str, Any]
     return video_metadata
 
 
-def _create_sidecar_file(orig_file: Path,
-                         converted_file: Path,
-                         out_dir: Path,
-                         file_category: str) -> bool:
+def _create_sidecar_file(
+    orig_file: Path,
+    converted_file: Path,
+    out_dir: Path,
+    file_category: str
+) -> bool:
     """
     Creates the sidecar file for a given file. Depending on the file category, it adds category specific metadata.
 
@@ -356,11 +364,13 @@ def _create_sidecar_file(orig_file: Path,
     random_part_of_filename = PurePath(converted_file).stem
     original_extension = PurePath(orig_file).suffix
     original_internal_filename = f"{random_part_of_filename}{original_extension}.orig"
-    sidecar_dict: dict[str, Union[str, float]] = {"originalFilename": original_filename,
-                                                  "checksumOriginal": checksum_original,
-                                                  "checksumDerivative": checksum_derivative,
-                                                  "internalFilename": internal_filename,
-                                                  "originalInternalFilename": original_internal_filename}
+    sidecar_dict: dict[str, Union[str, float]] = {
+        "originalFilename": original_filename,
+        "checksumOriginal": checksum_original,
+        "checksumDerivative": checksum_derivative,
+        "internalFilename": internal_filename,
+        "originalInternalFilename": original_internal_filename
+    }
 
     # add video specific metadata to sidecar file
     if file_category == "VIDEO":
@@ -424,34 +434,38 @@ def _get_file_category_from_mimetype(file: Path) -> Optional[str]:
     application_z = "application/x-compress"
     video_mp4 = "video/mp4"
 
-    image_mimetypes = [image_jp2,
-                       image_jpg,
-                       image_jpx,
-                       image_png,
-                       image_tiff]
+    image_mimetypes = [
+        image_jp2,
+        image_jpg,
+        image_jpx,
+        image_png,
+        image_tiff
+    ]
     video_mimetypes = [video_mp4]
-    other_mimetypes = [audio_mp3,
-                       audio_vnd_wave,
-                       audio_wav,
-                       audio_x_wav,
-                       application_csv,
-                       application_xml,
-                       text_csv,
-                       text_plain,
-                       text_xml,
-                       application_doc,
-                       application_docx,
-                       application_pdf,
-                       application_ppt,
-                       application_pptx,
-                       application_xls,
-                       application_xlsx,
-                       application_7_z,
-                       application_gzip,
-                       application_tar,
-                       application_tgz,
-                       application_z,
-                       application_zip]
+    other_mimetypes = [
+        audio_mp3,
+        audio_vnd_wave,
+        audio_wav,
+        audio_x_wav,
+        application_csv,
+        application_xml,
+        text_csv,
+        text_plain,
+        text_xml,
+        application_doc,
+        application_docx,
+        application_pdf,
+        application_ppt,
+        application_pptx,
+        application_xls,
+        application_xlsx,
+        application_7_z,
+        application_gzip,
+        application_tar,
+        application_tgz,
+        application_z,
+        application_zip
+    ]
 
     mimetype, _ = mimetypes.guess_type(file)
 
@@ -476,8 +490,7 @@ def _extract_key_frames(file: Path) -> bool:
     Returns:
         true if successful, false otherwise
     """
-    export_moving_image_frames_script = importlib.resources.files("dsp_tools").joinpath(
-        "resources/export-moving-image-frames.sh")
+    export_moving_image_frames_script = importlib.resources.files("dsp_tools").joinpath("resources/export-moving-image-frames.sh")
     result = subprocess.call(["sh", f"{export_moving_image_frames_script}", "-i", f"{file}"])
     if result != 0:
         return False
@@ -550,7 +563,11 @@ def _process_file(
     return result
 
 
-def _get_path_for_converted_file(ext: str, internal_filename: str, out_dir: Path) -> Path:
+def _get_path_for_converted_file(
+    ext: str, 
+    internal_filename: str, 
+    out_dir: Path
+) -> Path:
     """
     Creates the path for the converted file
 
@@ -566,7 +583,11 @@ def _get_path_for_converted_file(ext: str, internal_filename: str, out_dir: Path
     return out_dir / converted_file_basename
 
 
-def _process_other_file(in_file: Path, internal_filename: str, out_dir: Path) -> tuple[Path, Path]:
+def _process_other_file(
+    in_file: Path, 
+    internal_filename: str, 
+    out_dir: Path
+) -> tuple[Path, Path]:
     """
     Processes a file of file category OTHER
 
@@ -590,7 +611,12 @@ def _process_other_file(in_file: Path, internal_filename: str, out_dir: Path) ->
     return in_file, converted_file_full_path
 
 
-def _process_image_file(in_file: Path, internal_filename: str, out_dir: Path, input_dir: Path) -> tuple[Path, Path]:
+def _process_image_file(
+    in_file: Path, 
+    internal_filename: str, 
+    out_dir: Path, 
+    input_dir: Path
+) -> tuple[Path, Path]:
     """
     Processes a file of file category IMAGE
 
@@ -614,7 +640,11 @@ def _process_image_file(in_file: Path, internal_filename: str, out_dir: Path, in
     return in_file, converted_file_full_path
 
 
-def _process_video_file(in_file: Path, internal_filename: str, out_dir: Path) -> tuple[Path, Path]:
+def _process_video_file(
+    in_file: Path, 
+    internal_filename: str, 
+    out_dir: Path
+) -> tuple[Path, Path]:
     """
     Processes a file of file category VIDEO
 

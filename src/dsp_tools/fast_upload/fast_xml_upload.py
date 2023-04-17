@@ -1,17 +1,9 @@
-import glob
 import pickle
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
-import requests
 from lxml import etree
-from regex import regex
 
-from dsp_tools.models.connection import Connection
-from dsp_tools.models.helpers import BaseError
-from dsp_tools.utils.shared import login
 from dsp_tools.utils.xml_upload import xml_upload
 
 
@@ -20,16 +12,6 @@ def _get_paths_from_pkl_file(pkl_file: Path) -> list[tuple[Path, Path]]:
         orig_paths_2_processed_paths: list[tuple[Path, Path]] = pickle.load(f)
     return orig_paths_2_processed_paths
 
-
-def _get_xml_tree(xml_file: str) -> etree._ElementTree:
-    """
-    Parse XML file and return the element tree
-    Args:
-        xml_file: path to the XML file
-    Returns:
-        the lxml.etree.ElementTree of the XML file
-    """
-    return etree.parse(xml_file)
 
 
 def fast_xml_upload(xml_file: str,
@@ -53,7 +35,7 @@ def fast_xml_upload(xml_file: str,
         success status
     """
 
-    xml_tree = _get_xml_tree(xml_file)
+    xml_tree = etree.parse(xml_file)
     paths = _get_paths_from_pkl_file(pkl_file=Path(paths_file))
 
     paths_dict = dict()

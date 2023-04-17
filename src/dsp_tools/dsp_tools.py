@@ -384,7 +384,7 @@ def main() -> None:
         handlers=[
             logging.handlers.RotatingFileHandler(
                 filename=Path.home() / Path(".dsp-tools") / "logging.log",
-                maxBytes=3 * 1024 * 1024,
+                maxBytes=3*1024*1024,
                 backupCount=1
             )
         ]

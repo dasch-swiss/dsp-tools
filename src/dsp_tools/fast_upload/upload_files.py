@@ -9,7 +9,7 @@ import requests
 from regex import regex
 
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.shared import login
 
 
@@ -102,17 +102,17 @@ def _check_params(paths_file: str, processed_dir: str) -> Optional[tuple[Path, P
     Returns:
         A tuple with the Path objects of the input strings
     """
-    paths_file = Path(paths_file)
-    processed_dir = Path(processed_dir)
+    paths_file_path = Path(paths_file)
+    processed_dir_path = Path(processed_dir)
 
-    if not paths_file.is_file():
+    if not paths_file_path.is_file():
         print(f"{paths_file} is not a file")
         return None
-    if not processed_dir.is_dir():
+    if not processed_dir_path.is_dir():
         print(f"{processed_dir} is not a directory")
         return None
 
-    return paths_file, processed_dir
+    return paths_file_path, processed_dir_path
 
 
 def _upload_files_in_parallel(processed_dir: Path,
@@ -164,19 +164,19 @@ def upload_files(paths_file: str,
     # check params
     param_check_result = _check_params(paths_file, processed_dir)
     if param_check_result:
-        paths_file, processed_dir = param_check_result
+        paths_file_path, processed_dir_path = param_check_result
     else:
         raise BaseError("Error reading the input parameters. Please check them.")
 
     # read paths from pkl file
-    paths = _get_paths_from_pkl_file(pkl_file=paths_file)
+    paths = _get_paths_from_pkl_file(pkl_file=paths_file_path)
 
     # create connection to DSP
     con = login(dsp_url, user, password)
 
     print(f"{datetime.now()}: Start file uploading...")
     start_time = datetime.now()
-    result: list[tuple[Path, bool]] = _upload_files_in_parallel(processed_dir, paths, sipi_url, con)
+    result: list[tuple[Path, bool]] = _upload_files_in_parallel(processed_dir_path, paths, sipi_url, con)
     print(f"{datetime.now()}: Uploading files took {datetime.now() - start_time}")
 
     _print_files_with_errors(result)

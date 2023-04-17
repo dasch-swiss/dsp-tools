@@ -1,7 +1,7 @@
 """This module handles processing of files referenced in the bitstream tags of an XML file."""
 
 import hashlib
-import importlib
+import importlib.resources
 import json
 import mimetypes
 import os
@@ -19,16 +19,15 @@ import docker
 from docker.models.resource import Model
 from lxml import etree
 
-from dsp_tools.models.helpers import BaseError
+from dsp_tools.models.exceptions import BaseError
 
-global sipi_container
-
+sipi_container: Optional[Model] = None
 
 def process_files(
     input_dir: str,
     out_dir: str,
     xml_file: str,
-    sipi_image: str = "daschswiss/sipi:3.8.1"
+    sipi_image: str
 ) -> bool:
     """
     Process the files referenced in the given XML file.
@@ -44,18 +43,18 @@ def process_files(
 
     param_check_result = _check_params(input_dir, out_dir, xml_file)
     if param_check_result:
-        input_dir, out_dir, xml_file = param_check_result
+        input_dir_path, out_dir_path, xml_file_path = param_check_result
     else:
         raise BaseError("Error reading the input parameters. Please check them.")
 
     global sipi_container
-    sipi_container = _start_sipi_container(input_dir, out_dir, sipi_image)
+    sipi_container = _start_sipi_container(input_dir_path, out_dir_path, sipi_image)
 
-    all_paths: list[Path] = _get_file_paths_from_xml(xml_file)
+    all_paths = _get_file_paths_from_xml(xml_file_path)
 
     print(f"{datetime.now()}: Start local file processing...")
     start_time = datetime.now()
-    result: list[tuple[Path, Path]] = _process_files_in_parallel(all_paths, input_dir, out_dir)
+    result: list[tuple[Path, Path]] = _process_files_in_parallel(all_paths, input_dir_path, out_dir_path)
     print(f"{datetime.now()}: Processing files took: {datetime.now() - start_time}")
 
     _print_files_with_errors(result)
@@ -132,24 +131,24 @@ def _check_params(input_dir: str, out_dir: str, xml_file: str) -> Optional[tuple
     Returns:
         A tuple with the Path objects of the input strings
     """
-    input_dir = Path(input_dir)
-    out_dir = Path(out_dir)
-    xml_file = Path(xml_file)
+    input_dir_path = Path(input_dir)
+    out_dir_path = Path(out_dir)
+    xml_file_path = Path(xml_file)
 
-    if not _ensure_path_exists(out_dir):
+    if not _ensure_path_exists(out_dir_path):
         return None
 
-    if not input_dir.is_dir():
+    if not input_dir_path.is_dir():
         print("input_dir is not a directory")
         return None
-    if not out_dir.is_dir():
+    if not out_dir_path.is_dir():
         print("out_dir is not a directory")
         return None
-    if not xml_file.is_file():
+    if not xml_file_path.is_file():
         print("xml_file is not a file")
         return None
 
-    return input_dir, out_dir, xml_file
+    return input_dir_path, out_dir_path, xml_file_path
 
 
 def _start_sipi_container(input_dir: Path, output_dir: Path, image: str) -> Optional[Model]:
@@ -178,8 +177,8 @@ def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
     Returns:
         list of all paths in the <bitstream> tags
     """
-    tree: etree._ElementTree = etree.parse(xml_file)
-    bitstream_paths: [Path] = []
+    tree: etree._ElementTree = etree.parse(xml_file)  # type: ignore
+    bitstream_paths: list[Path] = []
     for x in tree.iter():
         if x.text and etree.QName(x).localname.endswith("bitstream"):
             bitstream_paths.append(Path(x.text))
@@ -255,7 +254,7 @@ def _compute_sha256(file: Path) -> Optional[str]:
     return hash_sha256.hexdigest()
 
 
-def _convert_file_with_sipi(in_file, out_file_local_path) -> bool:
+def _convert_file_with_sipi(in_file: str, out_file_local_path: Path) -> bool:
     """
     Converts a file by calling a locally running Sipi container.
 
@@ -278,7 +277,7 @@ def _convert_file_with_sipi(in_file, out_file_local_path) -> bool:
     return True
 
 
-def _create_orig_file(in_file, file_name, out_dir) -> bool:
+def _create_orig_file(in_file: Path, file_name: str, out_dir: Path) -> bool:
     """
     Creates the .orig file expected by the API.
 
@@ -297,7 +296,7 @@ def _create_orig_file(in_file, file_name, out_dir) -> bool:
         return False
 
 
-def _get_video_metadata_with_ffprobe(file_path: Path):
+def _get_video_metadata_with_ffprobe(file_path: Path) -> Optional[dict[str, Any]]:
     """
     Gets video metadata by running ffprobe
 
@@ -315,12 +314,12 @@ def _get_video_metadata_with_ffprobe(file_path: Path):
                      "stream=width,height,bit_rate,duration,nb_frames,r_frame_rate",
                      "-print_format", "json",
                      "-i",
-                     file_path]
+                     str(file_path)]
     try:
         result = subprocess.run(command_array, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     except:
         return None
-    video_metadata = json.loads(result.stdout)['streams'][0]  # get first stream
+    video_metadata: dict[str, Any] = json.loads(result.stdout)['streams'][0]  # get first stream
     return video_metadata
 
 
@@ -551,7 +550,7 @@ def _process_file(
     return result
 
 
-def _get_path_for_converted_file(ext: str, internal_filename, out_dir) -> Path:
+def _get_path_for_converted_file(ext: str, internal_filename: str, out_dir: Path) -> Path:
     """
     Creates the path for the converted file
 

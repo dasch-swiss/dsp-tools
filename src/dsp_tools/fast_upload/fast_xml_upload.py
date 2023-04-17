@@ -48,7 +48,7 @@ def fast_xml_upload(xml_file: str,
 
     for tag in xml_tree.iter():
         if tag.text in paths_dict.keys():
-            tag.text = paths_dict[tag.text]
+            tag.text = paths_dict[str(tag.text)]
 
     print("Start with fast XML upload...")
     start_time = datetime.now()

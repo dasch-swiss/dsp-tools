@@ -13,7 +13,10 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.shared import login
 
 
-def _get_upload_candidates(root_dir: Path, filename: Path) -> list[Path]:
+def _get_upload_candidates(
+    root_dir: Path, 
+    filename: Path
+) -> list[Path]:
     upload_candidates: list[str] = []
     upload_candidates.extend(glob.glob(f"{root_dir}/{filename.stem}/**/*.*"))
     upload_candidates.extend(glob.glob(f"{root_dir}/{filename.stem}/*.*"))
@@ -22,7 +25,10 @@ def _get_upload_candidates(root_dir: Path, filename: Path) -> list[Path]:
     return upload_candidates_paths
 
 
-def _check_upload_candidates(input_file: Path, list_of_paths: list[Path]) -> bool:
+def _check_upload_candidates(
+    input_file: Path, 
+    list_of_paths: list[Path]
+) -> bool:
     if not input_file.is_file():
         print(f"The input file was not found {input_file}")
         return False
@@ -40,7 +46,11 @@ def _check_upload_candidates(input_file: Path, list_of_paths: list[Path]) -> boo
     return True
 
 
-def _upload_without_processing(file: Path, sipi_url: str, con: Connection) -> bool:
+def _upload_without_processing(
+    file: Path, 
+    sipi_url: str, 
+    con: Connection
+) -> bool:
     try:
         with open(file, "rb") as bitstream:
             response_upload = requests.post(
@@ -58,20 +68,31 @@ def _upload_without_processing(file: Path, sipi_url: str, con: Connection) -> bo
     return True
 
 
-def _upload_file(sipi_processed_path: Path,
-                 processed_file: Path,
-                 sipi_url: str,
-                 con: Connection
-                 ) -> tuple[Path, bool]:
-    upload_candidates: list[Path] = _get_upload_candidates(sipi_processed_path, processed_file)
+def _upload_file(
+    sipi_processed_path: Path,
+    processed_file: Path,
+    sipi_url: str,
+    con: Connection
+) -> tuple[Path, bool]:
+    upload_candidates = _get_upload_candidates(
+        root_dir=sipi_processed_path, 
+        filename=processed_file
+    )
 
-    check_result = _check_upload_candidates(processed_file, upload_candidates)
+    check_result = _check_upload_candidates(
+        input_file=processed_file, 
+        list_of_paths=upload_candidates
+    )
     if not check_result:
         return Path(processed_file), False
 
     result: list[bool] = []
     for candidate in upload_candidates:
-        res: bool = _upload_without_processing(candidate, sipi_url, con)
+        res = _upload_without_processing(
+            file=candidate, 
+            sipi_url=sipi_url, 
+            con=con
+        )
         result.append(res)
 
     if not any(result):
@@ -91,7 +112,10 @@ def _get_paths_from_pkl_file(pkl_file: Path) -> list[Path]:
     return processed_paths
 
 
-def _check_params(paths_file: str, processed_dir: str) -> Optional[tuple[Path, Path]]:
+def _check_params(
+    paths_file: str, 
+    processed_dir: str
+) -> Optional[tuple[Path, Path]]:
     """
     Checks the input parameters provided by the user and transforms them into the expected types.
 
@@ -115,11 +139,12 @@ def _check_params(paths_file: str, processed_dir: str) -> Optional[tuple[Path, P
     return paths_file_path, processed_dir_path
 
 
-def _upload_files_in_parallel(processed_dir: Path,
-                              paths: list[Path],
-                              sipi_url: str,
-                              con: Connection
-                              ) -> list[tuple[Path, bool]]:
+def _upload_files_in_parallel(
+    processed_dir: Path,
+    paths: list[Path],
+    sipi_url: str,
+    con: Connection
+) -> list[tuple[Path, bool]]:
     with ThreadPoolExecutor() as pool:
         upload_jobs = [pool.submit(
             _upload_file,
@@ -141,13 +166,14 @@ def _print_files_with_errors(result: list[tuple[Path, bool]]) -> None:
             print(f"The following file could not be uploaded: {path}")
 
 
-def upload_files(paths_file: str,
-                 processed_dir: str,
-                 user: str,
-                 password: str,
-                 dsp_url: str,
-                 sipi_url: str
-                 ) -> bool:
+def upload_files(
+    paths_file: str,
+    processed_dir: str,
+    user: str,
+    password: str,
+    dsp_url: str,
+    sipi_url: str
+) -> bool:
     """
     Reads the paths from the pickle file and uploads all files without processing.
 
@@ -162,7 +188,10 @@ def upload_files(paths_file: str,
         success status
     """
     # check params
-    param_check_result = _check_params(paths_file, processed_dir)
+    param_check_result = _check_params(
+        paths_file=paths_file, 
+        processed_dir=processed_dir
+    )
     if param_check_result:
         paths_file_path, processed_dir_path = param_check_result
     else:
@@ -172,11 +201,20 @@ def upload_files(paths_file: str,
     paths = _get_paths_from_pkl_file(pkl_file=paths_file_path)
 
     # create connection to DSP
-    con = login(dsp_url, user, password)
+    con = login(
+        server=dsp_url, 
+        user=user, 
+        password=password
+    )
 
     print(f"{datetime.now()}: Start file uploading...")
     start_time = datetime.now()
-    result: list[tuple[Path, bool]] = _upload_files_in_parallel(processed_dir_path, paths, sipi_url, con)
+    result = _upload_files_in_parallel(
+        processed_dir=processed_dir_path, 
+        paths=paths, 
+        sipi_url=sipi_url, 
+        con=con
+    )
     print(f"{datetime.now()}: Uploading files took {datetime.now() - start_time}")
 
     _print_files_with_errors(result)

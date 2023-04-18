@@ -201,7 +201,7 @@ def make_parser() -> argparse.ArgumentParser:
 
     # shutdown DSP-API
     parser_stackdown = subparsers.add_parser(
-        name="stop-stack",
+        name="stop-stack", 
         help="Shut down the local instance of DSP-API and DSP-APP, and delete all data in it"
     )
     parser_stackdown.set_defaults(action="stop-stack")
@@ -398,7 +398,7 @@ def main() -> None:
         exit(1)
     # let BaseError and all unexpected errors escalate, so that a stack trace is printed
 
-    if not success:
+    if not success: 
         exit(1)
 
 

@@ -14,13 +14,14 @@ def _get_paths_from_pkl_file(pkl_file: Path) -> list[tuple[Path, Path]]:
 
 
 
-def fast_xml_upload(xml_file: str,
-                    paths_file: str,
-                    user: str,
-                    password: str,
-                    dsp_url: str,
-                    sipi_url: str
-                    ) -> bool:
+def fast_xml_upload(
+    xml_file: str,
+    paths_file: str,
+    user: str,
+    password: str,
+    dsp_url: str,
+    sipi_url: str
+) -> bool:
     """
     Reads the paths from the pickle file and uploads all files without processing.
 

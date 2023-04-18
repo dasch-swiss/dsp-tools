@@ -14,13 +14,13 @@ from dsp_tools.utils.shared import login
 
 
 def _get_upload_candidates(
-    root_dir: Path, 
-    filename: Path
+    processed_dir: Path, 
+    processed_file: Path
 ) -> list[Path]:
     upload_candidates: list[str] = []
-    upload_candidates.extend(glob.glob(f"{root_dir}/{filename.stem}/**/*.*"))
-    upload_candidates.extend(glob.glob(f"{root_dir}/{filename.stem}/*.*"))
-    upload_candidates.extend(glob.glob(f"{root_dir}/{filename.stem}*.*"))
+    upload_candidates.extend(glob.glob(f"{processed_dir}/{processed_file.stem}/**/*.*"))
+    upload_candidates.extend(glob.glob(f"{processed_dir}/{processed_file.stem}/*.*"))
+    upload_candidates.extend(glob.glob(f"{processed_dir}/{processed_file.stem}*.*"))
     upload_candidates_paths = [Path(c) for c in upload_candidates]
     return upload_candidates_paths
 
@@ -39,8 +39,7 @@ def _check_upload_candidates(
 
     min_num_of_candidates = 5 if input_file.suffix == ".mp4" else 3
     if len(list_of_paths) < min_num_of_candidates:
-        print(
-            f"Found the following files for {input_file}, but more were expected: {list_of_paths}. Skipping...")
+        print(f"Found the following files for {input_file}, but more were expected: {list_of_paths}. Skipping...")
         return False
 
     return True
@@ -69,14 +68,14 @@ def _upload_without_processing(
 
 
 def _upload_file(
-    sipi_processed_path: Path,
+    processed_dir: Path,
     processed_file: Path,
     sipi_url: str,
     con: Connection
 ) -> tuple[Path, bool]:
     upload_candidates = _get_upload_candidates(
-        root_dir=sipi_processed_path, 
-        filename=processed_file
+        processed_dir=processed_dir, 
+        processed_file=processed_file
     )
 
     check_result = _check_upload_candidates(
@@ -149,10 +148,10 @@ def _upload_files_in_parallel(
         upload_jobs = [pool.submit(
             _upload_file,
             processed_dir,
-            file,
+            processed_file,
             sipi_url,
             con
-        ) for file in paths]
+        ) for processed_file in paths]
 
     result: list[tuple[Path, bool]] = []
     for uploaded in as_completed(upload_jobs):

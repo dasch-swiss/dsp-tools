@@ -13,7 +13,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path, PurePath
 from typing import Any, Optional, Union
-from uuid import UUID
 
 import docker
 from docker.models.resource import Model
@@ -37,6 +36,7 @@ def process_files(
         out_dir: path to the directory where the transformed / created files should be written to
         xml_file: path to xml file containing the data
         sipi_image: the sipi image that should be used
+    
     Returns:
         success status
     """
@@ -55,7 +55,7 @@ def process_files(
     start_time = datetime.now()
     print(f"{start_time}: Start local file processing...")
 
-    result: list[tuple[Path, Path]] = _process_files_in_parallel(all_paths, input_dir_path, out_dir_path)
+    result = _process_files_in_parallel(all_paths, input_dir_path, out_dir_path)
 
     end_time = datetime.now()
     print(f"{end_time}: Processing files took: {end_time - start_time}")
@@ -187,8 +187,9 @@ def _start_sipi_container_and_mount_volumes(
     image: str
 ) -> None:
     """
-    Creates and starts a Sipi container from the provided image. Checks first if it already exists and if yes, if it is
-    already running.
+    Creates and starts a Sipi container from the provided image. 
+    Checks first if it already exists and if yes, 
+    if it is already running.
 
     Args:
         input_dir: the root directory of the images that should be processed, is mounted into the container
@@ -199,17 +200,17 @@ def _start_sipi_container_and_mount_volumes(
     volumes = [f"{input_dir.absolute()}:/sipi/processing-input",
                f"{output_dir.absolute()}:/sipi/processing-output"]
     entrypoint = ["tail", "-f", "/dev/null"]
-    client = docker.from_env()
+    docker_client = docker.from_env()
 
     try:
-        container = client.containers.get(container_name)
+        container = docker_client.containers.get(container_name)
         if not container.attrs["State"]["Running"]:
             container.restart()
             print(f"{datetime.now()}: Started existing Sipi container '{container_name}'.")
         else:
             print(f"{datetime.now()}: Found running Sipi container '{container_name}'.")
     except docker.errors.NotFound:
-        client.containers.run(image=image, name=container_name, volumes=volumes, entrypoint=entrypoint, detach=True)
+        docker_client.containers.run(image=image, name=container_name, volumes=volumes, entrypoint=entrypoint, detach=True)
         print(f"{datetime.now()}: Created and started Sipi container '{container_name}'.")
 
 
@@ -221,12 +222,9 @@ def _get_sipi_container() -> Union[Model, Any, None]:
         the reference to the Sipi container
     """
     docker_client = docker.from_env()
-    containers = docker_client.containers.list()
-    sipi_c = None
-    for c in containers:
-        if c.name == "sipi":
-            return c
-    if not sipi_c:
+    try:
+        return docker_client.containers.get("sipi")
+    except docker.errors.NotFound:
         print("Couldn't find a running Sipi container.")
         return None
 
@@ -262,10 +260,8 @@ def _convert_file_with_sipi(
         in_file: path to input file, has to be relative to the Sipi executable inside the container
         out_file_local_path: path to output file, has to be relative to the Sipi executable inside the container
     """
-    input_dir_sipi = Path("processing-input")
-    out_dir_sipi = Path("processing-output")
-    in_file_sipi_path = input_dir_sipi / in_file
-    out_file_sipi_path = out_dir_sipi / os.path.basename(out_file_local_path)
+    in_file_sipi_path = Path("processing-input") / in_file
+    out_file_sipi_path = Path("processing-output") / os.path.basename(out_file_local_path)
 
     if not sipi_container:
         return False
@@ -498,10 +494,6 @@ def _extract_key_frames(file: Path) -> bool:
         return True
 
 
-def _create_random_uuid() -> UUID:
-    return uuid.uuid4()
-
-
 def _ensure_path_exists(path: Path) -> bool:
     try:
         path.mkdir(parents=True, exist_ok=True)
@@ -525,11 +517,11 @@ def _process_file(
     Args:
         in_file: path to input file that should be processed
         input_dir: root directory of the input files
-        out_dir: target location where the crated files are written to, if the directory doesn't exist, it is created
+        out_dir: target location where the created files are written to, if the directory doesn't exist, it is created
 
     Returns:
-        tuple consisting of the original path and the internal filename, if there was an error, a tuple with twice the
-        original path is returned
+        tuple consisting of the original path and the internal filename. 
+        If there was an error, a tuple with twice the original path is returned.
     """
     # ensure that input file exists
     if not in_file.is_file():
@@ -537,7 +529,7 @@ def _process_file(
         return in_file, in_file
 
     # get random UUID for internal file handling
-    internal_filename = str(_create_random_uuid())
+    internal_filename = str(uuid.uuid4())
 
     # create .orig file
     if not _create_orig_file(in_file, internal_filename, out_dir):

@@ -10,9 +10,13 @@ It consists of the steps described in this document:
 1. create the XLM file as usual
 2. prepare one root directory with the files that are referenced in the XML file
 3. get the latest Sipi image from [docker hub](https://hub.docker.com/r/daschswiss/sipi)
-4. process the files locally with `dsp-tools process-files`
-5. upload the files to DSP with `dsp-tools upload-files`
-6. create the resources on DSP with `dsp-tools fast-xml-upload`
+    - if you have run DSP-API recently, the Sipi image should be already on your machine. You can check it in Docker Desktop > Images
+    - your machine must have the DSP software installed, as described in the (internal) document "Installation of your Mac"
+4. make sure that you have ffmpeg installed (`brew install ffmpeg`)
+5. make sure that you have ImageMagick installed (`brew install imagemagick`)
+6. process the files locally with `dsp-tools process-files`
+7. upload the files to DSP with `dsp-tools upload-files`
+8. create the resources on DSP with `dsp-tools fast-xml-upload`
 
 The mass upload workflow processes the files locally before uploading them to the DSP server.
 Then, it creates the resources of the XML file on the DSP server.

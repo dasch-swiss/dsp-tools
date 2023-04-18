@@ -59,8 +59,15 @@ def _upload_without_processing(
     except:
         print(f"An error occurred while uploading the file {file}")
         return False
-
-    if response_upload.status_code != 200:
+    
+    if response_upload.json().get("message") == "server.fs.mkdir() failed: File exists":
+        print(f"Upload of file {file} must be repeated because the server responded with 'server.fs.mkdir() failed: File exists'")
+        return _upload_without_processing(
+            file=file,
+            sipi_url=sipi_url,
+            con=con
+        )
+    elif response_upload.status_code != 200:
         print(f"An error occurred while uploading the file {file}. The response was {response_upload.json()}")
         return False
 

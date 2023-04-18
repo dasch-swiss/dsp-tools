@@ -41,13 +41,21 @@ def process_files(
         success status
     """
 
-    param_check_result = _check_params(input_dir, out_dir, xml_file)
+    param_check_result = _check_params(
+        input_dir=input_dir, 
+        out_dir=out_dir, 
+        xml_file=xml_file
+    )
     if param_check_result:
         input_dir_path, out_dir_path, xml_file_path = param_check_result
     else:
         raise BaseError("Error reading the input parameters. Please check them.")
 
-    _start_sipi_container_and_mount_volumes(input_dir_path, out_dir_path, sipi_image)
+    _start_sipi_container_and_mount_volumes(
+        input_dir=input_dir_path, 
+        output_dir=out_dir_path, 
+        image=sipi_image
+    )
     global sipi_container
     sipi_container = _get_sipi_container()
     all_paths = _get_file_paths_from_xml(xml_file_path)
@@ -55,7 +63,11 @@ def process_files(
     start_time = datetime.now()
     print(f"{start_time}: Start local file processing...")
 
-    result = _process_files_in_parallel(all_paths, input_dir_path, out_dir_path)
+    result = _process_files_in_parallel(
+        paths=all_paths, 
+        input_dir=input_dir_path, 
+        out_dir=out_dir_path
+    )
 
     end_time = datetime.now()
     print(f"{end_time}: Processing files took: {end_time - start_time}")
@@ -532,7 +544,11 @@ def _process_file(
     internal_filename = str(uuid.uuid4())
 
     # create .orig file
-    if not _create_orig_file(in_file, internal_filename, out_dir):
+    if not _create_orig_file(
+        in_file=in_file, 
+        file_name=internal_filename, 
+        out_dir=out_dir
+    ):
         print(f"Couldn't create .orig file for {in_file}")
         return in_file, in_file
 
@@ -543,11 +559,24 @@ def _process_file(
         return in_file, in_file
 
     if file_category == "OTHER":
-        result = _process_other_file(in_file, internal_filename, out_dir)
+        result = _process_other_file(
+            in_file=in_file, 
+            internal_filename=internal_filename, 
+            out_dir=out_dir
+        )
     elif file_category == "IMAGE":
-        result = _process_image_file(in_file, internal_filename, out_dir, input_dir)
+        result = _process_image_file(
+            in_file=in_file, 
+            internal_filename=internal_filename, 
+            out_dir=out_dir, 
+            input_dir=input_dir
+        )
     elif file_category == "VIDEO":
-        result = _process_video_file(in_file, internal_filename, out_dir)
+        result = _process_video_file(
+            in_file=in_file, 
+            internal_filename=internal_filename, 
+            out_dir=out_dir
+        )
     else:
         print(f"Unexpected file category: {file_category}")
         return in_file, in_file
@@ -591,13 +620,22 @@ def _process_other_file(
     Returns:
         a tuple of the original file path and the path to the processed file
     """
-    converted_file_full_path = _get_path_for_converted_file(PurePath(in_file).suffix, internal_filename, out_dir)
+    converted_file_full_path = _get_path_for_converted_file(
+        ext=PurePath(in_file).suffix, 
+        internal_filename=internal_filename, 
+        out_dir=out_dir
+    )
     try:
         shutil.copyfile(in_file, converted_file_full_path)
     except:
         print(f"Couldn't process file of category OTHER: {in_file}")
         return in_file, in_file
-    if not _create_sidecar_file(in_file, converted_file_full_path, out_dir, "OTHER"):
+    if not _create_sidecar_file(
+        orig_file=in_file, 
+        converted_file=converted_file_full_path, 
+        out_dir=out_dir, 
+        file_category="OTHER"
+    ):
         print(f"Couldn't create sidecar file for: {in_file}")
         return in_file, in_file
     return in_file, converted_file_full_path
@@ -620,13 +658,25 @@ def _process_image_file(
     Returns:
         a tuple of the original file path and the path to the processed file
     """
-    converted_file_full_path = _get_path_for_converted_file(".jp2", internal_filename, out_dir)
+    converted_file_full_path = _get_path_for_converted_file(
+        ext=".jp2", 
+        internal_filename=internal_filename, 
+        out_dir=out_dir
+    )
     in_file_sipi_path = os.path.relpath(in_file, input_dir)
-    sipi_result = _convert_file_with_sipi(in_file_sipi_path, converted_file_full_path)
+    sipi_result = _convert_file_with_sipi(
+        in_file=in_file_sipi_path, 
+        out_file_local_path=converted_file_full_path
+    )
     if not sipi_result:
         print(f"Couldn't process file of category IMAGE: {in_file}")
         return in_file, in_file
-    if not _create_sidecar_file(in_file, converted_file_full_path, out_dir, "IMAGE"):
+    if not _create_sidecar_file(
+        orig_file=in_file, 
+        converted_file=converted_file_full_path, 
+        out_dir=out_dir, 
+        file_category="IMAGE"
+    ):
         print(f"Couldn't create sidecar file for: {in_file}")
         return in_file, in_file
     return in_file, converted_file_full_path
@@ -648,7 +698,11 @@ def _process_video_file(
     Returns:
         a tuple of the original file path and the path to the processed file
     """
-    converted_file_full_path = _get_path_for_converted_file(PurePath(in_file).suffix, internal_filename, out_dir)
+    converted_file_full_path = _get_path_for_converted_file(
+        ext=PurePath(in_file).suffix, 
+        internal_filename=internal_filename, 
+        out_dir=out_dir
+    )
     try:
         shutil.copyfile(in_file, converted_file_full_path)
     except:
@@ -658,7 +712,12 @@ def _process_video_file(
     if not key_frames_result:
         print(f"Couldn't process file of category VIDEO: {in_file}")
         return in_file, in_file
-    if not _create_sidecar_file(in_file, converted_file_full_path, out_dir, "VIDEO"):
+    if not _create_sidecar_file(
+        orig_file=in_file, 
+        converted_file=converted_file_full_path, 
+        out_dir=out_dir, 
+        file_category="VIDEO"
+    ):
         print(f"Couldn't create sidecar file for: {in_file}")
         return in_file, in_file
     return in_file, converted_file_full_path

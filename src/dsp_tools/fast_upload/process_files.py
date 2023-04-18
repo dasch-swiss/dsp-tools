@@ -111,7 +111,6 @@ def _process_files_in_parallel(
         ) for input_file in paths]
 
     orig_filepath_2_uuid: list[tuple[Path, Path]] = []
-
     for processed in as_completed(processing_jobs):
         orig_filepath_2_uuid.append(processed.result())
 
@@ -413,75 +412,19 @@ def _get_file_category_from_mimetype(file: Path) -> Optional[str]:
     Returns:
         the file category, either IMAGE, VIDEO or OTHER (or None)
     """
-    image_jp2 = "image/jp2"
-    image_jpx = "image/jpx"
-    image_tiff = "image/tiff"
-    image_png = "image/png"
-    image_jpg = "image/jpeg"
-    application_xml = "application/xml"
-    text_xml = "text/xml"
-    text_plain = "text/plain"
-    text_csv = "text/csv"
-    audio_mp3 = "audio/mpeg"
-    audio_wav = "audio/wav"
-    audio_x_wav = "audio/x-wav"
-    audio_vnd_wave = "audio/vnd.wave"
-    application_csv = "application/csv"
-    application_pdf = "application/pdf"
-    application_doc = "application/msword"
-    application_docx = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    application_xls = "application/vnd.ms-excel"
-    application_xlsx = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    application_ppt = "application/vnd.ms-powerpoint"
-    application_pptx = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-    application_zip = "application/zip"
-    application_tar = "application/x-tar"
-    application_gzip = "application/gzip"
-    application_7_z = "application/x-7z-compressed"
-    application_tgz = "application/x-compress"
-    application_z = "application/x-compress"
-    video_mp4 = "video/mp4"
+    extensions: dict[str, list[str]] = dict()
+    extensions["image"] = [".jpg", ".jpeg", ".tif", ".tiff", ".jp2", ".png"]
+    extensions["video"] = [".mp4"]
+    extensions["archive"] = [".7z", ".gz", ".gzip", ".tar", ".tar.gz", ".tgz", ".z", ".zip"]
+    extensions["text"] = [".csv", ".txt", ".xml", ".xsd", ".xsl"]
+    extensions["document"] = [".doc", ".docx", ".pdf", ".ppt", ".pptx", ".xls", ".xlsx"]
+    extensions["audio"] = [".mp3", ".wav"]
 
-    image_mimetypes = [
-        image_jp2,
-        image_jpg,
-        image_jpx,
-        image_png,
-        image_tiff
-    ]
-    video_mimetypes = [video_mp4]
-    other_mimetypes = [
-        audio_mp3,
-        audio_vnd_wave,
-        audio_wav,
-        audio_x_wav,
-        application_csv,
-        application_xml,
-        text_csv,
-        text_plain,
-        text_xml,
-        application_doc,
-        application_docx,
-        application_pdf,
-        application_ppt,
-        application_pptx,
-        application_xls,
-        application_xlsx,
-        application_7_z,
-        application_gzip,
-        application_tar,
-        application_tgz,
-        application_z,
-        application_zip
-    ]
-
-    mimetype, _ = mimetypes.guess_type(file)
-
-    if mimetype in video_mimetypes:
+    if file.suffix in extensions["video"]:
         category = "VIDEO"
-    elif mimetype in image_mimetypes:
+    elif file.suffix in extensions["image"]:
         category = "IMAGE"
-    elif mimetype in other_mimetypes:
+    elif file.suffix in extensions["archive"] + extensions["text"] + extensions["document"] + extensions["audio"]:
         category = "OTHER"
     else:
         category = None

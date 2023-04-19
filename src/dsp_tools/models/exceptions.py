@@ -1,12 +1,40 @@
+import json
+import re
+from typing import Optional
+
+
 class BaseError(Exception):
     """
     A basic error class for DSP-TOOLS
     """
     message: str
+    status_code_of_api_response: Optional[int]
+    original_error_message_from_api: Optional[str]
+    reason_for_failure_from_api_response: Optional[str]
+    api_route: Optional[str]
 
-    def __init__(self, message: str) -> None:
+    def __init__(
+        self, 
+        message: str, 
+        status_code_of_api_response: Optional[int] = None,
+        json_content_of_api_response: Optional[str] = None,
+        reason_for_failure_from_api_response: Optional[str] = None,
+        api_route: Optional[str] = None
+    ) -> None:
         super().__init__()
         self.message = message
+        self.status_code_of_api_response = status_code_of_api_response
+        if json_content_of_api_response:
+            try:
+                parsed_json = json.loads(json_content_of_api_response)
+                if "knora-api:error" in parsed_json:
+                    knora_api_error = parsed_json["knora-api:error"]
+                    knora_api_error = re.sub(r"^dsp\.errors\.[A-Za-z]+?: ?", "", knora_api_error)
+                    self.original_error_message_from_api = knora_api_error
+            except json.JSONDecodeError:
+                pass
+        self.reason_for_failure_from_api_response = reason_for_failure_from_api_response
+        self.api_route = api_route
     
     def __str__(self) -> str:
         return self.message

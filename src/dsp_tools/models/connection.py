@@ -100,10 +100,16 @@ class Connection:
         """
 
         if res.status_code != 200:
-            raise BaseError("KNORA-ERROR: status code=" + str(res.status_code) + "\nMessage:" + res.text)
+            raise BaseError(
+                message="DSP-ERROR: status code=" + str(res.status_code) + "\nMessage:" + res.text,
+                status_code_of_api_response=res.status_code,
+                json_content_of_api_response=res.content,
+                reason_for_failure_from_api_response=res.reason,
+                api_route=res.url
+            )
 
         if 'error' in res:
-            raise BaseError("KNORA-ERROR: API error: " + res.error)
+            raise BaseError("DSP-ERROR: API error: " + res.error)
 
     def post(self, path: str, jsondata: Optional[str] = None):
         """

@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.2.1](https://github.com/dasch-swiss/dsp-tools/compare/v2.2.0...v2.2.1) (2023-04-18)
+
+
+### Maintenance
+
+* bump dependencies (DEV-1960) [#350](https://github.com/dasch-swiss/dsp-tools/issues/350) ([5b999f5](https://github.com/dasch-swiss/dsp-tools/commit/5b999f5f534da38e62433adeb9725426c91195cb))
+* bump start-stack to 2023.04.02 (DEV-1933) ([#351](https://github.com/dasch-swiss/dsp-tools/issues/351)) ([163ac19](https://github.com/dasch-swiss/dsp-tools/commit/163ac1953da303cbb67fe23badb5d13cefebf9e6))
+* **get:** allow shortname to be uppercase (DEV-1972) [#346](https://github.com/dasch-swiss/dsp-tools/issues/346) ([e0ce7d4](https://github.com/dasch-swiss/dsp-tools/commit/e0ce7d42a613dc8b3d2d962a5c388891a2d37bac))
+* inside a JSON or Excel file, resource & property names must be unique (DEV-1971) ([#345](https://github.com/dasch-swiss/dsp-tools/issues/345)) ([c6df889](https://github.com/dasch-swiss/dsp-tools/commit/c6df8892bdc07309aa60fdedd743db3576ca52fd))
+* refactor try_network_action() (DEV-1844) ([#325](https://github.com/dasch-swiss/dsp-tools/issues/325)) ([896586f](https://github.com/dasch-swiss/dsp-tools/commit/896586f4eaab4f397e50f0dfb68a2a2eb9fae0dc))
+
 ## [2.2.0](https://github.com/dasch-swiss/dsp-tools/compare/v2.1.1...v2.2.0) (2023-03-21)
 
 

@@ -286,6 +286,7 @@ def upload_files(
 
     # read paths from pkl file
     uuid_names_of_processed_files = _get_paths_from_pkl_file(pkl_file=pkl_file_path)
+    print(f"{datetime.now()}: Found {len(uuid_names_of_processed_files)} files to upload...")
 
     # create connection to DSP
     con = login(
@@ -303,6 +304,10 @@ def upload_files(
         con=con
     )
     print(f"{datetime.now()}: Uploading files took {datetime.now() - start_time}")
+    if len(result) == len(uuid_names_of_processed_files):
+        print(f"{datetime.now()}: Number of files of which the derivates were uploaded: {len(result)}: Okay")
+    else:
+        print(f"{datetime.now()}: !!! NUMBER OF FILES OF WHICH THE DERIVATES WERE UPLOADED: {len(result)}: NOT OKAY, SHOULD BE: {len(uuid_names_of_processed_files)} !!!")
 
     _print_files_with_errors(result)
 

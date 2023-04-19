@@ -58,6 +58,7 @@ def process_files(
     global sipi_container
     sipi_container = _get_sipi_container()
     all_paths = _get_file_paths_from_xml(xml_file_path)
+    print(f"{datetime.now()}: Found {len(all_paths)} bitstreams in the XML file.")
 
     start_time = datetime.now()
     print(f"{start_time}: Start local file processing...")
@@ -70,6 +71,10 @@ def process_files(
 
     end_time = datetime.now()
     print(f"{end_time}: Processing files took: {end_time - start_time}")
+    if len(result) == len(all_paths):
+        print(f"{datetime.now()}: Number of processed files: {len(result)}: Okay")
+    else:
+        print(f"{datetime.now()}: !!! NUMBER OF PROCESSED FILES: {len(result)}: NOT OKAY, SHOULD BE: {len(all_paths)} !!!")
 
     _print_files_with_errors(result)
 

@@ -7,6 +7,25 @@ import requests
 from dsp_tools.models.exceptions import BaseError
 
 
+def check_for_api_error(response: requests.Response) -> None:
+    """
+    Check the response of an API request if it contains an error raised by DSP-API.
+
+    Args:
+        res: The requests.Response object that is returned by the API request
+    
+    Raises:
+        BaseError: If the status code of the response is not 200
+    """
+    if response.status_code != 200:
+        raise BaseError(
+            message="DSP-ERROR: status code=" + str(response.status_code) + "\nMessage:" + response.text,
+            status_code_of_api_response=response.status_code,
+            json_content_of_api_response=response.text,
+            reason_for_failure_from_api_response=response.reason,
+            api_route=response.url
+        )
+
 class Connection:
     """
     An Connection instance represents a connection to a Knora server.
@@ -47,13 +66,13 @@ class Connection:
         }
         jsondata = json.dumps(credentials)
 
-        req = requests.post(
+        response = requests.post(
             self._server + '/v2/authentication',
             headers={'Content-Type': 'application/json; charset=UTF-8'},
             data=jsondata
         )
-        self.on_api_error(req)
-        result = req.json()
+        check_for_api_error(response)
+        result = response.json()
         self._token = result["token"]
 
     def get_token(self) -> str:
@@ -81,35 +100,17 @@ class Connection:
         """
 
         if self._token is not None:
-            req = requests.delete(
+            response = requests.delete(
                 self._server + '/v2/authentication',
                 headers={'Authorization': 'Bearer ' + self._token}
             )
-            self.on_api_error(req)
+            check_for_api_error(response)
             self._token = None
 
     def __del__(self):
         pass
         # self.logout()
 
-    def on_api_error(self, res) -> None:
-        """
-        Method to check for any API errors
-        :param res: The input to check, usually JSON format
-        :return: Possible Error that is being raised
-        """
-
-        if res.status_code != 200:
-            raise BaseError(
-                message="DSP-ERROR: status code=" + str(res.status_code) + "\nMessage:" + res.text,
-                status_code_of_api_response=res.status_code,
-                json_content_of_api_response=res.content,
-                reason_for_failure_from_api_response=res.reason,
-                api_route=res.url
-            )
-
-        if 'error' in res:
-            raise BaseError("DSP-ERROR: API error: " + res.error)
 
     def post(self, path: str, jsondata: Optional[str] = None):
         """
@@ -125,22 +126,28 @@ class Connection:
         if jsondata is None:
             if self._token is not None:
                 headers = {'Authorization': 'Bearer ' + self._token}
-                req = requests.post(self._server + path,
-                                    headers=headers)
+                response = requests.post(
+                    self._server + path,
+                    headers=headers
+                )
             else:
-                req = requests.post(self._server + path)
+                response = requests.post(self._server + path)
         else:
             if self._token is not None:
                 headers = {'Content-Type': 'application/json; charset=UTF-8',
                            'Authorization': 'Bearer ' + self._token}
-                req = requests.post(self._server + path,
-                                    headers=headers,
-                                    data=jsondata)
+                response = requests.post(
+                    self._server + path,
+                    headers=headers,
+                    data=jsondata
+                )
             else:
                 headers = {'Content-Type': 'application/json; charset=UTF-8'}
-                req = requests.post(self._server + path,
-                                    headers=headers,
-                                    data=jsondata)
+                response = requests.post(
+                    self._server + path,
+                    headers=headers,
+                    data=jsondata
+                )
         if self._log:
             if jsondata:
                 jsonobj = json.loads(jsondata)
@@ -151,16 +158,16 @@ class Connection:
                 "headers": headers,
                 "route": path,
                 "body": jsonobj,
-                "return-headers": dict(req.headers),
-                "return": req.json() if req.status_code == 200 else {"status": str(req.status_code),
-                                                                     "message": req.text}
+                "return-headers": dict(response.headers),
+                "return": response.json() if response.status_code == 200 else {"status": str(response.status_code), 
+                                                                               "message": response.text}
             }
             tmp = path.split('/')
             filename = "POST" + "_".join(tmp) + ".json"
             with open(filename, 'w') as f:
                 json.dump(logobj, f, indent=4)
-        self.on_api_error(req)
-        result = req.json()
+        check_for_api_error(response)
+        result = response.json()
         return result
 
     def get(self, path: str, headers: Optional[dict[str, str]] = None) -> dict[str, Any]:
@@ -185,7 +192,7 @@ class Connection:
                 headers['Authorization'] = 'Bearer ' + self._token
                 response = requests.get(self._server + path, headers)
 
-        self.on_api_error(response)
+        check_for_api_error(response)
         json_response = response.json()
         return json_response
 
@@ -201,15 +208,20 @@ class Connection:
         if path[0] != '/':
             path = '/' + path
         if jsondata is None:
-            req = requests.put(self._server + path,
-                               headers={'Authorization': 'Bearer ' + self._token})
+            response = requests.put(
+                self._server + path,
+                headers={'Authorization': 'Bearer ' + self._token}
+            )
         else:
-            req = requests.put(self._server + path,
-                               headers={'Content-Type': content_type + '; charset=UTF-8',
-                                        'Authorization': 'Bearer ' + self._token},
-                               data=jsondata)
-        self.on_api_error(req)
-        result = req.json()
+            response = requests.put(
+                self._server + path,
+                headers={
+                    'Content-Type': content_type + '; charset=UTF-8', 
+                    'Authorization': 'Bearer ' + self._token
+                },
+                data=jsondata)
+        check_for_api_error(response)
+        result = response.json()
         return result
 
     def delete(self, path: str, params: Optional[any] = None):
@@ -222,15 +234,19 @@ class Connection:
         if path[0] != '/':
             path = '/' + path
         if params is not None:
-            req = requests.delete(self._server + path,
-                                  headers={'Authorization': 'Bearer ' + self._token},
-                                  params=params)
+            response = requests.delete(
+                self._server + path,
+                headers={'Authorization': 'Bearer ' + self._token},
+                params=params
+            )
 
         else:
-            req = requests.delete(self._server + path,
-                                  headers={'Authorization': 'Bearer ' + self._token})
-        self.on_api_error(req)
-        result = req.json()
+            response = requests.delete(
+                self._server + path,
+                headers={'Authorization': 'Bearer ' + self._token}
+            )
+        check_for_api_error(response)
+        result = response.json()
         return result
 
     def reset_triplestore_content(self):
@@ -271,10 +287,12 @@ class Connection:
         jsondata = json.dumps(rdfdata)
         url = self._server + '/admin/store/ResetTriplestoreContent?prependdefaults=false'
 
-        req = requests.post(url,
-                            headers={'Content-Type': 'application/json; charset=UTF-8'},
-                            data=jsondata)
-        self.on_api_error(req)
-        res = req.json()
+        response = requests.post(
+            url,
+            headers={'Content-Type': 'application/json; charset=UTF-8'},
+            data=jsondata
+        )
+        check_for_api_error(response)
+        res = response.json()
         #  pprint(res)
         return res

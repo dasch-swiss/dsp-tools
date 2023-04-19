@@ -43,7 +43,7 @@ def make_parser() -> argparse.ArgumentParser:
     # help texts
     username_text = "username (e-mail) used for authentication with the DSP-API "
     password_text = "password used for authentication with the DSP-API "
-    remote_dsp_api_server_text = "URL of the DSP server"
+    dsp_server_text = "URL of the DSP server"
     verbose_text = "print more information about the progress to the console"
     sipi_text = "URL of the Sipi server"
 
@@ -51,7 +51,7 @@ def make_parser() -> argparse.ArgumentParser:
     default_dsp_api_url = "http://0.0.0.0:3333"
     default_user = "root@example.com"
     default_pw = "test"
-    default_sipi = "http://localhost:1024"
+    default_sipi = "http://0.0.0.0:1024"
 
     # make a parser
     parser = argparse.ArgumentParser(description=f"DSP-TOOLS (version {version('dsp-tools')}, © {datetime.datetime.now().year} by DaSCH)")
@@ -64,7 +64,7 @@ def make_parser() -> argparse.ArgumentParser:
              "A project can consist of lists, groups, users, and ontologies (data models)."
     )
     parser_create.set_defaults(action="create")
-    parser_create.add_argument("-s", "--server", default=default_dsp_api_url, help=remote_dsp_api_server_text)
+    parser_create.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
     parser_create.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_create.add_argument("-p", "--password", default=default_pw, help=password_text)
     parser_create.add_argument("-V", "--validate-only", action="store_true", help="validate the JSON file without creating it on the DSP server")
@@ -76,7 +76,7 @@ def make_parser() -> argparse.ArgumentParser:
     # get
     parser_get = subparsers.add_parser(name="get", help="Retrieve a project with its data model(s) from a DSP server and write it into a JSON file")
     parser_get.set_defaults(action="get")
-    parser_get.add_argument("-s", "--server", default=default_dsp_api_url, help=remote_dsp_api_server_text)
+    parser_get.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
     parser_get.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_get.add_argument("-p", "--password", default=default_pw, help=password_text)
     parser_get.add_argument("-P", "--project", help="shortcode, shortname or IRI of the project", required=True)
@@ -89,7 +89,7 @@ def make_parser() -> argparse.ArgumentParser:
     parser_upload.add_argument("-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to")
     parser_upload.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_upload.add_argument("-p", "--password", default=default_pw, help=password_text)
-    parser_upload.add_argument("-S", "--sipi", default="http://0.0.0.0:1024", help="URL of the SIPI server where DSP-TOOLS sends the multimedia files to")
+    parser_upload.add_argument("-S", "--sipi", default=default_sipi, help="URL of the SIPI server where DSP-TOOLS sends the multimedia files to")
     parser_upload.add_argument("-i", "--imgdir", default=".", help="folder from where the paths in the <bitstream> tags are evaluated")
     parser_upload.add_argument("-I", "--incremental", action="store_true", help="The links in the XML file point to IRIs (on the server) instead of IDs (in the same XML file).")
     parser_upload.add_argument("-V", "--validate", action="store_true", help="validate the XML file without uploading it")
@@ -104,7 +104,7 @@ def make_parser() -> argparse.ArgumentParser:
     )
     parser_process_files.set_defaults(action="process-files")
     parser_process_files.add_argument("--input-dir", help="path to the input directory where the files should be read from")
-    parser_process_files.add_argument("--out-dir", help="path to the output directory where the files should be written to")
+    parser_process_files.add_argument("--out-dir", help="path to the output directory where the processed/transformed files should be written to")
     parser_process_files.add_argument("--sipi-image", help="the specified version of the Sipi image that should be used", default="daschswiss/sipi:3.8.1")
     parser_process_files.add_argument("xml_file", help="path to XML file containing the data")
 
@@ -114,12 +114,12 @@ def make_parser() -> argparse.ArgumentParser:
         help="For internal use only: upload already processed files"
     )
     parser_upload_files.set_defaults(action="upload-files")
-    parser_upload_files.add_argument("--pkl-file", help="path to pickle file written by 'process-files'")
-    parser_upload_files.add_argument("--processed-dir", help="path to the input directory where the files should be read from")
-    parser_upload_files.add_argument("-s", "--server", default=default_dsp_api_url, help=remote_dsp_api_server_text)
+    parser_upload_files.add_argument("-f", "--pkl-file", help="path to pickle file written by 'process-files'")
+    parser_upload_files.add_argument("-d", "--processed-dir", help="path to the directory with the processed files")
+    parser_upload_files.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
+    parser_upload_files.add_argument("-S", "--sipi-url", default=default_sipi, help=sipi_text)
     parser_upload_files.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_upload_files.add_argument("-p", "--password", default=default_pw, help=password_text)
-    parser_upload_files.add_argument("--sipi-url", default=default_sipi, help=sipi_text)
 
     # fast-xml-upload
     parser_fast_xml_upload_files = subparsers.add_parser(
@@ -127,11 +127,11 @@ def make_parser() -> argparse.ArgumentParser:
         help="For internal use only: create resources with already uploaded files"
     )
     parser_fast_xml_upload_files.set_defaults(action="fast-xml-upload")
-    parser_fast_xml_upload_files.add_argument("--pkl-file", help="path to pickle file written by 'upload-files'")
+    parser_fast_xml_upload_files.add_argument("-f", "--pkl-file", help="path to pickle file written by 'process-files'")
+    parser_fast_xml_upload_files.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
+    parser_fast_xml_upload_files.add_argument("-S", "--sipi-url", default=default_sipi, help=sipi_text)
     parser_fast_xml_upload_files.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_fast_xml_upload_files.add_argument("-p", "--password", default=default_pw, help=password_text)
-    parser_fast_xml_upload_files.add_argument("-s", "--server", default=default_dsp_api_url, help=remote_dsp_api_server_text)
-    parser_fast_xml_upload_files.add_argument("--sipi-url", default=default_sipi, help=sipi_text)
     parser_fast_xml_upload_files.add_argument("xml_file", help="path to XML file containing the data")
 
     # excel2json

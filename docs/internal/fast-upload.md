@@ -50,11 +50,20 @@ Note:
 - Every path referenced in a `<bitstream>` in the XML file must point to a file in `multimedia`.
 - The paths in the `<bitstream>` are relative to the project root.
 
+
 ## 2. `dsp-tools process-files`
 
+Process the files locally, using a SIPI container.
+
 ```bash
-dsp-tools process-files --input-dir=/path/to/multimedia/folder --out-dir=/path/to/output/directory /path/to/xml/file/data.xml 
+dsp-tools process-files --input-dir=multimedia --out-dir=tmp data.xml 
 ```
+
+The following options are available:
+
+- `--input-dir` (mandatory): path to the input directory where the files should be read from 
+- `--out-dir` (mandatory): path to the output directory where the processed/transformed files should be written to
+- `--sipi-image` (optional, default: `daschswiss/sipi:3.8.1`): the latest Sipi image from [docker hub](https://hub.docker.com/r/daschswiss/sipi)
 
 All files referenced in the <bitstream> tags of the XML 
 are expected to be in the input directory 
@@ -64,29 +73,40 @@ The processed files
 will be stored in the given `--out-dir` directory.
 If the output directory doesn't exist, it will be created automatically.
 Additionally to the output directory,
-a pickle file is written with the name `file_processing_result_[timestamp].pkl`.
+a pickle file is written with the name `processing_result_[timestamp].pkl`.
 It contains the mapping between the original file and the processed files,
 e.g. "multimedia/dog.jpg" -> "tmp/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2".
 
+
 ## 3. `dsp-tools upload-files`
 
+After all files are processed, the upload step can be started.
+
+
 ```bash
-dsp-tools upload-files --pkl-file=file_processing_result_20230414_152810.pkl --processed-dir=/path/to/output/directory --sipi-url=http://localhost:1024 --dsp-url=http://0.0.0.0:3333 --user=root@example.com --password=test
+dsp-tools upload-files --pkl-file=processing_result_20230414_152810.pkl --processed-dir=tmp
 ```
 
-After all files are processed,
-the upload step can be started.
-The pickle file written by the processing step has to be provided with the option `--pkl-file`.
-The `--processed-dir` option specifies the location of the files that should be uploaded.
-It is most likely the same as the directory defined in the step before with `--out-dir`.
-To upload the files, the user has to provide 
-the URL to the Sipi server 
-as well as the URL to the DSP server
-and the credentials (e-mail and password).
+The following options are available:
+
+- `-f` | `--pkl-file` (mandatory): path to the pickle file that was written by the processing step
+- `-d` | `--processed-dir` (mandatory): path to the directory where the processed files are located (same as `--out-dir` in the processing step)
+- `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
+- `-S` | `--sipi-url` (optional, default: `0.0.0.0:1024`): URL of the SIPI server 
+- `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP-API 
+- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 
 
 
 ## 4. `dsp-tools fast-xml-upload`
 
 ```bash
-dsp-tools fast-xml-upload ...
+dsp-tools fast-xml-upload --pkl-file=processing_result_20230414_152810.pkl data.xml
 ```
+
+The following options are available:
+
+- `-f` | `--pkl-file` (mandatory): path to the pickle file that was written by the processing step
+- `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
+- `-S` | `--sipi-url` (optional, default: `0.0.0.0:1024`): URL of the SIPI server 
+- `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP-API 
+- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 

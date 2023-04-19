@@ -142,7 +142,7 @@ def _write_result_to_pkl_file(result: list[tuple[Path, Path]]) -> bool:
     Returns:
         true if successful, false otherwise
     """
-    filename = "file_processing_result_" + datetime.now().strftime("%Y%m%d_%H%M%S") + ".pkl"
+    filename = "processing_result_" + datetime.now().strftime("%Y%m%d_%H%M%S") + ".pkl"
     try:
         with open(filename, 'wb') as pkl_file:
             pickle.dump(result, pkl_file)

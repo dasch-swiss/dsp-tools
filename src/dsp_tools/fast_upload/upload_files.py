@@ -14,32 +14,60 @@ from dsp_tools.utils.shared import login
 
 
 def _get_upload_candidates(
-    processed_dir: Path, 
-    processed_file: Path
+    dir_with_processed_files: Path, 
+    uuid_name_of_processed_file: Path
 ) -> list[Path]:
+    """
+    Based on the base derivate file, get all files based on the same uuid.
+    For example, if the base derivate file is 1ffbbb30-77e8-414c-94ff-7e1c060f9146.jp2,
+    the upload candidates are:
+    - 1ffbbb30-77e8-414c-94ff-7e1c060f9146.jp2
+    - 1ffbbb30-77e8-414c-94ff-7e1c060f9146.png.orig
+    - 1ffbbb30-77e8-414c-94ff-7e1c060f9146.info
+
+    In case of video files, the upload candidates include all keyframes.
+
+    Args:
+        dir_with_processed_files: path to the directory where the processed files are located
+        uuid_name_of_processed_file: processed file (uuid filename)
+
+    Returns:
+        list of all processed files that belong to the same original file
+    """
     upload_candidates: list[str] = []
-    upload_candidates.extend(glob.glob(f"{processed_dir}/{processed_file.stem}/**/*.*"))
-    upload_candidates.extend(glob.glob(f"{processed_dir}/{processed_file.stem}/*.*"))
-    upload_candidates.extend(glob.glob(f"{processed_dir}/{processed_file.stem}*.*"))
+    upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/{uuid_name_of_processed_file.stem}/**/*.*"))
+    upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/{uuid_name_of_processed_file.stem}/*.*"))
+    upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/{uuid_name_of_processed_file.stem}*.*"))
     upload_candidates_paths = [Path(c) for c in upload_candidates]
     return upload_candidates_paths
 
 
 def _check_upload_candidates(
-    input_file: Path, 
-    list_of_paths: list[Path]
+    uuid_name_of_processed_file: Path, 
+    upload_candidates: list[Path]
 ) -> bool:
-    if not input_file.is_file():
-        print(f"The input file was not found {input_file}")
+    """
+    Make sure that all upload candidates exist, 
+    and that there are at least 5 candidates for videos and 3 candidates for all other file types.
+
+    Args:
+        uuid_name_of_processed_file: base derivate file
+        upload_candidates: list of all files that belong to the same original file
+
+    Returns:
+        True if all checks passed, False otherwise
+    """
+    if not uuid_name_of_processed_file.is_file():
+        print(f"The input file was not found {uuid_name_of_processed_file}")
         return False
 
-    if not all(Path(c).is_file() for c in list_of_paths):
-        print(f"Not all upload candidates were found for file {input_file}")
+    if not all(Path(c).is_file() for c in upload_candidates):
+        print(f"Not all upload candidates were found for file {uuid_name_of_processed_file}")
         return False
 
-    min_num_of_candidates = 5 if input_file.suffix == ".mp4" else 3
-    if len(list_of_paths) < min_num_of_candidates:
-        print(f"Found the following files for {input_file}, but more were expected: {list_of_paths}. Skipping...")
+    min_num_of_candidates = 5 if uuid_name_of_processed_file.suffix == ".mp4" else 3
+    if len(upload_candidates) < min_num_of_candidates:
+        print(f"Found the following files for {uuid_name_of_processed_file}, but more were expected: {upload_candidates}. Skipping...")
         return False
 
     return True
@@ -50,6 +78,18 @@ def _upload_without_processing(
     sipi_url: str, 
     con: Connection
 ) -> bool:
+    """
+    Send a single file to the "upload_without_processing" route. 
+    In case of the "server.fs.mkdir() failed: File exists" error, repeat until successful.
+
+    Args:
+        file: file to upload
+        sipi_url: URL to the sipi server
+        con: connection to the DSP server
+
+    Returns:
+        True if the file could be uploaded, False if an exception occurred.
+    """
     try:
         with open(file, "rb") as bitstream:
             response_upload = requests.post(
@@ -75,22 +115,34 @@ def _upload_without_processing(
 
 
 def _upload_file(
-    processed_dir: Path,
-    processed_file: Path,
+    dir_with_processed_files: Path,
+    uuid_name_of_processed_file: Path,
     sipi_url: str,
     con: Connection
 ) -> tuple[Path, bool]:
+    """
+    Retrieves all derivatives of one file and uploads them to the SIPI server.
+
+    Args:
+        dir_with_processed_files: path to the directory where the processed files are located
+        uuid_name_of_processed_file: path to the derivate of the original file, i.e. the processed file (uuid filename)
+        sipi_url: URL to the sipi server
+        con: connection to the DSP server
+
+    Returns:
+        tuple with the processed file and a boolean indicating if the upload was successful
+    """
     upload_candidates = _get_upload_candidates(
-        processed_dir=processed_dir, 
-        processed_file=processed_file
+        dir_with_processed_files=dir_with_processed_files, 
+        uuid_name_of_processed_file=uuid_name_of_processed_file
     )
 
     check_result = _check_upload_candidates(
-        input_file=processed_file, 
-        list_of_paths=upload_candidates
+        uuid_name_of_processed_file=uuid_name_of_processed_file, 
+        upload_candidates=upload_candidates
     )
     if not check_result:
-        return Path(processed_file), False
+        return uuid_name_of_processed_file, False
 
     result: list[bool] = []
     for candidate in upload_candidates:
@@ -102,12 +154,22 @@ def _upload_file(
         result.append(res)
 
     if not any(result):
-        return processed_file, False
+        return uuid_name_of_processed_file, False
 
-    return processed_file, True
+    return uuid_name_of_processed_file, True
 
 
 def _get_paths_from_pkl_file(pkl_file: Path) -> list[Path]:
+    """
+    Read the pickle file returned by the processing step 
+    and return the list of processed files (uuid filenames).
+
+    Args:
+        pkl_file: pickle file returned by the processing step
+
+    Returns:
+        list of uuid filenames
+    """
     with open(pkl_file, 'rb') as f:
         orig_paths_2_processed_paths: list[tuple[Path, Path]] = pickle.load(f)
 
@@ -119,46 +181,58 @@ def _get_paths_from_pkl_file(pkl_file: Path) -> list[Path]:
 
 
 def _check_params(
-    paths_file: str, 
-    processed_dir: str
+    pkl_file: str, 
+    dir_with_processed_files: str
 ) -> Optional[tuple[Path, Path]]:
     """
     Checks the input parameters provided by the user and transforms them into the expected types.
 
     Args:
-        paths_file: the XML file the paths are extracted from
+        pkl_file: the XML file the paths are extracted from
         processed_dir: the output directory where the created files should be written to
 
     Returns:
         A tuple with the Path objects of the input strings
     """
-    paths_file_path = Path(paths_file)
-    processed_dir_path = Path(processed_dir)
+    pkl_file_path = Path(pkl_file)
+    dir_with_processed_files_path = Path(dir_with_processed_files)
 
-    if not paths_file_path.is_file():
-        print(f"{paths_file} is not a file")
+    if not pkl_file_path.is_file():
+        print(f"{pkl_file} is not a file")
         return None
-    if not processed_dir_path.is_dir():
-        print(f"{processed_dir} is not a directory")
+    if not dir_with_processed_files_path.is_dir():
+        print(f"{dir_with_processed_files} is not a directory")
         return None
 
-    return paths_file_path, processed_dir_path
+    return pkl_file_path, dir_with_processed_files_path
 
 
 def _upload_files_in_parallel(
-    processed_dir: Path,
-    paths: list[Path],
+    dir_with_processed_files: Path,
+    uuid_names_of_processed_files: list[Path],
     sipi_url: str,
     con: Connection
 ) -> list[tuple[Path, bool]]:
+    """
+    Use a ThreadPoolExecutor to upload the files in parallel.
+
+    Args:
+        dir_with_processed_files: path to the directory where the processed files are located
+        uuid_names_of_processed_files: list of uuid filenames, each filename being the path to the derivate of the original file
+        sipi_url: URL to the sipi server
+        con: connection to the DSP server
+
+    Returns:
+        _description_
+    """
     with ThreadPoolExecutor() as pool:
         upload_jobs = [pool.submit(
             _upload_file,
-            processed_dir,
-            processed_file,
+            dir_with_processed_files,
+            uuid_name_of_processed_file,
             sipi_url,
             con
-        ) for processed_file in paths]
+        ) for uuid_name_of_processed_file in uuid_names_of_processed_files]
 
     result: list[tuple[Path, bool]] = []
     for uploaded in as_completed(upload_jobs):
@@ -167,14 +241,20 @@ def _upload_files_in_parallel(
 
 
 def _print_files_with_errors(result: list[tuple[Path, bool]]) -> None:
+    """
+    Print the files which could not be uploaded.
+
+    Args:
+        result: list of tuples with the path of the file and the success status
+    """
     for path, res in result:
         if not res:
             print(f"The following file could not be uploaded: {path}")
 
 
 def upload_files(
-    paths_file: str,
-    processed_dir: str,
+    pkl_file: str,
+    dir_with_processed_files: str,
     user: str,
     password: str,
     dsp_url: str,
@@ -184,27 +264,28 @@ def upload_files(
     Reads the paths from the pickle file and uploads all files without processing.
 
     Args:
-        paths_file: path to the pickle file which contains the paths of the processed files
-        processed_dir: path to the directory where the processed files are located
+        pkl_file: path to the pickle file which contains the paths of the processed files
+        dir_with_processed_files: path to the directory where the processed files are located
         user: the user's e-mail for login into DSP
         password: the user's password for login into DSP
         dsp_url: URL to the DSP server
         sipi_url: URL to the Sipi server
+    
     Returns:
         success status
     """
     # check params
     param_check_result = _check_params(
-        paths_file=paths_file, 
-        processed_dir=processed_dir
+        pkl_file=pkl_file, 
+        dir_with_processed_files=dir_with_processed_files
     )
     if param_check_result:
-        paths_file_path, processed_dir_path = param_check_result
+        pkl_file_path, dir_with_processed_files_path = param_check_result
     else:
         raise BaseError("Error reading the input parameters. Please check them.")
 
     # read paths from pkl file
-    paths = _get_paths_from_pkl_file(pkl_file=paths_file_path)
+    uuid_names_of_processed_files = _get_paths_from_pkl_file(pkl_file=pkl_file_path)
 
     # create connection to DSP
     con = login(
@@ -216,8 +297,8 @@ def upload_files(
     print(f"{datetime.now()}: Start file uploading...")
     start_time = datetime.now()
     result = _upload_files_in_parallel(
-        processed_dir=processed_dir_path, 
-        paths=paths, 
+        dir_with_processed_files=dir_with_processed_files_path, 
+        uuid_names_of_processed_files=uuid_names_of_processed_files, 
         sipi_url=sipi_url, 
         con=con
     )

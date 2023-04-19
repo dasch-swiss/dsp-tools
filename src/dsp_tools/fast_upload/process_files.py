@@ -3,7 +3,6 @@
 import hashlib
 import importlib.resources
 import json
-import mimetypes
 import os
 import pickle
 import shutil
@@ -81,6 +80,12 @@ def process_files(
 
 
 def _print_files_with_errors(result: list[tuple[Path, Path]]) -> None:
+    """
+    Go through the result list and print all files that could not be processed.
+
+    Args:
+        result: list of tuples of Paths. If the first Path is equal to the second Path, the file could not be processed.
+    """
     for input_file, output_file in result:
         if input_file == output_file:
             print(f"The following file could not be processed: {input_file}")
@@ -450,6 +455,16 @@ def _extract_key_frames(file: Path) -> bool:
 
 
 def _ensure_path_exists(path: Path) -> bool:
+    """
+    Try to create the directory at the given path. 
+    If the directory already exists, nothing happens.
+
+    Args:
+        path: path to the directory that should be created
+
+    Returns:
+        True if the directory exists or was created successfully, False if an error occurred during the creation.
+    """
     try:
         path.mkdir(parents=True, exist_ok=True)
         return True

@@ -307,8 +307,8 @@ def call_requested_action(
         )
     elif args.action == "upload-files":
         success = upload_files(
-            paths_file=args.paths_file,
-            processed_dir=args.processed_dir,
+            pkl_file=args.paths_file,
+            dir_with_processed_files=args.processed_dir,
             user=args.user,
             password=args.password,
             dsp_url=args.server,

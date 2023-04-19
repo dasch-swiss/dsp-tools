@@ -114,7 +114,7 @@ def make_parser() -> argparse.ArgumentParser:
         help="For internal use only: upload already processed files"
     )
     parser_upload_files.set_defaults(action="upload-files")
-    parser_upload_files.add_argument("--paths-file", help="path to pickle file written by 'process-files'")
+    parser_upload_files.add_argument("--pkl-file", help="path to pickle file written by 'process-files'")
     parser_upload_files.add_argument("--processed-dir", help="path to the input directory where the files should be read from")
     parser_upload_files.add_argument("-s", "--server", default=default_dsp_api_url, help=remote_dsp_api_server_text)
     parser_upload_files.add_argument("-u", "--user", default=default_user, help=username_text)
@@ -127,7 +127,7 @@ def make_parser() -> argparse.ArgumentParser:
         help="For internal use only: create resources with already uploaded files"
     )
     parser_fast_xml_upload_files.set_defaults(action="fast-xml-upload")
-    parser_fast_xml_upload_files.add_argument("--paths-file", help="path to pickle file written by 'upload-files'")
+    parser_fast_xml_upload_files.add_argument("--pkl-file", help="path to pickle file written by 'upload-files'")
     parser_fast_xml_upload_files.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_fast_xml_upload_files.add_argument("-p", "--password", default=default_pw, help=password_text)
     parser_fast_xml_upload_files.add_argument("-s", "--server", default=default_dsp_api_url, help=remote_dsp_api_server_text)
@@ -307,7 +307,7 @@ def call_requested_action(
         )
     elif args.action == "upload-files":
         success = upload_files(
-            pkl_file=args.paths_file,
+            pkl_file=args.pkl_file,
             dir_with_processed_files=args.processed_dir,
             user=args.user,
             password=args.password,
@@ -317,7 +317,7 @@ def call_requested_action(
     elif args.action == "fast-xml-upload":
         success = fast_xml_upload(
             xml_file=args.xml_file,
-            paths_file=args.paths_file,
+            pkl_file=args.pkl_file,
             user=args.user,
             password=args.password,
             dsp_url=args.server,

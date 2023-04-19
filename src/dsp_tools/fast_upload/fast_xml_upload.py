@@ -16,7 +16,7 @@ def _get_paths_from_pkl_file(pkl_file: Path) -> list[tuple[Path, Path]]:
 
 def fast_xml_upload(
     xml_file: str,
-    paths_file: str,
+    pkl_file: str,
     user: str,
     password: str,
     dsp_url: str,
@@ -37,7 +37,7 @@ def fast_xml_upload(
     """
 
     xml_tree = etree.parse(xml_file)
-    paths = _get_paths_from_pkl_file(pkl_file=Path(paths_file))
+    paths = _get_paths_from_pkl_file(pkl_file=Path(pkl_file))
 
     paths_dict = dict()
     for orig_path, processed_path in paths:

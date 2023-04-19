@@ -35,7 +35,7 @@ If the directory doesn't exist, it will be created automatically.
 ## 2. dsp-tools upload-files
 
 ```bash
-dsp-tools upload-files --paths-file=file_processing_result_20230414_152810.pkl --processed-dir=/path/to/output/directory --sipi-url=http://localhost:1024 --dsp-url=http://0.0.0.0:3333 --user=root@example.com --password=test
+dsp-tools upload-files --pkl-file=file_processing_result_20230414_152810.pkl --processed-dir=/path/to/output/directory --sipi-url=http://localhost:1024 --dsp-url=http://0.0.0.0:3333 --user=root@example.com --password=test
 ```
 
 After all files are processed,

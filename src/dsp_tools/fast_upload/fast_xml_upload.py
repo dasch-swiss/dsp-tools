@@ -23,24 +23,31 @@ def fast_xml_upload(
     sipi_url: str
 ) -> bool:
     """
-    Reads the paths from the pickle file and uploads all files without processing.
+    This function reads an XML file 
+    and imports the data described in it onto the DSP server, 
+    using the fast XML upload method.
+    Before using this method, 
+    the original files must be processed by the processing step, 
+    and uploaded by the upoad step.
 
     Args:
-        sipi_url ():
-        paths_file ():
-        xml_file ():
+        xml_file: path to XML file containing the resources
+        pkl_file: pickle file containing the mapping between the original files and the processed files,
+                  e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2')
         user: the user's e-mail for login into DSP
         password: the user's password for login into DSP
         dsp_url: URL to the DSP server
+        sipi_url: URL to the Sipi server
+    
     Returns:
         success status
     """
 
     xml_tree = etree.parse(xml_file)
-    paths = _get_paths_from_pkl_file(pkl_file=Path(pkl_file))
+    orig_paths_2_processed_paths = _get_paths_from_pkl_file(pkl_file=Path(pkl_file))
 
     paths_dict = dict()
-    for orig_path, processed_path in paths:
+    for orig_path, processed_path in orig_paths_2_processed_paths:
         orig_path_str = str(orig_path)
         orig_path_name_str = str(orig_path.name)
         processed_path_str = str(processed_path.name)

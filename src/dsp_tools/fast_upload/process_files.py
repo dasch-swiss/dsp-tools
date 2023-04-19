@@ -29,11 +29,16 @@ def process_files(
 ) -> bool:
     """
     Process the files referenced in the given XML file.
+    Writes the processed files 
+    (derivative, .orig file, sidecar file, as well as the key frames for movies) 
+    to the given output directory.
+    Additionally, writes a pickle file containing the mapping between the original files and the processed files,
+    e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2').
 
     Args:
         input_dir: path to the directory where the files should be read from
         out_dir: path to the directory where the transformed / created files should be written to
-        xml_file: path to xml file containing the data
+        xml_file: path to xml file containing the resources
         sipi_image: the sipi image that should be used
     
     Returns:

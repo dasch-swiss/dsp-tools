@@ -261,10 +261,12 @@ def upload_files(
     sipi_url: str
 ) -> bool:
     """
-    Reads the paths from the pickle file and uploads all files without processing.
+    Uploads the processed files to the DSP server, using multithreading.
+    Before using this method, the files must be processed by the processing step.
 
     Args:
-        pkl_file: path to the pickle file which contains the paths of the processed files
+        pkl_file: pickle file containing the mapping between the original files and the processed files,
+                  e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2').
         dir_with_processed_files: path to the directory where the processed files are located
         user: the user's e-mail for login into DSP
         password: the user's password for login into DSP

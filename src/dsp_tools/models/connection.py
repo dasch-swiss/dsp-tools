@@ -19,7 +19,7 @@ def check_for_api_error(response: requests.Response) -> None:
     """
     if response.status_code != 200:
         raise BaseError(
-            message="DSP-ERROR: status code=" + str(response.status_code) + "\nMessage:" + response.text,
+            message="KNORA-ERROR: status code=" + str(response.status_code) + "\nMessage:" + response.text,
             status_code_of_api_response=response.status_code,
             json_content_of_api_response=response.text,
             reason_for_failure_from_api_response=response.reason,

@@ -632,7 +632,7 @@ def _upload_resources(
 
         # in case of a multimedia resource: upload the multimedia file
         resource_bitstream = None
-        if preprocessing_done:
+        if preprocessing_done and resource.bitstream:
             resource_bitstream = resource.get_bitstream(resource.bitstream.value, permissions_lookup)
         elif resource.bitstream:
             try:

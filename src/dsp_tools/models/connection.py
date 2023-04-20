@@ -20,9 +20,9 @@ def check_for_api_error(response: requests.Response) -> None:
     if response.status_code != 200:
         raise BaseError(
             message="KNORA-ERROR: status code=" + str(response.status_code) + "\nMessage:" + response.text,
-            status_code_of_api_response=response.status_code,
+            status_code=response.status_code,
             json_content_of_api_response=response.text,
-            reason_for_failure_from_api_response=response.reason,
+            reason_from_api_response=response.reason,
             api_route=response.url
         )
 

@@ -638,7 +638,7 @@ def _upload_resources(
                 mb_per_sec = round((filesize / bitstream_duration_ms) * 1000, 1)
                 metrics.append(MetricRecord(resource.id, filetype, filesize, "bitstream upload", bitstream_duration_ms, mb_per_sec))
             except BaseError as err:
-                err_msg = err.original_error_message_from_api or err.message
+                err_msg = err.original_error_msg_from_api or err.message
                 print(f'WARNING: Unable to upload file "{resource.bitstream.value}" of resource "{resource.label}" ({resource.id}): {err_msg}')
                 logger.warning(f'Unable to upload file "{resource.bitstream.value}" of resource "{resource.label}" ({resource.id}).', exc_info=True)
                 failed_uploads.append(resource.id)
@@ -668,7 +668,7 @@ def _upload_resources(
             resource_creation_duration_ms = resource_creation_duration.seconds * 1000 + int(resource_creation_duration.microseconds / 1000)
             metrics.append(MetricRecord(resource.id, filetype, filesize, "resource creation", resource_creation_duration_ms, ""))
         except BaseError as err:
-            err_msg = err.original_error_message_from_api or err.message
+            err_msg = err.original_error_msg_from_api or err.message
             print(f"WARNING: Unable to create resource '{resource.label}' ({resource.id}): {err_msg}")
             logger.warning(f"Unable to create resource '{resource.label}' ({resource.id}).", exc_info=True)
             failed_uploads.append(resource.id)
@@ -717,7 +717,7 @@ def _upload_stashed_xml_texts(
         except BaseError as err:
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
             # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
-            err_msg = err.original_error_message_from_api or err.message
+            err_msg = err.original_error_msg_from_api or err.message
             print(f'  WARNING: Unable to upload XML texts of resource "{resource.id}", because the resource cannot be retrieved from the DSP server. Original error message: {err_msg}')
             logger.warning(f'Unable to upload XML texts of resource "{resource.id}", because the resource cannot be retrieved from the DSP server.', exc_info=True)
             continue
@@ -769,7 +769,7 @@ def _upload_stashed_xml_texts(
                 except BaseError as err:
                     # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
                     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
-                    err_msg = err.original_error_message_from_api or err.message
+                    err_msg = err.original_error_msg_from_api or err.message
                     print(f'    WARNING: Unable to upload the xml text of "{link_prop.name}" of resource "{resource.id}". Original error message: {err_msg}')
                     logger.warning(f'Unable to upload the xml text of "{link_prop.name}" of resource "{resource.id}"', exc_info=True)
                     continue
@@ -846,7 +846,7 @@ def _upload_stashed_resptr_props(
         except BaseError as err:
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
             # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
-            err_msg = err.original_error_message_from_api or err.message
+            err_msg = err.original_error_msg_from_api or err.message
             print(f'  WARNING: Unable to upload resptrs of resource "{resource.id}", because the resource cannot be retrieved from the DSP server. Original error message: {err_msg}')
             logger.warning(f'Unable to upload resptrs of resource "{resource.id}", because the resource cannot be retrieved from the DSP server', exc_info=True)
             continue
@@ -873,7 +873,7 @@ def _upload_stashed_resptr_props(
                 except BaseError as err:
                     # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
                     # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
-                    err_msg = err.original_error_message_from_api or err.message
+                    err_msg = err.original_error_msg_from_api or err.message
                     print(f'    WARNING: Unable to upload the resptr prop of "{link_prop.name}" of resource "{resource.id}". Original error message: {err_msg}')
                     logger.warning(f'Unable to upload the resptr prop of "{link_prop.name}" of resource "{resource.id}"', exc_info=True)
                     continue

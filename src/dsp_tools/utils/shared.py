@@ -75,7 +75,11 @@ def try_network_action(action: Callable[..., Any]) -> Any:
             time.sleep(2 ** i)
             continue
         except BaseError as err:
-            if regex.search(r"try again later", err.message) or regex.search(r"5\d\d", str(err.status_code_of_api_response)):
+            in_500_range = False
+            if err.status_code:
+                in_500_range = 500 <= err.status_code < 600
+            try_again_later = "try again later" in err.message
+            if try_again_later or in_500_range:
                 print(f"{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...")
                 logger.error(f"Try reconnecting to DSP server, next attempt in {2 ** i} seconds...", exc_info=True)
                 time.sleep(2 ** i)

@@ -336,7 +336,7 @@ def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> et
     """
 
     # remove comments and processing instructions (commented out properties break the XMLProperty constructor)
-    if isinstance(input_file, str) or isinstance(input_file, Path):
+    if isinstance(input_file, (str, Path)):
         parser=etree.XMLParser(remove_comments=True, remove_pis=True)
         tree = etree.parse(source=input_file, parser=parser)
     else:
@@ -391,7 +391,7 @@ def _check_consistency_with_ontology(
     if verbose:
         print("Check if the resource types and properties are consistent with the ontology...")
         logger.info("Check if the resource types and properties are consistent with the ontology...")
-    if not any([x.startswith(ontoname) for x in resclass_name_2_type.keys()]):
+    if not any(x.startswith(ontoname) for x in resclass_name_2_type.keys()):
         err_msg = f"The <knora> tag of your XML file references the ontology '{ontoname}', " \
                   f"but the project {shortcode} on the DSP server doesn't contain an ontology with this name."
         logger.error(err_msg)

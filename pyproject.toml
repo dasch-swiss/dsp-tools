@@ -89,6 +89,40 @@ follow_imports = "silent"
 show_column_numbers = true
 strict = true
 
+
 [tool.isort]
 multi_line_output = 3
 known_first_party = ["dsp_tools"]
+
+
+[tool.pylint.main]
+ignore-paths = ["src/dsp_tools/models"]
+
+
+[tool.pylint.format]
+max-line-length = 180
+
+
+[tool.pylint."messages control"]
+disable = [
+    "raw-checker-failed", 
+    "bad-inline-option", 
+    "locally-disabled", 
+    "file-ignored", 
+    "suppressed-message", 
+    "useless-suppression", 
+    "deprecated-pragma", 
+    "use-symbolic-message-instead", 
+    "line-too-long", 
+    "trailing-whitespace", 
+    "invalid-name", 
+    "too-many-arguments",
+    "too-many-locals",
+    "use-dict-literal",
+    "missing-module-docstring",
+    "c-extension-no-member",
+    "logging-fstring-interpolation",       # would be more performant, but less readable
+    "import-outside-toplevel",             # necessary because of the monkey patchings in utils/excel_to_json_properties.py and utils/excel_to_json_resources.py
+    "protected-access",                    # necessary because of the lxml type annnotations
+    "unnecessary-lambda",                  # necessary because of try_network_action()
+]

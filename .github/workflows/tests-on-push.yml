@@ -38,7 +38,6 @@ jobs:
         uses: github/super-linter/slim@v4       # GitHub's super-linter: https://github.com/github/super-linter
         env:
           VALIDATE_ALL_CODEBASE: true           # whether to check the entire codebase or only the edited/new files
-                                                # if a new linter is activated, set to true until all errors are resolved, then set back to false
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FILTER_REGEX_EXCLUDE: .*(src/dsp_tools/models/.*|CHANGELOG\.md)
@@ -53,6 +52,7 @@ jobs:
           VALIDATE_XML: true                        # http://xmlsoft.org/
           VALIDATE_YAML: true                       # https://github.com/adrienverge/yamllint
           VALIDATE_PYTHON_PYLINT: true              # https://pylint.pycqa.org/
+          PYTHON_PYLINT_CONFIG_FILE: pyproject.toml
           VALIDATE_PYTHON_ISORT: true               # https://pypi.org/project/isort/
           PYTHON_ISORT_CONFIG_FILE: pyproject.toml
           VALIDATE_GITLEAKS: true                   # https://github.com/gitleaks/gitleaks

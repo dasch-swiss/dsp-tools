@@ -208,7 +208,7 @@ def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -
         index = int(str(index))  # index is a label/index/hashable, but we need an int
         if not check_notna(row["super"]):
             raise BaseError(f"Sheet 'classes' of '{excelfile}' has a missing value in row {index + 2}, column 'super'")
-    if any([all_classes_df.get(lang) is not None for lang in languages]):
+    if any(all_classes_df.get(lang) is not None for lang in languages):
         warnings.warn(f"The file {excelfile} uses {languages} as column titles, which is deprecated. "
                       f"Please use {[f'label_{lang}' for lang in languages]}")
 

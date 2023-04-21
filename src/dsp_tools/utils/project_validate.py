@@ -238,7 +238,7 @@ def validate_project(
     if isinstance(input_file_or_json, dict) and "project" in input_file_or_json:
         project_definition = input_file_or_json
     elif isinstance(input_file_or_json, str) and os.path.isfile(input_file_or_json) and regex.search(r"\.json$", input_file_or_json):
-        with open(input_file_or_json) as f:
+        with open(input_file_or_json, encoding="utf-8") as f:
             project_definition = json.load(f)
     else:
         raise BaseError(f"Input '{input_file_or_json}' is neither a file path nor a JSON object.")

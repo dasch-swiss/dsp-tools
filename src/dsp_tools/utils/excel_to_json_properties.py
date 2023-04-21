@@ -163,7 +163,7 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
         for req in required:
             if not check_notna(row[req]):
                 raise BaseError(f"'{excelfile}' has a missing value in row {index + 2}, column '{req}'")
-    if any([df.get(lang) is not None for lang in languages]):
+    if any(df.get(lang) is not None for lang in languages):
         warnings.warn(f"The file '{excelfile}' uses {languages} as column titles, which is deprecated. "
                       f"Please use {[f'label_{lang}' for lang in languages]}")
     if df.get("hlist"):

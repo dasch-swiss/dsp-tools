@@ -151,7 +151,7 @@ def _validate_xml_tags_in_text_properties(doc: etree._ElementTree[Any]) -> bool:
     # first: remove namespaces
     doc_without_namespace = copy.deepcopy(doc)
     for elem in doc_without_namespace.iter():
-        if not (isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction)):
+        if not isinstance(elem, (etree._Comment, etree._ProcessingInstruction)):
             elem.tag = etree.QName(elem).localname
     
     # then: make the test
@@ -164,7 +164,7 @@ def _validate_xml_tags_in_text_properties(doc: etree._ElementTree[Any]) -> bool:
                 resname = text.getparent().getparent().attrib["id"]
                 resources_with_illegal_xml_tags.append(f" -{sourceline}resource '{resname}', property '{propname}'")
     if resources_with_illegal_xml_tags:
-        err_msg = f"XML-tags are not allowed in text properties with encoding=utf8. The following resources of your XML file violate this rule:\n" 
+        err_msg = "XML-tags are not allowed in text properties with encoding=utf8. The following resources of your XML file violate this rule:\n" 
         err_msg += "\n".join(resources_with_illegal_xml_tags)
         logger.error(err_msg, exc_info=True)
         raise UserError(err_msg)
@@ -302,11 +302,11 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, 
         isinstance(project_file_as_path_or_parsed, str) or isinstance(project_file_as_path_or_parsed, Path),
         Path(project_file_as_path_or_parsed).exists()
     ]):
-        with open(project_file_as_path_or_parsed) as f:
+        with open(project_file_as_path_or_parsed, encoding="utf-8") as f:
             try:
                 project_definition = json.load(f)
             except:
                 raise BaseError(f"The input file '{project_file_as_path_or_parsed}' cannot be parsed to a JSON object.")
     else:
-        raise BaseError(f"Invalid input: The input must be a path to a JSON file or a parsed JSON object.")
+        raise BaseError("Invalid input: The input must be a path to a JSON file or a parsed JSON object.")
     return project_definition

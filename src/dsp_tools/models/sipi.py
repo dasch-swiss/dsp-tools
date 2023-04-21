@@ -3,25 +3,7 @@ from typing import Any
 
 import requests
 
-from dsp_tools.models.exceptions import BaseError
-
-
-def on_api_error(res):
-    """
-    Checks for any API errors
-
-    Args:
-        res: the response from the API which is checked, usually in JSON format
-
-    Returns:
-        Knora Error that is being raised
-    """
-
-    if res.status_code != 200:
-        raise BaseError("SIPI-ERROR: status code=" + str(res.status_code) + "\nMessage:" + res.text)
-
-    if 'error' in res:
-        raise BaseError("SIPI-ERROR: API error: " + res.error)
+from dsp_tools.models.connection import check_for_api_error
 
 
 class Sipi:
@@ -43,7 +25,7 @@ class Sipi:
         """
         with open(filepath, 'rb') as bitstream_file:
             files = {'file': (os.path.basename(filepath), bitstream_file), }
-            req = requests.post(self.sipi_server + "/upload?token=" + self.token, files=files)
-        on_api_error(req)
-        res: dict[Any, Any] = req.json()
+            response = requests.post(self.sipi_server + "/upload?token=" + self.token, files=files)
+        check_for_api_error(response)
+        res: dict[Any, Any] = response.json()
         return res

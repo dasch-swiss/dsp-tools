@@ -334,10 +334,19 @@ def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> et
     Returns:
         the root element of the parsed XML file
     """
-    # properties that are commented out would break the the constructor of the class XMLProperty, if they are not removed
-    parser=etree.XMLParser(remove_comments=True, remove_pis=True)
+
+    # remove comments and processing instructions (commented out properties break the XMLProperty constructor)
+    if isinstance(input_file, str) or isinstance(input_file, Path):
+        parser=etree.XMLParser(remove_comments=True, remove_pis=True)
+        tree = etree.parse(source=input_file, parser=parser)
+    else:
+        tree = copy.deepcopy(input_file)
+        for c in tree.xpath('//comment()'):
+            c.getparent().remove(c)
+        for c in tree.xpath('//processing-instruction()'):
+            c.getparent().remove(c)
     
-    tree = etree.parse(source=input_file, parser=parser) if isinstance(input_file, str) or isinstance(input_file, Path) else copy.deepcopy(input_file)
+    # remove namespace URI from the elements' names and transform the special tags to their technically correct form
     for elem in tree.iter():
         elem.tag = etree.QName(elem).localname   # remove namespace URI in the element's name
         if elem.tag == "annotation":

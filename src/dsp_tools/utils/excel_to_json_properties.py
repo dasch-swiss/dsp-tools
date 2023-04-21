@@ -159,6 +159,7 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
     # validation of input
     required = ["super", "object", "gui_element"]
     for index, row in df.iterrows():
+        index = int(str(index))  # index is a label/index/hashable, but we need an int
         for req in required:
             if not check_notna(row[req]):
                 raise BaseError(f"'{excelfile}' has a missing value in row {index + 2}, column '{req}'")
@@ -170,7 +171,7 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
                       f"Please use the column 'gui_attributes' for the attribute 'hlist'.")
 
     # transform every row into a property
-    props = [_row2prop(row, i, excelfile) for i, row in df.iterrows()]
+    props = [_row2prop(row, int(str(i)), excelfile) for i, row in df.iterrows()]
 
     # write final JSON file
     _validate_properties(properties_list=props, excelfile=excelfile)

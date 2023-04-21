@@ -320,7 +320,7 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
 
 
-def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._Element[Any]:
+def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._Element:
     """
     Parse an XML file with DSP-conform data, 
     remove namespace URI from the elements' names, 
@@ -334,14 +334,12 @@ def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> et
     Returns:
         the root element of the parsed XML file
     """
-    tree = etree.parse(source=input_file) if isinstance(input_file, str) or isinstance(input_file, Path) else copy.deepcopy(input_file)
+    # properties that are commented out would break the the constructor of the class XMLProperty, if they are not removed
+    parser=etree.XMLParser(remove_comments=True, remove_pis=True)
+    
+    tree = etree.parse(source=input_file, parser=parser) if isinstance(input_file, str) or isinstance(input_file, Path) else copy.deepcopy(input_file)
     for elem in tree.iter():
-        if isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction):
-            # properties that are commented out would break the the constructor of the class XMLProperty, if they are not removed here.
-            elem.getparent().remove(elem)  # type: ignore
-        else:
-            elem.tag = etree.QName(elem).localname   # remove namespace URI in the element's name
-        
+        elem.tag = etree.QName(elem).localname   # remove namespace URI in the element's name
         if elem.tag == "annotation":
             elem.attrib["restype"] = "Annotation"
             elem.tag = "resource"
@@ -496,10 +494,10 @@ def xml_upload(
     resources: list[XMLResource] = []
     permissions: dict[str, XmlPermission] = {}
     for child in root:
-        if child.tag == "permissions":
+        if child.tag == "permissions":  # type: ignore
             permission = XmlPermission(child, proj_context)
             permissions[permission.id] = permission
-        elif child.tag == "resource":
+        elif child.tag == "resource":  # type: ignore
             resources.append(XMLResource(child, default_ontology))
 
     # get the project information and project ontology from the server
@@ -614,6 +612,9 @@ def _upload_resources(
         bitstream_size_uploaded_mb = 0.0
         print(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
         logger.info(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
+    else:  # make Pylance happy
+        bitstream_size_total_mb = 0.0
+        bitstream_size_uploaded_mb = 0.0
 
     for i, resource in enumerate(resources):
         resource_start = datetime.now()
@@ -642,9 +643,9 @@ def _upload_resources(
                 logger.warning(f'Unable to upload file "{resource.bitstream.value}" of resource "{resource.label}" ({resource.id}).', exc_info=True)
                 failed_uploads.append(resource.id)
                 continue
-            bitstream_size_uploaded_mb += bitstream_all_sizes_mb[i]  # type: ignore
-            print(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")  # type: ignore
-            logger.info(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")  # type: ignore
+            bitstream_size_uploaded_mb += bitstream_all_sizes_mb[i]
+            print(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")
+            logger.info(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")
             internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']  # type: ignore
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 

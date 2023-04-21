@@ -301,8 +301,8 @@ def make_root(shortcode: str, default_ontology: str) -> etree._Element:
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#the-root-element-knora
     """
 
-    root = etree.Element(  # type: ignore
-        _tag="{%s}knora" % (xml_namespace_map[None]),
+    root = etree.Element(
+        "{%s}knora" % (xml_namespace_map[None]),
         attrib={
             str(etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation")):
                 "https://dasch.swiss/schema " + \
@@ -315,7 +315,7 @@ def make_root(shortcode: str, default_ontology: str) -> etree._Element:
     return root
 
 
-def append_permissions(root_element: etree.Element) -> etree._Element:  # type: ignore
+def append_permissions(root_element: etree._Element) -> etree._Element:
     """
     After having created a root element, call this method to append the four permissions "res-default",
     "res-restricted", "prop-default", and "prop-restricted" to it. These four permissions are a good basis to
@@ -345,13 +345,13 @@ def append_permissions(root_element: etree.Element) -> etree._Element:  # type: 
     res_default.append(ALLOW("D", group="ProjectMember"))
     res_default.append(ALLOW("CR", group="ProjectAdmin"))
     res_default.append(ALLOW("CR", group="Creator"))
-    root_element.append(res_default)  # type: ignore
+    root_element.append(res_default)
 
     res_restricted = PERMISSIONS(id="res-restricted")
     res_restricted.append(ALLOW("M", group="ProjectMember"))
     res_restricted.append(ALLOW("CR", group="ProjectAdmin"))
     res_restricted.append(ALLOW("CR", group="Creator"))
-    root_element.append(res_restricted)  # type: ignore
+    root_element.append(res_restricted)
 
     prop_default = PERMISSIONS(id="prop-default")
     prop_default.append(ALLOW("V", group="UnknownUser"))
@@ -359,13 +359,13 @@ def append_permissions(root_element: etree.Element) -> etree._Element:  # type: 
     prop_default.append(ALLOW("D", group="ProjectMember"))
     prop_default.append(ALLOW("CR", group="ProjectAdmin"))
     prop_default.append(ALLOW("CR", group="Creator"))
-    root_element.append(prop_default)  # type: ignore
+    root_element.append(prop_default)
 
     prop_restricted = PERMISSIONS(id="prop-restricted")
     prop_restricted.append(ALLOW("M", group="ProjectMember"))
     prop_restricted.append(ALLOW("CR", group="ProjectAdmin"))
     prop_restricted.append(ALLOW("CR", group="Creator"))
-    root_element.append(prop_restricted)  # type: ignore
+    root_element.append(prop_restricted)
 
     return root_element
 
@@ -431,7 +431,7 @@ def make_resource(
 
 
 def make_bitstream_prop(
-    path: Union[str, os.PathLike],  # type: ignore
+    path: Union[str, os.PathLike[Any]],
     permissions: str = "prop-default",
     calling_resource: str = ""
 ) -> etree._Element:
@@ -1761,7 +1761,7 @@ def _name_label_mapper_iterator(json_subset: list[dict[str, Any]], language_labe
             # the actual values of the name and the label
 
 
-def write_xml(root: etree.Element, filepath: str) -> None:  # type: ignore
+def write_xml(root: etree._Element, filepath: str) -> None:
     """
     Write the finished XML to a file
 
@@ -1851,6 +1851,7 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
 
     # create all resources
     # --------------------
+    resource = None
     for index, row in main_df.iterrows():
 
         # there are two cases: either the row is a resource-row or a property-row.
@@ -1876,8 +1877,8 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
                 raise BaseError(f"Both ARK and IRI were provided for resource '{resource_label}' ({resource_id}). The ARK will override the IRI.")
             # previous resource is finished, now a new resource begins. in all cases (except for
             # the very first iteration), a previous resource exists. if it exists, append it to root.
-            if "resource" in locals():
-                root.append(resource)  # type: ignore
+            if resource:
+                root.append(resource)
             kwargs_resource = {
                 "label": resource_label,
                 "permissions": resource_permissions,
@@ -1972,7 +1973,8 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
             resource.append(make_prop_function(**kwargs_propfunc))  # type: ignore
 
     # append the resource of the very last iteration of the for loop
-    root.append(resource)
+    if resource:
+        root.append(resource)
 
     # write file
     # ----------

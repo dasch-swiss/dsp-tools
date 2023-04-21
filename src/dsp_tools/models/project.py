@@ -407,7 +407,7 @@ class Project(Model):
                 tmp['status'] = self._status
         return tmp
 
-    def createDefinitionFileObj(self):
+    def createDefinitionFileObj(self) -> dict[str, Any]:
         return {
             "shortcode": self._shortcode,
             "shortname": self._shortname,

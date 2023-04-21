@@ -401,14 +401,15 @@ def _identify_problematic_cardinalities(
 
     # find elements of circles that have a cardinality of "1" or "1-n"
     errors: set[tuple[str, str]] = set()
-    circles = list(nx.simple_cycles(graph))
+    circles = list(nx.cycles.simple_cycles(graph))
     for circle in circles:
         for index, resource in enumerate(circle):
             target = circle[(index+1) % len(circle)]
+            prop = ""
             for property, targets in dependencies[resource].items():
                 if target in targets:
                     prop = property
-            if cardinalities[resource][prop] not in ["0-1", "0-n"]:
+            if cardinalities[resource].get(prop) not in ["0-1", "0-n"]:
                 errors.add((resource, prop))
 
     return sorted(errors, key=lambda x: x[0])

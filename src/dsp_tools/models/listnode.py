@@ -586,7 +586,7 @@ class ListNode(Model):
         root_list_node.children = listnodes
         return root_list_node
 
-    def createDefinitionFileObj(self):
+    def createDefinitionFileObj(self) -> dict[str, Any]:
         """
         Create an object that corresponds to the syntax of the input to "create_onto".
         :return: A python object that can be jsonfied to correspond to the syntax of the input to "create_onto".

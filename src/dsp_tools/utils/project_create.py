@@ -537,7 +537,7 @@ def _create_ontologies(
 
         # add the prefixes defined in the JSON file
         for onto_prefix, onto_info in context:
-            if onto_info and onto_prefix not in ontology_remote.context:
+            if onto_info and str(onto_prefix) not in ontology_remote.context:
                 onto_iri = onto_info.iri + ("#" if onto_info.hashtag else "")
                 ontology_remote.context.add_context(prefix=str(onto_prefix), iri=onto_iri)
 

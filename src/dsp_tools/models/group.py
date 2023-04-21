@@ -246,7 +246,7 @@ class Group(Model):
     def getAllGroupsForProject(con: Connection, proj_iri: str) -> Optional[list[Group]]:
         return [g for g in Group.getAllGroups(con) if g.project == proj_iri]
 
-    def createDefinitionFileObj(self):
+    def createDefinitionFileObj(self) -> dict[str, Any]:
         group = {
             "name": self.name,
             "descriptions": self.descriptions.createDefinitionFileObj(),

@@ -94,7 +94,8 @@ def _upload_without_processing(
         with open(file, "rb") as bitstream:
             response_upload = requests.post(
                 url=f"{regex.sub(r'/$', '', sipi_url)}/upload_without_processing?token={con.get_token()}",
-                files={"file": bitstream}
+                files={"file": bitstream},
+                timeout=5
             )
     except:
         print(f"An error occurred while uploading the file {file}")
@@ -153,7 +154,7 @@ def _upload_file(
         )
         result.append(res)
 
-    if not any(result):
+    if not all(result):
         return uuid_name_of_processed_file, False
 
     return uuid_name_of_processed_file, True

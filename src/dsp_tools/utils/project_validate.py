@@ -250,7 +250,7 @@ def validate_project(
             project_definition["project"]["lists"] = new_lists
 
     # validate the project definition against the schema
-    with importlib.resources.files("dsp_tools").joinpath("resources/schema/project.json").open() as schema_file:
+    with importlib.resources.files("dsp_tools").joinpath("resources/schema/project.json").open(encoding="utf-8") as schema_file:
         project_schema = json.load(schema_file)
     try:
         jsonschema.validate(instance=project_definition, schema=project_schema)
@@ -319,7 +319,7 @@ def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, li
     for index, onto in enumerate(ontos):
         hasLinkTo_matches = list()
         # look for child-properties down to 5 inheritance levels that are derived from hasLinkTo-properties
-        for i in range(5):
+        for _ in range(5):
             for hasLinkTo_prop in hasLinkTo_props:
                 hasLinkTo_matches.extend(jsonpath_ng.ext.parse(
                     f"$.project.ontologies[{index}].properties[?super[*] == {hasLinkTo_prop}]"
@@ -339,7 +339,7 @@ def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, li
     # in case the object of a property is "Resource", the link can point to any resource class
     all_res_names: list[str] = list()
     for index, onto in enumerate(ontos):
-        matches = jsonpath_ng.ext.parse(f"$.resources[*].name").find(onto)
+        matches = jsonpath_ng.ext.parse("$.resources[*].name").find(onto)
         tmp = [f"{onto['name']}:{match.value}" for match in matches]
         all_res_names.extend(tmp)
     for prop, targ in link_properties.items():
@@ -406,9 +406,9 @@ def _identify_problematic_cardinalities(
         for index, resource in enumerate(circle):
             target = circle[(index+1) % len(circle)]
             prop = ""
-            for property, targets in dependencies[resource].items():
+            for _property, targets in dependencies[resource].items():
                 if target in targets:
-                    prop = property
+                    prop = _property
             if cardinalities[resource].get(prop) not in ["0-1", "0-n"]:
                 errors.add((resource, prop))
 

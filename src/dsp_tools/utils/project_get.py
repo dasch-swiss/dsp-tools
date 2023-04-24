@@ -88,7 +88,7 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
 
     # get the ontologies
     if verbose:
-        print(f"Getting ontologies...")
+        print("Getting ontologies...")
     project_obj["ontologies"] = []
     prefixes: dict[str, str] = dict()
     ontologies = Ontology.getProjectOntologies(con, str(project.id))

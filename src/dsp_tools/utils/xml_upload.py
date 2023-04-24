@@ -9,6 +9,7 @@ import json
 import logging
 import os
 import re
+import sys
 import uuid
 from collections import namedtuple
 from datetime import datetime
@@ -118,7 +119,7 @@ def _write_id2iri_mapping_and_metrics(
         True if there are no failed_uploads, False otherwise
     """
     # determine names of files
-    if isinstance(input_file, str) or isinstance(input_file, Path):
+    if isinstance(input_file, (str, Path)):
         id2iri_filename = f"{Path(input_file).stem}_id2iri_mapping_{timestamp_str}.json"
         metrics_filename = f"{timestamp_str}_metrics_{server_as_foldername}_{Path(input_file).stem}.csv"
     else:
@@ -127,7 +128,7 @@ def _write_id2iri_mapping_and_metrics(
     
     # write files and print info
     success = True
-    with open(id2iri_filename, "x") as f:
+    with open(id2iri_filename, "x", encoding="utf-8") as f:
         json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
         print(f"The mapping of internal IDs to IRIs was written to {id2iri_filename}")
         logger.info(f"The mapping of internal IDs to IRIs was written to {id2iri_filename}")
@@ -234,7 +235,7 @@ def _stash_circular_references(
         for link_prop in res.get_props_with_links():
             if link_prop.valtype == 'text':
                 for value in link_prop.values:
-                    if value.resrefs and not all([_id in ok_res_ids for _id in value.resrefs]):
+                    if value.resrefs and not all(_id in ok_res_ids for _id in value.resrefs):
                         # stash this XML text, replace it by its hash, and remove the
                         # problematic resrefs from the XMLValue's resrefs list
                         value_hash = str(hash(f'{value.value}{datetime.now()}'))
@@ -969,7 +970,7 @@ def _handle_upload_error(
 
     if id2iri_mapping:
         id2iri_mapping_file = f"{save_location}/{timestamp_str}_id2iri_mapping.json"
-        with open(id2iri_mapping_file, "x") as f:
+        with open(id2iri_mapping_file, "x", encoding="utf-8") as f:
             json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
         print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
         logger.info(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
@@ -977,7 +978,7 @@ def _handle_upload_error(
     if stashed_xml_texts:
         stashed_xml_texts_serializable = {r.id: {p.name: xml for p, xml in rdict.items()} for r, rdict in stashed_xml_texts.items()}
         xml_filename = f"{save_location}/{timestamp_str}_stashed_text_properties.json"
-        with open(xml_filename, "x") as f:
+        with open(xml_filename, "x", encoding="utf-8") as f:
             json.dump(stashed_xml_texts_serializable, f, ensure_ascii=False, indent=4, cls=KnoraStandoffXmlEncoder)
         print(f"There are stashed text properties that could not be reapplied to the resources they were stripped "
               f"from. They were saved to {xml_filename}.")
@@ -987,7 +988,7 @@ def _handle_upload_error(
     if stashed_resptr_props:
         stashed_resptr_props_serializable = {r.id: {p.name: plist for p, plist in rdict.items()} for r, rdict in stashed_resptr_props.items()}
         resptr_filename = f"{save_location}/{timestamp_str}_stashed_resptr_properties.json"
-        with open(resptr_filename, "x") as f:
+        with open(resptr_filename, "x", encoding="utf-8") as f:
             json.dump(stashed_resptr_props_serializable, f, ensure_ascii=False, indent=4)
         print(f"There are stashed resptr properties that could not be reapplied to the resources they were stripped "
               f"from. They were saved to {resptr_filename}")
@@ -1000,7 +1001,7 @@ def _handle_upload_error(
         logger.info(f"Independently of this error, there were some resources that could not be uploaded: {failed_uploads}")
 
     if isinstance(err, KeyboardInterrupt):
-        exit(1)
+        sys.exit(1)
     else:
         print("The error will now be raised again:\n"
               "==========================================\n")

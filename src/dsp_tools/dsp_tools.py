@@ -206,7 +206,7 @@ def call_requested_action(
     args = parser.parse_args(user_args)
     if not hasattr(args, "action"):
         parser.print_help(sys.stderr)
-        exit(1)
+        sys.exit(1)
     elif args.action == "create":
         if args.lists_only:
             if args.validate_only:
@@ -330,11 +330,11 @@ def main() -> None:
         success = call_requested_action(user_args=sys.argv[1:], parser=parser)
     except UserError as err:
         print(err.message)
-        exit(1)
+        sys.exit(1)
     # let BaseError and all unexpected errors escalate, so that a stack trace is printed
 
     if not success: 
-        exit(1)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

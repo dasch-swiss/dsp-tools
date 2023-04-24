@@ -140,7 +140,7 @@ def _get_values_from_excel(
             new_check_list.append(str(cell.value).strip())
             list_of_lists_of_previous_cell_values.append(new_check_list)
 
-            if any([list_of_lists_of_previous_cell_values.count(x) > 1 for x in list_of_lists_of_previous_cell_values]):
+            if any(list_of_lists_of_previous_cell_values.count(x) > 1 for x in list_of_lists_of_previous_cell_values):
                 raise BaseError(f"ERROR: There is at least one duplicate node in the list. Found duplicate in column "
                                 f"{cell.column}, row {cell.row}:\n'{str(cell.value).strip()}'")
 
@@ -264,11 +264,11 @@ def validate_lists_section_with_schema(
     if bool(path_to_json_project_file) == bool(lists_section):
         raise BaseError("Validation of the 'lists' section works only if exactly one of the two arguments is given.")
     
-    with importlib.resources.files("dsp_tools").joinpath("resources/schema/lists-only.json").open() as schema_file:
+    with importlib.resources.files("dsp_tools").joinpath("resources/schema/lists-only.json").open(encoding="utf-8") as schema_file:
         lists_schema = json.load(schema_file)
 
     if path_to_json_project_file:
-        with open(path_to_json_project_file) as f:
+        with open(path_to_json_project_file, encoding="utf-8") as f:
             project = json.load(f)
             lists_section = project["project"].get("lists")
             if not lists_section:
@@ -335,7 +335,7 @@ def excel2lists(
     excel_file_paths = _extract_excel_file_paths(excelfolder)
     if verbose:
         print("The following Excel files will be processed:")
-        [print(f" - {filename}") for filename in excel_file_paths]
+        print(*(f" - {filename}" for filename in excel_file_paths), sep="\n")
     
     # construct the "lists" section
     finished_lists = _make_json_lists_from_excel(excel_file_paths, verbose=verbose)

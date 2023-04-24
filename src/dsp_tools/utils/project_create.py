@@ -2,6 +2,7 @@
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
 import logging
 import re
+from functools import partial
 from pathlib import Path
 from typing import Any, Union, cast
 
@@ -163,7 +164,7 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
             selfjoin=bool(group.get("selfjoin", False))
         )
         try:
-            group_remote: Group = try_network_action(lambda: group_local.create())
+            group_remote: Group = try_network_action(partial(lambda: group_local.create()))
         except BaseError:
             print(f"\tWARNING: Unable to create group '{group_name}'.")
             logger.warning(f"Unable to create group '{group_name}'.", exc_info=True)

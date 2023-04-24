@@ -114,13 +114,22 @@ disable = [
     "deprecated-pragma", 
     "use-symbolic-message-instead", 
     "line-too-long", 
+    "too-many-lines",
+    "no-else-continue",
+    "no-else-return",
+    "no-else-raise",
     "trailing-whitespace", 
     "invalid-name", 
     "too-many-arguments",
     "too-many-locals",
+    "too-many-statements",
+    "too-many-nested-blocks",
     "use-dict-literal",
+    "use-list-literal",
     "missing-module-docstring",
     "c-extension-no-member",
+    "too-many-branches",
+    "global-statement",
     "logging-fstring-interpolation",       # would be more performant, but less readable
     "import-outside-toplevel",             # necessary because of the monkey patchings in utils/excel_to_json_properties.py and utils/excel_to_json_resources.py
     "protected-access",                    # necessary because of the lxml type annnotations

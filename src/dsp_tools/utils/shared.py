@@ -104,9 +104,9 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
     Returns:
         True if the XML file is valid
     """
-    with importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd").open() as schema_file:
+    with importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd").open(encoding="utf-8") as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
-    if isinstance(input_file, str) or isinstance(input_file, Path):
+    if isinstance(input_file, (str, Path)):
         try:
             doc = etree.parse(source=input_file)
         except etree.XMLSyntaxError as err:
@@ -272,13 +272,14 @@ def check_notna(value: Optional[Any]) -> bool:
         isinstance(value, bool)
     ]):
         return True
-    elif isinstance(value, str):
+    
+    if isinstance(value, str):
         return all([
             regex.search(r"[\p{L}\d_!?]", value, flags=regex.UNICODE),
             not bool(regex.search(r"^(none|<NA>|-|n/a)$", value, flags=regex.IGNORECASE))
         ])
-    else:
-        return False
+
+    return False
 
 
 def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, Any]]) -> dict[str, Any]:
@@ -299,7 +300,7 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, 
     if isinstance(project_file_as_path_or_parsed, dict):
         project_definition: dict[str, Any] = project_file_as_path_or_parsed
     elif all([
-        isinstance(project_file_as_path_or_parsed, str) or isinstance(project_file_as_path_or_parsed, Path),
+        isinstance(project_file_as_path_or_parsed, (str, Path)),
         Path(project_file_as_path_or_parsed).exists()
     ]):
         with open(project_file_as_path_or_parsed, encoding="utf-8") as f:

@@ -72,7 +72,7 @@ def excel2json(
                         f"pattern 'onto_name (onto_label)'")
 
     print("The following files will be processed:")
-    [print(f" - {file}") for file in processed_files]
+    print(*(f" - {file}" for file in processed_files), sep="\n")
 
 
     # create output

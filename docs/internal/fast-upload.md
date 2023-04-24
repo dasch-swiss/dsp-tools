@@ -12,9 +12,6 @@ In order for the fast mass upload to work, you need the following dependencies:
 
 - Your machine must be able to run the DSP software stack. 
   The (internal) document "Installation of your Mac" explains what software needs to be installed.
-- Get the latest Sipi image from [docker hub](https://hub.docker.com/r/daschswiss/sipi). 
-  If you have run DSP-API recently, the Sipi image should be already on your machine. 
-  You can check it in Docker Desktop > Images.
 - Install ffmpeg, e.g. with `brew install ffmpeg`
 - Install ImageMagick, e.g. with `brew install imagemagick`
 
@@ -63,7 +60,6 @@ The following options are available:
 
 - `--input-dir` (mandatory): path to the input directory where the files should be read from 
 - `--out-dir` (mandatory): path to the output directory where the processed/transformed files should be written to
-- `--sipi-image` (optional, default: `daschswiss/sipi:3.8.1`): the latest Sipi image from [docker hub](https://hub.docker.com/r/daschswiss/sipi)
 
 All files referenced in the <bitstream> tags of the XML 
 are expected to be in the input directory 

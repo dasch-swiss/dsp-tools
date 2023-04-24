@@ -24,8 +24,7 @@ sipi_container: Optional[Model] = None
 def process_files(
     input_dir: str,
     out_dir: str,
-    xml_file: str,
-    sipi_image: str
+    xml_file: str
 ) -> bool:
     """
     Process the files referenced in the given XML file.
@@ -39,7 +38,6 @@ def process_files(
         input_dir: path to the directory where the files should be read from
         out_dir: path to the directory where the transformed / created files should be written to
         xml_file: path to xml file containing the resources
-        sipi_image: the sipi image that should be used
     
     Returns:
         success status
@@ -57,8 +55,7 @@ def process_files(
 
     _start_sipi_container_and_mount_volumes(
         input_dir=input_dir_path, 
-        output_dir=out_dir_path, 
-        image=sipi_image
+        output_dir=out_dir_path 
     )
     global sipi_container
     sipi_container = _get_sipi_container()
@@ -209,8 +206,7 @@ def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
 
 def _start_sipi_container_and_mount_volumes(
     input_dir: Path,
-    output_dir: Path,
-    image: str
+    output_dir: Path
 ) -> None:
     """
     Creates and starts a Sipi container from the provided image. 
@@ -220,7 +216,6 @@ def _start_sipi_container_and_mount_volumes(
     Args:
         input_dir: the root directory of the images that should be processed, is mounted into the container
         output_dir: the output directory where the processed files should be written to, is mounted into the container
-        image: the image which the container should be created from
     """
     container_name = "sipi"
     volumes = [f"{input_dir.absolute()}:/sipi/processing-input",
@@ -236,7 +231,7 @@ def _start_sipi_container_and_mount_volumes(
         else:
             print(f"{datetime.now()}: Found running Sipi container '{container_name}'.")
     except docker.errors.NotFound:
-        docker_client.containers.run(image=image, name=container_name, volumes=volumes, entrypoint=entrypoint, detach=True)
+        docker_client.containers.run(image="daschswiss/sipi:3.8.1", name=container_name, volumes=volumes, entrypoint=entrypoint, detach=True)
         print(f"{datetime.now()}: Created and started Sipi container '{container_name}'.")
 
 

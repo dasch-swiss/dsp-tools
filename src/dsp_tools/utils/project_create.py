@@ -2,7 +2,6 @@
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
 import logging
 import re
-from functools import partial
 from pathlib import Path
 from typing import Any, Union, cast
 
@@ -164,7 +163,7 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
             selfjoin=bool(group.get("selfjoin", False))
         )
         try:
-            group_remote: Group = try_network_action(partial(lambda: group_local.create()))
+            group_remote: Group = try_network_action(group_local.create)
         except BaseError:
             print(f"\tWARNING: Unable to create group '{group_name}'.")
             logger.warning(f"Unable to create group '{group_name}'.", exc_info=True)
@@ -344,7 +343,7 @@ def _create_users(
         # skip the user if he already exists
         try:
             # the normal case is that this try block fails
-            try_network_action(lambda: User(con, email=json_user_definition["email"]).read())
+            try_network_action(User(con, email=json_user_definition["email"]).read)
             print(f"\tWARNING: User '{username}' already exists on the DSP server. Skipping...")
             logger.warning(f"User '{username}' already exists on the DSP server. Skipping...")
             overall_success = False
@@ -388,7 +387,7 @@ def _create_users(
             in_groups=group_iris
         )
         try:
-            try_network_action(lambda: user_local.create())
+            try_network_action(user_local.create)
         except BaseError:
             print(f"\tWARNING: Unable to create user '{username}'.")
             logger.warning(f"Unable to create user '{username}'.", exc_info=True)
@@ -524,7 +523,7 @@ def _create_ontologies(
         )
         # if ontology cannot be created, let the error escalate
         try:
-            ontology_remote: Ontology = try_network_action(lambda: ontology_local.create())
+            ontology_remote: Ontology = try_network_action(ontology_local.create)
         except BaseError:
             logger.error(f"ERROR while trying to create ontology '{ontology_definition['name']}'.", exc_info=True)
             raise UserError(f"ERROR while trying to create ontology '{ontology_definition['name']}'.") from None
@@ -625,9 +624,7 @@ def _add_resource_classes_to_remote_ontology(
             comment=LangString(res_class.get("comments")) if res_class.get("comments") else None
         )
         try:
-            last_modification_date, res_class_remote = try_network_action(
-                lambda: res_class_local.create(last_modification_date=last_modification_date)
-            )
+            last_modification_date, res_class_remote = try_network_action(res_class_local.create, last_modification_date)
             res_class_remote = cast(ResourceClass, res_class_remote)
             new_res_classes[str(res_class_remote.id)] = res_class_remote
             ontology_remote.lastModificationDate = last_modification_date
@@ -719,9 +716,7 @@ def _add_property_classes_to_remote_ontology(
             comment=LangString(prop_class["comments"]) if prop_class.get("comments") else None
         )
         try:
-            last_modification_date, _ = try_network_action(
-                lambda: prop_class_local.create(last_modification_date=last_modification_date)
-            )
+            last_modification_date, _ = try_network_action(prop_class_local.create, last_modification_date)
             ontology_remote.lastModificationDate = last_modification_date
             if verbose:
                 print(f"\tCreated property class '{prop_class['name']}'")
@@ -782,12 +777,11 @@ def _add_cardinalities_to_resource_classes(
 
             try:
                 last_modification_date = try_network_action(
-                    lambda: res_class_remote.addProperty(  # type: ignore
-                        property_id=qualified_propname,
-                        cardinality=switcher[card_info["cardinality"]],
-                        gui_order=card_info.get("gui_order"),
-                        last_modification_date=last_modification_date
-                    )
+                    res_class_remote.addProperty,
+                    property_id=qualified_propname,
+                    cardinality=switcher[card_info["cardinality"]],
+                    gui_order=card_info.get("gui_order"),
+                    last_modification_date=last_modification_date
                 )
                 if verbose:
                     print(f"\tAdded cardinality '{card_info['propname']}' to resource class '{res_class['name']}'")

@@ -642,7 +642,8 @@ def _upload_resources(
                 bitstream_start = datetime.now()
                 filetype = Path(resource.bitstream.value).suffix[1:]
                 img: Optional[dict[Any, Any]] = try_network_action(
-                    lambda: sipi_server.upload_bitstream(filepath=str(Path(imgdir) / Path(resource.bitstream.value))),  # type: ignore
+                    sipi_server.upload_bitstream,
+                    filepath=str(Path(imgdir) / Path(resource.bitstream.value))
                 )
                 bitstream_duration = datetime.now() - bitstream_start
                 bitstream_duration_ms = bitstream_duration.seconds * 1000 + int(bitstream_duration.microseconds / 1000)
@@ -674,7 +675,7 @@ def _upload_resources(
                 values=properties
             )
             resource_creation_start = datetime.now()
-            created_resource: ResourceInstance = try_network_action(lambda: resource_instance.create())
+            created_resource: ResourceInstance = try_network_action(resource_instance.create)
             resource_creation_duration = datetime.now() - resource_creation_start
             resource_creation_duration_ms = resource_creation_duration.seconds * 1000 + int(resource_creation_duration.microseconds / 1000)
             metrics.append(MetricRecord(resource.id, filetype, filesize, "resource creation", resource_creation_duration_ms, ""))
@@ -724,7 +725,7 @@ def _upload_stashed_xml_texts(
             continue
         res_iri = id2iri_mapping[resource.id]
         try:
-            existing_resource = try_network_action(lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'))
+            existing_resource = try_network_action(con.get, path=f'/v2/resources/{quote_plus(res_iri)}')
         except BaseError as err:
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
             # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
@@ -776,7 +777,7 @@ def _upload_stashed_xml_texts(
 
                 # execute API call
                 try:
-                    try_network_action(lambda: con.put(path='/v2/values', jsondata=jsondata))
+                    try_network_action(con.put, path='/v2/values', jsondata=jsondata)
                 except BaseError as err:
                     # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
                     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
@@ -853,7 +854,7 @@ def _upload_stashed_resptr_props(
             continue
         res_iri = id2iri_mapping[resource.id]
         try:
-            existing_resource = try_network_action(lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'))
+            existing_resource = try_network_action(con.get, path=f'/v2/resources/{quote_plus(res_iri)}')
         except BaseError as err:
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
             # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
@@ -880,7 +881,7 @@ def _upload_stashed_resptr_props(
                 }
                 jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '))
                 try:
-                    try_network_action(lambda: con.post(path='/v2/values', jsondata=jsondata))
+                    try_network_action(con.post, path='/v2/values', jsondata=jsondata)
                 except BaseError as err:
                     # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
                     # this resource will remain in nonapplied_resptr_props, which will be handled by the caller

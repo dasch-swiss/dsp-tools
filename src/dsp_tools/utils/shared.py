@@ -48,7 +48,11 @@ def login(server: str, user: str, password: str) -> Connection:
     return con
 
 
-def try_network_action(action: Callable[..., Any]) -> Any:
+def try_network_action(
+    action: Callable[..., Any],
+    *args: Any,
+    **kwargs: Any
+) -> Any:
     """
     Helper method that tries 7 times to execute an action. 
     If a ConnectionError, a requests.exceptions.RequestException, or a non-permanent BaseError occors, 
@@ -57,7 +61,9 @@ def try_network_action(action: Callable[..., Any]) -> Any:
     If another exception occurs, it escalates.
 
     Args:
-        action: a lambda with the code to be executed
+        action: a lambda with the code to be executed, or a function
+        args: positional arguments for the action
+        kwargs: keyword arguments for the action
 
     Raises:
         BaseError or unexpected exception if the action fails permanently
@@ -68,7 +74,14 @@ def try_network_action(action: Callable[..., Any]) -> Any:
 
     for i in range(7):
         try:
-            return action()
+            if args and not kwargs:
+                return action(*args)
+            elif kwargs and not args:
+                return action(**kwargs)
+            elif args and kwargs:
+                return action(*args, **kwargs)
+            else:
+                return action()
         except (ConnectionError, RequestException):
             print(f"{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...")
             logger.error(f"Try reconnecting to DSP server, next attempt in {2 ** i} seconds...", exc_info=True)
@@ -307,7 +320,8 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, 
             try:
                 project_definition = json.load(f)
             except:
-                raise BaseError(f"The input file '{project_file_as_path_or_parsed}' cannot be parsed to a JSON object.")
+                logger.error(f"The input file '{project_file_as_path_or_parsed}' cannot be parsed to a JSON object.", exc_info=True)
+                raise BaseError(f"The input file '{project_file_as_path_or_parsed}' cannot be parsed to a JSON object.") from None
     else:
         raise BaseError("Invalid input: The input must be a path to a JSON file or a parsed JSON object.")
     return project_definition

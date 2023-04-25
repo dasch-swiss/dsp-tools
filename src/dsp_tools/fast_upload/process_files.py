@@ -71,13 +71,7 @@ def process_files(
 
     # get shell script for processing video files
     if any(path.suffix == ".mp4" for path in all_paths):
-        user_folder = Path.home() / Path(".dsp-tools/fast-xml-upload")
-        user_folder.mkdir(parents=True, exist_ok=True)
-        global export_moving_image_frames_script
-        export_moving_image_frames_script = user_folder / "export-moving-image-frames.sh"
-        script_text = requests.get("https://github.com/dasch-swiss/dsp-api/raw/main/sipi/scripts/export-moving-image-frames.sh", timeout=5).text
-        with open(export_moving_image_frames_script, "w", encoding="utf-8") as f:
-            f.write(script_text)
+        _get_export_moving_image_frames_script()
 
     # process the files in parallel
     start_time = datetime.now()
@@ -104,6 +98,22 @@ def process_files(
         logger.error(f"An error occurred while writing the result to the pickle file. The result was: {result}")
 
     return success
+
+
+def _get_export_moving_image_frames_script() -> None:
+    """
+    Downloads the shell script that is used to extract the key frames from a video file.
+    """
+    user_folder = Path.home() / Path(".dsp-tools/fast-xml-upload")
+    user_folder.mkdir(parents=True, exist_ok=True)
+    global export_moving_image_frames_script
+    export_moving_image_frames_script = user_folder / "export-moving-image-frames.sh"
+    script_text = requests.get(
+        "https://github.com/dasch-swiss/dsp-api/raw/main/sipi/scripts/export-moving-image-frames.sh", 
+        timeout=5
+    ).text
+    with open(export_moving_image_frames_script, "w", encoding="utf-8") as f:
+        f.write(script_text)
 
 
 def _check_if_all_files_were_processed(

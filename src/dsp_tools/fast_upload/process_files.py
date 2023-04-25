@@ -1,7 +1,6 @@
 """This module handles processing of files referenced in the bitstream tags of an XML file."""
 
 import hashlib
-import importlib.resources
 import json
 import logging
 import os
@@ -17,11 +16,13 @@ from typing import Any, Optional, Union
 import docker
 from docker.models.resource import Model
 from lxml import etree
+import requests
 
 from dsp_tools.models.exceptions import BaseError
 
 logger = logging.getLogger(__name__)
 sipi_container: Optional[Model] = None
+export_moving_image_frames_script: Optional[Path] = None
 
 def process_files(
     input_dir: str,
@@ -44,7 +45,7 @@ def process_files(
     Returns:
         success status
     """
-
+    # parse the input parameters
     param_check_result = _check_params(
         input_dir=input_dir, 
         out_dir=out_dir, 
@@ -55,34 +56,46 @@ def process_files(
     else:
         raise BaseError("Error reading the input parameters. Please check them.")
 
+    # startup the SIPI container
     _start_sipi_container_and_mount_volumes(
         input_dir=input_dir_path, 
         output_dir=out_dir_path 
     )
     global sipi_container
     sipi_container = _get_sipi_container()
+
+    # get the paths of the files referenced in the XML file
     all_paths = _get_file_paths_from_xml(xml_file_path)
     print(f"{datetime.now()}: Found {len(all_paths)} bitstreams in the XML file.")
     logger.info(f"Found {len(all_paths)} bitstreams in the XML file.")
 
+    # get shell script for processing video files
+    if any(path.suffix == ".mp4" for path in all_paths):
+        user_folder = Path.home() / Path(".dsp-tools/fast-xml-upload")
+        user_folder.mkdir(parents=True, exist_ok=True)
+        global export_moving_image_frames_script
+        export_moving_image_frames_script = user_folder / "export-moving-image-frames.sh"
+        script_text = requests.get("https://github.com/dasch-swiss/dsp-api/raw/main/sipi/scripts/export-moving-image-frames.sh", timeout=5).text
+        with open(export_moving_image_frames_script, "w", encoding="utf-8") as f:
+            f.write(script_text)
+
+    # process the files in parallel
     start_time = datetime.now()
     print(f"{start_time}: Start local file processing...")
     logger.info("Start local file processing...")
-
     result = _process_files_in_parallel(
         paths=all_paths, 
         input_dir=input_dir_path, 
         out_dir=out_dir_path
     )
 
+    # check if all files were processed
     end_time = datetime.now()
     print(f"{end_time}: Processing files took: {end_time - start_time}")
-    if len(result) == len(all_paths):
-        print(f"{datetime.now()}: Number of processed files: {len(result)}: Okay")
-    else:
-        print(f"{datetime.now()}: !!! NUMBER OF PROCESSED FILES: {len(result)}: NOT OKAY, SHOULD BE: {len(all_paths)} !!!")
-
-    _print_files_with_errors(result)
+    _check_if_all_files_were_processed(
+        result=result,
+        all_paths=all_paths
+    )
 
     if not _write_result_to_pkl_file(result):
         print(f"An error occurred while writing the result to the pickle file. The result was: {result}")
@@ -90,16 +103,26 @@ def process_files(
     return True
 
 
-def _print_files_with_errors(result: list[tuple[Path, Path]]) -> None:
+def _check_if_all_files_were_processed(
+    result: list[tuple[Path, Path]],
+    all_paths: list[Path]
+) -> None:
     """
     Go through the result list and print all files that could not be processed.
 
     Args:
         result: list of tuples of Paths. If the first Path is equal to the second Path, the file could not be processed.
     """
+    if len(result) == len(all_paths):
+        print(f"Number of processed files: {len(result)}: Okay")
+        logger.info(f"Number of processed files: {len(result)}: Okay")
+    else:
+        print(f"ERROR: Some files could not be processed: Only {len(result)}/{len(all_paths)} were processed. The failed ones are:")
+        logger.error(f"Some files could not be processed: Only {len(result)}/{len(all_paths)} were processed. The failed ones are:")
     for input_file, output_file in result:
         if input_file == output_file:
-            print(f"The following file could not be processed: {input_file}")
+            print(f" - {input_file} could not be processed.")
+            logger.error(f" - {input_file} could not be processed.")
 
 
 def _process_files_in_parallel(
@@ -492,7 +515,7 @@ def _extract_key_frames(file: Path) -> bool:
     Returns:
         true if successful, false otherwise
     """
-    export_moving_image_frames_script = importlib.resources.files("dsp_tools").joinpath("resources/export-moving-image-frames.sh")
+    
     result = subprocess.call(["sh", f"{export_moving_image_frames_script}", "-i", f"{file}"])
     if result != 0:
         return False

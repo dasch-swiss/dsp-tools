@@ -1,4 +1,5 @@
 import glob
+import logging
 import pickle
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
@@ -12,6 +13,7 @@ from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.shared import login
 
+logger = logging.getLogger(__name__)
 
 def _get_upload_candidates(
     dir_with_processed_files: Path, 
@@ -39,6 +41,7 @@ def _get_upload_candidates(
     upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/{uuid_name_of_processed_file.stem}/*.*"))
     upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/{uuid_name_of_processed_file.stem}*.*"))
     upload_candidates_paths = [Path(c) for c in upload_candidates]
+    logger.info(f"Found the following upload candidates for {uuid_name_of_processed_file}: {upload_candidates_paths}")
     return upload_candidates_paths
 
 
@@ -58,18 +61,22 @@ def _check_upload_candidates(
         True if all checks passed, False otherwise
     """
     if not uuid_name_of_processed_file.is_file():
-        print(f"The input file was not found {uuid_name_of_processed_file}")
+        print(f"ERROR: The input file was not found {uuid_name_of_processed_file}")
+        logger.error(f"The input file was not found {uuid_name_of_processed_file}")
         return False
 
     if not all(Path(c).is_file() for c in upload_candidates):
-        print(f"Not all upload candidates were found for file {uuid_name_of_processed_file}")
+        print(f"ERROR: Not all upload candidates were found for file {uuid_name_of_processed_file}")
+        logger.error(f"Not all upload candidates were found for file {uuid_name_of_processed_file}")
         return False
 
     min_num_of_candidates = 5 if uuid_name_of_processed_file.suffix == ".mp4" else 3
     if len(upload_candidates) < min_num_of_candidates:
-        print(f"Found the following files for {uuid_name_of_processed_file}, but more were expected: {upload_candidates}. Skipping...")
+        print(f"ERROR: Found the following files for {uuid_name_of_processed_file}, but more were expected: {upload_candidates}. Skipping...")
+        logger.error(f"Found the following files for {uuid_name_of_processed_file}, but more were expected: {upload_candidates}. Skipping...")
         return False
 
+    logger.info(f"Upload candidates for {uuid_name_of_processed_file} are okay.")
     return True
 
 
@@ -80,7 +87,6 @@ def _upload_without_processing(
 ) -> bool:
     """
     Send a single file to the "upload_without_processing" route. 
-    In case of the "server.fs.mkdir() failed: File exists" error, repeat until successful.
 
     Args:
         file: file to upload
@@ -97,20 +103,20 @@ def _upload_without_processing(
                 files={"file": bitstream},
                 timeout=5
             )
-    except:
-        print(f"An error occurred while uploading the file {file}")
+    except OSError:
+        print(f"ERROR: An error occurred while uploading the file {file}")
+        logger.error(f"An error occurred while uploading the file {file}", exc_info=True)
         return False
     
     if response_upload.json().get("message") == "server.fs.mkdir() failed: File exists":
-        print(f"Upload of file {file} must be repeated because the server responded with 'server.fs.mkdir() failed: File exists'")
-        return _upload_without_processing(
-            file=file,
-            sipi_url=sipi_url,
-            con=con
-        )
+        pass
+        # This error can be safely ignored, since the file was uploaded correctly.
     elif response_upload.status_code != 200:
-        print(f"An error occurred while uploading the file {file}. The response was {response_upload.json()}")
+        print(f"ERROR: An error occurred while uploading the file {file}. The response was {response_upload.json()}")
+        logger.error(f"An error occurred while uploading the file {file}. The response was {response_upload.json()}")
         return False
+    else:
+        logger.info(f"Successfully uploaded file {file}")
 
     return True
 
@@ -155,9 +161,11 @@ def _upload_file(
         result.append(res)
 
     if not all(result):
+        logger.error(f"Could not upload all files for {uuid_name_of_processed_file}.")
         return uuid_name_of_processed_file, False
-
-    return uuid_name_of_processed_file, True
+    else:
+        logger.info(f"Successfully uploaded all files for {uuid_name_of_processed_file}.")
+        return uuid_name_of_processed_file, True
 
 
 def _get_paths_from_pkl_file(pkl_file: Path) -> list[Path]:
@@ -171,8 +179,8 @@ def _get_paths_from_pkl_file(pkl_file: Path) -> list[Path]:
     Returns:
         list of uuid filenames
     """
-    with open(pkl_file, 'rb') as f:
-        orig_paths_2_processed_paths: list[tuple[Path, Path]] = pickle.load(f)
+    with open(pkl_file, 'rb') as file:
+        orig_paths_2_processed_paths: list[tuple[Path, Path]] = pickle.load(file)
 
     processed_paths: list[Path] = []
     for orig_processed in orig_paths_2_processed_paths:
@@ -251,6 +259,7 @@ def _print_files_with_errors(result: list[tuple[Path, bool]]) -> None:
     for path, res in result:
         if not res:
             print(f"The following file could not be uploaded: {path}")
+            logger.error(f"The following file could not be uploaded: {path}")
 
 
 def upload_files(
@@ -290,6 +299,7 @@ def upload_files(
     # read paths from pkl file
     uuid_names_of_processed_files = _get_paths_from_pkl_file(pkl_file=pkl_file_path)
     print(f"{datetime.now()}: Found {len(uuid_names_of_processed_files)} files to upload...")
+    logger.info(f"Found {len(uuid_names_of_processed_files)} files to upload...")
 
     # create connection to DSP
     con = login(
@@ -298,19 +308,24 @@ def upload_files(
         password=password
     )
 
-    print(f"{datetime.now()}: Start file uploading...")
     start_time = datetime.now()
+    print(f"{start_time}: Start file uploading...")
+    logger.info("Start file uploading...")
     result = _upload_files_in_parallel(
         dir_with_processed_files=dir_with_processed_files_path, 
         uuid_names_of_processed_files=uuid_names_of_processed_files, 
         sipi_url=sipi_url, 
         con=con
     )
-    print(f"{datetime.now()}: Uploading files took {datetime.now() - start_time}")
+    end_time = datetime.now()
+    print(f"{datetime.now()}: Uploading files took {end_time - start_time}")
+    logger.info(f"Uploading files took {end_time - start_time}")
     if len(result) == len(uuid_names_of_processed_files):
-        print(f"{datetime.now()}: Number of files of which the derivates were uploaded: {len(result)}: Okay")
+        print(f"{end_time}: Number of files of which the derivates were uploaded: {len(result)}: Okay")
+        logger.info(f"Number of files of which the derivates were uploaded: {len(result)}: Okay")
     else:
-        print(f"{datetime.now()}: !!! NUMBER OF FILES OF WHICH THE DERIVATES WERE UPLOADED: {len(result)}: NOT OKAY, SHOULD BE: {len(uuid_names_of_processed_files)} !!!")
+        print(f"{end_time}: !!! NUMBER OF FILES OF WHICH THE DERIVATES WERE UPLOADED: {len(result)}: NOT OKAY, SHOULD BE: {len(uuid_names_of_processed_files)} !!!")
+        logger.error(f"!!! NUMBER OF FILES OF WHICH THE DERIVATES WERE UPLOADED: {len(result)}: NOT OKAY, SHOULD BE: {len(uuid_names_of_processed_files)} !!!")
 
     _print_files_with_errors(result)
 

@@ -8,8 +8,8 @@ from dsp_tools.utils.xml_upload import xml_upload
 
 
 def _get_paths_from_pkl_file(pkl_file: Path) -> list[tuple[Path, Path]]:
-    with open(pkl_file, 'rb') as f:
-        orig_paths_2_processed_paths: list[tuple[Path, Path]] = pickle.load(f)
+    with open(pkl_file, 'rb') as file:
+        orig_paths_2_processed_paths: list[tuple[Path, Path]] = pickle.load(file)
     return orig_paths_2_processed_paths
 
 
@@ -55,11 +55,11 @@ def fast_xml_upload(
             paths_dict[orig_path_str] = processed_path_str
 
     for tag in xml_tree.iter():
-        if tag.text in paths_dict.keys():
+        if tag.text in paths_dict:
             tag.text = paths_dict[str(tag.text)]
 
-    print("Start with fast XML upload...")
     start_time = datetime.now()
+    print(f"{start_time}: Start with fast XML upload...")
 
     xml_upload(
         input_file=xml_tree,
@@ -74,5 +74,6 @@ def fast_xml_upload(
         preprocessing_done=True
     )
 
-    print(f"Total time of fast xml upload: {datetime.now() - start_time}")
+    end_time = datetime.now()
+    print(f"Total time of fast xml upload: {end_time - start_time}")
     return True

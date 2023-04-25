@@ -61,18 +61,18 @@ def _check_upload_candidates(
         True if all checks passed, False otherwise
     """
     if not uuid_name_of_processed_file.is_file():
-        print(f"ERROR: The input file was not found {uuid_name_of_processed_file}")
+        print(f"{datetime.now()}: ERROR: The input file was not found {uuid_name_of_processed_file}")
         logger.error(f"The input file was not found {uuid_name_of_processed_file}")
         return False
 
     if not all(Path(c).is_file() for c in upload_candidates):
-        print(f"ERROR: Not all upload candidates were found for file {uuid_name_of_processed_file}")
+        print(f"{datetime.now()}: ERROR: Not all upload candidates were found for file {uuid_name_of_processed_file}")
         logger.error(f"Not all upload candidates were found for file {uuid_name_of_processed_file}")
         return False
 
     min_num_of_candidates = 5 if uuid_name_of_processed_file.suffix == ".mp4" else 3
     if len(upload_candidates) < min_num_of_candidates:
-        print(f"ERROR: Found the following files for {uuid_name_of_processed_file}, but more were expected: {upload_candidates}. Skipping...")
+        print(f"{datetime.now()}: ERROR: Found the following files for {uuid_name_of_processed_file}, but more were expected: {upload_candidates}. Skipping...")
         logger.error(f"Found the following files for {uuid_name_of_processed_file}, but more were expected: {upload_candidates}. Skipping...")
         return False
 
@@ -104,15 +104,15 @@ def _upload_without_processing(
                 timeout=5
             )
     except OSError:
-        print(f"ERROR: An error occurred while uploading the file {file}")
-        logger.error(f"An error occurred while uploading the file {file}", exc_info=True)
+        print(f"{datetime.now()}: ERROR: An exception was raised while calling the /upload_without_processing route for the file {file}")
+        logger.error(f"An exception was raised while calling the /upload_without_processing route for the file {file}", exc_info=True)
         return False
     
     if response_upload.json().get("message") == "server.fs.mkdir() failed: File exists":
         pass
         # This error can be safely ignored, since the file was uploaded correctly.
     elif response_upload.status_code != 200:
-        print(f"ERROR: An error occurred while uploading the file {file}. The response was {response_upload.json()}")
+        print(f"{datetime.now()}: ERROR: An error occurred while uploading the file {file}. The response was {response_upload.json()}")
         logger.error(f"An error occurred while uploading the file {file}. The response was {response_upload.json()}")
         return False
     else:
@@ -265,11 +265,11 @@ def _check_if_all_files_were_uploaded(
     """
     if len(result) == len(uuid_names_of_processed_files):
         success = True
-        print(f"Number of files of which the derivates were uploaded: {len(result)}: Okay")
+        print(f"{datetime.now()}: Number of files of which the derivates were uploaded: {len(result)}: Okay")
         logger.info(f"Number of files of which the derivates were uploaded: {len(result)}: Okay")
     else:
         success = False
-        print(f"ERROR: Some derivates of some files could not be uploaded: Only {len(result)}/{len(uuid_names_of_processed_files)} were uploaded. The failed ones are:")
+        print(f"{datetime.now()}: ERROR: Some derivates of some files could not be uploaded: Only {len(result)}/{len(uuid_names_of_processed_files)} were uploaded. The failed ones are:")
         logger.error(f"Some derivates of some files could not be uploaded: Only {len(result)}/{len(uuid_names_of_processed_files)} were uploaded. The failed ones are:")
     
     for path, res in result:

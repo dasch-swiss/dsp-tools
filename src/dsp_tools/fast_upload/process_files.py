@@ -3,6 +3,7 @@
 import hashlib
 import importlib.resources
 import json
+import logging
 import os
 import pickle
 import shutil
@@ -19,6 +20,7 @@ from lxml import etree
 
 from dsp_tools.models.exceptions import BaseError
 
+logger = logging.getLogger(__name__)
 sipi_container: Optional[Model] = None
 
 def process_files(
@@ -61,9 +63,11 @@ def process_files(
     sipi_container = _get_sipi_container()
     all_paths = _get_file_paths_from_xml(xml_file_path)
     print(f"{datetime.now()}: Found {len(all_paths)} bitstreams in the XML file.")
+    logger.info(f"Found {len(all_paths)} bitstreams in the XML file.")
 
     start_time = datetime.now()
     print(f"{start_time}: Start local file processing...")
+    logger.info("Start local file processing...")
 
     result = _process_files_in_parallel(
         paths=all_paths, 
@@ -145,7 +149,9 @@ def _write_result_to_pkl_file(result: list[tuple[Path, Path]]) -> bool:
             pickle.dump(result, pkl_file)
         print(f"{datetime.now()}: The result was written to: {filename}")
         return True
-    except:
+    except OSError:
+        print(f"{datetime.now()}: An error occurred while writing the result to the pickle file.")
+        logger.error("An error occurred while writing the result to the pickle file.", exc_info=True)
         return False
 
 
@@ -218,21 +224,38 @@ def _start_sipi_container_and_mount_volumes(
         output_dir: the output directory where the processed files should be written to, is mounted into the container
     """
     container_name = "sipi"
-    volumes = [f"{input_dir.absolute()}:/sipi/processing-input",
-               f"{output_dir.absolute()}:/sipi/processing-output"]
+    volumes = [
+        f"{input_dir.absolute()}:/sipi/processing-input",
+        f"{output_dir.absolute()}:/sipi/processing-output"
+    ]
     entrypoint = ["tail", "-f", "/dev/null"]
     docker_client = docker.from_env()
 
+    # Docker container doesn't exist yet
     try:
         container = docker_client.containers.get(container_name)
-        if not container.attrs["State"]["Running"]:
-            container.restart()
-            print(f"{datetime.now()}: Started existing Sipi container '{container_name}'.")
-        else:
-            print(f"{datetime.now()}: Found running Sipi container '{container_name}'.")
     except docker.errors.NotFound:
         docker_client.containers.run(image="daschswiss/sipi:3.8.1", name=container_name, volumes=volumes, entrypoint=entrypoint, detach=True)
         print(f"{datetime.now()}: Created and started Sipi container '{container_name}'.")
+        logger.info(f"Created and started Sipi container '{container_name}'.")
+        return
+    
+    # Docker container exists
+    if not container:
+        container_running = False
+    elif not container.attrs:
+        container_running = False
+    elif not container.attrs.get("State", {}).get("Running"):
+        container_running = False
+    else:
+        container_running = True
+    if container_running:
+        print(f"{datetime.now()}: Found running Sipi container '{container_name}'.")
+        logger.info(f"Found running Sipi container '{container_name}'.")
+    else:
+        container.restart()
+        print(f"{datetime.now()}: Restarted existing Sipi container '{container_name}'.")
+        logger.info(f"Restarted existing Sipi container '{container_name}'.")
 
 
 def _get_sipi_container() -> Union[Model, Any, None]:
@@ -246,7 +269,8 @@ def _get_sipi_container() -> Union[Model, Any, None]:
     try:
         return docker_client.containers.get("sipi")
     except docker.errors.NotFound:
-        print("Couldn't find a running Sipi container.")
+        print("ERROR: Couldn't find a running Sipi container.")
+        logger.error("Couldn't find a running Sipi container.", exc_info=True)
         return None
 
 
@@ -261,7 +285,8 @@ def _compute_sha256(file: Path) -> Optional[str]:
         the calculated checksum
     """
     if not file.is_file():
-        print(f"Couldn't calculate checksum for {file}")
+        print(f"ERROR: Couldn't calculate checksum for {file}")
+        logger.error(f"Couldn't calculate checksum for {file}")
         return None
     hash_sha256 = hashlib.sha256()
     with open(file, "rb") as f:
@@ -285,11 +310,14 @@ def _convert_file_with_sipi(
     out_file_sipi_path = Path("processing-output") / os.path.basename(out_file_local_path)
 
     if not sipi_container:
+        print(f"ERROR: Cannot convert file {in_file} with Sipi: Sipi container not found.")
+        logger.error(f"Cannot convert file {in_file} with Sipi: Sipi container not found.")
         return False
     # result = sipi_container.exec_run(f"/sipi/sipi --topleft {in_file_sipi_path} {out_file_sipi_path}")
     result = sipi_container.exec_run(f"/sipi/sipi {in_file_sipi_path} {out_file_sipi_path}")
     if result.exit_code != 0:
-        print("Sipi image conversion failed:", result)
+        print(f"ERROR: Sipi conversion of {in_file} failed: {result}")
+        logger.error(f"Sipi conversion of {in_file} failed: {result}")
         return False
     return True
 
@@ -312,8 +340,11 @@ def _create_orig_file(
     orig_file_full_path = PurePath(out_dir, orig_file_basename)
     try:
         shutil.copyfile(in_file, orig_file_full_path)
+        logger.info(f"Created .orig file {orig_file_full_path}")
         return True
     except:
+        print(f"ERROR: Couldn't create .orig file {orig_file_full_path}")
+        logger.error(f"Couldn't create .orig file {orig_file_full_path}", exc_info=True)
         return False
 
 
@@ -339,11 +370,19 @@ def _get_video_metadata_with_ffprobe(file_path: Path) -> Optional[dict[str, Any]
         str(file_path)
     ]
     try:
-        result = subprocess.run(command_array, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        result = subprocess.run(command_array, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, check=False)
     except:
+        print(f"ERROR: Exception occurred while running ffprobe for {file_path}")
+        logger.error(f"Exception occurred while running ffprobe for {file_path}", exc_info=True)
         return None
-    video_metadata: dict[str, Any] = json.loads(result.stdout)['streams'][0]  # get first stream
-    return video_metadata
+    if result.returncode == 0:
+        logger.info(f"Successfully ran ffprobe for {file_path}")
+        video_metadata: dict[str, Any] = json.loads(result.stdout)['streams'][0]  # get first stream
+        return video_metadata
+    else:
+        print(f"ERROR: Couldn't run ffprobe for {file_path}")
+        logger.error(f"Couldn't run ffprobe for {file_path}")
+        return None
 
 
 def _create_sidecar_file(
@@ -365,7 +404,8 @@ def _create_sidecar_file(
         true if successful, false otherwise
     """
     if file_category not in ("IMAGE", "VIDEO", "OTHER"):
-        print(f"Unexpected file category {file_category}")
+        print(f"ERROR: Unexpected file category {file_category}")
+        logger.error(f"Unexpected file category {file_category}")
         return False
 
     checksum_original = _compute_sha256(orig_file)
@@ -408,13 +448,14 @@ def _create_sidecar_file(
     with open(sidecar_file, "w") as f:
         sidecar_json = json.dumps(sidecar_dict, indent=4)
         f.write(sidecar_json)
-
+    
+    logger.info(f"Created sidecar file {sidecar_file}")
     return True
 
 
-def _get_file_category_from_mimetype(file: Path) -> Optional[str]:
+def _get_file_category_from_extension(file: Path) -> Optional[str]:
     """
-    Gets the file category of a file according to its mimetype.
+    Gets the file category of a file according to its extension.
 
     Args:
         file: file which the category should be got from
@@ -474,6 +515,8 @@ def _ensure_path_exists(path: Path) -> bool:
         path.mkdir(parents=True, exist_ok=True)
         return True
     except:
+        print(f"ERROR: Couldn't create directory {path}")
+        logger.error(f"Couldn't create directory {path}", exc_info=True)
         return False
 
 
@@ -501,6 +544,7 @@ def _process_file(
     # ensure that input file exists
     if not in_file.is_file():
         print(f"{datetime.now()}: '{in_file}' does not exist. Skipping...")
+        logger.info(f"'{in_file}' does not exist. Skipping...")
         return in_file, in_file
 
     # get random UUID for internal file handling
@@ -513,12 +557,14 @@ def _process_file(
         out_dir=out_dir
     ):
         print(f"Couldn't create .orig file for {in_file}")
+        logger.info(f"Couldn't create .orig file for {in_file}")
         return in_file, in_file
 
     # convert file (create derivative) and create sidecar file based on category (image, video or other)
-    file_category = _get_file_category_from_mimetype(in_file)
+    file_category = _get_file_category_from_extension(in_file)
     if not file_category:
-        print(f"Couldn't get category for {in_file}")
+        print(f"ERROR: Couldn't get category for {in_file}")
+        logger.error(f"Couldn't get category for {in_file}")
         return in_file, in_file
 
     if file_category == "OTHER":
@@ -591,7 +637,8 @@ def _process_other_file(
     try:
         shutil.copyfile(in_file, converted_file_full_path)
     except:
-        print(f"Couldn't process file of category OTHER: {in_file}")
+        print(f"ERROR: Couldn't process file of category OTHER: {in_file}")
+        logger.error(f"Couldn't process file of category OTHER: {in_file}", exc_info=True)
         return in_file, in_file
     if not _create_sidecar_file(
         orig_file=in_file, 
@@ -599,7 +646,8 @@ def _process_other_file(
         out_dir=out_dir, 
         file_category="OTHER"
     ):
-        print(f"Couldn't create sidecar file for: {in_file}")
+        print(f"ERROR: Couldn't create sidecar file for: {in_file}")
+        logger.error(f"Couldn't create sidecar file for: {in_file}")
         return in_file, in_file
     return in_file, converted_file_full_path
 
@@ -632,7 +680,8 @@ def _process_image_file(
         out_file_local_path=converted_file_full_path
     )
     if not sipi_result:
-        print(f"Couldn't process file of category IMAGE: {in_file}")
+        print(f"ERROR: Couldn't process file of category IMAGE: {in_file}")
+        logger.error(f"Couldn't process file of category IMAGE: {in_file}")
         return in_file, in_file
     if not _create_sidecar_file(
         orig_file=in_file, 
@@ -640,7 +689,8 @@ def _process_image_file(
         out_dir=out_dir, 
         file_category="IMAGE"
     ):
-        print(f"Couldn't create sidecar file for: {in_file}")
+        print(f"ERROR: Couldn't create sidecar file for: {in_file}")
+        logger.error(f"Couldn't create sidecar file for: {in_file}")
         return in_file, in_file
     return in_file, converted_file_full_path
 
@@ -669,11 +719,13 @@ def _process_video_file(
     try:
         shutil.copyfile(in_file, converted_file_full_path)
     except:
-        print(f"Couldn't process file of category VIDEO: {in_file}")
+        print(f"ERROR: Couldn't process file of category VIDEO: {in_file}")
+        logger.error(f"Couldn't process file of category VIDEO: {in_file}", exc_info=True)
         return in_file, in_file
     key_frames_result = _extract_key_frames(converted_file_full_path)
     if not key_frames_result:
-        print(f"Couldn't process file of category VIDEO: {in_file}")
+        print(f"ERROR: Couldn't process file of category VIDEO: {in_file}")
+        logger.error(f"Couldn't process file of category VIDEO: {in_file}")
         return in_file, in_file
     if not _create_sidecar_file(
         orig_file=in_file, 
@@ -681,6 +733,7 @@ def _process_video_file(
         out_dir=out_dir, 
         file_category="VIDEO"
     ):
-        print(f"Couldn't create sidecar file for: {in_file}")
+        print(f"ERROR: Couldn't create sidecar file for: {in_file}")
+        logger.error(f"Couldn't create sidecar file for: {in_file}")
         return in_file, in_file
     return in_file, converted_file_full_path

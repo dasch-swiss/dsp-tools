@@ -45,7 +45,7 @@ def process_files(
     Returns:
         success status
     """
-    # parse the input parameters
+    # check the input parameters
     param_check_result = _check_params(
         input_dir=input_dir, 
         out_dir=out_dir, 
@@ -92,37 +92,49 @@ def process_files(
     # check if all files were processed
     end_time = datetime.now()
     print(f"{end_time}: Processing files took: {end_time - start_time}")
-    _check_if_all_files_were_processed(
+    logger.info(f"{end_time}: Processing files took: {end_time - start_time}")
+    success = _check_if_all_files_were_processed(
         result=result,
         all_paths=all_paths
     )
 
     if not _write_result_to_pkl_file(result):
+        success = False
         print(f"An error occurred while writing the result to the pickle file. The result was: {result}")
+        logger.error(f"An error occurred while writing the result to the pickle file. The result was: {result}")
 
-    return True
+    return success
 
 
 def _check_if_all_files_were_processed(
     result: list[tuple[Path, Path]],
     all_paths: list[Path]
-) -> None:
+) -> bool:
     """
     Go through the result list and print all files that could not be processed.
 
     Args:
         result: list of tuples of Paths. If the first Path is equal to the second Path, the file could not be processed.
+        all_paths: list of all paths that should have been processed
+    
+    Returns:
+        success status
     """
     if len(result) == len(all_paths):
+        success = True
         print(f"Number of processed files: {len(result)}: Okay")
         logger.info(f"Number of processed files: {len(result)}: Okay")
     else:
+        success = False
         print(f"ERROR: Some files could not be processed: Only {len(result)}/{len(all_paths)} were processed. The failed ones are:")
         logger.error(f"Some files could not be processed: Only {len(result)}/{len(all_paths)} were processed. The failed ones are:")
+    
     for input_file, output_file in result:
         if input_file == output_file:
             print(f" - {input_file} could not be processed.")
             logger.error(f" - {input_file} could not be processed.")
+
+    return success
 
 
 def _process_files_in_parallel(

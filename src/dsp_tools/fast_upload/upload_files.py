@@ -249,17 +249,35 @@ def _upload_files_in_parallel(
     return result
 
 
-def _print_files_with_errors(result: list[tuple[Path, bool]]) -> None:
+def _check_if_all_files_were_uploaded(
+    result: list[tuple[Path, bool]],
+    uuid_names_of_processed_files: list[Path]
+) -> bool:
     """
     Print the files which could not be uploaded.
 
     Args:
         result: list of tuples with the path of the file and the success status
+        uuid_names_of_processed_files: list of files that should have been uploaded
+    
+    Returns:
+        True if all files were uploaded, False otherwise
     """
+    if len(result) == len(uuid_names_of_processed_files):
+        success = True
+        print(f"Number of files of which the derivates were uploaded: {len(result)}: Okay")
+        logger.info(f"Number of files of which the derivates were uploaded: {len(result)}: Okay")
+    else:
+        success = False
+        print(f"ERROR: Some derivates of some files could not be uploaded: Only {len(result)}/{len(uuid_names_of_processed_files)} were uploaded. The failed ones are:")
+        logger.error(f"Some derivates of some files could not be uploaded: Only {len(result)}/{len(uuid_names_of_processed_files)} were uploaded. The failed ones are:")
+    
     for path, res in result:
         if not res:
-            print(f"The following file could not be uploaded: {path}")
-            logger.error(f"The following file could not be uploaded: {path}")
+            print(f" - {path} could not be uploaded.")
+            logger.error(f"{path} could not be uploaded.")
+    
+    return success
 
 
 def upload_files(
@@ -286,7 +304,7 @@ def upload_files(
     Returns:
         success status
     """
-    # check params
+    # check the input parameters
     param_check_result = _check_params(
         pkl_file=pkl_file, 
         dir_with_processed_files=dir_with_processed_files
@@ -308,6 +326,7 @@ def upload_files(
         password=password
     )
 
+    # upload files in parallel
     start_time = datetime.now()
     print(f"{start_time}: Start file uploading...")
     logger.info("Start file uploading...")
@@ -317,16 +336,14 @@ def upload_files(
         sipi_url=sipi_url, 
         con=con
     )
+
+    # check if all files were uploaded
     end_time = datetime.now()
     print(f"{datetime.now()}: Uploading files took {end_time - start_time}")
     logger.info(f"Uploading files took {end_time - start_time}")
-    if len(result) == len(uuid_names_of_processed_files):
-        print(f"{end_time}: Number of files of which the derivates were uploaded: {len(result)}: Okay")
-        logger.info(f"Number of files of which the derivates were uploaded: {len(result)}: Okay")
-    else:
-        print(f"{end_time}: !!! NUMBER OF FILES OF WHICH THE DERIVATES WERE UPLOADED: {len(result)}: NOT OKAY, SHOULD BE: {len(uuid_names_of_processed_files)} !!!")
-        logger.error(f"!!! NUMBER OF FILES OF WHICH THE DERIVATES WERE UPLOADED: {len(result)}: NOT OKAY, SHOULD BE: {len(uuid_names_of_processed_files)} !!!")
+    success = _check_if_all_files_were_uploaded(
+        result=result,
+        uuid_names_of_processed_files=uuid_names_of_processed_files
+    )
 
-    _print_files_with_errors(result)
-
-    return True
+    return success

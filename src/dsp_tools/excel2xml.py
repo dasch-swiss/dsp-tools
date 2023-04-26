@@ -533,7 +533,7 @@ def make_boolean_prop(
     # validate input
     if isinstance(value, PropertyElement):
         value_new = dataclasses.replace(value, value=_format_bool(value.value, name, calling_resource))  # type: ignore
-    elif isinstance(value, str) or isinstance(value, bool) or isinstance(value, int):
+    elif isinstance(value, (str, bool, int)):
         value_new = PropertyElement(_format_bool(value, name, calling_resource))
     else:
         raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "

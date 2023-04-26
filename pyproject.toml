@@ -97,6 +97,7 @@ known_first_party = ["dsp_tools"]
 
 [tool.pylint.main]
 ignore-paths = ["src/dsp_tools/models"]
+source-roots = ["src/dsp_tools"]
 
 
 [tool.pylint.format]
@@ -112,26 +113,30 @@ disable = [
     "suppressed-message", 
     "useless-suppression", 
     "deprecated-pragma", 
-    "use-symbolic-message-instead", 
-    "line-too-long", 
-    "too-many-lines",
-    "no-else-continue",
-    "no-else-return",
-    "no-else-raise",
-    "trailing-whitespace", 
+    "use-symbolic-message-instead",
+    "c-extension-no-member", 
+    "use-dict-literal",                    # not worth the effort
+    "use-list-literal",                    # not worth the effort
+    "missing-module-docstring",            # not worth the effort
+    "trailing-whitespace",                 # not worth the effort
+    "no-else-continue",                    # would be less readable
+    "no-else-return",                      # would be less readable
+    "no-else-raise",                       # would be less readable
     "invalid-name", 
     "too-many-arguments",
-    "too-many-locals",
-    "too-many-statements",
-    "too-many-nested-blocks",
-    "use-dict-literal",
-    "use-list-literal",
-    "missing-module-docstring",
-    "c-extension-no-member",
     "too-many-branches",
+    "too-many-lines",
+    "too-many-locals",
+    "too-many-nested-blocks",
+    "too-many-return-statements",
+    "too-many-statements",
+    "line-too-long",                       # TODO: activate this
+    "bare-except",                         # TODO: activate this
+    "broad-exception-caught",              # TODO: activate this
     "global-statement",
     "logging-fstring-interpolation",       # would be more performant, but less readable
     "import-outside-toplevel",             # necessary because of the monkey patchings in utils/excel_to_json_properties.py and utils/excel_to_json_resources.py
     "protected-access",                    # necessary because of the lxml type annnotations
-    "unnecessary-lambda",                  # necessary because of try_network_action()
+    #"unnecessary-lambda",                  # necessary because of try_network_action()
+    "consider-using-f-string",             # necessary because in excel2xml, strings with {} in it must be formatted
 ]

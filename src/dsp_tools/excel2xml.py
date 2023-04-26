@@ -14,7 +14,7 @@ from typing import Any, Iterable, Optional, Union
 import pandas as pd
 import regex
 from lxml import etree
-from lxml.builder import E
+from lxml.builder import E  # pylint: disable=no-name-in-module
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import DateTimeStamp
@@ -373,7 +373,7 @@ def append_permissions(root_element: etree._Element) -> etree._Element:
 def make_resource(
     label: str,
     restype: str,
-    id: str,
+    id: str,                                     # pylint: disable=redefined-builtin
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -1429,7 +1429,7 @@ def make_uri_prop(
 
 def make_region(
     label: str,
-    id: str,
+    id: str,                                     # pylint: disable=redefined-builtin
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -1490,7 +1490,7 @@ def make_region(
 
 def make_annotation(
     label: str,
-    id: str,
+    id: str,                                     # pylint: disable=redefined-builtin
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -1549,7 +1549,7 @@ def make_annotation(
 
 def make_link(
     label: str,
-    id: str,
+    id: str,                                     # pylint: disable=redefined-builtin
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -1663,7 +1663,7 @@ def create_json_excel_list_mapping(
             excel_values_new.extend([x.strip() for x in val.split(sep) if x])
 
     # read the list of the JSON project (works also for nested lists)
-    with open(path_to_json) as f:
+    with open(path_to_json, encoding="utf-8") as f:
         json_file = json.load(f)
     json_subset = list()
     for elem in json_file["project"]["lists"]:
@@ -1699,12 +1699,12 @@ def _nested_dict_values_iterator(dicts: list[dict[str, Any]]) -> Iterable[str]:
     It yields the values iteratively.
     """
     # Credits: https://thispointer.com/python-iterate-loop-over-all-nested-dictionary-values/
-    for dict in dicts:
-        if "nodes" in dict:
-            for value in _nested_dict_values_iterator(dict["nodes"]):
+    for _dict in dicts:
+        if "nodes" in _dict:
+            for value in _nested_dict_values_iterator(_dict["nodes"]):
                 yield value
-        if "name" in dict:
-            yield dict["name"]
+        if "name" in _dict:
+            yield _dict["name"]
 
 
 def create_json_list_mapping(
@@ -1728,7 +1728,7 @@ def create_json_list_mapping(
     Returns:
         a dictionary of the form {label: name}
     """
-    with open(path_to_json) as f:
+    with open(path_to_json, encoding="utf-8") as f:
         json_file = json.load(f)
     json_subset = list()
     for numbered_json_obj in json_file["project"]["lists"]:
@@ -1954,7 +1954,7 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
             if len(property_elements) == 0:
                 raise BaseError(f"At least one value per property is required, but Excel row {int(str(index)) + 2}"
                                 f"doesn't contain any values.")
-            if make_prop_function == make_boolean_prop and len(property_elements) != 1:
+            if make_prop_function == make_boolean_prop and len(property_elements) != 1:     # pylint: disable=comparison-with-callable
                 raise BaseError(f"A <boolean-prop> can only have a single value, but Excel row {int(str(index)) + 2} "
                                 f"contains more than one values.")
 
@@ -1963,7 +1963,7 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
                 "name": row["prop name"],
                 "calling_resource": resource_id
             }
-            if make_prop_function == make_boolean_prop:
+            if make_prop_function == make_boolean_prop:                                     # pylint: disable=comparison-with-callable
                 kwargs_propfunc["value"] = property_elements[0]
             else:
                 kwargs_propfunc["value"] = property_elements

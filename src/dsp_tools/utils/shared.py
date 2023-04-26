@@ -164,6 +164,7 @@ def _validate_xml_tags_in_text_properties(doc: etree._ElementTree[Any]) -> bool:
     # first: remove namespaces
     doc_without_namespace = copy.deepcopy(doc)
     for elem in doc_without_namespace.iter():
+        # pylint: disable-next=protected-access
         if not isinstance(elem, (etree._Comment, etree._ProcessingInstruction)):
             elem.tag = etree.QName(elem).localname
     

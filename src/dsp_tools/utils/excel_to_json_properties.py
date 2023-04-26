@@ -145,6 +145,7 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
         # Apparently, the excel2json test files have one of the unsupported formatting properties.
         # The following two lines of code help out.
         # Credits: https://stackoverflow.com/a/70537454/14414188
+        # pylint: disable-next=import-outside-toplevel
         from unittest import mock
         p = mock.patch('openpyxl.styles.fonts.Font.family.max', new=100)
         p.start()

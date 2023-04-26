@@ -46,7 +46,7 @@ def _create_project_on_server(
     try:
         # the normal, expected case is that this try block fails
         project_local = Project(con=con, shortcode=project_definition["project"]["shortcode"])
-        project_remote: Project = try_network_action(lambda: project_local.read())
+        project_remote: Project = try_network_action(project_local.read)
         print(f"\tWARNING: Project '{project_remote.shortname}' ({project_remote.shortcode}) already exists on the DSP server. Updating it...")
         logger.warning(f"Project '{project_remote.shortname}' ({project_remote.shortcode}) already exists on the DSP server. Updating it...")
         # try to update the basic info
@@ -69,7 +69,7 @@ def _create_project_on_server(
         status=True
     )
     try:
-        project_remote = try_network_action(lambda: project_local.create())
+        project_remote = try_network_action(project_local.create)
     except BaseError:
         err_msg = f"Cannot create project '{project_definition['project']['shortname']}' " \
                   f"({project_definition['project']['shortcode']}) on DSP server."
@@ -100,7 +100,7 @@ def _update_basic_info_of_project(
     project.description = project_definition["project"].get("descriptions")
     project.keywords = project_definition["project"].get("keywords")
     try:
-        project_remote: Project = try_network_action(lambda: project.update())
+        project_remote: Project = try_network_action(project.update)
         if verbose:
             print(f"\tUpdated project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}).")
         logger.info(f"Updated project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}).")

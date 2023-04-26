@@ -46,6 +46,7 @@ autopep8 = "^2.0.1"
 pytest = "^7.2.0"
 types-requests = "^2.28.11.7"
 types-lxml = "^2023.3.28"
+pylint = "^2.17.3"
 
 
 [tool.poetry.scripts]
@@ -96,7 +97,7 @@ known_first_party = ["dsp_tools"]
 
 
 [tool.pylint.main]
-ignore-paths = ["src/dsp_tools/models", "src/dsp_tools/import_scripts"]
+ignore-paths = ["src/dsp_tools/models", "src/dsp_tools/import_scripts", "test"]
 suggestion-mode = true
 
 

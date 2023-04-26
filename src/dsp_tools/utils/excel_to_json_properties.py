@@ -29,6 +29,7 @@ def _validate_properties(properties_list: list[dict[str, Any]], excelfile: str) 
     Returns:
         True if the "properties" section passed validation
     """
+    # pylint: disable-next=unspecified-encoding
     with importlib.resources.files("dsp_tools").joinpath("resources/schema/properties-only.json").open() as schema_file:
         properties_schema = json.load(schema_file)
     try:

@@ -29,6 +29,7 @@ def _validate_resources(resources_list: list[dict[str, Any]], excelfile: str) ->
     Returns:
         True if the "resources" section passed validation
     """
+    # pylint: disable-next=unspecified-encoding
     with importlib.resources.files("dsp_tools").joinpath("resources/schema/resources-only.json").open() as schema_file:
         resources_schema = json.load(schema_file)
     try:

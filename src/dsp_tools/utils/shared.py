@@ -286,14 +286,13 @@ def check_notna(value: Optional[Any]) -> bool:
         isinstance(value, bool)
     ]):
         return True
-    
-    if isinstance(value, str):
+    elif isinstance(value, str):
         return all([
             regex.search(r"[\p{L}\d_!?]", value, flags=regex.UNICODE),
             not bool(regex.search(r"^(none|<NA>|-|n/a)$", value, flags=regex.IGNORECASE))
         ])
-
-    return False
+    else:
+        return False
 
 
 def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, Any]]) -> dict[str, Any]:

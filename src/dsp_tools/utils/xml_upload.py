@@ -338,7 +338,7 @@ def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> et
 
     # remove comments and processing instructions (commented out properties break the XMLProperty constructor)
     if isinstance(input_file, (str, Path)):
-        parser=etree.XMLParser(remove_comments=True, remove_pis=True)
+        parser = etree.XMLParser(remove_comments=True, remove_pis=True)
         tree = etree.parse(source=input_file, parser=parser)
     else:
         tree = copy.deepcopy(input_file)
@@ -556,7 +556,7 @@ def xml_upload(
         if nonapplied_resptr_props or nonapplied_xml_texts:
             logger.error("Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server.")
             raise BaseError("Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server.")
-    except BaseException as err:
+    except BaseException as err:      # pylint: disable=broad-exception-caught
         # The forseeable errors are already handled by the variables failed_uploads, nonapplied_xml_texts, and nonapplied_resptr_props.
         # Here we catch the unforseeable exceptions, hence BaseException (=the base class of all exceptions)
         _handle_upload_error(

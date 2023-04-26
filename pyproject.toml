@@ -134,6 +134,5 @@ disable = [
     "too-many-statements",                 # TODO: activate this
     "line-too-long",                       # TODO: activate this
     "bare-except",                         # TODO: activate this
-    "broad-exception-caught",              # TODO: activate this
     "consider-using-f-string",             # necessary because in excel2xml, strings with {} in it must be formatted
 ]

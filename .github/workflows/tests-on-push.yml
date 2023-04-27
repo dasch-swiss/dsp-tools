@@ -42,6 +42,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FILTER_REGEX_EXCLUDE: CHANGELOG\.md
           LINTER_RULES_PATH: /
+          PYTHONPATH: $(poetry env info --path)/lib/python3.9/site-packages:$PYTHONPATH
 
           VALIDATE_BASH: true
           VALIDATE_DOCKERFILE_HADOLINT: true        # https://github.com/hadolint/hadolint

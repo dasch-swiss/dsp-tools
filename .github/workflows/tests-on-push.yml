@@ -36,7 +36,6 @@ jobs:
           poetry exec check-links
       - name: Lint Code Base
         uses: github/super-linter/slim@v4       # GitHub's super-linter: https://github.com/github/super-linter
-        run: source $(poetry env info --path)/bin/activate
         env:
           VALIDATE_ALL_CODEBASE: true           # whether to check the entire codebase or only the edited/new files
           DEFAULT_BRANCH: main

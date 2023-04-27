@@ -103,6 +103,7 @@ ignore-paths = [
     "test"                                 # TODO: activate this
 ]
 suggestion-mode = true
+init-hook = "source $(poetry env info --path)/bin/python3"
 
 
 [tool.pylint.format]

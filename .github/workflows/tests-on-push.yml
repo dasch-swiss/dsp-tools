@@ -26,10 +26,11 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
           poetry self add poetry-exec-plugin
           poetry install
+          poetry shell
       
       # perform actual tests
       - name: build docs
-        run: poetry run mkdocs build --strict
+        run: mkdocs build --strict
       - name: check external links in docs
         run: |
           npm install -g markdown-link-validator
@@ -62,8 +63,8 @@ jobs:
           # VALIDATE_JSCPD_ALL_CODEBASE: true       # lint the whole codebase. If false: lint files one by one
           # VALIDATE_NATURAL_LANGUAGE: true         # https://textlint.github.io/
       - name: unittests
-        run: poetry run pytest test/unittests/
+        run: pytest test/unittests/
       - name: e2e tests
         run: |
-          poetry run dsp-tools start-stack --no-prune
-          poetry run pytest test/e2e/
+          dsp-tools start-stack --no-prune
+          pytest test/e2e/

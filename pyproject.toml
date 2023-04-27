@@ -98,9 +98,9 @@ known_first_party = ["dsp_tools"]
 
 [tool.pylint.main]
 ignore-paths = [
-    "src/dsp_tools/models",                # TODO: activate this
-    "src/dsp_tools/import_scripts",        # TODO: activate this
-    "test"                                 # TODO: activate this
+    "^src/dsp_tools/models/.*$",           # TODO: activate this
+    "^src/dsp_tools/import_scripts/.*$",   # TODO: activate this
+    "^test/.*$"                            # TODO: activate this
 ]
 suggestion-mode = true
 

@@ -46,9 +46,9 @@ jobs:
         uses: github/super-linter/slim@v4           
         # GitHub's super-linter: https://github.com/github/super-linter
         # super-linter uses a pre-built image with all linters in it. Thus, the linters run outside the poetry virtualenv. 
-        # So, pylint reports import-errors for dependencies installed with poetry, 
-        # and it doesn't ignore the ignore-paths of pyproject.toml, [tool.pylint.MASTER].
-        # For these reasons, pylint must be run separately from super-linter.
+        # So, pylint reports import-errors for dependencies installed with poetry.
+        # In addition, pylint and mypy don't recognize the ignore patterns defined in pyproject.toml.
+        # For these reasons, pylint and mypy must be run independently from super-linter.
         env:
           VALIDATE_ALL_CODEBASE: true               # check all files or only edited ones. if false, actions/checkout needs fetch-depth 0
           DEFAULT_BRANCH: main                      # name of the repository default branch; default: master
@@ -67,8 +67,6 @@ jobs:
           VALIDATE_PYTHON_ISORT: true               # https://pypi.org/project/isort/
           PYTHON_ISORT_CONFIG_FILE: pyproject.toml
           VALIDATE_GITLEAKS: true                   # https://github.com/gitleaks/gitleaks
-          VALIDATE_PYTHON_MYPY: true                # https://mypy.readthedocs.io/
-          PYTHON_MYPY_CONFIG_FILE: pyproject.toml
           # VALIDATE_EDITORCONFIG: true             # https://github.com/editorconfig-checker/editorconfig-checker
           # VALIDATE_JSCPD: true                    # https://github.com/kucherenko/jscpd
           # VALIDATE_JSCPD_ALL_CODEBASE: true       # lint the whole codebase. If false: lint files one by one

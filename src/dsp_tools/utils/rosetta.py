@@ -43,7 +43,12 @@ def _clone_repo(rosetta_folder: Path, enclosing_folder: Path) -> None:
         UserError: If rosetta cannot be cloned
     """
     print(f"Clone into {rosetta_folder}...")
-    completed_process = subprocess.run("git clone https://github.com/dasch-swiss/082E-rosetta-scripts.git", shell=True, cwd=enclosing_folder, check=False)
+    completed_process = subprocess.run(
+        "git clone https://github.com/dasch-swiss/082E-rosetta-scripts.git", 
+        shell=True, 
+        cwd=enclosing_folder, 
+        check=False
+    )
     if not completed_process or completed_process.returncode != 0:
         raise UserError("There was a problem while cloning the rosetta test project")
 

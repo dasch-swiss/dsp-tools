@@ -96,18 +96,25 @@ def _update_basic_info_of_project(
     Returns:
         tuple of (updated project, success status)
     """
+    # store in variables for convenience
+    shortcode = project_definition['project']['shortcode']
+    shortname = project_definition['project']['shortname']
+
+    # update the local "project" object
     project.longname = project_definition["project"]["longname"]
     project.description = project_definition["project"].get("descriptions")
     project.keywords = project_definition["project"].get("keywords")
+
+    # make the call to DSP-API
     try:
         project_remote: Project = try_network_action(project.update)
         if verbose:
-            print(f"\tUpdated project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}).")
-        logger.info(f"Updated project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}).")
+            print(f"\tUpdated project '{shortname}' ({shortcode}).")
+        logger.info(f"Updated project '{shortname}' ({shortcode}).")
         return project_remote, True
     except BaseError:
-        print(f"WARNING: Could not update project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}).")
-        logger.warning(f"Could not update project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}).", exc_info=True)
+        print(f"WARNING: Could not update project '{shortname}' ({shortcode}).")
+        logger.warning(f"Could not update project '{shortname}' ({shortcode}).", exc_info=True)
         return project, False
 
 
@@ -125,8 +132,9 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
         project: Project the group(s) should be added to (must exist on DSP server)
 
     Returns:
-        dict of the form ``{group name: group object}`` with the groups that have successfully been created (or already exist). Empty dict if no group was created.
-        True if everything went smoothly, False if a warning or error occurred
+        A tuple consisting of a dict and the success status. 
+        The dict has the form ``{group name: group object}`` for all groups that have successfully been created (or already exist). 
+        The dict is empty if no group was created.
     """
     overall_success = True
     current_project_groups: dict[str, Group] = {}
@@ -329,7 +337,7 @@ def _create_users(
     Args:
         con: connection instance to connect to the DSP server
         users_section: "users" section of a parsed JSON project file
-        current_project_groups: groups defined in the current project (dict of the form {group name - group object}). These groups must exist on the DSP server.
+        current_project_groups: groups defined in the current project, {group name: group object} (must exist on DSP server)
         current_project: "project" object of the current project (must exist on DSP server)
         verbose: Prints more information if set to True
 
@@ -866,7 +874,11 @@ def create_project(
     list_root_nodes: dict[str, Any] = {}
     if project_definition["project"].get("lists"):
         print("Create lists...")
-        list_root_nodes, success = create_lists_on_server(lists_to_create=project_definition["project"]["lists"], con=con, project_remote=project_remote)
+        list_root_nodes, success = create_lists_on_server(
+            lists_to_create=project_definition["project"]["lists"], 
+            con=con, 
+            project_remote=project_remote
+        )
         if not success:
             overall_success = False
 

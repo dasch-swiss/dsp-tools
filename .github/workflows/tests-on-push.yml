@@ -39,6 +39,9 @@ jobs:
       - name: run Pylint
         run: poetry run pylint src
 
+      - name: run mypy
+        run: poetry run mypy .
+
       - name: Lint Code Base
         uses: github/super-linter/slim@v4           
         # GitHub's super-linter: https://github.com/github/super-linter
@@ -64,7 +67,8 @@ jobs:
           VALIDATE_PYTHON_ISORT: true               # https://pypi.org/project/isort/
           PYTHON_ISORT_CONFIG_FILE: pyproject.toml
           VALIDATE_GITLEAKS: true                   # https://github.com/gitleaks/gitleaks
-          # VALIDATE_PYTHON_MYPY: true              # https://mypy.readthedocs.io/
+          VALIDATE_PYTHON_MYPY: true                # https://mypy.readthedocs.io/
+          PYTHON_MYPY_CONFIG_FILE: pyproject.toml
           # VALIDATE_EDITORCONFIG: true             # https://github.com/editorconfig-checker/editorconfig-checker
           # VALIDATE_JSCPD: true                    # https://github.com/kucherenko/jscpd
           # VALIDATE_JSCPD_ALL_CODEBASE: true       # lint the whole codebase. If false: lint files one by one

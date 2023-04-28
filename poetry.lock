@@ -1346,6 +1346,18 @@ files = [
 ]
 
 [[package]]
+name = "types-jsonschema"
+version = "4.17.0.7"
+description = "Typing stubs for jsonschema"
+category = "dev"
+optional = false
+python-versions = "*"
+files = [
+    {file = "types-jsonschema-4.17.0.7.tar.gz", hash = "sha256:130e57c5f1ca755f95775d0822ad7a3907294e1461306af54baf804f317fd54c"},
+    {file = "types_jsonschema-4.17.0.7-py3-none-any.whl", hash = "sha256:e129b52be6df841d97a98f087631dd558f7812eb91ff7b733c3301bd2446271b"},
+]
+
+[[package]]
 name = "types-lxml"
 version = "2023.3.28"
 description = "Complete lxml external type annotation"
@@ -1362,6 +1374,30 @@ types-beautifulsoup4 = "*"
 
 [package.extras]
 dev = ["black", "isort", "lxml (>=4.9,<5.0)", "mypy (>=1.1.0,<1.2.0)", "pyright (>=1.1.288)", "pytest-mypy-plugins (>1.10.0,<2.0)"]
+
+[[package]]
+name = "types-openpyxl"
+version = "3.1.0.4"
+description = "Typing stubs for openpyxl"
+category = "dev"
+optional = false
+python-versions = "*"
+files = [
+    {file = "types-openpyxl-3.1.0.4.tar.gz", hash = "sha256:2c0c0ee1380208e458b3a6567bbd1c1796809b9ccec230845d4918f25e0cfd24"},
+    {file = "types_openpyxl-3.1.0.4-py3-none-any.whl", hash = "sha256:9a42dea6a8c44f426e46f4a5c3537eed72f897db3638bbd0ff1a0418e3065913"},
+]
+
+[[package]]
+name = "types-regex"
+version = "2023.3.23.1"
+description = "Typing stubs for regex"
+category = "dev"
+optional = false
+python-versions = "*"
+files = [
+    {file = "types-regex-2023.3.23.1.tar.gz", hash = "sha256:9752f34d91c44109aee608aa27abe09d6a1e512d2a70a5492ddaedee10e559f3"},
+    {file = "types_regex-2023.3.23.1-py3-none-any.whl", hash = "sha256:3beef7ce8f1b39591dd825bbd482ebe79ed11cfd1a62f1b9ad7c76d60491b5a8"},
+]
 
 [[package]]
 name = "types-requests"
@@ -1580,4 +1616,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12"
-content-hash = "0170a2eb932c7dcf73428ce693a0a9038f89e46f575788274fb51705d7acbc62"
+content-hash = "c0d059770c2ae67505fc8b1da536aa4b4455f15072d06d83972197957f2ae9a2"

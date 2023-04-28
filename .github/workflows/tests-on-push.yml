@@ -2,47 +2,51 @@
 
 name: Tests on Push
 
+
 on:
   push:
     branches-ignore:
       - main
 
+
 jobs:
   tests-on-push:
     runs-on: ubuntu-latest
     steps:
-    # preparation
+
       - name: Checkout source
         uses: actions/checkout@v3
-        with:
-          # Full git history is needed to get a proper list of changed files within `super-linter`
-          fetch-depth: 0
+
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
+
       - name: Install dependencies
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           poetry self add poetry-exec-plugin
           poetry install
       
-      # perform actual tests
       - name: build docs
         run: poetry run mkdocs build --strict
+
       - name: check external links in docs
         run: |
           npm install -g markdown-link-validator
           poetry exec check-links
+
       - name: Lint Code Base
-        uses: github/super-linter/slim@v4       # GitHub's super-linter: https://github.com/github/super-linter
+        uses: github/super-linter/slim@v4           # GitHub's super-linter: https://github.com/github/super-linter
+        # super-linter uses a pre-built image with all linters in it. Thus, the linters run outside the poetry virtualenv. 
+        # So, pylint reports import-errors for dependencies installed with poetry. Thus, import-errors must be muted 
+        # in pyproject.toml, [tool.pylint."messages control"]
         env:
-          VALIDATE_ALL_CODEBASE: true           # whether to check the entire codebase or only the edited/new files
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FILTER_REGEX_EXCLUDE: CHANGELOG\.md
-          LINTER_RULES_PATH: /
-          PYTHONPATH: $(poetry env info --path)/lib/python3.9/site-packages:$PYTHONPATH
+          VALIDATE_ALL_CODEBASE: true               # check all files or only edited/new ones. if false, actions/checkout needs fetch-depth 0
+          DEFAULT_BRANCH: main                      # name of the repository default branch; default: master
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # super-linter marks the status of each linter run in the Checks section of a PR
+          FILTER_REGEX_EXCLUDE: CHANGELOG\.md       # CHANGELOG.md fails the markdownlint validation
+          LINTER_RULES_PATH: /                      # directory for all linter configuration rules; default: .github/linters
 
           VALIDATE_BASH: true
           VALIDATE_DOCKERFILE_HADOLINT: true        # https://github.com/hadolint/hadolint
@@ -57,13 +61,15 @@ jobs:
           VALIDATE_PYTHON_ISORT: true               # https://pypi.org/project/isort/
           PYTHON_ISORT_CONFIG_FILE: pyproject.toml
           VALIDATE_GITLEAKS: true                   # https://github.com/gitleaks/gitleaks
-          # VALIDATE_PYTHON_MYPY: true
+          # VALIDATE_PYTHON_MYPY: true              # https://mypy.readthedocs.io/
           # VALIDATE_EDITORCONFIG: true             # https://github.com/editorconfig-checker/editorconfig-checker
           # VALIDATE_JSCPD: true                    # https://github.com/kucherenko/jscpd
           # VALIDATE_JSCPD_ALL_CODEBASE: true       # lint the whole codebase. If false: lint files one by one
           # VALIDATE_NATURAL_LANGUAGE: true         # https://textlint.github.io/
+
       - name: unittests
         run: poetry run pytest test/unittests/
+
       - name: e2e tests
         run: |
           poetry run dsp-tools start-stack --no-prune

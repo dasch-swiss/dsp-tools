@@ -1,9 +1,15 @@
+---
+
 site_name: DSP-TOOLS
 site_url: https://docs.dasch.swiss/latest/DSP-TOOLS
 repo_url: https://github.com/dasch-swiss/dsp-tools
 repo_name: dasch-swiss/dsp-tools
 edit_uri: blob/main/docs/
-copyright: "&copy; 2017 - <script>document.write(new Date().getFullYear())</script> <a href='https://dasch.swiss' target='_blank'>Swiss National Data and Service Center for the Humanities (DaSCH)</a>"
+copyright: >- 
+  &copy; 2017 - <script>document.write(new Date().getFullYear())</script> 
+  <a href='https://dasch.swiss' target='_blank'>
+  Swiss National Data and Service Center for the Humanities (DaSCH)
+  </a>
 
 nav:
   - Overview: index.md
@@ -20,13 +26,13 @@ nav:
   - excel2xml module: excel2xml-module.md
   - Running DSP locally: start-stack.md
   - Information for developers:
-        - Developers documentation: developers/index.md
-        - Dependencies, packaging & distribution: developers/packaging.md
-        - Git submodules: developers/git-submodules.md
-        - Maintaining the start-stack command: developers/start-stack-command.md
-        - User data: developers/user-data.md
-        - GitHub actions: developers/github-actions.md
-        - MkDocs and markdown-link-validator: developers/mkdocs.md
+      - Developers documentation: developers/index.md
+      - Dependencies, packaging & distribution: developers/packaging.md
+      - Git submodules: developers/git-submodules.md
+      - Maintaining the start-stack command: developers/start-stack-command.md
+      - User data: developers/user-data.md
+      - GitHub actions: developers/github-actions.md
+      - MkDocs and markdown-link-validator: developers/mkdocs.md
   - Changelog: changelog.md
 
 theme:

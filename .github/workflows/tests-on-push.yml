@@ -45,7 +45,7 @@ jobs:
         # So, pylint reports import-errors for dependencies installed with poetry. Thus, import-errors must be muted 
         # in pyproject.toml, [tool.pylint."messages control"]
         env:
-          VALIDATE_ALL_CODEBASE: true               # check all files or only edited/new ones. if false, actions/checkout needs fetch-depth 0
+          VALIDATE_ALL_CODEBASE: true               # check all files or only edited ones. if false, actions/checkout needs fetch-depth 0
           DEFAULT_BRANCH: main                      # name of the repository default branch; default: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # super-linter marks the status of each linter run in the Checks section of a PR
           FILTER_REGEX_EXCLUDE: CHANGELOG\.md       # CHANGELOG.md fails the markdownlint validation

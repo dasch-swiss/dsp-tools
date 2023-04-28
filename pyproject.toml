@@ -140,6 +140,4 @@ disable = [
     "line-too-long",                       # TODO: activate this
     "bare-except",                         # TODO: activate this
     "consider-using-f-string",             # in excel2xml, strings with {} in it must be formatted
-    # "import-error",                        # in the CI, super-linter runs outside of the poetry environment.
-                                           # See .github/workflows/tests-on-push.yml
 ]

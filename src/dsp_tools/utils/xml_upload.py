@@ -783,7 +783,7 @@ def _upload_stashed_xml_texts(
                     # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
                     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
                     orig_err_msg = err.original_error_msg_from_api or err.message
-                    err_msg = f"Unable to upload the xml text of '{link_prop.name}'' of resource '{resource.id}'."
+                    err_msg = f"Unable to upload the xml text of '{link_prop.name}' of resource '{resource.id}'."
                     print(f"    WARNING: {err_msg} Original error message: {orig_err_msg}")
                     logger.warning(err_msg, exc_info=True)
                     continue

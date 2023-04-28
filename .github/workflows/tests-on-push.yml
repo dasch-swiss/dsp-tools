@@ -36,6 +36,9 @@ jobs:
           npm install -g markdown-link-validator
           poetry exec check-links
 
+      - name: run Pylint
+        run: poetry run pylint src
+
       - name: Lint Code Base
         uses: github/super-linter/slim@v4           # GitHub's super-linter: https://github.com/github/super-linter
         # super-linter uses a pre-built image with all linters in it. Thus, the linters run outside the poetry virtualenv. 
@@ -56,8 +59,8 @@ jobs:
           MARKDOWN_CONFIG_FILE: .markdownlint.json
           VALIDATE_XML: true                        # http://xmlsoft.org/
           VALIDATE_YAML: true                       # https://github.com/adrienverge/yamllint
-          VALIDATE_PYTHON_PYLINT: true              # https://pylint.pycqa.org/
-          PYTHON_PYLINT_CONFIG_FILE: pyproject.toml
+          # VALIDATE_PYTHON_PYLINT: true              # https://pylint.pycqa.org/
+          # PYTHON_PYLINT_CONFIG_FILE: pyproject.toml
           VALIDATE_PYTHON_ISORT: true               # https://pypi.org/project/isort/
           PYTHON_ISORT_CONFIG_FILE: pyproject.toml
           VALIDATE_GITLEAKS: true                   # https://github.com/gitleaks/gitleaks

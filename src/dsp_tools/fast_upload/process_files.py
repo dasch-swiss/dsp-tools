@@ -656,17 +656,17 @@ def _process_file(
 
 
 def _get_path_for_converted_file(
-    ext: str, 
-    internal_filename: str, 
-    out_dir: Path
+    out_dir: Path,
+    internal_filename: str,
+    ext: str,
 ) -> Path:
     """
     Creates the path for the converted file
 
     Args:
-        ext: the file extension for the converted file
-        internal_filename: the string that should be used for the internal filename
         out_dir: the output directory where the converted file should be written to
+        internal_filename: the string that should be used for the internal filename
+        ext: the file extension for the converted file
 
     Returns:
         the path to the converted file
@@ -692,9 +692,9 @@ def _process_other_file(
         a tuple of the original file path and the path to the processed file
     """
     converted_file_full_path = _get_path_for_converted_file(
-        ext=PurePath(in_file).suffix, 
-        internal_filename=internal_filename, 
-        out_dir=out_dir
+        out_dir=out_dir,
+        internal_filename=internal_filename,
+        ext=PurePath(in_file).suffix,
     )
     try:
         shutil.copyfile(in_file, converted_file_full_path)
@@ -732,9 +732,9 @@ def _process_image_file(
         a tuple of the original file path and the path to the processed file
     """
     converted_file_full_path = _get_path_for_converted_file(
-        ext=".jp2", 
-        internal_filename=internal_filename, 
-        out_dir=out_dir
+        out_dir=out_dir,
+        internal_filename=internal_filename,
+        ext=".jp2",
     )
     in_file_sipi_path = os.path.relpath(in_file, input_dir)
     sipi_result = _convert_file_with_sipi(
@@ -774,9 +774,9 @@ def _process_video_file(
         a tuple of the original file path and the path to the processed file
     """
     converted_file_full_path = _get_path_for_converted_file(
-        ext=PurePath(in_file).suffix, 
-        internal_filename=internal_filename, 
-        out_dir=out_dir
+        out_dir=out_dir,
+        internal_filename=internal_filename,
+        ext=PurePath(in_file).suffix,
     )
     try:
         shutil.copyfile(in_file, converted_file_full_path)

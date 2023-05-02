@@ -46,6 +46,10 @@ autopep8 = "^2.0.1"
 pytest = "^7.2.0"
 types-requests = "^2.28.11.7"
 types-lxml = "^2023.3.28"
+pylint = "^2.17.3"
+types-jsonschema = "^4.17.0.7"
+types-openpyxl = "^3.1.0.4"
+types-regex = "^2023.3.23.1"
 
 
 [tool.poetry.scripts]
@@ -55,12 +59,11 @@ dsp-tools = "dsp_tools.dsp_tools:main"
 
 [tool.poetry-exec-plugin.commands]
 # plugin (https://github.com/keattang/poetry-exec-plugin) to define commands available for the developers
-# e.g. `poetry exec docs-serve`
-# The plugin has to be installed with `poetry self add poetry-exec-plugin`
+# e.g. `poetry exec check-links`
+check-links = "markdown-link-validator ./docs -i \\.\\/assets\\/.+ -i .+github\\.com\\/dasch\\-swiss\\/dsp-tools\\/settings"
 # `mkdocs serve` can normally be executed without custom port. This is only necessary on machines where the standard
 # port is taken already
 docs-serve = "mkdocs serve --dev-addr=localhost:7979"
-check-links = "markdown-link-validator ./docs -i \\.\\/assets\\/.+ -i .+github\\.com\\/dasch\\-swiss\\/dsp-tools\\/settings"
 
 
 [build-system]
@@ -79,16 +82,69 @@ addopts = [
 
 
 [tool.autopep8]
-max_line_length = 180
+max_line_length = 150
 experimental = true
 
 
 [tool.mypy]
 ignore_missing_imports = true
-follow_imports = "silent"
 show_column_numbers = true
 strict = true
+exclude = [
+    "src/dsp_tools/models",           # TODO: activate this
+    "src/dsp_tools/import_scripts",   # TODO: activate this
+    "test/unittests",                 # TODO: activate this
+    "test/e2e",                       # TODO: activate this
+]
+
 
 [tool.isort]
 multi_line_output = 3
 known_first_party = ["dsp_tools"]
+
+
+[tool.pylint.MASTER]
+ignore-paths = [
+    "src/dsp_tools/models/.*$",           # TODO: activate this
+    "src/dsp_tools/import_scripts/.*$",   # TODO: activate this
+    "test/unittests/.*$",                 # TODO: activate this
+    "test/e2e/.*$"                        # TODO: activate this
+]
+suggestion-mode = true
+
+
+[tool.pylint.format]
+max-line-length = 150
+
+
+[tool.pylint."messages control"]
+disable = [
+    "raw-checker-failed",                  # disabled by default
+    "bad-inline-option",                   # disabled by default
+    "locally-disabled",                    # disabled by default
+    "file-ignored",                        # disabled by default
+    "suppressed-message",                  # disabled by default
+    "deprecated-pragma",                   # disabled by default
+    "use-symbolic-message-instead",        # disabled by default
+    "c-extension-no-member",               # probably not necessary
+    "use-dict-literal",                    # not worth the effort
+    "use-list-literal",                    # not worth the effort
+    "missing-module-docstring",            # not worth the effort
+    "trailing-whitespace",                 # not worth the effort
+    "use-maxsplit-arg",                    # not worth the effort
+    "global-statement",                    # not worth the effort
+    "no-else-continue",                    # would be less readable
+    "no-else-return",                      # would be less readable
+    "no-else-raise",                       # would be less readable
+    "logging-fstring-interpolation",       # would be less readable
+    "invalid-name",                        # TODO: activate this
+    "too-many-arguments",                  # TODO: activate this
+    "too-many-branches",                   # TODO: activate this
+    "too-many-lines",                      # TODO: activate this
+    "too-many-locals",                     # TODO: activate this
+    "too-many-nested-blocks",              # TODO: activate this
+    "too-many-return-statements",          # TODO: activate this
+    "too-many-statements",                 # TODO: activate this
+    "bare-except",                         # TODO: activate this
+    "consider-using-f-string",             # in excel2xml, strings with {} in it must be formatted
+]

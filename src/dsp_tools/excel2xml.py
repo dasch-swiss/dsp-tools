@@ -14,7 +14,7 @@ from typing import Any, Iterable, Optional, Union
 import pandas as pd
 import regex
 from lxml import etree
-from lxml.builder import E
+from lxml.builder import E  # pylint: disable=no-name-in-module
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import DateTimeStamp
@@ -301,8 +301,8 @@ def make_root(shortcode: str, default_ontology: str) -> etree._Element:
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#the-root-element-knora
     """
 
-    root = etree.Element(  # type: ignore
-        _tag="{%s}knora" % (xml_namespace_map[None]),
+    root = etree.Element(
+        "{%s}knora" % (xml_namespace_map[None]),
         attrib={
             str(etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation")):
                 "https://dasch.swiss/schema " + \
@@ -315,7 +315,7 @@ def make_root(shortcode: str, default_ontology: str) -> etree._Element:
     return root
 
 
-def append_permissions(root_element: etree.Element) -> etree._Element:  # type: ignore
+def append_permissions(root_element: etree._Element) -> etree._Element:
     """
     After having created a root element, call this method to append the four permissions "res-default",
     "res-restricted", "prop-default", and "prop-restricted" to it. These four permissions are a good basis to
@@ -345,13 +345,13 @@ def append_permissions(root_element: etree.Element) -> etree._Element:  # type: 
     res_default.append(ALLOW("D", group="ProjectMember"))
     res_default.append(ALLOW("CR", group="ProjectAdmin"))
     res_default.append(ALLOW("CR", group="Creator"))
-    root_element.append(res_default)  # type: ignore
+    root_element.append(res_default)
 
     res_restricted = PERMISSIONS(id="res-restricted")
     res_restricted.append(ALLOW("M", group="ProjectMember"))
     res_restricted.append(ALLOW("CR", group="ProjectAdmin"))
     res_restricted.append(ALLOW("CR", group="Creator"))
-    root_element.append(res_restricted)  # type: ignore
+    root_element.append(res_restricted)
 
     prop_default = PERMISSIONS(id="prop-default")
     prop_default.append(ALLOW("V", group="UnknownUser"))
@@ -359,13 +359,13 @@ def append_permissions(root_element: etree.Element) -> etree._Element:  # type: 
     prop_default.append(ALLOW("D", group="ProjectMember"))
     prop_default.append(ALLOW("CR", group="ProjectAdmin"))
     prop_default.append(ALLOW("CR", group="Creator"))
-    root_element.append(prop_default)  # type: ignore
+    root_element.append(prop_default)
 
     prop_restricted = PERMISSIONS(id="prop-restricted")
     prop_restricted.append(ALLOW("M", group="ProjectMember"))
     prop_restricted.append(ALLOW("CR", group="ProjectAdmin"))
     prop_restricted.append(ALLOW("CR", group="Creator"))
-    root_element.append(prop_restricted)  # type: ignore
+    root_element.append(prop_restricted)
 
     return root_element
 
@@ -373,7 +373,7 @@ def append_permissions(root_element: etree.Element) -> etree._Element:  # type: 
 def make_resource(
     label: str,
     restype: str,
-    id: str,
+    id: str,                                     # pylint: disable=redefined-builtin
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -431,7 +431,7 @@ def make_resource(
 
 
 def make_bitstream_prop(
-    path: Union[str, os.PathLike],  # type: ignore
+    path: Union[str, os.PathLike[Any]],
     permissions: str = "prop-default",
     calling_resource: str = ""
 ) -> etree._Element:
@@ -533,7 +533,7 @@ def make_boolean_prop(
     # validate input
     if isinstance(value, PropertyElement):
         value_new = dataclasses.replace(value, value=_format_bool(value.value, name, calling_resource))  # type: ignore
-    elif isinstance(value, str) or isinstance(value, bool) or isinstance(value, int):
+    elif isinstance(value, (str, bool, int)):
         value_new = PropertyElement(_format_bool(value, name, calling_resource))
     else:
         raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
@@ -1429,7 +1429,7 @@ def make_uri_prop(
 
 def make_region(
     label: str,
-    id: str,
+    id: str,                                     # pylint: disable=redefined-builtin
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -1490,7 +1490,7 @@ def make_region(
 
 def make_annotation(
     label: str,
-    id: str,
+    id: str,                                     # pylint: disable=redefined-builtin
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -1549,7 +1549,7 @@ def make_annotation(
 
 def make_link(
     label: str,
-    id: str,
+    id: str,                                     # pylint: disable=redefined-builtin
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -1663,7 +1663,7 @@ def create_json_excel_list_mapping(
             excel_values_new.extend([x.strip() for x in val.split(sep) if x])
 
     # read the list of the JSON project (works also for nested lists)
-    with open(path_to_json) as f:
+    with open(path_to_json, encoding="utf-8") as f:
         json_file = json.load(f)
     json_subset = list()
     for elem in json_file["project"]["lists"]:
@@ -1699,12 +1699,12 @@ def _nested_dict_values_iterator(dicts: list[dict[str, Any]]) -> Iterable[str]:
     It yields the values iteratively.
     """
     # Credits: https://thispointer.com/python-iterate-loop-over-all-nested-dictionary-values/
-    for dict in dicts:
-        if "nodes" in dict:
-            for value in _nested_dict_values_iterator(dict["nodes"]):
+    for _dict in dicts:
+        if "nodes" in _dict:
+            for value in _nested_dict_values_iterator(_dict["nodes"]):
                 yield value
-        if "name" in dict:
-            yield dict["name"]
+        if "name" in _dict:
+            yield _dict["name"]
 
 
 def create_json_list_mapping(
@@ -1728,7 +1728,7 @@ def create_json_list_mapping(
     Returns:
         a dictionary of the form {label: name}
     """
-    with open(path_to_json) as f:
+    with open(path_to_json, encoding="utf-8") as f:
         json_file = json.load(f)
     json_subset = list()
     for numbered_json_obj in json_file["project"]["lists"]:
@@ -1761,7 +1761,7 @@ def _name_label_mapper_iterator(json_subset: list[dict[str, Any]], language_labe
             # the actual values of the name and the label
 
 
-def write_xml(root: etree.Element, filepath: str) -> None:  # type: ignore
+def write_xml(root: etree._Element, filepath: str) -> None:
     """
     Write the finished XML to a file
 
@@ -1851,6 +1851,7 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
 
     # create all resources
     # --------------------
+    resource = None
     for index, row in main_df.iterrows():
 
         # there are two cases: either the row is a resource-row or a property-row.
@@ -1876,8 +1877,8 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
                 raise BaseError(f"Both ARK and IRI were provided for resource '{resource_label}' ({resource_id}). The ARK will override the IRI.")
             # previous resource is finished, now a new resource begins. in all cases (except for
             # the very first iteration), a previous resource exists. if it exists, append it to root.
-            if "resource" in locals():
-                root.append(resource)  # type: ignore
+            if resource:
+                root.append(resource)
             kwargs_resource = {
                 "label": resource_label,
                 "permissions": resource_permissions,
@@ -1953,7 +1954,7 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
             if len(property_elements) == 0:
                 raise BaseError(f"At least one value per property is required, but Excel row {int(str(index)) + 2}"
                                 f"doesn't contain any values.")
-            if make_prop_function == make_boolean_prop and len(property_elements) != 1:
+            if make_prop_function == make_boolean_prop and len(property_elements) != 1:     # pylint: disable=comparison-with-callable
                 raise BaseError(f"A <boolean-prop> can only have a single value, but Excel row {int(str(index)) + 2} "
                                 f"contains more than one values.")
 
@@ -1962,7 +1963,7 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
                 "name": row["prop name"],
                 "calling_resource": resource_id
             }
-            if make_prop_function == make_boolean_prop:
+            if make_prop_function == make_boolean_prop:                                     # pylint: disable=comparison-with-callable
                 kwargs_propfunc["value"] = property_elements[0]
             else:
                 kwargs_propfunc["value"] = property_elements
@@ -1972,7 +1973,8 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
             resource.append(make_prop_function(**kwargs_propfunc))  # type: ignore
 
     # append the resource of the very last iteration of the for loop
-    root.append(resource)
+    if resource:
+        root.append(resource)
 
     # write file
     # ----------

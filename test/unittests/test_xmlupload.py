@@ -59,7 +59,11 @@ class TestXMLUpload(unittest.TestCase):
         test_data_systematic_tree = etree.parse("testdata/xml-data/test-data-systematic.xml")
         output1 = _parse_xml_file("testdata/xml-data/test-data-systematic.xml")
         output2 = _parse_xml_file(test_data_systematic_tree)
-        self.assertEqual(etree.tostring(output1), etree.tostring(output2), msg="The output must be equal, regardless if the input is a path or parsed.")
+        result1 = regex.sub("\n", "", etree.tostring(output1, encoding=str))
+        result1 = regex.sub(" +", " ", result1)
+        result2 = regex.sub("\n", "", etree.tostring(output2, encoding=str))
+        result2 = regex.sub(" +", " ", result2)
+        self.assertEqual(result1, result2, msg="The output must be equal, regardless if the input is a path or parsed.")
 
         annotations_regions_links_before = [e for e in test_data_systematic_tree.iter() if regex.search("annotation|region|link", str(e.tag))]
         annotations_regions_links_after = [e for e in output1.iter() if regex.search("annotation|region|link", str(e.tag))]

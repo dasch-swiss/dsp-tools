@@ -410,7 +410,7 @@ class Ontology(Model):
             result = con.get("/ontology/" + name + "/v2" + Ontology.ALL_LANGUAGES)
         return Ontology.fromJsonObj(con, result)
 
-    def createDefinitionFileObj(self):
+    def createDefinitionFileObj(self) -> dict[str, Any]:
         ontology = {
             "name": self.name,
             "label": self.label,

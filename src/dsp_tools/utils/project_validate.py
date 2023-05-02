@@ -238,7 +238,7 @@ def validate_project(
     if isinstance(input_file_or_json, dict) and "project" in input_file_or_json:
         project_definition = input_file_or_json
     elif isinstance(input_file_or_json, str) and os.path.isfile(input_file_or_json) and regex.search(r"\.json$", input_file_or_json):
-        with open(input_file_or_json) as f:
+        with open(input_file_or_json, encoding="utf-8") as f:
             project_definition = json.load(f)
     else:
         raise BaseError(f"Input '{input_file_or_json}' is neither a file path nor a JSON object.")
@@ -250,7 +250,7 @@ def validate_project(
             project_definition["project"]["lists"] = new_lists
 
     # validate the project definition against the schema
-    with importlib.resources.files("dsp_tools").joinpath("resources/schema/project.json").open() as schema_file:
+    with importlib.resources.files("dsp_tools").joinpath("resources/schema/project.json").open(encoding="utf-8") as schema_file:
         project_schema = json.load(schema_file)
     try:
         jsonschema.validate(instance=project_definition, schema=project_schema)
@@ -319,7 +319,7 @@ def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, li
     for index, onto in enumerate(ontos):
         hasLinkTo_matches = list()
         # look for child-properties down to 5 inheritance levels that are derived from hasLinkTo-properties
-        for i in range(5):
+        for _ in range(5):
             for hasLinkTo_prop in hasLinkTo_props:
                 hasLinkTo_matches.extend(jsonpath_ng.ext.parse(
                     f"$.project.ontologies[{index}].properties[?super[*] == {hasLinkTo_prop}]"
@@ -339,7 +339,7 @@ def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, li
     # in case the object of a property is "Resource", the link can point to any resource class
     all_res_names: list[str] = list()
     for index, onto in enumerate(ontos):
-        matches = jsonpath_ng.ext.parse(f"$.resources[*].name").find(onto)
+        matches = jsonpath_ng.ext.parse("$.resources[*].name").find(onto)
         tmp = [f"{onto['name']}:{match.value}" for match in matches]
         all_res_names.extend(tmp)
     for prop, targ in link_properties.items():
@@ -401,14 +401,15 @@ def _identify_problematic_cardinalities(
 
     # find elements of circles that have a cardinality of "1" or "1-n"
     errors: set[tuple[str, str]] = set()
-    circles = list(nx.simple_cycles(graph))
+    circles = list(nx.cycles.simple_cycles(graph))
     for circle in circles:
         for index, resource in enumerate(circle):
             target = circle[(index+1) % len(circle)]
-            for property, targets in dependencies[resource].items():
+            prop = ""
+            for _property, targets in dependencies[resource].items():
                 if target in targets:
-                    prop = property
-            if cardinalities[resource][prop] not in ["0-1", "0-n"]:
+                    prop = _property
+            if cardinalities[resource].get(prop) not in ["0-1", "0-n"]:
                 errors.add((resource, prop))
 
     return sorted(errors, key=lambda x: x[0])

@@ -9,6 +9,7 @@ import json
 import logging
 import os
 import re
+import sys
 import uuid
 from collections import namedtuple
 from datetime import datetime
@@ -118,7 +119,7 @@ def _write_id2iri_mapping_and_metrics(
         True if there are no failed_uploads, False otherwise
     """
     # determine names of files
-    if isinstance(input_file, str) or isinstance(input_file, Path):
+    if isinstance(input_file, (str, Path)):
         id2iri_filename = f"{Path(input_file).stem}_id2iri_mapping_{timestamp_str}.json"
         metrics_filename = f"{timestamp_str}_metrics_{server_as_foldername}_{Path(input_file).stem}.csv"
     else:
@@ -127,7 +128,7 @@ def _write_id2iri_mapping_and_metrics(
     
     # write files and print info
     success = True
-    with open(id2iri_filename, "x") as f:
+    with open(id2iri_filename, "x", encoding="utf-8") as f:
         json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
         print(f"The mapping of internal IDs to IRIs was written to {id2iri_filename}")
         logger.info(f"The mapping of internal IDs to IRIs was written to {id2iri_filename}")
@@ -234,7 +235,7 @@ def _stash_circular_references(
         for link_prop in res.get_props_with_links():
             if link_prop.valtype == 'text':
                 for value in link_prop.values:
-                    if value.resrefs and not all([_id in ok_res_ids for _id in value.resrefs]):
+                    if value.resrefs and not all(_id in ok_res_ids for _id in value.resrefs):
                         # stash this XML text, replace it by its hash, and remove the
                         # problematic resrefs from the XMLValue's resrefs list
                         value_hash = str(hash(f'{value.value}{datetime.now()}'))
@@ -320,7 +321,7 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
 
 
-def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._Element[Any]:
+def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._Element:
     """
     Parse an XML file with DSP-conform data, 
     remove namespace URI from the elements' names, 
@@ -334,14 +335,21 @@ def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> et
     Returns:
         the root element of the parsed XML file
     """
-    tree = etree.parse(source=input_file) if isinstance(input_file, str) or isinstance(input_file, Path) else copy.deepcopy(input_file)
+
+    # remove comments and processing instructions (commented out properties break the XMLProperty constructor)
+    if isinstance(input_file, (str, Path)):
+        parser = etree.XMLParser(remove_comments=True, remove_pis=True)
+        tree = etree.parse(source=input_file, parser=parser)
+    else:
+        tree = copy.deepcopy(input_file)
+        for c in tree.xpath('//comment()'):
+            c.getparent().remove(c)
+        for c in tree.xpath('//processing-instruction()'):
+            c.getparent().remove(c)
+    
+    # remove namespace URI from the elements' names and transform the special tags to their technically correct form
     for elem in tree.iter():
-        if isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction):
-            # properties that are commented out would break the the constructor of the class XMLProperty, if they are not removed here.
-            elem.getparent().remove(elem)  # type: ignore
-        else:
-            elem.tag = etree.QName(elem).localname   # remove namespace URI in the element's name
-        
+        elem.tag = etree.QName(elem).localname   # remove namespace URI in the element's name
         if elem.tag == "annotation":
             elem.attrib["restype"] = "Annotation"
             elem.tag = "resource"
@@ -384,7 +392,7 @@ def _check_consistency_with_ontology(
     if verbose:
         print("Check if the resource types and properties are consistent with the ontology...")
         logger.info("Check if the resource types and properties are consistent with the ontology...")
-    if not any([x.startswith(ontoname) for x in resclass_name_2_type.keys()]):
+    if not any(x.startswith(ontoname) for x in resclass_name_2_type.keys()):
         err_msg = f"The <knora> tag of your XML file references the ontology '{ontoname}', " \
                   f"but the project {shortcode} on the DSP server doesn't contain an ontology with this name."
         logger.error(err_msg)
@@ -496,10 +504,10 @@ def xml_upload(
     resources: list[XMLResource] = []
     permissions: dict[str, XmlPermission] = {}
     for child in root:
-        if child.tag == "permissions":
+        if child.tag == "permissions":  # type: ignore
             permission = XmlPermission(child, proj_context)
             permissions[permission.id] = permission
-        elif child.tag == "resource":
+        elif child.tag == "resource":  # type: ignore
             resources.append(XMLResource(child, default_ontology))
 
     # get the project information and project ontology from the server
@@ -548,7 +556,7 @@ def xml_upload(
         if nonapplied_resptr_props or nonapplied_xml_texts:
             logger.error("Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server.")
             raise BaseError("Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server.")
-    except BaseException as err:
+    except BaseException as err:      # pylint: disable=broad-except
         # The forseeable errors are already handled by the variables failed_uploads, nonapplied_xml_texts, and nonapplied_resptr_props.
         # Here we catch the unforseeable exceptions, hence BaseException (=the base class of all exceptions)
         _handle_upload_error(
@@ -614,6 +622,9 @@ def _upload_resources(
         bitstream_size_uploaded_mb = 0.0
         print(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
         logger.info(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
+    else:  # make Pylance happy
+        bitstream_size_total_mb = 0.0
+        bitstream_size_uploaded_mb = 0.0
 
     for i, resource in enumerate(resources):
         resource_start = datetime.now()
@@ -631,7 +642,8 @@ def _upload_resources(
                 bitstream_start = datetime.now()
                 filetype = Path(resource.bitstream.value).suffix[1:]
                 img: Optional[dict[Any, Any]] = try_network_action(
-                    lambda: sipi_server.upload_bitstream(filepath=str(Path(imgdir) / Path(resource.bitstream.value))),  # type: ignore
+                    sipi_server.upload_bitstream,
+                    filepath=str(Path(imgdir) / Path(resource.bitstream.value))
                 )
                 bitstream_duration = datetime.now() - bitstream_start
                 bitstream_duration_ms = bitstream_duration.seconds * 1000 + int(bitstream_duration.microseconds / 1000)
@@ -643,9 +655,9 @@ def _upload_resources(
                 logger.warning(f'Unable to upload file "{resource.bitstream.value}" of resource "{resource.label}" ({resource.id}).', exc_info=True)
                 failed_uploads.append(resource.id)
                 continue
-            bitstream_size_uploaded_mb += bitstream_all_sizes_mb[i]  # type: ignore
-            print(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")  # type: ignore
-            logger.info(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")  # type: ignore
+            bitstream_size_uploaded_mb += bitstream_all_sizes_mb[i]
+            print(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")
+            logger.info(f"Uploaded file '{resource.bitstream.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)")
             internal_file_name_bitstream = img['uploadedFiles'][0]['internalFilename']  # type: ignore
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 
@@ -663,7 +675,7 @@ def _upload_resources(
                 values=properties
             )
             resource_creation_start = datetime.now()
-            created_resource: ResourceInstance = try_network_action(lambda: resource_instance.create())
+            created_resource: ResourceInstance = try_network_action(resource_instance.create)
             resource_creation_duration = datetime.now() - resource_creation_start
             resource_creation_duration_ms = resource_creation_duration.seconds * 1000 + int(resource_creation_duration.microseconds / 1000)
             metrics.append(MetricRecord(resource.id, filetype, filesize, "resource creation", resource_creation_duration_ms, ""))
@@ -713,13 +725,14 @@ def _upload_stashed_xml_texts(
             continue
         res_iri = id2iri_mapping[resource.id]
         try:
-            existing_resource = try_network_action(lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'))
+            existing_resource = try_network_action(con.get, path=f'/v2/resources/{quote_plus(res_iri)}')
         except BaseError as err:
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
             # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
-            err_msg = err.original_error_msg_from_api or err.message
-            print(f'  WARNING: Unable to upload XML texts of resource "{resource.id}", because the resource cannot be retrieved from the DSP server. Original error message: {err_msg}')
-            logger.warning(f'Unable to upload XML texts of resource "{resource.id}", because the resource cannot be retrieved from the DSP server.', exc_info=True)
+            orig_err_msg = err.original_error_msg_from_api or err.message
+            err_msg = f"Unable to upload XML texts of resource '{resource.id}', because the resource cannot be retrieved from the DSP server."
+            print(f"  WARNING: {err_msg} Original error message: {orig_err_msg}")
+            logger.warning(err_msg, exc_info=True)
             continue
         print(f'  Upload XML text(s) of resource "{resource.id}"...')
         logger.info(f'  Upload XML text(s) of resource "{resource.id}"...')
@@ -765,13 +778,14 @@ def _upload_stashed_xml_texts(
 
                 # execute API call
                 try:
-                    try_network_action(lambda: con.put(path='/v2/values', jsondata=jsondata))
+                    try_network_action(con.put, path='/v2/values', jsondata=jsondata)
                 except BaseError as err:
                     # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
                     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
-                    err_msg = err.original_error_msg_from_api or err.message
-                    print(f'    WARNING: Unable to upload the xml text of "{link_prop.name}" of resource "{resource.id}". Original error message: {err_msg}')
-                    logger.warning(f'Unable to upload the xml text of "{link_prop.name}" of resource "{resource.id}"', exc_info=True)
+                    orig_err_msg = err.original_error_msg_from_api or err.message
+                    err_msg = f"Unable to upload the xml text of '{link_prop.name}' of resource '{resource.id}'."
+                    print(f"    WARNING: {err_msg} Original error message: {orig_err_msg}")
+                    logger.warning(err_msg, exc_info=True)
                     continue
                 nonapplied_xml_texts[resource][link_prop].pop(pure_text)
                 if verbose:
@@ -842,13 +856,14 @@ def _upload_stashed_resptr_props(
             continue
         res_iri = id2iri_mapping[resource.id]
         try:
-            existing_resource = try_network_action(lambda: con.get(path=f'/v2/resources/{quote_plus(res_iri)}'))
+            existing_resource = try_network_action(con.get, path=f'/v2/resources/{quote_plus(res_iri)}')
         except BaseError as err:
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
             # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
-            err_msg = err.original_error_msg_from_api or err.message
-            print(f'  WARNING: Unable to upload resptrs of resource "{resource.id}", because the resource cannot be retrieved from the DSP server. Original error message: {err_msg}')
-            logger.warning(f'Unable to upload resptrs of resource "{resource.id}", because the resource cannot be retrieved from the DSP server', exc_info=True)
+            orig_err_msg = err.original_error_msg_from_api or err.message
+            err_msg = f"Unable to upload resptrs of resource '{resource.id}', because the resource cannot be retrieved from the DSP server."
+            print(f"  WARNING: {err_msg} Original error message: {orig_err_msg}")
+            logger.warning(err_msg, exc_info=True)
             continue
         print(f'  Upload resptrs of resource "{resource.id}"...')
         logger.info(f'  Upload resptrs of resource "{resource.id}"...')
@@ -869,13 +884,14 @@ def _upload_stashed_resptr_props(
                 }
                 jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '))
                 try:
-                    try_network_action(lambda: con.post(path='/v2/values', jsondata=jsondata))
+                    try_network_action(con.post, path='/v2/values', jsondata=jsondata)
                 except BaseError as err:
                     # print the message to keep track of the cause for the failure. Apart from that, no action is necessary: 
                     # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
-                    err_msg = err.original_error_msg_from_api or err.message
-                    print(f'    WARNING: Unable to upload the resptr prop of "{link_prop.name}" of resource "{resource.id}". Original error message: {err_msg}')
-                    logger.warning(f'Unable to upload the resptr prop of "{link_prop.name}" of resource "{resource.id}"', exc_info=True)
+                    orig_err_msg = err.original_error_msg_from_api or err.message
+                    err_msg = f"Unable to upload the resptr prop of '{link_prop.name}' of resource '{resource.id}'."
+                    print(f"    WARNING: {err_msg} Original error message: {orig_err_msg}")
+                    logger.warning(err_msg, exc_info=True)
                     continue
                 nonapplied_resptr_props[resource][link_prop].remove(resptr)
                 if verbose:
@@ -959,7 +975,7 @@ def _handle_upload_error(
 
     if id2iri_mapping:
         id2iri_mapping_file = f"{save_location}/{timestamp_str}_id2iri_mapping.json"
-        with open(id2iri_mapping_file, "x") as f:
+        with open(id2iri_mapping_file, "x", encoding="utf-8") as f:
             json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
         print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
         logger.info(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
@@ -967,7 +983,7 @@ def _handle_upload_error(
     if stashed_xml_texts:
         stashed_xml_texts_serializable = {r.id: {p.name: xml for p, xml in rdict.items()} for r, rdict in stashed_xml_texts.items()}
         xml_filename = f"{save_location}/{timestamp_str}_stashed_text_properties.json"
-        with open(xml_filename, "x") as f:
+        with open(xml_filename, "x", encoding="utf-8") as f:
             json.dump(stashed_xml_texts_serializable, f, ensure_ascii=False, indent=4, cls=KnoraStandoffXmlEncoder)
         print(f"There are stashed text properties that could not be reapplied to the resources they were stripped "
               f"from. They were saved to {xml_filename}.")
@@ -977,7 +993,7 @@ def _handle_upload_error(
     if stashed_resptr_props:
         stashed_resptr_props_serializable = {r.id: {p.name: plist for p, plist in rdict.items()} for r, rdict in stashed_resptr_props.items()}
         resptr_filename = f"{save_location}/{timestamp_str}_stashed_resptr_properties.json"
-        with open(resptr_filename, "x") as f:
+        with open(resptr_filename, "x", encoding="utf-8") as f:
             json.dump(stashed_resptr_props_serializable, f, ensure_ascii=False, indent=4)
         print(f"There are stashed resptr properties that could not be reapplied to the resources they were stripped "
               f"from. They were saved to {resptr_filename}")
@@ -990,7 +1006,7 @@ def _handle_upload_error(
         logger.info(f"Independently of this error, there were some resources that could not be uploaded: {failed_uploads}")
 
     if isinstance(err, KeyboardInterrupt):
-        exit(1)
+        sys.exit(1)
     else:
         print("The error will now be raised again:\n"
               "==========================================\n")

@@ -48,7 +48,11 @@ def login(server: str, user: str, password: str) -> Connection:
     return con
 
 
-def try_network_action(action: Callable[..., Any]) -> Any:
+def try_network_action(
+    action: Callable[..., Any],
+    *args: Any,
+    **kwargs: Any
+) -> Any:
     """
     Helper method that tries 7 times to execute an action. 
     If a ConnectionError, a requests.exceptions.RequestException, or a non-permanent BaseError occors, 
@@ -57,7 +61,9 @@ def try_network_action(action: Callable[..., Any]) -> Any:
     If another exception occurs, it escalates.
 
     Args:
-        action: a lambda with the code to be executed
+        action: a lambda with the code to be executed, or a function
+        args: positional arguments for the action
+        kwargs: keyword arguments for the action
 
     Raises:
         BaseError or unexpected exception if the action fails permanently
@@ -68,7 +74,14 @@ def try_network_action(action: Callable[..., Any]) -> Any:
 
     for i in range(7):
         try:
-            return action()
+            if args and not kwargs:
+                return action(*args)
+            elif kwargs and not args:
+                return action(**kwargs)
+            elif args and kwargs:
+                return action(*args, **kwargs)
+            else:
+                return action()
         except (ConnectionError, RequestException):
             print(f"{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...")
             logger.error(f"Try reconnecting to DSP server, next attempt in {2 ** i} seconds...", exc_info=True)
@@ -104,9 +117,9 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
     Returns:
         True if the XML file is valid
     """
-    with importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd").open() as schema_file:
+    with importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd").open(encoding="utf-8") as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
-    if isinstance(input_file, str) or isinstance(input_file, Path):
+    if isinstance(input_file, (str, Path)):
         try:
             doc = etree.parse(source=input_file)
         except etree.XMLSyntaxError as err:
@@ -135,9 +148,14 @@ def _validate_xml_tags_in_text_properties(doc: etree._ElementTree[Any]) -> bool:
     """
     Makes sure that there are no XML tags in simple texts.
     This can only be done with a regex, 
-    because even if the simple text contains some XML tags, the simple text itself is not valid XML that could be parsed.
-    The extra challenge is that lxml transforms "pebble (&lt;2cm) and boulder (&gt;20cm)" into "pebble (<2cm) and boulder (>20cm)" (but only if &gt; follows &lt;).
-    This forces us to write a regex that carefully distinguishes between a real tag (which is not allowed) and a false-positive-tag.
+    because even if the simple text contains some XML tags, 
+    the simple text itself is not valid XML that could be parsed.
+    The extra challenge is that lxml transforms 
+    "pebble (&lt;2cm) and boulder (&gt;20cm)" into 
+    "pebble (<2cm) and boulder (>20cm)" 
+    (but only if &gt; follows &lt;).
+    This forces us to write a regex that carefully distinguishes 
+    between a real tag (which is not allowed) and a false-positive-tag.
 
     Args:
         doc: parsed XML file
@@ -151,7 +169,8 @@ def _validate_xml_tags_in_text_properties(doc: etree._ElementTree[Any]) -> bool:
     # first: remove namespaces
     doc_without_namespace = copy.deepcopy(doc)
     for elem in doc_without_namespace.iter():
-        if not (isinstance(elem, etree._Comment) or isinstance(elem, etree._ProcessingInstruction)):
+        # pylint: disable-next=protected-access
+        if not isinstance(elem, (etree._Comment, etree._ProcessingInstruction)):
             elem.tag = etree.QName(elem).localname
     
     # then: make the test
@@ -164,7 +183,7 @@ def _validate_xml_tags_in_text_properties(doc: etree._ElementTree[Any]) -> bool:
                 resname = text.getparent().getparent().attrib["id"]
                 resources_with_illegal_xml_tags.append(f" -{sourceline}resource '{resname}', property '{propname}'")
     if resources_with_illegal_xml_tags:
-        err_msg = f"XML-tags are not allowed in text properties with encoding=utf8. The following resources of your XML file violate this rule:\n" 
+        err_msg = "XML-tags are not allowed in text properties with encoding=utf8. The following resources of your XML file violate this rule:\n" 
         err_msg += "\n".join(resources_with_illegal_xml_tags)
         logger.error(err_msg, exc_info=True)
         raise UserError(err_msg)
@@ -299,14 +318,15 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, 
     if isinstance(project_file_as_path_or_parsed, dict):
         project_definition: dict[str, Any] = project_file_as_path_or_parsed
     elif all([
-        isinstance(project_file_as_path_or_parsed, str) or isinstance(project_file_as_path_or_parsed, Path),
+        isinstance(project_file_as_path_or_parsed, (str, Path)),
         Path(project_file_as_path_or_parsed).exists()
     ]):
-        with open(project_file_as_path_or_parsed) as f:
+        with open(project_file_as_path_or_parsed, encoding="utf-8") as f:
             try:
                 project_definition = json.load(f)
             except:
-                raise BaseError(f"The input file '{project_file_as_path_or_parsed}' cannot be parsed to a JSON object.")
+                logger.error(f"The input file '{project_file_as_path_or_parsed}' cannot be parsed to a JSON object.", exc_info=True)
+                raise BaseError(f"The input file '{project_file_as_path_or_parsed}' cannot be parsed to a JSON object.") from None
     else:
-        raise BaseError(f"Invalid input: The input must be a path to a JSON file or a parsed JSON object.")
+        raise BaseError("Invalid input: The input must be a path to a JSON file or a parsed JSON object.")
     return project_definition

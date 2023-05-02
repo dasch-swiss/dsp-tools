@@ -1,7 +1,7 @@
 import json
 import re
 from enum import Enum
-from typing import Any, Optional, Union
+from typing import Any, Optional, Sequence, Union
 from urllib.parse import quote_plus
 
 from dsp_tools.models.connection import Connection
@@ -319,7 +319,7 @@ class ResourceClass(Model):
     ontology_id: str
         The IRI/Id of the ontology this resource class belongs to
 
-    superlcasses: str, list[str]
+    superclasses: str, list[str]
         This is a list of superclasses for this resource class. Usually a project specific class must at least
         be a subclass of "Resource", but can be subclassed of any other valid resource class. In addition, external
         ontologies may be referenced:
@@ -398,7 +398,7 @@ class ResourceClass(Model):
                  id: Optional[str] = None,
                  name: Optional[str] = None,
                  ontology_id: Optional[str] = None,
-                 superclasses: Optional[list[Union['ResourceClass', str]]] = None,
+                 superclasses: Optional[Sequence[Union['ResourceClass', str]]] = None,
                  label: Optional[Union[LangString, str]] = None,
                  comment: Optional[Union[LangString, str]] = None,
                  permissions: Optional[str] = None,

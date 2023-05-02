@@ -46,7 +46,7 @@ def _create_project_on_server(
     try:
         # the normal, expected case is that this try block fails
         project_local = Project(con=con, shortcode=project_definition["project"]["shortcode"])
-        project_remote: Project = try_network_action(lambda: project_local.read())
+        project_remote: Project = try_network_action(project_local.read)
         print(f"\tWARNING: Project '{project_remote.shortname}' ({project_remote.shortcode}) already exists on the DSP server. Updating it...")
         logger.warning(f"Project '{project_remote.shortname}' ({project_remote.shortcode}) already exists on the DSP server. Updating it...")
         # try to update the basic info
@@ -69,7 +69,7 @@ def _create_project_on_server(
         status=True
     )
     try:
-        project_remote = try_network_action(lambda: project_local.create())
+        project_remote = try_network_action(project_local.create)
     except BaseError:
         err_msg = f"Cannot create project '{project_definition['project']['shortname']}' " \
                   f"({project_definition['project']['shortcode']}) on DSP server."
@@ -96,18 +96,25 @@ def _update_basic_info_of_project(
     Returns:
         tuple of (updated project, success status)
     """
+    # store in variables for convenience
+    shortcode = project_definition['project']['shortcode']
+    shortname = project_definition['project']['shortname']
+
+    # update the local "project" object
     project.longname = project_definition["project"]["longname"]
     project.description = project_definition["project"].get("descriptions")
     project.keywords = project_definition["project"].get("keywords")
+
+    # make the call to DSP-API
     try:
-        project_remote: Project = try_network_action(lambda: project.update())
+        project_remote: Project = try_network_action(project.update)
         if verbose:
-            print(f"\tUpdated project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}).")
-        logger.info(f"Updated project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}).")
+            print(f"\tUpdated project '{shortname}' ({shortcode}).")
+        logger.info(f"Updated project '{shortname}' ({shortcode}).")
         return project_remote, True
     except BaseError:
-        print(f"WARNING: Could not update project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}).")
-        logger.warning(f"Could not update project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}).", exc_info=True)
+        print(f"WARNING: Could not update project '{shortname}' ({shortcode}).")
+        logger.warning(f"Could not update project '{shortname}' ({shortcode}).", exc_info=True)
         return project, False
 
 
@@ -125,8 +132,9 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
         project: Project the group(s) should be added to (must exist on DSP server)
 
     Returns:
-        dict of the form ``{group name: group object}`` with the groups that have successfully been created (or already exist). Empty dict if no group was created.
-        True if everything went smoothly, False if a warning or error occurred
+        A tuple consisting of a dict and the success status. 
+        The dict has the form ``{group name: group object}`` for all groups that have successfully been created (or already exist). 
+        The dict is empty if no group was created.
     """
     overall_success = True
     current_project_groups: dict[str, Group] = {}
@@ -163,7 +171,7 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
             selfjoin=bool(group.get("selfjoin", False))
         )
         try:
-            group_remote: Group = try_network_action(lambda: group_local.create())
+            group_remote: Group = try_network_action(group_local.create)
         except BaseError:
             print(f"\tWARNING: Unable to create group '{group_name}'.")
             logger.warning(f"Unable to create group '{group_name}'.", exc_info=True)
@@ -329,7 +337,7 @@ def _create_users(
     Args:
         con: connection instance to connect to the DSP server
         users_section: "users" section of a parsed JSON project file
-        current_project_groups: groups defined in the current project (dict of the form {group name - group object}). These groups must exist on the DSP server.
+        current_project_groups: groups defined in the current project, {group name: group object} (must exist on DSP server)
         current_project: "project" object of the current project (must exist on DSP server)
         verbose: Prints more information if set to True
 
@@ -343,7 +351,7 @@ def _create_users(
         # skip the user if he already exists
         try:
             # the normal case is that this try block fails
-            try_network_action(lambda: User(con, email=json_user_definition["email"]).read())
+            try_network_action(User(con, email=json_user_definition["email"]).read)
             print(f"\tWARNING: User '{username}' already exists on the DSP server. Skipping...")
             logger.warning(f"User '{username}' already exists on the DSP server. Skipping...")
             overall_success = False
@@ -387,7 +395,7 @@ def _create_users(
             in_groups=group_iris
         )
         try:
-            try_network_action(lambda: user_local.create())
+            try_network_action(user_local.create)
         except BaseError:
             print(f"\tWARNING: Unable to create user '{username}'.")
             logger.warning(f"Unable to create user '{username}'.", exc_info=True)
@@ -523,7 +531,7 @@ def _create_ontologies(
         )
         # if ontology cannot be created, let the error escalate
         try:
-            ontology_remote: Ontology = try_network_action(lambda: ontology_local.create())
+            ontology_remote: Ontology = try_network_action(ontology_local.create)
         except BaseError:
             logger.error(f"ERROR while trying to create ontology '{ontology_definition['name']}'.", exc_info=True)
             raise UserError(f"ERROR while trying to create ontology '{ontology_definition['name']}'.") from None
@@ -537,7 +545,7 @@ def _create_ontologies(
 
         # add the prefixes defined in the JSON file
         for onto_prefix, onto_info in context:
-            if onto_info and onto_prefix not in ontology_remote.context:
+            if onto_info and str(onto_prefix) not in ontology_remote.context:
                 onto_iri = onto_info.iri + ("#" if onto_info.hashtag else "")
                 ontology_remote.context.add_context(prefix=str(onto_prefix), iri=onto_iri)
 
@@ -624,9 +632,7 @@ def _add_resource_classes_to_remote_ontology(
             comment=LangString(res_class.get("comments")) if res_class.get("comments") else None
         )
         try:
-            last_modification_date, res_class_remote = try_network_action(
-                lambda: res_class_local.create(last_modification_date=last_modification_date)
-            )
+            last_modification_date, res_class_remote = try_network_action(res_class_local.create, last_modification_date)
             res_class_remote = cast(ResourceClass, res_class_remote)
             new_res_classes[str(res_class_remote.id)] = res_class_remote
             ontology_remote.lastModificationDate = last_modification_date
@@ -718,9 +724,7 @@ def _add_property_classes_to_remote_ontology(
             comment=LangString(prop_class["comments"]) if prop_class.get("comments") else None
         )
         try:
-            last_modification_date, _ = try_network_action(
-                lambda: prop_class_local.create(last_modification_date=last_modification_date)
-            )
+            last_modification_date, _ = try_network_action(prop_class_local.create, last_modification_date)
             ontology_remote.lastModificationDate = last_modification_date
             if verbose:
                 print(f"\tCreated property class '{prop_class['name']}'")
@@ -781,12 +785,11 @@ def _add_cardinalities_to_resource_classes(
 
             try:
                 last_modification_date = try_network_action(
-                    lambda: res_class_remote.addProperty(  # type: ignore
-                        property_id=qualified_propname,
-                        cardinality=switcher[card_info["cardinality"]],
-                        gui_order=card_info.get("gui_order"),
-                        last_modification_date=last_modification_date
-                    )
+                    res_class_remote.addProperty,
+                    property_id=qualified_propname,
+                    cardinality=switcher[card_info["cardinality"]],
+                    gui_order=card_info.get("gui_order"),
+                    last_modification_date=last_modification_date
                 )
                 if verbose:
                     print(f"\tAdded cardinality '{card_info['propname']}' to resource class '{res_class['name']}'")
@@ -871,7 +874,11 @@ def create_project(
     list_root_nodes: dict[str, Any] = {}
     if project_definition["project"].get("lists"):
         print("Create lists...")
-        list_root_nodes, success = create_lists_on_server(lists_to_create=project_definition["project"]["lists"], con=con, project_remote=project_remote)
+        list_root_nodes, success = create_lists_on_server(
+            lists_to_create=project_definition["project"]["lists"], 
+            con=con, 
+            project_remote=project_remote
+        )
         if not success:
             overall_success = False
 

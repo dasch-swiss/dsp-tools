@@ -62,7 +62,7 @@ def excel2json(
     listfolder = [x for x in folder if os.path.isdir(x) and x.name == "lists"]
     if listfolder:
         listfolder_contents = [x for x in os.scandir(listfolder[0]) if not re.search(r"^(\.|~\$).+", x.name)]
-        if not all([re.search(r"(de|en|fr|it|rm).xlsx", file.name) for file in listfolder_contents]):
+        if not all(re.search(r"(de|en|fr|it|rm).xlsx", file.name) for file in listfolder_contents):
             raise BaseError(f"The only files allowed in '{data_model_files}/lists' are en.xlsx, de.xlsx, fr.xlsx, "
                             f"it.xlsx, rm.xlsx")
         processed_files = [f"{data_model_files}/lists/{file.name}" for file in listfolder_contents] + processed_files
@@ -71,8 +71,8 @@ def excel2json(
         raise BaseError(f"The only allowed subfolders in '{data_model_files}' are 'lists' and folders that match the "
                         f"pattern 'onto_name (onto_label)'")
 
-    print(f"The following files will be processed:")
-    [print(f" - {file}") for file in processed_files]
+    print("The following files will be processed:")
+    print(*(f" - {file}" for file in processed_files), sep="\n")
 
 
     # create output
@@ -116,7 +116,7 @@ def excel2json(
         project["project"]["lists"] = lists        # type: ignore
     project["project"]["ontologies"] = ontologies  # type: ignore
 
-    with open(path_to_output_file, "w") as f:
+    with open(path_to_output_file, "w", encoding="utf-8") as f:
         json.dump(project, f, indent=4, ensure_ascii=False)
 
     print(f"JSON project file successfully saved at {path_to_output_file}")

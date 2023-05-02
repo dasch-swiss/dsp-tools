@@ -111,18 +111,18 @@ def _get_values_from_excel(
     if col > 1:
         # append the cell value of the parent node (which is one value to the left of the current cell) to the list of
         # previous values
-        preval.append(base_file_ws.cell(column=col-1, row=row).value.strip())
+        preval.append(str(base_file_ws.cell(column=col-1, row=row).value).strip())
 
-    while cell.value and regex.search(r"\p{L}", cell.value, flags=re.UNICODE):
+    while cell.value and regex.search(r"\p{L}", str(cell.value), flags=re.UNICODE):
         # check if all predecessors in row (values to the left) are consistent with the values in preval list
         for idx, val in enumerate(preval[:-1]):
-            if val != base_file_ws.cell(column=idx+1, row=row).value.strip():
+            if val != str(base_file_ws.cell(column=idx+1, row=row).value).strip():
                 raise BaseError(f"ERROR: Inconsistency in Excel list: {val} not equal to "
-                                f"{base_file_ws.cell(column=idx+1, row=row).value.strip()}")
+                                f"{str(base_file_ws.cell(column=idx+1, row=row).value).strip()}")
 
         # loop through the row until the last (furthest right) value is found
         next_value = base_file_ws.cell(column=col+1, row=row).value
-        if next_value and regex.search(r"\p{L}", next_value, flags=re.UNICODE):
+        if next_value and regex.search(r"\p{L}", str(next_value), flags=re.UNICODE):
             row, _ = _get_values_from_excel(
                 excelfiles=excelfiles,
                 base_file=base_file,
@@ -137,15 +137,15 @@ def _get_values_from_excel(
         else:
             # check if there are duplicate nodes (i.e. identical rows), raise a BaseError if so
             new_check_list = preval.copy()
-            new_check_list.append(cell.value.strip())
+            new_check_list.append(str(cell.value).strip())
             list_of_lists_of_previous_cell_values.append(new_check_list)
 
-            if any([list_of_lists_of_previous_cell_values.count(x) > 1 for x in list_of_lists_of_previous_cell_values]):
+            if any(list_of_lists_of_previous_cell_values.count(x) > 1 for x in list_of_lists_of_previous_cell_values):
                 raise BaseError(f"ERROR: There is at least one duplicate node in the list. Found duplicate in column "
-                                f"{cell.column}, row {cell.row}:\n'{cell.value.strip()}'")
+                                f"{cell.column}, row {cell.row}:\n'{str(cell.value).strip()}'")
 
             # create a simplified version of the cell value and use it as name of the node
-            nodename = simplify_name(cell.value.strip())
+            nodename = simplify_name(str(cell.value).strip())
             list_of_previous_node_names.append(nodename)
 
             # append a number (p.ex. node-name-2) if there are list nodes with identical names
@@ -167,7 +167,7 @@ def _get_values_from_excel(
             currentnode = {"name": nodename, "labels": labels_dict}
             nodes.append(currentnode)
             if verbose:
-                print(f"Added list node: {cell.value.strip()} ({nodename})")
+                print(f"Added list node: {str(cell.value).strip()} ({nodename})")
 
         # go one row down and repeat loop if there is a value
         row += 1
@@ -264,11 +264,11 @@ def validate_lists_section_with_schema(
     if bool(path_to_json_project_file) == bool(lists_section):
         raise BaseError("Validation of the 'lists' section works only if exactly one of the two arguments is given.")
     
-    with importlib.resources.files("dsp_tools").joinpath("resources/schema/lists-only.json").open() as schema_file:
+    with importlib.resources.files("dsp_tools").joinpath("resources/schema/lists-only.json").open(encoding="utf-8") as schema_file:
         lists_schema = json.load(schema_file)
 
     if path_to_json_project_file:
-        with open(path_to_json_project_file) as f:
+        with open(path_to_json_project_file, encoding="utf-8") as f:
             project = json.load(f)
             lists_section = project["project"].get("lists")
             if not lists_section:
@@ -335,7 +335,7 @@ def excel2lists(
     excel_file_paths = _extract_excel_file_paths(excelfolder)
     if verbose:
         print("The following Excel files will be processed:")
-        [print(f" - {filename}") for filename in excel_file_paths]
+        print(*(f" - {filename}" for filename in excel_file_paths), sep="\n")
     
     # construct the "lists" section
     finished_lists = _make_json_lists_from_excel(excel_file_paths, verbose=verbose)

@@ -51,24 +51,24 @@ def start_stack(
     # get sipi.docker-config.lua
     commit_of_used_api_version = "571246eec32ad44e6b7c87bbb8eab5cad50596bb"      # gitleaks:allow
     url_prefix = f"https://github.com/dasch-swiss/dsp-api/raw/{commit_of_used_api_version}/"
-    docker_config_lua_text = requests.get(f"{url_prefix}sipi/config/sipi.docker-config.lua").text
+    docker_config_lua_text = requests.get(f"{url_prefix}sipi/config/sipi.docker-config.lua", timeout=5).text
     if max_file_size:
         max_post_size_regex = r"max_post_size ?= ?[\'\"]\d+M[\'\"]"
         if not re.search(max_post_size_regex, docker_config_lua_text):
             raise BaseError("Unable to set max_file_size. Please try again without this flag.")
         docker_config_lua_text = re.sub(max_post_size_regex, f"max_post_size = '{max_file_size}M'", docker_config_lua_text)
-    with open(docker_path_of_user / "sipi.docker-config.lua", "w") as f:
+    with open(docker_path_of_user / "sipi.docker-config.lua", "w", encoding="utf-8") as f:
         f.write(docker_config_lua_text)
 
     # start up the fuseki database
-    completed_process = subprocess.run("docker compose up db -d", shell=True, cwd=docker_path_of_user)
+    completed_process = subprocess.run("docker compose up db -d", shell=True, cwd=docker_path_of_user, check=False)
     if not completed_process or completed_process.returncode != 0:
         raise BaseError("Cannot start the API: Error while executing 'docker compose up db -d'")
 
     # wait until fuseki is up (same behaviour as dsp-api/webapi/scripts/wait-for-db.sh)
-    for i in range(360):
+    for _ in range(360):
         try:
-            response = requests.get(url="http://0.0.0.0:3030/$/server", auth=("admin", "test"))
+            response = requests.get(url="http://0.0.0.0:3030/$/server", auth=("admin", "test"), timeout=5)
             if response.ok:
                 break
         except:
@@ -77,12 +77,13 @@ def start_stack(
 
     # inside fuseki, create the "knora-test" repository
     # (same behaviour as dsp-api/webapi/target/docker/stage/opt/docker/scripts/fuseki-init-knora-test.sh)
-    repo_template = requests.get(f"{url_prefix}webapi/scripts/fuseki-repository-config.ttl.template").text
+    repo_template = requests.get(f"{url_prefix}webapi/scripts/fuseki-repository-config.ttl.template", timeout=5).text
     repo_template = repo_template.replace("@REPOSITORY@", "knora-test")
     response = requests.post(
         url="http://0.0.0.0:3030/$/datasets",
         files={"file": ("file.ttl", repo_template, "text/turtle; charset=utf8")},
-        auth=("admin", "test")
+        auth=("admin", "test"),
+        timeout=5
     )
     if not response.ok:
         raise BaseError("Cannot start DSP-API: Error when creating the 'knora-test' repository. Is DSP-API perhaps "
@@ -103,17 +104,18 @@ def start_stack(
         ("test_data/all_data/anything-data.ttl", "http://www.knora.org/data/0001/anything")
     ]
     for ttl_file, graph in ttl_files:
-        ttl_text = requests.get(url_prefix + ttl_file).text
+        ttl_text = requests.get(url_prefix + ttl_file, timeout=5).text
         response = requests.post(
             url=graph_prefix + graph,
             files={"file": ("file.ttl", ttl_text, "text/turtle; charset: utf-8")},
             auth=("admin", "test"),
+            timeout=5
         )
         if not response.ok:
             raise BaseError(f"Cannot start DSP-API: Error when creating graph '{graph}'")
 
     # startup all other components
-    subprocess.run("docker compose up -d", shell=True, cwd=docker_path_of_user)
+    subprocess.run("docker compose up -d", shell=True, cwd=docker_path_of_user, check=True)
     print("DSP-API is now running on http://0.0.0.0:3333/ and DSP-APP on http://0.0.0.0:4200/")
 
     # docker system prune
@@ -127,7 +129,7 @@ def start_stack(
             prune_docker = input("Allow dsp-tools to execute 'docker system prune'? This is necessary to keep your "
                                  "Docker clean. If you are unsure what that means, just type y and press Enter. [y/n]")
     if prune_docker == "y":
-        subprocess.run("docker system prune -f", shell=True, cwd=docker_path_of_user)
+        subprocess.run("docker system prune -f", shell=True, cwd=docker_path_of_user, check=False)
     
     return True
 
@@ -139,5 +141,5 @@ def stop_stack() -> bool:
     Returns:
         True if everything went well, False otherwise
     """
-    subprocess.run("docker compose down --volumes", shell=True, cwd=docker_path_of_user)
+    subprocess.run("docker compose down --volumes", shell=True, cwd=docker_path_of_user, check=True)
     return True

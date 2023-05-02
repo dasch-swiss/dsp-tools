@@ -45,6 +45,7 @@ def process_files(
     Returns:
         success status
     """
+    logger.info(f"***Call to process_files(input_dir='{input_dir}', out_dir='{out_dir}', xml_file='{xml_file}')***")
     # check the input parameters
     param_check_result = _check_params(
         input_dir=input_dir, 

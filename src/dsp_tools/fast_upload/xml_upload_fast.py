@@ -1,3 +1,4 @@
+import logging
 import pickle
 from datetime import datetime
 from pathlib import Path
@@ -6,12 +7,13 @@ from lxml import etree
 
 from dsp_tools.utils.xml_upload import xml_upload
 
+logger = logging.getLogger(__name__)
+
 
 def _get_paths_from_pkl_file(pkl_file: Path) -> list[tuple[Path, Path]]:
     with open(pkl_file, 'rb') as file:
         orig_paths_2_processed_paths: list[tuple[Path, Path]] = pickle.load(file)
     return orig_paths_2_processed_paths
-
 
 
 def fast_xml_upload(
@@ -42,7 +44,8 @@ def fast_xml_upload(
     Returns:
         success status
     """
-
+    logger.info(f"***Call to fast_xml_upload(xml_file='{xml_file}', pkl_file='{pkl_file}', user='{user}',"
+                f"password='{password}', dsp_url='{dsp_url}', sipi_url='{sipi_url}')***")
     xml_tree = etree.parse(xml_file)
     orig_paths_2_processed_paths = _get_paths_from_pkl_file(pkl_file=Path(pkl_file))
 

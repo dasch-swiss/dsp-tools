@@ -92,10 +92,14 @@ def process_files(
         all_paths=all_paths
     )
 
+    # write pickle file
     if not _write_result_to_pkl_file(result):
         success = False
         print(f"{datetime.now()}: An error occurred while writing the result to the pickle file. The result was: {result}")
         logger.error(f"An error occurred while writing the result to the pickle file. The result was: {result}")
+
+    # remove the SIPI container
+    _stop_and_delete_sipi_container()
 
     return success
 
@@ -317,6 +321,18 @@ def _get_sipi_container() -> Union[Model, Any, None]:
         print(f"{datetime.now()}: ERROR: Couldn't find a running Sipi container.")
         logger.error("Couldn't find a running Sipi container.", exc_info=True)
         return None
+
+
+def _stop_and_delete_sipi_container() -> None:
+    """
+    Stop and delete the SIPI container.
+    """
+    docker_client = docker.from_env()
+    try:
+        sipi_container = docker_client.containers.get("sipi")
+        sipi_container.remove()
+    except docker.errors.NotFound:
+        pass
 
 
 def _compute_sha256(file: Path) -> Optional[str]:

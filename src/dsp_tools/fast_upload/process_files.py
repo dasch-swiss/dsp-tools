@@ -32,7 +32,7 @@ def process_files(
     """
     Process the files referenced in the given XML file.
     Writes the processed files 
-    (derivative, .orig file, sidecar file, as well as the key frames for movies) 
+    (derivative, .orig file, sidecar file, as well as the preview file for movies) 
     to the given output directory.
     Additionally, writes a pickle file containing the mapping between the original files and the processed files,
     e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2').

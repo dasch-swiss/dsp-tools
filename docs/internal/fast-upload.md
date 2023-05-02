@@ -65,7 +65,7 @@ All files referenced in the <bitstream> tags of the XML
 are expected to be in the input directory 
 which is provided with the `--input-dir` option.
 The processed files 
-(derivative, .orig file, sidecar file, as well as the key frames for movies) 
+(derivative, .orig file, sidecar file, as well as the preview file for movies) 
 will be stored in the given `--out-dir` directory.
 If the output directory doesn't exist, it will be created automatically.
 Additionally to the output directory,

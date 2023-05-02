@@ -172,7 +172,7 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
                       f"Please use the column 'gui_attributes' for the attribute 'hlist'.")
 
     # transform every row into a property
-    props = [_row2prop(row, int(str(i)), excelfile) for i, row in df.iterrows()]
+    props = [_row2prop(row, int(str(index)), excelfile) for index, row in df.iterrows()]   # index is a label/index/hashable, but we need an int
 
     # write final JSON file
     _validate_properties(properties_list=props, excelfile=excelfile)

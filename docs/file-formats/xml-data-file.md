@@ -478,7 +478,7 @@ Attributes:
 
 #### `<geoname>`
 
-Contains a valid [geonames.org](http://geonames.org) ID.
+Contains a valid [geonames.org](https://www.geonames.org) ID.
 
 Attributes:
 

@@ -101,7 +101,7 @@ def _upload_without_processing(
             response_upload = requests.post(
                 url=f"{regex.sub(r'/$', '', sipi_url)}/upload_without_processing?token={con.get_token()}",
                 files={"file": bitstream},
-                timeout=5
+                timeout=8*60
             )
     except OSError:
         print(f"{datetime.now()}: ERROR: An exception was raised while calling the /upload_without_processing route for the file {file}")

@@ -21,11 +21,11 @@ def _get_upload_candidates(
 ) -> list[Path]:
     """
     Based on the base derivate file, get all files based on the same uuid.
-    For example, if the base derivate file is 1ffbbb30-77e8-414c-94ff-7e1c060f9146.jp2,
+    For example, if the base derivate file is tmp/1f/fb/1ffbbb30-77e8-414c-94ff-7e1c060f9146.jp2,
     the upload candidates are:
-    - 1ffbbb30-77e8-414c-94ff-7e1c060f9146.jp2
-    - 1ffbbb30-77e8-414c-94ff-7e1c060f9146.png.orig
-    - 1ffbbb30-77e8-414c-94ff-7e1c060f9146.info
+    - tmp/1f/fb/1ffbbb30-77e8-414c-94ff-7e1c060f9146.jp2
+    - tmp/1f/fb/1ffbbb30-77e8-414c-94ff-7e1c060f9146.png.orig
+    - tmp/1f/fb/1ffbbb30-77e8-414c-94ff-7e1c060f9146.info
 
     In case of video files, the upload candidates include all keyframes.
 
@@ -37,9 +37,9 @@ def _get_upload_candidates(
         list of all processed files that belong to the same original file
     """
     upload_candidates: list[str] = []
-    upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/{uuid_name_of_processed_file.stem}/**/*.*"))
-    upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/{uuid_name_of_processed_file.stem}/*.*"))
-    upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/{uuid_name_of_processed_file.stem}*.*"))
+    upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/**/**/{uuid_name_of_processed_file.stem}/**/*.*"))
+    upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/**/**/{uuid_name_of_processed_file.stem}/*.*"))
+    upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/**/**/{uuid_name_of_processed_file.stem}*.*"))
     upload_candidates_paths = [Path(c) for c in upload_candidates]
     logger.info(f"Found the following upload candidates for {uuid_name_of_processed_file}: {upload_candidates_paths}")
     return upload_candidates_paths
@@ -72,7 +72,7 @@ def _check_upload_candidates(
 
     min_num_of_candidates = 5 if uuid_name_of_processed_file.suffix == ".mp4" else 3
     if len(upload_candidates) < min_num_of_candidates:
-        msg = "Found the following files for {uuid_name_of_processed_file}, but more were expected: {upload_candidates}. Skipping..."
+        msg = f"Found the following files for {uuid_name_of_processed_file}, but more were expected: {upload_candidates}. Skipping..."
         print(f"{datetime.now()}: ERROR: {msg}")
         logger.error(msg)
         return False

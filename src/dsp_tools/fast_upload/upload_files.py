@@ -72,8 +72,9 @@ def _check_upload_candidates(
 
     min_num_of_candidates = 5 if uuid_name_of_processed_file.suffix == ".mp4" else 3
     if len(upload_candidates) < min_num_of_candidates:
-        print(f"{datetime.now()}: ERROR: Found the following files for {uuid_name_of_processed_file}, but more were expected: {upload_candidates}. Skipping...")
-        logger.error(f"Found the following files for {uuid_name_of_processed_file}, but more were expected: {upload_candidates}. Skipping...")
+        msg = "Found the following files for {uuid_name_of_processed_file}, but more were expected: {upload_candidates}. Skipping..."
+        print(f"{datetime.now()}: ERROR: {msg}")
+        logger.error(msg)
         return False
 
     logger.info(f"Upload candidates for {uuid_name_of_processed_file} are okay.")
@@ -269,8 +270,10 @@ def _check_if_all_files_were_uploaded(
         logger.info(f"Number of files of which the derivates were uploaded: {len(result)}: Okay")
     else:
         success = False
-        print(f"{datetime.now()}: ERROR: Some derivates of some files could not be uploaded: Only {len(result)}/{len(uuid_names_of_processed_files)} were uploaded. The failed ones are:")
-        logger.error(f"Some derivates of some files could not be uploaded: Only {len(result)}/{len(uuid_names_of_processed_files)} were uploaded. The failed ones are:")
+        msg = f"Some derivates of some files could not be uploaded: Only {len(result)}/{len(uuid_names_of_processed_files)} were uploaded. " \
+               "The failed ones are:"
+        print(f"{datetime.now()}: ERROR: {msg}")
+        logger.error(msg)
     
     for path, res in result:
         if not res:

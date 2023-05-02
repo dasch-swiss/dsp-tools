@@ -140,7 +140,7 @@ def _write_id2iri_mapping_and_metrics(
         os.makedirs("metrics", exist_ok=True)
         df = pd.DataFrame(metrics)
         df.to_csv(f"metrics/{metrics_filename}")
-        print(f"Total time of xmlupload: {sum([int(record.duration_ms) for record in metrics]) / 1000:.1f} seconds")
+        print(f"Total time of xmlupload: {sum(int(record.duration_ms) for record in metrics) / 1000:.1f} seconds")
 
     return success
 

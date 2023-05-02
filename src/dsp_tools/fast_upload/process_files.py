@@ -506,7 +506,7 @@ def _create_sidecar_file(
     sidecar_file_basename = f"{random_part_of_filename}.info"
     sidecar_file = PurePath(converted_file.parent, sidecar_file_basename)
 
-    with open(sidecar_file, "w") as f:
+    with open(sidecar_file, "w", encoding="utf-8") as f:
         sidecar_json = json.dumps(sidecar_dict, indent=4)
         f.write(sidecar_json)
     

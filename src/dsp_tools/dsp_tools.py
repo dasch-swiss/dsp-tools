@@ -94,7 +94,8 @@ def make_parser() -> argparse.ArgumentParser:
     parser_upload.add_argument("-S", "--sipi", default=default_sipi, 
                                help="URL of the SIPI server where DSP-TOOLS sends the multimedia files to")
     parser_upload.add_argument("-i", "--imgdir", default=".", help="folder from where the paths in the <bitstream> tags are evaluated")
-    parser_upload.add_argument("-I", "--incremental", action="store_true", help="The links in the XML file point to IRIs (on the server) instead of IDs (in the same XML file).")
+    parser_upload.add_argument("-I", "--incremental", action="store_true", 
+                               help="The links in the XML file point to IRIs (on the server) instead of IDs (in the same XML file).")
     parser_upload.add_argument("-V", "--validate", action="store_true", help="validate the XML file without uploading it")
     parser_upload.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
     parser_upload.add_argument("-m", "--metrics", action="store_true", help="write metrics into a 'metrics' folder")

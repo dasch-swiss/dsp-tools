@@ -15,13 +15,13 @@ from typing import Any, Optional, Union
 
 import docker
 import requests
-from docker.models.resource import Model
+from docker.models.containers import Container
 from lxml import etree
 
 from dsp_tools.models.exceptions import BaseError
 
 logger = logging.getLogger(__name__)
-sipi_container: Optional[Model] = None
+sipi_container: Optional[Container] = None
 export_moving_image_frames_script: Optional[Path] = None
 
 def process_files(
@@ -282,8 +282,8 @@ def _start_sipi_container_and_mount_volumes(
 
     # Docker container doesn't exist yet
     try:
-        container = docker_client.containers.get(container_name)
-    except docker.errors.NotFound:
+        container: Container = docker_client.containers.get(container_name)    # pyright: ignore
+    except docker.errors.NotFound:                                             # pyright: ignore
         docker_client.containers.run(image="daschswiss/sipi:3.8.1", name=container_name, volumes=volumes, entrypoint=entrypoint, detach=True)
         print(f"{datetime.now()}: Created and started Sipi container '{container_name}'.")
         logger.info(f"Created and started Sipi container '{container_name}'.")
@@ -307,7 +307,7 @@ def _start_sipi_container_and_mount_volumes(
         logger.info(f"Restarted existing Sipi container '{container_name}'.")
 
 
-def _get_sipi_container() -> Union[Model, Any, None]:
+def _get_sipi_container() -> Optional[Container]:
     """
     Finds the locally running Sipi container (searches for container name "sipi")
 
@@ -316,8 +316,8 @@ def _get_sipi_container() -> Union[Model, Any, None]:
     """
     docker_client = docker.from_env()
     try:
-        return docker_client.containers.get("sipi")
-    except docker.errors.NotFound:
+        return docker_client.containers.get("sipi")    # pyright: ignore
+    except docker.errors.NotFound:                     # pyright: ignore
         print(f"{datetime.now()}: ERROR: Couldn't find a running Sipi container.")
         logger.error("Couldn't find a running Sipi container.", exc_info=True)
         return None
@@ -327,11 +327,12 @@ def _stop_and_remove_sipi_container() -> None:
     """
     Stop and remove the SIPI container.
     """
-    global sipi_container
+    if not sipi_container:
+        return
     try:
         sipi_container.stop()
         sipi_container.remove()
-    except docker.errors.APIError:
+    except docker.errors.APIError:  # pyright: ignore
         pass
 
 

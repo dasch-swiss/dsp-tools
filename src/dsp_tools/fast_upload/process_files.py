@@ -333,6 +333,7 @@ def _stop_and_remove_sipi_container() -> None:
     try:
         sipi_container.stop()
         sipi_container.remove()
+        logger.info("Stopped and removed Sipi container.")
     except docker.errors.APIError:  # pyright: ignore
         pass
 
@@ -348,8 +349,8 @@ def _compute_sha256(file: Path) -> Optional[str]:
         the calculated checksum
     """
     if not file.is_file():
-        print(f"{datetime.now()}: ERROR: Couldn't calculate checksum for {file}")
-        logger.error(f"Couldn't calculate checksum for {file}")
+        print(f"{datetime.now()}: ERROR: Couldn't calculate checksum for {file}, because such a file doesn't exist.")
+        logger.error(f"Couldn't calculate checksum for {file}, because such a file doesn't exist.")
         return None
     hash_sha256 = hashlib.sha256()
     with open(file, "rb") as f:
@@ -370,7 +371,7 @@ def _convert_file_with_sipi(
         out_file_local_path: path to output file, has to be relative to the Sipi executable inside the container
     """
     in_file_sipi_path = Path("processing-input") / in_file
-    out_file_sipi_path = Path("processing-output") / os.path.basename(out_file_local_path)
+    out_file_sipi_path = Path("processing-output") / out_file_local_path.relative_to("tmp")
 
     if not sipi_container:
         print(f"{datetime.now()}: ERROR: Cannot convert file {in_file} with Sipi: Sipi container not found.")

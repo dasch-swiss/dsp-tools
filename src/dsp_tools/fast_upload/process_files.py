@@ -541,6 +541,8 @@ def _get_file_category_from_extension(file: Path) -> Optional[str]:
         category = "OTHER"
     else:
         category = None
+        print(f"{datetime.now()}: ERROR: Couldn't get category for {file}")
+        logger.error(f"Couldn't get category for {file}")
     return category
 
 
@@ -618,15 +620,11 @@ def _process_file(
         file_name=internal_filename, 
         out_dir=out_dir
     ):
-        print(f"{datetime.now()}: Couldn't create .orig file for {in_file}")
-        logger.info(f"Couldn't create .orig file for {in_file}")
         return in_file, in_file
 
     # convert file (create derivative) and create sidecar file based on category (image, video or other)
     file_category = _get_file_category_from_extension(in_file)
     if not file_category:
-        print(f"{datetime.now()}: ERROR: Couldn't get category for {in_file}")
-        logger.error(f"Couldn't get category for {in_file}")
         return in_file, in_file
 
     if file_category == "OTHER":

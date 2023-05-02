@@ -99,7 +99,7 @@ def process_files(
         logger.error(f"An error occurred while writing the result to the pickle file. The result was: {result}")
 
     # remove the SIPI container
-    _stop_and_delete_sipi_container()
+    _stop_and_remove_sipi_container()
 
     return success
 
@@ -323,15 +323,15 @@ def _get_sipi_container() -> Union[Model, Any, None]:
         return None
 
 
-def _stop_and_delete_sipi_container() -> None:
+def _stop_and_remove_sipi_container() -> None:
     """
-    Stop and delete the SIPI container.
+    Stop and remove the SIPI container.
     """
-    docker_client = docker.from_env()
+    global sipi_container
     try:
-        sipi_container = docker_client.containers.get("sipi")
+        sipi_container.stop()
         sipi_container.remove()
-    except docker.errors.NotFound:
+    except docker.errors.APIError:
         pass
 
 

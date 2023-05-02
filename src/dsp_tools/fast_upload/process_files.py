@@ -387,7 +387,7 @@ def _convert_file_with_sipi(
 
 def _create_orig_file(
     in_file: Path, 
-    file_name: str, 
+    internal_file_name: str, 
     out_dir: Path
 ) -> bool:
     """
@@ -395,12 +395,11 @@ def _create_orig_file(
 
     Args:
         in_file: the input file from which the .orig should be created
-        file_name: the filename which should be used for the .orig file
-        out_dir: the directory where the .orig file should be written to
+        internal_file_name: the internal filename which should be used for the .orig file
+        out_dir: the directory where the .orig file should be written to, e.g. tmp/in/te/ if the internal filename is "internal_file_name"
     """
     orig_ext = PurePath(in_file).suffix
-    orig_file_basename = f"{file_name}{orig_ext}.orig"
-    orig_file_full_path = Path(out_dir, file_name[0:2], file_name[2:4], orig_file_basename)
+    orig_file_full_path = Path(out_dir, f"{internal_file_name}{orig_ext}.orig")
     try:
         shutil.copyfile(in_file, orig_file_full_path)
         logger.info(f"Created .orig file {orig_file_full_path}")
@@ -451,7 +450,6 @@ def _get_video_metadata_with_ffprobe(file_path: Path) -> Optional[dict[str, Any]
 def _create_sidecar_file(
     orig_file: Path,
     converted_file: Path,
-    out_dir: Path,
     file_category: str
 ) -> bool:
     """
@@ -612,14 +610,16 @@ def _process_file(
         logger.info(f"'{in_file}' does not exist. Skipping...")
         return in_file, in_file
 
-    # get random UUID for internal file handling
+    # get random UUID for internal file handling, and create directory structure
     internal_filename = str(uuid.uuid4())
+    out_dir_full = Path(out_dir, internal_filename[0:2], internal_filename[2:4])
+    out_dir_full.mkdir(parents=True, exist_ok=True)
 
     # create .orig file
     if not _create_orig_file(
         in_file=in_file, 
-        file_name=internal_filename, 
-        out_dir=out_dir
+        internal_file_name=internal_filename, 
+        out_dir=out_dir_full
     ):
         return in_file, in_file
 
@@ -632,48 +632,26 @@ def _process_file(
         result = _process_other_file(
             in_file=in_file, 
             internal_filename=internal_filename, 
-            out_dir=out_dir
+            out_dir=out_dir_full
         )
     elif file_category == "IMAGE":
         result = _process_image_file(
             in_file=in_file, 
             internal_filename=internal_filename, 
-            out_dir=out_dir, 
+            out_dir=out_dir_full, 
             input_dir=input_dir
         )
     elif file_category == "VIDEO":
         result = _process_video_file(
             in_file=in_file, 
             internal_filename=internal_filename, 
-            out_dir=out_dir
+            out_dir=out_dir_full
         )
     else:
         print(f"{datetime.now()}: Unexpected file category: {file_category}")
         return in_file, in_file
 
     return result
-
-
-def _get_path_for_converted_file(
-    out_dir: Path,
-    internal_filename: str,
-    ext: str,
-) -> Path:
-    """
-    Computes the path where the converted file can be written to, 
-    and creates the directory tree if necessary.
-
-    Args:
-        out_dir: the output directory where the converted file should be written to
-        internal_filename: the string that should be used for the internal filename
-        ext: the file extension for the converted file
-
-    Returns:
-        the path where the converted file can be written to, e.g. out_dir/in/te/internal_filename.ext
-    """
-    converted_file = out_dir / internal_filename[0:2] / internal_filename[2:4] / Path(internal_filename).with_suffix(ext)
-    converted_file.parent.mkdir(parents=True, exist_ok=True)
-    return converted_file
 
 
 def _process_other_file(
@@ -690,16 +668,12 @@ def _process_other_file(
     Args:
         in_file: the input file that should be processed
         internal_filename: the internal filename that should be used for the output file
-        out_dir: the output directory where the processed file should be written to
+        out_dir: the output directory where the processed file should be written to, e.g. tmp/in/te/ if the internal filename is "internal_file_name"
 
     Returns:
         a tuple of the original file path and the path to the processed file
     """
-    converted_file_full_path = _get_path_for_converted_file(
-        out_dir=out_dir,
-        internal_filename=internal_filename,
-        ext=PurePath(in_file).suffix,
-    )
+    converted_file_full_path = out_dir / Path(internal_filename).with_suffix(in_file.suffix)
     try:
         shutil.copyfile(in_file, converted_file_full_path)
     except:
@@ -709,7 +683,6 @@ def _process_other_file(
     if not _create_sidecar_file(
         orig_file=in_file, 
         converted_file=converted_file_full_path, 
-        out_dir=out_dir, 
         file_category="OTHER"
     ):
         print(f"{datetime.now()}: ERROR: Couldn't create sidecar file for: {in_file}")
@@ -736,11 +709,7 @@ def _process_image_file(
     Returns:
         a tuple of the original file path and the path to the processed file
     """
-    converted_file_full_path = _get_path_for_converted_file(
-        out_dir=out_dir,
-        internal_filename=internal_filename,
-        ext=".jp2",
-    )
+    converted_file_full_path = out_dir / Path(internal_filename).with_suffix(".jp2")
     in_file_sipi_path = os.path.relpath(in_file, input_dir)
     sipi_result = _convert_file_with_sipi(
         in_file=in_file_sipi_path, 
@@ -753,7 +722,6 @@ def _process_image_file(
     if not _create_sidecar_file(
         orig_file=in_file, 
         converted_file=converted_file_full_path, 
-        out_dir=out_dir, 
         file_category="IMAGE"
     ):
         print(f"{datetime.now()}: ERROR: Couldn't create sidecar file for: {in_file}")
@@ -778,11 +746,7 @@ def _process_video_file(
     Returns:
         a tuple of the original file path and the path to the processed file
     """
-    converted_file_full_path = _get_path_for_converted_file(
-        out_dir=out_dir,
-        internal_filename=internal_filename,
-        ext=PurePath(in_file).suffix,
-    )
+    converted_file_full_path = out_dir / Path(internal_filename).with_suffix(in_file.suffix)
     try:
         shutil.copyfile(in_file, converted_file_full_path)
     except:
@@ -797,7 +761,6 @@ def _process_video_file(
     if not _create_sidecar_file(
         orig_file=in_file, 
         converted_file=converted_file_full_path, 
-        out_dir=out_dir, 
         file_category="VIDEO"
     ):
         print(f"{datetime.now()}: ERROR: Couldn't create sidecar file for: {in_file}")

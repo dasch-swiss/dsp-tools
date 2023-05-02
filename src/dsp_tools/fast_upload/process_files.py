@@ -399,7 +399,7 @@ def _create_orig_file(
     """
     orig_ext = PurePath(in_file).suffix
     orig_file_basename = f"{file_name}{orig_ext}.orig"
-    orig_file_full_path = PurePath(out_dir, orig_file_basename)
+    orig_file_full_path = Path(out_dir, file_name[0:2], file_name[2:4], orig_file_basename)
     try:
         shutil.copyfile(in_file, orig_file_full_path)
         logger.info(f"Created .orig file {orig_file_full_path}")
@@ -458,7 +458,7 @@ def _create_sidecar_file(
 
     Args:
         orig_file: path to the original file
-        converted_file: path to the converted file
+        converted_file: path to the converted file, e.g. out_dir/in/te/internal_filename.ext
         out_dir: output directory where the sidecar file should be written to
         file_category: the file category, either IMAGE, VIDEO or OTHER
 
@@ -505,7 +505,7 @@ def _create_sidecar_file(
         sidecar_dict["fps"] = fps
 
     sidecar_file_basename = f"{random_part_of_filename}.info"
-    sidecar_file = PurePath(out_dir, sidecar_file_basename)
+    sidecar_file = PurePath(converted_file.parent, sidecar_file_basename)
 
     with open(sidecar_file, "w") as f:
         sidecar_json = json.dumps(sidecar_dict, indent=4)
@@ -661,7 +661,8 @@ def _get_path_for_converted_file(
     ext: str,
 ) -> Path:
     """
-    Creates the path for the converted file
+    Computes the path where the converted file can be written to, 
+    and creates the directory tree if necessary.
 
     Args:
         out_dir: the output directory where the converted file should be written to
@@ -669,10 +670,11 @@ def _get_path_for_converted_file(
         ext: the file extension for the converted file
 
     Returns:
-        the path to the converted file
+        the path where the converted file can be written to, e.g. out_dir/in/te/internal_filename.ext
     """
-    converted_file_basename = internal_filename + ext
-    return out_dir / converted_file_basename
+    converted_file = out_dir / internal_filename[0:2] / internal_filename[2:4] / Path(internal_filename).with_suffix(ext)
+    converted_file.parent.mkdir(parents=True, exist_ok=True)
+    return converted_file
 
 
 def _process_other_file(
@@ -681,7 +683,10 @@ def _process_other_file(
     out_dir: Path
 ) -> tuple[Path, Path]:
     """
-    Processes a file of file category OTHER
+    Processes a file of file category OTHER.
+    There is no real derivate created, 
+    but the original file is copied, 
+    and a sidecar file is created.
 
     Args:
         in_file: the input file that should be processed
@@ -727,6 +732,7 @@ def _process_image_file(
         in_file: the input file that should be processed
         internal_filename: the internal filename that should be used for the output file
         out_dir: the output directory where the processed file should be written to
+        input_dir: root directory of the input files
 
     Returns:
         a tuple of the original file path and the path to the processed file

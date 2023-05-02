@@ -51,7 +51,7 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
     if verbose:
         print("Getting groups...")
     groups_obj = []
-    groups: Optional[list[Group]] = Group.getAllGroupsForProject(con=con, proj_iri=project.id)
+    groups: Optional[list[Group]] = Group.getAllGroupsForProject(con=con, proj_iri=str(project.id))
     if groups:
         for group in groups:
             groups_obj.append(group.createDefinitionFileObj())
@@ -63,11 +63,11 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
     if verbose:
         print("Getting users...")
     users_obj = []
-    users = User.getAllUsersForProject(con=con, proj_shortcode=project.shortcode)
+    users = User.getAllUsersForProject(con=con, proj_shortcode=str(project.shortcode))
     if users:
         for usr in users:
             users_obj.append(usr.createDefinitionFileObj(
-                con=con, proj_shortname=project.shortname, proj_shortcode=project.shortcode
+                con=con, proj_shortname=str(project.shortname), proj_shortcode=str(project.shortcode)
             ))
             if verbose:
                 print(f"\tGot user '{usr.username}'")
@@ -88,10 +88,10 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
 
     # get the ontologies
     if verbose:
-        print(f"Getting ontologies...")
+        print("Getting ontologies...")
     project_obj["ontologies"] = []
     prefixes: dict[str, str] = dict()
-    ontologies = Ontology.getProjectOntologies(con, project.id)
+    ontologies = Ontology.getProjectOntologies(con, str(project.id))
     ontology_ids = [onto.id for onto in ontologies]
     for ontology_id in ontology_ids:
         onto_url_parts = ontology_id.split("/")  # an id has the form http://0.0.0.0:3333/ontology/4123/testonto/v2

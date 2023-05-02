@@ -1,6 +1,6 @@
 import json
 import re
-from typing import Any, Optional, Union
+from typing import Any, Optional, Sequence, Union
 from urllib.parse import quote_plus
 
 from dsp_tools.models.connection import Connection
@@ -35,7 +35,7 @@ class PropertyClass(Model):
                  id: Optional[str] = None,
                  name: Optional[str] = None,
                  ontology_id: Optional[str] = None,
-                 superproperties: Optional[list[Union['PropertyClass', str]]] = None,
+                 superproperties: Optional[Sequence[Union['PropertyClass', str]]] = None,
                  object: Optional[str] = None,
                  subject: Optional[str] = None,
                  gui_element: Optional[str] = None,

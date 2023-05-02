@@ -67,8 +67,10 @@ def make_parser() -> argparse.ArgumentParser:
     parser_create.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
     parser_create.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_create.add_argument("-p", "--password", default=default_pw, help=password_text)
-    parser_create.add_argument("-V", "--validate-only", action="store_true", help="validate the JSON file without creating it on the DSP server")
-    parser_create.add_argument("-l", "--lists-only", action="store_true", help="create only the lists (prerequisite: the project exists on the server)")
+    parser_create.add_argument("-V", "--validate-only", action="store_true", 
+                               help="validate the JSON file without creating it on the DSP server")
+    parser_create.add_argument("-l", "--lists-only", action="store_true", 
+                               help="create only the lists (prerequisite: the project exists on the server)")
     parser_create.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
     parser_create.add_argument("-d", "--dump", action="store_true", help="dump test files for DSP-API requests")
     parser_create.add_argument("project_definition", help="path to the JSON project file")
@@ -89,7 +91,8 @@ def make_parser() -> argparse.ArgumentParser:
     parser_upload.add_argument("-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to")
     parser_upload.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_upload.add_argument("-p", "--password", default=default_pw, help=password_text)
-    parser_upload.add_argument("-S", "--sipi", default=default_sipi, help="URL of the SIPI server where DSP-TOOLS sends the multimedia files to")
+    parser_upload.add_argument("-S", "--sipi", default=default_sipi, 
+                               help="URL of the SIPI server where DSP-TOOLS sends the multimedia files to")
     parser_upload.add_argument("-i", "--imgdir", default=".", help="folder from where the paths in the <bitstream> tags are evaluated")
     parser_upload.add_argument("-I", "--incremental", action="store_true", help="The links in the XML file point to IRIs (on the server) instead of IDs (in the same XML file).")
     parser_upload.add_argument("-V", "--validate", action="store_true", help="validate the XML file without uploading it")
@@ -244,7 +247,7 @@ def call_requested_action(
     args = parser.parse_args(user_args)
     if not hasattr(args, "action"):
         parser.print_help(sys.stderr)
-        exit(1)
+        sys.exit(1)
     elif args.action == "create":
         if args.lists_only:
             if args.validate_only:
@@ -393,11 +396,11 @@ def main() -> None:
         success = call_requested_action(user_args=sys.argv[1:], parser=parser)
     except UserError as err:
         print(err.message)
-        exit(1)
+        sys.exit(1)
     # let BaseError and all unexpected errors escalate, so that a stack trace is printed
 
     if not success: 
-        exit(1)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

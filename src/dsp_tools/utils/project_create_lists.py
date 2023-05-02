@@ -45,7 +45,7 @@ def _create_list_node(
         parent=parent_node
     )
     try:
-        new_node = try_network_action(lambda: new_node.create())
+        new_node = try_network_action(new_node.create)
     except BaseError:
         print(f"WARNING: Cannot create list node '{node['name']}'.")
         logger.warning("Cannot create list node '{node['name']}'.", exc_info=True)
@@ -178,7 +178,7 @@ def create_lists(
     # retrieve the project
     project_local = Project(con=con, shortcode=project_definition["project"]["shortcode"])
     try:
-        project_remote = try_network_action(lambda: project_local.read())
+        project_remote = try_network_action(project_local.read)
     except BaseError:
         err_msg = f"Unable to create the lists: The project {project_definition['project']['shortcode']} cannot be found on the DSP server."
         logger.error(err_msg, exc_info=True)

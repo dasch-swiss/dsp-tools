@@ -109,44 +109,34 @@ a single line of code in a test method fails.
 
 ## Code style
 
-When contributing to the project please make sure you use the same code style rules as we do. 
-We use [autopep8](https://pypi.org/project/autopep8/) and [mypy](https://pypi.org/project/mypy/). 
-The configuration is defined in `pyproject.toml`.
+When contributing to the project, please make sure you use the same code style rules as we do. We use 
 
-You can use the configuration with `autopep8 --global-config pyproject.toml [file path]` and 
-`mypy --config-file pyproject.toml [file path]`.
+- [pylint](https://pypi.org/project/pylint/) (configured in `pyproject.toml`)
+- [isort](https://pypi.org/project/isort/) (configured in `pyproject.toml`)
+- [mypy](https://pypi.org/project/mypy/) (configured in `pyproject.toml`)
+- [markdownlint](https://github.com/DavidAnson/markdownlint) (configured in `.markdownlint.json`)
 
-For Markdown files, we use [markdownlint](https://github.com/DavidAnson/markdownlint),
-but with a custom configuration specified in `.markdownlint.json`,
-which is targeted at the VS Code extension [DavidAnson.vscode-markdownlint](https://marketplace.visualstudio.com/items?itemName=DavidAnson.vscode-markdownlint).
+These 4 linters are integrated in the GitHub CI pipeline, 
+so that every pull request is checked for code style violations.
 
+To locally check your code for style violations, follow the instructions depending on your IDE:
 
 ### VSCode
 
-In VSCode, both mypy and autopep8 can be set up as default linter and formatter through the python extension.
+In VSCode, 
+
+- pylint can be installed as extension (`ms-python.pylint`), and be configured in the settings (cmd+,).
+- isort can be installed as extension (`ms-python.isort`), and be configured in the settings (cmd+,).
+- mypy can be configured in the settings (cmd+,).
+- markdownlint can be installed as extension (`davidanson.vscode-markdownlint`), and be configured in the settings (cmd+,).
+
+If configured correctly, you will see style violations in the "Problems" tab.
 
 
 ### PyCharm
 
 In PyCharm, mypy is available as [plugin](https://plugins.jetbrains.com/plugin/11086-mypy), 
-and PEP8 checks can be enabled in Settings > Editor > Inspections > Python > PEP 8 coding style violation.
-Technically, the PEP8 checks will then not be powered by autopep8, but by <https://pycodestyle.pycqa.org/>.
-
-As an alternative/addition, it is also possible to install autopep8 as external tool:
-
-- `pip3 install autopep8`
-- In PyCharm Settings > Tools > External Tools, add a new tool by clicking on `+`
-- configure it as follows:
-  - Program: `autopep8`
-  - Arguments: `--in-place --aggressive --aggressive $FilePath$` 
-  - Working directory: `$ProjectFileDir$`
-  - Advanced Options > Output Filters: `$FILE_PATH$\:$LINE$\:$COLUMN$\:.*`
-
-You can then use it with right-click on the file > External Tools > autopep8 to reformat files in-place. 
-
-Due to compatibility issues with VSCode, the argument `--in-place=true` can not be declared in the `pyproject.toml` 
-and needs to be passed to the external tool in the PyCharm settings.
-
+and many style checks can be enabled in Settings > Editor > Inspections > Python.
 
 
 ## Contributing to the documentation

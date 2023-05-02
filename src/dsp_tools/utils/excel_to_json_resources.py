@@ -29,7 +29,7 @@ def _validate_resources(resources_list: list[dict[str, Any]], excelfile: str) ->
     Returns:
         True if the "resources" section passed validation
     """
-    with importlib.resources.files("dsp_tools").joinpath("resources/schema/resources-only.json").open() as schema_file:
+    with importlib.resources.files("dsp_tools").joinpath("resources/schema/resources-only.json").open(encoding="utf-8") as schema_file:
         resources_schema = json.load(schema_file)
     try:
         jsonschema.validate(instance=resources_list, schema=resources_schema)
@@ -104,6 +104,7 @@ def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
         # Apparently, the excel2json test files have one of the unsupported formatting properties.
         # The following two lines of code help out.
         # Credits: https://stackoverflow.com/a/70537454/14414188
+        # pylint: disable-next=import-outside-toplevel
         from unittest import mock
         p = mock.patch('openpyxl.styles.fonts.Font.family.max', new=100)
         p.start()
@@ -124,13 +125,15 @@ def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
     #  - column gui_order empty
     #  - column gui_order present but not properly filled in (missing values / not integers)
     #  - column gui_order present and properly filled in
-    all_gui_order_cells = [x for x in details_df.get("gui_order", []) if x]
+    all_gui_order_cells = []
+    if "gui_order" in details_df:
+        all_gui_order_cells = [x for x in details_df["gui_order"] if x]
     validation_passed = True
     if not all_gui_order_cells:  # column gui_order absent or empty
         pass
     elif len(all_gui_order_cells) == len(details_df["property"]):  # column gui_order filled in. try casting to int
         try:
-            [int(float(x)) for x in details_df.get("gui_order")]
+            [int(float(x)) for x in details_df["gui_order"]]
         except ValueError:
             validation_passed = False
     else:  # column gui_order present but not properly filled in (missing values)
@@ -141,6 +144,7 @@ def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
 
     cards = []
     for j, detail_row in details_df.iterrows():
+        j = int(str(j))  # j is a label/index/hashable, but we need an int
         gui_order = detail_row.get("gui_order", "")
         gui_order = regex.sub(r"\.0+", "", str(gui_order))
         property_ = {
@@ -189,6 +193,7 @@ def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -
         # Apparently, the excel2json test files have one of the unsupported formatting properties.
         # The following two lines of code help out.
         # Credits: https://stackoverflow.com/a/70537454/14414188
+        # pylint: disable-next=import-outside-toplevel
         from unittest import mock
         p = mock.patch('openpyxl.styles.fonts.Font.family.max', new=100)
         p.start()
@@ -202,9 +207,10 @@ def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -
 
     # validation
     for index, row in all_classes_df.iterrows():
+        index = int(str(index))  # index is a label/index/hashable, but we need an int
         if not check_notna(row["super"]):
             raise BaseError(f"Sheet 'classes' of '{excelfile}' has a missing value in row {index + 2}, column 'super'")
-    if any([all_classes_df.get(lang) is not None for lang in languages]):
+    if any(all_classes_df.get(lang) is not None for lang in languages):
         warnings.warn(f"The file {excelfile} uses {languages} as column titles, which is deprecated. "
                       f"Please use {[f'label_{lang}' for lang in languages]}")
 

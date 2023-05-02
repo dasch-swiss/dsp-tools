@@ -49,10 +49,8 @@ def id_to_iri(xml_file: str, json_file: str, out_file: Optional[str], verbose: b
     # iterate through all XML elements and remove namespace declarations
     for elem in tree.iter():
         # skip comments and processing instructions as they do not have namespaces
-        if not (
-            isinstance(elem, etree._Comment)
-            or isinstance(elem, etree._ProcessingInstruction)
-        ):
+        # pylint: disable-next=protected-access
+        if not isinstance(elem, (etree._Comment, etree._ProcessingInstruction)):
             # remove namespace declarations
             elem.tag = etree.QName(elem).localname
 

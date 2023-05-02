@@ -29,7 +29,7 @@ def _validate_properties(properties_list: list[dict[str, Any]], excelfile: str) 
     Returns:
         True if the "properties" section passed validation
     """
-    with importlib.resources.files("dsp_tools").joinpath("resources/schema/properties-only.json").open() as schema_file:
+    with importlib.resources.files("dsp_tools").joinpath("resources/schema/properties-only.json").open(encoding="utf-8") as schema_file:
         properties_schema = json.load(schema_file)
     try:
         jsonschema.validate(instance=properties_list, schema=properties_schema)
@@ -145,6 +145,7 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
         # Apparently, the excel2json test files have one of the unsupported formatting properties.
         # The following two lines of code help out.
         # Credits: https://stackoverflow.com/a/70537454/14414188
+        # pylint: disable-next=import-outside-toplevel
         from unittest import mock
         p = mock.patch('openpyxl.styles.fonts.Font.family.max', new=100)
         p.start()
@@ -159,10 +160,11 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
     # validation of input
     required = ["super", "object", "gui_element"]
     for index, row in df.iterrows():
+        index = int(str(index))  # index is a label/index/hashable, but we need an int
         for req in required:
             if not check_notna(row[req]):
                 raise BaseError(f"'{excelfile}' has a missing value in row {index + 2}, column '{req}'")
-    if any([df.get(lang) is not None for lang in languages]):
+    if any(df.get(lang) is not None for lang in languages):
         warnings.warn(f"The file '{excelfile}' uses {languages} as column titles, which is deprecated. "
                       f"Please use {[f'label_{lang}' for lang in languages]}")
     if df.get("hlist"):
@@ -170,7 +172,7 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
                       f"Please use the column 'gui_attributes' for the attribute 'hlist'.")
 
     # transform every row into a property
-    props = [_row2prop(row, i, excelfile) for i, row in df.iterrows()]
+    props = [_row2prop(row, int(str(index)), excelfile) for index, row in df.iterrows()]   # index is a label/index/hashable, but we need an int
 
     # write final JSON file
     _validate_properties(properties_list=props, excelfile=excelfile)

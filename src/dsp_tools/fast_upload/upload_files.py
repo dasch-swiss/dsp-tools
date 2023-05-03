@@ -171,21 +171,24 @@ def _upload_file(
 
 def _get_paths_from_pkl_file(pkl_file: Path) -> list[Path]:
     """
-    Read the pickle file returned by the processing step 
-    and return the list of processed files (uuid filenames).
+    Read the pickle file returned by the processing step.
 
     Args:
         pkl_file: pickle file returned by the processing step
 
     Returns:
-        list of uuid filenames
+        list of uuid file paths
     """
     with open(pkl_file, 'rb') as file:
-        orig_paths_2_processed_paths: list[tuple[Path, Path]] = pickle.load(file)
+        orig_paths_2_processed_paths: list[tuple[Path, Optional[Path]]] = pickle.load(file)
 
     processed_paths: list[Path] = []
     for orig_processed in orig_paths_2_processed_paths:
-        processed_paths.append(orig_processed[1])
+        if orig_processed[1]:
+            processed_paths.append(orig_processed[1])
+        else:
+            print(f"{datetime.now()}: WARNING: There is no processed file for {orig_processed[0]}")
+            logger.warning(f"There is no processed file for {orig_processed[0]}")
 
     return processed_paths
 

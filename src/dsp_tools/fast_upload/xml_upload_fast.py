@@ -2,6 +2,7 @@ import logging
 import pickle
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 from lxml import etree
 
@@ -10,10 +11,28 @@ from dsp_tools.utils.xml_upload import xml_upload
 logger = logging.getLogger(__name__)
 
 
-def _get_paths_from_pkl_file(pkl_file: Path) -> list[tuple[Path, Path]]:
+def _get_paths_from_pkl_file(pkl_file: Path) -> dict[str, str]:
+    """
+    Read the pickle file returned by the processing step.
+
+    Args:
+        pkl_file: pickle file returned by the processing step
+
+    Returns:
+        dict of original paths to uuid filenames
+    """
     with open(pkl_file, 'rb') as file:
-        orig_paths_2_processed_paths: list[tuple[Path, Path]] = pickle.load(file)
-    return orig_paths_2_processed_paths
+        orig_path_2_processed_path: list[tuple[Path, Optional[Path]]] = pickle.load(file)
+
+    orig_path_2_uuid_filename: dict[str, str] = {}
+    for orig_path, processed_path in orig_path_2_processed_path:
+        if processed_path:
+            orig_path_2_uuid_filename[str(orig_path)] = str(processed_path.name)
+        else:
+            print(f"{datetime.now()}: WARNING: There is no processed file for {orig_path}")
+            logger.warning(f"There is no processed file for {orig_path}")
+    
+    return orig_path_2_uuid_filename
 
 
 def fast_xml_upload(
@@ -47,19 +66,11 @@ def fast_xml_upload(
     logger.info(f"***Call to fast_xml_upload(xml_file='{xml_file}', pkl_file='{pkl_file}', user='{user}',"
                 f"password='{password}', dsp_url='{dsp_url}', sipi_url='{sipi_url}')***")
     xml_tree = etree.parse(xml_file)
-    orig_paths_2_processed_paths = _get_paths_from_pkl_file(pkl_file=Path(pkl_file))
-
-    paths_dict = dict()
-    for orig_path, processed_path in orig_paths_2_processed_paths:
-        orig_path_str = str(orig_path)
-        orig_path_name_str = str(orig_path.name)
-        processed_path_str = str(processed_path.name)
-        if orig_path_name_str != processed_path_str:
-            paths_dict[orig_path_str] = processed_path_str
+    orig_path_2_uuid_filename = _get_paths_from_pkl_file(pkl_file=Path(pkl_file))
 
     for tag in xml_tree.iter():
-        if tag.text in paths_dict:
-            tag.text = paths_dict[str(tag.text)]
+        if tag.text in orig_path_2_uuid_filename:
+            tag.text = orig_path_2_uuid_filename[tag.text]
 
     start_time = datetime.now()
     print(f"{start_time}: Start with fast XML upload...")

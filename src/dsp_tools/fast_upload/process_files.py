@@ -42,14 +42,14 @@ def _get_export_moving_image_frames_script() -> None:
 
 
 def _check_if_all_files_were_processed(
-    result: list[tuple[Path, Path]],
+    result: list[tuple[Path, Optional[Path]]],
     all_paths: list[Path]
 ) -> bool:
     """
     Go through the result list and print all files that could not be processed.
 
     Args:
-        result: list of tuples of Paths. If the first Path is equal to the second Path, the file could not be processed.
+        result: list of tuples of Paths. If the second Path is None, the file could not be processed.
         all_paths: list of all paths that should have been processed
     
     Returns:
@@ -65,7 +65,7 @@ def _check_if_all_files_were_processed(
         logger.error(f"Some files could not be processed: Only {len(result)}/{len(all_paths)} were processed. The failed ones are:")
     
     for input_file, output_file in result:
-        if input_file == output_file:
+        if not output_file:
             print(f" - {input_file} could not be processed.")
             logger.error(f" - {input_file} could not be processed.")
 
@@ -76,7 +76,7 @@ def _process_files_in_parallel(
     paths: list[Path], 
     input_dir: Path, 
     out_dir: Path
-) -> list[tuple[Path, Path]]:
+) -> list[tuple[Path, Optional[Path]]]:
     """
     Creates a thread pool and executes the file processing in parallel.
 
@@ -86,7 +86,8 @@ def _process_files_in_parallel(
         out_dir: the directory where the processed files should be written to
 
     Returns:
-        a list of tuples with the original file path and the path to the processed file
+        a list of tuples with the original file path and the path to the processed file.
+        If a file could not be processed, the second path is None.
     """
     with ThreadPoolExecutor() as pool:
         processing_jobs = [pool.submit(
@@ -96,14 +97,14 @@ def _process_files_in_parallel(
             out_dir
         ) for input_file in paths]
 
-    orig_filepath_2_uuid: list[tuple[Path, Path]] = []
+    orig_filepath_2_uuid: list[tuple[Path, Optional[Path]]] = []
     for processed in as_completed(processing_jobs):
         orig_filepath_2_uuid.append(processed.result())
 
     return orig_filepath_2_uuid
 
 
-def _write_result_to_pkl_file(result: list[tuple[Path, Path]]) -> bool:
+def _write_result_to_pkl_file(result: list[tuple[Path, Optional[Path]]]) -> bool:
     """
     Writes the processing result to a pickle file.
 
@@ -508,7 +509,7 @@ def _process_file(
     in_file: Path,
     input_dir: Path,
     out_dir: Path
-) -> tuple[Path, Path]:
+) -> tuple[Path, Optional[Path]]:
     """
     Creates all expected derivative files and writes the output into the provided output directory.
 
@@ -523,13 +524,13 @@ def _process_file(
 
     Returns:
         tuple consisting of the original path and the internal filename. 
-        If there was an error, a tuple with twice the original path is returned.
+        If there was an error, the internal filename is None.
     """
     # ensure that input file exists
     if not in_file.is_file():
-        print(f"{datetime.now()}: '{in_file}' does not exist. Skipping...")
-        logger.info(f"'{in_file}' does not exist. Skipping...")
-        return in_file, in_file
+        print(f"{datetime.now()}: ERROR: '{in_file}' does not exist. Skipping...")
+        logger.error(f"'{in_file}' does not exist. Skipping...")
+        return in_file, None
 
     # get random UUID for internal file handling, and create directory structure
     internal_filename = str(uuid.uuid4())
@@ -542,12 +543,12 @@ def _process_file(
         internal_file_name=internal_filename, 
         out_dir=out_dir_full
     ):
-        return in_file, in_file
+        return in_file, None
 
     # convert file (create derivative) and create sidecar file based on category (image, video or other)
     file_category = _get_file_category_from_extension(in_file)
     if not file_category:
-        return in_file, in_file
+        return in_file, None
 
     if file_category == "OTHER":
         result = _process_other_file(
@@ -569,8 +570,9 @@ def _process_file(
             out_dir=out_dir_full
         )
     else:
-        print(f"{datetime.now()}: Unexpected file category: {file_category}")
-        return in_file, in_file
+        print(f"{datetime.now()}: ERROR: Unexpected file category: {file_category}")
+        logger.error(f"Unexpected file category: {file_category}")
+        return in_file, None
 
     return result
 
@@ -579,7 +581,7 @@ def _process_other_file(
     in_file: Path, 
     internal_filename: str, 
     out_dir: Path
-) -> tuple[Path, Path]:
+) -> tuple[Path, Optional[Path]]:
     """
     Processes a file of file category OTHER.
     There is no real derivate created, 
@@ -592,7 +594,8 @@ def _process_other_file(
         out_dir: the output directory where the processed file should be written to, e.g. tmp/in/te/ if the internal filename is "internal_file_name"
 
     Returns:
-        a tuple of the original file path and the path to the processed file
+        a tuple of the original file path and the path to the processed file.
+        If there was an error, the internal filename is None.
     """
     converted_file_full_path = out_dir / Path(internal_filename).with_suffix(in_file.suffix)
     try:
@@ -600,7 +603,7 @@ def _process_other_file(
     except:
         print(f"{datetime.now()}: ERROR: Couldn't process file of category OTHER: {in_file}")
         logger.error(f"Couldn't process file of category OTHER: {in_file}", exc_info=True)
-        return in_file, in_file
+        return in_file, None
     if not _create_sidecar_file(
         orig_file=in_file, 
         converted_file=converted_file_full_path, 
@@ -608,7 +611,7 @@ def _process_other_file(
     ):
         print(f"{datetime.now()}: ERROR: Couldn't create sidecar file for: {in_file}")
         logger.error(f"Couldn't create sidecar file for: {in_file}")
-        return in_file, in_file
+        return in_file, None
     return in_file, converted_file_full_path
 
 
@@ -617,7 +620,7 @@ def _process_image_file(
     internal_filename: str, 
     out_dir: Path, 
     input_dir: Path
-) -> tuple[Path, Path]:
+) -> tuple[Path, Optional[Path]]:
     """
     Processes a file of file category IMAGE
 
@@ -628,7 +631,8 @@ def _process_image_file(
         input_dir: root directory of the input files
 
     Returns:
-        a tuple of the original file path and the path to the processed file
+        a tuple of the original file path and the path to the processed file.
+        If there was an error, the internal filename is None.
     """
     converted_file_full_path = out_dir / Path(internal_filename).with_suffix(".jp2")
     in_file_sipi_path = os.path.relpath(in_file, input_dir)
@@ -639,7 +643,7 @@ def _process_image_file(
     if not sipi_result:
         print(f"{datetime.now()}: ERROR: Couldn't process file of category IMAGE: {in_file}")
         logger.error(f"Couldn't process file of category IMAGE: {in_file}")
-        return in_file, in_file
+        return in_file, None
     if not _create_sidecar_file(
         orig_file=in_file, 
         converted_file=converted_file_full_path, 
@@ -647,7 +651,7 @@ def _process_image_file(
     ):
         print(f"{datetime.now()}: ERROR: Couldn't create sidecar file for: {in_file}")
         logger.error(f"Couldn't create sidecar file for: {in_file}")
-        return in_file, in_file
+        return in_file, None
     return in_file, converted_file_full_path
 
 
@@ -655,7 +659,7 @@ def _process_video_file(
     in_file: Path, 
     internal_filename: str, 
     out_dir: Path
-) -> tuple[Path, Path]:
+) -> tuple[Path, Optional[Path]]:
     """
     Processes a file of file category VIDEO
 
@@ -665,7 +669,8 @@ def _process_video_file(
         out_dir: the output directory where the processed file should be written to
 
     Returns:
-        a tuple of the original file path and the path to the processed file
+        a tuple of the original file path and the path to the processed file.
+        If there was an error, the internal filename is None.
     """
     converted_file_full_path = out_dir / Path(internal_filename).with_suffix(in_file.suffix)
     # create derivate file (identical to original file)
@@ -674,14 +679,14 @@ def _process_video_file(
     except:
         print(f"{datetime.now()}: ERROR: Couldn't create derivate file for video '{in_file}'")
         logger.error(f"Couldn't create derivate file for video '{in_file}'", exc_info=True)
-        return in_file, in_file
+        return in_file, None
     
     # create preview image
     preview_result = _extract_preview_from_video(converted_file_full_path)
     if not preview_result:
         print(f"{datetime.now()}: ERROR: Couldn't create preview image for video '{in_file}'")
         logger.error(f"Couldn't create preview image for video '{in_file}'")
-        return in_file, in_file
+        return in_file, None
     
     # create sidecar file
     if not _create_sidecar_file(
@@ -691,7 +696,7 @@ def _process_video_file(
     ):
         print(f"{datetime.now()}: ERROR: Couldn't create sidecar file for video '{in_file}'")
         logger.error(f"Couldn't create sidecar file for video '{in_file}'")
-        return in_file, in_file
+        return in_file, None
     
     return in_file, converted_file_full_path
 

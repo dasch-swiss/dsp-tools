@@ -53,20 +53,20 @@ Note:
 Process the files locally, using a SIPI container.
 
 ```bash
-dsp-tools process-files --input-dir=multimedia --out-dir=tmp data.xml 
+dsp-tools process-files --input-dir=multimedia --output-dir=tmp data.xml 
 ```
 
 The following options are available:
 
 - `--input-dir` (mandatory): path to the input directory where the files should be read from 
-- `--out-dir` (mandatory): path to the output directory where the processed/transformed files should be written to
+- `--output-dir` (mandatory): path to the output directory where the processed/transformed files should be written to
 
 All files referenced in the <bitstream> tags of the XML 
 are expected to be in the input directory 
 which is provided with the `--input-dir` option.
 The processed files 
 (derivative, .orig file, sidecar file, as well as the preview file for movies) 
-will be stored in the given `--out-dir` directory.
+will be stored in the given `--output-dir` directory.
 If the output directory doesn't exist, it will be created automatically.
 Additionally to the output directory,
 a pickle file is written with the name `processing_result_[timestamp].pkl`.
@@ -86,7 +86,7 @@ dsp-tools upload-files --pkl-file=processing_result_20230414_152810.pkl --proces
 The following options are available:
 
 - `-f` | `--pkl-file` (mandatory): path to the pickle file that was written by the processing step
-- `-d` | `--processed-dir` (mandatory): path to the directory where the processed files are located (same as `--out-dir` in the processing step)
+- `-d` | `--processed-dir` (mandatory): path to the directory where the processed files are located (same as `--output-dir` in the processing step)
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
 - `-S` | `--sipi-url` (optional, default: `0.0.0.0:1024`): URL of the SIPI server 
 - `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP-API 

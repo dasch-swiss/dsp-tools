@@ -3,7 +3,6 @@
 import hashlib
 import json
 import logging
-import os
 import pickle
 import shutil
 import subprocess
@@ -75,7 +74,7 @@ def _check_if_all_files_were_processed(
 def _process_files_in_parallel(
     paths: list[Path], 
     input_dir: Path, 
-    out_dir: Path
+    output_dir: Path
 ) -> list[tuple[Path, Optional[Path]]]:
     """
     Creates a thread pool and executes the file processing in parallel.
@@ -83,7 +82,7 @@ def _process_files_in_parallel(
     Args:
         paths: a list of all paths to the files that should be processed
         input_dir: the root directory of the input files
-        out_dir: the directory where the processed files should be written to
+        output_dir: the directory where the processed files should be written to
 
     Returns:
         a list of tuples with the original file path and the path to the processed file.
@@ -94,7 +93,7 @@ def _process_files_in_parallel(
             _process_file,
             input_file,
             input_dir,
-            out_dir
+            output_dir
         ) for input_file in paths]
 
     orig_filepath_2_uuid: list[tuple[Path, Optional[Path]]] = []
@@ -281,28 +280,33 @@ def _compute_sha256(file: Path) -> Optional[str]:
 
 
 def _convert_file_with_sipi(
-    in_file: str, 
-    out_file_local_path: Path
+    in_file_local_path: Path, 
+    input_dir: Path,
+    out_file_local_path: Path,
+    output_dir: Path
 ) -> bool:
     """
     Converts a file by calling a locally running Sipi container.
 
     Args:
-        in_file: path to input file, has to be relative to the Sipi executable inside the container
-        out_file_local_path: path to output file, has to be relative to the Sipi executable inside the container
+        in_file_local_path: path to input file
+        input_dir: the directory where the input files are located
+        out_file_local_path: path to output file, e.g. tmp/in/te/internal_file_name.jp2 if the internal filename is "internal_file_name"
+        output_dir: the directory where the processed files are written to, e.g. tmp/in/te/ if the internal filename is "internal_file_name"
     """
-    in_file_sipi_path = Path("processing-input") / in_file
-    out_file_sipi_path = Path("processing-output") / out_file_local_path.relative_to("tmp")
+    original_output_dir = output_dir.parent.parent
+    in_file_sipi_path = Path("processing-input") / in_file_local_path.relative_to(input_dir)
+    out_file_sipi_path = Path("processing-output") / out_file_local_path.relative_to(original_output_dir)
 
     if not sipi_container:
-        print(f"{datetime.now()}: ERROR: Cannot convert file {in_file} with Sipi: Sipi container not found.")
-        logger.error(f"Cannot convert file {in_file} with Sipi: Sipi container not found.")
+        print(f"{datetime.now()}: ERROR: Cannot convert file {in_file_local_path} with Sipi: Sipi container not found.")
+        logger.error(f"Cannot convert file {in_file_local_path} with Sipi: Sipi container not found.")
         return False
     # result = sipi_container.exec_run(f"/sipi/sipi --topleft {in_file_sipi_path} {out_file_sipi_path}")
     result = sipi_container.exec_run(f"/sipi/sipi {in_file_sipi_path} {out_file_sipi_path}")
     if result.exit_code != 0:
-        print(f"{datetime.now()}: ERROR: Sipi conversion of {in_file} failed: {result}")
-        logger.error(f"Sipi conversion of {in_file} failed: {result}")
+        print(f"{datetime.now()}: ERROR: Sipi conversion of {in_file_local_path} failed: {result}")
+        logger.error(f"Sipi conversion of {in_file_local_path} failed: {result}")
         return False
     return True
 
@@ -380,7 +384,6 @@ def _create_sidecar_file(
     Args:
         orig_file: path to the original file
         converted_file: path to the converted file, e.g. out_dir/in/te/internal_filename.ext
-        out_dir: output directory where the sidecar file should be written to
         file_category: the file category, either IMAGE, VIDEO or OTHER
 
     Returns:
@@ -508,7 +511,7 @@ def _ensure_path_exists(path: Path) -> bool:
 def _process_file(
     in_file: Path,
     input_dir: Path,
-    out_dir: Path
+    output_dir: Path
 ) -> tuple[Path, Optional[Path]]:
     """
     Creates all expected derivative files and writes the output into the provided output directory.
@@ -520,7 +523,7 @@ def _process_file(
     Args:
         in_file: path to input file that should be processed
         input_dir: root directory of the input files
-        out_dir: target location where the created files are written to, if the directory doesn't exist, it is created
+        output_dir: target location where the created files are written to, if the directory doesn't exist, it is created
 
     Returns:
         tuple consisting of the original path and the internal filename. 
@@ -534,7 +537,7 @@ def _process_file(
 
     # get random UUID for internal file handling, and create directory structure
     internal_filename = str(uuid.uuid4())
-    out_dir_full = Path(out_dir, internal_filename[0:2], internal_filename[2:4])
+    out_dir_full = Path(output_dir, internal_filename[0:2], internal_filename[2:4])
     out_dir_full.mkdir(parents=True, exist_ok=True)
 
     # create .orig file
@@ -627,7 +630,7 @@ def _process_image_file(
     Args:
         in_file: the input file that should be processed
         internal_filename: the internal filename that should be used for the output file
-        out_dir: the output directory where the processed file should be written to
+        out_dir: the output directory where the processed file should be written to, e.g. tmp/in/te/ if the internal filename is "internal_file_name"
         input_dir: root directory of the input files
 
     Returns:
@@ -635,10 +638,11 @@ def _process_image_file(
         If there was an error, the internal filename is None.
     """
     converted_file_full_path = out_dir / Path(internal_filename).with_suffix(".jp2")
-    in_file_sipi_path = os.path.relpath(in_file, input_dir)
     sipi_result = _convert_file_with_sipi(
-        in_file=in_file_sipi_path, 
-        out_file_local_path=converted_file_full_path
+        in_file_local_path=in_file,
+        input_dir=input_dir,
+        out_file_local_path=converted_file_full_path,
+        output_dir=out_dir
     )
     if not sipi_result:
         print(f"{datetime.now()}: ERROR: Couldn't process file of category IMAGE: {in_file}")
@@ -666,7 +670,7 @@ def _process_video_file(
     Args:
         in_file: the input file that should be processed
         internal_filename: the internal filename that should be used for the output file
-        out_dir: the output directory where the processed file should be written to
+        out_dir: the output directory where the processed file should be written to, e.g. tmp/in/te/ if the internal filename is "internal_file_name"
 
     Returns:
         a tuple of the original file path and the path to the processed file.
@@ -703,7 +707,7 @@ def _process_video_file(
 
 def process_files(
     input_dir: str,
-    out_dir: str,
+    output_dir: str,
     xml_file: str
 ) -> bool:
     """
@@ -716,28 +720,28 @@ def process_files(
 
     Args:
         input_dir: path to the directory where the files should be read from
-        out_dir: path to the directory where the transformed / created files should be written to
+        output_dir: path to the directory where the transformed / created files should be written to
         xml_file: path to xml file containing the resources
     
     Returns:
         success status
     """
-    logger.info(f"***Call to process_files(input_dir='{input_dir}', out_dir='{out_dir}', xml_file='{xml_file}')***")
+    logger.info(f"***Call to process_files(input_dir='{input_dir}', out_dir='{output_dir}', xml_file='{xml_file}')***")
     # check the input parameters
     param_check_result = _check_params(
         input_dir=input_dir, 
-        out_dir=out_dir, 
+        out_dir=output_dir, 
         xml_file=xml_file
     )
     if param_check_result:
-        input_dir_path, out_dir_path, xml_file_path = param_check_result
+        input_dir_path, output_dir_path, xml_file_path = param_check_result
     else:
         raise BaseError("Error reading the input parameters. Please check them.")
 
     # startup the SIPI container
     _start_sipi_container_and_mount_volumes(
         input_dir=input_dir_path, 
-        output_dir=out_dir_path 
+        output_dir=output_dir_path 
     )
     global sipi_container
     sipi_container = _get_sipi_container()
@@ -758,7 +762,7 @@ def process_files(
     result = _process_files_in_parallel(
         paths=all_paths, 
         input_dir=input_dir_path, 
-        out_dir=out_dir_path
+        output_dir=output_dir_path
     )
 
     # check if all files were processed

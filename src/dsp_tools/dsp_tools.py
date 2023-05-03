@@ -108,7 +108,7 @@ def make_parser() -> argparse.ArgumentParser:
     )
     parser_process_files.set_defaults(action="process-files")
     parser_process_files.add_argument("--input-dir", help="path to the input directory where the files should be read from")
-    parser_process_files.add_argument("--out-dir", help="path to the output directory where the processed/transformed files should be written to")
+    parser_process_files.add_argument("--output-dir", help="path to the output directory where the processed/transformed files should be written to")
     parser_process_files.add_argument("xml_file", help="path to XML file containing the data")
 
     # upload-files
@@ -304,7 +304,7 @@ def call_requested_action(
     elif args.action == "process-files":
         success = process_files(
             input_dir=args.input_dir,
-            out_dir=args.out_dir,
+            output_dir=args.output_dir,
             xml_file=args.xml_file
         )
     elif args.action == "upload-files":

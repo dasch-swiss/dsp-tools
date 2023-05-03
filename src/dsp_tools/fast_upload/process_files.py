@@ -74,7 +74,8 @@ def _check_if_all_files_were_processed(
 def _process_files_in_parallel(
     paths: list[Path], 
     input_dir: Path, 
-    output_dir: Path
+    output_dir: Path,
+    nthreads: Optional[int]
 ) -> list[tuple[Path, Optional[Path]]]:
     """
     Creates a thread pool and executes the file processing in parallel.
@@ -83,12 +84,13 @@ def _process_files_in_parallel(
         paths: a list of all paths to the files that should be processed
         input_dir: the root directory of the input files
         output_dir: the directory where the processed files should be written to
+        nthreads: number of threads to use for processing
 
     Returns:
         a list of tuples with the original file path and the path to the processed file.
         If a file could not be processed, the second path is None.
     """
-    with ThreadPoolExecutor() as pool:
+    with ThreadPoolExecutor(max_workers=nthreads) as pool:
         processing_jobs = [pool.submit(
             _process_file,
             input_file,
@@ -708,7 +710,8 @@ def _process_video_file(
 def process_files(
     input_dir: str,
     output_dir: str,
-    xml_file: str
+    xml_file: str,
+    nthreads: Optional[int]
 ) -> bool:
     """
     Process the files referenced in the given XML file.
@@ -722,6 +725,7 @@ def process_files(
         input_dir: path to the directory where the files should be read from
         output_dir: path to the directory where the transformed / created files should be written to
         xml_file: path to xml file containing the resources
+        nthreads: number of threads to use for processing
     
     Returns:
         success status
@@ -762,7 +766,8 @@ def process_files(
     result = _process_files_in_parallel(
         paths=all_paths, 
         input_dir=input_dir_path, 
-        output_dir=output_dir_path
+        output_dir=output_dir_path,
+        nthreads=nthreads
     )
 
     # check if all files were processed

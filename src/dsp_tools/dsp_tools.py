@@ -109,6 +109,7 @@ def make_parser() -> argparse.ArgumentParser:
     parser_process_files.set_defaults(action="process-files")
     parser_process_files.add_argument("--input-dir", help="path to the input directory where the files should be read from")
     parser_process_files.add_argument("--output-dir", help="path to the output directory where the processed/transformed files should be written to")
+    parser_process_files.add_argument("--nthreads", type=int, default=None, help="number of threads to use")
     parser_process_files.add_argument("xml_file", help="path to XML file containing the data")
 
     # upload-files
@@ -119,6 +120,7 @@ def make_parser() -> argparse.ArgumentParser:
     parser_upload_files.set_defaults(action="upload-files")
     parser_upload_files.add_argument("-f", "--pkl-file", help="path to pickle file written by 'process-files'")
     parser_upload_files.add_argument("-d", "--processed-dir", help="path to the directory with the processed files")
+    parser_upload_files.add_argument("-n", "--nthreads", type=int, default=None, help="number of threads to use")
     parser_upload_files.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
     parser_upload_files.add_argument("-S", "--sipi-url", default=default_sipi, help=sipi_text)
     parser_upload_files.add_argument("-u", "--user", default=default_user, help=username_text)
@@ -305,12 +307,14 @@ def call_requested_action(
         success = process_files(
             input_dir=args.input_dir,
             output_dir=args.output_dir,
-            xml_file=args.xml_file
+            xml_file=args.xml_file,
+            nthreads=args.nthreads
         )
     elif args.action == "upload-files":
         success = upload_files(
             pkl_file=args.pkl_file,
             dir_with_processed_files=args.processed_dir,
+            nthreads=args.nthreads,
             user=args.user,
             password=args.password,
             dsp_url=args.server,

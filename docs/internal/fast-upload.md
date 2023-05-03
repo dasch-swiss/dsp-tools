@@ -60,6 +60,7 @@ The following options are available:
 
 - `--input-dir` (mandatory): path to the input directory where the files should be read from 
 - `--output-dir` (mandatory): path to the output directory where the processed/transformed files should be written to
+- `--nthreads` (optional, default computed by the concurrent library, dependent on the machine): number of threads to use for processing
 
 All files referenced in the <bitstream> tags of the XML 
 are expected to be in the input directory 
@@ -87,6 +88,7 @@ The following options are available:
 
 - `-f` | `--pkl-file` (mandatory): path to the pickle file that was written by the processing step
 - `-d` | `--processed-dir` (mandatory): path to the directory where the processed files are located (same as `--output-dir` in the processing step)
+- `-n` | `--nthreads` (optional, default computed by the concurrent library, dependent on the machine): number of threads to use for uploading
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
 - `-S` | `--sipi-url` (optional, default: `0.0.0.0:1024`): URL of the SIPI server 
 - `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP-API 

@@ -23,11 +23,12 @@ def _get_upload_candidates(
     Based on the base derivate file, get all files based on the same uuid.
     For example, if the base derivate file is tmp/1f/fb/1ffbbb30-77e8-414c-94ff-7e1c060f9146.jp2,
     the upload candidates are:
-    - tmp/1f/fb/1ffbbb30-77e8-414c-94ff-7e1c060f9146.jp2
-    - tmp/1f/fb/1ffbbb30-77e8-414c-94ff-7e1c060f9146.png.orig
-    - tmp/1f/fb/1ffbbb30-77e8-414c-94ff-7e1c060f9146.info
+    - derivate: tmp/1f/fb/1ffbbb30-77e8-414c-94ff-7e1c060f9146.jp2
+    - original: tmp/1f/fb/1ffbbb30-77e8-414c-94ff-7e1c060f9146.png.orig
+    - sidecar:  tmp/1f/fb/1ffbbb30-77e8-414c-94ff-7e1c060f9146.info
 
-    In case of video files, the upload candidates include all keyframes.
+    In case of video files, there is a preview file in addition to the above files: 
+     - tmp/1f/fb/1ffbbb30-77e8-414c-94ff-7e1c060f9146/1ffbbb30-77e8-414c-94ff-7e1c060f9146_m_0.jpg
 
     Args:
         dir_with_processed_files: path to the directory where the processed files are located
@@ -37,7 +38,6 @@ def _get_upload_candidates(
         list of all processed files that belong to the same original file
     """
     upload_candidates: list[str] = []
-    upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/**/**/{uuid_name_of_processed_file.stem}/**/*.*"))
     upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/**/**/{uuid_name_of_processed_file.stem}/*.*"))
     upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/**/**/{uuid_name_of_processed_file.stem}*.*"))
     upload_candidates_paths = [Path(c) for c in upload_candidates]

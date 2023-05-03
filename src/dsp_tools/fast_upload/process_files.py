@@ -107,7 +107,7 @@ def process_files(
 
 def _get_export_moving_image_frames_script() -> None:
     """
-    Downloads the shell script that is used to extract the key frames from a video file.
+    Downloads the shell script that is used to extract the preview image from a video.
     """
     user_folder = Path.home() / Path(".dsp-tools/fast-xml-upload")
     user_folder.mkdir(parents=True, exist_ok=True)
@@ -546,12 +546,12 @@ def _get_file_category_from_extension(file: Path) -> Optional[str]:
     return category
 
 
-def _extract_key_frames(file: Path) -> bool:
+def _extract_preview_from_video(file: Path) -> bool:
     """
-    Extracts the key frames of a video file and writes them to disk.
+    Extracts a preview image of a video and writes it to disk.
 
     Args:
-        file: the video file which the key frames should be extracted from
+        file: the video file which the preview is extracted from
 
     Returns:
         true if successful, false otherwise
@@ -592,9 +592,9 @@ def _process_file(
     """
     Creates all expected derivative files and writes the output into the provided output directory.
 
-    In case of an image: creates the JP2000 derivative, the .orig file and the sidecar file.
-    In case of a video: creates a folder with the keyframe images, the .orig file and the sidecar file.
-    In all other cases: creates the .orig file and the sidecar file.
+    In case of image: .orig file, JP2 derivate, sidecar file
+    In case of video: .orig file, identical derivate file, sidecar file, folder with 1 preview image
+    other files: .orig file, identical derivate file, sidecar file
 
     Args:
         in_file: path to input file that should be processed
@@ -748,23 +748,29 @@ def _process_video_file(
         a tuple of the original file path and the path to the processed file
     """
     converted_file_full_path = out_dir / Path(internal_filename).with_suffix(in_file.suffix)
+    # create derivate file (identical to original file)
     try:
         shutil.copyfile(in_file, converted_file_full_path)
     except:
-        print(f"{datetime.now()}: ERROR: Couldn't process file of category VIDEO: {in_file}")
-        logger.error(f"Couldn't process file of category VIDEO: {in_file}", exc_info=True)
+        print(f"{datetime.now()}: ERROR: Couldn't create derivate file for video '{in_file}'")
+        logger.error(f"Couldn't create derivate file for video '{in_file}'", exc_info=True)
         return in_file, in_file
-    key_frames_result = _extract_key_frames(converted_file_full_path)
-    if not key_frames_result:
-        print(f"{datetime.now()}: ERROR: Couldn't process file of category VIDEO: {in_file}")
-        logger.error(f"Couldn't process file of category VIDEO: {in_file}")
+    
+    # create preview image
+    preview_result = _extract_preview_from_video(converted_file_full_path)
+    if not preview_result:
+        print(f"{datetime.now()}: ERROR: Couldn't create preview image for video '{in_file}'")
+        logger.error(f"Couldn't create preview image for video '{in_file}'")
         return in_file, in_file
+    
+    # create sidecar file
     if not _create_sidecar_file(
         orig_file=in_file, 
         converted_file=converted_file_full_path, 
         file_category="VIDEO"
     ):
-        print(f"{datetime.now()}: ERROR: Couldn't create sidecar file for: {in_file}")
-        logger.error(f"Couldn't create sidecar file for: {in_file}")
+        print(f"{datetime.now()}: ERROR: Couldn't create sidecar file for video '{in_file}'")
+        logger.error(f"Couldn't create sidecar file for video '{in_file}'")
         return in_file, in_file
+    
     return in_file, converted_file_full_path

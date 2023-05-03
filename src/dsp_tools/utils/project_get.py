@@ -67,7 +67,9 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
     if users:
         for usr in users:
             users_obj.append(usr.createDefinitionFileObj(
-                con=con, proj_shortname=str(project.shortname), proj_shortcode=str(project.shortcode)
+                con=con, 
+                proj_shortname=str(project.shortname), 
+                proj_iri=str(project.id)
             ))
             if verbose:
                 print(f"\tGot user '{usr.username}'")

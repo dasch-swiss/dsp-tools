@@ -696,7 +696,7 @@ class User(Model):
         self,
         con: Connection,
         proj_shortname: str,
-        proj_shortcode: str
+        proj_iri: str
     ) -> dict[str, Union[str, list[str], None]]:
         user: dict[str, Union[str, list[str], None]] = {
             "username": self.username,
@@ -716,7 +716,7 @@ class User(Model):
         user["groups"] = groups
         user["projects"] = list()
         for proj, is_admin in self._in_projects.items():
-            if proj_shortcode in proj:
+            if proj == proj_iri:
                 if is_admin:
                     user["projects"].append(f"{proj_shortname}:admin")
                 else:

@@ -70,9 +70,10 @@ def _check_upload_candidates(
         logger.error(f"Not all upload candidates were found for file {uuid_name_of_processed_file}")
         return False
 
-    min_num_of_candidates = 5 if uuid_name_of_processed_file.suffix == ".mp4" else 3
+    min_num_of_candidates = 4 if uuid_name_of_processed_file.suffix == ".mp4" else 3
     if len(upload_candidates) < min_num_of_candidates:
-        msg = f"Found the following files for {uuid_name_of_processed_file}, but more were expected: {upload_candidates}. Skipping..."
+        upload_candidates_as_str = "\n - " + "\n - ".join([str(c) for c in upload_candidates])
+        msg = f"Found the following files for {uuid_name_of_processed_file}, but more were expected: {upload_candidates_as_str}"
         print(f"{datetime.now()}: ERROR: {msg}")
         logger.error(msg)
         return False

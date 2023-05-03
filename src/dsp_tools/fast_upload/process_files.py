@@ -24,86 +24,6 @@ logger = logging.getLogger(__name__)
 sipi_container: Optional[Container] = None
 export_moving_image_frames_script: Optional[Path] = None
 
-def process_files(
-    input_dir: str,
-    out_dir: str,
-    xml_file: str
-) -> bool:
-    """
-    Process the files referenced in the given XML file.
-    Writes the processed files 
-    (derivative, .orig file, sidecar file, as well as the preview file for movies) 
-    to the given output directory.
-    Additionally, writes a pickle file containing the mapping between the original files and the processed files,
-    e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2').
-
-    Args:
-        input_dir: path to the directory where the files should be read from
-        out_dir: path to the directory where the transformed / created files should be written to
-        xml_file: path to xml file containing the resources
-    
-    Returns:
-        success status
-    """
-    logger.info(f"***Call to process_files(input_dir='{input_dir}', out_dir='{out_dir}', xml_file='{xml_file}')***")
-    # check the input parameters
-    param_check_result = _check_params(
-        input_dir=input_dir, 
-        out_dir=out_dir, 
-        xml_file=xml_file
-    )
-    if param_check_result:
-        input_dir_path, out_dir_path, xml_file_path = param_check_result
-    else:
-        raise BaseError("Error reading the input parameters. Please check them.")
-
-    # startup the SIPI container
-    _start_sipi_container_and_mount_volumes(
-        input_dir=input_dir_path, 
-        output_dir=out_dir_path 
-    )
-    global sipi_container
-    sipi_container = _get_sipi_container()
-
-    # get the paths of the files referenced in the XML file
-    all_paths = _get_file_paths_from_xml(xml_file_path)
-    print(f"{datetime.now()}: Found {len(all_paths)} bitstreams in the XML file.")
-    logger.info(f"Found {len(all_paths)} bitstreams in the XML file.")
-
-    # get shell script for processing video files
-    if any(path.suffix == ".mp4" for path in all_paths):
-        _get_export_moving_image_frames_script()
-
-    # process the files in parallel
-    start_time = datetime.now()
-    print(f"{start_time}: Start local file processing...")
-    logger.info("Start local file processing...")
-    result = _process_files_in_parallel(
-        paths=all_paths, 
-        input_dir=input_dir_path, 
-        out_dir=out_dir_path
-    )
-
-    # check if all files were processed
-    end_time = datetime.now()
-    print(f"{end_time}: Processing files took: {end_time - start_time}")
-    logger.info(f"{end_time}: Processing files took: {end_time - start_time}")
-    success = _check_if_all_files_were_processed(
-        result=result,
-        all_paths=all_paths
-    )
-
-    # write pickle file
-    if not _write_result_to_pkl_file(result):
-        success = False
-        print(f"{datetime.now()}: An error occurred while writing the result to the pickle file. The result was: {result}")
-        logger.error(f"An error occurred while writing the result to the pickle file. The result was: {result}")
-
-    # remove the SIPI container
-    _stop_and_remove_sipi_container()
-
-    return success
-
 
 def _get_export_moving_image_frames_script() -> None:
     """
@@ -774,3 +694,84 @@ def _process_video_file(
         return in_file, in_file
     
     return in_file, converted_file_full_path
+
+
+def process_files(
+    input_dir: str,
+    out_dir: str,
+    xml_file: str
+) -> bool:
+    """
+    Process the files referenced in the given XML file.
+    Writes the processed files 
+    (derivative, .orig file, sidecar file, as well as the preview file for movies) 
+    to the given output directory.
+    Additionally, writes a pickle file containing the mapping between the original files and the processed files,
+    e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2').
+
+    Args:
+        input_dir: path to the directory where the files should be read from
+        out_dir: path to the directory where the transformed / created files should be written to
+        xml_file: path to xml file containing the resources
+    
+    Returns:
+        success status
+    """
+    logger.info(f"***Call to process_files(input_dir='{input_dir}', out_dir='{out_dir}', xml_file='{xml_file}')***")
+    # check the input parameters
+    param_check_result = _check_params(
+        input_dir=input_dir, 
+        out_dir=out_dir, 
+        xml_file=xml_file
+    )
+    if param_check_result:
+        input_dir_path, out_dir_path, xml_file_path = param_check_result
+    else:
+        raise BaseError("Error reading the input parameters. Please check them.")
+
+    # startup the SIPI container
+    _start_sipi_container_and_mount_volumes(
+        input_dir=input_dir_path, 
+        output_dir=out_dir_path 
+    )
+    global sipi_container
+    sipi_container = _get_sipi_container()
+
+    # get the paths of the files referenced in the XML file
+    all_paths = _get_file_paths_from_xml(xml_file_path)
+    print(f"{datetime.now()}: Found {len(all_paths)} bitstreams in the XML file.")
+    logger.info(f"Found {len(all_paths)} bitstreams in the XML file.")
+
+    # get shell script for processing video files
+    if any(path.suffix == ".mp4" for path in all_paths):
+        _get_export_moving_image_frames_script()
+
+    # process the files in parallel
+    start_time = datetime.now()
+    print(f"{start_time}: Start local file processing...")
+    logger.info("Start local file processing...")
+    result = _process_files_in_parallel(
+        paths=all_paths, 
+        input_dir=input_dir_path, 
+        out_dir=out_dir_path
+    )
+
+    # check if all files were processed
+    end_time = datetime.now()
+    print(f"{end_time}: Processing files took: {end_time - start_time}")
+    logger.info(f"{end_time}: Processing files took: {end_time - start_time}")
+    success = _check_if_all_files_were_processed(
+        result=result,
+        all_paths=all_paths
+    )
+
+    # write pickle file
+    if not _write_result_to_pkl_file(result):
+        success = False
+        print(f"{datetime.now()}: An error occurred while writing the result to the pickle file. The result was: {result}")
+        logger.error(f"An error occurred while writing the result to the pickle file. The result was: {result}")
+
+    # remove the SIPI container
+    _stop_and_remove_sipi_container()
+
+    return success

@@ -468,7 +468,7 @@ that were defined above:
 
 ### `<geoname-prop>`
 
-The `<geoname-prop>` element is used for values that contain a [geonames.org](http://geonames.org) ID. It must contain
+The `<geoname-prop>` element is used for values that contain a [geonames.org](https://www.geonames.org/) ID. It must contain
 at least one `<geoname>` element.
 
 Attributes:
@@ -478,7 +478,7 @@ Attributes:
 
 #### `<geoname>`
 
-Contains a valid [geonames.org](http://geonames.org) ID.
+Contains a valid [geonames.org](https://www.geonames.org/) ID.
 
 Attributes:
 

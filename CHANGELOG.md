@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.2.2](https://github.com/dasch-swiss/dsp-tools/compare/v2.2.1...v2.2.2) (2023-05-03)
+
+
+### Bug Fixes
+
+* **xmlupload:** print reason of error if a resource cannot be created, remodel BaseError (DEV-1977) ([#349](https://github.com/dasch-swiss/dsp-tools/issues/349)) ([7f60b1a](https://github.com/dasch-swiss/dsp-tools/commit/7f60b1a39365a534451045975835373952b2d953))
+
+
+### Maintenance
+
+* bump start-stack to 2023.04.03 (DEV-2117) ([#355](https://github.com/dasch-swiss/dsp-tools/issues/355)) ([1abb081](https://github.com/dasch-swiss/dsp-tools/commit/1abb081e2e367d5f7c46190168c6fb2f4440b1aa))
+* resolve linting errors, make linting checks in CI more strict (DEV-2080) ([#354](https://github.com/dasch-swiss/dsp-tools/issues/354)) ([e3daff3](https://github.com/dasch-swiss/dsp-tools/commit/e3daff37c2b9f699db91d0c1f71667c809b5f87b))
+
 ## [2.2.1](https://github.com/dasch-swiss/dsp-tools/compare/v2.2.0...v2.2.1) (2023-04-18)
 
 

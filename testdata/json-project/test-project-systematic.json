@@ -752,11 +752,11 @@
                                 "cardinality": "0-n"
                             },
                             {
-                                "propname": ":hasResource",
+                                "propname": ":hasRepresentation",
                                 "cardinality": "0-n"
                             },
                             {
-                                "propname": ":hasRepresentation",
+                                "propname": ":hasResource",
                                 "cardinality": "0-n"
                             },
                             {
@@ -916,6 +916,24 @@
                 ],
                 "resources": [
                     {
+                        "name": "ImageThingPermissions",
+                        "super": "StillImageRepresentation",
+                        "labels": {
+                            "en": "Test thing for permissions with object"
+                        },
+                        "comments": {
+                            "en": "A thing to test permission related things",
+                            "de": "Ein Ding um Permissionsdinge zu testen."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "cardinality": "0-n",
+                                "gui_order": 1
+                            }
+                        ]
+                    },
+                    {
                         "name": "TestThingPermissions",
                         "super": [
                             "Resource",
@@ -930,28 +948,10 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasText",
-                                "cardinality": "0-n",
-                                "gui_order": 1
-                            },
-                            {
                                 "propname": "testonto:hasSimpleText",
                                 "cardinality": "0-n",
                                 "gui_order": 2
-                            }
-                        ]
-                    },
-                    {
-                        "name": "ImageThingPermissions",
-                        "super": "StillImageRepresentation",
-                        "labels": {
-                            "en": "Test thing for permissions with object"
-                        },
-                        "comments": {
-                            "en": "A thing to test permission related things",
-                            "de": "Ein Ding um Permissionsdinge zu testen."
-                        },
-                        "cardinalities": [
+                            },
                             {
                                 "propname": ":hasText",
                                 "cardinality": "0-n",

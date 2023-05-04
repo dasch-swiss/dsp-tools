@@ -558,8 +558,8 @@
                         "cardinalities": [
                             {
                                 "propname": ":hasSimpleText",
-                                "gui_order": 1,
-                                "cardinality": "1"
+                                "cardinality": "1",
+                                "gui_order": 1
                             }
                         ]
                     },
@@ -576,8 +576,8 @@
                         "cardinalities": [
                             {
                                 "propname": ":hasSimpleText",
-                                "gui_order": 1,
-                                "cardinality": "1"
+                                "cardinality": "1",
+                                "gui_order": 1
                             }
                         ]
                     },
@@ -593,8 +593,8 @@
                         "cardinalities": [
                             {
                                 "propname": ":hasSimpleText",
-                                "gui_order": 1,
-                                "cardinality": "1"
+                                "cardinality": "1",
+                                "gui_order": 1
                             }
                         ]
                     },
@@ -610,8 +610,8 @@
                         "cardinalities": [
                             {
                                 "propname": ":hasSimpleText",
-                                "gui_order": 1,
-                                "cardinality": "1"
+                                "cardinality": "1",
+                                "gui_order": 1
                             }
                         ]
                     },
@@ -654,8 +654,8 @@
                         "cardinalities": [
                             {
                                 "propname": ":hasSimpleText",
-                                "gui_order": 1,
-                                "cardinality": "1"
+                                "cardinality": "1",
+                                "gui_order": 1
                             }
                         ]
                     },
@@ -671,13 +671,13 @@
                         "cardinalities": [
                             {
                                 "propname": "isPartOf",
-                                "gui_order": 1,
-                                "cardinality": "1"
+                                "cardinality": "1",
+                                "gui_order": 1
                             },
                             {
                                 "propname": "seqnum",
-                                "gui_order": 2,
-                                "cardinality": "1"
+                                "cardinality": "1",
+                                "gui_order": 2
                             }
                         ]
                     },
@@ -693,13 +693,13 @@
                         "cardinalities": [
                             {
                                 "propname": ":partOf",
-                                "gui_order": 1,
-                                "cardinality": "1"
+                                "cardinality": "1",
+                                "gui_order": 1
                             },
                             {
                                 "propname": ":hasPagenum",
-                                "gui_order": 2,
-                                "cardinality": "1"
+                                "cardinality": "1",
+                                "gui_order": 2
                             }
                         ]
                     },
@@ -797,13 +797,13 @@
                         "cardinalities": [
                             {
                                 "propname": ":hasSimpleText",
-                                "gui_order": 1,
-                                "cardinality": "1"
+                                "cardinality": "1",
+                                "gui_order": 1
                             },
                             {
                                 "propname": ":hasTestThing",
-                                "gui_order": 2,
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 2
                             }
                         ]
                     },
@@ -816,8 +816,8 @@
                         "cardinalities": [
                             {
                                 "propname": ":hasTextChild1",
-                                "gui_order": 1,
-                                "cardinality": "1"
+                                "cardinality": "1",
+                                "gui_order": 1
                             }
                         ]
                     },
@@ -830,8 +830,8 @@
                         "cardinalities": [
                             {
                                 "propname": ":hasTextChild2",
-                                "gui_order": 1,
-                                "cardinality": "1"
+                                "cardinality": "1",
+                                "gui_order": 1
                             }
                         ]
                     },
@@ -847,8 +847,8 @@
                         "cardinalities": [
                             {
                                 "propname": ":hasSimpleText",
-                                "gui_order": 1,
-                                "cardinality": "1"
+                                "cardinality": "1",
+                                "gui_order": 1
                             }
                         ]
                     },
@@ -887,8 +887,8 @@
                         "cardinalities": [
                             {
                                 "propname": ":hasSimpleText",
-                                "gui_order": 1,
-                                "cardinality": "1"
+                                "cardinality": "1",
+                                "gui_order": 1
                             }
                         ]
                     }
@@ -931,13 +931,13 @@
                         "cardinalities": [
                             {
                                 "propname": ":hasText",
-                                "gui_order": 1,
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 1
                             },
                             {
                                 "propname": "testonto:hasSimpleText",
-                                "gui_order": 2,
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 2
                             }
                         ]
                     },
@@ -954,8 +954,8 @@
                         "cardinalities": [
                             {
                                 "propname": ":hasText",
-                                "gui_order": 1,
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 1
                             }
                         ]
                     }

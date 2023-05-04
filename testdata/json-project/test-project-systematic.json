@@ -531,15 +531,15 @@
                         },
                         "cardinalities": [
                             {
+                                "propname": ":hasBounds",
+                                "cardinality": "1"
+                            },
+                            {
                                 "propname": ":hasSimpleText",
                                 "cardinality": "0-1"
                             },
                             {
                                 "propname": ":sequenceOfAudio",
-                                "cardinality": "1"
-                            },
-                            {
-                                "propname": ":hasBounds",
                                 "cardinality": "1",
                                 "gui_order": 1
                             }
@@ -692,14 +692,14 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":partOf",
-                                "cardinality": "1",
-                                "gui_order": 1
-                            },
-                            {
                                 "propname": ":hasPagenum",
                                 "cardinality": "1",
                                 "gui_order": 2
+                            },
+                            {
+                                "propname": ":partOf",
+                                "cardinality": "1",
+                                "gui_order": 1
                             }
                         ]
                     },
@@ -861,17 +861,17 @@
                         },
                         "cardinalities": [
                             {
+                                "propname": ":hasBounds",
+                                "cardinality": "1",
+                                "gui_order": 1
+                            },
+                            {
                                 "propname": ":hasSimpleText",
                                 "cardinality": "0-1"
                             },
                             {
                                 "propname": ":sequenceOfVideo",
                                 "cardinality": "1"
-                            },
-                            {
-                                "propname": ":hasBounds",
-                                "cardinality": "1",
-                                "gui_order": 1
                             }
                         ]
                     },
@@ -922,8 +922,8 @@
                             "en": "Test thing for permissions with object"
                         },
                         "comments": {
-                            "en": "A thing to test permission related things",
-                            "de": "Ein Ding um Permissionsdinge zu testen."
+                            "de": "Ein Ding um Permissionsdinge zu testen.",
+                            "en": "A thing to test permission related things"
                         },
                         "cardinalities": [
                             {
@@ -943,8 +943,8 @@
                             "en": "Test thing for permissions without object"
                         },
                         "comments": {
-                            "en": "A thing to test permission related things",
-                            "de": "Ein Ding um Permissionsdinge zu testen."
+                            "de": "Ein Ding um Permissionsdinge zu testen.",
+                            "en": "A thing to test permission related things"
                         },
                         "cardinalities": [
                             {

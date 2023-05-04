@@ -774,12 +774,7 @@ class ResourceClass(Model):
         return DateTimeStamp(result['knora-api:lastModificationDate'])
 
     def createDefinitionFileObj(self, context: Context, shortname: str, skiplist: list[str]):
-        resource = {
-            "name": self._name,
-            "labels": self._label.createDefinitionFileObj(),
-        }
-        if self._comment:
-            resource["comments"] = self._comment.createDefinitionFileObj()
+        resource = {"name": self._name}
         if self._superclasses:
             if len(self._superclasses) > 1:
                 superclasses = []
@@ -788,6 +783,9 @@ class ResourceClass(Model):
             else:
                 superclasses = context.reduce_iri(self._superclasses[0], shortname)
             resource["super"] = superclasses
+        resource["labels"] = self._label.createDefinitionFileObj()
+        if self._comment:
+            resource["comments"] = self._comment.createDefinitionFileObj()
         if self._has_properties:
             cardinalities = []
             for pid, hp in self._has_properties.items():

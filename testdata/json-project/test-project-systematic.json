@@ -524,11 +524,11 @@
                 "resources": [
                     {
                         "name": "AudioSequence",
+                        "super": "Resource",
                         "labels": {
                             "de": "Sequenz einer Audio-Ressource",
                             "en": "Sequence of an audio resource"
                         },
-                        "super": "Resource",
                         "cardinalities": [
                             {
                                 "propname": ":hasSimpleText",
@@ -617,6 +617,7 @@
                     },
                     {
                         "name": "MinimalisticSequence",
+                        "super": "Resource",
                         "labels": {
                             "de": "Minimalistische Sequenz einer Audio-/Video-Ressource",
                             "en": "Minimalistic sequence of an audio/video resource"
@@ -625,7 +626,6 @@
                             "de": "Sequenz einer Audio-/Video-Ressource, welche die base properties 'isSequenceOf' und 'hasSequenceBounds' direkt verwendet",
                             "en": "Sequence of an audio/video resource that uses the base properties 'isSequenceOf' and 'hasSequenceBounds' directly"
                         },
-                        "super": "Resource",
                         "cardinalities": [
                             {
                                 "propname": ":hasSimpleText",
@@ -854,11 +854,11 @@
                     },
                     {
                         "name": "VideoSequence",
+                        "super": "Resource",
                         "labels": {
                             "de": "Sequenz einer Video-Ressource",
                             "en": "Sequence of a video resource"
                         },
-                        "super": "Resource",
                         "cardinalities": [
                             {
                                 "propname": ":hasSimpleText",

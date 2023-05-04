@@ -523,6 +523,187 @@
                 ],
                 "resources": [
                     {
+                        "name": "AudioSequence",
+                        "labels": {
+                            "de": "Sequenz einer Audio-Ressource",
+                            "en": "Sequence of an audio resource"
+                        },
+                        "super": "Resource",
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "cardinality": "0-1"
+                            },
+                            {
+                                "propname": ":sequenceOfAudio",
+                                "cardinality": "1"
+                            },
+                            {
+                                "propname": ":hasBounds",
+                                "cardinality": "1",
+                                "gui_order": 1
+                            }
+                        ]
+                    },
+                    {
+                        "name": "AudioThing",
+                        "super": "AudioRepresentation",
+                        "labels": {
+                            "en": "An Audio Thing",
+                            "de": "Ein Audioding"
+                        },
+                        "comments": {
+                            "en": "An audio thing for testing audio things."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "CompoundThing",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "A Compound Thing"
+                        },
+                        "comments": {
+                            "en": "A thing for testing compound things.",
+                            "rm": "Rumantsch comment of resource 'CompoundThing'"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "DocumentThing",
+                        "super": "DocumentRepresentation",
+                        "labels": {
+                            "en": "A Document Thing"
+                        },
+                        "comments": {
+                            "en": "A second things for testing different things."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "ImageThing",
+                        "super": "StillImageRepresentation",
+                        "labels": {
+                            "en": "An Image Thing"
+                        },
+                        "comments": {
+                            "en": "An image thing for testing image things."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "MinimalisticSequence",
+                        "labels": {
+                            "de": "Minimalistische Sequenz einer Audio-/Video-Ressource",
+                            "en": "Minimalistic sequence of an audio/video resource"
+                        },
+                        "comments": {
+                            "de": "Sequenz einer Audio-/Video-Ressource, welche die base properties 'isSequenceOf' und 'hasSequenceBounds' direkt verwendet",
+                            "en": "Sequence of an audio/video resource that uses the base properties 'isSequenceOf' and 'hasSequenceBounds' directly"
+                        },
+                        "super": "Resource",
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "cardinality": "0-1"
+                            },
+                            {
+                                "propname": "isSequenceOf",
+                                "cardinality": "1"
+                            },
+                            {
+                                "propname": "hasSequenceBounds",
+                                "cardinality": "1",
+                                "gui_order": 1
+                            }
+                        ]
+                    },
+                    {
+                        "name": "MovieThing",
+                        "super": "MovingImageRepresentation",
+                        "labels": {
+                            "en": "An Movie Thing"
+                        },
+                        "comments": {
+                            "en": "An movie thing for testing moving image things."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "PartOfThing",
+                        "super": "StillImageRepresentation",
+                        "labels": {
+                            "en": "A Thing having a isPartOf and seqnum property"
+                        },
+                        "comments": {
+                            "en": "A thing for testing partOf and seqnum properties."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": "isPartOf",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            },
+                            {
+                                "propname": "seqnum",
+                                "gui_order": 2,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "PartOfThingWithSubproperties",
+                        "super": "StillImageRepresentation",
+                        "labels": {
+                            "en": "A Thing having subproperties of isPartOf and seqnum"
+                        },
+                        "comments": {
+                            "en": "A thing for testing subproperties of isPartOf and seqnum."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":partOf",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            },
+                            {
+                                "propname": ":hasPagenum",
+                                "gui_order": 2,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
                         "name": "TestThing",
                         "super": [
                             "Resource",
@@ -608,34 +789,6 @@
                         ]
                     },
                     {
-                        "name": "TestThing2Child2",
-                        "super": ":TestThing2Child1",
-                        "labels": {
-                            "en": "TestThing2Child2"
-                        },
-                        "cardinalities": [
-                            {
-                                "propname": ":hasTextChild2",
-                                "gui_order": 1,
-                                "cardinality": "1"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "TestThing2Child1",
-                        "super": ":TestThing2",
-                        "labels": {
-                            "en": "TestThing2Child1"
-                        },
-                        "cardinalities": [
-                            {
-                                "propname": ":hasTextChild1",
-                                "gui_order": 1,
-                                "cardinality": "1"
-                            }
-                        ]
-                    },
-                    {
                         "name": "TestThing2",
                         "super": "Resource",
                         "labels": {
@@ -655,104 +808,28 @@
                         ]
                     },
                     {
-                        "name": "CompoundThing",
-                        "super": "Resource",
+                        "name": "TestThing2Child1",
+                        "super": ":TestThing2",
                         "labels": {
-                            "en": "A Compound Thing"
-                        },
-                        "comments": {
-                            "en": "A thing for testing compound things.",
-                            "rm": "Rumantsch comment of resource 'CompoundThing'"
+                            "en": "TestThing2Child1"
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasSimpleText",
+                                "propname": ":hasTextChild1",
                                 "gui_order": 1,
                                 "cardinality": "1"
                             }
                         ]
                     },
                     {
-                        "name": "ImageThing",
-                        "super": "StillImageRepresentation",
+                        "name": "TestThing2Child2",
+                        "super": ":TestThing2Child1",
                         "labels": {
-                            "en": "An Image Thing"
-                        },
-                        "comments": {
-                            "en": "An image thing for testing image things."
+                            "en": "TestThing2Child2"
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasSimpleText",
-                                "gui_order": 1,
-                                "cardinality": "1"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "AudioThing",
-                        "super": "AudioRepresentation",
-                        "labels": {
-                            "en": "An Audio Thing",
-                            "de": "Ein Audioding"
-                        },
-                        "comments": {
-                            "en": "An audio thing for testing audio things."
-                        },
-                        "cardinalities": [
-                            {
-                                "propname": ":hasSimpleText",
-                                "gui_order": 1,
-                                "cardinality": "1"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "MovieThing",
-                        "super": "MovingImageRepresentation",
-                        "labels": {
-                            "en": "An Movie Thing"
-                        },
-                        "comments": {
-                            "en": "An movie thing for testing moving image things."
-                        },
-                        "cardinalities": [
-                            {
-                                "propname": ":hasSimpleText",
-                                "gui_order": 1,
-                                "cardinality": "1"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "DocumentThing",
-                        "super": "DocumentRepresentation",
-                        "labels": {
-                            "en": "A Document Thing"
-                        },
-                        "comments": {
-                            "en": "A second things for testing different things."
-                        },
-                        "cardinalities": [
-                            {
-                                "propname": ":hasSimpleText",
-                                "gui_order": 1,
-                                "cardinality": "1"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "ZipThing",
-                        "super": "ArchiveRepresentation",
-                        "labels": {
-                            "en": "A ZIP Thing"
-                        },
-                        "comments": {
-                            "en": "A  things for testing ZIPS."
-                        },
-                        "cardinalities": [
-                            {
-                                "propname": ":hasSimpleText",
+                                "propname": ":hasTextChild2",
                                 "gui_order": 1,
                                 "cardinality": "1"
                             }
@@ -771,50 +848,6 @@
                             {
                                 "propname": ":hasSimpleText",
                                 "gui_order": 1,
-                                "cardinality": "1"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "PartOfThing",
-                        "super": "StillImageRepresentation",
-                        "labels": {
-                            "en": "A Thing having a isPartOf and seqnum property"
-                        },
-                        "comments": {
-                            "en": "A thing for testing partOf and seqnum properties."
-                        },
-                        "cardinalities": [
-                            {
-                                "propname": "isPartOf",
-                                "gui_order": 1,
-                                "cardinality": "1"
-                            },
-                            {
-                                "propname": "seqnum",
-                                "gui_order": 2,
-                                "cardinality": "1"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "PartOfThingWithSubproperties",
-                        "super": "StillImageRepresentation",
-                        "labels": {
-                            "en": "A Thing having subproperties of isPartOf and seqnum"
-                        },
-                        "comments": {
-                            "en": "A thing for testing subproperties of isPartOf and seqnum."
-                        },
-                        "cardinalities": [
-                            {
-                                "propname": ":partOf",
-                                "gui_order": 1,
-                                "cardinality": "1"
-                            },
-                            {
-                                "propname": ":hasPagenum",
-                                "gui_order": 2,
                                 "cardinality": "1"
                             }
                         ]
@@ -843,52 +876,19 @@
                         ]
                     },
                     {
-                        "name": "AudioSequence",
+                        "name": "ZipThing",
+                        "super": "ArchiveRepresentation",
                         "labels": {
-                            "de": "Sequenz einer Audio-Ressource",
-                            "en": "Sequence of an audio resource"
-                        },
-                        "super": "Resource",
-                        "cardinalities": [
-                            {
-                                "propname": ":hasSimpleText",
-                                "cardinality": "0-1"
-                            },
-                            {
-                                "propname": ":sequenceOfAudio",
-                                "cardinality": "1"
-                            },
-                            {
-                                "propname": ":hasBounds",
-                                "cardinality": "1",
-                                "gui_order": 1
-                            }
-                        ]
-                    },
-                    {
-                        "name": "MinimalisticSequence",
-                        "labels": {
-                            "de": "Minimalistische Sequenz einer Audio-/Video-Ressource",
-                            "en": "Minimalistic sequence of an audio/video resource"
+                            "en": "A ZIP Thing"
                         },
                         "comments": {
-                            "de": "Sequenz einer Audio-/Video-Ressource, welche die base properties 'isSequenceOf' und 'hasSequenceBounds' direkt verwendet",
-                            "en": "Sequence of an audio/video resource that uses the base properties 'isSequenceOf' and 'hasSequenceBounds' directly"
+                            "en": "A  things for testing ZIPS."
                         },
-                        "super": "Resource",
                         "cardinalities": [
                             {
                                 "propname": ":hasSimpleText",
-                                "cardinality": "0-1"
-                            },
-                            {
-                                "propname": "isSequenceOf",
+                                "gui_order": 1,
                                 "cardinality": "1"
-                            },
-                            {
-                                "propname": "hasSequenceBounds",
-                                "cardinality": "1",
-                                "gui_order": 1
                             }
                         ]
                     }

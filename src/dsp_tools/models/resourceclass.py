@@ -277,7 +277,12 @@ class HasProperty(Model):
 
     def createDefinitionFileObj(self, context: Context, shortname: str):
         cardinality = {}
-        if self._ptype == HasProperty.Ptype.other:
+        if self._ptype == HasProperty.Ptype.other or self.property_id in [
+            "knora-api:isSequenceOf", 
+            "knora-api:hasSequenceBounds", 
+            "knora-api:isPartOf", 
+            "knora-api:seqnum"
+        ]:
             cardinality["propname"] = context.reduce_iri(self._property_id, shortname)
             cardinality["cardinality"] = self._cardinality.value
             if self._gui_order is not None:
@@ -792,6 +797,13 @@ class ResourceClass(Model):
                 if hp.property_id in skiplist:
                     continue
                 if hp.ptype == HasProperty.Ptype.other:
+                    cardinalities.append(hp.createDefinitionFileObj(context, shortname))
+                elif hp.property_id in [
+                    "knora-api:isSequenceOf", 
+                    "knora-api:hasSequenceBounds", 
+                    "knora-api:isPartOf", 
+                    "knora-api:seqnum"
+                ]:
                     cardinalities.append(hp.createDefinitionFileObj(context, shortname))
             if cardinalities:
                 resource["cardinalities"] = sorted(cardinalities, key=lambda c: c["propname"])

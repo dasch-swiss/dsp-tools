@@ -103,7 +103,7 @@
                 "password": "test0815",
                 "lang": "it",
                 "groups": [
-                    ":testgroupViewers"
+                    "tp:testgroupViewers"
                 ],
                 "projects": [
                     ":member"

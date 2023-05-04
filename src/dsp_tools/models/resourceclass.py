@@ -796,9 +796,7 @@ class ResourceClass(Model):
             for pid, hp in self._has_properties.items():
                 if hp.property_id in skiplist:
                     continue
-                if hp.ptype == HasProperty.Ptype.other:
-                    cardinalities.append(hp.createDefinitionFileObj(context, shortname))
-                elif hp.property_id in [
+                if hp.ptype == HasProperty.Ptype.other or hp.property_id in [
                     "knora-api:isSequenceOf", 
                     "knora-api:hasSequenceBounds", 
                     "knora-api:isPartOf", 
@@ -806,7 +804,10 @@ class ResourceClass(Model):
                 ]:
                     cardinalities.append(hp.createDefinitionFileObj(context, shortname))
             if cardinalities:
-                resource["cardinalities"] = sorted(cardinalities, key=lambda c: c["propname"])
+                if all(c.get("gui_order") for c in cardinalities):
+                    resource["cardinalities"] = sorted(cardinalities, key=lambda c: c["gui_order"])
+                else:
+                    resource["cardinalities"] = sorted(cardinalities, key=lambda c: c["propname"])
 
         return resource
 

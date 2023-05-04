@@ -10,15 +10,155 @@
         "shortname": "tp",
         "longname": "systematic test project",
         "descriptions": {
-            "en": "A systematic test project",
             "de": "Ein systematisches Testprojekt",
+            "en": "A systematic test project",
             "rm": "Rumantsch descripziun"
         },
         "keywords": [
             "test",
             "testing"
         ],
+        "groups": [
+            {
+                "name": "testgroupEditors",
+                "descriptions": {
+                    "de": "Testgruppe Editors",
+                    "en": "Test group editors",
+                    "rm": "squadra test 'Editors' in Rumantsch"
+                },
+                "selfjoin": false
+            },
+            {
+                "name": "testgroupInactive",
+                "descriptions": {
+                    "de": "Testgruppe Inaktiv",
+                    "en": "Test group inactive"
+                },
+                "status": false
+            },
+            {
+                "name": "testgroupViewers",
+                "descriptions": {
+                    "de": "Testgruppe Viewers",
+                    "en": "Test group viewers"
+                },
+                "selfjoin": true,
+                "status": true
+            }
+        ],
+        "users": [
+            {
+                "username": "inactiveUser",
+                "email": "inactive.user@test.org",
+                "givenName": "Inactive",
+                "familyName": "User",
+                "password": "test0815",
+                "lang": "en",
+                "groups": [
+                    "SystemAdmin"
+                ],
+                "projects": [
+                    ":admin"
+                ],
+                "status": false
+            },
+            {
+                "username": "testerKnownUser",
+                "email": "tester.known@test.org",
+                "givenName": "Tester",
+                "familyName": "Known",
+                "password": "test0815",
+                "lang": "rm"
+            },
+            {
+                "username": "testerProjectAdmin",
+                "email": "tester.projectadmin@test.org",
+                "givenName": "Tester",
+                "familyName": "Project Admin",
+                "password": "test0815",
+                "lang": "en",
+                "projects": [
+                    ":admin"
+                ]
+            },
+            {
+                "username": "testerProjectEditor",
+                "email": "tester.projecteditor@test.org",
+                "givenName": "Tester",
+                "familyName": "Editor",
+                "password": "test0815",
+                "lang": "en",
+                "groups": [
+                    ":testgroupEditors"
+                ],
+                "projects": [
+                    ":member"
+                ]
+            },
+            {
+                "username": "testerProjectViewer",
+                "email": "tester.projectviewer@test.org",
+                "givenName": "Tester",
+                "familyName": "Viewer",
+                "password": "test0815",
+                "lang": "en",
+                "groups": [
+                    ":testgroupViewers"
+                ],
+                "projects": [
+                    ":member"
+                ]
+            },
+            {
+                "username": "testerSystemAdmin",
+                "email": "tester.systemadmin@test.org",
+                "givenName": "Tester",
+                "familyName": "System Admin",
+                "password": "test0815",
+                "lang": "en",
+                "groups": [
+                    "SystemAdmin"
+                ],
+                "status": true
+            }
+        ],
         "lists": [
+            {
+                "name": "my-list-from-excel",
+                "labels": {
+                    "en": "My list from Excel"
+                },
+                "comments": {
+                    "de": "ein Kommentar",
+                    "en": "a comment",
+                    "fr": "un commentaire"
+                },
+                "nodes": {
+                    "folder": "testdata/excel2json/list-single"
+                }
+            },
+            {
+                "name": "notUsedList",
+                "labels": {
+                    "en": "Not used list"
+                },
+                "comments": {
+                    "de": "kein Kommentar",
+                    "en": "no comment"
+                },
+                "nodes": [
+                    {
+                        "name": "notUsedNode_1",
+                        "labels": {
+                            "en": "nodeLabel_1\"'"
+                        },
+                        "comments": {
+                            "en": "Nodes can have comments, too!",
+                            "rm": "Even in Rumantsch!"
+                        }
+                    }
+                ]
+            },
             {
                 "name": "testlist",
                 "labels": {
@@ -26,8 +166,8 @@
                     "rm": "Glista test in Rumantsch"
                 },
                 "comments": {
-                    "en": "no comment",
                     "de": "kein Kommentar",
+                    "en": "no comment",
                     "rm": "nagin commentar in Rumantsch"
                 },
                 "nodes": [
@@ -65,146 +205,6 @@
                         }
                     }
                 ]
-            },
-            {
-                "name": "my-list-from-excel",
-                "labels": {
-                    "en": "My list from Excel"
-                },
-                "comments": {
-                    "en": "a comment",
-                    "de": "ein Kommentar",
-                    "fr": "un commentaire"
-                },
-                "nodes": {
-                    "folder": "testdata/excel2json/list-single"
-                }
-            },
-            {
-                "name": "notUsedList",
-                "labels": {
-                    "en": "Not used list"
-                },
-                "comments": {
-                    "en": "no comment",
-                    "de": "kein Kommentar"
-                },
-                "nodes": [
-                    {
-                        "name": "notUsedNode_1",
-                        "labels": {
-                            "en": "nodeLabel_1\"'"
-                        },
-                        "comments": {
-                            "en": "Nodes can have comments, too!",
-                            "rm": "Even in Rumantsch!"
-                        }
-                    }
-                ]
-            }
-        ],
-        "groups": [
-            {
-                "name": "testgroupEditors",
-                "descriptions": {
-                    "en": "Test group editors",
-                    "de": "Testgruppe Editors",
-                    "rm": "squadra test 'Editors' in Rumantsch"
-                },
-                "selfjoin": false
-            },
-            {
-                "name": "testgroupViewers",
-                "descriptions": {
-                    "en": "Test group viewers",
-                    "de": "Testgruppe Viewers"
-                },
-                "selfjoin": true,
-                "status": true
-            },
-            {
-                "name": "testgroupInactive",
-                "descriptions": {
-                    "en": "Test group inactive",
-                    "de": "Testgruppe Inaktiv"
-                },
-                "status": false
-            }
-        ],
-        "users": [
-            {
-                "username": "testerKnownUser",
-                "email": "tester.known@test.org",
-                "givenName": "Tester",
-                "familyName": "Known",
-                "password": "test0815",
-                "lang": "rm"
-            },
-            {
-                "username": "testerProjectEditor",
-                "email": "tester.projecteditor@test.org",
-                "givenName": "Tester",
-                "familyName": "Editor",
-                "password": "test0815",
-                "lang": "en",
-                "groups": [
-                    ":testgroupEditors"
-                ],
-                "projects": [
-                    ":member"
-                ]
-            },
-            {
-                "username": "testerProjectViewer",
-                "email": "tester.projectviewer@test.org",
-                "givenName": "Tester",
-                "familyName": "Viewer",
-                "password": "test0815",
-                "lang": "en",
-                "groups": [
-                    ":testgroupViewers"
-                ],
-                "projects": [
-                    ":member"
-                ]
-            },
-            {
-                "username": "testerProjectAdmin",
-                "email": "tester.projectadmin@test.org",
-                "givenName": "Tester",
-                "familyName": "Project Admin",
-                "password": "test0815",
-                "lang": "en",
-                "projects": [
-                    ":admin"
-                ]
-            },
-            {
-                "username": "testerSystemAdmin",
-                "email": "tester.systemadmin@test.org",
-                "givenName": "Tester",
-                "familyName": "System Admin",
-                "password": "test0815",
-                "lang": "en",
-                "groups": [
-                    "SystemAdmin"
-                ],
-                "status": true
-            },
-            {
-                "username": "inactiveUser",
-                "email": "inactive.user@test.org",
-                "givenName": "Inactive",
-                "familyName": "User",
-                "password": "test0815",
-                "lang": "en",
-                "groups": [
-                    "SystemAdmin"
-                ],
-                "projects": [
-                    ":admin"
-                ],
-                "status": false
             }
         ],
         "ontologies": [

@@ -391,8 +391,8 @@
                             "en": "hasSimpleText"
                         },
                         "comments": {
-                            "en": "properties can optionally have comments",
                             "de": "Properties können Kommentare haben",
+                            "en": "properties can optionally have comments",
                             "rm": "Property with a Rumantsch comment"
                         },
                         "gui_element": "SimpleText",

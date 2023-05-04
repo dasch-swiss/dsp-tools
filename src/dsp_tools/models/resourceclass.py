@@ -804,10 +804,14 @@ class ResourceClass(Model):
                 ]:
                     cardinalities.append(hp.createDefinitionFileObj(context, shortname))
             if cardinalities:
-                if all(c.get("gui_order") for c in cardinalities):
-                    resource["cardinalities"] = sorted(cardinalities, key=lambda c: c["gui_order"])
-                else:
-                    resource["cardinalities"] = sorted(cardinalities, key=lambda c: c["propname"])
+                resource["cardinalities"] = sorted(
+                    cardinalities, 
+                    # Sort by gui_order (left-padded with zeros) first, then by propname. 
+                    # Note that gui_order is sometimes missing, 
+                    # and that if x.get("gui_order") == 0, the explicit check "is not None" is necessary.
+                    key=lambda x: f'{x["gui_order"]:0>3}' if x.get("gui_order") is not None else x["propname"]
+                )
+
 
         return resource
 

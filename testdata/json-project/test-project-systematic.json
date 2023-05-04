@@ -632,13 +632,13 @@
                                 "cardinality": "0-1"
                             },
                             {
-                                "propname": "isSequenceOf",
-                                "cardinality": "1"
-                            },
-                            {
                                 "propname": "hasSequenceBounds",
                                 "cardinality": "1",
                                 "gui_order": 1
+                            },
+                            {
+                                "propname": "isSequenceOf",
+                                "cardinality": "1"
                             }
                         ]
                     },
@@ -948,14 +948,14 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": "testonto:hasSimpleText",
-                                "cardinality": "0-n",
-                                "gui_order": 2
-                            },
-                            {
                                 "propname": ":hasText",
                                 "cardinality": "0-n",
                                 "gui_order": 1
+                            },
+                            {
+                                "propname": "testonto:hasSimpleText",
+                                "cardinality": "0-n",
+                                "gui_order": 2
                             }
                         ]
                     }

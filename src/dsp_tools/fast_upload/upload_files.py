@@ -41,7 +41,8 @@ def _get_upload_candidates(
     upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/**/**/{uuid_name_of_processed_file.stem}/*.*"))
     upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/**/**/{uuid_name_of_processed_file.stem}*.*"))
     upload_candidates_paths = [Path(c) for c in upload_candidates]
-    logger.info(f"Found the following upload candidates for {uuid_name_of_processed_file}: {upload_candidates_paths}")
+    upload_candidates_as_str = "\n - " + "\n - ".join([str(c) for c in upload_candidates])
+    logger.info(f"Found the following upload candidates for {uuid_name_of_processed_file}: {upload_candidates_as_str}")
     return upload_candidates_paths
 
 
@@ -100,14 +101,19 @@ def _upload_without_processing(
     """
     try:
         with open(file, "rb") as bitstream:
-            response_upload = requests.post(
-                url=f"{regex.sub(r'/$', '', sipi_url)}/upload_without_processing?token={con.get_token()}",
-                files={"file": bitstream},
-                timeout=8*60
-            )
-    except OSError:
-        print(f"{datetime.now()}: ERROR: An exception was raised while calling the /upload_without_processing route for the file {file}")
-        logger.error(f"An exception was raised while calling the /upload_without_processing route for the file {file}", exc_info=True)
+            try:
+                response_upload = requests.post(
+                    url=f"{regex.sub(r'/$', '', sipi_url)}/upload_without_processing?token={con.get_token()}",
+                    files={"file": bitstream},
+                    timeout=8*60
+                )
+            except:   # pylint: disable=broad-except
+                print(f"{datetime.now()}: ERROR: An exception was raised while calling the /upload_without_processing route for the file {file}")
+                logger.error(f"An exception was raised while calling the /upload_without_processing route for the file {file}", exc_info=True)
+                return False
+    except:   # pylint: disable=broad-except
+        print(f"{datetime.now()}: ERROR: Cannot send file to /upload_without_processing route, because the file cannot be opened: {file}")
+        logger.error(f"Cannot send file to /upload_without_processing route, because the file cannot be opened: {file}", exc_info=True)
         return False
     
     if response_upload.json().get("message") == "server.fs.mkdir() failed: File exists":

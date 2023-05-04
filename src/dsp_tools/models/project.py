@@ -413,7 +413,7 @@ class Project(Model):
             "shortname": self._shortname,
             "longname": self._longname,
             "descriptions": self._description.createDefinitionFileObj(),
-            "keywords": [kw for kw in self._keywords]
+            "keywords": sorted(kw for kw in self._keywords)
         }
 
     def create(self) -> Project:

@@ -214,88 +214,6 @@
                 "comment": "This is the main ontology of this project. Further down, another one is defined.",
                 "properties": [
                     {
-                        "name": "hasTextChild2",
-                        "super": [
-                            ":hasTextChild1"
-                        ],
-                        "object": "TextValue",
-                        "labels": {
-                            "en": "Text",
-                            "rm": "hasTextChild2 in Rumantsch"
-                        },
-                        "gui_element": "SimpleText"
-                    },
-                    {
-                        "name": "hasTextChild1",
-                        "super": [
-                            ":hasSimpleText"
-                        ],
-                        "object": "TextValue",
-                        "labels": {
-                            "en": "Text"
-                        },
-                        "gui_element": "SimpleText"
-                    },
-                    {
-                        "name": "hasSimpleText",
-                        "super": [
-                            "hasValue",
-                            "foaf:name",
-                            "externalOnto:hasText"
-                        ],
-                        "object": "TextValue",
-                        "labels": {
-                            "en": "hasSimpleText"
-                        },
-                        "comments": {
-                            "en": "properties can optionally have comments",
-                            "de": "Properties können Kommentare haben",
-                            "rm": "Property with a Rumantsch comment"
-                        },
-                        "gui_element": "SimpleText",
-                        "gui_attributes": {
-                            "maxlength": 255,
-                            "size": 80
-                        }
-                    },
-                    {
-                        "name": "hasRichtext",
-                        "super": [
-                            "hasValue"
-                        ],
-                        "object": "TextValue",
-                        "labels": {
-                            "en": "hasRichtext"
-                        },
-                        "gui_element": "Richtext"
-                    },
-                    {
-                        "name": "hasTextArea",
-                        "super": [
-                            "hasValue"
-                        ],
-                        "object": "TextValue",
-                        "labels": {
-                            "en": "hasTextArea"
-                        },
-                        "gui_element": "Textarea"
-                    },
-                    {
-                        "name": "hasUri",
-                        "super": [
-                            "hasValue"
-                        ],
-                        "object": "UriValue",
-                        "labels": {
-                            "en": "URI"
-                        },
-                        "gui_element": "SimpleText",
-                        "gui_attributes": {
-                            "maxlength": 255,
-                            "size": 80
-                        }
-                    },
-                    {
                         "name": "hasBoolean",
                         "super": [
                             "hasValue"
@@ -307,6 +225,29 @@
                         "gui_element": "Checkbox"
                     },
                     {
+                        "name": "hasBounds",
+                        "super": [
+                            "hasSequenceBounds"
+                        ],
+                        "object": "IntervalValue",
+                        "labels": {
+                            "de": "Intervall, das den Start- und Endpunkt der Sequenz definiert",
+                            "en": "Interval defining the start and end point of the sequence"
+                        },
+                        "gui_element": "Interval"
+                    },
+                    {
+                        "name": "hasColor",
+                        "super": [
+                            "hasColor"
+                        ],
+                        "object": "ColorValue",
+                        "labels": {
+                            "en": "Color"
+                        },
+                        "gui_element": "Colorpicker"
+                    },
+                    {
                         "name": "hasDate",
                         "super": [
                             "hasValue"
@@ -316,32 +257,6 @@
                             "en": "Date"
                         },
                         "gui_element": "Date"
-                    },
-                    {
-                        "name": "hasTime",
-                        "super": [
-                            "hasValue"
-                        ],
-                        "object": "TimeValue",
-                        "labels": {
-                            "en": "Time"
-                        },
-                        "gui_element": "TimeStamp"
-                    },
-                    {
-                        "name": "hasInteger",
-                        "super": [
-                            "hasValue"
-                        ],
-                        "object": "IntValue",
-                        "labels": {
-                            "en": "Integer"
-                        },
-                        "gui_element": "Spinbox",
-                        "gui_attributes": {
-                            "max": -1.0,
-                            "min": 0.0
-                        }
                     },
                     {
                         "name": "hasDecimal",
@@ -370,27 +285,19 @@
                         "gui_element": "Geonames"
                     },
                     {
-                        "name": "hasBounds",
+                        "name": "hasInteger",
                         "super": [
-                            "hasSequenceBounds"
+                            "hasValue"
                         ],
-                        "object": "IntervalValue",
+                        "object": "IntValue",
                         "labels": {
-                            "de": "Intervall, das den Start- und Endpunkt der Sequenz definiert",
-                            "en": "Interval defining the start and end point of the sequence"
+                            "en": "Integer"
                         },
-                        "gui_element": "Interval"
-                    },
-                    {
-                        "name": "hasColor",
-                        "super": [
-                            "hasColor"
-                        ],
-                        "object": "ColorValue",
-                        "labels": {
-                            "en": "Color"
-                        },
-                        "gui_element": "Colorpicker"
+                        "gui_element": "Spinbox",
+                        "gui_attributes": {
+                            "max": -1.0,
+                            "min": 0.0
+                        }
                     },
                     {
                         "name": "hasListItem",
@@ -407,37 +314,26 @@
                         }
                     },
                     {
-                        "name": "hasTestThing2",
+                        "name": "hasMovingImageRepresentation",
                         "super": [
                             "hasLinkTo"
                         ],
-                        "object": ":TestThing2",
+                        "object": "MovingImageRepresentation",
                         "labels": {
-                            "en": "hasTestThing2"
+                            "en": "hasMovingImageRepresentation"
                         },
                         "gui_element": "Searchbox"
                     },
                     {
-                        "name": "hasTestThing",
+                        "name": "hasPagenum",
                         "super": [
-                            "hasLinkTo"
+                            "seqnum"
                         ],
-                        "object": ":TestThing",
+                        "object": "IntValue",
                         "labels": {
-                            "en": "hasTestThing"
+                            "en": "Page number"
                         },
-                        "gui_element": "Searchbox"
-                    },
-                    {
-                        "name": "hasResource",
-                        "super": [
-                            "hasLinkTo"
-                        ],
-                        "object": "Resource",
-                        "labels": {
-                            "en": "hasResource"
-                        },
-                        "gui_element": "Searchbox"
+                        "gui_element": "SimpleText"
                     },
                     {
                         "name": "hasRegion",
@@ -462,26 +358,139 @@
                         "gui_element": "Searchbox"
                     },
                     {
-                        "name": "hasMovingImageRepresentation",
+                        "name": "hasResource",
                         "super": [
                             "hasLinkTo"
                         ],
-                        "object": "MovingImageRepresentation",
+                        "object": "Resource",
                         "labels": {
-                            "en": "hasMovingImageRepresentation"
+                            "en": "hasResource"
                         },
                         "gui_element": "Searchbox"
                     },
                     {
-                        "name": "sequenceOfVideo",
+                        "name": "hasRichtext",
                         "super": [
-                            "isSequenceOf"
+                            "hasValue"
                         ],
-                        "subject": ":VideoSequence",
-                        "object": ":MovieThing",
+                        "object": "TextValue",
                         "labels": {
-                            "de": "ist Sequenz von",
-                            "en": "is sequence of"
+                            "en": "hasRichtext"
+                        },
+                        "gui_element": "Richtext"
+                    },
+                    {
+                        "name": "hasSimpleText",
+                        "super": [
+                            "hasValue",
+                            "foaf:name",
+                            "externalOnto:hasText"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "hasSimpleText"
+                        },
+                        "comments": {
+                            "en": "properties can optionally have comments",
+                            "de": "Properties können Kommentare haben",
+                            "rm": "Property with a Rumantsch comment"
+                        },
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": 255,
+                            "size": 80
+                        }
+                    },
+                    {
+                        "name": "hasTestThing",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": ":TestThing",
+                        "labels": {
+                            "en": "hasTestThing"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasTestThing2",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": ":TestThing2",
+                        "labels": {
+                            "en": "hasTestThing2"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasTextArea",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "hasTextArea"
+                        },
+                        "gui_element": "Textarea"
+                    },
+                    {
+                        "name": "hasTextChild1",
+                        "super": [
+                            ":hasSimpleText"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "hasTextChild2",
+                        "super": [
+                            ":hasTextChild1"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text",
+                            "rm": "hasTextChild2 in Rumantsch"
+                        },
+                        "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "hasTime",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TimeValue",
+                        "labels": {
+                            "en": "Time"
+                        },
+                        "gui_element": "TimeStamp"
+                    },
+                    {
+                        "name": "hasUri",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "UriValue",
+                        "labels": {
+                            "en": "URI"
+                        },
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": 255,
+                            "size": 80
+                        }
+                    },
+                    {
+                        "name": "partOf",
+                        "super": [
+                            "isPartOf"
+                        ],
+                        "object": ":CompoundThing",
+                        "labels": {
+                            "en": "is part of"
                         },
                         "gui_element": "Searchbox"
                     },
@@ -499,24 +508,15 @@
                         "gui_element": "Searchbox"
                     },
                     {
-                        "name": "hasPagenum",
+                        "name": "sequenceOfVideo",
                         "super": [
-                            "seqnum"
+                            "isSequenceOf"
                         ],
-                        "object": "IntValue",
+                        "subject": ":VideoSequence",
+                        "object": ":MovieThing",
                         "labels": {
-                            "en": "Page number"
-                        },
-                        "gui_element": "SimpleText"
-                    },
-                    {
-                        "name": "partOf",
-                        "super": [
-                            "isPartOf"
-                        ],
-                        "object": ":CompoundThing",
-                        "labels": {
-                            "en": "is part of"
+                            "de": "ist Sequenz von",
+                            "en": "is sequence of"
                         },
                         "gui_element": "Searchbox"
                     }

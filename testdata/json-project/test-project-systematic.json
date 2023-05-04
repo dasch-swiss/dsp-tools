@@ -716,38 +716,15 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": "testonto:hasSimpleText",
-                                "cardinality": "1-n",
-                                "gui_order": 1
-                            },
-                            {
-                                "propname": ":hasTextArea",
-                                "cardinality": "0-n",
-                                "gui_order": 2
-                            },
-                            {
-                                "propname": ":hasRichtext",
-                                "cardinality": "0-n",
-                                "gui_order": 3
-                            },
-                            {
-                                "propname": ":hasUri",
-                                "cardinality": "0-n"
-                            },
-                            {
                                 "propname": ":hasBoolean",
                                 "cardinality": "1"
                             },
                             {
+                                "propname": ":hasColor",
+                                "cardinality": "0-n"
+                            },
+                            {
                                 "propname": ":hasDate",
-                                "cardinality": "0-n"
-                            },
-                            {
-                                "propname": ":hasTime",
-                                "cardinality": "0-n"
-                            },
-                            {
-                                "propname": ":hasInteger",
                                 "cardinality": "0-n"
                             },
                             {
@@ -759,7 +736,7 @@
                                 "cardinality": "0-n"
                             },
                             {
-                                "propname": ":hasColor",
+                                "propname": ":hasInteger",
                                 "cardinality": "0-n"
                             },
                             {
@@ -767,11 +744,34 @@
                                 "cardinality": "0-n"
                             },
                             {
+                                "propname": ":hasMovingImageRepresentation",
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasRichtext",
+                                "cardinality": "0-n",
+                                "gui_order": 3
+                            },
+                            {
+                                "propname": "testonto:hasSimpleText",
+                                "cardinality": "1-n",
+                                "gui_order": 1
+                            },
+                            {
                                 "propname": ":hasTestThing2",
                                 "cardinality": "0-n"
                             },
                             {
-                                "propname": ":hasResource",
+                                "propname": ":hasTextArea",
+                                "cardinality": "0-n",
+                                "gui_order": 2
+                            },
+                            {
+                                "propname": ":hasTime",
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasUri",
                                 "cardinality": "0-n"
                             },
                             {
@@ -779,11 +779,11 @@
                                 "cardinality": "0-n"
                             },
                             {
-                                "propname": ":hasRepresentation",
+                                "propname": ":hasResource",
                                 "cardinality": "0-n"
                             },
                             {
-                                "propname": ":hasMovingImageRepresentation",
+                                "propname": ":hasRepresentation",
                                 "cardinality": "0-n"
                             }
                         ]

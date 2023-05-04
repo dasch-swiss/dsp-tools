@@ -698,7 +698,7 @@ class User(Model):
         proj_shortname: str,
         proj_iri: str
     ) -> dict[str, Union[str, list[str], None]]:
-        user: dict[str, Union[str, list[str], None]] = {
+        user: dict[str, Union[str, list[str], bool, None]] = {
             "username": self.username,
             "email": self.email,
             "givenName": self.givenName,
@@ -713,6 +713,8 @@ class User(Model):
             if 'group' in group_info and 'name' in group_info['group']:
                 groupname = group_info['group']['name']
                 groups.append(f'{proj_shortname}:{groupname}')
+        if self.sysadmin:
+            groups.append("SystemAdmin")
         user["groups"] = groups
         user["projects"] = list()
         for proj, is_admin in self._in_projects.items():
@@ -721,6 +723,7 @@ class User(Model):
                     user["projects"].append(f"{proj_shortname}:admin")
                 else:
                     user["projects"].append(f"{proj_shortname}:member")
+        user["status"] = self.status
         return user
 
     def print(self) -> None:

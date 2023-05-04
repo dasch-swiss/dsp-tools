@@ -68,7 +68,7 @@
                 "givenName": "Tester",
                 "familyName": "Known",
                 "password": "test0815",
-                "lang": "rm"
+                "lang": "en"
             },
             {
                 "username": "testerProjectAdmin",
@@ -76,7 +76,7 @@
                 "givenName": "Tester",
                 "familyName": "Project Admin",
                 "password": "test0815",
-                "lang": "en",
+                "lang": "de",
                 "projects": [
                     ":admin"
                 ]
@@ -87,7 +87,7 @@
                 "givenName": "Tester",
                 "familyName": "Editor",
                 "password": "test0815",
-                "lang": "en",
+                "lang": "fr",
                 "groups": [
                     ":testgroupEditors"
                 ],
@@ -101,7 +101,7 @@
                 "givenName": "Tester",
                 "familyName": "Viewer",
                 "password": "test0815",
-                "lang": "en",
+                "lang": "it",
                 "groups": [
                     ":testgroupViewers"
                 ],
@@ -115,7 +115,7 @@
                 "givenName": "Tester",
                 "familyName": "System Admin",
                 "password": "test0815",
-                "lang": "en",
+                "lang": "rm",
                 "groups": [
                     "SystemAdmin"
                 ],

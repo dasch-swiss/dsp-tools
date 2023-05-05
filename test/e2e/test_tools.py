@@ -218,7 +218,7 @@ class TestTools(unittest.TestCase):
             for res in onto["resources"]:
                 supers_as_list = [res["super"], ] if isinstance(res["super"], str) else res["super"]
                 for sup in supers_as_list:
-                    if re.search(fr"^({onto_name})?:\w+$", sup):
+                    if re.search(fr"^({onto_name})?:\w+$", sup) and res.get("cardinalities"):
                         del res["cardinalities"]
                         # remove from returned file as well
                         onto_returned = [x for x in project_returned["project"]["ontologies"] if x["name"] == onto["name"]][0]

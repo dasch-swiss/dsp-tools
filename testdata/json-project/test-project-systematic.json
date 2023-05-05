@@ -248,8 +248,8 @@
                             "en": "hasSimpleText"
                         },
                         "comments": {
-                            "de": "Properties können Kommentare haben",
                             "en": "properties can optionally have comments",
+                            "de": "Properties können Kommentare haben",
                             "rm": "Property with a Rumantsch comment"
                         },
                         "gui_element": "SimpleText",
@@ -359,6 +359,17 @@
                         }
                     },
                     {
+                        "name": "hasGeoname",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "GeonameValue",
+                        "labels": {
+                            "en": "Geoname"
+                        },
+                        "gui_element": "Geonames"
+                    },
+                    {
                         "name": "hasBounds",
                         "super": [
                             "hasSequenceBounds"
@@ -382,17 +393,6 @@
                         "gui_element": "Colorpicker"
                     },
                     {
-                        "name": "hasGeoname",
-                        "super": [
-                            "hasValue"
-                        ],
-                        "object": "GeonameValue",
-                        "labels": {
-                            "en": "Geoname"
-                        },
-                        "gui_element": "Geonames"
-                    },
-                    {
                         "name": "hasListItem",
                         "super": [
                             "hasValue"
@@ -407,26 +407,37 @@
                         }
                     },
                     {
-                        "name": "hasMovingImageRepresentation",
+                        "name": "hasTestThing2",
                         "super": [
                             "hasLinkTo"
                         ],
-                        "object": "MovingImageRepresentation",
+                        "object": ":TestThing2",
                         "labels": {
-                            "en": "hasMovingImageRepresentation"
+                            "en": "hasTestThing2"
                         },
                         "gui_element": "Searchbox"
                     },
                     {
-                        "name": "hasPagenum",
+                        "name": "hasTestThing",
                         "super": [
-                            "seqnum"
+                            "hasLinkTo"
                         ],
-                        "object": "IntValue",
+                        "object": ":TestThing",
                         "labels": {
-                            "en": "Page number"
+                            "en": "hasTestThing"
                         },
-                        "gui_element": "SimpleText"
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasResource",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Resource",
+                        "labels": {
+                            "en": "hasResource"
+                        },
+                        "gui_element": "Searchbox"
                     },
                     {
                         "name": "hasRegion",
@@ -451,37 +462,39 @@
                         "gui_element": "Searchbox"
                     },
                     {
-                        "name": "hasResource",
+                        "name": "hasMovingImageRepresentation",
                         "super": [
                             "hasLinkTo"
                         ],
-                        "object": "Resource",
+                        "object": "MovingImageRepresentation",
                         "labels": {
-                            "en": "hasResource"
+                            "en": "hasMovingImageRepresentation"
                         },
                         "gui_element": "Searchbox"
                     },
                     {
-                        "name": "hasTestThing",
+                        "name": "sequenceOfVideo",
                         "super": [
-                            "hasLinkTo"
+                            "isSequenceOf"
                         ],
-                        "object": ":TestThing",
+                        "subject": ":VideoSequence",
+                        "object": ":MovieThing",
                         "labels": {
-                            "en": "hasTestThing"
+                            "de": "ist Sequenz von",
+                            "en": "is sequence of"
                         },
                         "gui_element": "Searchbox"
                     },
                     {
-                        "name": "hasTestThing2",
+                        "name": "hasPagenum",
                         "super": [
-                            "hasLinkTo"
+                            "seqnum"
                         ],
-                        "object": ":TestThing2",
+                        "object": "IntValue",
                         "labels": {
-                            "en": "hasTestThing2"
+                            "en": "Page number"
                         },
-                        "gui_element": "Searchbox"
+                        "gui_element": "SimpleText"
                     },
                     {
                         "name": "partOf",
@@ -501,19 +514,6 @@
                         ],
                         "subject": ":AudioSequence",
                         "object": ":AudioThing",
-                        "labels": {
-                            "de": "ist Sequenz von",
-                            "en": "is sequence of"
-                        },
-                        "gui_element": "Searchbox"
-                    },
-                    {
-                        "name": "sequenceOfVideo",
-                        "super": [
-                            "isSequenceOf"
-                        ],
-                        "subject": ":VideoSequence",
-                        "object": ":MovieThing",
                         "labels": {
                             "de": "ist Sequenz von",
                             "en": "is sequence of"

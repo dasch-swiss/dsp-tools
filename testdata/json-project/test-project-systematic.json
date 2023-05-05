@@ -448,7 +448,7 @@
                     {
                         "name": "hasTextChild2",
                         "super": [
-                            ":hasTextChild1"
+                            "testonto:hasTextChild1"
                         ],
                         "object": "TextValue",
                         "labels": {
@@ -701,6 +701,16 @@
                                 "gui_order": 2
                             }
                         ]
+                    },
+                    {
+                        "name": "PartOfThingWithSubproperties",
+                        "super": [
+                            "StillImageRepresentation",
+                            "testonto:ImageThing"
+                        ],
+                        "labels": {
+                            "en": "Thing whose superclass is referenced with prefixed onto name"
+                        }
                     },
                     {
                         "name": "TestThing",

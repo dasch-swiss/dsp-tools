@@ -204,7 +204,7 @@ class TestTools(unittest.TestCase):
         for onto in project_original["project"]["ontologies"]:
             onto_name = onto["name"]
             for res in onto["resources"]:
-                for card in res["cardinalities"]:
+                for card in res.get("cardinalities"):
                     if card["propname"].startswith(onto_name):
                         card["propname"] = re.sub(fr"^{onto_name}:", ":", card["propname"])
 

@@ -214,6 +214,88 @@
                 "comment": "This is the main ontology of this project. Further down, another one is defined.",
                 "properties": [
                     {
+                        "name": "hasTextChild2",
+                        "super": [
+                            "testonto:hasTextChild1"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text",
+                            "rm": "hasTextChild2 in Rumantsch"
+                        },
+                        "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "hasTextChild1",
+                        "super": [
+                            ":hasSimpleText"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "hasSimpleText",
+                        "super": [
+                            "hasValue",
+                            "foaf:name",
+                            "externalOnto:hasText"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "hasSimpleText"
+                        },
+                        "comments": {
+                            "de": "Properties können Kommentare haben",
+                            "en": "properties can optionally have comments",
+                            "rm": "Property with a Rumantsch comment"
+                        },
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": 255,
+                            "size": 80
+                        }
+                    },
+                    {
+                        "name": "hasRichtext",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "hasRichtext"
+                        },
+                        "gui_element": "Richtext"
+                    },
+                    {
+                        "name": "hasTextArea",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "hasTextArea"
+                        },
+                        "gui_element": "Textarea"
+                    },
+                    {
+                        "name": "hasUri",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "UriValue",
+                        "labels": {
+                            "en": "URI"
+                        },
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": 255,
+                            "size": 80
+                        }
+                    },
+                    {
                         "name": "hasBoolean",
                         "super": [
                             "hasValue"
@@ -223,6 +305,58 @@
                             "en": "Boolean value"
                         },
                         "gui_element": "Checkbox"
+                    },
+                    {
+                        "name": "hasDate",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "DateValue",
+                        "labels": {
+                            "en": "Date"
+                        },
+                        "gui_element": "Date"
+                    },
+                    {
+                        "name": "hasTime",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TimeValue",
+                        "labels": {
+                            "en": "Time"
+                        },
+                        "gui_element": "TimeStamp"
+                    },
+                    {
+                        "name": "hasInteger",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "IntValue",
+                        "labels": {
+                            "en": "Integer"
+                        },
+                        "gui_element": "Spinbox",
+                        "gui_attributes": {
+                            "max": -1.0,
+                            "min": 0.0
+                        }
+                    },
+                    {
+                        "name": "hasDecimal",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "DecimalValue",
+                        "labels": {
+                            "en": "Decimal number"
+                        },
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": 255,
+                            "size": 80
+                        }
                     },
                     {
                         "name": "hasBounds",
@@ -248,32 +382,6 @@
                         "gui_element": "Colorpicker"
                     },
                     {
-                        "name": "hasDate",
-                        "super": [
-                            "hasValue"
-                        ],
-                        "object": "DateValue",
-                        "labels": {
-                            "en": "Date"
-                        },
-                        "gui_element": "Date"
-                    },
-                    {
-                        "name": "hasDecimal",
-                        "super": [
-                            "hasValue"
-                        ],
-                        "object": "DecimalValue",
-                        "labels": {
-                            "en": "Decimal number"
-                        },
-                        "gui_element": "SimpleText",
-                        "gui_attributes": {
-                            "maxlength": 255,
-                            "size": 80
-                        }
-                    },
-                    {
                         "name": "hasGeoname",
                         "super": [
                             "hasValue"
@@ -283,21 +391,6 @@
                             "en": "Geoname"
                         },
                         "gui_element": "Geonames"
-                    },
-                    {
-                        "name": "hasInteger",
-                        "super": [
-                            "hasValue"
-                        ],
-                        "object": "IntValue",
-                        "labels": {
-                            "en": "Integer"
-                        },
-                        "gui_element": "Spinbox",
-                        "gui_attributes": {
-                            "max": -1.0,
-                            "min": 0.0
-                        }
                     },
                     {
                         "name": "hasListItem",
@@ -369,39 +462,6 @@
                         "gui_element": "Searchbox"
                     },
                     {
-                        "name": "hasRichtext",
-                        "super": [
-                            "hasValue"
-                        ],
-                        "object": "TextValue",
-                        "labels": {
-                            "en": "hasRichtext"
-                        },
-                        "gui_element": "Richtext"
-                    },
-                    {
-                        "name": "hasSimpleText",
-                        "super": [
-                            "hasValue",
-                            "foaf:name",
-                            "externalOnto:hasText"
-                        ],
-                        "object": "TextValue",
-                        "labels": {
-                            "en": "hasSimpleText"
-                        },
-                        "comments": {
-                            "de": "Properties können Kommentare haben",
-                            "en": "properties can optionally have comments",
-                            "rm": "Property with a Rumantsch comment"
-                        },
-                        "gui_element": "SimpleText",
-                        "gui_attributes": {
-                            "maxlength": 255,
-                            "size": 80
-                        }
-                    },
-                    {
                         "name": "hasTestThing",
                         "super": [
                             "hasLinkTo"
@@ -422,66 +482,6 @@
                             "en": "hasTestThing2"
                         },
                         "gui_element": "Searchbox"
-                    },
-                    {
-                        "name": "hasTextArea",
-                        "super": [
-                            "hasValue"
-                        ],
-                        "object": "TextValue",
-                        "labels": {
-                            "en": "hasTextArea"
-                        },
-                        "gui_element": "Textarea"
-                    },
-                    {
-                        "name": "hasTextChild1",
-                        "super": [
-                            ":hasSimpleText"
-                        ],
-                        "object": "TextValue",
-                        "labels": {
-                            "en": "Text"
-                        },
-                        "gui_element": "SimpleText"
-                    },
-                    {
-                        "name": "hasTextChild2",
-                        "super": [
-                            "testonto:hasTextChild1"
-                        ],
-                        "object": "TextValue",
-                        "labels": {
-                            "en": "Text",
-                            "rm": "hasTextChild2 in Rumantsch"
-                        },
-                        "gui_element": "SimpleText"
-                    },
-                    {
-                        "name": "hasTime",
-                        "super": [
-                            "hasValue"
-                        ],
-                        "object": "TimeValue",
-                        "labels": {
-                            "en": "Time"
-                        },
-                        "gui_element": "TimeStamp"
-                    },
-                    {
-                        "name": "hasUri",
-                        "super": [
-                            "hasValue"
-                        ],
-                        "object": "UriValue",
-                        "labels": {
-                            "en": "URI"
-                        },
-                        "gui_element": "SimpleText",
-                        "gui_attributes": {
-                            "maxlength": 255,
-                            "size": 80
-                        }
                     },
                     {
                         "name": "partOf",

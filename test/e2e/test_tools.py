@@ -189,9 +189,9 @@ class TestTools(unittest.TestCase):
                 project_original["project"]["users"][index]["status"] = True
             # expand ":xyz" to "project_shortname:xyz"
             if user.get("groups"):
-                project_original["project"]["users"][index]["groups"] = [re.sub("^:", f"{project_shortname}:", group) for group in user["groups"]]
+                project_original["project"]["users"][index]["groups"] = [re.sub("^:", f"{project_shortname}:", g) for g in user["groups"]]
             if user.get("projects"):
-                project_original["project"]["users"][index]["projects"] = [re.sub("^:", f"{project_shortname}:", project) for project in user["projects"]]
+                project_original["project"]["users"][index]["projects"] = [re.sub("^:", f"{project_shortname}:", p) for p in user["projects"]]
 
         # List nodes can be defined in Excel files. Such lists must be removed from both the original and the returned file, 
         # because they cannot be compared

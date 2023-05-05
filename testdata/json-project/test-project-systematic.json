@@ -687,14 +687,48 @@
                         ]
                     },
                     {
+                        "name": "ImageThing",
+                        "super": "StillImageRepresentation",
+                        "labels": {
+                            "en": "An Image Thing"
+                        },
+                        "comments": {
+                            "en": "An image thing for testing image things."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "cardinality": "1",
+                                "gui_order": 1
+                            }
+                        ]
+                    },
+                    {
                         "name": "AudioThing",
                         "super": "AudioRepresentation",
                         "labels": {
-                            "de": "Ein Audioding",
-                            "en": "An Audio Thing"
+                            "en": "An Audio Thing",
+                            "de": "Ein Audioding"
                         },
                         "comments": {
                             "en": "An audio thing for testing audio things."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "cardinality": "1",
+                                "gui_order": 1
+                            }
+                        ]
+                    },
+                    {
+                        "name": "MovieThing",
+                        "super": "MovingImageRepresentation",
+                        "labels": {
+                            "en": "An Movie Thing"
+                        },
+                        "comments": {
+                            "en": "An movie thing for testing moving image things."
                         },
                         "cardinalities": [
                             {
@@ -807,11 +841,6 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasBounds",
-                                "cardinality": "1",
-                                "gui_order": 1
-                            },
-                            {
                                 "propname": ":hasSimpleText",
                                 "cardinality": "0-1",
                                 "gui_order": 10
@@ -820,6 +849,11 @@
                                 "propname": ":sequenceOfVideo",
                                 "cardinality": "1",
                                 "gui_order": 20
+                            },
+                            {
+                                "propname": ":hasBounds",
+                                "cardinality": "1",
+                                "gui_order": 30
                             }
                         ]
                     },
@@ -832,34 +866,17 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":sequenceOfAudio",
-                                "cardinality": "1",
+                                "propname": ":hasSimpleText",
+                                "cardinality": "0-1",
                                 "gui_order": 1
+                            },
+                            {
+                                "propname": ":sequenceOfAudio",
+                                "cardinality": "1"
                             },
                             {
                                 "propname": ":hasBounds",
                                 "cardinality": "1"
-                            },
-                            {
-                                "propname": ":hasSimpleText",
-                                "cardinality": "0-1"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "ImageThing",
-                        "super": "StillImageRepresentation",
-                        "labels": {
-                            "en": "An Image Thing"
-                        },
-                        "comments": {
-                            "en": "An image thing for testing image things."
-                        },
-                        "cardinalities": [
-                            {
-                                "propname": ":hasSimpleText",
-                                "cardinality": "1",
-                                "gui_order": 1
                             }
                         ]
                     },
@@ -876,34 +893,17 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": "hasSequenceBounds",
-                                "cardinality": "1",
-                                "gui_order": 1
-                            },
-                            {
                                 "propname": ":hasSimpleText",
-                                "cardinality": "0-1"
+                                "cardinality": "0-1",
+                                "gui_order": 1
                             },
                             {
                                 "propname": "isSequenceOf",
                                 "cardinality": "1"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "MovieThing",
-                        "super": "MovingImageRepresentation",
-                        "labels": {
-                            "en": "An Movie Thing"
-                        },
-                        "comments": {
-                            "en": "An movie thing for testing moving image things."
-                        },
-                        "cardinalities": [
+                            },
                             {
-                                "propname": ":hasSimpleText",
-                                "cardinality": "1",
-                                "gui_order": 1
+                                "propname": "hasSequenceBounds",
+                                "cardinality": "1"
                             }
                         ]
                     },
@@ -941,24 +941,6 @@
                 ],
                 "resources": [
                     {
-                        "name": "ImageThingPermissions",
-                        "super": "StillImageRepresentation",
-                        "labels": {
-                            "en": "Test thing for permissions with object"
-                        },
-                        "comments": {
-                            "de": "Ein Ding um Permissionsdinge zu testen.",
-                            "en": "A thing to test permission related things"
-                        },
-                        "cardinalities": [
-                            {
-                                "propname": ":hasText",
-                                "cardinality": "0-n",
-                                "gui_order": 1
-                            }
-                        ]
-                    },
-                    {
                         "name": "TestThingPermissions",
                         "super": [
                             "Resource",
@@ -981,6 +963,24 @@
                                 "propname": "testonto:hasSimpleText",
                                 "cardinality": "0-n",
                                 "gui_order": 2
+                            }
+                        ]
+                    },
+                    {
+                        "name": "ImageThingPermissions",
+                        "super": "StillImageRepresentation",
+                        "labels": {
+                            "en": "Test thing for permissions with object"
+                        },
+                        "comments": {
+                            "de": "Ein Ding um Permissionsdinge zu testen.",
+                            "en": "A thing to test permission related things"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "cardinality": "0-n",
+                                "gui_order": 1
                             }
                         ]
                     }

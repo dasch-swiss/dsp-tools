@@ -13,6 +13,7 @@ import unittest
 
 import jsonpath_ng
 import jsonpath_ng.ext
+from networkx import project
 import pytest
 
 from dsp_tools.excel2xml import excel2xml
@@ -128,117 +129,98 @@ class TestTools(unittest.TestCase):
 
 
     def test_get_ontology(self) -> None:
+        """
+        Create the systematic JSON project with the "create" command, 
+        retrieve it with the "get" command, 
+        and check if the result is identical to the original file.
+        """
+        # open original project and project that was received from the server
         with open(self.test_project_systematic_file) as f:
-            project_expected = json.load(f)
-
+            project_original = json.load(f)
+            project_original_str = f.read()
         get_project(project_identifier="tp",
                     outfile_path="testdata/tmp/_test-project-systematic.json",
                     server=self.server,
                     user=self.user,
                     password="test",
                     verbose=True)
-
         with open("testdata/tmp/_test-project-systematic.json") as f:
             project_received = json.load(f)
 
-        self.assertEqual(project_expected["project"]["shortcode"], project_received["project"]["shortcode"])
-        self.assertEqual(project_expected["project"]["shortname"], project_received["project"]["shortname"])
-        self.assertEqual(project_expected["project"]["longname"], project_received["project"]["longname"])
-        self.assertEqual(project_expected["project"]["descriptions"], project_received["project"]["descriptions"])
-        self.assertEqual(sorted(project_expected["project"]["keywords"]), sorted(project_received["project"]["keywords"]))
+        project_shortname = project_original["project"]["shortname"]
 
-        groups_expected = project_expected["project"]["groups"]
-        groups_received = project_received["project"]["groups"]
-        group_names_expected = []
-        group_descriptions_expected = []
-        group_selfjoin_expected = []
-        group_status_expected = []
-        groups_names_received = []
-        group_descriptions_received = []
-        group_selfjoin_received = []
-        group_status_received = []
-        for group in sorted(groups_expected, key=lambda x: x["name"]):
-            group_names_expected.append(group["name"])
-            group_descriptions_expected.append(group["descriptions"]["en"])
-            group_selfjoin_expected.append(group.get("selfjoin", False))
-            group_status_expected.append(group.get("status", True))
-        for group in sorted(groups_received, key=lambda x: x["name"]):
-            groups_names_received.append(group["name"])
-            group_descriptions_received.append(group["descriptions"]["en"])
-            group_selfjoin_received.append(group.get("selfjoin", False))
-            group_status_received.append(group.get("status", True))
-        self.assertEqual(sorted(group_names_expected), sorted(groups_names_received))
-        self.assertEqual(sorted(group_descriptions_expected), sorted(group_descriptions_received))
-        self.assertEqual(group_selfjoin_expected, group_selfjoin_received)
-        self.assertEqual(group_status_expected, group_status_received)
+        # expand prefixes in original, then delete both "prefixes" sections
+        # ("get" command returns full IRIs, and lists the ontos of the current file under "prefixes", which is optional in the original file)
+        for prefix, iri in project_original["prefixes"].items():
+            project_original_str = re.sub(rf'"{prefix}:(\w+)"', f'"{iri}\1"', project_original_str)
+        project_original = json.loads(project_original_str)
+        del project_original["prefixes"]
+        del project_received["prefixes"]
 
-        users_expected = project_expected["project"]["users"]
-        users_received = project_received["project"]["users"]
-        user_username_expected = []
-        user_email_expected = []
-        user_given_name_expected = []
-        user_family_name_expected = []
-        user_lang_expected = []
-        user_username_received = []
-        user_email_received = []
-        user_given_name_received = []
-        user_family_name_received = []
-        user_lang_received = []
-        for user in users_expected:
-            if user["username"] in ["testerKnownUser", "testerSystemAdmin"]:
-                # ignore the ones who are not part of the project
+        # delete both "$schema" sections (original might be relative path inside repo, received is full URL)
+        del project_original["$schema"]
+        del project_received["$schema"]
+
+        # write default values into original, in case they were omitted (the "get" command writes all default values)
+        for group in project_original["project"].get("groups"):
+            if not group.get("status"):
+                group["status"] = True
+            if not group.get("selfjoin"):
+                group["selfjoin"] = False
+
+        # bring the "users" section of original into the form that is returned by the "get" command
+        for user in project_original["project"].get("users"):
+            # remove users that are not in current project (they won't be returned by the "get" command)
+            current_project_membership_strings = [":admin", ":member", f"{project_shortname}:admin", f"{project_shortname}:member"]
+            if not any(x in user.get("groups") for x in current_project_membership_strings):
+                del user
                 continue
-            user_username_expected.append(user["username"])
-            user_email_expected.append(user["email"])
-            user_given_name_expected.append(user["givenName"])
-            user_family_name_expected.append(user["familyName"])
-            user_lang_expected.append(user["lang"])
-        for user in users_received:
-            user_username_received.append(user["username"])
-            user_email_received.append(user["email"])
-            user_given_name_received.append(user["givenName"])
-            user_family_name_received.append(user["familyName"])
-            user_lang_received.append(user["lang"])
-        self.assertEqual(sorted(user_username_expected), sorted(user_username_received))
-        self.assertEqual(sorted(user_email_expected), sorted(user_email_received))
-        self.assertEqual(sorted(user_given_name_expected), sorted(user_given_name_received))
-        self.assertEqual(sorted(user_family_name_expected), sorted(user_family_name_received))
-        self.assertEqual(sorted(user_lang_expected), sorted(user_lang_received))
+            # remove password
+            user["password"] = ""
+            # write default values, in case they were omitted
+            if not user.get("groups"):
+                user["groups"] = []
+            if not user.get("status"):
+                user["status"] = True
+            # expand ":xyz" to "project_shortname:xyz"
+            for group in user.get("groups"):
+                group = re.sub("^:", f"{project_shortname}:", group)
+            for proj in user.get("projects"):
+                proj = re.sub("^:", f"{project_shortname}:", proj)
 
-        ontos_expected = project_expected["project"]["ontologies"]
-        ontos_received = project_received["project"]["ontologies"]
-        onto_names_expected = []
-        onto_labels_expected = []
-        onto_names_received = []
-        onto_labels_received = []
-        for onto in ontos_expected:
-            onto_names_expected.append(onto["name"])
-            onto_labels_expected.append(onto["label"])
-        for onto in ontos_received:
-            onto_names_received.append(onto["name"])
-            onto_labels_received.append(onto["label"])
-        self.assertEqual(sorted(onto_names_expected), sorted(onto_names_received))
-        self.assertEqual(sorted(onto_labels_expected), sorted(onto_labels_received))
+        # List nodes can be defined in Excel files. Such lists must be removed from both the original and the received file, 
+        # because they cannot be compared
+        for list_original in project_original["project"].get("lists"):
+            if isinstance(list_original["nodes"], dict) and len(list_original["nodes"]) == 1 and "folder" in list_original["nodes"]:
+                for list_received in project_received["project"]["lists"]:
+                    if list_received["name"] == list_original["name"]:
+                        del list_received
+                        break
+                del list_original
+        
+        # The original might have propnames of cardinalities in the form "testonto:hasSimpleText".
+        # The received file will have ":hasSimpleText", so we need to remove the onto name.
+        for onto in project_original["project"]["ontologies"]:
+            onto_name = onto["name"]
+            for res in onto["resources"]:
+                for card in res["cardinalities"]:
+                    if card["propname"].startswith(onto_name):
+                        card["propname"] = re.sub(fr"^{onto_name}:", "", card["propname"])
 
-        lists = project_expected["project"]["lists"]
-        test_list: dict[str, str] = next((l for l in lists if l["name"] == "testlist"), {})
-        not_used_list: dict[str, str] = next((l for l in lists if l["name"] == "notUsedList"), {})
-        excel_list: dict[str, str] = next((l for l in lists if l["name"] == "my-list-from-excel"), {})
+        # If a subclass doesn't explicitly define all cardinalities of its superclass 
+        # (or a subproperty of a cardinality of its superclass),
+        # these cardinalities are implicitly added, so the "get" command will return them. 
+        # It would be too complicated to test this behaviour, 
+        # so we need to remove the cardinalities of all subclasses from both original file and received file.
+        for onto in project_original["project"]["ontologies"]:
+            for res in onto["resources"]:
+                if re.search(r"^:\w+$", res["super"]):
+                    del res["cardinalities"]
+                    del project_received["project"]["ontologies"][onto["name"]]["resources"][res["name"]]["cardinalities"]
 
-        lists_out = project_received["project"]["lists"]
-        test_list_out: dict[str, str] = next((l for l in lists_out if l["name"] == "testlist"), {})
-        not_used_list_out: dict[str, str] = next((l for l in lists_out if l["name"] == "notUsedList"), {})
-        excel_list_out: dict[str, str] = next((l for l in lists_out if l["name"] == "my-list-from-excel"), {})
-
-        self.assertEqual(test_list.get("labels"), test_list_out.get("labels"))
-        self.assertEqual(test_list.get("comments"), test_list_out.get("comments"))
-        self.assertEqual(test_list.get("nodes"), test_list_out.get("nodes"))
-
-        self.assertEqual(not_used_list.get("labels"), not_used_list_out.get("labels"))
-        self.assertEqual(not_used_list.get("comments"), not_used_list_out.get("comments"))
-        self.assertEqual(not_used_list.get("nodes"), not_used_list_out.get("nodes"))
-
-        self.assertEqual(excel_list.get("comments"), excel_list_out.get("comments"))
+        # Compare the original and the received file
+        self.assertDictEqual(project_original, project_received)
+                    
 
 
     def test_validate_xml_against_schema(self) -> None:

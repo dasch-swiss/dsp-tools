@@ -703,7 +703,7 @@
                         ]
                     },
                     {
-                        "name": "PartOfThingWithSubproperties",
+                        "name": "SomeThing",
                         "super": [
                             "StillImageRepresentation",
                             "testonto:ImageThing"

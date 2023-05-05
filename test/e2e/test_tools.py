@@ -9,6 +9,7 @@ import datetime
 import json
 import os
 import re
+from typing import cast
 import unittest
 
 import jsonpath_ng
@@ -130,14 +131,13 @@ class TestTools(unittest.TestCase):
 
     def test_get_ontology(self) -> None:
         """
-        Create the systematic JSON project with the "create" command, 
-        retrieve it with the "get" command, 
+        Retrieve the systematic JSON project file with the "get" command, 
         and check if the result is identical to the original file.
         """
         # open original project and project that was received from the server
         with open(self.test_project_systematic_file) as f:
-            project_original = json.load(f)
             project_original_str = f.read()
+            project_original = json.loads(project_original_str)
         get_project(project_identifier="tp",
                     outfile_path="testdata/tmp/_test-project-systematic.json",
                     server=self.server,
@@ -152,7 +152,7 @@ class TestTools(unittest.TestCase):
         # expand prefixes in original, then delete both "prefixes" sections
         # ("get" command returns full IRIs, and lists the ontos of the current file under "prefixes", which is optional in the original file)
         for prefix, iri in project_original["prefixes"].items():
-            project_original_str = re.sub(rf'"{prefix}:(\w+)"', f'"{iri}\1"', project_original_str)
+            project_original_str = re.sub(fr'"{prefix}:(\w+?)"', fr'"{iri}\1"', project_original_str)
         project_original = json.loads(project_original_str)
         del project_original["prefixes"]
         del project_received["prefixes"]
@@ -163,24 +163,24 @@ class TestTools(unittest.TestCase):
 
         # write default values into original, in case they were omitted (the "get" command writes all default values)
         for group in project_original["project"].get("groups"):
-            if not group.get("status"):
+            if group.get("status") is None:
                 group["status"] = True
-            if not group.get("selfjoin"):
+            if group.get("selfjoin") is None:
                 group["selfjoin"] = False
 
         # bring the "users" section of original into the form that is returned by the "get" command
         for user in project_original["project"].get("users"):
             # remove users that are not in current project (they won't be returned by the "get" command)
             current_project_membership_strings = [":admin", ":member", f"{project_shortname}:admin", f"{project_shortname}:member"]
-            if not any(x in user.get("groups") for x in current_project_membership_strings):
+            if not any(x in user.get("groups", []) for x in current_project_membership_strings):
                 del user
                 continue
             # remove password
             user["password"] = ""
             # write default values, in case they were omitted
-            if not user.get("groups"):
+            if user.get("groups") is None:
                 user["groups"] = []
-            if not user.get("status"):
+            if user.get("status") is None:
                 user["status"] = True
             # expand ":xyz" to "project_shortname:xyz"
             for group in user.get("groups"):
@@ -194,9 +194,9 @@ class TestTools(unittest.TestCase):
             if isinstance(list_original["nodes"], dict) and len(list_original["nodes"]) == 1 and "folder" in list_original["nodes"]:
                 for list_received in project_received["project"]["lists"]:
                     if list_received["name"] == list_original["name"]:
-                        del list_received
+                        project_received["project"]["lists"].remove(list_received)
                         break
-                del list_original
+                project_original["project"]["lists"].remove(list_original)
         
         # The original might have propnames of cardinalities in the form "testonto:hasSimpleText".
         # The received file will have ":hasSimpleText", so we need to remove the onto name.
@@ -214,13 +214,37 @@ class TestTools(unittest.TestCase):
         # so we need to remove the cardinalities of all subclasses from both original file and received file.
         for onto in project_original["project"]["ontologies"]:
             for res in onto["resources"]:
-                if re.search(r"^:\w+$", res["super"]):
-                    del res["cardinalities"]
-                    del project_received["project"]["ontologies"][onto["name"]]["resources"][res["name"]]["cardinalities"]
+                supers = [res["super"], ] if isinstance(res["super"], str) else res["super"]
+                for sup in supers:
+                    if re.search(r"^:\w+$", sup):
+                        del res["cardinalities"]
+                        # remove from received file as well
+                        onto_received = [x for x in project_received["project"]["ontologies"] if x["name"] == onto["name"]][0]
+                        res_received = [x for x in onto_received["resources"] if x["name"] == res["name"]][0]
+                        del res_received["cardinalities"]
+
+        # sort resources, properties, cardinalities, and supers alphabetically in both files
+        for file in [project_original, project_received]:
+            for onto in file["project"]["ontologies"]:
+                onto["resources"] = sorted(onto["resources"], key=lambda r: cast(str, r["name"]))
+                onto["properties"] = sorted(onto["properties"], key=lambda p: cast(str, p["name"]))
+                for res in onto["resources"]:
+                    if res.get("cardinalities"):
+                        res["cardinalities"] = sorted(res["cardinalities"], key=lambda c: cast(str, c["propname"]))
+                    if isinstance(res["super"], list):
+                        res["super"] = sorted(res["super"])
+                for prop in onto["properties"]:
+                    if isinstance(prop["super"], list):
+                        prop["super"] = sorted(prop["super"])
 
         # Compare the original and the received file
-        self.assertDictEqual(project_original, project_received)
-                    
+        with open("original.json", "w") as f:
+            json.dump(project_original, f, indent=4, sort_keys=True)
+        with open("received.json", "w") as f:
+            json.dump(project_received, f, indent=4, sort_keys=True)
+        project_original_str = json.dumps(project_original, sort_keys=True)
+        project_received_str = json.dumps(project_received, sort_keys=True)
+        self.assertEqual(project_original_str, project_received_str)
 
 
     def test_validate_xml_against_schema(self) -> None:

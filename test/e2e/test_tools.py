@@ -9,12 +9,11 @@ import datetime
 import json
 import os
 import re
-from typing import cast
 import unittest
+from typing import cast
 
 import jsonpath_ng
 import jsonpath_ng.ext
-from networkx import project
 import pytest
 
 from dsp_tools.excel2xml import excel2xml

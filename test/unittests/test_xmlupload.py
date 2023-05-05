@@ -1,5 +1,7 @@
 """Unit tests for xmlupload"""
 
+# pylint: disable=missing-class-docstring,missing-function-docstring
+
 import unittest
 
 import regex
@@ -25,8 +27,8 @@ class TestXMLUpload(unittest.TestCase):
             ("http://0.0.0.0:12345", "localhost"),
             ("https://0.0.0.0:80/", "localhost")
         ]
-        for input, expected_output in testcases:
-            actual_output = _transform_server_url_to_foldername(input)
+        for _input, expected_output in testcases:
+            actual_output = _transform_server_url_to_foldername(_input)
             self.assertEqual(actual_output, expected_output)
 
 
@@ -75,11 +77,12 @@ class TestXMLUpload(unittest.TestCase):
                 '<resource restype="Annotation/Region/LinkObj">'
         )
 
-        comments = [e for e in output1.iter() if isinstance(e, etree._Comment)]
+        comments = [e for e in output1.iter() if isinstance(e, etree._Comment)]  # pylint: disable=protected-access
         self.assertEqual(
             len(comments), 
             0, 
-            msg="properties that are commented out would break the the constructor of the class XMLProperty, if they are not removed in the parsing process"
+            msg="properties that are commented out would break the the constructor of the class XMLProperty, "
+            "if they are not removed in the parsing process"
         )
 
 
@@ -117,8 +120,8 @@ class TestXMLUpload(unittest.TestCase):
         stashed_xml_texts_hashes = list()
         for res, propdict in stashed_xml_texts_original.items():
             for elem in propdict.values():
-                for hash, xml in elem.items():
-                    stashed_xml_texts_hashes.append(hash)
+                for _hash in elem:
+                    stashed_xml_texts_hashes.append(_hash)
 
         # make a version of the stashes with the IDs from the XML file instead of the Python objects
         stashed_xml_texts = {res.id: {prop.name: [str(x) for x in d.values()] for prop, d in _dict.items()}

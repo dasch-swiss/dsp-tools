@@ -134,32 +134,35 @@ class TestTools(unittest.TestCase):
         Retrieve the systematic JSON project file with the "get" command, 
         and check if the result is identical to the original file.
         """
-        # open original project and project that was received from the server
-        with open(self.test_project_systematic_file) as f:
+        # open original project and project that was returned from the server
+        get_project(
+            project_identifier="tp",
+            outfile_path="testdata/tmp/_test-project-systematic.json",
+            server=self.server,
+            user=self.user,
+            password="test",
+            verbose=True
+        )
+        with open("testdata/tmp/_test-project-systematic.json", encoding="utf-8") as f:
+            project_returned = json.load(f)
+        with open(self.test_project_systematic_file, encoding="utf-8") as f:
             project_original_str = f.read()
             project_original = json.loads(project_original_str)
-        get_project(project_identifier="tp",
-                    outfile_path="testdata/tmp/_test-project-systematic.json",
-                    server=self.server,
-                    user=self.user,
-                    password="test",
-                    verbose=True)
-        with open("testdata/tmp/_test-project-systematic.json") as f:
-            project_received = json.load(f)
 
         project_shortname = project_original["project"]["shortname"]
 
-        # expand prefixes in original, then delete both "prefixes" sections
-        # ("get" command returns full IRIs, and lists the ontos of the current file under "prefixes", which is optional in the original file)
+        # expand prefixes in original, then delete both "prefixes" sections, because
+        #  - the "get" command returns full IRIs instead of prefixed IRIs, so the original prefixes won't be found in the returned file
+        #  - the "get" command lists the ontos of the current file under "prefixes", which is optional in the original file
         for prefix, iri in project_original["prefixes"].items():
             project_original_str = re.sub(fr'"{prefix}:(\w+?)"', fr'"{iri}\1"', project_original_str)
         project_original = json.loads(project_original_str)
         del project_original["prefixes"]
-        del project_received["prefixes"]
+        del project_returned["prefixes"]
 
-        # delete both "$schema" sections (original might be relative path inside repo, received is full URL)
+        # delete both "$schema" sections (original might be relative path inside repo, returned is full URL)
         del project_original["$schema"]
-        del project_received["$schema"]
+        del project_returned["$schema"]
 
         # write default values into original, in case they were omitted (the "get" command writes all default values)
         for group in project_original["project"].get("groups"):
@@ -168,63 +171,63 @@ class TestTools(unittest.TestCase):
             if group.get("selfjoin") is None:
                 group["selfjoin"] = False
 
+        # remove users that are not in current project (they won't be returned by the "get" command)
+        if project_original["project"].get("users"):
+            current_project_membership_strings = [":admin", ":member", f"{project_shortname}:admin", f"{project_shortname}:member"]
+            project_original["project"]["users"] = [u for u in project_original["project"]["users"] 
+                                                    if any(p in u.get("projects", []) for p in current_project_membership_strings)]
+
         # bring the "users" section of original into the form that is returned by the "get" command
         for user in project_original["project"].get("users"):
-            # remove users that are not in current project (they won't be returned by the "get" command)
-            current_project_membership_strings = [":admin", ":member", f"{project_shortname}:admin", f"{project_shortname}:member"]
-            if not any(x in user.get("groups", []) for x in current_project_membership_strings):
-                del user
-                continue
+            index = project_original["project"]["users"].index(user)
             # remove password
-            user["password"] = ""
+            project_original["project"]["users"][index]["password"] = ""
             # write default values, in case they were omitted
             if user.get("groups") is None:
-                user["groups"] = []
+                project_original["project"]["users"][index]["groups"] = []
             if user.get("status") is None:
-                user["status"] = True
+                project_original["project"]["users"][index]["status"] = True
             # expand ":xyz" to "project_shortname:xyz"
-            for group in user.get("groups"):
-                group = re.sub("^:", f"{project_shortname}:", group)
-            for proj in user.get("projects"):
-                proj = re.sub("^:", f"{project_shortname}:", proj)
+            if user.get("groups"):
+                project_original["project"]["users"][index]["groups"] = [re.sub("^:", f"{project_shortname}:", group) for group in user["groups"]]
+            if user.get("projects"):
+                project_original["project"]["users"][index]["projects"] = [re.sub("^:", f"{project_shortname}:", project) for project in user["projects"]]
 
-        # List nodes can be defined in Excel files. Such lists must be removed from both the original and the received file, 
+        # List nodes can be defined in Excel files. Such lists must be removed from both the original and the returned file, 
         # because they cannot be compared
         for list_original in project_original["project"].get("lists"):
             if isinstance(list_original["nodes"], dict) and len(list_original["nodes"]) == 1 and "folder" in list_original["nodes"]:
-                for list_received in project_received["project"]["lists"]:
-                    if list_received["name"] == list_original["name"]:
-                        project_received["project"]["lists"].remove(list_received)
-                        break
                 project_original["project"]["lists"].remove(list_original)
+                project_returned["project"]["lists"] = [x for x in project_returned["project"]["lists"] if x["name"] != list_original["name"]]
         
         # The original might have propnames of cardinalities in the form "testonto:hasSimpleText".
-        # The received file will have ":hasSimpleText", so we need to remove the onto name.
+        # The returned file will have ":hasSimpleText", so we need to remove the onto name.
         for onto in project_original["project"]["ontologies"]:
             onto_name = onto["name"]
             for res in onto["resources"]:
                 for card in res["cardinalities"]:
                     if card["propname"].startswith(onto_name):
-                        card["propname"] = re.sub(fr"^{onto_name}:", "", card["propname"])
+                        card["propname"] = re.sub(fr"^{onto_name}:", ":", card["propname"])
 
         # If a subclass doesn't explicitly define all cardinalities of its superclass 
         # (or a subproperty of a cardinality of its superclass),
         # these cardinalities are implicitly added, so the "get" command will return them. 
         # It would be too complicated to test this behaviour, 
-        # so we need to remove the cardinalities of all subclasses from both original file and received file.
+        # so we need to remove the cardinalities of all subclasses from both original file and returned file.
         for onto in project_original["project"]["ontologies"]:
+            onto_name = onto["name"]
             for res in onto["resources"]:
-                supers = [res["super"], ] if isinstance(res["super"], str) else res["super"]
-                for sup in supers:
-                    if re.search(r"^:\w+$", sup):
+                supers_as_list = [res["super"], ] if isinstance(res["super"], str) else res["super"]
+                for sup in supers_as_list:
+                    if re.search(fr"^({onto_name})?:\w+$", sup):
                         del res["cardinalities"]
-                        # remove from received file as well
-                        onto_received = [x for x in project_received["project"]["ontologies"] if x["name"] == onto["name"]][0]
-                        res_received = [x for x in onto_received["resources"] if x["name"] == res["name"]][0]
-                        del res_received["cardinalities"]
+                        # remove from returned file as well
+                        onto_returned = [x for x in project_returned["project"]["ontologies"] if x["name"] == onto["name"]][0]
+                        res_returned = [x for x in onto_returned["resources"] if x["name"] == res["name"]][0]
+                        del res_returned["cardinalities"]
 
         # sort resources, properties, cardinalities, and supers alphabetically in both files
-        for file in [project_original, project_received]:
+        for file in [project_original, project_returned]:
             for onto in file["project"]["ontologies"]:
                 onto["resources"] = sorted(onto["resources"], key=lambda r: cast(str, r["name"]))
                 onto["properties"] = sorted(onto["properties"], key=lambda p: cast(str, p["name"]))
@@ -237,14 +240,10 @@ class TestTools(unittest.TestCase):
                     if isinstance(prop["super"], list):
                         prop["super"] = sorted(prop["super"])
 
-        # Compare the original and the received file
-        with open("original.json", "w") as f:
-            json.dump(project_original, f, indent=4, sort_keys=True)
-        with open("received.json", "w") as f:
-            json.dump(project_received, f, indent=4, sort_keys=True)
+        # Compare the original and the returned file
         project_original_str = json.dumps(project_original, sort_keys=True)
-        project_received_str = json.dumps(project_received, sort_keys=True)
-        self.assertEqual(project_original_str, project_received_str)
+        project_returned_str = json.dumps(project_returned, sort_keys=True)
+        self.assertEqual(project_original_str, project_returned_str)
 
 
     def test_validate_xml_against_schema(self) -> None:

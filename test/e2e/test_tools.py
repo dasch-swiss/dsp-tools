@@ -225,14 +225,18 @@ class TestTools(unittest.TestCase):
                         res_returned = [x for x in onto_returned["resources"] if x["name"] == res["name"]][0]
                         del res_returned["cardinalities"]
 
-        # sort resources, properties, cardinalities, and supers alphabetically in both files
+        # sort everything in both files (sorting criterion isn't important, as long as both files are sorted by the same code)
         for file in [project_original, project_returned]:
+            file["project"]["groups"] = sorted(file["project"]["groups"])
+            file["project"]["users"] = sorted(file["project"]["users"])
+            file["project"]["lists"] = sorted(file["project"]["lists"])
+            file["project"]["ontologies"] = sorted(file["project"]["ontologies"])
             for onto in file["project"]["ontologies"]:
-                onto["resources"] = sorted(onto["resources"], key=lambda r: cast(str, r["name"]))
-                onto["properties"] = sorted(onto["properties"], key=lambda p: cast(str, p["name"]))
+                onto["resources"] = sorted(onto["resources"])
+                onto["properties"] = sorted(onto["properties"])
                 for res in onto["resources"]:
                     if res.get("cardinalities"):
-                        res["cardinalities"] = sorted(res["cardinalities"], key=lambda c: cast(str, c["propname"]))
+                        res["cardinalities"] = sorted(res["cardinalities"])
                     if isinstance(res["super"], list):
                         res["super"] = sorted(res["super"])
                 for prop in onto["properties"]:

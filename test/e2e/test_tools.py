@@ -199,7 +199,7 @@ class TestTools(unittest.TestCase):
                 project_original["project"]["lists"].remove(list_original)
                 project_returned["project"]["lists"] = [x for x in project_returned["project"]["lists"] if x["name"] != list_original["name"]]
         
-        # The original might have propnames in the form "testonto:hasSimpleText".
+        # The original might have names in the form "currentonto:hasSimpleText".
         # The returned file will have ":hasSimpleText", so we need to remove the onto name.
         for onto in project_original["project"]["ontologies"]:
             onto_name = onto["name"]
@@ -210,6 +210,9 @@ class TestTools(unittest.TestCase):
                 for card in res.get("cardinalities", []):
                     if card["propname"].startswith(onto_name):
                         card["propname"] = re.sub(fr"^{onto_name}:", ":", card["propname"])
+                supers_as_list = [res["super"], ] if isinstance(res["super"], str) else res["super"]
+                if any(sup.startswith(onto_name) for sup in supers_as_list):
+                    res["super"] = [re.sub(fr"^{onto_name}:", ":", sup) for sup in supers_as_list]
 
         # If a subclass doesn't explicitly define all cardinalities of its superclass 
         # (or a subproperty of a cardinality of its superclass),
@@ -221,12 +224,14 @@ class TestTools(unittest.TestCase):
             for res in onto["resources"]:
                 supers_as_list = [res["super"], ] if isinstance(res["super"], str) else res["super"]
                 for sup in supers_as_list:
-                    if re.search(fr"^({onto_name})?:\w+$", sup) and res.get("cardinalities"):
-                        del res["cardinalities"]
-                        # remove from returned file as well
+                    if re.search(fr"^({onto_name})?:\w+$", sup):
+                        if res.get("cardinalities"):
+                            del res["cardinalities"]
+                        # remove from returned file, too
                         onto_returned = [x for x in project_returned["project"]["ontologies"] if x["name"] == onto["name"]][0]
                         res_returned = [x for x in onto_returned["resources"] if x["name"] == res["name"]][0]
-                        del res_returned["cardinalities"]
+                        if res_returned.get("cardinalities"):
+                            del res_returned["cardinalities"]
 
         # sort everything in both files
         for file in [project_original, project_returned]:
@@ -249,6 +254,10 @@ class TestTools(unittest.TestCase):
         # Compare the original and the returned file
         project_original_str = json.dumps(project_original, sort_keys=True)
         project_returned_str = json.dumps(project_returned, sort_keys=True)
+        with open("original.json", "w", encoding="utf-8") as f:
+            json.dump(project_original, f, indent=4, sort_keys=True)
+        with open("returned.json", "w", encoding="utf-8") as f:
+            json.dump(project_returned, f, indent=4, sort_keys=True)
         self.assertEqual(project_original_str, project_returned_str)
 
 

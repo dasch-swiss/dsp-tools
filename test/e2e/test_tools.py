@@ -225,18 +225,18 @@ class TestTools(unittest.TestCase):
                         res_returned = [x for x in onto_returned["resources"] if x["name"] == res["name"]][0]
                         del res_returned["cardinalities"]
 
-        # sort everything in both files (sorting criterion isn't important, as long as both files are sorted by the same code)
+        # sort everything in both files
         for file in [project_original, project_returned]:
-            file["project"]["groups"] = sorted(file["project"]["groups"])
-            file["project"]["users"] = sorted(file["project"]["users"])
-            file["project"]["lists"] = sorted(file["project"]["lists"])
-            file["project"]["ontologies"] = sorted(file["project"]["ontologies"])
+            file["project"]["groups"] = sorted(file["project"]["groups"], key=lambda x: cast(str, x["name"]))
+            file["project"]["users"] = sorted(file["project"]["users"], key=lambda x: cast(str, x["username"]))
+            file["project"]["lists"] = sorted(file["project"]["lists"], key=lambda x: cast(str, x["name"]))
+            file["project"]["ontologies"] = sorted(file["project"]["ontologies"], key=lambda x: cast(str, x["name"]))
             for onto in file["project"]["ontologies"]:
-                onto["resources"] = sorted(onto["resources"])
-                onto["properties"] = sorted(onto["properties"])
+                onto["resources"] = sorted(onto["resources"], key=lambda x: cast(str, x["name"]))
+                onto["properties"] = sorted(onto["properties"], key=lambda x: cast(str, x["name"]))
                 for res in onto["resources"]:
                     if res.get("cardinalities"):
-                        res["cardinalities"] = sorted(res["cardinalities"])
+                        res["cardinalities"] = sorted(res["cardinalities"], key=lambda x: cast(str, x["propname"]))
                     if isinstance(res["super"], list):
                         res["super"] = sorted(res["super"])
                 for prop in onto["properties"]:

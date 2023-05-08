@@ -125,10 +125,11 @@ To locally check your code for style violations, follow the instructions dependi
 
 In VSCode, 
 
-- pylint can be installed as extension (`ms-python.pylint`), and be configured in the settings (cmd+,).
-- isort can be installed as extension (`ms-python.isort`), and be configured in the settings (cmd+,).
-- mypy can be configured in the settings (cmd+,).
-- markdownlint can be installed as extension (`davidanson.vscode-markdownlint`), and be configured in the settings (cmd+,).
+- pylint can be installed as extension (`ms-python.pylint`), and be configured in the VSCode settings.
+- isort can be installed as extension (`ms-python.isort`), and be configured in the VSCode settings.
+- mypy can be installed as extension (`matangover.mypy`), and be configured in the VSCode  settings.
+  - (This extension is different from Microsoft's Python extension's mypy functionality which only lints each file separately, leading to incomplete type checking.)
+- markdownlint can be installed as extension (`davidanson.vscode-markdownlint`), and be configured in the  VSCode settings.
 
 If configured correctly, you will see style violations in the "Problems" tab.
 

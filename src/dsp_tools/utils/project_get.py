@@ -1,6 +1,6 @@
 import json
 import re
-from typing import Any, cast
+from typing import Any
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError

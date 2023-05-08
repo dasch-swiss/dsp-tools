@@ -87,13 +87,13 @@ experimental = true
 
 
 [tool.mypy]
-ignore_missing_imports = true
+ignore_missing_imports = true              # TODO: deactivate this
 show_column_numbers = true
 strict = true
 exclude = [
-    "src/dsp_tools/models",           # TODO: activate this
-    "src/dsp_tools/import_scripts",   # TODO: activate this
-    "test/e2e",                       # TODO: activate this
+    "src/dsp_tools/models",                # TODO: activate this
+    "src/dsp_tools/import_scripts",        # TODO: activate this
+    "test/e2e",                            # TODO: activate this
 ]
 
 
@@ -104,9 +104,9 @@ known_first_party = ["dsp_tools"]
 
 [tool.pylint.MASTER]
 ignore-paths = [
-    "src/dsp_tools/models/.*$",           # TODO: activate this
-    "src/dsp_tools/import_scripts/.*$",   # TODO: activate this
-    "test/e2e/.*$"                        # TODO: activate this
+    "src/dsp_tools/models/.*$",            # TODO: activate this
+    "src/dsp_tools/import_scripts/.*$",    # TODO: activate this
+    "test/e2e/.*$"                         # TODO: activate this
 ]
 suggestion-mode = true
 

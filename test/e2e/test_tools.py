@@ -199,10 +199,13 @@ class TestTools(unittest.TestCase):
                 project_original["project"]["lists"].remove(list_original)
                 project_returned["project"]["lists"] = [x for x in project_returned["project"]["lists"] if x["name"] != list_original["name"]]
         
-        # The original might have propnames of cardinalities in the form "testonto:hasSimpleText".
+        # The original might have propnames in the form "testonto:hasSimpleText".
         # The returned file will have ":hasSimpleText", so we need to remove the onto name.
         for onto in project_original["project"]["ontologies"]:
             onto_name = onto["name"]
+            for prop in onto["properties"]:
+                if any(sup.startswith(onto_name) for sup in prop["super"]):
+                    prop["super"] = [re.sub(fr"^{onto_name}:", ":", sup) for sup in prop["super"]]
             for res in onto["resources"]:
                 for card in res.get("cardinalities", []):
                     if card["propname"].startswith(onto_name):

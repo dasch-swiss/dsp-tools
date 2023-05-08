@@ -420,13 +420,13 @@ class Ontology(Model):
         }
         if not self.comment:
             ontology.pop("comment")
-        for prop in sorted(self.property_classes, key=lambda p: str(p.name)):
+        for prop in self.property_classes:
             if "knora-api:hasLinkToValue" in prop.superproperties:
                 self.skiplist.append(self.name + ":" + prop.name)
                 continue
             ontology["properties"].append(prop.createDefinitionFileObj(self.context, self.name))
 
-        for res in sorted(self.resource_classes, key=lambda r: str(r.name)):
+        for res in self.resource_classes:
             ontology["resources"].append(res.createDefinitionFileObj(self.context, self.name, self._skiplist))
 
         return ontology

@@ -57,7 +57,7 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
             groups_obj.append(group.createDefinitionFileObj())
             if verbose:
                 print(f"\tGot group '{group.name}'")
-    project_obj["groups"] = sorted(groups_obj, key=lambda g: cast(str, g["name"]))
+    project_obj["groups"] = groups_obj
 
     # get users
     if verbose:
@@ -73,7 +73,7 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
             ))
             if verbose:
                 print(f"\tGot user '{usr.username}'")
-        project_obj["users"] = sorted(users_obj, key=lambda u: cast(str, u["username"]))
+        project_obj["users"] = users_obj
 
     # get the lists
     if verbose:
@@ -86,7 +86,7 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
             list_obj.append(complete_list.createDefinitionFileObj())
             if verbose:
                 print(f"\tGot list '{list_root.name}'")
-    project_obj["lists"] = sorted(list_obj, key=lambda l: cast(str, l["name"]))
+    project_obj["lists"] = list_obj
 
     # get the ontologies
     if verbose:

@@ -277,6 +277,6 @@ class LangString:
         if self._simplestring:
             return self._simplestring
         langstring = {}
-        for p in sorted(self.items(), key=lambda p: p[0].value):
+        for p in self.items():
             langstring[p[0].value] = p[1]
         return langstring

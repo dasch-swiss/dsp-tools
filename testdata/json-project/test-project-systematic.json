@@ -950,8 +950,8 @@
                             "en": "Test thing for permissions without object"
                         },
                         "comments": {
-                            "de": "Ein Ding um Permissionsdinge zu testen.",
-                            "en": "A thing to test permission related things"
+                            "en": "A thing to test permission related things",
+                            "de": "Ein Ding um Permissionsdinge zu testen."
                         },
                         "cardinalities": [
                             {
@@ -979,8 +979,8 @@
                         "cardinalities": [
                             {
                                 "propname": ":hasText",
-                                "cardinality": "0-n",
-                                "gui_order": 1
+                                "gui_order": 1,
+                                "cardinality": "0-n"
                             }
                         ]
                     }

@@ -254,10 +254,6 @@ class TestTools(unittest.TestCase):
         # Compare the original and the returned file
         project_original_str = json.dumps(project_original, sort_keys=True)
         project_returned_str = json.dumps(project_returned, sort_keys=True)
-        with open("original.json", "w", encoding="utf-8") as f:
-            json.dump(project_original, f, indent=4, sort_keys=True)
-        with open("returned.json", "w", encoding="utf-8") as f:
-            json.dump(project_returned, f, indent=4, sort_keys=True)
         self.assertEqual(project_original_str, project_returned_str)
 
 

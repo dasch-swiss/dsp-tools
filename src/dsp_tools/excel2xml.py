@@ -18,7 +18,12 @@ from lxml.builder import E  # pylint: disable=no-name-in-module
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import DateTimeStamp
-from dsp_tools.models.propertyelement import PropertyElement
+# explicitly export PropertyElement, so that API users can import it from this module 
+# (see https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-no-implicit-reexport)
+# doing this requires silencing the corresponding pylint warning 
+# (see https://pylint.readthedocs.io/en/latest/user_guide/messages/convention/useless-import-alias.html)
+from dsp_tools.models.propertyelement import \
+    PropertyElement as PropertyElement  # pylint: disable=useless-import-alias
 from dsp_tools.models.value import UriValue
 from dsp_tools.utils.shared import (
     check_notna,

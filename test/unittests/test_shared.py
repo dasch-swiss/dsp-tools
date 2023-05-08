@@ -1,6 +1,7 @@
 # pylint: disable=f-string-without-interpolation,missing-class-docstring,missing-function-docstring
 
 import unittest
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -103,9 +104,9 @@ class TestShared(unittest.TestCase):
         for na_value in na_values:
             self.assertFalse(shared.check_notna(na_value), msg=f"Failed na_value: {na_value}")
 
-        notna_values = [1, 0.1, True, False, "True", "False", r" \n\t ", "0", "_", "Ὅμηρος", "!", "?"]
-        notna_values.extend([PropertyElement(x) for x in notna_values])
-        for notna_value in notna_values:
+        notna_values_orig: list[Union[str, int, float, bool]] = [1, 0.1, True, False, "True", "False", r" \n\t ", "0", "_", "Ὅμηρος", "!", "?"]
+        notna_values_as_propelem = [PropertyElement(x) for x in notna_values_orig]
+        for notna_value in notna_values_orig + notna_values_as_propelem:
             self.assertTrue(shared.check_notna(notna_value), msg=f"Failed notna_value: {notna_value}")
 
 

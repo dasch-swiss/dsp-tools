@@ -277,19 +277,19 @@ class TestExcel2xml(unittest.TestCase):
         test_cases: list[tuple[str, Callable[..., etree._Element]]] = [
             (
                 '<bitstream permissions="prop-default">foo/bar/baz.txt</bitstream>', 
-                lambda: excel2xml.make_bitstream_prop(path_string)  # type: ignore[no-any-return]
+                lambda: excel2xml.make_bitstream_prop(path_string)
             ),
             (
                 '<bitstream permissions="prop-default">foo/bar/baz.txt</bitstream>', 
-                lambda: excel2xml.make_bitstream_prop(path_path)  # type: ignore[no-any-return]
+                lambda: excel2xml.make_bitstream_prop(path_path)
             ),
             (
                 '<bitstream permissions="prop-restricted">foo/bar/baz.txt</bitstream>', 
-                lambda: excel2xml.make_bitstream_prop(path_string, "prop-restricted")  # type: ignore[no-any-return]
+                lambda: excel2xml.make_bitstream_prop(path_string, "prop-restricted")
             ),
             (
                 '<bitstream permissions="prop-restricted">foo/bar/baz.txt</bitstream>', 
-                lambda: excel2xml.make_bitstream_prop(path_path, "prop-restricted")  # type: ignore[no-any-return]
+                lambda: excel2xml.make_bitstream_prop(path_path, "prop-restricted")
             )
         ]
         for expected, method_call in test_cases:
@@ -301,15 +301,16 @@ class TestExcel2xml(unittest.TestCase):
 
     def test_make_boolean_prop(self) -> None:
         # prepare true_values
-        true_values = [True, "TRue", "TruE", "1", 1, "yes", "YES", "yEs"]
-        true_values.extend([excel2xml.PropertyElement(x) for x in true_values])
+        true_values_orig: list[Union[bool, str, int]] = [True, "TRue", "TruE", "1", 1, "yes", "YES", "yEs"]
+        true_values_as_propelem = [excel2xml.PropertyElement(x) for x in true_values_orig]
+        true_values = true_values_orig + true_values_as_propelem
 
         # prepare false_values
-        false_values = [False, "false", "False", "falSE", "0", 0, "no", "No", "nO"]
-        false_values.extend([excel2xml.PropertyElement(x) for x in false_values])
+        false_values_orig: list[Union[bool, str, int]] = [False, "false", "False", "falSE", "0", 0, "no", "No", "nO"]
+        false_values_as_propelem = [excel2xml.PropertyElement(x) for x in false_values_orig]
+        false_values = false_values_orig + false_values_as_propelem
 
-        unsupported_values = [np.nan, "N/A", "NA", "na", "None", "", " ", "-", None,
-                              [True, False], [0, 0, 1], ["True", "false"]]
+        unsupported_values: list[Any] = [np.nan, "N/A", "NA", "na", "None", "", " ", "-", None, [True, False], [0, 0, 1], ["True", "false"]]
 
         true_xml_expected = '<boolean-prop name=":test"><boolean permissions="prop-default">true</boolean></boolean-prop>'
         false_xml_expected = '<boolean-prop name=":test"><boolean permissions="prop-default">false</boolean></boolean-prop>'
@@ -558,15 +559,15 @@ class TestExcel2xml(unittest.TestCase):
 
     def test_make_resource(self) -> None:
         test_cases: list[tuple[Callable[..., etree._Element], str]] = [
-            (lambda: excel2xml.make_resource("label", "restype", "id"),                                         # type: ignore[no-any-return]
+            (lambda: excel2xml.make_resource("label", "restype", "id"),
              '<resource label="label" restype="restype" id="id" permissions="res-default"/>'),
-            (lambda: excel2xml.make_resource("label", "restype", "id", "res-restricted"),                       # type: ignore[no-any-return]
+            (lambda: excel2xml.make_resource("label", "restype", "id", "res-restricted"),
              '<resource label="label" restype="restype" id="id" permissions="res-restricted"/>'),
-            (lambda: excel2xml.make_resource("label", "restype", "id", ark="ark"),                              # type: ignore[no-any-return]
+            (lambda: excel2xml.make_resource("label", "restype", "id", ark="ark"),
              '<resource label="label" restype="restype" id="id" permissions="res-default" ark="ark"/>'),
-            (lambda: excel2xml.make_resource("label", "restype", "id", iri="iri"),                              # type: ignore[no-any-return]
+            (lambda: excel2xml.make_resource("label", "restype", "id", iri="iri"),
              '<resource label="label" restype="restype" id="id" permissions="res-default" iri="iri"/>'),
-            (lambda: excel2xml.make_resource("label", "restype", "id", creation_date="2019-10-23T13:45:12Z"),   # type: ignore[no-any-return]
+            (lambda: excel2xml.make_resource("label", "restype", "id", creation_date="2019-10-23T13:45:12Z"),
              '<resource label="label" restype="restype" id="id" permissions="res-default" creation_date="2019-10-23T13:45:12Z"/>')
         ]
 

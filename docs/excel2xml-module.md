@@ -204,8 +204,8 @@ Here's how the Docstrings assist you:
 - link to the DSP-TOOLS documentation of this property
 - a short description for every parameter
 - short description of the returned object. 
-  - Note: `etree._Element` is a type annotation of an underlying library. You don't have to care about it, as long as 
-    you proceed as described (append the returned object to the parent resource).
+    - Note: `etree._Element` is a type annotation of an underlying library. You don't have to care about it, as long as 
+      you proceed as described (append the returned object to the parent resource).
 
 ![docstring example](./assets/images/img-excel2xml-module-docstring.png)
 

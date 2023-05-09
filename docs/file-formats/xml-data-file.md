@@ -56,14 +56,14 @@ The user doesn't hold the permissions directly, but belongs to an arbitrary numb
 permissions. There are **built-in groups** and **project specific groups**:
 
 - **Built-in groups**: Every user is automatically in at least one of the following built-in groups:
-  - `UnknownUser`: The user is not known to DSP (not logged in).
-  - `KnownUser`: The user is logged in, but not a member of the project the data element belongs to.
-  - `ProjectMember`: The user belongs to the same project as the data element.
-  - `ProjectAdmin`: The user is project administrator in the project the data element belongs to.
-  - `Creator`: The user is the owner of the element (created the element).
-  - `SystemAdmin`: The user is a system administrator.
+    - `UnknownUser`: The user is not known to DSP (not logged in).
+    - `KnownUser`: The user is logged in, but not a member of the project the data element belongs to.
+    - `ProjectMember`: The user belongs to the same project as the data element.
+    - `ProjectAdmin`: The user is project administrator in the project the data element belongs to.
+    - `Creator`: The user is the owner of the element (created the element).
+    - `SystemAdmin`: The user is a system administrator.
 - **Project specific groups**: 
-  - can be defined in the [JSON project file](./json-project/overview.md#groups)
+    - can be defined in the [JSON project file](./json-project/overview.md#groups)
 
 
 ### Rights
@@ -341,9 +341,9 @@ Notes:
 - If start and end date don't match, it's a range.
 - If the end date is omitted, it's a range from the earliest possible beginning of the start date to the latest possible 
 end of the start date. For example:
-  - "1893" will be expanded to a range from January 1st 1893 to December 31st 1893.
-  - "1893-01" will be expanded to a range from January 1st 1893 to January 31st 1893.
-  - "1893-01-01" will be expanded to the exact date January 1st 1893 to January 1st 1893 (technically also a range).
+    - "1893" will be expanded to a range from January 1st 1893 to December 31st 1893.
+    - "1893-01" will be expanded to a range from January 1st 1893 to January 31st 1893.
+    - "1893-01-01" will be expanded to the exact date January 1st 1893 to January 1st 1893 (technically also a range).
 
 Attributes:
 
@@ -629,8 +629,8 @@ Attributes:
 The `<text>` element has the following attributes:
 
 - `encoding` (required)
-  - `utf8`: simple text without markup
-  - `xml`: complex text with markup. It must follow the XML format as defined by the
+    - `utf8`: simple text without markup
+    - `xml`: complex text with markup. It must follow the XML format as defined by the
   [DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/xml-to-standoff-mapping/).
 - `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions 
   at all, not even view rights)
@@ -762,15 +762,16 @@ For example, the day value can never be 32 and cannot be 29 for month 02 and yea
 The timezone is defined as follows:
 
 - A plus (+) or minus (-) sign that is followed by hh:mm:
-  - `+`: Indicates that the specified time instant is in a time zone that is ahead of the UTC time by hh hours and mm
-    minutes.
-  - `-`: Indicates that the specified time instant is in a time zone that is behind UTC time by hh hours and mm
-    minutes.
-  - `hh`: a two-digit numeral (with leading zeros as required) that represents the hours. The value must be between
-    -14 and +14, inclusive.
-  - `mm`: a two-digit numeral that represents the minutes. The value must be zero when hh is equal to 14.
-- Z: The literal Z, which represents the time in UTC (Z represents Zulu time, which is equivalent to UTC). Specifying Z
-  for the time zone is equivalent to specifying +00:00 or -00:00.
+    - `+`: Indicates that the specified time instant is in a time zone 
+      that is ahead of the UTC time by hh hours and mm minutes.
+    - `-`: Indicates that the specified time instant is in a time zone 
+      that is behind UTC time by hh hours and mm minutes.
+    - `hh`: a two-digit numeral (with leading zeros as required) that represents the hours. 
+       The value must be between -14 and +14, inclusive.
+    - `mm`: a two-digit numeral that represents the minutes. 
+      The value must be zero when hh is equal to 14.
+- Z: The literal Z, which represents the time in UTC (Z represents Zulu time, which is equivalent to UTC). 
+  Specifying Z for the time zone is equivalent to specifying +00:00 or -00:00.
 
 Attributes:
 

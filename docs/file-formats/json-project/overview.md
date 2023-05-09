@@ -230,15 +230,15 @@ This object contains user definitions. A user has the following elements:
 - _password_: password of the user
 - _lang_: the default language of the user: "en", "de", "fr", "it", "rm" (optional, default: "en")
 - _groups_ (optional): List of groups the user belongs to. The group names must be provided in one of the following forms:
-  - `other_project_shortname:groupname`
-  - `:groupname` (for groups defined in the current JSON project file)
-  - `SystemAdmin` (the most powerful group, built-in into DSP)
+    - `other_project_shortname:groupname`
+    - `:groupname` (for groups defined in the current JSON project file)
+    - `SystemAdmin` (the most powerful group, built-in into DSP)
 - _projects_ (optional): List of projects the user belongs to. The project name has to be followed by a `:` and either 
   `member` or `admin`. This indicates if the new user has admin rights in the given project or is an ordinary
   user. `myproject:admin` would add the user as admin to the project `myproject`. The project defined in the same
   JSON project file can be omitted, so only `:admin` or `:member` is enough. Note that in order to give a user `:admin` 
   rights, he also needs to be a `:member` of the project.
-  - If _projects_ is omitted, the user won't be part in any project.
+    - If _projects_ is omitted, the user won't be part in any project.
 - _status_ (optional): true (default) if the user is active, false if the user is deleted/inactive
 
 Example:

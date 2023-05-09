@@ -293,7 +293,7 @@ usable if it is
 - a number (integer or float, but not numpy.nan)
 - a boolean
 - a string with at least one Unicode letter (matching the regex ``\\p{L}``) or number, or at least one _, !, or ?
-  (The strings "None", "<NA>", "N/A", and "-" are considered invalid.)
+  (The strings "None", "&lt;NA&gt;", "N/A", and "-" are considered invalid.)
 - a PropertyElement whose "value" fulfills the above criteria
 
 Examples:

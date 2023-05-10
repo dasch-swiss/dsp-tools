@@ -11,7 +11,10 @@ from dsp_tools.fast_xmlupload.upload_xml import fast_xml_upload
 from dsp_tools.utils.project_create import create_project
 
 
-class TestTools(unittest.TestCase):
+class TestFastXmlUpload(unittest.TestCase):
+    """
+    Test the fast XML upload
+    """
 
     dsp_url = "http://0.0.0.0:3333"
     sipi_url = "http://0.0.0.0:1024"
@@ -26,7 +29,7 @@ class TestTools(unittest.TestCase):
 
     def setUp(self) -> None:
         """
-        is executed before all tests
+        Is executed before any test is run.
         """
         self.original_cwd = os.getcwd()
         os.chdir("testdata")
@@ -44,7 +47,7 @@ class TestTools(unittest.TestCase):
 
     def tearDown(self) -> None:
         """
-        is executed after all tests are run through
+        Is executed after all tests have run through.
         """
         shutil.rmtree("bitstreams/nested")
         shutil.rmtree(self.dir_with_processed_files)
@@ -54,6 +57,10 @@ class TestTools(unittest.TestCase):
 
 
     def test_fast_xml_upload(self) -> None:
+        """
+        Test if it is possible to call the 3 steps of the fast XML upload, one after the other.
+        No detailed tests are done here, it is only tested if the 3 steps can be called.
+        """
         print("test_fast_xml_upload: call process_files()")
         success_process = process_files(
             input_dir="bitstreams",
@@ -91,25 +98,4 @@ class TestTools(unittest.TestCase):
 
 if __name__ == "__main__":
     pytest.main([__file__, "--capture=no"])
-        # extensions: dict[str, list[str]] = dict()
-        # extensions[":ImageThing"] = [".jpg", ".jpeg", ".tif", ".tiff", ".jp2", ".png"]
-        # extensions[":MovieThing"] = [".mp4"]
-        # extensions[":ZipThing"] = [".7z", ".gz", ".gzip", ".tar", ".tar.gz", ".tgz", ".z", ".zip"]
-        # extensions[":TextThing"] = [".csv", ".txt", ".xml", ".xsd", ".xsl"]
-        # extensions[":DocumentThing"] = [".doc", ".docx", ".pdf", ".ppt", ".pptx", ".xls", ".xlsx"]
-        # extensions[":AudioThing"] = [".mp3", ".wav"]
-        
-        # # generate an XML file that uses these files
-        # root = excel2xml.make_root(shortcode="00E0", default_ontology="testonto")
-        # root = excel2xml.append_permissions(root)
-        # for filepath in Path("testdata/bitstreams").glob("*.*"):
-        #     resource = excel2xml.make_resource(
-        #         label=str(filepath),
-        #         restype=[rt for rt, ext in extensions.items() if filepath.suffix in ext][0],
-        #         id=excel2xml.make_xsd_id_compatible(str(filepath))
-        #     )
-        #     warnings.filterwarnings("ignore")
-        #     resource.append(excel2xml.make_bitstream_prop(filepath))
-        #     root.append(resource)
-        # excel2xml.write_xml(root, str(testproject / "data.xml"))
         

@@ -10,9 +10,9 @@ from importlib.metadata import version
 from pathlib import Path
 
 from dsp_tools.excel2xml import excel2xml
-from dsp_tools.fast_upload.process_files import process_files
-from dsp_tools.fast_upload.upload_files import upload_files
-from dsp_tools.fast_upload.xml_upload_fast import fast_xml_upload
+from dsp_tools.fast_xmlupload.process_files import process_files
+from dsp_tools.fast_xmlupload.upload_files import upload_files
+from dsp_tools.fast_xmlupload.upload_xml import fast_xml_upload
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.excel_to_json_lists import (
     excel2lists,

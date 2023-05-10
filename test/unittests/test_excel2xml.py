@@ -1,3 +1,5 @@
+# pylint: disable=missing-class-docstring,missing-function-docstring
+
 import os
 import re
 import unittest
@@ -18,12 +20,13 @@ def run_test(
     prop: str,
     method: Callable[..., etree._Element],
     different_values: Sequence[Union[str, int, float, bool]],
-    invalid_values: Sequence[Union[str, int, float, bool]],
+    invalid_values: Sequence[Any],
     listname: Optional[str] = None
 ) -> None:
     """
-    XML-properties have always a similar structure, and all make_*_prop() methods have some similar things to test. This
-    method executes the tests in a parametrized way.
+    XML-properties have always a similar structure, 
+    and all make_*_prop() methods have some similar things to test. 
+    This method executes the tests in a parametrized way.
 
     Args:
         testcase: the object of the unittest class
@@ -34,7 +37,7 @@ def run_test(
         listname: to check the method make_list_prop, a list name is necessary
     """
     identical_values = [different_values[0]] * 3
-    max = len(different_values)
+    maximum = len(different_values)
 
     # prepare the test cases of the form (expected_xml, kwargs for the method to generate XML)
     testcases: list[tuple[str, dict[str, Any]]] = list()
@@ -71,22 +74,22 @@ def run_test(
         ),
         (
             f'<{prop}-prop name=":test">'
-            f'<{prop} permissions="prop-default">{different_values[0 % max]}</{prop}>'
-            f'<{prop} permissions="prop-default">{different_values[1 % max]}</{prop}>'
-            f'<{prop} permissions="prop-default">{different_values[2 % max]}</{prop}>'
+            f'<{prop} permissions="prop-default">{different_values[0 % maximum]}</{prop}>'
+            f'<{prop} permissions="prop-default">{different_values[1 % maximum]}</{prop}>'
+            f'<{prop} permissions="prop-default">{different_values[2 % maximum]}</{prop}>'
             f'</{prop}-prop>',
-            dict(name=":test", value=[different_values[0 % max], different_values[1 % max], different_values[2 % max]])
+            dict(name=":test", value=[different_values[0 % maximum], different_values[1 % maximum], different_values[2 % maximum]])
         ),
         (
             f'<{prop}-prop name=":test">'
-            f'<{prop} permissions="prop-restricted" comment="comment1">{different_values[3 % max]}</{prop}>'
-            f'<{prop} permissions="prop-default" comment="comment2">{different_values[4 % max]}</{prop}>'
-            f'<{prop} permissions="prop-restricted" comment="comment3">{different_values[5 % max]}</{prop}>'
+            f'<{prop} permissions="prop-restricted" comment="comment1">{different_values[3 % maximum]}</{prop}>'
+            f'<{prop} permissions="prop-default" comment="comment2">{different_values[4 % maximum]}</{prop}>'
+            f'<{prop} permissions="prop-restricted" comment="comment3">{different_values[5 % maximum]}</{prop}>'
             f'</{prop}-prop>',
             dict(name=":test", value=[
-                excel2xml.PropertyElement(different_values[3 % max], permissions="prop-restricted", comment="comment1"),
-                excel2xml.PropertyElement(different_values[4 % max], permissions="prop-default", comment="comment2"),
-                excel2xml.PropertyElement(different_values[5 % max], permissions="prop-restricted", comment="comment3")
+                excel2xml.PropertyElement(different_values[3 % maximum], permissions="prop-restricted", comment="comment1"),
+                excel2xml.PropertyElement(different_values[4 % maximum], permissions="prop-default", comment="comment2"),
+                excel2xml.PropertyElement(different_values[5 % maximum], permissions="prop-restricted", comment="comment3")
             ])
         )
     ])
@@ -103,8 +106,8 @@ def run_test(
             # a <text> has the additional attribute encoding="utf8" (the other encoding, xml, is tested in the caller)
             xml_expected = re.sub(r"<text (permissions=\".+?\")( comment=\".+?\")?", "<text \\1\\2 encoding=\"utf8\"",
                                   xml_expected)
-        xml_returned = method(**kwargs_to_generate_xml)
-        xml_returned = etree.tostring(xml_returned, encoding="unicode")
+        xml_returned_as_element = method(**kwargs_to_generate_xml)
+        xml_returned = etree.tostring(xml_returned_as_element, encoding="unicode")
         xml_returned = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned)  # remove all xml namespace declarations
         testcase.assertEqual(xml_expected, xml_returned,
                              msg=f"Method {method.__name__} failed with kwargs {kwargs_to_generate_xml}")
@@ -114,6 +117,8 @@ def run_test(
     for invalid_value in invalid_values:
         kwargs_invalid_value = dict(name=":test", value=invalid_value)
         if prop == "list":
+            if not listname:
+                raise BaseError("listname must be set to test make_list_prop()")
             kwargs_invalid_value["list_name"] = listname
         with testcase.assertRaises(BaseError, msg=f"Method {method.__name__} failed with kwargs {kwargs_invalid_value}"):
             method(**kwargs_invalid_value)
@@ -149,7 +154,7 @@ class TestExcel2xml(unittest.TestCase):
         special_characters_df = pd.read_excel("testdata/excel2xml/excel2xml-testdata-special-characters.xlsx")
         root = excel2xml.make_root("00A1", "test")
         root = excel2xml.append_permissions(root)
-        for i, row in special_characters_df.iterrows():
+        for _, row in special_characters_df.iterrows():
             root.append(
                 excel2xml.make_resource(
                     label=row["Label"],
@@ -166,15 +171,15 @@ class TestExcel2xml(unittest.TestCase):
         teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠"
         id_1 = excel2xml.make_xsd_id_compatible(teststring)
         id_2 = excel2xml.make_xsd_id_compatible(teststring)
-        id_1_derandom = excel2xml._derandomize_xsd_id(id_1)
-        id_2_derandom = excel2xml._derandomize_xsd_id(id_2)
+        id_1_derandom = excel2xml._derandomize_xsd_id(id_1)  # pylint: disable=protected-access
+        id_2_derandom = excel2xml._derandomize_xsd_id(id_2)  # pylint: disable=protected-access
 
         # test single occurrence
         self.assertEqual(id_1_derandom, id_2_derandom)
 
         # test multiple occurrence
         multiple_ids = f"{id_1}----{id_2}----{id_1}----{id_2}"
-        multiple_ids_derandom = excel2xml._derandomize_xsd_id(multiple_ids, multiple_occurrences=True)
+        multiple_ids_derandom = excel2xml._derandomize_xsd_id(multiple_ids, multiple_occurrences=True)  # pylint: disable=protected-access
         self.assertListEqual(multiple_ids_derandom.split("----"), [id_1_derandom] * 4)
 
 
@@ -269,11 +274,23 @@ class TestExcel2xml(unittest.TestCase):
     def test_make_bitstream_prop(self) -> None:
         path_string = "foo/bar/baz.txt"
         path_path = Path(path_string)
-        test_cases = [
-            ('<bitstream permissions="prop-default">foo/bar/baz.txt</bitstream>', lambda: excel2xml.make_bitstream_prop(path_string)),
-            ('<bitstream permissions="prop-default">foo/bar/baz.txt</bitstream>', lambda: excel2xml.make_bitstream_prop(path_path)),
-            ('<bitstream permissions="prop-restricted">foo/bar/baz.txt</bitstream>', lambda: excel2xml.make_bitstream_prop(path_string, "prop-restricted")),
-            ('<bitstream permissions="prop-restricted">foo/bar/baz.txt</bitstream>', lambda: excel2xml.make_bitstream_prop(path_path, "prop-restricted"))
+        test_cases: list[tuple[str, Callable[..., etree._Element]]] = [
+            (
+                '<bitstream permissions="prop-default">foo/bar/baz.txt</bitstream>', 
+                lambda: excel2xml.make_bitstream_prop(path_string)
+            ),
+            (
+                '<bitstream permissions="prop-default">foo/bar/baz.txt</bitstream>', 
+                lambda: excel2xml.make_bitstream_prop(path_path)
+            ),
+            (
+                '<bitstream permissions="prop-restricted">foo/bar/baz.txt</bitstream>', 
+                lambda: excel2xml.make_bitstream_prop(path_string, "prop-restricted")
+            ),
+            (
+                '<bitstream permissions="prop-restricted">foo/bar/baz.txt</bitstream>', 
+                lambda: excel2xml.make_bitstream_prop(path_path, "prop-restricted")
+            )
         ]
         for expected, method_call in test_cases:
             with self.assertWarnsRegex(UserWarning, ".*Failed validation in bitstream tag.*"):
@@ -284,15 +301,16 @@ class TestExcel2xml(unittest.TestCase):
 
     def test_make_boolean_prop(self) -> None:
         # prepare true_values
-        true_values = [True, "TRue", "TruE", "1", 1, "yes", "YES", "yEs"]
-        true_values.extend([excel2xml.PropertyElement(x) for x in true_values])
+        true_values_orig: list[Union[bool, str, int]] = [True, "TRue", "TruE", "1", 1, "yes", "YES", "yEs"]
+        true_values_as_propelem = [excel2xml.PropertyElement(x) for x in true_values_orig]
+        true_values = true_values_orig + true_values_as_propelem
 
         # prepare false_values
-        false_values = [False, "false", "False", "falSE", "0", 0, "no", "No", "nO"]
-        false_values.extend([excel2xml.PropertyElement(x) for x in false_values])
+        false_values_orig: list[Union[bool, str, int]] = [False, "false", "False", "falSE", "0", 0, "no", "No", "nO"]
+        false_values_as_propelem = [excel2xml.PropertyElement(x) for x in false_values_orig]
+        false_values = false_values_orig + false_values_as_propelem
 
-        unsupported_values = [np.nan, "N/A", "NA", "na", "None", "", " ", "-", None,
-                              [True, False], [0, 0, 1], ["True", "false"]]
+        unsupported_values: list[Any] = [np.nan, "N/A", "NA", "na", "None", "", " ", "-", None, [True, False], [0, 0, 1], ["True", "false"]]
 
         true_xml_expected = '<boolean-prop name=":test"><boolean permissions="prop-default">true</boolean></boolean-prop>'
         false_xml_expected = '<boolean-prop name=":test"><boolean permissions="prop-default">false</boolean></boolean-prop>'
@@ -306,7 +324,8 @@ class TestExcel2xml(unittest.TestCase):
             false_xml = re.sub(r" xmlns(:.+?)?=\".+?\"", "", false_xml)
             self.assertEqual(false_xml, false_xml_expected, msg=f"Failed with '{false_value}'")
         for unsupported_value in unsupported_values:
-            self.assertRaises(BaseError, lambda: excel2xml.make_boolean_prop(":test", unsupported_value))
+            with self.assertRaises(BaseError):
+                excel2xml.make_boolean_prop(":test", unsupported_value)
 
 
     def test_make_color_prop(self) -> None:
@@ -329,7 +348,7 @@ class TestExcel2xml(unittest.TestCase):
     def test_make_decimal_prop(self) -> None:
         prop = "decimal"
         method = excel2xml.make_decimal_prop
-        different_values = ["3.14159", 3.14159, "1.3e3", "100", ".1", 100]
+        different_values: list[Union[str, float, int]] = ["3.14159", 3.14159, "1.3e3", "100", ".1", 100]
         invalid_values = ["string"]
         run_test(self, prop, method, [float(x) for x in different_values], invalid_values)
 
@@ -338,8 +357,10 @@ class TestExcel2xml(unittest.TestCase):
         prop = "geometry"
         method = excel2xml.make_geometry_prop
         different_values = [
-            '{"type": "rectangle", "lineColor": "#ff3333", "lineWidth": 2, "points": [{"x": 0.08, "y": 0.16}, {"x": 0.73, "y": 0.72}], "original_index": 0}',
-            '{"type": "rectangle", "lineColor": "#000000", "lineWidth": 1, "points": [{"x": 0.10, "y": 0.10}, {"x": 0.10, "y": 0.10}], "original_index": 1}',
+            '{"type": "rectangle", "lineColor": "#ff3333", "lineWidth": 2, '
+            '"points": [{"x": 0.08, "y": 0.16}, {"x": 0.73, "y": 0.72}], "original_index": 0}',
+            '{"type": "rectangle", "lineColor": "#000000", "lineWidth": 1, '
+            '"points": [{"x": 0.10, "y": 0.10}, {"x": 0.10, "y": 0.10}], "original_index": 1}',
         ]
         invalid_values = ["100", 100, [0], '{"type": "polygon"}']
         run_test(self, prop, method, different_values, invalid_values)
@@ -348,7 +369,7 @@ class TestExcel2xml(unittest.TestCase):
     def test_make_geoname_prop(self) -> None:
         prop = "geoname"
         method = excel2xml.make_geoname_prop
-        different_values = [1283416, "1283416", 71, "71", 10000000, "10000000"]
+        different_values: list[Union[int, str]] = [1283416, "1283416", 71, "71", 10000000, "10000000"]
         invalid_values = ["text", 10.0, ["text"]]
         run_test(self, prop, method, different_values, invalid_values)
 
@@ -356,7 +377,7 @@ class TestExcel2xml(unittest.TestCase):
     def test_make_integer_prop(self) -> None:
         prop = "integer"
         method = excel2xml.make_integer_prop
-        different_values = [1283416, "1283416", 3.14159, " 11 ", 0, "0"]
+        different_values: list[Union[int, str, float]] = [1283416, "1283416", 3.14159, " 11 ", 0, "0"]
         invalid_values = [" 10.3 ", "text", ["text"]]
         run_test(self, prop, method, [int(x) for x in different_values], invalid_values)
 
@@ -506,36 +527,38 @@ class TestExcel2xml(unittest.TestCase):
         """
         This method tests 3 methods at the same time: make_annotation(), make_link(), and make_region().
         """
-        for method, tagname in [
-            (excel2xml.make_annotation, "annotation"),
-            (excel2xml.make_link, "link"),
-            (excel2xml.make_region, "region"),
-        ]:
-            test_cases = [
-                (lambda: method("label", "id"),
+        method_2_tagname: dict[Callable[..., etree._Element], str] = {
+            excel2xml.make_annotation: "annotation",
+            excel2xml.make_link: "link",
+            excel2xml.make_region: "region",
+        }
+        for method, tagname in method_2_tagname.items():
+            test_cases: list[tuple[Callable[..., etree._Element], str]] = [
+                (lambda: method("label", "id"),                                                 # pylint: disable=cell-var-from-loop
                  f'<{tagname} label="label" id="id" permissions="res-default"/>'),
-                (lambda: method("label", "id", "res-restricted"),
+                (lambda: method("label", "id", "res-restricted"),                               # pylint: disable=cell-var-from-loop
                  f'<{tagname} label="label" id="id" permissions="res-restricted"/>'),
-                (lambda: method("label", "id", ark="ark"),
+                (lambda: method("label", "id", ark="ark"),                                      # pylint: disable=cell-var-from-loop
                  f'<{tagname} label="label" id="id" permissions="res-default" ark="ark"/>'),
-                (lambda: method("label", "id", iri="iri"),
+                (lambda: method("label", "id", iri="iri"),                                      # pylint: disable=cell-var-from-loop
                  f'<{tagname} label="label" id="id" permissions="res-default" iri="iri"/>'),
-                (lambda: method("label", "id", creation_date="2019-10-23T13:45:12Z"),
+                (lambda: method("label", "id", creation_date="2019-10-23T13:45:12Z"),           # pylint: disable=cell-var-from-loop
                  f'<{tagname} label="label" id="id" permissions="res-default" creation_date="2019-10-23T13:45:12Z"/>')
             ]
             for _method, result in test_cases:
-                xml_returned = _method()
-                xml_returned = etree.tostring(xml_returned, encoding="unicode")
+                xml_returned_as_element = _method()
+                xml_returned = etree.tostring(xml_returned_as_element, encoding="unicode")
                 xml_returned = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned)
                 self.assertEqual(result, xml_returned)
 
-            self.assertWarns(UserWarning, lambda: method("label", "id", ark="ark", iri="iri"))
+            with self.assertWarns(UserWarning):
+                method("label", "id", ark="ark", iri="iri")
             with self.assertRaisesRegex(BaseError, "invalid creation date"):
                 method("label", "restype", "id", creation_date="2019-10-23T13:45:12")
 
 
     def test_make_resource(self) -> None:
-        test_cases = [
+        test_cases: list[tuple[Callable[..., etree._Element], str]] = [
             (lambda: excel2xml.make_resource("label", "restype", "id"),
              '<resource label="label" restype="restype" id="id" permissions="res-default"/>'),
             (lambda: excel2xml.make_resource("label", "restype", "id", "res-restricted"),
@@ -549,8 +572,8 @@ class TestExcel2xml(unittest.TestCase):
         ]
 
         for method, result in test_cases:
-            xml_returned = method()
-            xml_returned = etree.tostring(xml_returned, encoding="unicode")
+            xml_returned_as_element = method()
+            xml_returned = etree.tostring(xml_returned_as_element, encoding="unicode")
             xml_returned = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned)
             self.assertEqual(result, xml_returned)
 
@@ -611,11 +634,11 @@ class TestExcel2xml(unittest.TestCase):
     @pytest.mark.filterwarnings("ignore")
     def test_excel2xml(self) -> None:
         # test the valid files, 3 times identical, but in the three formats XLSX, XLS, and CSV
-        with open("testdata/excel2xml/excel2xml-expected-output.xml") as f:
+        with open("testdata/excel2xml/excel2xml-expected-output.xml", encoding="utf-8") as f:
             expected = f.read()
         for ext in ["xlsx", "xls", "csv"]:
             excel2xml.excel2xml(f"testdata/excel2xml/excel2xml-testdata.{ext}", "1234", "excel2xml-output")
-            with open("excel2xml-output-data.xml") as f:
+            with open("excel2xml-output-data.xml", encoding="utf-8") as f:
                 returned = f.read()
                 self.assertEqual(returned, expected, msg=f"Failed with extension {ext}")
             if os.path.isfile("excel2xml-output-data.xml"):
@@ -638,7 +661,7 @@ class TestExcel2xml(unittest.TestCase):
         ]
         for file, _regex in invalid_cases:
             with self.assertRaisesRegex(BaseError, _regex, msg=f"Failed with file '{file}'"):
-                excel2xml.excel2xml(file, "1234", f"excel2xml-invalid")
+                excel2xml.excel2xml(file, "1234", "excel2xml-invalid")
 
 
 if __name__ == "__main__":

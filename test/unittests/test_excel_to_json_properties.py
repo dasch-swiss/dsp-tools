@@ -1,4 +1,7 @@
 """unit tests for excel to properties"""
+
+# pylint: disable=missing-class-docstring,missing-function-docstring
+
 import json
 import os
 import unittest
@@ -89,7 +92,7 @@ class TestExcelToProperties(unittest.TestCase):
         excel_gui_attributes_hasDecimal = {"min": 0.0, "max": 100.0}
 
         # read json file
-        with open(self.outfile) as f:
+        with open(self.outfile, encoding="utf-8") as f:
             output_from_file: list[dict[str, Any]] = json.load(f)
 
         # check that output from file and from method are equal
@@ -128,9 +131,10 @@ class TestExcelToProperties(unittest.TestCase):
         self.assertDictEqual(excel_gui_attributes_hasGender, json_gui_attributes_hasGender)
 
 
-    def test_validate_properties_with_schema(self) -> None:
-        # it is not possible to call the method to be tested directly. So let's make a reference to it, so that it can be found by the usage search
-        lambda x: e2j._validate_properties([])
+    def test_validate_properties(self) -> None:
+        # it is not possible to call the method to be tested directly. 
+        # So let's make a reference to it, so that it can be found by the usage search
+        lambda x: e2j._validate_properties([], "file")  # pylint: disable=expression-not-assigned,protected-access
         
         testcases = [
             (
@@ -151,7 +155,8 @@ class TestExcelToProperties(unittest.TestCase):
             (
                 "testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute.xlsx",
                 "did not pass validation. The problematic property is 'hasInterval' in Excel row 4. "
-                r"The problem is that the column 'gui_attributes' has an invalid value: Additional properties are not allowed \('rows' was unexpected\)"
+                r"The problem is that the column 'gui_attributes' has an invalid value: Additional properties are not allowed "
+                r"\('rows' was unexpected\)"
             ),
             (
                 "testdata/invalid-testdata/excel2json/properties-duplicate-name.xlsx",

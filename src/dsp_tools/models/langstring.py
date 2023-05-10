@@ -180,14 +180,14 @@ class LangString:
     def items(self):
         return self._langstrs.items()
 
-    def isEmpty(self):
+    def isEmpty(self) -> bool:
         return not (bool(self._langstrs) or bool(self._simplestring))
 
-    def empty(self):
+    def empty(self) -> None:
         self._simplestring = None
         self._langstrs = {}
 
-    def toJsonObj(self):
+    def toJsonObj(self) -> Optional[Union[str, list[dict[str, str]]]]:
         if self.isEmpty():
             return None
         if self._simplestring is not None:
@@ -195,7 +195,7 @@ class LangString:
         else:
             return list(map(lambda a: {'language': a[0].value, 'value': a[1] if a[1] else "-"}, self._langstrs.items()))
 
-    def toJsonLdObj(self):
+    def toJsonLdObj(self) -> Optional[Union[str, list[dict[str, str]]]]:
         if self.isEmpty():
             return None
         if self._simplestring is not None:

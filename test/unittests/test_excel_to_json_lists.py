@@ -1,4 +1,7 @@
 """unit tests for Excel to JSON list"""
+
+# pylint: disable=missing-class-docstring,missing-function-docstring
+
 import copy
 import json
 import os
@@ -32,10 +35,10 @@ class TestExcelToJSONList(unittest.TestCase):
     def test_expand_lists_from_excel(self) -> None:
         # take the "lists" section of the systematic test project, expand it, and check if it is equal to the expanded
         # version stored in the testdata folder
-        with open("testdata/json-project/test-project-systematic.json") as f:
+        with open("testdata/json-project/test-project-systematic.json", encoding="utf-8") as f:
             lists_with_excel_reference = json.load(f)["project"]["lists"]
         lists_with_excel_reference_output = e2l.expand_lists_from_excel(lists_with_excel_reference)
-        with open("testdata/excel2json/lists-section-expanded.json") as f:
+        with open("testdata/excel2json/lists-section-expanded.json", encoding="utf-8") as f:
             lists_with_excel_reference_output_expected = json.load(f)["expanded lists section of json-project/test-project-systematic.json"]
         self.assertListEqual(lists_with_excel_reference_output, lists_with_excel_reference_output_expected)
 
@@ -47,14 +50,14 @@ class TestExcelToJSONList(unittest.TestCase):
 
     def test_make_json_lists_from_excel(self) -> None:
         lists_multilingual = [f"testdata/excel2json/lists-multilingual/{lang}.xlsx" for lang in ["de", "en", "fr"]]
-        lists_multilingual_output = e2l._make_json_lists_from_excel(lists_multilingual)
-        with open("testdata/excel2json/lists-multilingual-output-expected.json") as f:
+        lists_multilingual_output = e2l._make_json_lists_from_excel(lists_multilingual)  # pylint: disable=protected-access
+        with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as f:
             lists_multilingual_output_expected = json.load(f)
         self.assertListEqual(lists_multilingual_output, lists_multilingual_output_expected)
 
 
     def test_validate_lists_section_with_schema(self) -> None:
-        with open("testdata/excel2json/lists-multilingual-output-expected.json") as f:
+        with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as f:
             lists_section_valid = json.load(f)
 
         # validate the valid "lists" section in a correct way
@@ -109,7 +112,7 @@ class TestExcelToJSONList(unittest.TestCase):
             output_from_method, _ = e2l.excel2lists(excelfolder=excelfolder, path_to_output_file=outfile)
 
             # check that output from file and from method are equal
-            with open(outfile) as f:
+            with open(outfile, encoding="utf-8") as f:
                 output_from_file: list[dict[str, Any]] = json.load(f)
             self.assertListEqual(output_from_file, output_from_method)
 
@@ -117,7 +120,7 @@ class TestExcelToJSONList(unittest.TestCase):
             output_nodes_matches = jsonpath_ng.parse('$..name').find(output_from_file)
             self.assertTrue(
                 len(input_df.index) == len(output_nodes_matches),
-                f"The output JSON file doesn't have the same number of nodes than the Excel file has rows"
+                "The output JSON file doesn't have the same number of nodes than the Excel file has rows"
             )
 
             # check that the longest Excel row(s) were correctly translated to the deepest-nested node(s)
@@ -127,6 +130,7 @@ class TestExcelToJSONList(unittest.TestCase):
                 # index[-1] returns the number of the last non-empty column (in this test case: 3)
                 # input_df[3].notna() returns a boolean Series with 'true' for every non-empty cell in column 3
             for index, row in input_df.loc[longest_rows_selector].iterrows():
+                index = int(str(index))   # index is a label/index/hashable, but we need an int
                 jsonpath_elems = [cell.strip() for cell in row]
                 parser_string = '$'
                 for elem in jsonpath_elems:
@@ -140,9 +144,9 @@ class TestExcelToJSONList(unittest.TestCase):
 
         # make sure that the invalid lists raise an Error
         with self.assertRaisesRegex(BaseError, r"Found duplicate in column 2, row 9"):
-            e2l.excel2lists(excelfolder="testdata/invalid-testdata/excel2json/lists-invalid-1", path_to_output_file=outfile)
+            e2l.excel2lists(excelfolder="testdata/invalid-testdata/excel2json/lists-invalid-1")
         with self.assertRaisesRegex(BaseError, r"The Excel file with the language code 'de' should have a value in row 10, column 2"):
-            e2l.excel2lists(excelfolder="testdata/invalid-testdata/excel2json/lists-invalid-2", path_to_output_file=outfile)
+            e2l.excel2lists(excelfolder="testdata/invalid-testdata/excel2json/lists-invalid-2")
 
 
 if __name__ == '__main__':

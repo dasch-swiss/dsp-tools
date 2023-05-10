@@ -1,4 +1,7 @@
+# pylint: disable=f-string-without-interpolation,missing-class-docstring,missing-function-docstring
+
 import unittest
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -43,7 +46,8 @@ class TestShared(unittest.TestCase):
             'text &lt;text text="text" &gt; text'
         ]
         utf8_texts_with_allowed_html_escapes = [
-            f'<knora shortcode="4123" default-ontology="testonto" xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">' +
+            f'<knora shortcode="4123" default-ontology="testonto" xmlns="https://dasch.swiss/schema" ' +
+            f'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">' +
             f'<resource label="label" restype=":restype" id="id">' + 
             f'<text-prop name=":name">' + 
             f'<text encoding="utf8">{txt}' + 
@@ -51,14 +55,15 @@ class TestShared(unittest.TestCase):
             for txt in utf8_texts_with_allowed_html_escapes
         ]
         for xml in utf8_texts_with_allowed_html_escapes:
-            self.assertTrue(shared._validate_xml_tags_in_text_properties(doc=etree.fromstring(xml)))
+            self.assertTrue(shared._validate_xml_tags_in_text_properties(etree.fromstring(xml)))  # pylint: disable=protected-access
 
         utf8_texts_with_forbidden_html_escapes = [
-            f"&lt;tag s=\"t\"&gt;", 
+            "&lt;tag s=\"t\"&gt;", 
             "&lt;em&gt;text&lt;/em&gt;"
         ]
         utf8_texts_with_forbidden_html_escapes = [
-            f'<knora shortcode="4123" default-ontology="testonto" xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">' +
+            f'<knora shortcode="4123" default-ontology="testonto" xmlns="https://dasch.swiss/schema" '
+            f'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">' +
             f'<resource label="label" restype=":restype" id="id">' + 
             f'<text-prop name=":name">' + 
             f'<text encoding="utf8">{txt}' + 
@@ -67,7 +72,7 @@ class TestShared(unittest.TestCase):
         ]
         for xml in utf8_texts_with_forbidden_html_escapes:
             with self.assertRaisesRegex(UserError, "XML-tags are not allowed in text properties with encoding=utf8"):
-                shared._validate_xml_tags_in_text_properties(doc=etree.fromstring(xml))
+                shared._validate_xml_tags_in_text_properties(etree.fromstring(xml))  # pylint: disable=protected-access
 
 
 
@@ -99,9 +104,9 @@ class TestShared(unittest.TestCase):
         for na_value in na_values:
             self.assertFalse(shared.check_notna(na_value), msg=f"Failed na_value: {na_value}")
 
-        notna_values = [1, 0.1, True, False, "True", "False", r" \n\t ", "0", "_", "Ὅμηρος", "!", "?"]
-        notna_values.extend([PropertyElement(x) for x in notna_values])
-        for notna_value in notna_values:
+        notna_values_orig: list[Union[str, int, float, bool]] = [1, 0.1, True, False, "True", "False", r" \n\t ", "0", "_", "Ὅμηρος", "!", "?"]
+        notna_values_as_propelem = [PropertyElement(x) for x in notna_values_orig]
+        for notna_value in notna_values_orig + notna_values_as_propelem:
             self.assertTrue(shared.check_notna(notna_value), msg=f"Failed notna_value: {notna_value}")
 
 

@@ -177,7 +177,11 @@ def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
     bitstream_paths: list[Path] = []
     for x in tree.iter():
         if x.text and etree.QName(x).localname.endswith("bitstream"):
-            bitstream_paths.append(Path(x.text))
+            if Path(x.text).is_file():
+                bitstream_paths.append(Path(x.text))
+            else:
+                print(f"{datetime.now()}: ERROR: '{x.text}' is referenced in the XML file, but it doesn't exist. Skipping...")
+                logger.error(f"'{x.text}' is referenced in the XML file, but it doesn't exist. Skipping...")
 
     return bitstream_paths
 

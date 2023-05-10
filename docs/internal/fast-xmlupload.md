@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Fast Mass-Upload
+# Fast XML upload
 
 For projects with a lot of files, 
 the [`xmlupload`](../cli-commands.md#xmlupload) command is too slow.
@@ -71,7 +71,7 @@ will be stored in the given `--output-dir` directory.
 If the output directory doesn't exist, it will be created automatically.
 Additionally to the output directory,
 a pickle file is written with the name `processing_result_[timestamp].pkl`.
-It contains the mapping between the original file and the processed files,
+It contains a mapping from the original files to the processed files,
 e.g. "multimedia/dog.jpg" -> "tmp/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2".
 
 

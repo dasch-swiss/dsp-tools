@@ -2,18 +2,18 @@
     "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
     "project": {
         "shortcode": "00E0",
-        "shortname": "enhanced-xmlupload-testproject",
-        "longname": "enhanced-xmlupload-testproject",
+        "shortname": "fast-xmlupload-testproject",
+        "longname": "fast-xmlupload-testproject",
         "descriptions": {
-            "en": "enhanced-xmlupload-testproject"
+            "en": "fast-xmlupload-testproject"
         },
         "keywords": [
             "testing"
         ],
         "ontologies": [
             {
-                "name": "testonto",
-                "label": "Test ontology",
+                "name": "fast-xmlupload-onto",
+                "label": "fast-xmlupload-onto",
                 "properties": [
                     {
                         "name": "hasText",

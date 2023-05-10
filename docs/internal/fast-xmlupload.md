@@ -20,7 +20,7 @@ The fast mass upload consists of the following steps:
 1. Prepare your data as explained below
 2. Process the files locally with `dsp-tools process-files`
 3. Upload the files to DSP with `dsp-tools upload-files`
-4. Create the resources on DSP with `dsp-tools fast-xml-upload`
+4. Create the resources on DSP with `dsp-tools fast-xmlupload`
 
 
 ## 1. Prepare your data
@@ -95,10 +95,10 @@ The following options are available:
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 
 
 
-## 4. `dsp-tools fast-xml-upload`
+## 4. `dsp-tools fast-xmlupload`
 
 ```bash
-dsp-tools fast-xml-upload --pkl-file=processing_result_20230414_152810.pkl data.xml
+dsp-tools fast-xmlupload --pkl-file=processing_result_20230414_152810.pkl data.xml
 ```
 
 The following options are available:

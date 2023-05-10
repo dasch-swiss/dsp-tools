@@ -12,7 +12,7 @@ from pathlib import Path
 from dsp_tools.excel2xml import excel2xml
 from dsp_tools.fast_xmlupload.process_files import process_files
 from dsp_tools.fast_xmlupload.upload_files import upload_files
-from dsp_tools.fast_xmlupload.upload_xml import fast_xml_upload
+from dsp_tools.fast_xmlupload.upload_xml import fast_xmlupload
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.excel_to_json_lists import (
     excel2lists,
@@ -126,18 +126,18 @@ def make_parser() -> argparse.ArgumentParser:
     parser_upload_files.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_upload_files.add_argument("-p", "--password", default=default_pw, help=password_text)
 
-    # fast-xml-upload
-    parser_fast_xml_upload_files = subparsers.add_parser(
-        name="fast-xml-upload",
+    # fast-xmlupload
+    parser_fast_xmlupload_files = subparsers.add_parser(
+        name="fast-xmlupload",
         help="For internal use only: create resources with already uploaded files"
     )
-    parser_fast_xml_upload_files.set_defaults(action="fast-xml-upload")
-    parser_fast_xml_upload_files.add_argument("-f", "--pkl-file", help="path to pickle file written by 'process-files'")
-    parser_fast_xml_upload_files.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
-    parser_fast_xml_upload_files.add_argument("-S", "--sipi-url", default=default_sipi, help=sipi_text)
-    parser_fast_xml_upload_files.add_argument("-u", "--user", default=default_user, help=username_text)
-    parser_fast_xml_upload_files.add_argument("-p", "--password", default=default_pw, help=password_text)
-    parser_fast_xml_upload_files.add_argument("xml_file", help="path to XML file containing the data")
+    parser_fast_xmlupload_files.set_defaults(action="fast-xmlupload")
+    parser_fast_xmlupload_files.add_argument("-f", "--pkl-file", help="path to pickle file written by 'process-files'")
+    parser_fast_xmlupload_files.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
+    parser_fast_xmlupload_files.add_argument("-S", "--sipi-url", default=default_sipi, help=sipi_text)
+    parser_fast_xmlupload_files.add_argument("-u", "--user", default=default_user, help=username_text)
+    parser_fast_xmlupload_files.add_argument("-p", "--password", default=default_pw, help=password_text)
+    parser_fast_xmlupload_files.add_argument("xml_file", help="path to XML file containing the data")
 
     # excel2json
     parser_excel2json = subparsers.add_parser(
@@ -320,8 +320,8 @@ def call_requested_action(
             dsp_url=args.server,
             sipi_url=args.sipi_url
         )
-    elif args.action == "fast-xml-upload":
-        success = fast_xml_upload(
+    elif args.action == "fast-xmlupload":
+        success = fast_xmlupload(
             xml_file=args.xml_file,
             pkl_file=args.pkl_file,
             user=args.user,

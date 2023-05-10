@@ -35,7 +35,7 @@ def _get_paths_from_pkl_file(pkl_file: Path) -> dict[str, str]:
     return orig_path_2_uuid_filename
 
 
-def fast_xml_upload(
+def fast_xmlupload(
     xml_file: str,
     pkl_file: str,
     user: str,

@@ -28,7 +28,7 @@ def _get_export_moving_image_frames_script() -> None:
     """
     Downloads the shell script that is used to extract the preview image from a video.
     """
-    user_folder = Path.home() / Path(".dsp-tools/fast-xml-upload")
+    user_folder = Path.home() / Path(".dsp-tools/fast-xmlupload")
     user_folder.mkdir(parents=True, exist_ok=True)
     global export_moving_image_frames_script
     export_moving_image_frames_script = user_folder / "export-moving-image-frames.sh"

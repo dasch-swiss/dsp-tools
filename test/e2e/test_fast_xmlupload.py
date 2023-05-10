@@ -7,7 +7,7 @@ import pytest
 
 from dsp_tools.fast_xmlupload.process_files import process_files
 from dsp_tools.fast_xmlupload.upload_files import upload_files
-from dsp_tools.fast_xmlupload.upload_xml import fast_xml_upload
+from dsp_tools.fast_xmlupload.upload_xml import fast_xmlupload
 from dsp_tools.utils.project_create import create_project
 
 
@@ -56,12 +56,12 @@ class TestFastXmlUpload(unittest.TestCase):
         os.chdir(self.original_cwd)
 
 
-    def test_fast_xml_upload(self) -> None:
+    def test_fast_xmlupload(self) -> None:
         """
         Test if it is possible to call the 3 steps of the fast XML upload, one after the other.
         No detailed tests are done here, it is only tested if the 3 steps can be called.
         """
-        print("test_fast_xml_upload: call process_files()")
+        print("test_fast_xmlupload: call process_files()")
         success_process = process_files(
             input_dir="bitstreams",
             output_dir=self.dir_with_processed_files,
@@ -72,7 +72,7 @@ class TestFastXmlUpload(unittest.TestCase):
 
         self.pickle_file = list(Path().glob("*.pkl"))[0]
         
-        print(f"test_fast_xml_upload: call upload_files() with pickle file {self.pickle_file}")
+        print(f"test_fast_xmlupload: call upload_files() with pickle file {self.pickle_file}")
         success_upload = upload_files(
             pkl_file=str(self.pickle_file),
             dir_with_processed_files=self.dir_with_processed_files,
@@ -84,8 +84,8 @@ class TestFastXmlUpload(unittest.TestCase):
         )
         self.assertTrue(success_upload)
 
-        print("test_fast_xml_upload: call fast_xml_upload()")
-        success_fast_xml_upload = fast_xml_upload(
+        print("test_fast_xmlupload: call fast_xmlupload()")
+        success_fast_xmlupload = fast_xmlupload(
             xml_file=self.xml_file,
             pkl_file=str(self.pickle_file),
             user=self.user,
@@ -93,7 +93,7 @@ class TestFastXmlUpload(unittest.TestCase):
             dsp_url=self.dsp_url,
             sipi_url=self.sipi_url
         )
-        self.assertTrue(success_fast_xml_upload)
+        self.assertTrue(success_fast_xmlupload)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,7 @@
 """Unit tests for id to iri mapping"""
 
+# pylint: disable=missing-class-docstring,missing-function-docstring
+
 import os
 import unittest
 

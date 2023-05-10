@@ -1,4 +1,7 @@
 """unit tests for excel to resource"""
+
+# pylint: disable=missing-class-docstring,missing-function-docstring
+
 import json
 import os
 import unittest
@@ -61,7 +64,7 @@ class TestExcelToResource(unittest.TestCase):
                                            "0-1", "1-n", "1-n"]
 
         # read json file
-        with open(self.outfile) as f:
+        with open(self.outfile, encoding="utf-8") as f:
             output_from_file: list[dict[str, Any]] = json.load(f)
 
         # check that output from file and from method are equal
@@ -102,8 +105,9 @@ class TestExcelToResource(unittest.TestCase):
 
 
     def test_validate_resources_with_schema(self) -> None:
-        # it is not possible to call the method to be tested directly. So let's make a reference to it, so that it can be found by the usage search
-        lambda x: e2j._validate_resources([])
+        # it is not possible to call the method to be tested directly. 
+        # So let's make a reference to it, so that it can be found by the usage search
+        lambda x: e2j._validate_resources([], "file")  # pylint: disable=expression-not-assigned,protected-access
 
         testcases = [
             (

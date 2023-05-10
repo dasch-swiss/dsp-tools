@@ -20,11 +20,11 @@ The import file must start with the standard XML header:
 
 The `<knora>` element describes all resources that should be imported. It has the following attributes:
 
-- `xmlns`: `"https://dasch.swiss/schema"` (required)
-- `xmlns:xsi`: `"http://www.w3.org/2001/XMLSchema-instance"` (required)
-- `xsi:schemaLocation`: `"https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_toolresources/schema/data.xsd"` (required)
-- `shortcode`: project shortcode, e.g. "0801" (required)
-- `default-ontology`: name of the ontology (required)
+- `xmlns`: XML namespace identifier (required, always the same)
+- `xmlns:xsi`: URL to the XML Schema instance namespace of W3C (required, always the same)
+- `xsi:schemaLocation`: URL to the DSP XML schema, located in the DSP-TOOLS GitHub repository (required, always the same)
+- `shortcode`: project shortcode, e.g. "0801" (required, dependent on the project)
+- `default-ontology`: name of the ontology (required, dependent on the projet)
 
 The `<knora>` element may look as follows:
 
@@ -56,14 +56,14 @@ The user doesn't hold the permissions directly, but belongs to an arbitrary numb
 permissions. There are **built-in groups** and **project specific groups**:
 
 - **Built-in groups**: Every user is automatically in at least one of the following built-in groups:
-  - `UnknownUser`: The user is not known to DSP (not logged in).
-  - `KnownUser`: The user is logged in, but not a member of the project the data element belongs to.
-  - `ProjectMember`: The user belongs to the same project as the data element.
-  - `ProjectAdmin`: The user is project administrator in the project the data element belongs to.
-  - `Creator`: The user is the owner of the element (created the element).
-  - `SystemAdmin`: The user is a system administrator.
+    - `UnknownUser`: The user is not known to DSP (not logged in).
+    - `KnownUser`: The user is logged in, but not a member of the project the data element belongs to.
+    - `ProjectMember`: The user belongs to the same project as the data element.
+    - `ProjectAdmin`: The user is project administrator in the project the data element belongs to.
+    - `Creator`: The user is the owner of the element (created the element).
+    - `SystemAdmin`: The user is a system administrator.
 - **Project specific groups**: 
-  - can be defined in the [JSON project file](./json-project/overview.md#groups)
+    - can be defined in the [JSON project file](./json-project/overview.md#groups)
 
 
 ### Rights
@@ -71,11 +71,13 @@ permissions. There are **built-in groups** and **project specific groups**:
 A group can have exactly one of these rights:
 
 - (no right): If no permission is defined for a certain group of users, these users cannot view any resources/values.
-- `RV` _restricted view permission_: Same as `V`, but if it is applied to an image, the image is shown with a reduced resolution or with a watermark overlay.
+- `RV` _restricted view permission_: Same as `V`, 
+  but if it is applied to an image, the image is shown with a reduced resolution or with a watermark overlay.
 - `V` _view permission_: The user can view a resource or a value, but cannot modify it.
 - `M` _modify permission_: The user can modify the element, but cannot mark it as deleted. The original resource or value will be preserved.
 - `D` _delete permission_: The user is allowed to mark an element as deleted. The original resource or value will be preserved.
-- `CR` _change right permission_: The user can change the permission of a resource or value. The user is also allowed to permanently delete (erase) a resource.
+- `CR` _change right permission_: The user can change the permission of a resource or value. 
+  The user is also allowed to permanently delete (erase) a resource.
 
 Every right of this row includes all previous rights.
 
@@ -240,7 +242,8 @@ For more details, please consult the [API docs](https://docs.dasch.swiss/latest/
 
 Attributes:
 
-- `permissions` : Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+- `permissions` : Permission ID 
+  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 
 Example of a public image inside a `StillImageRepresentation`:
 
@@ -266,7 +269,8 @@ The `<boolean>` element must contain the string "true" or "false", or the numera
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+- `permissions`: Permission ID 
+  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a public and a hidden boolean property:
@@ -297,7 +301,8 @@ followed by 3 or 6 hex numerals.
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+- `permissions`: Permission ID 
+  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden color value:
@@ -341,13 +346,14 @@ Notes:
 - If start and end date don't match, it's a range.
 - If the end date is omitted, it's a range from the earliest possible beginning of the start date to the latest possible 
 end of the start date. For example:
-  - "1893" will be expanded to a range from January 1st 1893 to December 31st 1893.
-  - "1893-01" will be expanded to a range from January 1st 1893 to January 31st 1893.
-  - "1893-01-01" will be expanded to the exact date January 1st 1893 to January 1st 1893 (technically also a range).
+    - "1893" will be expanded to a range from January 1st 1893 to December 31st 1893.
+    - "1893-01" will be expanded to a range from January 1st 1893 to January 31st 1893.
+    - "1893-01-01" will be expanded to the exact date January 1st 1893 to January 1st 1893 (technically also a range).
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+- `permissions`: Permission ID 
+  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden date value:
@@ -375,7 +381,8 @@ The `<decimal>` element contains a decimal number.
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+- `permissions`: Permission ID 
+  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden decimal value:
@@ -415,7 +422,8 @@ A geometry value is defined as a JSON object. It contains the following data:
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+- `permissions`: Permission ID 
+  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -482,7 +490,8 @@ Contains a valid [geonames.org](https://www.geonames.org/) ID.
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+- `permissions`: Permission ID 
+  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public link to Vienna and a hidden link to Basel:
@@ -510,7 +519,8 @@ The `<integer>` element contains an integer value.
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+- `permissions`: Permission ID 
+  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden integer value:
@@ -525,7 +535,8 @@ Example of a property with a public and a hidden integer value:
 
 ### `<interval-prop>`
 
-The `<interval-prop>` element is used for intervals with a start and an end point on a timeline, e.g. relative to the beginning of an audio or video file. 
+The `<interval-prop>` element is used for intervals with a start and an end point on a timeline, 
+e.g. relative to the beginning of an audio or video file. 
 An `<interval-prop>`  must contain at least one `<interval>` element.
 
 Attributes:
@@ -541,7 +552,8 @@ seconds, and the places after the decimal points are fractions of a second.
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+- `permissions`: Permission ID 
+  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden interval value:
@@ -572,7 +584,8 @@ The `<list>` element references a node in a (pull-down or hierarchical) list.
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+- `permissions`: Permission ID 
+  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden list value:
@@ -602,7 +615,8 @@ resources, `xmlupload --incremental` has to be used.
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+- `permissions`: Permission ID 
+  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public link to `<resource id="res_1" ...>` and a hidden link to and `<resource id="res_2" ...>`:
@@ -629,8 +643,8 @@ Attributes:
 The `<text>` element has the following attributes:
 
 - `encoding` (required)
-  - `utf8`: simple text without markup
-  - `xml`: complex text with markup. It must follow the XML format as defined by the
+    - `utf8`: simple text without markup
+    - `xml`: complex text with markup. It must follow the XML format as defined by the
   [DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/xml-to-standoff-mapping/).
 - `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions 
   at all, not even view rights)
@@ -741,8 +755,10 @@ Attributes:
 
 #### `<time>`
 
-The `<time>` element represents an exact datetime value in the form [xsd:dateTimeStamp](https://www.w3.org/TR/xmlschema11-2/#dateTimeStamp), 
-which is defined as `yyyy-mm-ddThh:mm:ss.sssssssssssszzzzzz`. The following abbreviations describe this form:
+The `<time>` element represents an exact datetime value 
+in the form [xsd:dateTimeStamp](https://www.w3.org/TR/xmlschema11-2/#dateTimeStamp), 
+which is defined as `yyyy-mm-ddThh:mm:ss.sssssssssssszzzzzz`. 
+The following abbreviations describe this form:
 
 - `yyyy`: a four-digit numeral that represents the year. The value cannot start with a minus (-) or a plus (+) sign.
   0001 is the lexical representation of the year 1 of the Common Era (also known as 1 AD). The value cannot be 0000. The
@@ -762,19 +778,21 @@ For example, the day value can never be 32 and cannot be 29 for month 02 and yea
 The timezone is defined as follows:
 
 - A plus (+) or minus (-) sign that is followed by hh:mm:
-  - `+`: Indicates that the specified time instant is in a time zone that is ahead of the UTC time by hh hours and mm
-    minutes.
-  - `-`: Indicates that the specified time instant is in a time zone that is behind UTC time by hh hours and mm
-    minutes.
-  - `hh`: a two-digit numeral (with leading zeros as required) that represents the hours. The value must be between
-    -14 and +14, inclusive.
-  - `mm`: a two-digit numeral that represents the minutes. The value must be zero when hh is equal to 14.
-- Z: The literal Z, which represents the time in UTC (Z represents Zulu time, which is equivalent to UTC). Specifying Z
-  for the time zone is equivalent to specifying +00:00 or -00:00.
+    - `+`: Indicates that the specified time instant is in a time zone 
+      that is ahead of the UTC time by hh hours and mm minutes.
+    - `-`: Indicates that the specified time instant is in a time zone 
+      that is behind UTC time by hh hours and mm minutes.
+    - `hh`: a two-digit numeral (with leading zeros as required) that represents the hours. 
+       The value must be between -14 and +14, inclusive.
+    - `mm`: a two-digit numeral that represents the minutes. 
+      The value must be zero when hh is equal to 14.
+- Z: The literal Z, which represents the time in UTC (Z represents Zulu time, which is equivalent to UTC). 
+  Specifying Z for the time zone is equivalent to specifying +00:00 or -00:00.
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+- `permissions`: Permission ID 
+  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden time value:
@@ -803,7 +821,8 @@ The `<uri>` element contains a syntactically valid URI.
 
 Attributes:
 
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+- `permissions`: Permission ID 
+  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden URI:
@@ -982,10 +1001,14 @@ In addition, there is another complete example of an XML data file here:
             <list permissions="prop-default">Tree list node 03</list>
         </list-prop>
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml" >The <strong>third</strong> object and a <a class="salsah-link" href="IRI:obj_0003:IRI">link</a> to.</text>
+            <text permissions="prop-default" encoding="xml">
+                The <strong>third</strong> object and a <a class="salsah-link" href="IRI:obj_0003:IRI">link</a> to.
+            </text>
         </text-prop>
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml" >The <strong>third</strong> object and a <a class="salsah-link" href="IRI:obj_0003:IRI">link</a> to.</text>
+            <text permissions="prop-default" encoding="xml">
+                The <strong>third</strong> object and a <a class="salsah-link" href="IRI:obj_0003:IRI">link</a> to.
+            </text>
         </text-prop>
         <text-prop name=":hasText">
             <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>

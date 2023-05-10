@@ -4,7 +4,7 @@ import unittest
 from dsp_tools.models.langstring import LangString, Languages
 
 
-class TestLangString(unittest.TestCase):
+class TestLangString(unittest.TestCase):    # pylint: disable=missing-class-docstring
     simple_string_de = 'Ein simpler String'
     simple_string_fr = 'Quelque chose en français'
     test_string_en = 'This is a test'

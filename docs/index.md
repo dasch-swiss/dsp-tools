@@ -49,18 +49,18 @@ DSP-TOOLS provides the following functionalities:
   and writes the mapping from internal IDs to IRIs into a local file.
 - [`dsp-tools excel2json`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#excel2json) 
   creates an entire JSON project file from a folder with Excel files in it.
-  - [`dsp-tools excel2lists`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#excel2lists)
-    creates the "lists" section of a JSON project file from one or several Excel files. 
-    The resulting section can be integrated into a JSON project file
-    and then be uploaded to a DSP server with `dsp-tools create`.
-  - [`dsp-tools excel2resources`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#excel2resources)
-    creates the "resources" section of a JSON project file from an Excel file. 
-    The resulting section can be integrated into a JSON project file 
-    and then be uploaded to a DSP server with `dsp-tools create`.
-  - [`dsp-tools excel2properties`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#excel2properties)
-    creates the "properties" section of a JSON project file from an Excel file. 
-    The resulting section can be integrated into a JSON project file 
-    and then be uploaded to a DSP server with `dsp-tools create`.
+    - [`dsp-tools excel2lists`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#excel2lists)
+      creates the "lists" section of a JSON project file from one or several Excel files. 
+      The resulting section can be integrated into a JSON project file
+      and then be uploaded to a DSP server with `dsp-tools create`.
+    - [`dsp-tools excel2resources`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#excel2resources)
+      creates the "resources" section of a JSON project file from an Excel file. 
+      The resulting section can be integrated into a JSON project file 
+      and then be uploaded to a DSP server with `dsp-tools create`.
+    - [`dsp-tools excel2properties`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#excel2properties)
+      creates the "properties" section of a JSON project file from an Excel file. 
+      The resulting section can be integrated into a JSON project file 
+      and then be uploaded to a DSP server with `dsp-tools create`.
 - [`dsp-tools excel2xml`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#excel2xml) 
   transforms a data source to XML 
   if it is already structured according to the DSP specifications.

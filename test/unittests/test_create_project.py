@@ -1,4 +1,7 @@
 """unit tests for ontology creation"""
+
+# pylint: disable=missing-class-docstring,missing-function-docstring
+
 import json
 import unittest
 from pathlib import Path
@@ -21,32 +24,32 @@ from dsp_tools.utils.shared import parse_json_input
 class TestProjectCreation(unittest.TestCase):
     
     test_project_systematic_file = "testdata/json-project/test-project-systematic.json"
-    with open(test_project_systematic_file) as json_file:
+    with open(test_project_systematic_file, encoding="utf-8") as json_file:
         test_project_systematic: dict[str, Any] = json.load(json_file)
         test_project_systematic_ontology: dict[str, Any] = test_project_systematic["project"]["ontologies"][0]
     
     test_project_circular_ontology_file = "testdata/invalid-testdata/json-project/circular-ontology.json"
-    with open(test_project_circular_ontology_file) as json_file:
+    with open(test_project_circular_ontology_file, encoding="utf-8") as json_file:
         test_project_circular_ontology: dict[str, Any] = json.load(json_file)
     
     test_project_nonexisting_cardinality_file = "testdata/invalid-testdata/json-project/nonexisting-cardinality.json"
-    with open(test_project_nonexisting_cardinality_file) as json_file:
+    with open(test_project_nonexisting_cardinality_file, encoding="utf-8") as json_file:
         test_project_nonexisting_cardinality: dict[str, Any] = json.load(json_file)
     
     test_project_nonexisting_super_property_file = "testdata/invalid-testdata/json-project/nonexisting-super-property.json"
-    with open(test_project_nonexisting_super_property_file) as json_file:
+    with open(test_project_nonexisting_super_property_file, encoding="utf-8") as json_file:
         test_project_nonexisting_super_property: dict[str, Any] = json.load(json_file)
     
     test_project_nonexisting_super_resource_file = "testdata/invalid-testdata/json-project/nonexisting-super-resource.json"
-    with open(test_project_nonexisting_super_resource_file) as json_file:
+    with open(test_project_nonexisting_super_resource_file, encoding="utf-8") as json_file:
         test_project_nonexisting_super_resource: dict[str, Any] = json.load(json_file)
     
     test_project_duplicate_property_file = "testdata/invalid-testdata/json-project/duplicate-property.json"
-    with open(test_project_duplicate_property_file) as json_file:
+    with open(test_project_duplicate_property_file, encoding="utf-8") as json_file:
         test_project_duplicate_property: dict[str, Any] = json.load(json_file)
 
     test_project_duplicate_resource_file = "testdata/invalid-testdata/json-project/duplicate-resource.json"
-    with open(test_project_duplicate_resource_file) as json_file:
+    with open(test_project_duplicate_resource_file, encoding="utf-8") as json_file:
         test_project_duplicate_resource: dict[str, Any] = json.load(json_file)
     
 

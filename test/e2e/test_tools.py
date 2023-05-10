@@ -148,46 +148,33 @@ class TestTools(unittest.TestCase):
         with open("testdata/tmp/_test-project-systematic.json", encoding="utf-8") as f:
             project_returned = json.load(f)
 
-        self.assertTrue(
-            self._compare_groups(
-                groups_original=project_original["project"].get("groups"), 
-                groups_returned=project_returned["project"].get("groups")
-            )
+        self._compare_project(project_original, project_returned)
+        self._compare_groups(
+            groups_original=project_original["project"].get("groups"), 
+            groups_returned=project_returned["project"].get("groups")
         )
-
-        self.assertTrue(
-            self._compare_users(
-                users_original=project_original["project"].get("users"), 
-                users_returned=project_returned["project"].get("users"),
-                project_shortname=project_shortname
-            )
+        self._compare_users(
+            users_original=project_original["project"].get("users"), 
+            users_returned=project_returned["project"].get("users"),
+            project_shortname=project_shortname
         )
-
-        self.assertTrue(
-            self._compare_lists(
-                lists_original=project_original["project"].get("lists"), 
-                lists_returned=project_returned["project"].get("lists")
-            )
+        self._compare_lists(
+            lists_original=project_original["project"].get("lists"), 
+            lists_returned=project_returned["project"].get("lists")
         )
 
         for file in [project_original, project_returned]:
             file["project"]["ontologies"] = sorted(file["project"]["ontologies"], key=lambda x: cast(str, x["name"]))
         for onto_original, onto_returned in zip(project_original["project"]["ontologies"], project_returned["project"]["ontologies"]):
-            self.assertTrue(
-                self._compare_properties(
-                    properties_original=onto_original["properties"],
-                    properties_returned=onto_returned["properties"],
-                    onto_name=onto_original["name"]
-                ),
-                msg=f"Properties of ontology {onto_original['name']} are not identical."
+            self._compare_properties(
+                properties_original=onto_original["properties"],
+                properties_returned=onto_returned["properties"],
+                onto_name=onto_original["name"]
             )
-            self.assertTrue(
-                self._compare_resources(
-                    resources_original=onto_original["resources"],
-                    resources_returned=onto_returned["resources"],
-                    onto_name=onto_original["name"]
-                ),
-                msg=f"Resources of ontology {onto_original['name']} are not identical."
+            self._compare_resources(
+                resources_original=onto_original["resources"],
+                resources_returned=onto_returned["resources"],
+                onto_name=onto_original["name"]
             )
 
 
@@ -320,21 +307,42 @@ class TestTools(unittest.TestCase):
         return project_original
     
 
+    def _compare_project(
+        self,
+        project_original: dict[str, Any],
+        project_returned: dict[str, Any]
+    ) -> None:
+        """
+        Compare the basic metadata of 2 JSON project definitions.
+        Fails with a message if the metadata are not identical.
+
+        Args:
+            project_original: original file
+            project_returned: returned file
+        """
+        for field in ["shortcode", "shortname", "longname", "descriptions"]:
+            orig = project_original["project"].get(field)
+            ret = project_returned["project"].get(field)
+            self.assertEqual(orig, ret, msg=f"Field '{field}' is not identical: original='{orig}', returned='{ret}'")
+        
+        orig_keywords = sorted(project_original["project"]["keywords"])
+        ret_keywords = sorted(project_returned["project"]["keywords"])
+        self.assertEqual(orig_keywords, ret_keywords, msg=f"Field keywords is not identical: original={orig_keywords}, returned={ret_keywords}")
+
+
     def _compare_groups(
         self, 
         groups_original: Optional[list[dict[str, Any]]], 
         groups_returned: Optional[list[dict[str, Any]]]
-    ) -> bool:
+    ) -> None:
         """
         Compare the "groups" section of the original JSON project definition 
         with the "groups" section of the JSON returned by the "get" command.
+        Fails with a message if the sections are not identical.
 
         Args:
             groups_original: "groups" section of the original file.
             groups_returned: "groups" section of the returned file.
-
-        Returns:
-            True if the two sections are identical, False otherwise.
         """
         # avoid mutable default argument
         groups_original = groups_original or []
@@ -350,8 +358,11 @@ class TestTools(unittest.TestCase):
         # sort both lists
         groups_original = sorted(groups_original, key=lambda x: cast(str, x.get("name", "")))
         groups_returned = sorted(groups_returned, key=lambda x: cast(str, x.get("name", "")))
-
-        return groups_original == groups_returned
+        if len(groups_original) != len(groups_returned):
+            self.assertEqual(groups_original, groups_returned)
+        else:
+            for orig, ret in zip(groups_original, groups_returned):
+                self.assertEqual(orig, ret, msg=f"Group with original name '{orig['name']}' and returned name '{ret['name']}' failed.")
     
 
     def _compare_users(
@@ -359,10 +370,11 @@ class TestTools(unittest.TestCase):
         users_original: Optional[list[dict[str, Any]]], 
         users_returned: Optional[list[dict[str, Any]]],
         project_shortname: str
-    ) -> bool:
+    ) -> None:
         """
         Compare the "users" section of the original JSON project definition
         with the "users" section of the JSON returned by the "get" command.
+        Fails with a message if the sections are not identical.
 
         In order to do so, this method modifies the original as follows:
          - remove the users that are not in the current project
@@ -374,9 +386,6 @@ class TestTools(unittest.TestCase):
             users_original: "users" section of the original file.
             users_returned: "users" section of the returned file.
             project_shortname: shortname of the project
-
-        Returns:
-            True if the two sections are identical, False otherwise.
         """
         # avoid mutable default argument
         users_original = users_original or []
@@ -406,18 +415,22 @@ class TestTools(unittest.TestCase):
         # sort both lists
         users_original = sorted(users_original or [], key=lambda x: cast(str, x["username"]))
         users_returned = sorted(users_returned or [], key=lambda x: cast(str, x["username"]))
-
-        return users_original == users_returned
+        if len(users_original) != len(users_returned):
+            self.assertEqual(users_original, users_returned)
+        else:
+            for orig, ret in zip(users_original, users_returned):
+                self.assertEqual(orig, ret, msg=f"User with original name '{orig['username']}' and returned name '{ret['username']}' failed.")
     
 
     def _compare_lists(
         self, 
         lists_original: Optional[list[dict[str, Any]]], 
         lists_returned: Optional[list[dict[str, Any]]]
-    ) -> bool:
+    ) -> None:
         """
         Compare the "lists" section of the original JSON project definition 
         with the "lists" section of the JSON returned by the "get" command.
+        Fails with a message if the sections are not identical.
 
         In order to do so, 
         this method removes all lists of which the nodes are defined in an Excel file, 
@@ -426,9 +439,6 @@ class TestTools(unittest.TestCase):
         Args:
             lists_original: "lists" section of the original file.
             lists_returned: "lists" section of the returned file.
-
-        Returns:
-            True if the two sections are identical, False otherwise.
         """
         # avoid mutable default argument
         lists_original = lists_original or []
@@ -443,8 +453,11 @@ class TestTools(unittest.TestCase):
         # sort both lists
         lists_original = sorted(lists_original, key=lambda x: cast(str, x.get("name", "")))
         lists_returned = sorted(lists_returned, key=lambda x: cast(str, x.get("name", "")))
-
-        return lists_original == lists_returned
+        if len(lists_original) != len(lists_returned):
+            self.assertEqual(lists_original, lists_returned)
+        else:
+            for orig, ret in zip(lists_original, lists_returned):
+                self.assertEqual(orig, ret, msg=f"List with original name '{orig['name']}' and returned name '{ret['name']}' failed.")
     
 
     def _compare_properties(
@@ -452,18 +465,16 @@ class TestTools(unittest.TestCase):
         properties_original: Optional[list[dict[str, Any]]], 
         properties_returned: Optional[list[dict[str, Any]]],
         onto_name: str
-    ) -> bool:
+    ) -> None:
         """
         Compare the "properties" section of an onto of the original JSON project definition 
         with the "properties" section of the respective onto of the JSON returned by the "get" command.
+        Fails with a message if the sections are not identical.
 
         Args:
             properties_original: "properties" section of the original file.
             properties_returned: "properties" section of the returned file.
             onto_name: name of the ontology
-
-        Returns:
-            True if the two sections are identical, False otherwise.
         """
         # avoid mutable default argument
         properties_original = properties_original or []
@@ -482,8 +493,16 @@ class TestTools(unittest.TestCase):
             for prop in proplist:
                 if isinstance(prop["super"], list):
                     prop["super"] = sorted(prop["super"])
-
-        return properties_original == properties_returned
+        
+        if len(properties_original) != len(properties_returned):
+            self.assertEqual(properties_original, properties_returned, msg=f"Onto {}")
+        else:
+            for orig, ret in zip(properties_original, properties_returned):
+                self.assertEqual(
+                    orig, 
+                    ret, 
+                    msg=f"Onto '{onto_name}': Property with original name '{orig['name']}' and returned name '{ret['name']}' failed."
+                )
     
 
     def _compare_resources(
@@ -491,18 +510,16 @@ class TestTools(unittest.TestCase):
         resources_original: Optional[list[dict[str, Any]]], 
         resources_returned: Optional[list[dict[str, Any]]],
         onto_name: str
-    ) -> bool:
+    ) -> None:
         """
         Compare the "resources" section of an onto of the original JSON project definition 
         with the "resources" section of the respective onto of the JSON returned by the "get" command.
+        Fails with a message if the sections are not identical.
 
         Args:
             resources_original: "resources" section of the original file.
             resources_returned: "resources" section of the returned file.
             onto_name: name of the ontology
-
-        Returns:
-            True if the two sections are identical, False otherwise.
         """
         # avoid mutable default argument
         resources_original = resources_original or []
@@ -544,7 +561,18 @@ class TestTools(unittest.TestCase):
                 if res.get("cardinalities"):
                     res["cardinalities"] = sorted(res["cardinalities"], key=lambda x: cast(str, x["propname"]))
 
-        return resources_original == resources_returned
+        if len(resources_original) != len(resources_returned):
+            self.assertEqual(resources_original, resources_returned)
+        else:
+            for orig, ret in zip(resources_original, resources_returned):
+                if orig.get("cardinalities") != ret.get("cardinalities"):
+                    self.assertEqual(
+                        orig.get("cardinalities"), 
+                        ret.get("cardinalities"), 
+                        msg=f"Onto '{onto_name}': The cardinalities of resource with original name '{orig['name']}' and returned name '{ret['name']}' failed.")
+                else:
+                    self.assertEqual(orig, ret, msg=f"Onto '{onto_name}': Resource with original name '{orig['name']}' and returned name '{ret['name']}' failed. "
+                                     "The reason of the error lies OUTSIDE of the 'cardinalities' section.")
 
 
 if __name__ == "__main__":

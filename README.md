@@ -25,16 +25,16 @@ If you want to work on the code of DSP-TOOLS, you first have to do the following
   [https://python-poetry.org/docs/](https://python-poetry.org/docs/))
 - install the exec plugin with `poetry self add poetry-exec-plugin`
 - execute `poetry install`, which will: 
-  - create a virtual environment (if there isn't already one) 
-  - install all dependencies (dev and non-dev) from `poetry.lock`. If `poetry.lock` doesn't exist, it installs 
-    the dependencies from `pyproject.toml`, and creates a new `poetry.lock`.
-  - make an editable installation of DSP-TOOLS inside the virtual environment
+    - create a virtual environment (if there isn't already one) 
+    - install all dependencies (dev and non-dev) from `poetry.lock`. 
+      If `poetry.lock` doesn't exist, it installs the dependencies from `pyproject.toml`, and creates a new `poetry.lock`.
+    - make an editable installation of DSP-TOOLS inside the virtual environment
 
 There are two files defining the dependencies:
 
 - `pyproject.toml` lists the direct dependencies, ordered in two sections:
-  - `[tool.poetry.dependencies]` lists the dependencies used to run the software.
-  - `[tool.poetry.group.dev.dependencies]` lists the dependencies used for developing and testing.
+    - `[tool.poetry.dependencies]` lists the dependencies used to run the software.
+    - `[tool.poetry.group.dev.dependencies]` lists the dependencies used for developing and testing.
 - `poetry.lock` enables deterministic installations, by exactly pinning the versions of all (sub-)dependencies. 
   This is done automatically, you must not edit `poetry.lock`.
 

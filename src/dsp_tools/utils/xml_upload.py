@@ -507,10 +507,10 @@ def xml_upload(
     resources: list[XMLResource] = []
     permissions: dict[str, XmlPermission] = {}
     for child in root:
-        if child.tag == "permissions":  # type: ignore
+        if child.tag == "permissions":
             permission = XmlPermission(child, proj_context)
             permissions[permission.id] = permission
-        elif child.tag == "resource":  # type: ignore
+        elif child.tag == "resource":
             resources.append(XMLResource(child, default_ontology))
 
     # get the project information and project ontology from the server

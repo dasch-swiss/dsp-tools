@@ -144,7 +144,7 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
     return True
 
 
-def _validate_xml_tags_in_text_properties(doc: etree._ElementTree[Any]) -> bool:
+def _validate_xml_tags_in_text_properties(doc: Union[etree._ElementTree[etree._Element], etree._Element]) -> bool:
     """
     Makes sure that there are no XML tags in simple texts.
     This can only be done with a regex, 
@@ -179,8 +179,8 @@ def _validate_xml_tags_in_text_properties(doc: etree._ElementTree[Any]) -> bool:
         if text.attrib["encoding"] == "utf8":
             if regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(text.text)) or len(list(text.iterchildren())) > 0:
                 sourceline = f" line {text.sourceline}: " if text.sourceline else " "
-                propname = text.getparent().attrib["name"]
-                resname = text.getparent().getparent().attrib["id"]
+                propname = text.getparent().attrib["name"]           # type: ignore
+                resname = text.getparent().getparent().attrib["id"]  # type: ignore
                 resources_with_illegal_xml_tags.append(f" -{sourceline}resource '{resname}', property '{propname}'")
     if resources_with_illegal_xml_tags:
         err_msg = "XML-tags are not allowed in text properties with encoding=utf8. The following resources of your XML file violate this rule:\n" 

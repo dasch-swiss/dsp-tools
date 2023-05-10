@@ -61,7 +61,7 @@ jobs:
           VALIDATE_GITHUB_ACTIONS: true             # https://github.com/rhysd/actionlint
           VALIDATE_JSON: true                       # https://www.npmjs.com/package/eslint-plugin-json
           VALIDATE_MARKDOWN: true                   # https://github.com/igorshubovych/markdownlint-cli
-          MARKDOWN_CONFIG_FILE: .markdownlint.json
+          MARKDOWN_CONFIG_FILE: .markdownlint.yml
           VALIDATE_XML: true                        # http://xmlsoft.org/
           VALIDATE_YAML: true                       # https://github.com/adrienverge/yamllint
           VALIDATE_PYTHON_ISORT: true               # https://pypi.org/project/isort/

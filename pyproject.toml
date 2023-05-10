@@ -42,7 +42,7 @@ docker = "^6.0.1"
 mkdocs = "^1.4.2"
 mkdocs-material = "^8.5.11"
 mkdocs-include-markdown-plugin = "^4.0.3"
-mypy = "^0.991"
+mypy = "^1.2.0"
 autopep8 = "^2.0.1"
 pytest = "^7.2.0"
 types-requests = "^2.28.11.7"
@@ -88,14 +88,13 @@ experimental = true
 
 
 [tool.mypy]
-ignore_missing_imports = true
+ignore_missing_imports = true              # TODO: deactivate this
 show_column_numbers = true
 strict = true
 exclude = [
-    "src/dsp_tools/models",           # TODO: activate this
-    "src/dsp_tools/import_scripts",   # TODO: activate this
-    "test/unittests",                 # TODO: activate this
-    "test/e2e",                       # TODO: activate this
+    "src/dsp_tools/models",                # TODO: activate this
+    "src/dsp_tools/import_scripts",        # TODO: activate this
+    "test/e2e",                            # TODO: activate this
 ]
 
 
@@ -106,10 +105,9 @@ known_first_party = ["dsp_tools"]
 
 [tool.pylint.MASTER]
 ignore-paths = [
-    "src/dsp_tools/models/.*$",           # TODO: activate this
-    "src/dsp_tools/import_scripts/.*$",   # TODO: activate this
-    "test/unittests/.*$",                 # TODO: activate this
-    "test/e2e/.*$"                        # TODO: activate this
+    "src/dsp_tools/models/.*$",            # TODO: activate this
+    "src/dsp_tools/import_scripts/.*$",    # TODO: activate this
+    "test/e2e/.*$"                         # TODO: activate this
 ]
 suggestion-mode = true
 

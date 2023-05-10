@@ -6,8 +6,8 @@ from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.generate_templates import generate_template_repo
 
 
-class TestGenerateTemplates(unittest.TestCase):
-    def test_generate_template_repo(self) -> None:
+class TestGenerateTemplates(unittest.TestCase):       # pylint: disable=missing-class-docstring
+    def test_generate_template_repo(self) -> None:    # pylint: disable=missing-function-docstring
         success = generate_template_repo()
         self.assertTrue(success)
 

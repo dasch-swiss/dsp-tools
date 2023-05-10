@@ -204,8 +204,8 @@ Here's how the Docstrings assist you:
 - link to the DSP-TOOLS documentation of this property
 - a short description for every parameter
 - short description of the returned object. 
-  - Note: `etree._Element` is a type annotation of an underlying library. You don't have to care about it, as long as 
-    you proceed as described (append the returned object to the parent resource).
+    - Note: `etree._Element` is a type annotation of an underlying library. You don't have to care about it, as long as 
+      you proceed as described (append the returned object to the parent resource).
 
 ![docstring example](./assets/images/img-excel2xml-module-docstring.png)
 
@@ -293,7 +293,7 @@ usable if it is
 - a number (integer or float, but not numpy.nan)
 - a boolean
 - a string with at least one Unicode letter (matching the regex ``\\p{L}``) or number, or at least one _, !, or ?
-  (The strings "None", "<NA>", "N/A", and "-" are considered invalid.)
+  (The strings "None", "&lt;NA&gt;", "N/A", and "-" are considered invalid.)
 - a PropertyElement whose "value" fulfills the above criteria
 
 Examples:

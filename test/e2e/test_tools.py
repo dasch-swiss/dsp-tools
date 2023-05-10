@@ -359,7 +359,7 @@ class TestTools(unittest.TestCase):
         groups_original = sorted(groups_original, key=lambda x: cast(str, x.get("name", "")))
         groups_returned = sorted(groups_returned, key=lambda x: cast(str, x.get("name", "")))
         if len(groups_original) != len(groups_returned):
-            self.assertEqual(groups_original, groups_returned)
+            self.assertEqual(groups_original, groups_returned, msg="Returned number of groups is different from original number of groups.")
         else:
             for orig, ret in zip(groups_original, groups_returned):
                 self.assertEqual(orig, ret, msg=f"Group with original name '{orig['name']}' and returned name '{ret['name']}' failed.")
@@ -416,7 +416,7 @@ class TestTools(unittest.TestCase):
         users_original = sorted(users_original or [], key=lambda x: cast(str, x["username"]))
         users_returned = sorted(users_returned or [], key=lambda x: cast(str, x["username"]))
         if len(users_original) != len(users_returned):
-            self.assertEqual(users_original, users_returned)
+            self.assertEqual(users_original, users_returned, msg="Returned number of users is different from original number of users.")
         else:
             for orig, ret in zip(users_original, users_returned):
                 self.assertEqual(orig, ret, msg=f"User with original name '{orig['username']}' and returned name '{ret['username']}' failed.")
@@ -454,7 +454,7 @@ class TestTools(unittest.TestCase):
         lists_original = sorted(lists_original, key=lambda x: cast(str, x.get("name", "")))
         lists_returned = sorted(lists_returned, key=lambda x: cast(str, x.get("name", "")))
         if len(lists_original) != len(lists_returned):
-            self.assertEqual(lists_original, lists_returned)
+            self.assertEqual(lists_original, lists_returned, msg="Returned number of lists is different from original number of lists.")
         else:
             for orig, ret in zip(lists_original, lists_returned):
                 self.assertEqual(orig, ret, msg=f"List with original name '{orig['name']}' and returned name '{ret['name']}' failed.")
@@ -495,7 +495,11 @@ class TestTools(unittest.TestCase):
                     prop["super"] = sorted(prop["super"])
         
         if len(properties_original) != len(properties_returned):
-            self.assertEqual(properties_original, properties_returned, msg=f"Onto {}")
+            self.assertEqual(
+                properties_original, 
+                properties_returned, 
+                msg=f"Onto {onto_name}: Returned number of properties is different from original number of properties."
+            )
         else:
             for orig, ret in zip(properties_original, properties_returned):
                 self.assertEqual(
@@ -562,17 +566,27 @@ class TestTools(unittest.TestCase):
                     res["cardinalities"] = sorted(res["cardinalities"], key=lambda x: cast(str, x["propname"]))
 
         if len(resources_original) != len(resources_returned):
-            self.assertEqual(resources_original, resources_returned)
+            self.assertEqual(
+                resources_original, 
+                resources_returned,
+                msg=f"Onto {onto_name}: Returned number of resources is different from original number of resources."
+            )
         else:
             for orig, ret in zip(resources_original, resources_returned):
                 if orig.get("cardinalities") != ret.get("cardinalities"):
                     self.assertEqual(
                         orig.get("cardinalities"), 
                         ret.get("cardinalities"), 
-                        msg=f"Onto '{onto_name}': The cardinalities of resource with original name '{orig['name']}' and returned name '{ret['name']}' failed.")
+                        msg=f"Onto '{onto_name}': The cardinalities of resource with original name '{orig['name']}' "
+                            f"and returned name '{ret['name']}' failed."
+                    )
                 else:
-                    self.assertEqual(orig, ret, msg=f"Onto '{onto_name}': Resource with original name '{orig['name']}' and returned name '{ret['name']}' failed. "
-                                     "The reason of the error lies OUTSIDE of the 'cardinalities' section.")
+                    self.assertEqual(
+                        orig, 
+                        ret, 
+                        msg=f"Onto '{onto_name}': Resource with original name '{orig['name']}' and returned name '{ret['name']}' failed. "
+                            "The reason of the error lies OUTSIDE of the 'cardinalities' section."
+                    )
 
 
 if __name__ == "__main__":

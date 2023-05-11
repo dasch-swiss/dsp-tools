@@ -487,7 +487,7 @@ def _extract_preview_from_video(file: Path) -> bool:
         true if successful, false otherwise
     """
     
-    result = subprocess.call(["sh", f"{export_moving_image_frames_script}", "-i", f"{file}"])
+    result = subprocess.call(["/bin/bash", f"{export_moving_image_frames_script}", "-i", f"{file}"])
     if result != 0:
         return False
     else:

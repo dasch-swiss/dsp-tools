@@ -310,7 +310,7 @@ def upload_files(
 
     Args:
         pkl_file: pickle file containing the mapping between the original files and the processed files,
-                  e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2').
+                  e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2').
         dir_with_processed_files: path to the directory where the processed files are located
         nthreads: number of threads to use for uploading
         user: the user's e-mail for login into DSP

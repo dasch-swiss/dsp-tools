@@ -72,7 +72,7 @@ If the output directory doesn't exist, it will be created automatically.
 Additionally to the output directory,
 a pickle file is written with the name `processing_result_[timestamp].pkl`.
 It contains a mapping from the original files to the processed files,
-e.g. "multimedia/dog.jpg" -> "tmp/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2".
+e.g. "multimedia/dog.jpg" -> "tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2".
 
 
 ## 3. `dsp-tools upload-files`

@@ -122,8 +122,8 @@ def _write_result_to_pkl_file(result: list[tuple[Path, Optional[Path]]]) -> bool
         print(f"{datetime.now()}: The result was written to: {filename}")
         return True
     except OSError:
-        print(f"{datetime.now()}: An error occurred while writing the result to the pickle file.")
-        logger.error("An error occurred while writing the result to the pickle file.", exc_info=True)
+        print(f"{datetime.now()}: An error occurred while writing the result to the pickle file. Content of file: {result}")
+        logger.error(f"An error occurred while writing the result to the pickle file. Content of file: {result}", exc_info=True)
         return False
 
 
@@ -147,7 +147,7 @@ def _check_params(
     out_dir_path = Path(out_dir)
     xml_file_path = Path(xml_file)
 
-    if not _ensure_path_exists(out_dir_path):
+    if not _ensure_directory_exists(out_dir_path):
         return None
 
     if not input_dir_path.is_dir():
@@ -494,7 +494,7 @@ def _extract_preview_from_video(file: Path) -> bool:
         return True
 
 
-def _ensure_path_exists(path: Path) -> bool:
+def _ensure_directory_exists(path: Path) -> bool:
     """
     Try to create the directory at the given path. 
     If the directory already exists, nothing happens.
@@ -723,7 +723,7 @@ def process_files(
     (derivative, .orig file, sidecar file, as well as the preview file for movies) 
     to the given output directory.
     Additionally, writes a pickle file containing the mapping between the original files and the processed files,
-    e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2').
+    e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2').
 
     Args:
         input_dir: path to the directory where the files should be read from

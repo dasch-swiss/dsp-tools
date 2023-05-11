@@ -159,16 +159,16 @@ def _upload_file(
     if not check_result:
         return uuid_name_of_processed_file, False
 
-    result: list[bool] = []
+    results: list[bool] = []
     for candidate in upload_candidates:
         res = _upload_without_processing(
             file=candidate, 
             sipi_url=sipi_url, 
             con=con
         )
-        result.append(res)
+        results.append(res)
 
-    if not all(result):
+    if not all(results):
         logger.error(f"Could not upload all files for {uuid_name_of_processed_file}.")
         return uuid_name_of_processed_file, False
     else:

@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 def _get_upload_candidates(
     dir_with_processed_files: Path, 
-    uuid_name_of_processed_file: Path
+    internal_filename_of_processed_file: Path
 ) -> list[Path]:
     """
     Based on the base derivate file, get all files based on the same uuid.
@@ -32,22 +32,22 @@ def _get_upload_candidates(
 
     Args:
         dir_with_processed_files: path to the directory where the processed files are located
-        uuid_name_of_processed_file: processed file (uuid filename)
+        internal_filename_of_processed_file: processed file (uuid filename)
 
     Returns:
         list of all processed files that belong to the same original file
     """
     upload_candidates: list[str] = []
-    upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/**/**/{uuid_name_of_processed_file.stem}/*.*"))
-    upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/**/**/{uuid_name_of_processed_file.stem}*.*"))
+    upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/**/**/{internal_filename_of_processed_file.stem}/*.*"))
+    upload_candidates.extend(glob.glob(f"{dir_with_processed_files}/**/**/{internal_filename_of_processed_file.stem}*.*"))
     upload_candidates_paths = [Path(c) for c in upload_candidates]
     upload_candidates_as_str = "\n - " + "\n - ".join([str(c) for c in upload_candidates])
-    logger.info(f"Found the following upload candidates for {uuid_name_of_processed_file}: {upload_candidates_as_str}")
+    logger.info(f"Found the following upload candidates for {internal_filename_of_processed_file}: {upload_candidates_as_str}")
     return upload_candidates_paths
 
 
 def _check_upload_candidates(
-    uuid_name_of_processed_file: Path, 
+    internal_filename_of_processed_file: Path, 
     upload_candidates: list[Path]
 ) -> bool:
     """
@@ -55,31 +55,31 @@ def _check_upload_candidates(
     and that there are at least 5 candidates for videos and 3 candidates for all other file types.
 
     Args:
-        uuid_name_of_processed_file: base derivate file
+        internal_filename_of_processed_file: base derivate file (uuid filename)
         upload_candidates: list of all files that belong to the same original file
 
     Returns:
         True if all checks passed, False otherwise
     """
-    if not uuid_name_of_processed_file.is_file():
-        print(f"{datetime.now()}: ERROR: The input file was not found {uuid_name_of_processed_file}")
-        logger.error(f"The input file was not found {uuid_name_of_processed_file}")
+    if not internal_filename_of_processed_file.is_file():
+        print(f"{datetime.now()}: ERROR: The input file '{internal_filename_of_processed_file}' was not found.")
+        logger.error(f"The input file '{internal_filename_of_processed_file}' was not found.")
         return False
 
     if not all(Path(c).is_file() for c in upload_candidates):
-        print(f"{datetime.now()}: ERROR: Not all upload candidates were found for file {uuid_name_of_processed_file}")
-        logger.error(f"Not all upload candidates were found for file {uuid_name_of_processed_file}")
+        print(f"{datetime.now()}: ERROR: Not all upload candidates were found for file {internal_filename_of_processed_file}")
+        logger.error(f"Not all upload candidates were found for file {internal_filename_of_processed_file}")
         return False
 
-    min_num_of_candidates = 4 if uuid_name_of_processed_file.suffix == ".mp4" else 3
+    min_num_of_candidates = 4 if internal_filename_of_processed_file.suffix == ".mp4" else 3
     if len(upload_candidates) < min_num_of_candidates:
         upload_candidates_as_str = "\n - " + "\n - ".join([str(c) for c in upload_candidates])
-        msg = f"Found the following files for {uuid_name_of_processed_file}, but more were expected: {upload_candidates_as_str}"
+        msg = f"Found the following files for {internal_filename_of_processed_file}, but more were expected: {upload_candidates_as_str}"
         print(f"{datetime.now()}: ERROR: {msg}")
         logger.error(msg)
         return False
 
-    logger.info(f"Upload candidates for {uuid_name_of_processed_file} are okay.")
+    logger.info(f"Upload candidates for {internal_filename_of_processed_file} are okay.")
     return True
 
 
@@ -131,7 +131,7 @@ def _upload_without_processing(
 
 def _upload_file(
     dir_with_processed_files: Path,
-    uuid_name_of_processed_file: Path,
+    internal_filename_of_processed_file: Path,
     sipi_url: str,
     con: Connection
 ) -> tuple[Path, bool]:
@@ -140,7 +140,7 @@ def _upload_file(
 
     Args:
         dir_with_processed_files: path to the directory where the processed files are located
-        uuid_name_of_processed_file: path to the derivate of the original file, i.e. the processed file (uuid filename)
+        internal_filename_of_processed_file: path to the derivate of the original file, i.e. the processed file (uuid filename)
         sipi_url: URL to the sipi server
         con: connection to the DSP server
 
@@ -149,15 +149,15 @@ def _upload_file(
     """
     upload_candidates = _get_upload_candidates(
         dir_with_processed_files=dir_with_processed_files, 
-        uuid_name_of_processed_file=uuid_name_of_processed_file
+        internal_filename_of_processed_file=internal_filename_of_processed_file
     )
 
     check_result = _check_upload_candidates(
-        uuid_name_of_processed_file=uuid_name_of_processed_file, 
+        internal_filename_of_processed_file=internal_filename_of_processed_file, 
         upload_candidates=upload_candidates
     )
     if not check_result:
-        return uuid_name_of_processed_file, False
+        return internal_filename_of_processed_file, False
 
     results: list[bool] = []
     for candidate in upload_candidates:
@@ -169,11 +169,11 @@ def _upload_file(
         results.append(res)
 
     if not all(results):
-        logger.error(f"Could not upload all files for {uuid_name_of_processed_file}.")
-        return uuid_name_of_processed_file, False
+        logger.error(f"Could not upload all files for {internal_filename_of_processed_file}.")
+        return internal_filename_of_processed_file, False
     else:
-        logger.info(f"Successfully uploaded all files for {uuid_name_of_processed_file}.")
-        return uuid_name_of_processed_file, True
+        logger.info(f"Successfully uploaded all files for {internal_filename_of_processed_file}.")
+        return internal_filename_of_processed_file, True
 
 
 def _get_paths_from_pkl_file(pkl_file: Path) -> list[Path]:
@@ -229,7 +229,7 @@ def _check_params(
 
 def _upload_files_in_parallel(
     dir_with_processed_files: Path,
-    uuid_names_of_processed_files: list[Path],
+    internal_filenames_of_processed_files: list[Path],
     sipi_url: str,
     con: Connection,
     nthreads: Optional[int]
@@ -239,7 +239,7 @@ def _upload_files_in_parallel(
 
     Args:
         dir_with_processed_files: path to the directory where the processed files are located
-        uuid_names_of_processed_files: list of uuid filenames, each filename being the path to the derivate of the original file
+        internal_filenames_of_processed_files: list of uuid filenames, each filename being the path to the derivate of the original file
         sipi_url: URL to the sipi server
         con: connection to the DSP server
         nthreads: number of threads to use for the upload
@@ -251,10 +251,10 @@ def _upload_files_in_parallel(
         upload_jobs = [pool.submit(
             _upload_file,
             dir_with_processed_files,
-            uuid_name_of_processed_file,
+            internal_filename_of_processed_file,
             sipi_url,
             con
-        ) for uuid_name_of_processed_file in uuid_names_of_processed_files]
+        ) for internal_filename_of_processed_file in internal_filenames_of_processed_files]
 
     result: list[tuple[Path, bool]] = []
     for uploaded in as_completed(upload_jobs):
@@ -264,25 +264,25 @@ def _upload_files_in_parallel(
 
 def _check_if_all_files_were_uploaded(
     result: list[tuple[Path, bool]],
-    uuid_names_of_processed_files: list[Path]
+    internal_filenames_of_processed_files: list[Path]
 ) -> bool:
     """
     Print the files which could not be uploaded.
 
     Args:
         result: list of tuples with the path of the file and the success status
-        uuid_names_of_processed_files: list of files that should have been uploaded
+        internal_filenames_of_processed_files: list of files that should have been uploaded (uuid filenames)
     
     Returns:
         True if all files were uploaded, False otherwise
     """
-    if len(result) == len(uuid_names_of_processed_files):
+    if len(result) == len(internal_filenames_of_processed_files):
         success = True
         print(f"{datetime.now()}: Number of files of which the derivates were uploaded: {len(result)}: Okay")
         logger.info(f"Number of files of which the derivates were uploaded: {len(result)}: Okay")
     else:
         success = False
-        msg = f"Some derivates of some files could not be uploaded: Only {len(result)}/{len(uuid_names_of_processed_files)} were uploaded. " \
+        msg = f"Some derivates of some files could not be uploaded: Only {len(result)}/{len(internal_filenames_of_processed_files)} were uploaded. " \
                "The failed ones are:"
         print(f"{datetime.now()}: ERROR: {msg}")
         logger.error(msg)
@@ -334,9 +334,9 @@ def upload_files(
         raise BaseError("Error reading the input parameters. Please check them.")
 
     # read paths from pkl file
-    uuid_names_of_processed_files = _get_paths_from_pkl_file(pkl_file=pkl_file_path)
-    print(f"{datetime.now()}: Found {len(uuid_names_of_processed_files)} files to upload...")
-    logger.info(f"Found {len(uuid_names_of_processed_files)} files to upload...")
+    internal_filenames_of_processed_files = _get_paths_from_pkl_file(pkl_file=pkl_file_path)
+    print(f"{datetime.now()}: Found {len(internal_filenames_of_processed_files)} files to upload...")
+    logger.info(f"Found {len(internal_filenames_of_processed_files)} files to upload...")
 
     # create connection to DSP
     con = login(
@@ -351,7 +351,7 @@ def upload_files(
     logger.info("Start file uploading...")
     result = _upload_files_in_parallel(
         dir_with_processed_files=dir_with_processed_files_path, 
-        uuid_names_of_processed_files=uuid_names_of_processed_files, 
+        internal_filenames_of_processed_files=internal_filenames_of_processed_files, 
         sipi_url=sipi_url, 
         con=con,
         nthreads=nthreads
@@ -363,7 +363,7 @@ def upload_files(
     logger.info(f"Uploading files took {end_time - start_time}")
     success = _check_if_all_files_were_uploaded(
         result=result,
-        uuid_names_of_processed_files=uuid_names_of_processed_files
+        internal_filenames_of_processed_files=internal_filenames_of_processed_files
     )
 
     return success

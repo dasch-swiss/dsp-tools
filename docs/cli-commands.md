@@ -76,7 +76,7 @@ dsp-tools get [options] project_definition.json
 The following options are available:
 
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
-- `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP-API 
+- `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 
 - `-P` | `--project` (mandatory): shortcode, shortname or IRI of the project 
 - `-v` | `--verbose` (optional): print more information about the progress to the console
@@ -103,7 +103,7 @@ dsp-tools xmlupload [options] xml_data_file.xml
 The following options are available:
 
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server where DSP-TOOLS sends the data to
-- `-u` | `--user` (optional, default: `root@example.com`): username used for authentication with the DSP-API 
+- `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 - `-S` | `--sipi` (optional, default: `http://0.0.0.0:1024`): URL of the SIPI server where DSP-TOOLS sends the multimedia files to 
 - `-i` | `--imgdir` (optional, default: `.`): folder from where the paths in the `<bitstream>` tags are evaluated

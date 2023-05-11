@@ -232,7 +232,7 @@ def _upload_files_in_parallel(
     internal_filenames_of_processed_files: list[Path],
     sipi_url: str,
     con: Connection,
-    nthreads: Optional[int]
+    nthreads: int
 ) -> list[tuple[Path, bool]]:
     """
     Use a ThreadPoolExecutor to upload the files in parallel.
@@ -242,7 +242,7 @@ def _upload_files_in_parallel(
         internal_filenames_of_processed_files: list of uuid filenames, each filename being the path to the derivate of the original file
         sipi_url: URL to the sipi server
         con: connection to the DSP server
-        nthreads: number of threads to use for the upload
+        nthreads: number of threads to use for the upload (optimum depends on the number of CPUs on the server)
 
     Returns:
         _description_
@@ -298,7 +298,7 @@ def _check_if_all_files_were_uploaded(
 def upload_files(
     pkl_file: str,
     dir_with_processed_files: str,
-    nthreads: Optional[int],
+    nthreads: int,
     user: str,
     password: str,
     dsp_url: str,
@@ -312,7 +312,7 @@ def upload_files(
         pkl_file: pickle file containing the mapping between the original files and the processed files,
                   e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2').
         dir_with_processed_files: path to the directory where the processed files are located
-        nthreads: number of threads to use for uploading
+        nthreads: number of threads to use for uploading (optimum depends on the number of CPUs on the server)
         user: the user's e-mail for login into DSP
         password: the user's password for login into DSP
         dsp_url: URL to the DSP server

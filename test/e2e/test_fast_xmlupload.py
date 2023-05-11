@@ -78,7 +78,7 @@ class TestFastXmlUpload(unittest.TestCase):
         success_upload = upload_files(
             pkl_file=str(self.pickle_file),
             dir_with_processed_files=self.dir_with_processed_files,
-            nthreads=None,
+            nthreads=4,
             user=self.user,
             password=self.password,
             dsp_url=self.dsp_url,

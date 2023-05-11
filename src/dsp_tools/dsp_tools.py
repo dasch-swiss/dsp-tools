@@ -120,7 +120,7 @@ def make_parser() -> argparse.ArgumentParser:
     parser_upload_files.set_defaults(action="upload-files")
     parser_upload_files.add_argument("-f", "--pkl-file", help="path to pickle file written by 'process-files'")
     parser_upload_files.add_argument("-d", "--processed-dir", help="path to the directory with the processed files")
-    parser_upload_files.add_argument("-n", "--nthreads", type=int, default=None, help="number of threads to use")
+    parser_upload_files.add_argument("-n", "--nthreads", type=int, default=4, help="number of threads to use")
     parser_upload_files.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
     parser_upload_files.add_argument("-S", "--sipi-url", default=default_sipi, help=sipi_text)
     parser_upload_files.add_argument("-u", "--user", default=default_user, help=username_text)

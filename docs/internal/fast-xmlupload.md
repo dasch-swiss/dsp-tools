@@ -89,7 +89,7 @@ The following options are available:
 - `-f` | `--pkl-file` (mandatory): path to the pickle file that was written by the processing step
 - `-d` | `--processed-dir` (mandatory): path to the directory where the processed files are located 
                            (same as `--output-dir` in the processing step)
-- `-n` | `--nthreads` (optional, default computed by the concurrent library, dependent on the machine): number of threads to use for uploading
+- `-n` | `--nthreads` (optional, default 4): number of threads to use for uploading (optimum depends on the number of CPUs on the server)
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
 - `-S` | `--sipi-url` (optional, default: `0.0.0.0:1024`): URL of the SIPI server 
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 

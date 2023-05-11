@@ -52,7 +52,9 @@ class TestFastXmlUpload(unittest.TestCase):
         shutil.rmtree("bitstreams/nested")
         shutil.rmtree(self.dir_with_processed_files)
         self.pickle_file.unlink()
-        list(Path().glob("*id2iri_mapping.json"))[0].unlink()
+        id2iri_search_results = list(Path().glob("*id2iri_mapping.json"))
+        if len(id2iri_search_results) == 1:
+            id2iri_search_results[0].unlink()
         os.chdir(self.original_cwd)
 
 

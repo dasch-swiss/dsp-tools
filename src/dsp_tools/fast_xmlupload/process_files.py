@@ -308,7 +308,6 @@ def _convert_file_with_sipi(
         print(f"{datetime.now()}: ERROR: Cannot convert file {in_file_local_path} with Sipi: Sipi container not found.")
         logger.error(f"Cannot convert file {in_file_local_path} with Sipi: Sipi container not found.")
         return False
-    # result = sipi_container.exec_run(f"/sipi/sipi --topleft {in_file_sipi_path} {out_file_sipi_path}")
     result = sipi_container.exec_run(f"/sipi/sipi {in_file_sipi_path} {out_file_sipi_path}")
     if result.exit_code != 0:
         print(f"{datetime.now()}: ERROR: Sipi conversion of {in_file_local_path} failed: {result}")
@@ -336,7 +335,7 @@ def _create_orig_file(
         shutil.copyfile(in_file, orig_file_full_path)
         logger.info(f"Created .orig file {orig_file_full_path}")
         return True
-    except:
+    except Exception:  # pylint: disable=broad-exception-caught
         print(f"{datetime.now()}: ERROR: Couldn't create .orig file {orig_file_full_path}")
         logger.error(f"Couldn't create .orig file {orig_file_full_path}", exc_info=True)
         return False
@@ -365,7 +364,7 @@ def _get_video_metadata_with_ffprobe(file_path: Path) -> Optional[dict[str, Any]
     ]
     try:
         result = subprocess.run(command_array, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, check=False)
-    except:
+    except Exception:  # pylint: disable=broad-exception-caught
         print(f"{datetime.now()}: ERROR: Exception occurred while running ffprobe for {file_path}")
         logger.error(f"Exception occurred while running ffprobe for {file_path}", exc_info=True)
         return None
@@ -508,7 +507,7 @@ def _ensure_directory_exists(path: Path) -> bool:
     try:
         path.mkdir(parents=True, exist_ok=True)
         return True
-    except:
+    except Exception:  # pylint: disable=broad-exception-caught
         print(f"{datetime.now()}: ERROR: Couldn't create directory {path}")
         logger.error(f"Couldn't create directory {path}", exc_info=True)
         return False
@@ -609,7 +608,7 @@ def _process_other_file(
     converted_file_full_path = out_dir / Path(internal_filename).with_suffix(in_file.suffix)
     try:
         shutil.copyfile(in_file, converted_file_full_path)
-    except:
+    except Exception:  # pylint: disable=broad-exception-caught
         print(f"{datetime.now()}: ERROR: Couldn't process file of category OTHER: {in_file}")
         logger.error(f"Couldn't process file of category OTHER: {in_file}", exc_info=True)
         return in_file, None
@@ -686,7 +685,7 @@ def _process_video_file(
     # create derivate file (identical to original file)
     try:
         shutil.copyfile(in_file, converted_file_full_path)
-    except:
+    except Exception:  # pylint: disable=broad-exception-caught
         print(f"{datetime.now()}: ERROR: Couldn't create derivate file for video '{in_file}'")
         logger.error(f"Couldn't create derivate file for video '{in_file}'", exc_info=True)
         return in_file, None

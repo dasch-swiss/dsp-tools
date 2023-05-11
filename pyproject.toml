@@ -144,6 +144,5 @@ disable = [
     "too-many-nested-blocks",              # TODO: activate this
     "too-many-return-statements",          # TODO: activate this
     "too-many-statements",                 # TODO: activate this
-    "bare-except",                         # TODO: activate this
     "consider-using-f-string",             # in excel2xml, strings with {} in it must be formatted
 ]

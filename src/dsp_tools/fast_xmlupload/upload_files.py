@@ -107,11 +107,11 @@ def _upload_without_processing(
                     files={"file": bitstream},
                     timeout=8*60
                 )
-            except:   # pylint: disable=broad-except
+            except Exception:  # pylint: disable=broad-exception-caught
                 print(f"{datetime.now()}: ERROR: An exception was raised while calling the /upload_without_processing route for the file {file}")
                 logger.error(f"An exception was raised while calling the /upload_without_processing route for the file {file}", exc_info=True)
                 return False
-    except:   # pylint: disable=broad-except
+    except Exception:  # pylint: disable=broad-exception-caught
         print(f"{datetime.now()}: ERROR: Cannot send file to /upload_without_processing route, because the file cannot be opened: {file}")
         logger.error(f"Cannot send file to /upload_without_processing route, because the file cannot be opened: {file}", exc_info=True)
         return False

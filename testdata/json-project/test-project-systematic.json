@@ -18,6 +18,110 @@
             "test",
             "testing"
         ],
+        "groups": [
+            {
+                "name": "testgroupEditors",
+                "descriptions": {
+                    "en": "Test group editors",
+                    "de": "Testgruppe Editors",
+                    "rm": "squadra test 'Editors' in Rumantsch"
+                },
+                "selfjoin": false
+            },
+            {
+                "name": "testgroupViewers",
+                "descriptions": {
+                    "en": "Test group viewers",
+                    "de": "Testgruppe Viewers"
+                },
+                "selfjoin": true,
+                "status": true
+            },
+            {
+                "name": "testgroupInactive",
+                "descriptions": {
+                    "en": "Test group inactive",
+                    "de": "Testgruppe Inaktiv"
+                },
+                "status": false
+            }
+        ],
+        "users": [
+            {
+                "username": "testerKnownUser",
+                "email": "tester.known@test.org",
+                "givenName": "Tester",
+                "familyName": "Known",
+                "password": "test0815",
+                "lang": "en"
+            },
+            {
+                "username": "testerProjectEditor",
+                "email": "tester.projecteditor@test.org",
+                "givenName": "Tester",
+                "familyName": "Editor",
+                "password": "test0815",
+                "lang": "fr",
+                "groups": [
+                    ":testgroupEditors"
+                ],
+                "projects": [
+                    ":member"
+                ]
+            },
+            {
+                "username": "testerProjectViewer",
+                "email": "tester.projectviewer@test.org",
+                "givenName": "Tester",
+                "familyName": "Viewer",
+                "password": "test0815",
+                "lang": "it",
+                "groups": [
+                    "tp:testgroupViewers"
+                ],
+                "projects": [
+                    "tp:member"
+                ]
+            },
+            {
+                "username": "testerProjectAdmin",
+                "email": "tester.projectadmin@test.org",
+                "givenName": "Tester",
+                "familyName": "Project Admin",
+                "password": "test0815",
+                "lang": "de",
+                "projects": [
+                    ":admin"
+                ]
+            },
+            {
+                "username": "testerSystemAdmin",
+                "email": "tester.systemadmin@test.org",
+                "givenName": "Tester",
+                "familyName": "System Admin",
+                "password": "test0815",
+                "lang": "rm",
+                "groups": [
+                    "SystemAdmin"
+                ],
+                "status": true
+            },
+            {
+                "username": "inactiveUser",
+                "email": "inactive.user@test.org",
+                "givenName": "Inactive",
+                "familyName": "User",
+                "password": "test0815",
+                "lang": "en",
+                "groups": [
+                    "SystemAdmin"
+                ],
+                "projects": [
+                    ":admin"
+                ],
+                "status": false
+            }
+        ],
         "lists": [
             {
                 "name": "testlist",
@@ -26,8 +130,8 @@
                     "rm": "Glista test in Rumantsch"
                 },
                 "comments": {
-                    "en": "no comment",
                     "de": "kein Kommentar",
+                    "en": "no comment",
                     "rm": "nagin commentar in Rumantsch"
                 },
                 "nodes": [
@@ -72,8 +176,8 @@
                     "en": "My list from Excel"
                 },
                 "comments": {
-                    "en": "a comment",
                     "de": "ein Kommentar",
+                    "en": "a comment",
                     "fr": "un commentaire"
                 },
                 "nodes": {
@@ -86,8 +190,8 @@
                     "en": "Not used list"
                 },
                 "comments": {
-                    "en": "no comment",
-                    "de": "kein Kommentar"
+                    "de": "kein Kommentar",
+                    "en": "no comment"
                 },
                 "nodes": [
                     {
@@ -103,110 +207,6 @@
                 ]
             }
         ],
-        "groups": [
-            {
-                "name": "testgroupEditors",
-                "descriptions": {
-                    "en": "Test group editors",
-                    "de": "Testgruppe Editors",
-                    "rm": "squadra test 'Editors' in Rumantsch"
-                },
-                "selfjoin": false
-            },
-            {
-                "name": "testgroupViewers",
-                "descriptions": {
-                    "en": "Test group viewers",
-                    "de": "Testgruppe Viewers"
-                },
-                "selfjoin": true,
-                "status": true
-            },
-            {
-                "name": "testgroupInactive",
-                "descriptions": {
-                    "en": "Test group inactive",
-                    "de": "Testgruppe Inaktiv"
-                },
-                "status": false
-            }
-        ],
-        "users": [
-            {
-                "username": "testerKnownUser",
-                "email": "tester.known@test.org",
-                "givenName": "Tester",
-                "familyName": "Known",
-                "password": "test0815",
-                "lang": "rm"
-            },
-            {
-                "username": "testerProjectEditor",
-                "email": "tester.projecteditor@test.org",
-                "givenName": "Tester",
-                "familyName": "Editor",
-                "password": "test0815",
-                "lang": "en",
-                "groups": [
-                    ":testgroupEditors"
-                ],
-                "projects": [
-                    ":member"
-                ]
-            },
-            {
-                "username": "testerProjectViewer",
-                "email": "tester.projectviewer@test.org",
-                "givenName": "Tester",
-                "familyName": "Viewer",
-                "password": "test0815",
-                "lang": "en",
-                "groups": [
-                    ":testgroupViewers"
-                ],
-                "projects": [
-                    ":member"
-                ]
-            },
-            {
-                "username": "testerProjectAdmin",
-                "email": "tester.projectadmin@test.org",
-                "givenName": "Tester",
-                "familyName": "Project Admin",
-                "password": "test0815",
-                "lang": "en",
-                "projects": [
-                    ":admin"
-                ]
-            },
-            {
-                "username": "testerSystemAdmin",
-                "email": "tester.systemadmin@test.org",
-                "givenName": "Tester",
-                "familyName": "System Admin",
-                "password": "test0815",
-                "lang": "en",
-                "groups": [
-                    "SystemAdmin"
-                ],
-                "status": true
-            },
-            {
-                "username": "inactiveUser",
-                "email": "inactive.user@test.org",
-                "givenName": "Inactive",
-                "familyName": "User",
-                "password": "test0815",
-                "lang": "en",
-                "groups": [
-                    "SystemAdmin"
-                ],
-                "projects": [
-                    ":admin"
-                ],
-                "status": false
-            }
-        ],
         "ontologies": [
             {
                 "name": "testonto",
@@ -216,7 +216,7 @@
                     {
                         "name": "hasTextChild2",
                         "super": [
-                            ":hasTextChild1"
+                            "testonto:hasTextChild1"
                         ],
                         "object": "TextValue",
                         "labels": {
@@ -537,73 +537,87 @@
                             {
                                 "propname": "testonto:hasSimpleText",
                                 "cardinality": "1-n",
-                                "gui_order": 1
+                                "gui_order": 0
                             },
                             {
                                 "propname": ":hasTextArea",
                                 "cardinality": "0-n",
-                                "gui_order": 2
+                                "gui_order": 1
                             },
                             {
                                 "propname": ":hasRichtext",
                                 "cardinality": "0-n",
-                                "gui_order": 3
+                                "gui_order": 2
                             },
                             {
                                 "propname": ":hasUri",
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 3
                             },
                             {
                                 "propname": ":hasBoolean",
-                                "cardinality": "1"
+                                "cardinality": "1",
+                                "gui_order": 4
                             },
                             {
                                 "propname": ":hasDate",
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 5
                             },
                             {
                                 "propname": ":hasTime",
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 6
                             },
                             {
                                 "propname": ":hasInteger",
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 7
                             },
                             {
                                 "propname": ":hasDecimal",
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 8
                             },
                             {
                                 "propname": ":hasGeoname",
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 9
                             },
                             {
                                 "propname": ":hasColor",
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 10
                             },
                             {
                                 "propname": ":hasListItem",
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 11
                             },
                             {
                                 "propname": ":hasTestThing2",
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 12
                             },
                             {
                                 "propname": ":hasResource",
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 13
                             },
                             {
                                 "propname": ":hasRegion",
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 14
                             },
                             {
                                 "propname": ":hasRepresentation",
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 15
                             },
                             {
                                 "propname": ":hasMovingImageRepresentation",
-                                "cardinality": "0-n"
+                                "cardinality": "0-n",
+                                "gui_order": 16
                             }
                         ]
                     },
@@ -644,12 +658,12 @@
                         "cardinalities": [
                             {
                                 "propname": ":hasSimpleText",
-                                "gui_order": 1,
+                                "gui_order": 0,
                                 "cardinality": "1"
                             },
                             {
                                 "propname": ":hasTestThing",
-                                "gui_order": 2,
+                                "gui_order": 1,
                                 "cardinality": "0-n"
                             }
                         ]
@@ -736,7 +750,6 @@
                         "cardinalities": [
                             {
                                 "propname": ":hasSimpleText",
-                                "gui_order": 1,
                                 "cardinality": "1"
                             }
                         ]
@@ -821,38 +834,41 @@
                     },
                     {
                         "name": "VideoSequence",
+                        "super": "Resource",
                         "labels": {
                             "de": "Sequenz einer Video-Ressource",
                             "en": "Sequence of a video resource"
                         },
-                        "super": "Resource",
                         "cardinalities": [
                             {
                                 "propname": ":hasSimpleText",
-                                "cardinality": "0-1"
+                                "cardinality": "0-1",
+                                "gui_order": 10
                             },
                             {
                                 "propname": ":sequenceOfVideo",
-                                "cardinality": "1"
+                                "cardinality": "1",
+                                "gui_order": 20
                             },
                             {
                                 "propname": ":hasBounds",
                                 "cardinality": "1",
-                                "gui_order": 1
+                                "gui_order": 30
                             }
                         ]
                     },
                     {
                         "name": "AudioSequence",
+                        "super": "Resource",
                         "labels": {
                             "de": "Sequenz einer Audio-Ressource",
                             "en": "Sequence of an audio resource"
                         },
-                        "super": "Resource",
                         "cardinalities": [
                             {
                                 "propname": ":hasSimpleText",
-                                "cardinality": "0-1"
+                                "cardinality": "0-1",
+                                "gui_order": 1
                             },
                             {
                                 "propname": ":sequenceOfAudio",
@@ -860,13 +876,13 @@
                             },
                             {
                                 "propname": ":hasBounds",
-                                "cardinality": "1",
-                                "gui_order": 1
+                                "cardinality": "1"
                             }
                         ]
                     },
                     {
                         "name": "MinimalisticSequence",
+                        "super": "Resource",
                         "labels": {
                             "de": "Minimalistische Sequenz einer Audio-/Video-Ressource",
                             "en": "Minimalistic sequence of an audio/video resource"
@@ -875,11 +891,11 @@
                             "de": "Sequenz einer Audio-/Video-Ressource, welche die base properties 'isSequenceOf' und 'hasSequenceBounds' direkt verwendet",
                             "en": "Sequence of an audio/video resource that uses the base properties 'isSequenceOf' and 'hasSequenceBounds' directly"
                         },
-                        "super": "Resource",
                         "cardinalities": [
                             {
                                 "propname": ":hasSimpleText",
-                                "cardinality": "0-1"
+                                "cardinality": "0-1",
+                                "gui_order": 1
                             },
                             {
                                 "propname": "isSequenceOf",
@@ -887,10 +903,19 @@
                             },
                             {
                                 "propname": "hasSequenceBounds",
-                                "cardinality": "1",
-                                "gui_order": 1
+                                "cardinality": "1"
                             }
                         ]
+                    },
+                    {
+                        "name": "SomeThing",
+                        "super": [
+                            "StillImageRepresentation",
+                            "testonto:ImageThing"
+                        ],
+                        "labels": {
+                            "en": "Thing whose superclass is referenced with prefixed onto name"
+                        }
                     }
                 ]
             },

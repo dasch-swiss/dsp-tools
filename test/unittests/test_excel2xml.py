@@ -665,4 +665,4 @@ class TestExcel2xml(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    pytest.main([__file__])

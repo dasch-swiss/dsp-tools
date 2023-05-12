@@ -129,5 +129,5 @@ class TestShared(unittest.TestCase):
             self.assertTrue(shared.check_notna(notna_value), msg=f"Failed notna_value: {notna_value}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pytest.main([__file__])

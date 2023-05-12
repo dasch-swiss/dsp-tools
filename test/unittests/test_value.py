@@ -4,6 +4,8 @@
 
 import unittest
 
+import pytest
+
 from dsp_tools.models.helpers import Actions
 from dsp_tools.models.value import DateValue
 
@@ -33,5 +35,5 @@ class TestValue(unittest.TestCase):
         self.assertEqual(json_ld['knora-api:dateValueHasEndEra'], 'BCE')
 
 
-if __name__ == '__main__':
-    unittest.main()
+if __name__ == "__main__":
+    pytest.main([__file__])

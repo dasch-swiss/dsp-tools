@@ -1,6 +1,8 @@
 """end to end tests for project class"""
 import unittest
 
+import pytest
+
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.models.project import Project
@@ -142,5 +144,5 @@ class TestProject(unittest.TestCase):
         self.con.logout()
 
 
-if __name__ == '__main__':
-    unittest.main()
+if __name__ == "__main__":
+    pytest.main([__file__])

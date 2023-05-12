@@ -1,6 +1,8 @@
 """unit tests for langstrings"""
 import unittest
 
+import pytest
+
 from dsp_tools.models.langstring import LangString, Languages
 
 
@@ -103,5 +105,5 @@ class TestLangString(unittest.TestCase):    # pylint: disable=missing-class-docs
                 self.assertEqual(tmp[1], self.simple_string_fr)
 
 
-if __name__ == '__main__':
-    unittest.main()
+if __name__ == "__main__":
+    pytest.main([__file__])

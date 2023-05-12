@@ -4,6 +4,7 @@
 
 import unittest
 
+import pytest
 import regex
 from lxml import etree
 
@@ -190,4 +191,4 @@ class TestXMLUpload(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    pytest.main([__file__])

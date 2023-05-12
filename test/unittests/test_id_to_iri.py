@@ -5,6 +5,8 @@
 import os
 import unittest
 
+import pytest
+
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.id_to_iri import id_to_iri
 from dsp_tools.utils.xml_upload import _parse_xml_file
@@ -56,5 +58,5 @@ class TestIdToIri(unittest.TestCase):
                          ["http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg", "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ"])
 
 
-if __name__ == '__main__':
-    unittest.main()
+if __name__ == "__main__":
+    pytest.main([__file__])

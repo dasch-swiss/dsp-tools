@@ -405,7 +405,10 @@ def make_resource(
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#describing-resources-with-the-resource-element
     """
-
+    if not check_notna(label):
+        warnings.warn(f"WARNING: Your resource's label looks suspicious (resource with id '{id}' and label '{label}'")
+    if not check_notna(id):
+        warnings.warn(f"WARNING: Your resource's id looks suspicious (resource with id '{id}' and label '{label}'")
     kwargs = {
         "label": label,
         "restype": restype,
@@ -1278,8 +1281,11 @@ def make_text_prop(
             try:
                 value_ = etree.fromstring(content)
             except etree.XMLSyntaxError:
-                raise BaseError("The XML tags contained in a richtext property (encoding=xml) must be well-formed. "
-                                "The special characters <, > and & are only allowed to construct a tag.") from None
+                raise BaseError(
+                    "The XML tags contained in a richtext property (encoding=xml) must be well-formed. "
+                    "The special characters <, > and & are only allowed to construct a tag."
+                    f"The error occurred in resource {calling_resource}, property {name}"
+                ) from None
         prop_.append(value_)
 
     return prop_
@@ -1882,7 +1888,7 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
                 raise BaseError(f"Both ARK and IRI were provided for resource '{resource_label}' ({resource_id}). The ARK will override the IRI.")
             # previous resource is finished, now a new resource begins. in all cases (except for
             # the very first iteration), a previous resource exists. if it exists, append it to root.
-            if resource:
+            if resource is not None:
                 root.append(resource)
             kwargs_resource = {
                 "label": resource_label,

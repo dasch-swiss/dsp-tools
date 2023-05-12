@@ -68,5 +68,5 @@ class TestImportScripts(unittest.TestCase):
         self.assertTrue(success_on_xmlupload)
 
 
-if __name__ == '__main__':
-    unittest.main()
+if __name__ == "__main__":
+    pytest.main([__file__])

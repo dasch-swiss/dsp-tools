@@ -99,5 +99,5 @@ class TestFastXmlUpload(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, "--capture=no"])
+    pytest.main([__file__])
         

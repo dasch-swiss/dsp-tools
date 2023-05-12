@@ -2,6 +2,8 @@ import shutil
 import unittest
 from pathlib import Path
 
+import pytest
+
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.generate_templates import generate_template_repo
 
@@ -18,3 +20,6 @@ class TestGenerateTemplates(unittest.TestCase):       # pylint: disable=missing-
         self.assertTrue(Path("0100-template-repo/template.xml").exists())
 
         shutil.rmtree("0100-template-repo")
+
+if __name__ == "__main__":
+    pytest.main([__file__])

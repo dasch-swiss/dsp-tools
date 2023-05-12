@@ -2,6 +2,8 @@ import shutil
 import unittest
 from pathlib import Path
 
+import pytest
+
 from dsp_tools.utils import rosetta
 
 
@@ -25,3 +27,6 @@ class TestRosetta(unittest.TestCase):
         self.assertTrue(success2)
 
         shutil.rmtree("tmp", ignore_errors=True)
+
+if __name__ == "__main__":
+    pytest.main([__file__])

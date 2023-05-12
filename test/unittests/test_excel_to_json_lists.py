@@ -11,6 +11,7 @@ from typing import Any
 import jsonpath_ng
 import jsonpath_ng.ext
 import pandas as pd
+import pytest
 import regex
 
 from dsp_tools.models.exceptions import BaseError
@@ -149,5 +150,5 @@ class TestExcelToJSONList(unittest.TestCase):
             e2l.excel2lists(excelfolder="testdata/invalid-testdata/excel2json/lists-invalid-2")
 
 
-if __name__ == '__main__':
-    unittest.main()
+if __name__ == "__main__":
+    pytest.main([__file__])

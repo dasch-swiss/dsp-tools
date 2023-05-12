@@ -7,6 +7,8 @@ import unittest
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.project_create import _sort_prop_classes, _sort_resources
 from dsp_tools.utils.project_validate import (
@@ -170,4 +172,4 @@ class TestProjectCreation(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    pytest.main([__file__])

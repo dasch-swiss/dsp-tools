@@ -1,6 +1,8 @@
 """end to end tests for property class"""
 import unittest
 
+import pytest
+
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.helpers import DateTimeStamp
 from dsp_tools.models.langstring import LangString, Languages
@@ -106,5 +108,5 @@ class TestPropertyClass(unittest.TestCase):
         self.onto.lastModificationDate = self.last_modification_date
 
 
-if __name__ == '__main__':
-    unittest.main()
+if __name__ == "__main__":
+    pytest.main([__file__])

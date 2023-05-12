@@ -60,11 +60,17 @@ and `poetry install` to update the dependencies from `poetry.lock`.
 
 ## Using the virtual environment
 
-`poetry shell` spawns a shell within the virtual environment. From there, the command `dsp-tools` is available, 
-because `poetry install` made an editable installation of DSP-TOOLS inside the virtual environment. This means that 
-inside the `site-packages` folder of your poetry virtual environment, there is a folder called `dsp_tools-[version].
-dist-info` containing a link to your local clone of the DSP-TOOLS repository. When you call `dsp-tools` from within 
-the virtual environment, the code of your local clone will be executed.
+`poetry shell` spawns a shell within the virtual environment. 
+Even more convenient is to choose `/bin/python` inside poetry's virtual environment as the interpreter in your IDE.
+This way, every Terminal you open in your IDE will automatically be in the virtual environment.
+
+The advantage of being in a poetry shell is that the command `dsp-tools` is available, 
+because `poetry install` made an editable installation of DSP-TOOLS inside the virtual environment. 
+This means that inside the `site-packages` folder of your poetry virtual environment, 
+there is a folder called `dsp_tools-[version].dist-info` 
+containing a link to your local clone of the DSP-TOOLS repository. 
+When you call `dsp-tools` from within the virtual environment, 
+the code of your local clone will be executed.
 
 
 

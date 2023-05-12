@@ -47,8 +47,11 @@ If you want to install a new package, install it with `poetry add package`. This
 If a package is only needed for development, please install it with `poetry add package --group dev`,
 so it will be added to the `[tool.poetry.group.dev.dependencies]` section of `pyproject.toml`.
 
-For security reasons, the maintainer regularly executes `poetry update` to update `poetry.lock` with the latest 
-version of every package. The resulting changes are then committed in a version bumping PR.
+For security reasons, the maintainer regularly executes `poetry add dependency@latest` for every dependency. 
+This updates the dependency constraint in `pyproject.toml` to the latest version, 
+updates the dependency to that version, 
+and updates `poetry.lock` accordingly. 
+The resulting changes are then committed in a version bumping PR.
 
 All developers working with the DSP-TOOLS repository should regularly execute `poetry self update` to update poetry, 
 and `poetry install` to update the dependencies from `poetry.lock`.

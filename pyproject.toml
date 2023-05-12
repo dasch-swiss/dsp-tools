@@ -34,6 +34,7 @@ openpyxl = "^3.1.2"
 networkx = "^3.1.0"
 pandas = "^2.0.1"
 regex = "^2023.5.5"
+docker = "^6.1.2"
 
 
 [tool.poetry.group.dev.dependencies]

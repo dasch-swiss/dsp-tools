@@ -1,6 +1,6 @@
 import json
 import re
-from typing import Optional
+from typing import Any
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError
@@ -50,8 +50,8 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
     # get groups
     if verbose:
         print("Getting groups...")
-    groups_obj = []
-    groups: Optional[list[Group]] = Group.getAllGroupsForProject(con=con, proj_iri=str(project.id))
+    groups_obj: list[dict[str, Any]] = []
+    groups = Group.getAllGroupsForProject(con=con, proj_iri=str(project.id))
     if groups:
         for group in groups:
             groups_obj.append(group.createDefinitionFileObj())
@@ -62,12 +62,14 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
     # get users
     if verbose:
         print("Getting users...")
-    users_obj = []
+    users_obj: list[dict[str, Any]] = []
     users = User.getAllUsersForProject(con=con, proj_shortcode=str(project.shortcode))
     if users:
         for usr in users:
             users_obj.append(usr.createDefinitionFileObj(
-                con=con, proj_shortname=str(project.shortname), proj_shortcode=str(project.shortcode)
+                con=con, 
+                proj_shortname=str(project.shortname), 
+                proj_iri=str(project.id)
             ))
             if verbose:
                 print(f"\tGot user '{usr.username}'")
@@ -76,8 +78,8 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
     # get the lists
     if verbose:
         print("Getting lists...")
-    list_obj = []
-    list_roots: Optional[list[ListNode]] = ListNode.getAllLists(con=con, project_iri=project.id)
+    list_obj: list[dict[str, Any]] = []
+    list_roots = ListNode.getAllLists(con=con, project_iri=project.id)
     if list_roots:
         for list_root in list_roots:
             complete_list = list_root.getAllNodes()

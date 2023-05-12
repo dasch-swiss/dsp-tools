@@ -432,6 +432,8 @@ class PropertyClass(Model):
             for sc in self.superproperties:
                 superprops.append(context.reduce_iri(sc, shortname))
             property["super"] = superprops
+        if self.subject:
+            property["subject"] = context.reduce_iri(self.subject, shortname)
         if self.object:
             property["object"] = context.reduce_iri(self.object, shortname)
         if self.label:

@@ -407,7 +407,13 @@
                 <xs:element name="boolean-prop" type="booleanprop_type" minOccurs="0" maxOccurs="unbounded"/>
             </xs:choice>
         </xs:sequence>
-        <xs:attribute name="label" type="xs:string" use="required"/>
+        <xs:attribute name="label" use="required">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:minLength value="1"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
         <xs:attribute name="restype" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
         <xs:attribute name="permissions" type="xs:NCName" use="optional"/>

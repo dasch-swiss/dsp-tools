@@ -5,6 +5,7 @@ from typing import Union
 
 import numpy as np
 import pandas as pd
+import pytest
 from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
@@ -34,6 +35,18 @@ class TestShared(unittest.TestCase):
             r"\n.+line 16.+" 
         ):
             shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/utf8-text-with-xml-tags.xml")
+
+        with self.assertRaisesRegex(
+            UserError,
+            "Line 19: Element 'resource': Duplicate key-sequence .+ in unique identity-constraint 'IRI_attribute_of_resource_must_be_unique'"
+        ):
+            shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/duplicate-iri.xml")
+
+        with self.assertRaisesRegex(
+            UserError,
+            "Line 19: Element 'resource': Duplicate key-sequence .+ in unique identity-constraint 'ARK_attribute_of_resource_must_be_unique'"
+        ):
+            shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/duplicate-ark.xml")
 
 
     def test_validate_xml_tags_in_text_properties(self) -> None:
@@ -111,4 +124,4 @@ class TestShared(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

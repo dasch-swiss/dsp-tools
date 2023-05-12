@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="4124"
+       default-ontology="testonto">
+
+    <resource label="TestthingWithIri1"
+              restype=":TestThing2"
+              id="test_thing_with_iri_1"
+              iri="http://rdfh.ch/4123/54SYvWF0QUW6a">
+        <text-prop name=":hasSimpleText"><text encoding="utf8">Hello</text></text-prop>
+    </resource>
+
+    <resource label="TestthingWithIri2"
+              restype=":TestThing2"
+              id="test_thing_with_iri_2"
+              iri="http://rdfh.ch/4123/54SYvWF0QUW6a">
+        <text-prop name=":hasSimpleText"><text encoding="utf8">Hello</text></text-prop>
+    </resource>
+
+</knora>

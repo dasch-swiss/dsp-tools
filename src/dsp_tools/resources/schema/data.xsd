@@ -407,7 +407,13 @@
                 <xs:element name="boolean-prop" type="booleanprop_type" minOccurs="0" maxOccurs="unbounded"/>
             </xs:choice>
         </xs:sequence>
-        <xs:attribute name="label" type="xs:string" use="required"/>
+        <xs:attribute name="label" use="required">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:minLength value="1"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
         <xs:attribute name="restype" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
         <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
@@ -538,6 +544,13 @@
             <xs:selector xpath="resource"/>
             <xs:field xpath="@permissions"/>
         </xs:keyref>
+        <xs:unique name="IRI_attribute_of_resource_must_be_unique">
+            <xs:selector xpath=".//*"/>
+            <xs:field xpath="@iri"/>
+        </xs:unique>
+        <xs:unique name="ARK_attribute_of_resource_must_be_unique">
+            <xs:selector xpath=".//*"/>
+            <xs:field xpath="@ark"/>
+        </xs:unique>
     </xs:element>
 </xs:schema>
-

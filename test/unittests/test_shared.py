@@ -36,6 +36,24 @@ class TestShared(unittest.TestCase):
         ):
             shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/utf8-text-with-xml-tags.xml")
 
+        with self.assertRaisesRegex(
+            UserError,
+            "Line 19: Element 'resource': Duplicate key-sequence .+ in unique identity-constraint 'IRI_attribute_of_resource_must_be_unique'"
+        ):
+            shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/duplicate-iri.xml")
+
+        with self.assertRaisesRegex(
+            UserError,
+            "Line 19: Element 'resource': Duplicate key-sequence .+ in unique identity-constraint 'ARK_attribute_of_resource_must_be_unique'"
+        ):
+            shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/duplicate-ark.xml")
+
+        with self.assertRaisesRegex(
+            UserError,
+            "Line 11: Element 'resource', attribute 'label': .+ The value '' has a length of '0'; this underruns the allowed minimum length of '1'"
+        ):
+            shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/empty-label.xml")
+
 
     def test_validate_xml_tags_in_text_properties(self) -> None:
         utf8_texts_with_allowed_html_escapes = [

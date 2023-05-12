@@ -277,7 +277,12 @@ class HasProperty(Model):
 
     def createDefinitionFileObj(self, context: Context, shortname: str):
         cardinality = {}
-        if self._ptype == HasProperty.Ptype.other:
+        if self._ptype == HasProperty.Ptype.other or self.property_id in [
+            "knora-api:isSequenceOf", 
+            "knora-api:hasSequenceBounds", 
+            "knora-api:isPartOf", 
+            "knora-api:seqnum"
+        ]:
             cardinality["propname"] = context.reduce_iri(self._property_id, shortname)
             cardinality["cardinality"] = self._cardinality.value
             if self._gui_order is not None:
@@ -774,12 +779,7 @@ class ResourceClass(Model):
         return DateTimeStamp(result['knora-api:lastModificationDate'])
 
     def createDefinitionFileObj(self, context: Context, shortname: str, skiplist: list[str]):
-        resource = {
-            "name": self._name,
-            "labels": self._label.createDefinitionFileObj(),
-        }
-        if self._comment:
-            resource["comments"] = self._comment.createDefinitionFileObj()
+        resource = {"name": self._name}
         if self._superclasses:
             if len(self._superclasses) > 1:
                 superclasses = []
@@ -788,15 +788,24 @@ class ResourceClass(Model):
             else:
                 superclasses = context.reduce_iri(self._superclasses[0], shortname)
             resource["super"] = superclasses
+        resource["labels"] = self._label.createDefinitionFileObj()
+        if self._comment:
+            resource["comments"] = self._comment.createDefinitionFileObj()
         if self._has_properties:
             cardinalities = []
             for pid, hp in self._has_properties.items():
                 if hp.property_id in skiplist:
                     continue
-                if hp.ptype == HasProperty.Ptype.other:
+                if hp.ptype == HasProperty.Ptype.other or hp.property_id in [
+                    "knora-api:isSequenceOf", 
+                    "knora-api:hasSequenceBounds", 
+                    "knora-api:isPartOf", 
+                    "knora-api:seqnum"
+                ]:
                     cardinalities.append(hp.createDefinitionFileObj(context, shortname))
             if cardinalities:
                 resource["cardinalities"] = cardinalities
+
 
         return resource
 

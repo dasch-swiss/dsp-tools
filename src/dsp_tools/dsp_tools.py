@@ -230,7 +230,8 @@ def make_parser() -> argparse.ArgumentParser:
 
 def call_requested_action(
     user_args: list[str], 
-    parser: argparse.ArgumentParser
+    parser: argparse.ArgumentParser,
+    logger: logging.Logger
 ) -> bool:
     """
     With the help of the parser, parse the user arguments and call the appropriate method of DSP-TOOLS.
@@ -238,6 +239,7 @@ def call_requested_action(
     Args:
         user_args: list of arguments passed by the user from the command line
         parser: parser to parse the user arguments
+        logger: the logger for this module
 
     Raises:
         BaseError from the called methods
@@ -251,7 +253,12 @@ def call_requested_action(
     if not hasattr(args, "action"):
         parser.print_help(sys.stderr)
         sys.exit(1)
-    elif args.action == "create":
+    
+    logger.info("*****************************************************************************************")
+    logger.info(f"***Called DSP-TOOLS action '{args.action}' from command line with these parameters: {args}")
+    logger.info("*****************************************************************************************")
+    
+    if args.action == "create":
         if args.lists_only:
             if args.validate_only:
                 success = validate_lists_section_with_schema(path_to_json_project_file=args.project_definition)
@@ -377,6 +384,8 @@ def call_requested_action(
         success = upload_rosetta()
     else:
         success = False
+        print(f"ERROR: Unknown action '{args.action}'")
+        logger.error(f"Unknown action '{args.action}'")
 
     return success
 
@@ -395,10 +404,15 @@ def main() -> None:
             )
         ]
     )
-
+    logger = logging.getLogger(__name__)
+    
     parser = make_parser()
     try:
-        success = call_requested_action(user_args=sys.argv[1:], parser=parser)
+        success = call_requested_action(
+            user_args=sys.argv[1:], 
+            parser=parser, 
+            logger=logger
+        )
     except UserError as err:
         print(err.message)
         sys.exit(1)

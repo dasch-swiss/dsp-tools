@@ -1,5 +1,7 @@
 import unittest
 
+import pytest
+
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.xml_upload import xml_upload
 
@@ -47,3 +49,6 @@ class TestTools(unittest.TestCase):
                 save_metrics=False,
                 preprocessing_done=False
             )
+
+if __name__ == "__main__":
+    pytest.main([__file__])

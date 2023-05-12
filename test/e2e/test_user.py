@@ -302,5 +302,5 @@ class TestUser(unittest.TestCase):
         self.con.logout()
 
 
-if __name__ == '__main__':
-    unittest.main()
+if __name__ == "__main__":
+    pytest.main([__file__])

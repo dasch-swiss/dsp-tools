@@ -9,6 +9,7 @@ from typing import Any
 
 import jsonpath_ng
 import jsonpath_ng.ext
+import pytest
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils import excel_to_json_resources as e2j
@@ -142,4 +143,4 @@ class TestExcelToResource(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    pytest.main([__file__])

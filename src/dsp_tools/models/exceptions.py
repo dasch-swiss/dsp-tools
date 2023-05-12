@@ -18,7 +18,7 @@ class BaseError(Exception):
     message: str
     status_code: Optional[int]
     json_content_of_api_response: Optional[str]
-    original_error_msg_from_api: Optional[str]
+    original_error_msg_from_api: Optional[str] = None
     reason_from_api_response: Optional[str]
     api_route: Optional[str]
 

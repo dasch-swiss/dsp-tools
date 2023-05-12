@@ -5,6 +5,7 @@ from typing import Union
 
 import numpy as np
 import pandas as pd
+import pytest
 from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
@@ -110,5 +111,5 @@ class TestShared(unittest.TestCase):
             self.assertTrue(shared.check_notna(notna_value), msg=f"Failed notna_value: {notna_value}")
 
 
-if __name__ == '__main__':
-    unittest.main()
+if __name__ == "__main__":
+    pytest.main([__file__])

@@ -95,7 +95,8 @@ def _upload_xml(rosetta_folder: Path) -> bool:
         sipi="http://0.0.0.0:1024",
         verbose=False,
         incremental=False,
-        save_metrics=False
+        save_metrics=False,
+        preprocessing_done=False
     )
     return success
 

@@ -140,6 +140,7 @@ def _write_id2iri_mapping_and_metrics(
         os.makedirs("metrics", exist_ok=True)
         df = pd.DataFrame(metrics)
         df.to_csv(f"metrics/{metrics_filename}")
+        print(f"Total time of xmlupload: {sum(int(record.duration_ms) for record in metrics) / 1000:.1f} seconds")
 
     return success
 
@@ -444,7 +445,8 @@ def xml_upload(
     sipi: str, 
     verbose: bool,
     incremental: bool, 
-    save_metrics: bool
+    save_metrics: bool,
+    preprocessing_done: bool
 ) -> bool:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
@@ -459,6 +461,7 @@ def xml_upload(
         verbose: verbose option for the command, if used more output is given to the user
         incremental: if set, IRIs instead of internal IDs are expected as resource pointers
         save_metrics: if true, saves time measurements into a "metrics" folder in the current working directory
+        preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
 
     Raises:
         BaseError or UserError in case of permanent network or software failure
@@ -547,7 +550,7 @@ def xml_upload(
     try:
         id2iri_mapping, failed_uploads, metrics = _upload_resources(
             resources, imgdir, sipi_server, permissions_lookup, resclass_name_2_type, id2iri_mapping, con,
-            failed_uploads, metrics
+            failed_uploads, metrics, preprocessing_done
         )
         if stashed_xml_texts:
             nonapplied_xml_texts = _upload_stashed_xml_texts(verbose, id2iri_mapping, con, stashed_xml_texts) 
@@ -593,7 +596,8 @@ def _upload_resources(
     id2iri_mapping: dict[str, str],
     con: Connection,
     failed_uploads: list[str],
-    metrics: list[MetricRecord]
+    metrics: list[MetricRecord],
+    preprocessing_done: bool
 ) -> tuple[dict[str, str], list[str], list[MetricRecord]]:
     """
     Iterates through all resources and tries to upload them to DSP.
@@ -616,7 +620,9 @@ def _upload_resources(
     """
 
     # If there are multimedia files: calculate their total size
-    bitstream_all_sizes_mb = [Path(Path(imgdir) / Path(res.bitstream.value)).stat().st_size / 1000000 if res.bitstream else 0.0 for res in resources]
+    bitstream_all_sizes_mb = [Path(Path(imgdir) / Path(res.bitstream.value)).stat().st_size / 1000000
+                              if res.bitstream and not preprocessing_done else 0.0
+                              for res in resources]
     if sum(bitstream_all_sizes_mb) > 0:
         bitstream_size_total_mb = round(sum(bitstream_all_sizes_mb), 1)
         bitstream_size_uploaded_mb = 0.0
@@ -637,7 +643,9 @@ def _upload_resources(
 
         # in case of a multimedia resource: upload the multimedia file
         resource_bitstream = None
-        if resource.bitstream:
+        if preprocessing_done and resource.bitstream:
+            resource_bitstream = resource.get_bitstream(resource.bitstream.value, permissions_lookup)
+        elif resource.bitstream:
             try:
                 bitstream_start = datetime.now()
                 filetype = Path(resource.bitstream.value).suffix[1:]

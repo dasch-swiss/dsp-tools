@@ -10,6 +10,9 @@ from importlib.metadata import version
 from pathlib import Path
 
 from dsp_tools.excel2xml import excel2xml
+from dsp_tools.fast_xmlupload.process_files import process_files
+from dsp_tools.fast_xmlupload.upload_files import upload_files
+from dsp_tools.fast_xmlupload.upload_xml import fast_xmlupload
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.excel_to_json_lists import (
     excel2lists,
@@ -40,13 +43,15 @@ def make_parser() -> argparse.ArgumentParser:
     # help texts
     username_text = "username (e-mail) used for authentication with the DSP-API "
     password_text = "password used for authentication with the DSP-API "
-    url_text = "URL of the DSP server"
+    dsp_server_text = "URL of the DSP server"
     verbose_text = "print more information about the progress to the console"
+    sipi_text = "URL of the Sipi server"
 
     # default values
-    default_localhost = "http://0.0.0.0:3333"
+    default_dsp_api_url = "http://0.0.0.0:3333"
     default_user = "root@example.com"
     default_pw = "test"
+    default_sipi = "http://0.0.0.0:1024"
 
     # make a parser
     parser = argparse.ArgumentParser(description=f"DSP-TOOLS (version {version('dsp-tools')}, © {datetime.datetime.now().year} by DaSCH)")
@@ -59,7 +64,7 @@ def make_parser() -> argparse.ArgumentParser:
              "A project can consist of lists, groups, users, and ontologies (data models)."
     )
     parser_create.set_defaults(action="create")
-    parser_create.add_argument("-s", "--server", default=default_localhost, help=url_text)
+    parser_create.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
     parser_create.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_create.add_argument("-p", "--password", default=default_pw, help=password_text)
     parser_create.add_argument("-V", "--validate-only", action="store_true", 
@@ -73,7 +78,7 @@ def make_parser() -> argparse.ArgumentParser:
     # get
     parser_get = subparsers.add_parser(name="get", help="Retrieve a project with its data model(s) from a DSP server and write it into a JSON file")
     parser_get.set_defaults(action="get")
-    parser_get.add_argument("-s", "--server", default=default_localhost, help=url_text)
+    parser_get.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
     parser_get.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_get.add_argument("-p", "--password", default=default_pw, help=password_text)
     parser_get.add_argument("-P", "--project", help="shortcode, shortname or IRI of the project", required=True)
@@ -83,10 +88,10 @@ def make_parser() -> argparse.ArgumentParser:
     # xmlupload
     parser_upload = subparsers.add_parser(name="xmlupload", help="Upload data defined in an XML file to a DSP server")
     parser_upload.set_defaults(action="xmlupload")
-    parser_upload.add_argument("-s", "--server", default=default_localhost, help="URL of the DSP server where DSP-TOOLS sends the data to")
+    parser_upload.add_argument("-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to")
     parser_upload.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_upload.add_argument("-p", "--password", default=default_pw, help=password_text)
-    parser_upload.add_argument("-S", "--sipi", default="http://0.0.0.0:1024", 
+    parser_upload.add_argument("-S", "--sipi", default=default_sipi, 
                                help="URL of the SIPI server where DSP-TOOLS sends the multimedia files to")
     parser_upload.add_argument("-i", "--imgdir", default=".", help="folder from where the paths in the <bitstream> tags are evaluated")
     parser_upload.add_argument("-I", "--incremental", action="store_true", 
@@ -95,6 +100,44 @@ def make_parser() -> argparse.ArgumentParser:
     parser_upload.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
     parser_upload.add_argument("-m", "--metrics", action="store_true", help="write metrics into a 'metrics' folder")
     parser_upload.add_argument("xmlfile", help="path to the XML file containing the data")
+
+    # process-files
+    parser_process_files = subparsers.add_parser(
+        name="process-files",
+        help="For internal use only: process all files referenced in an XML file"
+    )
+    parser_process_files.set_defaults(action="process-files")
+    parser_process_files.add_argument("--input-dir", help="path to the input directory where the files should be read from")
+    parser_process_files.add_argument("--output-dir", help="path to the output directory where the processed/transformed files should be written to")
+    parser_process_files.add_argument("--nthreads", type=int, default=None, help="number of threads to use")
+    parser_process_files.add_argument("xml_file", help="path to XML file containing the data")
+
+    # upload-files
+    parser_upload_files = subparsers.add_parser(
+        name="upload-files",
+        help="For internal use only: upload already processed files"
+    )
+    parser_upload_files.set_defaults(action="upload-files")
+    parser_upload_files.add_argument("-f", "--pkl-file", help="path to pickle file written by 'process-files'")
+    parser_upload_files.add_argument("-d", "--processed-dir", help="path to the directory with the processed files")
+    parser_upload_files.add_argument("-n", "--nthreads", type=int, default=4, help="number of threads to use")
+    parser_upload_files.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
+    parser_upload_files.add_argument("-S", "--sipi-url", default=default_sipi, help=sipi_text)
+    parser_upload_files.add_argument("-u", "--user", default=default_user, help=username_text)
+    parser_upload_files.add_argument("-p", "--password", default=default_pw, help=password_text)
+
+    # fast-xmlupload
+    parser_fast_xmlupload_files = subparsers.add_parser(
+        name="fast-xmlupload",
+        help="For internal use only: create resources with already uploaded files"
+    )
+    parser_fast_xmlupload_files.set_defaults(action="fast-xmlupload")
+    parser_fast_xmlupload_files.add_argument("-f", "--pkl-file", help="path to pickle file written by 'process-files'")
+    parser_fast_xmlupload_files.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
+    parser_fast_xmlupload_files.add_argument("-S", "--sipi-url", default=default_sipi, help=sipi_text)
+    parser_fast_xmlupload_files.add_argument("-u", "--user", default=default_user, help=username_text)
+    parser_fast_xmlupload_files.add_argument("-p", "--password", default=default_pw, help=password_text)
+    parser_fast_xmlupload_files.add_argument("xml_file", help="path to XML file containing the data")
 
     # excel2json
     parser_excel2json = subparsers.add_parser(
@@ -157,8 +200,7 @@ def make_parser() -> argparse.ArgumentParser:
     # startup DSP stack
     parser_stackup = subparsers.add_parser(name="start-stack", help="Run a local instance of DSP-API and DSP-APP")
     parser_stackup.set_defaults(action="start-stack")
-    parser_stackup.add_argument("--max_file_size", type=int, 
-                                help="max. multimedia file size allowed by SIPI, in MB (default: 250, max: 100'000)")
+    parser_stackup.add_argument("--max_file_size", type=int, help="max. multimedia file size allowed by SIPI, in MB (default: 250, max: 100'000)")
     parser_stackup.add_argument("--prune", action="store_true", help="execute 'docker system prune' without asking")
     parser_stackup.add_argument("--no-prune", action="store_true", help="don't execute 'docker system prune' (and don't ask)")
 
@@ -175,7 +217,7 @@ def make_parser() -> argparse.ArgumentParser:
         help="Create a template repository with a minimal JSON and XML file"
     )
     parser_template.set_defaults(action="template")
-    
+
     # clone rosetta
     parser_rosetta = subparsers.add_parser(
         name="rosetta", 
@@ -264,8 +306,36 @@ def call_requested_action(
                 sipi=args.sipi,
                 verbose=args.verbose,
                 incremental=args.incremental,
-                save_metrics=args.metrics
+                save_metrics=args.metrics,
+                preprocessing_done=False
             )
+
+    elif args.action == "process-files":
+        success = process_files(
+            input_dir=args.input_dir,
+            output_dir=args.output_dir,
+            xml_file=args.xml_file,
+            nthreads=args.nthreads
+        )
+    elif args.action == "upload-files":
+        success = upload_files(
+            pkl_file=args.pkl_file,
+            dir_with_processed_files=args.processed_dir,
+            nthreads=args.nthreads,
+            user=args.user,
+            password=args.password,
+            dsp_url=args.server,
+            sipi_url=args.sipi_url
+        )
+    elif args.action == "fast-xmlupload":
+        success = fast_xmlupload(
+            xml_file=args.xml_file,
+            pkl_file=args.pkl_file,
+            user=args.user,
+            password=args.password,
+            dsp_url=args.server,
+            sipi_url=args.sipi_url
+        )
     elif args.action == "excel2json":
         success = excel2json(
             data_model_files=args.excelfolder,
@@ -318,7 +388,6 @@ def call_requested_action(
         logger.error(f"Unknown action '{args.action}'")
 
     return success
-    
 
 
 def main() -> None:
@@ -351,6 +420,7 @@ def main() -> None:
 
     if not success: 
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

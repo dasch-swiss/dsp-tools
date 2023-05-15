@@ -192,7 +192,9 @@ class TestTools(unittest.TestCase):
             sipi=self.sipi,
             verbose=False,
             incremental=False,
-            save_metrics=False)
+            save_metrics=False,
+            preprocessing_done=False
+        )
         self.assertTrue(result_minimal)
 
         result_systematic = xml_upload(
@@ -204,7 +206,9 @@ class TestTools(unittest.TestCase):
             sipi=self.sipi,
             verbose=False,
             incremental=False,
-            save_metrics=False)
+            save_metrics=False,
+            preprocessing_done=False
+        )
         self.assertTrue(result_systematic)
 
         mapping_file = ""
@@ -230,7 +234,8 @@ class TestTools(unittest.TestCase):
             sipi=self.sipi,
             verbose=True,
             incremental=True,
-            save_metrics=False
+            save_metrics=False,
+            preprocessing_done=False
         )
         self.assertTrue(result_replaced)
         self.assertTrue(all([not f.name.startswith("stashed_text_properties_") for f in os.scandir(".")]))

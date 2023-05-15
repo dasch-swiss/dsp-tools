@@ -21,6 +21,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
+          cache: poetry
 
       - name: Install Python dependencies
         run: |
@@ -30,7 +31,12 @@ jobs:
       
       - name: Install ffmpeg for local processing (fast xmlupload)
         uses: FedericoCarboni/setup-ffmpeg@v2
-        id: setup-ffmpeg
+
+      - name: Cache ImageMagick
+        uses: actions/cache@v3
+        with:
+          path: ~/bin/magick
+          key: imagemagick-${{ hashFiles('~/bin/magick') }}
 
       - name: Install ImageMagick for local processing (fast xmlupload)
         uses: mfinelli/setup-imagemagick@v2
@@ -48,6 +54,12 @@ jobs:
 
       - name: run mypy
         run: poetry run mypy .
+
+      - name: Cache Super-Linter
+        uses: actions/cache@v3
+        with:
+          path: 
+          key: superlinter-${{ hashFiles('') }}
 
       - name: Lint Code Base
         uses: github/super-linter/slim@v4           

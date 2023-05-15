@@ -1,3 +1,5 @@
+# pylint: disable=missing-class-docstring,missing-function-docstring,duplicate-code
+
 import unittest
 
 import pytest

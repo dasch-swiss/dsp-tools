@@ -1,4 +1,7 @@
 """end to end tests for project class"""
+
+# pylint: disable=missing-class-docstring,missing-function-docstring
+
 import unittest
 
 import pytest
@@ -37,8 +40,8 @@ class TestProject(unittest.TestCase):
         self.assertEqual(project.shortcode, '0FF0')
         self.assertEqual(project.shortname, 'test_project')
         self.assertEqual(project.longname, 'Test Project')
-        self.assertEqual(project.description['en'], 'This is a test project')
-        self.assertEqual(project.description['de'], 'Das ist ein Testprojekt')
+        self.assertEqual(project.description['en'], 'This is a test project')       # type: ignore
+        self.assertEqual(project.description['de'], 'Das ist ein Testprojekt')      # type: ignore
         self.assertEqual(project.selfjoin, False)
         self.assertEqual(project.status, True)
         self.assertEqual(project.keywords, {'test', 'project'})
@@ -53,7 +56,7 @@ class TestProject(unittest.TestCase):
         self.assertEqual(project.shortcode, '0001')
         self.assertEqual(project.shortname, 'anything')
         self.assertEqual(project.longname, 'Anything Project')
-        self.assertEqual(project.description[None], 'Anything Project')
+        self.assertEqual(project.description[None], 'Anything Project')         # type: ignore
         self.assertEqual(project.selfjoin, False)
         self.assertEqual(project.status, True)
 
@@ -74,8 +77,8 @@ class TestProject(unittest.TestCase):
         self.assertEqual(new_project.shortcode, '0FF0')
         self.assertEqual(new_project.shortname, 'new_project')
         self.assertEqual(new_project.longname, 'New test project')
-        self.assertEqual(new_project.description['en'], 'New project')
-        self.assertEqual(new_project.description['de'], 'Neues Projekt')
+        self.assertEqual(new_project.description['en'], 'New project')      # type: ignore
+        self.assertEqual(new_project.description['de'], 'Neues Projekt')    # type: ignore
         self.assertEqual(new_project.keywords, {'test', 'project', 'new'})
         self.assertEqual(new_project.selfjoin, False)
         self.assertEqual(new_project.status, True)
@@ -107,8 +110,8 @@ class TestProject(unittest.TestCase):
         self.assertEqual(updated_project.shortcode, '0FF1')
         self.assertEqual(updated_project.shortname, 'update_project')
         self.assertEqual(updated_project.longname, 'Update Project')
-        self.assertEqual(updated_project.description['en'], 'Project to be updated')
-        self.assertEqual(updated_project.description['fr'], 'Projet modifié')
+        self.assertEqual(updated_project.description['en'], 'Project to be updated')        # type: ignore
+        self.assertEqual(updated_project.description['fr'], 'Projet modifié')               # type: ignore
         self.assertEqual(updated_project.selfjoin, True)
         self.assertEqual(updated_project.status, False)
         self.assertEqual(updated_project.keywords, {'test', 'updated'})
@@ -131,8 +134,8 @@ class TestProject(unittest.TestCase):
         self.assertEqual(deleted_project.shortcode, '0FF2')
         self.assertEqual(deleted_project.shortname, 'delete_project')
         self.assertEqual(deleted_project.longname, 'Delete Project')
-        self.assertEqual(deleted_project.description['en'], 'Project to be deleted')
-        self.assertEqual(deleted_project.description['de'], 'Lösch-Projekt')
+        self.assertEqual(deleted_project.description['en'], 'Project to be deleted')        # type: ignore
+        self.assertEqual(deleted_project.description['de'], 'Lösch-Projekt')                # type: ignore
         self.assertEqual(deleted_project.selfjoin, False)
         self.assertEqual(deleted_project.status, False)
         self.assertEqual(deleted_project.keywords, {'test', 'project', 'delete'})

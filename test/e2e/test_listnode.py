@@ -8,7 +8,7 @@ from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.models.listnode import ListNode
 
 
-class TestListNode(unittest.TestCase):
+class TestListNode(unittest.TestCase):              # pylint: disable=missing-class-docstring
     project = "http://rdfh.ch/projects/0001"
     otherTreeList = "http://rdfh.ch/lists/0001/otherTreeList"
 
@@ -48,8 +48,8 @@ class TestListNode(unittest.TestCase):
         ).create()
         self.assertIsNotNone(node.id)
         self.assertEqual(node.project, self.project)
-        self.assertEqual(node.label['de'], "root node 1")
-        self.assertEqual(node.comments['de'], "first root node")
+        self.assertEqual(node.label['de'], "root node 1")               # type: ignore
+        self.assertEqual(node.comments['de'], "first root node")        # type: ignore
         self.assertEqual(node.name, "test_node_1")
         self.assertTrue(node.isRootNode)
 
@@ -94,8 +94,8 @@ class TestListNode(unittest.TestCase):
         node.rmComment('en')
         node.name = 'test_node_update'
         node.update()
-        self.assertEqual(node.label['de'], "Neues Label")
-        self.assertEqual(node.comments['fr'], 'un commentaire en français')
+        self.assertEqual(node.label['de'], "Neues Label")                       # type: ignore
+        self.assertEqual(node.comments['fr'], 'un commentaire en français')     # type: ignore
         self.assertEqual(node.name, 'test_node_update')
 
     def test_ListNode_getAllLists(self) -> None:
@@ -120,29 +120,29 @@ class TestListNode(unittest.TestCase):
 
         self.assertTrue(root_node.isRootNode)
         self.assertEqual(root_node.project, self.project)
-        self.assertEqual(root_node.label['en'], 'Tree list root')
+        self.assertEqual(root_node.label['en'], 'Tree list root')                                               # type: ignore
         self.assertIsNotNone(root_node.children)
 
-        self.assertEqual(root_node.children[0].id, 'http://rdfh.ch/lists/0001/otherTreeList01')
-        self.assertEqual(root_node.children[0].name, 'Other Tree list node 01')
-        self.assertEqual(root_node.children[0].label['en'], 'Other Tree list node 01')
+        self.assertEqual(root_node.children[0].id, 'http://rdfh.ch/lists/0001/otherTreeList01')                 # type: ignore
+        self.assertEqual(root_node.children[0].name, 'Other Tree list node 01')                                 # type: ignore
+        self.assertEqual(root_node.children[0].label['en'], 'Other Tree list node 01')                          # type: ignore
 
-        self.assertEqual(root_node.children[1].id, 'http://rdfh.ch/lists/0001/otherTreeList02')
-        self.assertEqual(root_node.children[1].name, 'Other Tree list node 02')
-        self.assertEqual(root_node.children[1].label['en'], 'Other Tree list node 02')
+        self.assertEqual(root_node.children[1].id, 'http://rdfh.ch/lists/0001/otherTreeList02')                 # type: ignore
+        self.assertEqual(root_node.children[1].name, 'Other Tree list node 02')                                 # type: ignore
+        self.assertEqual(root_node.children[1].label['en'], 'Other Tree list node 02')                          # type: ignore
 
-        self.assertEqual(root_node.children[2].id, "http://rdfh.ch/lists/0001/otherTreeList03")
-        self.assertEqual(root_node.children[2].name, 'Other Tree list node 03')
-        self.assertEqual(root_node.children[2].label['en'], 'Other Tree list node 03')
+        self.assertEqual(root_node.children[2].id, "http://rdfh.ch/lists/0001/otherTreeList03")                 # type: ignore
+        self.assertEqual(root_node.children[2].name, 'Other Tree list node 03')                                 # type: ignore   
+        self.assertEqual(root_node.children[2].label['en'], 'Other Tree list node 03')                          # type: ignore
 
-        self.assertIsNotNone(root_node.children[2].children)
-        self.assertEqual(root_node.children[2].children[0].id, 'http://rdfh.ch/lists/0001/otherTreeList10')
-        self.assertEqual(root_node.children[2].children[0].name, 'Other Tree list node 10')
-        self.assertEqual(root_node.children[2].children[0].label['en'], 'Other Tree list node 10')
+        self.assertIsNotNone(root_node.children[2].children)                                                    # type: ignore
+        self.assertEqual(root_node.children[2].children[0].id, 'http://rdfh.ch/lists/0001/otherTreeList10')     # type: ignore
+        self.assertEqual(root_node.children[2].children[0].name, 'Other Tree list node 10')                     # type: ignore
+        self.assertEqual(root_node.children[2].children[0].label['en'], 'Other Tree list node 10')              # type: ignore
 
-        self.assertEqual(root_node.children[2].children[1].id, 'http://rdfh.ch/lists/0001/otherTreeList11')
-        self.assertEqual(root_node.children[2].children[1].name, 'Other Tree list node 11')
-        self.assertEqual(root_node.children[2].children[1].label['en'], 'Other Tree list node 11')
+        self.assertEqual(root_node.children[2].children[1].id, 'http://rdfh.ch/lists/0001/otherTreeList11')     # type: ignore
+        self.assertEqual(root_node.children[2].children[1].name, 'Other Tree list node 11')                     # type: ignore
+        self.assertEqual(root_node.children[2].children[1].label['en'], 'Other Tree list node 11')              # type: ignore
 
     def tearDown(self) -> None:
         """

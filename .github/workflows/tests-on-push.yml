@@ -37,7 +37,7 @@ jobs:
           poetry exec check-links
 
       - name: run Pylint
-        run: poetry run pylint src
+        run: poetry run pylint src test
 
       - name: run mypy
         run: poetry run mypy .

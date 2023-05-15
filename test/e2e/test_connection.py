@@ -1,4 +1,7 @@
 """end to end tests for connection class"""
+
+# pylint: disable=missing-class-docstring,missing-function-docstring
+
 import unittest
 
 import pytest
@@ -35,7 +38,6 @@ class TestConnection(unittest.TestCase):
         self.assertRaises(BaseError, self.con.get, "/doesNotExist")
 
     def test_put(self) -> None:
-        # TODO add test
         pass
 
     def test_post(self) -> None:
@@ -86,7 +88,6 @@ class TestConnection(unittest.TestCase):
         self.assertEqual(res['knora-api:result'], 'Resource erased')
 
     def test_delete(self) -> None:
-        # TODO add test
         pass
 
     def tearDown(self) -> None:

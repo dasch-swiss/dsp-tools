@@ -58,11 +58,11 @@ jobs:
       - name: Cache Super-Linter
         uses: actions/cache@v3
         with:
-          path: 
-          key: superlinter-${{ hashFiles('') }}
+          path: /github/workspace/ghcriogithubsuperlinterslim*
+          key: superlinter-${{ hashFiles('/github/workspace/ghcriogithubsuperlinterslim*') }}
 
       - name: Lint Code Base
-        uses: github/super-linter/slim@v4           
+        uses: github/super-linter/slim@v5
         # GitHub's super-linter: https://github.com/github/super-linter
         # super-linter uses a pre-built image with all linters in it. Thus, the linters run outside the poetry virtualenv. 
         # So, pylint reports import-errors for dependencies installed with poetry.

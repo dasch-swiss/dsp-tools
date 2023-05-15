@@ -17,15 +17,17 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
 
+      - name: Install poetry
+        run: curl -sSL https://install.python-poetry.org | python3 -
+
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
-          cache: 'poetry'
+          cache: poetry
 
       - name: Install Python dependencies
         run: |
-          curl -sSL https://install.python-poetry.org | python3 -
           poetry self add poetry-exec-plugin
           poetry install
       

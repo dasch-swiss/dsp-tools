@@ -51,8 +51,7 @@ class Value:
                  ark_url: Optional[str] = None,
                  vark_url: Optional[str] = None):
         self._iri = iri
-        if comment:
-            self._comment = str(comment)
+        self._comment = str(comment) if comment else None
         self._permissions = permissions
         self._upermission = upermission
         self._ark_url = ark_url

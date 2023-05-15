@@ -71,7 +71,7 @@ def start_stack(
             response = requests.get(url="http://0.0.0.0:3030/$/server", auth=("admin", "test"), timeout=5)
             if response.ok:
                 break
-        except:
+        except Exception:  # pylint: disable=broad-exception-caught
             time.sleep(1)
         time.sleep(1)
 

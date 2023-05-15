@@ -66,7 +66,8 @@ class TestImportScripts(unittest.TestCase):
             sipi="http://0.0.0.0:1024",
             verbose=False,
             incremental=False,
-            save_metrics=False
+            save_metrics=False,
+            preprocessing_done=False
         )
         self.assertTrue(success_on_xmlupload)
 

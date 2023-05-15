@@ -74,3 +74,4 @@ metrics/
 
 # for testing in development
 tmp/
+/out/

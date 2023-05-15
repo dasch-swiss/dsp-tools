@@ -30,7 +30,8 @@ class TestTools(unittest.TestCase):
                 sipi=self.sipi,
                 verbose=False,
                 incremental=False,
-                save_metrics=False
+                save_metrics=False,
+                preprocessing_done=False
             )
         
         with self.assertRaisesRegex(
@@ -47,7 +48,8 @@ class TestTools(unittest.TestCase):
                 sipi=self.sipi,
                 verbose=False,
                 incremental=False,
-                save_metrics=False
+                save_metrics=False,
+                preprocessing_done=False
             )
 
 if __name__ == "__main__":

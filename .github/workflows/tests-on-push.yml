@@ -22,11 +22,18 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           poetry self add poetry-exec-plugin
           poetry install
+      
+      - name: Install ffmpeg for local processing (fast xmlupload)
+        uses: FedericoCarboni/setup-ffmpeg@v2
+        id: setup-ffmpeg
+
+      - name: Install ImageMagick for local processing (fast xmlupload)
+        uses: mfinelli/setup-imagemagick@v2
       
       - name: build docs
         run: poetry run mkdocs build --strict

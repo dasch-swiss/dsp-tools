@@ -70,8 +70,8 @@ class TestPropertyClass(unittest.TestCase):
 
         self.assertIsNotNone(property_class.id)
         self.assertEqual(property_class.name, self.name)
-        self.assertEqual(property_class.label['de'], self.label['de'])          # type: ignore  # pylint: disable=no-member
-        self.assertEqual(property_class.comment['de'], self.comment['de'])      # type: ignore  # pylint: disable=no-member
+        self.assertEqual(property_class.label['de'], self.label['de'])
+        self.assertEqual(property_class.comment['de'], self.comment['de'])
 
         # get ontology data
         self.onto = self.onto.read()

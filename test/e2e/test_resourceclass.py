@@ -48,8 +48,8 @@ class TestResourceClass(unittest.TestCase):
 
         self.assertIsNotNone(res_class.id)
         self.assertEqual(res_class.name, self.res_name)
-        self.assertEqual(res_class.label['en'], self.res_label['en'])       # type: ignore
-        self.assertEqual(res_class.comment['en'], self.res_comment['en'])   # type: ignore
+        self.assertEqual(res_class.label['en'], self.res_label['en'])
+        self.assertEqual(res_class.comment['en'], self.res_comment['en'])
 
     def test_ResourceClass_update(self) -> None:
         onto = Ontology(
@@ -81,8 +81,8 @@ class TestResourceClass(unittest.TestCase):
         res_class.addComment('it', "Commentario italiano")
 
         last_modification_date, res_class = res_class.update(last_modification_date)
-        self.assertEqual(res_class.label['de'], "Dies ist ein Kommentar")       # type: ignore
-        self.assertEqual(res_class.comment['it'], "Commentario italiano")       # type: ignore
+        self.assertEqual(res_class.label['de'], "Dies ist ein Kommentar")
+        self.assertEqual(res_class.comment['it'], "Commentario italiano")
 
     def tearDown(self) -> None:
         """

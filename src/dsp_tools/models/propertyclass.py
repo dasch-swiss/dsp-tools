@@ -166,8 +166,8 @@ class PropertyClass(Model):
             self._changed.append('gui_attributes')
 
     @property
-    def label(self) -> Optional[LangString]:
-        return self._label
+    def label(self) -> LangString:
+        return self._label or LangString({})
 
     @label.setter
     def label(self, value: Optional[Union[LangString, str]]) -> None:
@@ -191,8 +191,8 @@ class PropertyClass(Model):
         self._changed.add('label')
 
     @property
-    def comment(self) -> Optional[LangString]:
-        return self._comment
+    def comment(self) -> LangString:
+        return self._comment or LangString({})
 
     @comment.setter
     def comment(self, value: Optional[LangString]) -> None:

@@ -28,8 +28,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
-          # restore dependencies from cache (skips step `poetry install` automatically?)
-          # see https://github.com/actions/setup-python#caching-packages-dependencies
+          # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
           cache: poetry
 
       - name: Install Python dependencies
@@ -91,29 +90,19 @@ jobs:
       - name: Install ffmpeg for local processing (fast xmlupload)
         uses: FedericoCarboni/setup-ffmpeg@v2
 
-      - name: ImageMagick - get SHA256 of the most recent AppImage
-        id: get-imagemagick-sha256
-        run: |
-          curl -O https://imagemagick.org/archive/binaries/digest.rdf
-          value=$(xmllint --xpath 'string(//digest:sha256)' digest.rdf)
-          echo "::set-output name=sha256::$value"
-
       - name: ImageMagick - look for cached AppImage
-        # see https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows
         # The first time this runs, no cache is found, so this is skipped, but when all jobs are done, 
-        # the files in "path" are cached with "key".
-        # In subsequent runs:
-        #  - If a cache is found that exactly matches key, the cached files are restored to path.
-        #  - If no cache is found with key, restore-keys can partially match cache keys.
-        #  - If no cache is found at all, this is skipped, and when all jobs are done, a new cache is created.
+        # the files in "path" are cached under "key". In subsequent runs:
+        #  - If a cache is found that matches key, the cached files are restored to path.
+        #  - If no cache is found, this step is skipped, and when all jobs are done, a new cache is created.
         id: search-cached-imagemagick
         uses: actions/cache@v3
         with:
           path: | 
             ~/bin/magick        # AppImage containing all binaries + dependencies
             ~/bin/identify      # don't know where this is located, but I need the "identify" binary somewhere (?)
-          key: imagemagick-${{ steps.get-imagemagick-sha256.outputs.sha256 }}
-          restore-keys: imagemagick
+          # using "imagemagick" as key doesn't check for a new version, because version checking is fairly complex
+          key: imagemagick
 
       - name: ImageMagick - download AppImage
         if: ${{ steps.search-cached-imagemagick.outputs.cache-hit != 'true' }}

@@ -37,9 +37,6 @@ class TestConnection(unittest.TestCase):
         self.assertIsNotNone(res['@graph'])
         self.assertRaises(BaseError, self.con.get, "/doesNotExist")
 
-    def test_put(self) -> None:
-        pass
-
     def test_post(self) -> None:
         res_info = """{
             "@type" : "anything:Thing",
@@ -86,9 +83,6 @@ class TestConnection(unittest.TestCase):
         res = self.con.post('/v2/resources/erase', erase_info)
         self.assertIsNotNone(res['knora-api:result'])
         self.assertEqual(res['knora-api:result'], 'Resource erased')
-
-    def test_delete(self) -> None:
-        pass
 
     def tearDown(self) -> None:
         """

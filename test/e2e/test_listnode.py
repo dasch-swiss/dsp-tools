@@ -32,7 +32,7 @@ class TestListNode(unittest.TestCase):              # pylint: disable=missing-cl
         self.assertEqual(node.project, self.project)
         self.assertEqual(node.label['en'], 'Tree list root')
         self.assertTrue(node.isRootNode)
-        self.assertIsNone(node.children)
+        self.assertEqual(node.children, [])
 
     def test_ListNode_create(self) -> None:
         """

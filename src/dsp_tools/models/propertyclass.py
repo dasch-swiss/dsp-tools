@@ -436,9 +436,9 @@ class PropertyClass(Model):
             property["subject"] = context.reduce_iri(self.subject, shortname)
         if self.object:
             property["object"] = context.reduce_iri(self.object, shortname)
-        if self.label:
+        if not self.label.isEmpty():
             property["labels"] = self.label.createDefinitionFileObj()
-        if self.comment:
+        if not self.comment.isEmpty():
             property["comments"] = self.comment.createDefinitionFileObj()
         if self.gui_element:
             property["gui_element"] = context.reduce_iri(self.gui_element, shortname)

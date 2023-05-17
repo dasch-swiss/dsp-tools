@@ -789,7 +789,7 @@ class ResourceClass(Model):
                 superclasses = context.reduce_iri(self._superclasses[0], shortname)
             resource["super"] = superclasses
         resource["labels"] = self._label.createDefinitionFileObj()
-        if self._comment:
+        if not self._comment.isEmpty():
             resource["comments"] = self._comment.createDefinitionFileObj()
         if self._has_properties:
             cardinalities = []

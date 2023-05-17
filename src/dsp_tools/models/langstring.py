@@ -164,9 +164,6 @@ class LangString:
                 if not equal:
                     break
         return equal
-    
-    def __bool__(self) -> bool:
-        return bool(self._simplestring or self._langstrs)
 
     def get_by_lang(self, key: Optional[Union[Languages, str]] = None) -> Optional[str]:
         if key is None:

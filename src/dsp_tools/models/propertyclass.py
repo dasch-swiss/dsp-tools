@@ -70,7 +70,7 @@ class PropertyClass(Model):
             else:
                 raise BaseError('Invalid LangString for label!')
         else:
-            self._label = None
+            self._label = LangString({})
         #
         # process comment
         #
@@ -82,7 +82,7 @@ class PropertyClass(Model):
             else:
                 raise BaseError('Invalid LangString for comment!')
         else:
-            self._comment = None
+            self._comment = LangString({})
 
         self._editable = editable
         self._linkvalue = linkvalue
@@ -167,7 +167,7 @@ class PropertyClass(Model):
 
     @property
     def label(self) -> LangString:
-        return self._label or LangString({})
+        return self._label
 
     @label.setter
     def label(self, value: Optional[Union[LangString, str]]) -> None:
@@ -192,7 +192,7 @@ class PropertyClass(Model):
 
     @property
     def comment(self) -> LangString:
-        return self._comment or LangString({})
+        return self._comment
 
     @comment.setter
     def comment(self, value: Optional[LangString]) -> None:

@@ -447,7 +447,7 @@ class ResourceClass(Model):
             else:
                 raise BaseError('Invalid LangString for label!')
         else:
-            self._label = None
+            self._label = LangString({})
         #
         # process comment
         #
@@ -459,7 +459,7 @@ class ResourceClass(Model):
             else:
                 raise BaseError('Invalid LangString for comment!')
         else:
-            self._comment = None
+            self._comment = LangString({})
         self._permissions = permissions
         self._has_properties = has_properties
         self._changed = set()
@@ -501,7 +501,7 @@ class ResourceClass(Model):
 
     @property
     def label(self) -> LangString:
-        return self._label or LangString({})
+        return self._label
 
     @label.setter
     def label(self, value: Optional[Union[LangString, str]]) -> None:
@@ -526,7 +526,7 @@ class ResourceClass(Model):
 
     @property
     def comment(self) -> LangString:
-        return self._comment or LangString({})
+        return self._comment
 
     @comment.setter
     def comment(self, value: Optional[LangString]) -> None:

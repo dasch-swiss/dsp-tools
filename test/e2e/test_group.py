@@ -51,7 +51,7 @@ class TestGroup(unittest.TestCase):                 # pylint: disable=missing-cl
 
         self.assertEqual(group.name, 'Group create')
         self.assertCountEqual(
-            group.descriptions.toJsonObj(),                        # type: ignore  # pylint: disable=no-member
+            cast(list[dict[str, str]], group.descriptions.toJsonObj()),
             [{'language': 'en', 'value': 'This is group create'}]
         )
         self.assertEqual(group.project, self.test_project)
@@ -95,7 +95,7 @@ class TestGroup(unittest.TestCase):                 # pylint: disable=missing-cl
         updated_group = cast(Group, updated_group)
         self.assertEqual(updated_group.name, 'Group update - modified')
         self.assertCountEqual(
-            updated_group.descriptions.toJsonObj(),         # type: ignore  # pylint: disable=no-member
+            cast(list[dict[str, str]], updated_group.descriptions.toJsonObj()),
             [{'language': 'en', 'value': 'This is group update - modified'}]
         )
         self.assertEqual(updated_group.project, self.test_project)
@@ -121,7 +121,7 @@ class TestGroup(unittest.TestCase):                 # pylint: disable=missing-cl
         deleted_group = group.delete()
         self.assertEqual(deleted_group.name, 'Group delete')
         self.assertCountEqual(
-            deleted_group.descriptions.toJsonObj(),     # type: ignore  # pylint: disable=no-member
+            cast(list[dict[str, str]], deleted_group.descriptions.toJsonObj()),
             [{'language': 'en', 'value': 'This is group delete'}]
         )
         self.assertEqual(deleted_group.project, self.test_project)

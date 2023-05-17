@@ -83,7 +83,7 @@ class Group(Model):
                  con: Connection,
                  id: Optional[str] = None,
                  name: Optional[str] = None,
-                 descriptions: LangString = None,
+                 descriptions: Optional[LangString] = None,
                  project: Optional[Union[str, Project]] = None,
                  selfjoin: Optional[bool] = None,
                  status: Optional[bool] = None):
@@ -116,7 +116,7 @@ class Group(Model):
         self._changed.add('name')
 
     @property
-    def descriptions(self) -> Optional[LangString]:
+    def descriptions(self) -> LangString:
         return self._descriptions
 
     @descriptions.setter

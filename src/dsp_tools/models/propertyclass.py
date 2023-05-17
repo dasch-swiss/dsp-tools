@@ -70,7 +70,7 @@ class PropertyClass(Model):
             else:
                 raise BaseError('Invalid LangString for label!')
         else:
-            self._label = None
+            self._label = LangString({})
         #
         # process comment
         #
@@ -82,7 +82,7 @@ class PropertyClass(Model):
             else:
                 raise BaseError('Invalid LangString for comment!')
         else:
-            self._comment = None
+            self._comment = LangString({})
 
         self._editable = editable
         self._linkvalue = linkvalue
@@ -166,7 +166,7 @@ class PropertyClass(Model):
             self._changed.append('gui_attributes')
 
     @property
-    def label(self) -> Optional[LangString]:
+    def label(self) -> LangString:
         return self._label
 
     @label.setter
@@ -191,7 +191,7 @@ class PropertyClass(Model):
         self._changed.add('label')
 
     @property
-    def comment(self) -> Optional[LangString]:
+    def comment(self) -> LangString:
         return self._comment
 
     @comment.setter
@@ -436,9 +436,9 @@ class PropertyClass(Model):
             property["subject"] = context.reduce_iri(self.subject, shortname)
         if self.object:
             property["object"] = context.reduce_iri(self.object, shortname)
-        if self.label:
+        if not self.label.isEmpty():
             property["labels"] = self.label.createDefinitionFileObj()
-        if self.comment:
+        if not self.comment.isEmpty():
             property["comments"] = self.comment.createDefinitionFileObj()
         if self.gui_element:
             property["gui_element"] = context.reduce_iri(self.gui_element, shortname)

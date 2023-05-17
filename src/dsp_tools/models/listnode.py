@@ -145,7 +145,7 @@ class ListNode(Model):
                  con: Connection,
                  id: Optional[str] = None,
                  project: Optional[Union[Project, str]] = None,
-                 label: LangString = None,
+                 label: Optional[LangString] = None,
                  comments: Optional[LangString] = None,
                  name: Optional[str] = None,
                  parent: Optional[Union['ListNode', str]] = None,
@@ -219,8 +219,8 @@ class ListNode(Model):
             self._project = value
 
     @property
-    def label(self) -> Optional[LangString]:
-        return self._label
+    def label(self) -> LangString:
+        return self._label or LangString({})
 
     @label.setter
     def label(self, value: Optional[Union[LangString, str]]) -> None:
@@ -250,8 +250,8 @@ class ListNode(Model):
         self._changed.add('label')
 
     @property
-    def comments(self) -> Optional[LangString]:
-        return self._comments
+    def comments(self) -> LangString:
+        return self._comments or LangString({})
 
     @comments.setter
     def comments(self, value: Optional[Union[LangString, str]]) -> None:
@@ -309,8 +309,8 @@ class ListNode(Model):
         raise BaseError('Property isRootNode cannot be set!')
 
     @property
-    def children(self) -> Optional[list['ListNode']]:
-        return self._children
+    def children(self) -> list['ListNode']:
+        return self._children or []
 
     @children.setter
     def children(self, value: list['ListNode']) -> None:

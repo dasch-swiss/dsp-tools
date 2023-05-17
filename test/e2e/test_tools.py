@@ -2,8 +2,10 @@
 This test class tests the basic functionalities of dsp-tools, i.e. all commands that can be called from the command
 line. The methods are tested in the order in which teh appear in dsp_tools.py. This class only tests that the methods
 can be called with the basic configuration that is available via CLI. More thorough testing of each method is done in
-separate unit tests/e2e tests.
-"""
+separate unit tests/e2e tests."""
+
+# pylint: disable=missing-class-docstring,missing-function-docstring,duplicate-code
+
 import copy
 import datetime
 import json
@@ -75,9 +77,9 @@ class TestTools(unittest.TestCase):
         )
 
         # open a "lists" section and the project that was created
-        with open("testdata/excel2json/lists-multilingual-output-expected.json") as f:
+        with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as f:
             lists_section = json.load(f)
-        with open(self.test_project_minimal_file) as f:
+        with open(self.test_project_minimal_file, encoding="utf-8") as f:
             test_project_minimal = json.load(f)
 
         # create a copy of the project that was created, and insert the first list into it
@@ -87,7 +89,7 @@ class TestTools(unittest.TestCase):
         # create another copy of the project that was created, insert the second list into it, and save it as file
         test_project_minimal_with_list_2 = copy.deepcopy(test_project_minimal)
         test_project_minimal_with_list_2["project"]["lists"] = [lists_section[1], ]
-        with open("testdata/tmp/test_project_minimal_with_list_2.json", "x") as f:
+        with open("testdata/tmp/test_project_minimal_with_list_2.json", "x", encoding="utf-8") as f:
             json.dump(test_project_minimal_with_list_2, f)
 
         # The method to be tested can now be called with both versions of the same project. One is loaded from disk,
@@ -238,8 +240,8 @@ class TestTools(unittest.TestCase):
             preprocessing_done=False
         )
         self.assertTrue(result_replaced)
-        self.assertTrue(all([not f.name.startswith("stashed_text_properties_") for f in os.scandir(".")]))
-        self.assertTrue(all([not f.name.startswith("stashed_resptr_properties_") for f in os.scandir(".")]))
+        self.assertTrue(all(not f.name.startswith("stashed_text_properties_") for f in os.scandir(".")))
+        self.assertTrue(all(not f.name.startswith("stashed_resptr_properties_") for f in os.scandir(".")))
 
         os.remove(mapping_file)
         os.remove(id2iri_replaced_xml_filename)
@@ -248,9 +250,9 @@ class TestTools(unittest.TestCase):
     def test_excel_to_json_project(self) -> None:
         excel2json(data_model_files="testdata/excel2json/excel2json_files",
                    path_to_output_file="testdata/tmp/_out_project.json")
-        with open("testdata/excel2json/excel2json-expected-output.json") as f:
+        with open("testdata/excel2json/excel2json-expected-output.json", encoding="utf-8") as f:
             output_expected = json.load(f)
-        with open("testdata/tmp/_out_project.json") as f:
+        with open("testdata/tmp/_out_project.json", encoding="utf-8") as f:
             output = json.load(f)
         self.assertDictEqual(output, output_expected)
         os.remove("testdata/tmp/_out_project.json")
@@ -309,7 +311,7 @@ class TestTools(unittest.TestCase):
         for prefix, iri in project_original["prefixes"].items():
             project_original_str = re.sub(fr'"{prefix}:(\w+?)"', fr'"{iri}\1"', project_original_str)
         project_original = json.loads(project_original_str)
-        return project_original
+        return cast(dict[str, Any], project_original)
     
 
     def _compare_project(

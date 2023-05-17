@@ -447,7 +447,7 @@ class ResourceClass(Model):
             else:
                 raise BaseError('Invalid LangString for label!')
         else:
-            self._label = None
+            self._label = LangString({})
         #
         # process comment
         #
@@ -459,7 +459,7 @@ class ResourceClass(Model):
             else:
                 raise BaseError('Invalid LangString for comment!')
         else:
-            self._comment = None
+            self._comment = LangString({})
         self._permissions = permissions
         self._has_properties = has_properties
         self._changed = set()
@@ -500,7 +500,7 @@ class ResourceClass(Model):
         raise BaseError('"superclasses" cannot be modified!')
 
     @property
-    def label(self) -> Optional[LangString]:
+    def label(self) -> LangString:
         return self._label
 
     @label.setter
@@ -525,7 +525,7 @@ class ResourceClass(Model):
         self._changed.add('label')
 
     @property
-    def comment(self) -> Optional[LangString]:
+    def comment(self) -> LangString:
         return self._comment
 
     @comment.setter
@@ -789,7 +789,7 @@ class ResourceClass(Model):
                 superclasses = context.reduce_iri(self._superclasses[0], shortname)
             resource["super"] = superclasses
         resource["labels"] = self._label.createDefinitionFileObj()
-        if self._comment:
+        if not self._comment.isEmpty():
             resource["comments"] = self._comment.createDefinitionFileObj()
         if self._has_properties:
             cardinalities = []

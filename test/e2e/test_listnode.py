@@ -8,7 +8,7 @@ from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.models.listnode import ListNode
 
 
-class TestListNode(unittest.TestCase):
+class TestListNode(unittest.TestCase):              # pylint: disable=missing-class-docstring
     project = "http://rdfh.ch/projects/0001"
     otherTreeList = "http://rdfh.ch/lists/0001/otherTreeList"
 
@@ -32,7 +32,7 @@ class TestListNode(unittest.TestCase):
         self.assertEqual(node.project, self.project)
         self.assertEqual(node.label['en'], 'Tree list root')
         self.assertTrue(node.isRootNode)
-        self.assertIsNone(node.children)
+        self.assertEqual(node.children, [])
 
     def test_ListNode_create(self) -> None:
         """
@@ -135,7 +135,7 @@ class TestListNode(unittest.TestCase):
         self.assertEqual(root_node.children[2].name, 'Other Tree list node 03')
         self.assertEqual(root_node.children[2].label['en'], 'Other Tree list node 03')
 
-        self.assertIsNotNone(root_node.children[2].children)
+        self.assertIsNotNone(root_node.children[2].children)   
         self.assertEqual(root_node.children[2].children[0].id, 'http://rdfh.ch/lists/0001/otherTreeList10')
         self.assertEqual(root_node.children[2].children[0].name, 'Other Tree list node 10')
         self.assertEqual(root_node.children[2].children[0].label['en'], 'Other Tree list node 10')

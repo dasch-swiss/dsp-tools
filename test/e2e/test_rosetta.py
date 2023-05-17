@@ -1,3 +1,5 @@
+# pylint: disable=protected-access,missing-class-docstring,missing-function-docstring
+
 import shutil
 import unittest
 from pathlib import Path

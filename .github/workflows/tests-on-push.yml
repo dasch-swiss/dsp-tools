@@ -97,11 +97,8 @@ jobs:
         id: search-cached-imagemagick
         uses: actions/cache@v3
         with:
-          path: | 
-            ~/bin/magick        # AppImage containing all binaries + dependencies
-            ~/bin/identify      # don't know where this is located, but I need the "identify" binary somewhere (?)
-          # using "imagemagick" as key doesn't check for a new version, because version checking is fairly complex
-          key: imagemagick
+          path: ~/bin/magick        # AppImage containing all binaries + dependencies
+          key: imagemagick          # don't check for a new version, because version checking is fairly complex
 
       - name: Fast xmlupload - ImageMagick - Installation
         if: ${{ steps.search-cached-imagemagick.outputs.cache-hit != 'true' }}

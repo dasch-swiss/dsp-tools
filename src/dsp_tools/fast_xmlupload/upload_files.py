@@ -321,8 +321,6 @@ def upload_files(
     Returns:
         success status
     """
-    logger.info(f"***Call to upload_files(pkl_file='{pkl_file}', dir_with_processed_files='{dir_with_processed_files}', user='{user}',"
-                f"password='{password}', dsp_url='{dsp_url}', sipi_url='{sipi_url}')***")
     # check the input parameters
     param_check_result = _check_params(
         pkl_file=pkl_file, 

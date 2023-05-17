@@ -48,17 +48,16 @@ jobs:
 
       # Code Linting
       ##############
-      - name: run Pylint
+      - name: Linting with Pylint
         run: poetry run pylint src
 
-      - name: run mypy
+      - name: Linting with mypy
         run: poetry run mypy .
 
-      - name: Lint Code Base
+      - name: Linting with GitHub's super-linter
         uses: github/super-linter/slim@v5
-        # GitHub's super-linter: https://github.com/github/super-linter
-        # super-linter uses a pre-built image with all linters in it. Thus, the linters run outside the poetry virtualenv. 
-        # So, pylint reports import-errors for dependencies installed with poetry.
+        # super-linter uses a pre-built image with all linters in it. Thus, the linters run outside of the poetry virtualenv. 
+        # For this reason, pylint reports import-errors for dependencies installed with poetry.
         # In addition, pylint and mypy don't recognize the ignore patterns defined in pyproject.toml.
         # For these reasons, pylint and mypy must be run independently from super-linter.
         env:
@@ -87,10 +86,10 @@ jobs:
 
       # Install programs for local processing (fast xmlupload)
       ########################################################
-      - name: Install ffmpeg for local processing (fast xmlupload)
+      - name: Fast xmlupload - Install ffmpeg
         uses: FedericoCarboni/setup-ffmpeg@v2
 
-      - name: ImageMagick - look for cached AppImage
+      - name: Fast xmlupload - ImageMagick - look for cached AppImage
         # The first time this runs, no cache is found, so this is skipped, but when all jobs are done, 
         # the files in "path" are cached under "key". In subsequent runs:
         #  - If a cache is found that matches key, the cached files are restored to path.
@@ -104,7 +103,7 @@ jobs:
           # using "imagemagick" as key doesn't check for a new version, because version checking is fairly complex
           key: imagemagick
 
-      - name: ImageMagick - download AppImage
+      - name: Fast xmlupload - ImageMagick - Installation
         if: ${{ steps.search-cached-imagemagick.outputs.cache-hit != 'true' }}
         uses: mfinelli/setup-imagemagick@v2  # downloads the "magick" AppImage to ~/bin/magick, unpacks it (?) to have all binaries
 

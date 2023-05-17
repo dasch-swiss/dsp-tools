@@ -18,9 +18,9 @@ from lxml.builder import E  # pylint: disable=no-name-in-module
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import DateTimeStamp
-# explicitly export PropertyElement, so that API users can import it from this module 
+# explicitly export PropertyElement, so that API users can import it from this module
 # (see https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-no-implicit-reexport)
-# doing this requires silencing the corresponding pylint warning 
+# doing this requires silencing the corresponding pylint warning
 # (see https://pylint.readthedocs.io/en/latest/user_guide/messages/convention/useless-import-alias.html)
 from dsp_tools.models.propertyelement import \
     PropertyElement as PropertyElement  # pylint: disable=useless-import-alias
@@ -198,10 +198,9 @@ def find_date_in_string(string: str) -> Optional[str]:
         fr"{lookbehind}(January|Jan|February|Feb|March|Mar|April|Apr|May|June|Jun|July|Jul|August|Aug|September|Sept|"
         fr"October|Oct|November|Nov|December|Dec) ?{day_regex}, ?{year_regex}{lookahead}", string)
     # template: 1849/50 | 1849-50 | 1849/1850
-    year_range = re.search(lookbehind + year_regex + r"[/-](\d{2}|\d{4})" +lookahead, string)
+    year_range = re.search(lookbehind + year_regex + r"[/-](\d{2}|\d{4})" + lookahead, string)
     # template: 1907
     year_only = re.search(fr"{lookbehind}{year_regex}{lookahead}", string)
-
 
     if iso_date:
         year = int(iso_date.group(1))
@@ -310,7 +309,7 @@ def make_root(shortcode: str, default_ontology: str) -> etree._Element:
         "{%s}knora" % (xml_namespace_map[None]),
         attrib={
             str(etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation")):
-                "https://dasch.swiss/schema " + \
+                "https://dasch.swiss/schema " +
                 "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd",
             "shortcode": shortcode,
             "default-ontology": default_ontology
@@ -1686,7 +1685,7 @@ def create_json_excel_list_mapping(
     res = dict()
     for excel_value in excel_values_new:
         excel_value_corrected = corrections.get(excel_value, excel_value)
-        excel_value_simpl = simplify_name(excel_value_corrected)  #increase match probability by removing illegal chars
+        excel_value_simpl = simplify_name(excel_value_corrected)  # increase match probability by removing illegal chars
         matches: list[str] = difflib.get_close_matches(
             word=excel_value_simpl,
             possibilities=json_values,
@@ -1816,7 +1815,7 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
 
     Raises:
         BaseError if something went wrong
-    
+
     Returns:
         True if everything went well, False otherwise
     """

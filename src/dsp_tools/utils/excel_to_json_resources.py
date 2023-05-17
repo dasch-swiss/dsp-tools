@@ -54,7 +54,7 @@ def _validate_resources(resources_list: list[dict[str, Any]], excelfile: str) ->
         else:
             err_msg += f"The error message is: {err.message}\nThe error occurred at {err.json_path}"
         raise BaseError(err_msg) from None
-    
+
     # check if resource names are unique
     all_names = [r["name"] for r in resources_list]
     duplicates: dict[int, str] = dict()
@@ -66,7 +66,7 @@ def _validate_resources(resources_list: list[dict[str, Any]], excelfile: str) ->
         for row_no, resname in duplicates.items():
             err_msg += f" - Row {row_no}: {resname}\n"
         raise BaseError(err_msg)
-    
+
     return True
 
 
@@ -79,7 +79,7 @@ def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
     Args:
         row: row from the "classes" DataFrame
         excelfile: Excel file where the data comes from
-    
+
     Raises:
         BaseError if the row or the details sheet contains invalid data
 

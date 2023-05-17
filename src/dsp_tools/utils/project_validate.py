@@ -34,32 +34,31 @@ def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
             for elem in resnames:
                 if resnames.count(elem) > 1:
                     if not resnames_duplicates.get(onto["name"]):
-                        resnames_duplicates[onto["name"]] = {elem,}
+                        resnames_duplicates[onto["name"]] = {elem, }
                     else:
                         resnames_duplicates[onto["name"]].add(elem)
-        
+
         propnames = [p["name"] for p in onto["properties"]]
         if len(set(propnames)) != len(propnames):
             for elem in propnames:
                 if propnames.count(elem) > 1:
                     if not propnames_duplicates.get(onto["name"]):
-                        propnames_duplicates[onto["name"]] = {elem,}
+                        propnames_duplicates[onto["name"]] = {elem, }
                     else:
                         propnames_duplicates[onto["name"]].add(elem)
-        
+
     if not resnames_duplicates and not propnames_duplicates:
         return True
-    
+
     err_msg = "Resource names and property names must be unique inside every ontology.\n"
     for ontoname, res_duplicates in resnames_duplicates.items():
         for res_duplicate in sorted(res_duplicates):
-            err_msg += f"Resource '{res_duplicate}' appears multiple times in the ontology '{ontoname}'.\n" 
+            err_msg += f"Resource '{res_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
     for ontoname, prop_duplicates in propnames_duplicates.items():
         for prop_duplicate in sorted(prop_duplicates):
-            err_msg += f"Property '{prop_duplicate}' appears multiple times in the ontology '{ontoname}'.\n" 
-        
+            err_msg += f"Property '{prop_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
+
     raise BaseError(err_msg)
-    
 
 
 def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> bool:
@@ -88,7 +87,7 @@ def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> b
             #  - other:res     # other onto
             #  - same:res      # same onto
             #  - :res          # same onto (short form)
-            
+
             # filter out DSP base resources
             supers = [s for s in supers if ":" in s]
             # extend short form
@@ -101,7 +100,7 @@ def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> b
             invalid_references = [s for s in supers if regex.sub(":", "", s) not in resnames]
             if invalid_references:
                 errors[f"Ontology '{ontoname}', resource '{res['name']}'"] = invalid_references
-    
+
     if errors:
         err_msg = "Your data model contains resources that are derived from an invalid super-resource:\n"
         err_msg += "\n".join(f" - {loc}: {invalids}" for loc, invalids in errors.items())
@@ -135,7 +134,7 @@ def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> b
             #  - other:prop    # other onto
             #  - same:prop     # same onto
             #  - :prop         # same onto (short form)
-            
+
             # filter out DSP base properties
             supers = [s for s in supers if ":" in s]
             # extend short form
@@ -148,7 +147,7 @@ def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> b
             invalid_references = [s for s in supers if regex.sub(":", "", s) not in propnames]
             if invalid_references:
                 errors[f"Ontology '{ontoname}', property '{prop['name']}'"] = invalid_references
-    
+
     if errors:
         err_msg = "Your data model contains properties that are derived from an invalid super-property:\n"
         err_msg += "\n".join(f" - {loc}: {invalids}" for loc, invalids in errors.items())
@@ -181,7 +180,7 @@ def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bo
             #  - other:prop    # other onto
             #  - same:prop     # same onto
             #  - :prop         # same onto (short form)
-            
+
             # filter out DSP base properties
             cardnames = [card for card in cardnames if ":" in card]
             # extend short form
@@ -190,11 +189,11 @@ def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bo
             cardnames = [card for card in cardnames if regex.search(f"^{ontoname}:", card)]
             # convert to short form
             cardnames = [regex.sub(ontoname, "", card) for card in cardnames]
-            
+
             invalid_cardnames = [card for card in cardnames if regex.sub(":", "", card) not in propnames]
             if invalid_cardnames:
                 errors[f"Ontology '{ontoname}', resource '{res['name']}'"] = invalid_cardnames
-    
+
     if errors:
         err_msg = "Your data model contains cardinalities with invalid propnames:\n"
         err_msg += "\n".join(f" - {loc}: {invalids}" for loc, invalids in errors.items())
@@ -215,7 +214,7 @@ def validate_project(
     Then, the project is validated against the JSON schema. 
 
     Next, some checks are performed that are too complex for JSON schema.
-    
+
     At last, a check is performed
     if this project's ontologies contain properties derived from hasLinkTo 
     that form a circular reference.
@@ -277,7 +276,7 @@ def _check_cardinalities_of_circular_references(project_definition: dict[Any, An
 
     Args:
         project_definition: dictionary with a DSP project (as defined in a JSON project file)
-    
+
     Raises:
         BaseError: if there is a circle with at least one element that has a cardinality of "1" or "1-n"
 
@@ -306,10 +305,10 @@ def _check_cardinalities_of_circular_references(project_definition: dict[Any, An
 def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, list[str]]:
     """
     Maps the properties derived from hasLinkTo to the resource classes they point to.
-    
+
     Args:
         project_definition: parsed JSON file
-    
+
     Returns:
         A (possibly empty) dictionary in the form {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}
     """
@@ -350,7 +349,7 @@ def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, li
 
 
 def _identify_problematic_cardinalities(
-    project_definition: dict[Any, Any], 
+    project_definition: dict[Any, Any],
     link_properties: dict[str, list[str]]
 ) -> list[tuple[str, str]]:
     """

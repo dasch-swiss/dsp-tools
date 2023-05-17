@@ -74,7 +74,6 @@ def excel2json(
     print("The following files will be processed:")
     print(*(f" - {file}" for file in processed_files), sep="\n")
 
-
     # create output
     # -------------
     lists, success = excel2lists(excelfolder=f"{data_model_files}/lists") if listfolder else (None, True)

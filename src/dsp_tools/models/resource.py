@@ -144,7 +144,9 @@ class ResourceInstance(Model):
                         for val in value:
                             # check if cardinality allows multiple values for a property
                             if cardinality == Cardinality.C_0_1 or cardinality == Cardinality.C_1:
-                                raise BaseError(f"ERROR in resource with label '{self._label}': Ontology does not allow multiple values for '{property_name}'")
+                                raise BaseError(
+                                    f"ERROR in resource with label '{self._label}': Ontology does not allow multiple values for '{property_name}'"
+                                )
 
                             if type(val) is Value:
                                 self._values[property_name].append(val)
@@ -176,7 +178,9 @@ class ResourceInstance(Model):
                                 self._values[property_name] = value_type(value)
                 else:
                     if cardinality == Cardinality.C_1 or cardinality == Cardinality.C_1_n:
-                        raise BaseError(f"ERROR in resource with label '{self._label}': The ontology requires at least one value for '{property_name}'")
+                        raise BaseError(
+                            f"ERROR in resource with label '{self._label}': The ontology requires at least one value for '{property_name}'"
+                        )
 
             for property_name in values:
                 if property_name not in self.knora_properties and not self.properties.get(property_name):
@@ -385,7 +389,7 @@ class ResourceInstanceFactory:
         shared_project = Project(con=con, shortcode="0000").read()
         shared_ontologies = Ontology.getProjectOntologies(con=con, project_id=shared_project.id)
         tmp_ontologies.extend(shared_ontologies)
-        knora_api_onto = [x for x in Ontology.getAllOntologies(con=con) if x.name=="knora-api"][0]
+        knora_api_onto = [x for x in Ontology.getAllOntologies(con=con) if x.name == "knora-api"][0]
         tmp_ontologies.append(knora_api_onto)
         self._ontoname2iri = {x.name: x.id for x in tmp_ontologies}
 

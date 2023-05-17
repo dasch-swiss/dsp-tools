@@ -276,7 +276,7 @@ class Context:
     def get_qualified_iri(self, val: Optional[str]) -> Optional[str]:
         """
         Given an IRI, its fully qualified name is returned.
-        
+
         Args:
             val: The input IRI
 

@@ -51,12 +51,12 @@ def _create_project_on_server(
         logger.warning(f"Project '{project_remote.shortname}' ({project_remote.shortcode}) already exists on the DSP server. Updating it...")
         # try to update the basic info
         project_remote, _ = _update_basic_info_of_project(project=project_remote, project_definition=project_definition, verbose=verbose)
-        # It doesn't matter if the update is successful or not: continue anyway, because success is anyways false. 
+        # It doesn't matter if the update is successful or not: continue anyway, because success is anyways false.
         # There are other things from this file that can be created on the server, e.g. the groups and users, so the process must continue.
         return project_remote, False
     except BaseError:
         pass
-    
+
     success = True
     project_local = Project(
         con=con,
@@ -149,7 +149,7 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
         logger.warning(err_msg, exc_info=True)
         remote_groups = []
         overall_success = False
-        
+
     for group in groups:
         group_name = group["name"]
 
@@ -167,7 +167,7 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
             name=group_name,
             descriptions=LangString(group["descriptions"]),
             project=project,
-            status=bool(group.get("status", True)),  
+            status=bool(group.get("status", True)),
             selfjoin=bool(group.get("selfjoin", False))
         )
         try:
@@ -185,10 +185,10 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
 
 
 def _get_group_iris_for_user(
-    json_user_definition: dict[str, str], 
-    current_project: Project, 
-    current_project_groups: dict[str, Group], 
-    con: Connection, 
+    json_user_definition: dict[str, str],
+    current_project: Project,
+    current_project_groups: dict[str, Group],
+    con: Connection,
     verbose: bool
 ) -> tuple[set[str], bool, bool]:
     """
@@ -215,7 +215,7 @@ def _get_group_iris_for_user(
         # full_group_name has the form '[project_shortname]:group_name' or 'SystemAdmin'
         if ":" not in full_group_name and full_group_name != "SystemAdmin":
             print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because such a "
-                    f"group doesn't exist.")
+                  f"group doesn't exist.")
             success = False
             continue
 
@@ -231,7 +231,7 @@ def _get_group_iris_for_user(
             # full_group_name refers to a group inside the same project
             if group_name not in current_project_groups:
                 print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because "
-                        f"such a group doesn't exist.")
+                      f"such a group doesn't exist.")
                 success = False
                 continue
             group = current_project_groups[group_name]
@@ -250,7 +250,7 @@ def _get_group_iris_for_user(
             existing_group = [g for g in remote_groups if g.project == current_project.id and g.name == group_name]
             if not existing_group:
                 print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because "
-                        f"such a group doesn't exist.")
+                      f"such a group doesn't exist.")
                 success = False
                 continue
             group = existing_group[0]
@@ -263,9 +263,9 @@ def _get_group_iris_for_user(
 
 
 def _get_projects_where_user_is_admin(
-    json_user_definition: dict[str, str], 
-    current_project: Project, 
-    con: Connection, 
+    json_user_definition: dict[str, str],
+    current_project: Project,
+    con: Connection,
     verbose: bool
 ) -> tuple[dict[str, bool], bool]:
     """
@@ -288,7 +288,7 @@ def _get_projects_where_user_is_admin(
         # full_project_name has the form '[project_name]:member' or '[project_name]:admin'
         if ":" not in full_project_name:
             print(f"\tWARNING: Provided project '{full_project_name}' for user '{username}' is not valid. "
-                    f"Skipping...")
+                  f"Skipping...")
             success = False
             continue
 
@@ -311,7 +311,7 @@ def _get_projects_where_user_is_admin(
             in_project_list = [p for p in remote_projects if p.shortname == project_name]
             if not in_project_list:
                 print(f"\tWARNING: Provided project '{full_project_name}' for user '{username}' is not valid. "
-                        f"Skipping...")
+                      f"Skipping...")
                 success = False
                 continue
             in_project = in_project_list[0]
@@ -319,7 +319,7 @@ def _get_projects_where_user_is_admin(
         project_info[in_project.id] = bool(project_role == "admin")  # type: ignore
         if verbose:
             print(f"\tAdded user '{username}' as {project_role} to project '{in_project.shortname}'.")
-        
+
     return project_info, success
 
 
@@ -417,7 +417,7 @@ def _sort_resources(unsorted_resources: list[dict[str, Any]], onto_name: str) ->
     Returns:
         sorted list of resource classes
     """
-    
+
     # do not modify the original unsorted_resources, which points to the original JSON project file
     resources_to_sort = unsorted_resources.copy()
     sorted_resources: list[dict[str, Any]] = list()
@@ -769,7 +769,7 @@ def _add_cardinalities_to_resource_classes(
         "0-n": Cardinality.C_0_n,
         "1-n": Cardinality.C_1_n
     }
-    for res_class in ontology_definition.get("resources", []): 
+    for res_class in ontology_definition.get("resources", []):
         res_class_remote = remote_res_classes.get(ontology_remote.id + "#" + res_class["name"])
         if not res_class_remote:
             print(f"WARNING: Unable to add cardinalities to resource class '{res_class['name']}': This class "
@@ -875,8 +875,8 @@ def create_project(
     if project_definition["project"].get("lists"):
         print("Create lists...")
         list_root_nodes, success = create_lists_on_server(
-            lists_to_create=project_definition["project"]["lists"], 
-            con=con, 
+            lists_to_create=project_definition["project"]["lists"],
+            con=con,
             project_remote=project_remote
         )
         if not success:
@@ -887,8 +887,8 @@ def create_project(
     if project_definition["project"].get("groups"):
         print("Create groups...")
         current_project_groups, success = _create_groups(
-            con=con, 
-            groups=project_definition["project"]["groups"], 
+            con=con,
+            groups=project_definition["project"]["groups"],
             project=project_remote
         )
         if not success:
@@ -898,10 +898,10 @@ def create_project(
     if project_definition["project"].get("users"):
         print("Create users...")
         success = _create_users(
-            con=con, 
-            users_section=project_definition["project"]["users"], 
-            current_project_groups=current_project_groups, 
-            current_project=project_remote, 
+            con=con,
+            users_section=project_definition["project"]["users"],
+            current_project_groups=current_project_groups,
+            current_project=project_remote,
             verbose=verbose
         )
         if not success:

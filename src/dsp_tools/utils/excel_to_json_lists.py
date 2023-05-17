@@ -34,7 +34,7 @@ def expand_lists_from_excel(
 
     Args:
         lists_section: the "lists" section of a parsed JSON project file. If this is an empty list, an empty list will be returned.
-    
+
     Raises:
         BaseError: if a problem occurred while trying to expand the Excel files
 
@@ -61,8 +61,8 @@ def expand_lists_from_excel(
                       f"files therein have been temporarily expanded into the 'lists' section of your project.")
             except BaseError as err:
                 raise BaseError(f"\tWARNING: The list '{_list['name']}' contains a reference to the folder '{foldername}', but a "
-                      f"problem occurred while trying to expand the Excel files therein into the 'lists' section of "
-                      f"your project: {err.message}") from None
+                                f"problem occurred while trying to expand the Excel files therein into the 'lists' section of "
+                                f"your project: {err.message}") from None
 
     return new_lists
 
@@ -157,7 +157,7 @@ def _get_values_from_excel(
             labels_dict: dict[str, str] = {}
             for other_lang, ws_other_lang in excelfiles.items():
                 cell_value = ws_other_lang.cell(column=col, row=row).value
-                if not(isinstance(cell_value, str) and len(cell_value) > 0):
+                if not (isinstance(cell_value, str) and len(cell_value) > 0):
                     raise BaseError(f"ERROR: Malformed Excel file: The Excel file with the language code "
                                     f"'{other_lang}' should have a value in row {row}, column {col}")
                 else:
@@ -263,7 +263,7 @@ def validate_lists_section_with_schema(
     """
     if bool(path_to_json_project_file) == bool(lists_section):
         raise BaseError("Validation of the 'lists' section works only if exactly one of the two arguments is given.")
-    
+
     with importlib.resources.files("dsp_tools").joinpath("resources/schema/lists-only.json").open(encoding="utf-8") as schema_file:
         lists_schema = json.load(schema_file)
 
@@ -280,7 +280,7 @@ def validate_lists_section_with_schema(
     except jsonschema.ValidationError as err:
         raise BaseError(f'"lists" section did not pass validation. The error message is: {err.message}\n'
                         f'The error occurred at {err.json_path}') from None
-    
+
     return True
 
 
@@ -336,7 +336,7 @@ def excel2lists(
     if verbose:
         print("The following Excel files will be processed:")
         print(*(f" - {filename}" for filename in excel_file_paths), sep="\n")
-    
+
     # construct the "lists" section
     finished_lists = _make_json_lists_from_excel(excel_file_paths, verbose=verbose)
     validate_lists_section_with_schema(lists_section=finished_lists)

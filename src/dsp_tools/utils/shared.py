@@ -113,7 +113,7 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
 
     Raises:
         UserError with a detailed error log if the XML file is invalid
-    
+
     Returns:
         True if the XML file is valid
     """
@@ -135,9 +135,9 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
         error_msg = error_msg.replace("{https://dasch.swiss/schema}", "")
         logger.error(error_msg)
         raise UserError(error_msg)
-    
+
     # make sure there are no XML tags in simple texts
-    _validate_xml_tags_in_text_properties(doc)    
+    _validate_xml_tags_in_text_properties(doc)
 
     logger.info("The XML file is syntactically correct and passed validation.")
     print("The XML file is syntactically correct and passed validation.")
@@ -172,7 +172,7 @@ def _validate_xml_tags_in_text_properties(doc: Union[etree._ElementTree[etree._E
         # pylint: disable-next=protected-access
         if not isinstance(elem, (etree._Comment, etree._ProcessingInstruction)):
             elem.tag = etree.QName(elem).localname
-    
+
     # then: make the test
     resources_with_illegal_xml_tags = list()
     for text in doc_without_namespace.findall(path="resource/text-prop/text"):
@@ -183,11 +183,11 @@ def _validate_xml_tags_in_text_properties(doc: Union[etree._ElementTree[etree._E
                 resname = text.getparent().getparent().attrib["id"]  # type: ignore
                 resources_with_illegal_xml_tags.append(f" -{sourceline}resource '{resname}', property '{propname}'")
     if resources_with_illegal_xml_tags:
-        err_msg = "XML-tags are not allowed in text properties with encoding=utf8. The following resources of your XML file violate this rule:\n" 
+        err_msg = "XML-tags are not allowed in text properties with encoding=utf8. The following resources of your XML file violate this rule:\n"
         err_msg += "\n".join(resources_with_illegal_xml_tags)
         logger.error(err_msg, exc_info=True)
         raise UserError(err_msg)
-    
+
     return True
 
 
@@ -205,7 +205,7 @@ def prepare_dataframe(df: pd.DataFrame, required_columns: list[str], location_of
 
     Raises:
         BaseError if one of the required columns doesn't exist, or if the resulting DataFrame would be empty
-    
+
     Returns:
         prepared DataFrame
     """

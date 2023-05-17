@@ -13,7 +13,7 @@ def check_for_api_error(response: requests.Response) -> None:
 
     Args:
         res: The requests.Response object that is returned by the API request
-    
+
     Raises:
         BaseError: If the status code of the response is not 200
     """
@@ -25,6 +25,7 @@ def check_for_api_error(response: requests.Response) -> None:
             reason_from_api_response=response.reason,
             api_route=response.url
         )
+
 
 class Connection:
     """
@@ -111,7 +112,6 @@ class Connection:
         pass
         # self.logout()
 
-
     def post(self, path: str, jsondata: Optional[str] = None):
         """
         Post Json data to a given server using a HTTP POST request
@@ -159,7 +159,7 @@ class Connection:
                 "route": path,
                 "body": jsonobj,
                 "return-headers": dict(response.headers),
-                "return": response.json() if response.status_code == 200 else {"status": str(response.status_code), 
+                "return": response.json() if response.status_code == 200 else {"status": str(response.status_code),
                                                                                "message": response.text}
             }
             tmp = path.split('/')
@@ -216,7 +216,7 @@ class Connection:
             response = requests.put(
                 self._server + path,
                 headers={
-                    'Content-Type': content_type + '; charset=UTF-8', 
+                    'Content-Type': content_type + '; charset=UTF-8',
                     'Authorization': 'Bearer ' + self._token
                 },
                 data=jsondata)

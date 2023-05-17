@@ -1,5 +1,36 @@
 # Changelog
 
+## [2.3.0](https://github.com/dasch-swiss/dsp-tools/compare/v2.2.2...v2.3.0) (2023-05-17)
+
+
+### Bug Fixes
+
+* **get:** write proper tests for get command, fix multiple bugs (DEV-2123) ([#356](https://github.com/dasch-swiss/dsp-tools/issues/356)) ([edd671d](https://github.com/dasch-swiss/dsp-tools/commit/edd671da0a1af4265da09c2e490f2df6b69e0a3c))
+
+
+### Documentation
+
+* render nested lists correctly, adapt markdownlint rules, apply new rules everywhere (DEV-2134) ([#358](https://github.com/dasch-swiss/dsp-tools/issues/358)) ([e899d5c](https://github.com/dasch-swiss/dsp-tools/commit/e899d5c78d2281dc4efe7e54d8c4d8541196bf3e))
+
+
+### Enhancements
+
+* fast XML upload (DEV-1626) ([#352](https://github.com/dasch-swiss/dsp-tools/issues/352)) ([c2f46ea](https://github.com/dasch-swiss/dsp-tools/commit/c2f46ea432bc5aa37557c034e22f2fbc855198ba))
+
+
+### Maintenance
+
+* bump dependencies, add docker, update readme, remove unused poetry exec script (DEV-2159) ([#365](https://github.com/dasch-swiss/dsp-tools/issues/365)) ([69d65e7](https://github.com/dasch-swiss/dsp-tools/commit/69d65e7bf51a4fc98f6287e10d224d6b0a30f62e))
+* bump start-stack to 2023.05.01 (DEV-2164) [#368](https://github.com/dasch-swiss/dsp-tools/issues/368) ([646586b](https://github.com/dasch-swiss/dsp-tools/commit/646586b20d7fb4331dbfdff6c6d8b87396f37f75))
+* **deps:** bump pymdown-extensions from 9.11 to 10.0 ([#370](https://github.com/dasch-swiss/dsp-tools/issues/370)) ([1764e81](https://github.com/dasch-swiss/dsp-tools/commit/1764e81a78e10eaea42fa842b776c041a449f7bf))
+* **excel2xml:** minor improvements (DEV-2152) [#360](https://github.com/dasch-swiss/dsp-tools/issues/360) ([1d24848](https://github.com/dasch-swiss/dsp-tools/commit/1d2484808f230964cad6ea06be6201bfdf067efe))
+* log every CLI call to dsp-tools (DEV-2156) [#362](https://github.com/dasch-swiss/dsp-tools/issues/362)  ([a93cb86](https://github.com/dasch-swiss/dsp-tools/commit/a93cb8637796d52581d05348015b4143429fbca0))
+* make all test files executable with pytest (DEV-2157) ([1e4d427](https://github.com/dasch-swiss/dsp-tools/commit/1e4d42720222bf7eab36380b5cd835c1c23471fa))
+* prevent access to unset attribute of BaseError (DEV-2158) [#364](https://github.com/dasch-swiss/dsp-tools/issues/364) ([b0e089d](https://github.com/dasch-swiss/dsp-tools/commit/b0e089d357587813a7d77a2198038af22be4f631))
+* resolve CodeQL issues (DEV-2169) [#371](https://github.com/dasch-swiss/dsp-tools/issues/371) ([6822344](https://github.com/dasch-swiss/dsp-tools/commit/6822344060c56460ad202bb4081feea9a1cac72a))
+* update mypy, resolve all mypy+pylint issues in "unittests", unignore "unittests" in CI pipline (DEV-2131) ([#357](https://github.com/dasch-swiss/dsp-tools/issues/357)) ([b75e2c7](https://github.com/dasch-swiss/dsp-tools/commit/b75e2c734c4937c535561e3309c49d6660c68d7a))
+* XML validation: resource's iri and ark must be unique, resource's label must not be empty (DEV-2154) ([#361](https://github.com/dasch-swiss/dsp-tools/issues/361)) ([62ec04b](https://github.com/dasch-swiss/dsp-tools/commit/62ec04b7dc31330536337b21b03b015f5795c7bf))
+
 ## [2.2.2](https://github.com/dasch-swiss/dsp-tools/compare/v2.2.1...v2.2.2) (2023-05-03)
 
 

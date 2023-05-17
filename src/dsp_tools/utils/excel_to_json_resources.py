@@ -1,5 +1,3 @@
-# pylint: disable=duplicate-code
-
 import importlib.resources
 import json
 import warnings

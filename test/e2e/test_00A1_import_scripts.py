@@ -1,4 +1,4 @@
-# pylint: disable=duplicate-code,missing-class-docstring
+# pylint: disable=missing-class-docstring,duplicate-code
 
 import os
 import unittest

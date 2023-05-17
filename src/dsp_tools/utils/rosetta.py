@@ -1,5 +1,3 @@
-# pylint: disable=duplicate-code
-
 import shutil
 import subprocess
 from pathlib import Path

@@ -1,4 +1,7 @@
 """end to end tests for user class"""
+
+# pylint: disable=missing-class-docstring,missing-function-docstring
+
 import unittest
 
 import pytest

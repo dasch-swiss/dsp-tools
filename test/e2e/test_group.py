@@ -1,5 +1,6 @@
 """end to end tests for group class"""
 import unittest
+from typing import cast
 
 import pytest
 
@@ -8,7 +9,7 @@ from dsp_tools.models.group import Group
 from dsp_tools.models.langstring import LangString, Languages
 
 
-class TestGroup(unittest.TestCase):
+class TestGroup(unittest.TestCase):                 # pylint: disable=missing-class-docstring
     test_project = "http://rdfh.ch/projects/0001"
 
     def setUp(self) -> None:
@@ -39,15 +40,20 @@ class TestGroup(unittest.TestCase):
         Create a group
         :return: None
         """
-        group = Group(con=self.con,
-                      name="Group create",
-                      descriptions=LangString({Languages.EN: 'This is group create'}),
-                      project=self.test_project,
-                      status=True,
-                      selfjoin=False)
+        group = Group(
+            con=self.con,
+            name="Group create",
+            descriptions=LangString({Languages.EN: 'This is group create'}),
+            project=self.test_project,
+            status=True,
+            selfjoin=False
+        )
 
         self.assertEqual(group.name, 'Group create')
-        self.assertCountEqual(group.descriptions.toJsonObj(), [{'language': 'en', 'value': 'This is group create'}])
+        self.assertCountEqual(
+            cast(list[dict[str, str]], group.descriptions.toJsonObj()),
+            [{'language': 'en', 'value': 'This is group create'}]
+        )
         self.assertEqual(group.project, self.test_project)
         self.assertTrue(group.status)
         self.assertFalse(group.selfjoin)
@@ -69,23 +75,29 @@ class TestGroup(unittest.TestCase):
         Update an existing group
         :return: None
         """
-        group = Group(con=self.con,
-                      name="Group update",
-                      descriptions=LangString({Languages.EN: 'This is group update'}),
-                      project=self.test_project,
-                      status=True,
-                      selfjoin=False).create()
+        group = Group(
+            con=self.con,
+            name="Group update",
+            descriptions=LangString({Languages.EN: 'This is group update'}),
+            project=self.test_project,
+            status=True,
+            selfjoin=False
+        )
+        group = group.create()
 
         group.name = "Group update - modified"
-        group.descriptions = {"en": "This is group update - modified"}
+        group.descriptions = LangString({"en": "This is group update - modified"})
         group.selfjoin = True
         group.status = False
         updated_group = group.update()
 
+        self.assertIsNotNone(updated_group)
+        updated_group = cast(Group, updated_group)
         self.assertEqual(updated_group.name, 'Group update - modified')
-        self.assertCountEqual(updated_group.descriptions.toJsonObj(), [{'language': 'en', 'value': 'This is group '
-                                                                                                   'update - '
-                                                                                                   'modified'}])
+        self.assertCountEqual(
+            cast(list[dict[str, str]], updated_group.descriptions.toJsonObj()),
+            [{'language': 'en', 'value': 'This is group update - modified'}]
+        )
         self.assertEqual(updated_group.project, self.test_project)
         self.assertFalse(updated_group.status)
         self.assertTrue(updated_group.selfjoin)
@@ -96,17 +108,22 @@ class TestGroup(unittest.TestCase):
         False)
         :return: None
         """
-        group = Group(con=self.con,
-                      name="Group delete",
-                      descriptions=LangString({Languages.EN: 'This is group delete'}),
-                      project=self.test_project,
-                      status=True,
-                      selfjoin=False).create()
+        group = Group(
+            con=self.con,
+            name="Group delete",
+            descriptions=LangString({Languages.EN: 'This is group delete'}),
+            project=self.test_project,
+            status=True,
+            selfjoin=False
+        )
+        group = group.create()
 
         deleted_group = group.delete()
         self.assertEqual(deleted_group.name, 'Group delete')
-        self.assertCountEqual(deleted_group.descriptions.toJsonObj(),
-                              [{'language': 'en', 'value': 'This is group delete'}])
+        self.assertCountEqual(
+            cast(list[dict[str, str]], deleted_group.descriptions.toJsonObj()),
+            [{'language': 'en', 'value': 'This is group delete'}]
+        )
         self.assertEqual(deleted_group.project, self.test_project)
         self.assertFalse(deleted_group.status)
         self.assertFalse(deleted_group.selfjoin)

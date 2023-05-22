@@ -18,6 +18,8 @@ jobs:
       ######################################################
       - name: Checkout source
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
       - name: Install poetry
         run: | 
@@ -49,7 +51,7 @@ jobs:
       # Code Linting
       ##############
       - name: Linting with Pylint
-        run: poetry run pylint src
+        run: poetry run pylint src test
 
       - name: Linting with mypy
         run: poetry run mypy .

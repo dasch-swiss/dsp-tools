@@ -51,7 +51,7 @@ class Value:
                  ark_url: Optional[str] = None,
                  vark_url: Optional[str] = None):
         self._iri = iri
-        self._comment = comment
+        self._comment = str(comment) if comment else None
         self._permissions = permissions
         self._upermission = upermission
         self._ark_url = ark_url
@@ -99,7 +99,7 @@ class Value:
             if self._permissions:
                 tmp["knora-api:hasPermissions"] = self.permissions.toJsonLdObj()
             if self._comment:
-                tmp["knora-api:valueHasComment"] = str(self._comment)
+                tmp["knora-api:valueHasComment"] = self._comment
         return tmp
 
     @staticmethod
@@ -122,10 +122,10 @@ class Value:
                 raise BaseError("Invalid data type in JSON-LD: \"{}\"!".format(tmp["@type"]))
             return result
         except KeyError as kerr:
-            raise BaseError("Error in JSON-LD returned!")
+            raise BaseError("Error in JSON-LD returned!") from kerr
 
     @staticmethod
-    def getFromJsonLd(jsonld_obj) -> dict[str, Union[str, float]]:
+    def getFromJsonLd(jsonld_obj) -> dict[str, Any]:
 
         return {
             'iri': jsonld_obj.get("@id"),
@@ -953,9 +953,11 @@ def fromJsonLdObj(jsonld_obj: str) -> Value:
     return switcher[jsonld_obj.get('@type')].fromJsonLdObj(jsonld_obj)
 
 
-def make_value(value: Value,
-               comment: Optional[str] = None,
-               permissions: Optional[Permissions] = None):
+def make_value(
+    value: Union[Value, str],
+    comment: Optional[str] = None,
+    permissions: Optional[Permissions] = None
+) -> dict[str, Any]:
     res = {}
     res['value'] = value
     if comment:

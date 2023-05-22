@@ -198,8 +198,8 @@ class Project(Model):
             self._changed.add('longname')
 
     @property
-    def description(self) -> Optional[LangString]:
-        return self._description
+    def description(self) -> LangString:
+        return self._description or LangString({})
 
     @description.setter
     def description(self, value: Optional[LangString]) -> None:

@@ -15,12 +15,8 @@ classifiers = [
 documentation = "https://docs.dasch.swiss/latest/DSP-TOOLS/"
 homepage = "https://www.dasch.swiss/"
 repository = "https://github.com/dasch-swiss/dsp-tools"
-include = [
-    "src/dsp_tools/resources/*"
-]
-exclude = [
-    "src/dsp_tools/import_scripts/*"
-]
+include = ["src/dsp_tools/resources/*"]
+exclude = ["src/dsp_tools/import_scripts/*"]
 
 
 [tool.poetry.dependencies]
@@ -53,13 +49,11 @@ types-regex = "^2023.5.5.0"
 
 
 [tool.poetry.scripts]
-# definition of the entry point
-dsp-tools = "dsp_tools.dsp_tools:main"
+dsp-tools = "dsp_tools.dsp_tools:main"    # definition of the CLI entry point
 
 
 [tool.poetry-exec-plugin.commands]
-# plugin (https://github.com/keattang/poetry-exec-plugin) to define commands available for the developers
-# e.g. `poetry exec check-links`
+# plugin (https://github.com/keattang/poetry-exec-plugin) to define commands available for the developers, e.g. `poetry exec check-links`
 check-links = "markdown-link-validator ./docs -i \\.\\/assets\\/.+ -i .+github\\.com\\/dasch\\-swiss\\/dsp-tools\\/settings"
 
 
@@ -72,9 +66,7 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.pytest.ini_options]
-addopts = [
-    "--import-mode=importlib",
-]
+addopts = ["--import-mode=importlib"]
 # see https://docs.pytest.org/en/latest/explanation/goodpractices.html#tests-outside-application-code
 
 
@@ -90,7 +82,6 @@ strict = true
 exclude = [
     "src/dsp_tools/models",                # TODO: activate this
     "src/dsp_tools/import_scripts",        # TODO: activate this
-    "test/e2e",                            # TODO: activate this
 ]
 
 
@@ -100,11 +91,7 @@ known_first_party = ["dsp_tools"]
 
 
 [tool.pylint.MASTER]
-ignore-paths = [
-    "src/dsp_tools/models/.*$",            # TODO: activate this
-    "src/dsp_tools/import_scripts/.*$",    # TODO: activate this
-    "test/e2e/.*$"                         # TODO: activate this
-]
+ignore-paths = ["src/dsp_tools/models/.*$"] # TODO: activate this
 suggestion-mode = true
 
 

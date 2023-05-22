@@ -42,7 +42,7 @@ jobs:
 
       - name: check external links in docs
         run: |
-          npm install -g markdown-link-validator
+          poetry run npm install -g markdown-link-validator
           poetry exec check-links
 
       - name: run Pylint

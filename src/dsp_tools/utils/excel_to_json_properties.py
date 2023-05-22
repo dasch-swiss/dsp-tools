@@ -94,8 +94,10 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
         pairs = row["gui_attributes"].split(",")
         for pair in pairs:
             if pair.count(":") != 1:
-                raise BaseError(f"Row {row_count} of Excel file {excelfile} contains invalid data in column "
-                                f"'gui_attributes'. The expected format is 'attribute: value[, attribute: value]'.")
+                raise BaseError(
+                    f"Row {row_count} of Excel file {excelfile} contains invalid data in column "
+                    f"'gui_attributes'. The expected format is 'attribute: value[, attribute: value]'."
+                )
             attr, val = [x.strip() for x in pair.split(":")]
             if re.search(r"^\d+\.\d+$", val):
                 val = float(val)
@@ -165,8 +167,9 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
             if not check_notna(row[req]):
                 raise BaseError(f"'{excelfile}' has a missing value in row {index + 2}, column '{req}'")
     if any(df.get(lang) is not None for lang in languages):
-        warnings.warn(f"The file '{excelfile}' uses {languages} as column titles, which is deprecated. "
-                      f"Please use {[f'label_{lang}' for lang in languages]}")
+        warnings.warn(
+            f"The file '{excelfile}' uses {languages} as column titles, which is deprecated. Please use {[f'label_{lang}' for lang in languages]}"
+        )
     if df.get("hlist"):
         warnings.warn(f"The file '{excelfile}' has a column 'hlist', which is deprecated. "
                       f"Please use the column 'gui_attributes' for the attribute 'hlist'.")

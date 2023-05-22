@@ -60,9 +60,11 @@ def expand_lists_from_excel(
                 print(f"\tThe list '{_list['name']}' contains a reference to the folder '{foldername}'. The Excel "
                       f"files therein have been temporarily expanded into the 'lists' section of your project.")
             except BaseError as err:
-                raise BaseError(f"\tWARNING: The list '{_list['name']}' contains a reference to the folder '{foldername}', but a "
-                                f"problem occurred while trying to expand the Excel files therein into the 'lists' section of "
-                                f"your project: {err.message}") from None
+                raise BaseError(
+                    f"\tWARNING: The list '{_list['name']}' contains a reference to the folder '{foldername}', but a "
+                    f"problem occurred while trying to expand the Excel files therein into the 'lists' section of "
+                    f"your project: {err.message}"
+                ) from None
 
     return new_lists
 
@@ -103,10 +105,12 @@ def _get_values_from_excel(
 
     for excelfile in excelfiles.values():
         if any((not excelfile["A1"].value, excelfile["B1"].value)):
-            raise BaseError(f"ERROR: Inconsistency in Excel list: The first row must consist of exactly one value, in "
-                            f"cell A1. All other cells of row 1 must be empty.\nInstead, found the following:\n"
-                            f"Cell A1: '{excelfile['A1'].value}'\n"
-                            f"Cell B1: '{excelfile['B1'].value}'")
+            raise BaseError(
+                f"ERROR: Inconsistency in Excel list: The first row must consist of exactly one value, in cell A1. "
+                f"All other cells of row 1 must be empty.\nInstead, found the following:\n"
+                f" - Cell A1: '{excelfile['A1'].value}'\n"
+                f" - Cell B1: '{excelfile['B1'].value}'"
+            )
 
     if col > 1:
         # append the cell value of the parent node (which is one value to the left of the current cell) to the list of
@@ -117,8 +121,9 @@ def _get_values_from_excel(
         # check if all predecessors in row (values to the left) are consistent with the values in preval list
         for idx, val in enumerate(preval[:-1]):
             if val != str(base_file_ws.cell(column=idx+1, row=row).value).strip():
-                raise BaseError(f"ERROR: Inconsistency in Excel list: {val} not equal to "
-                                f"{str(base_file_ws.cell(column=idx+1, row=row).value).strip()}")
+                raise BaseError(
+                    f"ERROR: Inconsistency in Excel list: {val} not equal to {str(base_file_ws.cell(column=idx+1, row=row).value).strip()}"
+                )
 
         # loop through the row until the last (furthest right) value is found
         next_value = base_file_ws.cell(column=col+1, row=row).value
@@ -141,8 +146,10 @@ def _get_values_from_excel(
             list_of_lists_of_previous_cell_values.append(new_check_list)
 
             if any(list_of_lists_of_previous_cell_values.count(x) > 1 for x in list_of_lists_of_previous_cell_values):
-                raise BaseError(f"ERROR: There is at least one duplicate node in the list. Found duplicate in column "
-                                f"{cell.column}, row {cell.row}:\n'{str(cell.value).strip()}'")
+                raise BaseError(
+                    f"ERROR: There is at least one duplicate node in the list. "
+                    f"Found duplicate in column {cell.column}, row {cell.row}:\n'{str(cell.value).strip()}'"
+                )
 
             # create a simplified version of the cell value and use it as name of the node
             nodename = simplify_name(str(cell.value).strip())
@@ -158,8 +165,10 @@ def _get_values_from_excel(
             for other_lang, ws_other_lang in excelfiles.items():
                 cell_value = ws_other_lang.cell(column=col, row=row).value
                 if not (isinstance(cell_value, str) and len(cell_value) > 0):
-                    raise BaseError(f"ERROR: Malformed Excel file: The Excel file with the language code "
-                                    f"'{other_lang}' should have a value in row {row}, column {col}")
+                    raise BaseError(
+                        f"ERROR: Malformed Excel file: The Excel file with the language code "
+                        f"'{other_lang}' should have a value in row {row}, column {col}"
+                    )
                 else:
                     labels_dict[other_lang] = cell_value.strip()
 
@@ -272,14 +281,16 @@ def validate_lists_section_with_schema(
             project = json.load(f)
             lists_section = project["project"].get("lists")
             if not lists_section:
-                raise BaseError(f"Cannot validate \"lists\" section of {path_to_json_project_file}, because there is "
-                                f"no \"lists\" section in this file.")
+                raise BaseError(
+                    f"Cannot validate \"lists\" section of {path_to_json_project_file}, because there is no \"lists\" section in this file."
+                )
 
     try:
         jsonschema.validate(instance={"lists": lists_section}, schema=lists_schema)
     except jsonschema.ValidationError as err:
-        raise BaseError(f'"lists" section did not pass validation. The error message is: {err.message}\n'
-                        f'The error occurred at {err.json_path}') from None
+        raise BaseError(
+            f'"lists" section did not pass validation. The error message is: {err.message}\nThe error occurred at {err.json_path}'
+        ) from None
 
     return True
 
@@ -301,9 +312,10 @@ def _extract_excel_file_paths(excelfolder: str) -> list[str]:
     if not os.path.isdir(excelfolder):
         raise BaseError(f"ERROR: {excelfolder} is not a directory.")
 
-    excel_file_paths = [filename for filename in glob.iglob(f"{excelfolder}/*.xlsx")
-                        if not os.path.basename(filename).startswith("~$")
-                        and os.path.isfile(filename)]
+    excel_file_paths = [
+        filename for filename in glob.iglob(f"{excelfolder}/*.xlsx")
+        if not os.path.basename(filename).startswith("~$") and os.path.isfile(filename)
+    ]
 
     for filepath in excel_file_paths:
         if not re.search(r'^(de|en|fr|it|rm)\.xlsx$', os.path.basename(filepath)):

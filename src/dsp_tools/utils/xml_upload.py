@@ -145,11 +145,14 @@ def _write_id2iri_mapping_and_metrics(
     return success
 
 
-def _remove_circular_references(resources: list[XMLResource], verbose: bool) -> \
-        tuple[list[XMLResource],
-              dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
-              dict[XMLResource, dict[XMLProperty, list[str]]]
-              ]:
+def _remove_circular_references(
+    resources: list[XMLResource], 
+    verbose: bool
+) -> tuple[
+    list[XMLResource],
+    dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+    dict[XMLResource, dict[XMLProperty, list[str]]]
+]:
     """
     Temporarily removes problematic resource-references from a list of resources. A reference is problematic if
     it creates a circle (circular references).
@@ -405,14 +408,14 @@ def _check_consistency_with_ontology(
         # check that the resource type is consistent with the ontology
         if resource.restype not in resclass_name_2_type:
             err_msg = f"=========================\n" \
-                      f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid resource type " \
-                      f"'{resource.restype}'. Is your syntax correct? Remember the rules:\n" \
+                      f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid resource type '{resource.restype}'. " \
+                      f"Is your syntax correct? Remember the rules:\n" \
                       f" - DSP-API internals: <resource restype=\"restype\">         " \
-                f"(will be interpreted as 'knora-api:restype')\n" \
+                            f"(will be interpreted as 'knora-api:restype')\n" \
                       f" - current ontology:  <resource restype=\":restype\">        " \
-                f"('restype' must be defined in the 'resources' section of your ontology)\n" \
+                            f"('restype' must be defined in the 'resources' section of your ontology)\n" \
                       f" - other ontology:    <resource restype=\"other:restype\">   " \
-                f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)"
+                            f"(not yet implemented: 'other' must be defined in the same JSON project file as your ontology)"
             logger.error(err_msg)
             raise UserError(err_msg)
 
@@ -424,11 +427,11 @@ def _check_consistency_with_ontology(
                           f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid property '{propname}'. " \
                           f"Is your syntax correct? Remember the rules:\n" \
                           f" - DSP-API internals: <text-prop name=\"propname\">         " \
-                    f"(will be interpreted as 'knora-api:propname')\n" \
+                                f"(will be interpreted as 'knora-api:propname')\n" \
                           f" - current ontology:  <text-prop name=\":propname\">        " \
-                    f"('propname' must be defined in the 'properties' section of your ontology)\n" \
+                                f"('propname' must be defined in the 'properties' section of your ontology)\n" \
                           f" - other ontology:    <text-prop name=\"other:propname\">   " \
-                    f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)"
+                                f"(not yet implemented: 'other' must be defined in the same JSON project file than your ontology)"
                 logger.error(err_msg)
                 raise UserError(err_msg)
 
@@ -472,8 +475,8 @@ def xml_upload(
         uploaded because there is an error in it
     """
 
-    logger.info(f"Method call xml_upload(input_file='{input_file}', server='{server}', user='{user}', imgdir='{imgdir}', "
-                f"sipi='{sipi}', verbose={verbose}, incremental={incremental}, save_metrics={save_metrics})")
+    logger.info(f"Method call xml_upload(input_file='{input_file}', server='{server}', user='{user}', imgdir='{imgdir}', sipi='{sipi}', "
+                f"verbose={verbose}, incremental={incremental}, save_metrics={save_metrics}, preprocessing_done={preprocessing_done})")
 
     # parse the XML file
     validate_xml_against_schema(input_file=input_file)
@@ -549,13 +552,31 @@ def xml_upload(
     nonapplied_xml_texts = {}
     try:
         id2iri_mapping, failed_uploads, metrics = _upload_resources(
-            resources, imgdir, sipi_server, permissions_lookup, resclass_name_2_type, id2iri_mapping, con,
-            failed_uploads, metrics, preprocessing_done
+            resources=resources, 
+            imgdir=imgdir, 
+            sipi_server=sipi_server, 
+            permissions_lookup=permissions_lookup, 
+            resclass_name_2_type=resclass_name_2_type, 
+            id2iri_mapping=id2iri_mapping, 
+            con=con,
+            failed_uploads=failed_uploads, 
+            metrics=metrics, 
+            preprocessing_done=preprocessing_done
         )
         if stashed_xml_texts:
-            nonapplied_xml_texts = _upload_stashed_xml_texts(verbose, id2iri_mapping, con, stashed_xml_texts)
+            nonapplied_xml_texts = _upload_stashed_xml_texts(
+                verbose=verbose, 
+                id2iri_mapping=id2iri_mapping, 
+                con=con, 
+                stashed_xml_texts=stashed_xml_texts
+            )
         if stashed_resptr_props:
-            nonapplied_resptr_props = _upload_stashed_resptr_props(verbose, id2iri_mapping, con, stashed_resptr_props)
+            nonapplied_resptr_props = _upload_stashed_resptr_props(
+                verbose=verbose, 
+                id2iri_mapping=id2iri_mapping, 
+                con=con, 
+                stashed_resptr_props=stashed_resptr_props
+            )
         if nonapplied_resptr_props or nonapplied_xml_texts:
             logger.error("Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server.")
             raise BaseError("Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server.")
@@ -801,7 +822,10 @@ def _upload_stashed_xml_texts(
                     logger.info(f'  Successfully uploaded xml text of "{link_prop.name}"\n')
 
     # make a purged version of nonapplied_xml_texts, without empty entries
-    nonapplied_xml_texts = _purge_stashed_xml_texts(stashed_xml_texts=nonapplied_xml_texts, id2iri_mapping=id2iri_mapping)
+    nonapplied_xml_texts = _purge_stashed_xml_texts(
+        stashed_xml_texts=nonapplied_xml_texts, 
+        id2iri_mapping=id2iri_mapping
+    )
     return nonapplied_xml_texts
 
 
@@ -907,7 +931,10 @@ def _upload_stashed_resptr_props(
                     logger.info(f'Successfully uploaded resptr-prop of "{link_prop.name}". Value: {resptr}')
 
     # make a purged version of nonapplied_resptr_props, without empty entries
-    nonapplied_resptr_props = _purge_stashed_resptr_props(stashed_resptr_props=nonapplied_resptr_props, id2iri_mapping=id2iri_mapping)
+    nonapplied_resptr_props = _purge_stashed_resptr_props(
+        stashed_resptr_props=nonapplied_resptr_props, 
+        id2iri_mapping=id2iri_mapping
+    )
     return nonapplied_resptr_props
 
 
@@ -978,8 +1005,14 @@ def _handle_upload_error(
     logger.info("xmlupload must be aborted because of an error")
 
     # only stashed properties of resources that already exist in DSP are of interest
-    stashed_xml_texts = _purge_stashed_xml_texts(stashed_xml_texts, id2iri_mapping)
-    stashed_resptr_props = _purge_stashed_resptr_props(stashed_resptr_props, id2iri_mapping)
+    stashed_xml_texts = _purge_stashed_xml_texts(
+        stashed_xml_texts=stashed_xml_texts, 
+        id2iri_mapping=id2iri_mapping
+    )
+    stashed_resptr_props = _purge_stashed_resptr_props(
+        stashed_resptr_props=stashed_resptr_props, 
+        id2iri_mapping=id2iri_mapping
+    )
 
     if id2iri_mapping:
         id2iri_mapping_file = f"{save_location}/{timestamp_str}_id2iri_mapping.json"
@@ -992,21 +1025,32 @@ def _handle_upload_error(
         stashed_xml_texts_serializable = {r.id: {p.name: xml for p, xml in rdict.items()} for r, rdict in stashed_xml_texts.items()}
         xml_filename = f"{save_location}/{timestamp_str}_stashed_text_properties.json"
         with open(xml_filename, "x", encoding="utf-8") as f:
-            json.dump(stashed_xml_texts_serializable, f, ensure_ascii=False, indent=4, cls=KnoraStandoffXmlEncoder)
-        print(f"There are stashed text properties that could not be reapplied to the resources they were stripped "
-              f"from. They were saved to {xml_filename}.")
-        logger.info(f"There are stashed text properties that could not be reapplied to the resources they were stripped "
-                    f"from. They were saved to {xml_filename}.")
+            json.dump(
+                obj=stashed_xml_texts_serializable, 
+                fp=f, 
+                ensure_ascii=False, 
+                indent=4, 
+                cls=KnoraStandoffXmlEncoder
+            )
+        msg = f"There are stashed text properties that could not be reapplied to the resources they were stripped from. " \
+              f"They were saved to {xml_filename}."
+        print(msg)
+        logger.info(msg)
 
     if stashed_resptr_props:
         stashed_resptr_props_serializable = {r.id: {p.name: plist for p, plist in rdict.items()} for r, rdict in stashed_resptr_props.items()}
         resptr_filename = f"{save_location}/{timestamp_str}_stashed_resptr_properties.json"
         with open(resptr_filename, "x", encoding="utf-8") as f:
-            json.dump(stashed_resptr_props_serializable, f, ensure_ascii=False, indent=4)
-        print(f"There are stashed resptr properties that could not be reapplied to the resources they were stripped "
-              f"from. They were saved to {resptr_filename}")
-        logger.info(f"There are stashed resptr properties that could not be reapplied to the resources they were stripped "
-                    f"from. They were saved to {resptr_filename}")
+            json.dump(
+                obj=stashed_resptr_props_serializable, 
+                fp=f, 
+                ensure_ascii=False, 
+                indent=4
+            )
+        msg = f"There are stashed resptr properties that could not be reapplied to the resources they were stripped from. " \
+              f"They were saved to {resptr_filename}"
+        print(msg)
+        logger.info(msg)
 
     # print the resources that threw an error when they were tried to be uploaded
     if failed_uploads:

@@ -214,8 +214,7 @@ def _get_group_iris_for_user(
     for full_group_name in json_user_definition.get("groups", []):
         # full_group_name has the form '[project_shortname]:group_name' or 'SystemAdmin'
         if ":" not in full_group_name and full_group_name != "SystemAdmin":
-            print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because such a "
-                  f"group doesn't exist.")
+            print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because such a group doesn't exist.")
             success = False
             continue
 
@@ -230,8 +229,7 @@ def _get_group_iris_for_user(
         if not project_shortname:
             # full_group_name refers to a group inside the same project
             if group_name not in current_project_groups:
-                print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because "
-                      f"such a group doesn't exist.")
+                print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because such a group doesn't exist.")
                 success = False
                 continue
             group = current_project_groups[group_name]
@@ -249,8 +247,7 @@ def _get_group_iris_for_user(
                 continue
             existing_group = [g for g in remote_groups if g.project == current_project.id and g.name == group_name]
             if not existing_group:
-                print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because "
-                      f"such a group doesn't exist.")
+                print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because such a group doesn't exist.")
                 success = False
                 continue
             group = existing_group[0]
@@ -287,8 +284,7 @@ def _get_projects_where_user_is_admin(
     for full_project_name in json_user_definition.get("projects", []):
         # full_project_name has the form '[project_name]:member' or '[project_name]:admin'
         if ":" not in full_project_name:
-            print(f"\tWARNING: Provided project '{full_project_name}' for user '{username}' is not valid. "
-                  f"Skipping...")
+            print(f"\tWARNING: Provided project '{full_project_name}' for user '{username}' is not valid. Skipping...")
             success = False
             continue
 
@@ -310,8 +306,7 @@ def _get_projects_where_user_is_admin(
                 continue
             in_project_list = [p for p in remote_projects if p.shortname == project_name]
             if not in_project_list:
-                print(f"\tWARNING: Provided project '{full_project_name}' for user '{username}' is not valid. "
-                      f"Skipping...")
+                print(f"\tWARNING: Provided project '{full_project_name}' for user '{username}' is not valid. Skipping...")
                 success = False
                 continue
             in_project = in_project_list[0]
@@ -772,8 +767,7 @@ def _add_cardinalities_to_resource_classes(
     for res_class in ontology_definition.get("resources", []):
         res_class_remote = remote_res_classes.get(ontology_remote.id + "#" + res_class["name"])
         if not res_class_remote:
-            print(f"WARNING: Unable to add cardinalities to resource class '{res_class['name']}': This class "
-                  f"doesn't exist on the DSP server.")
+            print(f"WARNING: Unable to add cardinalities to resource class '{res_class['name']}': This class doesn't exist on the DSP server.")
             overall_success = False
             continue
         for card_info in res_class.get("cardinalities", []):
@@ -844,6 +838,8 @@ def create_project(
     overall_success = True
 
     project_definition = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)
+    proj_shortname = project_definition['project']['shortname']
+    proj_shortcode = project_definition['project']['shortcode']
     context = Context(project_definition.get("prefixes", {}))
 
     # expand the Excel files referenced in the "lists" section of the project (if any), and add them to the project
@@ -854,7 +850,7 @@ def create_project(
     # validate against JSON schema
     validate_project(project_definition, expand_lists=False)
     print('\tJSON project file is syntactically correct and passed validation.')
-    print(f"Create project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']})...")
+    print(f"Create project '{proj_shortname}' ({proj_shortcode})...")
 
     # establish connection to DSP server
     con = login(server=server, user=user_mail, password=password)
@@ -923,13 +919,11 @@ def create_project(
     # final steps
     if overall_success:
         print("========================================================\n",
-              f"Successfully created project '{project_definition['project']['shortname']}' "
-              f"({project_definition['project']['shortcode']}) with all its ontologies. There were no problems during "
-              f"the creation process.")
+              f"Successfully created project '{proj_shortname}' ({proj_shortcode}) with all its ontologies. "
+              f"There were no problems during the creation process.")
     else:
         print("========================================================\n",
-              f"WARNING: The project '{project_definition['project']['shortname']}' ({project_definition['project']['shortcode']}) "
-              f"with its ontologies could be created, but during the creation process, some problems occurred. "
-              f"Please carefully check the console output.")
+              f"WARNING: The project '{proj_shortname}' ({proj_shortcode}) with its ontologies could be created, but during the creation process, "
+              f"some problems occurred. Please carefully check the console output.")
 
     return overall_success

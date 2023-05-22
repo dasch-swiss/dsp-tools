@@ -189,14 +189,19 @@ def find_date_in_string(string: str) -> Optional[str]:
     # template: 2021-01-01 | 2015_01_02
     iso_date = re.search(fr"{lookbehind}{year_regex}[_-]([0-1][0-9])[_-]([0-3][0-9]){lookahead}", string)
     # template: 6.-8.3.1948 | 6/2/1947 - 24.03.1948
-    eur_date_range = re.search(fr"{lookbehind}{day_regex}{sep_regex}(?:{month_regex}{sep_regex}{year_regex}?)? ?(?:-|:|to) ?"
-                               fr"{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}{lookahead}", string)
+    eur_date_range = re.search(
+        pattern=fr"{lookbehind}{day_regex}{sep_regex}(?:{month_regex}{sep_regex}{year_regex}?)? ?(?:-|:|to) ?"
+                fr"{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}{lookahead}", 
+        string=string
+    )
     # template: 1.4.2021 | 5/11/2021
     eur_date = re.search(fr"{lookbehind}{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}{lookahead}", string)
     # template: March 9, 1908 | March5,1908 | May 11, 1906
     monthname_date = re.search(
-        fr"{lookbehind}(January|Jan|February|Feb|March|Mar|April|Apr|May|June|Jun|July|Jul|August|Aug|September|Sept|"
-        fr"October|Oct|November|Nov|December|Dec) ?{day_regex}, ?{year_regex}{lookahead}", string)
+        pattern=fr"{lookbehind}(January|Jan|February|Feb|March|Mar|April|Apr|May|June|Jun|July|Jul|August|Aug|September|Sept|"
+                fr"October|Oct|November|Nov|December|Dec) ?{day_regex}, ?{year_regex}{lookahead}", 
+        string=string
+    )
     # template: 1849/50 | 1849-50 | 1849/1850
     year_range = re.search(lookbehind + year_regex + r"[/-](\d{2}|\d{4})" + lookahead, string)
     # template: 1907
@@ -309,8 +314,7 @@ def make_root(shortcode: str, default_ontology: str) -> etree._Element:
         "{%s}knora" % (xml_namespace_map[None]),
         attrib={
             str(etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation")):
-                "https://dasch.swiss/schema " +
-                "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd",
+                "https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd",
             "shortcode": shortcode,
             "default-ontology": default_ontology
         },
@@ -420,14 +424,13 @@ def make_resource(
     if iri:
         kwargs["iri"] = iri
     if ark and iri:
-        warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
-                      stacklevel=2)
+        warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.", stacklevel=2)
     if creation_date:
         try:
             DateTimeStamp(creation_date)
         except BaseError:
-            raise BaseError(f"The resource '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. Did "
-                            f"you perhaps forget the timezone?") from None
+            raise BaseError(f"The resource '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. "
+                            f"Did you perhaps forget the timezone?") from None
         kwargs["creation_date"] = creation_date
 
     resource_ = etree.Element(
@@ -465,11 +468,13 @@ def make_bitstream_prop(
     """
 
     if not os.path.isfile(path):
-        warnings.warn(f"Failed validation in bitstream tag of resource '{calling_resource}': The following path "
-                      f"doesn't point to a file: {path}",
+        warnings.warn(f"Failed validation in bitstream tag of resource '{calling_resource}': The following path doesn't point to a file: {path}",
                       stacklevel=2)
-    prop_ = etree.Element("{%s}bitstream" % (xml_namespace_map[None]), permissions=permissions,
-                          nsmap=xml_namespace_map)
+    prop_ = etree.Element(
+        "{%s}bitstream" % (xml_namespace_map[None]), 
+        permissions=permissions, 
+        nsmap=xml_namespace_map
+    )
     prop_.text = str(path)
     return prop_
 
@@ -496,8 +501,7 @@ def _format_bool(unformatted: Union[bool, str, int], name: str, calling_resource
     elif unformatted in (True, "true", "1", 1, "yes"):
         return "true"
     else:
-        raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                        f"'{unformatted}' is not a valid boolean.")
+        raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': '{unformatted}' is not a valid boolean.")
 
 
 def make_boolean_prop(
@@ -543,8 +547,7 @@ def make_boolean_prop(
     elif isinstance(value, (str, bool, int)):
         value_new = PropertyElement(_format_bool(value, name, calling_resource))
     else:
-        raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                        f"'{value}' is not a valid boolean.")
+        raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': '{value}' is not a valid boolean.")
 
     # make xml structure of the value
     prop_ = etree.Element(
@@ -610,8 +613,7 @@ def make_color_prop(
     # check value type
     for val in values:
         if not re.search(r"^#[0-9a-f]{6}$", str(val.value).strip(), flags=re.IGNORECASE):
-            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                            f"'{val.value}' is not a valid color.")
+            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': '{val.value}' is not a valid color.")
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -683,10 +685,11 @@ def make_date_prop(
 
     # check value type
     for val in values:
-        if not re.search(r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})(-\d{1,2})?(-\d{1,2})?"
-                         r"((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$", str(val.value).strip()):
-            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                            f"'{val.value}' is not a valid DSP date.")
+        if not re.search(
+            pattern=r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})(-\d{1,2})?(-\d{1,2})?((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$", 
+            string=str(val.value).strip()
+        ):
+            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': '{val.value}' is not a valid DSP date.")
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1481,14 +1484,13 @@ def make_region(
     if iri:
         kwargs["iri"] = iri
     if ark and iri:
-        warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
-                      stacklevel=2)
+        warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.", stacklevel=2)
     if creation_date:
         try:
             DateTimeStamp(creation_date)
         except BaseError:
-            raise BaseError(f"The region '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. Did "
-                            f"you perhaps forget the timezone?") from None
+            raise BaseError(f"The region '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. "
+                            f"Did you perhaps forget the timezone?") from None
         kwargs["creation_date"] = creation_date
 
     region_ = etree.Element(
@@ -1540,14 +1542,13 @@ def make_annotation(
     if iri:
         kwargs["iri"] = iri
     if ark and iri:
-        warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
-                      stacklevel=2)
+        warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.", stacklevel=2)
     if creation_date:
         try:
             DateTimeStamp(creation_date)
         except BaseError:
-            raise BaseError(f"The annotation '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. Did "
-                            f"you perhaps forget the timezone?") from None
+            raise BaseError(f"The annotation '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. "
+                            f"Did you perhaps forget the timezone?") from None
         kwargs["creation_date"] = creation_date
 
     annotation_ = etree.Element(
@@ -1599,14 +1600,13 @@ def make_link(
     if iri:
         kwargs["iri"] = iri
     if ark and iri:
-        warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
-                      stacklevel=2)
+        warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.", stacklevel=2)
     if creation_date:
         try:
             DateTimeStamp(creation_date)
         except BaseError:
-            raise BaseError(f"The link '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. Did "
-                            f"you perhaps forget the timezone?") from None
+            raise BaseError(f"The link '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. "
+                            f"Did you perhaps forget the timezone?") from None
         kwargs["creation_date"] = creation_date
 
     link_ = etree.Element(
@@ -1696,8 +1696,8 @@ def create_json_excel_list_mapping(
             res[excel_value] = matches[0]
             res[excel_value.lower()] = matches[0]
         else:
-            warnings.warn(f"Did not find a close match to the excel list entry '{excel_value}' among the values "
-                          f"in the JSON project list '{list_name}'", stacklevel=2)
+            warnings.warn(f"Did not find a close match to the excel list entry '{excel_value}' "
+                          f"among the values in the JSON project list '{list_name}'", stacklevel=2)
 
     return res
 
@@ -1794,8 +1794,7 @@ def write_xml(root: etree._Element, filepath: str) -> None:
         validate_xml_against_schema(input_file=filepath)
         print(f"The XML file was successfully saved to {filepath}")
     except BaseError as err:
-        warnings.warn(f"The XML file was successfully saved to {filepath}, but the following Schema validation "
-                      f"error(s) occurred: {err.message}")
+        warnings.warn(f"The XML file was successfully saved to {filepath}, but the following Schema validation error(s) occurred: {err.message}")
 
 
 def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
@@ -1866,8 +1865,8 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
 
         # there are two cases: either the row is a resource-row or a property-row.
         if not xor(check_notna(row.get("id")), check_notna(row.get("prop name"))):
-            raise BaseError(f"Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry. Excel row no. "
-                            f"{int(str(index)) + 2} has too many/too less entries:\n"
+            raise BaseError(f"Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry. "
+                            f"Excel row no. {int(str(index)) + 2} has too many/too less entries:\n"
                             f"id:        '{row.get('id')}'\n"
                             f"prop name: '{row.get('prop name')}'")
 
@@ -1911,9 +1910,8 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
                         elif resource_permissions == "res-restricted":
                             file_permissions = "prop-restricted"
                         else:
-                            raise BaseError(f"'file permissions' missing for file '{row['file']}' (Excel row "
-                                            f"{int(str(index)) + 2}). An attempt to deduce them from the resource "
-                                            f"permissions failed.")
+                            raise BaseError(f"'file permissions' missing for file '{row['file']}' (Excel row {int(str(index)) + 2}). "
+                                            f"An attempt to deduce them from the resource permissions failed.")
                     resource.append(make_bitstream_prop(
                         path=str(row["file"]),
                         permissions=str(file_permissions),
@@ -1947,26 +1945,23 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
                         "permissions": str(row.get(f"{i}_permissions"))
                     }
                     if not check_notna(row.get(f"{i}_permissions")):
-                        raise BaseError(f"Missing permissions for value {value} of property {row['prop name']} "
-                                        f"in resource {resource_id}")
+                        raise BaseError(f"Missing permissions for value {value} of property {row['prop name']} in resource {resource_id}")
                     if check_notna(row.get(f"{i}_comment")):
                         kwargs_propelem["comment"] = str(row[f"{i}_comment"])
                     if check_notna(row.get(f"{i}_encoding")):
                         kwargs_propelem["encoding"] = str(row[f"{i}_encoding"])
-
                     property_elements.append(PropertyElement(**kwargs_propelem))
                 elif check_notna(str(row.get(f"{i}_permissions"))):
-                    raise BaseError(f"Excel row {int(str(index)) + 2} has an entry in column {i}_permissions, but not "
-                                    f"in {i}_value. Please note that cell contents that don't meet the requirements of "
-                                    r"the regex [\p{L}\d_!?\-] are considered inexistent.")
+                    raise BaseError(
+                        f"Excel row {int(str(index)) + 2} has an entry in column {i}_permissions, but not in {i}_value. "
+                        r"Please note that cell contents that don't meet the requirements of the regex [\p{L}\d_!?\-] are considered inexistent."
+                    )
 
             # validate property_elements
             if len(property_elements) == 0:
-                raise BaseError(f"At least one value per property is required, but Excel row {int(str(index)) + 2}"
-                                f"doesn't contain any values.")
+                raise BaseError(f"At least one value per property is required, but Excel row {int(str(index)) + 2} doesn't contain any values.")
             if make_prop_function == make_boolean_prop and len(property_elements) != 1:     # pylint: disable=comparison-with-callable
-                raise BaseError(f"A <boolean-prop> can only have a single value, but Excel row {int(str(index)) + 2} "
-                                f"contains more than one values.")
+                raise BaseError(f"A <boolean-prop> can only have a single value, but Excel row {int(str(index)) + 2} contains more than one value.")
 
             # create the property and append it to resource
             kwargs_propfunc: dict[str, Union[str, PropertyElement, list[PropertyElement]]] = {

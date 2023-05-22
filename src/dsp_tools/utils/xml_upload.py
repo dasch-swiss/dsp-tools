@@ -146,7 +146,7 @@ def _write_id2iri_mapping_and_metrics(
 
 
 def _remove_circular_references(
-    resources: list[XMLResource], 
+    resources: list[XMLResource],
     verbose: bool
 ) -> tuple[
     list[XMLResource],
@@ -552,29 +552,29 @@ def xml_upload(
     nonapplied_xml_texts = {}
     try:
         id2iri_mapping, failed_uploads, metrics = _upload_resources(
-            resources=resources, 
-            imgdir=imgdir, 
-            sipi_server=sipi_server, 
-            permissions_lookup=permissions_lookup, 
-            resclass_name_2_type=resclass_name_2_type, 
-            id2iri_mapping=id2iri_mapping, 
+            resources=resources,
+            imgdir=imgdir,
+            sipi_server=sipi_server,
+            permissions_lookup=permissions_lookup,
+            resclass_name_2_type=resclass_name_2_type,
+            id2iri_mapping=id2iri_mapping,
             con=con,
-            failed_uploads=failed_uploads, 
-            metrics=metrics, 
+            failed_uploads=failed_uploads,
+            metrics=metrics,
             preprocessing_done=preprocessing_done
         )
         if stashed_xml_texts:
             nonapplied_xml_texts = _upload_stashed_xml_texts(
-                verbose=verbose, 
-                id2iri_mapping=id2iri_mapping, 
-                con=con, 
+                verbose=verbose,
+                id2iri_mapping=id2iri_mapping,
+                con=con,
                 stashed_xml_texts=stashed_xml_texts
             )
         if stashed_resptr_props:
             nonapplied_resptr_props = _upload_stashed_resptr_props(
-                verbose=verbose, 
-                id2iri_mapping=id2iri_mapping, 
-                con=con, 
+                verbose=verbose,
+                id2iri_mapping=id2iri_mapping,
+                con=con,
                 stashed_resptr_props=stashed_resptr_props
             )
         if nonapplied_resptr_props or nonapplied_xml_texts:
@@ -823,7 +823,7 @@ def _upload_stashed_xml_texts(
 
     # make a purged version of nonapplied_xml_texts, without empty entries
     nonapplied_xml_texts = _purge_stashed_xml_texts(
-        stashed_xml_texts=nonapplied_xml_texts, 
+        stashed_xml_texts=nonapplied_xml_texts,
         id2iri_mapping=id2iri_mapping
     )
     return nonapplied_xml_texts
@@ -932,7 +932,7 @@ def _upload_stashed_resptr_props(
 
     # make a purged version of nonapplied_resptr_props, without empty entries
     nonapplied_resptr_props = _purge_stashed_resptr_props(
-        stashed_resptr_props=nonapplied_resptr_props, 
+        stashed_resptr_props=nonapplied_resptr_props,
         id2iri_mapping=id2iri_mapping
     )
     return nonapplied_resptr_props
@@ -1006,11 +1006,11 @@ def _handle_upload_error(
 
     # only stashed properties of resources that already exist in DSP are of interest
     stashed_xml_texts = _purge_stashed_xml_texts(
-        stashed_xml_texts=stashed_xml_texts, 
+        stashed_xml_texts=stashed_xml_texts,
         id2iri_mapping=id2iri_mapping
     )
     stashed_resptr_props = _purge_stashed_resptr_props(
-        stashed_resptr_props=stashed_resptr_props, 
+        stashed_resptr_props=stashed_resptr_props,
         id2iri_mapping=id2iri_mapping
     )
 
@@ -1026,10 +1026,10 @@ def _handle_upload_error(
         xml_filename = f"{save_location}/{timestamp_str}_stashed_text_properties.json"
         with open(xml_filename, "x", encoding="utf-8") as f:
             json.dump(
-                obj=stashed_xml_texts_serializable, 
-                fp=f, 
-                ensure_ascii=False, 
-                indent=4, 
+                obj=stashed_xml_texts_serializable,
+                fp=f,
+                ensure_ascii=False,
+                indent=4,
                 cls=KnoraStandoffXmlEncoder
             )
         msg = f"There are stashed text properties that could not be reapplied to the resources they were stripped from. " \
@@ -1042,9 +1042,9 @@ def _handle_upload_error(
         resptr_filename = f"{save_location}/{timestamp_str}_stashed_resptr_properties.json"
         with open(resptr_filename, "x", encoding="utf-8") as f:
             json.dump(
-                obj=stashed_resptr_props_serializable, 
-                fp=f, 
-                ensure_ascii=False, 
+                obj=stashed_resptr_props_serializable,
+                fp=f,
+                ensure_ascii=False,
                 indent=4
             )
         msg = f"There are stashed resptr properties that could not be reapplied to the resources they were stripped from. " \

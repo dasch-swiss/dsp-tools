@@ -191,7 +191,7 @@ def find_date_in_string(string: str) -> Optional[str]:
     # template: 6.-8.3.1948 | 6/2/1947 - 24.03.1948
     eur_date_range = re.search(
         pattern=fr"{lookbehind}{day_regex}{sep_regex}(?:{month_regex}{sep_regex}{year_regex}?)? ?(?:-|:|to) ?"
-                fr"{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}{lookahead}", 
+                fr"{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}{lookahead}",
         string=string
     )
     # template: 1.4.2021 | 5/11/2021
@@ -199,7 +199,7 @@ def find_date_in_string(string: str) -> Optional[str]:
     # template: March 9, 1908 | March5,1908 | May 11, 1906
     monthname_date = re.search(
         pattern=fr"{lookbehind}(January|Jan|February|Feb|March|Mar|April|Apr|May|June|Jun|July|Jul|August|Aug|September|Sept|"
-                fr"October|Oct|November|Nov|December|Dec) ?{day_regex}, ?{year_regex}{lookahead}", 
+                fr"October|Oct|November|Nov|December|Dec) ?{day_regex}, ?{year_regex}{lookahead}",
         string=string
     )
     # template: 1849/50 | 1849-50 | 1849/1850
@@ -471,8 +471,8 @@ def make_bitstream_prop(
         warnings.warn(f"Failed validation in bitstream tag of resource '{calling_resource}': The following path doesn't point to a file: {path}",
                       stacklevel=2)
     prop_ = etree.Element(
-        "{%s}bitstream" % (xml_namespace_map[None]), 
-        permissions=permissions, 
+        "{%s}bitstream" % (xml_namespace_map[None]),
+        permissions=permissions,
         nsmap=xml_namespace_map
     )
     prop_.text = str(path)
@@ -686,7 +686,7 @@ def make_date_prop(
     # check value type
     for val in values:
         if not re.search(
-            pattern=r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})(-\d{1,2})?(-\d{1,2})?((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$", 
+            pattern=r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})(-\d{1,2})?(-\d{1,2})?((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$",
             string=str(val.value).strip()
         ):
             raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': '{val.value}' is not a valid DSP date.")

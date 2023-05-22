@@ -13,10 +13,7 @@ jobs:
     steps:
       - uses: deepakputhraya/action-pr-title@master
         with:
-          regex: >-
-            [a-z]+(\([0-9a-z\-_, ]+\))?!?: [a-z].+\(DEV-\d+\)$|
-            chore: release \d+\.\d+\.\d+$|
-            chore\(deps-dev\): bump .+ from .+ to .+$
+          regex: '[a-z]+(\([0-9a-z\-_, ]+\))?!?: [a-z].+\(DEV-\d+\)$|chore: release \d+\.\d+\.\d+$|chore\(deps-dev\): bump .+ from .+ to .+$'
           allowed_prefixes: "fix,refactor,feat,docs,chore,style,test" 
           disallowed_prefixes: "feature,hotfix" 
           prefix_case_sensitive: true 

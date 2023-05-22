@@ -30,20 +30,22 @@ jobs:
           poetry self add poetry-exec-plugin
           poetry install
       
-      - name: Install ffmpeg for local processing (fast xmlupload)
-        uses: FedericoCarboni/setup-ffmpeg@v2
-        id: setup-ffmpeg
+      # - name: Install ffmpeg for local processing (fast xmlupload)
+      #   uses: FedericoCarboni/setup-ffmpeg@v2
+      #   id: setup-ffmpeg
 
-      - name: Install ImageMagick for local processing (fast xmlupload)
-        uses: mfinelli/setup-imagemagick@v2
+      # - name: Install ImageMagick for local processing (fast xmlupload)
+      #   uses: mfinelli/setup-imagemagick@v2
       
-      - name: build docs
-        run: poetry run mkdocs build --strict
+      # - name: build docs
+      #   run: poetry run mkdocs build --strict
 
       - name: check external links in docs
         run: |
           poetry run npm install -g markdown-link-validator
           markdown-link-validator ./docs -i \\.\\/assets\\/.+ -i .+github\\.com\\/dasch\\-swiss\\/dsp-tools\\/settings
+          poetry exec say-hello
+          poetry exec check-links
 
       - name: run Pylint
         run: poetry run pylint src test

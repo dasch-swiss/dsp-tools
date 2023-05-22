@@ -44,8 +44,8 @@ jobs:
         run: |
           poetry run npm install -g markdown-link-validator
           markdown-link-validator ./docs -i \\.\\/assets\\/.+ -i .+github\\.com\\/dasch\\-swiss\\/dsp-tools\\/settings
-          poetry exec say-hello
-          poetry exec check-links
+          poetry exec -vvv say-hello
+          poetry exec -vvv check-links
 
       - name: run Pylint
         run: poetry run pylint src test

@@ -16,6 +16,8 @@ jobs:
 
       - name: Checkout source
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
@@ -44,7 +46,7 @@ jobs:
           poetry exec check-links
 
       - name: run Pylint
-        run: poetry run pylint src
+        run: poetry run pylint src test
 
       - name: run mypy
         run: poetry run mypy .

@@ -1,3 +1,5 @@
+# pylint: disable=missing-class-docstring,duplicate-code
+
 import os
 import unittest
 
@@ -26,7 +28,8 @@ class TestImportScripts(unittest.TestCase):
         """
         # pull the latest state of the git submodule
         os.system("git submodule update --init --recursive")
-        from dsp_tools.import_scripts import import_script
+        from dsp_tools.import_scripts import \
+            import_script  # pylint: disable=import-outside-toplevel
 
         # execute the import script in its directory
         old_working_directory = os.getcwd()
@@ -37,9 +40,9 @@ class TestImportScripts(unittest.TestCase):
             os.chdir(old_working_directory)
 
         # check the output XML (but before, remove random components from resource IDs and resptr targets)
-        with open("testdata/excel2xml/00A1-data-processed-expected.xml") as f:
+        with open("testdata/excel2xml/00A1-data-processed-expected.xml", encoding="utf-8") as f:
             xml_expected = _derandomize_xsd_id(f.read(), multiple_occurrences=True)
-        with open("src/dsp_tools/import_scripts/data-processed.xml") as f:
+        with open("src/dsp_tools/import_scripts/data-processed.xml", encoding="utf-8") as f:
             xml_returned = _derandomize_xsd_id(f.read(), multiple_occurrences=True)
         self.assertEqual(xml_expected, xml_returned)
 

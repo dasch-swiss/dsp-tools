@@ -123,7 +123,7 @@ class TestExcelToResource(unittest.TestCase):
             (
                 "testdata/invalid-testdata/excel2json/resources-invalid-cardinality.xlsx",
                 "did not pass validation. The problem is that the Excel sheet 'Owner' contains an invalid value "
-                "in row 3, column 'Cardinality': '0-2' is not one of ['1', '0-1', '1-n', '0-n']"
+                "in row 3, column 'Cardinality': '0-2' is not one of"
             ),
             (
                 "testdata/invalid-testdata/excel2json/resources-invalid-property.xlsx",

@@ -1,3 +1,5 @@
+# pylint: disable=missing-class-docstring,missing-function-docstring
+
 import unittest
 
 import pytest
@@ -6,7 +8,7 @@ from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.xml_upload import xml_upload
 
 
-class TestTools(unittest.TestCase):
+class TestXMLUpload(unittest.TestCase):
 
     server = "http://0.0.0.0:3333"
     user = "root@example.com"

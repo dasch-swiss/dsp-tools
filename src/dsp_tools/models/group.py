@@ -83,7 +83,7 @@ class Group(Model):
                  con: Connection,
                  id: Optional[str] = None,
                  name: Optional[str] = None,
-                 descriptions: LangString = None,
+                 descriptions: Optional[LangString] = None,
                  project: Optional[Union[str, Project]] = None,
                  selfjoin: Optional[bool] = None,
                  status: Optional[bool] = None):
@@ -116,7 +116,7 @@ class Group(Model):
         self._changed.add('name')
 
     @property
-    def descriptions(self) -> Optional[LangString]:
+    def descriptions(self) -> LangString:
         return self._descriptions
 
     @descriptions.setter
@@ -217,11 +217,12 @@ class Group(Model):
         result = self._con.post(Group.ROUTE, jsondata)
         return Group.fromJsonObj(self._con, result['group'])
 
-    def read(self):
+    def read(self) -> Group:
         result = self._con.get(Group.ROUTE_SLASH + quote_plus(self._id))
         return Group.fromJsonObj(self._con, result['group'])
 
-    def update(self):
+    def update(self) -> Optional[Group]:
+        updated_group = None
         jsonobj = self.toJsonObj(Actions.Update)
         if jsonobj:
             jsondata = json.dumps(jsonobj)
@@ -233,7 +234,7 @@ class Group(Model):
             updated_group = Group.fromJsonObj(self._con, result['group'])
         return updated_group
 
-    def delete(self):
+    def delete(self) -> Group:
         result = self._con.delete(Group.ROUTE_SLASH + quote_plus(self._id))
         return Group.fromJsonObj(self._con, result['group'])
 

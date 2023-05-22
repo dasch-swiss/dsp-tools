@@ -1,4 +1,7 @@
 """end to end tests for resourceClass class"""
+
+# pylint: disable=missing-class-docstring,missing-function-docstring
+
 import unittest
 
 import pytest
@@ -34,7 +37,7 @@ class TestResourceClass(unittest.TestCase):
         last_modification_date_onto = onto.lastModificationDate
 
         # create test resource class
-        last_modification_date_res, res_class = ResourceClass(
+        _, res_class = ResourceClass(
             con=self.con,
             context=onto.context,
             name=self.res_name,

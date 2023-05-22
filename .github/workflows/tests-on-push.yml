@@ -43,7 +43,7 @@ jobs:
       - name: check external links in docs
         run: |
           poetry run npm install -g markdown-link-validator
-          poetry exec check-links
+          markdown-link-validator ./docs -i \\.\\/assets\\/.+ -i .+github\\.com\\/dasch\\-swiss\\/dsp-tools\\/settings
 
       - name: run Pylint
         run: poetry run pylint src test

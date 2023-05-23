@@ -21,6 +21,12 @@
         <allow group="Creator">CR</allow>
     </permissions>
 
+    <resource label="bitstreams/test with uppercase extension.JPG" restype=":TextThing" id="bitstreams_test_with_uppercase_extension.JPG_79d49438-4828-4c4f-85fc-6507bb10ee5d" permissions="res-default">
+        <bitstream permissions="prop-default">bitstreams/test with uppercase extension.JPG</bitstream>
+    </resource>
+    <resource label="bitstreams/test with whitespaces.png" restype=":TextThing" id="bitstreams_test_with_whitespaces.png_79d49438-4828-4c4f-85fc-6507bb10ee5d" permissions="res-default">
+        <bitstream permissions="prop-default">bitstreams/test with whitespaces.png</bitstream>
+    </resource>
     <resource label="bitstreams/README.txt" restype=":TextThing" id="bitstreams_readme.txt_79d49438-4828-4c4f-85fc-6507bb10ee5d" permissions="res-default">
         <bitstream permissions="prop-default">bitstreams/README.txt</bitstream>
     </resource>

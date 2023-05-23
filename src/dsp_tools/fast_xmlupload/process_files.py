@@ -54,19 +54,21 @@ def _check_if_all_files_were_processed(
     Returns:
         success status
     """
-    if len(result) == len(all_paths):
+    processed_paths = [x[1] for x in result if x[1]]
+    if len(processed_paths) == len(all_paths):
         success = True
         print(f"{datetime.now()}: Number of processed files: {len(result)}: Okay")
         logger.info(f"Number of processed files: {len(result)}: Okay")
     else:
         success = False
-        print(f"{datetime.now()}: ERROR: Some files could not be processed: Only {len(result)}/{len(all_paths)} were processed. The failed ones are:")
-        logger.error(f"Some files could not be processed: Only {len(result)}/{len(all_paths)} were processed. The failed ones are:")
+        msg = f"Some files could not be processed: Only {len(processed_paths)}/{len(all_paths)} were processed. The failed ones are:"
+        print(f"{datetime.now()}: ERROR: {msg}")
+        logger.error(msg)
 
     for input_file, output_file in result:
         if not output_file:
-            print(f" - {input_file} could not be processed.")
-            logger.error(f" - {input_file} could not be processed.")
+            print(f" - {input_file}")
+            logger.error(f" - {input_file}")
 
     return success
 

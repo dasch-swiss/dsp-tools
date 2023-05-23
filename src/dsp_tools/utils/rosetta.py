@@ -27,9 +27,9 @@ def _update_possibly_existing_repo(rosetta_folder: Path) -> bool:
             is_rosetta_up_to_date = False
     else:
         is_rosetta_up_to_date = False
-    
+
     return is_rosetta_up_to_date
-    
+
 
 def _clone_repo(rosetta_folder: Path, enclosing_folder: Path) -> None:
     """
@@ -44,15 +44,15 @@ def _clone_repo(rosetta_folder: Path, enclosing_folder: Path) -> None:
     """
     print(f"Clone into {rosetta_folder}...")
     completed_process = subprocess.run(
-        "git clone https://github.com/dasch-swiss/082E-rosetta-scripts.git", 
-        shell=True, 
-        cwd=enclosing_folder, 
+        "git clone https://github.com/dasch-swiss/082E-rosetta-scripts.git",
+        shell=True,
+        cwd=enclosing_folder,
         check=False
     )
     if not completed_process or completed_process.returncode != 0:
         raise UserError("There was a problem while cloning the rosetta test project")
 
-    
+
 def _create_json(rosetta_folder: Path) -> bool:
     """
     Creates the rosetta project on the locally running DSP stack.
@@ -122,8 +122,8 @@ def upload_rosetta() -> bool:
     is_rosetta_up_to_date = _update_possibly_existing_repo(rosetta_folder=rosetta_folder)
     if not is_rosetta_up_to_date:
         _clone_repo(rosetta_folder=rosetta_folder, enclosing_folder=enclosing_folder)
-    
+
     success1 = _create_json(rosetta_folder=rosetta_folder)
     success2 = _upload_xml(rosetta_folder=rosetta_folder)
-    
+
     return success1 and success2

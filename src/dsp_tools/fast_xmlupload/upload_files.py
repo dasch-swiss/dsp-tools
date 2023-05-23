@@ -15,8 +15,9 @@ from dsp_tools.utils.shared import login
 
 logger = logging.getLogger(__name__)
 
+
 def _get_upload_candidates(
-    dir_with_processed_files: Path, 
+    dir_with_processed_files: Path,
     internal_filename_of_processed_file: Path
 ) -> list[Path]:
     """
@@ -47,7 +48,7 @@ def _get_upload_candidates(
 
 
 def _check_upload_candidates(
-    internal_filename_of_processed_file: Path, 
+    internal_filename_of_processed_file: Path,
     upload_candidates: list[Path]
 ) -> bool:
     """
@@ -84,8 +85,8 @@ def _check_upload_candidates(
 
 
 def _upload_without_processing(
-    file: Path, 
-    sipi_url: str, 
+    file: Path,
+    sipi_url: str,
     con: Connection
 ) -> bool:
     """
@@ -115,7 +116,7 @@ def _upload_without_processing(
         print(f"{datetime.now()}: ERROR: Cannot send file to /upload_without_processing route, because the file cannot be opened: {file}")
         logger.error(f"Cannot send file to /upload_without_processing route, because the file cannot be opened: {file}", exc_info=True)
         return False
-    
+
     if response_upload.json().get("message") == "server.fs.mkdir() failed: File exists":
         # This error can be safely ignored, since the file was uploaded correctly.
         logger.info(f"In spite of 'server.fs.mkdir() failed: File exists', successfully uploaded file {file}")
@@ -148,12 +149,12 @@ def _upload_file(
         tuple with the processed file and a boolean indicating if the upload was successful
     """
     upload_candidates = _get_upload_candidates(
-        dir_with_processed_files=dir_with_processed_files, 
+        dir_with_processed_files=dir_with_processed_files,
         internal_filename_of_processed_file=internal_filename_of_processed_file
     )
 
     check_result = _check_upload_candidates(
-        internal_filename_of_processed_file=internal_filename_of_processed_file, 
+        internal_filename_of_processed_file=internal_filename_of_processed_file,
         upload_candidates=upload_candidates
     )
     if not check_result:
@@ -162,8 +163,8 @@ def _upload_file(
     results: list[bool] = []
     for candidate in upload_candidates:
         res = _upload_without_processing(
-            file=candidate, 
-            sipi_url=sipi_url, 
+            file=candidate,
+            sipi_url=sipi_url,
             con=con
         )
         results.append(res)
@@ -201,7 +202,7 @@ def _get_paths_from_pkl_file(pkl_file: Path) -> list[Path]:
 
 
 def _check_params(
-    pkl_file: str, 
+    pkl_file: str,
     dir_with_processed_files: str
 ) -> Optional[tuple[Path, Path]]:
     """
@@ -272,7 +273,7 @@ def _check_if_all_files_were_uploaded(
     Args:
         result: list of tuples with the path of the file and the success status
         internal_filenames_of_processed_files: list of files that should have been uploaded (uuid filenames)
-    
+
     Returns:
         True if all files were uploaded, False otherwise
     """
@@ -283,15 +284,15 @@ def _check_if_all_files_were_uploaded(
     else:
         success = False
         msg = f"Some derivates of some files could not be uploaded: Only {len(result)}/{len(internal_filenames_of_processed_files)} were uploaded. " \
-               "The failed ones are:"
+            "The failed ones are:"
         print(f"{datetime.now()}: ERROR: {msg}")
         logger.error(msg)
-    
+
     for path, res in result:
         if not res:
             print(f" - {path} could not be uploaded.")
             logger.error(f"{path} could not be uploaded.")
-    
+
     return success
 
 
@@ -317,13 +318,13 @@ def upload_files(
         password: the user's password for login into DSP
         dsp_url: URL to the DSP server
         sipi_url: URL to the Sipi server
-    
+
     Returns:
         success status
     """
     # check the input parameters
     param_check_result = _check_params(
-        pkl_file=pkl_file, 
+        pkl_file=pkl_file,
         dir_with_processed_files=dir_with_processed_files
     )
     if param_check_result:
@@ -338,8 +339,8 @@ def upload_files(
 
     # create connection to DSP
     con = login(
-        server=dsp_url, 
-        user=user, 
+        server=dsp_url,
+        user=user,
         password=password
     )
 
@@ -348,9 +349,9 @@ def upload_files(
     print(f"{start_time}: Start file uploading...")
     logger.info("Start file uploading...")
     result = _upload_files_in_parallel(
-        dir_with_processed_files=dir_with_processed_files_path, 
-        internal_filenames_of_processed_files=internal_filenames_of_processed_files, 
-        sipi_url=sipi_url, 
+        dir_with_processed_files=dir_with_processed_files_path,
+        internal_filenames_of_processed_files=internal_filenames_of_processed_files,
+        sipi_url=sipi_url,
         con=con,
         nthreads=nthreads
     )

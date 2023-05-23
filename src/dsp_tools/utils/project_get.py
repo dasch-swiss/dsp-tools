@@ -25,7 +25,7 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
 
     Raises:
         BaseError if something went wrong
-    
+
     Returns:
         True if the process finishes without errors
     """
@@ -44,7 +44,6 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
         raise BaseError(f"ERROR Invalid project identifier '{project_identifier}'. Use the project's shortcode, shortname or IRI.")
 
     project = project.read()
-
     project_obj = project.createDefinitionFileObj()
 
     # get groups
@@ -66,11 +65,13 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
     users = User.getAllUsersForProject(con=con, proj_shortcode=str(project.shortcode))
     if users:
         for usr in users:
-            users_obj.append(usr.createDefinitionFileObj(
-                con=con, 
-                proj_shortname=str(project.shortname), 
-                proj_iri=str(project.id)
-            ))
+            users_obj.append(
+                usr.createDefinitionFileObj(
+                    con=con,
+                    proj_shortname=str(project.shortname),
+                    proj_iri=str(project.id)
+                )
+            )
             if verbose:
                 print(f"\tGot user '{usr.username}'")
         project_obj["users"] = users_obj

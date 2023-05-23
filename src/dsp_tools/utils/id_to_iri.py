@@ -13,7 +13,6 @@ from dsp_tools.models.exceptions import BaseError
 
 
 def id_to_iri(xml_file: str, json_file: str, out_file: Optional[str], verbose: bool) -> bool:
-
     """
     This function replaces all occurrences of internal IDs with their respective IRIs inside an XML file. It gets the
     mapping from the JSON file provided as parameter for this function.
@@ -26,7 +25,7 @@ def id_to_iri(xml_file: str, json_file: str, out_file: Optional[str], verbose: b
 
     Raises:
         BaseError if one of the two input files is not a valid file
-    
+
     Returns:
         True if everything went well, False otherwise
     """

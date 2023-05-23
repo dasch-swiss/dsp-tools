@@ -34,12 +34,12 @@ def _get_paths_from_pkl_file(pkl_file: Path) -> dict[str, str]:
                 f"There is no processed file for {orig_path}. The fast xmlupload cannot be started, "
                 "because the resource that uses this file would fail."
             )
-    
+
     return orig_path_2_uuid_filename
 
 
 def replace_bitstream_paths(
-    xml_tree: "etree._ElementTree[etree._Element]", 
+    xml_tree: "etree._ElementTree[etree._Element]",
     orig_path_2_uuid_filename: dict[str, str]
 ) -> "etree._ElementTree[etree._Element]":
     """
@@ -95,7 +95,7 @@ def fast_xmlupload(
         password: the user's password for login into DSP
         dsp_url: URL to the DSP server
         sipi_url: URL to the Sipi server
-    
+
     Returns:
         success status
     """

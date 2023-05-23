@@ -27,7 +27,7 @@ def start_stack(
         max_file_size: max. multimedia file size allowed by SIPI, in MB (max: 100'000)
         enforce_docker_system_prune: if True, prune Docker without asking the user
         suppress_docker_system_prune: if True, don't prune Docker (and don't ask)
-    
+
     Raises:
         BaseError if the stack cannot be started with the parameters passed by the user
 
@@ -130,7 +130,7 @@ def start_stack(
                                  "Docker clean. If you are unsure what that means, just type y and press Enter. [y/n]")
     if prune_docker == "y":
         subprocess.run("docker system prune -f", shell=True, cwd=docker_path_of_user, check=False)
-    
+
     return True
 
 

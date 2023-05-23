@@ -33,7 +33,7 @@ def _get_export_moving_image_frames_script() -> None:
     global export_moving_image_frames_script
     export_moving_image_frames_script = user_folder / "export-moving-image-frames.sh"
     script_text = requests.get(
-        "https://github.com/dasch-swiss/dsp-api/raw/main/sipi/scripts/export-moving-image-frames.sh", 
+        "https://github.com/dasch-swiss/dsp-api/raw/main/sipi/scripts/export-moving-image-frames.sh",
         timeout=5
     ).text
     with open(export_moving_image_frames_script, "w", encoding="utf-8") as f:
@@ -50,7 +50,7 @@ def _check_if_all_files_were_processed(
     Args:
         result: list of tuples of Paths. If the second Path is None, the file could not be processed.
         all_paths: list of all paths that should have been processed
-    
+
     Returns:
         success status
     """
@@ -62,7 +62,7 @@ def _check_if_all_files_were_processed(
         success = False
         print(f"{datetime.now()}: ERROR: Some files could not be processed: Only {len(result)}/{len(all_paths)} were processed. The failed ones are:")
         logger.error(f"Some files could not be processed: Only {len(result)}/{len(all_paths)} were processed. The failed ones are:")
-    
+
     for input_file, output_file in result:
         if not output_file:
             print(f" - {input_file} could not be processed.")
@@ -72,8 +72,8 @@ def _check_if_all_files_were_processed(
 
 
 def _process_files_in_parallel(
-    paths: list[Path], 
-    input_dir: Path, 
+    paths: list[Path],
+    input_dir: Path,
     output_dir: Path,
     nthreads: Optional[int]
 ) -> list[tuple[Path, Optional[Path]]]:
@@ -128,8 +128,8 @@ def _write_result_to_pkl_file(result: list[tuple[Path, Optional[Path]]]) -> bool
 
 
 def _check_params(
-    input_dir: str, 
-    out_dir: str, 
+    input_dir: str,
+    out_dir: str,
     xml_file: str
 ) -> Optional[tuple[Path, Path, Path]]:
     """
@@ -215,7 +215,7 @@ def _start_sipi_container_and_mount_volumes(
         print(f"{datetime.now()}: Created and started Sipi container '{container_name}'.")
         logger.info(f"Created and started Sipi container '{container_name}'.")
         return
-    
+
     # Docker container exists
     if not container:
         container_running = False
@@ -286,7 +286,7 @@ def _compute_sha256(file: Path) -> Optional[str]:
 
 
 def _convert_file_with_sipi(
-    in_file_local_path: Path, 
+    in_file_local_path: Path,
     input_dir: Path,
     out_file_local_path: Path,
     output_dir: Path
@@ -317,8 +317,8 @@ def _convert_file_with_sipi(
 
 
 def _create_orig_file(
-    in_file: Path, 
-    internal_file_name: str, 
+    in_file: Path,
+    internal_file_name: str,
     out_dir: Path
 ) -> bool:
     """
@@ -439,7 +439,7 @@ def _create_sidecar_file(
     with open(sidecar_file, "w", encoding="utf-8") as f:
         sidecar_json = json.dumps(sidecar_dict, indent=4)
         f.write(sidecar_json)
-    
+
     logger.info(f"Created sidecar file {sidecar_file}")
     return True
 
@@ -485,7 +485,7 @@ def _extract_preview_from_video(file: Path) -> bool:
     Returns:
         true if successful, false otherwise
     """
-    
+
     result = subprocess.call(["/bin/bash", f"{export_moving_image_frames_script}", "-i", f"{file}"])
     if result != 0:
         return False
@@ -547,8 +547,8 @@ def _process_file(
 
     # create .orig file
     if not _create_orig_file(
-        in_file=in_file, 
-        internal_file_name=internal_filename, 
+        in_file=in_file,
+        internal_file_name=internal_filename,
         out_dir=out_dir_full
     ):
         return in_file, None
@@ -560,21 +560,21 @@ def _process_file(
 
     if file_category == "OTHER":
         result = _process_other_file(
-            in_file=in_file, 
-            internal_filename=internal_filename, 
+            in_file=in_file,
+            internal_filename=internal_filename,
             out_dir=out_dir_full
         )
     elif file_category == "IMAGE":
         result = _process_image_file(
-            in_file=in_file, 
-            internal_filename=internal_filename, 
-            out_dir=out_dir_full, 
+            in_file=in_file,
+            internal_filename=internal_filename,
+            out_dir=out_dir_full,
             input_dir=input_dir
         )
     elif file_category == "VIDEO":
         result = _process_video_file(
-            in_file=in_file, 
-            internal_filename=internal_filename, 
+            in_file=in_file,
+            internal_filename=internal_filename,
             out_dir=out_dir_full
         )
     else:
@@ -586,8 +586,8 @@ def _process_file(
 
 
 def _process_other_file(
-    in_file: Path, 
-    internal_filename: str, 
+    in_file: Path,
+    internal_filename: str,
     out_dir: Path
 ) -> tuple[Path, Optional[Path]]:
     """
@@ -613,8 +613,8 @@ def _process_other_file(
         logger.error(f"Couldn't process file of category OTHER: {in_file}", exc_info=True)
         return in_file, None
     if not _create_sidecar_file(
-        orig_file=in_file, 
-        converted_file=converted_file_full_path, 
+        orig_file=in_file,
+        converted_file=converted_file_full_path,
         file_category="OTHER"
     ):
         print(f"{datetime.now()}: ERROR: Couldn't create sidecar file for: {in_file}")
@@ -624,9 +624,9 @@ def _process_other_file(
 
 
 def _process_image_file(
-    in_file: Path, 
-    internal_filename: str, 
-    out_dir: Path, 
+    in_file: Path,
+    internal_filename: str,
+    out_dir: Path,
     input_dir: Path
 ) -> tuple[Path, Optional[Path]]:
     """
@@ -654,8 +654,8 @@ def _process_image_file(
         logger.error(f"Couldn't process file of category IMAGE: {in_file}")
         return in_file, None
     if not _create_sidecar_file(
-        orig_file=in_file, 
-        converted_file=converted_file_full_path, 
+        orig_file=in_file,
+        converted_file=converted_file_full_path,
         file_category="IMAGE"
     ):
         print(f"{datetime.now()}: ERROR: Couldn't create sidecar file for: {in_file}")
@@ -665,8 +665,8 @@ def _process_image_file(
 
 
 def _process_video_file(
-    in_file: Path, 
-    internal_filename: str, 
+    in_file: Path,
+    internal_filename: str,
     out_dir: Path
 ) -> tuple[Path, Optional[Path]]:
     """
@@ -689,24 +689,24 @@ def _process_video_file(
         print(f"{datetime.now()}: ERROR: Couldn't create derivate file for video '{in_file}'")
         logger.error(f"Couldn't create derivate file for video '{in_file}'", exc_info=True)
         return in_file, None
-    
+
     # create preview image
     preview_result = _extract_preview_from_video(converted_file_full_path)
     if not preview_result:
         print(f"{datetime.now()}: ERROR: Couldn't create preview image for video '{in_file}'")
         logger.error(f"Couldn't create preview image for video '{in_file}'")
         return in_file, None
-    
+
     # create sidecar file
     if not _create_sidecar_file(
-        orig_file=in_file, 
-        converted_file=converted_file_full_path, 
+        orig_file=in_file,
+        converted_file=converted_file_full_path,
         file_category="VIDEO"
     ):
         print(f"{datetime.now()}: ERROR: Couldn't create sidecar file for video '{in_file}'")
         logger.error(f"Couldn't create sidecar file for video '{in_file}'")
         return in_file, None
-    
+
     return in_file, converted_file_full_path
 
 
@@ -729,15 +729,15 @@ def process_files(
         output_dir: path to the directory where the transformed / created files should be written to
         xml_file: path to xml file containing the resources
         nthreads: number of threads to use for processing
-    
+
     Returns:
         success status
     """
     logger.info(f"***Call to process_files(input_dir='{input_dir}', out_dir='{output_dir}', xml_file='{xml_file}')***")
     # check the input parameters
     param_check_result = _check_params(
-        input_dir=input_dir, 
-        out_dir=output_dir, 
+        input_dir=input_dir,
+        out_dir=output_dir,
         xml_file=xml_file
     )
     if param_check_result:
@@ -747,8 +747,8 @@ def process_files(
 
     # startup the SIPI container
     _start_sipi_container_and_mount_volumes(
-        input_dir=input_dir_path, 
-        output_dir=output_dir_path 
+        input_dir=input_dir_path,
+        output_dir=output_dir_path
     )
     global sipi_container
     sipi_container = _get_sipi_container()
@@ -767,8 +767,8 @@ def process_files(
     print(f"{start_time}: Start local file processing...")
     logger.info("Start local file processing...")
     result = _process_files_in_parallel(
-        paths=all_paths, 
-        input_dir=input_dir_path, 
+        paths=all_paths,
+        input_dir=input_dir_path,
         output_dir=output_dir_path,
         nthreads=nthreads
     )

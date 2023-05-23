@@ -121,9 +121,8 @@ def _get_values_from_excel(
         # check if all predecessors in row (values to the left) are consistent with the values in preval list
         for idx, val in enumerate(preval[:-1]):
             if val != str(base_file_ws.cell(column=idx+1, row=row).value).strip():
-                raise BaseError(
-                    f"ERROR: Inconsistency in Excel list: {val} not equal to {str(base_file_ws.cell(column=idx+1, row=row).value).strip()}"
-                )
+                raise BaseError("ERROR: Inconsistency in Excel list: "
+                                f"{val} not equal to {str(base_file_ws.cell(column=idx+1, row=row).value).strip()}")
 
         # loop through the row until the last (furthest right) value is found
         next_value = base_file_ws.cell(column=col+1, row=row).value
@@ -146,10 +145,8 @@ def _get_values_from_excel(
             list_of_lists_of_previous_cell_values.append(new_check_list)
 
             if any(list_of_lists_of_previous_cell_values.count(x) > 1 for x in list_of_lists_of_previous_cell_values):
-                raise BaseError(
-                    f"ERROR: There is at least one duplicate node in the list. "
-                    f"Found duplicate in column {cell.column}, row {cell.row}:\n'{str(cell.value).strip()}'"
-                )
+                raise BaseError(f"ERROR: There is at least one duplicate node in the list. "
+                                f"Found duplicate in column {cell.column}, row {cell.row}:\n'{str(cell.value).strip()}'")
 
             # create a simplified version of the cell value and use it as name of the node
             nodename = simplify_name(str(cell.value).strip())
@@ -165,10 +162,8 @@ def _get_values_from_excel(
             for other_lang, ws_other_lang in excelfiles.items():
                 cell_value = ws_other_lang.cell(column=col, row=row).value
                 if not (isinstance(cell_value, str) and len(cell_value) > 0):
-                    raise BaseError(
-                        f"ERROR: Malformed Excel file: The Excel file with the language code "
-                        f"'{other_lang}' should have a value in row {row}, column {col}"
-                    )
+                    raise BaseError("ERROR: Malformed Excel file: The Excel file with the language code "
+                                    f"'{other_lang}' should have a value in row {row}, column {col}")
                 else:
                     labels_dict[other_lang] = cell_value.strip()
 
@@ -281,9 +276,8 @@ def validate_lists_section_with_schema(
             project = json.load(f)
             lists_section = project["project"].get("lists")
             if not lists_section:
-                raise BaseError(
-                    f"Cannot validate \"lists\" section of {path_to_json_project_file}, because there is no \"lists\" section in this file."
-                )
+                raise BaseError(f"Cannot validate \"lists\" section of {path_to_json_project_file}, "
+                                "because there is no \"lists\" section in this file.")
 
     try:
         jsonschema.validate(instance={"lists": lists_section}, schema=lists_schema)

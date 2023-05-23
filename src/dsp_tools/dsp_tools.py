@@ -59,7 +59,7 @@ def make_parser() -> argparse.ArgumentParser:
 
     # create
     parser_create = subparsers.add_parser(
-        name="create", 
+        name="create",
         help="Create a project defined in a JSON project file on a DSP server. "
              "A project can consist of lists, groups, users, and ontologies (data models)."
     )
@@ -67,9 +67,9 @@ def make_parser() -> argparse.ArgumentParser:
     parser_create.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
     parser_create.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_create.add_argument("-p", "--password", default=default_pw, help=password_text)
-    parser_create.add_argument("-V", "--validate-only", action="store_true", 
+    parser_create.add_argument("-V", "--validate-only", action="store_true",
                                help="validate the JSON file without creating it on the DSP server")
-    parser_create.add_argument("-l", "--lists-only", action="store_true", 
+    parser_create.add_argument("-l", "--lists-only", action="store_true",
                                help="create only the lists (prerequisite: the project exists on the server)")
     parser_create.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
     parser_create.add_argument("-d", "--dump", action="store_true", help="dump test files for DSP-API requests")
@@ -91,10 +91,10 @@ def make_parser() -> argparse.ArgumentParser:
     parser_upload.add_argument("-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to")
     parser_upload.add_argument("-u", "--user", default=default_user, help=username_text)
     parser_upload.add_argument("-p", "--password", default=default_pw, help=password_text)
-    parser_upload.add_argument("-S", "--sipi", default=default_sipi, 
+    parser_upload.add_argument("-S", "--sipi", default=default_sipi,
                                help="URL of the SIPI server where DSP-TOOLS sends the multimedia files to")
     parser_upload.add_argument("-i", "--imgdir", default=".", help="folder from where the paths in the <bitstream> tags are evaluated")
-    parser_upload.add_argument("-I", "--incremental", action="store_true", 
+    parser_upload.add_argument("-I", "--incremental", action="store_true",
                                help="The links in the XML file point to IRIs (on the server) instead of IDs (in the same XML file).")
     parser_upload.add_argument("-V", "--validate", action="store_true", help="validate the XML file without uploading it")
     parser_upload.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
@@ -160,7 +160,7 @@ def make_parser() -> argparse.ArgumentParser:
 
     # excel2resources
     parser_excel_resources = subparsers.add_parser(
-        name="excel2resources", 
+        name="excel2resources",
         help="Create the 'resources' section of a JSON project file from one or multiple Excel files"
     )
     parser_excel_resources.set_defaults(action="excel2resources")
@@ -169,7 +169,7 @@ def make_parser() -> argparse.ArgumentParser:
 
     # excel2properties
     parser_excel_properties = subparsers.add_parser(
-        name="excel2properties", 
+        name="excel2properties",
         help="Create the 'properties' section of a JSON project file from one or multiple Excel files"
     )
     parser_excel_properties.set_defaults(action="excel2properties")
@@ -178,7 +178,7 @@ def make_parser() -> argparse.ArgumentParser:
 
     # excel2xml
     parser_excel2xml = subparsers.add_parser(
-        name="excel2xml", 
+        name="excel2xml",
         help="Create an XML file from an Excel/CSV file that is already structured according to the DSP specifications"
     )
     parser_excel2xml.set_defaults(action="excel2xml")
@@ -188,7 +188,7 @@ def make_parser() -> argparse.ArgumentParser:
 
     # id2iri
     parser_id2iri = subparsers.add_parser(
-        name="id2iri", 
+        name="id2iri",
         help="Replace internal IDs in contained in the <resptr> tags of an XML file by IRIs provided in a mapping file"
     )
     parser_id2iri.set_defaults(action="id2iri")
@@ -206,21 +206,21 @@ def make_parser() -> argparse.ArgumentParser:
 
     # shutdown DSP-API
     parser_stackdown = subparsers.add_parser(
-        name="stop-stack", 
+        name="stop-stack",
         help="Shut down the local instance of DSP-API and DSP-APP, and delete all data in it"
     )
     parser_stackdown.set_defaults(action="stop-stack")
 
     # create template repo with minimal JSON and XML files
     parser_template = subparsers.add_parser(
-        name="template", 
+        name="template",
         help="Create a template repository with a minimal JSON and XML file"
     )
     parser_template.set_defaults(action="template")
 
     # clone rosetta
     parser_rosetta = subparsers.add_parser(
-        name="rosetta", 
+        name="rosetta",
         help="Clone the most up to data rosetta repository, create the data model and upload the data"
     )
     parser_rosetta.set_defaults(action="rosetta")
@@ -229,7 +229,7 @@ def make_parser() -> argparse.ArgumentParser:
 
 
 def call_requested_action(
-    user_args: list[str], 
+    user_args: list[str],
     parser: argparse.ArgumentParser,
     logger: logging.Logger
 ) -> bool:
@@ -245,7 +245,7 @@ def call_requested_action(
         BaseError from the called methods
         UserError from the called methods
         unexpected errors from the called methods and underlying libraries
-    
+
     Returns:
         success status
     """
@@ -253,11 +253,11 @@ def call_requested_action(
     if not hasattr(args, "action"):
         parser.print_help(sys.stderr)
         sys.exit(1)
-    
+
     logger.info("*****************************************************************************************")
     logger.info(f"***Called DSP-TOOLS action '{args.action}' from command line with these parameters: {args}")
     logger.info("*****************************************************************************************")
-    
+
     if args.action == "create":
         if args.lists_only:
             if args.validate_only:
@@ -405,12 +405,12 @@ def main() -> None:
         ]
     )
     logger = logging.getLogger(__name__)
-    
+
     parser = make_parser()
     try:
         success = call_requested_action(
-            user_args=sys.argv[1:], 
-            parser=parser, 
+            user_args=sys.argv[1:],
+            parser=parser,
             logger=logger
         )
     except UserError as err:
@@ -418,7 +418,7 @@ def main() -> None:
         sys.exit(1)
     # let BaseError and all unexpected errors escalate, so that a stack trace is printed
 
-    if not success: 
+    if not success:
         sys.exit(1)
 
 

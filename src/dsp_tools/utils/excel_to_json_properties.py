@@ -22,7 +22,7 @@ def _validate_properties(properties_list: list[dict[str, Any]], excelfile: str) 
     Args:
         properties_list: the "properties" section of a JSON project as a list of dicts
         excelfile: path to the Excel file containing the properties
-    
+
     Raises:
         BaseError with a detailed error report if the validation fails
 
@@ -46,7 +46,7 @@ def _validate_properties(properties_list: list[dict[str, Any]], excelfile: str) 
         else:
             err_msg += f"The error message is: {err.message}\nThe error occurred at {err.json_path}"
         raise BaseError(err_msg) from None
-    
+
     # check if property names are unique
     all_names = [p["name"] for p in properties_list]
     duplicates: dict[int, str] = dict()
@@ -58,7 +58,7 @@ def _validate_properties(properties_list: list[dict[str, Any]], excelfile: str) 
         for row_no, propname in duplicates.items():
             err_msg += f" - Row {row_no}: {propname}\n"
         raise BaseError(err_msg)
-    
+
     return True
 
 
@@ -94,8 +94,8 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
         pairs = row["gui_attributes"].split(",")
         for pair in pairs:
             if pair.count(":") != 1:
-                raise BaseError(f"Row {row_count} of Excel file {excelfile} contains invalid data in column "
-                                 f"'gui_attributes'. The expected format is 'attribute: value[, attribute: value]'.")
+                raise BaseError(f"Row {row_count} of Excel file {excelfile} contains invalid data in column 'gui_attributes'. "
+                                "The expected format is 'attribute: value[, attribute: value]'.")
             attr, val = [x.strip() for x in pair.split(":")]
             if re.search(r"^\d+\.\d+$", val):
                 val = float(val)
@@ -134,7 +134,7 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
     Returns:
         a tuple consisting of the "properties" section as Python list, and the success status (True if everything went well)
     """
-    
+
     # load file
     try:
         df: pd.DataFrame = pd.read_excel(excelfile)
@@ -180,6 +180,5 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
         with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
             json.dump(props, file, indent=4, ensure_ascii=False)
             print('"properties" section was created successfully and written to file:', path_to_output_file)
-
 
     return props, True

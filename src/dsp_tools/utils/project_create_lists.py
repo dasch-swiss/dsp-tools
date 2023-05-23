@@ -83,9 +83,9 @@ def create_lists_on_server(
     Returns:
         tuple consisting of the IRIs of the list nodes and the success status (True if everything went well)
     """
-    
+
     overall_success = True
-    
+
     # retrieve existing lists
     try:
         existing_lists: list[ListNode] = try_network_action(
@@ -96,7 +96,7 @@ def create_lists_on_server(
         logger.warning("Unable to retrieve existing lists on DSP server. Cannot check if your lists are already existing.", exc_info=True)
         existing_lists = []
         overall_success = False
-    
+
     current_project_lists: dict[str, Any] = {}
     for new_list in lists_to_create:
         # if list exists already, add it to "current_project_lists" (for later usage), then skip it
@@ -112,7 +112,7 @@ def create_lists_on_server(
         if not success:
             overall_success = False
         print(f"\tCreated list '{new_list['name']}'.")
-    
+
     return current_project_lists, overall_success
 
 

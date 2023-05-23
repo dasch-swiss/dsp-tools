@@ -20,9 +20,9 @@ MD012: false
 
 # MD013/line-length - Line length
 MD013: 
-    line_length: 140
-    heading_line_length: 140
-    code_block_line_length: 140
+    line_length: 150
+    heading_line_length: 150
+    code_block_line_length: 150
     # Include code blocks
     code_blocks: true
     # Include tables

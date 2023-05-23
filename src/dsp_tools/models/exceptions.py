@@ -23,8 +23,8 @@ class BaseError(Exception):
     api_route: Optional[str]
 
     def __init__(
-        self, 
-        message: str, 
+        self,
+        message: str,
         status_code: Optional[int] = None,
         json_content_of_api_response: Optional[str] = None,
         reason_from_api_response: Optional[str] = None,
@@ -55,7 +55,7 @@ class BaseError(Exception):
                 pass
         self.reason_from_api_response = reason_from_api_response
         self.api_route = api_route
-    
+
     def __str__(self) -> str:
         return self.message
 

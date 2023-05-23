@@ -22,9 +22,11 @@ jobs:
           submodules: recursive
 
       - name: Install poetry
+        # the latest poetry (1.5.0) is not compatible with the latest poetry-exec-plugin (0.3.5) 
+        # (see https://github.com/keattang/poetry-exec-plugin/issues/14). 
+        # As long as poetry-exec-plugin isn't fixed, we have to use poetry 1.4.2.
         run: | 
-          curl -sSL https://install.python-poetry.org | python3 -
-          poetry self add poetry-exec-plugin
+          curl -sSL https://install.python-poetry.org | python3 - --version 1.4.2
 
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
@@ -45,6 +47,7 @@ jobs:
       - name: check external links in docs
         run: |
           npm install -g markdown-link-validator
+          poetry self add poetry-exec-plugin
           poetry exec check-links
 
 

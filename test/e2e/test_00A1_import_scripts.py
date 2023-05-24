@@ -1,5 +1,6 @@
 # pylint: disable=missing-class-docstring,duplicate-code
 
+import logging
 import os
 import unittest
 
@@ -9,6 +10,7 @@ from dsp_tools.excel2xml import _derandomize_xsd_id
 from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.xml_upload import xml_upload
 
+logger = logging.getLogger(__name__)
 
 class TestImportScripts(unittest.TestCase):
 
@@ -53,7 +55,8 @@ class TestImportScripts(unittest.TestCase):
             user_mail="root@example.com",
             password="test",
             verbose=False,
-            dump=False
+            dump=False,
+            logger_instance=logger
         )
         self.assertTrue(success_on_creation)
 
@@ -67,7 +70,8 @@ class TestImportScripts(unittest.TestCase):
             verbose=False,
             incremental=False,
             save_metrics=False,
-            preprocessing_done=False
+            preprocessing_done=False,
+            logger_instance=logger
         )
         self.assertTrue(success_on_xmlupload)
 

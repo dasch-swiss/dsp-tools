@@ -2,6 +2,7 @@
 
 # pylint: disable=missing-class-docstring,missing-function-docstring
 
+import logging
 import unittest
 
 import pytest
@@ -17,6 +18,8 @@ from dsp_tools.utils.xml_upload import (
     _remove_circular_references,
     _transform_server_url_to_foldername
 )
+
+logger = logging.getLogger(__name__)
 
 
 class TestXMLUpload(unittest.TestCase):
@@ -89,23 +92,38 @@ class TestXMLUpload(unittest.TestCase):
 
     def test_convert_ark_v0_to_resource_iri(self) -> None:
         ark = "ark:/72163/080c-779b9990a0c3f-6e"
-        iri = _convert_ark_v0_to_resource_iri(ark)
+        iri = _convert_ark_v0_to_resource_iri(
+            ark=ark, 
+            logger_instance=logger
+        )
         self.assertEqual("http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q", iri)
 
         with self.assertRaises(BaseError) as err1:
-            _convert_ark_v0_to_resource_iri("ark:/72163/080c-779b999-0a0c3f-6e")
+            _convert_ark_v0_to_resource_iri(
+                ark="ark:/72163/080c-779b999-0a0c3f-6e",
+                logger_instance=logger
+            )
         self.assertEqual(err1.exception.message, "while converting ARK 'ark:/72163/080c-779b999-0a0c3f-6e'. The ARK seems to be invalid")
 
         with self.assertRaises(BaseError) as err2:
-            _convert_ark_v0_to_resource_iri("ark:/72163/080X-779b9990a0c3f-6e")
+            _convert_ark_v0_to_resource_iri(
+                ark="ark:/72163/080X-779b9990a0c3f-6e",
+                logger_instance=logger
+            )
         self.assertEqual(err2.exception.message, "while converting ARK 'ark:/72163/080X-779b9990a0c3f-6e'. Invalid project shortcode '080X'")
 
         with self.assertRaises(BaseError) as err3:
-            _convert_ark_v0_to_resource_iri("ark:/72163/080c1-779b9990a0c3f-6e")
+            _convert_ark_v0_to_resource_iri(
+                ark="ark:/72163/080c1-779b9990a0c3f-6e",
+                logger_instance=logger
+            )
         self.assertEqual(err3.exception.message, "while converting ARK 'ark:/72163/080c1-779b9990a0c3f-6e'. Invalid project shortcode '080C1'")
 
         with self.assertRaises(BaseError) as err3:
-            _convert_ark_v0_to_resource_iri("ark:/72163/080c-779b99+90a0c3f-6e")
+            _convert_ark_v0_to_resource_iri(
+                ark="ark:/72163/080c-779b99+90a0c3f-6e",
+                logger_instance=logger
+            )
         self.assertEqual(err3.exception.message, "while converting ARK 'ark:/72163/080c-779b99+90a0c3f-6e'. Invalid Salsah ID '779b99+90a0c3f'")
 
 

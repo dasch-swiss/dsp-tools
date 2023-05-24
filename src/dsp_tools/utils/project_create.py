@@ -1,5 +1,6 @@
 """This module handles the ontology creation, update and upload to a DSP server. This includes the creation and update
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
+import logging
 import re
 from pathlib import Path
 from typing import Any, Union, cast
@@ -17,14 +18,9 @@ from dsp_tools.models.user import User
 from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 from dsp_tools.utils.project_create_lists import create_lists_on_server
 from dsp_tools.utils.project_validate import validate_project
-from dsp_tools.utils.shared import (
-    get_logger,
-    login,
-    parse_json_input,
-    try_network_action
-)
+from dsp_tools.utils.shared import login, parse_json_input, try_network_action
 
-logger = get_logger(__name__)
+logger: logging.Logger
 
 
 def _create_project_on_server(
@@ -807,7 +803,8 @@ def create_project(
     user_mail: str,
     password: str,
     verbose: bool,
-    dump: bool
+    dump: bool,
+    logger_instance: logging.Logger
 ) -> bool:
     """
     Creates a project from a JSON project file on a DSP server. 
@@ -823,6 +820,7 @@ def create_project(
         password: the user's password
         verbose: prints more information if set to True
         dump: dumps test files (JSON) for DSP API requests if set to True
+        logger_instance: logger instance
 
     Raises:
         UserError: 
@@ -837,6 +835,8 @@ def create_project(
     Returns:
         True if everything went smoothly, False if a warning or error occurred
     """
+    global logger
+    logger = logger_instance
 
     knora_api_prefix = "knora-api:"
     overall_success = True

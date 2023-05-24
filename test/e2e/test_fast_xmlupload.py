@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 import unittest
@@ -10,6 +11,7 @@ from dsp_tools.fast_xmlupload.upload_files import upload_files
 from dsp_tools.fast_xmlupload.upload_xml import fast_xmlupload
 from dsp_tools.utils.project_create import create_project
 
+logger = logging.getLogger(__name__)
 
 class TestFastXmlUpload(unittest.TestCase):
     """
@@ -39,7 +41,8 @@ class TestFastXmlUpload(unittest.TestCase):
             user_mail=self.user,
             password=self.password,
             verbose=False,
-            dump=False
+            dump=False,
+            logger_instance=logger
         )
         shutil.copytree("bitstreams", "bitstreams/nested")
         shutil.copytree("bitstreams/nested", "bitstreams/nested/subfolder")
@@ -68,7 +71,8 @@ class TestFastXmlUpload(unittest.TestCase):
             input_dir="bitstreams",
             output_dir=self.dir_with_processed_files,
             xml_file=self.xml_file,
-            nthreads=None
+            nthreads=None,
+            logger_instance=logger
         )
         self.assertTrue(success_process)
 
@@ -82,7 +86,8 @@ class TestFastXmlUpload(unittest.TestCase):
             user=self.user,
             password=self.password,
             dsp_url=self.dsp_url,
-            sipi_url=self.sipi_url
+            sipi_url=self.sipi_url,
+            logger_instance=logger
         )
         self.assertTrue(success_upload)
 
@@ -93,7 +98,8 @@ class TestFastXmlUpload(unittest.TestCase):
             user=self.user,
             password=self.password,
             dsp_url=self.dsp_url,
-            sipi_url=self.sipi_url
+            sipi_url=self.sipi_url,
+            logger_instance=logger
         )
         self.assertTrue(success_fast_xmlupload)
 

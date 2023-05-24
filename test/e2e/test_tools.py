@@ -9,6 +9,7 @@ separate unit tests/e2e tests."""
 import copy
 import datetime
 import json
+import logging
 import os
 import re
 import unittest
@@ -34,6 +35,7 @@ from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.xml_upload import xml_upload
 
+logger = logging.getLogger(__name__)
 
 class TestTools(unittest.TestCase):
     server = "http://0.0.0.0:3333"
@@ -73,7 +75,8 @@ class TestTools(unittest.TestCase):
             user_mail=self.user,
             password="test",
             verbose=True,
-            dump=False
+            dump=False,
+            logger_instance=logger
         )
 
         # open a "lists" section and the project that was created
@@ -97,11 +100,13 @@ class TestTools(unittest.TestCase):
         name2iri_mapping1, success1 = create_lists(server=self.server,
                                                    user=self.user,
                                                    password=self.password,
-                                                   project_file_as_path_or_parsed=test_project_minimal_with_list_1)
+                                                   project_file_as_path_or_parsed=test_project_minimal_with_list_1,
+                                                   logger_instance=logger)
         name2iri_mapping2, success2 = create_lists(server=self.server,
                                                    user=self.user,
                                                    password=self.password,
-                                                   project_file_as_path_or_parsed="testdata/tmp/test_project_minimal_with_list_2.json")
+                                                   project_file_as_path_or_parsed="testdata/tmp/test_project_minimal_with_list_2.json",
+                                                   logger_instance=logger)
         
         # test that both lists have been correctly created
         self.assertTrue(success1)
@@ -125,7 +130,8 @@ class TestTools(unittest.TestCase):
             user_mail=self.user,
             password="test",
             verbose=True,
-            dump=False
+            dump=False,
+            logger_instance=logger
         )
         self.assertTrue(result)
 
@@ -195,7 +201,8 @@ class TestTools(unittest.TestCase):
             verbose=False,
             incremental=False,
             save_metrics=False,
-            preprocessing_done=False
+            preprocessing_done=False,
+            logger_instance=logger
         )
         self.assertTrue(result_minimal)
 
@@ -209,7 +216,8 @@ class TestTools(unittest.TestCase):
             verbose=False,
             incremental=False,
             save_metrics=False,
-            preprocessing_done=False
+            preprocessing_done=False,
+            logger_instance=logger
         )
         self.assertTrue(result_systematic)
 
@@ -237,7 +245,8 @@ class TestTools(unittest.TestCase):
             verbose=True,
             incremental=True,
             save_metrics=False,
-            preprocessing_done=False
+            preprocessing_done=False,
+            logger_instance=logger
         )
         self.assertTrue(result_replaced)
         self.assertTrue(all(not f.name.startswith("stashed_text_properties_") for f in os.scandir(".")))

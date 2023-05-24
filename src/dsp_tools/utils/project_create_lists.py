@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Optional, Union
 
 from dsp_tools.models.connection import Connection
@@ -6,14 +7,9 @@ from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.project import Project
 from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 from dsp_tools.utils.project_validate import validate_project
-from dsp_tools.utils.shared import (
-    get_logger,
-    login,
-    parse_json_input,
-    try_network_action
-)
+from dsp_tools.utils.shared import login, parse_json_input, try_network_action
 
-logger = get_logger(__name__)
+logger: logging.Logger
 
 
 def _create_list_node(
@@ -125,6 +121,7 @@ def create_lists(
     server: str,
     user: str,
     password: str,
+    logger_instance: logging.Logger,
     dump: bool = False
 ) -> tuple[dict[str, Any], bool]:
     """
@@ -141,6 +138,7 @@ def create_lists(
         server: URL of the DSP server
         user: Username (e-mail) for the DSP server, must have the permissions to create a project
         password: Password of the user
+        logger_instance: logger instance
         dump: if True, the request is dumped as JSON (used for testing)
 
     Raises:
@@ -164,6 +162,8 @@ def create_lists(
         or one of the nodes could not be created), 
         it is False.
     """
+    global logger
+    logger = logger_instance
     overall_success = True
 
     project_definition = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)

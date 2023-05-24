@@ -1,4 +1,5 @@
 import glob
+import logging
 import pickle
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
@@ -10,9 +11,9 @@ from regex import regex
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.shared import get_logger, login
+from dsp_tools.utils.shared import login
 
-logger = get_logger(__name__)
+logger: logging.Logger
 
 
 def _get_upload_candidates(
@@ -302,7 +303,8 @@ def upload_files(
     user: str,
     password: str,
     dsp_url: str,
-    sipi_url: str
+    sipi_url: str,
+    logger_instance: logging.Logger
 ) -> bool:
     """
     Uploads the processed files to the DSP server, using multithreading.
@@ -317,10 +319,14 @@ def upload_files(
         password: the user's password for login into DSP
         dsp_url: URL to the DSP server
         sipi_url: URL to the Sipi server
+        logger_instance: logger instance
 
     Returns:
         success status
     """
+    global logger
+    logger = logger_instance
+
     # check the input parameters
     param_check_result = _check_params(
         pkl_file=pkl_file,

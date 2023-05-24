@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import logging
 import pickle
 import shutil
 import subprocess
@@ -17,9 +18,8 @@ from docker.models.containers import Container
 from lxml import etree
 
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.shared import get_logger
 
-logger = get_logger(__name__)
+logger: logging.Logger
 sipi_container: Optional[Container] = None
 export_moving_image_frames_script: Optional[Path] = None
 
@@ -716,7 +716,8 @@ def process_files(
     input_dir: str,
     output_dir: str,
     xml_file: str,
-    nthreads: Optional[int]
+    nthreads: Optional[int],
+    logger_instance: logging.Logger
 ) -> bool:
     """
     Process the files referenced in the given XML file.
@@ -731,11 +732,14 @@ def process_files(
         output_dir: path to the directory where the transformed / created files should be written to
         xml_file: path to xml file containing the resources
         nthreads: number of threads to use for processing
+        logger_instance: the logger instance
 
     Returns:
         success status
     """
-    logger.info(f"***Call to process_files(input_dir='{input_dir}', out_dir='{output_dir}', xml_file='{xml_file}')***")
+    global logger
+    logger = logger_instance
+    
     # check the input parameters
     param_check_result = _check_params(
         input_dir=input_dir,

@@ -6,6 +6,7 @@ from __future__ import annotations
 import base64
 import copy
 import json
+import logging
 import os
 import re
 import sys
@@ -34,7 +35,6 @@ from dsp_tools.models.xmlpermission import XmlPermission
 from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.shared import (
-    get_logger,
     login,
     try_network_action,
     validate_xml_against_schema
@@ -42,7 +42,7 @@ from dsp_tools.utils.shared import (
 
 MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "duration_ms", "mb_per_sec"])
 
-logger = get_logger(__name__)
+logger: logging.Logger
 
 
 def _transform_server_url_to_foldername(server: str) -> str:
@@ -279,7 +279,10 @@ def _stash_circular_references(
     return nok_resources, ok_res_ids, ok_resources, stashed_xml_texts, stashed_resptr_props
 
 
-def _convert_ark_v0_to_resource_iri(ark: str) -> str:
+def _convert_ark_v0_to_resource_iri(
+        ark: str,
+        logger_instance: logging.Logger
+    ) -> str:
     """
     Converts an ARK URL from salsah.org (ARK version 0) of the form ark:/72163/080c-779b9990a0c3f-6e to a DSP resource
     IRI of the form http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q
@@ -292,6 +295,7 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
         ark: an ARK version 0 of the form ark:/72163/080c-779b9990a0c3f-6e, '72163' being the Name Assigning Authority
         number, '080c' being the project shortcode, '779b9990a0c3f' being an ID derived from the object's Salsah ID and
         '6e' being check digits
+        logger_instance: logger instance
 
     Raises:
         BaseError if the ARK is invalid
@@ -305,16 +309,16 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
 
     # get the salsah resource ID from the ARK and convert it to a UUID version 5 (base64 encoded)
     if ark.count("-") != 2:
-        logger.error(f"while converting ARK '{ark}'. The ARK seems to be invalid")
+        logger_instance.error(f"while converting ARK '{ark}'. The ARK seems to be invalid")
         raise BaseError(f"while converting ARK '{ark}'. The ARK seems to be invalid")
     project_id, resource_id, _ = ark.split("-")
     _, project_id = project_id.rsplit("/", 1)
     project_id = project_id.upper()
     if not re.match("^[0-9a-fA-F]{4}$", project_id):
-        logger.error(f"while converting ARK '{ark}'. Invalid project shortcode '{project_id}'")
+        logger_instance.error(f"while converting ARK '{ark}'. Invalid project shortcode '{project_id}'")
         raise BaseError(f"while converting ARK '{ark}'. Invalid project shortcode '{project_id}'")
     if not re.match("^[0-9A-Za-z]+$", resource_id):
-        logger.error(f"while converting ARK '{ark}'. Invalid Salsah ID '{resource_id}'")
+        logger_instance.error(f"while converting ARK '{ark}'. Invalid Salsah ID '{resource_id}'")
         raise BaseError(f"while converting ARK '{ark}'. Invalid Salsah ID '{resource_id}'")
 
     # make a UUID v5 from the namespace created above (which is a UUID itself) and the resource ID and encode it to base64
@@ -449,7 +453,8 @@ def xml_upload(
     verbose: bool,
     incremental: bool,
     save_metrics: bool,
-    preprocessing_done: bool
+    preprocessing_done: bool,
+    logger_instance: logging.Logger
 ) -> bool:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
@@ -465,6 +470,7 @@ def xml_upload(
         incremental: if set, IRIs instead of internal IDs are expected as resource pointers
         save_metrics: if true, saves time measurements into a "metrics" folder in the current working directory
         preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
+        logger_instance: logger instance
 
     Raises:
         BaseError or UserError in case of permanent network or software failure
@@ -474,9 +480,8 @@ def xml_upload(
         True if all resources could be uploaded without errors; False if one of the resources could not be
         uploaded because there is an error in it
     """
-
-    logger.info(f"Method call xml_upload(input_file='{input_file}', server='{server}', user='{user}', imgdir='{imgdir}', sipi='{sipi}', "
-                f"verbose={verbose}, incremental={incremental}, save_metrics={save_metrics}, preprocessing_done={preprocessing_done})")
+    global logger
+    logger = logger_instance
 
     # parse the XML file
     validate_xml_against_schema(input_file=input_file)
@@ -660,7 +665,10 @@ def _upload_resources(
         bitstream_duration_ms = None
         resource_iri = resource.iri
         if resource.ark:
-            resource_iri = _convert_ark_v0_to_resource_iri(resource.ark)
+            resource_iri = _convert_ark_v0_to_resource_iri(
+                ark=resource.ark, 
+                logger_instance=logger
+            )
 
         # in case of a multimedia resource: upload the multimedia file
         resource_bitstream = None

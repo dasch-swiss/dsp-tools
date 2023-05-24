@@ -3,8 +3,11 @@ The code in this file handles the arguments passed by the user from the command 
 """
 import argparse
 import datetime
+import logging
+import logging.handlers
 import sys
 from importlib.metadata import version
+from pathlib import Path
 
 from dsp_tools.excel2xml import excel2xml
 from dsp_tools.fast_xmlupload.process_files import process_files
@@ -25,13 +28,57 @@ from dsp_tools.utils.project_create_lists import create_lists
 from dsp_tools.utils.project_get import get_project
 from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.rosetta import upload_rosetta
-from dsp_tools.utils.shared import get_logger, validate_xml_against_schema
+from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.stack_handling import start_stack, stop_stack
 from dsp_tools.utils.xml_upload import xml_upload
 
-logger = get_logger(__name__)
 
-def make_parser() -> argparse.ArgumentParser:
+def _initiate_logger(parsed_args: argparse.Namespace) -> logging.Logger:
+    """
+    Create a logger instance, 
+    set its level to INFO,
+    and configure it to write to a file in the user's home directory.
+    Then, a first log message is written with the arguments how the CLI was called.
+
+    This function should be called only once, 
+    in the dsp_tools.py module, and not in any other module.
+    Otherwise, problems would arise because the same log file would be opened several times. 
+    This is because all modules log to the same file, 
+    and a CLI call to DSP-TOOLS initiates all modules of DSP-TOOLS.
+
+    Args:
+        parsed_args: parsed arguments passed by the user from the command line
+
+    Returns:
+        the logger instance
+    """
+    _logger = logging.getLogger(parsed_args.action)
+    _logger.setLevel(logging.INFO)
+    formatter = logging.Formatter(
+        fmt="{asctime} {filename: <20} {levelname: <8} {message}",
+        style="{"
+    )
+    # a RotatingFileHandler fills "filename" until it is "maxBytes" big, 
+    # then appends ".1" to it and starts with a new file "filename",
+    # fills it until it is "maxBytes" big,
+    # then appends ".1" to it (replacing the old ".1" file)
+    handler = logging.handlers.RotatingFileHandler(
+        filename=Path.home() / Path(".dsp-tools") / "logging.log",
+        mode="a",
+        maxBytes=3*1024*1024,
+        backupCount=1
+    )
+    handler.setFormatter(formatter)
+    _logger.addHandler(handler)
+
+    _logger.info("*****************************************************************************************")
+    _logger.info(f"***Called DSP-TOOLS action '{parsed_args.action}' from command line with these parameters: {parsed_args}")
+    _logger.info("*****************************************************************************************")
+
+    return _logger
+
+
+def _make_parser() -> argparse.ArgumentParser:
     """
     Create a parser for the command line arguments
 
@@ -226,16 +273,39 @@ def make_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def call_requested_action(
-    user_args: list[str],
-    parser: argparse.ArgumentParser
+def _parse_arguments(
+    parser: argparse.ArgumentParser,
+    user_args: list[str]
+) -> argparse.Namespace:
+    """
+    Parse the CLI arguments passed by the user,
+    and make sure that there is an action specified.
+
+    Args:
+        parser: parser for the command line arguments
+        user_args: command line arguments
+
+    Returns:
+        parsed arguments
+    """
+
+    args = parser.parse_args(user_args)
+    if not hasattr(args, "action"):
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+    return args
+
+
+def _call_requested_action(
+    args: argparse.Namespace,
+    logger: logging.Logger
 ) -> bool:
     """
     With the help of the parser, parse the user arguments and call the appropriate method of DSP-TOOLS.
 
     Args:
-        user_args: list of arguments passed by the user from the command line
-        parser: parser to parse the user arguments
+        args: parsed arguments passed by the user from the command line
+        logger: the logger for this module
 
     Raises:
         BaseError from the called methods
@@ -245,14 +315,6 @@ def call_requested_action(
     Returns:
         success status
     """
-    args = parser.parse_args(user_args)
-    if not hasattr(args, "action"):
-        parser.print_help(sys.stderr)
-        sys.exit(1)
-
-    logger.info("*****************************************************************************************")
-    logger.info(f"***Called DSP-TOOLS action '{args.action}' from command line with these parameters: {args}")
-    logger.info("*****************************************************************************************")
 
     if args.action == "create":
         if args.lists_only:
@@ -265,6 +327,7 @@ def call_requested_action(
                     server=args.server,
                     user=args.user,
                     password=args.password,
+                    logger_instance=logger,
                     dump=args.dump
                 )
         else:
@@ -278,7 +341,8 @@ def call_requested_action(
                     user_mail=args.user,
                     password=args.password,
                     verbose=args.verbose,
-                    dump=args.dump
+                    dump=args.dump,
+                    logger_instance=logger
                 )
     elif args.action == "get":
         success = get_project(
@@ -303,7 +367,8 @@ def call_requested_action(
                 verbose=args.verbose,
                 incremental=args.incremental,
                 save_metrics=args.metrics,
-                preprocessing_done=False
+                preprocessing_done=False,
+                logger_instance=logger
             )
 
     elif args.action == "process-files":
@@ -311,7 +376,8 @@ def call_requested_action(
             input_dir=args.input_dir,
             output_dir=args.output_dir,
             xml_file=args.xml_file,
-            nthreads=args.nthreads
+            nthreads=args.nthreads,
+            logger_instance=logger
         )
     elif args.action == "upload-files":
         success = upload_files(
@@ -321,7 +387,8 @@ def call_requested_action(
             user=args.user,
             password=args.password,
             dsp_url=args.server,
-            sipi_url=args.sipi_url
+            sipi_url=args.sipi_url,
+            logger_instance=logger
         )
     elif args.action == "fast-xmlupload":
         success = fast_xmlupload(
@@ -330,7 +397,8 @@ def call_requested_action(
             user=args.user,
             password=args.password,
             dsp_url=args.server,
-            sipi_url=args.sipi_url
+            sipi_url=args.sipi_url,
+            logger_instance=logger
         )
     elif args.action == "excel2json":
         success = excel2json(
@@ -377,7 +445,7 @@ def call_requested_action(
     elif args.action == "template":
         success = generate_template_repo()
     elif args.action == "rosetta":
-        success = upload_rosetta()
+        success = upload_rosetta(logger_instance=logger)
     else:
         success = False
         print(f"ERROR: Unknown action '{args.action}'")
@@ -388,11 +456,16 @@ def call_requested_action(
 
 def main() -> None:
     """Main entry point of the program as referenced in pyproject.toml"""
-    parser = make_parser()
+    parser = _make_parser()
+    args = _parse_arguments(
+        parser=parser,
+        user_args=sys.argv[1:]
+    )
+    logger = _initiate_logger(args)
     try:
-        success = call_requested_action(
-            user_args=sys.argv[1:],
-            parser=parser
+        success = _call_requested_action(
+            args=args,
+            logger=logger
         )
     except UserError as err:
         print(err.message)

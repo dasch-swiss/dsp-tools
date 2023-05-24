@@ -1,3 +1,4 @@
+import logging
 import pickle
 from datetime import datetime
 from pathlib import Path
@@ -6,10 +7,9 @@ from typing import Optional
 from lxml import etree
 
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.shared import get_logger
 from dsp_tools.utils.xml_upload import xml_upload
 
-logger = get_logger(__name__)
+logger: logging.Logger
 
 
 def _get_paths_from_pkl_file(pkl_file: Path) -> dict[str, str]:
@@ -77,7 +77,8 @@ def fast_xmlupload(
     user: str,
     password: str,
     dsp_url: str,
-    sipi_url: str
+    sipi_url: str,
+    logger_instance: logging.Logger
 ) -> bool:
     """
     This function reads an XML file 
@@ -95,10 +96,14 @@ def fast_xmlupload(
         password: the user's password for login into DSP
         dsp_url: URL to the DSP server
         sipi_url: URL to the Sipi server
+        logger_instance: logger instance
 
     Returns:
         success status
     """
+    global logger
+    logger = logger_instance
+
     xml_tree_orig = etree.parse(xml_file)
     orig_path_2_uuid_filename = _get_paths_from_pkl_file(pkl_file=Path(pkl_file))
     xml_tree_replaced = replace_bitstream_paths(xml_tree=xml_tree_orig, orig_path_2_uuid_filename=orig_path_2_uuid_filename)
@@ -116,7 +121,8 @@ def fast_xmlupload(
         verbose=False,
         incremental=False,
         save_metrics=False,
-        preprocessing_done=True
+        preprocessing_done=True,
+        logger_instance=logger
     )
 
     end_time = datetime.now()

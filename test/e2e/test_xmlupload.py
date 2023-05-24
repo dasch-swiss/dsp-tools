@@ -1,5 +1,6 @@
 # pylint: disable=missing-class-docstring,missing-function-docstring
 
+import logging
 import unittest
 
 import pytest
@@ -7,6 +8,7 @@ import pytest
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.xml_upload import xml_upload
 
+logger = logging.getLogger(__name__)
 
 class TestXMLUpload(unittest.TestCase):
 
@@ -28,10 +30,11 @@ class TestXMLUpload(unittest.TestCase):
                 password=self.password,
                 imgdir=self.imgdir,
                 sipi=self.sipi,
-                verbose=False,
+                verbose=True,
                 incremental=False,
                 save_metrics=False,
-                preprocessing_done=False
+                preprocessing_done=False,
+                logger_instance=logger
             )
         
         with self.assertRaisesRegex(
@@ -46,10 +49,11 @@ class TestXMLUpload(unittest.TestCase):
                 password=self.password,
                 imgdir=self.imgdir,
                 sipi=self.sipi,
-                verbose=False,
+                verbose=True,
                 incremental=False,
                 save_metrics=False,
-                preprocessing_done=False
+                preprocessing_done=False,
+                logger_instance=logger
             )
 
 if __name__ == "__main__":

@@ -1,3 +1,4 @@
+import logging
 import shutil
 import subprocess
 from pathlib import Path
@@ -5,6 +6,8 @@ from pathlib import Path
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.xml_upload import xml_upload
+
+logger: logging.Logger
 
 
 def _update_possibly_existing_repo(rosetta_folder: Path) -> bool:
@@ -53,12 +56,16 @@ def _clone_repo(rosetta_folder: Path, enclosing_folder: Path) -> None:
         raise UserError("There was a problem while cloning the rosetta test project")
 
 
-def _create_json(rosetta_folder: Path) -> bool:
+def _create_json(
+    rosetta_folder: Path,
+    logger_instance: logging.Logger
+) -> bool:
     """
     Creates the rosetta project on the locally running DSP stack.
 
     Args:
         rosetta_folder: path to the clone
+        logger_instance: logger instance
 
     Returns:
         True if the project could be created without problems, False if something went wrong during the creation process
@@ -70,17 +77,22 @@ def _create_json(rosetta_folder: Path) -> bool:
         user_mail="root@example.com",
         password="test",
         verbose=False,
-        dump=False
+        dump=False,
+        logger_instance=logger_instance
     )
     return success
 
 
-def _upload_xml(rosetta_folder: Path) -> bool:
+def _upload_xml(
+    rosetta_folder: Path,
+    logger_instance: logging.Logger
+) -> bool:
     """
     Uplaod the rosetta data on the locally running DSP stack.
 
     Args:
         rosetta_folder: path to the clone
+        logger_instance: logger instance
 
     Returns:
         True if all data could be uploaded without problems, False if something went wrong during the upload process
@@ -96,17 +108,21 @@ def _upload_xml(rosetta_folder: Path) -> bool:
         verbose=False,
         incremental=False,
         save_metrics=False,
-        preprocessing_done=False
+        preprocessing_done=False,
+        logger_instance=logger_instance
     )
     return success
 
 
-def upload_rosetta() -> bool:
+def upload_rosetta(logger_instance: logging.Logger) -> bool:
     """
     This method clones https://github.com/dasch-swiss/082E-rosetta-scripts
     into ~/.dsp-tools/rosetta.
     If the repository is already there, it pulls instead of cloning.
     Then, rosetta.json is created and rosetta.xml uploaded.
+
+    Args:
+        logger_instance: logger instance
 
     Raises:
         UserError: If the repo cannot be cloned nor pulled
@@ -114,6 +130,8 @@ def upload_rosetta() -> bool:
     Returns:
         True if everything went well
     """
+    global logger
+    logger = logger_instance
 
     enclosing_folder = Path.home() / Path(".dsp-tools/rosetta")
     enclosing_folder.mkdir(parents=True, exist_ok=True)
@@ -123,7 +141,13 @@ def upload_rosetta() -> bool:
     if not is_rosetta_up_to_date:
         _clone_repo(rosetta_folder=rosetta_folder, enclosing_folder=enclosing_folder)
 
-    success1 = _create_json(rosetta_folder=rosetta_folder)
-    success2 = _upload_xml(rosetta_folder=rosetta_folder)
+    success1 = _create_json(
+        rosetta_folder=rosetta_folder,
+        logger_instance=logger
+    )
+    success2 = _upload_xml(
+        rosetta_folder=rosetta_folder,
+        logger_instance=logger
+    )
 
     return success1 and success2

@@ -1,4 +1,3 @@
-import logging
 from typing import Any, Optional, Union
 
 from dsp_tools.models.connection import Connection
@@ -7,9 +6,14 @@ from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.project import Project
 from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 from dsp_tools.utils.project_validate import validate_project
-from dsp_tools.utils.shared import login, parse_json_input, try_network_action
+from dsp_tools.utils.shared import (
+    get_logger,
+    login,
+    parse_json_input,
+    try_network_action
+)
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def _create_list_node(

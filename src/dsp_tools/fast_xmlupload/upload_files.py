@@ -1,5 +1,4 @@
 import glob
-import logging
 import pickle
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
@@ -11,9 +10,9 @@ from regex import regex
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.shared import login
+from dsp_tools.utils.shared import get_logger, login
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def _get_upload_candidates(

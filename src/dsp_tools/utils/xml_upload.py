@@ -6,7 +6,6 @@ from __future__ import annotations
 import base64
 import copy
 import json
-import logging
 import os
 import re
 import sys
@@ -35,6 +34,7 @@ from dsp_tools.models.xmlpermission import XmlPermission
 from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.shared import (
+    get_logger,
     login,
     try_network_action,
     validate_xml_against_schema
@@ -42,7 +42,7 @@ from dsp_tools.utils.shared import (
 
 MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "duration_ms", "mb_per_sec"])
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def _transform_server_url_to_foldername(server: str) -> str:

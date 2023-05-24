@@ -38,7 +38,7 @@ def _initiate_logger(parsed_args: argparse.Namespace) -> logging.Logger:
     Create a logger instance, 
     set its level to INFO,
     and configure it to write to a file in the user's home directory.
-    Then, a first log message is written with the arguments how the CLI was called.
+    Then, the CLI-arguments are logged as a first log message.
 
     This function should be called only once, 
     in the dsp_tools.py module, and not in any other module.
@@ -52,8 +52,8 @@ def _initiate_logger(parsed_args: argparse.Namespace) -> logging.Logger:
     Returns:
         the logger instance
     """
-    _logger = logging.getLogger(parsed_args.action)
-    _logger.setLevel(logging.INFO)
+    logger = logging.getLogger(parsed_args.action)
+    logger.setLevel(logging.INFO)
     formatter = logging.Formatter(
         fmt="{asctime} {filename: <20} {levelname: <8} {message}",
         style="{"
@@ -69,13 +69,40 @@ def _initiate_logger(parsed_args: argparse.Namespace) -> logging.Logger:
         backupCount=1
     )
     handler.setFormatter(formatter)
-    _logger.addHandler(handler)
+    logger.addHandler(handler)
+    _log_cli_arguments(
+        parsed_args=parsed_args,
+        logger=logger
+    )
+    return logger
 
-    _logger.info("*****************************************************************************************")
-    _logger.info(f"***Called DSP-TOOLS action '{parsed_args.action}' from command line with these parameters: {parsed_args}")
-    _logger.info("*****************************************************************************************")
 
-    return _logger
+def _log_cli_arguments(
+    parsed_args: argparse.Namespace, 
+    logger: logging.Logger
+) -> None:
+    """
+    Log the CLI arguments passed by the user from the command line.
+
+    Args:
+        parsed_args: parsed arguments
+        logger: the logger instance
+    """
+    msg = f"*** Called the DSP-TOOLS action '{parsed_args.action}' from the command line with these parameters:"
+    longest_key_length = max(len(key) for key in vars(parsed_args).keys() if key not in ["password", "action"])
+    lines = list()
+    for key, value in vars(parsed_args).items():
+        if key not in ["password", "action"]:
+            lines.append(f"***   {key:<{longest_key_length}} = {value}")
+    asterisk_count = max(
+        len(msg), 
+        max(len(line) for line in lines)
+    )
+    logger.info("*" * asterisk_count)
+    logger.info(msg)
+    for line in lines:
+        logger.info(line)
+    logger.info("*" * asterisk_count)
 
 
 def _make_parser() -> argparse.ArgumentParser:

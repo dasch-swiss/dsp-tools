@@ -639,9 +639,10 @@ class TestExcel2xml(unittest.TestCase):
             (f"{invalid_prefix}/missing-resource-label.xlsx",            "Missing label for resource"),
             (f"{invalid_prefix}/missing-resource-permissions.xlsx",      "Missing permissions for resource"),
             (f"{invalid_prefix}/missing-restype.xlsx",                   "Missing restype"),
-            (f"{invalid_prefix}/no-bitstream-permissions.xlsx",          "'file permissions' missing"),
+            (f"{invalid_prefix}/no-bitstream-permissions.xlsx",          "Missing file permissions"),
             (f"{invalid_prefix}/nonexisting-proptype.xlsx",              "Invalid prop type"),
-            (f"{invalid_prefix}/single-invalid-value-for-property.xlsx", "has an entry in column \\d+_permissions, but not in \\d+_value")
+            (f"{invalid_prefix}/single-invalid-value-for-property.xlsx", "has an entry in column \\d+_permissions, but not in \\d+_value"),
+            (f"{invalid_prefix}/start-with-property-row.xlsx",           "The first row must define a resource, not a property"),
         ]
         for file, _regex in invalid_cases:
             with self.assertRaisesRegex(BaseError, _regex, msg=f"Failed with file '{file}'"):

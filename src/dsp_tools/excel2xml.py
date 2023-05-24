@@ -8,8 +8,7 @@ import os
 import re
 import uuid
 import warnings
-from operator import xor
-from typing import Any, Iterable, Optional, Union
+from typing import Any, Callable, Iterable, Optional, Union
 
 import pandas as pd
 import regex
@@ -1766,7 +1765,216 @@ def write_xml(root: etree._Element, filepath: str) -> None:
         warnings.warn(f"The XML file was successfully saved to {filepath}, but the following Schema validation error(s) occurred: {err.message}")
 
 
-def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
+def _read_cli_input_file(datafile: str) -> pd.DataFrame:
+    """
+    Parse the input file from the CLI (in either CSV or Excel format)
+
+    Args:
+        datafile: path to the input file
+
+    Raises:
+        BaseError: if the input file is neither .csv, .xls nor .xlsx
+
+    Returns:
+        a pandas DataFrame with the input data
+    """
+    if re.search(r"\.csv$", datafile):
+        dataframe = pd.read_csv(
+            filepath_or_buffer=datafile, 
+            encoding="utf_8_sig",           # utf_8_sig is the default encoding of Excel
+            dtype="str", 
+            sep=None, 
+            engine="python"                 # let the "python" engine detect the separator
+        )
+    elif re.search(r"(\.xls|\.xlsx)$", datafile):
+        dataframe = pd.read_excel(
+            io=datafile, 
+            dtype="str"
+        )
+    else:
+        raise BaseError("The argument 'datafile' must have one of the extensions 'csv', 'xls', 'xlsx'")
+    return dataframe
+
+
+def _validate_and_prepare_cli_input_file(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """
+    Make sure that the required columns are present,
+    replace NA-like cells by NA,
+    remove empty columns, so that the max_prop_count can be calculated without errors,
+    and remove empty rows, to prevent them from being processed and raising an error.
+
+    Args:
+        dataframe: pandas dataframe with the input data
+
+    Raises:
+        BaseError: if one of the required columns is missing
+
+    Returns:
+        the prepared pandas DataFrame
+    """
+    # make sure that the required columns are present
+    required_columns = ["id", "label", "restype", "permissions", "prop name", "prop type", "1_value"]
+    if any(req not in dataframe for req in required_columns):
+        raise BaseError(f"The following columns are required: {required_columns}")
+
+    # replace NA-like cells by NA
+    dataframe = dataframe.applymap(
+        lambda x: x if pd.notna(x) and regex.search(r"[\p{L}\d_!?\-]", str(x), flags=regex.U) else pd.NA
+    )
+
+    # remove empty columns/rows
+    dataframe.dropna(axis="columns", how="all", inplace=True)
+    dataframe.dropna(axis="index", how="all", inplace=True)
+
+    return dataframe
+
+
+def _handle_resource_row(
+    index: int,
+    row: pd.Series
+) -> etree._Element:
+    # read and check the mandatory columns
+    resource_id = row["id"]
+    resource_label = row.get("label")
+    if not check_notna(resource_label):
+        raise BaseError(f"Missing label for resource {resource_id}")
+    resource_restype = row.get("restype")
+    if not check_notna(resource_restype):
+        raise BaseError(f"Missing restype for resource {resource_id}")
+    resource_permissions = row.get("permissions")
+    if not check_notna(resource_permissions):
+        raise BaseError(f"Missing permissions for resource {resource_id}")
+
+    # construct the kwargs for the method call
+    kwargs_resource = {
+        "label": resource_label,
+        "permissions": resource_permissions,
+        "id": resource_id
+    }
+    if check_notna(row.get("ark")):
+        kwargs_resource["ark"] = row["ark"]
+    if check_notna(row.get("iri")):
+        kwargs_resource["iri"] = row["iri"]
+    if check_notna(row.get("ark")) and check_notna(row.get("iri")):
+        warnings.warn(f"Both ARK and IRI were provided for resource '{resource_label}' ({resource_id}). The ARK will override the IRI.")
+    if check_notna(row.get("created")):
+        kwargs_resource["creation_date"] = row["created"]
+    
+    # call the appropriate method
+    if resource_restype == "Region":
+        resource = make_region(**kwargs_resource)
+    elif resource_restype == "Annotation":
+        resource = make_annotation(**kwargs_resource)
+    elif resource_restype == "LinkObj":
+        resource = make_link(**kwargs_resource)
+    else:
+        kwargs_resource["restype"] = resource_restype
+        resource = make_resource(**kwargs_resource)
+        if check_notna(row.get("file")):
+            file_permissions = row.get("file permissions")
+            if not check_notna(file_permissions):
+                if resource_permissions == "res-default":
+                    file_permissions = "prop-default"
+                elif resource_permissions == "res-restricted":
+                    file_permissions = "prop-restricted"
+                else:
+                    raise BaseError(
+                        f"Missing file permissions for file '{row['file']}' (Resource ID '{resource_id}', Excel row {index + 2}). "
+                        f"An attempt to deduce them from the resource permissions failed."
+                    )
+            resource.append(
+                make_bitstream_prop(
+                    path=str(row["file"]),
+                    permissions=str(file_permissions),
+                    calling_resource=resource_id
+                )
+            )
+
+    return resource
+
+
+def _handle_property_row(
+    index: int,
+    row: pd.Series,
+    max_prop_count: int,
+    resource_id: str
+) -> tuple[
+    Callable[..., etree._Element], 
+    dict[str, Union[str, PropertyElement, list[PropertyElement]]]
+]:
+    # based on the property type, the right function has to be chosen
+    proptype_2_function: dict[str, Callable[..., etree._Element]] = {
+        "bitstream": make_bitstream_prop,
+        "boolean-prop": make_boolean_prop,
+        "color-prop": make_color_prop,
+        "date-prop": make_date_prop,
+        "decimal-prop": make_decimal_prop,
+        "geometry-prop": make_geometry_prop,
+        "geoname-prop": make_geoname_prop,
+        "integer-prop": make_integer_prop,
+        "interval-prop": make_interval_prop,
+        "list-prop": make_list_prop,
+        "resptr-prop": make_resptr_prop,
+        "text-prop": make_text_prop,
+        "uri-prop": make_uri_prop
+    }
+    if row.get("prop type") not in proptype_2_function:
+        raise BaseError(f"Invalid prop type for property {row.get('prop name')} in resource {resource_id}")
+    make_prop_function = proptype_2_function[row["prop type"]]
+
+    # every property contains i elements, which are represented in the Excel as groups of
+    # columns named {i_value, i_encoding, i_res ref, i_permissions, i_comment}. Depending
+    # on the property type, some of these items are NA.
+    # Thus, prepare list of PropertyElement objects, with each PropertyElement containing only
+    # the existing items.
+    property_elements: list[PropertyElement] = []
+    for i in range(1, max_prop_count + 1):
+        value = row[f"{i}_value"]
+        if pd.notna(value):
+            kwargs_propelem = {
+                "value": value,
+                "permissions": str(row.get(f"{i}_permissions"))
+            }
+            if not check_notna(row.get(f"{i}_permissions")):
+                raise BaseError(f"Missing permissions for value {value} of property {row['prop name']} in resource {resource_id}")
+            if check_notna(row.get(f"{i}_comment")):
+                kwargs_propelem["comment"] = str(row[f"{i}_comment"])
+            if check_notna(row.get(f"{i}_encoding")):
+                kwargs_propelem["encoding"] = str(row[f"{i}_encoding"])
+            property_elements.append(PropertyElement(**kwargs_propelem))
+        elif check_notna(str(row.get(f"{i}_permissions"))):
+            raise BaseError(
+                f"Excel row {int(str(index)) + 2} has an entry in column {i}_permissions, but not in {i}_value. "
+                r"Please note that cell contents that don't meet the requirements of the regex [\p{L}\d_!?\-] are considered inexistent."
+            )
+
+    # validate property_elements
+    if len(property_elements) == 0:
+        raise BaseError(f"At least one value per property is required, but Excel row {int(str(index)) + 2} doesn't contain any values.")
+    if make_prop_function == make_boolean_prop and len(property_elements) != 1:     # pylint: disable=comparison-with-callable
+        raise BaseError(f"A <boolean-prop> can only have a single value, but Excel row {int(str(index)) + 2} contains more than one value.")
+
+    # create the property and append it to resource
+    kwargs_propfunc: dict[str, Union[str, PropertyElement, list[PropertyElement]]] = {
+        "name": row["prop name"],
+        "calling_resource": resource_id
+    }
+    if make_prop_function == make_boolean_prop:             # pylint: disable=comparison-with-callable
+        kwargs_propfunc["value"] = property_elements[0]
+    else:
+        kwargs_propfunc["value"] = property_elements
+    if check_notna(row.get("prop list")):
+        kwargs_propfunc["list_name"] = str(row["prop list"])
+
+    return make_prop_function, kwargs_propfunc
+
+
+
+def excel2xml(
+    datafile: str, 
+    shortcode: str, 
+    default_ontology: str
+) -> bool:
     """
     This is a method that is called from the command line. It isn't intended to be used in a Python script. It takes a
     tabular data source in CSV/XLS(X) format that is formatted according to the specifications, and transforms it to DSP-
@@ -1791,163 +1999,48 @@ def excel2xml(datafile: str, shortcode: str, default_ontology: str) -> bool:
     # general preparation
     # -------------------
     success = True
-    proptype_2_function = {
-        "bitstream": make_bitstream_prop,
-        "boolean-prop": make_boolean_prop,
-        "color-prop": make_color_prop,
-        "date-prop": make_date_prop,
-        "decimal-prop": make_decimal_prop,
-        "geometry-prop": make_geometry_prop,
-        "geoname-prop": make_geoname_prop,
-        "integer-prop": make_integer_prop,
-        "interval-prop": make_interval_prop,
-        "list-prop": make_list_prop,
-        "resptr-prop": make_resptr_prop,
-        "text-prop": make_text_prop,
-        "uri-prop": make_uri_prop
-    }
-    if re.search(r"\.csv$", datafile):
-        # "utf_8_sig": an optional BOM at the start of the file will be skipped
-        # let the "python" engine detect the separator
-        main_df = pd.read_csv(datafile, encoding="utf_8_sig", dtype="str", sep=None, engine="python")
-    elif re.search(r"(\.xls|\.xlsx)$", datafile):
-        main_df = pd.read_excel(datafile, dtype="str")
-    else:
-        raise BaseError("The argument 'datafile' must have one of the extensions 'csv', 'xls', 'xlsx'")
-    # replace NA-like cells by NA
-    main_df = main_df.applymap(
-        lambda x: x if pd.notna(x) and regex.search(r"[\p{L}\d_!?\-]", str(x), flags=regex.U) else pd.NA
-    )
-    # remove empty columns, so that the max_prop_count can be calculated without errors
-    main_df.dropna(axis="columns", how="all", inplace=True)
-    # remove empty rows, to prevent them from being processed and raising an error
-    main_df.dropna(axis="index", how="all", inplace=True)
-    max_prop_count = int(str(list(main_df)[-1]).split("_")[0])
+    dataframe = _read_cli_input_file(datafile)
+    dataframe = _validate_and_prepare_cli_input_file(dataframe)
+    max_prop_count = int(str(list(dataframe)[-1]).split("_")[0])
+
     root = make_root(shortcode=shortcode, default_ontology=default_ontology)
     root = append_permissions(root)
-    resource_id: str = ""
 
-    # create all resources
-    # --------------------
-    resource = None
-    for index, row in main_df.iterrows():
-
-        # there are two cases: either the row is a resource-row or a property-row.
-        if not xor(check_notna(row.get("id")), check_notna(row.get("prop name"))):
-            raise BaseError(f"Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry. "
-                            f"Excel row no. {int(str(index)) + 2} has too many/too less entries:\n"
-                            f"id:        '{row.get('id')}'\n"
-                            f"prop name: '{row.get('prop name')}'")
-
-        ########### case resource-row ###########
-        if check_notna(row.get("id")):
-            resource_id = row["id"]
-            resource_permissions = row.get("permissions")
-            if not check_notna(resource_permissions):
-                raise BaseError(f"Missing permissions for resource {resource_id}")
-            resource_label = row.get("label")
-            if not check_notna(resource_label):
-                raise BaseError(f"Missing label for resource {resource_id}")
-            resource_restype = row.get("restype")
-            if not check_notna(resource_restype):
-                raise BaseError(f"Missing restype for resource {resource_id}")
-            if check_notna(row.get("ark")) and check_notna(row.get("iri")):
-                raise BaseError(f"Both ARK and IRI were provided for resource '{resource_label}' ({resource_id}). The ARK will override the IRI.")
-            # previous resource is finished, now a new resource begins. in all cases (except for
-            # the very first iteration), a previous resource exists. if it exists, append it to root.
+    # parse the file row by row
+    # -------------------------
+    resource: Optional[etree._Element] = None
+    for index, row in dataframe.iterrows():
+        # either the row is a resource-row or a property-row, but not both
+        if check_notna(row["id"]) == check_notna(row["prop name"]):
+            raise BaseError(
+                f"Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry. "
+                f"Excel row no. {int(str(index)) + 2} has too many/too less entries:\n"
+                f"id:        '{row['id']}'\n"
+                f"prop name: '{row['prop name']}'"
+            )
+        elif check_notna(row["id"]):
+            # the previous resource is finished, a new resource begins: append the previous to root
+            # in all cases (except for the very first iteration), a previous resource exists
             if resource is not None:
                 root.append(resource)
-            kwargs_resource = {
-                "label": resource_label,
-                "permissions": resource_permissions,
-                "id": resource_id
-            }
-            if check_notna(row.get("ark")):
-                kwargs_resource["ark"] = row["ark"]
-            if check_notna(row.get("iri")):
-                kwargs_resource["iri"] = row["iri"]
-            if check_notna(row.get("created")):
-                kwargs_resource["creation_date"] = row["created"]
-            if resource_restype not in ["Annotation", "Region", "LinkObj"]:
-                kwargs_resource["restype"] = resource_restype
-                resource = make_resource(**kwargs_resource)
-                if check_notna(row.get("file")):
-                    file_permissions = row.get("file permissions")
-                    if not check_notna(file_permissions):
-                        if resource_permissions == "res-default":
-                            file_permissions = "prop-default"
-                        elif resource_permissions == "res-restricted":
-                            file_permissions = "prop-restricted"
-                        else:
-                            raise BaseError(f"'file permissions' missing for file '{row['file']}' (Excel row {int(str(index)) + 2}). "
-                                            f"An attempt to deduce them from the resource permissions failed.")
-                    resource.append(make_bitstream_prop(
-                        path=str(row["file"]),
-                        permissions=str(file_permissions),
-                        calling_resource=resource_id
-                    ))
-            elif resource_restype == "Region":
-                resource = make_region(**kwargs_resource)
-            elif resource_restype == "Annotation":
-                resource = make_annotation(**kwargs_resource)
-            elif resource_restype == "LinkObj":
-                resource = make_link(**kwargs_resource)
-
-        ########### case property-row ###########
-        else:  # check_notna(row["prop name"]):
-            # based on the property type, the right function has to be chosen
-            if row.get("prop type") not in proptype_2_function:
-                raise BaseError(f"Invalid prop type for property {row.get('prop name')} in resource {resource_id}")
-            make_prop_function = proptype_2_function[row["prop type"]]
-
-            # every property contains i elements, which are represented in the Excel as groups of
-            # columns named {i_value, i_encoding, i_res ref, i_permissions, i_comment}. Depending
-            # on the property type, some of these items are NA.
-            # Thus, prepare list of PropertyElement objects, with each PropertyElement containing only
-            # the existing items.
-            property_elements: list[PropertyElement] = []
-            for i in range(1, max_prop_count + 1):
-                value = row[f"{i}_value"]
-                if pd.notna(value):
-                    kwargs_propelem = {
-                        "value": value,
-                        "permissions": str(row.get(f"{i}_permissions"))
-                    }
-                    if not check_notna(row.get(f"{i}_permissions")):
-                        raise BaseError(f"Missing permissions for value {value} of property {row['prop name']} in resource {resource_id}")
-                    if check_notna(row.get(f"{i}_comment")):
-                        kwargs_propelem["comment"] = str(row[f"{i}_comment"])
-                    if check_notna(row.get(f"{i}_encoding")):
-                        kwargs_propelem["encoding"] = str(row[f"{i}_encoding"])
-                    property_elements.append(PropertyElement(**kwargs_propelem))
-                elif check_notna(str(row.get(f"{i}_permissions"))):
-                    raise BaseError(
-                        f"Excel row {int(str(index)) + 2} has an entry in column {i}_permissions, but not in {i}_value. "
-                        r"Please note that cell contents that don't meet the requirements of the regex [\p{L}\d_!?\-] are considered inexistent."
-                    )
-
-            # validate property_elements
-            if len(property_elements) == 0:
-                raise BaseError(f"At least one value per property is required, but Excel row {int(str(index)) + 2} doesn't contain any values.")
-            if make_prop_function == make_boolean_prop and len(property_elements) != 1:     # pylint: disable=comparison-with-callable
-                raise BaseError(f"A <boolean-prop> can only have a single value, but Excel row {int(str(index)) + 2} contains more than one value.")
-
-            # create the property and append it to resource
-            kwargs_propfunc: dict[str, Union[str, PropertyElement, list[PropertyElement]]] = {
-                "name": row["prop name"],
-                "calling_resource": resource_id
-            }
-            if make_prop_function == make_boolean_prop:                                     # pylint: disable=comparison-with-callable
-                kwargs_propfunc["value"] = property_elements[0]
-            else:
-                kwargs_propfunc["value"] = property_elements
-            if check_notna(row.get("prop list")):
-                kwargs_propfunc["list_name"] = str(row["prop list"])
-
-            resource.append(make_prop_function(**kwargs_propfunc))  # type: ignore
+            resource = _handle_resource_row(
+                index=int(str(index)),
+                row=row
+            )
+        else:  
+            assert check_notna(row["prop name"])
+            if resource is None:
+                raise BaseError("The first row of your Excel/CSV is invalid. The first row must define a resource, not a property.")
+            make_prop_function, kwargs_propfunc = _handle_property_row(
+                index=int(str(index)),
+                row=row,
+                max_prop_count=max_prop_count,
+                resource_id=resource.attrib["id"]
+            )
+            resource.append(make_prop_function(**kwargs_propfunc))
 
     # append the resource of the very last iteration of the for loop
-    if resource:
+    if resource is not None:
         root.append(resource)
 
     # write file

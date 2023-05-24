@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.3.1](https://github.com/dasch-swiss/dsp-tools/compare/v2.3.0...v2.3.1) (2023-05-23)
+
+
+### Bug Fixes
+
+* **process-files:** allow files with whitespaces in filename, allow files with uppercase extension (DEV-2182) ([#379](https://github.com/dasch-swiss/dsp-tools/issues/379)) ([7f63743](https://github.com/dasch-swiss/dsp-tools/commit/7f637432817b31a70222b16ba70a664fa0e03474))
+
+
+### Maintenance
+
+* code formatting (DEV-2171) ([#376](https://github.com/dasch-swiss/dsp-tools/issues/376)) ([96a4056](https://github.com/dasch-swiss/dsp-tools/commit/96a4056b0c7280ac16907b17e4a419c1b8d886a9))
+* **deps-dev:** bump mkdocs-material from 9.1.11 to 9.1.14 ([#377](https://github.com/dasch-swiss/dsp-tools/issues/377)) ([8095f6f](https://github.com/dasch-swiss/dsp-tools/commit/8095f6f9b311d013d1bde857fbed1203af268db6))
+* **deps-dev:** bump types-openpyxl from 3.1.0.7 to 3.1.0.8 ([#374](https://github.com/dasch-swiss/dsp-tools/issues/374)) ([c536ebc](https://github.com/dasch-swiss/dsp-tools/commit/c536ebca7f4a41ae144af294bfd72c9975758b82))
+* **deps:** bump requests from 2.30.0 to 2.31.0 ([#378](https://github.com/dasch-swiss/dsp-tools/issues/378)) ([b932e03](https://github.com/dasch-swiss/dsp-tools/commit/b932e03a4742da4da044c3dae13f25188f3a7ff6))
+* enable automatic version updating by Dependabot (DEV-2170) [#373](https://github.com/dasch-swiss/dsp-tools/issues/373) ([bd1cfd2](https://github.com/dasch-swiss/dsp-tools/commit/bd1cfd21c16aed84fa1c664091789af2760382e2))
+* lint e2e tests (DEV-2160) ([#366](https://github.com/dasch-swiss/dsp-tools/issues/366)) ([e75eb27](https://github.com/dasch-swiss/dsp-tools/commit/e75eb2749b8223a6b2617c2655288f06e7755e98))
+
 ## [2.3.0](https://github.com/dasch-swiss/dsp-tools/compare/v2.2.2...v2.3.0) (2023-05-17)
 
 

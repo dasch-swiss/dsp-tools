@@ -89,11 +89,16 @@ def _log_cli_arguments(
         logger: the logger instance
     """
     msg = f"*** Called the DSP-TOOLS action '{parsed_args.action}' from the command line with these parameters:"
-    longest_key_length = max(len(key) for key in vars(parsed_args).keys() if key not in ["password", "action"])
+    parameters_to_log = {key: value for key, value in vars(parsed_args).items() if key != "action"}
+    longest_key_length = max(len(key) for key in parameters_to_log) if parameters_to_log else 0
     lines = list()
-    for key, value in vars(parsed_args).items():
-        if key not in ["password", "action"]:
+    for key, value in parameters_to_log.items():
+        if key == "password":
+            lines.append(f"***   {key:<{longest_key_length}} = {'*' * len(value)}")
+        else:
             lines.append(f"***   {key:<{longest_key_length}} = {value}")
+    if not lines:
+        lines.append("***   (no parameters)")
     asterisk_count = max(
         len(msg), 
         max(len(line) for line in lines)

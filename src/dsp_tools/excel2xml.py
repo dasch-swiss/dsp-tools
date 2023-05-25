@@ -1830,28 +1830,31 @@ def _validate_and_prepare_cli_input_file(dataframe: pd.DataFrame) -> pd.DataFram
 
 #TODO: usererror statt baseerror
 
+
 def _convert_rows_to_xml(
     dataframe: pd.DataFrame,
-    root: etree._Element,
     max_num_of_props: int
-) -> etree._Element:
+) -> list[etree._Element]:
     """
     Iterate through the rows of the CSV/Excel input file, 
-    convert every row to either a resource tag or a property tag,
-    and append them to the XML DOM.
+    convert every row to either a XML resource or an XML property,
+    and return a list of XML resources.
 
     Args:
         dataframe: pandas dataframe with the input data
-        root: XML root element
         max_num_of_props: highest number of properties that a resource in this file has
     
     Raises:
         BaseError: if one of the rows is neither a resource-row nor a property-row, or if the file starts with a property-row
 
     Returns:
-        the complete XML DOM with all resources and properties
+        a list of XML resources (with their respective properties)
     """
+    resources: list[etree._Element] = []
+
+    # to start, there is no previous resource
     resource: Optional[etree._Element] = None
+
     for index, row in dataframe.iterrows():
         row_number = int(str(index)) + 2
         # either the row is a resource-row or a property-row, but not both
@@ -1865,10 +1868,10 @@ def _convert_rows_to_xml(
         
         # this is a resource-row
         elif check_notna(row["id"]):
-            # the previous resource is finished, a new resource begins: append the previous to root
+            # the previous resource is finished, a new resource begins: append the previous to the resulting list
             # in all cases (except for the very first iteration), a previous resource exists
             if resource is not None:
-                root.append(resource)
+                resources.append(resource)
             resource = _convert_resource_row_to_xml(
                 row_number=row_number,
                 row=row
@@ -1889,9 +1892,9 @@ def _convert_rows_to_xml(
 
     # append the resource of the very last iteration of the for loop
     if resource is not None:
-        root.append(resource)
+        resources.append(resource)
 
-    return root
+    return resources
 
 
 def _append_bitstream_to_resource(
@@ -2227,11 +2230,12 @@ def excel2xml(
     root = append_permissions(root)
 
     # parse the input file row by row
-    root = _convert_rows_to_xml(
+    resources = _convert_rows_to_xml(
         dataframe=dataframe,
-        root=root,
         max_num_of_props=max_num_of_props
     )
+    for resource in resources:
+        root.append(resource)
 
     # write file
     with warnings.catch_warnings(record=True) as w:

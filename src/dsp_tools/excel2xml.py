@@ -73,37 +73,6 @@ def make_xsd_id_compatible(string: str) -> str:
     return res
 
 
-def _derandomize_xsd_id(string: str, multiple_occurrences: bool = False) -> str:
-    """
-    In some contexts, the random component of the output of make_xsd_id_compatible() is a hindrance, especially for
-    testing. This method removes the random part, but leaves the other modifications introduced by
-    make_xsd_id_compatible() in place. This method's behaviour is defined by the example in the "Examples" section.
-
-    Args:
-        string: the output of make_xsd_id_compatible()
-        multiple_occurrences: If true, string can be an entire XML document, and all occurrences will be removed
-
-    Raises:
-        BaseError: if the input cannot be derandomized
-
-    Returns:
-        the derandomized string
-
-    Examples:
-        >>> id_1 = make_xsd_id_compatible("Hello!")
-        >>> id_2 = make_xsd_id_compatible("Hello!")
-        >>> assert _derandomize_xsd_id(id_1) == _derandomize_xsd_id(id_2)
-    """
-    if not isinstance(string, str) or not check_notna(string):
-        raise BaseError(f"The input '{string}' cannot be derandomized.")
-
-    uuid4_regex = r"[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
-    if multiple_occurrences:
-        return re.subn(uuid4_regex, "", string, flags=re.IGNORECASE)[0]
-    else:
-        return re.sub(uuid4_regex, "", string, re.IGNORECASE)
-
-
 def find_date_in_string(string: str) -> Optional[str]:
     """
     Checks if a string contains a date value (single date, or date range), and returns the first found date as

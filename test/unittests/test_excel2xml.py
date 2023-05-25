@@ -167,22 +167,6 @@ class TestExcel2xml(unittest.TestCase):
         Path("special-characters.xml").unlink()
 
 
-    def test_derandomize_xsd_id(self) -> None:
-        teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠"
-        id_1 = excel2xml.make_xsd_id_compatible(teststring)
-        id_2 = excel2xml.make_xsd_id_compatible(teststring)
-        id_1_derandom = excel2xml._derandomize_xsd_id(id_1)  # pylint: disable=protected-access
-        id_2_derandom = excel2xml._derandomize_xsd_id(id_2)  # pylint: disable=protected-access
-
-        # test single occurrence
-        self.assertEqual(id_1_derandom, id_2_derandom)
-
-        # test multiple occurrence
-        multiple_ids = f"{id_1}----{id_2}----{id_1}----{id_2}"
-        multiple_ids_derandom = excel2xml._derandomize_xsd_id(multiple_ids, multiple_occurrences=True)  # pylint: disable=protected-access
-        self.assertListEqual(multiple_ids_derandom.split("----"), [id_1_derandom] * 4)
-
-
     def test_find_date_in_string(self) -> None:
 
         # template: 2021-01-01 | 2015_01_02

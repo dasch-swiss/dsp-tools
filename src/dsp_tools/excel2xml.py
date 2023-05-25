@@ -1792,7 +1792,7 @@ def _read_cli_input_file(datafile: str) -> pd.DataFrame:
             dtype="str"
         )
     else:
-        raise BaseError("The argument 'datafile' must have one of the extensions 'csv', 'xls', 'xlsx'")
+        raise BaseError(f"Cannot open file '{datafile}': Invalid extension. Allowed extensions: 'csv', 'xls', 'xlsx'")
     return dataframe
 
 
@@ -1815,7 +1815,7 @@ def _validate_and_prepare_cli_input_file(dataframe: pd.DataFrame) -> pd.DataFram
     # make sure that the required columns are present
     required_columns = ["id", "label", "restype", "permissions", "prop name", "prop type", "1_value"]
     if any(req not in dataframe for req in required_columns):
-        raise BaseError(f"The following columns are required: {required_columns}")
+        raise BaseError(f"Some columns in your input file are missing. The following columns are required: {required_columns}")
 
     # replace NA-like cells by NA
     dataframe = dataframe.applymap(
@@ -1827,8 +1827,6 @@ def _validate_and_prepare_cli_input_file(dataframe: pd.DataFrame) -> pd.DataFram
     dataframe.dropna(axis="index", how="all", inplace=True)
 
     return dataframe
-
-#TODO: usererror statt baseerror
 
 
 def _convert_rows_to_xml(
@@ -1860,8 +1858,8 @@ def _convert_rows_to_xml(
         # either the row is a resource-row or a property-row, but not both
         if check_notna(row["id"]) == check_notna(row["prop name"]):
             raise BaseError(
-                f"Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry. "
-                f"Excel row no. {row_number + 2} has too many/too less entries:\n"
+                f"Exactly 1 of the 2 columns 'id' and 'prop name' must be filled. "
+                f"Excel row {row_number} has too many/too less entries:\n"
                 f"id:        '{row['id']}'\n"
                 f"prop name: '{row['prop name']}'"
             )
@@ -1961,14 +1959,16 @@ def _convert_resource_row_to_xml(
     # read and check the mandatory columns
     resource_id = row["id"]
     resource_label = row.get("label")
+    if pd.isna([resource_label]):
+        raise BaseError(f"Missing label for resource '{resource_id}' (Excel row {row_number})")
     if not check_notna(resource_label):
-        raise BaseError(f"Missing label for resource {resource_id}")
+        warnings.warn(f"The label of resource '{resource_id}' looks suspicious: '{resource_label}' (Excel row {row_number})")
     resource_restype = row.get("restype")
     if not check_notna(resource_restype):
-        raise BaseError(f"Missing restype for resource {resource_id}")
+        raise BaseError(f"Missing restype for resource '{resource_id}' (Excel row {row_number})")
     resource_permissions = row.get("permissions")
     if not check_notna(resource_permissions):
-        raise BaseError(f"Missing permissions for resource {resource_id}")
+        raise BaseError(f"Missing permissions for resource '{resource_id}' (Excel row {row_number})")
 
     # construct the kwargs for the method call
     kwargs_resource = {
@@ -2091,7 +2091,7 @@ def _convert_row_to_property_elements(
             "permissions": str(row.get(f"{i}_permissions"))
         }
         if not check_notna(row.get(f"{i}_permissions")):
-            raise BaseError(f"Missing permissions in column '{i}_permissions' of property {row['prop name']} in resource {resource_id}")
+            raise BaseError(f"Missing permissions in column '{i}_permissions' of property '{row['prop name']}' in resource with id '{resource_id}'")
         if check_notna(row.get(f"{i}_comment")):
             kwargs_propelem["comment"] = str(row[f"{i}_comment"])
         if check_notna(row.get(f"{i}_encoding")):

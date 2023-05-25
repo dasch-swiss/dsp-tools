@@ -633,9 +633,9 @@ class TestExcel2xml(unittest.TestCase):
         invalid_cases = [
             (f"{invalid_prefix}/boolean-prop-two-values.xlsx",           "A <boolean-prop> can only have a single value"),
             (f"{invalid_prefix}/empty-property.xlsx",                    "At least one value per property is required"),
-            (f"{invalid_prefix}/id-propname-both.xlsx",                  "Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry"),
-            (f"{invalid_prefix}/id-propname-none.xlsx",                  "Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry"),
-            (f"{invalid_prefix}/missing-prop-permissions.xlsx",          "Missing permissions in column '2_permissions' of property :hasName"),
+            (f"{invalid_prefix}/id-propname-both.xlsx",                  "Exactly 1 of the 2 columns 'id' and 'prop name' must be filled"),
+            (f"{invalid_prefix}/id-propname-none.xlsx",                  "Exactly 1 of the 2 columns 'id' and 'prop name' must be filled"),
+            (f"{invalid_prefix}/missing-prop-permissions.xlsx",          "Missing permissions in column '2_permissions' of property ':hasName'"),
             (f"{invalid_prefix}/missing-resource-label.xlsx",            "Missing label for resource"),
             (f"{invalid_prefix}/missing-resource-permissions.xlsx",      "Missing permissions for resource"),
             (f"{invalid_prefix}/missing-restype.xlsx",                   "Missing restype"),

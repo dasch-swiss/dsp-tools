@@ -139,7 +139,10 @@ def upload_rosetta(logger_instance: logging.Logger) -> bool:
 
     is_rosetta_up_to_date = _update_possibly_existing_repo(rosetta_folder=rosetta_folder)
     if not is_rosetta_up_to_date:
-        _clone_repo(rosetta_folder=rosetta_folder, enclosing_folder=enclosing_folder)
+        _clone_repo(
+            rosetta_folder=rosetta_folder, 
+            enclosing_folder=enclosing_folder
+        )
 
     success1 = _create_json(
         rosetta_folder=rosetta_folder,

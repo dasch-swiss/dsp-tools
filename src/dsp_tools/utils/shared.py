@@ -9,7 +9,6 @@ import unicodedata
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Optional, Union
-from venv import logger
 
 import pandas as pd
 import regex
@@ -21,6 +20,7 @@ from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.propertyelement import PropertyElement
 
 logger = logging.getLogger(__name__)
+
 
 def login(server: str, user: str, password: str) -> Connection:
     """

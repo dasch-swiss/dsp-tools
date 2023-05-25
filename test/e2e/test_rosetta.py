@@ -21,7 +21,10 @@ class TestRosetta(unittest.TestCase):
         is_rosetta_up_to_date = rosetta._update_possibly_existing_repo(rosetta_folder=rosetta_folder)
         self.assertFalse(is_rosetta_up_to_date)
 
-        rosetta._clone_repo(rosetta_folder=rosetta_folder, enclosing_folder=enclosing_folder)
+        rosetta._clone_repo(
+            rosetta_folder=rosetta_folder, 
+            enclosing_folder=enclosing_folder
+        )
         is_rosetta_up_to_date = rosetta._update_possibly_existing_repo(rosetta_folder=rosetta_folder)
         self.assertTrue(is_rosetta_up_to_date)
 

@@ -1862,6 +1862,8 @@ def _convert_rows_to_xml(
                 f"id:        '{row['id']}'\n"
                 f"prop name: '{row['prop name']}'"
             )
+        
+        # this is a resource-row
         elif check_notna(row["id"]):
             # the previous resource is finished, a new resource begins: append the previous to root
             # in all cases (except for the very first iteration), a previous resource exists
@@ -1871,16 +1873,19 @@ def _convert_rows_to_xml(
                 row_number=row_number,
                 row=row
             )
+
+        # this is a property-row
         else:  
             assert check_notna(row["prop name"])
             if resource is None:
                 raise BaseError("The first row of your Excel/CSV is invalid. The first row must define a resource, not a property.")
-            resource = _convert_property_row_and_append_to_resource(
+            prop = _convert_property_row_to_xml(
                 row_number=row_number,
                 row=row,
                 max_num_of_props=max_num_of_props,
-                resource=resource
+                resource_id=resource.attrib["id"]
             )
+            resource.append(prop)
 
     # append the resource of the very last iteration of the for loop
     if resource is not None:
@@ -2002,7 +2007,7 @@ def _get_prop_function(
     resource_id: str
 ) -> Callable[..., etree._Element]:
     """
-    Return the function that creates the appropriate property element, depending on the proptype.
+    Return the function that creates the appropriate property, depending on the proptype.
 
     Args:
         row: row of the CSV/Excel sheet that defines the property
@@ -2012,7 +2017,7 @@ def _get_prop_function(
         BaseError: if the proptype is invalid
 
     Returns:
-        the function that creates the appropriate property element
+        the function that creates the appropriate property
     """
     proptype_2_function: dict[str, Callable[..., etree._Element]] = {
         "bitstream": make_bitstream_prop,
@@ -2064,52 +2069,57 @@ def _convert_row_to_property_elements(
     for i in range(1, max_num_of_props + 1):
         value = row[f"{i}_value"]
         if pd.isna(value):
+            # raise error if other cells of this property element are not empty
+            # if all other cells are empty, continue with next property element
             other_cell_headers = [f"{i}_{x}" for x in ["encoding", "permissions", "comment"]]
             notna_cell_headers = [x for x in other_cell_headers if check_notna(row.get(x))]
-            if notna_cell_headers:
+            notna_cell_headers_str = ", ".join([f"'{x}'" for x in notna_cell_headers])
+            if notna_cell_headers_str:
                 raise BaseError(
-                    f"Excel row {row_number} has an entry in column {x}, but not in {i}_value. "
+                    f"Error in resource '{resource_id}': Excel row {row_number} has an entry in column(s) {notna_cell_headers_str}, "
+                    f"but not in '{i}_value'. "
                     r"Please note that cell contents that don't meet the requirements of the regex [\p{L}\d_!?\-] are considered inexistent."
                 )
-            continue?
+            continue
         
+        # construct a PropertyElement from this property element
         kwargs_propelem = {
             "value": value,
             "permissions": str(row.get(f"{i}_permissions"))
         }
         if not check_notna(row.get(f"{i}_permissions")):
-            raise BaseError(f"Missing permissions for value {value} of property {row['prop name']} in resource {resource_id}")
+            raise BaseError(f"Missing permissions in column '{i}_permissions' of property {row['prop name']} in resource {resource_id}")
         if check_notna(row.get(f"{i}_comment")):
             kwargs_propelem["comment"] = str(row[f"{i}_comment"])
         if check_notna(row.get(f"{i}_encoding")):
             kwargs_propelem["encoding"] = str(row[f"{i}_encoding"])
         property_elements.append(PropertyElement(**kwargs_propelem))
-            
 
-    # validate property_elements
+    # validate the end result before returning it
     if len(property_elements) == 0:
-        raise BaseError(f"At least one value per property is required, but Excel row {row_number} doesn't contain any values.")
+        raise BaseError(f"At least one value per property is required, "
+                        f"but resource '{resource_id}' (Excel row {row_number}) doesn't contain any values.")
     if row.get("prop type") == "boolean-prop" and len(property_elements) != 1:
-        raise BaseError(f"A <boolean-prop> can only have a single value, but Excel row {row_number} contains more than one value.")
+        raise BaseError(f"A <boolean-prop> can only have a single value, "
+                        f"but resource '{resource_id}' (Excel row {row_number}) contains more than one value.")
     
     return property_elements
 
 
-def _convert_property_row_and_append_to_resource(
+def _convert_property_row_to_xml(
     row_number: int,
     row: pd.Series,
     max_num_of_props: int,
-    resource: etree._Element
+    resource_id: str
 ) -> etree._Element:
     """
-    
-
+    Convert a property-row of the CSV/Excel sheet to an XML element.
 
     Args:
         row_number: row number of the CSV/Excel sheet
         row: the pandas series representing the current row
         max_num_of_props: highest number of properties that a resource in this file has
-        resource: resource to which the property will be appended
+        resource_id: id of the resource to which the property will be appended
 
     Raises:
         BaseError: if there is inconsistent data in the row / if a validation fails
@@ -2117,7 +2127,6 @@ def _convert_property_row_and_append_to_resource(
     Returns:
         the resource element with the appended property
     """
-    resource_id = resource.attrib["id"]
     # based on the property type, the right function has to be chosen
     make_prop_function = _get_prop_function(
         row=row, 
@@ -2129,18 +2138,43 @@ def _convert_property_row_and_append_to_resource(
         row=row,
         max_num_of_props=max_num_of_props,
         row_number=row_number,
-        make_prop_function=make_prop_function,
         resource_id=resource_id
     )
 
-    resource = _create_property_and_append_to_resource()
-    # collect the kwargs for the method call
+    # create the property
+    prop = _create_property(
+        make_prop_function=make_prop_function,
+        row=row,
+        property_elements=property_elements,
+        resource_id=resource_id
+    )
+    return prop
+
+
+def _create_property(
+    make_prop_function: Callable[..., etree._Element],
+    row: pd.Series,
+    property_elements: list[PropertyElement],
+    resource_id: str
+) -> etree._Element:
+    """
+    Create a property based on the appropriate function and the property elements.
+
+    Args:
+        make_prop_function: the function to create the property
+        row: the pandas series representing the current row of the Excel/CSV
+        property_elements: the list of PropertyElement objects
+        resource_id: id of resource to which this property belongs to
+
+    Returns:
+        the resource with the properties appended
+    """
     kwargs_propfunc: dict[str, Union[str, PropertyElement, list[PropertyElement]]] = {
         "name": row["prop name"],
         "calling_resource": resource_id
     }
 
-    if make_prop_function == make_boolean_prop:             # pylint: disable=comparison-with-callable
+    if row.get("prop type") == "boolean-prop":
         kwargs_propfunc["value"] = property_elements[0]
     else:
         kwargs_propfunc["value"] = property_elements
@@ -2148,10 +2182,9 @@ def _convert_property_row_and_append_to_resource(
     if check_notna(row.get("prop list")):
         kwargs_propfunc["list_name"] = str(row["prop list"])
 
-    # create the property and append it to the resource
-    resource.append(make_prop_function(**kwargs_propfunc))
+    prop = make_prop_function(**kwargs_propfunc)
 
-    return resource
+    return prop
 
 
 def excel2xml(

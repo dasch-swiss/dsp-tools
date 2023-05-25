@@ -635,13 +635,13 @@ class TestExcel2xml(unittest.TestCase):
             (f"{invalid_prefix}/empty-property.xlsx",                    "At least one value per property is required"),
             (f"{invalid_prefix}/id-propname-both.xlsx",                  "Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry"),
             (f"{invalid_prefix}/id-propname-none.xlsx",                  "Exactly 1 of the 2 columns 'id' and 'prop name' must have an entry"),
-            (f"{invalid_prefix}/missing-prop-permissions.xlsx",          "Missing permissions for value .+ of property"),
+            (f"{invalid_prefix}/missing-prop-permissions.xlsx",          "Missing permissions in column '2_permissions' of property :hasName"),
             (f"{invalid_prefix}/missing-resource-label.xlsx",            "Missing label for resource"),
             (f"{invalid_prefix}/missing-resource-permissions.xlsx",      "Missing permissions for resource"),
             (f"{invalid_prefix}/missing-restype.xlsx",                   "Missing restype"),
             (f"{invalid_prefix}/no-bitstream-permissions.xlsx",          "Missing file permissions"),
             (f"{invalid_prefix}/nonexisting-proptype.xlsx",              "Invalid prop type"),
-            (f"{invalid_prefix}/single-invalid-value-for-property.xlsx", "has an entry in column \\d+_permissions, but not in \\d+_value"),
+            (f"{invalid_prefix}/single-invalid-value-for-property.xlsx", "row 3 has an entry in column.+ '1_encoding', '1_permissions', but not"),
             (f"{invalid_prefix}/start-with-property-row.xlsx",           "The first row must define a resource, not a property"),
         ]
         for file, _regex in invalid_cases:

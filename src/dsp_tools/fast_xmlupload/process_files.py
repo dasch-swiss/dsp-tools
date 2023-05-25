@@ -54,19 +54,21 @@ def _check_if_all_files_were_processed(
     Returns:
         success status
     """
-    if len(result) == len(all_paths):
+    processed_paths = [x[1] for x in result if x[1]]
+    if len(processed_paths) == len(all_paths):
         success = True
         print(f"{datetime.now()}: Number of processed files: {len(result)}: Okay")
         logger.info(f"Number of processed files: {len(result)}: Okay")
     else:
         success = False
-        print(f"{datetime.now()}: ERROR: Some files could not be processed: Only {len(result)}/{len(all_paths)} were processed. The failed ones are:")
-        logger.error(f"Some files could not be processed: Only {len(result)}/{len(all_paths)} were processed. The failed ones are:")
+        msg = f"Some files could not be processed: Only {len(processed_paths)}/{len(all_paths)} were processed. The failed ones are:"
+        print(f"{datetime.now()}: ERROR: {msg}")
+        logger.error(msg)
 
     for input_file, output_file in result:
         if not output_file:
-            print(f" - {input_file} could not be processed.")
-            logger.error(f" - {input_file} could not be processed.")
+            print(f" - {input_file}")
+            logger.error(f" - {input_file}")
 
     return success
 
@@ -308,7 +310,7 @@ def _convert_file_with_sipi(
         print(f"{datetime.now()}: ERROR: Cannot convert file {in_file_local_path} with Sipi: Sipi container not found.")
         logger.error(f"Cannot convert file {in_file_local_path} with Sipi: Sipi container not found.")
         return False
-    result = sipi_container.exec_run(f"/sipi/sipi {in_file_sipi_path} {out_file_sipi_path}")
+    result = sipi_container.exec_run(f"/sipi/sipi '{in_file_sipi_path}' {out_file_sipi_path}")
     if result.exit_code != 0:
         print(f"{datetime.now()}: ERROR: Sipi conversion of {in_file_local_path} failed: {result}")
         logger.error(f"Sipi conversion of {in_file_local_path} failed: {result}")
@@ -462,11 +464,11 @@ def _get_file_category_from_extension(file: Path) -> Optional[str]:
     extensions["document"] = [".doc", ".docx", ".pdf", ".ppt", ".pptx", ".xls", ".xlsx"]
     extensions["audio"] = [".mp3", ".wav"]
 
-    if file.suffix in extensions["video"]:
+    if file.suffix.lower() in extensions["video"]:
         category = "VIDEO"
-    elif file.suffix in extensions["image"]:
+    elif file.suffix.lower() in extensions["image"]:
         category = "IMAGE"
-    elif file.suffix in extensions["archive"] + extensions["text"] + extensions["document"] + extensions["audio"]:
+    elif file.suffix.lower() in extensions["archive"] + extensions["text"] + extensions["document"] + extensions["audio"]:
         category = "OTHER"
     else:
         category = None

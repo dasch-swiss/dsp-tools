@@ -20,7 +20,9 @@ from dsp_tools.utils.project_create_lists import create_lists_on_server
 from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import login, parse_json_input, try_network_action
 
-logger: logging.Logger
+# default unconfigured logger created when the module is initialized (e.g. for testing, or when the module is imported)
+# if this module is used as part of the dsp-tools CLI, this default logger will be replaced by the one configured in dsp_tools.py
+logger = logging.getLogger(__name__)
 
 
 def _create_project_on_server(

@@ -9,7 +9,9 @@ from lxml import etree
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.xml_upload import xml_upload
 
-logger: logging.Logger
+# default unconfigured logger created when the module is initialized (e.g. for testing, or when the module is imported)
+# if this module is used as part of the dsp-tools CLI, this default logger will be replaced by the one configured in dsp_tools.py
+logger = logging.getLogger(__name__)
 
 
 def _get_paths_from_pkl_file(pkl_file: Path) -> dict[str, str]:

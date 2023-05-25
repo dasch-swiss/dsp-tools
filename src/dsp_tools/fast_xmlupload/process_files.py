@@ -19,7 +19,10 @@ from lxml import etree
 
 from dsp_tools.models.exceptions import BaseError
 
-logger: logging.Logger
+# default unconfigured logger created when the module is initialized (e.g. for testing, or when the module is imported)
+# if this module is used as part of the dsp-tools CLI, this default logger will be replaced by the one configured in dsp_tools.py
+logger = logging.getLogger(__name__)
+
 sipi_container: Optional[Container] = None
 export_moving_image_frames_script: Optional[Path] = None
 

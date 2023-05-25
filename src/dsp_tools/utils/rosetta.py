@@ -8,7 +8,7 @@ from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.xml_upload import xml_upload
 
 # default unconfigured logger created when the module is initialized (e.g. for testing, or when the module is imported)
-# if this module is used as part of the dsp-tools CLI, this default logger is replaced by the one configured in dsp_tools.py
+# if this module is used as part of the dsp-tools CLI, this default logger will be replaced by the one configured in dsp_tools.py
 logger = logging.getLogger(__name__)
 
 

@@ -9,7 +9,9 @@ from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import login, parse_json_input, try_network_action
 
-logger: logging.Logger
+# default unconfigured logger created when the module is initialized (e.g. for testing, or when the module is imported)
+# if this module is used as part of the dsp-tools CLI, this default logger will be replaced by the one configured in dsp_tools.py
+logger = logging.getLogger(__name__)
 
 
 def _create_list_node(

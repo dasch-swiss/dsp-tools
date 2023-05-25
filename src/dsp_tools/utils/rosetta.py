@@ -7,7 +7,9 @@ from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.xml_upload import xml_upload
 
-logger: logging.Logger
+# default unconfigured logger created when the module is initialized (e.g. for testing, or when the module is imported)
+# if this module is used as part of the dsp-tools CLI, this default logger is replaced by the one configured in dsp_tools.py
+logger = logging.getLogger(__name__)
 
 
 def _update_possibly_existing_repo(rosetta_folder: Path) -> bool:
@@ -56,16 +58,12 @@ def _clone_repo(rosetta_folder: Path, enclosing_folder: Path) -> None:
         raise UserError("There was a problem while cloning the rosetta test project")
 
 
-def _create_json(
-    rosetta_folder: Path,
-    logger_instance: logging.Logger
-) -> bool:
+def _create_json(rosetta_folder: Path) -> bool:
     """
     Creates the rosetta project on the locally running DSP stack.
 
     Args:
         rosetta_folder: path to the clone
-        logger_instance: logger instance
 
     Returns:
         True if the project could be created without problems, False if something went wrong during the creation process
@@ -78,21 +76,17 @@ def _create_json(
         password="test",
         verbose=False,
         dump=False,
-        logger_instance=logger_instance
+        logger_instance=logger
     )
     return success
 
 
-def _upload_xml(
-    rosetta_folder: Path,
-    logger_instance: logging.Logger
-) -> bool:
+def _upload_xml(rosetta_folder: Path) -> bool:
     """
     Uplaod the rosetta data on the locally running DSP stack.
 
     Args:
         rosetta_folder: path to the clone
-        logger_instance: logger instance
 
     Returns:
         True if all data could be uploaded without problems, False if something went wrong during the upload process
@@ -109,7 +103,7 @@ def _upload_xml(
         incremental=False,
         save_metrics=False,
         preprocessing_done=False,
-        logger_instance=logger_instance
+        logger_instance=logger
     )
     return success
 
@@ -144,13 +138,7 @@ def upload_rosetta(logger_instance: logging.Logger) -> bool:
             enclosing_folder=enclosing_folder
         )
 
-    success1 = _create_json(
-        rosetta_folder=rosetta_folder,
-        logger_instance=logger
-    )
-    success2 = _upload_xml(
-        rosetta_folder=rosetta_folder,
-        logger_instance=logger
-    )
+    success1 = _create_json(rosetta_folder=rosetta_folder)
+    success2 = _upload_xml(rosetta_folder=rosetta_folder)
 
     return success1 and success2

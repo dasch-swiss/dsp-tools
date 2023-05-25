@@ -1,6 +1,5 @@
 # pylint: disable=protected-access,missing-class-docstring,missing-function-docstring
 
-import logging
 import shutil
 import unittest
 from pathlib import Path
@@ -9,7 +8,6 @@ import pytest
 
 from dsp_tools.utils import rosetta
 
-logger = logging.getLogger(__name__)
 
 class TestRosetta(unittest.TestCase):
 
@@ -28,15 +26,9 @@ class TestRosetta(unittest.TestCase):
         is_rosetta_up_to_date = rosetta._update_possibly_existing_repo(rosetta_folder=rosetta_folder)
         self.assertTrue(is_rosetta_up_to_date)
 
-        success1 = rosetta._create_json(
-            rosetta_folder=rosetta_folder,
-            logger_instance=logger
-        )
+        success1 = rosetta._create_json(rosetta_folder=rosetta_folder)
         self.assertTrue(success1)
-        success2 = rosetta._upload_xml(
-            rosetta_folder=rosetta_folder,
-            logger_instance=logger
-        )
+        success2 = rosetta._upload_xml(rosetta_folder=rosetta_folder)
         self.assertTrue(success2)
 
         shutil.rmtree("tmp", ignore_errors=True)

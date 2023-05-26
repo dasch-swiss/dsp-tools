@@ -2,7 +2,6 @@
 
 import hashlib
 import json
-import logging
 import pickle
 import shutil
 import subprocess
@@ -18,8 +17,9 @@ from docker.models.containers import Container
 from lxml import etree
 
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.utils.shared import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 sipi_container: Optional[Container] = None
 export_moving_image_frames_script: Optional[Path] = None
 
@@ -735,7 +735,6 @@ def process_files(
     Returns:
         success status
     """
-    logger.info(f"***Call to process_files(input_dir='{input_dir}', out_dir='{output_dir}', xml_file='{xml_file}')***")
     # check the input parameters
     param_check_result = _check_params(
         input_dir=input_dir,

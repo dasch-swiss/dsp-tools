@@ -4,6 +4,7 @@ import copy
 import importlib.resources
 import json
 import logging
+import logging.handlers
 import time
 import unicodedata
 from datetime import datetime
@@ -19,7 +20,40 @@ from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.propertyelement import PropertyElement
 
-logger = logging.getLogger(__name__)
+
+def get_logger(name: str) -> logging.Logger:
+    """
+    Create a logger instance, 
+    set its level to INFO,
+    and configure it to write to a file in the user's home directory.
+    
+    Args:
+        name: name of the logger
+
+    Returns:
+        the logger instance
+    """
+    _logger = logging.getLogger(name)
+    _logger.setLevel(logging.INFO)
+    formatter = logging.Formatter(
+        fmt="{asctime} {filename: <20} {levelname: <8} {message}",
+        style="{"
+    )
+    # a RotatingFileHandler fills "filename" until it is "maxBytes" big, 
+    # then appends ".1" to it and starts with a new file "filename",
+    # fills it until it is "maxBytes" big,
+    # then appends ".1" to it (replacing the old ".1" file)
+    handler = logging.handlers.RotatingFileHandler(
+        filename=Path.home() / Path(".dsp-tools") / "logging.log",
+        mode="a",
+        maxBytes=3*1024*1024,
+        backupCount=1
+    )
+    handler.setFormatter(formatter)
+    _logger.addHandler(handler)
+    return _logger
+
+logger = get_logger(__name__)
 
 
 def login(server: str, user: str, password: str) -> Connection:

@@ -3,11 +3,8 @@ The code in this file handles the arguments passed by the user from the command 
 """
 import argparse
 import datetime
-import logging
-import logging.handlers
 import sys
 from importlib.metadata import version
-from pathlib import Path
 
 from dsp_tools.excel2xml import excel2xml
 from dsp_tools.fast_xmlupload.process_files import process_files
@@ -28,9 +25,11 @@ from dsp_tools.utils.project_create_lists import create_lists
 from dsp_tools.utils.project_get import get_project
 from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.rosetta import upload_rosetta
-from dsp_tools.utils.shared import validate_xml_against_schema
+from dsp_tools.utils.shared import get_logger, validate_xml_against_schema
 from dsp_tools.utils.stack_handling import start_stack, stop_stack
 from dsp_tools.utils.xml_upload import xml_upload
+
+logger = get_logger(__name__)
 
 
 def make_parser() -> argparse.ArgumentParser:
@@ -228,10 +227,38 @@ def make_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _log_cli_arguments(parsed_args: argparse.Namespace) -> None:
+    """
+    Log the CLI arguments passed by the user from the command line.
+
+    Args:
+        parsed_args: parsed arguments
+    """
+    msg = f"*** Called the DSP-TOOLS action '{parsed_args.action}' from the command line with these parameters:"
+    parameters_to_log = {key: value for key, value in vars(parsed_args).items() if key != "action"}
+    longest_key_length = max(len(key) for key in parameters_to_log) if parameters_to_log else 0
+    lines = list()
+    for key, value in parameters_to_log.items():
+        if key == "password":
+            lines.append(f"***   {key:<{longest_key_length}} = {'*' * len(value)}")
+        else:
+            lines.append(f"***   {key:<{longest_key_length}} = {value}")
+    if not lines:
+        lines.append("***   (no parameters)")
+    asterisk_count = max(
+        len(msg), 
+        max(len(line) for line in lines)
+    )
+    logger.info("*" * asterisk_count)
+    logger.info(msg)
+    for line in lines:
+        logger.info(line)
+    logger.info("*" * asterisk_count)
+
+
 def call_requested_action(
     user_args: list[str],
-    parser: argparse.ArgumentParser,
-    logger: logging.Logger
+    parser: argparse.ArgumentParser
 ) -> bool:
     """
     With the help of the parser, parse the user arguments and call the appropriate method of DSP-TOOLS.
@@ -239,7 +266,6 @@ def call_requested_action(
     Args:
         user_args: list of arguments passed by the user from the command line
         parser: parser to parse the user arguments
-        logger: the logger for this module
 
     Raises:
         BaseError from the called methods
@@ -254,9 +280,7 @@ def call_requested_action(
         parser.print_help(sys.stderr)
         sys.exit(1)
 
-    logger.info("*****************************************************************************************")
-    logger.info(f"***Called DSP-TOOLS action '{args.action}' from command line with these parameters: {args}")
-    logger.info("*****************************************************************************************")
+    _log_cli_arguments(args)
 
     if args.action == "create":
         if args.lists_only:
@@ -392,26 +416,11 @@ def call_requested_action(
 
 def main() -> None:
     """Main entry point of the program as referenced in pyproject.toml"""
-    logging.basicConfig(
-        format="{asctime}   {filename: <20} {levelname: <8} {message}",
-        style="{",
-        level=logging.INFO,
-        handlers=[
-            logging.handlers.RotatingFileHandler(
-                filename=Path.home() / Path(".dsp-tools") / "logging.log",
-                maxBytes=3*1024*1024,
-                backupCount=1
-            )
-        ]
-    )
-    logger = logging.getLogger(__name__)
-
     parser = make_parser()
     try:
         success = call_requested_action(
             user_args=sys.argv[1:],
-            parser=parser,
-            logger=logger
+            parser=parser
         )
     except UserError as err:
         print(err.message)

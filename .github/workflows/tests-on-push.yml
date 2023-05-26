@@ -14,76 +14,79 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
+      # Checkout source, install Python, install dependencies
+      ######################################################
       - name: Checkout source
         uses: actions/checkout@v3
         with:
           submodules: recursive
 
+      - name: Install poetry
+        # the latest poetry (1.5.0) is not compatible with the latest poetry-exec-plugin (0.3.5) 
+        # (see https://github.com/keattang/poetry-exec-plugin/issues/14). 
+        # As long as poetry-exec-plugin isn't fixed, we have to use poetry 1.4.2.
+        run: | 
+          curl -sSL https://install.python-poetry.org | python3 - --version 1.4.2
+
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
+          # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
+          cache: poetry
 
       - name: Install Python dependencies
-        # the latest poetry (1.5.0) is not compatible with the latest poetry-exec-plugin (0.3.5) 
-        # (see https://github.com/keattang/poetry-exec-plugin/issues/14). 
-        # As long as poetry-exec-plugin isn't fixed, we have to use poetry 1.4.2.
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 - --version 1.4.2
-          poetry self add poetry-exec-plugin
-          poetry install
+        run: poetry install
       
-      - name: Install ffmpeg for local processing (fast xmlupload)
-        uses: FedericoCarboni/setup-ffmpeg@v2
-        id: setup-ffmpeg
 
-      - name: Install ImageMagick for local processing (fast xmlupload)
-        uses: mfinelli/setup-imagemagick@v2
-      
+      # Build and check docs
+      ######################
       - name: build docs
         run: poetry run mkdocs build --strict
 
       - name: check external links in docs
         run: |
           npm install -g markdown-link-validator
+          poetry self add poetry-exec-plugin
           poetry exec check-links
+      
+      - name: markdownlint
+        run: docker run -v $PWD:/workdir ghcr.io/igorshubovych/markdownlint-cli:latest --config .markdownlint.yml --ignore CHANGELOG.md "**/*.md"
 
-      - name: run Pylint
+
+      # Code Linting
+      ##############
+      - name: Linting with Pylint
         run: poetry run pylint src test
 
-      - name: run mypy
+      - name: Linting with mypy
         run: poetry run mypy .
 
-      - name: Lint Code Base
-        uses: github/super-linter/slim@v4           
-        # GitHub's super-linter: https://github.com/github/super-linter
-        # super-linter uses a pre-built image with all linters in it. Thus, the linters run outside the poetry virtualenv. 
-        # So, pylint reports import-errors for dependencies installed with poetry.
-        # In addition, pylint and mypy don't recognize the ignore patterns defined in pyproject.toml.
-        # For these reasons, pylint and mypy must be run independently from super-linter.
-        env:
-          VALIDATE_ALL_CODEBASE: true               # check all files or only edited ones. if false, actions/checkout needs fetch-depth 0
-          DEFAULT_BRANCH: main                      # name of the repository default branch; default: master
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # super-linter marks the status of each linter run in the Checks section of a PR
-          FILTER_REGEX_EXCLUDE: CHANGELOG\.md       # CHANGELOG.md fails the markdownlint validation
-          LINTER_RULES_PATH: /                      # directory for all linter configuration rules; default: .github/linters
+      - name: Linting with isort
+        run: poetry run isort --check --diff --settings-path pyproject.toml .
+      
 
-          VALIDATE_BASH: true
-          VALIDATE_DOCKERFILE_HADOLINT: true        # https://github.com/hadolint/hadolint
-          VALIDATE_GITHUB_ACTIONS: true             # https://github.com/rhysd/actionlint
-          VALIDATE_JSON: true                       # https://www.npmjs.com/package/eslint-plugin-json
-          VALIDATE_MARKDOWN: true                   # https://github.com/igorshubovych/markdownlint-cli
-          MARKDOWN_CONFIG_FILE: .markdownlint.yml
-          VALIDATE_XML: true                        # http://xmlsoft.org/
-          VALIDATE_YAML: true                       # https://github.com/adrienverge/yamllint
-          VALIDATE_PYTHON_ISORT: true               # https://pypi.org/project/isort/
-          PYTHON_ISORT_CONFIG_FILE: pyproject.toml
-          VALIDATE_GITLEAKS: true                   # https://github.com/gitleaks/gitleaks
-          # VALIDATE_EDITORCONFIG: true             # https://github.com/editorconfig-checker/editorconfig-checker
-          # VALIDATE_JSCPD: true                    # https://github.com/kucherenko/jscpd
-          # VALIDATE_JSCPD_ALL_CODEBASE: true       # lint the whole codebase. If false: lint files one by one
-          # VALIDATE_NATURAL_LANGUAGE: true         # https://textlint.github.io/
+      # Install programs for local processing (fast xmlupload)
+      ########################################################
+      - name: Fast xmlupload - Install ffmpeg
+        uses: FedericoCarboni/setup-ffmpeg@v2
 
+      - name: Fast xmlupload - ImageMagick - look for cached AppImage
+        # If a cache is found that matches "key", the cached files are restored to "path".
+        # If no cache is found, this step is skipped, and when all jobs are done, the files in "path" are cached under "key".
+        id: search-cached-imagemagick
+        uses: actions/cache@v3
+        with:
+          path: ~/bin/magick        # AppImage containing all binaries + dependencies
+          key: imagemagick          # don't check for a new version, because version checking is fairly complex
+
+      - name: Fast xmlupload - ImageMagick - Installation
+        if: ${{ steps.search-cached-imagemagick.outputs.cache-hit != 'true' }}
+        uses: mfinelli/setup-imagemagick@v2  # downloads the "magick" AppImage to ~/bin/magick
+
+
+      # Run unittests and e2e tests
+      #############################
       - name: unittests
         run: poetry run pytest test/unittests/
 

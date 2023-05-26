@@ -43,6 +43,8 @@ def get_logger(name: str) -> logging.Logger:
     # then appends ".1" to it and starts with a new file "filename",
     # fills it until it is "maxBytes" big,
     # then appends ".1" to it (replacing the old ".1" file)
+    logfile_directory = Path.home() / Path(".dsp-tools")
+    logfile_directory.mkdir(exist_ok=True)
     handler = logging.handlers.RotatingFileHandler(
         filename=Path.home() / Path(".dsp-tools") / "logging.log",
         mode="a",

@@ -15,6 +15,7 @@ class TestRosetta(unittest.TestCase):
         enclosing_folder = Path("tmp/.dsp-tools/rosetta")
         enclosing_folder.mkdir(parents=True, exist_ok=True)
         rosetta_folder = enclosing_folder / "082E-rosetta-scripts"
+        shutil.rmtree(rosetta_folder, ignore_errors=True)
 
         is_rosetta_up_to_date = rosetta._update_possibly_existing_repo(rosetta_folder=rosetta_folder)
         self.assertFalse(is_rosetta_up_to_date)

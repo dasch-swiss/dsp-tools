@@ -46,7 +46,7 @@ def get_logger(name: str) -> logging.Logger:
     logfile_directory = Path.home() / Path(".dsp-tools")
     logfile_directory.mkdir(exist_ok=True)
     handler = logging.handlers.RotatingFileHandler(
-        filename=Path.home() / Path(".dsp-tools") / "logging.log",
+        filename=logfile_directory / "logging.log",
         mode="a",
         maxBytes=3*1024*1024,
         backupCount=1

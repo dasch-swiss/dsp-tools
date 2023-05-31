@@ -187,8 +187,8 @@ def create_lists(
 
     # create new lists
     current_project_lists, success = create_lists_on_server(
-        lists_to_create=lists_to_create, 
-        con=con, 
+        lists_to_create=lists_to_create,
+        con=con,
         project_remote=project_remote,
     )
     if not success:

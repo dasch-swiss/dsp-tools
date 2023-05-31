@@ -61,9 +61,6 @@ jobs:
 
       - name: Linting with mypy
         run: poetry run mypy .
-
-      - name: Linting with isort
-        run: poetry run isort --check --diff --settings-path pyproject.toml .
       
 
       # Install programs for local processing (fast xmlupload)

@@ -31,6 +31,7 @@ networkx = "^3.1.0"
 pandas = { version = "^2.0.1", extras = ["excel"] }  # extra package that contains xlrd that is necessary for reading old .xls Excel files
 regex = "^2023.5.5"
 docker = "^6.1.2"
+black = "^23.3.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -79,18 +80,13 @@ exclude = [
 ]
 
 
-[tool.isort]
-multi_line_output = 3
-known_first_party = ["dsp_tools"]
-
-
 [tool.pylint.MASTER]
 ignore-paths = ["src/dsp_tools/models/.*$"] # TODO: activate this
 suggestion-mode = true
 
 
 [tool.pylint.format]
-max-line-length = 150
+max-line-length = 120
 
 
 [tool.pylint."messages control"]
@@ -123,3 +119,6 @@ disable = [
     "too-many-statements",                 # TODO: activate this
     "consider-using-f-string",             # in excel2xml, strings with {} in it must be formatted
 ]
+
+[tool.black]
+line-length = 120

@@ -121,7 +121,6 @@ a single line of code in a test method fails.
 When contributing to the project, please make sure you use the same code style rules as we do. We use 
 
 - [pylint](https://pypi.org/project/pylint/) (configured in `pyproject.toml`)
-- [isort](https://pypi.org/project/isort/) (configured in `pyproject.toml`)
 - [mypy](https://pypi.org/project/mypy/) (configured in `pyproject.toml`)
 - [markdownlint](https://github.com/DavidAnson/markdownlint) (configured in `.markdownlint.json`)
 
@@ -135,7 +134,6 @@ To locally check your code for style violations, follow the instructions dependi
 In VSCode, 
 
 - pylint can be installed as extension (`ms-python.pylint`), and be configured in the VSCode settings.
-- isort can be installed as extension (`ms-python.isort`), and be configured in the VSCode settings.
 - mypy can be installed as extension (`matangover.mypy`), and be configured in the VSCode  settings.
     - (This extension is different from Microsoft's Python extension's mypy functionality,
       which only lints each file separately, leading to incomplete type checking.)

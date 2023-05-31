@@ -1,4 +1,3 @@
-import logging
 import pickle
 from datetime import datetime
 from pathlib import Path
@@ -7,9 +6,10 @@ from typing import Optional
 from lxml import etree
 
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.utils.logging import get_logger
 from dsp_tools.utils.xml_upload import xml_upload
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def _get_paths_from_pkl_file(pkl_file: Path) -> dict[str, str]:

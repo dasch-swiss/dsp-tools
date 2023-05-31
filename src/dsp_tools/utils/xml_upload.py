@@ -33,8 +33,8 @@ from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.models.xmlpermission import XmlPermission
 from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
+from dsp_tools.utils.logging import get_logger
 from dsp_tools.utils.shared import (
-    get_logger,
     login,
     try_network_action,
     validate_xml_against_schema

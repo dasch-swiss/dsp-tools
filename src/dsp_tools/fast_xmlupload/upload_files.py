@@ -10,7 +10,8 @@ from regex import regex
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.shared import get_logger, login
+from dsp_tools.utils.logging import get_logger
+from dsp_tools.utils.shared import login
 
 logger = get_logger(__name__)
 

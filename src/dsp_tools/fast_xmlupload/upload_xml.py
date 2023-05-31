@@ -6,7 +6,7 @@ from typing import Optional
 from lxml import etree
 
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.shared import get_logger
+from dsp_tools.utils.logging import get_logger
 from dsp_tools.utils.xml_upload import xml_upload
 
 logger = get_logger(__name__)

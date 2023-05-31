@@ -17,7 +17,7 @@ from docker.models.containers import Container
 from lxml import etree
 
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.shared import get_logger
+from dsp_tools.utils.logging import get_logger
 
 logger = get_logger(__name__)
 sipi_container: Optional[Container] = None

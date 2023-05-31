@@ -10,7 +10,7 @@ from dsp_tools.utils.excel_to_json_resources import excel2resources
 
 def excel2json(
     data_model_files: str,
-    path_to_output_file: str
+    path_to_output_file: str,
 ) -> bool:
     """
     Converts a folder containing Excel files into a JSON data model file. The folder must be structured like this:
@@ -50,24 +50,32 @@ def excel2json(
     processed_files = []
     onto_folders = [x for x in folder if os.path.isdir(x) and re.search(r"([\w.-]+) (\([\w.\- ]+\))", x.name)]
     if len(onto_folders) == 0:
-        raise BaseError(f"'{data_model_files}' must contain at least one subfolder named after the pattern 'onto_name (onto_label)'")
+        raise BaseError(
+            f"'{data_model_files}' must contain at least one subfolder named after the pattern 'onto_name (onto_label)'"
+        )
     for onto_folder in onto_folders:
         contents = sorted([x.name for x in os.scandir(onto_folder) if not re.search(r"^(\.|~\$).+", x.name)])
         if contents != ["properties.xlsx", "resources.xlsx"]:
-            raise BaseError(f"ERROR: '{data_model_files}/{onto_folder.name}' must contain one file 'properties.xlsx' "
-                            "and one file 'resources.xlsx', but nothing else.")
+            raise BaseError(
+                f"ERROR: '{data_model_files}/{onto_folder.name}' must contain one file 'properties.xlsx' "
+                "and one file 'resources.xlsx', but nothing else."
+            )
         processed_files.extend([f"{data_model_files}/{onto_folder.name}/{file}" for file in contents])
 
     listfolder = [x for x in folder if os.path.isdir(x) and x.name == "lists"]
     if listfolder:
         listfolder_contents = [x for x in os.scandir(listfolder[0]) if not re.search(r"^(\.|~\$).+", x.name)]
         if not all(re.search(r"(de|en|fr|it|rm).xlsx", file.name) for file in listfolder_contents):
-            raise BaseError(f"The only files allowed in '{data_model_files}/lists' are en.xlsx, de.xlsx, fr.xlsx, it.xlsx, rm.xlsx")
+            raise BaseError(
+                f"The only files allowed in '{data_model_files}/lists' are en.xlsx, de.xlsx, fr.xlsx, it.xlsx, rm.xlsx"
+            )
         processed_files = [f"{data_model_files}/lists/{file.name}" for file in listfolder_contents] + processed_files
 
     if len(onto_folders) + len(listfolder) != len(folder):
-        raise BaseError(f"The only allowed subfolders in '{data_model_files}' are 'lists' "
-                        "and folders that match the pattern 'onto_name (onto_label)'")
+        raise BaseError(
+            f"The only allowed subfolders in '{data_model_files}' are 'lists' "
+            "and folders that match the pattern 'onto_name (onto_label)'"
+        )
 
     print("The following files will be processed:")
     print(*(f" - {file}" for file in processed_files), sep="\n")
@@ -89,28 +97,23 @@ def excel2json(
             "name": name,
             "label": label,
             "properties": properties,
-            "resources": resources
+            "resources": resources,
         })
 
+    schema = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"
     project = {
-        "prefixes": {
-            "": ""
-        },
-        "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
+        "prefixes": {"": ""},
+        "$schema": schema,
         "project": {
             "shortcode": "",
             "shortname": "",
             "longname": "",
-            "descriptions": {
-                "en": ""
-            },
-            "keywords": [
-                ""
-            ]
+            "descriptions": {"en": ""},
+            "keywords": [""],
         }
     }
     if lists:
-        project["project"]["lists"] = lists        # type: ignore
+        project["project"]["lists"] = lists  # type: ignore
     project["project"]["ontologies"] = ontologies  # type: ignore
 
     with open(path_to_output_file, "w", encoding="utf-8") as f:

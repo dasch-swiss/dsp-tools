@@ -17,23 +17,18 @@ from lxml.builder import E  # pylint: disable=no-name-in-module
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import DateTimeStamp
+
 # explicitly export PropertyElement, so that API users can import it from this module
 # (see https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-no-implicit-reexport)
 # doing this requires silencing the corresponding pylint warning
 # (see https://pylint.readthedocs.io/en/latest/user_guide/messages/convention/useless-import-alias.html)
-from dsp_tools.models.propertyelement import \
-    PropertyElement as PropertyElement  # pylint: disable=useless-import-alias
+from dsp_tools.models.propertyelement import PropertyElement as PropertyElement  # pylint: disable=useless-import-alias
 from dsp_tools.models.value import UriValue
-from dsp_tools.utils.shared import \
-    check_notna as check_notna  # pylint: disable=useless-import-alias
-from dsp_tools.utils.shared import \
-    simplify_name as simplify_name  # pylint: disable=useless-import-alias
+from dsp_tools.utils.shared import check_notna as check_notna  # pylint: disable=useless-import-alias
+from dsp_tools.utils.shared import simplify_name as simplify_name  # pylint: disable=useless-import-alias
 from dsp_tools.utils.shared import validate_xml_against_schema
 
-xml_namespace_map = {
-    None: "https://dasch.swiss/schema",
-    "xsi": "http://www.w3.org/2001/XMLSchema-instance"
-}
+xml_namespace_map = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 
 
 def make_xsd_id_compatible(string: str) -> str:
@@ -116,7 +111,7 @@ def find_date_in_string(string: str) -> Optional[str]:
         return None
     string = str(string)
 
-    monthes_dict = {
+    months_dict = {
         "January": 1,
         "Jan": 1,
         "February": 2,
@@ -155,25 +150,30 @@ def find_date_in_string(string: str) -> Optional[str]:
     lookahead = r"(?![0-9A-Za-z])"
 
     # template: 2021-01-01 | 2015_01_02
-    iso_date = re.search(fr"{lookbehind}{year_regex}[_-]([0-1][0-9])[_-]([0-3][0-9]){lookahead}", string)
+    iso_date = re.search(rf"{lookbehind}{year_regex}[_-]([0-1][0-9])[_-]([0-3][0-9]){lookahead}", string)
     # template: 6.-8.3.1948 | 6/2/1947 - 24.03.1948
-    eur_date_range = re.search(
-        pattern=fr"{lookbehind}{day_regex}{sep_regex}(?:{month_regex}{sep_regex}{year_regex}?)? ?(?:-|:|to) ?"
-                fr"{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}{lookahead}",
-        string=string
+    eur_date_range_regex = (
+        rf"{lookbehind}"
+        rf"{day_regex}{sep_regex}(?:{month_regex}{sep_regex}{year_regex}?)? ?(?:-|:|to) ?"
+        rf"{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}"
+        rf"{lookahead}"
     )
+    eur_date_range = re.search(eur_date_range_regex, string)
     # template: 1.4.2021 | 5/11/2021
-    eur_date = re.search(fr"{lookbehind}{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}{lookahead}", string)
+    eur_date = re.search(rf"{lookbehind}{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}{lookahead}", string)
     # template: March 9, 1908 | March5,1908 | May 11, 1906
-    monthname_date = re.search(
-        pattern=fr"{lookbehind}(January|Jan|February|Feb|March|Mar|April|Apr|May|June|Jun|July|Jul|August|Aug|September|Sept|"
-                fr"October|Oct|November|Nov|December|Dec) ?{day_regex}, ?{year_regex}{lookahead}",
-        string=string
+    monthname_date_regex = (
+        rf"{lookbehind}" +
+        r"(" +
+        r"|".join(months_dict) +
+        r") ?" +
+        rf"{day_regex}, ?{year_regex}{lookahead}"
     )
+    monthname_date = re.search(monthname_date_regex, string)
     # template: 1849/50 | 1849-50 | 1849/1850
     year_range = re.search(lookbehind + year_regex + r"[/-](\d{2}|\d{4})" + lookahead, string)
     # template: 1907
-    year_only = re.search(fr"{lookbehind}{year_regex}{lookahead}", string)
+    year_only = re.search(rf"{lookbehind}{year_regex}{lookahead}", string)
 
     if iso_date:
         year = int(iso_date.group(1))
@@ -212,7 +212,7 @@ def find_date_in_string(string: str) -> Optional[str]:
 
     elif monthname_date:
         day = int(monthname_date.group(2))
-        month = monthes_dict[monthname_date.group(1)]
+        month = months_dict[monthname_date.group(1)]
         year = int(monthname_date.group(3))
         try:
             startdate = datetime.date(year, month, day)
@@ -223,9 +223,9 @@ def find_date_in_string(string: str) -> Optional[str]:
     elif year_range:
         startyear = int(year_range.group(1))
         endyear = int(year_range.group(2))
-        if int(endyear/100) == 0:
+        if int(endyear / 100) == 0:
             # endyear is only 2-digit: add the first two digits of startyear
-            endyear = int(startyear/100) * 100 + endyear
+            endyear = int(startyear / 100) * 100 + endyear
 
     elif year_only:
         startyear = int(year_only.group(0))
@@ -277,16 +277,17 @@ def make_root(shortcode: str, default_ontology: str) -> etree._Element:
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#the-root-element-knora
     """
-
+    schema_url = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd"
+    schema_location_key = str(etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation"))
+    schema_location_value = f"https://dasch.swiss/schema {schema_url}"
     root = etree.Element(
         "{%s}knora" % (xml_namespace_map[None]),
         attrib={
-            str(etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation")):
-                "https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd",
+            schema_location_key: schema_location_value,
             "shortcode": shortcode,
-            "default-ontology": default_ontology
+            "default-ontology": default_ontology,
         },
-        nsmap=xml_namespace_map
+        nsmap=xml_namespace_map,
     )
     return root
 
@@ -349,11 +350,11 @@ def append_permissions(root_element: etree._Element) -> etree._Element:
 def make_resource(
     label: str,
     restype: str,
-    id: str,                                     # pylint: disable=redefined-builtin
+    id: str,  # pylint: disable=redefined-builtin
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
-    creation_date: Optional[str] = None
+    creation_date: Optional[str] = None,
 ) -> etree._Element:
     """
     Creates an empty resource element, with the attributes as specified by the arguments
@@ -380,38 +381,34 @@ def make_resource(
         warnings.warn(f"WARNING: Your resource's label looks suspicious (resource with id '{id}' and label '{label}'")
     if not check_notna(id):
         warnings.warn(f"WARNING: Your resource's id looks suspicious (resource with id '{id}' and label '{label}'")
-    kwargs = {
-        "label": label,
-        "restype": restype,
-        "id": id,
-        "permissions": permissions,
-        "nsmap": xml_namespace_map
-    }
+    kwargs = {"label": label, "restype": restype, "id": id, "permissions": permissions, "nsmap": xml_namespace_map}
     if ark:
         kwargs["ark"] = ark
     if iri:
         kwargs["iri"] = iri
     if ark and iri:
-        warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.", stacklevel=2)
+        warnings.warn(
+            f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
+            stacklevel=2,
+        )
     if creation_date:
         try:
             DateTimeStamp(creation_date)
         except BaseError:
-            raise BaseError(f"The resource '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. "
-                            f"Did you perhaps forget the timezone?") from None
+            raise BaseError(
+                f"The resource '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. "
+                f"Did you perhaps forget the timezone?"
+            ) from None
         kwargs["creation_date"] = creation_date
 
-    resource_ = etree.Element(
-        "{%s}resource" % (xml_namespace_map[None]),
-        **kwargs  # type: ignore
-    )
+    resource_ = etree.Element("{%s}resource" % (xml_namespace_map[None]), **kwargs)  # type: ignore
     return resource_
 
 
 def make_bitstream_prop(
     path: Union[str, os.PathLike[Any]],
     permissions: str = "prop-default",
-    calling_resource: str = ""
+    calling_resource: str = "",
 ) -> etree._Element:
     """
     Creates a bitstream element that points to "path".
@@ -436,12 +433,15 @@ def make_bitstream_prop(
     """
 
     if not os.path.isfile(path):
-        warnings.warn(f"Failed validation in bitstream tag of resource '{calling_resource}': The following path doesn't point to a file: {path}",
-                      stacklevel=2)
+        warnings.warn(
+            f"Failed validation in bitstream tag of resource '{calling_resource}': "
+            f"The following path doesn't point to a file: {path}",
+            stacklevel=2,
+        )
     prop_ = etree.Element(
         "{%s}bitstream" % (xml_namespace_map[None]),
         permissions=permissions,
-        nsmap=xml_namespace_map
+        nsmap=xml_namespace_map,
     )
     prop_.text = str(path)
     return prop_
@@ -469,13 +469,16 @@ def _format_bool(unformatted: Union[bool, str, int], name: str, calling_resource
     elif unformatted in (True, "true", "1", 1, "yes"):
         return "true"
     else:
-        raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': '{unformatted}' is not a valid boolean.")
+        raise BaseError(
+            f"Failed validation in resource '{calling_resource}', property '{name}': "
+            f"'{unformatted}' is not a valid boolean."
+        )
 
 
 def make_boolean_prop(
     name: str,
     value: Union[PropertyElement, str, int, bool],
-    calling_resource: str = ""
+    calling_resource: str = "",
 ) -> etree._Element:
     """
     Make a <boolean-prop> from a boolean value. The value can be provided directly or inside a PropertyElement. The
@@ -515,13 +518,15 @@ def make_boolean_prop(
     elif isinstance(value, (str, bool, int)):
         value_new = PropertyElement(_format_bool(value, name, calling_resource))
     else:
-        raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': '{value}' is not a valid boolean.")
+        raise BaseError(
+            f"Failed validation in resource '{calling_resource}', property '{name}': '{value}' is not a valid boolean."
+        )
 
     # make xml structure of the value
     prop_ = etree.Element(
         "{%s}boolean-prop" % (xml_namespace_map[None]),
         name=name,
-        nsmap=xml_namespace_map
+        nsmap=xml_namespace_map,
     )
     kwargs = {"permissions": value_new.permissions}
     if check_notna(value_new.comment):
@@ -529,7 +534,7 @@ def make_boolean_prop(
     value_ = etree.Element(
         "{%s}boolean" % (xml_namespace_map[None]),
         **kwargs,  # type: ignore
-        nsmap=xml_namespace_map
+        nsmap=xml_namespace_map,
     )
     value_.text = value_new.value  # type: ignore
     prop_.append(value_)
@@ -540,7 +545,7 @@ def make_boolean_prop(
 def make_color_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
-    calling_resource: str = ""
+    calling_resource: str = "",
 ) -> etree._Element:
     """
     Make a <color-prop> from one or more colors. The color(s) can be provided as string or as PropertyElement with a
@@ -581,13 +586,16 @@ def make_color_prop(
     # check value type
     for val in values:
         if not re.search(r"^#[0-9a-f]{6}$", str(val.value).strip(), flags=re.IGNORECASE):
-            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': '{val.value}' is not a valid color.")
+            raise BaseError(
+                f"Failed validation in resource '{calling_resource}', property '{name}': "
+                f"'{val.value}' is not a valid color."
+            )
 
     # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}color-prop" % (xml_namespace_map[None]),
         name=name,
-        nsmap=xml_namespace_map
+        nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
@@ -596,7 +604,7 @@ def make_color_prop(
         value_ = etree.Element(
             "{%s}color" % (xml_namespace_map[None]),
             **kwargs,  # type: ignore
-            nsmap=xml_namespace_map
+            nsmap=xml_namespace_map,
         )
         value_.text = str(val.value).strip()
         prop_.append(value_)
@@ -607,7 +615,7 @@ def make_color_prop(
 def make_date_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
-    calling_resource: str = ""
+    calling_resource: str = "",
 ) -> etree._Element:
     """
     Make a <date-prop> from one or more dates/date ranges. The date(s) can be provided as string or as PropertyElement
@@ -652,18 +660,23 @@ def make_date_prop(
     values = prepare_value(value)
 
     # check value type
+    validation_regex = (
+        r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?" +
+        r"(\d{4})(-\d{1,2})?(-\d{1,2})?" + 
+        r"((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$"
+    )
     for val in values:
-        if not re.search(
-            pattern=r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})(-\d{1,2})?(-\d{1,2})?((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$",
-            string=str(val.value).strip()
-        ):
-            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': '{val.value}' is not a valid DSP date.")
+        if not re.search(validation_regex, str(val.value).strip()):
+            raise BaseError(
+                f"Failed validation in resource '{calling_resource}', property '{name}': "
+                f"'{val.value}' is not a valid DSP date."
+            )
 
     # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}date-prop" % (xml_namespace_map[None]),
         name=name,
-        nsmap=xml_namespace_map
+        nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
@@ -672,7 +685,7 @@ def make_date_prop(
         value_ = etree.Element(
             "{%s}date" % (xml_namespace_map[None]),
             **kwargs,  # type: ignore
-            nsmap=xml_namespace_map
+            nsmap=xml_namespace_map,
         )
         value_.text = str(val.value).strip()
         prop_.append(value_)
@@ -683,7 +696,7 @@ def make_date_prop(
 def make_decimal_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
-    calling_resource: str = ""
+    calling_resource: str = "",
 ) -> etree._Element:
     """
     Make a <decimal-prop> from one or more decimal numbers. The decimal(s) can be provided as string, float, or as
@@ -727,14 +740,16 @@ def make_decimal_prop(
         try:
             float(val.value)
         except ValueError:
-            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                            f"'{val.value}' is not a valid decimal number.") from None
+            raise BaseError(
+                f"Failed validation in resource '{calling_resource}', property '{name}': "
+                f"'{val.value}' is not a valid decimal number."
+            ) from None
 
     # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}decimal-prop" % (xml_namespace_map[None]),
         name=name,
-        nsmap=xml_namespace_map
+        nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
@@ -743,7 +758,7 @@ def make_decimal_prop(
         value_ = etree.Element(
             "{%s}decimal" % (xml_namespace_map[None]),
             **kwargs,  # type: ignore
-            nsmap=xml_namespace_map
+            nsmap=xml_namespace_map,
         )
         value_.text = str(float(val.value))
         prop_.append(value_)
@@ -754,7 +769,7 @@ def make_decimal_prop(
 def make_geometry_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
-    calling_resource: str = ""
+    calling_resource: str = "",
 ) -> etree._Element:
     """
     Make a <geometry-prop> from one or more areas of an image. The area(s) can be provided as JSON-string or as
@@ -799,14 +814,16 @@ def make_geometry_prop(
             assert value_as_dict["type"] in ["rectangle", "circle", "polygon"]
             assert isinstance(value_as_dict["points"], list)
         except (json.JSONDecodeError, TypeError, IndexError, KeyError, AssertionError):
-            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                            f"'{val.value}' is not a valid JSON geometry object.") from None
+            raise BaseError(
+                f"Failed validation in resource '{calling_resource}', property '{name}': "
+                f"'{val.value}' is not a valid JSON geometry object."
+            ) from None
 
     # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}geometry-prop" % (xml_namespace_map[None]),
         name=name,
-        nsmap=xml_namespace_map
+        nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
@@ -815,7 +832,7 @@ def make_geometry_prop(
         value_ = etree.Element(
             "{%s}geometry" % (xml_namespace_map[None]),
             **kwargs,  # type: ignore
-            nsmap=xml_namespace_map
+            nsmap=xml_namespace_map,
         )
         value_.text = str(val.value)
         prop_.append(value_)
@@ -825,7 +842,7 @@ def make_geometry_prop(
 def make_geoname_prop(
     name: str,
     value: Union[PropertyElement, str, int, Iterable[Union[PropertyElement, str, int]]],
-    calling_resource: str = ""
+    calling_resource: str = "",
 ) -> etree._Element:
     """
     Make a <geoname-prop> from one or more geonames.org IDs. The ID(s) can be provided as string, integer, or as
@@ -867,14 +884,16 @@ def make_geoname_prop(
     # check value type
     for val in values:
         if not re.search(r"^[0-9]+$", str(val.value)):
-            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                            f"'{val.value}' is not a geonames.org identifier.")
+            raise BaseError(
+                f"Failed validation in resource '{calling_resource}', property '{name}': "
+                f"'{val.value}' is not a geonames.org identifier."
+            )
 
     # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}geoname-prop" % (xml_namespace_map[None]),
         name=name,
-        nsmap=xml_namespace_map
+        nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
@@ -883,7 +902,7 @@ def make_geoname_prop(
         value_ = etree.Element(
             "{%s}geoname" % (xml_namespace_map[None]),
             **kwargs,  # type: ignore
-            nsmap=xml_namespace_map
+            nsmap=xml_namespace_map,
         )
         value_.text = str(val.value)
         prop_.append(value_)
@@ -894,7 +913,7 @@ def make_geoname_prop(
 def make_integer_prop(
     name: str,
     value: Union[PropertyElement, str, int, Iterable[Union[PropertyElement, str, int]]],
-    calling_resource: str = ""
+    calling_resource: str = "",
 ) -> etree._Element:
     """
     Make a <integer-prop> from one or more integers. The integers can be provided as string, integer, or as
@@ -938,14 +957,16 @@ def make_integer_prop(
         try:
             int(val.value)
         except ValueError:
-            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                            f"'{val.value}' is not a valid integer.") from None
+            raise BaseError(
+                f"Failed validation in resource '{calling_resource}', property '{name}': "
+                f"'{val.value}' is not a valid integer."
+            ) from None
 
     # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}integer-prop" % (xml_namespace_map[None]),
         name=name,
-        nsmap=xml_namespace_map
+        nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
@@ -954,7 +975,7 @@ def make_integer_prop(
         value_ = etree.Element(
             "{%s}integer" % (xml_namespace_map[None]),
             **kwargs,  # type: ignore
-            nsmap=xml_namespace_map
+            nsmap=xml_namespace_map,
         )
         value_.text = str(int(val.value))
         prop_.append(value_)
@@ -965,7 +986,7 @@ def make_integer_prop(
 def make_interval_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
-    calling_resource: str = ""
+    calling_resource: str = "",
 ) -> etree._Element:
     """
     Make a <interval-prop> from one or more DSP intervals. The interval(s) can be provided as string or as
@@ -1006,14 +1027,16 @@ def make_interval_prop(
     # check value type
     for val in values:
         if not re.match(r"([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)):([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+))", str(val.value)):
-            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                            f"'{val.value}' is not a valid DSP interval.")
+            raise BaseError(
+                f"Failed validation in resource '{calling_resource}', property '{name}': "
+                f"'{val.value}' is not a valid DSP interval."
+            )
 
     # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}interval-prop" % (xml_namespace_map[None]),
         name=name,
-        nsmap=xml_namespace_map
+        nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
@@ -1022,7 +1045,7 @@ def make_interval_prop(
         value_ = etree.Element(
             "{%s}interval" % (xml_namespace_map[None]),
             **kwargs,  # type: ignore
-            nsmap=xml_namespace_map
+            nsmap=xml_namespace_map,
         )
         value_.text = val.value  # type: ignore
         prop_.append(value_)
@@ -1034,7 +1057,7 @@ def make_list_prop(
     list_name: str,
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
-    calling_resource: str = ""
+    calling_resource: str = "",
 ) -> etree._Element:
     """
     Make a <list-prop> from one or more list nodes. The name(s) of the list node(s) can be provided as string or as
@@ -1076,15 +1099,17 @@ def make_list_prop(
     # check value type
     for val in values:
         if not isinstance(val.value, str) or not check_notna(val.value):
-            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                            f"'{val.value}' is not a valid name of a list node.")
+            raise BaseError(
+                f"Failed validation in resource '{calling_resource}', property '{name}': "
+                f"'{val.value}' is not a valid name of a list node."
+            )
 
     # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}list-prop" % (xml_namespace_map[None]),
         list=list_name,
         name=name,
-        nsmap=xml_namespace_map
+        nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
@@ -1093,7 +1118,7 @@ def make_list_prop(
         value_ = etree.Element(
             "{%s}list" % (xml_namespace_map[None]),
             **kwargs,  # type: ignore
-            nsmap=xml_namespace_map
+            nsmap=xml_namespace_map,
         )
         value_.text = val.value  # type: ignore
         prop_.append(value_)
@@ -1104,7 +1129,7 @@ def make_list_prop(
 def make_resptr_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
-    calling_resource: str = ""
+    calling_resource: str = "",
 ) -> etree._Element:
     """
     Make a <resptr-prop> from one or more IDs of other resources. The ID(s) can be provided as string or as
@@ -1145,14 +1170,16 @@ def make_resptr_prop(
     # check value type
     for val in values:
         if not isinstance(val.value, str) or not check_notna(val.value):
-            raise BaseError(f"Validation Error in resource '{calling_resource}', property '{name}': "
-                            f"The following doesn't seem to be a valid ID of a target resource: '{val.value}'")
+            raise BaseError(
+                f"Validation Error in resource '{calling_resource}', property '{name}': "
+                f"The following doesn't seem to be a valid ID of a target resource: '{val.value}'"
+            )
 
     # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}resptr-prop" % (xml_namespace_map[None]),
         name=name,
-        nsmap=xml_namespace_map
+        nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
@@ -1161,7 +1188,7 @@ def make_resptr_prop(
         value_ = etree.Element(
             "{%s}resptr" % (xml_namespace_map[None]),
             **kwargs,  # type: ignore
-            nsmap=xml_namespace_map
+            nsmap=xml_namespace_map,
         )
         value_.text = val.value  # type: ignore
         prop_.append(value_)
@@ -1172,7 +1199,7 @@ def make_resptr_prop(
 def make_text_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
-    calling_resource: str = ""
+    calling_resource: str = "",
 ) -> etree._Element:
     """
     Make a <text-prop> from one or more strings. The string(s) can be provided as string or as PropertyElement with a
@@ -1214,17 +1241,22 @@ def make_text_prop(
     # check value type
     for val in values:
         if not isinstance(val.value, str) or len(val.value) < 1:
-            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                            f"'{val.value}' is not a valid string.")
+            raise BaseError(
+                f"Failed validation in resource '{calling_resource}', property '{name}': "
+                f"'{val.value}' is not a valid string."
+            )
         if not check_notna(val.value):
-            warnings.warn(f"Warning for resource '{calling_resource}', property '{name}': "
-                          f"'{val.value}' is probably not a usable string.", stacklevel=2)
+            warnings.warn(
+                f"Warning for resource '{calling_resource}', property '{name}': "
+                f"'{val.value}' is probably not a usable string.",
+                stacklevel=2,
+            )
 
     # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}text-prop" % (xml_namespace_map[None]),
         name=name,
-        nsmap=xml_namespace_map
+        nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
@@ -1237,7 +1269,7 @@ def make_text_prop(
         value_ = etree.Element(
             "{%s}text" % (xml_namespace_map[None]),
             **kwargs,  # type: ignore
-            nsmap=xml_namespace_map
+            nsmap=xml_namespace_map,
         )
         if kwargs["encoding"] == "utf8":
             # write the text into the tag, without validation
@@ -1245,7 +1277,7 @@ def make_text_prop(
         else:
             # enforce that the text is well-formed XML: serialize tag ...
             content = etree.tostring(value_, encoding="unicode")
-            # ... insert text at the very end of the string, and add an ending tag to the previously single <text/> tag ...
+            # ... insert text at the very end of the string, and add ending tag to the previously single <text/> tag ...
             content = re.sub(r"/>$", f">{val.value}</text>", content)
             # ... try to parse it again
             try:
@@ -1264,7 +1296,7 @@ def make_text_prop(
 def make_time_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
-    calling_resource: str = ""
+    calling_resource: str = "",
 ) -> etree._Element:
     """
     Make a <time-prop> from one or more datetime values of the form "2009-10-10T12:00:00-05:00". The time(s) can be
@@ -1312,16 +1344,19 @@ def make_time_prop(
     values = prepare_value(value)
 
     # check value type
+    validation_regex = r"^\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d{1,12})?(Z|[+-][0-1]\d:[0-5]\d)$"
     for val in values:
-        if not re.search(r"^\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d{1,12})?(Z|[+-][0-1]\d:[0-5]\d)$", str(val.value)):
-            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                            f"'{val.value}' is not a valid DSP time.")
+        if not re.search(validation_regex, str(val.value)):
+            raise BaseError(
+                f"Failed validation in resource '{calling_resource}', property '{name}': "
+                f"'{val.value}' is not a valid DSP time."
+            )
 
     # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}time-prop" % (xml_namespace_map[None]),
         name=name,
-        nsmap=xml_namespace_map
+        nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
@@ -1330,7 +1365,7 @@ def make_time_prop(
         value_ = etree.Element(
             "{%s}time" % (xml_namespace_map[None]),
             **kwargs,  # type: ignore
-            nsmap=xml_namespace_map
+            nsmap=xml_namespace_map,
         )
         value_.text = val.value  # type: ignore
         prop_.append(value_)
@@ -1341,7 +1376,7 @@ def make_time_prop(
 def make_uri_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
-    calling_resource: str = ""
+    calling_resource: str = "",
 ) -> etree._Element:
     """
     Make an <uri-prop> from one or more URIs. The URI(s) can be provided as string or as PropertyElement with a string
@@ -1384,14 +1419,16 @@ def make_uri_prop(
         try:
             UriValue(str(val.value))
         except BaseError:
-            raise BaseError(f"Failed validation in resource '{calling_resource}', property '{name}': "
-                            f"'{val.value}' is not a valid URI.") from None
+            raise BaseError(
+                f"Failed validation in resource '{calling_resource}', property '{name}': "
+                f"'{val.value}' is not a valid URI."
+            ) from None
 
     # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}uri-prop" % (xml_namespace_map[None]),
         name=name,
-        nsmap=xml_namespace_map
+        nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
@@ -1400,7 +1437,7 @@ def make_uri_prop(
         value_ = etree.Element(
             "{%s}uri" % (xml_namespace_map[None]),
             **kwargs,  # type: ignore
-            nsmap=xml_namespace_map
+            nsmap=xml_namespace_map,
         )
         value_.text = val.value  # type: ignore
         prop_.append(value_)
@@ -1410,11 +1447,11 @@ def make_uri_prop(
 
 def make_region(
     label: str,
-    id: str,                                     # pylint: disable=redefined-builtin
+    id: str,  # pylint: disable=redefined-builtin
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
-    creation_date: Optional[str] = None
+    creation_date: Optional[str] = None,
 ) -> etree._Element:
     """
     Creates an empty region element, with the attributes as specified by the arguments
@@ -1441,40 +1478,40 @@ def make_region(
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#region
     """
 
-    kwargs = {
-        "label": label,
-        "id": id,
-        "permissions": permissions,
-        "nsmap": xml_namespace_map
-    }
+    kwargs = {"label": label, "id": id, "permissions": permissions, "nsmap": xml_namespace_map}
     if ark:
         kwargs["ark"] = ark
     if iri:
         kwargs["iri"] = iri
     if ark and iri:
-        warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.", stacklevel=2)
+        warnings.warn(
+            f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
+            stacklevel=2,
+        )
     if creation_date:
         try:
             DateTimeStamp(creation_date)
         except BaseError:
-            raise BaseError(f"The region '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. "
-                            f"Did you perhaps forget the timezone?") from None
+            raise BaseError(
+                f"The region '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. "
+                f"Did you perhaps forget the timezone?"
+            ) from None
         kwargs["creation_date"] = creation_date
 
     region_ = etree.Element(
         "{%s}region" % (xml_namespace_map[None]),
-        **kwargs  # type: ignore
+        **kwargs,  # type: ignore
     )
     return region_
 
 
 def make_annotation(
     label: str,
-    id: str,                                     # pylint: disable=redefined-builtin
+    id: str,  # pylint: disable=redefined-builtin
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
-    creation_date: Optional[str] = None
+    creation_date: Optional[str] = None,
 ) -> etree._Element:
     """
     Creates an empty annotation element, with the attributes as specified by the arguments
@@ -1499,40 +1536,40 @@ def make_annotation(
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#annotation
     """
 
-    kwargs = {
-        "label": label,
-        "id": id,
-        "permissions": permissions,
-        "nsmap": xml_namespace_map
-    }
+    kwargs = {"label": label, "id": id, "permissions": permissions, "nsmap": xml_namespace_map}
     if ark:
         kwargs["ark"] = ark
     if iri:
         kwargs["iri"] = iri
     if ark and iri:
-        warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.", stacklevel=2)
+        warnings.warn(
+            f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
+            stacklevel=2,
+        )
     if creation_date:
         try:
             DateTimeStamp(creation_date)
         except BaseError:
-            raise BaseError(f"The annotation '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. "
-                            f"Did you perhaps forget the timezone?") from None
+            raise BaseError(
+                f"The annotation '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. "
+                f"Did you perhaps forget the timezone?"
+            ) from None
         kwargs["creation_date"] = creation_date
 
     annotation_ = etree.Element(
         "{%s}annotation" % (xml_namespace_map[None]),
-        **kwargs  # type: ignore
+        **kwargs,  # type: ignore
     )
     return annotation_
 
 
 def make_link(
     label: str,
-    id: str,                                     # pylint: disable=redefined-builtin
+    id: str,  # pylint: disable=redefined-builtin
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
-    creation_date: Optional[str] = None
+    creation_date: Optional[str] = None,
 ) -> etree._Element:
     """
     Creates an empty link element, with the attributes as specified by the arguments
@@ -1557,29 +1594,29 @@ def make_link(
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#link
     """
 
-    kwargs = {
-        "label": label,
-        "id": id,
-        "permissions": permissions,
-        "nsmap": xml_namespace_map
-    }
+    kwargs = {"label": label, "id": id, "permissions": permissions, "nsmap": xml_namespace_map}
     if ark:
         kwargs["ark"] = ark
     if iri:
         kwargs["iri"] = iri
     if ark and iri:
-        warnings.warn(f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.", stacklevel=2)
+        warnings.warn(
+            f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
+            stacklevel=2,
+        )
     if creation_date:
         try:
             DateTimeStamp(creation_date)
         except BaseError:
-            raise BaseError(f"The link '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. "
-                            f"Did you perhaps forget the timezone?") from None
+            raise BaseError(
+                f"The link '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. "
+                f"Did you perhaps forget the timezone?"
+            ) from None
         kwargs["creation_date"] = creation_date
 
     link_ = etree.Element(
         "{%s}link" % (xml_namespace_map[None]),
-        **kwargs  # type: ignore
+        **kwargs,  # type: ignore
     )
     return link_
 
@@ -1589,7 +1626,7 @@ def create_json_excel_list_mapping(
     list_name: str,
     excel_values: Iterable[str],
     sep: str = '+"*ç%&/()=',
-    corrections: Optional[dict[str, str]] = None
+    corrections: Optional[dict[str, str]] = None,
 ) -> dict[str, str]:
     """
     Often, data sources contain list values that aren't identical to the name of the node in the list of the JSON
@@ -1658,14 +1695,17 @@ def create_json_excel_list_mapping(
             word=excel_value_simpl,
             possibilities=json_values,
             n=1,
-            cutoff=0.6
+            cutoff=0.6,
         )
         if matches:
             res[excel_value] = matches[0]
             res[excel_value.lower()] = matches[0]
         else:
-            warnings.warn(f"Did not find a close match to the excel list entry '{excel_value}' "
-                          f"among the values in the JSON project list '{list_name}'", stacklevel=2)
+            warnings.warn(
+                f"Did not find a close match to the excel list entry '{excel_value}' "
+                f"among the values in the JSON project list '{list_name}'",
+                stacklevel=2,
+            )
 
     return res
 
@@ -1673,7 +1713,7 @@ def create_json_excel_list_mapping(
 def _nested_dict_values_iterator(dicts: list[dict[str, Any]]) -> Iterable[str]:
     """
     This function accepts a list of nested dictionaries as argument
-    and iterates over all values. 
+    and iterates over all values.
     It yields the values iteratively.
     """
     # Credits: https://thispointer.com/python-iterate-loop-over-all-nested-dictionary-values/
@@ -1688,7 +1728,7 @@ def _nested_dict_values_iterator(dicts: list[dict[str, Any]]) -> Iterable[str]:
 def create_json_list_mapping(
     path_to_json: str,
     list_name: str,
-    language_label: str
+    language_label: str,
 ) -> dict[str, str]:
     """
     Often, data sources contain list values named after the "label" of the JSON project list node, instead of the "name"
@@ -1754,15 +1794,23 @@ def write_xml(root: etree._Element, filepath: str) -> None:
         None
     """
     etree.indent(root, space="    ")
-    xml_string = etree.tostring(root, encoding="unicode", pretty_print=True, doctype='<?xml version="1.0" encoding="UTF-8"?>')
-    xml_string = xml_string.replace("\'", "'")
+    xml_string = etree.tostring(
+        root,
+        encoding="unicode",
+        pretty_print=True,
+        doctype='<?xml version="1.0" encoding="UTF-8"?>',
+    )
+    xml_string = xml_string.replace(r"\'", "'")
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(xml_string)
     try:
         validate_xml_against_schema(input_file=filepath)
         print(f"The XML file was successfully saved to {filepath}")
     except BaseError as err:
-        warnings.warn(f"The XML file was successfully saved to {filepath}, but the following Schema validation error(s) occurred: {err.message}")
+        warnings.warn(
+            f"The XML file was successfully saved to {filepath}, "
+            f"but the following Schema validation error(s) occurred: {err.message}"
+        )
 
 
 def _read_cli_input_file(datafile: str) -> pd.DataFrame:
@@ -1780,17 +1828,14 @@ def _read_cli_input_file(datafile: str) -> pd.DataFrame:
     """
     if re.search(r"\.csv$", datafile):
         dataframe = pd.read_csv(
-            filepath_or_buffer=datafile, 
-            encoding="utf_8_sig",           # utf_8_sig is the default encoding of Excel
-            dtype="str", 
-            sep=None, 
-            engine="python"                 # let the "python" engine detect the separator
+            filepath_or_buffer=datafile,
+            encoding="utf_8_sig",  # utf_8_sig is the default encoding of Excel
+            dtype="str",
+            sep=None,
+            engine="python",  # let the "python" engine detect the separator
         )
     elif re.search(r"(\.xls|\.xlsx)$", datafile):
-        dataframe = pd.read_excel(
-            io=datafile, 
-            dtype="str"
-        )
+        dataframe = pd.read_excel(io=datafile, dtype="str")
     else:
         raise BaseError(f"Cannot open file '{datafile}': Invalid extension. Allowed extensions: 'csv', 'xls', 'xlsx'")
     return dataframe
@@ -1815,7 +1860,9 @@ def _validate_and_prepare_cli_input_file(dataframe: pd.DataFrame) -> pd.DataFram
     # make sure that the required columns are present
     required_columns = ["id", "label", "restype", "permissions", "prop name", "prop type", "1_value"]
     if any(req not in dataframe for req in required_columns):
-        raise BaseError(f"Some columns in your input file are missing. The following columns are required: {required_columns}")
+        raise BaseError(
+            f"Some columns in your input file are missing. The following columns are required: {required_columns}"
+        )
 
     # replace NA-like cells by NA
     dataframe = dataframe.applymap(
@@ -1831,17 +1878,17 @@ def _validate_and_prepare_cli_input_file(dataframe: pd.DataFrame) -> pd.DataFram
 
 def _convert_rows_to_xml(
     dataframe: pd.DataFrame,
-    max_num_of_props: int
+    max_num_of_props: int,
 ) -> list[etree._Element]:
     """
-    Iterate through the rows of the CSV/Excel input file, 
+    Iterate through the rows of the CSV/Excel input file,
     convert every row to either a XML resource or an XML property,
     and return a list of XML resources.
 
     Args:
         dataframe: pandas dataframe with the input data
         max_num_of_props: highest number of properties that a resource in this file has
-    
+
     Raises:
         BaseError: if one of the rows is neither a resource-row nor a property-row, or if the file starts with a property-row
 
@@ -1863,28 +1910,27 @@ def _convert_rows_to_xml(
                 f"id:        '{row['id']}'\n"
                 f"prop name: '{row['prop name']}'"
             )
-        
+
         # this is a resource-row
         elif check_notna(row["id"]):
             # the previous resource is finished, a new resource begins: append the previous to the resulting list
             # in all cases (except for the very first iteration), a previous resource exists
             if resource is not None:
                 resources.append(resource)
-            resource = _convert_resource_row_to_xml(
-                row_number=row_number,
-                row=row
-            )
+            resource = _convert_resource_row_to_xml(row_number=row_number, row=row)
 
         # this is a property-row
-        else:  
+        else:
             assert check_notna(row["prop name"])
             if resource is None:
-                raise BaseError("The first row of your Excel/CSV is invalid. The first row must define a resource, not a property.")
+                raise BaseError(
+                    "The first row of your Excel/CSV is invalid. The first row must define a resource, not a property."
+                )
             prop = _convert_property_row_to_xml(
                 row_number=row_number,
                 row=row,
                 max_num_of_props=max_num_of_props,
-                resource_id=resource.attrib["id"]
+                resource_id=resource.attrib["id"],
             )
             resource.append(prop)
 
@@ -1898,7 +1944,7 @@ def _convert_rows_to_xml(
 def _append_bitstream_to_resource(
     resource: etree._Element,
     row: pd.Series,
-    row_number: int
+    row_number: int,
 ) -> etree._Element:
     """
     Create a bitstream-prop element, and append it to the resource.
@@ -1931,7 +1977,7 @@ def _append_bitstream_to_resource(
         make_bitstream_prop(
             path=str(row["file"]),
             permissions=str(file_permissions),
-            calling_resource=row["id"]
+            calling_resource=row["id"],
         )
     )
     return resource
@@ -1939,7 +1985,7 @@ def _append_bitstream_to_resource(
 
 def _convert_resource_row_to_xml(
     row_number: int,
-    row: pd.Series
+    row: pd.Series,
 ) -> etree._Element:
     """
     Convert a resource-row to an XML resource element.
@@ -1962,7 +2008,9 @@ def _convert_resource_row_to_xml(
     if pd.isna([resource_label]):
         raise BaseError(f"Missing label for resource '{resource_id}' (Excel row {row_number})")
     if not check_notna(resource_label):
-        warnings.warn(f"The label of resource '{resource_id}' looks suspicious: '{resource_label}' (Excel row {row_number})")
+        warnings.warn(
+            f"The label of resource '{resource_id}' looks suspicious: '{resource_label}' (Excel row {row_number})"
+        )
     resource_restype = row.get("restype")
     if not check_notna(resource_restype):
         raise BaseError(f"Missing restype for resource '{resource_id}' (Excel row {row_number})")
@@ -1971,20 +2019,19 @@ def _convert_resource_row_to_xml(
         raise BaseError(f"Missing permissions for resource '{resource_id}' (Excel row {row_number})")
 
     # construct the kwargs for the method call
-    kwargs_resource = {
-        "label": resource_label,
-        "permissions": resource_permissions,
-        "id": resource_id
-    }
+    kwargs_resource = {"label": resource_label, "permissions": resource_permissions, "id": resource_id}
     if check_notna(row.get("ark")):
         kwargs_resource["ark"] = row["ark"]
     if check_notna(row.get("iri")):
         kwargs_resource["iri"] = row["iri"]
     if check_notna(row.get("ark")) and check_notna(row.get("iri")):
-        warnings.warn(f"Both ARK and IRI were provided for resource '{resource_label}' ({resource_id}). The ARK will override the IRI.")
+        warnings.warn(
+            f"Both ARK and IRI were provided for resource '{resource_label}' ({resource_id}). "
+            "The ARK will override the IRI."
+        )
     if check_notna(row.get("created")):
         kwargs_resource["creation_date"] = row["created"]
-    
+
     # call the appropriate method
     if resource_restype == "Region":
         resource = make_region(**kwargs_resource)
@@ -1999,7 +2046,7 @@ def _convert_resource_row_to_xml(
             resource = _append_bitstream_to_resource(
                 resource=resource,
                 row=row,
-                row_number=row_number
+                row_number=row_number,
             )
 
     return resource
@@ -2007,7 +2054,7 @@ def _convert_resource_row_to_xml(
 
 def _get_prop_function(
     row: pd.Series,
-    resource_id: str
+    resource_id: str,
 ) -> Callable[..., etree._Element]:
     """
     Return the function that creates the appropriate property, depending on the proptype.
@@ -2035,7 +2082,7 @@ def _get_prop_function(
         "list-prop": make_list_prop,
         "resptr-prop": make_resptr_prop,
         "text-prop": make_text_prop,
-        "uri-prop": make_uri_prop
+        "uri-prop": make_uri_prop,
     }
     if row.get("prop type") not in proptype_2_function:
         raise BaseError(f"Invalid prop type for property {row.get('prop name')} in resource {resource_id}")
@@ -2047,12 +2094,12 @@ def _convert_row_to_property_elements(
     row: pd.Series,
     max_num_of_props: int,
     row_number: int,
-    resource_id: str
+    resource_id: str,
 ) -> list[PropertyElement]:
     """
-    Every property contains i elements, 
-    which are represented in the Excel as groups of columns named 
-    {i_value, i_encoding, i_permissions, i_comment}. 
+    Every property contains i elements,
+    which are represented in the Excel as groups of columns named
+    {i_value, i_encoding, i_permissions, i_comment}.
     Depending on the property type, some of these cells are empty.
     This method converts a row to a list of PropertyElement objects.
 
@@ -2084,14 +2131,14 @@ def _convert_row_to_property_elements(
                     r"Please note that cell contents that don't meet the requirements of the regex [\p{L}\d_!?\-] are considered inexistent."
                 )
             continue
-        
+
         # construct a PropertyElement from this property element
-        kwargs_propelem = {
-            "value": value,
-            "permissions": str(row.get(f"{i}_permissions"))
-        }
+        kwargs_propelem = {"value": value, "permissions": str(row.get(f"{i}_permissions"))}
         if not check_notna(row.get(f"{i}_permissions")):
-            raise BaseError(f"Missing permissions in column '{i}_permissions' of property '{row['prop name']}' in resource with id '{resource_id}'")
+            raise BaseError(
+                f"Resource '{resource_id}': "
+                f"Missing permissions in column '{i}_permissions' of property '{row['prop name']}'"
+            )
         if check_notna(row.get(f"{i}_comment")):
             kwargs_propelem["comment"] = str(row[f"{i}_comment"])
         if check_notna(row.get(f"{i}_encoding")):
@@ -2100,12 +2147,16 @@ def _convert_row_to_property_elements(
 
     # validate the end result before returning it
     if len(property_elements) == 0:
-        raise BaseError(f"At least one value per property is required, "
-                        f"but resource '{resource_id}' (Excel row {row_number}) doesn't contain any values.")
+        raise BaseError(
+            f"At least one value per property is required, "
+            f"but resource '{resource_id}' (Excel row {row_number}) doesn't contain any values."
+        )
     if row.get("prop type") == "boolean-prop" and len(property_elements) != 1:
-        raise BaseError(f"A <boolean-prop> can only have a single value, "
-                        f"but resource '{resource_id}' (Excel row {row_number}) contains more than one value.")
-    
+        raise BaseError(
+            f"A <boolean-prop> can only have a single value, "
+            f"but resource '{resource_id}' (Excel row {row_number}) contains more than one value."
+        )
+
     return property_elements
 
 
@@ -2113,7 +2164,7 @@ def _convert_property_row_to_xml(
     row_number: int,
     row: pd.Series,
     max_num_of_props: int,
-    resource_id: str
+    resource_id: str,
 ) -> etree._Element:
     """
     Convert a property-row of the CSV/Excel sheet to an XML element.
@@ -2133,7 +2184,7 @@ def _convert_property_row_to_xml(
     # based on the property type, the right function has to be chosen
     make_prop_function = _get_prop_function(
         row=row, 
-        resource_id=resource_id
+        resource_id=resource_id,
     )
 
     # convert the row to a list of PropertyElement objects
@@ -2141,7 +2192,7 @@ def _convert_property_row_to_xml(
         row=row,
         max_num_of_props=max_num_of_props,
         row_number=row_number,
-        resource_id=resource_id
+        resource_id=resource_id,
     )
 
     # create the property
@@ -2149,7 +2200,7 @@ def _convert_property_row_to_xml(
         make_prop_function=make_prop_function,
         row=row,
         property_elements=property_elements,
-        resource_id=resource_id
+        resource_id=resource_id,
     )
     return prop
 
@@ -2158,7 +2209,7 @@ def _create_property(
     make_prop_function: Callable[..., etree._Element],
     row: pd.Series,
     property_elements: list[PropertyElement],
-    resource_id: str
+    resource_id: str,
 ) -> etree._Element:
     """
     Create a property based on the appropriate function and the property elements.
@@ -2174,14 +2225,14 @@ def _create_property(
     """
     kwargs_propfunc: dict[str, Union[str, PropertyElement, list[PropertyElement]]] = {
         "name": row["prop name"],
-        "calling_resource": resource_id
+        "calling_resource": resource_id,
     }
 
     if row.get("prop type") == "boolean-prop":
         kwargs_propfunc["value"] = property_elements[0]
     else:
         kwargs_propfunc["value"] = property_elements
-    
+
     if check_notna(row.get("prop list")):
         kwargs_propfunc["list_name"] = str(row["prop list"])
 
@@ -2193,18 +2244,18 @@ def _create_property(
 def excel2xml(
     datafile: str, 
     shortcode: str, 
-    default_ontology: str
+    default_ontology: str,
 ) -> bool:
     """
-    This is a method that is called from the command line. 
-    It isn't intended to be used in a Python script. 
-    It takes a tabular data source in CSV/XLS(X) format that is formatted according to the specifications, 
-    and transforms it into a DSP-conforming XML file 
-    that can be uploaded to a DSP server with the xmlupload command. 
-    The output file is saved in the same directory as the input file, 
+    This is a method that is called from the command line.
+    It isn't intended to be used in a Python script.
+    It takes a tabular data source in CSV/XLS(X) format that is formatted according to the specifications,
+    and transforms it into a DSP-conforming XML file
+    that can be uploaded to a DSP server with the xmlupload command.
+    The output file is saved in the same directory as the input file,
     with the name [default_ontology]-data.xml.
 
-    Please note that this method doesn't do any data cleaning or data transformation tasks. 
+    Please note that this method doesn't do any data cleaning or data transformation tasks.
     The input and the output of this method are semantically exactly equivalent.
 
     Args:
@@ -2222,7 +2273,7 @@ def excel2xml(
     success = True
     dataframe = _read_cli_input_file(datafile)
     dataframe = _validate_and_prepare_cli_input_file(dataframe)
-    last_column_title = str(list(dataframe)[-1])    # last column title, in the format "i_comment"
+    last_column_title = str(list(dataframe)[-1])  # last column title, in the format "i_comment"
     max_num_of_props = int(last_column_title.split("_")[0])
 
     # create the XML root element
@@ -2232,7 +2283,7 @@ def excel2xml(
     # parse the input file row by row
     resources = _convert_rows_to_xml(
         dataframe=dataframe,
-        max_num_of_props=max_num_of_props
+        max_num_of_props=max_num_of_props,
     )
     for resource in resources:
         root.append(resource)

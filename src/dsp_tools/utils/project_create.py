@@ -26,10 +26,10 @@ logger = get_logger(__name__)
 def _create_project_on_server(
     project_definition: dict[str, Any],
     con: Connection,
-    verbose: bool
+    verbose: bool,
 ) -> tuple[Project, bool]:
     """
-    Create the project on the DSP server. 
+    Create the project on the DSP server.
     If it already exists: update its longname, description and keywords.
 
     Args:
@@ -47,10 +47,16 @@ def _create_project_on_server(
         # the normal, expected case is that this try block fails
         project_local = Project(con=con, shortcode=project_definition["project"]["shortcode"])
         project_remote: Project = try_network_action(project_local.read)
-        print(f"\tWARNING: Project '{project_remote.shortname}' ({project_remote.shortcode}) already exists on the DSP server. Updating it...")
-        logger.warning(f"Project '{project_remote.shortname}' ({project_remote.shortcode}) already exists on the DSP server. Updating it...")
+        proj_designation = f"'{project_remote.shortname}' ({project_remote.shortcode})"
+        msg = f"Project {proj_designation} already exists on the DSP server. Updating it..."
+        print(f"\tWARNING: {msg}")
+        logger.warning(msg)
         # try to update the basic info
-        project_remote, _ = _update_basic_info_of_project(project=project_remote, project_definition=project_definition, verbose=verbose)
+        project_remote, _ = _update_basic_info_of_project(
+            project=project_remote,
+            project_definition=project_definition,
+            verbose=verbose
+        )
         # It doesn't matter if the update is successful or not: continue anyway, because success is anyways false.
         # There are other things from this file that can be created on the server, e.g. the groups and users, so the process must continue.
         return project_remote, False
@@ -66,13 +72,15 @@ def _create_project_on_server(
         description=LangString(project_definition["project"].get("descriptions")),
         keywords=set(project_definition["project"].get("keywords")),
         selfjoin=False,
-        status=True
+        status=True,
     )
     try:
         project_remote = try_network_action(project_local.create)
     except BaseError:
-        err_msg = f"Cannot create project '{project_definition['project']['shortname']}' " \
-                  f"({project_definition['project']['shortcode']}) on DSP server."
+        err_msg = (
+            f"Cannot create project '{project_definition['project']['shortname']}' "
+            f"({project_definition['project']['shortcode']}) on DSP server."
+        )
         logger.error(err_msg, exc_info=True)
         raise UserError(err_msg) from None
     print(f"\tCreated project '{project_remote.shortname}' ({project_remote.shortcode}).")
@@ -82,11 +90,11 @@ def _create_project_on_server(
 def _update_basic_info_of_project(
     project: Project,
     project_definition: dict[str, Any],
-    verbose: bool
+    verbose: bool,
 ) -> tuple[Project, bool]:
     """
-    Updates the longname, description and keywords of a project on a DSP server. 
-    Returns the updated project (or the unchanged project if not successful) and a boolean saying if the update was successful or not. 
+    Updates the longname, description and keywords of a project on a DSP server.
+    Returns the updated project (or the unchanged project if not successful) and a boolean saying if the update was successful or not.
     If the update was not successful, an error message is printed to stdout.
 
     Args:
@@ -97,8 +105,8 @@ def _update_basic_info_of_project(
         tuple of (updated project, success status)
     """
     # store in variables for convenience
-    shortcode = project_definition['project']['shortcode']
-    shortname = project_definition['project']['shortname']
+    shortcode = project_definition["project"]["shortcode"]
+    shortname = project_definition["project"]["shortname"]
 
     # update the local "project" object
     project.longname = project_definition["project"]["longname"]
@@ -132,8 +140,8 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
         project: Project the group(s) should be added to (must exist on DSP server)
 
     Returns:
-        A tuple consisting of a dict and the success status. 
-        The dict has the form ``{group name: group object}`` for all groups that have successfully been created (or already exist). 
+        A tuple consisting of a dict and the success status.
+        The dict has the form ``{group name: group object}`` for all groups that have successfully been created (or already exist).
         The dict is empty if no group was created.
     """
     overall_success = True
@@ -143,8 +151,10 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
             lambda: Group.getAllGroupsForProject(con=con, proj_iri=project.id)  # type: ignore
         )
     except BaseError:
-        err_msg = "Unable to check if group names are already existing on DSP server, because it is " \
-                  "not possible to retrieve the remote groups from the DSP server."
+        err_msg = (
+            "Unable to check if group names are already existing on DSP server, because it is "
+            "not possible to retrieve the remote groups from the DSP server."
+        )
         print(f"WARNING: {err_msg}")
         logger.warning(err_msg, exc_info=True)
         remote_groups = []
@@ -168,7 +178,7 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
             descriptions=LangString(group["descriptions"]),
             project=project,
             status=bool(group.get("status", True)),
-            selfjoin=bool(group.get("selfjoin", False))
+            selfjoin=bool(group.get("selfjoin", False)),
         )
         try:
             group_remote: Group = try_network_action(group_local.create)
@@ -189,7 +199,7 @@ def _get_group_iris_for_user(
     current_project: Project,
     current_project_groups: dict[str, Group],
     con: Connection,
-    verbose: bool
+    verbose: bool,
 ) -> tuple[set[str], bool, bool]:
     """
     Retrieve the IRIs of the groups that the user belongs to.
@@ -202,8 +212,8 @@ def _get_group_iris_for_user(
         verbose: verbose switch
 
     Returns:
-        a tuple consisting of the group IRIs, 
-        the system admin status (True if the user is sysadmin, False otherwise), 
+        a tuple consisting of the group IRIs,
+        the system admin status (True if the user is sysadmin, False otherwise),
         and the success status (True if everything went well)
     """
     success = True
@@ -213,8 +223,11 @@ def _get_group_iris_for_user(
     remote_groups: list[Group] = []
     for full_group_name in json_user_definition.get("groups", []):
         # full_group_name has the form '[project_shortname]:group_name' or 'SystemAdmin'
+        inexisting_group_msg = (
+            f"User {username} cannot be added to group {full_group_name}, because such a group doesn't exist."
+        )
         if ":" not in full_group_name and full_group_name != "SystemAdmin":
-            print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because such a group doesn't exist.")
+            print(f"\tWARNING: {inexisting_group_msg}")
             success = False
             continue
 
@@ -229,7 +242,7 @@ def _get_group_iris_for_user(
         if not project_shortname:
             # full_group_name refers to a group inside the same project
             if group_name not in current_project_groups:
-                print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because such a group doesn't exist.")
+                print(f"\tWARNING: {inexisting_group_msg}")
                 success = False
                 continue
             group = current_project_groups[group_name]
@@ -239,15 +252,17 @@ def _get_group_iris_for_user(
                 # "remote_groups" might be available from a previous loop cycle
                 remote_groups = remote_groups or try_network_action(lambda: Group.getAllGroups(con=con))
             except BaseError:
-                err_msg = f"User '{username}' is referring to the group {full_group_name} that " \
-                          f"exists on the DSP server, but no groups could be retrieved from the DSP server."
+                err_msg = (
+                    f"User '{username}' is referring to the group {full_group_name} that "
+                    f"exists on the DSP server, but no groups could be retrieved from the DSP server."
+                )
                 print(f"\tWARNING: {err_msg}")
                 logger.warning(err_msg, exc_info=True)
                 success = False
                 continue
             existing_group = [g for g in remote_groups if g.project == current_project.id and g.name == group_name]
             if not existing_group:
-                print(f"\tWARNING: User {username} cannot be added to group {full_group_name}, because such a group doesn't exist.")
+                print(f"\tWARNING: {inexisting_group_msg}")
                 success = False
                 continue
             group = existing_group[0]
@@ -263,7 +278,7 @@ def _get_projects_where_user_is_admin(
     json_user_definition: dict[str, str],
     current_project: Project,
     con: Connection,
-    verbose: bool
+    verbose: bool,
 ) -> tuple[dict[str, bool], bool]:
     """
     Create a dict that tells for every project if the user is administrator in that project or not.
@@ -298,15 +313,19 @@ def _get_projects_where_user_is_admin(
                 # "remote_projects" might be available from a previous loop cycle
                 remote_projects = remote_projects or try_network_action(lambda: current_project.getAllProjects(con=con))
             except BaseError:
-                err_msg = f"User '{username}' cannot be added to the projects {json_user_definition['projects']} " \
-                          f"because the projects cannot be retrieved from the DSP server."
+                err_msg = (
+                    f"User '{username}' cannot be added to the projects {json_user_definition['projects']} "
+                    f"because the projects cannot be retrieved from the DSP server."
+                )
                 print(f"\tWARNING: {err_msg}")
                 logger.warning(err_msg, exc_info=True)
                 success = False
                 continue
             in_project_list = [p for p in remote_projects if p.shortname == project_name]
             if not in_project_list:
-                print(f"\tWARNING: Provided project '{full_project_name}' for user '{username}' is not valid. Skipping...")
+                print(
+                    f"\tWARNING: Provided project '{full_project_name}' for user '{username}' is not valid. Skipping..."
+                )
                 success = False
                 continue
             in_project = in_project_list[0]
@@ -323,10 +342,10 @@ def _create_users(
     users_section: list[dict[str, str]],
     current_project_groups: dict[str, Group],
     current_project: Project,
-    verbose: bool
+    verbose: bool,
 ) -> bool:
     """
-    Creates users on a DSP server from the "users" section of a JSON project file. 
+    Creates users on a DSP server from the "users" section of a JSON project file.
     If a user cannot be created, a warning is printed and the user is skipped.
 
     Args:
@@ -360,7 +379,7 @@ def _create_users(
             current_project=current_project,
             current_project_groups=current_project_groups,
             con=con,
-            verbose=verbose
+            verbose=verbose,
         )
         if not success:
             overall_success = False
@@ -370,7 +389,7 @@ def _create_users(
             json_user_definition=json_user_definition,
             current_project=current_project,
             con=con,
-            verbose=verbose
+            verbose=verbose,
         )
         if not success:
             overall_success = False
@@ -387,7 +406,7 @@ def _create_users(
             lang=json_user_definition.get("lang", "en"),
             sysadmin=sysadmin,
             in_projects=project_info,
-            in_groups=group_iris
+            in_groups=group_iris,
         )
         try:
             try_network_action(user_local.create)
@@ -421,10 +440,10 @@ def _sort_resources(unsorted_resources: list[dict[str, Any]], onto_name: str) ->
         # inside the for loop, resources_to_sort is modified, so a copy must be made to iterate over
         for res in resources_to_sort.copy():
             res_name = f'{onto_name}:{res["name"]}'
-            parent_classes = res['super']
+            parent_classes = res["super"]
             if isinstance(parent_classes, str):
                 parent_classes = [parent_classes]
-            parent_classes = [re.sub(r'^:([^:]+)$', f'{onto_name}:\\1', elem) for elem in parent_classes]
+            parent_classes = [re.sub(r"^:([^:]+)$", f"{onto_name}:\\1", elem) for elem in parent_classes]
             parent_classes_ok = [not p.startswith(onto_name) or p in ok_resource_names for p in parent_classes]
             if all(parent_classes_ok):
                 sorted_resources.append(res)
@@ -454,10 +473,10 @@ def _sort_prop_classes(unsorted_prop_classes: list[dict[str, Any]], onto_name: s
         # inside the for loop, resources_to_sort is modified, so a copy must be made to iterate over
         for prop in prop_classes_to_sort.copy():
             prop_name = f'{onto_name}:{prop["name"]}'
-            parent_classes = prop.get('super', 'hasValue')
+            parent_classes = prop.get("super", "hasValue")
             if isinstance(parent_classes, str):
                 parent_classes = [parent_classes]
-            parent_classes = [re.sub(r'^:([^:]+)$', f'{onto_name}:\\1', elem) for elem in parent_classes]
+            parent_classes = [re.sub(r"^:([^:]+)$", f"{onto_name}:\\1", elem) for elem in parent_classes]
             parent_classes_ok = [not p.startswith(onto_name) or p in ok_propclass_names for p in parent_classes]
             if all(parent_classes_ok):
                 sorted_prop_classes.append(prop)
@@ -473,7 +492,7 @@ def _create_ontologies(
     list_root_nodes: dict[str, Any],
     project_definition: dict[str, Any],
     project_remote: Project,
-    verbose: bool
+    verbose: bool,
 ) -> bool:
     """
     Iterates over the ontologies in a JSON project file and creates the ontologies that don't exist on the DSP server
@@ -490,7 +509,7 @@ def _create_ontologies(
         verbose: verbose switch
 
     Raises:
-        UserError if an error occurs during the creation of an ontology. 
+        UserError if an error occurs during the creation of an ontology.
         All other errors are printed, the process continues, but the success status will be false.
 
     Returns:
@@ -505,8 +524,9 @@ def _create_ontologies(
             lambda: Ontology.getProjectOntologies(con=con, project_id=project_remote.id)  # type: ignore
         )
     except BaseError:
-        print("WARNING: Unable to retrieve remote ontologies. Cannot check if your ontology already exists.")
-        logger.warning("Unable to retrieve remote ontologies. Cannot check if your ontology already exists.", exc_info=True)
+        err_msg = "Unable to retrieve remote ontologies. Cannot check if your ontology already exists."
+        print("WARNING: {err_msg}")
+        logger.warning(err_msg, exc_info=True)
         project_ontologies = []
     for ontology_definition in project_definition.get("project", {}).get("ontologies", {}):
         ontology_definition = cast(dict[str, Any], ontology_definition)
@@ -522,7 +542,7 @@ def _create_ontologies(
             project=project_remote,
             label=ontology_definition["label"],
             name=ontology_definition["name"],
-            comment=ontology_definition.get("comment")
+            comment=ontology_definition.get("comment"),
         )
         # if ontology cannot be created, let the error escalate
         try:
@@ -532,7 +552,7 @@ def _create_ontologies(
             raise UserError(f"ERROR while trying to create ontology '{ontology_definition['name']}'.") from None
         context.add_context(
             ontology_remote.name,
-            ontology_remote.id + ('#' if not ontology_remote.id.endswith('#') else '')
+            ontology_remote.id + ("#" if not ontology_remote.id.endswith("#") else ""),
         )
         last_modification_date = ontology_remote.lastModificationDate
         if verbose:
@@ -550,7 +570,7 @@ def _create_ontologies(
             ontology_remote=ontology_remote,
             con=con,
             last_modification_date=last_modification_date,
-            verbose=verbose
+            verbose=verbose,
         )
         if not success:
             overall_success = False
@@ -563,7 +583,7 @@ def _create_ontologies(
             con=con,
             last_modification_date=last_modification_date,
             knora_api_prefix=knora_api_prefix,
-            verbose=verbose
+            verbose=verbose,
         )
         if not success:
             overall_success = False
@@ -575,7 +595,7 @@ def _create_ontologies(
             remote_res_classes=remote_res_classes,
             last_modification_date=last_modification_date,
             knora_api_prefix=knora_api_prefix,
-            verbose=verbose
+            verbose=verbose,
         )
         if not success:
             overall_success = False
@@ -588,7 +608,7 @@ def _add_resource_classes_to_remote_ontology(
     ontology_remote: Ontology,
     con: Connection,
     last_modification_date: DateTimeStamp,
-    verbose: bool
+    verbose: bool,
 ) -> tuple[DateTimeStamp, dict[str, ResourceClass], bool]:
     """
     Creates the resource classes (without cardinalities) defined in the "resources" section of an ontology. The
@@ -624,10 +644,13 @@ def _add_resource_classes_to_remote_ontology(
             name=res_class["name"],
             superclasses=super_classes,
             label=LangString(res_class.get("labels")),
-            comment=LangString(res_class.get("comments")) if res_class.get("comments") else None
+            comment=LangString(res_class.get("comments")) if res_class.get("comments") else None,
         )
         try:
-            last_modification_date, res_class_remote = try_network_action(res_class_local.create, last_modification_date)
+            last_modification_date, res_class_remote = try_network_action(
+                res_class_local.create, 
+                last_modification_date
+            )
             res_class_remote = cast(ResourceClass, res_class_remote)
             new_res_classes[str(res_class_remote.id)] = res_class_remote
             ontology_remote.lastModificationDate = last_modification_date
@@ -648,7 +671,7 @@ def _add_property_classes_to_remote_ontology(
     con: Connection,
     last_modification_date: DateTimeStamp,
     knora_api_prefix: str,
-    verbose: bool
+    verbose: bool,
 ) -> tuple[DateTimeStamp, bool]:
     """
     Creates the property classes defined in the "properties" section of an ontology. The
@@ -672,7 +695,6 @@ def _add_property_classes_to_remote_ontology(
     print("\tCreate property classes...")
     sorted_prop_classes = _sort_prop_classes(ontology_definition["properties"], ontology_definition["name"])
     for prop_class in sorted_prop_classes:
-
         # get the super-property/ies, valid forms are:
         #   - "prefix:super-property" : fully qualified name of property in another ontology. The prefix has to be
         #     defined in the prefixes part.
@@ -695,7 +717,7 @@ def _add_property_classes_to_remote_ontology(
         #   - ":object_name" : The object is defined in the current ontology.
         #   - "object_name" : The object is defined in "knora-api"
         if ":" in prop_class["object"]:
-            prefix, _object = prop_class["object"].split(':')
+            prefix, _object = prop_class["object"].split(":")
             prop_object = f"{prefix}:{_object}" if prefix else f"{ontology_remote.name}:{_object}"
         else:
             prop_object = knora_api_prefix + prop_class["object"]
@@ -716,7 +738,7 @@ def _add_property_classes_to_remote_ontology(
             subject=prop_class.get("subject"),
             gui_element="salsah-gui:" + prop_class["gui_element"],
             gui_attributes=gui_attributes,
-            comment=LangString(prop_class["comments"]) if prop_class.get("comments") else None
+            comment=LangString(prop_class["comments"]) if prop_class.get("comments") else None,
         )
         try:
             last_modification_date, _ = try_network_action(prop_class_local.create, last_modification_date)
@@ -737,10 +759,10 @@ def _add_cardinalities_to_resource_classes(
     remote_res_classes: dict[str, ResourceClass],
     last_modification_date: DateTimeStamp,
     knora_api_prefix: str,
-    verbose: bool
+    verbose: bool,
 ) -> bool:
     """
-    Iterates over the resource classes of an ontology of a JSON project definition, and adds the cardinalities to each 
+    Iterates over the resource classes of an ontology of a JSON project definition, and adds the cardinalities to each
     resource class. The resource classes and the properties must already be existing on the DSP server.
     If an error occurs during creation of a cardinality, it is printed out, the process continues, but the success
     status will be false.
@@ -762,12 +784,15 @@ def _add_cardinalities_to_resource_classes(
         "1": Cardinality.C_1,
         "0-1": Cardinality.C_0_1,
         "0-n": Cardinality.C_0_n,
-        "1-n": Cardinality.C_1_n
+        "1-n": Cardinality.C_1_n,
     }
     for res_class in ontology_definition.get("resources", []):
         res_class_remote = remote_res_classes.get(ontology_remote.id + "#" + res_class["name"])
         if not res_class_remote:
-            print(f"WARNING: Unable to add cardinalities to resource class '{res_class['name']}': This class doesn't exist on the DSP server.")
+            print(
+                f"WARNING: Unable to add cardinalities to resource class '{res_class['name']}': "
+                f"This class doesn't exist on the DSP server."
+            )
             overall_success = False
             continue
         for card_info in res_class.get("cardinalities", []):
@@ -783,13 +808,14 @@ def _add_cardinalities_to_resource_classes(
                     property_id=qualified_propname,
                     cardinality=switcher[card_info["cardinality"]],
                     gui_order=card_info.get("gui_order"),
-                    last_modification_date=last_modification_date
+                    last_modification_date=last_modification_date,
                 )
                 if verbose:
                     print(f"\tAdded cardinality '{card_info['propname']}' to resource class '{res_class['name']}'")
             except BaseError:
-                print(f"WARNING: Unable to add cardinality '{qualified_propname}' to resource class {res_class['name']}.")
-                logger.warning(f"Unable to add cardinality '{qualified_propname}' to resource class {res_class['name']}.", exc_info=True)
+                err_msg = f"Unable to add cardinality '{qualified_propname}' to resource class {res_class['name']}."
+                print(f"WARNING: {err_msg}")
+                logger.warning(err_msg, exc_info=True)
                 overall_success = False
 
             ontology_remote.lastModificationDate = last_modification_date
@@ -803,13 +829,13 @@ def create_project(
     user_mail: str,
     password: str,
     verbose: bool,
-    dump: bool
+    dump: bool,
 ) -> bool:
     """
-    Creates a project from a JSON project file on a DSP server. 
-    A project must contain at least one ontology, 
+    Creates a project from a JSON project file on a DSP server.
+    A project must contain at least one ontology,
     and it may contain lists, users, and groups.
-    Severe errors lead to a BaseError, 
+    Severe errors lead to a BaseError,
     while other errors are printed without interrupting the process.
 
     Args:
@@ -821,11 +847,11 @@ def create_project(
         dump: dumps test files (JSON) for DSP API requests if set to True
 
     Raises:
-        UserError: 
+        UserError:
            - if the project cannot be created
            - if the login fails
            - if an ontology cannot be created
-        BaseError: 
+        BaseError:
            - if the input is invalid
            - if an Excel file referenced in the "lists" section cannot be expanded
            - if the validation doesn't pass
@@ -838,8 +864,8 @@ def create_project(
     overall_success = True
 
     project_definition = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)
-    proj_shortname = project_definition['project']['shortname']
-    proj_shortcode = project_definition['project']['shortcode']
+    proj_shortname = project_definition["project"]["shortname"]
+    proj_shortcode = project_definition["project"]["shortcode"]
     context = Context(project_definition.get("prefixes", {}))
 
     # expand the Excel files referenced in the "lists" section of the project (if any), and add them to the project
@@ -849,7 +875,7 @@ def create_project(
 
     # validate against JSON schema
     validate_project(project_definition, expand_lists=False)
-    print('\tJSON project file is syntactically correct and passed validation.')
+    print("\tJSON project file is syntactically correct and passed validation.")
     print(f"Create project '{proj_shortname}' ({proj_shortcode})...")
 
     # establish connection to DSP server
@@ -861,7 +887,7 @@ def create_project(
     project_remote, success = _create_project_on_server(
         project_definition=project_definition,
         con=con,
-        verbose=verbose
+        verbose=verbose,
     )
     if not success:
         overall_success = False
@@ -873,7 +899,7 @@ def create_project(
         list_root_nodes, success = create_lists_on_server(
             lists_to_create=project_definition["project"]["lists"],
             con=con,
-            project_remote=project_remote
+            project_remote=project_remote,
         )
         if not success:
             overall_success = False
@@ -885,7 +911,7 @@ def create_project(
         current_project_groups, success = _create_groups(
             con=con,
             groups=project_definition["project"]["groups"],
-            project=project_remote
+            project=project_remote,
         )
         if not success:
             overall_success = False
@@ -898,7 +924,7 @@ def create_project(
             users_section=project_definition["project"]["users"],
             current_project_groups=current_project_groups,
             current_project=project_remote,
-            verbose=verbose
+            verbose=verbose,
         )
         if not success:
             overall_success = False
@@ -911,19 +937,23 @@ def create_project(
         list_root_nodes=list_root_nodes,
         project_definition=project_definition,
         project_remote=project_remote,
-        verbose=verbose
+        verbose=verbose,
     )
     if not success:
         overall_success = False
 
     # final steps
     if overall_success:
-        print("========================================================\n",
-              f"Successfully created project '{proj_shortname}' ({proj_shortcode}) with all its ontologies. "
-              f"There were no problems during the creation process.")
+        print(
+            "========================================================\n",
+            f"Successfully created project '{proj_shortname}' ({proj_shortcode}) with all its ontologies. "
+            f"There were no problems during the creation process.",
+        )
     else:
-        print("========================================================\n",
-              f"WARNING: The project '{proj_shortname}' ({proj_shortcode}) with its ontologies could be created, but during the creation process, "
-              f"some problems occurred. Please carefully check the console output.")
+        print(
+            "========================================================\n",
+            f"WARNING: The project '{proj_shortname}' ({proj_shortcode}) with its ontologies could be created, "
+            f"but during the creation process, some problems occurred. Please carefully check the console output.",
+        )
 
     return overall_success

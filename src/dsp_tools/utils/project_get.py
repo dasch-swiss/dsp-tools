@@ -11,7 +11,14 @@ from dsp_tools.models.project import Project
 from dsp_tools.models.user import User
 
 
-def get_project(project_identifier: str, outfile_path: str, server: str, user: str, password: str, verbose: bool) -> bool:
+def get_project(
+    project_identifier: str,
+    outfile_path: str,
+    server: str,
+    user: str,
+    password: str,
+    verbose: bool,
+) -> bool:
     """
     This function writes a project from a DSP server into a JSON file.
 
@@ -41,7 +48,9 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
     elif re.match("^(http)s?://([\\w\\.\\-~]+:?\\d{,4})(/[\\w\\-~]+)+$", project_identifier):  # iri
         project = Project(con=con, shortname=project_identifier)
     else:
-        raise BaseError(f"ERROR Invalid project identifier '{project_identifier}'. Use the project's shortcode, shortname or IRI.")
+        raise BaseError(
+            f"ERROR Invalid project identifier '{project_identifier}'. Use the project's shortcode, shortname or IRI."
+        )
 
     project = project.read()
     project_obj = project.createDefinitionFileObj()
@@ -69,7 +78,7 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
                 usr.createDefinitionFileObj(
                     con=con,
                     proj_shortname=str(project.shortname),
-                    proj_iri=str(project.id)
+                    proj_iri=str(project.id),
                 )
             )
             if verbose:
@@ -106,13 +115,14 @@ def get_project(project_identifier: str, outfile_path: str, server: str, user: s
         if verbose:
             print(f"\tGot ontology '{name}'")
 
+    schema = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"
     outfile_content = {
         "prefixes": prefixes,
-        "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
-        "project": project_obj
+        "$schema": schema,
+        "project": project_obj,
     }
 
-    with open(outfile_path, 'w', encoding='utf8') as f:
+    with open(outfile_path, "w", encoding="utf8") as f:
         json.dump(outfile_content, f, indent=4, ensure_ascii=False)
 
     return True

@@ -39,7 +39,7 @@ def id_to_iri(xml_file: str, json_file: str, out_file: Optional[str], verbose: b
         raise BaseError(f"File {json_file} could not be found.")
 
     # load JSON from provided json file to dict
-    with open(json_file, encoding="utf-8", mode='r') as file:
+    with open(json_file, encoding="utf-8", mode="r") as file:
         mapping = json.load(file)
 
     # parse XML from provided xml file

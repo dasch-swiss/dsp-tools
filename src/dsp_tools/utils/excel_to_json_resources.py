@@ -29,7 +29,9 @@ def _validate_resources(resources_list: list[dict[str, Any]], excelfile: str) ->
     Returns:
         True if the "resources" section passed validation
     """
-    with importlib.resources.files("dsp_tools").joinpath("resources/schema/resources-only.json").open(encoding="utf-8") as schema_file:
+    with importlib.resources.files("dsp_tools").joinpath("resources/schema/resources-only.json").open(
+        encoding="utf-8"
+    ) as schema_file:
         resources_schema = json.load(schema_file)
     try:
         jsonschema.validate(instance=resources_list, schema=resources_schema)
@@ -37,20 +39,30 @@ def _validate_resources(resources_list: list[dict[str, Any]], excelfile: str) ->
         err_msg = f"The 'resources' section defined in the Excel file '{excelfile}' did not pass validation. "
         json_path_to_resource = regex.search(r"^\$\[(\d+)\]", err.json_path)
         if json_path_to_resource:
-            wrong_resource_name = jsonpath_ng.ext.parse(json_path_to_resource.group(0)).find(resources_list)[0].value["name"]
+            wrong_resource_name = (
+                jsonpath_ng.ext.parse(json_path_to_resource.group(0))
+                .find(resources_list)[0]
+                .value["name"]
+            )
             affected_field = regex.search(r"name|labels|comments|super|cardinalities\[(\d+)\]", err.json_path)
             if affected_field and affected_field.group(0) in ["name", "labels", "comments", "super"]:
                 excel_row = int(json_path_to_resource.group(1)) + 2
-                err_msg += f"The problem is that the Excel sheet 'classes' contains an invalid value for resource '{wrong_resource_name}', " \
-                           f"in row {excel_row}, column '{affected_field.group(0)}': {err.message}"
+                err_msg += (
+                    f"The problem is that the Excel sheet 'classes' contains an invalid value for resource "
+                    f"'{wrong_resource_name}', in row {excel_row}, column '{affected_field.group(0)}': {err.message}"
+                )
             elif affected_field and "cardinalities" in affected_field.group(0):
                 excel_row = int(affected_field.group(1)) + 2
                 if err.json_path.endswith("cardinality"):
-                    err_msg += f"The problem is that the Excel sheet '{wrong_resource_name}' contains an invalid value " \
-                               f"in row {excel_row}, column 'Cardinality': {err.message}"
+                    err_msg += (
+                        f"The problem is that the Excel sheet '{wrong_resource_name}' contains an invalid value "
+                        f"in row {excel_row}, column 'Cardinality': {err.message}"
+                    )
                 elif err.json_path.endswith("propname"):
-                    err_msg += f"The problem is that the Excel sheet '{wrong_resource_name}' contains an invalid value " \
-                               f"in row {excel_row}, column 'Property': {err.message}"
+                    err_msg += (
+                        f"The problem is that the Excel sheet '{wrong_resource_name}' contains an invalid value "
+                        f"in row {excel_row}, column 'Property': {err.message}"
+                    )
         else:
             err_msg += f"The error message is: {err.message}\nThe error occurred at {err.json_path}"
         raise BaseError(err_msg) from None
@@ -60,9 +72,12 @@ def _validate_resources(resources_list: list[dict[str, Any]], excelfile: str) ->
     duplicates: dict[int, str] = dict()
     for index, resdef in enumerate(resources_list):
         if all_names.count(resdef["name"]) > 1:
-            duplicates[index+2] = resdef["name"]
+            duplicates[index + 2] = resdef["name"]
     if duplicates:
-        err_msg = f"Resource names must be unique inside every ontology, but your Excel file '{excelfile}' contains duplicates:\n"
+        err_msg = (
+            f"Resource names must be unique inside every ontology, "
+            f"but your Excel file '{excelfile}' contains duplicates:\n"
+        )
         for row_no, resname in duplicates.items():
             err_msg += f" - Row {row_no}: {resname}\n"
         raise BaseError(err_msg)
@@ -72,8 +87,8 @@ def _validate_resources(resources_list: list[dict[str, Any]], excelfile: str) ->
 
 def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
     """
-    Method that reads one row from the "classes" DataFrame, 
-    opens the corresponding details DataFrame, 
+    Method that reads one row from the "classes" DataFrame,
+    opens the corresponding details DataFrame,
     and builds a dict object of the resource.
 
     Args:
@@ -106,7 +121,8 @@ def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
         # Credits: https://stackoverflow.com/a/70537454/14414188
         # pylint: disable-next=import-outside-toplevel
         from unittest import mock
-        p = mock.patch('openpyxl.styles.fonts.Font.family.max', new=100)
+
+        p = mock.patch("openpyxl.styles.fonts.Font.family.max", new=100)
         p.start()
         try:
             details_df = pd.read_excel(excelfile, sheet_name=name)
@@ -116,7 +132,7 @@ def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
     details_df = prepare_dataframe(
         df=details_df,
         required_columns=["Property", "Cardinality"],
-        location_of_sheet=f"Sheet '{name}' in file '{excelfile}'"
+        location_of_sheet=f"Sheet '{name}' in file '{excelfile}'",
     )
 
     # validation
@@ -139,8 +155,10 @@ def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
     else:  # column gui_order present but not properly filled in (missing values)
         validation_passed = False
     if not validation_passed:
-        raise BaseError(f"Sheet '{name}' in file '{excelfile}' has invalid content in column 'gui_order': "
-                        f"only positive integers allowed (or leave column empty altogether)")
+        raise BaseError(
+            f"Sheet '{name}' in file '{excelfile}' has invalid content in column 'gui_order': "
+            f"only positive integers allowed (or leave column empty altogether)"
+        )
 
     cards = []
     for j, detail_row in details_df.iterrows():
@@ -150,16 +168,12 @@ def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
         property_ = {
             "propname": ":" + detail_row["property"],
             "cardinality": detail_row["cardinality"].lower(),
-            "gui_order": int(gui_order or j + 1)  # if gui_order not given: take sheet order
+            "gui_order": int(gui_order or j + 1),  # if gui_order not given: take sheet order
         }
         cards.append(property_)
 
     # build the dict structure of this resource and append it to the list of resources
-    resource = {
-        "name": name,
-        "super": supers,
-        "labels": labels
-    }
+    resource = {"name": name, "super": supers, "labels": labels}
     if comments:
         resource["comments"] = comments
     resource["cardinalities"] = cards
@@ -195,14 +209,15 @@ def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -
         # Credits: https://stackoverflow.com/a/70537454/14414188
         # pylint: disable-next=import-outside-toplevel
         from unittest import mock
-        p = mock.patch('openpyxl.styles.fonts.Font.family.max', new=100)
+
+        p = mock.patch("openpyxl.styles.fonts.Font.family.max", new=100)
         p.start()
         all_classes_df = pd.read_excel(excelfile)
         p.stop()
     all_classes_df = prepare_dataframe(
         df=all_classes_df,
         required_columns=["name"],
-        location_of_sheet=f"Sheet 'classes' in file '{excelfile}'"
+        location_of_sheet=f"Sheet 'classes' in file '{excelfile}'",
     )
 
     # validation
@@ -211,8 +226,10 @@ def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -
         if not check_notna(row["super"]):
             raise BaseError(f"Sheet 'classes' of '{excelfile}' has a missing value in row {index + 2}, column 'super'")
     if any(all_classes_df.get(lang) is not None for lang in languages):
-        warnings.warn(f"The file {excelfile} uses {languages} as column titles, which is deprecated. "
-                      f"Please use {[f'label_{lang}' for lang in languages]}")
+        warnings.warn(
+            f"The file {excelfile} uses {languages} as column titles, which is deprecated. "
+            f"Please use {[f'label_{lang}' for lang in languages]}"
+        )
 
     # transform every row into a resource
     resources = [_row2resource(row, excelfile) for i, row in all_classes_df.iterrows()]

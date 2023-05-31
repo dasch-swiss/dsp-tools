@@ -34,7 +34,7 @@ def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
             for elem in resnames:
                 if resnames.count(elem) > 1:
                     if not resnames_duplicates.get(onto["name"]):
-                        resnames_duplicates[onto["name"]] = {elem, }
+                        resnames_duplicates[onto["name"]] = {elem}
                     else:
                         resnames_duplicates[onto["name"]].add(elem)
 
@@ -43,7 +43,7 @@ def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
             for elem in propnames:
                 if propnames.count(elem) > 1:
                     if not propnames_duplicates.get(onto["name"]):
-                        propnames_duplicates[onto["name"]] = {elem, }
+                        propnames_duplicates[onto["name"]] = {elem}
                     else:
                         propnames_duplicates[onto["name"]].add(elem)
 
@@ -81,7 +81,7 @@ def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> b
         ontoname = onto["name"]
         resnames = [r["name"] for r in onto["resources"]]
         for res in onto["resources"]:
-            supers = res["super"] if isinstance(res["super"], list) else [res["super"],]
+            supers = res["super"] if isinstance(res["super"], list) else [res["super"]]
             # form of supers:
             #  - Resource      # DSP base resource
             #  - other:res     # other onto
@@ -157,7 +157,7 @@ def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> b
 
 def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bool:
     """
-    Check if the propnames that are used in the cardinalities of each resource are defined in the "properties" 
+    Check if the propnames that are used in the cardinalities of each resource are defined in the "properties"
     section. (DSP base properties and properties from other ontologies are not considered.)
 
     Args:
@@ -203,23 +203,23 @@ def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bo
 
 def validate_project(
     input_file_or_json: Union[dict[str, Any], str],
-    expand_lists: bool = True
+    expand_lists: bool = True,
 ) -> bool:
     """
-    Validates a JSON project definition file. 
+    Validates a JSON project definition file.
 
     First, the Excel file references in the "lists" section are expanded
-    (unless this behaviour is disabled). 
+    (unless this behaviour is disabled).
 
-    Then, the project is validated against the JSON schema. 
+    Then, the project is validated against the JSON schema.
 
     Next, some checks are performed that are too complex for JSON schema.
 
     At last, a check is performed
-    if this project's ontologies contain properties derived from hasLinkTo 
+    if this project's ontologies contain properties derived from hasLinkTo
     that form a circular reference.
-    If so, these properties must have the cardinality 0-1 or 0-n, 
-    because during the xmlupload process, 
+    If so, these properties must have the cardinality 0-1 or 0-n,
+    because during the xmlupload process,
     these values are temporarily removed.
 
     Args:
@@ -230,13 +230,17 @@ def validate_project(
         BaseError: detailed error report if the validation doesn't pass
 
     Returns:
-        True if the project passed validation. 
+        True if the project passed validation.
     """
 
     # parse input
     if isinstance(input_file_or_json, dict) and "project" in input_file_or_json:
         project_definition = input_file_or_json
-    elif isinstance(input_file_or_json, str) and os.path.isfile(input_file_or_json) and regex.search(r"\.json$", input_file_or_json):
+    elif (
+        isinstance(input_file_or_json, str)
+        and os.path.isfile(input_file_or_json)
+        and regex.search(r"\.json$", input_file_or_json)
+    ):
         with open(input_file_or_json, encoding="utf-8") as f:
             project_definition = json.load(f)
     else:
@@ -249,14 +253,17 @@ def validate_project(
             project_definition["project"]["lists"] = new_lists
 
     # validate the project definition against the schema
-    with importlib.resources.files("dsp_tools").joinpath("resources/schema/project.json").open(encoding="utf-8") as schema_file:
+    with importlib.resources.files("dsp_tools").joinpath("resources/schema/project.json").open(
+        encoding="utf-8"
+    ) as schema_file:
         project_schema = json.load(schema_file)
     try:
         jsonschema.validate(instance=project_definition, schema=project_schema)
     except jsonschema.ValidationError as err:
-        raise BaseError(f"The JSON project file cannot be created due to the following validation error: {err.message}.\n"
-                        f"The error occurred at {err.json_path}:\n"
-                        f"{err.instance}") from None
+        raise BaseError(
+            f"The JSON project file cannot be created due to the following validation error: {err.message}.\n"
+            f"The error occurred at {err.json_path}:\n{err.instance}"
+        ) from None
 
     # make some checks that are too complex for JSON schema
     _check_for_undefined_super_property(project_definition)
@@ -290,13 +297,14 @@ def _check_cardinalities_of_circular_references(project_definition: dict[Any, An
     if len(errors) == 0:
         return True
     else:
-        error_message = \
-            "ERROR: Your ontology contains properties derived from 'hasLinkTo' that allow circular references " \
-            "between resources. This is not a problem in itself, but if you try to upload data that actually " \
-            "contains circular references, these 'hasLinkTo' properties will be temporarily removed from the " \
-            "affected resources. Therefore, it is necessary that all involved 'hasLinkTo' properties have a " \
-            "cardinality of 0-1 or 0-n. \n" \
+        error_message = (
+            "ERROR: Your ontology contains properties derived from 'hasLinkTo' that allow circular references "
+            "between resources. This is not a problem in itself, but if you try to upload data that actually "
+            "contains circular references, these 'hasLinkTo' properties will be temporarily removed from the "
+            "affected resources. Therefore, it is necessary that all involved 'hasLinkTo' properties have a "
+            "cardinality of 0-1 or 0-n. \n"
             "Please make sure that the following properties have a cardinality of 0-1 or 0-n:"
+        )
         for error in errors:
             error_message = f"{error_message}\n\t- Resource {error[0]}, property {error[1]}"
         raise BaseError(error_message)
@@ -320,9 +328,10 @@ def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, li
         # look for child-properties down to 5 inheritance levels that are derived from hasLinkTo-properties
         for _ in range(5):
             for hasLinkTo_prop in hasLinkTo_props:
-                hasLinkTo_matches.extend(jsonpath_ng.ext.parse(
-                    f"$.project.ontologies[{index}].properties[?super[*] == {hasLinkTo_prop}]"
-                ).find(project_definition))
+                hasLinkTo_matches.extend(
+                    jsonpath_ng.ext.parse(f"$.project.ontologies[{index}].properties[?super[*] == {hasLinkTo_prop}]")
+                    .find(project_definition)
+                )
             # make the children from this iteration to the parents of the next iteration
             hasLinkTo_props = {x.value["name"] for x in hasLinkTo_matches}
         prop_obj_pair: dict[str, list[str]] = dict()
@@ -350,7 +359,7 @@ def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, li
 
 def _identify_problematic_cardinalities(
     project_definition: dict[Any, Any],
-    link_properties: dict[str, list[str]]
+    link_properties: dict[str, list[str]],
 ) -> list[tuple[str, str]]:
     """
     Make an error list with all cardinalities that are part of a circle but have a cardinality of "1" or "1-n".
@@ -403,7 +412,7 @@ def _identify_problematic_cardinalities(
     circles = list(nx.algorithms.cycles.simple_cycles(graph))
     for circle in circles:
         for index, resource in enumerate(circle):
-            target = circle[(index+1) % len(circle)]
+            target = circle[(index + 1) % len(circle)]
             prop = ""
             for _property, targets in dependencies[resource].items():
                 if target in targets:

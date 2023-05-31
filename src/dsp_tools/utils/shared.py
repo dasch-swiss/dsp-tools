@@ -24,7 +24,7 @@ logger = get_logger(__name__)
 
 def login(server: str, user: str, password: str) -> Connection:
     """
-    Creates a connection, 
+    Creates a connection,
     makes a login (handling temporary network interruptions),
     and returns the active connection.
 
@@ -51,12 +51,12 @@ def login(server: str, user: str, password: str) -> Connection:
 def try_network_action(
     action: Callable[..., Any],
     *args: Any,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Any:
     """
-    Helper method that tries 7 times to execute an action. 
-    If a ConnectionError, a requests.exceptions.RequestException, or a non-permanent BaseError occors, 
-    it waits and retries. 
+    Helper method that tries 7 times to execute an action.
+    If a ConnectionError, a requests.exceptions.RequestException, or a non-permanent BaseError occors,
+    it waits and retries.
     The waiting times are 1, 2, 4, 8, 16, 32, 64 seconds.
     If another exception occurs, it escalates.
 
@@ -85,7 +85,7 @@ def try_network_action(
         except (ConnectionError, RequestException):
             print(f"{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...")
             logger.error(f"Try reconnecting to DSP server, next attempt in {2 ** i} seconds...", exc_info=True)
-            time.sleep(2 ** i)
+            time.sleep(2**i)
             continue
         except BaseError as err:
             in_500_range = False
@@ -93,9 +93,10 @@ def try_network_action(
                 in_500_range = 500 <= err.status_code < 600
             try_again_later = "try again later" in err.message
             if try_again_later or in_500_range:
-                print(f"{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...")
-                logger.error(f"Try reconnecting to DSP server, next attempt in {2 ** i} seconds...", exc_info=True)
-                time.sleep(2 ** i)
+                msg = f"Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+                print(f"{datetime.now().isoformat()}: {msg}")
+                logger.error(msg, exc_info=True)
+                time.sleep(2**i)
                 continue
             else:
                 raise err
@@ -117,7 +118,9 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
     Returns:
         True if the XML file is valid
     """
-    with importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd").open(encoding="utf-8") as schema_file:
+    with importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd").open(
+        encoding="utf-8"
+    ) as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
     if isinstance(input_file, (str, Path)):
         try:
@@ -147,14 +150,14 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
 def _validate_xml_tags_in_text_properties(doc: Union[etree._ElementTree[etree._Element], etree._Element]) -> bool:
     """
     Makes sure that there are no XML tags in simple texts.
-    This can only be done with a regex, 
-    because even if the simple text contains some XML tags, 
+    This can only be done with a regex,
+    because even if the simple text contains some XML tags,
     the simple text itself is not valid XML that could be parsed.
-    The extra challenge is that lxml transforms 
-    "pebble (&lt;2cm) and boulder (&gt;20cm)" into 
-    "pebble (<2cm) and boulder (>20cm)" 
+    The extra challenge is that lxml transforms
+    "pebble (&lt;2cm) and boulder (&gt;20cm)" into
+    "pebble (<2cm) and boulder (>20cm)"
     (but only if &gt; follows &lt;).
-    This forces us to write a regex that carefully distinguishes 
+    This forces us to write a regex that carefully distinguishes
     between a real tag (which is not allowed) and a false-positive-tag.
 
     Args:
@@ -177,9 +180,12 @@ def _validate_xml_tags_in_text_properties(doc: Union[etree._ElementTree[etree._E
     resources_with_illegal_xml_tags = list()
     for text in doc_without_namespace.findall(path="resource/text-prop/text"):
         if text.attrib["encoding"] == "utf8":
-            if regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(text.text)) or len(list(text.iterchildren())) > 0:
+            if (
+                regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(text.text))
+                or len(list(text.iterchildren())) > 0
+            ):
                 sourceline = f" line {text.sourceline}: " if text.sourceline else " "
-                propname = text.getparent().attrib["name"]           # type: ignore
+                propname = text.getparent().attrib["name"]  # type: ignore
                 resname = text.getparent().getparent().attrib["id"]  # type: ignore
                 resources_with_illegal_xml_tags.append(f" -{sourceline}resource '{resname}', property '{propname}'")
     if resources_with_illegal_xml_tags:
@@ -193,9 +199,9 @@ def _validate_xml_tags_in_text_properties(doc: Union[etree._ElementTree[etree._E
 
 def prepare_dataframe(df: pd.DataFrame, required_columns: list[str], location_of_sheet: str) -> pd.DataFrame:
     """
-    Takes a pandas DataFrame, 
+    Takes a pandas DataFrame,
     strips the column headers from whitespaces and transforms them to lowercase,
-    strips every cell from whitespaces and inserts "" if there is no string in it, 
+    strips every cell from whitespaces and inserts "" if there is no string in it,
     and deletes the rows that don't have a value in one of the required cells.
 
     Args:
@@ -285,24 +291,21 @@ def check_notna(value: Optional[Any]) -> bool:
     if isinstance(value, PropertyElement):
         value = value.value
 
-    if any([
-        isinstance(value, int),
-        isinstance(value, float) and pd.notna(value),   # necessary because isinstance(np.nan, float)
-        isinstance(value, bool)
-    ]):
+    if isinstance(value, (bool, int)) or (
+        isinstance(value, float) and pd.notna(value)
+    ):  # necessary because isinstance(np.nan, float)
         return True
     elif isinstance(value, str):
-        return all([
-            regex.search(r"[\p{L}\d_!?]", value, flags=regex.UNICODE),
-            not bool(regex.search(r"^(none|<NA>|-|n/a)$", value, flags=regex.IGNORECASE))
-        ])
+        return bool(regex.search(r"[\p{L}\d_!?]", value, flags=regex.UNICODE)) and not bool(
+            regex.search(r"^(none|<NA>|-|n/a)$", value, flags=regex.IGNORECASE)
+        )
     else:
         return False
 
 
 def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, Any]]) -> dict[str, Any]:
     """
-    Check the input for a method that expects a JSON project definition, either as file path or as parsed JSON object: 
+    Check the input for a method that expects a JSON project definition, either as file path or as parsed JSON object:
     If it is parsed already, return it unchanged.
     If the input is a file path, parse it.
 
@@ -317,16 +320,14 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, 
     """
     if isinstance(project_file_as_path_or_parsed, dict):
         project_definition: dict[str, Any] = project_file_as_path_or_parsed
-    elif all([
-        isinstance(project_file_as_path_or_parsed, (str, Path)),
-        Path(project_file_as_path_or_parsed).exists()
-    ]):
+    elif isinstance(project_file_as_path_or_parsed, (str, Path)) and Path(project_file_as_path_or_parsed).exists():
         with open(project_file_as_path_or_parsed, encoding="utf-8") as f:
             try:
                 project_definition = json.load(f)
             except:
-                logger.error(f"The input file '{project_file_as_path_or_parsed}' cannot be parsed to a JSON object.", exc_info=True)
-                raise BaseError(f"The input file '{project_file_as_path_or_parsed}' cannot be parsed to a JSON object.") from None
+                msg = f"The input file '{project_file_as_path_or_parsed}' cannot be parsed to a JSON object."
+                logger.error(msg, exc_info=True)
+                raise BaseError(msg) from None
     else:
         raise BaseError("Invalid input: The input must be a path to a JSON file or a parsed JSON object.")
     return project_definition

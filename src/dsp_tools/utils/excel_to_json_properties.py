@@ -29,7 +29,9 @@ def _validate_properties(properties_list: list[dict[str, Any]], excelfile: str) 
     Returns:
         True if the "properties" section passed validation
     """
-    with importlib.resources.files("dsp_tools").joinpath("resources/schema/properties-only.json").open(encoding="utf-8") as schema_file:
+    with importlib.resources.files("dsp_tools").joinpath("resources/schema/properties-only.json").open(
+        encoding="utf-8"
+    ) as schema_file:
         properties_schema = json.load(schema_file)
     try:
         jsonschema.validate(instance=properties_list, schema=properties_schema)
@@ -37,12 +39,21 @@ def _validate_properties(properties_list: list[dict[str, Any]], excelfile: str) 
         err_msg = f"The 'properties' section defined in the Excel file '{excelfile}' did not pass validation. "
         json_path_to_property = re.search(r"^\$\[(\d+)\]", err.json_path)
         if json_path_to_property:
-            wrong_property_name = jsonpath_ng.ext.parse(json_path_to_property.group(0)).find(properties_list)[0].value["name"]
+            wrong_property_name = (
+                jsonpath_ng.ext.parse(json_path_to_property.group(0))
+                .find(properties_list)[0]
+                .value["name"]
+            )
             excel_row = int(json_path_to_property.group(1)) + 2
             err_msg += f"The problematic property is '{wrong_property_name}' in Excel row {excel_row}. "
-            affected_field = re.search(r"name|labels|comments|super|subject|object|gui_element|gui_attributes", err.json_path)
+            affected_field = re.search(
+                r"name|labels|comments|super|subject|object|gui_element|gui_attributes", 
+                err.json_path,
+            )
             if affected_field:
-                err_msg += f"The problem is that the column '{affected_field.group(0)}' has an invalid value: {err.message}"
+                err_msg += (
+                    f"The problem is that the column '{affected_field.group(0)}' has an invalid value: {err.message}"
+                )
         else:
             err_msg += f"The error message is: {err.message}\nThe error occurred at {err.json_path}"
         raise BaseError(err_msg) from None
@@ -52,7 +63,7 @@ def _validate_properties(properties_list: list[dict[str, Any]], excelfile: str) 
     duplicates: dict[int, str] = dict()
     for index, propdef in enumerate(properties_list):
         if all_names.count(propdef["name"]) > 1:
-            duplicates[index+2] = propdef["name"]
+            duplicates[index + 2] = propdef["name"]
     if duplicates:
         err_msg = f"Property names must be unique inside every ontology, but your Excel file '{excelfile}' contains duplicates:\n"
         for row_no, propname in duplicates.items():
@@ -94,8 +105,10 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
         pairs = row["gui_attributes"].split(",")
         for pair in pairs:
             if pair.count(":") != 1:
-                raise BaseError(f"Row {row_count} of Excel file {excelfile} contains invalid data in column 'gui_attributes'. "
-                                "The expected format is 'attribute: value[, attribute: value]'.")
+                raise BaseError(
+                    f"Row {row_count} of Excel file {excelfile} contains invalid data in column 'gui_attributes'. "
+                    "The expected format is 'attribute: value[, attribute: value]'."
+                )
             attr, val = [x.strip() for x in pair.split(":")]
             if re.search(r"^\d+\.\d+$", val):
                 val = float(val)
@@ -104,12 +117,7 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
             gui_attributes[attr] = val
 
     # build the dict structure of this property
-    _property = {
-        "name": name,
-        "super": supers,
-        "object": _object,
-        "labels": labels
-    }
+    _property = {"name": name, "super": supers, "object": _object, "labels": labels}
     if comments:
         _property["comments"] = comments
     _property["gui_element"] = gui_element
@@ -119,7 +127,10 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
     return _property
 
 
-def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) -> tuple[list[dict[str, Any]], bool]:
+def excel2properties(
+    excelfile: str,
+    path_to_output_file: Optional[str] = None
+) -> tuple[list[dict[str, Any]], bool]:
     """
     Converts properties described in an Excel file into a "properties" section which can be inserted into a JSON
     project file.
@@ -147,14 +158,15 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
         # Credits: https://stackoverflow.com/a/70537454/14414188
         # pylint: disable-next=import-outside-toplevel
         from unittest import mock
-        p = mock.patch('openpyxl.styles.fonts.Font.family.max', new=100)
+
+        p = mock.patch("openpyxl.styles.fonts.Font.family.max", new=100)
         p.start()
         df = pd.read_excel(excelfile)
         p.stop()
     df = prepare_dataframe(
         df=df,
         required_columns=["name"],
-        location_of_sheet=f"File '{excelfile}'"
+        location_of_sheet=f"File '{excelfile}'",
     )
 
     # validation of input
@@ -165,14 +177,26 @@ def excel2properties(excelfile: str, path_to_output_file: Optional[str] = None) 
             if not check_notna(row[req]):
                 raise BaseError(f"'{excelfile}' has a missing value in row {index + 2}, column '{req}'")
     if any(df.get(lang) is not None for lang in languages):
-        warnings.warn(f"The file '{excelfile}' uses {languages} as column titles, which is deprecated. "
-                      f"Please use {[f'label_{lang}' for lang in languages]}")
+        warnings.warn(
+            f"The file '{excelfile}' uses {languages} as column titles, which is deprecated. "
+            f"Please use {[f'label_{lang}' for lang in languages]}"
+        )
     if df.get("hlist"):
-        warnings.warn(f"The file '{excelfile}' has a column 'hlist', which is deprecated. "
-                      f"Please use the column 'gui_attributes' for the attribute 'hlist'.")
+        warnings.warn(
+            f"The file '{excelfile}' has a column 'hlist', which is deprecated. "
+            f"Please use the column 'gui_attributes' for the attribute 'hlist'."
+        )
 
     # transform every row into a property
-    props = [_row2prop(row, int(str(index)), excelfile) for index, row in df.iterrows()]   # index is a label/index/hashable, but we need an int
+    props: list[dict[str, Any]] = []
+    for index, row in df.iterrows():
+        props.append(
+            _row2prop(
+                row=row, 
+                row_count=int(str(index)), # index is a label/index/hashable, but we need an int
+                excelfile=excelfile,
+            )
+        )
 
     # write final JSON file
     _validate_properties(properties_list=props, excelfile=excelfile)

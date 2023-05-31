@@ -3,7 +3,6 @@ from __future__ import annotations
 import copy
 import importlib.resources
 import json
-import logging
 import time
 import unicodedata
 from datetime import datetime
@@ -18,8 +17,9 @@ from requests import RequestException
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.propertyelement import PropertyElement
+from dsp_tools.utils.logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def login(server: str, user: str, password: str) -> Connection:

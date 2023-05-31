@@ -329,8 +329,9 @@ def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, li
         for _ in range(5):
             for hasLinkTo_prop in hasLinkTo_props:
                 hasLinkTo_matches.extend(
-                    jsonpath_ng.ext.parse(f"$.project.ontologies[{index}].properties[?super[*] == {hasLinkTo_prop}]")
-                    .find(project_definition)
+                    jsonpath_ng.ext.parse(
+                        f"$.project.ontologies[{index}].properties[?super[*] == {hasLinkTo_prop}]"
+                    ).find(project_definition)
                 )
             # make the children from this iteration to the parents of the next iteration
             hasLinkTo_props = {x.value["name"] for x in hasLinkTo_matches}

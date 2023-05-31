@@ -102,7 +102,7 @@ def fast_xmlupload(
     xml_tree_orig = etree.parse(xml_file)
     orig_path_2_uuid_filename = _get_paths_from_pkl_file(pkl_file=Path(pkl_file))
     xml_tree_replaced = replace_bitstream_paths(
-        xml_tree=xml_tree_orig, 
+        xml_tree=xml_tree_orig,
         orig_path_2_uuid_filename=orig_path_2_uuid_filename,
     )
 

@@ -93,12 +93,14 @@ def excel2json(
         properties, success2 = excel2properties(f"{data_model_files}/{onto_folder.name}/properties.xlsx")
         if not success1 or not success2:
             overall_success = False
-        ontologies.append({
-            "name": name,
-            "label": label,
-            "properties": properties,
-            "resources": resources,
-        })
+        ontologies.append(
+            {
+                "name": name,
+                "label": label,
+                "properties": properties,
+                "resources": resources,
+            }
+        )
 
     schema = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"
     project = {
@@ -110,7 +112,7 @@ def excel2json(
             "longname": "",
             "descriptions": {"en": ""},
             "keywords": [""],
-        }
+        },
     }
     if lists:
         project["project"]["lists"] = lists  # type: ignore

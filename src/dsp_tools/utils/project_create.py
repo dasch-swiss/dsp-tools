@@ -53,9 +53,7 @@ def _create_project_on_server(
         logger.warning(msg)
         # try to update the basic info
         project_remote, _ = _update_basic_info_of_project(
-            project=project_remote,
-            project_definition=project_definition,
-            verbose=verbose
+            project=project_remote, project_definition=project_definition, verbose=verbose
         )
         # It doesn't matter if the update is successful or not: continue anyway, because success is anyways false.
         # There are other things from this file that can be created on the server, e.g. the groups and users, so the process must continue.
@@ -648,8 +646,7 @@ def _add_resource_classes_to_remote_ontology(
         )
         try:
             last_modification_date, res_class_remote = try_network_action(
-                res_class_local.create, 
-                last_modification_date
+                res_class_local.create, last_modification_date
             )
             res_class_remote = cast(ResourceClass, res_class_remote)
             new_res_classes[str(res_class_remote.id)] = res_class_remote

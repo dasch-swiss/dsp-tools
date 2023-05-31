@@ -162,13 +162,8 @@ def find_date_in_string(string: str) -> Optional[str]:
     # template: 1.4.2021 | 5/11/2021
     eur_date = re.search(rf"{lookbehind}{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}{lookahead}", string)
     # template: March 9, 1908 | March5,1908 | May 11, 1906
-    monthname_date_regex = (
-        rf"{lookbehind}" +
-        r"(" +
-        r"|".join(months_dict) +
-        r") ?" +
-        rf"{day_regex}, ?{year_regex}{lookahead}"
-    )
+    all_months = "|".join(months_dict)
+    monthname_date_regex = rf"{lookbehind}({all_months}) ?{day_regex}, ?{year_regex}{lookahead}"
     monthname_date = re.search(monthname_date_regex, string)
     # template: 1849/50 | 1849-50 | 1849/1850
     year_range = re.search(lookbehind + year_regex + r"[/-](\d{2}|\d{4})" + lookahead, string)
@@ -661,9 +656,9 @@ def make_date_prop(
 
     # check value type
     validation_regex = (
-        r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?" +
-        r"(\d{4})(-\d{1,2})?(-\d{1,2})?" + 
-        r"((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$"
+        r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?"
+        + r"(\d{4})(-\d{1,2})?(-\d{1,2})?"
+        + r"((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$"
     )
     for val in values:
         if not re.search(validation_regex, str(val.value).strip()):
@@ -2183,7 +2178,7 @@ def _convert_property_row_to_xml(
     """
     # based on the property type, the right function has to be chosen
     make_prop_function = _get_prop_function(
-        row=row, 
+        row=row,
         resource_id=resource_id,
     )
 
@@ -2242,8 +2237,8 @@ def _create_property(
 
 
 def excel2xml(
-    datafile: str, 
-    shortcode: str, 
+    datafile: str,
+    shortcode: str,
     default_ontology: str,
 ) -> bool:
     """

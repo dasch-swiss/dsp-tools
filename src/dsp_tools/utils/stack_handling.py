@@ -59,7 +59,7 @@ def start_stack(
         docker_config_lua_text = re.sub(
             max_post_size_regex, 
             f"max_post_size = '{max_file_size}M'", 
-            docker_config_lua_text
+            docker_config_lua_text,
         )
     with open(docker_path_of_user / "sipi.docker-config.lua", "w", encoding="utf-8") as f:
         f.write(docker_config_lua_text)

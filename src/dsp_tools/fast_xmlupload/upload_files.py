@@ -259,13 +259,16 @@ def _upload_files_in_parallel(
         _description_
     """
     with ThreadPoolExecutor(max_workers=nthreads) as pool:
-        upload_jobs = [pool.submit(
-            _upload_file,
-            dir_with_processed_files,
-            internal_filename_of_processed_file,
-            sipi_url,
-            con,
-        ) for internal_filename_of_processed_file in internal_filenames_of_processed_files]
+        upload_jobs = [
+            pool.submit(
+                _upload_file,
+                dir_with_processed_files,
+                internal_filename_of_processed_file,
+                sipi_url,
+                con,
+            )
+            for internal_filename_of_processed_file in internal_filenames_of_processed_files
+        ]
 
     result: list[tuple[Path, bool]] = []
     for uploaded in as_completed(upload_jobs):

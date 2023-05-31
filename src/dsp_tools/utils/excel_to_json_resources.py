@@ -39,11 +39,13 @@ def _validate_resources(resources_list: list[dict[str, Any]], excelfile: str) ->
         err_msg = f"The 'resources' section defined in the Excel file '{excelfile}' did not pass validation. "
         json_path_to_resource = regex.search(r"^\$\[(\d+)\]", err.json_path)
         if json_path_to_resource:
+            # fmt: off
             wrong_resource_name = (
                 jsonpath_ng.ext.parse(json_path_to_resource.group(0))
                 .find(resources_list)[0]
                 .value["name"]
             )
+            # fmt: on
             affected_field = regex.search(r"name|labels|comments|super|cardinalities\[(\d+)\]", err.json_path)
             if affected_field and affected_field.group(0) in ["name", "labels", "comments", "super"]:
                 excel_row = int(json_path_to_resource.group(1)) + 2

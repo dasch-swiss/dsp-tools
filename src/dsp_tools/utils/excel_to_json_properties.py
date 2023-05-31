@@ -39,15 +39,17 @@ def _validate_properties(properties_list: list[dict[str, Any]], excelfile: str) 
         err_msg = f"The 'properties' section defined in the Excel file '{excelfile}' did not pass validation. "
         json_path_to_property = re.search(r"^\$\[(\d+)\]", err.json_path)
         if json_path_to_property:
+            # fmt: off
             wrong_property_name = (
                 jsonpath_ng.ext.parse(json_path_to_property.group(0))
                 .find(properties_list)[0]
                 .value["name"]
             )
+            # fmt: on
             excel_row = int(json_path_to_property.group(1)) + 2
             err_msg += f"The problematic property is '{wrong_property_name}' in Excel row {excel_row}. "
             affected_field = re.search(
-                r"name|labels|comments|super|subject|object|gui_element|gui_attributes", 
+                r"name|labels|comments|super|subject|object|gui_element|gui_attributes",
                 err.json_path,
             )
             if affected_field:
@@ -129,7 +131,7 @@ def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
 
 def excel2properties(
     excelfile: str,
-    path_to_output_file: Optional[str] = None
+    path_to_output_file: Optional[str] = None,
 ) -> tuple[list[dict[str, Any]], bool]:
     """
     Converts properties described in an Excel file into a "properties" section which can be inserted into a JSON
@@ -192,8 +194,8 @@ def excel2properties(
     for index, row in df.iterrows():
         props.append(
             _row2prop(
-                row=row, 
-                row_count=int(str(index)), # index is a label/index/hashable, but we need an int
+                row=row,
+                row_count=int(str(index)),  # index is a label/index/hashable, but we need an int
                 excelfile=excelfile,
             )
         )

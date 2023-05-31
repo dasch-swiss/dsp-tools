@@ -27,7 +27,7 @@ def get_logger(name: str) -> logging.Logger:
     handler = logging.handlers.RotatingFileHandler(
         filename=logfile_directory / "logging.log",
         mode="a",
-        maxBytes=3*1024*1024,
+        maxBytes=3 * 1024 * 1024,
         backupCount=1,
     )
     handler.setFormatter(formatter)

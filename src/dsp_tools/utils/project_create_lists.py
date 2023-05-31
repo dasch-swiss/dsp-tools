@@ -189,7 +189,7 @@ def create_lists(
     current_project_lists, success = create_lists_on_server(
         lists_to_create=lists_to_create, 
         con=con, 
-        project_remote=project_remote
+        project_remote=project_remote,
     )
     if not success:
         overall_success = False

@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.3.2](https://github.com/dasch-swiss/dsp-tools/compare/v2.3.1...v2.3.2) (2023-05-31)
+
+
+### Maintenance
+
+* bump start-stack to 2023.05.03 (DEV-2222) [#392](https://github.com/dasch-swiss/dsp-tools/issues/392) ([80bdecb](https://github.com/dasch-swiss/dsp-tools/commit/80bdecb721183679dbfe09c2be2291720ee29ac2))
+* **deps-dev:** bump mkdocs-material from 9.1.14 to 9.1.15 ([#390](https://github.com/dasch-swiss/dsp-tools/issues/390)) ([18287c3](https://github.com/dasch-swiss/dsp-tools/commit/18287c3d1e8a8de5fb2c3759e3bbd957dc7713a6))
+* **deps-dev:** bump types-requests from 2.30.0.0 to 2.31.0.0 ([#382](https://github.com/dasch-swiss/dsp-tools/issues/382)) ([74738fa](https://github.com/dasch-swiss/dsp-tools/commit/74738fa3d371495ea7a073ac34d13ad0b032f541))
+* **deps-dev:** bump types-requests from 2.31.0.0 to 2.31.0.1 ([#389](https://github.com/dasch-swiss/dsp-tools/issues/389)) ([1829fd5](https://github.com/dasch-swiss/dsp-tools/commit/1829fd50488bd43d029b48764b6757a429b599fe))
+* **deps:** bump pandas from 2.0.1 to 2.0.2 ([#388](https://github.com/dasch-swiss/dsp-tools/issues/388)) ([e23bb10](https://github.com/dasch-swiss/dsp-tools/commit/e23bb1073289243b46b4d7b7b1499aabf6e0af27))
+* don't configure logging statically (DEV-2183) ([#385](https://github.com/dasch-swiss/dsp-tools/issues/385)) ([7c82a59](https://github.com/dasch-swiss/dsp-tools/commit/7c82a594ea6619e807aa95883b792f4fba2d82fd))
+* move _derandomize_xsd_id (DEV-2186) [#381](https://github.com/dasch-swiss/dsp-tools/issues/381) ([e909384](https://github.com/dasch-swiss/dsp-tools/commit/e90938422f657321aeab619555648b0cff399bfb))
+* refactor CLI part of excel2xml (DEV-2190) ([#384](https://github.com/dasch-swiss/dsp-tools/issues/384)) ([cd9cbb7](https://github.com/dasch-swiss/dsp-tools/commit/cd9cbb75f1e05acfee2c0b828d84454888594f72))
+* remove autopep8 from dependencies (DEV-2213) [#387](https://github.com/dasch-swiss/dsp-tools/issues/387) ([993854b](https://github.com/dasch-swiss/dsp-tools/commit/993854ba37ebb7c6ac4361197b9d20a2c63e3bad))
+* speed up CI tests with caching (DEV-2165) ([#369](https://github.com/dasch-swiss/dsp-tools/issues/369)) ([9283aa1](https://github.com/dasch-swiss/dsp-tools/commit/9283aa1d498c319a391856dd547e5681ec3de9f6))
+
 ## [2.3.1](https://github.com/dasch-swiss/dsp-tools/compare/v2.3.0...v2.3.1) (2023-05-23)
 
 

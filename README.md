@@ -1,33 +1,38 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 # DSP-TOOLS - DaSCH Service Platform Tools
 
-DSP-TOOLS is a command line tool that helps you to interact with the DaSCH Service Platform API. This document is 
-intended for developers who want to work with the code of DSP-TOOLS. 
+DSP-TOOLS is a command line tool that helps you to interact with the DaSCH Service Platform API. 
+This document is intended for developers who want to work with the code of DSP-TOOLS. 
 
 | <center>Hint</center>                                                                                                                                                                |
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | This technical document was written as a guide for developers. For the end user documentation, please consult [https://docs.dasch.swiss](https://docs.dasch.swiss/latest/DSP-TOOLS). |
 
-This README contains basic information for getting started. More details can be found in the 
+This README contains basic information for getting started. 
+More details can be found in the 
 [developers documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/index/).
 
 
 
 ## Using poetry for dependency management
 
-Curious what poetry is and why we use it? Check out the respective section in the
+Curious what poetry is and why we use it? 
+Check out the respective section in the
 [developers documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/packaging/).
 
 If you want to work on the code of DSP-TOOLS, you first have to do the following:
 
-- install poetry with `curl -sSL https://install.python-poetry.org | python3 -` (for Windows, see 
-  [https://python-poetry.org/docs/](https://python-poetry.org/docs/))
+- install poetry with `curl -sSL https://install.python-poetry.org | python3 -` 
+  (for Windows, see [https://python-poetry.org/docs/](https://python-poetry.org/docs/))
 - install the exec plugin with `poetry self add poetry-exec-plugin`
 - execute `poetry install`, which will: 
     - create a virtual environment (if there isn't already one) 
     - install all dependencies (dev and non-dev) from `poetry.lock`. 
-      If `poetry.lock` doesn't exist, it installs the dependencies from `pyproject.toml`, and creates a new `poetry.lock`.
+      If `poetry.lock` doesn't exist, 
+      it installs the dependencies from `pyproject.toml`, 
+      and creates a new `poetry.lock`.
     - make an editable installation of DSP-TOOLS inside the virtual environment
 
 There are two files defining the dependencies:
@@ -35,23 +40,27 @@ There are two files defining the dependencies:
 - `pyproject.toml` lists the direct dependencies, ordered in two sections:
     - `[tool.poetry.dependencies]` lists the dependencies used to run the software.
     - `[tool.poetry.group.dev.dependencies]` lists the dependencies used for developing and testing.
-- `poetry.lock` enables deterministic installations, by exactly pinning the versions of all (sub-)dependencies. 
+- `poetry.lock` enables deterministic installations, 
+  by exactly pinning the versions of all (sub-)dependencies. 
   This is done automatically, you must not edit `poetry.lock`.
 
-If you want to install a new package, install it with `poetry add package`. This 
+If you want to install a new package, 
+install it with `poetry add package`. This 
 
 - installs the package (incl. sub-dependencies) in your virtual environment
 - adds the package to the section `[tool.poetry.dependencies]` of `pyproject.toml`
 - adds the pinned versions of the package and all sub-dependencies to `poetry.lock`
 
-If a package is only needed for development, please install it with `poetry add package --group dev`,
+If a package is only needed for development, 
+please install it with `poetry add package --group dev`,
 so it will be added to the `[tool.poetry.group.dev.dependencies]` section of `pyproject.toml`.
 
-For security reasons, the maintainer regularly executes `poetry add dependency@latest` for every dependency. 
-This updates the dependency constraint in `pyproject.toml` to the latest version, 
-updates the dependency to that version, 
-and updates `poetry.lock` accordingly. 
-The resulting changes are then committed in a version bumping PR.
+For security reasons, the dependencies should be kept up to date.
+GitHub's dependabot is configured to automatically create a version bumping PR 
+if there is an update for a dependency.
+Version bumping PRs can also be created manually: 
+Execute `poetry add dependency@latest` for every dependency,
+and create a PR from the resulting changes.
 
 All developers working with the DSP-TOOLS repository should regularly execute `poetry self update` to update poetry, 
 and `poetry install` to update the dependencies from `poetry.lock`.
@@ -84,12 +93,14 @@ Find more information in the
 
 ## Publishing/distribution
 
-Publishing is automated with GitHub Actions and should _not_ be done manually. Please follow the
-[Pull Request Guidelines](https://docs.dasch.swiss/latest/developers/dsp/contribution/#pull-request-guidelines). If done
-correctly, when merging a pull request into `main`, the `release-please` action will create or update a release 
-PR. This PR will follow semantic versioning and update the change log. Once all desired features are
-merged, the release can be executed by merging this release pull request into `main`. This will trigger actions that
-create a release on GitHub and on PyPI.
+Publishing is automated with GitHub Actions and should _not_ be done manually. 
+Please follow the [Pull Request Guidelines](https://docs.dasch.swiss/latest/developers/dsp/contribution/#pull-request-guidelines). 
+If done correctly, when merging a pull request into `main`, 
+the `release-please` action will create or update a release PR. 
+This PR will follow semantic versioning and update the change log. 
+Once all desired features are merged, 
+the release can be executed by merging this release pull request into `main`. 
+This will trigger actions that create a release on GitHub and on PyPI.
 
 Please ensure you have only one pull request per feature.
 
@@ -111,8 +122,7 @@ Or only the tests inside a singe file: `pytest test/unittests/test_excel2xml.py`
 Or even a certain method: `pytest test/unittests/test_excel2xml.py::TestExcel2xml::test_make_boolean_prop`  
 
 This is useful in combination with the debugging mode of your IDE, 
-if you want to examine why 
-a single line of code in a test method fails.
+if you want to examine why a single line of code in a test method fails.
 
 
 
@@ -122,7 +132,8 @@ When contributing to the project, please make sure you use the same code style r
 
 - [pylint](https://pypi.org/project/pylint/) (configured in `pyproject.toml`)
 - [mypy](https://pypi.org/project/mypy/) (configured in `pyproject.toml`)
-- [markdownlint](https://github.com/DavidAnson/markdownlint) (configured in `.markdownlint.json`)
+- [black](https://pypi.org/project/black/) (configured in `pyproject.toml`)
+- [markdownlint](https://github.com/igorshubovych/markdownlint-cli) (configured in `.markdownlint.json`)
 
 These 4 linters are integrated in the GitHub CI pipeline, 
 so that every pull request is checked for code style violations.
@@ -133,11 +144,19 @@ To locally check your code for style violations, follow the instructions dependi
 
 In VSCode, 
 
-- pylint can be installed as extension (`ms-python.pylint`), and be configured in the VSCode settings.
-- mypy can be installed as extension (`matangover.mypy`), and be configured in the VSCode  settings.
-    - (This extension is different from Microsoft's Python extension's mypy functionality,
-      which only lints each file separately, leading to incomplete type checking.)
-- markdownlint can be installed as extension (`davidanson.vscode-markdownlint`), and be configured in the  VSCode settings.
+- pylint can be installed as extension (`ms-python.pylint`), 
+  and be configured in the VSCode settings.
+- mypy can be installed as extension (`matangover.mypy`), 
+  and be configured in the VSCode settings.
+    - This extension is different from the mypy functionality 
+      of Microsoft's Python extension `ms-python.python`,
+      which only lints each file separately, 
+      leading to incomplete type checking.
+- black can be set as formatter in the `ms-python.python` extension.
+  To do so, set `"python.formatting.provider": "black"` in the VSCode `settings.json`.
+  Alternatively, `ms-python.black-formatter` can be installed as extension.
+- markdownlint can be installed as extension (`davidanson.vscode-markdownlint`), 
+  and be configured in the  VSCode settings.
 
 If configured correctly, you will see style violations in the "Problems" tab.
 

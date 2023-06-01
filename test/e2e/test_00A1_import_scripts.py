@@ -13,14 +13,12 @@ from dsp_tools.utils.xml_upload import xml_upload
 
 
 class TestImportScripts(unittest.TestCase):
-
     def tearDown(self) -> None:
         """
         Remove generated data. This method is executed after every test method.
         """
         if os.path.isfile("src/dsp_tools/import_scripts/data-processed.xml"):
             os.remove("src/dsp_tools/import_scripts/data-processed.xml")
-
 
     @pytest.mark.filterwarnings("ignore")
     def test_import_scripts(self) -> None:
@@ -30,8 +28,7 @@ class TestImportScripts(unittest.TestCase):
         """
         # pull the latest state of the git submodule
         os.system("git submodule update --init --recursive")
-        from dsp_tools.import_scripts import \
-            import_script  # pylint: disable=import-outside-toplevel
+        from dsp_tools.import_scripts import import_script  # pylint: disable=import-outside-toplevel
 
         # execute the import script in its directory
         old_working_directory = os.getcwd()
@@ -55,7 +52,7 @@ class TestImportScripts(unittest.TestCase):
             user_mail="root@example.com",
             password="test",
             verbose=False,
-            dump=False
+            dump=False,
         )
         self.assertTrue(success_on_creation)
 
@@ -69,17 +66,17 @@ class TestImportScripts(unittest.TestCase):
             verbose=False,
             incremental=False,
             save_metrics=False,
-            preprocessing_done=False
+            preprocessing_done=False,
         )
         self.assertTrue(success_on_xmlupload)
 
 
 def _derandomize_xsd_id(string: str, multiple_occurrences: bool = False) -> str:
     """
-    In some contexts, the random component of the output of make_xsd_id_compatible() is a hindrance, 
-    especially for testing. 
-    This method removes the random part, 
-    but leaves the other modifications introduced by make_xsd_id_compatible() in place. 
+    In some contexts, the random component of the output of make_xsd_id_compatible() is a hindrance,
+    especially for testing.
+    This method removes the random part,
+    but leaves the other modifications introduced by make_xsd_id_compatible() in place.
     This method's behaviour is defined by the example in the "Examples" section.
 
     Args:

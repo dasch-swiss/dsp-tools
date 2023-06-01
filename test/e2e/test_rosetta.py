@@ -10,7 +10,6 @@ from dsp_tools.utils import rosetta
 
 
 class TestRosetta(unittest.TestCase):
-
     def test_rosetta(self) -> None:
         enclosing_folder = Path("tmp/.dsp-tools/rosetta")
         enclosing_folder.mkdir(parents=True, exist_ok=True)
@@ -30,6 +29,7 @@ class TestRosetta(unittest.TestCase):
         self.assertTrue(success2)
 
         shutil.rmtree("tmp", ignore_errors=True)
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

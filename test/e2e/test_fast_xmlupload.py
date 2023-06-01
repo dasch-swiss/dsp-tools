@@ -26,7 +26,6 @@ class TestFastXmlUpload(unittest.TestCase):
     original_cwd = ""
     pickle_file = Path()
 
-
     def setUp(self) -> None:
         """
         Is executed before any test is run.
@@ -39,11 +38,10 @@ class TestFastXmlUpload(unittest.TestCase):
             user_mail=self.user,
             password=self.password,
             verbose=False,
-            dump=False
+            dump=False,
         )
         shutil.copytree("bitstreams", "bitstreams/nested")
         shutil.copytree("bitstreams/nested", "bitstreams/nested/subfolder")
-
 
     def tearDown(self) -> None:
         """
@@ -57,7 +55,6 @@ class TestFastXmlUpload(unittest.TestCase):
             id2iri_search_results[0].unlink()
         os.chdir(self.original_cwd)
 
-
     def test_fast_xmlupload(self) -> None:
         """
         Test if it is possible to call the 3 steps of the fast XML upload, one after the other.
@@ -68,12 +65,12 @@ class TestFastXmlUpload(unittest.TestCase):
             input_dir="bitstreams",
             output_dir=self.dir_with_processed_files,
             xml_file=self.xml_file,
-            nthreads=None
+            nthreads=None,
         )
         self.assertTrue(success_process)
 
         self.pickle_file = list(Path().glob("*.pkl"))[0]
-        
+
         print(f"test_fast_xmlupload: call upload_files() with pickle file {self.pickle_file}")
         success_upload = upload_files(
             pkl_file=str(self.pickle_file),
@@ -82,7 +79,7 @@ class TestFastXmlUpload(unittest.TestCase):
             user=self.user,
             password=self.password,
             dsp_url=self.dsp_url,
-            sipi_url=self.sipi_url
+            sipi_url=self.sipi_url,
         )
         self.assertTrue(success_upload)
 
@@ -93,11 +90,10 @@ class TestFastXmlUpload(unittest.TestCase):
             user=self.user,
             password=self.password,
             dsp_url=self.dsp_url,
-            sipi_url=self.sipi_url
+            sipi_url=self.sipi_url,
         )
         self.assertTrue(success_fast_xmlupload)
 
 
 if __name__ == "__main__":
     pytest.main([__file__])
-        

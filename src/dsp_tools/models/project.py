@@ -485,7 +485,7 @@ class Project(Model):
                     "name": "ProjectResourceCreateAllPermission",
                     "permissionCode": None,
                 }
-            ]
+            ],
         }
         jsondata = json.dumps(permobj, indent=4)
         print(jsondata)

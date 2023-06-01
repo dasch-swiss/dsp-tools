@@ -13,11 +13,11 @@ class PermissionValue(Enum):
 
     def __str__(self):
         tmp = {
-            1: 'RV',
-            2: 'V',
-            4: 'M',
-            8: 'D',
-            16: 'CR',
+            1: "RV",
+            2: "V",
+            4: "M",
+            8: "D",
+            16: "CR",
         }
         return tmp[self.value]
 

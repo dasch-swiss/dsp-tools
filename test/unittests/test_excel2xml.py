@@ -196,7 +196,7 @@ class TestExcel2xml(unittest.TestCase):
         # template: 31.4.2021 | 5/11/2021
         testcases = {
             "Text (30.4.2021) text": "GREGORIAN:CE:2021-04-30:CE:2021-04-30",
-            "Text (5/11/2021) text": "GREGORIAN:CE:2021-11-05:CE:2021-11-05"
+            "Text (5/11/2021) text": "GREGORIAN:CE:2021-11-05:CE:2021-11-05",
         }
         for testcase, expected in testcases.items():
             self.assertEqual(excel2xml.find_date_in_string(testcase), expected, msg=f"Failed with '{testcase}'")
@@ -215,7 +215,7 @@ class TestExcel2xml(unittest.TestCase):
             "Text _1.3. - 25.4.2022_ text": "GREGORIAN:CE:2022-03-01:CE:2022-04-25",
             "Text (01.03. - 25.04.2022) text": "GREGORIAN:CE:2022-03-01:CE:2022-04-25",
             "Text 28.2.-1.12.1515 text": "GREGORIAN:CE:1515-02-28:CE:1515-12-01",
-            "Text 28.2.-26.2.1515 text": None
+            "Text 28.2.-26.2.1515 text": None,
         }
         for testcase, expected in testcases.items():
             self.assertEqual(excel2xml.find_date_in_string(testcase), expected, msg=f"Failed with '{testcase}'")
@@ -476,7 +476,7 @@ class TestExcel2xml(unittest.TestCase):
             [
                 'text <text text="text" > text',
                 'text &lt;text text="text" &gt; text',
-            ]
+            ],
         ]
         for orig, exp in testcases_utf8:
             received = etree.tostring(
@@ -507,7 +507,7 @@ class TestExcel2xml(unittest.TestCase):
             [
                 "&lt;escaped tag&gt;",
                 "&lt;escaped tag&gt;",
-            ]
+            ],
         ]
         all_inputs = ""
         all_outputs = ""

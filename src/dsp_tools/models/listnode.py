@@ -317,9 +317,9 @@ class ListNode(Model):
 
     @staticmethod
     def __getChildren(
-        con: Connection, 
-        parent_iri: str, 
-        project_iri: str, 
+        con: Connection,
+        parent_iri: str,
+        project_iri: str,
         children: list[Any],
     ) -> Optional[list["ListNode"]]:
         """

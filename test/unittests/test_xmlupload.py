@@ -108,7 +108,7 @@ class TestXMLUpload(unittest.TestCase):
             _convert_ark_v0_to_resource_iri("ark:/72163/080X-779b9990a0c3f-6e")
 
         with self.assertRaisesRegex(
-            BaseError, r"while converting ARK 'ark:/72163/080c1-779b9990a0c3f-6e'\. Invalid project shortcode '080C1'",
+            BaseError, r"while converting ARK 'ark:/72163/080c1-779b9990a0c3f-6e'\. Invalid project shortcode '080C1'"
         ):
             _convert_ark_v0_to_resource_iri("ark:/72163/080c1-779b9990a0c3f-6e")
 
@@ -124,7 +124,7 @@ class TestXMLUpload(unittest.TestCase):
 
         # get the purged resources and the stashes from the function to be tested
         resources, stashed_xml_texts_original, stashed_resptr_props_original = _remove_circular_references(
-            resources=resources, 
+            resources=resources,
             verbose=False,
         )
 

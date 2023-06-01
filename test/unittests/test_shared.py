@@ -77,7 +77,7 @@ class TestShared(unittest.TestCase):
         ]
         for xml in utf8_texts_with_allowed_html_escapes:
             self.assertTrue(
-                shared._validate_xml_tags_in_text_properties(etree.fromstring(xml)) # pylint: disable=protected-access
+                shared._validate_xml_tags_in_text_properties(etree.fromstring(xml))  # pylint: disable=protected-access
             )
 
         utf8_texts_with_forbidden_html_escapes = ['&lt;tag s="t"&gt;', "&lt;em&gt;text&lt;/em&gt;"]

@@ -141,7 +141,7 @@ class Connection:
                 headers = {"Content-Type": "application/json; charset=UTF-8"}
                 response = requests.post(
                     self._server + path,
-                    headers=headers, 
+                    headers=headers,
                     data=jsondata,
                 )
         if self._log:
@@ -227,14 +227,14 @@ class Connection:
             path = "/" + path
         if params is not None:
             response = requests.delete(
-                self._server + path, 
-                headers={"Authorization": "Bearer " + self._token}, 
+                self._server + path,
+                headers={"Authorization": "Bearer " + self._token},
                 params=params,
             )
 
         else:
             response = requests.delete(
-                self._server + path, 
+                self._server + path,
                 headers={"Authorization": "Bearer " + self._token},
             )
         check_for_api_error(response)
@@ -256,8 +256,8 @@ class Connection:
         url = self._server + "/admin/store/ResetTriplestoreContent?prependdefaults=false"
 
         response = requests.post(
-            url, 
-            headers={"Content-Type": "application/json; charset=UTF-8"}, 
+            url,
+            headers={"Content-Type": "application/json; charset=UTF-8"},
             data=jsondata,
         )
         check_for_api_error(response)

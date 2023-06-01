@@ -246,7 +246,8 @@ def validate_project(
     else:
         raise BaseError(f"Input '{input_file_or_json}' is neither a file path nor a JSON object.")
 
-    # expand all lists referenced in the "lists" section of the project definition, and add them to the project definition
+    # expand all lists referenced in the "lists" section of the project definition, 
+    # and add them to the project definition
     if expand_lists:
         new_lists = expand_lists_from_excel(project_definition["project"].get("lists", []))
         if new_lists:
@@ -367,7 +368,8 @@ def _identify_problematic_cardinalities(
 
     Args:
         project_definition: parsed JSON file
-        link_properties: mapping of hasLinkTo-properties to classes they point to, e.g. {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}
+        link_properties: mapping of hasLinkTo-properties to classes they point to, 
+            e.g. {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}
 
     Returns:
         a (possibly empty) list of (resource, problematic_cardinality) tuples

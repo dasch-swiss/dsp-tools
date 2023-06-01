@@ -81,8 +81,8 @@ def _check_upload_candidates(
 
     min_num_of_candidates = 4 if internal_filename_of_processed_file.suffix == ".mp4" else 3
     if len(upload_candidates) < min_num_of_candidates:
-        upload_candidates_as_str = "\n - " + "\n - ".join([str(c) for c in upload_candidates])
-        msg = f"Found the following files for {internal_filename_of_processed_file}, but more were expected: {upload_candidates_as_str}"
+        cand = "\n - " + "\n - ".join([str(c) for c in upload_candidates])
+        msg = f"Found the following files for {internal_filename_of_processed_file}, but more were expected: {cand}"
         print(f"{datetime.now()}: ERROR: {msg}")
         logger.error(msg)
         return False
@@ -151,7 +151,8 @@ def _upload_file(
 
     Args:
         dir_with_processed_files: path to the directory where the processed files are located
-        internal_filename_of_processed_file: path to the derivate of the original file, i.e. the processed file (uuid filename)
+        internal_filename_of_processed_file: path to the derivate of the original file, 
+            i.e. the processed file (uuid filename)
         sipi_url: URL to the sipi server
         con: connection to the DSP server
 
@@ -250,7 +251,8 @@ def _upload_files_in_parallel(
 
     Args:
         dir_with_processed_files: path to the directory where the processed files are located
-        internal_filenames_of_processed_files: list of uuid filenames, each filename being the path to the derivate of the original file
+        internal_filenames_of_processed_files: list of uuid filenames, 
+            each filename being the path to the derivate of the original file
         sipi_url: URL to the sipi server
         con: connection to the DSP server
         nthreads: number of threads to use for the upload (optimum depends on the number of CPUs on the server)
@@ -324,7 +326,7 @@ def upload_files(
 
     Args:
         pkl_file: pickle file containing the mapping between the original files and the processed files,
-                  e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2').
+        e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2').
         dir_with_processed_files: path to the directory where the processed files are located
         nthreads: number of threads to use for uploading (optimum depends on the number of CPUs on the server)
         user: the user's e-mail for login into DSP

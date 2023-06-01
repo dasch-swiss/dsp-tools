@@ -33,7 +33,8 @@ def expand_lists_from_excel(
     False if one of the lists couldn't be expanded correctly.
 
     Args:
-        lists_section: the "lists" section of a parsed JSON project file. If this is an empty list, an empty list will be returned.
+        lists_section: the "lists" section of a parsed JSON project file. 
+            If this is an empty list, an empty list will be returned.
 
     Raises:
         BaseError: if a problem occurred while trying to expand the Excel files

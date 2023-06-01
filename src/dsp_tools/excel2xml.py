@@ -846,7 +846,7 @@ def make_geoname_prop(
 
     Args:
         name: the name of this property as defined in the onto
-        value: one or more geonames.org IDs, as string/int/PropertyElement, or as iterable of strings/ints/PropertyElements
+        value: one or more geonames.org IDs, as str/int/PropertyElement, or as iterable of str/int/PropertyElement
         calling_resource: the name of the parent resource (for better error messages)
 
     Raises:
@@ -1206,8 +1206,10 @@ def make_text_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Raises:
-        BaseError: if one of the values is not a valid string, or if the XML tags in a richtext property (encoding=xml) are not well-formed
-        Warning: if one of the values doesn't look like a reasonable string (e.g. "<NA>" is a valid string, but probably not intended)
+        BaseError: if one of the values is not a valid string, 
+            or if the XML tags in a richtext property (encoding=xml) are not well-formed
+        Warning: if one of the values doesn't look like a reasonable string 
+            (e.g. "<NA>" is a valid string, but probably not intended)
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -1645,7 +1647,8 @@ def create_json_excel_list_mapping(
         Exception: if the path doesn't point to a JSON project file
 
     Returns:
-        dict of the form {excel_value: list_node_name}. Every excel_value is stripped, and also present in a lowercase form.
+        dict of the form ``{excel_value: list_node_name}``.
+            Every excel_value is stripped, and also present in a lowercase form.
 
     Examples:
         >>> json_list_nodes = [
@@ -1659,8 +1662,14 @@ def create_json_excel_list_mapping(
                 }
             ]
         >>> excel_row_1 = ["Giraffeeh ", " Antiloupe", "Girraffe , Antiloupe "]
-        >>> json_excel_list_mapping = {"Giraffeeh": "giraffe", "Girraffe": "giraffe", "Antiloupe": "antelope",
-        >>>                            "giraffeeh": "giraffe", "girraffe": "giraffe", "antiloupe": "antelope"}
+        >>> json_excel_list_mapping = {
+                "Giraffeeh": "giraffe", 
+                "giraffeeh": "giraffe", 
+                "Girraffe": "giraffe", 
+                "girraffe": "giraffe", 
+                "Antiloupe": "antelope",
+                "antiloupe": "antelope"
+            }
     """
 
     # avoid mutable default argument
@@ -1885,7 +1894,8 @@ def _convert_rows_to_xml(
         max_num_of_props: highest number of properties that a resource in this file has
 
     Raises:
-        BaseError: if one of the rows is neither a resource-row nor a property-row, or if the file starts with a property-row
+        BaseError: if one of the rows is neither a resource-row nor a property-row, 
+            or if the file starts with a property-row
 
     Returns:
         a list of XML resources (with their respective properties)
@@ -1965,7 +1975,8 @@ def _append_bitstream_to_resource(
             file_permissions = "prop-restricted"
         else:
             raise BaseError(
-                f"Missing file permissions for file '{row['file']}' (Resource ID '{row['id']}', Excel row {row_number}). "
+                f"Missing file permissions for file "
+                f"'{row['file']}' (Resource ID '{row['id']}', Excel row {row_number}). "
                 f"An attempt to deduce them from the resource permissions failed."
             )
     resource.append(
@@ -2121,9 +2132,10 @@ def _convert_row_to_property_elements(
             notna_cell_headers_str = ", ".join([f"'{x}'" for x in notna_cell_headers])
             if notna_cell_headers_str:
                 raise BaseError(
-                    f"Error in resource '{resource_id}': Excel row {row_number} has an entry in column(s) {notna_cell_headers_str}, "
-                    f"but not in '{i}_value'. "
-                    r"Please note that cell contents that don't meet the requirements of the regex [\p{L}\d_!?\-] are considered inexistent."
+                    f"Error in resource '{resource_id}': Excel row {row_number} has an entry "
+                    f"in column(s) {notna_cell_headers_str}, but not in '{i}_value'. "
+                    r"Please note that cell contents that don't meet the requirements of the regex [\p{L}\d_!?\-] "
+                    "are considered inexistent."
                 )
             continue
 

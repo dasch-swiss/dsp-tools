@@ -103,7 +103,10 @@ def create_lists_on_server(
         # if list exists already, add it to "current_project_lists" (for later usage), then skip it
         existing_list = [x for x in existing_lists if x.project == project_remote.id and x.name == new_list["name"]]
         if existing_list:
-            current_project_lists[existing_list[0].name] = {"id": existing_list[0].id, "nodes": new_list["nodes"]}  # type: ignore
+            current_project_lists[existing_list[0].name] = {  # type: ignore
+                "id": existing_list[0].id, 
+                "nodes": new_list["nodes"],
+            }
             print(f"\tWARNING: List '{new_list['name']}' already exists on the DSP server. Skipping...")
             overall_success = False
             continue
@@ -177,11 +180,12 @@ def create_lists(
         con.start_logging()
 
     # retrieve the project
-    project_local = Project(con=con, shortcode=project_definition["project"]["shortcode"])
+    shortcode = project_definition["project"]["shortcode"]
+    project_local = Project(con=con, shortcode=shortcode)
     try:
         project_remote = try_network_action(project_local.read)
     except BaseError:
-        err_msg = f"Unable to create the lists: The project {project_definition['project']['shortcode']} cannot be found on the DSP server."
+        err_msg = f"Unable to create the lists: The project {shortcode} cannot be found on the DSP server."
         logger.error(err_msg, exc_info=True)
         raise UserError(err_msg) from None
 

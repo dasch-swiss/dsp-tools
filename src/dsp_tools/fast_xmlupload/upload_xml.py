@@ -90,7 +90,7 @@ def fast_xmlupload(
     Args:
         xml_file: path to XML file containing the resources
         pkl_file: pickle file containing the mapping between the original files and the processed files,
-                  e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2')
+        e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2')
         user: the user's e-mail for login into DSP
         password: the user's password for login into DSP
         dsp_url: URL to the DSP server

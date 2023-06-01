@@ -67,7 +67,7 @@ def _validate_properties(properties_list: list[dict[str, Any]], excelfile: str) 
         if all_names.count(propdef["name"]) > 1:
             duplicates[index + 2] = propdef["name"]
     if duplicates:
-        err_msg = f"Property names must be unique inside every ontology, but your Excel file '{excelfile}' contains duplicates:\n"
+        err_msg = f"Property names must be unique inside every ontology, but '{excelfile}' contains duplicates:\n"
         for row_no, propname in duplicates.items():
             err_msg += f" - Row {row_no}: {propname}\n"
         raise BaseError(err_msg)
@@ -145,7 +145,8 @@ def excel2properties(
         BaseError if something went wrong
 
     Returns:
-        a tuple consisting of the "properties" section as Python list, and the success status (True if everything went well)
+        a tuple consisting of the "properties" section as Python list, 
+            and the success status (True if everything went well)
     """
 
     # load file

@@ -61,7 +61,8 @@ def _check_if_all_files_were_processed(
         logger.info(f"Number of processed files: {len(result)}: Okay")
     else:
         success = False
-        msg = f"Some files could not be processed: Only {len(processed_paths)}/{len(all_paths)} were processed. The failed ones are:"
+        ratio = f"{len(processed_paths)}/{len(all_paths)}"
+        msg = f"Some files could not be processed: Only {ratio} were processed. The failed ones are:"
         print(f"{datetime.now()}: ERROR: {msg}")
         logger.error(msg)
 
@@ -302,8 +303,10 @@ def _convert_file_with_sipi(
     Args:
         in_file_local_path: path to input file
         input_dir: the directory where the input files are located
-        out_file_local_path: path to output file, e.g. tmp/in/te/internal_file_name.jp2 if the internal filename is "internal_file_name"
-        output_dir: the directory where the processed files are written to, e.g. tmp/in/te/ if the internal filename is "internal_file_name"
+        out_file_local_path: path to output file, 
+            e.g. tmp/in/te/internal_file_name.jp2 if the internal filename is "internal_file_name"
+        output_dir: the directory where the processed files are written to, 
+            e.g. tmp/in/te/ if the internal filename is "internal_file_name"
     """
     original_output_dir = output_dir.parent.parent
     in_file_sipi_path = Path("processing-input") / in_file_local_path.relative_to(input_dir)
@@ -332,7 +335,8 @@ def _create_orig_file(
     Args:
         in_file: the input file from which the .orig should be created
         internal_file_name: the internal filename which should be used for the .orig file
-        out_dir: the directory where the .orig file should be written to, e.g. tmp/in/te/ if the internal filename is "internal_file_name"
+        out_dir: the directory where the .orig file should be written to, 
+            e.g. tmp/in/te/ if the internal filename is "internal_file_name"
     """
     orig_ext = PurePath(in_file).suffix
     orig_file_full_path = Path(out_dir, f"{internal_file_name}{orig_ext}.orig")
@@ -543,7 +547,8 @@ def _process_file(
     Args:
         in_file: path to input file that should be processed
         input_dir: root directory of the input files
-        output_dir: target location where the created files are written to, if the directory doesn't exist, it is created
+        output_dir: target location where the created files are written to.
+            If the directory doesn't exist, it is created
 
     Returns:
         tuple consisting of the original path and the internal filename.
@@ -614,7 +619,8 @@ def _process_other_file(
     Args:
         in_file: the input file that should be processed
         internal_filename: the internal filename that should be used for the output file
-        out_dir: the output directory where the processed file should be written to, e.g. tmp/in/te/ if the internal filename is "internal_file_name"
+        out_dir: the output directory where the processed file should be written to, 
+            e.g. tmp/in/te/ if the internal filename is "internal_file_name"
 
     Returns:
         a tuple of the original file path and the path to the processed file.
@@ -650,7 +656,8 @@ def _process_image_file(
     Args:
         in_file: the input file that should be processed
         internal_filename: the internal filename that should be used for the output file
-        out_dir: the output directory where the processed file should be written to, e.g. tmp/in/te/ if the internal filename is "internal_file_name"
+        out_dir: the output directory where the processed file should be written to, 
+            e.g. tmp/in/te/ if the internal filename is "internal_file_name"
         input_dir: root directory of the input files
 
     Returns:
@@ -690,7 +697,8 @@ def _process_video_file(
     Args:
         in_file: the input file that should be processed
         internal_filename: the internal filename that should be used for the output file
-        out_dir: the output directory where the processed file should be written to, e.g. tmp/in/te/ if the internal filename is "internal_file_name"
+        out_dir: the output directory where the processed file should be written to, 
+            e.g. tmp/in/te/ if the internal filename is "internal_file_name"
 
     Returns:
         a tuple of the original file path and the path to the processed file.

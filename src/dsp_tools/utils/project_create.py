@@ -56,7 +56,8 @@ def _create_project_on_server(
             project=project_remote, project_definition=project_definition, verbose=verbose
         )
         # It doesn't matter if the update is successful or not: continue anyway, because success is anyways false.
-        # There are other things from this file that can be created on the server, e.g. the groups and users, so the process must continue.
+        # There are other things from this file that can be created on the server, 
+        # e.g. the groups and users, so the process must continue.
         return project_remote, False
     except BaseError:
         pass
@@ -92,7 +93,8 @@ def _update_basic_info_of_project(
 ) -> tuple[Project, bool]:
     """
     Updates the longname, description and keywords of a project on a DSP server.
-    Returns the updated project (or the unchanged project if not successful) and a boolean saying if the update was successful or not.
+    Returns the updated project (or the unchanged project if not successful)
+    and a boolean saying if the update was successful or not.
     If the update was not successful, an error message is printed to stdout.
 
     Args:
@@ -139,7 +141,8 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
 
     Returns:
         A tuple consisting of a dict and the success status.
-        The dict has the form ``{group name: group object}`` for all groups that have successfully been created (or already exist).
+        The dict has the form ``{group name: group object}`` 
+        for all groups that have successfully been created (or already exist).
         The dict is empty if no group was created.
     """
     overall_success = True
@@ -205,7 +208,8 @@ def _get_group_iris_for_user(
     Args:
         json_user_definition: the section of the JSON file that defines a user
         current_project: the Project object
-        current_project_groups: dict of the form ``{group name: group object}`` with the groups that exist on the DSP server
+        current_project_groups: dict of the form ``{group name: group object}`` 
+            with the groups that exist on the DSP server
         con: connection to the DSP server
         verbose: verbose switch
 
@@ -349,7 +353,8 @@ def _create_users(
     Args:
         con: connection instance to connect to the DSP server
         users_section: "users" section of a parsed JSON project file
-        current_project_groups: groups defined in the current project, {group name: group object} (must exist on DSP server)
+        current_project_groups: groups defined in the current project, in the form ``{group name: group object}``
+            (must exist on DSP server)
         current_project: "project" object of the current project (must exist on DSP server)
         verbose: Prints more information if set to True
 

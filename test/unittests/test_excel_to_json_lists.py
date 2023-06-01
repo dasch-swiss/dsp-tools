@@ -66,7 +66,7 @@ class TestExcelToJSONList(unittest.TestCase):
         del lists_section_without_comment_at_rootnode[0]["comments"]
         with self.assertRaisesRegex(
             BaseError,
-            "\"lists\" section did not pass validation. The error message is: 'comments' is a required property",
+            "'lists' section did not pass validation. The error message is: 'comments' is a required property",
         ):
             e2l.validate_lists_section_with_schema(lists_section=lists_section_without_comment_at_rootnode)
 
@@ -75,7 +75,7 @@ class TestExcelToJSONList(unittest.TestCase):
         lists_section_with_invalid_lang[0]["comments"]["eng"] = "wrong English label"
         with self.assertRaisesRegex(
             BaseError,
-            "\"lists\" section did not pass validation. The error message is: 'eng' does not match any of the regexes",
+            "'lists' section did not pass validation. The error message is: 'eng' does not match any of the regexes",
         ):
             e2l.validate_lists_section_with_schema(lists_section=lists_section_with_invalid_lang)
 
@@ -93,7 +93,7 @@ class TestExcelToJSONList(unittest.TestCase):
             e2l.validate_lists_section_with_schema()
 
         # pass a file that doesn't have a "lists" section
-        with self.assertRaisesRegex(BaseError, 'there is no "lists" section'):
+        with self.assertRaisesRegex(BaseError, "there is no 'lists' section"):
             e2l.validate_lists_section_with_schema(
                 path_to_json_project_file="testdata/json-project/test-project-minimal.json"
             )

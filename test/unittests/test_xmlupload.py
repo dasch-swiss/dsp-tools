@@ -113,7 +113,7 @@ class TestXMLUpload(unittest.TestCase):
             _convert_ark_v0_to_resource_iri("ark:/72163/080c1-779b9990a0c3f-6e")
 
         with self.assertRaisesRegex(
-            BaseError, r"while converting ARK 'ark:/72163/080c-779b99+90a0c3f-6e'\. Invalid Salsah ID '779b99+90a0c3f'"
+            BaseError, r"while converting ARK 'ark:/72163/080c-779b99\+90a0c3f-6e'\. Invalid Salsah ID '779b99\+90a0c3f'"
         ):
             _convert_ark_v0_to_resource_iri("ark:/72163/080c-779b99+90a0c3f-6e")
 

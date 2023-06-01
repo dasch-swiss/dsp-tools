@@ -15,6 +15,7 @@ class BaseError(Exception):
         reason_from_api_response: The reason for the failure that DSP-API returns (only applicable if the error comes from DSP-API)
         api_route: The route that was called (only applicable if the error comes from DSP-API)
     """
+
     message: str
     status_code: Optional[int]
     json_content_of_api_response: Optional[str]
@@ -28,7 +29,7 @@ class BaseError(Exception):
         status_code: Optional[int] = None,
         json_content_of_api_response: Optional[str] = None,
         reason_from_api_response: Optional[str] = None,
-        api_route: Optional[str] = None
+        api_route: Optional[str] = None,
     ) -> None:
         """
         A basic error class for DSP-TOOLS.
@@ -64,14 +65,16 @@ class InternalError(BaseError):
     """
     Class for errors that will be handled by a higher level function
     """
+
     pass
 
 
 class UserError(BaseError):
     """
-    Class for errors that are intended for user feedback. 
-    Typically, a UserError is raised when the execution of a program must be interrupted 
+    Class for errors that are intended for user feedback.
+    Typically, a UserError is raised when the execution of a program must be interrupted
     due to a bad condition in the input data that prevents further processing.
     The message should be as user-friendly as possible.
     """
+
     pass

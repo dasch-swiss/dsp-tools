@@ -23,7 +23,7 @@ def check_for_api_error(response: requests.Response) -> None:
             status_code=response.status_code,
             json_content_of_api_response=response.text,
             reason_from_api_response=response.reason,
-            api_route=response.url
+            api_route=response.url,
         )
 
 
@@ -49,7 +49,7 @@ class Connection:
         :param prefixes: Ontology prefixes used
         """
 
-        self._server = re.sub(r'\/$', '', server)
+        self._server = re.sub(r"\/$", "", server)
         self._prefixes = prefixes
         self._token = None
         self._log = False
@@ -61,16 +61,13 @@ class Connection:
         :param password: Password of the user, e.g. test
         """
 
-        credentials = {
-            "email": email,
-            "password": password
-        }
+        credentials = {"email": email, "password": password}
         jsondata = json.dumps(credentials)
 
         response = requests.post(
-            self._server + '/v2/authentication',
-            headers={'Content-Type': 'application/json; charset=UTF-8'},
-            data=jsondata
+            self._server + "/v2/authentication",
+            headers={"Content-Type": "application/json; charset=UTF-8"},
+            data=jsondata,
         )
         check_for_api_error(response)
         result = response.json()
@@ -102,8 +99,8 @@ class Connection:
 
         if self._token is not None:
             response = requests.delete(
-                self._server + '/v2/authentication',
-                headers={'Authorization': 'Bearer ' + self._token}
+                self._server + "/v2/authentication",
+                headers={"Authorization": "Bearer " + self._token},
             )
             check_for_api_error(response)
             self._token = None
@@ -120,33 +117,32 @@ class Connection:
         :return: Response from server
         """
 
-        if path[0] != '/':
-            path = '/' + path
+        if path[0] != "/":
+            path = "/" + path
         headers = None
         if jsondata is None:
             if self._token is not None:
-                headers = {'Authorization': 'Bearer ' + self._token}
+                headers = {"Authorization": "Bearer " + self._token}
                 response = requests.post(
                     self._server + path,
-                    headers=headers
+                    headers=headers,
                 )
             else:
                 response = requests.post(self._server + path)
         else:
             if self._token is not None:
-                headers = {'Content-Type': 'application/json; charset=UTF-8',
-                           'Authorization': 'Bearer ' + self._token}
+                headers = {"Content-Type": "application/json; charset=UTF-8", "Authorization": "Bearer " + self._token}
                 response = requests.post(
                     self._server + path,
                     headers=headers,
-                    data=jsondata
+                    data=jsondata,
                 )
             else:
-                headers = {'Content-Type': 'application/json; charset=UTF-8'}
+                headers = {"Content-Type": "application/json; charset=UTF-8"}
                 response = requests.post(
                     self._server + path,
-                    headers=headers,
-                    data=jsondata
+                    headers=headers, 
+                    data=jsondata,
                 )
         if self._log:
             if jsondata:
@@ -159,12 +155,13 @@ class Connection:
                 "route": path,
                 "body": jsonobj,
                 "return-headers": dict(response.headers),
-                "return": response.json() if response.status_code == 200 else {"status": str(response.status_code),
-                                                                               "message": response.text}
+                "return": response.json()
+                if response.status_code == 200
+                else {"status": str(response.status_code), "message": response.text},
             }
-            tmp = path.split('/')
+            tmp = path.split("/")
             filename = "POST" + "_".join(tmp) + ".json"
-            with open(filename, 'w') as f:
+            with open(filename, "w") as f:
                 json.dump(logobj, f, indent=4)
         check_for_api_error(response)
         result = response.json()
@@ -178,8 +175,8 @@ class Connection:
         :return: Response from server
         """
 
-        if path[0] != '/':
-            path = '/' + path
+        if path[0] != "/":
+            path = "/" + path
         if not self._token:
             if not headers:
                 response = requests.get(self._server + path)
@@ -187,16 +184,16 @@ class Connection:
                 response = requests.get(self._server + path, headers)
         else:
             if not headers:
-                response = requests.get(self._server + path, headers={'Authorization': 'Bearer ' + self._token})
+                response = requests.get(self._server + path, headers={"Authorization": "Bearer " + self._token})
             else:
-                headers['Authorization'] = 'Bearer ' + self._token
+                headers["Authorization"] = "Bearer " + self._token
                 response = requests.get(self._server + path, headers)
 
         check_for_api_error(response)
         json_response = response.json()
         return json_response
 
-    def put(self, path: str, jsondata: Optional[str] = None, content_type: str = 'application/json'):
+    def put(self, path: str, jsondata: Optional[str] = None, content_type: str = "application/json"):
         """
         Send data to a RESTful server using a HTTP PUT request
         :param path: Path of RESTful route
@@ -205,21 +202,16 @@ class Connection:
         :return:
         """
 
-        if path[0] != '/':
-            path = '/' + path
+        if path[0] != "/":
+            path = "/" + path
         if jsondata is None:
-            response = requests.put(
-                self._server + path,
-                headers={'Authorization': 'Bearer ' + self._token}
-            )
+            response = requests.put(self._server + path, headers={"Authorization": "Bearer " + self._token})
         else:
             response = requests.put(
                 self._server + path,
-                headers={
-                    'Content-Type': content_type + '; charset=UTF-8',
-                    'Authorization': 'Bearer ' + self._token
-                },
-                data=jsondata)
+                headers={"Content-Type": content_type + "; charset=UTF-8", "Authorization": "Bearer " + self._token},
+                data=jsondata,
+            )
         check_for_api_error(response)
         result = response.json()
         return result
@@ -231,19 +223,19 @@ class Connection:
         :return: Response from server
         """
 
-        if path[0] != '/':
-            path = '/' + path
+        if path[0] != "/":
+            path = "/" + path
         if params is not None:
             response = requests.delete(
-                self._server + path,
-                headers={'Authorization': 'Bearer ' + self._token},
-                params=params
+                self._server + path, 
+                headers={"Authorization": "Bearer " + self._token}, 
+                params=params,
             )
 
         else:
             response = requests.delete(
-                self._server + path,
-                headers={'Authorization': 'Bearer ' + self._token}
+                self._server + path, 
+                headers={"Authorization": "Bearer " + self._token},
             )
         check_for_api_error(response)
         result = response.json()
@@ -251,46 +243,22 @@ class Connection:
 
     def reset_triplestore_content(self):
         rdfdata = [
-            {
-                "path": "./knora-ontologies/knora-admin.ttl",
-                "name": "http://www.knora.org/ontology/knora-admin"
-            },
-            {
-                "path": "./knora-ontologies/knora-base.ttl",
-                "name": "http://www.knora.org/ontology/knora-base"
-            },
-            {
-                "path": "./knora-ontologies/standoff-onto.ttl",
-                "name": "http://www.knora.org/ontology/standoff"
-            },
-            {
-                "path": "./knora-ontologies/standoff-data.ttl",
-                "name": "http://www.knora.org/data/standoff"
-            },
-            {
-                "path": "./knora-ontologies/salsah-gui.ttl",
-                "name": "http://www.knora.org/ontology/salsah-gui"
-            },
-            {
-                "path": "./_test_data/all_data/admin-data.ttl",
-                "name": "http://www.knora.org/data/admin"
-            },
-            {
-                "path": "./_test_data/all_data/permissions-data.ttl",
-                "name": "http://www.knora.org/data/permissions"
-            },
-            {
-                "path": "./_test_data/all_data/system-data.ttl",
-                "name": "http://www.knora.org/data/0000/SystemProject"
-            }
+            {"path": "./knora-ontologies/knora-admin.ttl", "name": "http://www.knora.org/ontology/knora-admin"},
+            {"path": "./knora-ontologies/knora-base.ttl", "name": "http://www.knora.org/ontology/knora-base"},
+            {"path": "./knora-ontologies/standoff-onto.ttl", "name": "http://www.knora.org/ontology/standoff"},
+            {"path": "./knora-ontologies/standoff-data.ttl", "name": "http://www.knora.org/data/standoff"},
+            {"path": "./knora-ontologies/salsah-gui.ttl", "name": "http://www.knora.org/ontology/salsah-gui"},
+            {"path": "./_test_data/all_data/admin-data.ttl", "name": "http://www.knora.org/data/admin"},
+            {"path": "./_test_data/all_data/permissions-data.ttl", "name": "http://www.knora.org/data/permissions"},
+            {"path": "./_test_data/all_data/system-data.ttl", "name": "http://www.knora.org/data/0000/SystemProject"},
         ]
         jsondata = json.dumps(rdfdata)
-        url = self._server + '/admin/store/ResetTriplestoreContent?prependdefaults=false'
+        url = self._server + "/admin/store/ResetTriplestoreContent?prependdefaults=false"
 
         response = requests.post(
-            url,
-            headers={'Content-Type': 'application/json; charset=UTF-8'},
-            data=jsondata
+            url, 
+            headers={"Content-Type": "application/json; charset=UTF-8"}, 
+            data=jsondata,
         )
         check_for_api_error(response)
         res = response.json()

@@ -8,13 +8,7 @@ from urllib.parse import quote_plus
 from dsp_tools.models.bitstream import Bitstream
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.helpers import (
-    Actions,
-    Cardinality,
-    Context,
-    DateTimeStamp,
-    OntoIri
-)
+from dsp_tools.models.helpers import Actions, Cardinality, Context, DateTimeStamp, OntoIri
 from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.model import Model
 from dsp_tools.models.ontology import Ontology
@@ -37,7 +31,7 @@ from dsp_tools.models.value import (
     TimeValue,
     UriValue,
     Value,
-    fromJsonLdObj
+    fromJsonLdObj,
 )
 
 
@@ -46,7 +40,7 @@ class KnoraStandoffXmlEncoder(json.JSONEncoder):
 
     def default(self, obj) -> str:
         if isinstance(obj, KnoraStandoffXml):
-            return '<?xml version="1.0" encoding="UTF-8"?>\n<text>' + str(obj) + '</text>'
+            return '<?xml version="1.0" encoding="UTF-8"?>\n<text>' + str(obj) + "</text>"
         elif isinstance(obj, OntoIri):
             return obj.iri + "#" if obj.hashtag else ""
         elif isinstance(obj, DateTimeStamp):
@@ -70,13 +64,13 @@ class ResourceInstance(Model):
     ROUTE: str = "/v2/resources"
 
     baseclasses_with_bitstream: set[str] = {
-        'StillImageRepresentation',
-        'AudioRepresentation',
-        'DocumentRepresentation',
-        'MovingImageRepresentation',
-        'ArchiveRepresentation',
-        'DDDRepresentation',
-        'TextRepresentation'
+        "StillImageRepresentation",
+        "AudioRepresentation",
+        "DocumentRepresentation",
+        "MovingImageRepresentation",
+        "ArchiveRepresentation",
+        "DDDRepresentation",
+        "TextRepresentation",
     }
     knora_properties: set[str] = {
         "knora-api:hasLinkTo",
@@ -88,7 +82,7 @@ class ResourceInstance(Model):
         "knora-api:isAnnotationOf",
         "knora-api:seqnum",
         "knora-api:isSequenceOf",
-        "knora-api:hasSequenceBounds"
+        "knora-api:hasSequenceBounds",
     }
     _iri: Optional[str]
     _ark: Optional[str]
@@ -100,19 +94,21 @@ class ResourceInstance(Model):
     _bitstream: Optional[Bitstream]
     _values: Optional[dict[Value, list[Value]]]
 
-    def __init__(self,
-                 con: Connection,
-                 iri: Optional[str] = None,
-                 ark: Optional[str] = None,
-                 version_ark: Optional[str] = None,
-                 creation_date: Optional[DateTimeStamp] = None,
-                 label: Optional[str] = None,
-                 permissions: Optional[Permissions] = None,
-                 user_permission: Optional[PermissionValue] = None,
-                 bitstream: Optional[str] = None,
-                 values: Optional[dict[
-                     str, Union[str, list[str], dict[str, str], list[dict[str, str]], Value, list[Value]]]] = None):
-
+    def __init__(
+        self,
+        con: Connection,
+        iri: Optional[str] = None,
+        ark: Optional[str] = None,
+        version_ark: Optional[str] = None,
+        creation_date: Optional[DateTimeStamp] = None,
+        label: Optional[str] = None,
+        permissions: Optional[Permissions] = None,
+        user_permission: Optional[PermissionValue] = None,
+        bitstream: Optional[str] = None,
+        values: Optional[
+            dict[str, Union[str, list[str], dict[str, str], list[dict[str, str]], Value, list[Value]]]
+        ] = None,
+    ):
         super().__init__(con)
         self._iri = iri
         self._ark = ark
@@ -123,9 +119,13 @@ class ResourceInstance(Model):
         self._user_permission = user_permission
 
         if self.baseclass in self.baseclasses_with_bitstream and bitstream is None:
-            raise BaseError(f"ERROR in resource with label '{self._label}': Baseclass '{self.baseclass}' requires a bitstream value")
+            raise BaseError(
+                f"ERROR in resource with label '{self._label}': Baseclass '{self.baseclass}' requires a bitstream value"
+            )
         if self.baseclass not in self.baseclasses_with_bitstream and bitstream:
-            raise BaseError(f"ERROR in resource with label '{self._label}': Baseclass '{self.baseclass}' does not allow a bitstream value")
+            raise BaseError(
+                f"ERROR in resource with label '{self._label}': Baseclass '{self.baseclass}' does not allow a bitstream value"
+            )
         if self.baseclass in self.baseclasses_with_bitstream and bitstream:
             self._bitstream = bitstream
         else:
@@ -153,12 +153,12 @@ class ResourceInstance(Model):
 
                             elif type(val) is dict:
                                 if value_type is ListValue:
-                                    val['lists'] = self.lists
+                                    val["lists"] = self.lists
                                 self._values[property_name].append(value_type(**val))
 
                             else:
                                 if value_type is ListValue:
-                                    val = {'value': val, 'lists': self.lists}
+                                    val = {"value": val, "lists": self.lists}
                                 self._values[property_name].append(value_type(val))
                     # property has one value
                     else:
@@ -167,12 +167,12 @@ class ResourceInstance(Model):
 
                         elif type(value) is dict:
                             if value_type is ListValue:
-                                value['lists'] = self.lists
+                                value["lists"] = self.lists
                             self._values[property_name] = value_type(**value)
 
                         else:
                             if value_type is ListValue:
-                                value = {'value': value, 'lists': self.lists}
+                                value = {"value": value, "lists": self.lists}
                                 self._values[property_name] = value_type(**value)
                             else:
                                 self._values[property_name] = value_type(value)
@@ -184,7 +184,9 @@ class ResourceInstance(Model):
 
             for property_name in values:
                 if property_name not in self.knora_properties and not self.properties.get(property_name):
-                    raise BaseError(f"ERROR in resource with label '{self._label}': Property '{property_name}' is not part of ontology")
+                    raise BaseError(
+                        f"ERROR in resource with label '{self._label}': Property '{property_name}' is not part of ontology"
+                    )
 
     def value(self, item) -> Optional[list[Value]]:
         if self._values.get(item):
@@ -218,14 +220,14 @@ class ResourceInstance(Model):
     def vark(self) -> str:
         return self._version_ark
 
-    def clone(self) -> 'ResourceInstance':
+    def clone(self) -> "ResourceInstance":
         return deepcopy(self)
 
-    def fromJsonLdObj(self, con: Connection, jsonld_obj: Any) -> 'ResourceInstance':
+    def fromJsonLdObj(self, con: Connection, jsonld_obj: Any) -> "ResourceInstance":
         newinstance = self.clone()
-        newinstance._iri = jsonld_obj.get('@id')
-        resclass = jsonld_obj.get('@type')
-        context = Context(jsonld_obj.get('@context'))
+        newinstance._iri = jsonld_obj.get("@id")
+        resclass = jsonld_obj.get("@type")
+        context = Context(jsonld_obj.get("@context"))
         newinstance._label = jsonld_obj.get("rdfs:label")
         newinstance._ark = Value.get_typed_value("knora-api:arkUrl", jsonld_obj)
         newinstance._version_ark = Value.get_typed_value("knora-api:versionArkUrl", jsonld_obj)
@@ -235,13 +237,21 @@ class ResourceInstance(Model):
         user = Value.get_typed_value("knora-api:attachedToUser", jsonld_obj)
         project = Value.get_typed_value("knora-api:attachedToProject", jsonld_obj)
         to_be_ignored = [
-            '@id', '@type', '@context', "rdfs:label", "knora-api:arkUrl", "knora-api:versionArkUrl",
-            "knora-api:creationDate", "knora-api:attachedToUser", "knora-api:attachedToProject",
-            "knora-api:hasPermissions", "knora-api:userHasPermission"
+            "@id",
+            "@type",
+            "@context",
+            "rdfs:label",
+            "knora-api:arkUrl",
+            "knora-api:versionArkUrl",
+            "knora-api:creationDate",
+            "knora-api:attachedToUser",
+            "knora-api:attachedToProject",
+            "knora-api:hasPermissions",
+            "knora-api:userHasPermission",
         ]
         if id is None:
             raise BaseError('Resource "id" is missing in JSON-LD from DSP-API')
-        type = jsonld_obj.get('@type')
+        type = jsonld_obj.get("@type")
         newinstance._values: dict[str, Union[Value, list[Value]]] = {}
         for key, obj in jsonld_obj.items():
             if key in to_be_ignored:
@@ -254,7 +264,7 @@ class ResourceInstance(Model):
                 else:
                     newinstance._values[key] = fromJsonLdObj(obj)
             except KeyError as kerr:
-                raise BaseError("Invalid data in JSON-LD: \"{}\" has value class \"{}\"!".format(key, obj.get("@type")))
+                raise BaseError('Invalid data in JSON-LD: "{}" has value class "{}"!'.format(key, obj.get("@type")))
         return newinstance
 
     def toJsonLdObj(self, action: Actions) -> Any:
@@ -262,41 +272,37 @@ class ResourceInstance(Model):
         if action == Actions.Create:
             # if a custom IRI is provided, use it
             if self._iri:
-                tmp['@id'] = self._iri
-            tmp['@type'] = self.classname
-            tmp["knora-api:attachedToProject"] = {
-                "@id": self.project
-            }
-            tmp['rdfs:label'] = self._label
+                tmp["@id"] = self._iri
+            tmp["@type"] = self.classname
+            tmp["knora-api:attachedToProject"] = {"@id": self.project}
+            tmp["rdfs:label"] = self._label
 
             if self._permissions:
                 tmp["knora-api:hasPermissions"] = self._permissions.toJsonLdObj()
 
             if self._bitstream:
-                bitstream_attributes = {
-                    "knora-api:fileValueHasFilename": self._bitstream["internal_file_name"]
-                }
+                bitstream_attributes = {"knora-api:fileValueHasFilename": self._bitstream["internal_file_name"]}
 
                 permissions = self._bitstream.get("permissions")
                 if permissions:
                     bitstream_attributes["knora-api:hasPermissions"] = permissions.toJsonLdObj()
 
-                if self.baseclass == 'StillImageRepresentation':
+                if self.baseclass == "StillImageRepresentation":
                     bitstream_attributes["@type"] = "knora-api:StillImageFileValue"
                     tmp["knora-api:hasStillImageFileValue"] = bitstream_attributes
-                elif self.baseclass == 'DocumentRepresentation':
+                elif self.baseclass == "DocumentRepresentation":
                     bitstream_attributes["@type"] = "knora-api:DocumentFileValue"
                     tmp["knora-api:hasDocumentFileValue"] = bitstream_attributes
-                elif self.baseclass == 'TextRepresentation':
+                elif self.baseclass == "TextRepresentation":
                     bitstream_attributes["@type"] = "knora-api:TextFileValue"
                     tmp["knora-api:hasTextFileValue"] = bitstream_attributes
-                elif self.baseclass == 'AudioRepresentation':
+                elif self.baseclass == "AudioRepresentation":
                     bitstream_attributes["@type"] = "knora-api:AudioFileValue"
                     tmp["knora-api:hasAudioFileValue"] = bitstream_attributes
-                elif self.baseclass == 'ArchiveRepresentation':
+                elif self.baseclass == "ArchiveRepresentation":
                     bitstream_attributes["@type"] = "knora-api:ArchiveFileValue"
                     tmp["knora-api:hasArchiveFileValue"] = bitstream_attributes
-                elif self.baseclass == 'MovingImageRepresentation':
+                elif self.baseclass == "MovingImageRepresentation":
                     bitstream_attributes["@type"] = "knora-api:MovingImageFileValue"
                     tmp["knora-api:hasMovingImageFileValue"] = bitstream_attributes
                 else:
@@ -306,39 +312,36 @@ class ResourceInstance(Model):
                 # if the property has several values
                 if type(value) is list:
                     if type(value[0]) is LinkValue:
-                        property_name += 'Value'
+                        property_name += "Value"
                     # append all values to that property
                     tmp[property_name] = []
                     for vt in value:
                         tmp[property_name].append(vt.toJsonLdObj(action))
                 # if property is a link
                 elif type(value) is LinkValue:
-                    property_name += 'Value'
+                    property_name += "Value"
                     tmp[property_name] = value.toJsonLdObj(action)
                 else:
                     tmp[property_name] = value.toJsonLdObj(action)
 
-            tmp['@context'] = self.context
+            tmp["@context"] = self.context
 
             if self._creation_date:
-                tmp['knora-api:creationDate'] = {
-                    '@type': 'xsd:dateTimeStamp',
-                    '@value': self._creation_date
-                }
+                tmp["knora-api:creationDate"] = {"@type": "xsd:dateTimeStamp", "@value": self._creation_date}
         return tmp
 
-    def create(self) -> 'ResourceInstance':
+    def create(self) -> "ResourceInstance":
         jsonobj = self.toJsonLdObj(Actions.Create)
-        jsondata = json.dumps(jsonobj, indent=4, separators=(',', ': '), cls=KnoraStandoffXmlEncoder)
+        jsondata = json.dumps(jsonobj, indent=4, separators=(",", ": "), cls=KnoraStandoffXmlEncoder)
         result = self._con.post(ResourceInstance.ROUTE, jsondata)
         newinstance = self.clone()
-        newinstance._iri = result['@id']
-        newinstance._ark = result['knora-api:arkUrl']['@value']
-        newinstance._version_ark = result['knora-api:versionArkUrl']['@value']
+        newinstance._iri = result["@id"]
+        newinstance._ark = result["knora-api:arkUrl"]["@value"]
+        newinstance._version_ark = result["knora-api:versionArkUrl"]["@value"]
         return newinstance
 
-    def read(self) -> 'ResourceInstance':
-        result = self._con.get(ResourceInstance.ROUTE + '/' + quote_plus(self._iri))
+    def read(self) -> "ResourceInstance":
+        result = self._con.get(ResourceInstance.ROUTE + "/" + quote_plus(self._iri))
         return self.fromJsonLdObj(con=self._con, jsonld_obj=result)
 
     def update(self):
@@ -348,19 +351,19 @@ class ResourceInstance(Model):
         pass
 
     def print(self):
-        print('IRI:', self._iri)
-        print('ARK:', self._ark)
-        print('Version ARK:', self._version_ark)
-        print('Label:', self._label)
-        print('Permissions:', str(self._permissions))
-        print('User permission:', str(self._user_permission))
+        print("IRI:", self._iri)
+        print("ARK:", self._ark)
+        print("Version ARK:", self._version_ark)
+        print("Label:", self._label)
+        print("Permissions:", str(self._permissions))
+        print("User permission:", str(self._user_permission))
         for name, val in self._values.items():
             if isinstance(val, list):
                 tmp = [str(x) for x in val]
-                print(name, ':', " | ".join(tmp))
+                print(name, ":", " | ".join(tmp))
                 pass
             else:
-                print(name, ':', str(val))
+                print(name, ":", str(val))
 
 
 class ResourceInstanceFactory:
@@ -402,7 +405,7 @@ class ResourceInstanceFactory:
             name = oparts[len(oparts) - 2]
             shortcode = oparts[len(oparts) - 3]
             self._ontologies[name] = Ontology.getOntologyFromServer(con=con, shortcode=shortcode, name=name)
-            self._properties.update({name + ':' + x.name: x for x in self._ontologies[name].property_classes})
+            self._properties.update({name + ":" + x.name: x for x in self._ontologies[name].property_classes})
             self._context.update(self._ontologies[name].context)
 
     @property
@@ -418,8 +421,8 @@ class ResourceInstanceFactory:
 
     def _get_baseclass(self, superclasses: list[str]) -> Union[str, None]:
         for sc in superclasses:
-            ontoname, classname = sc.split(':')
-            if ontoname == 'knora-api':
+            ontoname, classname = sc.split(":")
+            if ontoname == "knora-api":
                 return classname
             o = self._ontologies.get(ontoname)
             if o is None:
@@ -429,75 +432,88 @@ class ResourceInstanceFactory:
         return None
 
     def get_resclass_type(self, prefixedresclass: str) -> Type:
-        prefix, resclass_name = prefixedresclass.split(':')
+        prefix, resclass_name = prefixedresclass.split(":")
         resclass = [x for x in self._ontologies[prefix].resource_classes if x.name == resclass_name][0]
         baseclass = self._get_baseclass(resclass.superclasses)
         props: dict[str, Propinfo] = {}
         switcher = {
-            'knora-api:TextValue': TextValue,
-            'knora-api:ColorValue': ColorValue,
-            'knora-api:DateValue': DateValue,
-            'knora-api:DecimalValue': DecimalValue,
-            'knora-api:GeomValue': GeomValue,
-            'knora-api:GeonameValue': GeonameValue,
-            'knora-api:IntValue': IntValue,
-            'knora-api:BooleanValue': BooleanValue,
-            'knora-api:UriValue': UriValue,
-            'knora-api:TimeValue': TimeValue,
-            'knora-api:IntervalValue': IntervalValue,
-            'knora-api:ListValue': ListValue,
-            'knora-api:LinkValue': LinkValue,
+            "knora-api:TextValue": TextValue,
+            "knora-api:ColorValue": ColorValue,
+            "knora-api:DateValue": DateValue,
+            "knora-api:DecimalValue": DecimalValue,
+            "knora-api:GeomValue": GeomValue,
+            "knora-api:GeonameValue": GeonameValue,
+            "knora-api:IntValue": IntValue,
+            "knora-api:BooleanValue": BooleanValue,
+            "knora-api:UriValue": UriValue,
+            "knora-api:TimeValue": TimeValue,
+            "knora-api:IntervalValue": IntervalValue,
+            "knora-api:ListValue": ListValue,
+            "knora-api:LinkValue": LinkValue,
         }
         for propname, has_property in resclass.has_properties.items():
-            if propname in ["knora-api:isAnnotationOf", "knora-api:isRegionOf", "knora-api:isPartOf",
-                            "knora-api:hasLinkTo", "knora-api:isSequenceOf"]:
+            if propname in [
+                "knora-api:isAnnotationOf",
+                "knora-api:isRegionOf",
+                "knora-api:isPartOf",
+                "knora-api:hasLinkTo",
+                "knora-api:isSequenceOf",
+            ]:
                 valtype = LinkValue
-                props[propname] = Propinfo(valtype=valtype,
-                                           cardinality=has_property.cardinality,
-                                           gui_order=has_property.gui_order)
+                props[propname] = Propinfo(
+                    valtype=valtype, cardinality=has_property.cardinality, gui_order=has_property.gui_order
+                )
 
             elif propname == "knora-api:hasGeometry":
                 valtype = GeomValue
-                props[propname] = Propinfo(valtype=valtype,
-                                           cardinality=has_property.cardinality,
-                                           gui_order=has_property.gui_order)
+                props[propname] = Propinfo(
+                    valtype=valtype, cardinality=has_property.cardinality, gui_order=has_property.gui_order
+                )
             elif propname == "knora-api:hasColor":
                 valtype = ColorValue
-                props[propname] = Propinfo(valtype=valtype,
-                                           cardinality=has_property.cardinality,
-                                           gui_order=has_property.gui_order)
+                props[propname] = Propinfo(
+                    valtype=valtype, cardinality=has_property.cardinality, gui_order=has_property.gui_order
+                )
             elif propname == "knora-api:seqnum":
                 valtype = IntValue
-                props[propname] = Propinfo(valtype=valtype,
-                                           cardinality=has_property.cardinality,
-                                           gui_order=has_property.gui_order)
+                props[propname] = Propinfo(
+                    valtype=valtype, cardinality=has_property.cardinality, gui_order=has_property.gui_order
+                )
             elif propname == "knora-api:hasComment":
                 valtype = TextValue
-                props[propname] = Propinfo(valtype=valtype,
-                                           cardinality=has_property.cardinality,
-                                           gui_order=has_property.gui_order)
+                props[propname] = Propinfo(
+                    valtype=valtype, cardinality=has_property.cardinality, gui_order=has_property.gui_order
+                )
             elif propname == "knora-api:hasSequenceBounds":
                 valtype = IntervalValue
-                props[propname] = Propinfo(valtype=valtype,
-                                           cardinality=has_property.cardinality,
-                                           gui_order=has_property.gui_order)
+                props[propname] = Propinfo(
+                    valtype=valtype, cardinality=has_property.cardinality, gui_order=has_property.gui_order
+                )
             elif has_property.ptype == HasProperty.Ptype.other:
                 valtype = switcher.get(self._properties[propname].object)
                 if valtype == LinkValue:
                     continue  # we have the Link to the LinkValue which we do not use
                 if valtype is None:
                     valtype = LinkValue
-                    props[propname] = Propinfo(valtype=valtype,
-                                               cardinality=has_property.cardinality,
-                                               gui_order=has_property.gui_order,
-                                               attributes=self._properties[propname].object)
+                    props[propname] = Propinfo(
+                        valtype=valtype,
+                        cardinality=has_property.cardinality,
+                        gui_order=has_property.gui_order,
+                        attributes=self._properties[propname].object,
+                    )
                 else:
-                    props[propname] = Propinfo(valtype=valtype,
-                                               cardinality=has_property.cardinality,
-                                               gui_order=has_property.gui_order)
-        return type(resclass_name, (ResourceInstance,), {'project': self._project.id,
-                                                         'classname': prefixedresclass,
-                                                         'baseclass': baseclass,
-                                                         'context': self._context,
-                                                         'properties': props,
-                                                         'lists': self._lists})
+                    props[propname] = Propinfo(
+                        valtype=valtype, cardinality=has_property.cardinality, gui_order=has_property.gui_order
+                    )
+        return type(
+            resclass_name,
+            (ResourceInstance,),
+            {
+                "project": self._project.id,
+                "classname": prefixedresclass,
+                "baseclass": baseclass,
+                "context": self._context,
+                "properties": props,
+                "lists": self._lists,
+            },
+        )

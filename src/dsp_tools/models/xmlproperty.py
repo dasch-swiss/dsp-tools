@@ -23,16 +23,16 @@ class XMLProperty:
             default_ontology: the name of the ontology
         """
         # get the property name which is in format namespace:propertyname, p.ex. rosetta:hasName
-        tmp_prop_name = node.attrib['name'].split(':')
+        tmp_prop_name = node.attrib["name"].split(":")
         if len(tmp_prop_name) > 1:
             if tmp_prop_name[0]:
-                self._name = node.attrib['name']
+                self._name = node.attrib["name"]
             else:
                 # replace an empty namespace with the default ontology name
-                self._name = default_ontology + ':' + tmp_prop_name[1]
+                self._name = default_ontology + ":" + tmp_prop_name[1]
         else:
-            self._name = 'knora-api:' + tmp_prop_name[0]
-        listname = node.attrib.get('list')  # safe the list name if given (only for lists)
+            self._name = "knora-api:" + tmp_prop_name[0]
+        listname = node.attrib.get("list")  # safe the list name if given (only for lists)
         self._valtype = valtype
         self._values = []
 
@@ -60,6 +60,6 @@ class XMLProperty:
 
     def print(self) -> None:
         """Prints the property."""
-        print('  Property: {} Type: {}'.format(self._name, self._valtype))
+        print("  Property: {} Type: {}".format(self._name, self._valtype))
         for value in self._values:
             value.print()

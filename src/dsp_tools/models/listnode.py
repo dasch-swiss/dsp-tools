@@ -34,10 +34,7 @@ DELETE
 """
 
 
-def list_creator(con: Connection,
-                 project: Project,
-                 parent_node: 'ListNode',
-                 nodes: list[dict]) -> list['ListNode']:
+def list_creator(con: Connection, project: Project, parent_node: "ListNode", nodes: list[dict]) -> list["ListNode"]:
     nodelist: list[ListNode] = []
 
     for node in nodes:
@@ -47,11 +44,11 @@ def list_creator(con: Connection,
             label=node["labels"],
             comments=node.get("comments"),
             name=node["name"],
-            parent=parent_node
+            parent=parent_node,
         )
 
-        if node.get('nodes'):
-            new_node.children = list_creator(con, project, new_node, node['nodes'])
+        if node.get("nodes"):
+            new_node.children = list_creator(con, project, new_node, node["nodes"])
 
         nodelist.append(new_node)
 
@@ -138,20 +135,22 @@ class ListNode(Model):
     _name: Optional[str]
     _parent: Optional[str]
     _isRootNode: bool
-    _children: Optional[list['ListNode']]
+    _children: Optional[list["ListNode"]]
     _rootNodeIri: Optional[str]
 
-    def __init__(self,
-                 con: Connection,
-                 id: Optional[str] = None,
-                 project: Optional[Union[Project, str]] = None,
-                 label: Optional[LangString] = None,
-                 comments: Optional[LangString] = None,
-                 name: Optional[str] = None,
-                 parent: Optional[Union['ListNode', str]] = None,
-                 isRootNode: bool = False,
-                 children: Optional[list['ListNode']] = None,
-                 rootNodeIri: Optional[str] = None):
+    def __init__(
+        self,
+        con: Connection,
+        id: Optional[str] = None,
+        project: Optional[Union[Project, str]] = None,
+        label: Optional[LangString] = None,
+        comments: Optional[LangString] = None,
+        name: Optional[str] = None,
+        parent: Optional[Union["ListNode", str]] = None,
+        isRootNode: bool = False,
+        children: Optional[list["ListNode"]] = None,
+        rootNodeIri: Optional[str] = None,
+    ):
         """
         This is the constructor for the ListNode object. For
 
@@ -192,11 +191,11 @@ class ListNode(Model):
             if isinstance(children, list) and len(children) > 0 and isinstance(children[0], ListNode):
                 self._children = children
             else:
-                raise BaseError('ERROR Children must be list of ListNodes!')
+                raise BaseError("ERROR Children must be list of ListNodes!")
         else:
             self._children = None
         if not isinstance(rootNodeIri, str) and rootNodeIri:
-            raise BaseError('ERROR rootNodeIri must be of type string')
+            raise BaseError("ERROR rootNodeIri must be of type string")
         self._rootNodeIri = rootNodeIri
 
     @property
@@ -205,7 +204,7 @@ class ListNode(Model):
 
     @id.setter
     def id(self, value: str) -> None:
-        raise BaseError('ListNode id cannot be modified!')
+        raise BaseError("ListNode id cannot be modified!")
 
     @property
     def project(self) -> Optional[str]:
@@ -214,7 +213,7 @@ class ListNode(Model):
     @project.setter
     def project(self, value: str) -> None:
         if self._project:
-            raise BaseError('Project id cannot be modified!')
+            raise BaseError("Project id cannot be modified!")
         else:
             self._project = value
 
@@ -225,7 +224,7 @@ class ListNode(Model):
     @label.setter
     def label(self, value: Optional[Union[LangString, str]]) -> None:
         self._label = LangString(value)
-        self._changed.add('label')
+        self._changed.add("label")
 
     def addLabel(self, lang: Union[Languages, str], value: str) -> None:
         """
@@ -237,7 +236,7 @@ class ListNode(Model):
         """
 
         self._label[lang] = value
-        self._changed.add('label')
+        self._changed.add("label")
 
     def rmLabel(self, lang: Union[Languages, str]) -> None:
         """
@@ -247,7 +246,7 @@ class ListNode(Model):
         :return: None
         """
         del self._label[lang]
-        self._changed.add('label')
+        self._changed.add("label")
 
     @property
     def comments(self) -> LangString:
@@ -256,7 +255,7 @@ class ListNode(Model):
     @comments.setter
     def comments(self, value: Optional[Union[LangString, str]]) -> None:
         self._comments = LangString(value)
-        self._changed.add('comments')
+        self._changed.add("comments")
 
     def addComment(self, lang: Union[Languages, str], value: str) -> None:
         """
@@ -268,7 +267,7 @@ class ListNode(Model):
         """
 
         self._comments[lang] = value
-        self._changed.add('comments')
+        self._changed.add("comments")
 
     def rmComment(self, lang: Union[Languages, str]) -> None:
         """
@@ -278,7 +277,7 @@ class ListNode(Model):
         :return: None
         """
         del self._comments[lang]
-        self._changed.add('comments')
+        self._changed.add("comments")
 
     @property
     def name(self) -> Optional[str]:
@@ -287,14 +286,14 @@ class ListNode(Model):
     @name.setter
     def name(self, value: str) -> None:
         self._name = str(value)
-        self._changed.add('name')
+        self._changed.add("name")
 
     @property
     def parent(self) -> Optional[str]:
         return self._parent if self._parent else None
 
     @parent.setter
-    def parent(self, value: Union[str, 'ListNode']):
+    def parent(self, value: Union[str, "ListNode"]):
         if isinstance(value, ListNode):
             self._parent = value.id
         else:
@@ -306,21 +305,23 @@ class ListNode(Model):
 
     @isRootNode.setter
     def isRootNode(self, value: bool) -> None:
-        raise BaseError('Property isRootNode cannot be set!')
+        raise BaseError("Property isRootNode cannot be set!")
 
     @property
-    def children(self) -> list['ListNode']:
+    def children(self) -> list["ListNode"]:
         return self._children or []
 
     @children.setter
-    def children(self, value: list['ListNode']) -> None:
+    def children(self, value: list["ListNode"]) -> None:
         self._children = value
 
     @staticmethod
-    def __getChildren(con: Connection,
-                      parent_iri: str,
-                      project_iri: str,
-                      children: list[Any]) -> Optional[list['ListNode']]:
+    def __getChildren(
+        con: Connection, 
+        parent_iri: str, 
+        project_iri: str, 
+        children: list[Any],
+    ) -> Optional[list["ListNode"]]:
         """
         Internal method! Should not be used directly!
 
@@ -333,11 +334,10 @@ class ListNode(Model):
         if children:
             child_nodes: list[Any] = []
             for child in children:
-
-                if 'parentNodeIri' not in child:
-                    child['parentNodeIri'] = parent_iri
-                if 'projectIri' not in child:
-                    child['projectIri'] = project_iri
+                if "parentNodeIri" not in child:
+                    child["parentNodeIri"] = parent_iri
+                if "projectIri" not in child:
+                    child["projectIri"] = project_iri
                 child_node = ListNode.fromJsonObj(con, child)
                 child_nodes.append(child_node)
             return child_nodes
@@ -350,7 +350,7 @@ class ListNode(Model):
 
     @rootNodeIri.setter
     def rootNodeIri(self, value: str):
-        raise BaseError('rootNodeIri cannot be set!')
+        raise BaseError("rootNodeIri cannot be set!")
 
     def has_changed(self) -> bool:
         if self._changed:
@@ -370,38 +370,37 @@ class ListNode(Model):
         :return: ListNode instance
         """
 
-        id = json_obj.get('id')
+        id = json_obj.get("id")
         if id is None:
-            raise BaseError('ListNode id is missing')
-        project = json_obj.get('projectIri')
-        label = LangString.fromJsonObj(json_obj.get('labels'))
-        comments = LangString.fromJsonObj(json_obj.get('comments'))
-        if json_obj.get('name'):
-            name = json_obj['name']
+            raise BaseError("ListNode id is missing")
+        project = json_obj.get("projectIri")
+        label = LangString.fromJsonObj(json_obj.get("labels"))
+        comments = LangString.fromJsonObj(json_obj.get("comments"))
+        if json_obj.get("name"):
+            name = json_obj["name"]
         else:
-            name = id.rsplit('/', 1)[-1]
-        parent = json_obj.get('parentNodeIri')
-        isRootNode = json_obj.get('isRootNode')
+            name = id.rsplit("/", 1)[-1]
+        parent = json_obj.get("parentNodeIri")
+        isRootNode = json_obj.get("isRootNode")
 
-        child_info = json_obj.get('children')
+        child_info = json_obj.get("children")
         children = None
         if child_info:
-            children = ListNode.__getChildren(con=con,
-                                              parent_iri=id,
-                                              project_iri=project,
-                                              children=child_info)
-        rootNodeIri = json_obj.get('hasRootNode')
+            children = ListNode.__getChildren(con=con, parent_iri=id, project_iri=project, children=child_info)
+        rootNodeIri = json_obj.get("hasRootNode")
 
-        return cls(con=con,
-                   id=id,
-                   project=project,
-                   label=label,
-                   comments=comments,
-                   name=name,
-                   parent=parent,
-                   isRootNode=isRootNode,
-                   children=children,
-                   rootNodeIri=rootNodeIri)
+        return cls(
+            con=con,
+            id=id,
+            project=project,
+            label=label,
+            comments=comments,
+            name=name,
+            parent=parent,
+            isRootNode=isRootNode,
+            children=children,
+            rootNodeIri=rootNodeIri,
+        )
 
     def toJsonObj(self, action: Actions, listIri: str = None) -> Any:
         """
@@ -420,34 +419,34 @@ class ListNode(Model):
         if action == Actions.Create:
             if self._project is None:
                 raise BaseError("There must be a project id given!")
-            tmp['projectIri'] = self._project
+            tmp["projectIri"] = self._project
             if self._label.isEmpty():
                 raise BaseError("There must be a valid ListNode label!")
-            tmp['labels'] = self._label.toJsonObj()
+            tmp["labels"] = self._label.toJsonObj()
             if self._comments:
-                tmp['comments'] = self._comments.toJsonObj()
+                tmp["comments"] = self._comments.toJsonObj()
             if self._name:
-                tmp['name'] = self._name
+                tmp["name"] = self._name
             if self._parent:
-                tmp['parentNodeIri'] = self._parent
+                tmp["parentNodeIri"] = self._parent
 
         elif action == Actions.Update:
             if self.id is None:
                 raise BaseError("There must be a node id given!")
-            tmp['listIri'] = listIri
+            tmp["listIri"] = listIri
             if self._project is None:
                 raise BaseError("There must be a project id given!")
-            tmp['projectIri'] = self._project
-            if not self._label.isEmpty() and 'label' in self._changed:
-                tmp['labels'] = self._label.toJsonObj()
-            if not self._comments.isEmpty() and 'comments' in self._changed:
-                tmp['comments'] = self._comments.toJsonObj()
-            if self._name and 'name' in self._changed:
-                tmp['name'] = self._name
+            tmp["projectIri"] = self._project
+            if not self._label.isEmpty() and "label" in self._changed:
+                tmp["labels"] = self._label.toJsonObj()
+            if not self._comments.isEmpty() and "comments" in self._changed:
+                tmp["comments"] = self._comments.toJsonObj()
+            if self._name and "name" in self._changed:
+                tmp["name"] = self._name
 
         return tmp
 
-    def create(self) -> 'ListNode':
+    def create(self) -> "ListNode":
         """
         Create a new List
 
@@ -458,10 +457,10 @@ class ListNode(Model):
         jsondata = json.dumps(jsonobj, cls=SetEncoder)
         if self._parent:
             result = self._con.post(ListNode.ROUTE_SLASH + quote_plus(self._parent), jsondata)
-            return ListNode.fromJsonObj(self._con, result['nodeinfo'])
+            return ListNode.fromJsonObj(self._con, result["nodeinfo"])
         else:
             result = self._con.post(ListNode.ROUTE, jsondata)
-            return ListNode.fromJsonObj(self._con, result['list']['listinfo'])
+            return ListNode.fromJsonObj(self._con, result["list"]["listinfo"])
 
     def read(self) -> Any:
         """
@@ -470,11 +469,11 @@ class ListNode(Model):
         :return: JSON-object from DSP-API
         """
 
-        result = self._con.get(ListNode.ROUTE_SLASH + 'nodes/' + quote_plus(self._id))
-        if result.get('nodeinfo'):
-            return self.fromJsonObj(self._con, result['nodeinfo'])
-        elif result.get('listinfo'):
-            return self.fromJsonObj(self._con, result['listinfo'])
+        result = self._con.get(ListNode.ROUTE_SLASH + "nodes/" + quote_plus(self._id))
+        if result.get("nodeinfo"):
+            return self.fromJsonObj(self._con, result["nodeinfo"])
+        elif result.get("listinfo"):
+            return self.fromJsonObj(self._con, result["listinfo"])
         else:
             return None
 
@@ -490,7 +489,7 @@ class ListNode(Model):
             jsondata = json.dumps(jsonobj, cls=SetEncoder)
             result = self._con.put(ListNode.ROUTE_SLASH + quote_plus(self.id), jsondata)
             pprint(result)
-            return ListNode.fromJsonObj(self._con, result['listinfo'])
+            return ListNode.fromJsonObj(self._con, result["listinfo"])
         else:
             return None
 
@@ -505,7 +504,7 @@ class ListNode(Model):
         return result
         # return Project.fromJsonObj(self.con, result['project'])
 
-    def getAllNodes(self) -> 'ListNode':
+    def getAllNodes(self) -> "ListNode":
         """
         Get all nodes of the list. Must be called from a ListNode instance that has at least set the
         list iri!
@@ -514,20 +513,19 @@ class ListNode(Model):
         """
 
         result = self._con.get(ListNode.ROUTE_SLASH + quote_plus(self._id))
-        if 'list' not in result:
+        if "list" not in result:
             raise BaseError("Request got no list!")
-        if 'listinfo' not in result['list']:
+        if "listinfo" not in result["list"]:
             raise BaseError("Request got no proper list information!")
-        root = ListNode.fromJsonObj(self._con, result['list']['listinfo'])
-        if 'children' in result['list']:
-            root._children = ListNode.__getChildren(con=self._con,
-                                                    parent_iri=root.id,
-                                                    project_iri=root.project,
-                                                    children=result['list']['children'])
+        root = ListNode.fromJsonObj(self._con, result["list"]["listinfo"])
+        if "children" in result["list"]:
+            root._children = ListNode.__getChildren(
+                con=self._con, parent_iri=root.id, project_iri=root.project, children=result["list"]["children"]
+            )
         return root
 
     @staticmethod
-    def getAllLists(con: Connection, project_iri: Optional[str] = None) -> list['ListNode']:
+    def getAllLists(con: Connection, project_iri: Optional[str] = None) -> list["ListNode"]:
         """
         Get all lists. If a project IRI is given, it returns the lists of the specified project
 
@@ -538,10 +536,10 @@ class ListNode(Model):
         if project_iri is None:
             result = con.get(ListNode.ROUTE)
         else:
-            result = con.get(ListNode.ROUTE + '?projectIri=' + quote_plus(project_iri))
-        if 'lists' not in result:
+            result = con.get(ListNode.ROUTE + "?projectIri=" + quote_plus(project_iri))
+        if "lists" not in result:
             raise BaseError("Request got no lists!")
-        return list(map(lambda a: ListNode.fromJsonObj(con, a), result['lists']))
+        return list(map(lambda a: ListNode.fromJsonObj(con, a), result["lists"]))
 
     def _createDefinitionFileObj(self, children: list["ListNode"]):
         """
@@ -565,7 +563,7 @@ class ListNode(Model):
         return listnodeobjs
 
     @staticmethod
-    def readDefinitionFileObj(con: Connection, project: Project, rootnode: Any) -> 'ListNode':
+    def readDefinitionFileObj(con: Connection, project: Project, rootnode: Any) -> "ListNode":
         """
         Reads a JSON obj that corresponds to the syntax of the input to "create_onto".
 
@@ -576,13 +574,9 @@ class ListNode(Model):
         :return: an instance of ListNode corresponding to the root node
         """
         root_list_node = ListNode(
-            con=con,
-            project=project,
-            label=rootnode['labels'],
-            comments=rootnode.get('comments'),
-            name=rootnode['name']
+            con=con, project=project, label=rootnode["labels"], comments=rootnode.get("comments"), name=rootnode["name"]
         )
-        listnodes = list_creator(con, project, root_list_node, rootnode.get('nodes'))
+        listnodes = list_creator(con, project, root_list_node, rootnode.get("nodes"))
         root_list_node.children = listnodes
         return root_list_node
 
@@ -608,21 +602,21 @@ class ListNode(Model):
         :return: None
         """
 
-        print('Node Info:')
-        print('  Id:        {}'.format(self._id))
-        print('  Project:   {}'.format(self._project))
-        print('  Name:      {}'.format(self._name))
-        print('  Label:     ')
+        print("Node Info:")
+        print("  Id:        {}".format(self._id))
+        print("  Project:   {}".format(self._project))
+        print("  Name:      {}".format(self._name))
+        print("  Label:     ")
         if self._label:
             for lbl in self._label.items():
-                print('             {}: {}'.format(lbl[0], lbl[1]))
+                print("             {}: {}".format(lbl[0], lbl[1]))
         else:
-            print('             None')
-        print('  Comments:   ')
+            print("             None")
+        print("  Comments:   ")
         if self._comments.isEmpty():
             for lbl in self._comments.items():
-                print('             {}: {}'.format(lbl[0], lbl[1]))
+                print("             {}: {}".format(lbl[0], lbl[1]))
         else:
-            print('             None')
-        print('  Parent', self._parent)
-        print('  IsRootNode: {}'.format(self._isRootNode))
+            print("             None")
+        print("  Parent", self._parent)
+        print("  IsRootNode: {}".format(self._isRootNode))

@@ -9,7 +9,7 @@ class XMLBitstream:
 
     def __init__(self, node: etree.Element) -> None:
         self._value = node.text
-        self._permissions = node.get('permissions')
+        self._permissions = node.get("permissions")
 
     @property
     def value(self) -> str:
@@ -23,4 +23,4 @@ class XMLBitstream:
 
     def print(self) -> None:
         """Prints the bitstream object and its attributes."""
-        print('   Bitstream file path: ' + str(self._value))
+        print("   Bitstream file path: " + str(self._value))

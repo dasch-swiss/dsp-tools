@@ -17,17 +17,17 @@ class PermissionValue(Enum):
             2: 'V',
             4: 'M',
             8: 'D',
-            16: 'CR'
+            16: 'CR',
         }
         return tmp[self.value]
 
 
 class PermissionsIterator:
-    _permissions: 'Permissions'
+    _permissions: "Permissions"
     _group: list[str]
     _index: int
 
-    def __init__(self, permissions: 'Permissions'):
+    def __init__(self, permissions: "Permissions"):
         self._permissions = permissions
         self._index = 0
 
@@ -45,8 +45,7 @@ class PermissionsIterator:
 class Permissions:
     _permissions: Union[dict[PermissionValue, list[str]], None]
 
-    def __init__(self,
-                 permissions: Optional[dict[PermissionValue, list[str]]] = None):
+    def __init__(self, permissions: Optional[dict[PermissionValue, list[str]]] = None):
         if permissions is None:
             self._permissions = {}
         else:
@@ -71,11 +70,11 @@ class Permissions:
         return key in self._permissions
 
     def __str__(self):
-        tmpstr = ''
+        tmpstr = ""
         for permission, groups in self._permissions.items():
             if tmpstr:
-                tmpstr += '|'
-            tmpstr += str(permission) + ' ' + ",".join(groups)
+                tmpstr += "|"
+            tmpstr += str(permission) + " " + ",".join(groups)
         return tmpstr
 
     def add(self, key: PermissionValue, val: str):
@@ -85,16 +84,16 @@ class Permissions:
             self._permissions[key].append(val)
 
     def toJsonLdObj(self):
-        tmpstr = ''
+        tmpstr = ""
         for permission, groups in self._permissions.items():
             if tmpstr:
-                tmpstr += '|'
-            tmpstr += str(permission) + ' ' + ",".join(groups)
+                tmpstr += "|"
+            tmpstr += str(permission) + " " + ",".join(groups)
         return tmpstr
 
     @classmethod
     def fromString(cls, permstr: str):
-        tmpstr = permstr.split('|')
+        tmpstr = permstr.split("|")
         permissions: dict[PermissionValue, list[str]] = {}
         for s in tmpstr:
             key, *vals = re.split("[\\s,]+", s)

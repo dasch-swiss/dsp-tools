@@ -33,6 +33,7 @@ class PropertyElement:
                     </text>
                 </text-prop>
     """
+
     value: Union[str, int, float, bool]
     permissions: str = "prop-default"
     comment: Optional[str] = None

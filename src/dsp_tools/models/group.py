@@ -79,14 +79,16 @@ class Group(Model):
     _selfjoin: bool
     _status: bool
 
-    def __init__(self,
-                 con: Connection,
-                 id: Optional[str] = None,
-                 name: Optional[str] = None,
-                 descriptions: Optional[LangString] = None,
-                 project: Optional[Union[str, Project]] = None,
-                 selfjoin: Optional[bool] = None,
-                 status: Optional[bool] = None):
+    def __init__(
+        self,
+        con: Connection,
+        id: Optional[str] = None,
+        name: Optional[str] = None,
+        descriptions: Optional[LangString] = None,
+        project: Optional[Union[str, Project]] = None,
+        selfjoin: Optional[bool] = None,
+        status: Optional[bool] = None,
+    ):
         super().__init__(con)
         self._id = str(id) if id is not None else None
         self._name = str(name) if name is not None else None
@@ -104,7 +106,7 @@ class Group(Model):
 
     @id.setter
     def id(self, value: str) -> None:
-        raise BaseError('Group id cannot be modified!')
+        raise BaseError("Group id cannot be modified!")
 
     @property
     def name(self) -> Optional[str]:
@@ -113,7 +115,7 @@ class Group(Model):
     @name.setter
     def name(self, value: str):
         self._name = value
-        self._changed.add('name')
+        self._changed.add("name")
 
     @property
     def descriptions(self) -> LangString:
@@ -122,7 +124,7 @@ class Group(Model):
     @descriptions.setter
     def descriptions(self, value: Optional[LangString]) -> None:
         self._descriptions = LangString(value)
-        self._changed.add('descriptions')
+        self._changed.add("descriptions")
 
     @property
     def project(self):
@@ -130,7 +132,7 @@ class Group(Model):
 
     @project.setter
     def project(self, value: str):
-        raise BaseError('project id cannot be modified!')
+        raise BaseError("project id cannot be modified!")
 
     @property
     def selfjoin(self) -> bool:
@@ -139,7 +141,7 @@ class Group(Model):
     @selfjoin.setter
     def selfjoin(self, value: bool) -> None:
         self._selfjoin = value
-        self._changed.add('selfjoin')
+        self._changed.add("selfjoin")
 
     @property
     def status(self) -> bool:
@@ -148,7 +150,7 @@ class Group(Model):
     @status.setter
     def status(self, value: bool) -> None:
         self._status = value
-        self._changed.add('status')
+        self._changed.add("status")
 
     def has_changed(self) -> bool:
         if self._changed:
@@ -158,68 +160,70 @@ class Group(Model):
 
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any):
-        group_id = json_obj.get('id')
+        group_id = json_obj.get("id")
         if group_id is None:
             raise BaseError('Group "id" is missing')
-        name = json_obj.get('name')
+        name = json_obj.get("name")
         if name is None:
             raise BaseError('Group "name" is missing')
-        descriptions = LangString.fromJsonObj(json_obj.get('descriptions'))
-        tmp = json_obj.get('project')
+        descriptions = LangString.fromJsonObj(json_obj.get("descriptions"))
+        tmp = json_obj.get("project")
         if tmp is None:
             raise BaseError('Group "project" is missing')
-        project = tmp.get('id')
+        project = tmp.get("id")
         if project is None:
             raise BaseError('Group "project" has no "id"')
-        selfjoin = json_obj.get('selfjoin')
+        selfjoin = json_obj.get("selfjoin")
         if selfjoin is None:
             raise BaseError("selfjoin is missing")
-        status = json_obj.get('status')
+        status = json_obj.get("status")
         if status is None:
             raise BaseError("Status is missing")
-        return cls(con=con,
-                   name=name,
-                   id=group_id,
-                   descriptions=descriptions,
-                   project=project,
-                   selfjoin=selfjoin,
-                   status=status)
+        return cls(
+            con=con,
+            name=name,
+            id=group_id,
+            descriptions=descriptions,
+            project=project,
+            selfjoin=selfjoin,
+            status=status,
+        )
 
     def toJsonObj(self, action: Actions):
         tmp = {}
         if action == Actions.Create:
             if self._name is None:
                 raise BaseError("There must be a valid name!")
-            tmp['name'] = self._name
+            tmp["name"] = self._name
             if not self._descriptions.isEmpty():
-                tmp['descriptions'] = self._descriptions.toJsonObj()
+                tmp["descriptions"] = self._descriptions.toJsonObj()
             if self._project is None:
                 raise BaseError("There must be a valid project!")
-            tmp['project'] = self._project
+            tmp["project"] = self._project
             if self._selfjoin is None:
                 raise BaseError("There must be a valid value for selfjoin!")
-            tmp['selfjoin'] = self._selfjoin
+            tmp["selfjoin"] = self._selfjoin
             if self._status is None:
                 raise BaseError("There must be a valid value for status!")
-            tmp['status'] = self._status
+            tmp["status"] = self._status
         else:
-            if self._name is not None and 'name' in self._changed:
-                tmp['name'] = self._name
-            if not self._descriptions.isEmpty() and 'descriptions' in self._changed:
-                tmp['descriptions'] = self._descriptions.toJsonObj()
-            if self._selfjoin is not None and 'selfjoin' in self._changed:
-                tmp['selfjoin'] = self._selfjoin
+            if self._name is not None and "name" in self._changed:
+                tmp["name"] = self._name
+            if not self._descriptions.isEmpty() and "descriptions" in self._changed:
+                tmp["descriptions"] = self._descriptions.toJsonObj()
+            if self._selfjoin is not None and "selfjoin" in self._changed:
+                tmp["selfjoin"] = self._selfjoin
         return tmp
 
     def create(self) -> Group:
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj)
         result = self._con.post(Group.ROUTE, jsondata)
-        return Group.fromJsonObj(self._con, result['group'])
+        return Group.fromJsonObj(self._con, result["group"])
 
     def read(self) -> Group:
         result = self._con.get(Group.ROUTE_SLASH + quote_plus(self._id))
-        return Group.fromJsonObj(self._con, result['group'])
+        return Group.fromJsonObj(self._con, result["group"])
 
     def update(self) -> Optional[Group]:
         updated_group = None
@@ -227,16 +231,16 @@ class Group(Model):
         if jsonobj:
             jsondata = json.dumps(jsonobj)
             result = self._con.put(Group.ROUTE_SLASH + quote_plus(self._id), jsondata)
-            updated_group = Group.fromJsonObj(self._con, result['group'])
-        if self._status is not None and 'status' in self._changed:
-            jsondata = json.dumps({'status': self._status})
-            result = self._con.put(Group.ROUTE_SLASH + quote_plus(self._id) + '/status', jsondata)
-            updated_group = Group.fromJsonObj(self._con, result['group'])
+            updated_group = Group.fromJsonObj(self._con, result["group"])
+        if self._status is not None and "status" in self._changed:
+            jsondata = json.dumps({"status": self._status})
+            result = self._con.put(Group.ROUTE_SLASH + quote_plus(self._id) + "/status", jsondata)
+            updated_group = Group.fromJsonObj(self._con, result["group"])
         return updated_group
 
     def delete(self) -> Group:
         result = self._con.delete(Group.ROUTE_SLASH + quote_plus(self._id))
-        return Group.fromJsonObj(self._con, result['group'])
+        return Group.fromJsonObj(self._con, result["group"])
 
     @staticmethod
     def getAllGroups(con: Connection) -> list[Group]:
@@ -252,20 +256,20 @@ class Group(Model):
             "name": self.name,
             "descriptions": self.descriptions.createDefinitionFileObj(),
             "selfjoin": self.selfjoin,
-            "status": self.status
+            "status": self.status,
         }
         return group
 
     def print(self) -> None:
-        print('Group Info:')
-        print('  Id:          {}'.format(self._id))
-        print('  Name:        {}'.format(self._name))
+        print("Group Info:")
+        print("  Id:          {}".format(self._id))
+        print("  Name:        {}".format(self._name))
         if self._descriptions is not None:
-            print('  Descriptions:')
+            print("  Descriptions:")
             for descr in self._descriptions.items():
-                print('    {}: {}'.format(descr[0], descr[1]))
+                print("    {}: {}".format(descr[0], descr[1]))
         else:
-            print('  Descriptions: None')
-        print('  Project:     {}'.format(self._project))
-        print('  Selfjoin:    {}'.format(self._selfjoin))
-        print('  Status:      {}'.format(self._status))
+            print("  Descriptions: None")
+        print("  Project:     {}".format(self._project))
+        print("  Selfjoin:    {}".format(self._selfjoin))
+        print("  Status:      {}".format(self._status))

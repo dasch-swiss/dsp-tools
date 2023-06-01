@@ -34,34 +34,34 @@ class XMLResource:
         Returns:
             None
         """
-        self._id = node.attrib['id']
-        self._iri = node.attrib.get('iri')
-        self._ark = node.attrib.get('ark')
+        self._id = node.attrib["id"]
+        self._iri = node.attrib.get("iri")
+        self._ark = node.attrib.get("ark")
         self._creation_date = None
-        if node.attrib.get('creation_date'):
-            self._creation_date = DateTimeStamp(node.attrib.get('creation_date'))
-        self._label = node.attrib['label']
+        if node.attrib.get("creation_date"):
+            self._creation_date = DateTimeStamp(node.attrib.get("creation_date"))
+        self._label = node.attrib["label"]
         # get the resource type which is in format namespace:resourcetype, p.ex. rosetta:Image
-        tmp_res_type = node.attrib['restype'].split(':')
+        tmp_res_type = node.attrib["restype"].split(":")
         if len(tmp_res_type) > 1:
             if tmp_res_type[0]:
-                self._restype = node.attrib['restype']
+                self._restype = node.attrib["restype"]
             else:
                 # replace an empty namespace with the default ontology name
-                self._restype = default_ontology + ':' + tmp_res_type[1]
+                self._restype = default_ontology + ":" + tmp_res_type[1]
         else:
-            self._restype = 'knora-api:' + tmp_res_type[0]
+            self._restype = "knora-api:" + tmp_res_type[0]
         self._permissions = node.attrib.get("permissions")
         self._bitstream = None
         self._properties = []
         for subnode in node:
             if subnode.tag is etree.Comment:
                 continue
-            elif subnode.tag == 'bitstream':
+            elif subnode.tag == "bitstream":
                 self._bitstream = XMLBitstream(subnode)
             else:
                 # get the property type which is in format type-prop, p.ex. <decimal-prop>
-                prop_type, _ = subnode.tag.split('-')
+                prop_type, _ = subnode.tag.split("-")
                 self._properties.append(XMLProperty(subnode, prop_type, default_ontology))
 
     @property
@@ -114,9 +114,9 @@ class XMLResource:
 
     def print(self) -> None:
         """Prints the resource and its attributes."""
-        print(f'Resource: id={self._id}, restype: {self._restype}, label: {self._label}')
+        print(f"Resource: id={self._id}, restype: {self._restype}, label: {self._label}")
         if self._bitstream:
-            print('  Bitstream: ' + self._bitstream.value)
+            print("  Bitstream: " + self._bitstream.value)
         for prop in self._properties:
             prop.print()
 
@@ -127,9 +127,9 @@ class XMLResource:
         """
         link_properties: list[XMLProperty] = []
         for prop in self._properties:
-            if prop.valtype == 'resptr':
+            if prop.valtype == "resptr":
                 link_properties.append(prop)
-            elif prop.valtype == 'text':
+            elif prop.valtype == "text":
                 for value in prop.values:
                     if value.resrefs:
                         link_properties.append(prop)
@@ -145,10 +145,10 @@ class XMLResource:
         """
         resptrs: list[str] = []
         for prop in self._properties:
-            if prop.valtype == 'resptr':
+            if prop.valtype == "resptr":
                 for value in prop.values:
                     resptrs.append(str(value.value))
-            elif prop.valtype == 'text':
+            elif prop.valtype == "text":
                 for value in prop.values:
                     if value.resrefs:
                         resptrs.extend(value.resrefs)
@@ -157,7 +157,7 @@ class XMLResource:
     def get_propvals(
         self,
         resiri_lookup: dict[str, str],
-        permissions_lookup: dict[str, Permissions]
+        permissions_lookup: dict[str, Permissions],
     ) -> dict[str, Union[list[Union[str, dict[str, str]]], str, dict[str, str]]]:
         """
         Get a dictionary of the property names and their values. Replace the internal ids by their IRI first.
@@ -174,21 +174,23 @@ class XMLResource:
         for prop in self._properties:
             vals: list[Union[str, dict[str, str]]] = []
             for value in prop.values:
-                if prop.valtype == 'resptr':  # we have a resptr, therefore simple lookup or IRI
+                if prop.valtype == "resptr":  # we have a resptr, therefore simple lookup or IRI
                     iri = resiri_lookup.get(value.value)
                     if iri:
                         v = iri
                     else:
                         v = value.value  # if we do not find the id, we assume it's a valid DSP IRI
-                elif prop.valtype == 'text':
+                elif prop.valtype == "text":
                     if isinstance(value.value, KnoraStandoffXml):
                         iri_refs = value.value.get_all_iris()
                         for iri_ref in iri_refs:
-                            res_id = iri_ref.split(':')[1]
+                            res_id = iri_ref.split(":")[1]
                             iri = resiri_lookup.get(res_id)
                             if not iri:
-                                raise BaseError(f'Resource cannot be created, because it contains a salsah-Link to '
-                                                f'the following invalid resource: {res_id}.')
+                                raise BaseError(
+                                    f"Resource cannot be created, because it contains a salsah-Link to "
+                                    f"the following invalid resource: {res_id}."
+                                )
                             value.value.replace(iri_ref, iri)
                     v = value.value
                 else:
@@ -199,16 +201,18 @@ class XMLResource:
                     vals.append(v)
                 else:
                     # we have comment or permissions
-                    tmp = {'value': v}
+                    tmp = {"value": v}
                     if value.comment:
-                        tmp['comment'] = value.comment
+                        tmp["comment"] = value.comment
                     if value.permissions:
-                        tmp['permissions'] = permissions_lookup.get(value.permissions)
+                        tmp["permissions"] = permissions_lookup.get(value.permissions)
                     vals.append(tmp)
             prop_data[prop.name] = vals if len(vals) > 1 else vals[0]
         return prop_data
 
-    def get_bitstream(self, internal_file_name_bitstream: str, permissions_lookup: dict[str, Permissions]) -> Optional[dict[str, Union[str, Permissions]]]:
+    def get_bitstream(
+        self, internal_file_name_bitstream: str, permissions_lookup: dict[str, Permissions]
+    ) -> Optional[dict[str, Union[str, Permissions]]]:
         """
         Get the bitstream object belonging to the resource
 
@@ -222,7 +226,7 @@ class XMLResource:
         tmp = None
         if self._bitstream:
             bitstream = self._bitstream
-            tmp = {'value': bitstream.value, 'internal_file_name': internal_file_name_bitstream}
+            tmp = {"value": bitstream.value, "internal_file_name": internal_file_name_bitstream}
             if bitstream.permissions:
-                tmp['permissions'] = permissions_lookup.get(bitstream.permissions)
+                tmp["permissions"] = permissions_lookup.get(bitstream.permissions)
         return tmp

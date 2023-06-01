@@ -5,7 +5,7 @@ version: '3.7'
 services:
 
   app:
-    image: daschswiss/dsp-app:v10.19.1  # on the verge of every deployment (fortnightly),
+    image: daschswiss/dsp-app:v10.20.1  # on the verge of every deployment (fortnightly),
                                         # take the tag of https://hub.docker.com/r/daschswiss/dsp-app/tags
                                         # that corresponds to the version on https://admin.staging.dasch.swiss/help
                                         # (see also https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json)
@@ -27,7 +27,7 @@ services:
       - JVM_ARGS=-Xmx3G
 
   sipi:
-    image: daschswiss/knora-sipi:28.2.0  # on the verge of every deployment (fortnightly), take the same tag as DSP-API
+    image: daschswiss/knora-sipi:28.3.0  # on the verge of every deployment (fortnightly), take the same tag as DSP-API
     ports:
       - "1024:1024"
     volumes:
@@ -46,7 +46,7 @@ services:
     command: --config=/docker/sipi.docker-config.lua
 
   api:
-    image: daschswiss/knora-api:28.2.0  # on the verge of every deployment (fortnightly),
+    image: daschswiss/knora-api:28.3.0  # on the verge of every deployment (fortnightly),
                                         # take the tag of https://hub.docker.com/r/daschswiss/knora-api/tags
                                         # that corresponds to the version on https://admin.staging.dasch.swiss/help
                                         # (see also https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json)

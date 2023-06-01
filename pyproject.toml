@@ -80,6 +80,10 @@ exclude = [
 ]
 
 
+[tool.black]
+line-length = 120
+
+
 [tool.pylint.MASTER]
 ignore-paths = ["src/dsp_tools/models/.*$"] # TODO: activate this
 suggestion-mode = true
@@ -117,8 +121,4 @@ disable = [
     "too-many-nested-blocks",              # TODO: activate this
     "too-many-return-statements",          # TODO: activate this
     "too-many-statements",                 # TODO: activate this
-    "consider-using-f-string",             # in excel2xml, strings with {} in it must be formatted
 ]
-
-[tool.black]
-line-length = 120

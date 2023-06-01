@@ -303,9 +303,9 @@ def _convert_file_with_sipi(
     Args:
         in_file_local_path: path to input file
         input_dir: the directory where the input files are located
-        out_file_local_path: path to output file, 
+        out_file_local_path: path to output file,
             e.g. tmp/in/te/internal_file_name.jp2 if the internal filename is "internal_file_name"
-        output_dir: the directory where the processed files are written to, 
+        output_dir: the directory where the processed files are written to,
             e.g. tmp/in/te/ if the internal filename is "internal_file_name"
     """
     original_output_dir = output_dir.parent.parent
@@ -335,7 +335,7 @@ def _create_orig_file(
     Args:
         in_file: the input file from which the .orig should be created
         internal_file_name: the internal filename which should be used for the .orig file
-        out_dir: the directory where the .orig file should be written to, 
+        out_dir: the directory where the .orig file should be written to,
             e.g. tmp/in/te/ if the internal filename is "internal_file_name"
     """
     orig_ext = PurePath(in_file).suffix
@@ -619,7 +619,7 @@ def _process_other_file(
     Args:
         in_file: the input file that should be processed
         internal_filename: the internal filename that should be used for the output file
-        out_dir: the output directory where the processed file should be written to, 
+        out_dir: the output directory where the processed file should be written to,
             e.g. tmp/in/te/ if the internal filename is "internal_file_name"
 
     Returns:
@@ -656,7 +656,7 @@ def _process_image_file(
     Args:
         in_file: the input file that should be processed
         internal_filename: the internal filename that should be used for the output file
-        out_dir: the output directory where the processed file should be written to, 
+        out_dir: the output directory where the processed file should be written to,
             e.g. tmp/in/te/ if the internal filename is "internal_file_name"
         input_dir: root directory of the input files
 
@@ -697,7 +697,7 @@ def _process_video_file(
     Args:
         in_file: the input file that should be processed
         internal_filename: the internal filename that should be used for the output file
-        out_dir: the output directory where the processed file should be written to, 
+        out_dir: the output directory where the processed file should be written to,
             e.g. tmp/in/te/ if the internal filename is "internal_file_name"
 
     Returns:

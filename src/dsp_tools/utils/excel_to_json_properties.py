@@ -145,7 +145,7 @@ def excel2properties(
         BaseError if something went wrong
 
     Returns:
-        a tuple consisting of the "properties" section as Python list, 
+        a tuple consisting of the "properties" section as Python list,
             and the success status (True if everything went well)
     """
 

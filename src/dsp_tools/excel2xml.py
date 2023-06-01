@@ -1,3 +1,5 @@
+# pylint: disable=line-too-long
+
 from __future__ import annotations
 
 import dataclasses
@@ -1206,9 +1208,9 @@ def make_text_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Raises:
-        BaseError: if one of the values is not a valid string, 
+        BaseError: if one of the values is not a valid string,
             or if the XML tags in a richtext property (encoding=xml) are not well-formed
-        Warning: if one of the values doesn't look like a reasonable string 
+        Warning: if one of the values doesn't look like a reasonable string
             (e.g. "<NA>" is a valid string, but probably not intended)
 
     Returns:
@@ -1663,10 +1665,10 @@ def create_json_excel_list_mapping(
             ]
         >>> excel_row_1 = ["Giraffeeh ", " Antiloupe", "Girraffe , Antiloupe "]
         >>> json_excel_list_mapping = {
-                "Giraffeeh": "giraffe", 
-                "giraffeeh": "giraffe", 
-                "Girraffe": "giraffe", 
-                "girraffe": "giraffe", 
+                "Giraffeeh": "giraffe",
+                "giraffeeh": "giraffe",
+                "Girraffe": "giraffe",
+                "girraffe": "giraffe",
                 "Antiloupe": "antelope",
                 "antiloupe": "antelope"
             }
@@ -1894,7 +1896,7 @@ def _convert_rows_to_xml(
         max_num_of_props: highest number of properties that a resource in this file has
 
     Raises:
-        BaseError: if one of the rows is neither a resource-row nor a property-row, 
+        BaseError: if one of the rows is neither a resource-row nor a property-row,
             or if the file starts with a property-row
 
     Returns:

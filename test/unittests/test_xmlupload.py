@@ -98,22 +98,22 @@ class TestXMLUpload(unittest.TestCase):
         self.assertEqual("http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q", iri)
 
         with self.assertRaisesRegex(
-            BaseError, r"while converting ARK 'ark:/72163/080c-779b999-0a0c3f-6e'\. The ARK seems to be invalid"
+            BaseError, r"converting ARK 'ark:/72163/080c-779b999-0a0c3f-6e'\. The ARK seems to be invalid"
         ):
             _convert_ark_v0_to_resource_iri("ark:/72163/080c-779b999-0a0c3f-6e")
 
         with self.assertRaisesRegex(
-            BaseError, r"while converting ARK 'ark:/72163/080X-779b9990a0c3f-6e'\. Invalid project shortcode '080X'"
+            BaseError, r"converting ARK 'ark:/72163/080X-779b9990a0c3f-6e'\. Invalid project shortcode '080X'"
         ):
             _convert_ark_v0_to_resource_iri("ark:/72163/080X-779b9990a0c3f-6e")
 
         with self.assertRaisesRegex(
-            BaseError, r"while converting ARK 'ark:/72163/080c1-779b9990a0c3f-6e'\. Invalid project shortcode '080C1'"
+            BaseError, r"converting ARK 'ark:/72163/080c1-779b9990a0c3f-6e'\. Invalid project shortcode '080C1'"
         ):
             _convert_ark_v0_to_resource_iri("ark:/72163/080c1-779b9990a0c3f-6e")
 
         with self.assertRaisesRegex(
-            BaseError, r"while converting ARK 'ark:/72163/080c-779b99\+90a0c3f-6e'\. Invalid Salsah ID '779b99\+90a0c3f'"
+            BaseError, r"converting ARK 'ark:/72163/080c-779b99\+90a0c3f-6e'\. Invalid Salsah ID '779b99\+90a0c3f'"
         ):
             _convert_ark_v0_to_resource_iri("ark:/72163/080c-779b99+90a0c3f-6e")
 
@@ -148,8 +148,8 @@ class TestXMLUpload(unittest.TestCase):
         stashed_xml_texts_expected = {
             "test_thing_1": {
                 "testonto:hasRichtext": [
-                    "\n                This is <em>bold and <strong>strong</strong></em> text! It contains links to all "
-                    "resources:\n"
+                    "\n                This is <em>bold and <strong>strong</strong></em> text! "
+                    "It contains links to all resources:\n"
                     '                <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>\n'
                     '                <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>\n'
                     '                <a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a>\n'
@@ -167,8 +167,8 @@ class TestXMLUpload(unittest.TestCase):
             },
             "test_thing_2": {
                 "testonto:hasRichtext": [
-                    "\n                This is <em>bold and <strong>strong</strong></em> text! It contains links to all "
-                    "resources:\n"
+                    "\n                This is <em>bold and <strong>strong</strong></em> text! "
+                    "It contains links to all resources:\n"
                     '                <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>\n'
                     '                <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>\n'
                     '                <a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a>\n'

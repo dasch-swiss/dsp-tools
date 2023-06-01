@@ -41,19 +41,22 @@ class TestShared(unittest.TestCase):
 
         with self.assertRaisesRegex(
             UserError,
-            "Line 19: Element 'resource': Duplicate key-sequence .+ in unique identity-constraint 'IRI_attribute_of_resource_must_be_unique'",
+            "Line 19: Element 'resource': Duplicate key-sequence .+ "
+            "in unique identity-constraint 'IRI_attribute_of_resource_must_be_unique'",
         ):
             shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/duplicate-iri.xml")
 
         with self.assertRaisesRegex(
             UserError,
-            "Line 19: Element 'resource': Duplicate key-sequence .+ in unique identity-constraint 'ARK_attribute_of_resource_must_be_unique'",
+            "Line 19: Element 'resource': Duplicate key-sequence .+ "
+            "in unique identity-constraint 'ARK_attribute_of_resource_must_be_unique'",
         ):
             shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/duplicate-ark.xml")
 
         with self.assertRaisesRegex(
             UserError,
-            "Line 11: Element 'resource', attribute 'label': .+ The value '' has a length of '0'; this underruns the allowed minimum length of '1'",
+            "Line 11: Element 'resource', attribute 'label': .+ "
+            "The value '' has a length of '0'; this underruns the allowed minimum length of '1'",
         ):
             shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/empty-label.xml")
 

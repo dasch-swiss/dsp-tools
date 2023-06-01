@@ -315,7 +315,7 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
         logger.error(f"while converting ARK '{ark}'. Invalid Salsah ID '{resource_id}'")
         raise BaseError(f"while converting ARK '{ark}'. Invalid Salsah ID '{resource_id}'")
 
-    # make a UUID v5 from the namespace created above (which is a UUID itself) and the resource ID 
+    # make a UUID v5 from the namespace created above (which is a UUID itself) and the resource ID
     # and encode it to base64
     dsp_uuid = base64.urlsafe_b64encode(uuid.uuid5(dasch_uuid_ns, resource_id).bytes).decode("utf-8")
     dsp_uuid = dsp_uuid[:-2]
@@ -384,7 +384,7 @@ def _check_consistency_with_ontology(
         resclass_name_2_type: infos about the resource classes that exist on the DSP server for the current ontology
         shortcode: the shortcode of the project
             as referenced in the attribute "shortcode" of the <knora> tag of the XML file
-        ontoname: the name of the ontology 
+        ontoname: the name of the ontology
             as referenced in the attribute "default-ontology" of the <knora> tag of the XML file
         verbose: verbose switch
 
@@ -599,7 +599,7 @@ def xml_upload(
             logger.error(msg)
             raise BaseError(msg)
     except BaseException as err:  # pylint: disable=broad-except
-        # The forseeable errors are already handled by the variables 
+        # The forseeable errors are already handled by the variables
         # failed_uploads, nonapplied_xml_texts, and nonapplied_resptr_props.
         # Here we catch the unforseeable exceptions, hence BaseException (=the base class of all exceptions)
         _handle_upload_error(
@@ -782,7 +782,7 @@ def _upload_stashed_xml_texts(
     for resource, link_props in stashed_xml_texts.items():
         if resource.id not in id2iri_mapping:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
-            # no action necessary: this resource will remain in nonapplied_xml_texts, 
+            # no action necessary: this resource will remain in nonapplied_xml_texts,
             # which will be handled by the caller
             continue
         res_iri = id2iri_mapping[resource.id]
@@ -808,7 +808,7 @@ def _upload_stashed_xml_texts(
             for existing_value in existing_values:
                 old_xmltext = existing_value.get("knora-api:textValueAsXml")
                 if not old_xmltext:
-                    # no action necessary: this property will remain in nonapplied_xml_texts, 
+                    # no action necessary: this property will remain in nonapplied_xml_texts,
                     # which will be handled by the caller
                     continue
 
@@ -818,7 +818,7 @@ def _upload_stashed_xml_texts(
                 # if the pure text is a hash, the replacement must be made. This hash originates from
                 # _stash_circular_references(), and identifies the XML texts
                 if pure_text not in hash_to_value:
-                    # no action necessary: this property will remain in nonapplied_xml_texts, 
+                    # no action necessary: this property will remain in nonapplied_xml_texts,
                     # which will be handled by the caller
                     continue
                 new_xmltext = hash_to_value[pure_text]
@@ -845,7 +845,7 @@ def _upload_stashed_xml_texts(
                 try:
                     try_network_action(con.put, path="/v2/values", jsondata=jsondata)
                 except BaseError as err:
-                    # print the message to keep track of the cause for the failure. 
+                    # print the message to keep track of the cause for the failure.
                     # Apart from that, no action is necessary:
                     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
                     orig_err_msg = err.original_error_msg_from_api or err.message
@@ -921,7 +921,7 @@ def _upload_stashed_resptr_props(
     for resource, prop_2_resptrs in stashed_resptr_props.items():
         if resource.id not in id2iri_mapping:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
-            # no action necessary: this resource will remain in nonapplied_resptr_props, 
+            # no action necessary: this resource will remain in nonapplied_resptr_props,
             # which will be handled by the caller
             continue
         res_iri = id2iri_mapping[resource.id]
@@ -959,7 +959,7 @@ def _upload_stashed_resptr_props(
                 try:
                     try_network_action(con.post, path="/v2/values", jsondata=jsondata)
                 except BaseError as err:
-                    # print the message to keep track of the cause for the failure. 
+                    # print the message to keep track of the cause for the failure.
                     # Apart from that, no action is necessary:
                     # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
                     orig_err_msg = err.original_error_msg_from_api or err.message

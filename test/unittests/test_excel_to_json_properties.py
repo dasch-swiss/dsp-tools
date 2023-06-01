@@ -321,23 +321,26 @@ class TestExcelToProperties(unittest.TestCase):
             (
                 "testdata/invalid-testdata/excel2json/properties-invalid-super.xlsx",
                 "did not pass validation. The problematic property is 'hasGeoname' in Excel row 3. "
-                "The problem is that the column 'super' has an invalid value: 'GeonameValue' is not valid under any of the given schemas",
+                "The problem is that the column 'super' has an invalid value: "
+                "'GeonameValue' is not valid under any of the given schemas",
             ),
             (
                 "testdata/invalid-testdata/excel2json/properties-invalid-object.xlsx",
                 "did not pass validation. The problematic property is 'hasBoolean' in Excel row 2. "
-                "The problem is that the column 'object' has an invalid value: 'hasValue' is not valid under any of the given schemas",
+                "The problem is that the column 'object' has an invalid value: "
+                "'hasValue' is not valid under any of the given schemas",
             ),
             (
                 "testdata/invalid-testdata/excel2json/properties-invalid-gui_element.xlsx",
                 "did not pass validation. The problematic property is 'hasInterval' in Excel row 4. "
-                r"The problem is that the column 'gui_element' has an invalid value: 'Geonames' is not one of \['Interval', 'SimpleText'\]",
+                r"The problem is that the column 'gui_element' has an invalid value: "
+                r"'Geonames' is not one of \['Interval', 'SimpleText'\]",
             ),
             (
                 "testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute.xlsx",
                 "did not pass validation. The problematic property is 'hasInterval' in Excel row 4. "
-                r"The problem is that the column 'gui_attributes' has an invalid value: Additional properties are not allowed "
-                r"\('rows' was unexpected\)",
+                r"The problem is that the column 'gui_attributes' has an invalid value: "
+                r"Additional properties are not allowed \('rows' was unexpected\)",
             ),
             (
                 "testdata/invalid-testdata/excel2json/properties-duplicate-name.xlsx",

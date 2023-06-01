@@ -190,14 +190,14 @@ def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -
 
     Args:
         excelfile: path to the Excel file containing the resources
-        path_to_output_file: if provided, the output is written into this JSON file 
+        path_to_output_file: if provided, the output is written into this JSON file
             (otherwise, it's only returned as return value)
 
     Raises:
         BaseError if something went wrong
 
     Returns:
-        a tuple consisting of the "resources" section as Python list, 
+        a tuple consisting of the "resources" section as Python list,
             and the success status (True if everything went well)
     """
 

@@ -151,7 +151,7 @@ def _upload_file(
 
     Args:
         dir_with_processed_files: path to the directory where the processed files are located
-        internal_filename_of_processed_file: path to the derivate of the original file, 
+        internal_filename_of_processed_file: path to the derivate of the original file,
             i.e. the processed file (uuid filename)
         sipi_url: URL to the sipi server
         con: connection to the DSP server
@@ -251,7 +251,7 @@ def _upload_files_in_parallel(
 
     Args:
         dir_with_processed_files: path to the directory where the processed files are located
-        internal_filenames_of_processed_files: list of uuid filenames, 
+        internal_filenames_of_processed_files: list of uuid filenames,
             each filename being the path to the derivate of the original file
         sipi_url: URL to the sipi server
         con: connection to the DSP server

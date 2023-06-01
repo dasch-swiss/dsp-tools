@@ -56,7 +56,7 @@ def _create_project_on_server(
             project=project_remote, project_definition=project_definition, verbose=verbose
         )
         # It doesn't matter if the update is successful or not: continue anyway, because success is anyways false.
-        # There are other things from this file that can be created on the server, 
+        # There are other things from this file that can be created on the server,
         # e.g. the groups and users, so the process must continue.
         return project_remote, False
     except BaseError:
@@ -141,7 +141,7 @@ def _create_groups(con: Connection, groups: list[dict[str, str]], project: Proje
 
     Returns:
         A tuple consisting of a dict and the success status.
-        The dict has the form ``{group name: group object}`` 
+        The dict has the form ``{group name: group object}``
         for all groups that have successfully been created (or already exist).
         The dict is empty if no group was created.
     """
@@ -208,7 +208,7 @@ def _get_group_iris_for_user(
     Args:
         json_user_definition: the section of the JSON file that defines a user
         current_project: the Project object
-        current_project_groups: dict of the form ``{group name: group object}`` 
+        current_project_groups: dict of the form ``{group name: group object}``
             with the groups that exist on the DSP server
         con: connection to the DSP server
         verbose: verbose switch

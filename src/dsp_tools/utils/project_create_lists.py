@@ -104,7 +104,7 @@ def create_lists_on_server(
         existing_list = [x for x in existing_lists if x.project == project_remote.id and x.name == new_list["name"]]
         if existing_list:
             current_project_lists[existing_list[0].name] = {  # type: ignore
-                "id": existing_list[0].id, 
+                "id": existing_list[0].id,
                 "nodes": new_list["nodes"],
             }
             print(f"\tWARNING: List '{new_list['name']}' already exists on the DSP server. Skipping...")

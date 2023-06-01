@@ -605,10 +605,13 @@ class TestExcel2xml(unittest.TestCase):
                     f'<{tagname} label="label" id="id" permissions="res-default" iri="iri"/>',
                 ),
                 (
-                    lambda: method(
+                    lambda: method(  # pylint: disable=cell-var-from-loop
                         "label", "id", creation_date="2019-10-23T13:45:12Z"
-                    ),  # pylint: disable=cell-var-from-loop
-                    f'<{tagname} label="label" id="id" permissions="res-default" creation_date="2019-10-23T13:45:12Z"/>',
+                    ),
+                    (
+                        f'<{tagname} label="label" id="id" permissions="res-default" '
+                        'creation_date="2019-10-23T13:45:12Z"/>'
+                    ),
                 ),
             ]
             for _method, result in test_cases:
@@ -642,7 +645,10 @@ class TestExcel2xml(unittest.TestCase):
             ),
             (
                 lambda: excel2xml.make_resource("label", "restype", "id", creation_date="2019-10-23T13:45:12Z"),
-                '<resource label="label" restype="restype" id="id" permissions="res-default" creation_date="2019-10-23T13:45:12Z"/>',
+                (
+                    '<resource label="label" restype="restype" id="id" permissions="res-default" '
+                    'creation_date="2019-10-23T13:45:12Z"/>'
+                ),
             ),
         ]
 

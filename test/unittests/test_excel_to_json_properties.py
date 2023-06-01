@@ -344,7 +344,7 @@ class TestExcelToProperties(unittest.TestCase):
             ),
             (
                 "testdata/invalid-testdata/excel2json/properties-duplicate-name.xlsx",
-                "Property names must be unique inside every ontology, but your Excel file '.+' contains duplicates:\n"
+                "Property names must be unique inside every ontology, but '.+' contains duplicates:\n"
                 r" - Row 3: hasGender\n - Row 4: hasGender\n - Row 5: isDesignatedAs\n - Row 6: isDesignatedAs",
             ),
         ]

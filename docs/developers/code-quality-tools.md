@@ -6,27 +6,30 @@ There is a variety of tools that help to keep the code quality high.
 
 DSP-TOOLS uses the following:
 
-- EditorConfig
-- Formatting: Black
-- Type checking: MyPy
-- Linting: 
-    - Ruff (coming soon)
-    - Pylint (will perhaps become redundant, as Ruff grows)
-- Security: 
-    - vulture (coming soon)
-    - bandit (coming soon)
-    - Dependabot
-    - CodeQL
-    - Gitleaks (coming soon)
+| Task                  | Tool                                                              | Configuration            | Remarks                                        |
+| --------------------- | ----------------------------------------------------------------- | ------------------------ | ---------------------------------------------- |
+| General formatting    | [EditorConfig](https://EditorConfig.org)                          | `.editorconfig`          |                                                |
+| Python: formatting    | [Black](https://pypi.org/project/black/)                          | `pyproject.toml`         |                                                |
+| Python: type checking | [Mypy](https://pypi.org/project/mypy/)                            | `pyproject.toml`         |                                                |
+| Python: linting       | [Ruff](https://pypi.org/project/ruff)                             |                          | coming soon                                    |
+|                       | [Pylint](https://pypyi.org/project/pylint)                        | `pyproject.toml`         | will perhaps become redundant,<br>as Ruff matures |
+| Security checks       | [Dependabot](https://docs.github.com/en/code-security/dependabot) | `.github/dependabot.yml` |                                                |
+|                       | [CodeQL](https://codeql.github.com/)                              | GitHub settings          |                                                |
+|                       | [Gitleaks](https://gitleaks.io/)                                  | `.gitleaks.toml`         | coming soon                                    |
+|                       | [Bandit](https://pypi.org/project/bandit/)                        | `pyproject.toml`         | coming soon                                    |
 
-In the following, this choice is explained in more detail.
+The decision to use this set of tools is based on the information in the following paragraphs.
 
-## Language-independent, cross-editor settings
+## General formatting
 
-- [EditorConfig](https://EditorConfig.org)
+- [EditorConfig](https://EditorConfig.org):
+  Language-independent, cross-editor settings for indentation, line endings, etc.
 
 
-## Python: Style checkers and autoformatters
+## Python: formatters
+
+There is a variety of style checkers (tools that give a feedback) 
+and autoformatters (tools that are able to fix the formatting violations automatically):
 
 - [pycodestyle](https://pypi.org/project/pycodestyle/): 
   Checks Python code against some of the style conventions in [PEP 8](http://www.python.org/dev/peps/pep-0008/).
@@ -40,15 +43,19 @@ In the following, this choice is explained in more detail.
 - [yapf](https://pypi.org/project/yapf/): 
   Autoformatter that can be configured to support different styles.
 
-### Tools specialized on parts of the code
+
+### Specialized formatters
+
+Some tools focus on a certain part of the code, e.g. docstrings or imports:
 
 - [isort](https://pypi.org/project/isort/): 
   Sorts imports alphabetically, and separates them into sections, according to their type.
 
-# TODO
+TODO !!!
+
 - [pydocstyle](https://pypi.org/project/pydocstyle/):
-  static analysis tool for checking compliance with Python docstring conventions.
-  pydocstyle supports most of PEP 257 out of the box, but it should not be considered a reference implementation.
+  Static analysis tool for checking compliance with Python docstring conventions.
+  Pydocstyle supports most of PEP 257 out of the box, but it should not be considered a reference implementation.
 - [pydocstringformatter](https://pypi.org/project/pydocstringformatter/):
   A docstring formatter that follows PEP8 and PEP257 but makes some of the more 'controversial' elements of the PEPs optional.
   Can be configured for other styles as well.
@@ -61,7 +68,8 @@ In the following, this choice is explained in more detail.
 
 ## Python: type checkers
 
-# TODO
+TODO !!!!!!!!
+
 - mypy
 - [pyright](https://github.com/microsoft/pyright): 
   Microsoft's static type checker for Python.
@@ -105,17 +113,36 @@ In the following, this choice is explained in more detail.
     - eradicate
     - pyupgrade (automated upgrade to newer python syntax)
     - autoflake (automated removal of unused imports or variables)
+- [Vulture](https://pypi.org/project/vulture/):
+  Static code analyzer that finds unused code in Python programs. 
+  Vulture uses the ast module to build abstract syntax trees for all given files. 
+  While traversing all syntax trees it records the names of defined and used objects. 
+  Afterwards, it reports the objects which have been defined, but not used. 
+  This analysis ignores scopes and only takes object names into account.
+  Vulture also detects unreachable code by looking for code after `return`, `break`, `continue` and `raise` statements, 
+  and by searching for unsatisfiable if- and while-conditions.
 
 
 ## Security checks
 
-# TODO
+- [Bandit](https://pypi.org/project/bandit/):
+  Finds common security issues in Python code.
+  For every single file, Bandit builds an AST, and runs plugins (i.e. tests) against the AST nodes.
+  Bandit supports many different plugins (i.e. tests) to detect various security issues. 
+- [Dependabot](https://docs.github.com/en/code-security/dependabot):
+  GitHub's built-in feature to keep the supply chain secure.
+  Dependabot monitors vulnerabilities in dependencies used in a project 
+  and keep the dependencies up-to-date.
+- [CodeQL](https://codeql.github.com/):
+  Semantic code analysis engine by GitHub.
+  CodeQL lets you query code as though it were data. 
+  Write a query to find all variants of a vulnerability, eradicating it forever. 
+  Then share your query to help others do the same. 
+  CodeQL is free for research and open source,
+  and can be activated in the GitHub settings of a repository.
+- [Gitleaks](https://gitleaks.io/):
+  Secret scanner for git repositories, available as GitHub action.
 
-Vulture
-[Bandit](https://pypi.org/project/bandit/) finds common security issues in Python code
-Dependabot
-CodeQL
-[Gitleaks](https://gitleaks.io/products.html)
 
 
 ## See also

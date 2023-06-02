@@ -30,6 +30,7 @@ nav:
       - User data: developers/user-data.md
       - GitHub actions: developers/github-actions.md
       - MkDocs and markdown-link-validator: developers/mkdocs.md
+      - Code quality tools: developers/code-quality-tools.md
   - Changelog: changelog.md
 
 theme:

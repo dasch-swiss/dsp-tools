@@ -585,6 +585,9 @@ def _process_file(
 
     # convert file (create derivative) and create sidecar file based on category (image, video or other)
     file_category = _get_file_category_from_extension(in_file)
+    if not file_category:
+        return in_file, None
+    
     if file_category == "OTHER":
         result = _process_other_file(
             in_file=in_file,

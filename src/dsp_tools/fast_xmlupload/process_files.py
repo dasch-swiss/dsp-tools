@@ -168,24 +168,30 @@ def _check_params(
 def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
     """
     Parse XML file to get all file paths.
+    If the same file is referenced several times in the XML, 
+    it is only returned once.
 
     Args:
         xml_file: path to the XML file
+
+    Raises:
+        BaseError: if a referenced file doesn't exist in the file system
 
     Returns:
         list of all paths in the <bitstream> tags
     """
     tree: etree._ElementTree = etree.parse(xml_file)  # type: ignore
-    bitstream_paths: list[Path] = []
+    bitstream_paths: set[Path] = set()
     for x in tree.iter():
         if x.text and etree.QName(x).localname.endswith("bitstream"):
-            if Path(x.text).is_file():
-                bitstream_paths.append(Path(x.text))
+            path = Path(x.text)
+            if path.is_file():
+                bitstream_paths.add(path)
             else:
-                print(f"{datetime.now()}: ERROR: '{x.text}' is referenced in the XML file, but it doesn't exist. Skipping...")
-                logger.error(f"'{x.text}' is referenced in the XML file, but it doesn't exist. Skipping...")
+                print(f"{datetime.now()}: ERROR: '{path}' is referenced in the XML file, but it doesn't exist. Skipping...")
+                logger.error(f"'{path}' is referenced in the XML file, but it doesn't exist. Skipping...")
 
-    return bitstream_paths
+    return list(bitstream_paths)
 
 
 def _start_sipi_container_and_mount_volumes(

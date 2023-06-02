@@ -102,7 +102,28 @@ def _process_files_in_parallel(
 
     orig_filepath_2_uuid: list[tuple[Path, Optional[Path]]] = []
     for processed in as_completed(processing_jobs):
-        orig_filepath_2_uuid.append(processed.result())
+        try:
+            orig_filepath_2_uuid.append(processed.result())
+        except docker.errors.APIError:
+            print(f"{datetime.now()}: ERROR: A Docker exception occurred. Restart SIPI and resume processing...")
+            logger.error("A Docker exception occurred. Restart SIPI and resume processing...", exc_info=True)
+            # cancel all running jobs
+            for job in processing_jobs:
+                job.cancel()
+            # restart sipi container
+            _stop_and_remove_sipi_container()
+            _start_sipi_container_and_mount_volumes(input_dir, output_dir)
+            global sipi_container
+            sipi_container = _get_sipi_container()
+            # restart processing
+            processed_paths = [x[0] for x in orig_filepath_2_uuid]
+            unprocessed_paths = [x for x in paths if x not in processed_paths]
+            orig_filepath_2_uuid += _process_files_in_parallel(
+                paths=unprocessed_paths,
+                input_dir=input_dir,
+                output_dir=output_dir,
+                nthreads=nthreads
+            )
 
     return orig_filepath_2_uuid
 

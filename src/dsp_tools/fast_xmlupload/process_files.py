@@ -796,6 +796,7 @@ def process_files(
         logger.error(f"An error occurred while writing the result to the pickle file. The result was: {result}")
 
     # remove the SIPI container
-    _stop_and_remove_sipi_container()
+    if success:
+        _stop_and_remove_sipi_container()
 
     return success

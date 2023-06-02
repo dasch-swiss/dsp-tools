@@ -585,9 +585,6 @@ def _process_file(
 
     # convert file (create derivative) and create sidecar file based on category (image, video or other)
     file_category = _get_file_category_from_extension(in_file)
-    if not file_category:
-        return in_file, None
-
     if file_category == "OTHER":
         result = _process_other_file(
             in_file=in_file,
@@ -608,8 +605,8 @@ def _process_file(
             out_dir=out_dir_full
         )
     else:
-        print(f"{datetime.now()}: ERROR: Unexpected file category: {file_category}")
-        logger.error(f"Unexpected file category: {file_category}")
+        print(f"{datetime.now()}: ERROR: Unexpected file category for {in_file}: {file_category}")
+        logger.error(f"Unexpected file category for {in_file}: {file_category}")
         return in_file, None
 
     return result

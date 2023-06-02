@@ -5,6 +5,7 @@ import json
 import pickle
 import shutil
 import subprocess
+import sys
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
@@ -739,6 +740,38 @@ def _process_video_file(
     return in_file, converted_file_full_path
 
 
+def handle_interruption(
+    all_paths: list[Path], 
+    processed_paths: list[Path],
+    exception: BaseException,
+) -> None:
+    """
+    Handles an interruption of the processing.
+    Writes the processed and unprocessed files into two files,
+    and exits the program with exit code 1.
+
+    Args:
+        all_paths: list of all paths that should be processed
+        processed_paths: list of all paths that were processed successfully
+        exception: the exception that was raised
+    """
+    unprocessed_paths = [x for x in all_paths if x not in processed_paths]
+    with open("unprocessed_files.txt", "w", encoding="utf-8") as f:
+        f.write("\n".join([str(x) for x in unprocessed_paths]))
+    with open("processed_files.txt", "w", encoding="utf-8") as f:
+        f.write("\n".join([str(x) for x in processed_paths]))
+    
+    msg = (
+        "An error occurred while processing the files. "
+        "2 files were written, listing the processed and the unprocessed files:\n"
+        " - 'processed_files.txt'\n - 'unprocessed_files.txt'."
+    )
+    print(f"{datetime.now()}: ERROR: {msg}. The exception was: {exception}")
+    logger.error(msg, exc_info=exception)
+
+    sys.exit(1)
+    
+
 def process_files(
     input_dir: str,
     output_dir: str,
@@ -794,12 +827,20 @@ def process_files(
     start_time = datetime.now()
     print(f"{start_time}: Start local file processing...")
     logger.info("Start local file processing...")
-    result = _process_files_in_parallel(
-        paths=all_paths,
-        input_dir=input_dir_path,
-        output_dir=output_dir_path,
-        nthreads=nthreads
-    )
+    result = []
+    try:
+        result = _process_files_in_parallel(
+            paths=all_paths,
+            input_dir=input_dir_path,
+            output_dir=output_dir_path,
+            nthreads=nthreads
+        )
+    except BaseException as exc:  # pylint: disable=broad-exception-caught
+        handle_interruption(
+            all_paths=all_paths, 
+            processed_paths=[x[1] for x in result if x and x[1]],
+            exception=exc
+        )
 
     # check if all files were processed
     end_time = datetime.now()

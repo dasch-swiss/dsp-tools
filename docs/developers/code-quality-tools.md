@@ -39,7 +39,7 @@ Checks Python code against some of the style conventions in [PEP 8](http://www.p
 ### [autopep8](https://pypi.org/project/autopep8/)
 
 Automatically fixes most of the formatting issues reported by pycodestyle.
-  Since PEP 8 is rather liberal, autopep8/pycodestyle don't modify code too much.
+Since PEP 8 is rather liberal, autopep8/pycodestyle don't modify code too much.
 
 ### [black](https://pypi.org/project/black/)
 
@@ -60,27 +60,43 @@ TODO !!!
 ### [pydocstyle](https://pypi.org/project/pydocstyle/)
 
 Static analysis tool for checking compliance with Python docstring conventions.
-Pydocstyle supports most of PEP 257 out of the box, but it should not be considered a reference implementation.
+Pydocstyle supports most of [PEP 257](http://www.python.org/dev/peps/pep-0257/) out of the box, 
+but it should not be considered a reference implementation.
+Pydocstyle seems to be the most popular docstring checker.
 
 ### [pydocstringformatter](https://pypi.org/project/pydocstringformatter/)
 
-A docstring formatter that follows PEP8 and PEP257 but makes some of the more 'controversial' elements of the PEPs optional.
-Can be configured for other styles as well.
+A docstring formatter that follows 
+[PEP 8](http://www.python.org/dev/peps/pep-0008/) and [PEP 257](http://www.python.org/dev/peps/pep-0257/) 
+but makes some of the more controversial elements of the PEPs optional.
+Can be configured for other styles as well. 
 This project is heavily inspired by docformatter.
-When this project was started docformatter did not meet all of the requirements the pylint project had for its docstring formatter 
-and was no longer actively maintained (this has changed since then). 
-Therefore, some contributors of pylint got together and started working on our own formatter to fulfill our needs.
+
 
 ### [docformatter](https://pypi.org/project/docformatter/)
 
-todo
+docformatter automatically formats docstrings to follow a subset of the PEP 257 conventions.
+The --style argument takes a string which is the name of the parameter list style you are using. 
+Currently, only sphinx and epytext are recognized, but numpy and google are future styles. 
 
 
 ## Python: type checkers
 
 TODO !!!!!!!!
 
-### mypy
+### [mypy](https://pypi.org/project/mypy/)
+
+Mypy is a static type checker for Python.
+
+Type checkers help ensure that you’re using variables and functions in your code correctly. 
+With mypy, add type hints (PEP 484) to your Python programs, 
+and mypy will warn you when you use those types incorrectly.
+Adding type hints for mypy does not interfere with the way your program would otherwise run. 
+Think of type hints as similar to comments! 
+You can always use the Python interpreter to run your code, even if mypy reports errors.
+Mypy is designed with gradual typing in mind. 
+This means you can add type hints to your code base slowly 
+and that you can always fall back to dynamic typing when static typing is not convenient.
 
 ### [pyright](https://github.com/microsoft/pyright)
 
@@ -90,6 +106,7 @@ Via Pylance, it is included in VS Code's Python extension `ms-python.python`.
 ### pyre
 
 TODO
+
 
 ## Python: linters
 
@@ -115,7 +132,7 @@ Flake8 checks Python code by wrapping the output of these tools:
 
 - Pyflakes (pure error detector)
 - pycodestyle (pure style checker)
-- McCabe
+- [McCabe](https://pypi.org/project/mccabe/) (complexity checker)
 
 Unlike Pyflakes, Flake8 can be configured.
 
@@ -130,7 +147,7 @@ Ruff can be used to replace
 - Flake8 (plus dozens of plugins)
 - Pyflakes
 - pycodestyle
-- mccabe
+- McCabe
 - isort
 - pydocstyle
 - yesqa     # TODO
@@ -201,7 +218,7 @@ Pylama wraps these tools:
 - pycodestyle
 - pydocstyle
 - PyFlakes
-- Mccabe
+- McCabe
 - Pylint
 - Radon 
 - eradicate 
@@ -214,7 +231,7 @@ Pylama wraps these tools:
 
 
 
-Docstrings
+# Docstrings
 
 Wir benutzen Google Style Docstrings ohne typing.
 Sollte eingestellt werden in PyCharm > Settings > Tools > Python Integrated Tools > Docstring format
@@ -223,3 +240,32 @@ resp. in VS Code > Auto Docstring: Docstring Format > google-notypes
 <https://sphinxcontrib-napoleon.readthedocs.io/en/latest/index.html>:
 RST (ReStructuredText) is great, but it creates visually dense, hard to read docstrings. 
 Napoleon is a Sphinx extension that enables Sphinx to parse both NumPy and Google style docstrings
+
+There are at least four “flavors” of docstrings in common use today; Epytext, Sphinx, NumPy, and Google. 
+Each of these docstring flavors follow the PEP 257 convention requirements. 
+What differs between the three docstring flavors is the reST syntax used in the parameter description of the multi-line docstring.
+
+For example, here is how each syntax documents function arguments.
+
+Epytext syntax:
+
+@type num_dogs: int
+@param num_dogs: the number of dogs
+
+Sphinx syntax:
+
+:param param1: The first parameter, defaults to 1.
+:type: int
+
+Google syntax:
+
+Args:
+    param1 (int): The first parameter.
+
+NumPy syntax:
+
+Parameters
+----------
+param1 : int
+    The first parameter.
+

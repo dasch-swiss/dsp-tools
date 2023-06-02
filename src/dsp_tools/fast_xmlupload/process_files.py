@@ -209,8 +209,8 @@ def _start_sipi_container_and_mount_volumes(
 
     # Docker container doesn't exist yet
     try:
-        container: Container = docker_client.containers.get(container_name)  # pyright: ignore
-    except docker.errors.NotFound:  # pyright: ignore
+        container: Container = docker_client.containers.get(container_name)
+    except docker.errors.NotFound:
         docker_client.containers.run(
             image="daschswiss/sipi:3.8.1",
             name=container_name,
@@ -249,8 +249,8 @@ def _get_sipi_container() -> Optional[Container]:
     """
     docker_client = docker.from_env()
     try:
-        return docker_client.containers.get("sipi")  # pyright: ignore
-    except docker.errors.NotFound:  # pyright: ignore
+        return docker_client.containers.get("sipi")
+    except docker.errors.NotFound:
         print(f"{datetime.now()}: ERROR: Couldn't find a running Sipi container.")
         logger.error("Couldn't find a running Sipi container.", exc_info=True)
         return None
@@ -266,7 +266,7 @@ def _stop_and_remove_sipi_container() -> None:
         sipi_container.stop()
         sipi_container.remove()
         logger.info("Stopped and removed Sipi container.")
-    except docker.errors.APIError:  # pyright: ignore
+    except docker.errors.APIError:
         pass
 
 

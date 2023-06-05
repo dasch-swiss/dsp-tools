@@ -30,7 +30,12 @@ nav:
       - User data: developers/user-data.md
       - GitHub actions: developers/github-actions.md
       - MkDocs and markdown-link-validator: developers/mkdocs.md
-      - Code quality tools: developers/code-quality-tools.md
+      - Code quality tools: 
+          - Overview: developers/code-quality-tools/index.md
+          - General formatting: developers/code-quality-tools/general-formatters.md
+          - Markdown formatting: developers/code-quality-tools/markdown-formatters.md
+          - Python formatting: developers/code-quality-tools/python-formatters.md
+          - Python docstring formatter: developers/code-quality-tools/python-docstring-formatters.md
   - Changelog: changelog.md
 
 theme:

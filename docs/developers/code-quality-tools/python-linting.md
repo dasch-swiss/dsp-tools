@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Python: linters
+# Python linting
 
 ## [Pylint](https://pypi.org/project/pylint/)
 
@@ -31,8 +31,8 @@ Unlike Pyflakes, Flake8 can be configured.
 ## [Ruff](https://pypi.org/project/ruff/)
 
 The fastest, most promising and most exciting linter, although still in beta.
-Ruff is a linter with autofix support
-Near-parity with Flake8, and working on implementing pylint rules 
+Ruff is a linter with autofix support.
+It has near-parity with Flake8, and they are working on implementing pylint rules as well
 (see [How does Ruff compare to Pylint?](https://beta.ruff.rs/docs/faq/#how-does-ruff-compare-to-pylint)).
 Ruff can be used to replace 
 

@@ -1,17 +1,12 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Other formatters
+# General formatting
 
-## General formatting
-
-### [EditorConfig](https://EditorConfig.org)
+## [EditorConfig](https://EditorConfig.org)
 
 Language-independent, cross-editor settings for indentation, line endings, etc.
 
-
-## Markdown: formatter
-
-### [markdownlint](https://github.com/igorshubovych/markdownlint-cli)
+## [markdownlint](https://github.com/igorshubovych/markdownlint-cli)
 
 A CLI for David Anson's markdownlint, a static analysis tool with a library of rules.
 The flexibility of the markdown syntax is both a benefit and a drawback. 

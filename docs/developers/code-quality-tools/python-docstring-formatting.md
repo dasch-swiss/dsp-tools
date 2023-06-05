@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Python: Docstring formatters
+# Python Docstring formatting
 
 ## Docstring flavors
 

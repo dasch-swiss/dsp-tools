@@ -31,11 +31,14 @@ nav:
       - GitHub actions: developers/github-actions.md
       - MkDocs and markdown-link-validator: developers/mkdocs.md
       - Code quality tools: 
-          - Overview: developers/code-quality-tools/index.md
-          - General formatting: developers/code-quality-tools/general-formatters.md
-          - Markdown formatting: developers/code-quality-tools/markdown-formatters.md
-          - Python formatting: developers/code-quality-tools/python-formatters.md
-          - Python docstring formatter: developers/code-quality-tools/python-docstring-formatters.md
+          - Overview: developers/code-quality-tools/code-quality-tools.md
+          - General formatting: developers/code-quality-tools/general-formatting.md
+          - Python formatting: developers/code-quality-tools/python-formatting.md
+          - Python docstring formatting: developers/code-quality-tools/python-docstring-formatting.md
+          - Python type checking: developers/code-quality-tools/python-type-checking.md
+          - Python linting: developers/code-quality-tools/python-linting.md
+          - Security checks: developers/code-quality-tools/security.md
+          - See also: developers/code-quality-tools/python-see-also.md
   - Changelog: changelog.md
 
 theme:

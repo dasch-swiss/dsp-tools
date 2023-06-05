@@ -130,10 +130,10 @@ if you want to examine why a single line of code in a test method fails.
 
 When contributing to the project, please make sure you use the same code style rules as we do. We use 
 
-- [pylint](https://pypi.org/project/pylint/) (configured in `pyproject.toml`)
-- [mypy](https://pypi.org/project/mypy/) (configured in `pyproject.toml`)
+- [markdownlint](https://github.com/igorshubovych/markdownlint-cli) (configured in `.markdownlint.yml`)
 - [black](https://pypi.org/project/black/) (configured in `pyproject.toml`)
-- [markdownlint](https://github.com/igorshubovych/markdownlint-cli) (configured in `.markdownlint.json`)
+- [mypy](https://pypi.org/project/mypy/) (configured in `pyproject.toml`)
+- [pylint](https://pypi.org/project/pylint/) (configured in `pyproject.toml`)
 
 These 4 linters are integrated in the GitHub CI pipeline, 
 so that every pull request is checked for code style violations.
@@ -144,19 +144,19 @@ To locally check your code for style violations, follow the instructions dependi
 
 In VSCode, 
 
-- pylint can be installed as extension (`ms-python.pylint`), 
-  and be configured in the VSCode settings.
+- markdownlint can be installed as extension (`davidanson.vscode-markdownlint`), 
+  and be configured in the  VSCode settings.
+- black can be set as formatter in the `ms-python.python` extension.
+  To do so, set `"python.formatting.provider": "black"` in the VSCode `settings.json`.
+  Alternatively, `ms-python.black-formatter` can be installed as extension.
 - mypy can be installed as extension (`matangover.mypy`), 
   and be configured in the VSCode settings.
     - This extension is different from the mypy functionality 
       of Microsoft's Python extension `ms-python.python`,
       which only lints each file separately, 
       leading to incomplete type checking.
-- black can be set as formatter in the `ms-python.python` extension.
-  To do so, set `"python.formatting.provider": "black"` in the VSCode `settings.json`.
-  Alternatively, `ms-python.black-formatter` can be installed as extension.
-- markdownlint can be installed as extension (`davidanson.vscode-markdownlint`), 
-  and be configured in the  VSCode settings.
+- pylint can be installed as extension (`ms-python.pylint`), 
+  and be configured in the VSCode settings.
 
 If configured correctly, you will see style violations in the "Problems" tab.
 

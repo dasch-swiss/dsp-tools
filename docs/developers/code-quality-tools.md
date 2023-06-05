@@ -6,17 +6,18 @@ There is a variety of tools that help to keep the code quality high.
 
 DSP-TOOLS uses the following:
 
-| Task                  | Tool                                                              | Configuration            | Remarks                                        |
-| --------------------- | ----------------------------------------------------------------- | ------------------------ | ---------------------------------------------- |
-| General formatting    | [EditorConfig](https://EditorConfig.org)                          | `.editorconfig`          |                                                |
-| Python: formatting    | [Black](https://pypi.org/project/black/)                          | `pyproject.toml`         |                                                |
-| Python: type checking | [Mypy](https://pypi.org/project/mypy/)                            | `pyproject.toml`         |                                                |
-| Python: linting       | [Ruff](https://pypi.org/project/ruff)                             |                          | coming soon                                    |
+| Task                  | Tool                                                              | Configuration            | Remarks                                           |
+| --------------------- | ----------------------------------------------------------------- | ------------------------ | ------------------------------------------------- |
+| General formatting    | [EditorConfig](https://EditorConfig.org)                          | `.editorconfig`          |                                                   |
+| Markdown: formatting  | [markdownlint](https://github.com/igorshubovych/markdownlint-cli) | `.markdownlint.yml`      |                                                   |
+| Python: formatting    | [Black](https://pypi.org/project/black/)                          | `pyproject.toml`         |                                                   |
+| Python: type checking | [Mypy](https://pypi.org/project/mypy/)                            | `pyproject.toml`         |                                                   |
+| Python: linting       | [Ruff](https://pypi.org/project/ruff)                             |                          | coming soon                                       |
 |                       | [Pylint](https://pypyi.org/project/pylint)                        | `pyproject.toml`         | will perhaps become redundant,<br>as Ruff matures |
-| Security checks       | [Dependabot](https://docs.github.com/en/code-security/dependabot) | `.github/dependabot.yml` |                                                |
-|                       | [CodeQL](https://codeql.github.com/)                              | GitHub settings          |                                                |
-|                       | [Gitleaks](https://gitleaks.io/)                                  | `.gitleaks.toml`         | coming soon                                    |
-|                       | [Bandit](https://pypi.org/project/bandit/)                        | `pyproject.toml`         | coming soon                                    |
+| Security checks       | [Dependabot](https://docs.github.com/en/code-security/dependabot) | `.github/dependabot.yml` |                                                   |
+|                       | [CodeQL](https://codeql.github.com/)                              | GitHub settings          |                                                   |
+|                       | [Gitleaks](https://gitleaks.io/)                                  | `.gitleaks.toml`         | coming soon                                       |
+|                       | [Bandit](https://pypi.org/project/bandit/)                        | `pyproject.toml`         | coming soon                                       |
 
 The decision to use this set of tools is based on the information in the following paragraphs.
 
@@ -25,6 +26,16 @@ The decision to use this set of tools is based on the information in the followi
 ### [EditorConfig](https://EditorConfig.org)
 
 Language-independent, cross-editor settings for indentation, line endings, etc.
+
+
+## Markdown: formatter
+
+### [markdownlint](https://github.com/igorshubovych/markdownlint-cli)
+
+A CLI for David Anson's markdownlint, a static analysis tool with a library of rules.
+The flexibility of the markdown syntax is both a benefit and a drawback. 
+Many styles are possible, so formatting can be inconsistent. 
+Some constructs don't work well in all parsers and should be avoided.
 
 
 ## Python: formatters
@@ -82,18 +93,16 @@ Currently, only sphinx and epytext are recognized, but numpy and google are futu
 
 ## Python: type checkers
 
-TODO !!!!!!!!
+The Python language allows adding type hints (see [PEP 484](http://www.python.org/dev/peps/pep-0484/)), 
+but ignores them when running the code.
+In this sense, type hints are similar to comments:
+A Python program can still be run, even if the type hints are wrong.
+The Python language leaves type checking to external tools that must be run separately.
 
 ### [mypy](https://pypi.org/project/mypy/)
 
-Mypy is a static type checker for Python.
-
-Type checkers help ensure that you’re using variables and functions in your code correctly. 
-With mypy, add type hints (PEP 484) to your Python programs, 
-and mypy will warn you when you use those types incorrectly.
-Adding type hints for mypy does not interfere with the way your program would otherwise run. 
-Think of type hints as similar to comments! 
-You can always use the Python interpreter to run your code, even if mypy reports errors.
+Mypy is the oldest and most popular static type checker.
+It warns you when you use type annotations incorrectly.
 Mypy is designed with gradual typing in mind. 
 This means you can add type hints to your code base slowly 
 and that you can always fall back to dynamic typing when static typing is not convenient.
@@ -103,9 +112,14 @@ and that you can always fall back to dynamic typing when static typing is not co
 Microsoft's static type checker for Python.
 Via Pylance, it is included in VS Code's Python extension `ms-python.python`.
 
-### pyre
+### [Pyre](https://pypi.org/project/pyre-check/)
 
-TODO
+Performant type checker by Facebook, compliant with the relevant PEPs.
+Pyre can analyze codebases with millions of lines of code incrementally,
+providing instantaneous feedback to developers as they write code.
+Depends on [watchman](https://facebook.github.io/watchman/), 
+a brew-installable FOSS file watching service by Facebook.
+Pyre ships with Pysa, a security tool built on top of Pyre that reasons about data flows in Python applications. 
 
 
 ## Python: linters
@@ -193,9 +207,39 @@ and can be activated in the GitHub settings of a repository.
 
 Secret scanner for git repositories, available as GitHub action.
 
+### [Pysa](https://pyre-check.org/docs/pysa-basics/)
 
+Pysa is a feature of Facebook's type checker Pyre.
+It performs taint analysis to identify potential security issues.
+Tainted data is data that must be treated carefully. 
+Pysa works by tracking flows of data from where they originate (sources) 
+to where they terminate in a dangerous location (sinks). 
+Example: User-controllable data that flows into an eval call 
+leads to a remote code execution vulnerability. 
 
 ## See also
+
+### [Prospector](https://pypi.org/project/prospector/)
+
+Prospector is a wrapper around the following tools:
+
+- pylint
+- pycodestyle
+- pyflakes
+- McCabe
+- Dodgy
+- Pydocstyle
+- Pyroma (checks `setup.py` files)
+- Vulture
+- Frosted (fork of Pyflakes)
+- Mypy
+- Bandit
+
+The primary aim of Prospector is to be useful out of the box. 
+A common complaint of other Python analysis tools is
+that it takes a long time to filter through which errors are relevant. 
+Prospector provides some default profiles, 
+which hopefully will provide a good starting point and will be useful straight away.
 
 ### Pylance
 

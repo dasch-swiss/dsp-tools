@@ -21,6 +21,8 @@ Since PEP 8 is rather liberal, autopep8/pycodestyle don't modify code too much.
 A PEP 8 compliant opinionated autoformatter with its own style, going further than autopep8/pycodestyle.
 Style configuration options are deliberately limited to a minimum.
 Black aims for readability and reducing git diffs.
+Black is an easy to use tool, with sensible and useful defaults.
+Its style is very elegant.
 
 ### [yapf](https://pypi.org/project/yapf/)
 

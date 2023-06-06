@@ -6,17 +6,17 @@
 
 Prospector is a wrapper around the following tools:
 
-- pylint
-- pycodestyle
-- pyflakes
-- McCabe
+- pylint (very through linter and error detector)
+- pycodestyle (checks formatting for violations of PEP 8)
+- pyflakes (error detector)
+- McCabe (complexity checker)
 - Dodgy (simple regex check to detect accidental SCM diff checkins or secrets hard coded into files)
-- Pydocstyle
+- Pydocstyle (docstring checker)
 - Pyroma (checks `setup.py` files)
-- Vulture
+- Vulture (finds unused code)
 - Frosted (fork of Pyflakes)
-- Mypy
-- Bandit
+- Mypy (type checker)
+- Bandit (finds common security issues)
 
 The primary aim of Prospector is to be useful out of the box. 
 A common complaint of other Python analysis tools is
@@ -36,18 +36,18 @@ It relies on the type checker [pyright](https://github.com/microsoft/pyright), b
 - auto-imports
 - code navigation
 
-## Pylama
+## [Pylama](https://pypi.org/project/pylama/)
 
-[Pylama](https://pypi.org/project/pylama/) is a wrapper around other tools. 
+Pylama is a wrapper around other tools. 
 As of mid-2023, it doesn't seem to be actively maintained anymore.
 Pylama wraps these tools:
 
-- pycodestyle
-- pydocstyle
-- PyFlakes
-- McCabe
-- Pylint
-- Radon 
-- eradicate 
-- Mypy
-- Vulture
+- pycodestyle (checks formatting for violations of PEP 8)
+- pydocstyle (docstring checker)
+- PyFlakes (error detector)
+- McCabe (complexity checker)
+- Pylint (very through linter and error detector)
+- Radon (computes various metrics from source code, such as McCabe's complexity, SLOC, Halstead metrics, etc.)
+- eradicate (removes commented-out code)
+- Mypy (type checker)
+- Vulture (finds unused code)

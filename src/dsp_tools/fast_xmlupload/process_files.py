@@ -79,15 +79,12 @@ def _process_files_in_parallel(
     paths: list[Path],
     input_dir: Path,
     output_dir: Path,
-    nthreads: Optional[int]
-) -> tuple[
-        list[tuple[Path, Optional[Path]]], 
-        list[Path]
-    ]:
+    nthreads: Optional[int],
+) -> tuple[list[tuple[Path, Optional[Path]]], list[Path]]:
     """
     Creates a thread pool and executes the file processing in parallel.
     If a Docker API error occurs, the SIPI container is restarted,
-    and the unprocessed files are returned, 
+    and the unprocessed files are returned,
     so that this function can be called again with the unprocessed files.
 
     Args:
@@ -185,7 +182,7 @@ def _check_params(
 def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
     """
     Parse XML file to get all file paths.
-    If the same file is referenced several times in the XML, 
+    If the same file is referenced several times in the XML,
     it is only returned once.
 
     Args:
@@ -239,10 +236,10 @@ def _start_sipi_container_and_mount_volumes(
         container: Container = docker_client.containers.get(container_name)
     except docker.errors.NotFound:
         docker_client.containers.run(
-            image="daschswiss/sipi:3.8.1", 
-            name=container_name, 
-            volumes=volumes, 
-            entrypoint=entrypoint, 
+            image="daschswiss/sipi:3.8.1",
+            name=container_name,
+            volumes=volumes,
+            entrypoint=entrypoint,
             detach=True,
         )
         container = docker_client.containers.get(container_name)
@@ -253,7 +250,7 @@ def _start_sipi_container_and_mount_volumes(
     container_running = bool(container.attrs and container.attrs.get("State", {}).get("Running"))
     if not container_running:
         container.restart()
-    
+
     # make container globally available
     global sipi_container
     sipi_container = docker_client.containers.get(container_name)
@@ -582,7 +579,7 @@ def _process_file(
     file_category = _get_file_category_from_extension(in_file)
     if not file_category:
         return in_file, None
-    
+
     if file_category == "OTHER":
         result = _process_other_file(
             in_file=in_file,
@@ -739,7 +736,7 @@ def _process_video_file(
 
 
 def handle_interruption(
-    all_paths: list[Path], 
+    all_paths: list[Path],
     processed_paths: list[Path],
     exception: BaseException,
 ) -> None:
@@ -758,7 +755,7 @@ def handle_interruption(
         f.write("\n".join([str(x) for x in unprocessed_paths]))
     with open("processed_files.txt", "w", encoding="utf-8") as f:
         f.write("\n".join([str(x) for x in processed_paths]))
-    
+
     msg = (
         "An error occurred while processing the files. "
         "2 files were written, listing the processed and the unprocessed files:\n"
@@ -768,7 +765,7 @@ def handle_interruption(
     logger.error(msg, exc_info=exception)
 
     sys.exit(1)
-    
+
 
 def process_files(
     input_dir: str,
@@ -836,7 +833,7 @@ def process_files(
             processed_files.extend(result)
         except BaseException as exc:  # pylint: disable=broad-exception-caught
             handle_interruption(
-                all_paths=all_paths, 
+                all_paths=all_paths,
                 processed_paths=[x[1] for x in processed_files if x and x[1]],
                 exception=exc,
             )

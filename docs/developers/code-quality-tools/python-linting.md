@@ -37,7 +37,7 @@ It has near-parity with Flake8, and they are working on implementing pylint rule
 (see [How does Ruff compare to Pylint?](https://beta.ruff.rs/docs/faq/#how-does-ruff-compare-to-pylint)).
 Ruff can be used to replace 
 
-- Flake8 (plus dozens of plugins)
+- Flake8 (wrapper around Pyflakes, pycodestyle, and McCabe) plus dozens of plugins
 - Pyflakes (error detector)
 - pycodestyle (checks formatting for violations of PEP 8)
 - McCabe (complexity checker)

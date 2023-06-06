@@ -114,17 +114,12 @@ def _process_files_in_parallel(
         try:
             orig_filepath_2_uuid.append(processed.result())
         except docker.errors.APIError:
-            print(f"{datetime.now()}: ERROR: A Docker exception occurred. Restart SIPI and resume processing...")
-            logger.error("A Docker exception occurred. Restart SIPI and resume processing...", exc_info=True)
-            # cancel all running jobs
+            print(f"{datetime.now()}: ERROR: A Docker exception occurred. Cancel jobs and restart SIPI...")
+            logger.error("A Docker exception occurred. Cancel jobs and restart SIPI...", exc_info=True)
             for job in processing_jobs:
                 job.cancel()
-            # restart sipi container
             _stop_and_remove_sipi_container()
             _start_sipi_container_and_mount_volumes(input_dir, output_dir)
-            global sipi_container
-            sipi_container = _get_sipi_container()
-            # return processed files and unprocessed files
             processed_paths = [x[0] for x in orig_filepath_2_uuid]
             unprocessed_paths = [x for x in paths if x not in processed_paths]
             return orig_filepath_2_uuid, unprocessed_paths
@@ -232,6 +227,7 @@ def _start_sipi_container_and_mount_volumes(
         input_dir: the root directory of the images that should be processed, is mounted into the container
         output_dir: the output directory where the processed files should be written to, is mounted into the container
     """
+    # prepare parameters for container creation
     container_name = "sipi"
     volumes = [
         f"{input_dir.absolute()}:/sipi/processing-input",
@@ -240,47 +236,25 @@ def _start_sipi_container_and_mount_volumes(
     entrypoint = ["tail", "-f", "/dev/null"]
     docker_client = docker.from_env()
 
-    # Docker container doesn't exist yet
+    # get container. if it doesn't exist: create and run it
     try:
-        container: Container = docker_client.containers.get(container_name)    # pyright: ignore
-    except docker.errors.NotFound:                                             # pyright: ignore
+        container: Container = docker_client.containers.get(container_name)
+    except docker.errors.NotFound:
         docker_client.containers.run(image="daschswiss/sipi:3.8.1", name=container_name, volumes=volumes, entrypoint=entrypoint, detach=True)
+        container = docker_client.containers.get(container_name)
         print(f"{datetime.now()}: Created and started Sipi container '{container_name}'.")
         logger.info(f"Created and started Sipi container '{container_name}'.")
-        return
 
-    # Docker container exists
-    if not container:
-        container_running = False
-    elif not container.attrs:
-        container_running = False
-    elif not container.attrs.get("State", {}).get("Running"):
-        container_running = False
-    else:
-        container_running = True
-    if container_running:
-        print(f"{datetime.now()}: Found running Sipi container '{container_name}'.")
-        logger.info(f"Found running Sipi container '{container_name}'.")
-    else:
+    # the container exists. if it is not running, restart it
+    container_running = bool(container.attrs and container.attrs.get("State", {}).get("Running"))
+    if not container_running:
         container.restart()
-        print(f"{datetime.now()}: Restarted existing Sipi container '{container_name}'.")
-        logger.info(f"Restarted existing Sipi container '{container_name}'.")
-
-
-def _get_sipi_container() -> Optional[Container]:
-    """
-    Finds the locally running Sipi container (searches for container name "sipi")
-
-    Returns:
-        the reference to the Sipi container
-    """
-    docker_client = docker.from_env()
-    try:
-        return docker_client.containers.get("sipi")    # pyright: ignore
-    except docker.errors.NotFound:                     # pyright: ignore
-        print(f"{datetime.now()}: ERROR: Couldn't find a running Sipi container.")
-        logger.error("Couldn't find a running Sipi container.", exc_info=True)
-        return None
+    
+    # make container globally available
+    global sipi_container
+    sipi_container = docker_client.containers.get(container_name)
+    print(f"{datetime.now()}: Sipi container is running.")
+    logger.info("Sipi container is running.")
 
 
 def _stop_and_remove_sipi_container() -> None:
@@ -814,8 +788,6 @@ def process_files(
         input_dir=input_dir_path,
         output_dir=output_dir_path
     )
-    global sipi_container
-    sipi_container = _get_sipi_container()
 
     # get the paths of the files referenced in the XML file
     all_paths = _get_file_paths_from_xml(xml_file_path)

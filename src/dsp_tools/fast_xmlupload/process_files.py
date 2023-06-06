@@ -79,9 +79,15 @@ def _process_files_in_parallel(
     input_dir: Path,
     output_dir: Path,
     nthreads: Optional[int]
-) -> list[tuple[Path, Optional[Path]]]:
+) -> tuple[
+        list[tuple[Path, Optional[Path]]], 
+        list[Path]
+    ]:
     """
     Creates a thread pool and executes the file processing in parallel.
+    If a Docker API error occurs, the SIPI container is restarted,
+    and the unprocessed files are returned, 
+    so that this function can be called again with the unprocessed files.
 
     Args:
         paths: a list of all paths to the files that should be processed
@@ -90,8 +96,10 @@ def _process_files_in_parallel(
         nthreads: number of threads to use for processing
 
     Returns:
-        a list of tuples with the original file path and the path to the processed file.
-        If a file could not be processed, the second path is None.
+        - a list of tuples with the original file path and the path to the processed file.
+          (if a file could not be processed, the second path is None)
+        - a list of all paths that could not be processed
+          (this list will only have content if a Docker API error led to a restart of the SIPI container)
     """
     with ThreadPoolExecutor(max_workers=nthreads) as pool:
         processing_jobs = [pool.submit(
@@ -116,17 +124,12 @@ def _process_files_in_parallel(
             _start_sipi_container_and_mount_volumes(input_dir, output_dir)
             global sipi_container
             sipi_container = _get_sipi_container()
-            # restart processing
+            # return processed files and unprocessed files
             processed_paths = [x[0] for x in orig_filepath_2_uuid]
             unprocessed_paths = [x for x in paths if x not in processed_paths]
-            orig_filepath_2_uuid += _process_files_in_parallel(
-                paths=unprocessed_paths,
-                input_dir=input_dir,
-                output_dir=output_dir,
-                nthreads=nthreads
-            )
+            return orig_filepath_2_uuid, unprocessed_paths
 
-    return orig_filepath_2_uuid
+    return orig_filepath_2_uuid, []
 
 
 def _write_result_to_pkl_file(result: list[tuple[Path, Optional[Path]]]) -> bool:
@@ -827,35 +830,38 @@ def process_files(
     start_time = datetime.now()
     print(f"{start_time}: Start local file processing...")
     logger.info("Start local file processing...")
-    result = []
-    try:
-        result = _process_files_in_parallel(
-            paths=all_paths,
-            input_dir=input_dir_path,
-            output_dir=output_dir_path,
-            nthreads=nthreads
-        )
-    except BaseException as exc:  # pylint: disable=broad-exception-caught
-        handle_interruption(
-            all_paths=all_paths, 
-            processed_paths=[x[1] for x in result if x and x[1]],
-            exception=exc
-        )
+    processed_files = []
+    unprocessed_files = all_paths
+    while unprocessed_files:
+        try:
+            result, unprocessed_files = _process_files_in_parallel(
+                paths=all_paths,
+                input_dir=input_dir_path,
+                output_dir=output_dir_path,
+                nthreads=nthreads
+            )
+            processed_files.extend(result)
+        except BaseException as exc:  # pylint: disable=broad-exception-caught
+            handle_interruption(
+                all_paths=all_paths, 
+                processed_paths=[x[1] for x in processed_files if x and x[1]],
+                exception=exc
+            )
 
     # check if all files were processed
     end_time = datetime.now()
     print(f"{end_time}: Processing files took: {end_time - start_time}")
     logger.info(f"{end_time}: Processing files took: {end_time - start_time}")
     success = _check_if_all_files_were_processed(
-        result=result,
+        result=processed_files,
         all_paths=all_paths
     )
 
     # write pickle file
-    if not _write_result_to_pkl_file(result):
+    if not _write_result_to_pkl_file(processed_files):
         success = False
-        print(f"{datetime.now()}: An error occurred while writing the result to the pickle file. The result was: {result}")
-        logger.error(f"An error occurred while writing the result to the pickle file. The result was: {result}")
+        print(f"{datetime.now()}: An error occurred while writing the result to the pickle file. The result was: {processed_files}")
+        logger.error(f"An error occurred while writing the result to the pickle file. The result was: {processed_files}")
 
     # remove the SIPI container
     if success:

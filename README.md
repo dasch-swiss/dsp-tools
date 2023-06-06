@@ -128,7 +128,9 @@ if you want to examine why a single line of code in a test method fails.
 
 ## Code style
 
-When contributing to the project, please make sure you use the same code style rules as we do. We use 
+When contributing to the project, 
+please make sure you use the same code style rules as we do. 
+We use 
 
 - [markdownlint](https://github.com/igorshubovych/markdownlint-cli) (configured in `.markdownlint.yml`)
 - [black](https://pypi.org/project/black/) (configured in `pyproject.toml`)
@@ -160,11 +162,17 @@ In VSCode,
 
 If configured correctly, you will see style violations in the "Problems" tab.
 
+Make sure to set the docstring format to "google-notypes" in the VSCode settings:
+VS Code > Settings > Auto Docstring: Docstring Format > google-notypes.
+
 
 ### PyCharm
 
 In PyCharm, mypy is available as [plugin](https://plugins.jetbrains.com/plugin/11086-mypy), 
 and many style checks can be enabled in Settings > Editor > Inspections > Python.
+
+Make sure to set the docstring format to "Google notypes" in the PyCharm settings:
+PyCharm > Settings > Tools > Python Integrated Tools > Docstring format: Google notypes
 
 
 ## Contributing to the documentation

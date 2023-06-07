@@ -27,8 +27,9 @@ class ProjectContext:
         except BaseError:
             self._groups = None
         if self._groups:
-            self._group_map: dict[str, str] = {self._inv_project_map[x.project] + ':' + x.name: x.id for x in
-                                               self._groups}
+            self._group_map: dict[str, str] = {
+                self._inv_project_map[x.project] + ":" + x.name: x.id for x in self._groups
+            }
         else:
             self._group_map = None
         self._project_name = None

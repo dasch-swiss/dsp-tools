@@ -34,6 +34,7 @@ docker = "^6.1.2"
 
 
 [tool.poetry.group.dev.dependencies]
+black = "^23.3.0"
 mkdocs = "^1.4.3"
 mkdocs-material = "^9.1.11"
 mkdocs-include-markdown-plugin = "^4.0.4"
@@ -79,9 +80,8 @@ exclude = [
 ]
 
 
-[tool.isort]
-multi_line_output = 3
-known_first_party = ["dsp_tools"]
+[tool.black]
+line-length = 120
 
 
 [tool.pylint.MASTER]
@@ -90,7 +90,7 @@ suggestion-mode = true
 
 
 [tool.pylint.format]
-max-line-length = 150
+max-line-length = 120
 
 
 [tool.pylint."messages control"]
@@ -121,5 +121,4 @@ disable = [
     "too-many-nested-blocks",              # TODO: activate this
     "too-many-return-statements",          # TODO: activate this
     "too-many-statements",                 # TODO: activate this
-    "consider-using-f-string",             # in excel2xml, strings with {} in it must be formatted
 ]

@@ -19,10 +19,7 @@ import jsonpath_ng.ext
 import pytest
 
 from dsp_tools.excel2xml import excel2xml
-from dsp_tools.utils.excel_to_json_lists import (
-    excel2lists,
-    validate_lists_section_with_schema
-)
+from dsp_tools.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
 from dsp_tools.utils.excel_to_json_project import excel2json
 from dsp_tools.utils.excel_to_json_properties import excel2properties
 from dsp_tools.utils.excel_to_json_resources import excel2resources
@@ -60,10 +57,8 @@ class TestTools(unittest.TestCase):
         for file in [f for f in os.listdir(".") if re.search(r"id2iri_.+\.json", f)]:
             os.remove(file)
 
-
     def test_validate_lists_section_with_schema(self) -> None:
         self.assertTrue(validate_lists_section_with_schema(self.test_project_systematic_file))
-
 
     def test_create_lists(self) -> None:
         # the project must already exist, so let's create a project without lists
@@ -73,7 +68,7 @@ class TestTools(unittest.TestCase):
             user_mail=self.user,
             password="test",
             verbose=True,
-            dump=False
+            dump=False,
         )
 
         # open a "lists" section and the project that was created
@@ -83,40 +78,42 @@ class TestTools(unittest.TestCase):
             test_project_minimal = json.load(f)
 
         # create a copy of the project that was created, and insert the first list into it
-        test_project_minimal_with_list_1 = copy.deepcopy(test_project_minimal)
-        test_project_minimal_with_list_1["project"]["lists"] = [lists_section[0], ]
+        tp_minimal_with_list_1 = copy.deepcopy(test_project_minimal)
+        tp_minimal_with_list_1["project"]["lists"] = [lists_section[0]]
 
         # create another copy of the project that was created, insert the second list into it, and save it as file
-        test_project_minimal_with_list_2 = copy.deepcopy(test_project_minimal)
-        test_project_minimal_with_list_2["project"]["lists"] = [lists_section[1], ]
+        tp_minimal_with_list_2 = copy.deepcopy(test_project_minimal)
+        tp_minimal_with_list_2["project"]["lists"] = [lists_section[1]]
         with open("testdata/tmp/test_project_minimal_with_list_2.json", "x", encoding="utf-8") as f:
-            json.dump(test_project_minimal_with_list_2, f)
+            json.dump(tp_minimal_with_list_2, f)
 
         # The method to be tested can now be called with both versions of the same project. One is loaded from disk,
         # the other is a Python object. The two projects each contain another list.
-        name2iri_mapping1, success1 = create_lists(server=self.server,
-                                                   user=self.user,
-                                                   password=self.password,
-                                                   project_file_as_path_or_parsed=test_project_minimal_with_list_1)
-        name2iri_mapping2, success2 = create_lists(server=self.server,
-                                                   user=self.user,
-                                                   password=self.password,
-                                                   project_file_as_path_or_parsed="testdata/tmp/test_project_minimal_with_list_2.json")
-        
+        name2iri_mapping1, success1 = create_lists(
+            server=self.server,
+            user=self.user,
+            password=self.password,
+            project_file_as_path_or_parsed=tp_minimal_with_list_1,
+        )
+        name2iri_mapping2, success2 = create_lists(
+            server=self.server,
+            user=self.user,
+            password=self.password,
+            project_file_as_path_or_parsed="testdata/tmp/test_project_minimal_with_list_2.json",
+        )
+
         # test that both lists have been correctly created
         self.assertTrue(success1)
         self.assertTrue(success2)
         name2iri_names_1 = [str(m.path) for m in jsonpath_ng.ext.parse("$..* where id").find(name2iri_mapping1)]
         name2iri_names_2 = [str(m.path) for m in jsonpath_ng.ext.parse("$..* where id").find(name2iri_mapping2)]
-        node_names_1 = [m.value for m in jsonpath_ng.ext.parse("$.project.lists[*]..name").find(test_project_minimal_with_list_1)]
-        node_names_2 = [m.value for m in jsonpath_ng.ext.parse("$.project.lists[*]..name").find(test_project_minimal_with_list_2)]
+        node_names_1 = [m.value for m in jsonpath_ng.ext.parse("$.project.lists[*]..name").find(tp_minimal_with_list_1)]
+        node_names_2 = [m.value for m in jsonpath_ng.ext.parse("$.project.lists[*]..name").find(tp_minimal_with_list_2)]
         self.assertListEqual(name2iri_names_1, node_names_1)
         self.assertListEqual(name2iri_names_2, node_names_2)
 
-
     def test_validate_project(self) -> None:
         self.assertTrue(validate_project(self.test_project_systematic_file))
-
 
     def test_create_project(self) -> None:
         result = create_project(
@@ -125,14 +122,13 @@ class TestTools(unittest.TestCase):
             user_mail=self.user,
             password="test",
             verbose=True,
-            dump=False
+            dump=False,
         )
         self.assertTrue(result)
 
-
     def test_get_project(self) -> None:
         """
-        Retrieve the systematic JSON project file with the "get" command, 
+        Retrieve the systematic JSON project file with the "get" command,
         and check if the result is identical to the original file.
         """
         # open original project and project that was returned from the server
@@ -145,44 +141,45 @@ class TestTools(unittest.TestCase):
             server=self.server,
             user=self.user,
             password="test",
-            verbose=True
+            verbose=True,
         )
         with open("testdata/tmp/_test-project-systematic.json", encoding="utf-8") as f:
             project_returned = json.load(f)
 
         self._compare_project(project_original, project_returned)
         self._compare_groups(
-            groups_original=project_original["project"].get("groups"), 
-            groups_returned=project_returned["project"].get("groups")
+            groups_original=project_original["project"].get("groups"),
+            groups_returned=project_returned["project"].get("groups"),
         )
         self._compare_users(
-            users_original=project_original["project"].get("users"), 
+            users_original=project_original["project"].get("users"),
             users_returned=project_returned["project"].get("users"),
-            project_shortname=project_shortname
+            project_shortname=project_shortname,
         )
         self._compare_lists(
-            lists_original=project_original["project"].get("lists"), 
-            lists_returned=project_returned["project"].get("lists")
+            lists_original=project_original["project"].get("lists"),
+            lists_returned=project_returned["project"].get("lists"),
         )
 
         for file in [project_original, project_returned]:
             file["project"]["ontologies"] = sorted(file["project"]["ontologies"], key=lambda x: cast(str, x["name"]))
-        for onto_original, onto_returned in zip(project_original["project"]["ontologies"], project_returned["project"]["ontologies"]):
+        for onto_original, onto_returned in zip(
+            project_original["project"]["ontologies"],
+            project_returned["project"]["ontologies"],
+        ):
             self._compare_properties(
                 properties_original=onto_original["properties"],
                 properties_returned=onto_returned["properties"],
-                onto_name=onto_original["name"]
+                onto_name=onto_original["name"],
             )
             self._compare_resources(
                 resources_original=onto_original["resources"],
                 resources_returned=onto_returned["resources"],
-                onto_name=onto_original["name"]
+                onto_name=onto_original["name"],
             )
-
 
     def test_validate_xml_against_schema(self) -> None:
         self.assertTrue(validate_xml_against_schema(input_file=self.test_data_systematic_file))
-
 
     def test_xml_upload(self) -> None:
         result_minimal = xml_upload(
@@ -195,7 +192,7 @@ class TestTools(unittest.TestCase):
             verbose=False,
             incremental=False,
             save_metrics=False,
-            preprocessing_done=False
+            preprocessing_done=False,
         )
         self.assertTrue(result_minimal)
 
@@ -209,7 +206,7 @@ class TestTools(unittest.TestCase):
             verbose=False,
             incremental=False,
             save_metrics=False,
-            preprocessing_done=False
+            preprocessing_done=False,
         )
         self.assertTrue(result_systematic)
 
@@ -221,10 +218,12 @@ class TestTools(unittest.TestCase):
         self.assertNotEqual(mapping_file, "")
 
         id2iri_replaced_xml_filename = "testdata/tmp/_test-id2iri-replaced.xml"
-        id_to_iri(xml_file="testdata/id2iri/test-id2iri-data.xml",
-                  json_file=mapping_file,
-                  out_file=id2iri_replaced_xml_filename,
-                  verbose=True)
+        id_to_iri(
+            xml_file="testdata/id2iri/test-id2iri-data.xml",
+            json_file=mapping_file,
+            out_file=id2iri_replaced_xml_filename,
+            verbose=True,
+        )
         self.assertTrue(os.path.isfile(id2iri_replaced_xml_filename))
 
         result_replaced = xml_upload(
@@ -237,7 +236,7 @@ class TestTools(unittest.TestCase):
             verbose=True,
             incremental=True,
             save_metrics=False,
-            preprocessing_done=False
+            preprocessing_done=False,
         )
         self.assertTrue(result_replaced)
         self.assertTrue(all(not f.name.startswith("stashed_text_properties_") for f in os.scandir(".")))
@@ -246,10 +245,11 @@ class TestTools(unittest.TestCase):
         os.remove(mapping_file)
         os.remove(id2iri_replaced_xml_filename)
 
-
     def test_excel_to_json_project(self) -> None:
-        excel2json(data_model_files="testdata/excel2json/excel2json_files",
-                   path_to_output_file="testdata/tmp/_out_project.json")
+        excel2json(
+            data_model_files="testdata/excel2json/excel2json_files",
+            path_to_output_file="testdata/tmp/_out_project.json",
+        )
         with open("testdata/excel2json/excel2json-expected-output.json", encoding="utf-8") as f:
             output_expected = json.load(f)
         with open("testdata/tmp/_out_project.json", encoding="utf-8") as f:
@@ -257,36 +257,39 @@ class TestTools(unittest.TestCase):
         self.assertDictEqual(output, output_expected)
         os.remove("testdata/tmp/_out_project.json")
 
-
     def test_excel_to_json_list(self) -> None:
-        excel2lists(excelfolder="testdata/excel2json/lists-multilingual",
-                    path_to_output_file="testdata/tmp/_lists-out.json")
+        excel2lists(
+            excelfolder="testdata/excel2json/lists-multilingual",
+            path_to_output_file="testdata/tmp/_lists-out.json",
+        )
         self.assertTrue(os.path.isfile("testdata/tmp/_lists-out.json"))
         os.remove("testdata/tmp/_lists-out.json")
 
-
     def test_excel_to_json_resources(self) -> None:
-        excel2resources(excelfile="testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx",
-                        path_to_output_file="testdata/tmp/_out_resources.json")
+        excel2resources(
+            excelfile="testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx",
+            path_to_output_file="testdata/tmp/_out_resources.json",
+        )
         self.assertTrue(os.path.isfile("testdata/tmp/_out_resources.json"))
         os.remove("testdata/tmp/_out_resources.json")
 
-
     def test_excel_to_json_properties(self) -> None:
-        excel2properties(excelfile="testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx",
-                         path_to_output_file="testdata/tmp/_out_properties.json")
+        excel2properties(
+            excelfile="testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx",
+            path_to_output_file="testdata/tmp/_out_properties.json",
+        )
         self.assertTrue(os.path.isfile("testdata/tmp/_out_properties.json"))
         os.remove("testdata/tmp/_out_properties.json")
 
-
     def test_id_to_iri(self) -> None:
-        id_to_iri(xml_file="testdata/id2iri/test-id2iri-data.xml",
-                  json_file="testdata/id2iri/test-id2iri-mapping.json",
-                  out_file="testdata/tmp/test-id2iri-out.xml",
-                  verbose=True)
+        id_to_iri(
+            xml_file="testdata/id2iri/test-id2iri-data.xml",
+            json_file="testdata/id2iri/test-id2iri-mapping.json",
+            out_file="testdata/tmp/test-id2iri-out.xml",
+            verbose=True,
+        )
         self.assertTrue(os.path.isfile("testdata/tmp/test-id2iri-out.xml"))
         os.remove("testdata/tmp/test-id2iri-out.xml")
-
 
     @pytest.mark.filterwarnings("ignore")
     def test_excel2xml(self) -> None:
@@ -294,11 +297,10 @@ class TestTools(unittest.TestCase):
         self.assertTrue(os.path.isfile("excel2xml-output-data.xml"))
         os.remove("excel2xml-output-data.xml")
 
-        
     def _get_original_project(self) -> dict[str, Any]:
         """
         Open the systematic JSON project file, expand all prefixes, and return the resulting Python object.
-        The prefixes must be expanded because the "get" command returns full IRIs instead of prefixed IRIs, 
+        The prefixes must be expanded because the "get" command returns full IRIs instead of prefixed IRIs,
         so the original prefixes won't be found in the returned file.
 
         Returns:
@@ -309,15 +311,14 @@ class TestTools(unittest.TestCase):
             project_original = json.loads(project_original_str)
 
         for prefix, iri in project_original["prefixes"].items():
-            project_original_str = re.sub(fr'"{prefix}:(\w+?)"', fr'"{iri}\1"', project_original_str)
+            project_original_str = re.sub(rf'"{prefix}:(\w+?)"', rf'"{iri}\1"', project_original_str)
         project_original = json.loads(project_original_str)
         return cast(dict[str, Any], project_original)
-    
 
     def _compare_project(
         self,
         project_original: dict[str, Any],
-        project_returned: dict[str, Any]
+        project_returned: dict[str, Any],
     ) -> None:
         """
         Compare the basic metadata of 2 JSON project definitions.
@@ -331,19 +332,22 @@ class TestTools(unittest.TestCase):
             orig = project_original["project"].get(field)
             ret = project_returned["project"].get(field)
             self.assertEqual(orig, ret, msg=f"Field '{field}' is not identical: original='{orig}', returned='{ret}'")
-        
+
         orig_keywords = sorted(project_original["project"]["keywords"])
         ret_keywords = sorted(project_returned["project"]["keywords"])
-        self.assertEqual(orig_keywords, ret_keywords, msg=f"Field keywords is not identical: original={orig_keywords}, returned={ret_keywords}")
-
+        self.assertEqual(
+            orig_keywords,
+            ret_keywords,
+            msg=f"Field keywords is not identical: original={orig_keywords}, returned={ret_keywords}",
+        )
 
     def _compare_groups(
-        self, 
-        groups_original: Optional[list[dict[str, Any]]], 
-        groups_returned: Optional[list[dict[str, Any]]]
+        self,
+        groups_original: Optional[list[dict[str, Any]]],
+        groups_returned: Optional[list[dict[str, Any]]],
     ) -> None:
         """
-        Compare the "groups" section of the original JSON project definition 
+        Compare the "groups" section of the original JSON project definition
         with the "groups" section of the JSON returned by the "get" command.
         Fails with a message if the sections are not identical.
 
@@ -361,22 +365,29 @@ class TestTools(unittest.TestCase):
                 group["status"] = True
             if group.get("selfjoin") is None:
                 group["selfjoin"] = False
-        
+
         # sort both lists
         groups_original = sorted(groups_original, key=lambda x: cast(str, x.get("name", "")))
         groups_returned = sorted(groups_returned, key=lambda x: cast(str, x.get("name", "")))
         if len(groups_original) != len(groups_returned):
-            self.assertEqual(groups_original, groups_returned, msg="Returned number of groups is different from original number of groups.")
+            self.assertEqual(
+                groups_original,
+                groups_returned,
+                msg="Returned number of groups is different from original number of groups.",
+            )
         else:
             for orig, ret in zip(groups_original, groups_returned):
-                self.assertEqual(orig, ret, msg=f"Group with original name '{orig['name']}' and returned name '{ret['name']}' failed.")
-    
+                self.assertEqual(
+                    orig,
+                    ret,
+                    msg=f"Group with original name '{orig['name']}' and returned name '{ret['name']}' failed.",
+                )
 
     def _compare_users(
-        self, 
-        users_original: Optional[list[dict[str, Any]]], 
+        self,
+        users_original: Optional[list[dict[str, Any]]],
         users_returned: Optional[list[dict[str, Any]]],
-        project_shortname: str
+        project_shortname: str,
     ) -> None:
         """
         Compare the "users" section of the original JSON project definition
@@ -400,8 +411,15 @@ class TestTools(unittest.TestCase):
 
         # remove users that are not in current project (they won't be returned by the "get" command)
         if users_original:
-            current_project_membership_strings = [":admin", ":member", f"{project_shortname}:admin", f"{project_shortname}:member"]
-            users_original = [u for u in users_original if any(p in u.get("projects", []) for p in current_project_membership_strings)]
+            current_project_membership_strings = [
+                ":admin",
+                ":member",
+                f"{project_shortname}:admin",
+                f"{project_shortname}:member",
+            ]
+            users_original = [
+                u for u in users_original if any(p in u.get("projects", []) for p in current_project_membership_strings)
+            ]
 
         # bring the "users" section of original into the form that is returned by the "get" command
         for user in users_original:
@@ -418,29 +436,36 @@ class TestTools(unittest.TestCase):
                 users_original[index]["groups"] = [re.sub("^:", f"{project_shortname}:", g) for g in user["groups"]]
             if user.get("projects"):
                 users_original[index]["projects"] = [re.sub("^:", f"{project_shortname}:", p) for p in user["projects"]]
-        
+
         # sort both lists
         users_original = sorted(users_original or [], key=lambda x: cast(str, x["username"]))
         users_returned = sorted(users_returned or [], key=lambda x: cast(str, x["username"]))
         if len(users_original) != len(users_returned):
-            self.assertEqual(users_original, users_returned, msg="Returned number of users is different from original number of users.")
+            self.assertEqual(
+                users_original,
+                users_returned,
+                msg="Returned number of users is different from original number of users.",
+            )
         else:
             for orig, ret in zip(users_original, users_returned):
-                self.assertEqual(orig, ret, msg=f"User with original name '{orig['username']}' and returned name '{ret['username']}' failed.")
-    
+                self.assertEqual(
+                    orig,
+                    ret,
+                    msg=f"User with original name '{orig['username']}' and returned name '{ret['username']}' failed.",
+                )
 
     def _compare_lists(
-        self, 
-        lists_original: Optional[list[dict[str, Any]]], 
-        lists_returned: Optional[list[dict[str, Any]]]
+        self,
+        lists_original: Optional[list[dict[str, Any]]],
+        lists_returned: Optional[list[dict[str, Any]]],
     ) -> None:
         """
-        Compare the "lists" section of the original JSON project definition 
+        Compare the "lists" section of the original JSON project definition
         with the "lists" section of the JSON returned by the "get" command.
         Fails with a message if the sections are not identical.
 
-        In order to do so, 
-        this method removes all lists of which the nodes are defined in an Excel file, 
+        In order to do so,
+        this method removes all lists of which the nodes are defined in an Excel file,
         because they cannot be compared.
 
         Args:
@@ -453,28 +478,39 @@ class TestTools(unittest.TestCase):
 
         # remove lists of which the nodes were defined in an Excel file
         for list_original in lists_original:
-            if isinstance(list_original["nodes"], dict) and len(list_original["nodes"]) == 1 and "folder" in list_original["nodes"]:
+            if (
+                isinstance(list_original["nodes"], dict)
+                and len(list_original["nodes"]) == 1
+                and "folder" in list_original["nodes"]
+            ):
                 lists_original.remove(list_original)
                 lists_returned = [x for x in lists_returned if x["name"] != list_original["name"]]
-        
+
         # sort both lists
         lists_original = sorted(lists_original, key=lambda x: cast(str, x.get("name", "")))
         lists_returned = sorted(lists_returned, key=lambda x: cast(str, x.get("name", "")))
         if len(lists_original) != len(lists_returned):
-            self.assertEqual(lists_original, lists_returned, msg="Returned number of lists is different from original number of lists.")
+            self.assertEqual(
+                lists_original,
+                lists_returned,
+                msg="Returned number of lists is different from original number of lists.",
+            )
         else:
             for orig, ret in zip(lists_original, lists_returned):
-                self.assertEqual(orig, ret, msg=f"List with original name '{orig['name']}' and returned name '{ret['name']}' failed.")
-    
+                self.assertEqual(
+                    orig,
+                    ret,
+                    msg=f"List with original name '{orig['name']}' and returned name '{ret['name']}' failed.",
+                )
 
     def _compare_properties(
-        self, 
-        properties_original: Optional[list[dict[str, Any]]], 
+        self,
+        properties_original: Optional[list[dict[str, Any]]],
         properties_returned: Optional[list[dict[str, Any]]],
-        onto_name: str
+        onto_name: str,
     ) -> None:
         """
-        Compare the "properties" section of an onto of the original JSON project definition 
+        Compare the "properties" section of an onto of the original JSON project definition
         with the "properties" section of the respective onto of the JSON returned by the "get" command.
         Fails with a message if the sections are not identical.
 
@@ -491,8 +527,8 @@ class TestTools(unittest.TestCase):
         # The returned file will have ":hasSimpleText", so we have to remove the onto name.
         for prop in properties_original:
             if any(sup.startswith(onto_name) for sup in prop["super"]):
-                prop["super"] = [re.sub(fr"^{onto_name}:", ":", sup) for sup in prop["super"]]
-        
+                prop["super"] = [re.sub(rf"^{onto_name}:", ":", sup) for sup in prop["super"]]
+
         # sort both lists
         properties_original = sorted(properties_original, key=lambda x: cast(str, x.get("name", "")))
         properties_returned = sorted(properties_returned, key=lambda x: cast(str, x.get("name", "")))
@@ -500,30 +536,30 @@ class TestTools(unittest.TestCase):
             for prop in proplist:
                 if isinstance(prop["super"], list):
                     prop["super"] = sorted(prop["super"])
-        
+
         if len(properties_original) != len(properties_returned):
             self.assertEqual(
-                properties_original, 
-                properties_returned, 
-                msg=f"Onto {onto_name}: Returned number of properties is different from original number of properties."
+                properties_original,
+                properties_returned,
+                msg=f"Onto {onto_name}: Returned number of properties is different from original number of properties.",
             )
         else:
             for orig, ret in zip(properties_original, properties_returned):
                 self.assertEqual(
-                    orig, 
-                    ret, 
-                    msg=f"Onto '{onto_name}': Property with original name '{orig['name']}' and returned name '{ret['name']}' failed."
+                    orig,
+                    ret,
+                    msg=f"Onto '{onto_name}': Property with original name '{orig['name']}' "
+                    f"and returned name '{ret['name']}' failed.",
                 )
-    
 
     def _compare_resources(
-        self, 
-        resources_original: Optional[list[dict[str, Any]]], 
+        self,
+        resources_original: Optional[list[dict[str, Any]]],
         resources_returned: Optional[list[dict[str, Any]]],
-        onto_name: str
+        onto_name: str,
     ) -> None:
         """
-        Compare the "resources" section of an onto of the original JSON project definition 
+        Compare the "resources" section of an onto of the original JSON project definition
         with the "resources" section of the respective onto of the JSON returned by the "get" command.
         Fails with a message if the sections are not identical.
 
@@ -541,20 +577,20 @@ class TestTools(unittest.TestCase):
         for res in resources_original:
             for card in res.get("cardinalities", []):
                 if card["propname"].startswith(onto_name):
-                    card["propname"] = re.sub(fr"^{onto_name}:", ":", card["propname"])
-            supers_as_list = [res["super"], ] if isinstance(res["super"], str) else res["super"]
+                    card["propname"] = re.sub(rf"^{onto_name}:", ":", card["propname"])
+            supers_as_list = [res["super"]] if isinstance(res["super"], str) else res["super"]
             if any(sup.startswith(onto_name) for sup in supers_as_list):
-                res["super"] = [re.sub(fr"^{onto_name}:", ":", sup) for sup in supers_as_list]
-        
-        # If a subclass doesn't explicitly define all cardinalities of its superclass 
+                res["super"] = [re.sub(rf"^{onto_name}:", ":", sup) for sup in supers_as_list]
+
+        # If a subclass doesn't explicitly define all cardinalities of its superclass
         # (or a subproperty of a cardinality of its superclass),
-        # these cardinalities are implicitly added, so the "get" command will return them. 
-        # It would be too complicated to test this behaviour, 
+        # these cardinalities are implicitly added, so the "get" command will return them.
+        # It would be too complicated to test this behaviour,
         # so we need to remove the cardinalities of all subclasses from both original file and returned file.
         for res in resources_original:
-            supers_as_list = [res["super"], ] if isinstance(res["super"], str) else res["super"]
+            supers_as_list = [res["super"]] if isinstance(res["super"], str) else res["super"]
             for sup in supers_as_list:
-                if re.search(fr"^({onto_name})?:\w+$", sup):
+                if re.search(rf"^({onto_name})?:\w+$", sup):
                     if res.get("cardinalities"):
                         del res["cardinalities"]
                     # remove from returned file, too
@@ -574,25 +610,25 @@ class TestTools(unittest.TestCase):
 
         if len(resources_original) != len(resources_returned):
             self.assertEqual(
-                resources_original, 
+                resources_original,
                 resources_returned,
-                msg=f"Onto {onto_name}: Returned number of resources is different from original number of resources."
+                msg=f"Onto {onto_name}: Returned number of resources is different from original number of resources.",
             )
         else:
             for orig, ret in zip(resources_original, resources_returned):
                 if orig.get("cardinalities") != ret.get("cardinalities"):
                     self.assertEqual(
-                        orig.get("cardinalities"), 
-                        ret.get("cardinalities"), 
+                        orig.get("cardinalities"),
+                        ret.get("cardinalities"),
                         msg=f"Onto '{onto_name}': The cardinalities of resource with original name '{orig['name']}' "
-                            f"and returned name '{ret['name']}' failed."
+                        f"and returned name '{ret['name']}' failed.",
                     )
                 else:
                     self.assertEqual(
-                        orig, 
-                        ret, 
-                        msg=f"Onto '{onto_name}': Resource with original name '{orig['name']}' and returned name '{ret['name']}' failed. "
-                            "The reason of the error lies OUTSIDE of the 'cardinalities' section."
+                        orig,
+                        ret,
+                        msg=f"Onto '{onto_name}': Resource with original name '{orig['name']}' and returned name "
+                        "'{ret['name']}' failed. The reason of the error lies OUTSIDE of the 'cardinalities' section.",
                     )
 
 

@@ -6,11 +6,11 @@ import pytest
 from dsp_tools.models.langstring import LangString, Languages
 
 
-class TestLangString(unittest.TestCase):    # pylint: disable=missing-class-docstring
-    simple_string_de = 'Ein simpler String'
-    simple_string_fr = 'Quelque chose en français'
-    test_string_en = 'This is a test'
-    test_string_de = 'Das ist ein Test'
+class TestLangString(unittest.TestCase):  # pylint: disable=missing-class-docstring
+    simple_string_de = "Ein simpler String"
+    simple_string_fr = "Quelque chose en français"
+    test_string_en = "This is a test"
+    test_string_de = "Das ist ein Test"
 
     def test_langstring_instantiation1(self) -> None:
         """Test a LangString without language."""
@@ -19,47 +19,35 @@ class TestLangString(unittest.TestCase):    # pylint: disable=missing-class-docs
 
     def test_langstring_instantiation2(self) -> None:
         """Test a LangString using string and Languages-enums as index."""
-        ls = LangString({'de': self.simple_string_de, 'fr': self.simple_string_fr})
-        self.assertEqual(ls['de'], self.simple_string_de)
+        ls = LangString({"de": self.simple_string_de, "fr": self.simple_string_fr})
+        self.assertEqual(ls["de"], self.simple_string_de)
         self.assertEqual(ls[Languages.FR], self.simple_string_fr)
 
     def test_langstring_instantiation3(self) -> None:
         """Test a LangString using string and Languages-enums as index."""
         ls = LangString({Languages.DE: self.simple_string_de, Languages.FR: self.simple_string_fr})
         self.assertEqual(ls[Languages.DE], self.simple_string_de)
-        self.assertEqual(ls['fr'], self.simple_string_fr)
+        self.assertEqual(ls["fr"], self.simple_string_fr)
 
     def test_langstring_change(self) -> None:
         """test if changing a LangString item works."""
         ls = LangString({Languages.DE: self.simple_string_de, Languages.FR: self.simple_string_fr})
-        ls['de'] = 'gagaga'
-        self.assertEqual(ls[Languages.DE], 'gagaga')
-        self.assertEqual(ls['fr'], self.simple_string_fr)
+        ls["de"] = "gagaga"
+        self.assertEqual(ls[Languages.DE], "gagaga")
+        self.assertEqual(ls["fr"], self.simple_string_fr)
 
     def test_langstring_fromjson(self) -> None:
         """Test reading a LangString from JSON as used in Knora Admin."""
-        test = [{
-            'language': 'en',
-            'value': self.test_string_en
-        }, {
-            'language': 'de',
-            'value': self.test_string_de
-        }]
+        test = [{"language": "en", "value": self.test_string_en}, {"language": "de", "value": self.test_string_de}]
         ls = LangString.fromJsonObj(test)
-        self.assertEqual(ls['de'], self.test_string_de)
+        self.assertEqual(ls["de"], self.test_string_de)
         self.assertEqual(ls[Languages.EN], self.test_string_en)
 
     def test_langstring_fromjsonld(self) -> None:
         """Test reading a LangString from JSON-LD as used in Knora data/ontologies"""
-        test = [{
-            '@language': 'en',
-            '@value': self.test_string_en
-        }, {
-            '@language': 'de',
-            '@value': self.test_string_de
-        }]
+        test = [{"@language": "en", "@value": self.test_string_en}, {"@language": "de", "@value": self.test_string_de}]
         ls = LangString.fromJsonLdObj(test)
-        self.assertEqual(ls['de'], self.test_string_de)
+        self.assertEqual(ls["de"], self.test_string_de)
         self.assertEqual(ls[Languages.EN], self.test_string_en)
 
     def test_langstring_tojson(self) -> None:
@@ -72,16 +60,16 @@ class TestLangString(unittest.TestCase):    # pylint: disable=missing-class-docs
 
         ls = LangString({Languages.DE: self.simple_string_de, Languages.FR: self.simple_string_fr})
         json = ls.toJsonObj()
-        expected = [{'language': 'de',
-                     'value': self.simple_string_de},
-                    {'language': 'fr',
-                     'value': self.simple_string_fr}]
+        expected = [
+            {"language": "de", "value": self.simple_string_de},
+            {"language": "fr", "value": self.simple_string_fr},
+        ]
         self.assertEqual(json, expected)
         jsonld = ls.toJsonLdObj()
-        expected = [{'@language': 'de',
-                     '@value': self.simple_string_de},
-                    {'@language': 'fr',
-                     '@value': self.simple_string_fr}]
+        expected = [
+            {"@language": "de", "@value": self.simple_string_de},
+            {"@language": "fr", "@value": self.simple_string_fr},
+        ]
         self.assertEqual(jsonld, expected)
 
     def test_langstring_emptyness(self) -> None:

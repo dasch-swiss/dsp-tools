@@ -15,26 +15,26 @@ class TestConnection(unittest.TestCase):
         """
         is executed before all tests; sets up a connection and logs in as user root
         """
-        self.con = Connection('http://0.0.0.0:3333')
-        self.con.login('root@example.com', 'test')
+        self.con = Connection("http://0.0.0.0:3333")
+        self.con.login("root@example.com", "test")
 
     def test_Connection(self) -> None:
         self.assertIsInstance(self.con, Connection)
 
     def test_log_in_and_out(self) -> None:
-        con = Connection('http://0.0.0.0:3333')
-        con.login('root@example.com', 'test')
+        con = Connection("http://0.0.0.0:3333")
+        con.login("root@example.com", "test")
         self.assertIsNotNone(con.token)
         con.logout()
         self.assertIsNone(con.token)
-        self.assertRaisesRegex(BaseError, 'KNORA-ERROR: status code=400*', con.login, 'invalid', 'invalid')
+        self.assertRaisesRegex(BaseError, "KNORA-ERROR: status code=400*", con.login, "invalid", "invalid")
 
     def test_get(self) -> None:
         res = self.con.get("/ontology/0001/anything/simple/v2")
-        self.assertIsNotNone(res['@graph'])
+        self.assertIsNotNone(res["@graph"])
         self.assertRaises(BaseError, self.con.get, "/doesNotExist")
         self.con.logout()
-        self.assertIsNotNone(res['@graph'])
+        self.assertIsNotNone(res["@graph"])
         self.assertRaises(BaseError, self.con.get, "/doesNotExist")
 
     def test_post(self) -> None:
@@ -59,13 +59,13 @@ class TestConnection(unittest.TestCase):
         }
         """
 
-        res = self.con.post('/v2/resources', res_info)
+        res = self.con.post("/v2/resources", res_info)
 
-        self.assertIsNotNone(res['@id'])
-        self.assertEqual(res['@type'], 'anything:Thing')
-        self.assertEqual(res['rdfs:label'], 'knora-py thing')
+        self.assertIsNotNone(res["@id"])
+        self.assertEqual(res["@type"], "anything:Thing")
+        self.assertEqual(res["rdfs:label"], "knora-py thing")
 
-        res_id = res['@id']
+        res_id = res["@id"]
 
         erase_info = f"""{{
             "@id" : "{res_id}",
@@ -80,9 +80,9 @@ class TestConnection(unittest.TestCase):
         }}
         """
 
-        res = self.con.post('/v2/resources/erase', erase_info)
-        self.assertIsNotNone(res['knora-api:result'])
-        self.assertEqual(res['knora-api:result'], 'Resource erased')
+        res = self.con.post("/v2/resources/erase", erase_info)
+        self.assertIsNotNone(res["knora-api:result"])
+        self.assertEqual(res["knora-api:result"], "Resource erased")
 
     def tearDown(self) -> None:
         """

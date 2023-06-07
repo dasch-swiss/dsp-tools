@@ -17,7 +17,7 @@ docker_path_of_user.mkdir(parents=True, exist_ok=True)
 def start_stack(
     max_file_size: Optional[int] = None,
     enforce_docker_system_prune: bool = False,
-    suppress_docker_system_prune: bool = False
+    suppress_docker_system_prune: bool = False,
 ) -> bool:
     """
     Start the Docker containers of DSP-API and DSP-APP, and load some basic data models and data. After startup, ask
@@ -49,14 +49,18 @@ def start_stack(
         shutil.copy(file_path, docker_path_of_user / file.name)
 
     # get sipi.docker-config.lua
-    commit_of_used_api_version = "783428ebc84d974b82452e3d7358b946ae40588c"      # gitleaks:allow
+    commit_of_used_api_version = "783428ebc84d974b82452e3d7358b946ae40588c"  # gitleaks:allow
     url_prefix = f"https://github.com/dasch-swiss/dsp-api/raw/{commit_of_used_api_version}/"
     docker_config_lua_text = requests.get(f"{url_prefix}sipi/config/sipi.docker-config.lua", timeout=5).text
     if max_file_size:
         max_post_size_regex = r"max_post_size ?= ?[\'\"]\d+M[\'\"]"
         if not re.search(max_post_size_regex, docker_config_lua_text):
             raise BaseError("Unable to set max_file_size. Please try again without this flag.")
-        docker_config_lua_text = re.sub(max_post_size_regex, f"max_post_size = '{max_file_size}M'", docker_config_lua_text)
+        docker_config_lua_text = re.sub(
+            max_post_size_regex,
+            f"max_post_size = '{max_file_size}M'",
+            docker_config_lua_text,
+        )
     with open(docker_path_of_user / "sipi.docker-config.lua", "w", encoding="utf-8") as f:
         f.write(docker_config_lua_text)
 
@@ -83,11 +87,13 @@ def start_stack(
         url="http://0.0.0.0:3030/$/datasets",
         files={"file": ("file.ttl", repo_template, "text/turtle; charset=utf8")},
         auth=("admin", "test"),
-        timeout=5
+        timeout=5,
     )
     if not response.ok:
-        raise BaseError("Cannot start DSP-API: Error when creating the 'knora-test' repository. Is DSP-API perhaps "
-                        "running already?")
+        raise BaseError(
+            "Cannot start DSP-API: Error when creating the 'knora-test' repository. "
+            "Is DSP-API perhaps running already?"
+        )
 
     # load some basic ontos and data into the repository
     # (same behaviour as dsp-api/webapi/target/docker/stage/opt/docker/scripts/fuseki-init-knora-test.sh)
@@ -101,7 +107,7 @@ def start_stack(
         ("test_data/all_data/admin-data.ttl", "http://www.knora.org/data/admin"),
         ("test_data/all_data/permissions-data.ttl", "http://www.knora.org/data/permissions"),
         ("test_data/ontologies/anything-onto.ttl", "http://www.knora.org/ontology/0001/anything"),
-        ("test_data/all_data/anything-data.ttl", "http://www.knora.org/data/0001/anything")
+        ("test_data/all_data/anything-data.ttl", "http://www.knora.org/data/0001/anything"),
     ]
     for ttl_file, graph in ttl_files:
         ttl_text = requests.get(url_prefix + ttl_file, timeout=5).text
@@ -109,7 +115,7 @@ def start_stack(
             url=graph_prefix + graph,
             files={"file": ("file.ttl", ttl_text, "text/turtle; charset: utf-8")},
             auth=("admin", "test"),
-            timeout=5
+            timeout=5,
         )
         if not response.ok:
             raise BaseError(f"Cannot start DSP-API: Error when creating graph '{graph}'")
@@ -126,8 +132,10 @@ def start_stack(
     else:
         prune_docker = None
         while prune_docker not in ["y", "n"]:
-            prune_docker = input("Allow dsp-tools to execute 'docker system prune'? This is necessary to keep your "
-                                 "Docker clean. If you are unsure what that means, just type y and press Enter. [y/n]")
+            prune_docker = input(
+                "Allow dsp-tools to execute 'docker system prune'? This is necessary to keep your Docker clean. "
+                "If you are unsure what that means, just type y and press Enter. [y/n]"
+            )
     if prune_docker == "y":
         subprocess.run("docker system prune -f", shell=True, cwd=docker_path_of_user, check=False)
 

@@ -6,11 +6,11 @@ from dsp_tools.models.exceptions import BaseError
 
 @unique
 class Languages(Enum):
-    EN = 'en'
-    DE = 'de'
-    FR = 'fr'
-    IT = 'it'
-    RM = 'rm'
+    EN = "en"
+    DE = "de"
+    FR = "fr"
+    IT = "it"
+    RM = "rm"
 
 
 LangStringParam = Optional[Union[dict[Union[Languages, str], str], str]]
@@ -19,10 +19,10 @@ LangStringParam = Optional[Union[dict[Union[Languages, str], str], str]]
 class LangStringIterator:
     """Iterator class for LangString class."""
 
-    _langstring: 'LangString'
+    _langstring: "LangString"
     _index: int
 
-    def __init__(self, langstring: 'LangString'):
+    def __init__(self, langstring: "LangString"):
         self._langstring = langstring
         self._langlist = list(map(lambda a: a[0], self._langstring.items()))
         self._index = 0
@@ -54,11 +54,11 @@ class LangString:
     "some:thing": "a string without language specificer"
     ```
     """
+
     _langstrs: dict[Languages, str]
     _simplestring: str
 
     def __init__(self, initvalue: LangStringParam = None):
-
         def mymapper(p: tuple[Union[Languages, str], str]) -> tuple[Languages, str]:
             lmap = dict(map(lambda a: (a.value, a), Languages))
             if isinstance(p[0], str) and p[0] in lmap:
@@ -147,16 +147,16 @@ class LangString:
             del self._langstrs[lmap[key.lower()]]
 
     def __str__(self):
-        tmpstr = '{'
+        tmpstr = "{"
         for p in self._langstrs:
-            tmpstr += '=' + p.value + ':' + self._langstrs[p]
-        tmpstr += '}'
+            tmpstr += "=" + p.value + ":" + self._langstrs[p]
+        tmpstr += "}"
         return tmpstr
 
     def __iter__(self):
         return LangStringIterator(self)
 
-    def __eq__(self, other: 'LangString'):
+    def __eq__(self, other: "LangString"):
         equal = self._simplestring == other._simplestring
         if equal:
             for lang in Languages:
@@ -193,7 +193,7 @@ class LangString:
         if self._simplestring is not None:
             return self._simplestring
         else:
-            return list(map(lambda a: {'language': a[0].value, 'value': a[1] if a[1] else "-"}, self._langstrs.items()))
+            return list(map(lambda a: {"language": a[0].value, "value": a[1] if a[1] else "-"}, self._langstrs.items()))
 
     def toJsonLdObj(self) -> Optional[Union[str, list[dict[str, str]]]]:
         if self.isEmpty():
@@ -201,11 +201,11 @@ class LangString:
         if self._simplestring is not None:
             return self._simplestring
         else:
-            return [{'@language': a[0].value, '@value': a[1]} for a in self._langstrs.items()]
+            return [{"@language": a[0].value, "@value": a[1]} for a in self._langstrs.items()]
             # return list(map(lambda a: {'@language': a[0].value, '@value': a[1]}, self._langstrs.items()))
 
     @classmethod
-    def fromJsonLdObj(cls, obj: Optional[Union[list[dict[str, str]], str]]) -> 'LangString':
+    def fromJsonLdObj(cls, obj: Optional[Union[list[dict[str, str]], str]]) -> "LangString":
         if obj is None:
             return None
         if isinstance(obj, str):
@@ -216,24 +216,24 @@ class LangString:
             objs = [obj]
         lstrs: dict[Languages, str] = {}
         for o in objs:
-            lang = o.get('@language')
-            if lang == 'en':
-                lstrs[Languages.EN] = o.get('@value')
-            elif lang == 'de':
-                lstrs[Languages.DE] = o.get('@value')
-            elif lang == 'fr':
-                lstrs[Languages.FR] = o.get('@value')
-            elif lang == 'it':
-                lstrs[Languages.IT] = o.get('@value')
-            elif lang == 'rm':
-                lstrs[Languages.RM] = o.get('@value')
+            lang = o.get("@language")
+            if lang == "en":
+                lstrs[Languages.EN] = o.get("@value")
+            elif lang == "de":
+                lstrs[Languages.DE] = o.get("@value")
+            elif lang == "fr":
+                lstrs[Languages.FR] = o.get("@value")
+            elif lang == "it":
+                lstrs[Languages.IT] = o.get("@value")
+            elif lang == "rm":
+                lstrs[Languages.RM] = o.get("@value")
             else:
-                if o.get('@value') is not None:
-                    return cls(o.get('@value'))
+                if o.get("@value") is not None:
+                    return cls(o.get("@value"))
         return cls(lstrs)
 
     @classmethod
-    def fromJsonObj(cls, obj: Optional[Any]) -> 'LangString':
+    def fromJsonObj(cls, obj: Optional[Any]) -> "LangString":
         if obj is None:
             return None
         if isinstance(obj, str):
@@ -244,30 +244,30 @@ class LangString:
             objs = [obj]
         lstrs: dict[Languages, str] = {}
         for o in objs:
-            lang = o.get('language')
-            if lang == 'en':
-                lstrs[Languages.EN] = o.get('value')
-            elif lang == 'de':
-                lstrs[Languages.DE] = o.get('value')
-            elif lang == 'fr':
-                lstrs[Languages.FR] = o.get('value')
-            elif lang == 'it':
-                lstrs[Languages.IT] = o.get('value')
-            elif lang == 'rm':
-                lstrs[Languages.RM] = o.get('value')
+            lang = o.get("language")
+            if lang == "en":
+                lstrs[Languages.EN] = o.get("value")
+            elif lang == "de":
+                lstrs[Languages.DE] = o.get("value")
+            elif lang == "fr":
+                lstrs[Languages.FR] = o.get("value")
+            elif lang == "it":
+                lstrs[Languages.IT] = o.get("value")
+            elif lang == "rm":
+                lstrs[Languages.RM] = o.get("value")
             else:
-                if o.get('value') is not None:
-                    return cls(o.get('value'))
+                if o.get("value") is not None:
+                    return cls(o.get("value"))
         return cls(lstrs)
 
     def print(self, offset: Optional[int] = None):
-        blank = ' '
+        blank = " "
         # print(f'{blank:>{offset}}LangString:')
         if self._simplestring is not None:
-            print(f'{blank:>{offset + 2}}{self._simplestring}')
+            print(f"{blank:>{offset + 2}}{self._simplestring}")
         else:
             for p in self._langstrs.items():
-                print(f'{blank:>{offset + 2}}{p[0]} : {p[1]}')
+                print(f"{blank:>{offset + 2}}{p[0]} : {p[1]}")
 
     @property
     def langstrs(self):

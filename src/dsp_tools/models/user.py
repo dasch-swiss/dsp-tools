@@ -155,19 +155,21 @@ class User(Model):
     _rm_from_group: set[str]
     _change_admin: dict[str, bool]
 
-    def __init__(self,
-                 con: Connection,
-                 id: Optional[str] = None,
-                 username: Optional[str] = None,
-                 email: Optional[str] = None,
-                 givenName: Optional[str] = None,
-                 familyName: Optional[str] = None,
-                 password: Optional[str] = None,
-                 lang: Optional[Union[str, Languages]] = None,
-                 status: Optional[bool] = None,
-                 sysadmin: Optional[bool] = None,
-                 in_projects: Optional[dict[str, bool]] = None,
-                 in_groups: Optional[set[str]] = None):
+    def __init__(
+        self,
+        con: Connection,
+        id: Optional[str] = None,
+        username: Optional[str] = None,
+        email: Optional[str] = None,
+        givenName: Optional[str] = None,
+        familyName: Optional[str] = None,
+        password: Optional[str] = None,
+        lang: Optional[Union[str, Languages]] = None,
+        status: Optional[bool] = None,
+        sysadmin: Optional[bool] = None,
+        in_projects: Optional[dict[str, bool]] = None,
+        in_groups: Optional[set[str]] = None,
+    ):
         """
         Constructor for User
 
@@ -213,7 +215,7 @@ class User(Model):
         if in_groups is None or isinstance(in_groups, set):
             self._in_groups = in_groups if in_groups is not None else set()
         else:
-            raise BaseError('In_groups must be a set of strings or None!')
+            raise BaseError("In_groups must be a set of strings or None!")
 
         self._sysadmin = None if sysadmin is None else bool(sysadmin)
         self._add_to_project = {}
@@ -228,7 +230,7 @@ class User(Model):
 
     @id.setter
     def id(self, value: str) -> None:
-        raise BaseError('User id cannot be modified!')
+        raise BaseError("User id cannot be modified!")
 
     @property
     def username(self) -> Optional[str]:
@@ -239,7 +241,7 @@ class User(Model):
         if value is None:
             return
         self._username = str(value)
-        self._changed.add('username')
+        self._changed.add("username")
 
     @property
     def email(self) -> Optional[str]:
@@ -250,7 +252,7 @@ class User(Model):
         if value is None:
             return
         self._email = str(value)
-        self._changed.add('email')
+        self._changed.add("email")
 
     @property
     def givenName(self) -> Optional[str]:
@@ -261,7 +263,7 @@ class User(Model):
         if value is None:
             return
         self._givenName = str(value)
-        self._changed.add('givenName')
+        self._changed.add("givenName")
 
     @property
     def familyName(self) -> Optional[str]:
@@ -272,7 +274,7 @@ class User(Model):
         if value is None:
             return
         self._familyName = str(value)
-        self._changed.add('familyName')
+        self._changed.add("familyName")
 
     @property
     def password(self) -> Optional[str]:
@@ -283,7 +285,7 @@ class User(Model):
         if value is None:
             return
         self._password = str(value)
-        self._changed.add('password')
+        self._changed.add("password")
 
     @property
     def lang(self) -> Optional[Languages]:
@@ -295,13 +297,13 @@ class User(Model):
             return
         if isinstance(value, Languages):
             self._lang = value
-            self._changed.add('lang')
+            self._changed.add("lang")
         else:
             lmap = {a.value: a for a in Languages}
             if lmap.get(value) is None:
                 raise BaseError('Invalid language string "' + value + '"!')
             self._lang = lmap[value]
-            self._changed.add('lang')
+            self._changed.add("lang")
 
     @property
     def status(self) -> bool:
@@ -311,7 +313,7 @@ class User(Model):
     def status(self, value: Optional[bool]) -> None:
         self._status = None if value is None else bool(value)
         if value is not None:
-            self._changed.add('status')
+            self._changed.add("status")
 
     @property
     def sysadmin(self) -> bool:
@@ -321,7 +323,7 @@ class User(Model):
     def sysadmin(self, value: bool):
         self._sysadmin = None if value is None else bool(value)
         if value is not None:
-            self._changed.add('sysadmin')
+            self._changed.add("sysadmin")
 
     @property
     def in_groups(self) -> set[str]:
@@ -343,7 +345,7 @@ class User(Model):
             self._rm_from_group.pop(value)
         elif value not in self._in_groups:
             self._add_to_group.add(value)
-            self._changed.add('in_groups')
+            self._changed.add("in_groups")
         else:
             raise BaseError("Already member of this group!")
 
@@ -359,7 +361,7 @@ class User(Model):
             self._add_to_group.discard(value)
         elif value in self._in_groups:
             self._rm_from_group.add(value)
-            self._changed.add('in_groups')
+            self._changed.add("in_groups")
         else:
             raise BaseError("User is not in groups!")
 
@@ -370,7 +372,8 @@ class User(Model):
     @in_projects.setter
     def in_projects(self, value: Any):
         raise BaseError(
-            'Project membership cannot be modified directly! Use methods "addToProject" and "rmFromProject"')
+            'Project membership cannot be modified directly! Use methods "addToProject" and "rmFromProject"'
+        )
 
     def addToProject(self, value: str, padmin: bool = False):
         """
@@ -385,7 +388,7 @@ class User(Model):
             self._rm_from_project.pop(value)
         elif value not in self._in_projects:
             self._add_to_project[value] = padmin
-            self._changed.add('in_projects')
+            self._changed.add("in_projects")
         else:
             raise BaseError("Already member of this project!")
 
@@ -401,7 +404,7 @@ class User(Model):
             self._add_to_project.pop(value)
         elif value in self._in_projects:
             self._rm_from_project[value] = self._in_projects[value]
-            self._changed.add('in_projects')
+            self._changed.add("in_projects")
         else:
             raise BaseError("Project is not in list of member projects!")
 
@@ -415,7 +418,7 @@ class User(Model):
 
         if value in self._in_projects:
             self._change_admin[value] = True
-            self._changed.add('in_projects')
+            self._changed.add("in_projects")
         elif value in self._add_to_project:
             self._add_to_project[value] = True
         else:
@@ -430,7 +433,7 @@ class User(Model):
         """
         if value in self._in_projects:
             self._change_admin[value] = False
-            self._changed.add('in_projects')
+            self._changed.add("in_projects")
         elif value in self._add_to_project:
             self._add_to_project[value] = False
         else:
@@ -455,27 +458,27 @@ class User(Model):
         :return: User instance
         """
 
-        id = json_obj.get('id')
+        id = json_obj.get("id")
         if id is None:
             raise BaseError('User "id" is missing in JSON from knora')
-        email = json_obj.get('email')
+        email = json_obj.get("email")
         if email is None:
             raise BaseError('User "email" is missing in JSON from knora')
-        username = json_obj.get('username')
+        username = json_obj.get("username")
         if username is None:
             raise BaseError('User "username" is missing in JSON from knora')
-        familyName = json_obj.get('familyName')
-        givenName = json_obj.get('givenName')
-        lang = json_obj.get('lang')
-        status = json_obj.get('status')
+        familyName = json_obj.get("familyName")
+        givenName = json_obj.get("givenName")
+        lang = json_obj.get("lang")
+        status = json_obj.get("status")
         if status is None:
             raise BaseError("Status is missing in JSON from knora")
 
         in_projects: dict[str, bool] = {}
         in_groups: set[str] = set()
-        if json_obj.get('permissions') is not None and json_obj['permissions'].get('groupsPerProject') is not None:
+        if json_obj.get("permissions") is not None and json_obj["permissions"].get("groupsPerProject") is not None:
             sysadmin = False
-            for project_iri, group_memberships in json_obj['permissions']['groupsPerProject'].items():
+            for project_iri, group_memberships in json_obj["permissions"]["groupsPerProject"].items():
                 if project_iri == Project.SYSTEM_PROJECT:
                     if Group.PROJECT_SYSTEMADMIN_GROUP in group_memberships:
                         sysadmin = True
@@ -488,17 +491,19 @@ class User(Model):
                             in_projects[project_iri] = True
                         else:
                             in_groups.add(group)
-        return cls(con=con,
-                   id=id,
-                   username=username,
-                   email=email,
-                   givenName=givenName,
-                   familyName=familyName,
-                   lang=lang,
-                   status=status,
-                   sysadmin=sysadmin,
-                   in_projects=in_projects,
-                   in_groups=in_groups)
+        return cls(
+            con=con,
+            id=id,
+            username=username,
+            email=email,
+            givenName=givenName,
+            familyName=familyName,
+            lang=lang,
+            status=status,
+            sysadmin=sysadmin,
+            in_projects=in_projects,
+            in_groups=in_groups,
+        )
 
     def toJsonObj(self, action: Actions):
         """
@@ -514,40 +519,40 @@ class User(Model):
         if action == Actions.Create:
             if self._username is None:
                 raise BaseError("There must be a valid username!")
-            tmp['username'] = self._username
+            tmp["username"] = self._username
             if self._email is None:
                 raise BaseError("'email' is mandatory!")
-            tmp['email'] = self._email
+            tmp["email"] = self._email
             if self._givenName is None:
                 raise BaseError("'givenName is mandatory!")
-            tmp['givenName'] = self._givenName
+            tmp["givenName"] = self._givenName
             if self._familyName is None:
                 raise BaseError("'familyName' is mandatory!")
-            tmp['familyName'] = self._familyName
+            tmp["familyName"] = self._familyName
             if self._password is None:
                 raise BaseError("'password' is mandatory!")
-            tmp['password'] = self._password
+            tmp["password"] = self._password
             if self._lang is None:
                 raise BaseError("'language' is mandatory!")
-            tmp['lang'] = self._lang.value
-            tmp['status'] = True if self._status is None else self._status
-            tmp['systemAdmin'] = False if self._sysadmin is None else self._sysadmin
+            tmp["lang"] = self._lang.value
+            tmp["status"] = True if self._status is None else self._status
+            tmp["systemAdmin"] = False if self._sysadmin is None else self._sysadmin
         elif action == Actions.Update:
             tmp_changed = False
-            if self._username is not None and 'username' in self._changed:
-                tmp['username'] = self._username
+            if self._username is not None and "username" in self._changed:
+                tmp["username"] = self._username
                 tmp_changed = self._username
-            if self._email is not None and 'email' in self._changed:
-                tmp['email'] = self._email
+            if self._email is not None and "email" in self._changed:
+                tmp["email"] = self._email
                 tmp_changed = True
-            if self._givenName is not None and 'givenName' in self._changed:
-                tmp['givenName'] = self._givenName
+            if self._givenName is not None and "givenName" in self._changed:
+                tmp["givenName"] = self._givenName
                 tmp_changed = True
-            if self._familyName is not None and 'familyName' in self._changed:
-                tmp['familyName'] = self._familyName
+            if self._familyName is not None and "familyName" in self._changed:
+                tmp["familyName"] = self._familyName
                 tmp_changed = True
-            if self._lang is not None and 'lang' in self._changed:
-                tmp['lang'] = self._lang.value
+            if self._lang is not None and "lang" in self._changed:
+                tmp["lang"] = self._lang.value
                 tmp_changed = True
             if not tmp_changed:
                 tmp = {}
@@ -563,19 +568,18 @@ class User(Model):
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj)
         result = self._con.post(User.ROUTE, jsondata)
-        id = result['user']['id']
+        id = result["user"]["id"]
         if self._in_projects is not None:
             for project in self._in_projects:
-                result = self._con.post(
-                    User.IRI + quote_plus(id) + User.PROJECT_MEMBERSHIPS + quote_plus(project))
+                result = self._con.post(User.IRI + quote_plus(id) + User.PROJECT_MEMBERSHIPS + quote_plus(project))
                 if self._in_projects[project]:
                     result = self._con.post(
-                        User.IRI + quote_plus(id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(project))
+                        User.IRI + quote_plus(id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(project)
+                    )
         if self._in_groups is not None:
             for group in self._in_groups:
-                result = self._con.post(
-                    User.IRI + quote_plus(id) + User.GROUP_MEMBERSHIPS + quote_plus(group))
-        return User.fromJsonObj(self._con, result['user'])
+                result = self._con.post(User.IRI + quote_plus(id) + User.GROUP_MEMBERSHIPS + quote_plus(group))
+        return User.fromJsonObj(self._con, result["user"])
 
     def read(self) -> Any:
         """
@@ -586,12 +590,12 @@ class User(Model):
         if self._id is not None:
             result = self._con.get(User.IRI + quote_plus(self._id))
         elif self._email is not None:
-            result = self._con.get(User.ROUTE + '/email/' + quote_plus(self._email))
+            result = self._con.get(User.ROUTE + "/email/" + quote_plus(self._email))
         elif self._username is not None:
-            result = self._con.get(User.ROUTE + '/username/' + quote_plus(self._username))
+            result = self._con.get(User.ROUTE + "/username/" + quote_plus(self._username))
         else:
-            raise BaseError('Either user-id or email is required!')
-        return User.fromJsonObj(self._con, result['user'])
+            raise BaseError("Either user-id or email is required!")
+        return User.fromJsonObj(self._con, result["user"])
 
     def update(self, requesterPassword: Optional[str] = None) -> Any:
         """
@@ -604,53 +608,51 @@ class User(Model):
         jsonobj = self.toJsonObj(Actions.Update)
         if jsonobj:
             jsondata = json.dumps(jsonobj)
-            result = self._con.put(User.IRI + quote_plus(self.id) + '/BasicUserInformation', jsondata)
-        if 'status' in self._changed:
-            jsonobj = {'status': self._status}
+            result = self._con.put(User.IRI + quote_plus(self.id) + "/BasicUserInformation", jsondata)
+        if "status" in self._changed:
+            jsonobj = {"status": self._status}
             jsondata = json.dumps(jsonobj)
-            result = self._con.put(User.IRI + quote_plus(self.id) + '/Status', jsondata)
-        if 'password' in self._changed:
+            result = self._con.put(User.IRI + quote_plus(self.id) + "/Status", jsondata)
+        if "password" in self._changed:
             if requesterPassword is None:
                 raise BaseError("Requester's password is missing!")
-            jsonobj = {
-                "requesterPassword": requesterPassword,
-                "newPassword": self._password
-            }
+            jsonobj = {"requesterPassword": requesterPassword, "newPassword": self._password}
             jsondata = json.dumps(jsonobj)
-            result = self._con.put(User.IRI + quote_plus(self.id) + '/Password', jsondata)
-        if 'sysadmin' in self._changed:
-            jsonobj = {'systemAdmin': self._sysadmin}
+            result = self._con.put(User.IRI + quote_plus(self.id) + "/Password", jsondata)
+        if "sysadmin" in self._changed:
+            jsonobj = {"systemAdmin": self._sysadmin}
             jsondata = json.dumps(jsonobj)
-            result = self._con.put(User.IRI + quote_plus(self.id) + '/SystemAdmin', jsondata)
+            result = self._con.put(User.IRI + quote_plus(self.id) + "/SystemAdmin", jsondata)
         for p in self._add_to_project.items():
-            result = self._con.post(
-                User.IRI + quote_plus(self._id) + User.PROJECT_MEMBERSHIPS + quote_plus(p[0]))
+            result = self._con.post(User.IRI + quote_plus(self._id) + User.PROJECT_MEMBERSHIPS + quote_plus(p[0]))
             if p[1]:
                 result = self._con.post(
-                    User.IRI + quote_plus(self._id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
+                    User.IRI + quote_plus(self._id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0])
+                )
 
         for p in self._rm_from_project:
             if self._in_projects.get(p) is not None and self._in_projects[p]:
                 result = self._con.delete(
-                    User.IRI + quote_plus(self._id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p))
-            result = self._con.delete(
-                User.IRI + quote_plus(self._id) + User.PROJECT_MEMBERSHIPS + quote_plus(p))
+                    User.IRI + quote_plus(self._id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p)
+                )
+            result = self._con.delete(User.IRI + quote_plus(self._id) + User.PROJECT_MEMBERSHIPS + quote_plus(p))
 
         for p in self._change_admin.items():
             if not p[0] in self._in_projects:
-                raise BaseError('user must be member of project!')
+                raise BaseError("user must be member of project!")
             if p[1]:
                 result = self._con.post(
-                    User.IRI + quote_plus(self._id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
+                    User.IRI + quote_plus(self._id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0])
+                )
             else:
                 result = self._con.delete(
-                    User.IRI + quote_plus(self._id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
+                    User.IRI + quote_plus(self._id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0])
+                )
 
         for p in self._add_to_group:
             result = self._con.post(User.IRI + quote_plus(self._id) + User.GROUP_MEMBERSHIPS + quote_plus(p))
         for p in self._rm_from_group:
-            result = self._con.delete(
-                User.IRI + quote_plus(self._id) + User.GROUP_MEMBERSHIPS + quote_plus(p))
+            result = self._con.delete(User.IRI + quote_plus(self._id) + User.GROUP_MEMBERSHIPS + quote_plus(p))
         user = User(con=self._con, id=self._id).read()
         return user
 
@@ -660,7 +662,7 @@ class User(Model):
         :return: None
         """
         result = self._con.delete(User.IRI + quote_plus(self._id))
-        return User.fromJsonObj(self._con, result['user'])
+        return User.fromJsonObj(self._con, result["user"])
 
     @staticmethod
     def getAllUsers(con: Connection) -> list[Any]:
@@ -672,9 +674,9 @@ class User(Model):
         """
 
         result = con.get(User.ROUTE)
-        if 'users' not in result:
+        if "users" not in result:
             raise BaseError("Request got no users!")
-        return [User.fromJsonObj(con, a) for a in result['users']]
+        return [User.fromJsonObj(con, a) for a in result["users"]]
 
     @staticmethod
     def getAllUsersForProject(con: Connection, proj_shortcode: str) -> Optional[list[User]]:
@@ -685,10 +687,10 @@ class User(Model):
         :project_shortcode: Shortcode of the project
         :return: List of users belonging to that project
         """
-        members = con.get(f'/admin/projects/shortcode/{proj_shortcode}/members')
+        members = con.get(f"/admin/projects/shortcode/{proj_shortcode}/members")
         if members is None or len(members) < 1:
             return None
-        res: list[User] = [User.fromJsonObj(con, a) for a in members['members']]
+        res: list[User] = [User.fromJsonObj(con, a) for a in members["members"]]
         res.reverse()
         return res
 
@@ -696,7 +698,7 @@ class User(Model):
         self,
         con: Connection,
         proj_shortname: str,
-        proj_iri: str
+        proj_iri: str,
     ) -> dict[str, Union[str, list[str], None]]:
         user: dict[str, Union[str, list[str], bool, None]] = {
             "username": self.username,
@@ -709,10 +711,10 @@ class User(Model):
             user["lang"] = self.lang.value
         groups = list()
         for group_iri in self._in_groups:
-            group_info = con.get(f'/admin/groups/{urllib.parse.quote_plus(group_iri)}')
-            if 'group' in group_info and 'name' in group_info['group']:
-                groupname = group_info['group']['name']
-                groups.append(f'{proj_shortname}:{groupname}')
+            group_info = con.get(f"/admin/groups/{urllib.parse.quote_plus(group_iri)}")
+            if "group" in group_info and "name" in group_info["group"]:
+                groupname = group_info["group"]["name"]
+                groups.append(f"{proj_shortname}:{groupname}")
         if self.sysadmin:
             groups.append("SystemAdmin")
         user["groups"] = groups
@@ -733,19 +735,19 @@ class User(Model):
         :return: None
         """
 
-        print('User info:')
-        print('  Id:          {}'.format(self._id))
-        print('  Username:    {}'.format(self._username))
-        print('  Family name: {}'.format(self._familyName))
-        print('  Given name:  {}'.format(self._givenName))
-        print('  Language:    {}'.format(self._lang.value))
-        print('  Status:      {}'.format(self._status))
-        print('  Sysadmin:    {}'.format(self._sysadmin))
-        print('  In projects:')
+        print("User info:")
+        print("  Id:          {}".format(self._id))
+        print("  Username:    {}".format(self._username))
+        print("  Family name: {}".format(self._familyName))
+        print("  Given name:  {}".format(self._givenName))
+        print("  Language:    {}".format(self._lang.value))
+        print("  Status:      {}".format(self._status))
+        print("  Sysadmin:    {}".format(self._sysadmin))
+        print("  In projects:")
         if self._in_projects is not None:
             for p in self._in_projects:
-                print('    {} : project admin: {}'.format(p, self._in_projects[p]))
-        print('   In groups:')
+                print("    {} : project admin: {}".format(p, self._in_projects[p]))
+        print("   In groups:")
         if self._in_groups is not None:
             for g in self._in_groups:
-                print('    {}'.format(g))
+                print("    {}".format(g))

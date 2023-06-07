@@ -20,7 +20,7 @@ def id_to_iri(xml_file: str, json_file: str, out_file: Optional[str], verbose: b
     Args:
         xml_file: the XML file with the data to be replaced
         json_file: the JSON file with the mapping (dict) of internal IDs to IRIs
-        out_file: path to the output XML file with replaced IDs (optional), default "id2iri_replaced_" + timestamp + ".xml"
+        out_file: path to output XML file with replaced IDs (optional), default "id2iri_replaced_" + timestamp + ".xml"
         verbose: verbose feedback if set to True
 
     Raises:
@@ -39,7 +39,7 @@ def id_to_iri(xml_file: str, json_file: str, out_file: Optional[str], verbose: b
         raise BaseError(f"File {json_file} could not be found.")
 
     # load JSON from provided json file to dict
-    with open(json_file, encoding="utf-8", mode='r') as file:
+    with open(json_file, encoding="utf-8", mode="r") as file:
         mapping = json.load(file)
 
     # parse XML from provided xml file

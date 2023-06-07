@@ -23,7 +23,7 @@ list_of_previous_node_names: list[str] = []
 
 
 def expand_lists_from_excel(
-    lists_section: list[dict[str, Union[str, dict[str, Any]]]]
+    lists_section: list[dict[str, Union[str, dict[str, Any]]]],
 ) -> list[dict[str, Any]]:
     """
     Checks if the "lists" section of a JSON project file contains references to Excel files. Expands all Excel files to
@@ -33,7 +33,8 @@ def expand_lists_from_excel(
     False if one of the lists couldn't be expanded correctly.
 
     Args:
-        lists_section: the "lists" section of a parsed JSON project file. If this is an empty list, an empty list will be returned.
+        lists_section: the "lists" section of a parsed JSON project file.
+            If this is an empty list, an empty list will be returned.
 
     Raises:
         BaseError: if a problem occurred while trying to expand the Excel files
@@ -48,7 +49,7 @@ def expand_lists_from_excel(
             new_lists.append(_list)
         else:
             # this is a reference to a folder with Excel files
-            foldername = _list["nodes"]["folder"]   # type: ignore
+            foldername = _list["nodes"]["folder"]  # type: ignore
             excel_file_paths = _extract_excel_file_paths(foldername)
             try:
                 returned_lists_section = _make_json_lists_from_excel(excel_file_paths, verbose=False)
@@ -57,8 +58,10 @@ def expand_lists_from_excel(
                 # needs to stay intact, e.g. the labels and comments.
                 _list["nodes"] = returned_lists_section[0]["nodes"]
                 new_lists.append(_list)
-                print(f"\tThe list '{_list['name']}' contains a reference to the folder '{foldername}'. The Excel "
-                      f"files therein have been temporarily expanded into the 'lists' section of your project.")
+                print(
+                    f"\tThe list '{_list['name']}' contains a reference to the folder '{foldername}'. The Excel "
+                    f"files therein have been temporarily expanded into the 'lists' section of your project."
+                )
             except BaseError as err:
                 raise BaseError(
                     f"\tWARNING: The list '{_list['name']}' contains a reference to the folder '{foldername}', but a "
@@ -76,7 +79,7 @@ def _get_values_from_excel(
     row: int,
     col: int,
     preval: list[str],
-    verbose: bool = False
+    verbose: bool = False,
 ) -> tuple[int, dict[str, Any]]:
     """
     This function calls itself recursively to go through the Excel files. It extracts the cell values and composes
@@ -115,26 +118,28 @@ def _get_values_from_excel(
     if col > 1:
         # append the cell value of the parent node (which is one value to the left of the current cell) to the list of
         # previous values
-        preval.append(str(base_file_ws.cell(column=col-1, row=row).value).strip())
+        preval.append(str(base_file_ws.cell(column=col - 1, row=row).value).strip())
 
     while cell.value and regex.search(r"\p{L}", str(cell.value), flags=re.UNICODE):
         # check if all predecessors in row (values to the left) are consistent with the values in preval list
         for idx, val in enumerate(preval[:-1]):
-            if val != str(base_file_ws.cell(column=idx+1, row=row).value).strip():
-                raise BaseError("ERROR: Inconsistency in Excel list: "
-                                f"{val} not equal to {str(base_file_ws.cell(column=idx+1, row=row).value).strip()}")
+            if val != str(base_file_ws.cell(column=idx + 1, row=row).value).strip():
+                raise BaseError(
+                    "ERROR: Inconsistency in Excel list: "
+                    f"{val} not equal to {str(base_file_ws.cell(column=idx+1, row=row).value).strip()}"
+                )
 
         # loop through the row until the last (furthest right) value is found
-        next_value = base_file_ws.cell(column=col+1, row=row).value
+        next_value = base_file_ws.cell(column=col + 1, row=row).value
         if next_value and regex.search(r"\p{L}", str(next_value), flags=re.UNICODE):
             row, _ = _get_values_from_excel(
                 excelfiles=excelfiles,
                 base_file=base_file,
                 parentnode=currentnode,
-                col=col+1,
+                col=col + 1,
                 row=row,
                 preval=preval,
-                verbose=verbose
+                verbose=verbose,
             )
 
         # if value was last in row (no further values to the right), it's a node, continue here
@@ -145,8 +150,10 @@ def _get_values_from_excel(
             list_of_lists_of_previous_cell_values.append(new_check_list)
 
             if any(list_of_lists_of_previous_cell_values.count(x) > 1 for x in list_of_lists_of_previous_cell_values):
-                raise BaseError(f"ERROR: There is at least one duplicate node in the list. "
-                                f"Found duplicate in column {cell.column}, row {cell.row}:\n'{str(cell.value).strip()}'")
+                raise BaseError(
+                    f"ERROR: There is at least one duplicate node in the list. "
+                    f"Found duplicate in column {cell.column}, row {cell.row}:\n'{str(cell.value).strip()}'"
+                )
 
             # create a simplified version of the cell value and use it as name of the node
             nodename = simplify_name(str(cell.value).strip())
@@ -162,8 +169,10 @@ def _get_values_from_excel(
             for other_lang, ws_other_lang in excelfiles.items():
                 cell_value = ws_other_lang.cell(column=col, row=row).value
                 if not (isinstance(cell_value, str) and len(cell_value) > 0):
-                    raise BaseError("ERROR: Malformed Excel file: The Excel file with the language code "
-                                    f"'{other_lang}' should have a value in row {row}, column {col}")
+                    raise BaseError(
+                        "ERROR: Malformed Excel file: The Excel file with the language code "
+                        f"'{other_lang}' should have a value in row {row}, column {col}"
+                    )
                 else:
                     labels_dict[other_lang] = cell_value.strip()
 
@@ -228,7 +237,7 @@ def _make_json_lists_from_excel(excel_file_paths: list[str], verbose: bool = Fal
         row=startrow,
         col=startcol,
         preval=[],
-        verbose=verbose
+        verbose=verbose,
     )
 
     # extract the children of the fictive dummy parent node
@@ -241,7 +250,7 @@ def _make_json_lists_from_excel(excel_file_paths: list[str], verbose: bool = Fal
             "name": _list["name"],
             "labels": _list["labels"],
             "comments": _list["labels"],
-            "nodes": _list["nodes"]
+            "nodes": _list["nodes"],
         }
 
     return finished_lists
@@ -249,7 +258,7 @@ def _make_json_lists_from_excel(excel_file_paths: list[str], verbose: bool = Fal
 
 def validate_lists_section_with_schema(
     path_to_json_project_file: Optional[str] = None,
-    lists_section: Optional[list[dict[str, Any]]] = None
+    lists_section: Optional[list[dict[str, Any]]] = None,
 ) -> bool:
     """
     This function checks if a "lists" section of a JSON project is valid according to the schema. The "lists" section
@@ -268,7 +277,9 @@ def validate_lists_section_with_schema(
     if bool(path_to_json_project_file) == bool(lists_section):
         raise BaseError("Validation of the 'lists' section works only if exactly one of the two arguments is given.")
 
-    with importlib.resources.files("dsp_tools").joinpath("resources/schema/lists-only.json").open(encoding="utf-8") as schema_file:
+    with importlib.resources.files("dsp_tools").joinpath("resources/schema/lists-only.json").open(
+        encoding="utf-8"
+    ) as schema_file:
         lists_schema = json.load(schema_file)
 
     if path_to_json_project_file:
@@ -276,14 +287,17 @@ def validate_lists_section_with_schema(
             project = json.load(f)
             lists_section = project["project"].get("lists")
             if not lists_section:
-                raise BaseError(f"Cannot validate \"lists\" section of {path_to_json_project_file}, "
-                                "because there is no \"lists\" section in this file.")
+                raise BaseError(
+                    f"Cannot validate 'lists' section of {path_to_json_project_file}, "
+                    "because there is no 'lists' section in this file."
+                )
 
     try:
         jsonschema.validate(instance={"lists": lists_section}, schema=lists_schema)
     except jsonschema.ValidationError as err:
         raise BaseError(
-            f'"lists" section did not pass validation. The error message is: {err.message}\nThe error occurred at {err.json_path}'
+            f"'lists' section did not pass validation. The error message is: {err.message}\n"
+            f"The error occurred at {err.json_path}"
         ) from None
 
     return True
@@ -307,12 +321,13 @@ def _extract_excel_file_paths(excelfolder: str) -> list[str]:
         raise BaseError(f"ERROR: {excelfolder} is not a directory.")
 
     excel_file_paths = [
-        filename for filename in glob.iglob(f"{excelfolder}/*.xlsx")
+        filename
+        for filename in glob.iglob(f"{excelfolder}/*.xlsx")
         if not os.path.basename(filename).startswith("~$") and os.path.isfile(filename)
     ]
 
     for filepath in excel_file_paths:
-        if not re.search(r'^(de|en|fr|it|rm)\.xlsx$', os.path.basename(filepath)):
+        if not re.search(r"^(de|en|fr|it|rm)\.xlsx$", os.path.basename(filepath)):
             raise BaseError(f"Invalid file name '{filepath}'. Expected format: 'languagecode.xlsx'")
 
     return excel_file_paths
@@ -321,7 +336,7 @@ def _extract_excel_file_paths(excelfolder: str) -> list[str]:
 def excel2lists(
     excelfolder: str,
     path_to_output_file: Optional[str] = None,
-    verbose: bool = False
+    verbose: bool = False,
 ) -> tuple[list[dict[str, Any]], bool]:
     """
     Converts lists described in Excel files into a "lists" section that can be inserted into a JSON project file.

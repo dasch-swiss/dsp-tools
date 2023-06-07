@@ -15,25 +15,24 @@ class XMLValue:
     _is_richtext: bool
 
     def __init__(self, node: etree.Element, val_type: str, listname: Optional[str] = None) -> None:
-
         self._resrefs = None
-        self._comment = node.get('comment')
-        self._permissions = node.get('permissions')
-        if node.get('encoding') == 'xml':
+        self._comment = node.get("comment")
+        self._permissions = node.get("permissions")
+        if node.get("encoding") == "xml":
             node.attrib.clear()
             xmlstr = etree.tostring(node, encoding="unicode", method="xml")
-            xmlstr = xmlstr.replace('<text xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">', '')
-            xmlstr = xmlstr.replace('</text>', '')
+            xmlstr = xmlstr.replace('<text xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">', "")
+            xmlstr = xmlstr.replace("</text>", "")
             self._value = KnoraStandoffXml(xmlstr)
             tmp_id_list = self._value.get_all_iris()
             if tmp_id_list:
                 refs = set()
                 for tmp_id in tmp_id_list:
-                    refs.add(tmp_id.split(':')[1])
+                    refs.add(tmp_id.split(":")[1])
                 self._resrefs = list(refs)
         else:
-            if val_type == 'list':
-                self._value = listname + ':' + "".join(node.itertext())
+            if val_type == "list":
+                self._value = listname + ":" + "".join(node.itertext())
             else:
                 self._value = "".join(node.itertext())
 
@@ -72,9 +71,9 @@ class XMLValue:
 
     def print(self) -> None:
         """Prints the value and its attributes."""
-        print('   Value: ' + str(self._value))
+        print("   Value: " + str(self._value))
         if self._comment:
-            print('   Comment:' + self._comment)
+            print("   Comment:" + self._comment)
         if self._resrefs is not None:
             for i in self._resrefs:
-                print('   res_ref: ' + i)
+                print("   res_ref: " + i)

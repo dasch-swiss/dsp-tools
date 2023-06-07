@@ -20,6 +20,7 @@ class OntoIri:
         iri: the ontology IRI
         hashtag: True if "#" is used to separate elements, False if element name is appended after "/"
     """
+
     iri: str
     hashtag: bool
 
@@ -57,11 +58,11 @@ class Cardinality(Enum):
 
 
 class ContextIterator:
-    _context: 'Context'
+    _context: "Context"
     _prefixes: list[str]
     _index: int
 
-    def __init__(self, context: 'Context'):
+    def __init__(self, context: "Context"):
         self._context = context
         self._prefixes = [x for x in self._context.context]
         self._index = 0
@@ -81,35 +82,42 @@ class Context:
     """
     This class holds a JSON-LD context with the ontology IRI's and the associated prefixes
     """
+
     _context: ContextType
     _rcontext: dict[str, str]
     _exp: Pattern[str]
 
-    common_ontologies = ContextType({
-        "foaf": OntoIri("http://xmlns.com/foaf/0.1/", False),
-        "dc": OntoIri("http://purl.org/dc/elements/1.1/", False),
-        "dcterms": OntoIri("http://purl.org/dc/terms/", False),
-        "dcmi": OntoIri("http://purl.org/dc/dcmitype/", False),
-        "skos": OntoIri("http://www.w3.org/2004/02/skos/core", True),
-        "bibtex": OntoIri("http://purl.org/net/nknouf/ns/bibtex", True),
-        "bibo": OntoIri("http://purl.org/ontology/bibo/", False),
-        "cidoc": OntoIri("http://purl.org/NET/cidoc-crm/core", True),
-        "schema": OntoIri("https://schema.org/", False),
-        "edm": OntoIri("http://www.europeana.eu/schemas/edm/", False),
-        "ebucore": OntoIri("http://www.ebu.ch/metadata/ontologies/ebucore/ebucore", True)
-    })
+    common_ontologies = ContextType(
+        {
+            "foaf": OntoIri("http://xmlns.com/foaf/0.1/", False),
+            "dc": OntoIri("http://purl.org/dc/elements/1.1/", False),
+            "dcterms": OntoIri("http://purl.org/dc/terms/", False),
+            "dcmi": OntoIri("http://purl.org/dc/dcmitype/", False),
+            "skos": OntoIri("http://www.w3.org/2004/02/skos/core", True),
+            "bibtex": OntoIri("http://purl.org/net/nknouf/ns/bibtex", True),
+            "bibo": OntoIri("http://purl.org/ontology/bibo/", False),
+            "cidoc": OntoIri("http://purl.org/NET/cidoc-crm/core", True),
+            "schema": OntoIri("https://schema.org/", False),
+            "edm": OntoIri("http://www.europeana.eu/schemas/edm/", False),
+            "ebucore": OntoIri("http://www.ebu.ch/metadata/ontologies/ebucore/ebucore", True),
+        }
+    )
 
-    knora_ontologies = ContextType({
-        "knora-api": OntoIri("http://api.knora.org/ontology/knora-api/v2", True),
-        "salsah-gui": OntoIri("http://api.knora.org/ontology/salsah-gui/v2", True)
-    })
+    knora_ontologies = ContextType(
+        {
+            "knora-api": OntoIri("http://api.knora.org/ontology/knora-api/v2", True),
+            "salsah-gui": OntoIri("http://api.knora.org/ontology/salsah-gui/v2", True),
+        }
+    )
 
-    base_ontologies = ContextType({
-        "rdf": OntoIri("http://www.w3.org/1999/02/22-rdf-syntax-ns", True),
-        "rdfs": OntoIri("http://www.w3.org/2000/01/rdf-schema", True),
-        "owl": OntoIri("http://www.w3.org/2002/07/owl", True),
-        "xsd": OntoIri("http://www.w3.org/2001/XMLSchema", True)
-    })
+    base_ontologies = ContextType(
+        {
+            "rdf": OntoIri("http://www.w3.org/1999/02/22-rdf-syntax-ns", True),
+            "rdfs": OntoIri("http://www.w3.org/2000/01/rdf-schema", True),
+            "owl": OntoIri("http://www.w3.org/2002/07/owl", True),
+            "xsd": OntoIri("http://www.w3.org/2001/XMLSchema", True),
+        }
+    )
 
     def __is_iri(self, val: str) -> bool:
         """
@@ -136,7 +144,7 @@ class Context:
         # add ontologies from context, if any
         if context:
             for prefix, onto in context.items():
-                self._context[prefix] = OntoIri(onto.removesuffix('#'), onto.endswith('#') or onto.endswith('/v2'))
+                self._context[prefix] = OntoIri(onto.removesuffix("#"), onto.endswith("#") or onto.endswith("/v2"))
 
         # add standard ontologies (rdf, rdfs, owl, xsl)
         for k, v in self.base_ontologies.items():
@@ -263,7 +271,7 @@ class Context:
                 self._rcontext[entry[1].iri] = entry[0]
                 result = entry[0]
             else:
-                tmp = iri.split('/')
+                tmp = iri.split("/")
                 if tmp[-1] == "v2":
                     #
                     # we have a knora ontology name "http://server/ontology/shortcode/shortname/v2"
@@ -287,7 +295,7 @@ class Context:
             return None
         if IriTest.test(val):
             return val
-        tmp = val.split(':')
+        tmp = val.split(":")
         if len(tmp) < 2:
             raise BaseError("There is no separator to identify the prefix: " + val)
         iri_info = self._context.get(tmp[0])
@@ -301,7 +309,7 @@ class Context:
             else:
                 raise BaseError("Ontology not known! Cannot generate fully qualified IRI")
         if iri_info.hashtag:
-            return iri_info.iri + '#' + tmp[1]
+            return iri_info.iri + "#" + tmp[1]
         else:
             return iri_info.iri + tmp[1]
 
@@ -323,14 +331,14 @@ class Context:
         if not IriTest.test(iri):
             raise BaseError(f"The IRI '{iri}' does not conform to the IRI pattern.")
 
-        split_point = iri.find('#')
+        split_point = iri.find("#")
         if split_point == -1:
-            split_point = iri.rfind('/')
-            onto_part = iri[:split_point + 1]
-            element = iri[split_point + 1:]
+            split_point = iri.rfind("/")
+            onto_part = iri[: split_point + 1]
+            element = iri[split_point + 1 :]
         else:
             onto_part = iri[:split_point]
-            element = iri[split_point + 1:]
+            element = iri[split_point + 1 :]
 
         prefix = self._rcontext.get(onto_part)
         if prefix is None:
@@ -342,7 +350,7 @@ class Context:
                 prefix = entry[0]
             else:
                 return None
-        return prefix + ':' + element
+        return prefix + ":" + element
 
     def reduce_iri(self, iri_str: str, onto_name: Optional[str] = None) -> str:
         """
@@ -366,11 +374,11 @@ class Context:
         if IriTest.test(iri_str):
             if self.get_prefixed_iri(iri_str):
                 iri_str = self.get_prefixed_iri(iri_str)
-        tmp = iri_str.split(':')
+        tmp = iri_str.split(":")
         if tmp[0] == knora_api or tmp[0] == salsah_gui:
             return tmp[1]
         elif tmp[0] == onto_name:
-            return ':' + tmp[1]
+            return ":" + tmp[1]
         else:
             return iri_str
 
@@ -379,8 +387,7 @@ class Context:
         Return a python object that can be jsonfied...
         :return: Object to be jsonfied
         """
-        return {prefix: oinfo.iri + '#' if oinfo.hashtag else oinfo.iri
-                for prefix, oinfo in self._context.items()}
+        return {prefix: oinfo.iri + "#" if oinfo.hashtag else oinfo.iri for prefix, oinfo in self._context.items()}
 
     def get_externals_used(self) -> dict[str, str]:
         exclude = ["rdf", "rdfs", "owl", "xsd", "knora-api", "salsah-gui"]
@@ -395,12 +402,15 @@ class DateTimeStamp:
     """
     Class to hold and process an xsd:dateTimeStamp
     """
+
     _dateTimeStamp: str
-    _validation_regex = r"^-?([1-9][0-9]{3,}|0[0-9]{3})" \
-                        r"-(0[1-9]|1[0-2])" \
-                        r"-(0[1-9]|[12][0-9]|3[01])" \
-                        r"T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.[0-9]+)?|(24:00:00(\.0+)?))" \
-                        r"(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))$"
+    _validation_regex = (
+        r"^-?([1-9][0-9]{3,}|0[0-9]{3})"
+        r"-(0[1-9]|1[0-2])"
+        r"-(0[1-9]|[12][0-9]|3[01])"
+        r"T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.[0-9]+)?|(24:00:00(\.0+)?))"
+        r"(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))$"
+    )
 
     def __init__(self, val: Any):
         """
@@ -422,56 +432,54 @@ class DateTimeStamp:
             else:
                 raise BaseError(f"Invalid xsd:dateTimeStamp: '{val}'")
 
-    def __eq__(self, other: Union[str, 'DateTimeStamp']) -> bool:
+    def __eq__(self, other: Union[str, "DateTimeStamp"]) -> bool:
         if isinstance(other, str):
             other = DateTimeStamp(other)
         return self._dateTimeStamp == other._dateTimeStamp
 
-    def __lt__(self, other: 'DateTimeStamp') -> bool:
+    def __lt__(self, other: "DateTimeStamp") -> bool:
         if isinstance(other, str):
             other = DateTimeStamp(other)
         return self._dateTimeStamp < other._dateTimeStamp
 
-    def __le__(self, other: 'DateTimeStamp') -> bool:
+    def __le__(self, other: "DateTimeStamp") -> bool:
         if isinstance(other, str):
             other = DateTimeStamp(other)
         return self._dateTimeStamp <= other._dateTimeStamp
 
-    def __gt__(self, other: 'DateTimeStamp') -> bool:
+    def __gt__(self, other: "DateTimeStamp") -> bool:
         if isinstance(other, str):
             other = DateTimeStamp(other)
         return self._dateTimeStamp > other._dateTimeStamp
 
-    def __ge__(self, other: 'DateTimeStamp') -> bool:
+    def __ge__(self, other: "DateTimeStamp") -> bool:
         if isinstance(other, str):
             other = DateTimeStamp(other)
         return self._dateTimeStamp >= other._dateTimeStamp
 
-    def __ne__(self, other: 'DateTimeStamp') -> bool:
+    def __ne__(self, other: "DateTimeStamp") -> bool:
         if isinstance(other, str):
             other = DateTimeStamp(other)
         return self._dateTimeStamp != other._dateTimeStamp
 
-    def __str__(self: 'DateTimeStamp') -> Union[None, str]:
+    def __str__(self: "DateTimeStamp") -> Union[None, str]:
         return self._dateTimeStamp
 
     def toJsonObj(self):
-        return {
-            "@type": "xsd:dateTimeStamp",
-            "@value": self._dateTimeStamp
-        }
+        return {"@type": "xsd:dateTimeStamp", "@value": self._dateTimeStamp}
 
 
 class WithId:
     """
     Class helper to get json-ld "@id" thingies
     """
+
     _tmp: str = None
 
     def __init__(self, obj: Optional[dict[str, str]]):
         if obj is None:
             return
-        self._tmp = obj.get('@id')
+        self._tmp = obj.get("@id")
 
     def str(self) -> Optional[str]:
         return self._tmp

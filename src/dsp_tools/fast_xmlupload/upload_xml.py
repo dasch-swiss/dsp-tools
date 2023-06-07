@@ -22,7 +22,7 @@ def _get_paths_from_pkl_file(pkl_file: Path) -> dict[str, str]:
     Returns:
         dict of original paths to uuid filenames
     """
-    with open(pkl_file, 'rb') as file:
+    with open(pkl_file, "rb") as file:
         orig_path_2_processed_path: list[tuple[Path, Optional[Path]]] = pickle.load(file)
 
     orig_path_2_uuid_filename: dict[str, str] = {}
@@ -40,7 +40,7 @@ def _get_paths_from_pkl_file(pkl_file: Path) -> dict[str, str]:
 
 def replace_bitstream_paths(
     xml_tree: "etree._ElementTree[etree._Element]",
-    orig_path_2_uuid_filename: dict[str, str]
+    orig_path_2_uuid_filename: dict[str, str],
 ) -> "etree._ElementTree[etree._Element]":
     """
     Replace the original filepaths in the <bitstream> Tags by the uuid filenames of the processed files.
@@ -77,20 +77,20 @@ def fast_xmlupload(
     user: str,
     password: str,
     dsp_url: str,
-    sipi_url: str
+    sipi_url: str,
 ) -> bool:
     """
-    This function reads an XML file 
-    and imports the data described in it onto the DSP server, 
+    This function reads an XML file
+    and imports the data described in it onto the DSP server,
     using the fast XML upload method.
-    Before using this method, 
-    the original files must be processed by the processing step, 
+    Before using this method,
+    the original files must be processed by the processing step,
     and uploaded by the upoad step.
 
     Args:
         xml_file: path to XML file containing the resources
         pkl_file: pickle file containing the mapping between the original files and the processed files,
-                  e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2')
+        e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2')
         user: the user's e-mail for login into DSP
         password: the user's password for login into DSP
         dsp_url: URL to the DSP server
@@ -101,7 +101,10 @@ def fast_xmlupload(
     """
     xml_tree_orig = etree.parse(xml_file)
     orig_path_2_uuid_filename = _get_paths_from_pkl_file(pkl_file=Path(pkl_file))
-    xml_tree_replaced = replace_bitstream_paths(xml_tree=xml_tree_orig, orig_path_2_uuid_filename=orig_path_2_uuid_filename)
+    xml_tree_replaced = replace_bitstream_paths(
+        xml_tree=xml_tree_orig,
+        orig_path_2_uuid_filename=orig_path_2_uuid_filename,
+    )
 
     start_time = datetime.now()
     print(f"{start_time}: Start with fast XML upload...")
@@ -116,7 +119,7 @@ def fast_xmlupload(
         verbose=False,
         incremental=False,
         save_metrics=False,
-        preprocessing_done=True
+        preprocessing_done=True,
     )
 
     end_time = datetime.now()

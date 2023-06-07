@@ -23,8 +23,10 @@ class Sipi:
         Returns:
             API response
         """
-        with open(filepath, 'rb') as bitstream_file:
-            files = {'file': (os.path.basename(filepath), bitstream_file), }
+        with open(filepath, "rb") as bitstream_file:
+            files = {
+                "file": (os.path.basename(filepath), bitstream_file),
+            }
             response = requests.post(self.sipi_server + "/upload?token=" + self.token, files=files)
         check_for_api_error(response)
         res: dict[Any, Any] = response.json()

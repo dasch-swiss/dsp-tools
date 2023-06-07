@@ -8,12 +8,11 @@ class Bitstream:
     """
     Represents a bitstream object (file) which is attached to a resource
     """
+
     _value: str
     _permissions: Optional[Permissions]
 
-    def __init__(self,
-                 value: str,
-                 permissions: Optional[Permissions] = None):
+    def __init__(self, value: str, permissions: Optional[Permissions] = None):
         self._value = value
         self._permissions = permissions
 

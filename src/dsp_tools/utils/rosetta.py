@@ -36,7 +36,7 @@ def _clone_repo(rosetta_folder: Path, enclosing_folder: Path) -> None:
     Clones the rosetta repo into the enclosing folder.
 
     Args:
-        rosetta_folder: path to the (not yet existing) clone 
+        rosetta_folder: path to the (not yet existing) clone
         enclosing_folder: path to the (existing) destination where rosetta should be cloned into
 
     Raises:
@@ -47,7 +47,7 @@ def _clone_repo(rosetta_folder: Path, enclosing_folder: Path) -> None:
         "git clone https://github.com/dasch-swiss/082E-rosetta-scripts.git",
         shell=True,
         cwd=enclosing_folder,
-        check=False
+        check=False,
     )
     if not completed_process or completed_process.returncode != 0:
         raise UserError("There was a problem while cloning the rosetta test project")
@@ -65,12 +65,12 @@ def _create_json(rosetta_folder: Path) -> bool:
     """
     print("Execute 'dsp-tools create rosetta.json'...")
     success = create_project(
-        project_file_as_path_or_parsed=rosetta_folder/"rosetta.json",
+        project_file_as_path_or_parsed=rosetta_folder / "rosetta.json",
         server="http://0.0.0.0:3333",
         user_mail="root@example.com",
         password="test",
         verbose=False,
-        dump=False
+        dump=False,
     )
     return success
 
@@ -87,7 +87,7 @@ def _upload_xml(rosetta_folder: Path) -> bool:
     """
     print("Execute 'dsp-tools xmlupload rosetta.xml'...")
     success = xml_upload(
-        input_file=rosetta_folder/"rosetta.xml",
+        input_file=rosetta_folder / "rosetta.xml",
         server="http://0.0.0.0:3333",
         user="root@example.com",
         password="test",
@@ -96,7 +96,7 @@ def _upload_xml(rosetta_folder: Path) -> bool:
         verbose=False,
         incremental=False,
         save_metrics=False,
-        preprocessing_done=False
+        preprocessing_done=False,
     )
     return success
 

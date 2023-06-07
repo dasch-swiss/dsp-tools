@@ -20,7 +20,7 @@ class XmlPermission:
             project_context: Context for DOM node traversal
         """
         self._allows = []
-        self._id = node.attrib['id']
+        self._id = node.attrib["id"]
         for allow_node in node:
             self._allows.append(XmlAllow(allow_node, project_context))
 
@@ -45,10 +45,10 @@ class XmlPermission:
         allow_str: list[str] = []
         for allow in self._allows:
             allow_str.append("{} {}".format(allow.permission, allow.group))
-        return '|'.join(allow_str)
+        return "|".join(allow_str)
 
     def print(self) -> None:
         """Prints the permission set"""
-        print('Permission: ', self._id)
+        print("Permission: ", self._id)
         for a in self._allows:
             a.print()

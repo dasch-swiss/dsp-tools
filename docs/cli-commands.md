@@ -105,7 +105,7 @@ The following options are available:
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server where DSP-TOOLS sends the data to
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
-- `-S` | `--sipi` (optional, default: `http://0.0.0.0:1024`): URL of the SIPI server where DSP-TOOLS sends the multimedia files to 
+- `-S` | `--sipi` (optional, default: `http://0.0.0.0:1024`): URL of SIPI server where DSP-TOOLS sends multimedia files to 
 - `-i` | `--imgdir` (optional, default: `.`): folder from where the paths in the `<bitstream>` tags are evaluated
 - `-I` | `--incremental` (optional) : The links in the XML file point to IRIs (on the server) 
                                     instead of IDs (in the same XML file).

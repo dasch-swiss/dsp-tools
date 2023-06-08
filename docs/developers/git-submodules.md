@@ -2,7 +2,8 @@
 
 # Git submodules
 
-This repository embeds [https://github.com/dasch-swiss/00A1-import-scripts](https://github.com/dasch-swiss/00A1-import-scripts) 
+This repository embeds 
+[https://github.com/dasch-swiss/00A1-import-scripts](https://github.com/dasch-swiss/00A1-import-scripts) 
 as a Git submodule in `src/dsp_tools/import_scripts`. That means that `src/dsp_tools/import_scripts` has no contents, but
 only a reference to a certain commit in the main branch of `00A1-import-scripts`. When you clone DSP-TOOLS from GitHub 
 as usual, `src/dsp_tools/import_scripts` will be empty.

@@ -74,8 +74,10 @@ A group can have exactly one of these rights:
 - `RV` _restricted view permission_: Same as `V`, 
   but if it is applied to an image, the image is shown with a reduced resolution or with a watermark overlay.
 - `V` _view permission_: The user can view a resource or a value, but cannot modify it.
-- `M` _modify permission_: The user can modify the element, but cannot mark it as deleted. The original resource or value will be preserved.
-- `D` _delete permission_: The user is allowed to mark an element as deleted. The original resource or value will be preserved.
+- `M` _modify permission_: The user can modify the element, but cannot mark it as deleted. 
+  The original resource or value will be preserved.
+- `D` _delete permission_: The user is allowed to mark an element as deleted. 
+  The original resource or value will be preserved.
 - `CR` _change right permission_: The user can change the permission of a resource or value. 
   The user is also allowed to permanently delete (erase) a resource.
 
@@ -154,7 +156,8 @@ A `<resource>` element contains all necessary information to create a resource. 
 - `ark` (optional): a version 0 ARK, used when migrating existing resources. It is not possible 
   to use `iri` and `ark` in the same resource. When `ark` is used, it overrides `iri` (DaSCH-internal only).
 - `creation_date` (optional): the creation date of the resource, used when migrating existing resources.
-  It must be formatted according to the constraints of [xsd:dateTimeStamp](https://www.w3.org/TR/xmlschema11-2/#dateTimeStamp), 
+  It must be formatted according to the constraints of 
+  [xsd:dateTimeStamp](https://www.w3.org/TR/xmlschema11-2/#dateTimeStamp), 
   which means that the timezone is required, e.g.: `2005-10-23T13:45:12.502951+02:00` (DaSCH-internal only)
 
 A complete `<resource>` element may look as follows:

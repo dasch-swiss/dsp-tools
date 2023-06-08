@@ -26,16 +26,19 @@ This can be done with the [CLI command `excel2xml`](./cli-commands.md#excel2xml)
 
 ## Module `excel2xml`: Convert a data source to XML
 
-To demonstrate the usage of the `excel2xml` module, there is a GitHub repository named `00A1-import-scripts`. It 
-contains:
+To demonstrate the usage of the `excel2xml` module, 
+there is a GitHub repository named `00A1-import-scripts`.
+It contains:
 
 - a sample JSON project file
 - sample data that fits the data model of the JSON project file
 - a sample Python script that demonstrates how to use the module `excel2xml`.
 
-Navigate to [https://github.com/dasch-swiss/00A1-import-scripts](https://github.com/dasch-swiss/00A1-import-scripts) and 
-follow the steps described there. The README will teach you some basics that will be necessary to work with `excel2xml`. 
-Once you are familiar with the basics, return to this page to learn how the sample Python script works. 
+Navigate to [https://github.com/dasch-swiss/00A1-import-scripts](https://github.com/dasch-swiss/00A1-import-scripts)
+and follow the steps described there. 
+The README will teach you some basics that will be necessary to work with `excel2xml`. 
+Once you are familiar with the basics, 
+return to this page to learn how the sample Python script works. 
 
 This is the simplified pattern how the Python script works:
 
@@ -93,10 +96,13 @@ here](./file-formats/xml-data-file.md#using-permissions-with-the-permissions-att
 
 ## 4. Create list mappings
 
-Let's assume that your data source has a column containing list values named after the "label" of the JSON project list, 
-instead of the "name" which is needed for the `dsp-tools xmlupload`. You need a way to get the names from the labels.
-If your data source uses the labels correctly, this is an easy task: The method `create_json_list_mapping()` creates a
-dictionary that maps the labels to the names:  
+Let's assume that your data source has a column
+containing list values named after the "label" of the JSON project list, 
+instead of the "name" which is needed for the `dsp-tools xmlupload`. 
+You need a way to get the names from the labels.
+If your data source uses the labels correctly, 
+this is an easy task: 
+The method `create_json_list_mapping()` creates a dictionary that maps the labels to the names:  
 
 The list "category" in `00A1-import-scripts/import_project.json` looks as follows:
 
@@ -140,10 +146,13 @@ If you pass this list to `create_json_list_mapping()`, it creates the following 
 ```
 
 
-If, however, your data source has spelling variants, you need the more sophisticated approach of 
-`create_json_excel_list_mapping()`: This method creates a dictionary that maps the list values in your data source to their 
-correct JSON project node name. This happens based on string similarity. Please carefully check the result if there are
-no false matches!
+If, however, your data source has spelling variants, 
+you need the more sophisticated approach of `create_json_excel_list_mapping()`: 
+This method creates a dictionary 
+that maps the list values in your data source 
+to their correct JSON project node name. 
+This happens based on string similarity. 
+Please carefully check the result if there are no false matches!
 
 The column "Category" in `00A1-import-scripts/data_raw.csv` has spelling mistakes:  
 ![column category](./assets/images/img-excel2xml-raw-data-category.png)
@@ -254,8 +263,11 @@ For `make_boolean_prop(cell)`, the following formats are supported:
 - true: True, "true", "True", "1", 1, "yes", "Yes"
 - false: False, "false", "False", "0", 0, "no", "No"
 
-N/A-like values will raise an Error. So if your cell is empty, this method will not count it as false, but will raise an 
-Error. If you want N/A-like values to be counted as false, you may use a construct like this:
+N/A-like values will raise an Error. 
+So if your cell is empty, this method will not count it as false, 
+but will raise an Error. 
+If you want N/A-like values to be counted as false, 
+you may use a construct like this:
 
 ```python
 if excel2xml.check_notna(cell):

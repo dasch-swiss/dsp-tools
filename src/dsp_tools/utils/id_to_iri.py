@@ -13,9 +13,9 @@ from dsp_tools.models.exceptions import BaseError
 
 
 def id_to_iri(
-    xml_file: str, 
-    json_file: str, 
-    out_file: Optional[str], 
+    xml_file: str,
+    json_file: str,
+    out_file: Optional[str],
     verbose: bool,
 ) -> bool:
     """

@@ -15,7 +15,7 @@ languages = ["en", "de", "fr", "it", "rm"]
 
 
 def _validate_resources(
-    resources_list: list[dict[str, Any]], 
+    resources_list: list[dict[str, Any]],
     excelfile: str,
 ) -> bool:
     """
@@ -91,7 +91,7 @@ def _validate_resources(
 
 
 def _row2resource(
-    row: pd.Series, 
+    row: pd.Series,
     excelfile: str,
 ) -> dict[str, Any]:
     """
@@ -190,7 +190,7 @@ def _row2resource(
 
 
 def excel2resources(
-    excelfile: str, 
+    excelfile: str,
     path_to_output_file: Optional[str] = None,
 ) -> tuple[list[dict[str, Any]], bool]:
     """

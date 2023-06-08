@@ -127,8 +127,8 @@ def _update_basic_info_of_project(
 
 
 def _create_groups(
-    con: Connection, 
-    groups: list[dict[str, str]], 
+    con: Connection,
+    groups: list[dict[str, str]],
     project: Project,
 ) -> tuple[dict[str, Group], bool]:
     """
@@ -428,7 +428,7 @@ def _create_users(
 
 
 def _sort_resources(
-    unsorted_resources: list[dict[str, Any]], 
+    unsorted_resources: list[dict[str, Any]],
     onto_name: str,
 ) -> list[dict[str, Any]]:
     """
@@ -463,7 +463,7 @@ def _sort_resources(
 
 
 def _sort_prop_classes(
-    unsorted_prop_classes: list[dict[str, Any]], 
+    unsorted_prop_classes: list[dict[str, Any]],
     onto_name: str,
 ) -> list[dict[str, Any]]:
     """

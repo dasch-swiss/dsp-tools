@@ -196,7 +196,7 @@ def _get_values_from_excel(
 
 
 def _make_json_lists_from_excel(
-    excel_file_paths: list[str], 
+    excel_file_paths: list[str],
     verbose: bool = False,
 ) -> list[dict[str, Any]]:
     """

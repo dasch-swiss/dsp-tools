@@ -258,7 +258,7 @@ def prepare_value(
 
 
 def make_root(
-    shortcode: str, 
+    shortcode: str,
     default_ontology: str,
 ) -> etree._Element:
     """
@@ -448,8 +448,8 @@ def make_bitstream_prop(
 
 
 def _format_bool(
-    unformatted: Union[bool, str, int], 
-    name: str, 
+    unformatted: Union[bool, str, int],
+    name: str,
     calling_resource: str,
 ) -> str:
     """
@@ -1777,7 +1777,7 @@ def create_json_list_mapping(
 
 
 def _name_label_mapper_iterator(
-    json_subset: list[dict[str, Any]], 
+    json_subset: list[dict[str, Any]],
     language_label: str,
 ) -> Iterable[tuple[str, str]]:
     """
@@ -1796,8 +1796,8 @@ def _name_label_mapper_iterator(
 
 
 def write_xml(
-    root: etree._Element, 
-    filepath: str
+    root: etree._Element,
+    filepath: str,
 ) -> None:
     """
     Write the finished XML to a file

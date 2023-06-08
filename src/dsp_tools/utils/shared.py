@@ -23,8 +23,8 @@ logger = get_logger(__name__)
 
 
 def login(
-    server: str, 
-    user: str, 
+    server: str,
+    user: str,
     password: str,
 ) -> Connection:
     """
@@ -205,8 +205,8 @@ def _validate_xml_tags_in_text_properties(doc: Union[etree._ElementTree[etree._E
 
 
 def prepare_dataframe(
-    df: pd.DataFrame, 
-    required_columns: list[str], 
+    df: pd.DataFrame,
+    required_columns: list[str],
     location_of_sheet: str,
 ) -> pd.DataFrame:
     """

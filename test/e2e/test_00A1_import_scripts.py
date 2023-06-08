@@ -72,7 +72,7 @@ class TestImportScripts(unittest.TestCase):
 
 
 def _derandomize_xsd_id(
-    string: str, 
+    string: str,
     multiple_occurrences: bool = False,
 ) -> str:
     """

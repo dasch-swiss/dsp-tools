@@ -32,7 +32,7 @@ def _update_possibly_existing_repo(rosetta_folder: Path) -> bool:
 
 
 def _clone_repo(
-    rosetta_folder: Path, 
+    rosetta_folder: Path,
     enclosing_folder: Path,
 ) -> None:
     """

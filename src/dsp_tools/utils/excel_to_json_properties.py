@@ -15,7 +15,7 @@ languages = ["en", "de", "fr", "it", "rm"]
 
 
 def _validate_properties(
-    properties_list: list[dict[str, Any]], 
+    properties_list: list[dict[str, Any]],
     excelfile: str,
 ) -> bool:
     """
@@ -79,8 +79,8 @@ def _validate_properties(
 
 
 def _row2prop(
-    row: pd.Series, 
-    row_count: int, 
+    row: pd.Series,
+    row_count: int,
     excelfile: str,
 ) -> dict[str, Any]:
     """

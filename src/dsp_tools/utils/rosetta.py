@@ -31,7 +31,10 @@ def _update_possibly_existing_repo(rosetta_folder: Path) -> bool:
     return is_rosetta_up_to_date
 
 
-def _clone_repo(rosetta_folder: Path, enclosing_folder: Path) -> None:
+def _clone_repo(
+    rosetta_folder: Path, 
+    enclosing_folder: Path,
+) -> None:
     """
     Clones the rosetta repo into the enclosing folder.
 

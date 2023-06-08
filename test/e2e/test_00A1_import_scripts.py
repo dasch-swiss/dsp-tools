@@ -71,7 +71,10 @@ class TestImportScripts(unittest.TestCase):
         self.assertTrue(success_on_xmlupload)
 
 
-def _derandomize_xsd_id(string: str, multiple_occurrences: bool = False) -> str:
+def _derandomize_xsd_id(
+    string: str, 
+    multiple_occurrences: bool = False,
+) -> str:
     """
     In some contexts, the random component of the output of make_xsd_id_compatible() is a hindrance,
     especially for testing.

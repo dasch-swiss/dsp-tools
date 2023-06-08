@@ -22,7 +22,11 @@ from dsp_tools.utils.logging import get_logger
 logger = get_logger(__name__)
 
 
-def login(server: str, user: str, password: str) -> Connection:
+def login(
+    server: str, 
+    user: str, 
+    password: str,
+) -> Connection:
     """
     Creates a connection,
     makes a login (handling temporary network interruptions),
@@ -200,7 +204,11 @@ def _validate_xml_tags_in_text_properties(doc: Union[etree._ElementTree[etree._E
     return True
 
 
-def prepare_dataframe(df: pd.DataFrame, required_columns: list[str], location_of_sheet: str) -> pd.DataFrame:
+def prepare_dataframe(
+    df: pd.DataFrame, 
+    required_columns: list[str], 
+    location_of_sheet: str,
+) -> pd.DataFrame:
     """
     Takes a pandas DataFrame,
     strips the column headers from whitespaces and transforms them to lowercase,

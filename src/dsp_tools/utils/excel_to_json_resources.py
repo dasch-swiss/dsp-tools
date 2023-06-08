@@ -14,7 +14,10 @@ from dsp_tools.utils.shared import check_notna, prepare_dataframe
 languages = ["en", "de", "fr", "it", "rm"]
 
 
-def _validate_resources(resources_list: list[dict[str, Any]], excelfile: str) -> bool:
+def _validate_resources(
+    resources_list: list[dict[str, Any]], 
+    excelfile: str,
+) -> bool:
     """
     This function checks if the "resources" section of a JSON project file is valid according to the JSON schema,
     and if the resource names are unique.
@@ -87,7 +90,10 @@ def _validate_resources(resources_list: list[dict[str, Any]], excelfile: str) ->
     return True
 
 
-def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
+def _row2resource(
+    row: pd.Series, 
+    excelfile: str,
+) -> dict[str, Any]:
     """
     Method that reads one row from the "classes" DataFrame,
     opens the corresponding details DataFrame,
@@ -183,7 +189,10 @@ def _row2resource(row: pd.Series, excelfile: str) -> dict[str, Any]:
     return resource
 
 
-def excel2resources(excelfile: str, path_to_output_file: Optional[str] = None) -> tuple[list[dict[str, Any]], bool]:
+def excel2resources(
+    excelfile: str, 
+    path_to_output_file: Optional[str] = None,
+) -> tuple[list[dict[str, Any]], bool]:
     """
     Converts resources described in an Excel file into a "resources" section which can be inserted into a JSON
     project file.

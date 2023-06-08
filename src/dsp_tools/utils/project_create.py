@@ -126,7 +126,11 @@ def _update_basic_info_of_project(
         return project, False
 
 
-def _create_groups(con: Connection, groups: list[dict[str, str]], project: Project) -> tuple[dict[str, Group], bool]:
+def _create_groups(
+    con: Connection, 
+    groups: list[dict[str, str]], 
+    project: Project,
+) -> tuple[dict[str, Group], bool]:
     """
     Creates groups on a DSP server from the "groups" section of a JSON project file. If a group cannot be created, it is
     skipped and a warning is printed, but such a group will still be part of the returned dict.
@@ -423,7 +427,10 @@ def _create_users(
     return overall_success
 
 
-def _sort_resources(unsorted_resources: list[dict[str, Any]], onto_name: str) -> list[dict[str, Any]]:
+def _sort_resources(
+    unsorted_resources: list[dict[str, Any]], 
+    onto_name: str,
+) -> list[dict[str, Any]]:
     """
     This method sorts the resource classes in an ontology according to their inheritance order (parent classes first).
 
@@ -455,7 +462,10 @@ def _sort_resources(unsorted_resources: list[dict[str, Any]], onto_name: str) ->
     return sorted_resources
 
 
-def _sort_prop_classes(unsorted_prop_classes: list[dict[str, Any]], onto_name: str) -> list[dict[str, Any]]:
+def _sort_prop_classes(
+    unsorted_prop_classes: list[dict[str, Any]], 
+    onto_name: str,
+) -> list[dict[str, Any]]:
     """
     In case of inheritance, parent properties must be uploaded before their children. This method sorts the
     properties.

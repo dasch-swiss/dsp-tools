@@ -185,7 +185,7 @@ class ListNode(Model):
         self._id = str(iri) if iri else None
         self._label = LangString(label)
         self._comments = LangString(comments) if comments else None
-        self._name = str(name) if name else None
+        self._name = name
         if parent and isinstance(parent, ListNode):
             self._parent = parent.iri
         else:
@@ -289,7 +289,7 @@ class ListNode(Model):
 
     @name.setter
     def name(self, value: str) -> None:
-        self._name = str(value)
+        self._name = value
         self._changed.add("name")
 
     @property

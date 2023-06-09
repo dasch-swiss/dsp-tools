@@ -273,7 +273,9 @@ def _get_group_iris_for_user(
                 continue
             group = existing_group[0]
 
-        group_iris.add(group.id)  # type: ignore
+        if not group.iri:
+            raise BaseError(f"Group '{group}' has no IRI.")
+        group_iris.add(group.iri)
         if verbose:
             print(f"\tAdded user '{username}' to group '{full_group_name}'.")
 

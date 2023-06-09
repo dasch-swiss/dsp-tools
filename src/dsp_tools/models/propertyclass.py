@@ -459,7 +459,7 @@ class PropertyClass(Model):
                     gui_elements[attname] = int(attvalue)
                 elif attname == "hlist":
                     iri = attvalue[1:-1]
-                    rootnode = ListNode(con=self._con, id=iri).read()
+                    rootnode = ListNode(con=self._con, iri=iri).read()
                     gui_elements[attname] = rootnode.name
                 elif attname == "numprops":
                     gui_elements[attname] = int(attvalue)

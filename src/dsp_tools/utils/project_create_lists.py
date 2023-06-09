@@ -60,9 +60,13 @@ def _create_list_node(
             subnode_list.append(created_subnode)
             if not success:
                 overall_success = False
-        return {new_node.name: {"id": new_node.iri, "nodes": subnode_list}}, overall_success  # type: ignore
+        if not new_node.name:
+            raise BaseError(f"Node {new_node} has no name.")
+        return {new_node.name: {"id": new_node.iri, "nodes": subnode_list}}, overall_success
     else:
-        return {new_node.name: {"id": new_node.iri}}, True  # type: ignore
+        if not new_node.name:
+            raise BaseError(f"Node {new_node} has no name.")
+        return {new_node.name: {"id": new_node.iri}}, True
 
 
 def create_lists_on_server(

@@ -72,7 +72,7 @@ class Group(Model):
     ROUTE: str = "/admin/groups"
     ROUTE_SLASH: str = ROUTE + "/"
 
-    _iri: str
+    _iri: Optional[str]
     _name: str
     _descriptions: LangString
     _project: str
@@ -90,7 +90,7 @@ class Group(Model):
         status: Optional[bool] = None,
     ) -> None:
         super().__init__(con)
-        self._iri = str(iri) if iri is not None else None
+        self._iri = iri
         self._name = str(name) if name is not None else None
         self._descriptions = LangString(descriptions)
         if project is not None and isinstance(project, Project):

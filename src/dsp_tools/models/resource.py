@@ -394,7 +394,7 @@ class ResourceInstanceFactory:
         tmp_ontologies.extend(shared_ontologies)
         knora_api_onto = [x for x in Ontology.getAllOntologies(con=con) if x.name == "knora-api"][0]
         tmp_ontologies.append(knora_api_onto)
-        self._ontoname2iri = {x.name: x.id for x in tmp_ontologies}
+        self._ontoname2iri = {x.name: x.iri for x in tmp_ontologies}
 
         ontology_ids = [x.id for x in tmp_ontologies]
         self._ontologies = {}

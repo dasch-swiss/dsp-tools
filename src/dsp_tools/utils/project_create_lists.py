@@ -36,7 +36,7 @@ def _create_list_node(
         The bool is True if all nodes could be created,
         False if any node could not be created.
     """
-    new_node = ListNode(
+    new_node: ListNode = ListNode(
         con=con,
         project=project,
         label=node["labels"],
@@ -60,9 +60,9 @@ def _create_list_node(
             subnode_list.append(created_subnode)
             if not success:
                 overall_success = False
-        return {new_node.name: {"id": new_node.id, "nodes": subnode_list}}, overall_success  # type: ignore
+        return {new_node.name: {"id": new_node.iri, "nodes": subnode_list}}, overall_success  # type: ignore
     else:
-        return {new_node.name: {"id": new_node.id}}, True  # type: ignore
+        return {new_node.name: {"id": new_node.iri}}, True  # type: ignore
 
 
 def create_lists_on_server(

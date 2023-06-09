@@ -8,12 +8,17 @@ class BaseError(Exception):
     A basic error class for DSP-TOOLS.
 
     Attributes:
-        message: A message that describes the error
-        status_code: HTTP status code of the response from DSP-API (only applicable if the error comes from DSP-API)
-        json_content_of_api_response: The message that DSP-API returns (only applicable if the error comes from DSP-API)
-        original_error_msg_from_api: The original error message that DSP-API returns (only applicable if the error comes from DSP-API)
-        reason_from_api_response: The reason for the failure that DSP-API returns (only applicable if the error comes from DSP-API)
-        api_route: The route that was called (only applicable if the error comes from DSP-API)
+        message:                        A message that describes the error
+        status_code:                    HTTP status code of the response from DSP-API 
+                                        (only applicable if the error comes from DSP-API)
+        json_content_of_api_response:   The message that DSP-API returns 
+                                        (only applicable if the error comes from DSP-API)
+        original_error_msg_from_api:    The original error message that DSP-API returns 
+                                        (only applicable if the error comes from DSP-API)
+        reason_from_api_response:       The reason for the failure that DSP-API returns 
+                                        (only applicable if the error comes from DSP-API)
+        api_route:                      The route that was called 
+                                        (only applicable if the error comes from DSP-API)
     """
 
     message: str
@@ -35,11 +40,15 @@ class BaseError(Exception):
         A basic error class for DSP-TOOLS.
 
         Args:
-            message: A message that describes the error
-            status_code: HTTP status code of the response from DSP-API (only applicable if the error comes from DSP-API)
-            json_content_of_api_response: The message that DSP-API returns (only applicable if the error comes from DSP-API)
-            reason_from_api_response: The reason for the failure that DSP-API returns (only applicable if the error comes from DSP-API)
-            api_route: The route that was called (only applicable if the error comes from DSP-API)
+            message:                        A message that describes the error
+            status_code:                    HTTP status code of the response from DSP-API 
+                                            (only applicable if the error comes from DSP-API)
+            json_content_of_api_response:   The message that DSP-API returns 
+                                            (only applicable if the error comes from DSP-API)
+            reason_from_api_response:       The reason for the failure that DSP-API returns 
+                                            (only applicable if the error comes from DSP-API)
+            api_route:                      The route that was called 
+                                            (only applicable if the error comes from DSP-API)
         """
         super().__init__()
         self.message = message
@@ -66,7 +75,6 @@ class InternalError(BaseError):
     Class for errors that will be handled by a higher level function
     """
 
-    pass
 
 
 class UserError(BaseError):
@@ -76,5 +84,3 @@ class UserError(BaseError):
     due to a bad condition in the input data that prevents further processing.
     The message should be as user-friendly as possible.
     """
-
-    pass

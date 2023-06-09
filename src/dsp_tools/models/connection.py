@@ -68,6 +68,7 @@ class Connection:
             self._server + "/v2/authentication",
             headers={"Content-Type": "application/json; charset=UTF-8"},
             data=jsondata,
+            timeout=5,
         )
         check_for_api_error(response)
         result = response.json()
@@ -101,6 +102,7 @@ class Connection:
             response = requests.delete(
                 self._server + "/v2/authentication",
                 headers={"Authorization": "Bearer " + self._token},
+                timeout=5,
             )
             check_for_api_error(response)
             self._token = None
@@ -126,9 +128,10 @@ class Connection:
                 response = requests.post(
                     self._server + path,
                     headers=headers,
+                    timeout=5,
                 )
             else:
-                response = requests.post(self._server + path)
+                response = requests.post(self._server + path, timeout=5)
         else:
             if self._token is not None:
                 headers = {"Content-Type": "application/json; charset=UTF-8", "Authorization": "Bearer " + self._token}
@@ -136,6 +139,7 @@ class Connection:
                     self._server + path,
                     headers=headers,
                     data=jsondata,
+                    timeout=5,
                 )
             else:
                 headers = {"Content-Type": "application/json; charset=UTF-8"}
@@ -143,6 +147,7 @@ class Connection:
                     self._server + path,
                     headers=headers,
                     data=jsondata,
+                    timeout=5,
                 )
         if self._log:
             if jsondata:
@@ -161,7 +166,7 @@ class Connection:
             }
             tmp = path.split("/")
             filename = "POST" + "_".join(tmp) + ".json"
-            with open(filename, "w") as f:
+            with open(filename, "w", encoding="utf8") as f:
                 json.dump(logobj, f, indent=4)
         check_for_api_error(response)
         result = response.json()
@@ -179,15 +184,19 @@ class Connection:
             path = "/" + path
         if not self._token:
             if not headers:
-                response = requests.get(self._server + path)
+                response = requests.get(self._server + path, timeout=5)
             else:
-                response = requests.get(self._server + path, headers)
+                response = requests.get(self._server + path, headers, timeout=5)
         else:
             if not headers:
-                response = requests.get(self._server + path, headers={"Authorization": "Bearer " + self._token})
+                response = requests.get(
+                    self._server + path, 
+                    headers={"Authorization": "Bearer " + self._token},
+                    timeout=5,
+                )
             else:
                 headers["Authorization"] = "Bearer " + self._token
-                response = requests.get(self._server + path, headers)
+                response = requests.get(self._server + path, headers, timeout=5)
 
         check_for_api_error(response)
         json_response = response.json()
@@ -205,12 +214,17 @@ class Connection:
         if path[0] != "/":
             path = "/" + path
         if jsondata is None:
-            response = requests.put(self._server + path, headers={"Authorization": "Bearer " + self._token})
+            response = requests.put(
+                self._server + path, 
+                headers={"Authorization": "Bearer " + self._token},
+                timeout=5,
+            )
         else:
             response = requests.put(
                 self._server + path,
                 headers={"Content-Type": content_type + "; charset=UTF-8", "Authorization": "Bearer " + self._token},
                 data=jsondata,
+                timeout=5,
             )
         check_for_api_error(response)
         result = response.json()
@@ -230,12 +244,14 @@ class Connection:
                 self._server + path,
                 headers={"Authorization": "Bearer " + self._token},
                 params=params,
+                timeout=5,
             )
 
         else:
             response = requests.delete(
                 self._server + path,
                 headers={"Authorization": "Bearer " + self._token},
+                timeout=5,
             )
         check_for_api_error(response)
         result = response.json()
@@ -259,6 +275,7 @@ class Connection:
             url,
             headers={"Content-Type": "application/json; charset=UTF-8"},
             data=jsondata,
+            timeout=5,
         )
         check_for_api_error(response)
         res = response.json()

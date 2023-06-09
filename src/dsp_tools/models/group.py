@@ -1,3 +1,26 @@
+"""
+This module implements the handling (CRUD) of Knora groups.
+
+CREATE:
+    * Instantiate a new object of the class Group with all required parameters
+    * Call the ``create``-method on the instance
+
+READ:
+    * Instantiate a new object with ``iri``(IRI of group) given
+    * Call the ``read``-method on the instance
+    * Access the information that has been provided to the instance
+
+UPDATE:
+    * You need an instance of an existing Project by reading an instance
+    * Change the attributes by assigning the new values
+    * Call the ``update```method on the instance
+
+DELETE
+    * Instantiate a new objects with ``iri``(IRI of group) given, or use any instance that has the iri set
+    * Call the ``delete``-method on the instance
+
+"""
+
 from __future__ import annotations
 
 import json
@@ -11,29 +34,6 @@ from dsp_tools.models.langstring import LangString
 from dsp_tools.models.model import Model
 from dsp_tools.models.project import Project
 
-"""
-This module implements the handling (CRUD) of Knora groups.
-
-CREATE:
-    * Instantiate a new object of the class Group with all required parameters
-    * Call the ``create``-method on the instance
-
-READ:
-    * Instantiate a new object with ``id``(IRI of group) given
-    * Call the ``read``-method on the instance
-    * Access the information that has been provided to the instance
-
-UPDATE:
-    * You need an instance of an existing Project by reading an instance
-    * Change the attributes by assigning the new values
-    * Call the ``update```method on the instance
-
-DELETE
-    * Instantiate a new objects with ``id``(IRI of group) given, or use any instance that has the id set
-    * Call the ``delete``-method on the instance
-
-"""
-
 
 class Group(Model):
     """
@@ -45,7 +45,7 @@ class Group(Model):
     con : Connection
         A connection instance to a Knora server
 
-    id : str
+    iri : str
         IRI of the group [get only, cannot be modified after creation of instance]
 
     name : str
@@ -72,7 +72,7 @@ class Group(Model):
     ROUTE: str = "/admin/groups"
     ROUTE_SLASH: str = ROUTE + "/"
 
-    _id: str
+    _iri: str
     _name: str
     _descriptions: LangString
     _project: str
@@ -82,15 +82,15 @@ class Group(Model):
     def __init__(
         self,
         con: Connection,
-        id: Optional[str] = None,
+        iri: Optional[str] = None,
         name: Optional[str] = None,
         descriptions: Optional[LangString] = None,
         project: Optional[Union[str, Project]] = None,
         selfjoin: Optional[bool] = None,
         status: Optional[bool] = None,
-    ):
+    ) -> None:
         super().__init__(con)
-        self._id = str(id) if id is not None else None
+        self._iri = str(iri) if iri is not None else None
         self._name = str(name) if name is not None else None
         self._descriptions = LangString(descriptions)
         if project is not None and isinstance(project, Project):
@@ -101,12 +101,12 @@ class Group(Model):
         self._status = bool(status) if status is not None else None
 
     @property
-    def id(self) -> Optional[str]:
-        return self._id
+    def iri(self) -> Optional[str]:
+        return self._iri
 
-    @id.setter
-    def id(self, value: str) -> None:
-        raise BaseError("Group id cannot be modified!")
+    @iri.setter
+    def iri(self, value: str) -> None:
+        raise BaseError("Group iri cannot be modified!")
 
     @property
     def name(self) -> Optional[str]:
@@ -182,7 +182,7 @@ class Group(Model):
         return cls(
             con=con,
             name=name,
-            id=group_id,
+            iri=group_id,
             descriptions=descriptions,
             project=project,
             selfjoin=selfjoin,
@@ -222,7 +222,7 @@ class Group(Model):
         return Group.fromJsonObj(self._con, result["group"])
 
     def read(self) -> Group:
-        result = self._con.get(Group.ROUTE_SLASH + quote_plus(self._id))
+        result = self._con.get(Group.ROUTE_SLASH + quote_plus(self._iri))
         return Group.fromJsonObj(self._con, result["group"])
 
     def update(self) -> Optional[Group]:
@@ -230,16 +230,16 @@ class Group(Model):
         jsonobj = self.toJsonObj(Actions.Update)
         if jsonobj:
             jsondata = json.dumps(jsonobj)
-            result = self._con.put(Group.ROUTE_SLASH + quote_plus(self._id), jsondata)
+            result = self._con.put(Group.ROUTE_SLASH + quote_plus(self._iri), jsondata)
             updated_group = Group.fromJsonObj(self._con, result["group"])
         if self._status is not None and "status" in self._changed:
             jsondata = json.dumps({"status": self._status})
-            result = self._con.put(Group.ROUTE_SLASH + quote_plus(self._id) + "/status", jsondata)
+            result = self._con.put(Group.ROUTE_SLASH + quote_plus(self._iri) + "/status", jsondata)
             updated_group = Group.fromJsonObj(self._con, result["group"])
         return updated_group
 
     def delete(self) -> Group:
-        result = self._con.delete(Group.ROUTE_SLASH + quote_plus(self._id))
+        result = self._con.delete(Group.ROUTE_SLASH + quote_plus(self._iri))
         return Group.fromJsonObj(self._con, result["group"])
 
     @staticmethod
@@ -262,7 +262,7 @@ class Group(Model):
 
     def print(self) -> None:
         print("Group Info:")
-        print("  Id:          {}".format(self._id))
+        print("  IRI:         {}".format(self._iri))
         print("  Name:        {}".format(self._name))
         if self._descriptions is not None:
             print("  Descriptions:")

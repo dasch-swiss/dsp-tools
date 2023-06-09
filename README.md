@@ -94,7 +94,8 @@ Find more information in the
 ## Publishing/distribution
 
 Publishing is automated with GitHub Actions and should _not_ be done manually. 
-Please follow the [Pull Request Guidelines](https://docs.dasch.swiss/latest/developers/dsp/contribution/#pull-request-guidelines). 
+Please follow the 
+[Pull Request Guidelines](https://docs.dasch.swiss/latest/developers/dsp/contribution/#pull-request-guidelines). 
 If done correctly, when merging a pull request into `main`, 
 the `release-please` action will create or update a release PR. 
 This PR will follow semantic versioning and update the change log. 

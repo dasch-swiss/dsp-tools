@@ -2,12 +2,15 @@
 
 # JSON project definition format
 
-This document describes the structure of a JSON project definition file that can be uploaded to a DSP server
+This document describes the structure of a JSON project definition file 
+that can be uploaded to a DSP server
 with the [`create`](../../cli-commands.md#create) command.
 
-A project on a DSP server is like a container for data. It defines some basic metadata, the data model(s) and optionally 
-the user(s) who will be able to access the data. After the creation of a project, data can be uploaded that conforms 
-with the data model(s).
+A project on a DSP server is like a container for data. 
+It defines some basic metadata, the data model(s) 
+and optionally the user(s) who will be able to access the data. 
+After the creation of a project, 
+data can be uploaded that conforms with the data model(s).
 
 This documentation is divided into the following parts:
 
@@ -140,8 +143,10 @@ the DaSCH.
 
 `"shortname": "<string>"`
 
-The shortname has to be unique. It should be in the form of a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). 
-This means a string without blanks or special characters but `-` and `_` are allowed (although not as first character).
+The shortname has to be unique. 
+It should be in the form of a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). 
+This means a string without blanks or special characters,
+but with `-` and `_` are allowed (although not as first character).
 
 
 

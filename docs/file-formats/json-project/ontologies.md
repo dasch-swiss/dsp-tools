@@ -466,16 +466,18 @@ Example:
 
 `"object": "ListValue"`
 
-Represents a node of a (possibly hierarchical) list. See the [xmlupload documentation](../xml-data-file.md#list-prop) 
+Represents a node of a (possibly hierarchical) list. 
+See the [xmlupload documentation](../xml-data-file.md#list-prop) 
 for more information.
 
 *gui_elements / gui_attributes*:
 
-- `List`: A GUI element for *ListValue*. A dropdown to select a list node. This GUI element should be chosen for
-  hierarchical lists or flat lists that could be expanded to hierarchical lists in the future.
+- `List`: A GUI element for *ListValue*. A dropdown to select a list node.
     - *gui_attributes*:
         - `hlist=<list-name>` (required): The name of a list defined in the ["lists" section](./overview.md#lists).
-- `Radio` and `Pulldown` are allowed, too, but they don't have a different behaviour than `List`. It is recommended to use `List`.
+- `Radio` and `Pulldown` are allowed, too, 
+  but they don't have a different behaviour than `List`. 
+  It is recommended to use `List`.
 
 
 Example:
@@ -713,14 +715,18 @@ Example:
 
 `"object": "<resourceclass>"`
 
-A special case of linked resources are resources in a part-whole relation, i.e. resources that are composed of 
-other resources. A `isPartOf` property has to be added to the resource that is part of another resource. In case of 
-resources that are of type `StillImageRepresentation`, an additional property derived from `seqnum` with object `IntValue` 
-is required. When defined, the user is able to leaf through the parts of a compound object, p.ex. to leaf through pages 
-of a book.
+A special case of linked resources are resources in a part-whole relation, 
+i.e. resources that are composed of other resources. 
+A `isPartOf` property has to be added to the resource that is part of another resource. 
+In case of resources that are of type `StillImageRepresentation`, 
+an additional property derived from `seqnum` with object `IntValue` is required. 
+When defined, the user is able to leaf through the parts of a compound object, 
+e.g. to leaf through pages of a book.
 
-The DSP base properties `isPartOf` and `seqnum` can be used to derive a custom property from them, or they can be used 
-directly as cardinalities in a resource. The example belows shows both possibilities.
+The DSP base properties `isPartOf` and `seqnum` 
+can be used to derive a custom property from them, 
+or they can be used directly as cardinalities in a resource. 
+The example belows shows both possibilities.
 
 *gui_elements/gui_attributes*:
 

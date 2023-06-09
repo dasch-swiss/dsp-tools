@@ -195,7 +195,10 @@ def _get_values_from_excel(
     return row - 1, parentnode
 
 
-def _make_json_lists_from_excel(excel_file_paths: list[str], verbose: bool = False) -> list[dict[str, Any]]:
+def _make_json_lists_from_excel(
+    excel_file_paths: list[str],
+    verbose: bool = False,
+) -> list[dict[str, Any]]:
     """
     Reads Excel files and transforms them into a list of dictionaries that can be used as "lists" array of a JSON
     project file.

@@ -119,8 +119,8 @@ Only the first worksheet of the Excel file is considered and only XLSX files are
 The `properties` section can be inserted into the ontology file and then be uploaded onto a DSP server.
 
 **An Excel file template can be found [here](../assets/data_model_templates/rosetta%20(rosetta)/properties.xlsx) 
-or also in the
-[`data_model_files` folder of `00A1-import-scripts`](https://github.com/dasch-swiss/00A1-import-scripts/tree/main/data_model_files). 
+or also in the `data_model_files` folder of 
+[`00A1-import-scripts`](https://github.com/dasch-swiss/00A1-import-scripts/tree/main/data_model_files). 
 It is recommended to work from the template.**
 
 The Excel sheet must have the following structure:  

@@ -3,10 +3,13 @@
 # The XML file format for importing data
 
 With the [`xmlupload`](../cli-commands.md#xmlupload) command, 
-data can be imported into a DSP repository (on a DSP server) from an XML file. The import file is a
-standard XML file as described on this page. After a successful upload of the data, an output file is written (called 
-`id2iri_mapping_[timestamp].json`) with the mapping from the internal IDs used inside the XML to their corresponding IRIs which
-uniquely identify them inside DSP. This file should be kept if data is later added with the 
+data can be imported into a DSP repository (on a DSP server) from an XML file. 
+The import file is a standard XML file as described on this page.
+After a successful upload of the data, 
+an output file is written (called `id2iri_mapping_[timestamp].json`)
+with the mapping from the internal IDs used inside the XML 
+to their corresponding IRIs which uniquely identify them inside DSP. 
+This file should be kept if data is later added with the 
 `--incremental` [option](../incremental-xmlupload.md).
 
 The import file must start with the standard XML header:
@@ -74,8 +77,10 @@ A group can have exactly one of these rights:
 - `RV` _restricted view permission_: Same as `V`, 
   but if it is applied to an image, the image is shown with a reduced resolution or with a watermark overlay.
 - `V` _view permission_: The user can view a resource or a value, but cannot modify it.
-- `M` _modify permission_: The user can modify the element, but cannot mark it as deleted. The original resource or value will be preserved.
-- `D` _delete permission_: The user is allowed to mark an element as deleted. The original resource or value will be preserved.
+- `M` _modify permission_: The user can modify the element, but cannot mark it as deleted. 
+  The original resource or value will be preserved.
+- `D` _delete permission_: The user is allowed to mark an element as deleted. 
+  The original resource or value will be preserved.
 - `CR` _change right permission_: The user can change the permission of a resource or value. 
   The user is also allowed to permanently delete (erase) a resource.
 
@@ -116,9 +121,12 @@ permission `special-permission` can only be viewed by `ProjectAdmin`s:
 
 ### Using permissions with the `permissions` attribute
 
-Once defined, the permission IDs can be used as `permissions` attribute in the `<resource>` and `<xyz-prop>` tags. It is 
-important to note that a resource doesn't inherit its permissions to its properties. Each property must have its own 
-permissions. So, in the following example, the bitstreams don't inherit the permissions from their resource:
+Once defined, the permission IDs can be used as `permissions` attribute
+in the `<resource>` and `<xyz-prop>` tags.
+It is important to note that a resource doesn't inherit its permissions to its properties. 
+Each property must have its own permissions. 
+So, in the following example, 
+the bitstreams don't inherit the permissions from their resource:
 
 ```xml
 <resource ...>
@@ -146,15 +154,21 @@ A `<resource>` element contains all necessary information to create a resource. 
 
 - `label` (required): a human-readable, preferably meaningful short name of the resource
 - `restype` (required): the resource type as defined within the ontology 
-- `id` (required): a unique, arbitrary string providing a unique ID to the resource in order to be referencable by other 
-  resources; the ID is only used during the import process and later replaced by the IRI used internally by DSP 
-- `permissions` (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not 
-    even view rights): a reference to a permission ID
+- `id` (required): an arbitrary string providing a unique ID to the resource
+  in order to be referencable by other resources; 
+  the ID is only used during the import process 
+  and later replaced by the IRI used internally by DSP 
+- `permissions` 
+  (optional, but if omitted, 
+  users who are lower than a `ProjectAdmin` have no permissions at all,
+  not even view rights):
+  a reference to a permission ID
 - `iri` (optional): a custom IRI, used when migrating existing resources (DaSCH-internal only)
 - `ark` (optional): a version 0 ARK, used when migrating existing resources. It is not possible 
   to use `iri` and `ark` in the same resource. When `ark` is used, it overrides `iri` (DaSCH-internal only).
 - `creation_date` (optional): the creation date of the resource, used when migrating existing resources.
-  It must be formatted according to the constraints of [xsd:dateTimeStamp](https://www.w3.org/TR/xmlschema11-2/#dateTimeStamp), 
+  It must be formatted according to the constraints of 
+  [xsd:dateTimeStamp](https://www.w3.org/TR/xmlschema11-2/#dateTimeStamp), 
   which means that the timezone is required, e.g.: `2005-10-23T13:45:12.502951+02:00` (DaSCH-internal only)
 
 A complete `<resource>` element may look as follows:
@@ -344,11 +358,14 @@ Notes:
 - Internally, a date is always represented as a start and end date. 
 - If start and end date match, it's an exact date. 
 - If start and end date don't match, it's a range.
-- If the end date is omitted, it's a range from the earliest possible beginning of the start date to the latest possible 
-end of the start date. For example:
+- If the end date is omitted, 
+  it's a range from the earliest possible beginning of the start date
+  to the latest possible end of the start date. 
+  For example:
     - "1893" will be expanded to a range from January 1st 1893 to December 31st 1893.
     - "1893-01" will be expanded to a range from January 1st 1893 to January 31st 1893.
-    - "1893-01-01" will be expanded to the exact date January 1st 1893 to January 1st 1893 (technically also a range).
+    - "1893-01-01" will be expanded to a range from January 1st 1893 to January 1st 1893 
+      (technically also a range).
 
 Attributes:
 
@@ -837,9 +854,11 @@ Example of a property with a public and a hidden URI:
 
 ## DSP base resources and base properties to be used directly in the XML file
 
-There is a number of base resources and base properties that must not be subclassed in a project ontology. They are 
-directly available in the XML data file. Please have in mind that built-in names of the knora-base ontology must be used 
-without prepended colon.  
+There is a number of base resources and base properties
+that must not be subclassed in a project ontology. 
+They are directly available in the XML data file. 
+Please have in mind that built-in names of the knora-base ontology
+must be used without prepended colon.  
 See also [the related part of the JSON project documentation](./json-project/caveats.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file)
 
 

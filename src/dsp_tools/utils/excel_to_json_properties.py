@@ -14,7 +14,10 @@ from dsp_tools.utils.shared import check_notna, prepare_dataframe
 languages = ["en", "de", "fr", "it", "rm"]
 
 
-def _validate_properties(properties_list: list[dict[str, Any]], excelfile: str) -> bool:
+def _validate_properties(
+    properties_list: list[dict[str, Any]],
+    excelfile: str,
+) -> bool:
     """
     This function checks if the "properties" section of a JSON project file is valid according to the JSON schema,
     and if the property names are unique.
@@ -75,7 +78,11 @@ def _validate_properties(properties_list: list[dict[str, Any]], excelfile: str) 
     return True
 
 
-def _row2prop(row: pd.Series, row_count: int, excelfile: str) -> dict[str, Any]:
+def _row2prop(
+    row: pd.Series,
+    row_count: int,
+    excelfile: str,
+) -> dict[str, Any]:
     """
     Takes a row from a pandas DataFrame, reads its content, and returns a dict object of the property
 

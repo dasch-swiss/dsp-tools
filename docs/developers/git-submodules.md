@@ -2,7 +2,8 @@
 
 # Git submodules
 
-This repository embeds [https://github.com/dasch-swiss/00A1-import-scripts](https://github.com/dasch-swiss/00A1-import-scripts) 
+This repository embeds 
+[https://github.com/dasch-swiss/00A1-import-scripts](https://github.com/dasch-swiss/00A1-import-scripts) 
 as a Git submodule in `src/dsp_tools/import_scripts`. That means that `src/dsp_tools/import_scripts` has no contents, but
 only a reference to a certain commit in the main branch of `00A1-import-scripts`. When you clone DSP-TOOLS from GitHub 
 as usual, `src/dsp_tools/import_scripts` will be empty.
@@ -80,8 +81,11 @@ confused that the path to the submodule changed. If this doesn't help, it might 
 
 ## Actively working with the contents of the submodule
 
-After retrieving the contents of a submodule as described in the paragraph above, it is in "detached HEAD" state. Before 
-committing to it, the `main` branch needs to be checked out. The order how to proceed is the following:
+After retrieving the contents of a submodule as described in the paragraph above, 
+it is in "detached HEAD" state. 
+Before committing to it, 
+the `main` branch needs to be checked out. 
+The order how to proceed is the following:
 
 ```bash
 cd src/dsp_tools/import_scripts

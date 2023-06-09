@@ -257,7 +257,10 @@ def prepare_value(
     return [x if isinstance(x, PropertyElement) else PropertyElement(x) for x in value]
 
 
-def make_root(shortcode: str, default_ontology: str) -> etree._Element:
+def make_root(
+    shortcode: str,
+    default_ontology: str,
+) -> etree._Element:
     """
     Start building your XML document by creating the root element <knora>.
 
@@ -444,7 +447,11 @@ def make_bitstream_prop(
     return prop_
 
 
-def _format_bool(unformatted: Union[bool, str, int], name: str, calling_resource: str) -> str:
+def _format_bool(
+    unformatted: Union[bool, str, int],
+    name: str,
+    calling_resource: str,
+) -> str:
     """
     This method takes an unformatted boolean-like value, and transforms it into the string values "true" or "false".
 
@@ -1769,7 +1776,10 @@ def create_json_list_mapping(
     return res
 
 
-def _name_label_mapper_iterator(json_subset: list[dict[str, Any]], language_label: str) -> Iterable[tuple[str, str]]:
+def _name_label_mapper_iterator(
+    json_subset: list[dict[str, Any]],
+    language_label: str,
+) -> Iterable[tuple[str, str]]:
     """
     returns (label, name) pairs of JSON project list entries
     """
@@ -1785,7 +1795,10 @@ def _name_label_mapper_iterator(json_subset: list[dict[str, Any]], language_labe
             # the actual values of the name and the label
 
 
-def write_xml(root: etree._Element, filepath: str) -> None:
+def write_xml(
+    root: etree._Element,
+    filepath: str,
+) -> None:
     """
     Write the finished XML to a file
 

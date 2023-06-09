@@ -63,7 +63,8 @@ subclassed and used in a resource class.
       [&lt;link&gt; tag](../xml-data-file.md#link)
 - `hasGeometry`: Defines a geometry value (a JSON describing a polygon, circle or rectangle). 
     - must be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#region)
-- `isRegionOf`: A special variant of `hasLinkTo`. It means that the given resource class is a region of interest in an image. 
+- `isRegionOf`: A special variant of `hasLinkTo`. 
+  It means that the given resource class is a region of interest in an image. 
     - must be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#region)
 - `isAnnotationOf`: A special variant of `hasLinkTo`. It means that the given resource class is an annotation to another
   resource class. 

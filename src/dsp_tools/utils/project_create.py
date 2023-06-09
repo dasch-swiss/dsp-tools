@@ -565,7 +565,7 @@ def _create_ontologies(
             raise UserError(f"ERROR while trying to create ontology '{ontology_definition['name']}'.") from None
         context.add_context(
             ontology_remote.name,
-            ontology_remote.id + ("#" if not ontology_remote.id.endswith("#") else ""),
+            ontology_remote.iri + ("#" if not ontology_remote.iri.endswith("#") else ""),
         )
         last_modification_date = ontology_remote.lastModificationDate
         if verbose:
@@ -653,7 +653,7 @@ def _add_resource_classes_to_remote_ontology(
         res_class_local = ResourceClass(
             con=con,
             context=ontology_remote.context,
-            ontology_id=ontology_remote.id,
+            ontology_id=ontology_remote.iri,
             name=res_class["name"],
             superclasses=super_classes,
             label=LangString(res_class.get("labels")),
@@ -744,7 +744,7 @@ def _add_property_classes_to_remote_ontology(
             context=ontology_remote.context,
             label=LangString(prop_class.get("labels")),
             name=prop_class["name"],
-            ontology_id=ontology_remote.id,
+            ontology_id=ontology_remote.iri,
             superproperties=super_props,
             object=prop_object,
             subject=prop_class.get("subject"),
@@ -799,7 +799,7 @@ def _add_cardinalities_to_resource_classes(
         "1-n": Cardinality.C_1_n,
     }
     for res_class in ontology_definition.get("resources", []):
-        res_class_remote = remote_res_classes.get(ontology_remote.id + "#" + res_class["name"])
+        res_class_remote = remote_res_classes.get(ontology_remote.iri + "#" + res_class["name"])
         if not res_class_remote:
             print(
                 f"WARNING: Unable to add cardinalities to resource class '{res_class['name']}': "

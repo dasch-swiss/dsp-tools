@@ -1,8 +1,7 @@
 import re
-import sys
 from dataclasses import dataclass
 from enum import Enum, unique
-from typing import Any, NewType, Optional, Pattern, Union
+from typing import Any, Optional, Pattern, Union
 
 from dsp_tools.models.exceptions import BaseError
 
@@ -25,11 +24,7 @@ class OntoIri:
     hashtag: bool
 
 
-ContextType = NewType("ContextType", dict[str, OntoIri])
-
-
-def LINE() -> int:
-    return sys._getframe(1).f_lineno
+ContextType = dict[str, OntoIri]
 
 
 class IriTest:
@@ -118,17 +113,6 @@ class Context:
             "xsd": OntoIri("http://www.w3.org/2001/XMLSchema", True),
         }
     )
-
-    def __is_iri(self, val: str) -> bool:
-        """
-        Test if string has a valid IRI pattern
-
-        :param val: Input string
-        :return: True, if val corresponds to IRI pattern
-        """
-
-        m = self._exp.match(val)
-        return m.span()[1] == len(val) if m else False
 
     def __init__(self, context: Optional[dict[str, str]] = None):
         """

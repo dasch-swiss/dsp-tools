@@ -866,7 +866,7 @@ class ListValue(Value):
         def find_listnode(nodes: list[ListNode], name: str) -> Optional[str]:
             for node in nodes:
                 if node.name == name:
-                    return node.id
+                    return node.iri
                 else:
                     if node.children is not None:
                         node_id = find_listnode(node.children, name)

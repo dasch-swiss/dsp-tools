@@ -396,7 +396,7 @@ class ResourceInstanceFactory:
         tmp_ontologies.append(knora_api_onto)
         self._ontoname2iri = {x.name: x.iri for x in tmp_ontologies}
 
-        ontology_ids = [x.id for x in tmp_ontologies]
+        ontology_ids = [x.iri for x in tmp_ontologies]
         self._ontologies = {}
         self._properties = {}
         self._context = {}

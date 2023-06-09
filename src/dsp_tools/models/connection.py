@@ -190,7 +190,7 @@ class Connection:
         else:
             if not headers:
                 response = requests.get(
-                    self._server + path, 
+                    self._server + path,
                     headers={"Authorization": "Bearer " + self._token},
                     timeout=5,
                 )
@@ -215,7 +215,7 @@ class Connection:
             path = "/" + path
         if jsondata is None:
             response = requests.put(
-                self._server + path, 
+                self._server + path,
                 headers={"Authorization": "Bearer " + self._token},
                 timeout=5,
             )

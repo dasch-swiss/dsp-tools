@@ -68,7 +68,6 @@ class InternalError(BaseError):
     """
 
 
-
 class UserError(BaseError):
     """
     Class for errors that are intended for user feedback.

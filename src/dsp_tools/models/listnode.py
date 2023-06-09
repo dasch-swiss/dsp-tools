@@ -163,15 +163,15 @@ class ListNode(Model):
         DELETE:
             * Not yet implemented
 
-        Setting a label overwites all entries. To add/remove a specific entry, use "addLabel" or "rmLabel". 
-        Setting a comment overwites all entries. To add/remove a specific entry, use "addComment" or "rmComment". 
+        Setting a label overwites all entries. To add/remove a specific entry, use "addLabel" or "rmLabel".
+        Setting a comment overwites all entries. To add/remove a specific entry, use "addComment" or "rmComment".
 
         Args:
             con: A valid Connection instance with a user logged in that has the appropriate permissions
             iri: IRI of the project [readonly, cannot be modified after creation of instance]
             project: IRI of project. Only used for the creation of a new list (root node) [write].
-            label: LangString with lang dependent labels. At least one label is required [read/write].      
-            comments:  A LangString instance with language dependent comments. 
+            label: LangString with lang dependent labels. At least one label is required [read/write].
+            comments:  A LangString instance with language dependent comments.
             name: A unique name for the ListNode (unique regarding the whole list) [read/write].
             parent: Required and allowed only for the CREATE operation. Otherwise use the "children" attribute [write].
             isRootNode: Is True if the ListNode is a root node of a list Cannot be set [read].
@@ -246,7 +246,7 @@ class ListNode(Model):
         """
         Remove a label from a list node (executed at next update)
 
-        Args: 
+        Args:
             lang: language of the label (string "EN", "DE", "FR", "IT", "RM", or a Language instance)
         """
         del self._label[lang]

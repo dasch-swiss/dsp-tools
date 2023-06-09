@@ -22,7 +22,7 @@ def check_for_api_error(response: requests.Response) -> None:
             message="KNORA-ERROR: status code=" + str(response.status_code) + "\nMessage:" + response.text,
             status_code=response.status_code,
             json_content_of_api_response=response.text,
-            reason_from_api_response=response.reason,
+            reason_from_api=response.reason,
             api_route=response.url,
         )
 

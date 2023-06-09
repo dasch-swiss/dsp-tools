@@ -737,7 +737,7 @@ def _process_video_file(
 
 def handle_interruption(
     all_paths: list[Path],
-    processed_paths: list[Path],
+    processed_files: list[tuple[Path, Optional[Path]]],
     exception: BaseException,
 ) -> None:
     """
@@ -747,10 +747,13 @@ def handle_interruption(
 
     Args:
         all_paths: list of all paths that should be processed
-        processed_paths: list of all paths that were processed successfully
-        exception: the exception that was raised
+        processed_files: list of tuples (orig path, processed path). 2nd path is None if a file could not be processed.
+        exception: the exception that was raised 
     """
+    processed_paths = [x[1] for x in processed_files if x and x[1]]
     unprocessed_paths = [x for x in all_paths if x not in processed_paths]
+    
+    _write_result_to_pkl_file(processed_files)
     with open("unprocessed_files.txt", "w", encoding="utf-8") as f:
         f.write("\n".join([str(x) for x in unprocessed_paths]))
     with open("processed_files.txt", "w", encoding="utf-8") as f:
@@ -758,8 +761,10 @@ def handle_interruption(
 
     msg = (
         "An error occurred while processing the files. "
-        "2 files were written, listing the processed and the unprocessed files:\n"
-        " - 'processed_files.txt'\n - 'unprocessed_files.txt'."
+        "3 files were written:\n"
+        " - processing_result_[timestamp].pkl\n"
+        f" - processed_files.txt ({len(processed_paths)} files)\n"
+        f" - unprocessed_files.txt ({len(unprocessed_paths)} files)\n"
     )
     print(f"{datetime.now()}: ERROR: {msg}. The exception was: {exception}")
     logger.error(msg, exc_info=exception)
@@ -820,7 +825,7 @@ def process_files(
     start_time = datetime.now()
     print(f"{start_time}: Start local file processing...")
     logger.info("Start local file processing...")
-    processed_files = []
+    processed_files: list[tuple[Path, Optional[Path]]] = []
     unprocessed_files = all_paths
     while unprocessed_files:
         try:
@@ -834,7 +839,7 @@ def process_files(
         except BaseException as exc:  # pylint: disable=broad-exception-caught
             handle_interruption(
                 all_paths=all_paths,
-                processed_paths=[x[1] for x in processed_files if x and x[1]],
+                processed_files=processed_files,
                 exception=exc,
             )
 

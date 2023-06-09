@@ -95,7 +95,7 @@ class LangString:
             else:
                 try:
                     return list(self._langstrs)[0]
-                except:
+                except:  # pylint: disable=bare-except
                     return None
         else:
             pass

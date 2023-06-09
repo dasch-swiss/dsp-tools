@@ -107,7 +107,10 @@ def create_lists_on_server(
         # if list exists already, add it to "current_project_lists" (for later usage), then skip it
         existing_list = [x for x in existing_lists if x.project == project_remote.id and x.name == new_list["name"]]
         if existing_list:
-            current_project_lists[existing_list[0].name] = {  # type: ignore
+            existing_list_name = existing_list[0].name
+            if not existing_list_name:
+                raise BaseError(f"Node {existing_list[0]} has no name.")
+            current_project_lists[existing_list_name] = {
                 "id": existing_list[0].iri,
                 "nodes": new_list["nodes"],
             }

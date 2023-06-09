@@ -163,25 +163,20 @@ class ListNode(Model):
         DELETE:
             * Not yet implemented
 
+        Setting a label overwites all entries. To add/remove a specific entry, use "addLabel" or "rmLabel". 
+        Setting a comment overwites all entries. To add/remove a specific entry, use "addComment" or "rmComment". 
+
         Args:
-            con:            A valid Connection instance with a user logged in that has the appropriate permissions
-            iri:            IRI of the project [readonly, cannot be modified after creation of instance]
-            project:        IRI of project. Only used for the creation of a new list (root node) [write].
-            label:          A LangString instance with language dependent labels. 
-                            Setting this attributes overwites all entries with the new ones. 
-                            In order to add/remove a specific entry, use "addLabel" or "rmLabel". 
-                            At least one label is required [read/write].
-            comments:       A LangString instance with language dependent comments. 
-                            Setting this attributes overwites all entries with the new ones.
-                            In order to add/remove a specific entry, use "addComment" or "rmComment".
-            name:           A unique name for the ListNode (unique regarding the whole list) [read/write].
-            parent:         Is required and allowed only for the CREATE operation. 
-                            Otherwise use the "children" attribute [write].
-            isRootNode:     Is True if the ListNode is a root node of a list Cannot be set [read].
-            children:       Contains a list of children nodes. 
-                            This attribute is only available for nodes that have been read by the method getAllNodes()
-            rootNodeIri:    IRI of the root node. 
-                            This attribute is only available for nodes that have been read by the method getAllNodes()
+            con: A valid Connection instance with a user logged in that has the appropriate permissions
+            iri: IRI of the project [readonly, cannot be modified after creation of instance]
+            project: IRI of project. Only used for the creation of a new list (root node) [write].
+            label: LangString with lang dependent labels. At least one label is required [read/write].      
+            comments:  A LangString instance with language dependent comments. 
+            name: A unique name for the ListNode (unique regarding the whole list) [read/write].
+            parent: Required and allowed only for the CREATE operation. Otherwise use the "children" attribute [write].
+            isRootNode: Is True if the ListNode is a root node of a list Cannot be set [read].
+            children: list of children nodes. Only available for nodes that have been read by getAllNodes()
+            rootNodeIri: IRI of the root node. Only available for nodes that have been read by the method getAllNodes()
         """
 
         super().__init__(con)
@@ -253,9 +248,6 @@ class ListNode(Model):
 
         Args: 
             lang: language of the label (string "EN", "DE", "FR", "IT", "RM", or a Language instance)
-        
-        return:
-            None
         """
         del self._label[lang]
         self._changed.add("label")
@@ -512,7 +504,6 @@ class ListNode(Model):
         :return: DSP-API response
         """
         raise BaseError("NOT YET IMPLEMENTED")
-
 
     def getAllNodes(self) -> "ListNode":
         """

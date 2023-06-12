@@ -87,8 +87,11 @@ jobs:
       - name: unittests
         run: poetry run pytest test/unittests/
 
+      - name: start stack
+        run: poetry run dsp-tools start-stack --no-prune
+
       - name: e2e tests
-        run: |
-          poetry run dsp-tools start-stack --no-prune
-          poetry run pytest test/e2e/
-          poetry run dsp-tools stop-stack           # see if this command can run (it isn't tested anywhere else)
+        run: poetry run pytest test/e2e/
+      
+      - name: stop stack  # see if this command can run (it isn't tested anywhere else)
+        run: poetry run dsp-tools stop-stack

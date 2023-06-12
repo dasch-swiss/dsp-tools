@@ -84,19 +84,18 @@ class LangString:
         else:
             raise BaseError("Not a valid language definition!")
 
-    def __getitem__(self, key: Optional[Union[Languages, str]] = None) -> str:
+    def __getitem__(self, key: Optional[Union[Languages, str]] = None) -> Optional[str]:
         #
         # First deal with simple strings (no language given). We return, if existing, the simple string
         # or just the first language dependent string
         #
         if key is None:
-            if self._simplestring is not None:
+            if self._simplestring:
                 return self._simplestring
+            elif len(self._langstrs) != 0:
+                return list(self._langstrs)[0]
             else:
-                try:
-                    return list(self._langstrs)[0]
-                except:
-                    return None
+                return None
         else:
             pass
             # self._simplestring = None  # Let's delete the string without language if there is one...

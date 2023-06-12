@@ -1,16 +1,3 @@
-import json
-from pprint import pprint
-from typing import Any, Optional, Union
-from urllib.parse import quote_plus
-
-from dsp_tools.models.connection import Connection
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.helpers import Actions
-from dsp_tools.models.langstring import LangString, Languages
-from dsp_tools.models.model import Model
-from dsp_tools.models.project import Project
-from dsp_tools.models.set_encoder import SetEncoder
-
 """
 This module implements the handling (CRUD) of list nodes and adds some function to read whole lists.
 
@@ -19,7 +6,7 @@ CREATE:
     * Call the ``create`` method on the instance
 
 READ:
-    * Instantiate a new object with ``id`` (IRI of listnode)
+    * Instantiate a new object with ``iri`` (IRI of listnode)
     * Call the ``read`` method on the instance
     * Access information about the instance
 
@@ -32,6 +19,19 @@ UPDATE:
 DELETE
     * NOT YET IMPLEMENTED!
 """
+
+import json
+from pprint import pprint
+from typing import Any, Optional, Union
+from urllib.parse import quote_plus
+
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.helpers import Actions
+from dsp_tools.models.langstring import LangString, Languages
+from dsp_tools.models.model import Model
+from dsp_tools.models.project import Project
+from dsp_tools.models.set_encoder import SetEncoder
 
 
 def list_creator(con: Connection, project: Project, parent_node: "ListNode", nodes: list[dict]) -> list["ListNode"]:
@@ -65,7 +65,7 @@ class ListNode(Model):
     con : Connection
         A Connection instance to a DSP server (for some operation a login has to be performed with valid credentials)
 
-    id : str
+    iri : str
         IRI of the list node [readonly, cannot be modified after creation of instance]
 
     project : str
@@ -141,7 +141,7 @@ class ListNode(Model):
     def __init__(
         self,
         con: Connection,
-        id: Optional[str] = None,
+        iri: Optional[str] = None,
         project: Optional[Union[Project, str]] = None,
         label: Optional[LangString] = None,
         comments: Optional[LangString] = None,
@@ -150,40 +150,44 @@ class ListNode(Model):
         isRootNode: bool = False,
         children: Optional[list["ListNode"]] = None,
         rootNodeIri: Optional[str] = None,
-    ):
+    ) -> None:
         """
         This is the constructor for the ListNode object. For
 
         CREATE:
             * The "con" and at least one "label" are required
         READ:
-            * The "con" and "id" attributes are required
+            * The "con" and "iri" attributes are required
         UPDATE:
             * Only "label", "comments" and "name" may be changed
         DELETE:
             * Not yet implemented
 
-        :param con: A valid Connection instance with a user logged in that has the appropriate permissions
-        :param id: IRI of the project [readonly, cannot be modified after creation of instance]
-        :param project: IRI of project. Only used for the creation of a new list (root node) [write].
-        :param label: A LangString instance with language dependent labels. Setting this attributes overwites all entries with the new ones. In order to add/remove a specific entry, use "addLabel" or "rmLabel". At least one label is required [read/write].
-        :param comments: A LangString instance with language dependent comments. Setting this attributes overwites all entries with the new ones.In order to add/remove a specific entry, use "addComment" or "rmComment".
-        :param name: A unique name for the ListNode (unique regarding the whole list) [read/write].
-        :param parent: Is required and allowed only for the CREATE operation. Otherwise use the "children" attribute [write].
-        :param isRootNode: Is True if the ListNode is a root node of a list Cannot be set [read].
-        :param children: Contains a list of children nodes. This attribute is only available for nodes that have been read by the method "getAllNodes()"! [read]
-        :param rootNodeIri: IRI of the root node. This attribute is only available for nodes that have been read by the method "getAllNodes()"! [read]
+        Setting a label overwites all entries. To add/remove a specific entry, use "addLabel" or "rmLabel".
+        Setting a comment overwites all entries. To add/remove a specific entry, use "addComment" or "rmComment".
+
+        Args:
+            con: A valid Connection instance with a user logged in that has the appropriate permissions
+            iri: IRI of the project [readonly, cannot be modified after creation of instance]
+            project: IRI of project. Only used for the creation of a new list (root node) [write].
+            label: LangString with lang dependent labels. At least one label is required [read/write].
+            comments:  A LangString instance with language dependent comments.
+            name: A unique name for the ListNode (unique regarding the whole list) [read/write].
+            parent: Required and allowed only for the CREATE operation. Otherwise use the "children" attribute [write].
+            isRootNode: Is True if the ListNode is a root node of a list Cannot be set [read].
+            children: list of children nodes. Only available for nodes that have been read by getAllNodes()
+            rootNodeIri: IRI of the root node. Only available for nodes that have been read by the method getAllNodes()
         """
 
         super().__init__(con)
 
         self._project = project.id if isinstance(project, Project) else str(project) if project else None
-        self._id = str(id) if id else None
+        self._id = iri
         self._label = LangString(label)
         self._comments = LangString(comments) if comments else None
-        self._name = str(name) if name else None
+        self._name = name
         if parent and isinstance(parent, ListNode):
-            self._parent = parent.id
+            self._parent = parent.iri
         else:
             self._parent = str(parent) if parent else None
         self._isRootNode = isRootNode
@@ -199,12 +203,12 @@ class ListNode(Model):
         self._rootNodeIri = rootNodeIri
 
     @property
-    def id(self) -> Optional[str]:
+    def iri(self) -> Optional[str]:
         return self._id
 
-    @id.setter
-    def id(self, value: str) -> None:
-        raise BaseError("ListNode id cannot be modified!")
+    @iri.setter
+    def iri(self, value: str) -> None:
+        raise BaseError("ListNode iri cannot be modified!")
 
     @property
     def project(self) -> Optional[str]:
@@ -242,8 +246,8 @@ class ListNode(Model):
         """
         Remove a label from a list node (executed at next update)
 
-        :param lang: The language the label to be removed is in, either a string "EN", "DE", "FR", "IT" or a Language instance
-        :return: None
+        Args:
+            lang: language of the label (string "EN", "DE", "FR", "IT", "RM", or a Language instance)
         """
         del self._label[lang]
         self._changed.add("label")
@@ -273,7 +277,7 @@ class ListNode(Model):
         """
         Remove a comments from a list node (executed at next update)
 
-        :param lang: The language the comment to be removed is in, either a string "EN", "DE", "FR", "IT" or a Language instance
+        :param lang: language of the comment (string "EN", "DE", "FR", "IT", "RM", or a Language instance)
         :return: None
         """
         del self._comments[lang]
@@ -285,7 +289,7 @@ class ListNode(Model):
 
     @name.setter
     def name(self, value: str) -> None:
-        self._name = str(value)
+        self._name = value
         self._changed.add("name")
 
     @property
@@ -295,7 +299,7 @@ class ListNode(Model):
     @parent.setter
     def parent(self, value: Union[str, "ListNode"]):
         if isinstance(value, ListNode):
-            self._parent = value.id
+            self._parent = value.iri
         else:
             self._parent = value
 
@@ -370,8 +374,8 @@ class ListNode(Model):
         :return: ListNode instance
         """
 
-        id = json_obj.get("id")
-        if id is None:
+        iri = json_obj.get("id")
+        if iri is None:
             raise BaseError("ListNode id is missing")
         project = json_obj.get("projectIri")
         label = LangString.fromJsonObj(json_obj.get("labels"))
@@ -379,19 +383,19 @@ class ListNode(Model):
         if json_obj.get("name"):
             name = json_obj["name"]
         else:
-            name = id.rsplit("/", 1)[-1]
+            name = iri.rsplit("/", 1)[-1]
         parent = json_obj.get("parentNodeIri")
         isRootNode = json_obj.get("isRootNode")
 
         child_info = json_obj.get("children")
         children = None
         if child_info:
-            children = ListNode.__getChildren(con=con, parent_iri=id, project_iri=project, children=child_info)
+            children = ListNode.__getChildren(con=con, parent_iri=iri, project_iri=project, children=child_info)
         rootNodeIri = json_obj.get("hasRootNode")
 
         return cls(
             con=con,
-            id=id,
+            iri=iri,
             project=project,
             label=label,
             comments=comments,
@@ -431,8 +435,8 @@ class ListNode(Model):
                 tmp["parentNodeIri"] = self._parent
 
         elif action == Actions.Update:
-            if self.id is None:
-                raise BaseError("There must be a node id given!")
+            if self.iri is None:
+                raise BaseError("There must be a node iri given!")
             tmp["listIri"] = listIri
             if self._project is None:
                 raise BaseError("There must be a project id given!")
@@ -484,10 +488,10 @@ class ListNode(Model):
         :return: JSON-object from DSP-API reflecting the update
         """
 
-        jsonobj = self.toJsonObj(Actions.Update, self.id)
+        jsonobj = self.toJsonObj(Actions.Update, self.iri)
         if jsonobj:
             jsondata = json.dumps(jsonobj, cls=SetEncoder)
-            result = self._con.put(ListNode.ROUTE_SLASH + quote_plus(self.id), jsondata)
+            result = self._con.put(ListNode.ROUTE_SLASH + quote_plus(self.iri), jsondata)
             pprint(result)
             return ListNode.fromJsonObj(self._con, result["listinfo"])
         else:
@@ -500,9 +504,6 @@ class ListNode(Model):
         :return: DSP-API response
         """
         raise BaseError("NOT YET IMPLEMENTED")
-        result = self._con.delete(ListNode.ROUTE_SLASH + quote_plus(self._id))
-        return result
-        # return Project.fromJsonObj(self.con, result['project'])
 
     def getAllNodes(self) -> "ListNode":
         """
@@ -519,8 +520,8 @@ class ListNode(Model):
             raise BaseError("Request got no proper list information!")
         root = ListNode.fromJsonObj(self._con, result["list"]["listinfo"])
         if "children" in result["list"]:
-            root._children = ListNode.__getChildren(
-                con=self._con, parent_iri=root.id, project_iri=root.project, children=result["list"]["children"]
+            root.children = ListNode.__getChildren(
+                con=self._con, parent_iri=root.iri, project_iri=root.project, children=result["list"]["children"]
             )
         return root
 
@@ -603,7 +604,7 @@ class ListNode(Model):
         """
 
         print("Node Info:")
-        print("  Id:        {}".format(self._id))
+        print("  IRI:       {}".format(self._id))
         print("  Project:   {}".format(self._project))
         print("  Name:      {}".format(self._name))
         print("  Label:     ")

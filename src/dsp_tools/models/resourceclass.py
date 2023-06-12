@@ -15,7 +15,7 @@ from dsp_tools.models.set_encoder import SetEncoder
 This model implements the handling of resource classes. It contains two classes that work closely together:
     * "HasProperty" deals with the association of Property-instances with the Resource-instances. This association
       is done using the "cardinality"-clause
-    * "ResourceClass" is the main class representing a knora resource class.
+    * "ResourceClass" is the main class representing a DSP resource class.
 """
 
 
@@ -305,13 +305,13 @@ class HasProperty(Model):
 
 class ResourceClass(Model):
     """
-    This class represents a knora resource class
+    This class represents a DSP resource class
 
     Attributes
     ----------
 
     con : Connection
-        A Connection instance to a Knora server
+        A Connection instance to a DSP server
 
     id : str
         IRI of the ResourceClass [readonly, cannot be modified after creation of instance]
@@ -378,7 +378,7 @@ class ResourceClass(Model):
 
     delete: Mark a resource class as deleted (on the connected server)
 
-    createDefinitionFileObj: Create an object suitable for jsonification that conforms the the knora-py ontology tools
+    createDefinitionFileObj: Create an object suitable for jsonification that conforms the the DSP-TOOLS ontology tools
 
     print: Print the content of this class to the console
 
@@ -763,7 +763,7 @@ class ResourceClass(Model):
 
     def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "ResourceClass"]:
         #
-        # Note: Knora is able to change only one thing per call, either label or comment!
+        # Note: DSP is able to change only one thing per call, either label or comment!
         #
         result = None
         something_changed = False

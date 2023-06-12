@@ -104,7 +104,7 @@ def get_project(
     project_obj["ontologies"] = []
     prefixes: dict[str, str] = dict()
     ontologies = Ontology.getProjectOntologies(con, str(project.id))
-    ontology_ids = [onto.id for onto in ontologies]
+    ontology_ids = [onto.iri for onto in ontologies]
     for ontology_id in ontology_ids:
         onto_url_parts = ontology_id.split("/")  # an id has the form http://0.0.0.0:3333/ontology/4123/testonto/v2
         name = onto_url_parts[len(onto_url_parts) - 2]

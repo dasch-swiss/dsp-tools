@@ -1,7 +1,7 @@
 from lxml import etree
 
 from dsp_tools.models.projectContext import ProjectContext
-from dsp_tools.models.xmlerror import XmlError
+from dsp_tools.models.exceptions import XmlError
 
 
 class XmlAllow:

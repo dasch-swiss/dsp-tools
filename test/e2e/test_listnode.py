@@ -24,8 +24,8 @@ class TestListNode(unittest.TestCase):  # pylint: disable=missing-class-docstrin
         Read an existing node
         :return: None
         """
-        node = ListNode(con=self.con, id=self.otherTreeList).read()
-        self.assertEqual(node.id, self.otherTreeList)
+        node = ListNode(con=self.con, iri=self.otherTreeList).read()
+        self.assertEqual(node.iri, self.otherTreeList)
         self.assertEqual(node.project, self.project)
         self.assertEqual(node.label["en"], "Tree list root")
         self.assertTrue(node.isRootNode)
@@ -43,7 +43,7 @@ class TestListNode(unittest.TestCase):  # pylint: disable=missing-class-docstrin
             comments=LangString({Languages.DE: "first root node"}),
             name="test_node_1",
         ).create()
-        self.assertIsNotNone(node.id)
+        self.assertIsNotNone(node.iri)
         self.assertEqual(node.project, self.project)
         self.assertEqual(node.label["de"], "root node 1")
         self.assertEqual(node.comments["de"], "first root node")
@@ -101,7 +101,7 @@ class TestListNode(unittest.TestCase):  # pylint: disable=missing-class-docstrin
         :return: None
         """
         lists = ListNode.getAllLists(self.con, self.project)
-        list_ids = list(map(lambda l: l.id, lists))
+        list_ids = list(map(lambda l: l.iri, lists))
         self.assertIn(self.otherTreeList, list_ids)
         self.assertIn("http://rdfh.ch/lists/0001/treeList", list_ids)
 
@@ -110,31 +110,31 @@ class TestListNode(unittest.TestCase):  # pylint: disable=missing-class-docstrin
         Get all nodes of a list
         :return: None
         """
-        root_node = ListNode(con=self.con, id=self.otherTreeList).getAllNodes()
+        root_node = ListNode(con=self.con, iri=self.otherTreeList).getAllNodes()
 
         self.assertTrue(root_node.isRootNode)
         self.assertEqual(root_node.project, self.project)
         self.assertEqual(root_node.label["en"], "Tree list root")
         self.assertIsNotNone(root_node.children)
 
-        self.assertEqual(root_node.children[0].id, "http://rdfh.ch/lists/0001/otherTreeList01")
+        self.assertEqual(root_node.children[0].iri, "http://rdfh.ch/lists/0001/otherTreeList01")
         self.assertEqual(root_node.children[0].name, "Other Tree list node 01")
         self.assertEqual(root_node.children[0].label["en"], "Other Tree list node 01")
 
-        self.assertEqual(root_node.children[1].id, "http://rdfh.ch/lists/0001/otherTreeList02")
+        self.assertEqual(root_node.children[1].iri, "http://rdfh.ch/lists/0001/otherTreeList02")
         self.assertEqual(root_node.children[1].name, "Other Tree list node 02")
         self.assertEqual(root_node.children[1].label["en"], "Other Tree list node 02")
 
-        self.assertEqual(root_node.children[2].id, "http://rdfh.ch/lists/0001/otherTreeList03")
+        self.assertEqual(root_node.children[2].iri, "http://rdfh.ch/lists/0001/otherTreeList03")
         self.assertEqual(root_node.children[2].name, "Other Tree list node 03")
         self.assertEqual(root_node.children[2].label["en"], "Other Tree list node 03")
 
         self.assertIsNotNone(root_node.children[2].children)
-        self.assertEqual(root_node.children[2].children[0].id, "http://rdfh.ch/lists/0001/otherTreeList10")
+        self.assertEqual(root_node.children[2].children[0].iri, "http://rdfh.ch/lists/0001/otherTreeList10")
         self.assertEqual(root_node.children[2].children[0].name, "Other Tree list node 10")
         self.assertEqual(root_node.children[2].children[0].label["en"], "Other Tree list node 10")
 
-        self.assertEqual(root_node.children[2].children[1].id, "http://rdfh.ch/lists/0001/otherTreeList11")
+        self.assertEqual(root_node.children[2].children[1].iri, "http://rdfh.ch/lists/0001/otherTreeList11")
         self.assertEqual(root_node.children[2].children[1].name, "Other Tree list node 11")
         self.assertEqual(root_node.children[2].children[1].label["en"], "Other Tree list node 11")
 

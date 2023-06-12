@@ -395,7 +395,7 @@ class PropertyClass(Model):
 
     def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "ResourceClass"]:
         #
-        # Note: Knora is able to change only one thing per call, either label or comment!
+        # Note: DSP is able to change only one thing per call, either label or comment!
         #
         result = None
         something_changed = False
@@ -459,7 +459,7 @@ class PropertyClass(Model):
                     gui_elements[attname] = int(attvalue)
                 elif attname == "hlist":
                     iri = attvalue[1:-1]
-                    rootnode = ListNode(con=self._con, id=iri).read()
+                    rootnode = ListNode(con=self._con, iri=iri).read()
                     gui_elements[attname] = rootnode.name
                 elif attname == "numprops":
                     gui_elements[attname] = int(attvalue)

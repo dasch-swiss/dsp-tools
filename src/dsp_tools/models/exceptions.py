@@ -8,19 +8,20 @@ class BaseError(Exception):
     A basic error class for DSP-TOOLS.
 
     Attributes:
+
         message: A message that describes the error
-        status_code: HTTP status code of the response from DSP-API (only applicable if the error comes from DSP-API)
-        json_content_of_api_response: The message that DSP-API returns (only applicable if the error comes from DSP-API)
-        original_error_msg_from_api: The original error message that DSP-API returns (only applicable if the error comes from DSP-API)
-        reason_from_api_response: The reason for the failure that DSP-API returns (only applicable if the error comes from DSP-API)
+        status_code: HTTP status code of the response from DSP-API (only applicable if error comes from DSP-API)
+        json_content_of_api_response: The message that DSP-API returns (only applicable if error comes from DSP-API)
+        orig_err_msg_from_api: Original error message that DSP-API returns (only applicable if error comes from DSP-API)
+        reason_from_api: Reason for the failure that DSP-API returns (only applicable if error comes from DSP-API)
         api_route: The route that was called (only applicable if the error comes from DSP-API)
     """
 
     message: str
     status_code: Optional[int]
     json_content_of_api_response: Optional[str]
-    original_error_msg_from_api: Optional[str] = None
-    reason_from_api_response: Optional[str]
+    orig_err_msg_from_api: Optional[str] = None
+    reason_from_api: Optional[str]
     api_route: Optional[str]
 
     def __init__(
@@ -28,7 +29,7 @@ class BaseError(Exception):
         message: str,
         status_code: Optional[int] = None,
         json_content_of_api_response: Optional[str] = None,
-        reason_from_api_response: Optional[str] = None,
+        reason_from_api: Optional[str] = None,
         api_route: Optional[str] = None,
     ) -> None:
         """
@@ -36,9 +37,9 @@ class BaseError(Exception):
 
         Args:
             message: A message that describes the error
-            status_code: HTTP status code of the response from DSP-API (only applicable if the error comes from DSP-API)
-            json_content_of_api_response: The message that DSP-API returns (only applicable if the error comes from DSP-API)
-            reason_from_api_response: The reason for the failure that DSP-API returns (only applicable if the error comes from DSP-API)
+            status_code: HTTP status code of the response from DSP-API (only applicable if error comes from DSP-API)
+            json_content_of_api_response: The message that DSP-API returns (only applicable if error comes from DSP-API)
+            reason_from_api: Reason for the failure that DSP-API returns (only applicable if error comes from DSP-API)
             api_route: The route that was called (only applicable if the error comes from DSP-API)
         """
         super().__init__()
@@ -51,10 +52,10 @@ class BaseError(Exception):
                 if "knora-api:error" in parsed_json:
                     knora_api_error = parsed_json["knora-api:error"]
                     knora_api_error = re.sub(r"^dsp\.errors\.[A-Za-z]+?: ?", "", knora_api_error)
-                    self.original_error_msg_from_api = knora_api_error
+                    self.orig_err_msg_from_api = knora_api_error
             except json.JSONDecodeError:
                 pass
-        self.reason_from_api_response = reason_from_api_response
+        self.reason_from_api = reason_from_api
         self.api_route = api_route
 
     def __str__(self) -> str:
@@ -66,8 +67,6 @@ class InternalError(BaseError):
     Class for errors that will be handled by a higher level function
     """
 
-    pass
-
 
 class UserError(BaseError):
     """
@@ -77,4 +76,14 @@ class UserError(BaseError):
     The message should be as user-friendly as possible.
     """
 
-    pass
+
+class XmlError(Exception):
+    """Represents an error raised in the context of the XML import"""
+
+    _message: str
+
+    def __init__(self, msg: str):
+        self._message = msg
+
+    def __str__(self) -> str:
+        return "XML-ERROR: " + self._message

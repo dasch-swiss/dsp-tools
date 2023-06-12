@@ -36,7 +36,7 @@ def _create_list_node(
         The bool is True if all nodes could be created,
         False if any node could not be created.
     """
-    new_node = ListNode(
+    new_node: ListNode = ListNode(
         con=con,
         project=project,
         label=node["labels"],
@@ -60,9 +60,13 @@ def _create_list_node(
             subnode_list.append(created_subnode)
             if not success:
                 overall_success = False
-        return {new_node.name: {"id": new_node.id, "nodes": subnode_list}}, overall_success  # type: ignore
+        if not new_node.name:
+            raise BaseError(f"Node {new_node} has no name.")
+        return {new_node.name: {"id": new_node.iri, "nodes": subnode_list}}, overall_success
     else:
-        return {new_node.name: {"id": new_node.id}}, True  # type: ignore
+        if not new_node.name:
+            raise BaseError(f"Node {new_node} has no name.")
+        return {new_node.name: {"id": new_node.iri}}, True
 
 
 def create_lists_on_server(
@@ -103,8 +107,11 @@ def create_lists_on_server(
         # if list exists already, add it to "current_project_lists" (for later usage), then skip it
         existing_list = [x for x in existing_lists if x.project == project_remote.id and x.name == new_list["name"]]
         if existing_list:
-            current_project_lists[existing_list[0].name] = {  # type: ignore
-                "id": existing_list[0].id,
+            existing_list_name = existing_list[0].name
+            if not existing_list_name:
+                raise BaseError(f"Node {existing_list[0]} has no name.")
+            current_project_lists[existing_list_name] = {
+                "id": existing_list[0].iri,
                 "nodes": new_list["nodes"],
             }
             print(f"\tWARNING: List '{new_list['name']}' already exists on the DSP server. Skipping...")

@@ -42,7 +42,7 @@ class TestPropertyClass(unittest.TestCase):
             label=self.onto_label,
         ).create()
 
-        self.assertIsNotNone(self.onto.id)
+        self.assertIsNotNone(self.onto.iri)
         self.last_modification_date = self.onto.lastModificationDate
 
     def tearDown(self) -> None:
@@ -60,7 +60,7 @@ class TestPropertyClass(unittest.TestCase):
             con=self.con,
             context=self.onto.context,
             name=self.name,
-            ontology_id=self.onto.id,
+            ontology_id=self.onto.iri,
             object=self.object,
             label=self.label,
             comment=self.comment,
@@ -89,7 +89,7 @@ class TestPropertyClass(unittest.TestCase):
             con=self.con,
             context=self.onto.context,
             name=self.name,
-            ontology_id=self.onto.id,
+            ontology_id=self.onto.iri,
             object=self.object,
             label=self.label,
             comment=self.comment,

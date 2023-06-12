@@ -41,7 +41,7 @@ class TestResourceClass(unittest.TestCase):
             con=self.con,
             context=onto.context,
             name=self.res_name,
-            ontology_id=onto.id,
+            ontology_id=onto.iri,
             label=self.res_label,
             comment=self.res_comment,
         ).create(last_modification_date_onto)
@@ -66,7 +66,7 @@ class TestResourceClass(unittest.TestCase):
             con=self.con,
             context=onto.context,
             name=self.res_name,
-            ontology_id=onto.id,
+            ontology_id=onto.iri,
             label=self.res_label,
             comment=self.res_comment,
         ).create(last_modification_date)

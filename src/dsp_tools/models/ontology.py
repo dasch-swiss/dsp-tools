@@ -1,3 +1,30 @@
+"""
+This model implements the handling of ontologies. It is to note that ResourceClasses, PropertyClasses
+as well as the assignment of PropertyCLasses to the ResourceClasses (with a given cardinality)
+is handled in "cooperation" with the propertyclass.py (PropertyClass) and resourceclass.py (ResourceClass
+and HasProperty) modules.
+
+CREATE:
+    * Instantiate a new object of the Ontology class with all required parameters
+    * Call the ``create``-method on the instance to create the ontology withing the backend
+
+READ:
+    * Instantiate a new object with ``iri``(IRI of ontology) given
+    * Call the ``read``-method on the instance. Reading the ontology also reads all
+      associated PropertyClasses and ResourceClasses as well as the assignments.
+    * Access the information that has been provided to the instance
+
+UPDATE:
+    * You need an instance of an existing Ontology by reading an instance
+    * Change the attributes by assigning the new values
+    * Call the ``update```method on the instance
+
+DELETE
+    * Instantiate a new objects with ``iri``(IRI of group) given, or use any instance that has the iri set,
+      that is, that You've read before
+    * Call the ``delete``-method on the instance
+"""
+
 import copy
 import json
 import re
@@ -13,40 +40,13 @@ from dsp_tools.models.propertyclass import PropertyClass
 from dsp_tools.models.resourceclass import ResourceClass
 from dsp_tools.models.set_encoder import SetEncoder
 
-"""
-This model implements the handling of ontologies. It is to note that ResourceClasses, PropertyClasses
-as well as the assignment of PropertyCLasses to the ResourceClasses (with a given cardinality)
-is handled in "cooperation" with the propertyclass.py (PropertyClass) and resourceclass.py (ResourceClass
-and HasProperty) modules.
-
-CREATE:
-    * Instantiate a new object of the Ontology class with all required parameters
-    * Call the ``create``-method on the instance to create the ontology withing the backend
-
-READ:
-    * Instantiate a new object with ``id``(IRI of ontology) given
-    * Call the ``read``-method on the instance. Reading the ontology also reads all
-      associated PropertyClasses and ResourceClasses as well as the assignments.
-    * Access the information that has been provided to the instance
-
-UPDATE:
-    * You need an instance of an existing Ontology by reading an instance
-    * Change the attributes by assigning the new values
-    * Call the ``update```method on the instance
-
-DELETE
-    * Instantiate a new objects with ``id``(IRI of group) given, or use any instance that has the id set,
-      that is, that You've read before
-    * Call the ``delete``-method on the instance
-"""
-
 
 class Ontology(Model):
     ROUTE: str = "/v2/ontologies"
     METADATA: str = "/metadata/"
     ALL_LANGUAGES: str = "?allLanguages=true"
 
-    _id: str
+    _iri: str
     _project: str
     _name: str
     _label: str
@@ -60,18 +60,18 @@ class Ontology(Model):
     def __init__(
         self,
         con: Connection,
-        id: Optional[str] = None,
+        iri: Optional[str] = None,
         project: Optional[Union[str, Project]] = None,
         name: Optional[str] = None,
         label: Optional[str] = None,
         comment: Optional[str] = None,
         lastModificationDate: Optional[Union[str, DateTimeStamp]] = None,
-        resource_classes: list[ResourceClass] = [],
-        property_classes: list[PropertyClass] = [],
+        resource_classes: Optional[list[ResourceClass]] = None,
+        property_classes: Optional[list[PropertyClass]] = None,
         context: Context = None,
     ):
         super().__init__(con)
-        self._id = id
+        self._iri = iri
         if isinstance(project, Project):
             self._project = project.id
         else:
@@ -85,18 +85,18 @@ class Ontology(Model):
             self._lastModificationDate = lastModificationDate
         else:
             self._lastModificationDate = DateTimeStamp(lastModificationDate)
-        self._resource_classes = resource_classes
-        self._property_classes = property_classes
+        self._resource_classes = resource_classes or []
+        self._property_classes = property_classes or []
         self._context = context if context is not None else Context()
         self._skiplist = []
 
     @property
-    def id(self) -> str:
-        return self._id
+    def iri(self) -> str:
+        return self._iri
 
-    @id.setter
-    def id(self, value: str):
-        raise BaseError("Ontology id cannot be modified!")
+    @iri.setter
+    def iri(self, value: str):
+        raise BaseError("Ontology iri cannot be modified!")
 
     @property
     def project(self) -> str:
@@ -210,23 +210,19 @@ class Ontology(Model):
         #
         # First let's get the ID (IRI) of the ontology
         #
-        id = json_obj.get("@id")
-        if id is None:
-            raise BaseError("Ontology id is missing")
+        iri = json_obj.get("@id")
+        if iri is None:
+            raise BaseError("Ontology iri is missing")
 
         #
         # evaluate the JSON-LD context to get the proper prefixes
         #
         context = Context(json_obj.get("@context"))
-        onto_name = id.split("/")[-2]
-        context.add_context(onto_name, id + "#")
-        rdf = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+        onto_name = iri.split("/")[-2]
+        context.add_context(onto_name, iri + "#")
         rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
-        owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
-        xsd = context.prefix_from_iri("http://www.w3.org/2001/XMLSchema#")
         knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
-        salsah_gui = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
-        this_onto = context.prefix_from_iri(id + "#")
+        this_onto = context.prefix_from_iri(iri + "#")
 
         label = json_obj.get(rdfs + ":label")
         if label is None:
@@ -251,17 +247,10 @@ class Ontology(Model):
             resource_classes = list(
                 map(lambda a: ResourceClass.fromJsonObj(con=con, context=context, json_obj=a), resclasses_obj)
             )
-            standoffclasses_obj = list(
-                filter(lambda a: a.get(knora_api + ":isStandoffClass") is not None, json_obj.get("@graph"))
-            )
-            # ToDo: parse standoff classes
 
             properties_obj = list(
                 filter(lambda a: a.get(knora_api + ":isResourceProperty") is not None, json_obj.get("@graph"))
             )
-            # property_classes = list(map(lambda a: PropertyClass.fromJsonObj(con=con,
-            #                                                                context=context,
-            #                                                                json_obj=a), properties_obj))
             property_classes = [
                 PropertyClass.fromJsonObj(con=con, context=context, json_obj=a)
                 for a in properties_obj
@@ -269,10 +258,10 @@ class Ontology(Model):
             ]
         return cls(
             con=con,
-            id=id,
+            iri=iri,
             label=label,
             project=project,
-            name=this_onto,  # TODO: corresponds the prefix always to the ontology name?
+            name=this_onto,
             comment=comment,
             lastModificationDate=last_modification_date,
             resource_classes=resource_classes,
@@ -282,17 +271,14 @@ class Ontology(Model):
 
     @classmethod
     def __oneOntologiesFromJsonObj(cls, con: Connection, json_obj: Any, context: Context) -> "Ontology":
-        rdf = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
         rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
         owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
-        xsd = context.prefix_from_iri("http://www.w3.org/2001/XMLSchema#")
         knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
-        salsah_gui = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
         if json_obj.get("@type") != owl + ":Ontology":
             return None
-        id = json_obj.get("@id")
-        if id is None:
-            raise BaseError("Ontology id is missing")
+        iri = json_obj.get("@id")
+        if iri is None:
+            raise BaseError("Ontology iri is missing")
         if json_obj.get(knora_api + ":attachedToProject") is None:
             raise BaseError("Ontology not attached to a project (1)")
         if json_obj[knora_api + ":attachedToProject"].get("@id") is None:
@@ -307,12 +293,12 @@ class Ontology(Model):
         if label is None:
             raise BaseError("Ontology label is missing")
         comment = json_obj.get(rdfs + ":comment")
-        this_onto = id.split("/")[-2]
+        this_onto = iri.split("/")[-2]
         context2 = copy.deepcopy(context)
-        context2.add_context(this_onto, id)
+        context2.add_context(this_onto, iri)
         return cls(
             con=con,
-            id=id,
+            iri=iri,
             label=label,
             project=project,
             name=this_onto,
@@ -324,12 +310,6 @@ class Ontology(Model):
     @classmethod
     def allOntologiesFromJsonObj(cls, con: Connection, json_obj: Any) -> list["Ontology"]:
         context = Context(json_obj.get("@context"))
-        rdf = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-        rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
-        owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
-        xsd = context.prefix_from_iri("http://www.w3.org/2001/XMLSchema#")
-        knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
-        salsah_gui = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
         ontos: list["Ontology"] = []
         if json_obj.get("@graph") is not None:
             for o in json_obj["@graph"]:
@@ -341,13 +321,8 @@ class Ontology(Model):
         return ontos
 
     def toJsonObj(self, action: Actions) -> Any:
-        rdf = self._context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
         rdfs = self._context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
-        owl = self._context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
-        xsd = self._context.prefix_from_iri("http://www.w3.org/2001/XMLSchema#")
         knora_api = self._context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
-        salsah_gui = self._context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
-        # this_onto = self._context.prefixFromIri(self._id + "#")
         tmp = {}
         if action == Actions.Create:
             if self._name is None:
@@ -368,7 +343,7 @@ class Ontology(Model):
             if self._lastModificationDate is None:
                 raise BaseError("'last_modification_date' must be in ontology!")
             tmp = {
-                "@id": self._id,
+                "@id": self._iri,
                 rdfs + ":label": self._label,
                 knora_api + ":lastModificationDate": self._lastModificationDate.toJsonObj(),
                 "@context": self._context.toJsonObj(),
@@ -379,7 +354,7 @@ class Ontology(Model):
                 tmp[rdfs + ":comment"] = self._comment
         return tmp
 
-    def create(self, dumpjson: Optional[str] = None) -> "Ontology":
+    def create(self) -> "Ontology":
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
         result = self._con.post(Ontology.ROUTE, jsondata)
@@ -392,12 +367,12 @@ class Ontology(Model):
         return Ontology.fromJsonObj(self._con, result)
 
     def read(self) -> "Ontology":
-        result = self._con.get(Ontology.ROUTE + "/allentities/" + quote_plus(self._id) + Ontology.ALL_LANGUAGES)
+        result = self._con.get(Ontology.ROUTE + "/allentities/" + quote_plus(self._iri) + Ontology.ALL_LANGUAGES)
         return Ontology.fromJsonObj(self._con, result)
 
     def delete(self) -> Optional[str]:
         result = self._con.delete(
-            Ontology.ROUTE + "/" + quote_plus(self._id),
+            Ontology.ROUTE + "/" + quote_plus(self._iri),
             params={"lastModificationDate": str(self._lastModificationDate)},
         )
         return result.get("knora-api:result")
@@ -434,7 +409,7 @@ class Ontology(Model):
             ontology.pop("comment")
         for prop in self.property_classes:
             if "knora-api:hasLinkToValue" in prop.superproperties:
-                self.skiplist.append(self.name + ":" + prop.name)
+                self._skiplist.append(self.name + ":" + prop.name)
                 continue
             ontology["properties"].append(prop.createDefinitionFileObj(self.context, self.name))
 
@@ -445,7 +420,7 @@ class Ontology(Model):
 
     def print(self, short: bool = True) -> None:
         print("Ontology Info:")
-        print("  Id:                   {}".format(self._id))
+        print("  IRI:                  {}".format(self._iri))
         print("  Label:                {}".format(self._label))
         print("  Name:                 {}".format(self._name))
         print("  Project:              {}".format(self._project))

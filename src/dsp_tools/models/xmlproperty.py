@@ -2,7 +2,7 @@ from typing import Optional
 
 from lxml import etree
 
-from dsp_tools.models.xmlerror import XmlError
+from dsp_tools.models.exceptions import XmlError
 from dsp_tools.models.xmlvalue import XMLValue
 
 

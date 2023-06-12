@@ -704,7 +704,7 @@ def _upload_resources(
                     MetricRecord(resource.id, filetype, filesize, "bitstream upload", bitstream_duration_ms, mb_per_sec)
                 )
             except BaseError as err:
-                err_msg = err.original_error_msg_from_api or err.message
+                err_msg = err.orig_err_msg_from_api or err.message
                 msg = f"Unable to upload file '{pth}' of resource '{resource.label}' ({resource.id})"
                 print(f"WARNING: {msg}: {err_msg}")
                 logger.warning(msg, exc_info=True)
@@ -740,7 +740,7 @@ def _upload_resources(
                 MetricRecord(resource.id, filetype, filesize, "resource creation", resource_creation_duration_ms, "")
             )
         except BaseError as err:
-            err_msg = err.original_error_msg_from_api or err.message
+            err_msg = err.orig_err_msg_from_api or err.message
             print(f"WARNING: Unable to create resource '{resource.label}' ({resource.id}): {err_msg}")
             logger.warning(f"Unable to create resource '{resource.label}' ({resource.id}).", exc_info=True)
             failed_uploads.append(resource.id)
@@ -791,7 +791,7 @@ def _upload_stashed_xml_texts(
         except BaseError as err:
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary:
             # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
-            orig_err_msg = err.original_error_msg_from_api or err.message
+            orig_err_msg = err.orig_err_msg_from_api or err.message
             err_msg = (
                 f"Unable to upload XML texts of resource '{resource.id}', "
                 "because the resource cannot be retrieved from the DSP server."
@@ -848,7 +848,7 @@ def _upload_stashed_xml_texts(
                     # print the message to keep track of the cause for the failure.
                     # Apart from that, no action is necessary:
                     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
-                    orig_err_msg = err.original_error_msg_from_api or err.message
+                    orig_err_msg = err.orig_err_msg_from_api or err.message
                     err_msg = f"Unable to upload the xml text of '{link_prop.name}' of resource '{resource.id}'."
                     print(f"    WARNING: {err_msg} Original error message: {orig_err_msg}")
                     logger.warning(err_msg, exc_info=True)
@@ -930,7 +930,7 @@ def _upload_stashed_resptr_props(
         except BaseError as err:
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary:
             # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
-            orig_err_msg = err.original_error_msg_from_api or err.message
+            orig_err_msg = err.orig_err_msg_from_api or err.message
             err_msg = (
                 f"Unable to upload resptrs of resource '{resource.id}', "
                 "because the resource cannot be retrieved from the DSP server."
@@ -962,7 +962,7 @@ def _upload_stashed_resptr_props(
                     # print the message to keep track of the cause for the failure.
                     # Apart from that, no action is necessary:
                     # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
-                    orig_err_msg = err.original_error_msg_from_api or err.message
+                    orig_err_msg = err.orig_err_msg_from_api or err.message
                     err_msg = f"Unable to upload the resptr prop of '{link_prop.name}' of resource '{resource.id}'."
                     print(f"    WARNING: {err_msg} Original error message: {orig_err_msg}")
                     logger.warning(err_msg, exc_info=True)

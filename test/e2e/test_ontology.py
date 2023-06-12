@@ -37,9 +37,9 @@ class TestOntology(unittest.TestCase):
         self.assertEqual(onto.lastModificationDate, DateTimeStamp(last_mod_date_str))
 
     def test_ontology_read(self) -> None:
-        onto = Ontology(con=self.con, id=self.test_onto).read()
+        onto = Ontology(con=self.con, iri=self.test_onto).read()
 
-        self.assertEqual(onto.id, self.test_onto)
+        self.assertEqual(onto.iri, self.test_onto)
         self.assertEqual(onto.project, self.test_project)
         self.assertEqual(onto.name, "anything")
         self.assertEqual(onto.label, "The anything ontology")
@@ -53,8 +53,8 @@ class TestOntology(unittest.TestCase):
             label="Test ontology create label",
         ).create()
 
-        self.assertIsNotNone(onto.id)
-        self.assertEqual(onto.id, "http://0.0.0.0:3333/ontology/0001/" + "test_onto_create" + "/v2")
+        self.assertIsNotNone(onto.iri)
+        self.assertEqual(onto.iri, "http://0.0.0.0:3333/ontology/0001/" + "test_onto_create" + "/v2")
         self.assertEqual(onto.project, self.test_project)
         self.assertEqual(onto.name, "test_onto_create")
         self.assertEqual(onto.label, "Test ontology create label")
@@ -85,7 +85,7 @@ class TestOntology(unittest.TestCase):
 
     def test_ontology_getProjectOntologies(self) -> None:
         onto_list = Ontology.getProjectOntologies(self.con, self.test_project)
-        onto_list_ids = [l.id for l in onto_list]
+        onto_list_ids = [l.iri for l in onto_list]
         self.assertIn("http://0.0.0.0:3333/ontology/0001/anything/v2", onto_list_ids)
         self.assertIn("http://0.0.0.0:3333/ontology/0001/test_onto_create/v2", onto_list_ids)
 

@@ -27,7 +27,7 @@ class TestGroup(unittest.TestCase):  # pylint: disable=missing-class-docstring
         groups = Group.getAllGroups(self.con)
         group_ids = []
         for group in groups:
-            group_ids.append(group.id)
+            group_ids.append(group.iri)
 
         group_ids_expected = [
             "http://rdfh.ch/groups/00FF/images-reviewer",
@@ -63,7 +63,7 @@ class TestGroup(unittest.TestCase):  # pylint: disable=missing-class-docstring
         Read an existing group
         :return: None
         """
-        group = Group(con=self.con, id="http://rdfh.ch/groups/0001/thing-searcher").read()
+        group = Group(con=self.con, iri="http://rdfh.ch/groups/0001/thing-searcher").read()
         self.assertEqual(group.name, "Thing searcher")
         self.assertEqual(group.project, self.test_project)
         self.assertTrue(group.status)

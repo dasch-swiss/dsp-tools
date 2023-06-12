@@ -276,7 +276,7 @@ class DateValue(Value):
         vark_url: Optional[str] = None,
     ):
         #
-        # A knora date value
+        # A DSP date value
         #
         m = re.match(
             r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})(-\d{1,2})?(-\d{1,2})?((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$",
@@ -866,7 +866,7 @@ class ListValue(Value):
         def find_listnode(nodes: list[ListNode], name: str) -> Optional[str]:
             for node in nodes:
                 if node.name == name:
-                    return node.id
+                    return node.iri
                 else:
                     if node.children is not None:
                         node_id = find_listnode(node.children, name)

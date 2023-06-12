@@ -1,5 +1,5 @@
 """
-This module implements the handling (CRUD) of Knora groups.
+This module implements the handling (CRUD) of DSP groups.
 
 CREATE:
     * Instantiate a new object of the class Group with all required parameters
@@ -37,13 +37,13 @@ from dsp_tools.models.project import Project
 
 class Group(Model):
     """
-    This class represents a Knora group
+    This class represents a DSP group
 
     Attributes
     ----------
 
     con : Connection
-        A connection instance to a Knora server
+        A connection instance to a DSP server
 
     iri : str
         IRI of the group [get only, cannot be modified after creation of instance]

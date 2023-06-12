@@ -23,7 +23,7 @@ if not path in sys.path:
     sys.path.insert(0, path)
 
 """
-This module implements the handling (CRUD) of Knora users.
+This module implements the handling (CRUD) of DSP users.
 
 CREATE:
     * Instantiate a new object of the class User with all required parameters
@@ -49,7 +49,7 @@ In addition there is a static methods ``getAllProjects`` which returns a list of
 
 class User(Model):
     """
-    This class represents a user in Knora.
+    This class represents a user in DSP.
 
     Attributes
     ----------
@@ -93,16 +93,16 @@ class User(Model):
     Methods
     -------
 
-    create : Knora user information object
-        Creates a new user and returns the information about this user as it is in Knora
+    create : DSP user information object
+        Creates a new user and returns the information about this user as it is in DSP
 
-    read : Knora user information object
+    read : DSP user information object
         Read user data
 
-    update : Knora user information object
-        Updates the changed attributes of a user and returns the updated information  as it is in Knora
+    update : DSP user information object
+        Updates the changed attributes of a user and returns the updated information  as it is in DSP
 
-    delete : Knora result code
+    delete : DSP result code
         Deletes a user and returns the result code
 
     addToGroup : None
@@ -173,7 +173,7 @@ class User(Model):
         """
         Constructor for User
 
-        The constructor is user internally or externally, when a new user should be created in Knora.
+        The constructor is user internally or externally, when a new user should be created in DSP.
 
         :param con: Connection instance [required]
         :param id: IRI of the user [required for CREATE, READ]
@@ -451,28 +451,28 @@ class User(Model):
         """
         Internal method! Should not be used directly!
 
-        This method is used to create a User instance from the JSON data returned by Knora
+        This method is used to create a User instance from the JSON data returned by DSP
 
         :param con: Connection instance
-        :param json_obj: JSON data returned by Knora as python3 object
+        :param json_obj: JSON data returned by DSP as python3 object
         :return: User instance
         """
 
         id = json_obj.get("id")
         if id is None:
-            raise BaseError('User "id" is missing in JSON from knora')
+            raise BaseError('User "id" is missing in JSON from DSP')
         email = json_obj.get("email")
         if email is None:
-            raise BaseError('User "email" is missing in JSON from knora')
+            raise BaseError('User "email" is missing in JSON from DSP')
         username = json_obj.get("username")
         if username is None:
-            raise BaseError('User "username" is missing in JSON from knora')
+            raise BaseError('User "username" is missing in JSON from DSP')
         familyName = json_obj.get("familyName")
         givenName = json_obj.get("givenName")
         lang = json_obj.get("lang")
         status = json_obj.get("status")
         if status is None:
-            raise BaseError("Status is missing in JSON from knora")
+            raise BaseError("Status is missing in JSON from DSP")
 
         in_projects: dict[str, bool] = {}
         in_groups: set[str] = set()
@@ -509,7 +509,7 @@ class User(Model):
         """
         Internal method! Should not be used directly!
 
-        Creates a JSON-object from the Project instance that can be used to call Knora
+        Creates a JSON-object from the Project instance that can be used to call DSP
 
         :param action: Action the object is used for (Action.CREATE or Action.UPDATE)
         :return: JSON-object
@@ -560,9 +560,9 @@ class User(Model):
 
     def create(self) -> Any:
         """
-        Create new user in Knora
+        Create new user in DSP
 
-        :return: JSON-object from Knora
+        :return: JSON-object from DSP
         """
 
         jsonobj = self.toJsonObj(Actions.Create)
@@ -583,9 +583,9 @@ class User(Model):
 
     def read(self) -> Any:
         """
-        Read the user information from Knora. The User object must have a valid id or email!
+        Read the user information from DSP. The User object must have a valid id or email!
 
-        :return: JSON-object from Knora
+        :return: JSON-object from DSP
         """
         if self._id is not None:
             result = self._con.get(User.IRI + quote_plus(self._id))
@@ -599,10 +599,10 @@ class User(Model):
 
     def update(self, requesterPassword: Optional[str] = None) -> Any:
         """
-        Udate the user info in Knora with the modified data in this user instance
+        Udate the user info in DSP with the modified data in this user instance
 
         :param requesterPassword: Old password if a user wants to change it's own password
-        :return: JSON-object from Knora
+        :return: JSON-object from DSP
         """
 
         jsonobj = self.toJsonObj(Actions.Update)

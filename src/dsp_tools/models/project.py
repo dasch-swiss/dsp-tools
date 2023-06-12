@@ -13,7 +13,7 @@ from dsp_tools.models.model import Model
 from dsp_tools.models.set_encoder import SetEncoder
 
 """
-This module implements the handling (CRUD) of Knora projects.
+This module implements the handling (CRUD) of DSP projects.
 
 CREATE:
     * Instantiate a new object of the class Project with all required parameters
@@ -39,28 +39,28 @@ In addition there is a static methods ``getAllProjects`` which returns a list of
 
 class Project(Model):
     """
-    This class represents a project in Knora.
+    This class represents a project in DSP.
 
     Attributes
     ----------
 
     con : Connection
-        A Connection instance to a Knora server
+        A Connection instance to a DSP server
 
     id : str
         IRI of the project [readonly, cannot be modified after creation of instance]
 
     shortcode : str
-        Knora project shortcode [readonly, cannot be modified after creation of instance]
+        DSP project shortcode [readonly, cannot be modified after creation of instance]
 
     shortname : str
-        Knora project shortname [read/write]
+        DSP project shortname [read/write]
 
     longname : str
-        Knora project longname [read/write]
+        DSP project longname [read/write]
 
     description : LangString
-        Knora project description in a given language (Languages.EN, Languages.DE, Languages.FR, Languages.IT).
+        DSP project description in a given language (Languages.EN, Languages.DE, Languages.FR, Languages.IT).
         A desciption can be add/replaced or removed with the methods ``addDescription``and ``rmDescription``.
 
     keywords : set[str]
@@ -77,16 +77,16 @@ class Project(Model):
     Methods
     -------
 
-    create : Knora project information object
-        Creates a new project and returns the information from the project as it is in Knora
+    create : DSP project information object
+        Creates a new project and returns the information from the project as it is in DSP
 
-    read : Knora project information object
+    read : DSP project information object
         Read project data from an existing project
 
-    update : Knora project information object
-        Updates the changed attributes and returns the updated information from the project as it is in Knora
+    update : DSP project information object
+        Updates the changed attributes and returns the updated information from the project as it is in DSP
 
-    delete : Knora result code
+    delete : DSP result code
         Deletes a project and returns the result code
 
     getAllprojects [static]: List of all projects
@@ -315,10 +315,10 @@ class Project(Model):
         """
         Internal method! Should not be used directly!
 
-        This method is used to create a Project instance from the JSON data returned by Knora
+        This method is used to create a Project instance from the JSON data returned by DSP
 
         :param con: Connection instance
-        :param json_obj: JSON data returned by Knora as python3 object
+        :param json_obj: JSON data returned by DSP as python3 object
         :return: Project instance
         """
         id = json_obj.get("id")
@@ -365,7 +365,7 @@ class Project(Model):
         """
         Internal method! Should not be used directly!
 
-        Creates a JSON-object from the Project instance that can be used to call Knora
+        Creates a JSON-object from the Project instance that can be used to call DSP
 
         :param action: Action the object is used for (Action.CREATE or Action.UPDATE)
         :return: JSON-object
@@ -422,9 +422,9 @@ class Project(Model):
 
     def create(self) -> Project:
         """
-        Create a new project in Knora
+        Create a new project in DSP
 
-        :return: JSON-object from Knora
+        :return: JSON-object from DSP
         """
 
         jsonobj = self.toJsonObj(Actions.Create)
@@ -434,9 +434,9 @@ class Project(Model):
 
     def read(self) -> Project:
         """
-        Read a project from Knora
+        Read a project from DSP
 
-        :return: JSON-object from Knora
+        :return: JSON-object from DSP
         """
         result = None
         if self._id is not None:
@@ -467,9 +467,9 @@ class Project(Model):
 
     def delete(self) -> Project:
         """
-        Delete the given Knora project
+        Delete the given DSP project
 
-        :return: Knora response
+        :return: DSP response
         """
 
         result = self._con.delete(Project.IRI + quote_plus(self._id))
@@ -513,7 +513,7 @@ class Project(Model):
     @staticmethod
     def getAllProjects(con: Connection) -> list[Project]:
         """
-        Get all existing projects in Knora
+        Get all existing projects in DSP
 
         :param con: Connection instance
         :return:

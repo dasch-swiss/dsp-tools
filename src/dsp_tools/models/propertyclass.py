@@ -395,7 +395,7 @@ class PropertyClass(Model):
 
     def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "ResourceClass"]:
         #
-        # Note: Knora is able to change only one thing per call, either label or comment!
+        # Note: DSP is able to change only one thing per call, either label or comment!
         #
         result = None
         something_changed = False

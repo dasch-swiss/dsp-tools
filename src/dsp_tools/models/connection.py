@@ -29,7 +29,7 @@ def check_for_api_error(response: requests.Response) -> None:
 
 class Connection:
     """
-    An Connection instance represents a connection to a Knora server.
+    An Connection instance represents a connection to a DSP server.
 
     Attributes
     ----------
@@ -44,7 +44,7 @@ class Connection:
 
     def __init__(self, server: str, prefixes: dict[str, str] = None):
         """
-        Constructor requiring the server address, the user and password of KNORA
+        Constructor requiring the server address, the user and password of DSP
         :param server: Address of the server, e.g https://api.dasch.swiss
         :param prefixes: Ontology prefixes used
         """
@@ -56,7 +56,7 @@ class Connection:
 
     def login(self, email: str, password: str) -> None:
         """
-        Method to login into KNORA which creates a session token.
+        Method to login into DSP which creates a session token.
         :param email: Email of user, e.g., root@example.com
         :param password: Password of the user, e.g. test
         """

@@ -36,7 +36,7 @@ from dsp_tools.models.value import (
 
 
 class KnoraStandoffXmlEncoder(json.JSONEncoder):
-    """Classes used as wrapper for knora standoff-XML"""
+    """Classes used as wrapper for DSP standoff-XML"""
 
     def default(self, obj) -> str:
         if isinstance(obj, KnoraStandoffXml):

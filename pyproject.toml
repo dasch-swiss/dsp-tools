@@ -15,7 +15,10 @@ classifiers = [
 documentation = "https://docs.dasch.swiss/latest/DSP-TOOLS/"
 homepage = "https://www.dasch.swiss/"
 repository = "https://github.com/dasch-swiss/dsp-tools"
-include = ["src/dsp_tools/resources/*"]
+include = [
+    "src/dsp_tools/resources/*",
+    "src/dsp_tools/py.typed"  # see https://mypy.readthedocs.io/en/stable/installed_packages.html#making-pep-561-compatible-packages
+]
 exclude = ["src/dsp_tools/import_scripts/*"]
 
 

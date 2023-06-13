@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.3.3](https://github.com/dasch-swiss/dsp-tools/compare/v2.3.2...v2.3.3) (2023-06-13)
+
+
+### Bug Fixes
+
+* **fast xmlupload:** make process-files more robust (DEV-2235) ([#395](https://github.com/dasch-swiss/dsp-tools/issues/395)) ([12d527b](https://github.com/dasch-swiss/dsp-tools/commit/12d527bfa98496e8839e31d2b996af3c84b8db33))
+
+
+### Maintenance
+
+* add overview of code quality tools; format code with black (DEV-2224) ([#391](https://github.com/dasch-swiss/dsp-tools/issues/391)) ([d7fb690](https://github.com/dasch-swiss/dsp-tools/commit/d7fb69053ddd4171fe8a8f1b0d44ddadc13e1602))
+* allow latest version of poetry again (DEV-2245) [#398](https://github.com/dasch-swiss/dsp-tools/issues/398) ([3d646ad](https://github.com/dasch-swiss/dsp-tools/commit/3d646ad3d7bc9c0202eb27978d0360c0eb071034))
+* bump start-stack to 2023.06.01 (DEV-2272) [#401](https://github.com/dasch-swiss/dsp-tools/issues/401) ([d684c18](https://github.com/dasch-swiss/dsp-tools/commit/d684c18e050737965d4334ff3a8b686043be5d89))
+* **deps-dev:** bump pytest from 7.3.1 to 7.3.2 ([#403](https://github.com/dasch-swiss/dsp-tools/issues/403)) ([6dbcf6c](https://github.com/dasch-swiss/dsp-tools/commit/6dbcf6c91b37a4b96cf6b7a30a406f7008066e53))
+* **deps-dev:** bump types-openpyxl from 3.1.0.8 to 3.1.0.9 ([#405](https://github.com/dasch-swiss/dsp-tools/issues/405)) ([12a97d6](https://github.com/dasch-swiss/dsp-tools/commit/12a97d6d47c352c1ca5d84b27aea8401de7f2e99))
+* **deps-dev:** bump types-regex from 2023.5.5.0 to 2023.6.3.0 ([#397](https://github.com/dasch-swiss/dsp-tools/issues/397)) ([067e265](https://github.com/dasch-swiss/dsp-tools/commit/067e26506ca36d08d0cbaf9846498dace3886e50))
+* **deps:** bump docker from 6.1.2 to 6.1.3 ([#393](https://github.com/dasch-swiss/dsp-tools/issues/393)) ([2a79fe6](https://github.com/dasch-swiss/dsp-tools/commit/2a79fe68f1aada10a35522884b527225a703a3f7))
+* **deps:** bump regex from 2023.5.5 to 2023.6.3 ([#396](https://github.com/dasch-swiss/dsp-tools/issues/396)) ([6ee38c9](https://github.com/dasch-swiss/dsp-tools/commit/6ee38c96b5de5e66d1e818d4cf01740b9ea8c0dc))
+* lint "models", part one (DEV-2265) ([#400](https://github.com/dasch-swiss/dsp-tools/issues/400)) ([27a32b1](https://github.com/dasch-swiss/dsp-tools/commit/27a32b1e0487d76dcb7b89b02948be82e97aed4d))
+* loosen python requirement, add py.typed marker (DEV-2278) ([#404](https://github.com/dasch-swiss/dsp-tools/issues/404)) ([17b22b3](https://github.com/dasch-swiss/dsp-tools/commit/17b22b3d124e6ef88b0fb282f9de6e9a6144fac1))
+* reformat code (DEV-2263) ([#399](https://github.com/dasch-swiss/dsp-tools/issues/399)) ([35af8c4](https://github.com/dasch-swiss/dsp-tools/commit/35af8c41517ff61e239d96d4a426b13c9ebac0fb))
+
 ## [2.3.2](https://github.com/dasch-swiss/dsp-tools/compare/v2.3.1...v2.3.2) (2023-05-31)
 
 

@@ -3,6 +3,7 @@ from typing import Optional, Union
 
 from dsp_tools.models.exceptions import BaseError
 
+# pylint: disable=line-too-long
 
 @dataclass(frozen=True)
 class PropertyElement:

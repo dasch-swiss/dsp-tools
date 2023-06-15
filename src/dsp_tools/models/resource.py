@@ -38,14 +38,14 @@ from dsp_tools.models.value import (
 class KnoraStandoffXmlEncoder(json.JSONEncoder):
     """Classes used as wrapper for DSP standoff-XML"""
 
-    def default(self, obj) -> str:
-        if isinstance(obj, KnoraStandoffXml):
-            return '<?xml version="1.0" encoding="UTF-8"?>\n<text>' + str(obj) + "</text>"
-        elif isinstance(obj, OntoIri):
-            return obj.iri + "#" if obj.hashtag else ""
-        elif isinstance(obj, DateTimeStamp):
-            return str(obj)
-        return json.JSONEncoder.default(self, obj)
+    def default(self, o) -> str:
+        if isinstance(o, KnoraStandoffXml):
+            return '<?xml version="1.0" encoding="UTF-8"?>\n<text>' + str(o) + "</text>"
+        elif isinstance(o, OntoIri):
+            return o.iri + "#" if o.hashtag else ""
+        elif isinstance(o, DateTimeStamp):
+            return str(o)
+        return json.JSONEncoder.default(self, o)
 
 
 @dataclass
@@ -124,7 +124,8 @@ class ResourceInstance(Model):
             )
         if self.baseclass not in self.baseclasses_with_bitstream and bitstream:
             raise BaseError(
-                f"ERROR in resource with label '{self._label}': Baseclass '{self.baseclass}' does not allow a bitstream value"
+                f"ERROR in resource with label '{self._label}': "
+                f"Baseclass '{self.baseclass}' does not allow a bitstream value"
             )
         if self.baseclass in self.baseclasses_with_bitstream and bitstream:
             self._bitstream = bitstream
@@ -139,19 +140,20 @@ class ResourceInstance(Model):
                 value = values.get(property_name)
                 if value:
                     # property has multiple values
-                    if type(value) is list:
+                    if isinstance(value, list):
                         self._values[property_name] = []
                         for val in value:
                             # check if cardinality allows multiple values for a property
                             if cardinality == Cardinality.C_0_1 or cardinality == Cardinality.C_1:
                                 raise BaseError(
-                                    f"ERROR in resource with label '{self._label}': Ontology does not allow multiple values for '{property_name}'"
+                                    f"ERROR in resource with label '{self._label}': "
+                                    f"Ontology does not allow multiple values for '{property_name}'"
                                 )
 
-                            if type(val) is Value:
+                            if isinstance(val, Value):
                                 self._values[property_name].append(val)
 
-                            elif type(val) is dict:
+                            elif isinstance(val, dict):
                                 if value_type is ListValue:
                                     val["lists"] = self.lists
                                 self._values[property_name].append(value_type(**val))
@@ -162,10 +164,10 @@ class ResourceInstance(Model):
                                 self._values[property_name].append(value_type(val))
                     # property has one value
                     else:
-                        if type(value) is Value:
+                        if isinstance(value, Value):
                             self._values[property_name] = value
 
-                        elif type(value) is dict:
+                        elif isinstance(value, dict):
                             if value_type is ListValue:
                                 value["lists"] = self.lists
                             self._values[property_name] = value_type(**value)
@@ -179,13 +181,15 @@ class ResourceInstance(Model):
                 else:
                     if cardinality == Cardinality.C_1 or cardinality == Cardinality.C_1_n:
                         raise BaseError(
-                            f"ERROR in resource with label '{self._label}': The ontology requires at least one value for '{property_name}'"
+                            f"ERROR in resource with label '{self._label}': "
+                            f"The ontology requires at least one value for '{property_name}'"
                         )
 
             for property_name in values:
                 if property_name not in self.knora_properties and not self.properties.get(property_name):
                     raise BaseError(
-                        f"ERROR in resource with label '{self._label}': Property '{property_name}' is not part of ontology"
+                        f"ERROR in resource with label '{self._label}': "
+                        f"Property '{property_name}' is not part of ontology"
                     )
 
     def value(self, item) -> Optional[list[Value]]:
@@ -223,19 +227,14 @@ class ResourceInstance(Model):
     def clone(self) -> "ResourceInstance":
         return deepcopy(self)
 
-    def fromJsonLdObj(self, con: Connection, jsonld_obj: Any) -> "ResourceInstance":
+    def fromJsonLdObj(self, jsonld_obj: dict[str, Any]) -> "ResourceInstance":
         newinstance = self.clone()
         newinstance._iri = jsonld_obj.get("@id")
-        resclass = jsonld_obj.get("@type")
-        context = Context(jsonld_obj.get("@context"))
         newinstance._label = jsonld_obj.get("rdfs:label")
         newinstance._ark = Value.get_typed_value("knora-api:arkUrl", jsonld_obj)
         newinstance._version_ark = Value.get_typed_value("knora-api:versionArkUrl", jsonld_obj)
         newinstance._permissions = Permissions.fromString(jsonld_obj.get("knora-api:hasPermissions"))
         newinstance._user_permission = PermissionValue[jsonld_obj.get("knora-api:userHasPermission", jsonld_obj)]
-        creation_date = Value.get_typed_value("knora-api:creationDate", jsonld_obj)
-        user = Value.get_typed_value("knora-api:attachedToUser", jsonld_obj)
-        project = Value.get_typed_value("knora-api:attachedToProject", jsonld_obj)
         to_be_ignored = [
             "@id",
             "@type",
@@ -251,7 +250,6 @@ class ResourceInstance(Model):
         ]
         if id is None:
             raise BaseError('Resource "id" is missing in JSON-LD from DSP-API')
-        type = jsonld_obj.get("@type")
         newinstance._values: dict[str, Union[Value, list[Value]]] = {}
         for key, obj in jsonld_obj.items():
             if key in to_be_ignored:
@@ -264,7 +262,7 @@ class ResourceInstance(Model):
                 else:
                     newinstance._values[key] = fromJsonLdObj(obj)
             except KeyError as kerr:
-                raise BaseError('Invalid data in JSON-LD: "{}" has value class "{}"!'.format(key, obj.get("@type")))
+                raise BaseError(f'Invalid data in JSON-LD: "{key}" has value class "{obj.get("@type")}"!') from kerr
         return newinstance
 
     def toJsonLdObj(self, action: Actions) -> Any:
@@ -310,15 +308,15 @@ class ResourceInstance(Model):
 
             for property_name, value in self._values.items():
                 # if the property has several values
-                if type(value) is list:
-                    if type(value[0]) is LinkValue:
+                if isinstance(value, list):
+                    if isinstance(value[0], LinkValue):
                         property_name += "Value"
                     # append all values to that property
                     tmp[property_name] = []
                     for vt in value:
                         tmp[property_name].append(vt.toJsonLdObj(action))
                 # if property is a link
-                elif type(value) is LinkValue:
+                elif isinstance(value, LinkValue):
                     property_name += "Value"
                     tmp[property_name] = value.toJsonLdObj(action)
                 else:
@@ -342,7 +340,7 @@ class ResourceInstance(Model):
 
     def read(self) -> "ResourceInstance":
         result = self._con.get(ResourceInstance.ROUTE + "/" + quote_plus(self._iri))
-        return self.fromJsonLdObj(con=self._con, jsonld_obj=result)
+        return self.fromJsonLdObj(result)
 
     def update(self):
         pass
@@ -361,7 +359,6 @@ class ResourceInstance(Model):
             if isinstance(val, list):
                 tmp = [str(x) for x in val]
                 print(name, ":", " | ".join(tmp))
-                pass
             else:
                 print(name, ":", str(val))
 
@@ -414,9 +411,9 @@ class ResourceInstanceFactory:
 
     def get_resclass_names(self) -> list[str]:
         resclass_names: list[str] = []
-        for name, onto in self._ontologies.items():
+        for _, onto in self._ontologies.items():
             for resclass in onto.resource_classes:
-                resclass_names.append(onto.context.get_prefixed_iri(resclass.id))
+                resclass_names.append(onto.context.get_prefixed_iri(resclass.iri))
         return resclass_names
 
     def _get_baseclass(self, superclasses: list[str]) -> Union[str, None]:

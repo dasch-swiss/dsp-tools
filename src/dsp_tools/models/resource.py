@@ -386,11 +386,11 @@ class ResourceInstanceFactory:
             raise BaseError("Invalid project identification!")
         self._project = project.read()
 
-        self._lists = [x.getAllNodes() for x in ListNode.getAllLists(con=con, project_iri=self._project.id)]
+        self._lists = [x.getAllNodes() for x in ListNode.getAllLists(con=con, project_iri=self._project.iri)]
 
-        tmp_ontologies = Ontology.getProjectOntologies(con=con, project_id=self._project.id)
+        tmp_ontologies = Ontology.getProjectOntologies(con=con, project_id=self._project.iri)
         shared_project = Project(con=con, shortcode="0000").read()
-        shared_ontologies = Ontology.getProjectOntologies(con=con, project_id=shared_project.id)
+        shared_ontologies = Ontology.getProjectOntologies(con=con, project_id=shared_project.iri)
         tmp_ontologies.extend(shared_ontologies)
         knora_api_onto = [x for x in Ontology.getAllOntologies(con=con) if x.name == "knora-api"][0]
         tmp_ontologies.append(knora_api_onto)
@@ -509,7 +509,7 @@ class ResourceInstanceFactory:
             resclass_name,
             (ResourceInstance,),
             {
-                "project": self._project.id,
+                "project": self._project.iri,
                 "classname": prefixedresclass,
                 "baseclass": baseclass,
                 "context": self._context,

@@ -181,7 +181,7 @@ class ListNode(Model):
 
         super().__init__(con)
 
-        self._project = project.id if isinstance(project, Project) else str(project) if project else None
+        self._project = project.iri if isinstance(project, Project) else str(project) if project else None
         self._id = iri
         self._label = LangString(label)
         self._comments = LangString(comments) if comments else None

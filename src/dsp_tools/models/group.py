@@ -94,7 +94,7 @@ class Group(Model):
         self._name = str(name) if name is not None else None
         self._descriptions = LangString(descriptions)
         if project is not None and isinstance(project, Project):
-            self._project = project.id
+            self._project = project.iri
         else:
             self._project = str(project) if project is not None else None
         self._selfjoin = bool(selfjoin) if selfjoin is not None else None

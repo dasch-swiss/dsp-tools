@@ -153,7 +153,7 @@ def _create_groups(
     current_project_groups: dict[str, Group] = {}
     try:
         remote_groups: list[Group] = try_network_action(
-            lambda: Group.getAllGroupsForProject(con=con, proj_iri=project.id)  # type: ignore
+            lambda: Group.getAllGroupsForProject(con=con, proj_iri=project.iri)  # type: ignore
         )
     except BaseError:
         err_msg = (
@@ -266,7 +266,7 @@ def _get_group_iris_for_user(
                 logger.warning(err_msg, exc_info=True)
                 success = False
                 continue
-            existing_group = [g for g in remote_groups if g.project == current_project.id and g.name == group_name]
+            existing_group = [g for g in remote_groups if g.project == current_project.iri and g.name == group_name]
             if not existing_group:
                 print(f"\tWARNING: {inexisting_group_msg}")
                 success = False
@@ -338,7 +338,7 @@ def _get_projects_where_user_is_admin(
                 continue
             in_project = in_project_list[0]
 
-        project_info[in_project.id] = bool(project_role == "admin")  # type: ignore
+        project_info[in_project.iri] = bool(project_role == "admin")  # type: ignore
         if verbose:
             print(f"\tAdded user '{username}' as {project_role} to project '{in_project.shortname}'.")
 
@@ -748,8 +748,8 @@ def _add_property_classes_to_remote_ontology(
             name=prop_class["name"],
             ontology_id=ontology_remote.iri,
             superproperties=super_props,
-            object=prop_object,
-            subject=prop_class.get("subject"),
+            rdf_object=prop_object,
+            rdf_subject=prop_class.get("subject"),
             gui_element="salsah-gui:" + prop_class["gui_element"],
             gui_attributes=gui_attributes,
             comment=LangString(prop_class["comments"]) if prop_class.get("comments") else None,

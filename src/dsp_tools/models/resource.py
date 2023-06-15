@@ -490,7 +490,7 @@ class ResourceInstanceFactory:
                     valtype=valtype, cardinality=has_property.cardinality, gui_order=has_property.gui_order
                 )
             elif has_property.ptype == HasProperty.Ptype.other:
-                valtype = switcher.get(self._properties[propname].object)
+                valtype = switcher.get(self._properties[propname].rdf_object)
                 if valtype == LinkValue:
                     continue  # we have the Link to the LinkValue which we do not use
                 if valtype is None:
@@ -499,7 +499,7 @@ class ResourceInstanceFactory:
                         valtype=valtype,
                         cardinality=has_property.cardinality,
                         gui_order=has_property.gui_order,
-                        attributes=self._properties[propname].object,
+                        attributes=self._properties[propname].rdf_object,
                     )
                 else:
                     props[propname] = Propinfo(

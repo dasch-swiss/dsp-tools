@@ -536,7 +536,7 @@ def _create_ontologies(
     print("Create ontologies...")
     try:
         project_ontologies: list[Ontology] = try_network_action(
-            lambda: Ontology.getProjectOntologies(con=con, project_id=project_remote.id)  # type: ignore
+            lambda: Ontology.getProjectOntologies(con=con, project_id=project_remote.iri)  # type: ignore
         )
     except BaseError:
         err_msg = "Unable to retrieve remote ontologies. Cannot check if your ontology already exists."

@@ -22,9 +22,12 @@ DELETE
 In addition there is a static methods ``getAllProjects`` which returns a list of all projects
 """
 
+
 from __future__ import annotations
 
 import json
+import os
+import sys
 import urllib.parse
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
@@ -36,6 +39,13 @@ from dsp_tools.models.helpers import Actions
 from dsp_tools.models.langstring import Languages
 from dsp_tools.models.model import Model
 from dsp_tools.models.project import Project
+
+path = os.path.abspath(os.path.dirname(__file__))
+(head, tail) = os.path.split(path)
+if not head in sys.path:
+    sys.path.insert(0, head)
+if not path in sys.path:
+    sys.path.insert(0, path)
 
 
 class User(Model):

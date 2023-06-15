@@ -356,12 +356,6 @@ class ListNode(Model):
     def rootNodeIri(self, value: str):
         raise BaseError("rootNodeIri cannot be set!")
 
-    def has_changed(self) -> bool:
-        if self._changed:
-            return True
-        else:
-            return False
-
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any) -> Any:
         """

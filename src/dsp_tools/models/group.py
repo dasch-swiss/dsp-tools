@@ -152,12 +152,6 @@ class Group(Model):
         self._status = value
         self._changed.add("status")
 
-    def has_changed(self) -> bool:
-        if self._changed:
-            return True
-        else:
-            return False
-
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any):
         group_id = json_obj.get("id")

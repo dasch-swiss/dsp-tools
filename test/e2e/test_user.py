@@ -50,8 +50,8 @@ class TestUser(unittest.TestCase):
         self.assertEqual(user.in_groups, {iri_group_thing_searcher})
 
     def test_user_read_by_iri(self) -> None:
-        user = User(con=self.con, id="http://rdfh.ch/users/normaluser").read()
-        self.assertEqual(user.id, "http://rdfh.ch/users/normaluser")
+        user = User(con=self.con, iri="http://rdfh.ch/users/normaluser").read()
+        self.assertEqual(user.iri, "http://rdfh.ch/users/normaluser")
         self.assertEqual(user.username, "normaluser")
         self.assertEqual(user.familyName, "User")
         self.assertEqual(user.givenName, "Normal")
@@ -286,7 +286,7 @@ class TestUser(unittest.TestCase):
     def test_user_get_all_users(self) -> None:
         all_users = User.getAllUsers(self.con)
         for user in all_users:
-            self.assertIsNotNone(user.id)
+            self.assertIsNotNone(user.iri)
 
     def tearDown(self) -> None:
         """

@@ -37,6 +37,7 @@ from dsp_tools.models.langstring import Languages
 from dsp_tools.models.model import Model
 from dsp_tools.models.project import Project
 
+
 class User(Model):
     """
     This class represents a user in DSP.
@@ -613,28 +614,20 @@ class User(Model):
         for p in self._add_to_project.items():
             self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_MEMBERSHIPS + quote_plus(p[0]))
             if p[1]:
-                self._con.post(
-                    User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0])
-                )
+                self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
 
         for p in self._rm_from_project:
             if self._in_projects.get(p) is not None and self._in_projects[p]:
-                self._con.delete(
-                    User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p)
-                )
+                self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p))
             self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_MEMBERSHIPS + quote_plus(p))
 
         for p in self._change_admin.items():
             if not p[0] in self._in_projects:
                 raise BaseError("user must be member of project!")
             if p[1]:
-                self._con.post(
-                    User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0])
-                )
+                self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
             else:
-                self._con.delete(
-                    User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0])
-                )
+                self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
 
         for p in self._add_to_group:
             self._con.post(User.IRI + quote_plus(self._iri) + User.GROUP_MEMBERSHIPS + quote_plus(p))

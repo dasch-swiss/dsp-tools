@@ -77,15 +77,17 @@ addopts = ["--import-mode=importlib"]
 ignore_missing_imports = true              # TODO: deactivate this
 show_column_numbers = true
 strict = true
-exclude = ["src/dsp_tools/import_scripts", "src/dsp_tools/models"] # TODO: activate this
-
+exclude = [
+    "src/dsp_tools/models",                # TODO: activate this
+    "src/dsp_tools/import_scripts",        # TODO: activate this
+]
 
 [tool.black]
 line-length = 120
 
 
 [tool.pylint.MASTER]
-ignore-paths = ["src/dsp_tools/models/resource.py"] # TODO: rewrite this class
+ignore-paths = ["src/dsp_tools/models/.*$"] # TODO: activate this
 suggestion-mode = true
 
 

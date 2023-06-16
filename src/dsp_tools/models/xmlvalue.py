@@ -63,12 +63,3 @@ class XMLValue:
     def permissions(self) -> str:
         """Reference to the set of permissions for the value"""
         return self._permissions
-
-    def print(self) -> None:
-        """Prints the value and its attributes."""
-        print("   Value: " + str(self._value))
-        if self._comment:
-            print("   Comment:" + self._comment)
-        if self._resrefs is not None:
-            for i in self._resrefs:
-                print("   res_ref: " + i)

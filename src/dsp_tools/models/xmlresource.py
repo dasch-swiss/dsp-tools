@@ -112,14 +112,6 @@ class XMLResource:
     def properties(self, new_properties: list[XMLProperty]) -> None:
         self._properties = new_properties
 
-    def print(self) -> None:
-        """Prints the resource and its attributes."""
-        print(f"Resource: id={self._id}, restype: {self._restype}, label: {self._label}")
-        if self._bitstream:
-            print("  Bitstream: " + self._bitstream.value)
-        for prop in self._properties:
-            prop.print()
-
     def get_props_with_links(self) -> list[XMLProperty]:
         """
         Get a list of all XMLProperties that have an outgoing link to another resource, be it a resptr-prop link

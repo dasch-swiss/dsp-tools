@@ -280,20 +280,6 @@ class HasProperty(Model):
                 cardinality["gui_order"] = self._gui_order
         return cardinality
 
-    def print(self, offset: int = 0):
-        blank = " "
-        if self._ptype == HasProperty.Ptype.system:
-            print(f"{blank:>{offset}}Has Property (system)")
-        elif self._ptype == HasProperty.Ptype.knora:
-            print(f"{blank:>{offset}}Has Property (knora)")
-        else:
-            print(f"{blank:>{offset}}Has Property (project)")
-        print(f"{blank:>{offset + 2}}Property: {self._property_id}")
-        print(f"{blank:>{offset + 2}}Cardinality: {self._cardinality.value}")
-        if self._ptype == HasProperty.Ptype.other:
-            print(f"{blank:>{offset + 2}}Ontology_id: {self._ontology_id}")
-        print(f"{blank:>{offset + 2}}Resclass: {self._resclass_id}")
-
 
 class ResourceClass(Model):
     """
@@ -776,24 +762,3 @@ class ResourceClass(Model):
                 resource["cardinalities"] = cardinalities
 
         return resource
-
-    def print(self, offset: int = 0):
-        blank = " "
-        print(f"{blank:>{offset}}Resource Class Info")
-        print(f"{blank:>{offset + 2}}Name:            {self._name}")
-        print(f"{blank:>{offset + 2}}Ontology prefix: {self._ontology_id}")
-        print(f"{blank:>{offset + 2}}Superclasses:")
-        if self._superclasses is not None:
-            for sc in self._superclasses:
-                print(f"{blank:>{offset + 4}}{sc}")
-        if self._label is not None:
-            print(f"{blank:>{offset + 2}}Labels:")
-            self._label.print(offset + 4)
-        if self._comment is not None:
-            print(f"{blank:>{offset + 2}}Comments:")
-            self._comment.print(offset + 4)
-        if self._has_properties is not None:
-            print(f"{blank:>{offset + 2}}Has properties:")
-            if self._has_properties is not None:
-                for _, hp in self._has_properties.items():
-                    hp.print(offset + 4)

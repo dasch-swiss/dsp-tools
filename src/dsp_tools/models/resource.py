@@ -344,20 +344,6 @@ class ResourceInstance(Model):
     def delete(self):
         pass
 
-    def print(self):
-        print("IRI:", self._iri)
-        print("ARK:", self._ark)
-        print("Version ARK:", self._version_ark)
-        print("Label:", self._label)
-        print("Permissions:", str(self._permissions))
-        print("User permission:", str(self._user_permission))
-        for name, val in self._values.items():
-            if isinstance(val, list):
-                tmp = [str(x) for x in val]
-                print(name, ":", " | ".join(tmp))
-            else:
-                print(name, ":", str(val))
-
 
 class ResourceInstanceFactory:
     _con: Connection

@@ -41,9 +41,3 @@ class XmlPermission:
         for allow in self._allows:
             allow_str.append(f"{allow.permission} {allow.group}")
         return "|".join(allow_str)
-
-    def print(self) -> None:
-        """Prints the permission set"""
-        print("Permission: ", self._id)
-        for a in self._allows:
-            a.print()

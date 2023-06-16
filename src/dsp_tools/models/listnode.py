@@ -571,29 +571,3 @@ class ListNode(Model):
         if self._children:
             listnode["nodes"] = self._createDefinitionFileObj(self._children)
         return listnode
-
-    def print(self):
-        """
-        print info to stdout
-
-        :return: None
-        """
-
-        print("Node Info:")
-        print("  IRI:       {}".format(self._id))
-        print("  Project:   {}".format(self._project))
-        print("  Name:      {}".format(self._name))
-        print("  Label:     ")
-        if self._label:
-            for lbl in self._label.items():
-                print("             {}: {}".format(lbl[0], lbl[1]))
-        else:
-            print("             None")
-        print("  Comments:   ")
-        if self._comments.isEmpty():
-            for lbl in self._comments.items():
-                print("             {}: {}".format(lbl[0], lbl[1]))
-        else:
-            print("             None")
-        print("  Parent", self._parent)
-        print("  IsRootNode: {}".format(self._isRootNode))

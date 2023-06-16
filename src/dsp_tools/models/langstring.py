@@ -247,15 +247,6 @@ class LangString:
                     return cls(o.get("value"))
         return cls(lstrs)
 
-    def print(self, offset: Optional[int] = None):
-        blank = " "
-        # print(f'{blank:>{offset}}LangString:')
-        if self._simplestring is not None:
-            print(f"{blank:>{offset + 2}}{self._simplestring}")
-        else:
-            for p in self._langstrs.items():
-                print(f"{blank:>{offset + 2}}{p[0]} : {p[1]}")
-
     def createDefinitionFileObj(self) -> Union[str, dict[str, str]]:
         if self._simplestring:
             return self._simplestring

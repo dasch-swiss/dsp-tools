@@ -703,27 +703,3 @@ class User(Model):
                     user["projects"].append(f"{proj_shortname}:member")
         user["status"] = self.status
         return user
-
-    def print(self) -> None:
-        """
-        Prin user info to stdout
-
-        :return: None
-        """
-
-        print("User info:")
-        print("  IRI:         {}".format(self._iri))
-        print("  Username:    {}".format(self._username))
-        print("  Family name: {}".format(self._familyName))
-        print("  Given name:  {}".format(self._givenName))
-        print("  Language:    {}".format(self._lang.value))
-        print("  Status:      {}".format(self._status))
-        print("  Sysadmin:    {}".format(self._sysadmin))
-        print("  In projects:")
-        if self._in_projects is not None:
-            for p in self._in_projects:
-                print("    {} : project admin: {}".format(p, self._in_projects[p]))
-        print("   In groups:")
-        if self._in_groups is not None:
-            for g in self._in_groups:
-                print("    {}".format(g))

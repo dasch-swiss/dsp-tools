@@ -51,7 +51,3 @@ class XmlAllow:
     def permission(self) -> str:
         """The reference to a set of permissions"""
         return self._permission
-
-    def print(self) -> None:
-        """Prints the attributes of the XmlAllow instance"""
-        print("  group=", self._group, " permission=", self._permission)

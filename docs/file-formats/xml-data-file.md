@@ -719,17 +719,17 @@ and the third column is how DSP-APP displays the second column.
 
 Behaviour of `UnformattedTextValue` (`encoding="utf8"`):
 
-| input to `excel2xml` | XML file | DSP-APP | Remarks                                      |
-| -------------------- | -------- | ------- | -------------------------------------------- |
-| `<`                  | `&lt;`   | &lt;    |                                              |
-| `>`                  | `&gt;`   | &gt;    |                                              |
-|                      | `<`      | ⛔      | invalid XML                                  |
-|                      | `>`      | &gt;    | discouraged by XML standard, but possible    |
-| `&`                  | `&amp;`  | &amp;   |                                              |
-|                      | `&`      | ⛔      | invalid XML                                  |
-| `&gt;`               | ⛔       |         | discouraged: The leading `&` will be escaped |
-| `<tag>`              | ⛔       |         | discouraged: Simple text is not rich text    |
-|                      | `<tag>`  | ⛔      | forbidden: Simple text is not rich text      |
+| input to `excel2xml` | XML file | DSP-APP | Remarks                                           |
+| -------------------- | -------- | ------- | ------------------------------------------------- |
+| `<`                  | `&lt;`   | &lt;    |                                                   |
+| `>`                  | `&gt;`   | &gt;    |                                                   |
+|                      | `<`      | ⛔      | invalid XML                                       |
+|                      | `>`      | &gt;    | discouraged by XML standard, but possible         |
+| `&`                  | `&amp;`  | &amp;   |                                                   |
+|                      | `&`      | ⛔      | invalid XML                                       |
+| `&gt;`               | ⛔       |         | discouraged: The leading `&` will be escaped      |
+| `<tag>`              | ⛔       |         | discouraged: The text is meant to be unformatted. |
+|                      | `<tag>`  | ⛔      | forbidden: The text is meant to be unformatted.   |
 
 
 Behaviour of `FormattedTextValue` (`encoding="xml"`):
@@ -1028,17 +1028,12 @@ In addition, there is another complete example of an XML data file here:
         <list-prop list="treelistroot" name=":hasOtherListItem">
             <list permissions="prop-default">Tree list node 03</list>
         </list-prop>
-        <text-prop name=":hasRichtext">
+        <text-prop name=":hasFormattedText">
             <text permissions="prop-default" encoding="xml">
                 The <strong>third</strong> object and a <a class="salsah-link" href="IRI:obj_0003:IRI">link</a> to.
             </text>
         </text-prop>
-        <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                The <strong>third</strong> object and a <a class="salsah-link" href="IRI:obj_0003:IRI">link</a> to.
-            </text>
-        </text-prop>
-        <text-prop name=":hasText">
+        <text-prop name=":hasUnformattedText">
             <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
             <text permissions="prop-restricted" encoding="utf8">Nochmals ein einfacher Text</text>
         </text-prop>
@@ -1081,10 +1076,10 @@ In addition, there is another complete example of an XML data file here:
         <list-prop list="treelistroot" name=":hasOtherListItem">
             <list permissions="prop-default">Tree list node 11</list>
         </list-prop>
-        <text-prop name=":hasRichtext">
+        <text-prop name=":hasFormattedText">
             <text permissions="prop-default" encoding="xml">What is this <em>bold</em> thing?</text>
         </text-prop>
-        <text-prop name=":hasText">
+        <text-prop name=":hasUnformattedText">
             <text permissions="prop-default" encoding="utf8">aa bbb cccc ddddd</text>
         </text-prop>
         <date-prop name=":hasDate">
@@ -1126,10 +1121,10 @@ In addition, there is another complete example of an XML data file here:
         <list-prop list="treelistroot" name=":hasOtherListItem">
             <list permissions="prop-default">Tree list node 02</list>
         </list-prop>
-        <text-prop name=":hasRichtext">
+        <text-prop name=":hasFormattedText">
             <text permissions="prop-default" encoding="xml">This is <em>bold and <strong>strong</strong></em> text!</text>
         </text-prop>
-        <text-prop name=":hasText">
+        <text-prop name=":hasUnformattedText">
             <text permissions="prop-default" encoding="utf8">aa bbb cccc ddddd</text>
         </text-prop>
         <date-prop name=":hasDate">

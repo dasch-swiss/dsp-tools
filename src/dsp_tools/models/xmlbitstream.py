@@ -20,7 +20,3 @@ class XMLBitstream:
     def permissions(self) -> str:
         """Reference to the set of permissions for the bitstream object"""
         return self._permissions
-
-    def print(self) -> None:
-        """Prints the bitstream object and its attributes."""
-        print("   Bitstream file path: " + str(self._value))

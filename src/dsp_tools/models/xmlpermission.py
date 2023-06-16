@@ -29,11 +29,6 @@ class XmlPermission:
         """The id of the permission set, p.ex. res-default"""
         return self._id
 
-    @property
-    def allows(self) -> list[XmlAllow]:
-        """List of XmlAllow elements defining permissions for specific groups"""
-        return self._allows
-
     def get_permission_instance(self) -> Permissions:
         """Returns a list of allow elements of this permission instance"""
         permissions = Permissions()
@@ -46,9 +41,3 @@ class XmlPermission:
         for allow in self._allows:
             allow_str.append(f"{allow.permission} {allow.group}")
         return "|".join(allow_str)
-
-    def print(self) -> None:
-        """Prints the permission set"""
-        print("Permission: ", self._id)
-        for a in self._allows:
-            a.print()

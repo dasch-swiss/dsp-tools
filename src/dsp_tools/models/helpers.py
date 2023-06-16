@@ -189,10 +189,6 @@ class Context:
         else:
             raise BaseError("Error in parameter to context setter")
 
-    @property
-    def rcontext(self) -> dict[str, str]:
-        return self._rcontext
-
     def add_context(self, prefix: str, iri: Optional[str] = None) -> None:
         """
         Add a new context to a context instance
@@ -376,10 +372,6 @@ class Context:
     def get_externals_used(self) -> dict[str, str]:
         exclude = ["rdf", "rdfs", "owl", "xsd", "knora-api", "salsah-gui"]
         return {prefix: onto.iri for prefix, onto in self._context.items() if prefix not in exclude}
-
-    def print(self) -> None:
-        for a in self._context.items():
-            print(a[0] + ': "' + a[1].iri + '"')
 
 
 class DateTimeStamp:

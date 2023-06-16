@@ -164,18 +164,6 @@ class LangString:
                     break
         return equal
 
-    def get_by_lang(self, key: Optional[Union[Languages, str]] = None) -> Optional[str]:
-        if key is None:
-            return self._simplestring
-        else:
-            if isinstance(key, Enum):
-                return self._langstrs.get(key)
-            else:
-                lmap = dict(map(lambda a: (a.value, a), Languages))
-                if lmap.get(key.lower()) is None:
-                    raise BaseError('Invalid language string "' + key + '"!')
-                return self._langstrs.get(lmap[key.lower()])
-
     def items(self):
         return self._langstrs.items()
 
@@ -258,19 +246,6 @@ class LangString:
                 if o.get("value") is not None:
                     return cls(o.get("value"))
         return cls(lstrs)
-
-    def print(self, offset: Optional[int] = None):
-        blank = " "
-        # print(f'{blank:>{offset}}LangString:')
-        if self._simplestring is not None:
-            print(f"{blank:>{offset + 2}}{self._simplestring}")
-        else:
-            for p in self._langstrs.items():
-                print(f"{blank:>{offset + 2}}{p[0]} : {p[1]}")
-
-    @property
-    def langstrs(self):
-        return self._langstrs
 
     def createDefinitionFileObj(self) -> Union[str, dict[str, str]]:
         if self._simplestring:

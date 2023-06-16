@@ -253,17 +253,3 @@ class Group(Model):
             "status": self.status,
         }
         return group
-
-    def print(self) -> None:
-        print("Group Info:")
-        print("  IRI:         {}".format(self._iri))
-        print("  Name:        {}".format(self._name))
-        if self._descriptions is not None:
-            print("  Descriptions:")
-            for descr in self._descriptions.items():
-                print("    {}: {}".format(descr[0], descr[1]))
-        else:
-            print("  Descriptions: None")
-        print("  Project:     {}".format(self._project))
-        print("  Selfjoin:    {}".format(self._selfjoin))
-        print("  Status:      {}".format(self._status))

@@ -30,7 +30,7 @@ class XmlAllow:
                 else:
                     self._group = project_context.group_map.get(node.attrib["group"])
                     if self._group is None:
-                        raise XmlError('Group "{}" is not known: Cannot find project!'.format(node.attrib["group"]))
+                        raise XmlError(f'Group "{node.attrib["group"]}" is not known: Cannot find project!')
             else:
                 if project_context.project_name is None:
                     raise XmlError("Project shortcode has not been set in ProjectContext")
@@ -39,7 +39,7 @@ class XmlAllow:
             if tmp[0] in sysgroups:
                 self._group = "knora-admin:" + node.attrib["group"]
             else:
-                raise XmlError('Group "{}" is not known: '.format(node.attrib["group"]))
+                raise XmlError(f'Group "{node.attrib["group"]}" is not known: ')
         self._permission = node.text
 
     @property

@@ -61,14 +61,14 @@ class TestPropertyClass(unittest.TestCase):
             context=self.onto.context,
             name=self.name,
             ontology_id=self.onto.iri,
-            object=self.object,
+            rdf_object=self.object,
             label=self.label,
             comment=self.comment,
         ).create(self.last_modification_date)
 
         self.onto.lastModificationDate = self.last_modification_date
 
-        self.assertIsNotNone(property_class.id)
+        self.assertIsNotNone(property_class.iri)
         self.assertEqual(property_class.name, self.name)
         self.assertEqual(property_class.label["de"], self.label["de"])
         self.assertEqual(property_class.comment["de"], self.comment["de"])
@@ -90,12 +90,12 @@ class TestPropertyClass(unittest.TestCase):
             context=self.onto.context,
             name=self.name,
             ontology_id=self.onto.iri,
-            object=self.object,
+            rdf_object=self.object,
             label=self.label,
             comment=self.comment,
         ).create(self.last_modification_date)
         self.onto.lastModificationDate = self.last_modification_date
-        self.assertIsNotNone(property_class.id)
+        self.assertIsNotNone(property_class.iri)
 
         # modify the property class
         property_class.addLabel("en", "This is english comment")

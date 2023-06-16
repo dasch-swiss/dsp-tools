@@ -16,12 +16,12 @@ class PropertyClass(Model):
     ROUTE: str = "/v2/ontologies/properties"
 
     _context: Context
-    _id: str
+    _iri: str
     _name: str
     _ontology_id: str
     _superproperties: list[str]
-    _object: str
-    _subject: str
+    _rdf_object: str
+    _rdf_subject: str
     _gui_element: str
     _gui_attributes: dict[str, str]
     _label: LangString
@@ -33,12 +33,12 @@ class PropertyClass(Model):
         self,
         con: Connection,
         context: Context,
-        id: Optional[str] = None,
+        iri: Optional[str] = None,
         name: Optional[str] = None,
         ontology_id: Optional[str] = None,
         superproperties: Optional[Sequence[Union["PropertyClass", str]]] = None,
-        object: Optional[str] = None,
-        subject: Optional[str] = None,
+        rdf_object: Optional[str] = None,
+        rdf_subject: Optional[str] = None,
         gui_element: Optional[str] = None,
         gui_attributes: Optional[dict[str, str]] = None,
         label: Optional[Union[LangString, str]] = None,
@@ -50,15 +50,15 @@ class PropertyClass(Model):
         if not isinstance(context, Context):
             raise BaseError('"context"-parameter must be an instance of Context')
         self._context = context
-        self._id = id
+        self._iri = iri
         self._name = name
         self._ontology_id = ontology_id
         if isinstance(superproperties, PropertyClass):
-            self._superproperties = list(map(lambda a: a.id, superproperties))
+            self._superproperties = list(map(lambda a: a.iri, superproperties))
         else:
             self._superproperties = superproperties
-        self._object = object
-        self._subject = subject
+        self._rdf_object = rdf_object
+        self._rdf_subject = rdf_subject
         self._gui_element = gui_element
         self._gui_attributes = gui_attributes
         #
@@ -101,12 +101,12 @@ class PropertyClass(Model):
         raise BaseError('"name" cannot be modified!')
 
     @property
-    def id(self) -> Optional[str]:
-        return self._id
+    def iri(self) -> Optional[str]:
+        return self._iri
 
-    @id.setter
-    def id(self, value: str) -> None:
-        raise BaseError('"id" cannot be modified!')
+    @iri.setter
+    def iri(self, value: str) -> None:
+        raise BaseError('"iri" cannot be modified!')
 
     @property
     def ontology_id(self) -> Optional[str]:
@@ -125,47 +125,28 @@ class PropertyClass(Model):
         raise BaseError('"superproperties" cannot be modified!')
 
     @property
-    def object(self) -> Optional[str]:
-        return self._object
+    def rdf_object(self) -> Optional[str]:
+        return self._rdf_object
 
-    @object.setter
-    def object(self, value: Any):
-        raise BaseError('"object" cannot be modified!')
+    @rdf_object.setter
+    def rdf_object(self, value: Any):
+        raise BaseError('"rdf_object" cannot be modified!')
 
     @property
-    def subject(self) -> Optional[str]:
-        return self._subject
+    def rdf_subject(self) -> Optional[str]:
+        return self._rdf_subject
 
-    @subject.setter
-    def subject(self, value: Any):
-        raise BaseError('"subject" cannot be modified!')
+    @rdf_subject.setter
+    def rdf_subject(self, value: Any):
+        raise BaseError('"rdf_subject" cannot be modified!')
 
     @property
     def gui_element(self) -> Optional[str]:
         return self._gui_element
 
-    @gui_element.setter
-    def gui_element(self, value: str) -> None:
-        self._gui_element = value
-        self._changed.append("gui_element")
-
     @property
     def gui_attributes(self) -> Optional[dict[str, str]]:
         return self._gui_attributes
-
-    @gui_attributes.setter
-    def gui_attributes(self, value: list[dict[str, str]]) -> None:
-        self._gui_attributes = value
-        self._changed.append("gui_attributes")
-
-    def addGuiAttribute(self, key: str, value: str) -> None:
-        self._gui_attributes[key] = value
-        self._changed.append("gui_attributes")
-
-    def rmGuiAttribute(self, key: str) -> None:
-        if self._gui_attributes.get(key) is not None:
-            del self._gui_attributes[key]
-            self._changed.append("gui_attributes")
 
     @property
     def label(self) -> LangString:
@@ -234,26 +215,23 @@ class PropertyClass(Model):
         raise BaseError('"linkvalue" cannot be modified!')
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, context: Context, json_obj: Any) -> Any:
+    def fromJsonObj(cls, con: Connection, context: Context, json_obj: Any) -> "PropertyClass":
         if isinstance(json_obj, list):
-            json_obj = json_obj[0]  # TODO: Is it possible to have more than one element in the list??
+            json_obj = json_obj[0]
         if not isinstance(con, Connection):
             raise BaseError('"con"-parameter must be an instance of Connection')
         if not isinstance(context, Context):
             raise BaseError('"context"-parameter must be an instance of Context')
-        rdf = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
         rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
-        owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
-        xsd = context.prefix_from_iri("http://www.w3.org/2001/XMLSchema#")
         knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
         salsah_gui = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
 
-        if not (json_obj.get(knora_api + ":isResourceProperty")):
+        if not json_obj.get(knora_api + ":isResourceProperty"):
             raise BaseError("This is not a property!")
         if json_obj.get("@id") is None:
             raise BaseError('Property class has no "@id"!')
         tmp_id = json_obj.get("@id").split(":")
-        id = context.iri_from_prefix(tmp_id[0]) + "#" + tmp_id[1]
+        iri = context.iri_from_prefix(tmp_id[0]) + "#" + tmp_id[1]
         ontology_id = tmp_id[0]
         name = tmp_id[1]
         superproperties_obj = json_obj.get(rdfs + ":subPropertyOf")
@@ -264,8 +242,8 @@ class PropertyClass(Model):
             superproperties = [x["@id"] for x in superproperties_obj if x and x.get("@id")]
         else:
             superproperties = None
-        object = WithId(json_obj.get(knora_api + ":objectType")).str()
-        subject = WithId(json_obj.get(knora_api + ":subjectType")).str()
+        rdf_object = WithId(json_obj.get(knora_api + ":objectType")).str()
+        rdf_subject = WithId(json_obj.get(knora_api + ":subjectType")).str()
         label = LangString.fromJsonLdObj(json_obj.get(rdfs + ":label"))
         comment = LangString.fromJsonLdObj(json_obj.get(rdfs + ":comment"))
         gui_element = None
@@ -291,12 +269,12 @@ class PropertyClass(Model):
         return cls(
             con=con,
             context=context,
-            id=id,
+            iri=iri,
             name=name,
             ontology_id=ontology_id,
             superproperties=superproperties,
-            object=object,
-            subject=subject,
+            rdf_object=rdf_object,
+            rdf_subject=rdf_subject,
             gui_element=gui_element,
             gui_attributes=gui_attributes,
             label=label,
@@ -355,10 +333,10 @@ class PropertyClass(Model):
             }
             if self._comment:
                 tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
-            if self._subject:
-                tmp["@graph"][0]["knora-api:subjectType"] = resolve_propref(self._subject)
-            if self._object:
-                tmp["@graph"][0]["knora-api:objectType"] = resolve_propref(self._object)
+            if self._rdf_subject:
+                tmp["@graph"][0]["knora-api:subjectType"] = resolve_propref(self._rdf_subject)
+            if self._rdf_object:
+                tmp["@graph"][0]["knora-api:objectType"] = resolve_propref(self._rdf_object)
             if self._gui_element:
                 tmp["@graph"][0]["salsah-gui:guiElement"] = {"@id": self._gui_element}
             if self._gui_attributes:
@@ -393,7 +371,7 @@ class PropertyClass(Model):
         last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
         return last_modification_date, PropertyClass.fromJsonObj(self._con, self._context, result["@graph"])
 
-    def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "ResourceClass"]:
+    def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "PropertyClass"]:
         #
         # Note: DSP is able to change only one thing per call, either label or comment!
         #
@@ -418,7 +396,7 @@ class PropertyClass(Model):
 
     def delete(self, last_modification_date: DateTimeStamp) -> DateTimeStamp:
         result = self._con.delete(
-            PropertyClass.ROUTE + "/" + quote_plus(self._id) + "?lastModificationDate=" + str(last_modification_date)
+            PropertyClass.ROUTE + "/" + quote_plus(self._iri) + "?lastModificationDate=" + str(last_modification_date)
         )
         return DateTimeStamp(result["knora-api:lastModificationDate"])
 
@@ -430,24 +408,24 @@ class PropertyClass(Model):
         :param shortname: Shortname of the ontology
         :return: Python object to be jsonfied
         """
-        property = {"name": self.name}
-        if self.object:
-            property["name"] = self.name
+        def_file_obj = {"name": self.name}
+        if self.rdf_object:
+            def_file_obj["name"] = self.name
         if self.superproperties:
             superprops = []
             for sc in self.superproperties:
                 superprops.append(context.reduce_iri(sc, shortname))
-            property["super"] = superprops
-        if self.subject:
-            property["subject"] = context.reduce_iri(self.subject, shortname)
-        if self.object:
-            property["object"] = context.reduce_iri(self.object, shortname)
+            def_file_obj["super"] = superprops
+        if self.rdf_subject:
+            def_file_obj["subject"] = context.reduce_iri(self.rdf_subject, shortname)
+        if self.rdf_object:
+            def_file_obj["object"] = context.reduce_iri(self.rdf_object, shortname)
         if not self.label.isEmpty():
-            property["labels"] = self.label.createDefinitionFileObj()
+            def_file_obj["labels"] = self.label.createDefinitionFileObj()
         if not self.comment.isEmpty():
-            property["comments"] = self.comment.createDefinitionFileObj()
+            def_file_obj["comments"] = self.comment.createDefinitionFileObj()
         if self.gui_element:
-            property["gui_element"] = context.reduce_iri(self.gui_element, shortname)
+            def_file_obj["gui_element"] = context.reduce_iri(self.gui_element, shortname)
         if self.gui_attributes:
             gui_elements = {}
             for attname, attvalue in self.gui_attributes.items():
@@ -479,8 +457,8 @@ class PropertyClass(Model):
                     gui_elements[attname] = float(attvalue)
                 else:
                     gui_elements[attname] = str(attvalue)
-            property["gui_attributes"] = gui_elements
-        return property
+            def_file_obj["gui_attributes"] = gui_elements
+        return def_file_obj
 
     def print(self, offset: int = 0):
         blank = " "
@@ -494,10 +472,10 @@ class PropertyClass(Model):
         if self._label is not None:
             print(f"{blank:>{offset + 2}}Labels:")
             self._label.print(offset + 4)
-        if self._subject is not None:
-            print(f"{blank:>{offset + 4}}Subject: {self._subject}")
-        if self._object is not None:
-            print(f"{blank:>{offset + 4}}Object: {self._object}")
+        if self._rdf_subject is not None:
+            print(f"{blank:>{offset + 4}}rdf_subject: {self._rdf_subject}")
+        if self._rdf_object is not None:
+            print(f"{blank:>{offset + 4}}rdf_object: {self._rdf_object}")
         if self._gui_element is not None:
             print(f"{blank:>{offset + 4}}Guielement: {self._gui_element}")
         if self._gui_attributes is not None:

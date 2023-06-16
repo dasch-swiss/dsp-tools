@@ -181,7 +181,7 @@ class ListNode(Model):
 
         super().__init__(con)
 
-        self._project = project.id if isinstance(project, Project) else str(project) if project else None
+        self._project = project.iri if isinstance(project, Project) else str(project) if project else None
         self._id = iri
         self._label = LangString(label)
         self._comments = LangString(comments) if comments else None
@@ -355,12 +355,6 @@ class ListNode(Model):
     @rootNodeIri.setter
     def rootNodeIri(self, value: str):
         raise BaseError("rootNodeIri cannot be set!")
-
-    def has_changed(self) -> bool:
-        if self._changed:
-            return True
-        else:
-            return False
 
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any) -> Any:

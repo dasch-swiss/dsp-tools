@@ -60,6 +60,6 @@ class XMLProperty:
 
     def print(self) -> None:
         """Prints the property."""
-        print("  Property: {} Type: {}".format(self._name, self._valtype))
+        print(f"  Property: {self._name} Type: {self._valtype}")
         for value in self._values:
             value.print()

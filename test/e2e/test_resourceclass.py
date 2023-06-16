@@ -46,7 +46,7 @@ class TestResourceClass(unittest.TestCase):
             comment=self.res_comment,
         ).create(last_modification_date_onto)
 
-        self.assertIsNotNone(res_class.id)
+        self.assertIsNotNone(res_class.iri)
         self.assertEqual(res_class.name, self.res_name)
         self.assertEqual(res_class.label["en"], self.res_label["en"])
         self.assertEqual(res_class.comment["en"], self.res_comment["en"])
@@ -73,7 +73,7 @@ class TestResourceClass(unittest.TestCase):
 
         onto.lastModificationDate = last_modification_date
 
-        self.assertIsNotNone(res_class.id)
+        self.assertIsNotNone(res_class.iri)
 
         # modify the resource class
         res_class.addLabel("de", "Dies ist ein Kommentar")

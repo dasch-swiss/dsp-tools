@@ -73,7 +73,7 @@ class Ontology(Model):
         super().__init__(con)
         self._iri = iri
         if isinstance(project, Project):
-            self._project = project.id
+            self._project = project.iri
         else:
             self._project = project
         self._name = name

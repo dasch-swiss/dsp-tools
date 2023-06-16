@@ -93,7 +93,7 @@ def create_lists_on_server(
     # retrieve existing lists
     try:
         existing_lists: list[ListNode] = try_network_action(
-            lambda: ListNode.getAllLists(con=con, project_iri=project_remote.id)
+            lambda: ListNode.getAllLists(con=con, project_iri=project_remote.iri)
         )
     except BaseError:
         err_msg = "Unable to retrieve existing lists on DSP server. Cannot check if your lists are already existing."
@@ -105,7 +105,7 @@ def create_lists_on_server(
     current_project_lists: dict[str, Any] = {}
     for new_list in lists_to_create:
         # if list exists already, add it to "current_project_lists" (for later usage), then skip it
-        existing_list = [x for x in existing_lists if x.project == project_remote.id and x.name == new_list["name"]]
+        existing_list = [x for x in existing_lists if x.project == project_remote.iri and x.name == new_list["name"]]
         if existing_list:
             existing_list_name = existing_list[0].name
             if not existing_list_name:

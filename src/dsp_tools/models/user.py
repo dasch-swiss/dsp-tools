@@ -1,8 +1,30 @@
+"""
+This module implements the handling (CRUD) of DSP users.
+
+CREATE:
+    * Instantiate a new object of the class User with all required parameters
+    * Call the ``create``-method on the instance to create the new user
+
+READ:
+    * Instantiate a new objects with ``iri`` given
+    * Call the ``read``-method on the instance
+    * Access the information that has been ptovided to the instance
+
+UPDATE:
+    * You need an instance of an existing User by reading an instance
+    * Change the attributes by assigning the new values
+    * Call the ``update```method on the instance
+
+DELETE
+    * Instantiate a new objects with ``iri`` given, or use any instance that has the iri set
+    * Call the ``delete``-method on the instance
+
+In addition there is a static methods ``getAllProjects`` which returns a list of all projects
+"""
+
 from __future__ import annotations
 
 import json
-import os
-import sys
 import urllib.parse
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
@@ -15,37 +37,6 @@ from dsp_tools.models.langstring import Languages
 from dsp_tools.models.model import Model
 from dsp_tools.models.project import Project
 
-path = os.path.abspath(os.path.dirname(__file__))
-(head, tail) = os.path.split(path)
-if not head in sys.path:
-    sys.path.insert(0, head)
-if not path in sys.path:
-    sys.path.insert(0, path)
-
-"""
-This module implements the handling (CRUD) of DSP users.
-
-CREATE:
-    * Instantiate a new object of the class User with all required parameters
-    * Call the ``create``-method on the instance to create the new user
-
-READ:
-    * Instantiate a new objects with ``id``(IRI of user) given
-    * Call the ``read``-method on the instance
-    * Access the information that has been ptovided to the instance
-
-UPDATE:
-    * You need an instance of an existing User by reading an instance
-    * Change the attributes by assigning the new values
-    * Call the ``update```method on the instance
-
-DELETE
-    * Instantiate a new objects with ``id``(IRI of user) given, or use any instance that has the id set
-    * Call the ``delete``-method on the instance
-
-In addition there is a static methods ``getAllProjects`` which returns a list of all projects
-"""
-
 
 class User(Model):
     """
@@ -54,7 +45,7 @@ class User(Model):
     Attributes
     ----------
 
-    id : str
+    iri : str
         IRI of the user [readonly, cannot be modified after creation of instance]
 
     username : str
@@ -138,7 +129,7 @@ class User(Model):
     PROJECT_ADMIN_MEMBERSHIPS: str = "/project-admin-memberships/"
     GROUP_MEMBERSHIPS: str = "/group-memberships/"
 
-    _id: str
+    _iri: str
     _username: str
     _email: str
     _givenName: str
@@ -158,7 +149,7 @@ class User(Model):
     def __init__(
         self,
         con: Connection,
-        id: Optional[str] = None,
+        iri: Optional[str] = None,
         username: Optional[str] = None,
         email: Optional[str] = None,
         givenName: Optional[str] = None,
@@ -176,7 +167,7 @@ class User(Model):
         The constructor is user internally or externally, when a new user should be created in DSP.
 
         :param con: Connection instance [required]
-        :param id: IRI of the user [required for CREATE, READ]
+        :param iri: IRI of the user [required for CREATE, READ]
         :param username: Username [required for CREATE]
         :param email: Email address [required for CREATE]
         :param givenName: Given name (firstname) of user [required for CREATE]
@@ -189,7 +180,7 @@ class User(Model):
         :param in_groups: Set with group-IRI's the user should belong to [optional]
         """
         super().__init__(con)
-        self._id = str(id) if id is not None else None
+        self._iri = iri
         self._username = str(username) if username is not None else None
         self._email = str(email) if email is not None else None
         self._givenName = str(givenName) if givenName is not None else None
@@ -225,12 +216,12 @@ class User(Model):
         self._rm_from_group = set()
 
     @property
-    def id(self) -> Optional[str]:
-        return self._id
+    def iri(self) -> Optional[str]:
+        return self._iri
 
-    @id.setter
-    def id(self, value: str) -> None:
-        raise BaseError("User id cannot be modified!")
+    @iri.setter
+    def iri(self, value: str) -> None:
+        raise BaseError("User iri cannot be modified!")
 
     @property
     def username(self) -> Optional[str]:
@@ -443,9 +434,6 @@ class User(Model):
     def changed(self) -> set[str]:
         return self._changed
 
-    def has_changed(self, name: str):
-        return name in self._changed
-
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any) -> User:
         """
@@ -458,9 +446,9 @@ class User(Model):
         :return: User instance
         """
 
-        id = json_obj.get("id")
-        if id is None:
-            raise BaseError('User "id" is missing in JSON from DSP')
+        iri = json_obj.get("id")
+        if iri is None:
+            raise BaseError('User "iri" is missing in JSON from DSP')
         email = json_obj.get("email")
         if email is None:
             raise BaseError('User "email" is missing in JSON from DSP')
@@ -493,7 +481,7 @@ class User(Model):
                             in_groups.add(group)
         return cls(
             con=con,
-            id=id,
+            iri=iri,
             username=username,
             email=email,
             givenName=givenName,
@@ -568,33 +556,33 @@ class User(Model):
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj)
         result = self._con.post(User.ROUTE, jsondata)
-        id = result["user"]["id"]
+        iri = result["user"]["id"]
         if self._in_projects is not None:
             for project in self._in_projects:
-                result = self._con.post(User.IRI + quote_plus(id) + User.PROJECT_MEMBERSHIPS + quote_plus(project))
+                result = self._con.post(User.IRI + quote_plus(iri) + User.PROJECT_MEMBERSHIPS + quote_plus(project))
                 if self._in_projects[project]:
                     result = self._con.post(
-                        User.IRI + quote_plus(id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(project)
+                        User.IRI + quote_plus(iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(project)
                     )
         if self._in_groups is not None:
             for group in self._in_groups:
-                result = self._con.post(User.IRI + quote_plus(id) + User.GROUP_MEMBERSHIPS + quote_plus(group))
+                result = self._con.post(User.IRI + quote_plus(iri) + User.GROUP_MEMBERSHIPS + quote_plus(group))
         return User.fromJsonObj(self._con, result["user"])
 
     def read(self) -> Any:
         """
-        Read the user information from DSP. The User object must have a valid id or email!
+        Read the user information from DSP. The User object must have a valid iri or email!
 
         :return: JSON-object from DSP
         """
-        if self._id is not None:
-            result = self._con.get(User.IRI + quote_plus(self._id))
+        if self._iri is not None:
+            result = self._con.get(User.IRI + quote_plus(self._iri))
         elif self._email is not None:
             result = self._con.get(User.ROUTE + "/email/" + quote_plus(self._email))
         elif self._username is not None:
             result = self._con.get(User.ROUTE + "/username/" + quote_plus(self._username))
         else:
-            raise BaseError("Either user-id or email is required!")
+            raise BaseError("Either user-iri or email is required!")
         return User.fromJsonObj(self._con, result["user"])
 
     def update(self, requesterPassword: Optional[str] = None) -> Any:
@@ -608,52 +596,44 @@ class User(Model):
         jsonobj = self.toJsonObj(Actions.Update)
         if jsonobj:
             jsondata = json.dumps(jsonobj)
-            result = self._con.put(User.IRI + quote_plus(self.id) + "/BasicUserInformation", jsondata)
+            self._con.put(User.IRI + quote_plus(self.iri) + "/BasicUserInformation", jsondata)
         if "status" in self._changed:
             jsonobj = {"status": self._status}
             jsondata = json.dumps(jsonobj)
-            result = self._con.put(User.IRI + quote_plus(self.id) + "/Status", jsondata)
+            self._con.put(User.IRI + quote_plus(self.iri) + "/Status", jsondata)
         if "password" in self._changed:
             if requesterPassword is None:
                 raise BaseError("Requester's password is missing!")
             jsonobj = {"requesterPassword": requesterPassword, "newPassword": self._password}
             jsondata = json.dumps(jsonobj)
-            result = self._con.put(User.IRI + quote_plus(self.id) + "/Password", jsondata)
+            self._con.put(User.IRI + quote_plus(self.iri) + "/Password", jsondata)
         if "sysadmin" in self._changed:
             jsonobj = {"systemAdmin": self._sysadmin}
             jsondata = json.dumps(jsonobj)
-            result = self._con.put(User.IRI + quote_plus(self.id) + "/SystemAdmin", jsondata)
+            self._con.put(User.IRI + quote_plus(self.iri) + "/SystemAdmin", jsondata)
         for p in self._add_to_project.items():
-            result = self._con.post(User.IRI + quote_plus(self._id) + User.PROJECT_MEMBERSHIPS + quote_plus(p[0]))
+            self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_MEMBERSHIPS + quote_plus(p[0]))
             if p[1]:
-                result = self._con.post(
-                    User.IRI + quote_plus(self._id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0])
-                )
+                self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
 
         for p in self._rm_from_project:
             if self._in_projects.get(p) is not None and self._in_projects[p]:
-                result = self._con.delete(
-                    User.IRI + quote_plus(self._id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p)
-                )
-            result = self._con.delete(User.IRI + quote_plus(self._id) + User.PROJECT_MEMBERSHIPS + quote_plus(p))
+                self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p))
+            self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_MEMBERSHIPS + quote_plus(p))
 
         for p in self._change_admin.items():
             if not p[0] in self._in_projects:
                 raise BaseError("user must be member of project!")
             if p[1]:
-                result = self._con.post(
-                    User.IRI + quote_plus(self._id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0])
-                )
+                self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
             else:
-                result = self._con.delete(
-                    User.IRI + quote_plus(self._id) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0])
-                )
+                self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
 
         for p in self._add_to_group:
-            result = self._con.post(User.IRI + quote_plus(self._id) + User.GROUP_MEMBERSHIPS + quote_plus(p))
+            self._con.post(User.IRI + quote_plus(self._iri) + User.GROUP_MEMBERSHIPS + quote_plus(p))
         for p in self._rm_from_group:
-            result = self._con.delete(User.IRI + quote_plus(self._id) + User.GROUP_MEMBERSHIPS + quote_plus(p))
-        user = User(con=self._con, id=self._id).read()
+            self._con.delete(User.IRI + quote_plus(self._iri) + User.GROUP_MEMBERSHIPS + quote_plus(p))
+        user = User(con=self._con, iri=self._iri).read()
         return user
 
     def delete(self):
@@ -661,7 +641,7 @@ class User(Model):
         Delete the user in nore (NOT YET IMPLEMENTED)
         :return: None
         """
-        result = self._con.delete(User.IRI + quote_plus(self._id))
+        result = self._con.delete(User.IRI + quote_plus(self._iri))
         return User.fromJsonObj(self._con, result["user"])
 
     @staticmethod
@@ -736,7 +716,7 @@ class User(Model):
         """
 
         print("User info:")
-        print("  Id:          {}".format(self._id))
+        print("  IRI:         {}".format(self._iri))
         print("  Username:    {}".format(self._username))
         print("  Family name: {}".format(self._familyName))
         print("  Given name:  {}".format(self._givenName))

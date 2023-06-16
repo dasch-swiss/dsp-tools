@@ -10,7 +10,6 @@ class ProjectContext:
     """Represents the project context"""
 
     _projects: list[Project]
-    _project_map: dict[str, str]  # dictionary of (project name:project IRI) pairs
     _inv_project_map: dict[str, str]  # dictionary of (project IRI:project name) pairs
     _groups: Optional[list[Group]]
     _group_map: Optional[dict[str, str]]
@@ -20,7 +19,6 @@ class ProjectContext:
     def __init__(self, con: Connection, shortcode: Optional[str] = None):
         self._shortcode = shortcode
         self._projects = Project.getAllProjects(con=con)
-        self._project_map: dict[str, str] = {x.shortname: x.iri for x in self._projects}
         self._inv_project_map: dict[str, str] = {x.iri: x.shortname for x in self._projects}
         try:
             self._groups = Group.getAllGroups(con=con)

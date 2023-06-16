@@ -24,7 +24,7 @@ class TestProject(unittest.TestCase):
     def test_Project(self) -> None:
         project = Project(
             con=self.con,
-            id="http://rdfh.ch/test",
+            iri="http://rdfh.ch/test",
             shortcode="0FF0",
             shortname="test_project",
             longname="Test Project",
@@ -36,7 +36,7 @@ class TestProject(unittest.TestCase):
         )
 
         self.assertIsNotNone(project)
-        self.assertEqual(project.id, "http://rdfh.ch/test")
+        self.assertEqual(project.iri, "http://rdfh.ch/test")
         self.assertEqual(project.shortcode, "0FF0")
         self.assertEqual(project.shortname, "test_project")
         self.assertEqual(project.longname, "Test Project")
@@ -47,9 +47,9 @@ class TestProject(unittest.TestCase):
         self.assertEqual(project.keywords, {"test", "project"})
 
     def test_project_read(self) -> None:
-        project = Project(con=self.con, id="http://rdfh.ch/projects/0001").read()
+        project = Project(con=self.con, iri="http://rdfh.ch/projects/0001").read()
 
-        self.assertEqual(project.id, "http://rdfh.ch/projects/0001")
+        self.assertEqual(project.iri, "http://rdfh.ch/projects/0001")
         self.assertEqual(project.shortcode, "0001")
         self.assertEqual(project.shortname, "anything")
         self.assertEqual(project.longname, "Anything Project")

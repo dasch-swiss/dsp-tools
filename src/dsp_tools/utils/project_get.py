@@ -59,7 +59,7 @@ def get_project(
     if verbose:
         print("Getting groups...")
     groups_obj: list[dict[str, Any]] = []
-    groups = Group.getAllGroupsForProject(con=con, proj_iri=str(project.id))
+    groups = Group.getAllGroupsForProject(con=con, proj_iri=str(project.iri))
     if groups:
         for group in groups:
             groups_obj.append(group.createDefinitionFileObj())
@@ -78,7 +78,7 @@ def get_project(
                 usr.createDefinitionFileObj(
                     con=con,
                     proj_shortname=str(project.shortname),
-                    proj_iri=str(project.id),
+                    proj_iri=str(project.iri),
                 )
             )
             if verbose:
@@ -89,7 +89,7 @@ def get_project(
     if verbose:
         print("Getting lists...")
     list_obj: list[dict[str, Any]] = []
-    list_roots = ListNode.getAllLists(con=con, project_iri=project.id)
+    list_roots = ListNode.getAllLists(con=con, project_iri=project.iri)
     if list_roots:
         for list_root in list_roots:
             complete_list = list_root.getAllNodes()
@@ -103,7 +103,7 @@ def get_project(
         print("Getting ontologies...")
     project_obj["ontologies"] = []
     prefixes: dict[str, str] = dict()
-    ontologies = Ontology.getProjectOntologies(con, str(project.id))
+    ontologies = Ontology.getProjectOntologies(con, str(project.iri))
     ontology_ids = [onto.iri for onto in ontologies]
     for ontology_id in ontology_ids:
         onto_url_parts = ontology_id.split("/")  # an id has the form http://0.0.0.0:3333/ontology/4123/testonto/v2

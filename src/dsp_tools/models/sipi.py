@@ -27,7 +27,11 @@ class Sipi:
             files = {
                 "file": (os.path.basename(filepath), bitstream_file),
             }
-            response = requests.post(self.sipi_server + "/upload?token=" + self.token, files=files)
+            response = requests.post(
+                self.sipi_server + "/upload?token=" + self.token,
+                files=files,
+                timeout=5 * 60,
+            )
         check_for_api_error(response)
         res: dict[Any, Any] = response.json()
         return res

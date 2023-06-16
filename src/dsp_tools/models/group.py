@@ -94,7 +94,7 @@ class Group(Model):
         self._name = str(name) if name is not None else None
         self._descriptions = LangString(descriptions)
         if project is not None and isinstance(project, Project):
-            self._project = project.id
+            self._project = project.iri
         else:
             self._project = str(project) if project is not None else None
         self._selfjoin = bool(selfjoin) if selfjoin is not None else None
@@ -151,12 +151,6 @@ class Group(Model):
     def status(self, value: bool) -> None:
         self._status = value
         self._changed.add("status")
-
-    def has_changed(self) -> bool:
-        if self._changed:
-            return True
-        else:
-            return False
 
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any):

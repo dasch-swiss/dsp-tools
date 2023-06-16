@@ -1,17 +1,3 @@
-from __future__ import annotations
-
-import json
-from pprint import pprint
-from typing import Any, Optional, Union
-from urllib.parse import quote_plus
-
-from dsp_tools.models.connection import Connection
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.helpers import Actions
-from dsp_tools.models.langstring import LangString, Languages
-from dsp_tools.models.model import Model
-from dsp_tools.models.set_encoder import SetEncoder
-
 """
 This module implements the handling (CRUD) of DSP projects.
 
@@ -20,7 +6,7 @@ CREATE:
     * Call the ``create``-method on the instance
 
 READ:
-    * Instantiate a new object with ``id``(IRI of project) given
+    * Instantiate a new object with ``iri`` given
     * Call the ``read``-method on the instance
     * Access the information that has been provided to the instance
 
@@ -30,11 +16,24 @@ UPDATE:
     * Call the ``update```method on the instance
 
 DELETE
-    * Instantiate a new objects with ``id``(IRI of project) given, or use any instance that has the id set
+    * Instantiate a new objects with ``iri`` given, or use any instance that has the iri set
     * Call the ``delete``-method on the instance
 
 In addition there is a static methods ``getAllProjects`` which returns a list of all projects
 """
+
+from __future__ import annotations
+
+import json
+from typing import Any, Optional, Union
+from urllib.parse import quote_plus
+
+from dsp_tools.models.connection import Connection
+from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.helpers import Actions
+from dsp_tools.models.langstring import LangString, Languages
+from dsp_tools.models.model import Model
+from dsp_tools.models.set_encoder import SetEncoder
 
 
 class Project(Model):
@@ -47,7 +46,7 @@ class Project(Model):
     con : Connection
         A Connection instance to a DSP server
 
-    id : str
+    iri : str
         IRI of the project [readonly, cannot be modified after creation of instance]
 
     shortcode : str
@@ -100,7 +99,7 @@ class Project(Model):
     ROUTE: str = "/admin/projects"
     IRI: str = ROUTE + "/iri/"
 
-    _id: str
+    _iri: str
     _shortcode: str
     _shortname: str
     _longname: str
@@ -116,7 +115,7 @@ class Project(Model):
     def __init__(
         self,
         con: Connection,
-        id: Optional[str] = None,
+        iri: Optional[str] = None,
         shortcode: Optional[str] = None,
         shortname: Optional[str] = None,
         longname: Optional[str] = None,
@@ -131,8 +130,8 @@ class Project(Model):
         Constructor for Project
 
         :param con: Connection instance
-        :param id: IRI of the project [required for CREATE, READ]
-        :param shortcode: Shortcode of the project. String inf the form 'XXXX' where each X is a hexadezimal sign 0-1,A,B,C,D,E,F. [required for CREATE]
+        :param iri: IRI of the project [required for CREATE, READ]
+        :param shortcode: Shortcode of the project. Four-digit hexadecimal number. [required for CREATE]
         :param shortname: Shortname of the project [required for CREATE]
         :param longname: Longname of the project [required for CREATE]
         :param description: LangString instance containing the description [required for CREATE]
@@ -143,7 +142,7 @@ class Project(Model):
         :param logo: Path to logo image file [optional] NOT YET USED
         """
         super().__init__(con)
-        self._id = id
+        self._iri = iri
         self._shortcode = shortcode
         self._shortname = shortname
         self._longname = longname
@@ -157,19 +156,19 @@ class Project(Model):
         self._logo = logo
 
     def __str__(self):
-        tmpstr = self._id + "\n  " + self._shortcode + "\n  " + self._shortname
+        tmpstr = self._iri + "\n  " + self._shortcode + "\n  " + self._shortname
         return tmpstr
 
     #
     # Here follows a list of getters/setters
     #
     @property
-    def id(self) -> Optional[str]:
-        return self._id
+    def iri(self) -> Optional[str]:
+        return self._iri
 
-    @id.setter
-    def id(self, value: str) -> None:
-        raise BaseError("Project id cannot be modified!")
+    @iri.setter
+    def iri(self, value: str) -> None:
+        raise BaseError("Project iri cannot be modified!")
 
     @property
     def shortcode(self) -> Optional[str]:
@@ -224,7 +223,7 @@ class Project(Model):
         """
         Remove a description from a project (executed at next update)
 
-        :param lang: The language the description to be removed is in, either a string "EN", "DE", "FR", "IT" or a Language instance
+        :param lang: language of the description, either "EN", "DE", "FR", "IT", "RM", or a Language instance
         :return: None
         """
 
@@ -269,7 +268,7 @@ class Project(Model):
         try:
             self._keywords.remove(value)
         except KeyError as ke:
-            raise BaseError('Keyword "' + value + '" is not in keyword set')
+            raise BaseError('Keyword "' + value + '" is not in keyword set') from ke
         self._changed.add("keywords")
 
     @property
@@ -321,9 +320,9 @@ class Project(Model):
         :param json_obj: JSON data returned by DSP as python3 object
         :return: Project instance
         """
-        id = json_obj.get("id")
-        if id is None:
-            raise BaseError("Project id is missing")
+        iri = json_obj.get("id")
+        if iri is None:
+            raise BaseError("Project iri is missing")
         shortcode = json_obj.get("shortcode")
         if shortcode is None:
             raise BaseError("Shortcode is missing")
@@ -349,7 +348,7 @@ class Project(Model):
         logo = json_obj.get("logo")
         return cls(
             con=con,
-            id=id,
+            iri=iri,
             shortcode=shortcode,
             shortname=shortname,
             longname=longname,
@@ -439,8 +438,8 @@ class Project(Model):
         :return: JSON-object from DSP
         """
         result = None
-        if self._id is not None:
-            result = self._con.get(Project.IRI + quote_plus(self._id))
+        if self._iri is not None:
+            result = self._con.get(Project.IRI + quote_plus(self._iri))
         elif self._shortcode is not None:
             result = self._con.get(Project.ROUTE + "/shortcode/" + quote_plus(self._shortcode))
         elif self._shortname is not None:
@@ -449,7 +448,7 @@ class Project(Model):
             return Project.fromJsonObj(self._con, result["project"])
         else:
             raise BaseError(
-                f"ERROR: Could not read project '{self.shortname}' ({self.shortcode}) with IRI {self._id} "
+                f"ERROR: Could not read project '{self.shortname}' ({self.shortcode}) with IRI {self._iri} "
                 f"from DSP server."
             )
 
@@ -462,7 +461,7 @@ class Project(Model):
 
         jsonobj = self.toJsonObj(Actions.Update)
         jsondata = json.dumps(jsonobj, cls=SetEncoder)
-        result = self._con.put(Project.IRI + quote_plus(self.id), jsondata)
+        result = self._con.put(Project.IRI + quote_plus(self.iri), jsondata)
         return Project.fromJsonObj(self._con, result["project"])
 
     def delete(self) -> Project:
@@ -472,43 +471,8 @@ class Project(Model):
         :return: DSP response
         """
 
-        result = self._con.delete(Project.IRI + quote_plus(self._id))
+        result = self._con.delete(Project.IRI + quote_plus(self._iri))
         return Project.fromJsonObj(self._con, result["project"])
-
-    def set_default_permissions(self, group_id: str) -> None:
-        permobj = {
-            "forGroup": "http://www.knora.org/ontology/knora-admin#ProjectMember",
-            "forProject": self._id,
-            "hasPermissions": [
-                {
-                    "additionalInformation": None,
-                    "name": "ProjectResourceCreateAllPermission",
-                    "permissionCode": None,
-                }
-            ],
-        }
-        jsondata = json.dumps(permobj, indent=4)
-        print(jsondata)
-        result = self._con.post("/admin/permissions/ap", jsondata)
-        pprint(result)
-
-        return
-        permobj = {
-            "forGroup": group_id,
-            "forProject": self._id,
-            "forProperty": None,
-            "forResourceClass": None,
-            "hasPermissions": [
-                {
-                    "additionalInformation": "http://www.knora.org/ontology/knora-admin#ProjectMember",
-                    "name": "D",
-                    "permissionCode": 7,
-                }
-            ],
-        }
-        jsondata = json.dumps(permobj)
-        result = self._con.post("/admin/permissions/ap", jsondata)
-        pprint(result)
 
     @staticmethod
     def getAllProjects(con: Connection) -> list[Project]:
@@ -531,7 +495,7 @@ class Project(Model):
         """
 
         print("Project Info:")
-        print("  Id:         {}".format(self._id))
+        print("  IRI:        {}".format(self._iri))
         print("  Shortcode:  {}".format(self._shortcode))
         print("  Shortname:  {}".format(self._shortname))
         print("  Longname:   {}".format(self._longname))

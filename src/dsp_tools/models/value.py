@@ -122,7 +122,7 @@ class Value:
             elif tmp.get("@id"):
                 result = tmp["@id"]
             else:
-                raise BaseError('Invalid data type in JSON-LD: "{}"!'.format(tmp["@type"]))
+                raise BaseError(f'Invalid data type in JSON-LD: "{tmp["@type"]}')
             return result
         except KeyError as kerr:
             raise BaseError("Error in JSON-LD returned!") from kerr
@@ -279,11 +279,12 @@ class DateValue(Value):
         # A DSP date value
         #
         m = re.match(
-            r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})(-\d{1,2})?(-\d{1,2})?((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$",
+            r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})(-\d{1,2})?(-\d{1,2})?"
+            r"((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$",
             str(value),
         )
         if not m:
-            raise BaseError('Invalid date format: "{}"!'.format(str(value)))
+            raise BaseError(f'Invalid date format: "{value}"!')
         dp = m.groups()
         self._calendar = "GREGORIAN" if dp[0] is None else dp[0].strip("-: ")
         self._e1 = "CE" if dp[1] is None else dp[1].strip("-: ")
@@ -635,7 +636,7 @@ class BooleanValue(Value):
         ark_url: Optional[str] = None,
         vark_url: Optional[str] = None,
     ):
-        if type(value) is bool:
+        if isinstance(value, bool):
             self._value = value
         else:
             if value == 1 or value.upper() == "TRUE" or value == "1":
@@ -732,10 +733,6 @@ class UriValue(Value):
 
 class TimeValue(Value):
     _value: str
-
-    @property
-    def value(self) -> str:
-        return self._value
 
     def __init__(
         self,
@@ -895,7 +892,7 @@ class ListValue(Value):
             if node_iri is not None:
                 self._value = node_iri
             else:
-                raise BaseError('Listnode "{}" not found'.format(value))
+                raise BaseError(f'Listnode "{value}" not found')
         super().__init__(
             iri=iri,
             comment=comment,

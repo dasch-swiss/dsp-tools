@@ -22,26 +22,6 @@ class PermissionValue(Enum):
         return tmp[self.value]
 
 
-class PermissionsIterator:
-    _permissions: "Permissions"
-    _group: list[str]
-    _index: int
-
-    def __init__(self, permissions: "Permissions"):
-        self._permissions = permissions
-        self._index = 0
-
-    def __next__(self):
-        if len(self._permissions.permissions) == 0 and self._index == 0:
-            return None, None
-        elif self._index < len(self._permissions.permissions):
-            tmp = self._prefixes[self._index]
-            self._index += 1
-            return tmp, self._permissions.permissions[tmp]
-        else:
-            raise StopIteration
-
-
 class Permissions:
     _permissions: Union[dict[PermissionValue, list[str]], None]
 
@@ -62,9 +42,6 @@ class Permissions:
 
     def __missing__(self, key: PermissionValue) -> None:
         return None
-
-    def __iter__(self) -> PermissionsIterator:
-        return PermissionsIterator(self)
 
     def __contains__(self, key: PermissionValue) -> bool:
         return key in self._permissions
